@@ -580,9 +580,18 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     float eta = tower->eta();
 
     std::string FPGA = GFEX_pFPGA(eta); 
-    if(FPGA=="A")h_fpga_a->Fill(tower->et());
-    if(FPGA=="B")h_fpga_b->Fill(tower->et());
-    if(FPGA=="C")h_fpga_c->Fill(tower->et());
+    if(FPGA=="A"){
+      h_fpga_a->Fill(tower->et());
+      temp_a.push_back(tower);
+    }
+    if(FPGA=="B"){
+      h_fpga_b->Fill(tower->et());
+      temp_b.push_back(tower);
+    }
+    if(FPGA=="C"){
+      h_fpga_c->Fill(tower->et());
+      temp_c.push_back(tower);
+    }
 
   }
   const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
