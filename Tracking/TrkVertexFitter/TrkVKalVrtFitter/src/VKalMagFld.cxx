@@ -35,18 +35,20 @@
 namespace Trk{
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //                  ATLAS magnetic field access
-  VKalAtlasMagFld::VKalAtlasMagFld() {
-     m_VKalAthenaField=0; 
-     m_magFrameX=0.;
-     m_magFrameY=0.;
-     m_magFrameZ=0.;
-  }
+  VKalAtlasMagFld::VKalAtlasMagFld():
+     m_magFrameX(0.),
+     m_magFrameY(0.),
+     m_magFrameZ(0.)
+     {}
+
   VKalAtlasMagFld::~VKalAtlasMagFld(){}
 //
 //  Setting of parameters
 //
-  void VKalAtlasMagFld::setAtlasField(MagField::IMagFieldSvc*  pnt)
-  {   m_VKalAthenaField = pnt;  }
+  void VKalAtlasMagFld::setAtlasField(MagField::AtlasFieldCache * pnt )
+  {   
+     m_VKalAthenaField = pnt;
+  }
      
   void VKalAtlasMagFld::setAtlasField(const double  field)
   {   m_FIXED_ATLAS_FIELD = field; }
