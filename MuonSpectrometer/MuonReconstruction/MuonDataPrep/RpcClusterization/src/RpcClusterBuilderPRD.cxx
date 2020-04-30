@@ -29,8 +29,6 @@ RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator*
 {
 
   // Declare the properties
-    declareProperty("InputCollectionName",  m_colKeyIn = "RPC_Measurements");  // StoreGate key for RPC clusters
-    declareProperty("CollectionName",  m_colKey = "rpcClusters");  // StoreGate key for RPC clusters
     declareProperty("ClusterTimeSpread",  m_timeSpread = 15.);
 }
 
@@ -40,6 +38,9 @@ StatusCode RpcClusterBuilderPRD::initialize(){
   ATH_CHECK(m_DetectorManagerKey.initialize());
   
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_colKeyIn.initialize());
+  ATH_CHECK(m_colKey.initialize());
 
   // Create an empty cluster container
   //  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max()); 
@@ -51,10 +52,11 @@ StatusCode RpcClusterBuilderPRD::initialize(){
 
 StatusCode RpcClusterBuilderPRD::execute() {
  
-  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max()); 
+  SG::WriteHandle<Muon::RpcPrepDataContainer> clusterContainer(m_colKey);
+  ATH_CHECK(clusterContainer.record(std::make_unique<Muon::RpcPrepDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max())));
+  m_rpcClusterContainer = clusterContainer.ptr(); 
 
   //  m_rpcClusterContainer->cleanup();
-  ATH_CHECK( evtStore()->record(m_rpcClusterContainer,m_colKey) );
 
   StatusCode sc=fill_rpcClusterContainer();
 
@@ -85,10 +87,9 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
     return StatusCode::FAILURE; 
   } 
 
-  const Muon::RpcPrepDataContainer* container;
-  StatusCode sc = evtStore()->retrieve(container,m_colKeyIn);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING(" Cannot retrieve RPC Digit Container with key " << m_colKeyIn.c_str() );
+  SG::ReadHandle<Muon::RpcPrepDataContainer> container(m_colKeyIn);
+  if (!container.isValid()) {
+    ATH_MSG_WARNING(" Cannot retrieve RPC Digit Container with key " << m_colKeyIn );
     return StatusCode::SUCCESS;
   }
 
@@ -141,7 +142,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 
   for(unsigned int k=0;k<m_coll_vect.size();k++){
 
-    sc = m_rpcClusterContainer->addCollection(m_coll_vect[k], m_coll_vect[k]->identifyHash());
+    StatusCode sc = m_rpcClusterContainer->addCollection(m_coll_vect[k], m_coll_vect[k]->identifyHash());
     if (sc.isFailure()) 
       ATH_MSG_ERROR("Couldn't record RpcPrepDataCollection with key=" << m_colKey
 	  << " in StoreGate!");
@@ -458,39 +459,39 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 //    }
 }
 
-StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
+// StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
 
-  typedef Muon::RpcPrepDataCollection::const_iterator cluster_iterator;
+//   typedef Muon::RpcPrepDataCollection::const_iterator cluster_iterator;
 
-  const Muon::RpcPrepDataContainer* PRDcontainer;
-  ATH_CHECK( evtStore()->retrieve(PRDcontainer,m_colKey) );
+//   const Muon::RpcPrepDataContainer* PRDcontainer;
+//   ATH_CHECK( evtStore()->retrieve(PRDcontainer,m_colKey) );
 
- for (Muon::RpcPrepDataContainer::const_iterator container_iterator=PRDcontainer->begin();
-                                 container_iterator != PRDcontainer->end();
-                                 ++container_iterator) {
+//  for (Muon::RpcPrepDataContainer::const_iterator container_iterator=PRDcontainer->begin();
+//                                  container_iterator != PRDcontainer->end();
+//                                  ++container_iterator) {
 
-    const Muon::RpcPrepDataCollection* collection = *container_iterator;
-    ATH_MSG_INFO("Size of the collection is " << collection->size() );
-    if (collection->size() > 0) {
-       ATH_MSG_INFO("**************************************************************");
-       cluster_iterator beginCluster = collection->begin();
-       cluster_iterator endCluster   = collection->end();
-       for ( ; beginCluster!=endCluster; ++beginCluster) {
-          const Muon::RpcPrepData* cluster = *beginCluster;
-          Amg::Vector3D position = cluster->globalPosition();
-          ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
-	      << m_idHelperSvc->rpcIdHelper().show_to_string(cluster->identify()) << " ["
-	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
-	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
-	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()
-	    //  << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->width()
-	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->rdoList().size()
-	      << " ]"); 
-       }
-       ATH_MSG_INFO("Number of Clusters in the collection is " << collection->size() );
-       ATH_MSG_INFO("**************************************************************");
-    }
- } 
+//     const Muon::RpcPrepDataCollection* collection = *container_iterator;
+//     ATH_MSG_INFO("Size of the collection is " << collection->size() );
+//     if (collection->size() > 0) {
+//        ATH_MSG_INFO("**************************************************************");
+//        cluster_iterator beginCluster = collection->begin();
+//        cluster_iterator endCluster   = collection->end();
+//        for ( ; beginCluster!=endCluster; ++beginCluster) {
+//           const Muon::RpcPrepData* cluster = *beginCluster;
+//           Amg::Vector3D position = cluster->globalPosition();
+//           ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
+// 	      << m_idHelperSvc->rpcIdHelper().show_to_string(cluster->identify()) << " ["
+// 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
+// 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
+// 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()
+// 	    //  << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->width()
+// 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->rdoList().size()
+// 	      << " ]"); 
+//        }
+//        ATH_MSG_INFO("Number of Clusters in the collection is " << collection->size() );
+//        ATH_MSG_INFO("**************************************************************");
+//     }
+//  } 
 
-  return StatusCode::SUCCESS;
-}
+//   return StatusCode::SUCCESS;
+// }
