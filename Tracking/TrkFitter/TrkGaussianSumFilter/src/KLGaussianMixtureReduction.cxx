@@ -73,7 +73,8 @@ namespace GSFUtils {
  *    Blend packed 8-bit integers from a and b using mask, and store the results
  * in dst.
  */
-__attribute__((target("avx2"))) int32_t
+__attribute__((target("avx2"))) 
+int32_t
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -157,7 +158,8 @@ static const auto mm_blendv_epi8 = SSE2_mm_blendv_epi8;
  * for compilation and does not generate any instructions, thus it has zero
  * latency.
  */
-__attribute__((target("sse4.2,sse2"))) int32_t
+__attribute__((target("sse4.2,sse2"))) 
+int32_t
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
