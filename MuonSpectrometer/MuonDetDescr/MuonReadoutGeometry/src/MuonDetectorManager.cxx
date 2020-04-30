@@ -1198,49 +1198,44 @@ MuonDetectorManager::initABlineContainers()
         m_aLineContainer.emplace(id, std::move(newALine));
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling A-line container with entry for key >"<<m_mdtIdHelper->show_to_string(id)<<endmsg;
     }
-   
+
 #ifndef SIMULATIONBASE
-    if(m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLinesAsciiSideA.empty())) {
+    if(m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLinesAsciiSideA.empty())){
 
-         ALineMapContainer writeALines;
-         BLineMapContainer writeBLines;
-         MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideA, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+      ALineMapContainer writeALines;
+      BLineMapContainer writeBLines;
+      MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideA, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+      for(auto it = writeALines.cbegin(); it != writeALines.cend(); ++it){
+        Identifier id = it->first;
+        ALinePar aline = it->second;
+        m_aLineContainer.emplace(id, std::move(aline));
+      }
 
-         for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it)  //ALines A Side
-         {
-            Identifier id = it->first;
-            ALinePar aline = it->second;
-            m_aLineContainer.emplace(id, std::move(aline));
-         }
+      for(auto it = writeBLines.cbegin(); it != writeBLines.cend(); ++it){
+        Identifier id = it->first;
+        BLinePar bline = it->second;
+        m_bLineContainer.emplace(id, std::move(bline));
+      }
 
+      if(!m_cscIdHelper && !(m_NSWABLinesAsciiSideC.empty())){
+        ALineMapContainer writeALines;
+        BLineMapContainer writeBLines;
+        MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideC, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
 
-         for (auto it = writeBLines.cbegin(); it!=writeBLines.cend(); ++it)  //BLines A Side
-         {
-            Identifier id = it->first;
-            BLinePar bline = it->second;
-            m_bLineContainer.emplace(id, std::move(bline));
-         }
+        for(auto it = writeALines.cbegin(); it != writeALines.cend(); ++it)
+        {
+          Identifier id = it->first;
+          ALinePar aline = it->second;
+          m_aLineContainer.emplace(id, std::move(aline));
+        }
 
-           if(!m_cscIdHelper && !(m_NSWABLinesAsciiSideC.empty()))
-           {  
-               ALineMapContainer writeALines;
-               BLineMapContainer writeBLines;
-               MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideC,writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
-           
-               for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it) //ALines C Side
-               {
-                  Identifier id = it->first;
-                  ALinePar aline = it->second;
-                  m_aLineContainer.emplace(id, std::move(aline));
-               }
-
-                for (auto it = writeBLines.cbegin(); it!=writeBLines.cend(); ++it)  //BLines
-               {
-                  Identifier id = it->first;
-                  BLinePar bline = it->second;
-                  m_bLineContainer.emplace(id, std::move(bline));
-               }
-            }      
+        for(auto it = writeBLines.cbegin(); it != writeBLines.cend(); ++it)
+        {
+          Identifier id = it->first;
+          BLinePar bline = it->second;
+          m_bLineContainer.emplace(id, std::move(bline));
+        }
+      }
     }
 #endif
 
