@@ -136,7 +136,8 @@ InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContain
 StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) {
 
   ATH_MSG_DEBUG("Start vertex matching");
-  if (vxContainer.empty()){
+  if (vxContainer.empty() ||   // reject empty vertex containers
+       (vxContainer.size() == 1 && vxContainer.at(0)->vertexType() == xAOD::VxType::NoVtx)){  // as well as containers containing only a dummy vertex
     ATH_MSG_DEBUG("No vertices to match.");
     return StatusCode::SUCCESS; 
   }
