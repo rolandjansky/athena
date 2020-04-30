@@ -67,7 +67,12 @@ void createMcEventCollectionInStoreGate(std::vector<HepMC::GenParticle*>& genPar
   inputTestDataHandle = std::make_unique<McEventCollection>();
   // Add a dummy GenEvent
   const int process_id1(20);
-  const int event_number1(17);
+  const int event_number1(32767);
+  // 32767 = 2^15 -1 is the largest supported event number by
+  // HepMcParticleLink as the 16th bit of the unsigned short used to
+  // hold the eventIndex is used to flag whether the it represents the
+  // position of the GenEvent in the McEventCollection or the
+  // GenEvent::event_number.
   const int event_number2(18);
   const int event_number3(64);
   inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
