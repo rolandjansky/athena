@@ -365,7 +365,7 @@ TrigSignatureMoniMT                                INFO HLT_tau25_medium1_trackt
 TrigSignatureMoniMT                                INFO -- #1433975745 Events         14         14         12         11         -          -          -          3
 TrigSignatureMoniMT                                INFO -- #1433975745 Features                             22         15         -          -          -
 TrigSignatureMoniMT                                INFO HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM #2222894847
-TrigSignatureMoniMT                                INFO -- #2222894847 Events         14         14         12         11         -          -          -          7
+TrigSignatureMoniMT                                INFO -- #2222894847 Events         14         14         12         11         -          -          -          6
 TrigSignatureMoniMT                                INFO -- #2222894847 Features                             22         15         -          -          -
 TrigSignatureMoniMT                                INFO HLT_tau25_mediumRNN_tracktwo_L1TAU12IM #698603885
 TrigSignatureMoniMT                                INFO -- #698603885 Events          14         14         12         11         -          -          -          0
@@ -377,7 +377,7 @@ TrigSignatureMoniMT                                INFO HLT_tau25_perf_tracktwo_
 TrigSignatureMoniMT                                INFO -- #1129072492 Events         14         14         14         13         -          -          -          13
 TrigSignatureMoniMT                                INFO -- #1129072492 Features                             24         17         -          -          -
 TrigSignatureMoniMT                                INFO HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM #2472860683
-TrigSignatureMoniMT                                INFO -- #2472860683 Events         14         14         12         11         -          -          -          4
+TrigSignatureMoniMT                                INFO -- #2472860683 Events         14         14         12         11         -          -          -          5
 TrigSignatureMoniMT                                INFO -- #2472860683 Features                             22         15         -          -          -
 TrigSignatureMoniMT                                INFO HLT_tau25_tightRNN_tracktwo_L1TAU12IM #2537544560
 TrigSignatureMoniMT                                INFO -- #2537544560 Events         14         14         12         11         -          -          -          0
@@ -389,7 +389,7 @@ TrigSignatureMoniMT                                INFO HLT_tau25_verylooseRNN_t
 TrigSignatureMoniMT                                INFO -- #1275052132 Events         14         14         12         11         -          -          -          0
 TrigSignatureMoniMT                                INFO -- #1275052132 Features                             22         15         -          -          -
 TrigSignatureMoniMT                                INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM #2456480859
-TrigSignatureMoniMT                                INFO -- #2456480859 Events         14         14         11         10         -          -          -          6
+TrigSignatureMoniMT                                INFO -- #2456480859 Events         14         14         11         10         -          -          -          5
 TrigSignatureMoniMT                                INFO -- #2456480859 Features                             20         14         -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe100_mht_L1XE50 #532175988
 TrigSignatureMoniMT                                INFO -- #532175988 Events          10         10         6          -          -          -          -          6
