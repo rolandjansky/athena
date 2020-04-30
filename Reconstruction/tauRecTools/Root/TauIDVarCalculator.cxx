@@ -8,8 +8,6 @@
  * Author: Lorenz Hauswald
  */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
@@ -17,7 +15,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TLorentzVector.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):

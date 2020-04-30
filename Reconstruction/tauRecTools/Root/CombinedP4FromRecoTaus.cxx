@@ -17,8 +17,11 @@
 
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 
-  TauRecToolBase(name)
-{
+  TauRecToolBase(name) {
+
+  declareProperty("addCalibrationResultVariables", m_addCalibrationResultVariables = false);
+  declareProperty("addUseCaloPtFlag", m_addUseCaloPtFlag = false);
+  declareProperty("WeightFileName", m_sWeightFileName = "");
 }
 
 //_____________________________________________________________________________

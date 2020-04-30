@@ -9,18 +9,17 @@
  * Modified: Lorenz Hauswald
  */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "TFile.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   TauRecToolBase(name),
   m_tEMLHTool(nullptr),
   m_hCutValues(nullptr){
+  declareProperty("EleOLRFile", m_sEleOLRFilePath = "");
 }
 
 TauEleOLRDecorator::~TauEleOLRDecorator(){
