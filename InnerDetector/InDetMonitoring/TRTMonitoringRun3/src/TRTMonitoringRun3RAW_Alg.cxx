@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTMonitoringRun3/TRTMonitoringRun3RAW_Alg.h"
@@ -1035,7 +1035,8 @@ HitAWMapC_passed = 1.0;
 
             for (int iside = 0; iside < 2; iside++) {
                 for (int i = 1; i <= numberOfStacks_b[ibe]; i++) {
-                    int index_tmp, modulenum_tmp;
+                    int index_tmp = 0;
+                    int modulenum_tmp = 0;
 
                     if (iside == 0) {
                         index_tmp = i - 1;
