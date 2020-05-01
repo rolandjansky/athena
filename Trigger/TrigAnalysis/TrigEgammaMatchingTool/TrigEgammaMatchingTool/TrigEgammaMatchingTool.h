@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaMatchingTool_H
@@ -33,13 +33,13 @@ class TrigEgammaMatchingTool :
         
         
         /*! Egamma trigger matching which returns TE */
-        bool match(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&);
+        virtual bool match(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&) override;
         /*! Egamma trigger matching to HLT Electron/Photon with DeactivatedTE*/
-        bool match(const xAOD::Egamma *,const std::string&);
+        virtual bool match(const xAOD::Egamma *,const std::string&) override;
         /*! Egamma trigger matching to HLT Electron/Photon Only */
-        bool matchHLT(const xAOD::Egamma *,const std::string&);
+        virtual bool matchHLT(const xAOD::Egamma *,const std::string&) override;
         /*! Egamma trigger matching to HLT Electron/Photon only -- returns nearest object */
-        const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string&);
+        virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string&) override;
         double dR(const double, const double, const double, const double);
         double m_dR;
         double m_dRL1;
