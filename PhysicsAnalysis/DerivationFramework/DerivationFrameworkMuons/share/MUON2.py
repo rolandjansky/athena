@@ -12,7 +12,7 @@ isSimulation = False
 if globalflags.DataSource()=='geant4':
     isSimulation = True
 
-print isSimulation
+printfunc (isSimulation)
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -60,7 +60,7 @@ MUON2JpsiFinder = Analysis__JpsiFinder(name                         = "MUON2Jpsi
                                         VertexPointEstimator        = MUON2_VertexTools.VtxPointEstimator,
                                         useMCPCuts                  = False)
 ToolSvc += MUON2JpsiFinder
-print      MUON2JpsiFinder
+printfunc (     MUON2JpsiFinder)
 
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
@@ -76,7 +76,7 @@ MUON2JpsiSelectAndWrite = DerivationFramework__Reco_mumu(name                 = 
                                                        RefPVContainerName     = "SHOULDNOTBEUSED",
                                                        DoVertexType           =1)
 ToolSvc += MUON2JpsiSelectAndWrite
-print MUON2JpsiSelectAndWrite
+printfunc (MUON2JpsiSelectAndWrite)
 
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
@@ -94,7 +94,7 @@ MUON2_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
 
   
 ToolSvc += MUON2_Select_Jpsi2mumu
-print      MUON2_Select_Jpsi2mumu
+printfunc (     MUON2_Select_Jpsi2mumu)
 
 
 
@@ -107,7 +107,7 @@ BsKKVertexFit = Trk__TrkVKalVrtFitter(
                                          FirstMeasuredPoint  = True,
                                          MakeExtendedVertex  = True)
 ToolSvc += BsKKVertexFit
-print      BsKKVertexFit
+printfunc (     BsKKVertexFit)
 
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 BplKplVertexFit = Trk__TrkVKalVrtFitter(
@@ -116,7 +116,7 @@ BplKplVertexFit = Trk__TrkVKalVrtFitter(
                                          FirstMeasuredPoint  = True,
                                          MakeExtendedVertex  = True)
 ToolSvc += BplKplVertexFit
-print      BplKplVertexFit
+printfunc (     BplKplVertexFit)
 
 
 ## 5/ setup the Jpsi+2 track finder
@@ -145,7 +145,7 @@ TrackSelectorTool		    = MUON2_VertexTools.InDetTrackSelectorTool,
 UseMassConstraint		    = True)
 
 ToolSvc += MUON2BsJpsiKK
-print      MUON2BsJpsiKK    
+printfunc (     MUON2BsJpsiKK    )
 
 ## 5a/ setup the Jpsi+1 track finder
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus1Track
@@ -169,7 +169,7 @@ TrackSelectorTool		= MUON2_VertexTools.InDetTrackSelectorTool,
 UseMassConstraint		= True)
         
 ToolSvc += MUON2BplJpsiKpl
-print      MUON2BplJpsiKpl    
+printfunc (     MUON2BplJpsiKpl    )
 
 
 ## 6/ setup the combined augmentation/skimming tool for the Bpm
@@ -182,7 +182,7 @@ MUON2BsKKSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name             
                                                            RefitPV                  = True,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
 ToolSvc += MUON2BsKKSelectAndWrite 
-print      MUON2BsKKSelectAndWrite
+printfunc (     MUON2BsKKSelectAndWrite)
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrk
 MUON2BplKplSelectAndWrite = DerivationFramework__Reco_dimuTrk(name				     	= "MUON2BplKplSelectAndWrite",
@@ -193,7 +193,7 @@ MUON2BplKplSelectAndWrite = DerivationFramework__Reco_dimuTrk(name				     	= "M
                                                               RefitPV                   = True,
                                                               MaxPVrefit                = 10000 )
 ToolSvc += MUON2BplKplSelectAndWrite
-print      MUON2BplKplSelectAndWrite
+printfunc (     MUON2BplKplSelectAndWrite)
 
 
 ## b/ augment and select Bs->JpsiKK candidates
@@ -208,7 +208,7 @@ MUON2_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   Chi2Max                    = 200)
 
 ToolSvc += MUON2_Select_Bs2JpsiKK
-print      MUON2_Select_Bs2JpsiKK
+printfunc (     MUON2_Select_Bs2JpsiKK)
 
 MUON2_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
   name                       = "MUON2_Select_Bpl2JpsiKpl",
@@ -221,7 +221,7 @@ MUON2_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
   Chi2Max                    = MUON2BplJpsiKpl.Chi2Cut)
 
 ToolSvc += MUON2_Select_Bpl2JpsiKpl
-print      MUON2_Select_Bpl2JpsiKpl
+printfunc (     MUON2_Select_Bpl2JpsiKpl)
 
 MUON2_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
   name                       = "MUON2_Select_Bpl2JpsiPi",
@@ -234,14 +234,14 @@ MUON2_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
   Chi2Max                    = MUON2BplJpsiKpl.Chi2Cut)
 
 ToolSvc += MUON2_Select_Bpl2JpsiPi
-print      MUON2_Select_Bpl2JpsiPi
+printfunc (     MUON2_Select_Bpl2JpsiPi)
 
 #expression = "count(BpmJpsiKpmCandidates.passed_Bplus) > 0"
 #from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 #MUON2_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectEvent",
 #                                                                expression = expression)
 #ToolSvc += MUON2_SelectEvent
-#print MUON2_SelectEvent
+#printfunc (MUON2_SelectEvent)
 
 
 #from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__SelectEvent
@@ -253,17 +253,17 @@ if not isSimulation: #Only Skim Data
      expression = "count(BsJpsiKKCandidates.passed_Bs > 0) > 0")
                                                     
    ToolSvc += MUON2_SelectBsJpsiKKEvent
-   print MUON2_SelectBsJpsiKKEvent
+   printfunc (MUON2_SelectBsJpsiKKEvent)
 
    MUON2_SelectBplJpsiKplEvent = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectBplJpsiKplEvent",
                                                                     expression = "count(BpmJpsiKpmCandidates.passed_Bplus>0) > 0")
    ToolSvc += MUON2_SelectBplJpsiKplEvent
-   print      MUON2_SelectBplJpsiKplEvent
+   printfunc (     MUON2_SelectBplJpsiKplEvent)
 
    MUON2_SelectBplJpsiKplEventBc = DerivationFramework__xAODStringSkimmingTool(name = "MUON2_SelectBplJpsiKplEventBc",
                                                                     expression = "count(BpmJpsiKpmCandidates.passed_Bc>0) > 0")
    ToolSvc += MUON2_SelectBplJpsiKplEventBc
-   print      MUON2_SelectBplJpsiKplEventBc
+   printfunc (     MUON2_SelectBplJpsiKplEventBc)
    
    #====================================================================
    # Make event selection based on an OR of the input skimming tools
@@ -272,7 +272,7 @@ if not isSimulation: #Only Skim Data
    MUON2SkimmingOR = CfgMgr.DerivationFramework__FilterCombinationOR("MUON2SkimmingOR",
                                                                      FilterList = [MUON2_SelectBsJpsiKKEvent, MUON2_SelectBplJpsiKplEvent, MUON2_SelectBplJpsiKplEventBc])
    ToolSvc += MUON2SkimmingOR
-   print      MUON2SkimmingOR
+   printfunc (     MUON2SkimmingOR)
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
@@ -322,7 +322,7 @@ ToolSvc+=MUON2ElectronTPThinningTool
 #====================================================================
 
 thiningCollection = [] 
-print thiningCollection
+printfunc (thiningCollection)
 
 from DerivationFrameworkJetEtMiss.JetCommon import *
 bphy5Seq = CfgMgr.AthSequencer("MUON2Sequence")

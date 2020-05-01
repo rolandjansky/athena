@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
 
 def useSmartSlimmingIfSupported(itemPairs, smAllVarlist, addItemList, ContainerNamesAndTypes):
@@ -8,7 +11,7 @@ def useSmartSlimmingIfSupported(itemPairs, smAllVarlist, addItemList, ContainerN
         cname = i.split('#')[-1]
         if cname in ContainerNamesAndTypes and itemPairs[i].split('#')[-1].rstrip('.') in ContainerNamesAndTypes:
             smAllVarlist.append(cname)
-            print cname, 'added to smartlimming'
+            print (cname, 'added to smartlimming')
         else:
             addItemList.append(i)
             addItemList.append(itemPairs[i])
@@ -124,14 +127,18 @@ class MuonsDxAODStreamConfigurer:
             stream.AddItem(item)
 
     def show(self):
-        print 'Add Items:'
-        for i in self.Items: print i,'=',self.Items[i]
-        print 'Smart slimming:'
-        for i in self.smSlContainer and (not i in self.allVarContainer): print i,'=',self.smSlContainer[i]
-        print 'Keep all varaibles:'
-        for i in self.allVarContainer: print i,'=',self.allVarContainer[i]
-        print 'Keep trigger content:'
-        for i in self.UseTriggerContent: print i,'=',self.UseTriggerContent[i]
+        print ('Add Items:')
+        for i in self.Items:
+            print (i,'=',self.Items[i])
+        print ('Smart slimming:')
+        for i in self.smSlContainer and (i not in self.allVarContainer):
+            print (i,'=',self.smSlContainer[i])
+        print ('Keep all variables:')
+        for i in self.allVarContainer:
+            print (i,'=',self.allVarContainer[i])
+        print ('Keep trigger content:')
+        for i in self.UseTriggerContent:
+            print (i,'=',self.UseTriggerContent[i])
 
 
 if __name__ == '__main__':
