@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4ExternalDecay )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Generators/Pythia8_i )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -32,7 +28,6 @@ if( HEPMC_FOUND )
    list( APPEND extra_includes  )
    list( APPEND extra_libs AtlasHepMCLib )
 endif()
-
 
 # Component(s) in the package:
 atlas_add_library( G4ExternalDecay

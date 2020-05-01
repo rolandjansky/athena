@@ -5,28 +5,6 @@
 # Declare the package name:
 atlas_subdir( TileGeoG4Calib )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          
-                          PRIVATE
-                          Calorimeter/CaloG4Sim
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloSimEvent
-                          Control/CxxUtils
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileG4/TileGeoG4SD
-                          TileCalorimeter/TileSimEvent
-                          TileCalorimeter/TileSimUtils
-                          TileCalorimeter/TileG4/TileG4Interfaces
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

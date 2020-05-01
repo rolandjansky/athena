@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( Geo2G4 )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoSpecialShapes
-                          DetectorDescription/GeoModel/GeoModelUtilities
-			  DetectorDescription/GeoPrimitives
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/SimHelpers
-                          Simulation/G4Utilities/GeoMaterial2G4 )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

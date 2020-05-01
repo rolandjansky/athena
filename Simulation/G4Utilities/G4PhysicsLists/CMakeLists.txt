@@ -6,10 +6,6 @@
 # Declare the package name:
 atlas_subdir( G4PhysicsLists )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

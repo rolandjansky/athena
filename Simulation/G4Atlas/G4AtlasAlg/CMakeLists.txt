@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4AtlasAlg )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/SGTools
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/EventInfo
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Sim/MCTruthBase
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/Barcode/BarcodeInterfaces)
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
