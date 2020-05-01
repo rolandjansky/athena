@@ -31,7 +31,6 @@ atlas_add_library( AthViews
                    LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel CxxUtils AthLinks TrigSteeringEvent )
 
 atlas_add_component( AthViewsAlgs
-                   src/*.cxx
                    src/components/*.cxx
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
                    LINK_LIBRARIES AthViews )
@@ -40,7 +39,7 @@ atlas_add_component( AthViewsDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES AthViews )
+                     LINK_LIBRARIES AthViews AthExHiveLib )
 
 atlas_add_dictionary( AthViewsAlgsDict
                       AthViews/AthViewsWriteDict.h
