@@ -14,7 +14,7 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
 
-import DataScoutingInfo
+from TrigEDMConfig import DataScoutingInfo
 
 def recordable( name ):
     """
