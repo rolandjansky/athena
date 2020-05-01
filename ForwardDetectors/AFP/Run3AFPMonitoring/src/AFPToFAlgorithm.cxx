@@ -27,10 +27,8 @@ AFPToFAlgorithm::~AFPToFAlgorithm() {}
 StatusCode AFPToFAlgorithm::initialize() {
     using namespace Monitored;
 
-    //m_HitmapGroupsToF = buildToolMap<std::map<std::string,int>>(m_tools,"AFPToFAlgorithm", m_stationNamesToF);
-    //m_HitmapGroupsToF = buildToolMap<std::map<std::string,int>>(m_tools,"AFPToFAlgorithm", m_stationNamesToF);
-    //m_HitmapGroupsToF = buildToolMap<std::vector<int>>(m_tools,"AFPToFTool", m_stationNamesToF);
     m_HitmapGroupsToF = buildToolMap<int>(m_tools,"AFPToFTool", m_stationNamesToF);
+
     // We must declare to the framework in initialize what SG objects we are going to use
     SG::ReadHandleKey<xAOD::AFPToFHitContainer> afpToFHitContainerKey("AFPToFHits");
     ATH_CHECK(m_afpToFHitContainerKey.initialize());
@@ -45,6 +43,10 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     // Declare the quantities which should be monitored
     auto lb = Monitored::Scalar<int>("lb", 0);
     auto nTofHits = Monitored::Scalar<int>("nTofHits", 1);
+    auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
+    auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
+    auto trainID = Monitored::Scalar<int>("trainID", 0); 
+    auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
     
     lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -60,12 +62,6 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     nTofHits = afpToFHitContainer->size();
     fill("AFPToFTool", lb, nTofHits);
 
-//	TO BE researched: difference between trainID and barInTrainID
-
-    auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
-    auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
-    auto trainID = Monitored::Scalar<int>("trainID", 0); 
-    auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
 
     for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
     {
@@ -76,22 +72,11 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	{
 	    numberOfHit_S0 = hitsItr->trainID();
             fill("AFPToFTool", numberOfHit_S0);
-	    //std::cout << "\n\t" << hitsItr->stationID() << "\n";
-            
-            //fill(m_tools[m_HitmapGroupsToF.at("Aside")], trainID, barInTrainID);
-            //fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(0))], trainID, barInTrainID);
-            //fill(m_tools[m_HitmapGroupsToF[0]], trainID, barInTrainID);
-	    //fill("AFPToFTool", trainID, barInTrainID);
 	}
 	else if(hitsItr->isSideC())
 	{
 	    numberOfHit_S3 = hitsItr->trainID();
             fill("AFPToFTool", numberOfHit_S3);
-            //std::cout << "\n\t" << hitsItr->stationID() << "\n";
-	    //fill(m_tools[m_HitmapGroupsToF.at(m_stationnames.at(hitsItr->stationID()))], trainID, barInTrainID);
-            //fill(m_tools[m_HitmapGroupsToF.at("Cside")], trainID, barInTrainID);
-	    //fill(m_tools[m_HitmapGroupsToF[1]], trainID, barInTrainID);	
-            //fill("AFPToFTool", trainID, barInTrainID);    
 	}
 
 	if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)

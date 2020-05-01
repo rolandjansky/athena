@@ -18,12 +18,12 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
-    afpSiLayerAlgorithm = CompFactory.AFPSiLayerAlgorithm
-    afpSiLayerAlgorithm = helper.addAlgorithm(AFPSiLayerAlgorithm,'AFPSiLayerAlg')
+    afpSiLayerAlgorithmFac = CompFactory.AFPSiLayerAlgorithm
+    afpSiLayerAlgorithm = helper.addAlgorithm(afpSiLayerAlgorithmFac,'AFPSiLayerAlg')
 
     #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPToFAlgorithm
-    afpToFAlgorithm = CompFactory.AFPToFAlgorithm
-    afpToFAlgorithm = helper.addAlgorithm(AFPToFAlgorithm,'AFPToFAlg')
+    afpToFAlgorithmFac = CompFactory.AFPToFAlgorithm
+    afpToFAlgorithm = helper.addAlgorithm(afpToFAlgorithmFac,'AFPToFAlg')
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
@@ -35,7 +35,6 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
     AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
-    #AFPToFGroup.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train side A;trainID;barInTrainID', type='TH2F', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
 
 
     # Using a map of groups
@@ -51,7 +50,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
-    array.defineHistogram('trackX,trackY', title='Track posistion position in station {0}trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)   
+    arrayOneList.defineHistogram('trackX,trackY', title='Track posistion position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)   
 
     #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=80, ymin=0.5, ymax=80.5)
     #array.defineHistogram('pixelRowIDChip,pixelRowIDChip', title='Correlation Col {0} Col {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
@@ -73,8 +72,8 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = ''
-    #file = '/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
     file ='/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' 
+
     
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
@@ -91,6 +90,6 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(1000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(10000) #use cfg.run(20) to only run on first 20 events
 
 

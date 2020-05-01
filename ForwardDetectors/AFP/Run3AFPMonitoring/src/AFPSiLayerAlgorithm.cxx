@@ -30,7 +30,7 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
     using namespace Monitored;
  
     m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
-
+    m_TrackGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
     // We must declare to the framework in initialize what SG objects we are going to use:
     SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
     ATH_CHECK(m_afpHitContainerKey.initialize());
@@ -72,7 +72,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
       pixelRowIDChip = hitsItr->pixelRowIDChip();
       pixelColIDChip = hitsItr->pixelColIDChip();
       timeOverThreshold = hitsItr->timeOverThreshold();
-      std::cout << "\tTime Over Threshold: " << timeOverThreshold << "\n";
 	
       if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
       {
@@ -89,17 +88,15 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     fast.reco();
 
     for (const auto& cluster : fast.clusters()) {
-      //ATH_MSG_INFO("c: " << cluster.x << " " << cluster.y);
       clusterX = cluster.x;
       clusterY = cluster.y;
       fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterX, clusterY);
     }
 
     for (const auto& track : fast.tracks()) {
-      //ATH_MSG_INFO("t: " << track.x << " " << track.y);
       trackX = track.x;
       trackY = track.y;
-      //fill(m_tools[m_HitmapGroups.at(m_stationnames.at(track.station))], trackX, trackY);
+      fill(m_tools[m_TrackGroup.at(m_stationnames.at(track.station))], trackX, trackY);
     }
  
 

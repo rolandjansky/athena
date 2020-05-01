@@ -21,10 +21,8 @@ public:
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
-   //std::map<std::string,std::map<std::string,int>> m_HitmapGroupsToF;
-   //std::map<std::string, int> m_HitmapGroupsToF;
-   //std::vector<std::string> m_HitmapGroupsToF;
    std::map<std::string,int> m_HitmapGroupsToF;
+   
    SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_afpToFHitContainerKey;
 
 protected:
