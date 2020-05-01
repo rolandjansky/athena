@@ -61,7 +61,7 @@ atlas_add_component( MuonTruthAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES AtlasHepMCLib StoreGateLib SGtests Identifier GaudiKernel MuonPrepRawData MuonRecToolInterfaces MuonSimData TrkTrack TrkTruthData TrkToolInterfaces AthenaBaseComps AthLinks AthContainers AtlasDetDescr EventPrimitives xAODMuon xAODTracking xAODTruth GeneratorObjects MuonReadoutGeometry MuonGeoModelLib MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MCTruthClassifierLib Particle ParticleTruth TrkDetElementBase TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkExInterfaces TrkFitterInterfaces )
+                     LINK_LIBRARIES AtlasHepMCLib StoreGateLib SGtests Identifier GaudiKernel MuonPrepRawData MuonRecToolInterfaces MuonSimData TrkTrack TrkTruthData TrkToolInterfaces AthenaBaseComps AthLinks AthContainers AtlasDetDescr EventPrimitives xAODMuon xAODTracking xAODTruth GeneratorObjects MuonReadoutGeometry MuonGeoModelLib MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPattern MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MCTruthClassifierLib Particle ParticleTruth TrkDetElementBase TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkExInterfaces TrkFitterInterfaces TrackRecordLib )
 
 # Install files from the package:
 atlas_install_headers( MuonTruthAlgs )
