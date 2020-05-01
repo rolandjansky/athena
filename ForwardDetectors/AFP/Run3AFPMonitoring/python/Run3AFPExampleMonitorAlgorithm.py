@@ -18,12 +18,12 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
-    afpSiLayerAlgorithm = CompFactory.AFPSiLayerAlgorithm
-    afpSiLayerAlgorithm = helper.addAlgorithm(AFPSiLayerAlgorithm,'AFPSiLayerAlg')
+    afpSiLayerAlgorithmFac = CompFactory.AFPSiLayerAlgorithm
+    afpSiLayerAlgorithm = helper.addAlgorithm(afpSiLayerAlgorithmFac,'AFPSiLayerAlg')
 
     #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPToFAlgorithm
-    afpToFAlgorithm = CompFactory.AFPToFAlgorithm
-    afpToFAlgorithm = helper.addAlgorithm(AFPToFAlgorithm,'AFPToFAlg')
+    afpToFAlgorithmFac = CompFactory.AFPToFAlgorithm
+    afpToFAlgorithm = helper.addAlgorithm(afpToFAlgorithmFac,'AFPToFAlg')
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
