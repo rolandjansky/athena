@@ -819,13 +819,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   if (m_diversss < m_diver   ) m_diversss = m_diver;
   if (m_divermax < m_diversss) m_divermax = m_diversss;
 
-  if (std::abs(m_etamin) < .1) m_etamin = -m_etamax;
+  if (fabs(m_etamin) < .1) m_etamin = -m_etamax;
   m_dzdrmax0  = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
   
   m_r3max     = m_r_rmax;
   m_COF       = 134*.05*9.;
-  m_ipt       = 1./std::abs(.9*m_ptmin);
+  m_ipt       = 1./fabs(.9*m_ptmin);
   m_ipt2      = m_ipt*m_ipt;
 
   // Build radius sorted containers
@@ -978,7 +978,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildBeamFrameWork(EventData& data) co
   double     ty = tan(beamSpotHandle->beamTilt(1));
 
   double ph   = atan2(ty,tx);
-  double th   = acos(1./std::sqrt(1.+tx*tx+ty*ty));
+  double th   = acos(1./sqrt(1.+tx*tx+ty*ty));
   double sint = sin(th);
   double cost = cos(th);
   double sinp = sin(ph);
@@ -1196,7 +1196,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp(EventData& data) const
             if (UR == 0.) continue;
             float A  = Vt*R/UR;
             float B  = Vt-A*Ut;
-            if (std::abs(B*data.K) > m_ipt*std::sqrt(1.+A*A)) continue;
+            if (fabs(B*data.K) > m_ipt*sqrt(1.+A*A)) continue;
             ++nseed;
             newSeed(data, (*r), (*r0), Zo);
           }
@@ -1391,7 +1391,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
       float r2  = 1./(x*x+y*y);
-      float dr  = std::sqrt(r2);
+      float dr  = sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 
@@ -1420,7 +1420,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  Vb   = data.V [b];
       float  Ub   = data.U [b];
       float  Tzb2 = (1.+Tzb*Tzb);
-      float sTzb2 = std::sqrt(Tzb2);
+      float sTzb2 = sqrt(Tzb2);
       float  CSA  = Tzb2*COFK;
       float ICSA  = Tzb2*ipt2C;
       float imax  = imaxp;
@@ -1439,16 +1439,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         float B2  = B*B;
         if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-        float y0=1./(2*B);
-        float x0=-A*y0;
-	float rTrack = std::sqrt(S2/B2)/2 ;
-        float Im = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+        float Im  = fabs((A-B*R)*R);
 
         if (Im <= imax) {
           float dr = data.R[b];
           if (data.R[t] < data.R[b]) dr = data.R[t];
-          Im+=std::abs((Tzb-data.Tz[t])/(dr*sTzb2));
-          data.CmSp.emplace_back(std::make_pair(B/std::sqrt(S2), data.SP[t]));
+          Im+=fabs((Tzb-data.Tz[t])/(dr*sTzb2));
+          data.CmSp.emplace_back(std::make_pair(B/sqrt(S2), data.SP[t]));
           data.SP[t]->setParam(Im);
 
         }
@@ -1590,7 +1587,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
       float x   = dx*ax+dy*ay;
       float y   = dy*ax-dx*ay;
       float r2  = 1./(x*x+y*y);
-      float dr  = std::sqrt(r2);
+      float dr  = sqrt(r2);
       float tz  = dz*dr;
       if (i < Nb) tz = -tz;
 
@@ -1634,17 +1631,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
         float B2  = B*B;
         if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-        float Im  = std::abs((A-B*R)*R);
+        float Im  = fabs((A-B*R)*R);
         if (Im > imax) continue;
 
         // Azimuthal angle test
         //
         float y  = 1.;
         float x  = 2.*B*R-A;
-        float df = std::abs(atan2(ay*y-ax*x,ax*y+ay*x)-data.ftrig);
+        float df = fabs(atan2(ay*y-ax*x,ax*y+ay*x)-data.ftrig);
         if (df > M_PI) df = pi2-df;
         if (df > data.ftrigW) continue;
-        data.CmSp.emplace_back(std::make_pair(B/std::sqrt(S2), data.SP[t]));
+        data.CmSp.emplace_back(std::make_pair(B/sqrt(S2), data.SP[t]));
         data.SP[t]->setParam(Im);
       }
       if (!data.CmSp.empty()) {
@@ -1732,7 +1729,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       if ( (*j).second->sur()==Sui) continue;
       
       float Rj = (*j).second->radius();
-      if (std::abs(Rj-Ri) < m_drmin) continue;
+      if (fabs(Rj-Ri) < m_drmin) continue;
       u -= 200.;
       break;
     }
@@ -1819,12 +1816,12 @@ bool InDet::SiSpacePointsSeedMaker_ATLxk::isZCompatible
 
   float dZmin = std::numeric_limits<float>::max();
   for (const float& v: data.l_vertex) {
-    float dZ = std::abs(v-Zv);
+    float dZ = fabs(v-Zv);
     if (dZ >= dZmin) break;
     dZmin = dZ;
   }
 
-  //return dZmin < (m_dzver+m_dzdrver*R)*std::sqrt(1.+T*T);
+  //return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
   //(Minor) speed-up: Avoid calculation of sqrt, compare squares
   return dZmin*dZmin < (m_dzver+m_dzdrver*R)*(m_dzver+m_dzdrver*R)*(1.+T*T);
 }
@@ -1842,7 +1839,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_ATLxk::newSpacePoint
   convertToBeamFrameWork(data, sp, r);
 
   if (data.checketa) {
-    float z = (std::abs(r[2])+m_zmax);
+    float z = (fabs(r[2])+m_zmax);
     float x = r[0]*data.dzdrmin;
     float y = r[1]*data.dzdrmin;
     if ((z*z )<(x*x+y*y)) return sps;
