@@ -56,7 +56,7 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
     return top_acc
 
 if __name__ == "__main__":
-    # Run this with python -m InDetConfig.PixelClusterizationConfig
+    # Run this with python -m InDetConfig.ClusterizationConfig
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
