@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraUtils/MuonCalibSimpleGeometry.h"
@@ -18,13 +18,8 @@ namespace MuonCalib {
   }
 
   bool MuonCalibDisk::inBounds( const Amg::Vector3D& pos, double tolerance ) const {
-
-//     std::cout << " Disk: first " << pos.z() << " bound " << zPos 
-// 	      << "   second " << pos.perp() << " bound " << radius
-// 	      << " tolerance " << tolerance << std::endl;
-
     // check whether at same z
-    if( fabs(pos.z() - zPos) > 0.00001 ) return false;
+    if( std::abs(pos.z() - zPos) > 0.00001 ) return false;
     
     // check radius distance
     if( pos.perp() - radius > tolerance ) return false;
@@ -33,15 +28,11 @@ namespace MuonCalib {
   }
 
   bool MuonCalibCylinder::inBounds( const Amg::Vector3D& pos, double tolerance ) const {
-//     std::cout << " Cylinder: first " << pos.perp() << " bound " << radius 
-// 	      << "   second " << pos.z() << " bound " << lenght
-// 	      << " tolerance " << tolerance << std::endl;
-
     // check radius distance
-    if( fabs( pos.perp() - radius ) > 0.00001 ) return false;
+    if( std::abs( pos.perp() - radius ) > 0.00001 ) return false;
 
     // check whether at same z
-    if( fabs(pos.z()) - lenght  > tolerance ) return false;
+    if( std::abs(pos.z()) - lenght  > tolerance ) return false;
     
     return true;
   }

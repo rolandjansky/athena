@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonSimValUtils/MuonStrToIntName.h"
-using namespace std;
-
 
 //Function converting from ATHENA identifier std::str StationName, std::string ChamberType 
 //to the corresponding ATHENA identifier int StationName

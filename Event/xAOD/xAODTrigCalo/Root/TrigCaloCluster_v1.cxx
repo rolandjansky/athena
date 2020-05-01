@@ -15,12 +15,7 @@
 
 namespace xAOD {
 
-  static const size_t SIZE =
-#if __cplusplus >= 201100
-     CaloSampling::CaloSample::Unknown;
-#else
-     CaloSampling::Unknown;
-#endif // C++11
+  static const size_t SIZE = CaloSampling::CaloSample::Unknown;
 
   // Constructor
   TrigCaloCluster_v1::TrigCaloCluster_v1() {}

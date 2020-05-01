@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -25,6 +25,10 @@ def createTriggerFlags():
 
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
+
+    # L1 decoding options
+    flags.addFlag('Trigger.decodeLegacyL1', True)
+    flags.addFlag('Trigger.decodePhaseIL1', False)
     
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     flags.addFlag('Trigger.EDMDecodingVersion', 3)

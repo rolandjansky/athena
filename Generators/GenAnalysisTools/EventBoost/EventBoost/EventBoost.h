@@ -18,12 +18,10 @@
 #define EVENTBOOST_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "HepMC/GenEvent.h"
-
-
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 
 #include <string>

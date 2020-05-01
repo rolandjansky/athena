@@ -44,7 +44,7 @@ def testCfg (configFlags):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
-    TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA__MdtDataPreparator
+    TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA.MdtDataPreparator
     result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1)) # noqa: ATL900
     
     result.addEventAlgo (TestAlg ('TestAlg'))

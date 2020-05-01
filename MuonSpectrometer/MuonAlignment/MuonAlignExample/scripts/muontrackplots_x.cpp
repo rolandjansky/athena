@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////
-//
-// muontrackplots_x
-// ----------------
-// 
-//////////////////////////////////////////////////////////////////////////////
 
 #include "MuonFixedId.h"
 #include "Tools.h"
@@ -31,7 +24,7 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TSystem.h"
-
+#include "TH2F.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -42,9 +35,6 @@
 #include <vector>
 #include <set>
 
-#include "TH2F.h"
-
-using namespace std;
 using namespace MuonCalib;
  
 const bool BATCH=false;

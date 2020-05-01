@@ -15,7 +15,6 @@
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
-#include "DerivationFrameworkInDet/TrackParametersForTruthParticles.h"
 
 using namespace DerivationFramework;
 
@@ -36,4 +35,3 @@ DECLARE_COMPONENT( EGammaTracksThinning )
 DECLARE_COMPONENT( TrackMeasurementThinning )
 DECLARE_COMPONENT( EventInfoPixelDecorator )
 DECLARE_COMPONENT( PixelNtupleMaker )
-DECLARE_COMPONENT( TrackParametersForTruthParticles ) 

@@ -15,6 +15,12 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
+atlas_add_library( DBReplicaSvcLib
+                   INTERFACE
+                   PUBLIC_HEADERS DBReplicaSvc
+                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                   LINK_LIBRARIES GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( DBReplicaSvc
                      src/DBReplicaSvc.cxx

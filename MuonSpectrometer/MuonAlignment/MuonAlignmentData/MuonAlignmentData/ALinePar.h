@@ -28,7 +28,7 @@ class ALinePar : public MuonAlignmentPar {
   
  private:
 
-  // traslation parameters
+  // translation parameters
   float m_S;
   float m_Z;
   float m_T;

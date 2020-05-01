@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCDECODER_H
@@ -8,7 +8,6 @@
 #include "MuonCablingTools/RPCdef.h"
 #include <iostream>
 #include <sstream>
-typedef std::ostringstream __osstream;
 
 class RPCdecoder
 {
@@ -49,7 +48,7 @@ class RPCdecoder
     RPCdecoder(const RPCdecoder& deco);
     RPCdecoder& operator = (const RPCdecoder& deco);
 
-    ~RPCdecoder() {}
+    ~RPCdecoder()=default;
 
     public:
     RPCdecoder& operator ()(unsigned int);
@@ -78,16 +77,5 @@ class RPCdecoder
 
     void Print(std::ostream&,bool) const;
 };
-
-/*                                                
-template <class X> X& operator<<(X& stream,const RPCdecoder& decoder)
-{
-
-    __osstream display;
-    decoder.Print(display,false);
-    stream << display.str();
-    return stream;
-}
-*/
 
 #endif

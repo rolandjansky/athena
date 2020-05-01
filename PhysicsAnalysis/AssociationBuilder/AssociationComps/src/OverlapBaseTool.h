@@ -14,8 +14,6 @@
 // STL includes
 #include <string>
 
-// HepMC / CLHEP includes
-
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"

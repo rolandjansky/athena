@@ -23,8 +23,8 @@ namespace asg
   UnitTestTool2 ::
   UnitTestTool2 (const std::string& val_name)
     : AsgTool (val_name),
-      m_regPublicHandle ("regPublicHandle", nullptr),
-      m_regPrivateHandle ("regPrivateHandle", this),
+      m_regPublicHandle ("", nullptr),
+      m_regPrivateHandle ("", this),
       m_anaPublicHandle ("asg::UnitTestTool1/anaPublicHandle", nullptr),
       m_anaPrivateHandle ("asg::UnitTestTool1/anaPrivateHandle", this)
   {

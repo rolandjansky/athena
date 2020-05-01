@@ -101,13 +101,6 @@ if rec.doESDReconstruction():
     from RecAlgs.RecAlgsConf import EventInfoUnlocker
     topSequence+=EventInfoUnlocker("UnlockEventInfo")
 
-try:
-    if rec.abortOnUncheckedStatusCode():
-      svcMgr.StatusCodeSvc.AbortOnError=True
-      logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")
-except Exception:
-    logRecExCommon_topOptions.info("Did not enable aboort on unchecked status code")
-
 if rec.readESD():
     rec.readRDO = False
 

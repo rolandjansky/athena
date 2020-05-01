@@ -21,8 +21,8 @@ atlas_add_library( TrigT1CaloCondSvcLib
    TrigT1CaloCondSvc/*.h TrigT1CaloCondSvc/*.icc src/*.cxx
    PUBLIC_HEADERS TrigT1CaloCondSvc
    LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib
-   AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions )
+   AthenaPoolUtilities GaudiKernel TrigT1CaloCalibConditions RegistrationServicesLib )
 
 atlas_add_component( TrigT1CaloCondSvc
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel TrigT1CaloCondSvcLib )
+   LINK_LIBRARIES GaudiKernel TrigT1CaloCondSvcLib RegistrationServicesLib )

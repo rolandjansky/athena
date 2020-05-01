@@ -426,39 +426,14 @@ private:
  */
 ENTER_ROOT_SELECTION_NS
 
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-
 template< class STORABLE >
-struct ElementLinkVector {
-   typedef ElementLinkVector< STORABLE> self;
-   /// Do not generate such dictionaries automatically
-   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dummy;
-   /// Mark all transient members:
-   ROOT_SELECTION_NS::TRANSIENT m_shortRefs;
-   ROOT_SELECTION_NS::TRANSIENT m_hostDObjs;
-};
-
-
-#else
-
-
-template< class STORABLE >
-struct ElementLinkVector
-#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
-  : public SelectNoInstance
-#endif
+struct ElementLinkVector : public SelectNoInstance
 {
   typedef ElementLinkVector< STORABLE> self;
   /// Mark all transient members:
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_shortRefs;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_hostDObjs;
 };
-
-
-#endif
-
 
 EXIT_ROOT_SELECTION_NS
 

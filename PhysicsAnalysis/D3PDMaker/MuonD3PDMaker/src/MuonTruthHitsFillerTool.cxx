@@ -13,7 +13,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 namespace D3PD {

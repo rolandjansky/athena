@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include <iostream.h>
-//#include <math.h>
 #include "MdtCalibFitters/MuCCaFitter.h"
-
-//class MuCCaFitterImplementation;
 
 namespace MuonCalib {
 
@@ -52,7 +48,6 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   }
 
   Amg::Vector3D pos = seg.position(); 
-//  Amg::Vector3D dir = seg.direction(); 
 
   double S(0),Sy(0),Sz(0);
   double Zc,Yc;
@@ -78,7 +73,7 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
       
       if(h.sigma2DriftRadius() > 0){
 	w[ii] = 1./( h.sigma2DriftRadius() );
-	sr[ii] =sqrt( h.sigma2DriftRadius() );
+	sr[ii] =std::sqrt( h.sigma2DriftRadius() );
       } else {
 	w[ii] = 0.;
 	sr[ii]=0.;
@@ -120,9 +115,6 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   }
 
   double afit=Fitter->get_a();
-  //double dafit=Fitter->get_da();
-  //double bfit=Fitter->get_b();
-  //double dbfit=Fitter->get_db();
   double chi2f=Fitter->get_chi2f();
 
   std::vector<double> dist(N);
@@ -130,8 +122,8 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   double R,dis;
   double theta = atan(afit);
   if(theta<0.) theta= M_PI+theta;
-  double sinus = sin(theta);
-  double cosin = cos(theta);
+  double sinus = std::sin(theta);
+  double cosin = std::cos(theta);
   double d = -( getZ( pos )-Zc)*sinus+( getY( pos )-Yc)*cosin;
   if(m_debug){
     std::cout << "MuCCaFitter>>> theta= " << theta << " sinus= " << sinus << " cosin= " << cosin << std::endl;
@@ -151,7 +143,6 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
     }else{
       R  += rw[i];
     }
-    //    std::cout << "MuCCaFitter>>> d= " << d <<" z[i]= "<<z[i] <<" y[i]= "<<y[i]<< " dis= " << dis << " R= " << R << " rw[i]= " << rw[i]<< std::endl;
   }
   Att = Syy + cosin*(2*sinus*Szy - cosin*Syyzz);
   d = R/S;
@@ -161,8 +152,8 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   for(int i=0;i<N;++i){
     if(selection[i]) continue;
     dist[i] = cosin*(y[i]-Yc) - sinus*(z[i]-Zc) - d;
-    double dth = -(sinus*(y[i]-Yc) + cosin*(z[i]-Zc))*(sqrt(1./Att));
-    ddist[i] = sqrt( dth*dth + (1./S) );  
+    double dth = -(sinus*(y[i]-Yc) + cosin*(z[i]-Zc))*(std::sqrt(1./Att));
+    ddist[i] = std::sqrt( dth*dth + (1./S) );  
   }
   if(m_debug) std::cout << "Transforming back to real world" << std::endl;
   Amg::Vector3D ndir = getVec( 0., sinus, cosin );
@@ -179,7 +170,6 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
      MdtCalibHitBase& hit = const_cast< MdtCalibHitBase& >( **it );
      
      hit.setDistanceToTrack( dist[i], ddist[i] );
-     //     std::cout << "MuCCaFitter>>> dist[i] " << dist[i] <<" dis= "<<dis<<" ddist= "<< ddist[i] << std::endl;
      ++it;++i;
    }
    
@@ -193,24 +183,13 @@ void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<dou
 /* Fit a line to n=number_of_hits hits */
 /***************************************/ 
   double xout[100],yout[100];
-  //  double grada[4],gradb[4];
   double dist[100],rsub[100];
   double chi2outn[4],chi2min;
-  //  double chip[4];
   double aref[4],bref[4];
-  //  double sigmaa[4],sigmab[4];
   int fhit,i,j,icouple=0,lhit;
-  //  int segnobf[4];
-  //  double da,db,hesseb,hessea,hesseab,chi2fin; 
-    //  for (int i = 0; i != number_of_hits; i++)  
-    //    {  
-    //     std::cout<<"      MuCCaFitterImplementation hits passed to computepam Z=" 
-    //              <<x[i]<<" phi="<<y[i]<<" drift="<<r[i]<<" error="<<sr[i]<<std::endl;  
-    //    } 
 /* compute 4 tanget lines from first and last hit */  
   fhit = 0;
   lhit = number_of_hits-1;
-  //  Computelinparnew(x[fhit],y[fhit],r[fhit],sr[fhit],x[lhit],y[lhit],r[lhit],sr[lhit]);
   Computelinparnew(x[fhit],y[fhit],r[fhit],x[lhit],y[lhit],r[lhit]);
   for(int ii=0;ii<4;ii++){
     bref[ii]=m_bfpar[ii];
@@ -220,8 +199,8 @@ void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<dou
   for(i=0;i<4;i++){
      for(j=0;j<number_of_hits;j++){
         double d;
-        d = fabs(aref[i]*x[j]+bref[i]-y[j]); 
-        dist[j] = d/sqrt(1.+aref[i]*aref[i]);
+        d = std::abs(aref[i]*x[j]+bref[i]-y[j]); 
+        dist[j] = d/std::sqrt(1.+aref[i]*aref[i]);
         rsub[j] = r[j]-dist[j];
      }
      double chi2out = 0;
@@ -287,10 +266,10 @@ void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<dou
   bout   = 0;
   deno = 0;
   for(int i=0;i<number_of_hits;i++){
-     bs1 = (y[i]-aoutn*x[i]-r[i]*sqrt(1+aoutn*aoutn));
-     bs2 = (y[i]-aoutn*x[i]+r[i]*sqrt(1+aoutn*aoutn));
-     db1 = fabs(bs1-btest);
-     db2 = fabs(bs2-btest);
+     bs1 = (y[i]-aoutn*x[i]-r[i]*std::sqrt(1+aoutn*aoutn));
+     bs2 = (y[i]-aoutn*x[i]+r[i]*std::sqrt(1+aoutn*aoutn));
+     db1 = std::abs(bs1-btest);
+     db2 = std::abs(bs2-btest);
      if(db1<db2){
        bout  += bs1/(sr[i]*sr[i]); 
      }else{
@@ -306,7 +285,7 @@ void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<dou
      double xi,yi;
      xi = (aoutn*y[i]-aoutn*bout+x[i])/(1.+aoutn*aoutn);
      yi = aoutn*xi+bout;
-     resd = (sqrt((xi-x[i])*(xi-x[i])+(yi-y[i])*(yi-y[i]))-r[i])/sr[i];
+     resd = (std::sqrt((xi-x[i])*(xi-x[i])+(yi-y[i])*(yi-y[i]))-r[i])/sr[i];
      chi2f += resd*resd;
  }
 /* set global variables (method output)*/
@@ -315,15 +294,7 @@ void MuCCaFitterImplementation::Computeparam3(int number_of_hits,std::vector<dou
   m_bout=bout;
   m_sig2b=sig2b;
   m_corrab=corrab;
-  //  if(fabs(atan(aoutn))>1.5) chi2f=100000000;
   m_chi2f=chi2f;
-  //  std::cout<<"      MuCCaFitter::Computeparam3 computed track a= "<<m_aoutn
-  //	   <<" da= "<<m_sig2a
-  //	   <<" b= "<<m_bout
-  //	   <<" db= "<<m_sig2b
-  //	   <<" corrab= "<<m_corrab
-  //	   <<" chi2f= "<<m_chi2f
-  //	   <<std::endl;  
 }
 
 double MuCCaFitterImplementation::get_a() 
@@ -360,14 +331,14 @@ void MuCCaFitterImplementation::Computelinparnew(double x1, double y1, double r1
 /* compute a parameters */
    dx = x2-x1;
    dy = y2-y1;
-   averagephi = atan2(dy,dx);
-   dist = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
+   averagephi = std::atan2(dy,dx);
+   dist = std::sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
    delta = r2+r1;
 
-   dphiin = asin(delta/dist);
+   dphiin = std::asin(delta/dist);
 
    delta = r2-r1;
-   dphiex = asin(delta/dist);
+   dphiex = std::asin(delta/dist);
 
    int f=1;
    phi = averagephi+f*dphiex;
@@ -392,49 +363,41 @@ void MuCCaFitterImplementation::Computelinparnew(double x1, double y1, double r1
 /* Compute b parameters */
    for(i=0;i<4;i++){
      bpar[0] = y1-angularcoefficient[i]*x1+segnob[0]*r1*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      bpar[1] = y1-angularcoefficient[i]*x1+segnob[1]*r1*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      bpar[2] = y2-angularcoefficient[i]*x2+segnob[2]*r2*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      bpar[3] = y2-angularcoefficient[i]*x2+segnob[3]*r2*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      double delta = 0.00001;
      ncand = 0;
-     if(fabs(bpar[0]-bpar[2])<delta){
+     if(std::abs(bpar[0]-bpar[2])<delta){
        bfparn[ncand]= bpar[0];
-       // segnobfn[ncand] = segnob[0];
        ncand           = ncand+1;     
      }
-     if(fabs(bpar[0]-bpar[3])<delta){
+     if(std::abs(bpar[0]-bpar[3])<delta){
        bfparn[ncand]   = bpar[0];
-       // segnobfn[ncand] = segnob[0];
        ncand           = ncand+1;     
      }
-     if(fabs(bpar[1]-bpar[2])<delta){
+     if(std::abs(bpar[1]-bpar[2])<delta){
        bfparn[ncand]   = bpar[1];
-       // segnobfn[ncand] = segnob[1];
        ncand           = ncand+1;     
      }
-     if(fabs(bpar[1]-bpar[3])<delta){
+     if(std::abs(bpar[1]-bpar[3])<delta){
        bfparn[ncand]   = bpar[1];
-       //  segnobfn[ncand] = segnob[1];
        ncand           = ncand+1;
      }
        bcand[0][i]  = bfparn[0];
        bcand[1][i]  = bfparn[1];
-       // segnoc[0][i] = segnobfn[0];
-       // segnoc[1][i] = segnobfn[1];
        ncandid[i]   = ncand;
      }
      firsttime = 0;
      for(i=0;i<4;i++){
        if(ncandid[i]==1){
          bfpar[i] = bcand[0][i];
-         // segnobf[i] = segnoc[0][i];
        }else{
          bfpar[i] = bcand[firsttime][i];
-         // segnobf[i] = segnoc[firsttime][i];
          firsttime++;
        }
      }
@@ -470,14 +433,14 @@ void MuCCaFitterImplementation::Computelin(double x1, double y1, double r1, doub
 /* compute a parameters */
    dx = x2-x1;
    dy = y2-y1;
-   averagephi = atan2(dy,dx);
-   dist = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
+   averagephi = std::atan2(dy,dx);
+   dist = std::sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
 
    delta = r2+r1;
-   dphiin = asin(delta/dist);
+   dphiin = std::asin(delta/dist);
 
    delta = r2-r1;
-   dphiex = asin(delta/dist);
+   dphiex = std::asin(delta/dist);
 
    int f=1;
    phi = averagephi+f*dphiex;
@@ -502,49 +465,41 @@ void MuCCaFitterImplementation::Computelin(double x1, double y1, double r1, doub
 /* Compute b parameters */
    for(i=0;i<4;i++){
      bpar[0] = y1-angularcoefficient[i]*x1+segnob[0]*r1*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);  
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);  
      bpar[1] = y1-angularcoefficient[i]*x1+segnob[1]*r1*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      bpar[2] = y2-angularcoefficient[i]*x2+segnob[2]*r2*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      bpar[3] = y2-angularcoefficient[i]*x2+segnob[3]*r2*
-               sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
+               std::sqrt(1+angularcoefficient[i]*angularcoefficient[i]);
      double delta = 0.00001;
      ncand = 0;
-     if(fabs(bpar[0]-bpar[2])<delta){
+     if(std::abs(bpar[0]-bpar[2])<delta){
        bfparn[ncand]  = bpar[0];
-       // segnobf[ncand] = segnob[0];
        ncand          = ncand+1;     
      }
-     if(fabs(bpar[0]-bpar[3])<delta){
+     if(std::abs(bpar[0]-bpar[3])<delta){
        bfparn[ncand]  = bpar[0];
-       // segnobf[ncand] = segnob[0];
        ncand          = ncand+1;     
      }
-     if(fabs(bpar[1]-bpar[2])<delta){
+     if(std::abs(bpar[1]-bpar[2])<delta){
        bfparn[ncand]  = bpar[1];
-       // segnobf[ncand] = segnob[1];
        ncand          = ncand+1;     
      }
-     if(fabs(bpar[1]-bpar[3])<delta){
+     if(std::abs(bpar[1]-bpar[3])<delta){
        bfparn[ncand]  = bpar[1];
-       // segnobf[ncand] = segnob[1];
        ncand          = ncand+1;
      }
      bcand[0][i]  = bfparn[0];
      bcand[1][i]  = bfparn[1];
-     // segnoc[0][i] = segnobfn[0];
-     // segnoc[1][i] = segnobfn[1];
      ncandid[i]   = ncand;
    }
    firsttime = 0;
    for(i=0;i<4;i++){
      if(ncandid[i]==1){
        bfpar[i]   = bcand[0][i];
-       // segnobf[i] = segnoc[0][i];
      }else{
        bfpar[i]   = bcand[firsttime][i];
-       // segnobf[i] = segnoc[firsttime][i];
        firsttime++;
      }
    }
@@ -616,7 +571,7 @@ void MuCCaFitterImplementation::computehitsfromcircles(double x0,double y0,doubl
      yref = b; 
    }
 /* choose tangent point closest to that of the reference lines (TRACK POINT)*/
-   dist1 = sqrt((xint-xref)*(xint-xref)+(yint-yref)*(yint-yref));
+   dist1 = std::sqrt((xint-xref)*(xint-xref)+(yint-yref)*(yint-yref));
    if(dist1<dist){
      dist   = dist1;
      xout0 = xint;
@@ -639,7 +594,7 @@ void MuCCaFitterImplementation::computehitsfromcircles(double x0,double y0,doubl
      yref = b; 
    }
 /* choose tangent point closest to that of the reference line (TRACK POINT)*/
-   dist1 = sqrt((xint-xref)*(xint-xref)+(yint-yref)*(yint-yref));
+   dist1 = std::sqrt((xint-xref)*(xint-xref)+(yint-yref)*(yint-yref));
    if(dist1<dist){
      dist   = dist1;
      xout1 = xint;

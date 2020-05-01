@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -13,6 +13,12 @@
 
 // Gaudi & Athena basics
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include <vector>
+
+#include <StoreGate/ReadHandleKey.h>
+#include <StoreGate/WriteHandleKey.h>
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
@@ -43,11 +49,15 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    std::string m_collTrackName;
-    std::string m_collVertexName;
-    std::string m_sgKey1;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_collTrackKey
+       { this, "TrackParticleContainerName", "InDetTrackParticles", ""};
+    SG::ReadHandleKey<xAOD::VertexContainer>        m_collVertexKey
+       { this, "VertexContainerName", "PrimaryVertices", ""};
 
-  }; 
+    SG::WriteHandleKey< std::vector<float> > m_trackZ0PVKey
+       { this, "Z0SGEntryName", "", "" };
+
+  };
  
 }
 

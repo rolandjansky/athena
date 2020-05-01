@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCDIGITTORPCRDO_H
@@ -7,15 +7,17 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 #include "RPCcablingInterface/IRPCcablingSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
+
 #include "TrigT1RPClogic/RPCsimuData.h"
 #include "TrigT1RPClogic/CMAdata.h"
 #include "TrigT1RPClogic/RPCbytestream.h"
-
-#include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
+#include "TrigT1RPChardware/MatrixReadOutStructure.h"
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcPad.h"
@@ -23,7 +25,7 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +39,14 @@ public:
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
-  StatusCode fill_RPCdata(RPCsimuData& data, const EventContext& ctx) const;
+
+  //--- Migrated from RpcByteStreamDecoder.
+  typedef std::map < int, PADreadout, std::less <int> > PAD_Readout;
+  //Pad and Matrix decoding functions
+  RpcPad* decodePad(PADreadout& pad, const RpcCablingCondData* readCdo) const;
+  RpcCoinMatrix * decodeMatrix(MatrixReadOut* matrix, Identifier& id) const ;
+
+  StatusCode fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData*) const;
 
   StatusCode fillTagInfo() const;
 
@@ -69,13 +78,13 @@ private:
   BooleanProperty m_data_detail{this, "DataDetail", false, "flag to printout detailed INFO on processed data"};
 
   ServiceHandle<IRPCcablingSvc> m_cabling{this, "MuonRPC_CablingSvc", "MuonRPC_CablingSvc", ""};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   SG::WriteHandleKey<RpcPadContainer> m_padContainerKey{this,"OutputObjectName","RPCPAD","WriteHandleKey for Output RpcPadContainer"};
   SG::ReadHandleKey<RpcDigitContainer> m_digitContainerKey{this,"InputObjectName","RPC_DIGITS","ReadHandleKey for Input RpcDigitContainer"};
   const MuonGM::MuonDetectorManager* m_MuonMgr{};
-  std::string  m_cablingType{"UNKNOWN"};
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  std::string  m_cablingType{"MuonRPC_Cabling"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 #endif

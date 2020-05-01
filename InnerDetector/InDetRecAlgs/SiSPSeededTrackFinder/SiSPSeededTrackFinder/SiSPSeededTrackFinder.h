@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -131,7 +131,7 @@ namespace InDet {
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
     //@}
 
-    /// @name Magenetic fiedl propertis
+    /// @name Magnetic field properties
     //@{
     Trk::MagneticFieldProperties m_fieldprop;
     //@}
@@ -142,8 +142,8 @@ namespace InDet {
 
     mutable std::atomic_int m_neventsTotal{0}; //!< Number events
     mutable std::atomic_int m_neventsTotalV{0}; //!< Number events
-    mutable std::atomic_int m_problemsTotal{0}; //!< Numbe revents with number seeds > maxNumber
-    mutable std::atomic_int m_problemsTotalV{0}; //!< Numbe revents with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotal{0}; //!< Number events with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotalV{0}; //!< Number events with number seeds > maxNumber
     //@}
 
     ///////////////////////////////////////////////////////////////////

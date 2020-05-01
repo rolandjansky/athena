@@ -24,5 +24,9 @@ atlas_add_component( TileMuId
 # Install files from the package:
 atlas_install_headers( TileMuId )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*jobOptions*.py )
+atlas_install_joboptions( share/*jobOptions*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
+atlas_add_test( TileMuIdConfig_test
+                SCRIPT python -m TileMuId.TileMuIdConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

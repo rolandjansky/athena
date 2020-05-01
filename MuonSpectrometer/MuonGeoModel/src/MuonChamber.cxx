@@ -1485,7 +1485,7 @@ GeoVPhysVol* MuonChamber::build(
             << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
             << geoid << " tagName= " << stag << endmsg;
       }
-
+      if (stName.find("BIS")==0) det->setNumberOfLayers(3); // all BIS RPCs always have 3 gas gaps
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
 

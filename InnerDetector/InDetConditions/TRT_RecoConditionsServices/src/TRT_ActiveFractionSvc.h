@@ -16,12 +16,13 @@
 #include "InDetRecToolInterfaces/ITRT_ActiveFractionSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class StoreGateSvc;
-class ITRT_StrawStatusSummarySvc;
+class ITRT_StrawStatusSummaryTool;
 class IIncidentSvc;
 
 /// Service to provide active straw fraction in an eta-phi bin
@@ -56,7 +57,7 @@ class TRT_ActiveFractionSvc : public AthService,
 
   /// Dead/noisy straw service
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_deadStrawSvc;
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_deadStrawTool;
 
   int m_nBinsPhi;
   std::vector<std::pair<double,double> > m_etaBins;

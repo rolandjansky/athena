@@ -19,6 +19,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 //Eigen
 #include "EventPrimitives/EventPrimitives.h"
@@ -159,7 +160,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
         m_nTrtSegGood++;
 
 	///Transform the original TRT segment into a track
-	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
+	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(Gaudi::Hive::currentContext(), *trackTRT);
 	if(!trtSeg){
 	  if(outputLevel <= MSG::DEBUG)
 	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endmsg;

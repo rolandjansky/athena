@@ -138,8 +138,6 @@ InDetFlags.doTrackSegmentsTRT   = False
 
 InDetFlags.doNewTracking  =         False
 InDetFlags.doLowPt        =         False
-InDetFlags.doxKalman      =         False
-InDetFlags.doiPatRec      =         False
 InDetFlags.doBackTracking =         False
 InDetFlags.doTRTStandalone =        False
 #InDetFlags.doSingleSpBackTracking = False

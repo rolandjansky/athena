@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOOLS_H
 #define TOOLS_H
 
-// std
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -16,12 +15,9 @@
 #include "TStyle.h"
 #include "TObjString.h"
 #include "TObjArray.h"
-
 #include "MuonFixedId.h"
 
 #include <valarray>
-
-using namespace std;
 
 class Tools {
 

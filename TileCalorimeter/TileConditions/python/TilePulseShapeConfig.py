@@ -57,7 +57,7 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
         else:
             pulseFolder = folders.addSplitOnline('/TILE/OFL01/PULSESHAPE/' + pulse, '/TILE/OFL02/PULSESHAPE/' + pulse)
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         pulseProxy = TileCondProxyCoolFlt('TileCondProxyCool_PulseShape', Source = pulseFolder)
 
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -69,13 +69,13 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
                          'CIS/PULSE100' : 'plsCisPulse100', 'CIS/PULSE5P2' : 'plsCisPulse5p2',
                          'CIS/LEAK100' : 'plsCisLeak100', 'CIS/LEAK5P2' : 'plsCisLeak5p2'}
 
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         pulseProxy = TileCondProxyFileFlt('TileCondProxyFile_PulseShape',
                                           Source = 'TileDefault.' + fileExtention[pulse])
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     pulseShapeCondAlg = TileCalibFltCondAlg( name = name,
                                              ConditionsProxy = pulseProxy,
                                              TileCalibData = pulseShape)

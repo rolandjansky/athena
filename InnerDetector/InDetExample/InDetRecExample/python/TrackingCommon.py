@@ -426,17 +426,32 @@ def getInDetBroadTRT_DriftCircleOnTrackTool(name='InDetBroadTRT_DriftCircleOnTra
 def getInDetTRT_DriftCircleOnTrackNoDriftTimeTool(**kwargs) :
     return getInDetBroadTRT_DriftCircleOnTrackTool(**kwargs)
 
+
+def getLumiCondDataKeyForTRTMuScaling(**kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    isHLT=kwargs.pop('isHLT',False)
+    kwargs.pop('namePrefix','')
+    if not InDetFlags.doCosmics() and InDetFlags.useMuForTRTErrorScaling():
+        # @TODO remove flag useMuForTRTErrorScaling once TRT mu dependent ERROR scaling not needed any more or
+        #       LuminosityCondAlgDefault always uses the correct database and   folder
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault,LuminosityCondAlgOnlineDefault
+        from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+        lumiAlg = LuminosityCondAlgDefault() if not athenaCommonFlags.isOnline() and not isHLT else LuminosityCondAlgOnlineDefault()
+        if lumiAlg is not None :
+            return lumiAlg.LuminosityOutputKey
+    return ''
+
 # @TODO rename to InDetTRT_DriftCircleOnTrackTool ?
 @makePublicTool
 def getInDetTRT_DriftCircleOnTrackTool(name='TRT_DriftCircleOnTrackTool', **kwargs) :
     the_name = makeName( name, kwargs)
+    hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
+    kwargs.pop('isHLT',None)
     createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
-    # @TODO create LuminosityCondAlg
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackTool
     kwargs = setDefaults(kwargs,
                          TRTErrorScalingKey = '/Indet/TrkErrorScalingTRT',
-                         # LumiDataKey        = 'LuminosityCondData'        # @TODO undo out-commenting to re-enable mu-correction for TRT error scaling
-                         )
+                         LumiDataKey        = getLumiCondDataKeyForTRTMuScaling(**hlt_args))
     return InDet__TRT_DriftCircleOnTrackTool(name = the_name, **kwargs)
 
 
@@ -712,7 +727,6 @@ def getConstPRD_AssociationTool(name='ConstPRD_AssociationTool',**kwargs) :
 
     kwargs = setDefaults( kwargs,
                           SetupCorrect     = True,
-                          MuonIdHelperTool = "",
                           PRDtoTrackMap    = prefix+'PRDtoTrackMap'+suffix)
 
     from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRD_AssociationTool
@@ -749,7 +763,7 @@ def getInDetPixelConditionsSummaryTool() :
     from AthenaCommon.GlobalFlags import globalflags
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", 
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
                                                                  UseByteStream=(globalflags.DataSource=='data'))
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
@@ -917,7 +931,7 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
     if not DetFlags.haveRIO.TRT_on() or InDetFlags.doSLHC() or InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
-    
+
     from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
 
@@ -944,7 +958,7 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ToT_dEdx_Tool = getInDetTRT_dEdxTool())
-        
+
     from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
 
@@ -1115,7 +1129,6 @@ def getInDetTRTDriftCircleCutForPatternReco(name='InDetTRTDriftCircleCutForPatte
 @makePublicTool
 def getInDetTRT_RoadMaker(name='InDetTRT_RoadMaker',**kwargs) :
     the_name = makeName( name, kwargs)
-    from InDetRecExample.InDetKeys import InDetKeys
     kwargs=setDefaults(kwargs,
                        RoadWidth             = 20.,
                        PropagatorTool        = getInDetPatternPropagator())
@@ -1325,4 +1338,4 @@ def getInDetCosmicScoringTool_TRT(NewTrackingCuts, name='InDetCosmicExtenScoring
                                           'InDetCosmicScoringTool_TRT',
                                           **setDefaults(kwargs,
                                                         minTRTHits  = NewTrackingCuts.minSecondaryTRTonTrk(),
-                                                        SummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch()))
+                                                        SummaryTool = getInDetTrackSummaryToolNoHoleSearch()))

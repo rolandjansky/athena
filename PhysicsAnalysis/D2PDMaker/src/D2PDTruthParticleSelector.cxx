@@ -27,8 +27,8 @@
 #include "D2PDMaker/D2PDTruthParticleSelector.h"
 
 // MC Truth includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenerator.h"
 #include "TruthHelper/IsStatus.h"

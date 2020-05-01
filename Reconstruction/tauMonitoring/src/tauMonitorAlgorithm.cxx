@@ -46,7 +46,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     const int lowerEtThreshold = 15;
     const int higherEtThreshold = 75;
 
-
     auto tool = getGroup(m_kinGroupName);
     auto tauEta = Monitored::Scalar<float>("tauEta",0.0);
     auto tauPhi = Monitored::Scalar<float>("tauPhi",0.0);
@@ -75,8 +74,17 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nClusters = Monitored::Scalar<int>("nClusters",0.0);
     auto nClustersEt15BDTLoose = Monitored::Scalar<int>("nClustersEt15BDTLoose",0.0);
 
+    auto tauEtBDTLoose = Monitored::Scalar<float>("tauEtBDTLoose",0.0);
+    auto tauEtaBDTLoose = Monitored::Scalar<float>("tauEtaBDTLoose",0.0);
+    auto tauPhiBDTLoose = Monitored::Scalar<float>("tauPhiBDTLoose",0.0);
+    auto NumTracksBDTLoose = Monitored::Scalar<float>("NumTracksBDTLoose",0.0);
+
+    auto tauEtBDTMedium = Monitored::Scalar<float>("tauEtBDTMedium",0.0);
+    auto tauEtaBDTMedium = Monitored::Scalar<float>("tauEtaBDTMedium",0.0);
+    auto tauPhiBDTMedium = Monitored::Scalar<float>("tauPhiBDTMedium",0.0);
+    auto NumTracksBDTMedium = Monitored::Scalar<float>("NumTracksBDTMedium",0.0);
+
     auto LB = Monitored::Scalar<int>("LB",0.0);
-    auto LB2 = Monitored::Scalar<int>("LB2",0.0);
 
     auto EMRadius = Monitored::Scalar<float>("EMRadius",0.0);
     auto hadRadius = Monitored::Scalar<float>("hadRadius",0.0);
@@ -84,6 +92,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto stripWidth2 = Monitored::Scalar<float>("stripWidth2",0.0);
     auto nStrip = Monitored::Scalar<float>("nStrip",0.0);
     auto etEMAtEMScale = Monitored::Scalar<float>("etEMAtEMScale",0.0);
+
     auto etHadAtEMScale = Monitored::Scalar<float>("etHadAtEMScale",0.0);
     auto centFrac = Monitored::Scalar<float>("centFrac",0.0);
     auto jetSeedEta = Monitored::Scalar<float>("jetSeedEta",0.0);
@@ -98,6 +107,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto eleBDTMedium = Monitored::Scalar<float>("eleBDTMedium",0.0);
     auto eleBDTTight = Monitored::Scalar<float>("eleBDTTight",0.0);
     auto muonVeto = Monitored::Scalar<float>("muonVeto",0.0);
+
+
     auto tauBDTLoose = Monitored::Scalar<float>("tauBDTLoose",0.0);
     auto tauBDTMedium = Monitored::Scalar<float>("tauBDTMedium",0.0);
     auto tauBDTTight = Monitored::Scalar<float>("tauBDTTight",0.0);
@@ -123,8 +134,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto ptIntermediateAxis = Monitored::Scalar<float>("ptIntermediateAxis",0.0);
 
     auto ipSigLeadTrk = Monitored::Scalar<float>("ipSigLeadTrk",0.0);
-    auto etOverPtLeadTrk = Monitored::Scalar<float>("etOverPtLeadTrk",0.0);
     auto massTrkSys = Monitored::Scalar<float>("massTrkSys",0.0);
+    auto etOverPtLeadTrack = Monitored::Scalar<float>("etOverPtLeadTrack",0.0);
     auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox",0.0);
     auto trFlightPathSig = Monitored::Scalar<float>("trFlightPathSig",0.0);
     auto trkAvgDist  = Monitored::Scalar<float>("trkAvgDist",0.0);
@@ -139,6 +150,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto dRJetSeedAxis = Monitored::Scalar<float>("dRJetSeedAxis",0.0);
     auto z0TJVA  = Monitored::Scalar<float>("z0TJVA",0.0);
     auto z0PriVtx  = Monitored::Scalar<float>("z0PriVtx",0.0);
+    auto z0  = Monitored::Scalar<float>("z0",0.0);
+
 
     auto etaTrack  = Monitored::Scalar<float>("etaTrack",0.0);
     auto ptTrack  = Monitored::Scalar<float>("ptTrack",0.0);
@@ -186,6 +199,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         nStrip = tau->detail<int>(xAOD::TauJetParameters::nStrip) ;
         etEMAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etEMAtEMScale);
         etHadAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale);
+
         centFrac = tau->detail<float>(xAOD::TauJetParameters::centFrac) ;
         jetSeedEta = tau->etaJetSeed(); 
         jetSeedPhi = tau->phiJetSeed(); 
@@ -195,6 +209,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         //identification
         BDTJetScore = tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
         BDTJetScoreSigTrans = tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
+
         JetBDTBkgMedium = tau->isTau(xAOD::TauJetParameters::JetBDTBkgMedium);
 
         BDTEleScoreSigTrans = tau->auxdata<float>("BDTEleScoreSigTrans"); 
@@ -210,10 +225,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
         SumPtTrkFracCorrected =    tau->detail<float>(xAOD::TauJetParameters::SumPtTrkFracCorrected);
         mEflowApprox           =    tau->detail<float>(xAOD::TauJetParameters::mEflowApprox)/GeV;
-
-        etOverPtLeadTrk = tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
         ptRatioEflowApprox = tau->detail<float>( xAOD::TauJetParameters::ptRatioEflowApprox );
-        trFlightPathSig = tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
         trkAvgDist = tau->detail<float>(xAOD::TauJetParameters::trkAvgDist);
 
         panEta = tau->etaPanTauCellBased();
@@ -272,13 +284,45 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
                         tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeDummy); 
                         panModeEt15BDTLoose = panModeDummy;
-                        fill(tool,tauPhiEt15BDTLoose);
-                        fill(tool,tauEtaEt15BDTLoose);
-                        fill(tool,nClustersEt15BDTLoose);
-                        fill(tool,NumTracksEt15BDTLoose);
-                        fill(tool,tauEtEt15BDTLoose);
-                        fill(tool,panModeEt15BDTLoose);
+                        fill(tool
+                        ,tauPhiEt15BDTLoose
+                        ,tauEtaEt15BDTLoose
+                        ,nClustersEt15BDTLoose
+                        ,NumTracksEt15BDTLoose
+                        ,tauEtEt15BDTLoose
+                        ,panModeEt15BDTLoose);
                     }
+
+                    
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTLoose){
+                        tauPhiBDTLoose = tau->phi();
+                        tauEtaBDTLoose = tau->eta();
+                        tauEtBDTLoose = tau->pt()/GeV;
+                        NumTracksBDTLoose = tau->nTracks();
+
+                        fill(tool
+                        ,tauPhiBDTLoose
+                        ,tauEtaBDTLoose
+                        ,NumTracksBDTLoose
+                        ,tauEtBDTLoose);
+                    }
+
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTMedium){
+                        tauPhiBDTMedium = tau->phi();
+                        tauEtaBDTMedium = tau->eta();
+                        tauEtBDTMedium = tau->pt()/GeV;
+                        NumTracksBDTMedium = tau->nTracks();
+
+                        fill(tool
+                        ,tauPhiBDTMedium
+                        ,tauEtaBDTMedium
+                        ,NumTracksBDTMedium
+                        ,tauEtBDTMedium);
+                    }
+
+                    
+    
+
                     if (tau->nTracks()!= 0){
 
                         massTrkSys = tau->detail<float>(xAOD::TauJetParameters::massTrkSys) / GeV; //GeV
@@ -286,73 +330,81 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         trFlightPathSig = tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
                         ipSigLeadTrk    =    tau->detail<float>(xAOD::TauJetParameters::ipSigLeadTrk);
                         ipZ0SinThetaSigLeadTrk = tau->detail<float>(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk);
-
+                        etOverPtLeadTrack = tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
                         leadTrkPt =tau->detail<float>(xAOD::TauJetParameters::leadTrkPt)/GeV;
 
-                        fill(tool,massTrkSys);
-                        fill(tool,trkWidth2);
-                        fill(tool,trFlightPathSig);
-                        fill(tool,ipSigLeadTrk);
-                        fill(tool,ipZ0SinThetaSigLeadTrk);
-                        fill(tool,leadTrkPt);
+                        fill(tool
+                        ,massTrkSys
+                        ,etOverPtLeadTrack
+                        ,trkWidth2
+                        ,trFlightPathSig
+                        ,ipSigLeadTrk
+                        ,ipZ0SinThetaSigLeadTrk
+                        ,leadTrkPt);
 
+                        if ( environment() != Environment_t::AOD ){
+                            const xAOD::TrackParticle* track = tau->track(0)->track();
+                            const Trk::Perigee perigee = track->perigeeParameters();
 
-                        const xAOD::TrackParticle* track = tau->track(0)->track();
-                        const Trk::Perigee perigee = track->perigeeParameters();
-
-                        uint8_t dummy(0);
-                    
-                        if (track->summaryValue(dummy, xAOD::numberOfSCTSharedHits)){
-                            numberOfSCTSharedHits = dummy;
-                            fill(tool,numberOfSCTSharedHits);
-                        }
-
-                        if (track->summaryValue(dummy, xAOD::numberOfSCTHits)){
-                            numberOfSCTHits = dummy;
-                            fill(tool,numberOfSCTHits);
-                        }
-
-                        if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
-                            numberOfPixelSharedHits = dummy;
-                            fill(tool,numberOfPixelSharedHits);
-                        }
+                            uint8_t dummy(0);
                         
-                        if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
-                            numberOfInnermostPixelLayerHits = dummy;
-                            fill(tool,numberOfInnermostPixelLayerHits);
-                        }
-                       
-                        if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
-                            numberOfPixelHits = dummy;
-                            fill(tool,numberOfPixelHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdHits)){
-                            numberOfTRTHighThresholdHits = dummy;
-                            fill(tool,numberOfTRTHighThresholdHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)){
-                            numberOfTRTHighThresholdOutliers = dummy;
-                            fill(tool,numberOfTRTHighThresholdOutliers);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHits)){
-                            numberOfTRTHits = dummy;
-                            fill(tool,numberOfTRTHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)){
-                            numberOfTRTOutliers = dummy;
-                            fill(tool,numberOfTRTOutliers);
-                        }
-                    
+                            if (track->summaryValue(dummy, xAOD::numberOfSCTSharedHits)){
+                                numberOfSCTSharedHits = dummy;
+                                fill(tool,numberOfSCTSharedHits);
+                            }
 
-                        d0 = perigee.parameters()[Trk::d0];
-                        fill(tool,d0);
-                        //z0 missing
-                        phiTrack = perigee.parameters()[Trk::phi];
-                        fill(tool,phiTrack);
-                        etaTrack = perigee.eta();
-                        fill(tool,etaTrack);
-                        ptTrack = perigee.pT()/GeV;
-                        fill(tool,ptTrack);
+                            if (track->summaryValue(dummy, xAOD::numberOfSCTHits)){
+                                numberOfSCTHits = dummy;
+                                fill(tool,numberOfSCTHits);
+                            }
+
+                            if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
+                                numberOfPixelSharedHits = dummy;
+                                fill(tool,numberOfPixelSharedHits);
+                            }
+                            
+                            if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
+                                numberOfInnermostPixelLayerHits = dummy;
+                                fill(tool,numberOfInnermostPixelLayerHits);
+                            }
+                           
+                            if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
+                                numberOfPixelHits = dummy;
+                                fill(tool,numberOfPixelHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdHits)){
+                                numberOfTRTHighThresholdHits = dummy;
+                                fill(tool,numberOfTRTHighThresholdHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)){
+                                numberOfTRTHighThresholdOutliers = dummy;
+                                fill(tool,numberOfTRTHighThresholdOutliers);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHits)){
+                                numberOfTRTHits = dummy;
+                                fill(tool,numberOfTRTHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)){
+                                numberOfTRTOutliers = dummy;
+                                fill(tool,numberOfTRTOutliers);
+                            }
+                        
+
+                            d0 = perigee.parameters()[Trk::d0];
+                            z0 = perigee.parameters()[Trk::z0];
+
+                            phiTrack = perigee.parameters()[Trk::phi];
+                            etaTrack = perigee.eta();
+                            ptTrack = perigee.pT()/GeV;
+
+                            fill(tool
+                            ,d0
+                            ,z0
+                            ,phiTrack
+                            ,etaTrack
+                            ,ptTrack);
+
+                        }
                     }
                     //this else can be removed, but it sets any track variable to 0 if there are no tracks
                     //this solution makes entry numbers match calo which is desired but there are too many zeros. 
@@ -379,63 +431,67 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                       BDTScoreAsP0 = npfo->bdtPi0Score();
                       fill(tool,BDTScoreAsP0);
                     }
-
-                    fill(tool,tauPhi,tauEta,LB,tauEt,centFrac, isolFrac,coreTrk); //for all 2d Histograms
-                    fill(tool,PtTESMVA);
-                    fill(tool,PtCombined);
-                    fill(tool,EMRadius);
-                    fill(tool,hadRadius);
-                    fill(tool,stripWidth2);
-                    fill(tool,nStrip);
-                    fill(tool,etEMAtEMScale);
-                    fill(tool,etHadAtEMScale);
-                    fill(tool,tauCharge);
-                    fill(tool,BDTEleScoreSigTrans);
-                    fill(tool,BDTJetScore);
-                    fill(tool,BDTJetScoreSigTrans);
-                    fill(tool,JetBDTBkgMedium);
-                    fill(tool,BDTEleScoreSigTrans);
-                    fill(tool,eleBDTMedium);
-                    fill(tool,eleBDTTight);
-                    fill(tool,muonVeto);
-                    fill(tool,tauBDTLoose);
-                    fill(tool,tauBDTMedium);
-                    fill(tool,tauBDTTight);
-                    fill(tool,BDTJetScore);
-                    fill(tool,PSSFrac);
-                    fill(tool,hadLeakFracFixed);
-                    fill(tool,etHotShotWinOverPtLeadTrk);
-                    fill(tool,EMFrac);
-                    fill(tool,EMFracTrk);
-                    fill(tool,EfracL2EffCluster);
-                    fill(tool,EisoEffCluster);
-                    fill(tool,InvMassEffClusters);
-                    fill(tool,nNeutPFO);
-                    fill(tool,nShot);
-                    fill(tool,NumTracks);
-                    fill(tool,nClusters);
-                    fill(tool,jetSeedEta);
-                    fill(tool,jetSeedPhi);
-                    fill(tool,jetSeedPt);
-                    fill(tool,dRmax);
-                    fill(tool,EMPOverTrkSysP);
-                    fill(tool,SumPtTrkFracCorrected);
-                    fill(tool,mEflowApprox);
-                    fill(tool,ptIntermediateAxis);
-                    fill(tool,etOverPtLeadTrk);
-                    fill(tool,ptRatioEflowApprox);
-                    fill(tool,trkAvgDist);
-                    fill(tool,lumiPerBCID);
+                    fill(tool
+                    ,tauPhi
+                    ,tauEta
+                    ,LB,tauEt
+                    ,centFrac
+                    ,isolFrac
+                    ,coreTrk
+                    ,PtTESMVA
+                    ,PtCombined
+                    ,EMRadius
+                    ,hadRadius
+                    ,stripWidth2
+                    ,nStrip
+                    ,etEMAtEMScale
+                    ,etHadAtEMScale
+                    ,tauCharge
+                    ,BDTEleScoreSigTrans
+                    ,BDTJetScore
+                    ,BDTJetScoreSigTrans
+                    ,JetBDTBkgMedium
+                    ,BDTEleScoreSigTrans
+                    ,eleBDTMedium
+                    ,eleBDTTight
+                    ,muonVeto
+                    ,tauBDTLoose
+                    ,tauBDTMedium
+                    ,tauBDTTight
+                    ,BDTJetScore
+                    ,PSSFrac
+                    ,hadLeakFracFixed
+                    ,etHotShotWinOverPtLeadTrk
+                    ,EMFrac
+                    ,EMFracTrk
+                    ,EfracL2EffCluster
+                    ,EisoEffCluster
+                    ,InvMassEffClusters
+                    ,nNeutPFO
+                    ,nShot
+                    ,NumTracks
+                    ,nClusters
+                    ,jetSeedEta
+                    ,jetSeedPhi
+                    ,jetSeedPt
+                    ,dRmax
+                    ,EMPOverTrkSysP
+                    ,SumPtTrkFracCorrected
+                    ,mEflowApprox
+                    ,ptIntermediateAxis
+                    ,ptRatioEflowApprox
+                    ,trkAvgDist
+                    ,lumiPerBCID);
 
                     tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeSubstructureDummy); 
-
                     panModeSubstructure = panModeSubstructureDummy;
 
                     fill(tool,panModeSubstructure);
                     if ( panPhi > -100 ){
-                        fill(tool,panEta);
-                        fill(tool,panPhi);
-                        fill(tool,panPt);
+                        fill(tool
+                        ,panEta
+                        ,panPhi
+                        ,panPt);
                     }
                 }
             }
@@ -453,14 +509,16 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
                 nClustersEt15BDTLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
                 NumTracksEt15BDTLoose = tau->nTracks();
-                fill(tool,LB,tauPhiEt15BDTLoose,tauEtaEt15BDTLoose);
-                fill(tool,nClustersEt15BDTLoose);
-                fill(tool,NumTracksEt15BDTLoose);
-                fill(tool,tauEtEt15BDTLoose);
+                fill(tool
+                ,LB
+                ,tauPhiEt15BDTLoose
+                ,tauEtaEt15BDTLoose
+                ,nClustersEt15BDTLoose
+                ,NumTracksEt15BDTLoose
+                ,tauEtEt15BDTLoose);
             }
         }
     }
-    fill(tool,nHighPtTauCandidates);
-    fill(tool,nTauCandidates);
+    fill(tool,nHighPtTauCandidates,nTauCandidates,nHighPtTaus);
     return StatusCode::SUCCESS;
 }

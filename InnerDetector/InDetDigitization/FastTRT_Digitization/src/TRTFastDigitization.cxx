@@ -37,7 +37,7 @@ StatusCode TRTFastDigitization::execute() {
 
   ATH_MSG_VERBOSE ( "execute()" );
 
-  StatusCode sc =  m_digTool->processAllSubEvents();
+  StatusCode sc =  m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 
   ATH_MSG_DEBUG ( "m_digTool->processAllSubEvents()" );
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaServices/src/RCUSvc.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -96,10 +95,16 @@ StatusCode RCUSvc::remove (IRCUObject* obj)
  */
 void RCUSvc::handle (const Incident& inc)
 {
-  lock_t g (m_mutex);
   if (inc.type() == IncidentType::EndEvent) {
-    for (IRCUObject* p : m_objs)
-      p->quiescent (inc.context());
+    lock_t g (m_mutex);
+    // Be careful --- calling quiescent() below may lead to objects being
+    // removed from the set.
+    std::vector<IRCUObject*> objs (m_objs.begin(), m_objs.end());
+    for (IRCUObject* p : objs) {
+      if (m_objs.find(p) != m_objs.end()) {
+        p->quiescent (inc.context());
+      }
+    }
   }
 }
 

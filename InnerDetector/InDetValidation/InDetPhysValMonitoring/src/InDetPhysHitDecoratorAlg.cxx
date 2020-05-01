@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -374,7 +374,6 @@ InDetPhysHitDecoratorAlg::decideDetectorRegion(const Identifier& id, Subdetector
   const int normalBarrel(0);
   const int upgradedBarrel(1);
   const int normalTrtBarrel(1);
-  const int dbm(4);
 
   det = INVALID_DETECTOR;// default
   r = INVALID_REGION;
@@ -383,11 +382,7 @@ InDetPhysHitDecoratorAlg::decideDetectorRegion(const Identifier& id, Subdetector
   // following the logic in the original code, should be reviewed!
   if (m_idHelper->is_pixel(id)) {
     bec = abs(m_pixelID->barrel_ec(id));
-    if (bec == dbm) {
-      det = DBM;
-    } else {
-      det = PIXEL;
-    }
+    if(fabs(bec) < 4) det = PIXEL;
   }
   if (m_idHelper->is_sct(id)) {
     det = SCT;
@@ -405,9 +400,7 @@ InDetPhysHitDecoratorAlg::decideDetectorRegion(const Identifier& id, Subdetector
       det = L0PIXBARR;
     }
   }
-  if (det == DBM) {
-    r = (bec < 0) ? (BARREL) : (ENDCAP);
-  }
+
   if (det == SCT) {
     bec = abs(m_sctID->barrel_ec(id));
     if (not m_doUpgrade) {
@@ -456,32 +449,6 @@ InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters*
   }
   return unbiasedTrkParameters;
 }
-
-/**
-   for (; TSOSItr != trackWithHoles->trackStateOnSurfaces()->end(); ++TSOSItr) {
-   const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
-      const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
-   const Trk::TrackParameters* biasedTrackParameters = (*TSOSItr)->trackParameters();
-
-   if (mesb && biasedTrackParameters) {
-   const Trk::TrackParameters *trackParameters = (!(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier))
-      ?getUnbiasedTrackParameters(biasedTrackParameters,mesb) : biasedTrackParameters;
-
-   Trk::ResidualPull::ResidualType resType = (m_isUnbiased) ? (Trk::ResidualPull::Unbiased):(Trk::ResidualPull::Biased);
-   const auto_ptr<const Trk::ResidualPull>
-      residualPull(m_residualPullCalculator->residualPull(hit,trackParameters,resType));
-   residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
-   m_residualx_pixel_barrel->Fill(residualLocX);
-   }
-   }
-   }
- **/
-
-
-
-
-
-
 
 /**
    const Trk::TrackParameters*

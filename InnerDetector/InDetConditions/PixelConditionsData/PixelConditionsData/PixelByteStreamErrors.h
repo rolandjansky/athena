@@ -13,15 +13,15 @@ namespace PixelByteStreamErrors {
   enum PixelErrorsEnum {TimeOut=0, firstErrType=TimeOut, BCID, LVL1ID, Preamble, Trailer,
 			Flagged, DisableFE, BadFE, ROD, Decoding, Invalid, LinkMaskedByPPC, Limit, TruncatedROB, MaskedROB, lastErrType=MaskedROB, ErrorsNumber=lastErrType+1 };
 
+  //!< @brief for cases when error doe snot need to be accumulated
+  inline IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
 
   //!< @brief helper to be used in clients to fetch error information
-  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord & (1<<errType); }
+  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord & makeError( errType ); }
 
   //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
-  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  PixelErrorsEnum errType ) { errWord |= (1<<errType); }
+  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  PixelErrorsEnum errType ) { errWord |= makeError( errType ); }
 
-  //!< @brief for cases when error doe snot need to be accumulated
-  inline IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return (1<<errType); }
 }
 
 

@@ -17,7 +17,6 @@
 
 #include <SampleHandler/Global.h>
 #include <RootCoreUtils/Assert.h>
-#include <RootCoreUtils/Deprecated.h>
 
 #include <string>
 #include <TCollection.h>
@@ -185,7 +184,7 @@ namespace SH
     /// \par Guarantee
     ///   no-fail
   public:
-    RCU_DEPRECATED ("please use castDouble instead")
+    [[deprecated("please use castDouble instead")]]
     double getDouble (const std::string& name, double def_val = 0) const;
 
     /// \brief the meta-data string with the given name
@@ -203,7 +202,7 @@ namespace SH
     ///   I return the string by value, because returning by
     ///   reference seems to break the python binding.
   public:
-    RCU_DEPRECATED ("please use castString instead")
+    [[deprecated("please use castString instead")]]
     std::string getString (const std::string& name, const std::string& def_val = "") const;
 
 

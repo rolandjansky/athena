@@ -7,13 +7,14 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
+// #include "GaudiKernel/EventContext.h"
 // Trk inlcude
 #include "TrkExTools/ObjContainer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 
 // for debugging could implement these methods to instrument input track parameters with
-// e.g. construcor and destrucotr monitoring
+// e.g. constructor and destructor monitoring
 inline const Trk::TrackParameters *replaceTrkParm(const Trk::TrackParameters *base_parm) {
    return base_parm;
 }
@@ -215,6 +216,7 @@ Trk::Extrapolator::~Extrapolator() {
 // initialize
 StatusCode
 Trk::Extrapolator::initialize() {
+
   m_referenceSurface = new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0., 0.);
   m_referenceSurface->setOwner(Trk::TGOwn);
 
@@ -440,7 +442,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
 
 
 //---------------------------------------------------------------
-const Trk::TrackParametersVector*
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
                                        const Trk::TrackParameters &parm,
                                        const Trk::Surface &sf,
@@ -455,17 +457,16 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
   ATH_MSG_DEBUG("F-[" << cache.m_methodSequence << "] extrapolateStepwise(...) ");
   // initialize the return parameters vector
   // create a new internal helper vector
-  cache.m_parametersOnDetElements    = new std::vector<const Trk::TrackParameters *>;
+  Trk::TrackParametersVector tmp;
+  cache.m_parametersOnDetElements    = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
   ManagedTrackParmPtr parameterOnSf(extrapolateImpl(cache,prop, cache.manage(parm).index(), sf, dir, bcheck, particle));
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
   if (parameterOnSf) {
-    cache.m_parametersOnDetElements->push_back(parameterOnSf.release());
-    const Trk::TrackParametersVector *ret=cache.m_parametersOnDetElements;
+    tmp.push_back(parameterOnSf.release());
     cache.m_parametersOnDetElements    = nullptr;
     cache.m_ownParametersOnDetElements = false;
-    return ret;
   } else {
 
      if (!cache.m_ownParametersOnDetElements) {
@@ -473,8 +474,9 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
         msg << "Will not cleanup " << static_cast<const void *>(cache.m_parametersOnDetElements);
         throw std::logic_error(msg.str());
      }
-     return nullptr;
+     tmp.clear();
   }
+  return Trk::TrackParametersUVector (tmp.begin(), tmp.end());
 }
 const Trk::TrackParameters *
 Trk::Extrapolator::extrapolate(const IPropagator &prop,
@@ -512,7 +514,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
    Cache cache{};
    return extrapolateImpl(cache,prop,cache.manage(parm).index(),sfMeff,tvol,dir,particle,matupmode).release();
 }
-const Trk::TrackParametersVector*
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateBlindly(
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
@@ -2144,7 +2146,7 @@ Trk::Extrapolator::extrapolate(const TrackParameters &parm,
    return extrapolateImpl(cache,cache.manage(parm).index(),sf,dir,bcheck,particle,matupmode,extrapolationCache).release();
 }
 
-const std::vector<const Trk::TrackParameters *> *
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateStepwise(
   const Trk::TrackParameters &parm,
   const Trk::Surface &sf,
@@ -2159,7 +2161,7 @@ Trk::Extrapolator::extrapolateStepwise(
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return nullptr;
+  return TrackParametersUVector();
 }
 
 const Trk::TrackParameters *
@@ -2190,7 +2192,7 @@ Trk::Extrapolator::extrapolate(const Trk::Track &trk,
   return nullptr;
 }
 
-const std::vector<const Trk::TrackParameters *> *
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateBlindly(
   const Trk::TrackParameters &parm,
   Trk::PropDirection dir,
@@ -2205,7 +2207,7 @@ Trk::Extrapolator::extrapolateBlindly(
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return nullptr;
+  return TrackParametersUVector();
 }
 
 const Trk::TrackParameters *
@@ -2911,7 +2913,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
   return ManagedTrackParmPtr();
 }
 
-const Trk::TrackParametersVector*
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateBlindlyImpl(
   Cache& cache,
   const IPropagator &prop,
@@ -2928,20 +2930,20 @@ Trk::Extrapolator::extrapolateBlindlyImpl(
   cache.m_boundaryVolume = boundaryVol;
   // initialize the return parameters vector
   // create a new internal helper vector
-  cache.m_parametersOnDetElements    = new std::vector<const Trk::TrackParameters *>;
+  Trk::TrackParametersVector tmp;
+  cache.m_parametersOnDetElements    = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
   {
      ManagedTrackParmPtr parameterOnSf(extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle));
   }
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
-  Trk::TrackParametersVector *returnParameters = cache.m_parametersOnDetElements;
   cache.m_parametersOnDetElements    = nullptr;
   cache.m_ownParametersOnDetElements = false;
   // reset the boundary Volume
   cache.m_boundaryVolume = nullptr;
   // return what you have
-  return returnParameters;
+  return Trk::TrackParametersUVector (tmp.begin(), tmp.end());
 }
 
 
@@ -4544,6 +4546,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(
      }
   }
   Cache cache{};
+
   // reset the path
   cache.m_path = 0.;
   ++cache.m_methodSequence;

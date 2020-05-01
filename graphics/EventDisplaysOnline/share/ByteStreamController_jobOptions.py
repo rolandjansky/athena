@@ -38,6 +38,6 @@ ByteStreamEmonCtrlSvc.OutputLevel=BSEmonMsgLvl
 ISPropertySvc.OutputLevel=BSEmonMsgLvl
 
 if BSEmonMsgLvl <= DEBUG:
- print "\n\n\t ISPropertySvc setup:\n",ISPropertySvc,"\n\n"
- print "\n\n\t ByteStreamEmonControl setup:\n",ByteStreamEmonCtrlSvc,"\n\n"
+ printfunc ("\n\n\t ISPropertySvc setup:\n",ISPropertySvc,"\n\n")
+ printfunc ("\n\n\t ByteStreamEmonControl setup:\n",ByteStreamEmonCtrlSvc,"\n\n")
 

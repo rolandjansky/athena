@@ -338,7 +338,7 @@ inline std::string AlignmentErrorTool::hardwareName(MuonCalib::MuonFixedId calib
     if (calibId.eta()==-7 && calibId.stationName()==5) return "BOE1C13"; // BOE1C13 not BOL7C13
   }
   std::string etaString = "0";
-  etaString[0] += abs(hardwareEta(calibId));
+  etaString[0] += std::abs(hardwareEta(calibId));
   return calibId.stationNameString() + etaString + side(calibId) + sectorString(calibId);
 }
 

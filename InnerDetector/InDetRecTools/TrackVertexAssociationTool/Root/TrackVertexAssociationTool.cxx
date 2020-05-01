@@ -38,7 +38,56 @@ StatusCode TrackVertexAssociationTool::initialize()
 
   ATH_CHECK( m_eventInfo.initialize() );
 
-  if ( m_wp == "Electron" ) {
+  // WPs which are obsoleted in Run 2 and remapped to new values:
+  const std::map<std::string, std::string> remap_wps = {{"Loose", "SV_Reject"}, {"Nominal", "SV_Reject"}, {"Tight", "PU_SV_Reject"}};
+  std::string str_of_remapped_wps = "[";
+  for (auto it = remap_wps.begin(); it != remap_wps.end(); it++) {
+    str_of_remapped_wps += ("'" + it->first + "',");
+  }
+  str_of_remapped_wps += "]";
+
+  // If we specify to use an old (Run 2) WP, include special handling
+  if (m_wp.find("Old_") == 0) {
+    std::string wp_suffix = m_wp.substr(m_wp.find("_") + 1);
+    auto it = remap_wps.find(wp_suffix);
+    if (it != remap_wps.end()) {
+      m_wp = wp_suffix;
+    }
+    else {
+      ATH_MSG_FATAL("TVA working point '" << wp_suffix << "' was prefixed by 'Old_', but it is not matched to any of " << str_of_remapped_wps << "!");
+    }
+  }
+  // Else, automatically remap old WPs to new ones
+  else {
+    auto it = remap_wps.find(m_wp);
+    if (it != remap_wps.end()) {
+      ATH_MSG_WARNING("TVA working point '" << m_wp << "' is not recommended for use and will eventually be obsoleted. Automatically remapping to '" << it->second << "' instead.");
+      m_wp = it->second;
+    }
+  }
+
+  if ( m_wp == "PU_Reject" ) {
+    m_d0_cut = -1;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "SV_Reject" ) {
+    m_d0_cut = 2.;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 2.;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "PU_SV_Reject") {
+    m_d0_cut = 2.;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Electron" ) {
     m_d0_cut = -1;
     m_use_d0sig = true;
     m_d0sig_cut = 5.0;

@@ -3,7 +3,7 @@
 */
 
 #include "MuonHistUtils/SlowMuonParamPlots.h"
-#include "TMath.h" // for TMath::Prob
+#include "TMath.h" // for TMath::Prob()
 
 namespace Muon{
 

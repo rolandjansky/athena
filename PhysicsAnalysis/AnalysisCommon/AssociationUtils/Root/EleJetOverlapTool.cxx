@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 // System includes
 #include <typeinfo>
 
@@ -27,6 +28,8 @@ namespace ORUtils
   {
     declareProperty("BJetLabel", m_bJetLabel = "",
                     "Input b-jet flag. Disabled by default.");
+    declareProperty("MaxElePtForBJetAwareOR", m_maxElePtForBJetAwareOR = 100.*GeV,
+                    "Max electron PT for b-tag aware OR. 100 GeV by default.");
     declareProperty("ApplyPtRatio", m_applyPtRatio = false,
                     "Toggle ele/jet PT ratio requirement");
     declareProperty("EleJetPtRatio", m_eleJetPtRatio = 0.8,
@@ -52,26 +55,41 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleJetOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty()) {
-      ATH_MSG_DEBUG("Configuring btag-aware OR with btag label: " << m_bJetLabel);
-      m_bJetHelper = make_unique<BJetHelper>(m_bJetLabel);
+
+      if (m_maxElePtForBJetAwareOR < 0){
+        m_maxElePtForBJetAwareOR = std::numeric_limits<double>::max();
+        ATH_MSG_DEBUG("Configuring btag-aware OR with btag label " <<
+                      m_bJetLabel << " for all electrons");
+      }
+      else{
+        ATH_MSG_DEBUG("Configuring btag-aware OR with btag label " <<
+                      m_bJetLabel << " for electrons below "
+                      << m_maxElePtForBJetAwareOR/GeV << " GeV");
+      }
+      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
     }
 
     // Initialize the dR matchers
-    m_dRMatchCone1 = make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
+    ATH_MSG_DEBUG("Configuring ele-jet inner cone size " << m_innerDR);
+    m_dRMatchCone1 = std::make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
     if(m_useSlidingDR) {
       ATH_MSG_DEBUG("Configuring sliding outer cone for ele-jet OR with " <<
                     "constants C1 = " << m_slidingDRC1 << ", C2 = " <<
                     m_slidingDRC2 << ", MaxCone = " << m_slidingDRMaxCone);
       m_dRMatchCone2 =
-        make_unique<SlidingDeltaRMatcher>
+        std::make_unique<SlidingDeltaRMatcher>
           (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
     }
     else {
-      m_dRMatchCone2 = make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
+      ATH_MSG_DEBUG("Configuring ele-jet outer cone size " << m_outerDR);
+      m_dRMatchCone2 = std::make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
+    }
+
+    // Additional debug printouts
+    if(m_applyPtRatio) {
+      ATH_MSG_DEBUG("Apply ele/jet PT ratio requirement at " << m_eleJetPtRatio);
     }
 
     return StatusCode::SUCCESS;
@@ -119,8 +137,9 @@ namespace ORUtils
 
       for(const auto jet : jets){
         if(!m_decHelper->isSurvivingObject(*jet)) continue;
-        // Don't reject user-defined b-tagged jets
-        if(m_bJetHelper && m_bJetHelper->isBJet(*jet)) continue;
+        // Don't reject user-defined b-tagged jets below an electron pT threshold
+        if(m_bJetHelper && m_bJetHelper->isBJet(*jet) &&
+           electron->pt() < m_maxElePtForBJetAwareOR) continue;
         // Don't reject jets with high relative PT
         if(m_applyPtRatio && (electron->pt()/jet->pt() < m_eleJetPtRatio)) continue;
 

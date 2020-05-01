@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -170,12 +170,6 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
         fulltitle   = title + ' {0}'.format(layer) + runtext + etatxt[i] + phitext
         layerGroup = getLayerGroup(helper, alg, layer)
 
-        # sequential list of x- and y-axis bin labels (see defineHistogram)
-        labels = []
-        for label in LabelX[i]:
-            labels.append(label)
-        for label in LabelY[i]:
-            labels.append(label)
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
         if doWeight:
@@ -189,7 +183,7 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
                                     ybins=ybinsl[i], ymin=-0.5, ymax=-0.5+ybinsl[i],
                                     zmin=zmin, zmax=zmax,
                                     duration=lifecycle,
-                                    opt=opt, labels=labels)
+                                    opt=opt, xlabels=LabelX[i], ylabels=LabelY[i])
 
 def definePP0Histos(helper, alg, name, title, path, opt=''):
     '''
@@ -217,16 +211,12 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
         fulltitle   = title + ' {0}'.format(layer) + runtext + xatxt + yatxt
         groupname   = name  + '_{0}'.format(layer)
         layerGroup = getLayerGroup(helper, alg, layer)
-        # sequential list of x-axis bin labels (see defineHistogram)
-        labels = []
-        for label in PP0LabelX[i]:
-            labels.append(label)
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pospp0x', 'val')
         fullvarstring += ';' + groupname
         layerGroup.defineHistogram(fullvarstring, 
                                     type='TProfile', path=path, title=fulltitle,
                                     xbins=pp0xbins[i], xmin=-0.5, xmax=-0.5+pp0xbins[i],
-                                    opt=opt, labels=labels)
+                                    opt=opt, xlabels=PP0LabelX[i])
 
 
 

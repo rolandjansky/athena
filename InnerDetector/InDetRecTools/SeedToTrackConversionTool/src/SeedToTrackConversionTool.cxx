@@ -96,7 +96,7 @@ void InDet::SeedToTrackConversionTool::endEvent(SeedToTrackConversionData& data)
 void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConversionData& data,
                                                                const Trk::TrackParameters* Tp,
                                                                const int& mtrk,
-                                                               const std::list<const Trk::SpacePoint*>& Sp) const
+                                                               const std::vector<const Trk::SpacePoint*>& Sp) const
 {
   ++m_totseed; // accumulate all seeds
   if (mtrk>0) ++m_survived; // survided seeds 

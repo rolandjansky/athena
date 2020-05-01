@@ -98,7 +98,7 @@ private:
     void        checkOverrideRunNumber();
 
     /// override IOV with new run number
-    StatusCode  overrideIOV ATLAS_NOT_THREAD_SAFE (CondAttrListCollection*& coll) const;
+    StatusCode  overrideIOV (CondAttrListCollection*& coll) const;
 
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes

@@ -1,30 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGCCondSummarySvc.h"
-//STL includes
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
 #include "GaudiKernel/ISvcLocator.h"
-
-//Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-//Athena
 #include "Identifier/IdentifierHash.h"
-//Muon
 #include "MuonIdHelpers/TgcIdHelper.h"
-//#include "MuonCondInterface/IMuonDetectorStatusDbTool.h"
 #include "MuonCondInterface/ITGCConditionsSvc.h"
-
 #include "Identifier/Identifier.h"
-
-
-
-using namespace std;
 
 // Constructor
 TGCCondSummarySvc::TGCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 

@@ -22,6 +22,8 @@ namespace tauRecTools {
 
       float getGradBoostMVA(const std::map<TString, float>& availableVariables) const; 
 
+      float getResponse(const std::map<TString, float*>& availableVariables) const; 
+
       float getGradBoostMVA(const xAOD::TauJet& tau) const; 
 
       MVAUtils::BDT* getBDT() const { return m_BDT.get(); }
@@ -31,6 +33,8 @@ namespace tauRecTools {
       
       std::vector<float> getInputVariables(const std::map<TString, float>& availableVariables) const ;
       
+      std::vector<float> getInputVariables(const std::map<TString, float*>& availableVariables) const;
+
       std::vector<float> getInputVariables(const xAOD::TauJet& tau) const ;
 
       std::unique_ptr<MVAUtils::BDT> m_BDT;

@@ -26,9 +26,7 @@ namespace ISF_FCS_Parametrization {
   class FCS_StepInfoCollection;
   class FCS_StepInfo;
 }
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 // forward declarations in global namespace
 class G4VSolid;
 class G4AffineTransform;

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOL_CSCROD_DECODER_H
 #define MUONCSC_CNVTOOL_CSCROD_DECODER_H
 
-// MuonCSC_CnvTool includes  
 #include "MuonCSC_CnvTools/ICSC_ROD_Decoder.h"        
 #include "CscRODReadOut.h"
 #include "CscRODReadOutV0.h"
@@ -15,18 +14,14 @@
 #include <inttypes.h>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "Identifier/Identifier.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "eformat/SourceIdentifier.h"
 #include "eformat/Version.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CSCcabling/CSCcablingSvc.h"
 
 class CscRawDataContainer;
-
-//using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
-//using eformat::helper::SourceIdentifier; 
 
 namespace Muon {
 
@@ -43,13 +38,9 @@ public:
    */
   CscROD_Decoder(const std::string& type, const std::string& name,
 		 const IInterface* parent ) ;
-
-  /** destructor 
-   */
-  virtual ~CscROD_Decoder(); 
+  virtual ~CscROD_Decoder()=default; 
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   
   virtual void fillCollection(const xAOD::EventInfo& eventInfo,
                               const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const override;
@@ -70,12 +61,9 @@ private:
   void rodVersion2(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC) const;
 
 private:
-
   CSC_Hid2RESrcID                   m_hid2re;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ServiceHandle<CSCcablingSvc>      m_cabling;
-
   bool                              m_isCosmic;
   bool                              m_isOldCosmic;
 

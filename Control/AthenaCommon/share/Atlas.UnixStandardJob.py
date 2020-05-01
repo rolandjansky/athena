@@ -15,9 +15,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #--------------------------------------------------------------
 from AthenaCommon.SystemOfUnits import *
 
-# make sure StatusCodeSvc messages are always printed
-StatusCodeSvc = svcMgr.StatusCodeSvc
-
 # make the message service available
 MessageSvc = svcMgr.MessageSvc
 MessageSvc.enableSuppression = True

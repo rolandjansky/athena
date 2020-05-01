@@ -36,7 +36,6 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_ampMinThresh_pC(-1.)
   , m_ampMinThresh_MeV(-1.)
   , m_of2Default(true)
-  , m_MBTS(nullptr)
   , m_hid2re(nullptr)
   , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
@@ -3181,7 +3180,8 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
 
 uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob,
                                             TileCellCollection & v,
-                                            D0CellsHLT& d0cells) const
+                                            D0CellsHLT & d0cells,
+                                            TileCellCollection * MBTS) const
 {
   uint32_t version = rob->rod_version() & 0xFFFF;
   // Resets error flag
@@ -3335,7 +3335,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob,
   if (fragFound) {
     if (masked_drawer) DQuality = 0x0;
     error |= make_copyHLT(of2, rChUnit, correctAmplitude,
-                          pChannel, v, DQuality, d0cells);
+                          pChannel, v, DQuality, d0cells, MBTS);
   } else if (!masked_drawer) error |= 0x20000;
   
   return error;
@@ -3347,7 +3347,8 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
                                        const FRwChVec & pChannel,
                                        TileCellCollection & v,
                                        const uint16_t DQuality,
-                                       D0CellsHLT& d0cells) const
+                                       D0CellsHLT & d0cells,
+                                       TileCellCollection * MBTS) const
 {
   typedef FRwChVec::const_iterator ITERATOR;
   // int gain = 0;
@@ -3511,16 +3512,11 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       pCell->addEnergy(0., 1-m_Rw2Pmt[sec][5], 1);
     }
 
-    // This is looking at event data via member variables.  Won't work with MT.
-    if (Gaudi::Hive::currentContext().slot() > 1) {
-      ATH_MSG_ERROR("TileROD_Decoder::make_copyHLT is not MT-safe but used in "
-                    "a MT job.  Results will likely be wrong.");
-    }
-    if (m_MBTS && MBTS_chan >= 0) {
+    if (MBTS && MBTS_chan >= 0) {
       auto it = m_mapMBTS.find (frag_id);
       unsigned int idx = it != m_mapMBTS.end() ? it->second : 0u;
-      if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)
-        TileCell* pCell = (*m_MBTS)[idx];
+      if (idx < (*MBTS).size()) { // MBTS present (always last channel)
+        TileCell* pCell = (*MBTS)[idx];
         const TileFastRawChannel& rawCh = pChannel[MBTS_chan];
         channelIdx = rawCh.channel();
         adcIdx = rawCh.adc();
@@ -3556,7 +3552,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
         pCell->setQuality_nonvirt(std::min(255, abs((int) qual)), 0, 0);
       } // End of if idx
       
-    } // End of if m_MBTS
+    } // End of if MBTS
     
   } // end of if vec<TileRawChannel>::size > 0)
   
@@ -3969,9 +3965,7 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
   }
 }
 
-void TileROD_Decoder::loadMBTS_Ptr(TileCellCollection* col,
-                                   std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel) {
-  m_MBTS = col;
+void TileROD_Decoder::loadMBTS(std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel) {
   m_mapMBTS = mapMBTS;
   m_MBTS_channel = MBTS_channel;
   return;

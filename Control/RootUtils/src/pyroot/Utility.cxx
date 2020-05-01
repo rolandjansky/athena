@@ -26,7 +26,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 namespace RootUtils {
 enum EMemoryPolicy { kHeuristics = 1, kStrict = 2 };
 }
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
 namespace PyROOT {
 struct TCallContext {
       enum ECallFlags {
@@ -45,12 +44,6 @@ struct TCallContext {
   UInt_t fFlags;
 };
 }
-#else
-namespace PyROOT { namespace Utility {
-extern RootUtils::EMemoryPolicy gMemoryPolicy;
-}}
-#endif
-
 
 namespace RootUtils {
 
@@ -261,24 +254,16 @@ bool setOwnership (PyObject* obj, bool flag)
 
 bool isStrict()
 {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   using PyROOT::TCallContext;
   return TCallContext::sMemoryPolicy == TCallContext::kUseStrict;
-#else
-  return PyROOT::Utility::gMemoryPolicy == RootUtils::kStrict;
-#endif
 }
 
 
 bool useStrictOwnership (Long_t user)
 {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   using PyROOT::TCallContext;
   TCallContext* ctxt = reinterpret_cast<TCallContext*>(user);
   return ctxt ? (ctxt->fFlags & TCallContext::kUseStrict) :  isStrict();
-#else
-  return user == RootUtils::kStrict;
-#endif
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ILARHVPATHOLOGYDBTOOL_H
@@ -26,12 +26,12 @@ class ILArHVPathologyDbTool: virtual public IAlgTool
 
   /** @brief Transform LArCellHVPathologyDBContainer into Attribute List
    */
-  virtual AthenaAttributeList* hvPathology2AttrList(const LArHVPathologiesDb&) = 0;
+  virtual AthenaAttributeList* hvPathology2AttrList(const LArHVPathologiesDb&) const = 0;
 
   /** @brief Transform Attribute List into LArDBCellHVPathologyDBContainer
       NB: clients must delete returned pointer!
    */
-  virtual LArHVPathologiesDb* attrList2HvPathology(const AthenaAttributeList&) = 0;
+  virtual LArHVPathologiesDb* attrList2HvPathology(const AthenaAttributeList&) const = 0;
 };
 
 #endif

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "MuonParamDefs.h"
 #include "physics_MCP_RTT.h"
 #include <TH1F.h>
@@ -9,7 +13,6 @@
 #include <TObject.h>
 #include <TProfile.h>
 
-using namespace std;
 class histos : public physics {
 
  public:

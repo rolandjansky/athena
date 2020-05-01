@@ -116,10 +116,10 @@ private:
   /// size of m_modeNames
   std::vector<std::unique_ptr<TH1F>> m_correlationHists;
 
-  Gaudi::Property<bool> m_addCalibrationResultVariables{this, "addCalibrationResultVariables", false};
-  Gaudi::Property<bool> m_addUseCaloPtFlag{this, "addUseCaloPtFlag", false};
-    
-  Gaudi::Property<std::string> m_sWeightFileName{this, "WeightFileName", ""};
+  bool m_addCalibrationResultVariables;
+  bool m_addUseCaloPtFlag;
+  std::string m_sWeightFileName;
+  
   std::unique_ptr<TF1> m_Nsigma_compatibility;
 };
 

@@ -22,7 +22,8 @@
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
-#include "GaudiKernel/EventContext.h"
+
+class EventContext;
 
 class IAsgEGammaIsEMSelector : virtual public CP::ISelectionTool
 {

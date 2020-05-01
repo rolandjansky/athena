@@ -121,6 +121,13 @@ class usePFEGammaPFOAssoc(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class provideShowerSubtractedClusters(JobProperty):
+    """ Flag to toggle provision of ElementLink to charged shower subtracted calorimeter clusters. Such links are added to
+    neutral PFO and we write out the relevant CaloClusterContainer to AOD such that the links remain valid """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -131,7 +138,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,provideShowerSubtractedClusters]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

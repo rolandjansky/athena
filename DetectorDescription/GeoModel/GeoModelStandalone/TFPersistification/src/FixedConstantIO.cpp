@@ -1,6 +1,4 @@
-#define private public
 #include "GeoGenericFunctions/FixedConstant.h"
-#undef private
 #include "TFPersistification/GenFunctionPersistifier.h"
 #include "TFPersistification/GenFunctionInterpreter.h"
 #include "TFPersistification/FixedConstantIO.h"
@@ -25,6 +23,6 @@ void FixedConstantRecorder::execute(const GeoGenfun::AbsFunction & F) const {
   std::ostringstream & stream = getPersistifier()->getStream();
   stream << "FixedConstant";
   stream << "(";
-  stream<<ptr->_value;
+  stream<<(*ptr)(0);
   stream << ")";
 }

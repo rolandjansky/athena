@@ -1,17 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <iostream>
 
 using namespace MuonGM;
-using namespace std;
 
 RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent ) 
 : AthAlgTool(type,name,parent)

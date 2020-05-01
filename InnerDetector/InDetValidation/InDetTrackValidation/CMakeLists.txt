@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelInterfaces
    Event/EventPrimitives
    Generators/GeneratorObjects
+   Generators/AtlasHepMC
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsTools
@@ -46,14 +47,13 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore )
 
 # Component(s) in the package:
 atlas_add_component( InDetTrackValidation
    InDetTrackValidation/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
    AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
    InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces AthContainers AtlasDetDescr
    EventPrimitives GeneratorObjects TRT_ConditionsData

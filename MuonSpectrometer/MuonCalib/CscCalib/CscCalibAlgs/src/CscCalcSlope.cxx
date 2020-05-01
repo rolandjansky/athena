@@ -686,7 +686,7 @@ namespace MuonCalib {
 
           float attenValue =0;
           if(m_doLinPlot)
-            attenValue = 300*pow(10,db/20);
+            attenValue = 300*std::pow(10,db/20);
           else 
             attenValue = db;
 
@@ -767,7 +767,7 @@ namespace MuonCalib {
         }
 
         float invertedSlope;
-        if(abs(slope) < 0.00001 || slope == -999) //watch out for slope==0 
+        if(std::abs(slope) < 0.00001 || slope == -999) //watch out for slope==0 
         {
           mLog << MSG::WARNING <<  "Slope invalid " << endmsg;
           continue;

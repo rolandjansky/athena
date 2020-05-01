@@ -6,6 +6,7 @@
 @author B. Laforge
 @brief Example python configuration for the Run III AthenaMonitoring package
 '''
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def BookHistogramPerRegion(groupe,name,particletype,title,path,xbins,xmin,xmax,nregions=3):
     '''
@@ -95,8 +96,7 @@ def MonitorElectronConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the
     # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    from egammaPerformance.egammaPerformanceConf import MonitorElectronAlgorithm
-
+    MonitorElectronAlgorithm=CompFactory.MonitorElectronAlgorithm
     elLHTightMonAlg = helper.addAlgorithm(MonitorElectronAlgorithm,'elLHTightMonAlg')
     elLHTightTrigMonAlg = helper.addAlgorithm(MonitorElectronAlgorithm,'elLHTightTrigMonAlg')
 
@@ -142,28 +142,28 @@ def MonitorElectronConfig(inputFlags):
     # elLHLooseTrigMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     elCBTightMonAlg.ParticleContainerName = "Electrons"
-    elCBTightMonAlg.RecoName = "CBTight"
+    elCBTightMonAlg.RecoName = "Tight"
     elCBTightMonAlg.ParticlePrefix = "electron"
     elCBTightMonAlg.CheckTrigger = False 
     # to enable a trigger filter, for example:
     # elCBTightMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     elCBTightTrigMonAlg.ParticleContainerName = "Electrons"
-    elCBTightTrigMonAlg.RecoName = "CBTight"
+    elCBTightTrigMonAlg.RecoName = "Tight"
     elCBTightTrigMonAlg.ParticlePrefix = "electron"
     elCBTightTrigMonAlg.CheckTrigger = True 
     # to enable a trigger filter, for example:
     # elCBTightTrigMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     elCBLooseMonAlg.ParticleContainerName = "Electrons"
-    elCBLooseMonAlg.RecoName = "CBLoose"
+    elCBLooseMonAlg.RecoName = "Loose"
     elCBLooseMonAlg.ParticlePrefix = "electron"
     elCBLooseMonAlg.CheckTrigger = False 
     # to enable a trigger filter, for example:
     # elCBLooseMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     elCBLooseTrigMonAlg.ParticleContainerName = "Electrons"
-    elCBLooseTrigMonAlg.RecoName = "CBLoose"
+    elCBLooseTrigMonAlg.RecoName = "Loose"
     elCBLooseTrigMonAlg.ParticlePrefix = "electron"
     elCBLooseTrigMonAlg.CheckTrigger = True 
     # to enable a trigger filter, for example:
@@ -250,8 +250,8 @@ def MonitorPhotonConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the
     # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    from egammaPerformance.egammaPerformanceConf import MonitorPhotonAlgorithm
 
+    MonitorPhotonAlgorithm=CompFactory.MonitorPhotonAlgorithm
     phCBTightMonAlg = helper.addAlgorithm(MonitorPhotonAlgorithm,'phCBTightMonAlg')
     phCBTightTrigMonAlg = helper.addAlgorithm(MonitorPhotonAlgorithm,'phCBTightTrigMonAlg')
 
@@ -262,14 +262,14 @@ def MonitorPhotonConfig(inputFlags):
     # Edit properties of algorithms
 
     phCBTightMonAlg.ParticleContainerName = "Photons"
-    phCBTightMonAlg.RecoName = "CBTight"
+    phCBTightMonAlg.RecoName = "Tight"
     phCBTightMonAlg.ParticlePrefix = "photon"
     phCBTightMonAlg.CheckTrigger = False 
     # to enable a trigger filter, for example:
     # phCBTightMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     phCBTightTrigMonAlg.ParticleContainerName = "Photons"
-    phCBTightTrigMonAlg.RecoName = "CBTight"
+    phCBTightTrigMonAlg.RecoName = "Tight"
     phCBTightTrigMonAlg.ParticlePrefix = "photon"
     phCBTightTrigMonAlg.CheckTrigger = True 
     phCBTightTrigMonAlg.WithTrigger = "WithTrigger" 
@@ -277,14 +277,14 @@ def MonitorPhotonConfig(inputFlags):
     # phCBTightTrigMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     phCBLooseMonAlg.ParticleContainerName = "Photons"
-    phCBLooseMonAlg.RecoName = "CBLoose"
+    phCBLooseMonAlg.RecoName = "Loose"
     phCBLooseMonAlg.ParticlePrefix = "photon"
     phCBLooseMonAlg.CheckTrigger = False 
     # to enable a trigger filter, for example:
     # phCBLooseMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     phCBLooseTrigMonAlg.ParticleContainerName = "Photons"
-    phCBLooseTrigMonAlg.RecoName = "CBLoose"
+    phCBLooseTrigMonAlg.RecoName = "Loose"
     phCBLooseTrigMonAlg.ParticlePrefix = "photon"
     phCBLooseTrigMonAlg.CheckTrigger = True 
     phCBLooseTrigMonAlg.WithTrigger = "WithTrigger" 

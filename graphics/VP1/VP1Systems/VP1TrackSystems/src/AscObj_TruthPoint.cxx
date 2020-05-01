@@ -15,8 +15,8 @@
 #include "VP1TrackSystems/AscObj_TruthPoint.h"
 #include "VP1TrackSystems/SimHitHandleBase.h"
 #include "VP1Base/VP1Msg.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // Eigen migration
 //#include "TrkEventPrimitives/GlobalPosition.h"
@@ -83,9 +83,7 @@ void AscObj_TruthPoint::buildShapes(SoSeparator*&shape_simple, SoSeparator*&shap
   else
   {
 	  // Eigen migration
-//    p1 = Trk::GlobalPosition(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
-//    u = Trk::GlobalMomentum(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
-    p1 = Amg::Vector3D(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    p1 = Amg::Vector3D(m_d->genVertex->position().x(),m_d->genVertex->position().y(),m_d->genVertex->position().z());
     u = Amg::Vector3D(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
   }
 
@@ -131,9 +129,7 @@ QStringList AscObj_TruthPoint::clicked()
       return l;
     }
 
-//    Trk::GlobalPosition p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
-//    Trk::GlobalMomentum mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
-    Amg::Vector3D p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    Amg::Vector3D p(m_d->genVertex->position().x(),m_d->genVertex->position().y(),m_d->genVertex->position().z());
     Amg::Vector3D mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
 
     l << "Gen Particle vertex";

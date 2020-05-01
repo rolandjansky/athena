@@ -288,9 +288,6 @@ if doD3PDCell or doD3PDCellInfo or doD3PDMBTS :
 
 svcMgr.MessageSvc.OutputLevel = OutputLevel
 svcMgr.AthenaPoolCnvSvc.MaxFileSizes=['16000000000']
-#svcMgr.StatusCodeSvc.SuppressCheck = True
-svcMgr.StatusCodeSvc.AbortOnError = False
-#print svcMgr.StatusCodeSvc
 
 
 #--------------------------------------------------------------

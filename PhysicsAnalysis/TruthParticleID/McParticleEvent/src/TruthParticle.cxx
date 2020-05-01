@@ -13,10 +13,10 @@
 #include <sstream>
 #include <string>
 
-// HepMC / CLHEP includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+// HepMC includes
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "VxVertex/RecVertex.h"
 

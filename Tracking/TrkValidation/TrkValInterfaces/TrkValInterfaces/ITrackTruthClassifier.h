@@ -14,14 +14,10 @@
 
 #include <vector>
 #include <string>
-//#include "HepMC/GenParticle.h"
-//#include "GeneratorObjects/McEventCollection.h"
 #include "GaudiKernel/IAlgTool.h"
 
 class McEventCollection;
-namespace HepMC {
-class GenParticle; //!< Truth information
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
   static const InterfaceID IID_ITrackTruthClassifier("ITrackTruthClassifier",1,0);

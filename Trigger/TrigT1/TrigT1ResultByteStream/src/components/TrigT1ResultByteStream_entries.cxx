@@ -14,7 +14,6 @@
 #include "TrigT1ResultByteStream/RecRoIBResultByteStreamTool.h"
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
-#include "../RoIBResultByteStreamDecoderAlg.h"
 #include "../L1TriggerByteStreamDecoderAlg.h"
 #include "../ExampleL1TriggerByteStreamTool.h"
 
@@ -41,6 +40,5 @@ DECLARE_COMPONENT( RecMuCTPIByteStreamTool )
 DECLARE_COMPONENT( RecRoIBResultByteStreamTool )
 DECLARE_COMPONENT( RoIBResultByteStreamTool )
 
-DECLARE_COMPONENT( RoIBResultByteStreamDecoderAlg )
 DECLARE_COMPONENT( L1TriggerByteStreamDecoderAlg )
 DECLARE_COMPONENT( ExampleL1TriggerByteStreamTool )

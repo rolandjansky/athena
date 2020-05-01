@@ -9,6 +9,7 @@ atlas_subdir( Pythia8_i )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Generators/GeneratorModules
+                          Generators/AtlasHepMC
                           PRIVATE
                           GaudiKernel
                           Generators/GeneratorObjects

@@ -8,8 +8,8 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTruthData/TruthTrajectory.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -202,8 +202,8 @@ namespace Muon {
                                 << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
                                 << " p " << truthTrajectory->front()->momentum().rho();
 	      if( truthTrajectory->front()->production_vertex() ) {
-                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->point3d().perp() 
-                                  << " z " << truthTrajectory->front()->production_vertex()->point3d().z();
+                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->position().perp() 
+                                  << " z " << truthTrajectory->front()->production_vertex()->position().z();
               }
 	      msg(MSG::VERBOSE) << endmsg;
 	    }
@@ -217,8 +217,8 @@ namespace Muon {
               if( msgLvl(MSG::VERBOSE) && code != barcode ) {
                 msg(MSG::VERBOSE) << "  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
                                   << " p " << (*pit)->momentum().rho();
-                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->point3d().perp() 
-                                                                    << " z " << (*pit)->production_vertex()->point3d().z();
+                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->position().perp() 
+                                                                    << " z " << (*pit)->production_vertex()->position().z();
                 
                 msg(MSG::VERBOSE) << endmsg;
 		// sanity check 
@@ -328,7 +328,6 @@ namespace Muon {
       std::vector<MuonSimData::Deposit>::const_iterator dit = it->second.getdeposits().begin();
       std::vector<MuonSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
-        // 	int barcodeIn = manipulateBarCode(dit->first.barcode());
         int barcodeIn = dit->first.barcode();
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
@@ -742,57 +741,49 @@ namespace Muon {
     m_truthTrajectoriesToBeDeleted.clear();
   }
 
-  const HepMC::GenParticle& MuonTrackTruthTool::getMother( const TruthTrajectory& traj, const int barcodeIn ) const {
-    std::vector<HepMcParticleLink>::const_iterator pit = traj.begin();
-    std::vector<HepMcParticleLink>::const_iterator pit_end = traj.end();
+  const HepMC::GenParticle* MuonTrackTruthTool::getMother( const TruthTrajectory& traj, const int barcodeIn ) const {
     ATH_MSG_DEBUG( "getMother() : size = " << traj.size() );
-    const HepMC::GenParticle* theMother = 0;
-    int pdgFinal = (*pit)->pdg_id();
+    int pdgFinal = ( (traj.size()==0)?  -999 : traj.front()->pdg_id());
     bool foundBC = false;
-    for( ;pit!=pit_end;++pit ){
-      if ((*pit)->barcode()==barcodeIn || foundBC){
+    for( auto pit: traj){
+      if (!pit) continue;
+      if (pit->barcode()==barcodeIn || foundBC){
         foundBC = true;
-        ATH_MSG_DEBUG( "getMother() : pdg = " << (*pit)->pdg_id() << " barcode = " << (*pit)->barcode () );
-        if( (*pit)->pdg_id() != pdgFinal ) { // the first case a track had a different flavour
-          theMother = *pit;
+        ATH_MSG_DEBUG( "getMother() : pdg = " << pit->pdg_id() << " barcode = " << pit->barcode () );
+        if( pit->pdg_id() != pdgFinal ) { // the first case a track had a different flavour
+          if (pit->pdg_id()==pdgFinal) ATH_MSG_ERROR( "Wrong pdgId association in getMother() " );
+          return pit;
           break;
         }
       }
     }
-    
-    // sanity check
-    if (theMother && theMother->pdg_id()==pdgFinal) ATH_MSG_ERROR( "Wrong pdgId association in getMother() " );
-    return *theMother;
+   return nullptr;
   }
 
-  const HepMC::GenParticle& MuonTrackTruthTool::getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const {
-    std::vector<HepMcParticleLink>::const_iterator pit = traj.begin();
-    std::vector<HepMcParticleLink>::const_iterator pit_end = traj.end();
-    const HepMC::GenParticle* theAncestor = 0;
+  const HepMC::GenParticle* MuonTrackTruthTool::getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const {
     bool foundBC = false;
-    for( ;pit!=pit_end;++pit ){
-      if ((*pit)->barcode()==barcodeIn || foundBC){
+    for(auto pit: traj){
+      if (!pit) continue;
+      if (pit->barcode()==barcodeIn || foundBC){
         foundBC = true;
-        if( (*pit)->status() > 1 ) {//first non final state particle
-          theAncestor = *pit;
+        if( pit->status() > 1 ) {//first non final state particle
+          return pit;
           break;
         }
       }
     }
-    return *theAncestor;
+    return nullptr;
   }
 
   const std::pair<const HepMC::GenParticle*, unsigned int> MuonTrackTruthTool::getInitialPair( const TruthTrajectory& traj, const int barcodeIn ) const {
-    std::pair<const HepMC::GenParticle*,unsigned int> thePair;
+    std::pair<const HepMC::GenParticle*,unsigned int> thePair(nullptr,0);
     unsigned int scat = 0;
     ATH_MSG_DEBUG( "getFirst() : size = " << traj.size() );
-    std::vector<HepMcParticleLink>::const_iterator pit = traj.begin();
-    std::vector<HepMcParticleLink>::const_iterator pit_end = traj.end();
-    const HepMC::GenParticle* theFirst = 0;
     bool foundBC = false;
     int pdgFinal = 0;
     double ePrev = 0.;
-    for( ;pit!=pit_end;++pit ){
+    const HepMC::GenParticle* theFirst=nullptr;
+    for(auto pit=traj.begin();pit!=traj.end();++pit){
       if ((*pit)->barcode()==barcodeIn || foundBC){
         if (!foundBC){
           foundBC = true;
@@ -800,7 +791,7 @@ namespace Muon {
           pdgFinal = (*pit)->pdg_id();
         } else {
           if( (*pit)->pdg_id() == pdgFinal ) {
-            const HepMC::GenParticle* pit_p = *pit;
+            auto pit_p = *pit;
             if ( (theFirst != pit_p) && ((*pit)->momentum().t()!=ePrev) ) ++scat; // if the particle has not changed pdgid after the first step count as scatter. also avoid counting pure interface changes as scatter
           } else { // the first time this particle appears
             --pit;
@@ -821,8 +812,8 @@ namespace Muon {
     return thePair;
   }
 
-  const HepMC::GenParticle& MuonTrackTruthTool::getInitial( const TruthTrajectory& traj, const int barcodeIn ) const {
-    return *((getInitialPair( traj, barcodeIn )).first);
+  const HepMC::GenParticle* MuonTrackTruthTool::getInitial( const TruthTrajectory& traj, const int barcodeIn ) const {
+    return  getInitialPair( traj, barcodeIn ).first;
   }
 
   unsigned int MuonTrackTruthTool::getNumberOfScatters( const TruthTrajectory& traj, const int barcodeIn ) const {

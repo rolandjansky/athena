@@ -50,6 +50,7 @@ namespace CP {
 
     StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
         ATH_MSG_DEBUG("SGKey = " << m_sgKey);
+        ATH_CHECK(m_eventInfo.initialize());
         ATH_CHECK(m_prw_Tool.retrieve());
         ATH_CHECK(m_sel_tool.retrieve());
         ATH_MSG_DEBUG("PileupReweightingTool  = " << m_prw_Tool);
@@ -90,8 +91,7 @@ namespace CP {
         const xAOD::MuonContainer* muons = nullptr;
         ATH_CHECK(evtStore()->retrieve(muons, m_sgKey));
         // Retrieve the EventInfo:
-        const xAOD::EventInfo* ei = nullptr;
-        ATH_CHECK(evtStore()->retrieve(ei, "EventInfo"));
+        SG::ReadHandle<xAOD::EventInfo> ei(m_eventInfo);
        
         ATH_MSG_DEBUG("Start to run over event "<<ei->eventNumber()<<" in run" <<ei->runNumber());
        
@@ -100,7 +100,7 @@ namespace CP {
         m_evNumber = ei->eventNumber();
         
         for (const auto& mu : *muons) {
-            if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
+            if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::abs(mu->eta()) >= m_eta_cut)) continue;
             // reject all loose muons
             if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;          
             if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok || (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok)) {

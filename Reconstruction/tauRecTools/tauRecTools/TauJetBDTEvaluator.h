@@ -36,15 +36,13 @@ class TauJetBDTEvaluator
   StatusCode finalize() override;
   
  private:
-
-  Gaudi::Property<std::string> m_weightsFile{this, "weightsFile", ""};
-  Gaudi::Property<std::string> m_outputVarName{this, "outputVarName", "BDTJetScore"};
-
   std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
-  Gaudi::Property<int> m_minNTracks{this, "minNTracks", 0};
-  Gaudi::Property<int> m_maxNTracks{this, "maxNTracks", 999};
-  Gaudi::Property<float> m_minAbsTrackEta{this, "minAbsTrackEta", -1};
-  Gaudi::Property<float> m_maxAbsTrackEta{this, "maxAbsTrackEta", -1};
-  Gaudi::Property<float> m_dummyValue{this, "defaultValue", -1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored"};
+  std::string m_weightsFile;
+  std::string m_outputVarName;
+  int m_minNTracks;
+  int m_maxNTracks;
+  float m_minAbsTrackEta;
+  float m_maxAbsTrackEta;
+  float m_dummyValue;
 };
 #endif

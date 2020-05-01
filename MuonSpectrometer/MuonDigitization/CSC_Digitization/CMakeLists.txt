@@ -20,18 +20,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/HitManagement
                           PRIVATE
                           Control/StoreGate
-                          Generators/GeneratorObjects )
+                          Generators/GeneratorObjects 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( CSC_Digitization
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects )
 
 # Install files from the package:
 atlas_install_headers( CSC_Digitization )

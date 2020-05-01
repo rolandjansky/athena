@@ -125,8 +125,6 @@ InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.I
 #InDetFlags.doLowPt        = True
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doVertexFinding = False
@@ -224,12 +222,6 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSum
 InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
                              isGEANT4=(globalflags.DataSource == 'geant4'))
 
-
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
-
-
 from TRT_CalibTools.TRT_CalibToolsConf import FitTool
 TRTCalFitTool = FitTool (name = 'TRTCalFitTool')
 ToolSvc += TRTCalFitTool
@@ -280,6 +272,7 @@ print          SelectTRTAlignTracks
                                         
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrkCollections      = [ 'TRTCalibTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],
                                        #AccumulatorTools    = [ TRTCalAccumulator ],
@@ -309,8 +302,6 @@ print CosmicsTRTCalibMgr
 
 	ostring+='conddb.blockFolder("/TRT/Calib/RT" )\n'
 	ostring+='conddb.blockFolder("/TRT/Calib/T0" ) \n'
-        ostring+='TRTCalibDBSvc.calibTextFile="%s"\n' % (calibconstants)
-
-    ostring+='TRTCalibDBSvc.StreamTool=TRTCondStream'
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
     return ostring

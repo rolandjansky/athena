@@ -19,7 +19,7 @@
 
 // Members
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/Polarization.h"
+#include "AtlasHepMC/Polarization.h"
 
 #include <vector>
 #include <string>

@@ -1,60 +1,34 @@
-################################################################################
-# Package: TrigInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigInterfaces )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoring
-                          Control/AthContainers
-                          Control/AthLinks
-                          GaudiKernel
-                          Trigger/TrigEvent/TrigNavigation
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigEvent/TrigStorageDefinitions
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Event/xAOD/xAODTrigger
-                          Trigger/TrigTools/TrigTimeAlgs )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat )
 
 # Component(s) in the package:
 atlas_add_library( TrigInterfacesLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigInterfaces
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthContainers AthLinks GaudiKernel TrigSteeringEvent TrigStorageDefinitions AthenaMonitoringLib TrigNavigationLib StoreGateLib SGtests TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES TestTools AthenaKernel xAODTrigger )
-
-atlas_add_component( TrigInterfaces
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib )
+   TrigInterfaces/*.h src/*.cxx
+   PUBLIC_HEADERS TrigInterfaces
+   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+   LINK_LIBRARIES AthenaBaseComps AthContainers AthLinks GaudiKernel
+   TrigSteeringEvent TrigStorageDefinitions AthenaMonitoringLib
+   TrigNavigationLib
+   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} TrigTimeAlgsLib
+   AthenaKernel xAODTrigger )
 
 atlas_add_test( Templates_test
-                SOURCES
-                test/Templates_test.cxx
-                INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                POST_EXEC_SCRIPT nopost.sh )
+   SOURCES test/Templates_test.cxx
+   LINK_LIBRARIES AthContainers AthLinks GaudiKernel TrigSteeringEvent
+   xAODTrigger TrigInterfacesLib
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( MonitoredAlgo_test
-                SOURCES
-                test/MonitoredAlgo_test.cxx
-                INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                POST_EXEC_SCRIPT nopost.sh )
+   SOURCES test/MonitoredAlgo_test.cxx
+   LINK_LIBRARIES AthContainers TrigInterfacesLib
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( HLTCheck_test
-                SOURCES
-                test/HLTCheck_test.cxx
-                INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                POST_EXEC_SCRIPT nopost.sh )
+   SOURCES test/HLTCheck_test.cxx
+   LINK_LIBRARIES TestTools TrigInterfacesLib
+   POST_EXEC_SCRIPT nopost.sh )

@@ -13,12 +13,15 @@ class AnaAlgorithmMeta ( object ):
     a separate algorithm.
     """
 
-    def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName ):
+    def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName, metaConfig, dynConfig ):
 
         if not stageName in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         self.stageName = stageName
+
+        self.metaConfig = metaConfig
+        self.dynConfig = dynConfig
 
         if isinstance( inputPropName, dict ):
             self.inputPropName = inputPropName

@@ -19,9 +19,9 @@
 #include "GaudiKernel/NTuple.h"
 #include <vector>
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "TTree.h"
 #include "TLorentzVector.h"
 

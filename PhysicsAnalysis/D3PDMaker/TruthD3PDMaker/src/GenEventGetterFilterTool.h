@@ -14,7 +14,7 @@
 
 
 #include "D3PDMakerUtils/CollectionGetterFilterTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 #ifndef EVENTCOMMOND3PDMAKER_GENEVENTGETTERFILTERTOOL_H

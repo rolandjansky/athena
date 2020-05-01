@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaServices/src/RCUSvc.h
  * @author scott snyder <snyder@bnl.gov>
@@ -97,8 +96,10 @@ private:
   ServiceHandle<IIncidentSvc> m_incidentSvc;
 
   /// Mutex protecting access to m_objs.
-  std::mutex m_mutex;
-  typedef std::lock_guard<std::mutex> lock_t;
+  // Needs to be recursive since when handle() quiesces objects,
+  // it can lead to calls to remove().
+  std::recursive_mutex m_mutex;
+  typedef std::lock_guard<std::recursive_mutex> lock_t;
 };
 
 

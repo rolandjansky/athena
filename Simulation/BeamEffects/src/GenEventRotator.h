@@ -20,9 +20,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzRotation.h"
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle.h"
 
 namespace Simulation {
 

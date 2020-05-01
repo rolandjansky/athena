@@ -23,7 +23,7 @@ namespace Monitored {
       return new HistogramFillerEfficiency( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       size_t varVecSize = m_monVariables.at(0).get().size();
 
       auto cutMaskValuePair = getCutMaskFunc();
@@ -74,7 +74,7 @@ namespace Monitored {
       }
     }
 
-    const std::vector<double> retrieveVariable(TEfficiency* efficiency, int iVariable) {
+    const std::vector<double> retrieveVariable(TEfficiency* efficiency, int iVariable) const {
       auto valueVariable = m_monVariables[iVariable];
       std::vector<double> valuesVector;
       if ( valueVariable.get().hasStringRepresentation() ) {
@@ -91,7 +91,7 @@ namespace Monitored {
       return valuesVector;
     }
 
-    const TAxis* getAxis(TH1* hist, int iAxis) {
+    const TAxis* getAxis(TH1* hist, int iAxis) const {
       if ( iAxis==1 ) {
         return hist->GetXaxis();
       } else if ( iAxis==2 ) {

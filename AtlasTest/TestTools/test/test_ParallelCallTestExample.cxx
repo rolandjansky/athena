@@ -1,10 +1,10 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <mutex>
 #include <map>
 
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 #include "TestTools/expect.h"
 #include "TestTools/ParallelCallTest.h"
 #include <unistd.h>
@@ -76,8 +76,8 @@ int main() {
   // for testing in athena this is not needed as the scheduler 
   // sets it according to the athena runtime options 
   // example: athena --concurrent-events=2 --threads=4 jo.py
-  
-  tbb::task_scheduler_init init( 10 ); 
+
+  tbb::global_control (tbb::global_control::max_allowed_parallelism, 10);
   
   ExpensiveCompCacheSvc svc;
   

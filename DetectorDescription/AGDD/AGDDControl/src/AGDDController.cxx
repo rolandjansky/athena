@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDDController.h"
@@ -26,6 +26,7 @@
 #include <string>
 #include <fstream>
 #include <ctime>
+#include <TString.h> // for Form
 
 std::vector<const GeoLogVol*> volumeMap;
 
@@ -40,10 +41,6 @@ void navigateVolumeContents(const GeoVPhysVol *pv, unsigned int ilev)
 	{
 		volumeMap.push_back(cvl);
 	}
-// 	for (unsigned int i=0;i<ilev;i++)
-// 			std::cout<<"\t";
-// 	std::cout<<"----- volume "<<vname<<std::endl;
-	
 	unsigned int ivol=pv->getNChildVols();
 	for (unsigned int i=0;i<ivol;i++)
 	{
@@ -99,8 +96,9 @@ void AGDDController::AddVolume(std::string section)
 void AGDDController::ParseFiles()
 {
 	if (!m_theParser) m_theParser=new XercesParser;
-	for (unsigned int i=0;i<m_filesToParse.size();i++)
-		m_theParser->ParseFileAndNavigate(m_filesToParse[i]);
+	for (unsigned int i=0;i<m_filesToParse.size();i++) {
+		if (!m_theParser->ParseFileAndNavigate(m_filesToParse[i])) throw std::runtime_error(Form("File: %s, Line: %d\nAGDDController::ParseFiles() - Could parse file %s.", __FILE__, __LINE__, m_filesToParse[i].c_str()));
+	}
 }
 
 void AGDDController::BuildSections()
@@ -151,7 +149,6 @@ bool AGDDController::WriteAGDDtoDBFile(std::string s)
 
 AGDDController* AGDDController::GetController()
 {
-//	std::cout<<" this is AGDDController::GetController()"<<std::endl;
 	static AGDDController* theController=new AGDDController;
 	return theController;
 }

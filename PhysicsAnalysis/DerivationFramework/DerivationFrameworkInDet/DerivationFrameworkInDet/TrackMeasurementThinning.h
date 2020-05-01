@@ -48,13 +48,12 @@ namespace DerivationFramework {
     virtual StatusCode doThinning() const override;
  
   private:
-    //Expression for object thinning selection
-    std::string m_expression;
-    ExpressionParsing::ExpressionParser *m_parser;
-    std::string m_selectionString;
+    std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
+    Gaudi::Property<std::string> m_selectionString
+      { this, "SelectionString", "", ""};
 
-    mutable std::atomic<unsigned int> m_ntot;
-    mutable std::atomic<unsigned int> m_npass;
+    mutable std::atomic<unsigned int> m_ntot {};
+    mutable std::atomic<unsigned int> m_npass {};
     StringProperty m_streamName
       { this, "StreamName", "", "Name of the stream being thinned" };
 

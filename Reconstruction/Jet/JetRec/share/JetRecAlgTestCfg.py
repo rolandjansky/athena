@@ -49,16 +49,14 @@ def JetInputCfg(ConfigFlags):
     # Create a sequence that holds a set of algorithms
     # -- mainly for understanding how chunks of the job
     #    relate to each other
-    from AthenaCommon.AlgSequence import AthSequencer
     sequencename = "JetInputSeq"
 
-    inputcfg.addSequence( AthSequencer(sequencename) )
+    inputcfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
     # Enable dictionary for xAODType enum
     import cppyy
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
     from ROOT import xAODType
-    xAODType.ObjectType
 
     # Apply some corrections to the topoclusters
     # Example with property assignments
@@ -108,9 +106,9 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     # Create a sequence that holds a set of algorithms
     # -- mainly for understanding how chunks of the job
     #    relate to each other
-    from AthenaCommon.AlgSequence import AthSequencer
+
     sequencename = "JetBuildSeq"
-    buildcfg.addSequence( AthSequencer(sequencename) )
+    buildcfg.addSequence( CompFactory.AthSequencer(sequencename) )
     # Merge in config to get jet inputs
     buildcfg.merge(JetInputCfg(ConfigFlags))
 
@@ -147,9 +145,8 @@ def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     # Create a sequence that holds a set of algorithms
     # -- mainly for understanding how chunks of the job
     #    relate to each other
-    from AthenaCommon.AlgSequence import AthSequencer
     sequencename = "JetCopySeq"
-    copycfg.addSequence( AthSequencer(sequencename) )
+    copycfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
     # Create the JetClusterer, set some standard options
     jcopy = CompFactory.JetCopier("copier")

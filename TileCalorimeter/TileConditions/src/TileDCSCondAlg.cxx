@@ -129,11 +129,10 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   dcsStateData->setGoodDrawer(m_goodDrawer.value());
   dcsStateData->setWarningDrawer(m_warningDrawer.value());
 
-  EventIDRange eventRange;
-
   if (m_readHV) {
 
     SG::ReadCondHandle<CondAttrListCollection> hv(m_hvKey, ctx);
+    dcsState.addDependency(hv);
     for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **hv) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -157,22 +156,13 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
       }
 
     }
-
-    EventIDRange hvRange;
-    if(!hv.range(hvRange)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << hv.key());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE("Retrieved " << hv.key() << " with range: " << hvRange);
-    }
-
-    eventRange = hvRange;
   }
 
 
   if (m_readHVSet) {
 
     SG::ReadCondHandle<CondAttrListCollection> hvSet(m_hvSetKey, ctx);
+    dcsState.addDependency(hvSet);
     for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **hvSet) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -196,21 +186,8 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
       }
 
     }
-
-    EventIDRange hvSetRange;
-    if(!hvSet.range(hvSetRange)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << hvSet.key());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE("Retrieved " << hvSet.key() << " with range: " << hvSetRange);
-    }
-
-    eventRange = (m_readHV) ? EventIDRange::intersect(eventRange, hvSetRange) : hvSetRange;
-
   } else {
-
-    EventIDRange hvReferenceRange;
-    ATH_CHECK( fillReferenceHV(*dcsStateData, hvReferenceRange, ctx) );
+    ATH_CHECK( fillReferenceHV(*dcsStateData, dcsState, ctx) );
 
   }
 
@@ -218,6 +195,7 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   if (m_readStates) {
 
     SG::ReadCondHandle<CondAttrListCollection> states(m_statesKey, ctx);
+    dcsState.addDependency(states);
     for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **states) {
 
       CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
@@ -237,16 +215,6 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
       }
 
     }
-
-    EventIDRange statesRange;
-    if(!states.range(statesRange)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << states.key());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE("Retrieved " << states.key() << " with range: " << statesRange);
-    }
-
-    eventRange = (m_readHV || m_readHVSet) ? EventIDRange::intersect(eventRange, statesRange) : statesRange;
   }
 
 
@@ -335,20 +303,20 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Define validity of the output cond object
-  if(dcsState.record(eventRange, dcsStateData.release()).isFailure()) {
+  if(dcsState.record(std::move(dcsStateData)).isFailure()) {
 
     ATH_MSG_ERROR("Could not record TileDCSState object with "
                   << dcsState.key()
-                  << " with EventRange " << eventRange
+                  << " with EventRange " << dcsState.getRange()
                   << " into Conditions Store");
 
     return StatusCode::FAILURE;
   } else {
 
     ATH_MSG_VERBOSE("Recorded TileDCSState object with "
-                   << dcsState.key()
-                   << " with EventRange " << eventRange
-                   << " into Conditions Store");
+		    << dcsState.key()
+		    << " with EventRange " << dcsState.getRange()
+		    << " into Conditions Store");
   }
 
   return StatusCode::SUCCESS;
@@ -517,10 +485,11 @@ int TileDCSCondAlg::readBadHV(std::string fileName) {
 }
 
 StatusCode TileDCSCondAlg::fillReferenceHV(TileDCSState& dcsState,
-                                           EventIDRange& eventRange,
+					   SG::WriteCondHandle<TileDCSState>& wh, 
                                            const EventContext& ctx) const {
 
   SG::ReadCondHandle<TileEMScale> emScale(m_emScaleKey, ctx);
+  wh.addDependency(emScale);
 
   float laserReferenceHV = -5.;
   float cesReferenceHV = -5.;
@@ -558,13 +527,6 @@ StatusCode TileDCSCondAlg::fillReferenceHV(TileDCSState& dcsState,
         }
       }
     }
-  }
-
-  if(!emScale.range(eventRange)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << emScale.key());
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("Retrieved " << emScale.key() << " with range: " << eventRange);
   }
 
   return StatusCode::SUCCESS;

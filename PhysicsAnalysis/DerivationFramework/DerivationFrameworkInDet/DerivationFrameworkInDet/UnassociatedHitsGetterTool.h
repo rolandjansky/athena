@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_UNASSOCIATEDHITSGETTERTOOL_H
@@ -10,17 +10,21 @@
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include "TrkTrack/TrackCollection.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include <atomic>
 #include <string>
 
 class MinBiasPRDAssociation;
-namespace Trk {
-  class IPRD_AssociationTool;
-}
 
 namespace DerivationFramework {
 
@@ -48,25 +52,23 @@ public:
 
 private:
 
-
-  /* Pointer to storegate **/
-  StoreGateSvc* m_storeGate;
-
   /* StoreGate keys **/
-  std::string m_trackCollection;
-  std::string m_pixelClusterContainer;
-  std::string m_SCTClusterContainer;
-  std::string m_TRTDriftCircleContainer;
+  SG::ReadHandleKey<TrackCollection> m_trackCollection
+     { this, "TrackCollection", "Tracks", "" };
+  SG::ReadHandleKey<InDet::PixelClusterContainer>    m_pixelClusterContainer
+     { this, "PixelClusters", "PixelClusters", ""};
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer>     m_SCTClusterContainer
+     { this, "SCTClusterContainer", "SCT_Clusters", ""};
+  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleContainer
+     { this, "TRTDriftCircleContainer", "TRT_DriftCircles", ""};
 
   // For P->T converter of SCT_Clusters
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  /* PRD association tool **/
-  ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
-
-  mutable std::atomic_bool m_firstTime;
-  mutable std::atomic_bool m_disabled;
-
+  ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+     {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+  SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMapKey
+     {this, "PRDtoTrackMap", "",""};
 }; // class UnassociatedHitsGetterTool
 
 } // namespace DerivationFramework

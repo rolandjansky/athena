@@ -47,7 +47,7 @@ to the third digit of decimal number of the  pdgid.
 #include <iostream>
 
 // SB
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 //
 
 double chargeCalculator_PileUp(const MDTSimHit& hit){

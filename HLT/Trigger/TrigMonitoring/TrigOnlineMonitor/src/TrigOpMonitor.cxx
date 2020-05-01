@@ -283,7 +283,7 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
               ("Bytes read for " + info.folderName + ";Data [bytes];Entries").c_str(), 100, 0, 1000);
 
           for (TH1* h : {fh->second.h_time, fh->second.h_bytes}) {
-            m_histSvc->regHist(h->GetName(), h).ignore();
+            m_histSvc->regHist(m_histPath + h->GetName(), h).ignore();
           }
         }
 

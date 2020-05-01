@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -111,7 +111,7 @@ void ExtraRegionSelectorSuperFast::prepareSegments(const MuonCalibEvent *&event,
     fill_histogram(m_all_p, 1.0/trk->qOverP());
     if (m_momentum_cut>-1) {
       if(trk->qOverP()==0 || trk->p()>1e8) continue;
-      if(m_momentum_cut>=0 && std::fabs(trk->p())<m_momentum_cut) continue;
+      if(m_momentum_cut>=0 && std::abs(trk->p())<m_momentum_cut) continue;
     }
     const std::vector<const MuonCalibSegment *> &trkseg(trk->segmetnsOnTrack());
     for(unsigned int i=0; i<trkseg.size(); i++)	{

@@ -18,7 +18,6 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TError.h"
-#include "RVersion.h"
 #include <string>
 #include <vector>
 #include <cassert>
@@ -54,12 +53,7 @@ void TConvertingStreamerInfo::Initialize()
   // This will change the new hook for the TStreamerInfo class,
   // so we need to make sure that this is done before we change
   // it ourselves.
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,20,0)
   TVirtualStreamerInfo::Factory ();
-#else
-  delete TVirtualStreamerInfo::Factory (cl);
-#endif
-
   if (!cl) {
     ::Error ("TConvertingStreamerInfo",
              "Can't find TClass for TStreamerInfo");

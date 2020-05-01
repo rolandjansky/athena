@@ -22,11 +22,6 @@
 #include "RingerSelectorTools/tools/VariableDependency.h"
 #include "RingerSelectorTools/tools/TrackPatternsHolder.h"
 #include "RingerSelectorTools/tools/RedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
-#include "RingerSelectorTools/tools/cxx/is_same.h"
-#include "RingerSelectorTools/tools/cxx/StaticAssert.h"
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
 
 #ifndef INCLUDE_HEADER_ONLY // Avoid circular includes
 #define INCLUDE_HEADER_ONLY

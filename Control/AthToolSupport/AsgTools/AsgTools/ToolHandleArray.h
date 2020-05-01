@@ -12,9 +12,7 @@
 
 // System include(s):
 #include <vector>
-#if __cplusplus >= 201100
-#   include <initializer_list>
-#endif // C++11
+#include <initializer_list>
 
 // Local include(s):
 #include "AsgTools/ToolHandle.h"
@@ -36,12 +34,10 @@ class ToolHandleArray : public std::vector< ToolHandle< T > > {
 public:
    /// Default constructor
    ToolHandleArray();
-#if __cplusplus >= 201100
    /// Constructor with an initialiser list
    ToolHandleArray( const std::initializer_list< ToolHandle< T > >& l );
    /// Constructor with a string initialiser list
    ToolHandleArray( const std::initializer_list< std::string >& l );
-#endif // C++11
 
    /// Retrieve all tools in the array
    StatusCode retrieve() const;

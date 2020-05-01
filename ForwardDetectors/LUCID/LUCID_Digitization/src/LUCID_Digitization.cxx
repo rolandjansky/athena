@@ -22,5 +22,5 @@ StatusCode LUCID_DigiTop::initialize() {
 
 StatusCode LUCID_DigiTop::execute() {
   ATH_MSG_DEBUG("execute()");
-  return m_mergeTool->processAllSubEvents();
+  return m_mergeTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

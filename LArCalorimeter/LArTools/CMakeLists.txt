@@ -27,7 +27,7 @@ atlas_add_library( LArToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS LArTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel LArCablingLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel LArCablingLib LArElecCalib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaPoolUtilities LArRecConditions )
 
 atlas_add_component( LArTools

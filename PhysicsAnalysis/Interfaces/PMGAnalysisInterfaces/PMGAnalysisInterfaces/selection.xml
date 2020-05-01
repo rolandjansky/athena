@@ -1,0 +1,8 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+  <enum name="HFORType" />
+  <class name="IHFORSelectionTool" />
+  <class name="PMGTools::IPMGCrossSectionTool" />
+  <class name="PMGTools::IPMGSherpaVjetsSysTool" />
+  <class name="PMGTools::IPMGTruthWeightTool" />
+</lcgdict>

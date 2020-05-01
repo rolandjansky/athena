@@ -1,26 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 07.06.2008, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MuonCalibMath/DataBin.h"
 #include <algorithm>
 #include <iostream>
 #include "cmath"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
+#include <TString.h> // for Form
 
 using namespace MuonCalib;
-using namespace std;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS DataBin ::
@@ -63,9 +51,7 @@ DataBin::DataBin(const Amg::VectorX & lower_boundaries,
 ////////////////////////////////////////////////////////
 
     if (lower_boundaries.rows()!=upper_boundaries.rows()) {
-        cerr << "Class MuonCalibMath/DataBin, constructor: ERROR!\n"
-             << "Dimensions of lower and upper bin boundaries disagree.\n";
-        exit(1);
+        throw std::runtime_error(Form("File: %s, Line: %d\nDataBin::DataBin - Dimensions of lower and upper bin boundaries disagree.", __FILE__, __LINE__));
     }
 
 //////////////////////////////////////////////////////
@@ -192,9 +178,7 @@ DataBin * DataBin::splitBin(const unsigned int & ref_coord) {
 ////////////////////////////////////////////////////////////////////
 
 	if (ref_coord>=static_cast<unsigned int >(m_bin_centre.rows())) {
-        cerr << "Class MuonCalibMath/DataBin, method splitBin: ERROR!\n"
-             << "Reference coordinate out of range!\n";
-        exit(1);
+        throw std::runtime_error(Form("File: %s, Line: %d\nDataBin::splitBin - Reference coordinate out of range!", __FILE__, __LINE__));
     }
 
 ////////////////////////////////////////////////////
@@ -202,9 +186,7 @@ DataBin * DataBin::splitBin(const unsigned int & ref_coord) {
 ////////////////////////////////////////////////////
 
     if (m_points.size()<4) {
-        cerr << "Class MuonCalibMath/DataBin, method splitBin: ERROR!\n"
-             << "Less than 4 points in the bin!\n";
-        exit(1);
+        throw std::runtime_error(Form("File: %s, Line: %d\nDataBin::splitBin - Less than 4 points in the bin!", __FILE__, __LINE__));
     }
 
 /////////////////////////////////////////////////////////////
@@ -228,7 +210,7 @@ DataBin * DataBin::splitBin(const unsigned int & ref_coord) {
     Amg::VectorX bin_1_low = m_lower_boundaries;
     Amg::VectorX bin_1_up = m_upper_boundaries;
     bin_1_up[ref_coord] = (m_points[k_split]).dataVector()[ref_coord];
-    vector<DataPoint> bin_1_points(k_split);
+    std::vector<DataPoint> bin_1_points(k_split);
     for (unsigned k=0; k<k_split; k++) {
         bin_1_points[k] = m_points[k];
     }
@@ -237,7 +219,7 @@ DataBin * DataBin::splitBin(const unsigned int & ref_coord) {
     Amg::VectorX bin_2_low = m_lower_boundaries;
     bin_2_low[ref_coord] = (m_points[k_split]).dataVector()[ref_coord];
     Amg::VectorX bin_2_up = m_upper_boundaries;
-    vector<DataPoint> bin_2_points(m_points.size()-k_split);
+    std::vector<DataPoint> bin_2_points(m_points.size()-k_split);
 	for (unsigned int k=k_split; k<m_points.size(); k++) {
         bin_2_points[k-k_split] = m_points[k];
     }
@@ -297,7 +279,7 @@ bool DataBin::addPoint(const DataPoint & point) {
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
     return true;
@@ -338,7 +320,7 @@ void DataBin::addPointAndResize(const DataPoint & point, const double & epsilon)
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
 // determine the bin boundaries //
@@ -404,7 +386,7 @@ void DataBin::setPoints(const std::vector<DataPoint> & points) {
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
     return;

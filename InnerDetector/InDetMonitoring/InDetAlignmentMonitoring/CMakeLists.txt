@@ -45,18 +45,19 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/VxVertex
    Tracking/TrkExtrapolation/TrkExInterfaces
    Tracking/TrkTools/TrkToolInterfaces
-   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
+   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces 
+   Generators/AtlasHepMC
+   )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO MathMore Gpad Matrix )
 
 # Component(s) in the package:
 atlas_add_component( InDetAlignmentMonitoring
    src/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
    GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AthContainers
    AtlasDetDescr Identifier EventPrimitives xAODEventInfo xAODTracking
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry

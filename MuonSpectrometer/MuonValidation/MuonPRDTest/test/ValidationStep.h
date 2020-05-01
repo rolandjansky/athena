@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VALIDATIONSTEP_H
@@ -12,9 +12,6 @@
 
 #include <stdint.h>
 #include <vector>
-
-
-using namespace std;
 
 class NSWHitsTree;
 
@@ -43,7 +40,7 @@ class ValidationStep {
     TString     m_name;
     TDirectory* m_step_directory;
 
-    vector< ValidationStep* > m_next_steps;
+    std::vector< ValidationStep* > m_next_steps;
 };
 
 

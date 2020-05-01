@@ -3248,43 +3248,8 @@ void swap (DataVector<T>& a, DataVector<T>& b);
 
 ENTER_ROOT_SELECTION_NS
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-template <class T>
-struct SelectVirtBases
-{
-  typedef int type;
-};
-
-template <class B1, class B2, class B3>
-struct SelectVirtBases<DataVector_detail::VirtBases<B1, B2, B3> >
-{
-  typedef ROOT_SELECTION_NS::AUTOSELECT type;
-};
-
-template <class T, class BASE>
-class DataVector
-{
-public:
-  typedef DataVector<T, BASE> self;
-
-  ROOT_SELECTION_NS::TEMPLATE_DEFAULTS<
-   ROOT_SELECTION_NS::NODEFAULT,
-    typename ::DataVector<T>::DataVector_BASE> dum1;
-  ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dum2;
-  ROOT_SELECTION_NS::AUTOSELECT m_pCont;
-  ROOT_SELECTION_NS::TRANSIENT m_isMostDerived;
-  typename SelectVirtBases<BASE>::type __base1;
-};
-
-#else
-
 template< class T, class BASE >
-class DataVector : KeepFirstTemplateArguments< 1 >
-// The SelectNoInstance type was added after 6.00/02...
-#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
-   , SelectNoInstance
-#endif // > v6.00/02
+class DataVector : KeepFirstTemplateArguments< 1 >, SelectNoInstance
 {
 
 public:
@@ -3299,8 +3264,6 @@ public:
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_isMostDerived;
 
 };
-
-#endif // ROOT_VERSION
 
 EXIT_ROOT_SELECTION_NS
 

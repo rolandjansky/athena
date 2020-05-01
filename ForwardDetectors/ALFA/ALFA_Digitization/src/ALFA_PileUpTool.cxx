@@ -30,12 +30,12 @@
 #include <functional>
 
 //for truth particles
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "TTree.h"
 
@@ -125,7 +125,7 @@ StatusCode ALFA_PileUpTool::initialize(){
 
 // *********************************************************************************
 
-StatusCode ALFA_PileUpTool::processAllSubEvents() {
+StatusCode ALFA_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
 
   ATH_MSG_DEBUG ("ALFA_PileUpTool::processAllSubEvents()");
 
@@ -240,7 +240,7 @@ StatusCode ALFA_PileUpTool::processAllSubEvents() {
 
 
 
-StatusCode ALFA_PileUpTool::prepareEvent(const unsigned int nInputEvents){
+StatusCode ALFA_PileUpTool::prepareEvent(const EventContext& /*ctx*/, const unsigned int nInputEvents){
 
   ATH_MSG_DEBUG ( "ALFA_PileUpTool::prepareEvent() called for " << nInputEvents << " input events" );
  
@@ -318,7 +318,7 @@ StatusCode ALFA_PileUpTool::processBunchXing(int bunchXing,
 
 
 
-StatusCode ALFA_PileUpTool::mergeEvent(){
+StatusCode ALFA_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
 
 
   ALFA_MD_info(m_mergedALFA_HitList);

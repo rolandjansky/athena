@@ -15,10 +15,8 @@
 
 class McEventCollection;
 
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
 /** @class MergeMcEventCollTool
  *  @brief a PileUpTool to merge MC truth collection in the overlay store
  *
@@ -34,10 +32,10 @@ public:
   virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int nInputEvents) override final;
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode processBunchXing(int bunchXing,
@@ -48,7 +46,7 @@ public:
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
 private:
   //** The types used to classify the events. NOPUTYPE is used both as the number of types, and to flag a reject (no type)

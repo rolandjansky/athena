@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file  AthenaServices/test/DelayedConditionsCleanerSvc_test.cxx
  * @author scott snyder
@@ -26,7 +24,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Service.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 #include "tbb/concurrent_queue.h"
 #include "tbb/task.h"
 #include <list>
@@ -637,7 +635,7 @@ void threaded_test (Athena::IConditionsCleanerSvc& cleaner,
   shuffle (seed, evnums);
 
   std::cout << "threaded_test\n";
-  tbb::task_scheduler_init sched (nthreads + 1);
+  tbb::global_control (tbb::global_control::max_allowed_parallelism, nthreads + 1);
 
   {
     Tester test (cleaner, rcu, false);

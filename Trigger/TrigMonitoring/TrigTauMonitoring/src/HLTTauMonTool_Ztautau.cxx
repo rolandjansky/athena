@@ -228,7 +228,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
           std::string trigItemShort;
           if(m_trigItemsZtt[i].find("tau25")!=string::npos && m_trigItemsZtt[i].find("L1TAU")!=string::npos){
             size_t posit=m_trigItemsZtt[i].rfind("_");
-            trigItemShort=m_trigItemsZtt[i].substr(0,posit);
+            if(posit<31)trigItemShort=m_trigItemsZtt[i].substr(0,posit);
           }
 
 	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort);

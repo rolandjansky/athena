@@ -1,12 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////
-//
-// selcuts_x
-//
-////////////////////////////////////////////////////////////////////////
 
 #include "Tools.h"
 #include "ChamberDerivs.h"
@@ -59,7 +53,6 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Geometry/Transform3D.h"
 
-using namespace std;
 using namespace CLHEP;
 
 void initSDTree();

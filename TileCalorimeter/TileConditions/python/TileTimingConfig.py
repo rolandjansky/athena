@@ -53,7 +53,7 @@ def TileTimingCondAlgCfg(flags, **kwargs):
         else:
             timingFolder = folders.addSplitOnline(onlineTimingFolder, '/TILE/OFL02/TIME/CHANNELOFFSET/' + timingType)
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         timingProxy = TileCondProxyCoolFlt('TileCondProxyCool_AdcOffset', Source = timingFolder)
 
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -63,13 +63,13 @@ def TileTimingCondAlgCfg(flags, **kwargs):
         # Connect FILE Tile conditions proxies to the algorithm
         fileExtention = {'PHY' : 'tcphy', 'LAS' : 'tclas', 'CIS' : 'tccis'}
 
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         timingProxy = TileCondProxyFileFlt('TileCondProxyFile_AdcOffset',
                                           Source = 'TileDefault.' + fileExtention[timingType])
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     timingCondAlg = TileCalibFltCondAlg( name = name,
                                          ConditionsProxy = timingProxy,
                                          TileCalibData = timing)

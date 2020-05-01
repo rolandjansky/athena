@@ -29,16 +29,11 @@
 
 /// MC truth
 #include "McParticleEvent/TruthParticleContainer.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
-///// stuff *merely* to get the particle charge!!!
-/// #include "HepPDT/ParticleData.hh"
-/// #include "HepMC/ParticleDataTable.h"
-/// #include "McParticleEvent/TruthParticle.h"
-/// #include "McParticleUtils/McUtils.h" // for chargeFromPdgId
-///
+
 ///// FrameWork includes
 /// #include "GaudiKernel/ServiceHandle.h"
 /// #include "GaudiKernel/IPartPropSvc.h"
@@ -103,7 +98,6 @@ public:
   void selectTracks( const TruthParticleContainer* truthtracks );
 
 
-  // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
   bool selectTrack( const HepMC::GenParticle* track );
 
 

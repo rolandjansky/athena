@@ -34,7 +34,17 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
 
     # Edit properties of a algorithm
     larAffectedRegAlg.AffectedRegionsGroupName=affectedRegGroupName
-    larAffectedRegAlg.IsOnline = inputFlags.Common.isOnline
+    isOnline=False
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
+       if inputFlags.DQ.Environment == 'online':
+          isOnline=True
+    else:
+       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+       if athenaCommonFlags.isOnline:
+          isOnline=True
+
+    larAffectedRegAlg.IsOnline = isOnline
 
 
     from LArMonitoring.GlobalVariables import lArDQGlobals #to define the ranges

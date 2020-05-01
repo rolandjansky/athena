@@ -60,7 +60,6 @@ svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
   
 # Explicitly set a few OutputLevels (needed because some services are created in
 # different order when running with the PSC)
-svcMgr.StatusCodeSvc.OutputLevel = theApp.OutputLevel
 svcMgr.IncidentSvc.OutputLevel = theApp.OutputLevel
 svcMgr.ProxyProviderSvc.OutputLevel = theApp.OutputLevel
 svcMgr.StoreGateSvc.OutputLevel = theApp.OutputLevel

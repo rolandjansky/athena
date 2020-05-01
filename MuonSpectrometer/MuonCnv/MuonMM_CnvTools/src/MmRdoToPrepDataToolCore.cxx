@@ -137,11 +137,8 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
       ATH_MSG_WARNING("Could not get the global strip position for MM");
       continue;
     }
-    double dist_drift, distRes_drift, charge_calib;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, dist_drift, distRes_drift, charge_calib));
-
-    const int time = rdo->time();
-    const int charge = charge_calib;
+    NSWCalib::CalibratedStrip calibStrip;
+    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
 
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
@@ -149,7 +146,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     Amg::Vector2D lpos;
     psurf.globalToLocal(globalPos,globalPos,lpos);
     psurf.globalToLocalDirection(globalDir, localDir);
-    float inAngle_XZ = fabs( localDir.angleXZ() / CLHEP::degree);
+    float inAngle_XZ = std::abs( localDir.angleXZ() / CLHEP::degree);
    
     ATH_MSG_DEBUG(" Surface centre x " << psurf.center().x() << " y " << psurf.center().y() << " z " << psurf.center().z() );
     ATH_MSG_DEBUG(" localPos x " << localPos.x() << " localPos y " << localPos.y() << " lpos recalculated 0 " << lpos[0] << " lpos y " << lpos[1]);
@@ -159,26 +156,28 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     // get for now a temporary error matrix -> to be fixed
     double resolution = 0.07;
-    if (fabs(inAngle_XZ)>3) resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
+    if (std::abs(inAngle_XZ)>3) resolution = ( -.001/3.*std::abs(inAngle_XZ) ) + .28/3.;
     double errX = 0;
     const MuonGM::MuonChannelDesign* design = detEl->getDesign(layid);
     if( !design ){
       ATH_MSG_WARNING("Failed to get design for " << m_idHelperSvc->toString(layid) );
     }else{
-      errX = fabs(design->inputPitch)/sqrt(12);
+      errX = std::abs(design->inputPitch)/std::sqrt(12);
       ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error " << errX);
     }
 // add strip width to error
-    resolution = sqrt(resolution*resolution+errX*errX);
+    resolution = std::sqrt(resolution*resolution+errX*errX);
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    Amg::MatrixX* cov = new Amg::MatrixX(2,2);
     cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    (*cov)(0,0) = calibStrip.resTransDistDrift;  
+    (*cov)(1,1) = calibStrip.resLongDistDrift;
+    localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
     } else {
-       MMPrepData mpd = MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge);
+       MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
        MMprds.push_back(mpd);

@@ -37,7 +37,7 @@ class muonNames(object):
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
     self.EFIsoMuonName = recordable("HLT_MuonsIso")
-    self.L2forIDName   = recordable("HLT_forID")
+    self.L2forIDName   = "RoIs_fromL2SAViews"
 
   def getNames(self, name):
 
@@ -360,8 +360,7 @@ def muCombRecoSequence( RoIs ):
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName),
-                            ('TrigRoiDescriptorCollection','StoreGateSvc+'+muNames.L2forIDName)]
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -486,7 +485,7 @@ def muEFCBRecoSequence( RoIs, name ):
   global TrackParticlesName
 
   from AthenaCommon import CfgMgr
-  from AthenaCommon.CFElements import parOR, seqAND
+  from AthenaCommon.CFElements import parOR
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonCombinedAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -499,6 +498,7 @@ def muEFCBRecoSequence( RoIs, name ):
                               ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
                               ( 'Muon::RpcPrepDataContainer'      , 'StoreGateSvc+RPC_Measurements' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
+
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
@@ -536,11 +536,11 @@ def muEFCBRecoSequence( RoIs, name ):
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS", inputFTFtracks=TrackCollection)
-    PTSeq = seqAND("precisionTrackingInMuonsFS", PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonFS", rois = RoIs, verifier = False, inputFTFtracks=TrackCollection)
+    PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection)
-    PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muon", rois = RoIs,  verifier = ViewVerifyTrk, inputFTFtracks= TrackCollection)
+    PTSeq = parOR("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
   muEFCBRecoSequence += PTSeq
@@ -555,8 +555,12 @@ def muEFCBRecoSequence( RoIs, name ):
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                        InDetCandidateLocation="InDetCandidates_"+name)
-
+  #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
+  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+  ToolSvc.AtlasHoleSearchTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
   ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
@@ -593,7 +597,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
 def muEFInsideOutRecoSequence(RoIs, name):
 
-  from AthenaCommon.CFElements import parOR, seqAND
+  from AthenaCommon.CFElements import parOR
   from AthenaCommon import CfgMgr
 
   from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
@@ -633,8 +637,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
-    PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonLate", rois=RoIs, inputFTFtracks= TrackCollection)
+    PTSeq = parOR("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -643,8 +647,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
     theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                          InDetCandidateLocation="InDetCandidates_"+name)
     from AthenaCommon.AppMgr import ToolSvc
-    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
-    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+    from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
     efAlgs.append(theIndetCandidateAlg)
 
@@ -692,8 +697,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
 
   # ATR-20453
   # Until such time as FS and RoI collections do not interfere, a hacky fix
-  #from AthenaCommon.CFElements import parOR
-  from AthenaCommon.CFElements import seqAND
+  from AthenaCommon.CFElements import seqAND,parOR
 
   # ATR-20453
   # Until such time as FS and RoI collections do not interfere, a hacky fix
@@ -716,9 +720,9 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTrackParticles = [] #List of TrackParticleKeys
   
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonIso", rois=RoIs, inputFTFtracks=TrackCollection)
 
-  PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )
+  PTSeq = parOR("precisionTrackingInMuonsIso", PTAlgs  )
   efmuisoRecoSequence += PTSeq
 
   # set up algs

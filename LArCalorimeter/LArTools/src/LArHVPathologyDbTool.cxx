@@ -39,14 +39,10 @@ StatusCode LArHVPathologyDbTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-AthenaAttributeList* LArHVPathologyDbTool::hvPathology2AttrList(const LArHVPathologiesDb& pathologyContainer)
+AthenaAttributeList*
+LArHVPathologyDbTool::hvPathology2AttrList(const LArHVPathologiesDb& pathologyContainer) const
 {
-  coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
-
-  spec->extend("blobVersion","unsigned int");   //Should allow schema evolution if needed
-  spec->extend("Constants","blob");             //Holds the container
- 
-  AthenaAttributeList* attrList = new AthenaAttributeList(*spec);
+  AthenaAttributeList* attrList ATLAS_THREAD_SAFE = newAttrList();
      
   (*attrList)["blobVersion"].data<unsigned int>()=(unsigned int)0;
   coral::Blob& blob=(*attrList)["Constants"].data<coral::Blob>();
@@ -72,7 +68,23 @@ AthenaAttributeList* LArHVPathologyDbTool::hvPathology2AttrList(const LArHVPatho
   return attrList;
 }
 
-LArHVPathologiesDb* LArHVPathologyDbTool::attrList2HvPathology(const AthenaAttributeList& attrList)
+
+// Split off as a separate function:
+// The thread-safety checker will warn about calling the AthenaAttributeList
+// ctor.  But in this case, it's ok because the specification isn't
+// shared with anything else.
+AthenaAttributeList*
+LArHVPathologyDbTool::newAttrList ATLAS_NOT_THREAD_SAFE () const
+{
+  coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
+  spec->extend("blobVersion","unsigned int");   //Should allow schema evolution if needed
+  spec->extend("Constants","blob");             //Holds the container
+  return new AthenaAttributeList(*spec);
+}
+
+
+
+LArHVPathologiesDb* LArHVPathologyDbTool::attrList2HvPathology(const AthenaAttributeList& attrList) const
 {
   try {
     const unsigned blobVersion=attrList["blobVersion"].data<unsigned int>();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkVectorCnv_p1.icc
@@ -10,7 +10,6 @@
 #include <stdexcept>
 
 #include "AthLinks/ElementLinkVector.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
@@ -34,11 +33,8 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
   LinkVect_t tmpTrans = trans;
   tmpTrans.doRemap();
 
-  IThinningSvc * thinningSvc = IThinningSvc::instance();
-  const bool thinningOccurred= thinningSvc && thinningSvc->thinningOccurred();
-
   // easy case first
-  if ( !thinningOccurred && !cache ) {
+  if ( !cache ) {
     std::vector<typename LinkVect_t::DataLinkVector::size_type> shortrefs;
     tmpTrans.toPersistent(shortrefs);
     // copy the container keys
@@ -49,8 +45,8 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
     pers.m_elementRefs.reserve(link_n);
     for ( std::size_t i=0; i!=link_n; ++i ) {
       typedef typename PersLinkVect_t::ElementRef PElemRef_t;
-      size_t idx = IThinningSvc::RemovedIdx;
-      if (shortrefs[i] != IThinningSvc::RemovedIdx)
+      size_t idx = SG::ThinningDecisionBase::RemovedIdx;
+      if (shortrefs[i] != SG::ThinningDecisionBase::RemovedIdx)
         idx = tmpTrans.elementIndex(i);
       pers.m_elementRefs.push_back( PElemRef_t (idx, shortrefs[i]) );
     }
@@ -84,7 +80,7 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
     // only a pointer to the element, _and_ if the the pointed-at element 
     // has been thinned away, EL::index() will throw b/c
     // IndexingPolicy::setIndex will fail.
-    std::size_t orig_idx = IThinningSvc::RemovedIdx;
+    std::size_t orig_idx = SG::ThinningDecisionBase::RemovedIdx;
     try {
       orig_idx = el.index();
     } catch ( const SG::maybe_thinning_error& err ) {
@@ -96,15 +92,8 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
 	  << "when thinning is active)"
 	  << endmsg;
     }
-    const SG::DataProxy* dp = el.proxy();
     std::size_t idx = orig_idx;
-    if (thinningSvc) {
-      idx = dp ? 
-        thinningSvc->index(dp, orig_idx) :
-        thinningSvc->index(el.getStorableObjectPointer(), orig_idx);
-    }
-
-    if (idx == orig_idx && cache) {
+    if (cache) {
       const SG::ThinningDecisionBase* dec = cache->thinning (el.key());
       if (dec) {
         idx = dec->index (idx);
@@ -112,7 +101,7 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
     }
 
     typename LinkVect_t::size_type shortref = 0;
-    if ( idx == IThinningSvc::RemovedIdx ) {
+    if ( idx == SG::ThinningDecisionBase::RemovedIdx ) {
       // that element has been thinned away.
       shortref = idx; //< 'special' well-known value
     } else {
@@ -159,11 +148,12 @@ void ElementLinkVectorCnv_p1< LINK_TYPE >::persToTrans(const PersLinkVect_t& per
    typename  PersLinkVect_t::ElementRefVector::const_iterator link_iter = pers.m_elementRefs.begin();
    while(link_n--) {
       // This test needed for 32/64 bit compatibility.
-      if ( link_iter->m_nameIndex == static_cast<uint32_t>(IThinningSvc::RemovedIdx) &&
-	   link_iter->m_elementIndex == static_cast<Index_t>(IThinningSvc::RemovedIdx) )
+      if ( link_iter->m_nameIndex == static_cast<uint32_t>(SG::ThinningDecisionBase::RemovedIdx) &&
+	   link_iter->m_elementIndex == static_cast<Index_t>(SG::ThinningDecisionBase::RemovedIdx) )
       {
 	// thinned-away element...
-        trans.push_back (IThinningSvc::RemovedIdx, IThinningSvc::RemovedIdx);
+        trans.push_back (SG::ThinningDecisionBase::RemovedIdx,
+                         SG::ThinningDecisionBase::RemovedIdx);
       }
       else
         trans.push_back (link_iter->m_nameIndex, link_iter->m_elementIndex);

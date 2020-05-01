@@ -22,16 +22,8 @@ def getFastTRTRange(name="FastTRTRange", **kwargs):
 def BasicTRTFastDigitizationTool(name, **kwargs):
 
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
-    if not conddb.folderRequested('/TRT/Calib/HTCalib'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
     if not conddb.folderRequested('/TRT/Calib/errors'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors")
-    if not conddb.folderRequested('/TRT/Calib/PIDver_New'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PIDver_New","/TRT/Calib/PIDver_New")    
-    if not conddb.folderRequested('/TRT/Calib/PID_RToTver_New'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToTver_New","/TRT/Calib/PID_RToTver_New")    
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):

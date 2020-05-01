@@ -20,8 +20,8 @@
 
 // ACTS
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Propagator/detail/StandardAborters.hpp"
+#include "Acts/Propagator/DebugOutputActor.hpp"
+#include "Acts/Propagator/StandardAborters.hpp"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
@@ -60,8 +60,8 @@ public:
 private:
   // set up options for propagation
   using SteppingLogger = Acts::detail::SteppingLogger;
-  using DebugOutput = Acts::detail::DebugOutputActor;
-  using EndOfWorld = Acts::detail::EndOfWorldReached;
+  using DebugOutput = Acts::DebugOutputActor;
+  using EndOfWorld = Acts::EndOfWorldReached;
   using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
                                             DebugOutput::result_type>>;
 

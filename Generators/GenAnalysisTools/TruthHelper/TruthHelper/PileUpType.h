@@ -21,8 +21,8 @@
 #define TRUTHHELPER_PILEUPTYPE_H
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <vector>
 
@@ -38,10 +38,7 @@ public:
     PileUpType(const McEventCollection * collection);
 
 
-    /** extract the Physics Signal McEvent Particles from the McEventCollection
-	A pair of iterators is returned on all the signal particles */
-    HepMC::GenEvent::particle_const_iterator signal_particle_begin() const;
-    HepMC::GenEvent::particle_const_iterator signal_particle_end() const;
+
     const HepMC::GenEvent * signal_mc_event() const;
 
     template<class Selector>

@@ -14,7 +14,7 @@ class TrigEgammaKeys(object):
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
-      pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312'
+      pidVersion = 'rel21_20180312'
 
 
 def TrigElectronSelectors(sel):
@@ -24,10 +24,9 @@ def TrigElectronSelectors(sel):
 
     # Configure the LH selectors
     from AthenaCommon import CfgMgr
-    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-    EgammaSliceFlags.pidVersion.set_On()
-    mlog.info("TrigEgammaPidTools version " + str(EgammaSliceFlags.pidVersion()))
-    ConfigFilePath = EgammaSliceFlags.pidVersion() 
+    #TrigEgammaKeys.pidVersion.set_On()
+    mlog.info("TrigEgammaPidTools version " + str(TrigEgammaKeys.pidVersion))
+    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
     
     SelectorNames = {
           'lhvloose':'AsgElectronLHVLooseSelector',
@@ -37,10 +36,10 @@ def TrigElectronSelectors(sel):
           }
      
     ElectronToolConfigFile = {
-          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig2015.conf',
-          'lhloose':'ElectronLikelihoodLooseTriggerConfig2015.conf',
-          'lhmedium':'ElectronLikelihoodMediumTriggerConfig2015.conf',
-          'lhtight':'ElectronLikelihoodTightTriggerConfig2015.conf',
+          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
+          'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
+          'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
           }
     
 
@@ -51,7 +50,7 @@ def TrigElectronSelectors(sel):
     else:
         mlog.info('Configuring electron PID for '+sel)
         SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
-        SelectorTool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[sel]
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.usePVContainer = False 
         SelectorTool.skipDeltaPoverP = True
         from AthenaCommon.AppMgr import ToolSvc
@@ -97,7 +96,8 @@ def TrigPhotonSelectors(sel):
     else:
         mlog.info('Configuring photon PID for '+sel)
         SelectorTool = ConfiguredAsgPhotonIsEMSelector(SelectorNames[sel], SelectorPID[sel])
-        ConfigFile = TrigEgammaKeys.pidVersion+'/'+PhotonToolConfigFile[sel] 
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
         mlog.info('Configuration file: '+ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True

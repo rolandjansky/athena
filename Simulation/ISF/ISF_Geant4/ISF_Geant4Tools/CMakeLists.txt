@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
+                          Generators/AtlasHepMC
                           Generators/GeneratorObjects
                           Simulation/G4Atlas/G4AtlasTools
 						  Simulation/G4Atlas/G4AtlasAlg
@@ -27,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 find_package( Geant4 )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
 
@@ -35,8 +35,8 @@ find_package( XercesC )
 atlas_add_component( ISF_Geant4Tools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GaudiKernel G4AtlasInterfaces AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects G4AtlasToolsLib G4AtlasAlgLib MCTruth SimHelpers ISF_Event ISF_Interfaces ISF_Geant4Event )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GaudiKernel G4AtlasInterfaces AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects G4AtlasToolsLib G4AtlasAlgLib MCTruth SimHelpers ISF_Event ISF_Interfaces ISF_Geant4Event )
 
 # Install files from the package:
 atlas_install_headers( ISF_Geant4Tools )

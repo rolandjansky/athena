@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
 
@@ -13,7 +12,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__KalmanVertexUpdator
   VertexUpdater = Trk__KalmanVertexUpdator(name             = "MuonTP_KalmanVertexUpdator")
   ToolSvc += VertexUpdater
-  print (     VertexUpdater)
+  print      VertexUpdater
 
 
 
@@ -46,6 +45,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
                                            useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                            TrkVertexFitterTool         = ToolSvc.VKalVrtFitterName,        # VKalVrt vertex fitter
                                            TrackSelectorTool           = ToolSvc.InDetDetailedTrackSelectorTool,
+                                           ConversionFinderHelperTool  = ToolSvc.InDetConversionFinderUtils,
                                            VertexPointEstimator        = ToolSvc.VtxPointEstimator,
                                            useMCPCuts                  = True, 
                                            OutputLevel                 = WARNING)
@@ -70,7 +70,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   OutputLevel           = WARNING )
 
   ToolSvc += MuonTP_Reco_mumu
-  print (MuonTP_Reco_mumu)
+  print MuonTP_Reco_mumu
 
 
   from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
@@ -88,7 +88,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   OutputLevel           = WARNING)
 
   ToolSvc += MuonTP_Select_Jpsi2mumu
-  print (MuonTP_Select_Jpsi2mumu)
+  print MuonTP_Select_Jpsi2mumu
 
   if addAlgo:
       from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import MuonTPJpsiVertexFittingAlg

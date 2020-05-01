@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the TrackToVertexIPEstimator configurable
-InDet__InDetTrackSelectionTool=CompFactory.InDet__InDetTrackSelectionTool
+InDet__InDetTrackSelectionTool=CompFactory.InDet.InDetTrackSelectionTool
 
 def InDetTrackSelectorCfg( name = 'InDetTrackSelector', useBTagFlagsDefaults = True, **options ):
     """Sets up a InDetTrackSelector tool and returns it.

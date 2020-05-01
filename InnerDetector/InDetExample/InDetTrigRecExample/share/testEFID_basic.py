@@ -107,7 +107,6 @@ from RecExConfig.RecFlags import rec
 InDetTrigFlags.doTruth = rec.doTruth()
 InDetTrigFlags.doNewTracking = True
 InDetTrigFlags.doBackTracking = False
-InDetTrigFlags.doiPatRec = False
 InDetTrigFlags.trackFitterType = 'GlobalChi2Fitter'
 #InDetTrigFlags.trackFitterType = 'GaussianSumFilter'
 #InDetTrigFlags.trackFitterType = 'KalmanFitter'

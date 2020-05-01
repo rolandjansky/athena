@@ -122,8 +122,6 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doLowPt        = False
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doSingleSpBackTracking = True
@@ -202,9 +200,6 @@ if not doReadBS:
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
 InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
@@ -358,6 +353,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'CombinedInDetTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],

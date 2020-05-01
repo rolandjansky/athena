@@ -397,7 +397,7 @@ bool CscCalibTool::findCharge(const float samplingTime, const unsigned int sampl
     charge = 0.5*(samples[i]+samples[i+1]); // 1+2 for 4 samples, 0+1 for 2
 
     double asym = 0.;
-    if (fabs(samples[i]+samples[i+1])>0.0001)  asym = (samples[i+1]-samples[i])/(samples[i]+samples[i+1]);
+    if (std::abs(samples[i]+samples[i+1])>0.0001)  asym = (samples[i+1]-samples[i])/(samples[i]+samples[i+1]);
     /********************* No charge correction now.
     // charge correction:
     double chargecor = 77.85 + 1.415*asym - 44.97*asym*asym; // in percent
@@ -483,7 +483,6 @@ bool CscCalibTool::findCharge(const float samplingTime, const unsigned int sampl
   /** if the time offset is out of range **/ 
   if ( ( maxIndex == 0 && timeOffset < -2.0 )
        || ( maxIndex == 3 && timeOffset > 2.0) ) {
-    //       || ( ( maxIndex == 1 || maxIndex ==2) && fabs(timeOffset) > m_timeOffsetRange) ) {
     time = midIndex;
     time *= samplingTime;
     if ( samplingPhase == 1 ) time -= 25; // works for both 20MHz and 40MHz

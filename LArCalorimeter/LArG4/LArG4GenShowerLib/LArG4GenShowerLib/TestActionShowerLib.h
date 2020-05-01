@@ -20,9 +20,7 @@
 namespace ShowerLib {
   class StepInfoCollection;
 }
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 // forward declarations in global namespace
 class EnergyCalculator;
 class G4VSolid;

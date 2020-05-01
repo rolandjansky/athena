@@ -42,7 +42,7 @@ StatusCode MergeCalibHitsTool::initialize() {
 }
 
 
-StatusCode MergeCalibHitsTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MergeCalibHitsTool::prepareEvent(const EventContext& /*ctx*/,unsigned int nInputEvents) {
   ATH_MSG_VERBOSE ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
   ATH_MSG_VERBOSE( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent = true;
@@ -110,7 +110,7 @@ StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
 
   return StatusCode::SUCCESS;
 }
-StatusCode MergeCalibHitsTool::mergeEvent() {
+StatusCode MergeCalibHitsTool::mergeEvent(const EventContext& /*ctx*/) {
   for (unsigned int iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();++iHitContainer) {
     if ( m_outputContainers[iHitContainer]==0 ) { continue; } //don't bother recording unused containers!
     if (!(evtStore()->record(m_outputContainers[iHitContainer],m_CalibrationHitContainer[iHitContainer]).isSuccess())) {
@@ -121,7 +121,7 @@ StatusCode MergeCalibHitsTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeCalibHitsTool::processAllSubEvents() {
+StatusCode MergeCalibHitsTool::processAllSubEvents(const EventContext& /*ctx*/) {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
 
   // loop over containers

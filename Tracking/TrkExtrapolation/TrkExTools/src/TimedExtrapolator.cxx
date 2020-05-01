@@ -339,6 +339,16 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
     }
   }
 
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
+  for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
+    if(garbageIter->first == returnParms) {
+      auto ret=returnParms->clone();
+      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
+      returnParms=ret;
+    }
+  }
+
   return returnParms;
 }
 
@@ -364,6 +374,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   const Trk::TrackingVolume *assocVol = nullptr;
   unsigned int iDest = 0;
 
+  ATH_MSG_DEBUG("  [+] start extrapolateToVolumeWithPathLimit - at " << positionOutput(parm.position())<<" parm="<<&parm);
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
     return &parm;
@@ -1377,6 +1388,16 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
 
   // return timing
   timeLim.time = cache.m_time;
+
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
+  for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
+    if(garbageIter->first == returnParms) {
+      auto ret=returnParms->clone();
+      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
+      returnParms=ret;
+    }
+  }
 
   return returnParms;
 }
