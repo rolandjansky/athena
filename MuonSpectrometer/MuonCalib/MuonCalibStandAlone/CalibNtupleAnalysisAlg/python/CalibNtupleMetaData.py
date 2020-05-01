@@ -2,11 +2,11 @@
 
 from __future__ import print_function
 
-from ROOT import TFile, TTree
+from ROOT import TFile
 import sys
 
 class CalibNtupleMetaData:
-	
+
   def __init__(self, filelist):
     self.MetaData={}
     fl=file(filelist)
@@ -27,16 +27,16 @@ class CalibNtupleMetaData:
       if not inf:
         sys.stderr.write("CalibNtupleMetaData WARNING: cannot open first file in filelist\n")
         continue
- 	    
+
     if not inf:
       sys.stderr.write("CalibNtupleMetaData WARNING: find an input file in filelist\n")
       return
- 			
+
     tree=inf.Get("meta_data")
     if not tree:
       sys.stderr.write("CalibNtupleMetaData WARNING: input file does not contain meta_data\n")
       return
- 	
+
     i=0
     while tree.GetEntry(i):
       i+=1
