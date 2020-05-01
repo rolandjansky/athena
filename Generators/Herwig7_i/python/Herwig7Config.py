@@ -108,8 +108,9 @@ set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy {}
   def printout_commands(self):
 
     self.set_printout_commands = True
-
+    
     return("""
+
 ## Verbosity and printout settings
 set /Herwig/Generators/EventGenerator:DebugLevel 1
 set /Herwig/Generators/EventGenerator:PrintEvent 2
@@ -121,12 +122,44 @@ set /Herwig/Generators/EventGenerator:MaxErrors 500
 set /Herwig/Samplers/Sampler:Verbose Yes
 """)
 
+    ## Before there were used the ATLAS MC15 default parameters for particle masses and widths and Weinberg angle
+    ##
+    ## As specified in https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/McProductionCommonParametersMC15
+    ## Now the PDG API is used to set the parameters via the python file Generators/EvgenProdTools/python/physics_parameters.py that generates the dictionary offline_dict.py with the parameters
 
-  ## ATLAS MC15 default parameters for particle masses and widths and Weinberg angle
-  ##
-  ## As specified in https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/McProductionCommonParametersMC15
   def physics_parameter_commands(self):
-
+    paramlist = []
+    self.physics_parameter_commands = True
+    
+    paramlist.append("## Masses and widths: PDG 2019 values")
+    
+    ## Load the dictionary and extract the values of the variables that were defined here before (top quark, W and Z boson)
+    from EvgenProdTools.offline_dict import parameters
+    for k,v in parameters.items():
+      if k == 'particles':
+        for key,value in v.items():
+          if int(key) == 24:
+            paramlist.append("set /Herwig/Particles/"+value['name']+"+:NominalMass "+value['mass'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+"+:Width "+value['width'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+"-:NominalMass "+value['mass'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+"-:Width "+value['width'])
+          if int(key) == 23:
+            paramlist.append("set /Herwig/Particles/"+value['name']+"0:NominalMass "+value['mass'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+"0:Width "+value['width'])
+          if int(key) == 6:
+            paramlist.append("set /Herwig/Particles/"+value['name']+"bar:NominalMass "+value['mass'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+"bar:Width "+value['width'])         
+            paramlist.append("set /Herwig/Particles/"+value['name']+":NominalMass "+value['mass'])
+            paramlist.append("set /Herwig/Particles/"+value['name']+":Width "+value['width'])
+   
+    ## Take the value of sin2thetaW from the EW_parameters dictionary      
+      if k == 'EW_parameters':
+        for key,value in v.items():
+          if key[2] == "Sin2ThetaW":
+            paramlist.append("set /Herwig/Model:EW/"+str(key[2])+" "+str(value))
+    paramstring = '\n'.join(paramlist)
+    return(paramstring)
+    
     self.physics_parameter_commands = True
 
     return("""
@@ -143,7 +176,6 @@ set /Herwig/Particles/Z0:Width 2.4952*GeV
 ## Weinberg angle
 set /Herwig/Model:EW/Sin2ThetaW 0.23113
 """)
-
 
   def technical_parameter_commands(self):
 
