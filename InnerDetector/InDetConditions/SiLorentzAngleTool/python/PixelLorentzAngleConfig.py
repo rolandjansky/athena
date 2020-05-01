@@ -1,6 +1,6 @@
-"""Define methods to configure SCTLorentzAngleTool
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+"""Define methods to configure SCTLorentzAngleTool
 """
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -13,7 +13,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
 )
 
-def PixelLorentzAngleToolCfg(flags, name="PixelLorentzAngleTool", **kwargs):
+def PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs):
     """Return a SiLorentzAngleTool configured for Pixel"""
     kwargs.setdefault("DetectorName", "Pixel")
     kwargs.setdefault("SiLorentzAngleCondData", "PixelSiLorentzAngleCondData")
@@ -27,7 +27,7 @@ def PixelLorentzAngleCfg(flags, name="PixelSiLorentzAngleCondAlg", **kwargs):
     SiLorentzAngleTool may be provided in kwargs
     """
     acc  = MagneticFieldSvcCfg(flags)
-    tool = kwargs.get("SiLorentzAngleTool", PixelLorentzAngleToolCfg(flags))
+    tool = kwargs.get("SiLorentzAngleTool", PixelLorentzAngleTool(flags))
     acc.merge(PixelDCSCondHVAlgCfg(flags))
     acc.merge(PixelDCSCondTempAlgCfg(flags))
     acc.merge(PixelDCSCondStateAlgCfg(flags))
