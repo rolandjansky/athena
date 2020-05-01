@@ -52,9 +52,6 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
     arrayOneList.defineHistogram('trackX,trackY', title='Track posistion position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)   
 
-    #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=80, ymin=0.5, ymax=80.5)
-    #array.defineHistogram('pixelRowIDChip,pixelRowIDChip', title='Correlation Col {0} Col {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
-
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()
     
