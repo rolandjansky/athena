@@ -17,6 +17,7 @@
 
 #if __clang_major__ == 9
 
+#define ROOT_TClassEdit
 #include <ROOT/RConfig.hxx>
 #include "RConfigure.h"
 #include <stdlib.h>

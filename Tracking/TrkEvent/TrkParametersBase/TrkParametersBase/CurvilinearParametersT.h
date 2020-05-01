@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,6 +105,13 @@ namespace Trk
     virtual MsgStream& dump(MsgStream& out) const override;
     virtual std::ostream& dump(std::ostream& out) const override;
 
+    /** Update parameters and covariance */
+    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
+
+    /** Update parameters  and covariance , passing covariance by ref. A covariance
+     * is created if one does not exist.  Otherwise in place update occurs*/
+    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
+
     /** the curvilinear parameters identifier */
     unsigned int cIdentifier() const {return m_cIdentifier;}
 
@@ -112,11 +119,14 @@ namespace Trk
     { m_cIdentifier = cIdentifier; }
 
 
+    /** DESIGN TO BE REVISITED */
   protected:
     friend class MaterialEffectsEngine;
-    virtual void updateParameters(const AmgVector(DIM)& updatedParameters,AmgSymMatrix(DIM)* updatedCovariance = 0) override; 
 
   private:
+    /* Helper to factor in update of parameters*/
+    void updateParametersHelper(const AmgVector(DIM)&);
+
     /** return the curvilinear frame */
     CurvilinearUVT curvilinearFrame() const;
     

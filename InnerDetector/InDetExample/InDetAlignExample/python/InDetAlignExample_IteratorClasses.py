@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # =====================================================================
 #
 #  Class for local processing
 #
 # =====================================================================
+from __future__ import print_function
+
 from threading import Thread
 import os
 import time
@@ -23,20 +25,20 @@ class runProcess(Thread):
         self.OutputLevel = OutputLevel
         self.status = -1
     def run(self):
-        print "----------------------------------------------"
-        print "  Running Iter%d - Part%02d in local machine" % (self.i, self.j)
-        print "----------------------------------------------"
-        print " - output path: %s/Iter%d/%02d" % (self.OutputPath, self.i, self.j)
+        print ("----------------------------------------------")
+        print ("  Running Iter%d - Part%02d in local machine" % (self.i, self.j))
+        print ("----------------------------------------------")
+        print (" - output path: %s/Iter%d/%02d" % (self.OutputPath, self.i, self.j))
 
         if self.OutputLevel == 'INFO':
-            print "Running..."
+            print ("Running...")
             process=os.popen("athena.py %s >& %s/Iter%d/logs/Iter%dPart%02d.log" % (self.jobOptions, self.OutputPath, self.i, self.i ,self.j))
         else:
             process=os.popen("athena.py %s | tee %s/Iter%d/logs/Iter%dPart%02d.log" % (self.jobOptions, self.OutputPath, self.i, self.i ,self.j))
         while 1:
             line = process.readline()
             if self.OutputLevel == 'DEBUG':
-                print line,
+                print (line, end='')
             if not line:
                 self.status=1
                 break
@@ -56,18 +58,18 @@ class SortCpus:
 		filelist = inputfiles.read().split()
 		inputfiles.close()
 		if not LOCALDIR:
-			print "Reading Custom File"
+			print ("Reading Custom File")
 			FinalListSorted = []
 			for line in filelist:
 				if line and line[0] != '#':
 					FinalListSorted.append(line)
-			print FinalListSorted
+			print (FinalListSorted)
 			
 		elif "castor" in LOCALDIR:
-			print "Reading castor directory. Please wait..."
+			print ("Reading castor directory. Please wait...")
 			extendedFileList = os.popen("rfdir "+ LOCALDIR[7:]).read().splitlines()
 		else:
-			print "Reading directory. Please wait..."
+			print ("Reading directory. Please wait...")
 			extendedFileList = os.popen("ls -l "+ LOCALDIR).read().splitlines()
 
 		if LOCALDIR:
@@ -83,19 +85,19 @@ class SortCpus:
 			count = 0
 			for i in range(0,len(SizeList)):
 				if SizeList[i][0] in filelist:
-					#print SizeList[i][0], " size:", SizeList[i][1]
+					#print (SizeList[i][0], " size:", SizeList[i][1])
 					FinalList[SizeList[i][0]] = int(SizeList[i][1])
 
 			#SizeListSorted = [ (k,SizeList[k]) for k in sorted(SizeList.values())] 
 			FinalListSorted = sort_by_value(FinalList)
-			#print "Sorted list" 
+			#print ("Sorted list" )
 			#for i in range(0,len(FinalListSorted)):
-			#	print FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]]
+			#	print (FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]])
 		currCPU = 0
 		reverse = False
 		self.CPUsFiles = {}
 		for i in range(0,len(FinalListSorted)):
-			#print FinalListSorted[i], "CPU: ", currCPU
+			#print (FinalListSorted[i], "CPU: ", currCPU)
 			if currCPU in self.CPUsFiles:
 				self.CPUsFiles[currCPU].append(LOCALDIR+FinalListSorted[i])
 			else:
@@ -114,10 +116,10 @@ class SortCpus:
                                         
 	def getCPU(self,CURRENTCPU):
 		if self.OutputLevel=='DEBUG':
-			print "|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|"
+			print ("|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|")
 			for line in self.CPUsFiles[CURRENTCPU]:
-				print "|  - ",line
-			print "|",93*"-","|"
+				print ("|  - ",line)
+			print ("|",93*"-","|")
 		return self.CPUsFiles[CURRENTCPU]
            
                 
@@ -225,7 +227,7 @@ class writeJob:
                 job.write("InDetAlignExampleFlags.TextFileReadEndIndex   = %d \n" % (self.j-1)) # dummy for RA
         job.write("InDetAlignExampleFlags.AlignLevel             = %d \n" % self.AlignLevel)        
         job.write("InDetAlignExampleFlags.SolveOption            = %d \n" % self.SolveOption)
-        job.write("print ' Outputpath = ', InDetAlignExampleFlags.OutputPath \n")
+        job.write("printfunc (' Outputpath = ', InDetAlignExampleFlags.OutputPath) \n")
         job.write("\n")
         
         for line in topOptions.readlines():
@@ -324,21 +326,21 @@ class writeScript:
       #  self.temppath = temppath
     def send(self):
         
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
         if self.j==-1:
-            print "  Sending %s_Solve_Iter%d job to LxBatch " % (self.preName, self.i)
+            print ("  Sending %s_Solve_Iter%d job to LxBatch " % (self.preName, self.i))
         else:
             if self.CosmicsNoBField:
-                print "  Sending %s_Iter%d_Part%02d_CosmicsNoBField job to LxBatch" % (self.preName,self.i,self.j)
+                print ("  Sending %s_Iter%d_Part%02d_CosmicsNoBField job to LxBatch" % (self.preName,self.i,self.j))
             elif self.CosmicsBField:
-                print "  Sending %s_Iter%d_Part%02d_CosmicsBField job to LxBatch" % (self.preName,self.i,self.j)
+                print ("  Sending %s_Iter%d_Part%02d_CosmicsBField job to LxBatch" % (self.preName,self.i,self.j))
             elif not self.BeamHalo and not self.BeamGas:
-                print "  Sending %s_Iter%d_Part%02d_Collision job to LxBatch" % (self.preName,self.i,self.j)
+                print ("  Sending %s_Iter%d_Part%02d_Collision job to LxBatch" % (self.preName,self.i,self.j))
             elif self.BeamHalo:
-                print "  Sending %s_Iter%d_Part%02d_Halo job to LxBatch" % (self.preName,self.i,self.j)
+                print ("  Sending %s_Iter%d_Part%02d_Halo job to LxBatch" % (self.preName,self.i,self.j))
             elif self.BeamGas:
-                print "  Sending %s_Iter%d_Part%02d_Gas job to LxBatch" % (self.preName,self.i,self.j)
-        print "----------------------------------------------"
+                print ("  Sending %s_Iter%d_Part%02d_Gas job to LxBatch" % (self.preName,self.i,self.j))
+        print ("----------------------------------------------")
 
         os.system("chmod +x %s" % self.SCRIPTNAME)
         os.system("bsub <%s" % self.SCRIPTNAME)
@@ -347,7 +349,7 @@ class writeScript:
         #os.system("bsub <%s" % self.temppath+self.SCRIPTNAME)
 
     def wait(self):
-        print "Processing in lxbatch..."
+        print ("Processing in lxbatch...")
         # Wait for signal
         time.sleep(30)
         while os.popen('bjobs -w').read().find(self.preName)!=-1:
@@ -369,10 +371,10 @@ class collectRAmodules:
         self.info=info
 
     def run(self):
-        print 
-        print "------------------------------------------"
-        print "  Collecting Iter%d RA module files" % self.i
-        print "------------------------------------------"
+        print ()
+        print ("------------------------------------------")
+        print ("  Collecting Iter%d RA module files" % self.i)
+        print ("------------------------------------------")
         HOME = os.environ['HOME']
         os.chdir("%s/Iter%d" % (self.OutputPath,self.i))
         os.mkdir("moduleRA")
@@ -387,14 +389,14 @@ class collectRAmodules:
              TempPath = "%s/Iter%d/Halo/%02d/" %  (self.OutputPath,self.i,firstMatrix)
         if not os.path.isdir(TempPath):
             TempPath = "%s/Iter%d/Gas/%02d/" %  (self.OutputPath,self.i,firstMatrix)
-        print "checking %s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,firstMatrix)
+        print ("checking %s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,firstMatrix))
         while not ( os.path.isfile( "%s/Iter%d_AlignmentRAmodule_%dPIX.txt" % (TempPath,self.i,firstMatrix) ) or os.path.isfile( "%s/Iter%d_AlignmentRAmodule_%dSCT.txt" % (TempPath,self.i,firstMatrix) ) ):
-            print "%s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,firstMatrix)
-            print "WARNING: Initial Check: RA module file with index %02d is missing" % firstMatrix
+            print ("%s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,firstMatrix))
+            print ("WARNING: Initial Check: RA module file with index %02d is missing" % firstMatrix)
             self.info.write("WARNING: Initial Check: RA module file with index %02d is missing\n" % firstMatrix)
             firstMatrix += 1
             if firstMatrix == self.CPUs:
-                print 'ERROR: Initial Check: No RA module files found'
+                print ('ERROR: Initial Check: No RA module files found')
                 break
             TempPath = "%s/Iter%d/Collision/%02d/" %  (self.OutputPath,self.i,firstMatrix)
             if not os.path.isdir(TempPath):
@@ -420,10 +422,10 @@ class collectRAmodules:
             if os.path.isfile("%s/Iter%d_AlignmentRAmodule_%dPIX.txt" % (TempPath,self.i,j)) or os.path.isfile("%s/Iter%d_AlignmentRAmodule_%dSCT.txt" % (TempPath,self.i,j)):
                 os.system("cp %s/Iter%d_AlignmentRAmodule_*txt %s/Iter%d/moduleRA/." % (TempPath,self.i,self.OutputPath,self.i))
                 self.info.write("RA module file with index %02d exists\n" % j)
-                print "RA module file with index %02d exists" % j      
+                print ("RA module file with index %02d exists" % j      )
             else:
-                print "WARNING: RA module file with index %02d is missing" % j
-                print "file name: %s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,j)
+                print ("WARNING: RA module file with index %02d is missing" % j)
+                print ("file name: %s/Iter%d_AlignmentRAmodule_%dPIX/SCT.txt" % (TempPath,self.i,j))
                 self.info.write("WARNING: RA module file with index %02d is missing\n" % j)
         os.chdir(self.RUNPATH)
 
@@ -446,15 +448,15 @@ class mergeMatrix:
         
         
     def run(self):
-        print 
-        print "------------------------------------------"
-        print "  Merging Iter%d GX2 Matrices" % self.i
-        print "------------------------------------------"
+        print ()
+        print ("------------------------------------------")
+        print ("  Merging Iter%d GX2 Matrices" % self.i)
+        print ("------------------------------------------")
         HOME = os.environ['HOME']
         if os.environ['HOSTNAME'] != 'tst01.ific.uv.es':
             os.chdir(self.addbigPath)
-            print self.addbigPath
-            print "compiling matrix merger..."
+            print (self.addbigPath)
+            print ("compiling matrix merger...")
             os.system("g++  -Wno-deprecated big_add.C -o big_add.exe")
 
         os.chdir("%s/Iter%d" % (self.OutputPath,self.i))
@@ -471,12 +473,12 @@ class mergeMatrix:
             TempPath = "%s/Iter%d/Gas/%02d/" %  (self.OutputPath,self.i,firstMatrix)
              
         while not os.path.isfile( "%s/Iter%d_bigmatrix.bin" % (TempPath,self.i)):
-            print "%s/Iter%d_bigmatrix.bin" % (TempPath,self.i)
-            print "WARNING: Matrix number %02d is missing" % firstMatrix
+            print ("%s/Iter%d_bigmatrix.bin" % (TempPath,self.i))
+            print ("WARNING: Matrix number %02d is missing" % firstMatrix)
             self.info.write("WARNING: Matrix number %02d is missing\n" % firstMatrix)
             firstMatrix += 1
             if firstMatrix == self.CPUs:
-                print 'ERROR: No matrices found'
+                print ('ERROR: No matrices found')
                 break
             TempPath = "%s/Iter%d/Collision/%02d/" %  (self.OutputPath,self.i,firstMatrix)
             if not os.path.isdir(TempPath):
@@ -489,7 +491,7 @@ class mergeMatrix:
                 TempPath = "%s/Iter%d/Gas/%02d/" %  (self.OutputPath,self.i,firstMatrix)
                 
         #self.info.write("Matrix number %02d exists\n" % firstMatrix)
-        print "Matrix number %02d exists" % firstMatrix            
+        print ("Matrix number %02d exists" % firstMatrix            )
         
         os.system("cp %s/Iter%d_bigmatrix.bin %s/Iter%d/temp/bigmatrix.bin" % (TempPath,self.i,self.OutputPath,self.i))
         os.system("cp %s/Iter%d_bigvector.bin %s/Iter%d/temp/bigvector.bin" % (TempPath,self.i,self.OutputPath,self.i))
@@ -511,8 +513,8 @@ class mergeMatrix:
                 os.system("cp %s/Iter%d_bigvector.bin %s/bigvector.bin" % (TempPath,self.i,TempPath))
                 os.system("cp %s/Iter%d_hitmap.txt %s/hitmap.txt" %       (TempPath,self.i,TempPath))
                 self.info.write("Matrix number %02d exists\n" % j)
-                print "Matrix number %02d exists" % j      
-                print "merging matrix..."
+                print ("Matrix number %02d exists" % j      )
+                print ("merging matrix...")
                 m = os.popen("time %s/big_add.exe" % self.addbigPath,'w')
                 m.write("%s \n" % TempPath)
                 m.write("%s/Iter%d/temp \n" % (self.OutputPath,self.i))
@@ -526,7 +528,7 @@ class mergeMatrix:
                 os.system("mv %s/Iter%d/bigvector.bin %s/Iter%d/temp/" % (self.OutputPath,self.i, self.OutputPath, self.i))
                 os.system("mv %s/Iter%d/hitmap.txt %s/Iter%d/temp/" % (self.OutputPath,self.i, self.OutputPath, self.i))
             else:
-                print "WARNING: Matrix number %02d is missing" % j
+                print ("WARNING: Matrix number %02d is missing" % j)
                 self.info.write("WARNING: Matrix number %02d is missing\n" % j)
     
         #for j in range(0, self.CPUs):
@@ -611,14 +613,14 @@ class COG:
         script.close()
 
     def sendScript(self):
-        print "----------------------------------------------"
-        print "  Sending Iter%d - COG job to LxBatch " % self.iter
-        print "----------------------------------------------"
+        print ("----------------------------------------------")
+        print ("  Sending Iter%d - COG job to LxBatch " % self.iter)
+        print ("----------------------------------------------")
         os.system("chmod +x %s" % self.SCRIPTNAME)
         os.system("bsub <%s" % self.SCRIPTNAME)
 
     def wait(self):
-        print "Processing in lxbatch..."
+        print ("Processing in lxbatch...")
         # Wait for signal
         time.sleep(30)
         while os.popen('bjobs -w').read().find(self.preName)!=-1:
@@ -627,10 +629,10 @@ class COG:
 
     def run(self,
             OutputLevel):
-        print "----------------------------------------------"
-        print "  Running %s_Iter%d - COG in local machine" % (self.preName,self.iter)
-        print "----------------------------------------------"
-        print " - output path: %s/Iter%d/" % (self.OutputPath, self.iter)
+        print ("----------------------------------------------")
+        print ("  Running %s_Iter%d - COG in local machine" % (self.preName,self.iter))
+        print ("----------------------------------------------")
+        print (" - output path: %s/Iter%d/" % (self.OutputPath, self.iter))
 
         if OutputLevel == 'INFO':
             process=os.popen("athena.py %s > %s/Iter%d/logs/Iter%dCog.log" % (self.JOBNAME, self.OutputPath, self.iter, self.iter))
@@ -639,7 +641,7 @@ class COG:
         while 1:
             line = process.readline()
             if OutputLevel == 'DEBUG':
-                print line,
+                print (line, end='')
             if not line:
                 self.status=1
                 break          

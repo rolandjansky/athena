@@ -12,7 +12,7 @@
 #include "TruthLeptonNearbyAssociationTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "TruthUtils/PIDHelpers.h"
 

@@ -12,7 +12,6 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetRawData/SCT3_RawData.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -41,6 +40,9 @@ namespace {
 
   int
   numberOfInefficientSides(TH2* pHistogramArray[], const int xbin, const int ybin, const float threshold) {
+    // If at least either of pointers is null, no inefficient sides are reported.
+    if (pHistogramArray[0]==nullptr or pHistogramArray[1]==nullptr) return 0;
+
     double histogramBinContent0{pHistogramArray[0]->GetBinContent(xbin, ybin)};
     double histogramBinContent1{pHistogramArray[1]->GetBinContent(xbin, ybin)};
     int side0Inefficient{histogramBinContent0 > threshold};
@@ -51,6 +53,9 @@ namespace {
 
   bool
   eitherSideIsOverThreshold(TH2* pHistogramArray[], const int xbin, const int ybin, const float threshold) {
+    // If at least either of pointers is null, no sides with over threshold are reported.
+    if (pHistogramArray[0]==nullptr or pHistogramArray[1]==nullptr) return false;
+
     double histogramBinContent0{pHistogramArray[0]->GetBinContent(xbin, ybin)};
     double histogramBinContent1{pHistogramArray[1]->GetBinContent(xbin, ybin)};
 
@@ -59,6 +64,9 @@ namespace {
 
   bool
   thereAreEnoughEntries(TH2* pHistogramArray[], const float threshold) {
+    // If at least either of pointers is null, enough entries are not reported.
+    if (pHistogramArray[0]==nullptr or pHistogramArray[1]==nullptr) return false;
+
     double histogramEntries0{pHistogramArray[0]->GetEntries()};
     double histogramEntries1{pHistogramArray[1]->GetEntries()};
 
@@ -66,17 +74,11 @@ namespace {
   }
 
   void
-  fillRateHistogram(const TH2F_LW* sourceHisto, TProfile2D_LW* targetHisto, const int xbin, const int ybin,
-                    const float centreX, const float centreY, const int nEvent) {
-    const double content{sourceHisto->GetBinContent(xbin, ybin)};
-
-    targetHisto->Fill(centreX, centreY, 1, content);
-    targetHisto->Fill(centreX, centreY, 0, nEvent - content);
-  }
-
-  void
   countNoisyModules(const int regionIndex, const int generalIndex, TH2* pHistogram[],
                     const float threshold, int countArray[]) {
+    // If at least either of pointers is null, counting is not done.
+    if (pHistogram[0]==nullptr or pHistogram[1]==nullptr) return;
+
     const int xbins{pHistogram[0]->GetNbinsX() + 1};
     const int ybins{pHistogram[0]->GetNbinsY() + 1};
 
@@ -108,7 +110,6 @@ SCTErrMonTool::SCTErrMonTool(const string& type, const string& name, const IInte
 StatusCode SCTErrMonTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
-  ATH_CHECK(m_dataObjectName.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
 
   moduleGeo_t moduleGeo; // dummy value
@@ -132,20 +133,6 @@ StatusCode SCTErrMonTool::initialize() {
   }
   ////
   return ManagedMonitorToolBase::initialize();
-}
-
-//====================================================================================================
-// ====================================================================================================
-SCTErrMonTool::~SCTErrMonTool() {
-
-  for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-    for (int layer{0}; layer < N_ENDCAPSx2; ++layer) {
-      for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-        if (m_allErrsPerLumi[errType][reg][layer]) LWHist::safeDelete(m_allErrsPerLumi[errType][reg][layer]);
-        if (m_pallErrsPerLumi[errType][reg][layer]) LWHist::safeDelete(m_pallErrsPerLumi[errType][reg][layer]);
-      }
-    }
-  }
 }
 
 // ====================================================================================================
@@ -172,72 +159,6 @@ SCTErrMonTool::errorsString(int errtype) const {
     return "MaskedChipALL";
   }
   return "";
-}
-
-// ====================================================================================================
-//                            SCTErrMonTool :: copyHistograms
-//    This function is used for copying histograms which is required to change their directories/names.
-//    If you change original ones immediately, you cannot see them in the web display for a while
-// until new configuration is applied.
-//    So you should copy histograms in the new directories in this function once,
-// and then if you have new configuration for the webdisplay, you can delete this function and change original histograms.
-// ====================================================================================================
-StatusCode
-SCTErrMonTool::copyHistograms() {
-
-  //RODLevelErrors histograms
-  for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-    const unsigned int xbins{m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetNbinsX() + 1};
-    for (unsigned int xb{1}; xb < xbins; ++xb) {
-      double nentry{m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetBinContent(xb)};
-      for (int ientry{0}; ientry<nentry; ientry++) {
-        m_LinksWithRODErrorsVsLB_check[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetXaxis()->GetBinCenter(xb),
-                                                  m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetBinContent(xb));
-      }
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-// ====================================================================================================
-//                            SCTErrMonTool :: copyHistograms
-//    This function is used for copying histograms which is required to change their directories/names.
-//    If you change original ones immediately, you cannot see them in the web display for a while
-// until new configuration is applied.
-//    So you should copy histograms in the new directories in this function once,
-// and then if you have new configuration for the webdisplay, you can delete this function and change original histograms.
-// ====================================================================================================
-StatusCode
-SCTErrMonTool::copyHistograms_book() {
-  //RODLevelErrors histograms
-  static const TString regLabel[NREGIONS_INC_GENERAL] = {
-    "EndcapC", "Barrel", "EndcapA", ""
-  };
-  static const TString regTitle[NREGIONS_INC_GENERAL] = {
-    "EndcapC", "Barrel", "EndcapA", "All Region"
-  };
-
-  if (ManagedMonitorToolBase::newRunFlag()) {
-    MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
-      MonGroup{this, "SCT/SCTEC/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
-      MonGroup{this, "SCT/SCTB/Conf",    ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
-      MonGroup{this, "SCT/SCTEA/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
-      MonGroup{this, "SCT/GENERAL/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED}
-    };
-
-    for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-      m_LinksWithRODErrorsVsLB_check[reg] =
-        TProfile_LW::create("SCTModulesWithRODLevelErrorsCheck" + regLabel[reg],
-                            "Ave. Number of RODLevelErrors per LB in " + regTitle[reg],
-                            NBINS_LBs, 0.5, NBINS_LBs+0.5);
-      if (ConfHist[reg].regHist(m_LinksWithRODErrorsVsLB_check[reg]).isFailure()) {
-        ATH_MSG_WARNING("Cannot book Histogram:SCTModulesWithRODLevelErrorsCheck");
-      }
-    }
-  }
-
-  return StatusCode::SUCCESS;
 }
 
 // ====================================================================================================
@@ -273,16 +194,9 @@ SCTErrMonTool::bookHistograms() {
   }
 
   for (int reg{0}; reg<N_REGIONS; reg++) {
-    if (bookConfMaps(reg).isFailure()) {
-      ATH_MSG_WARNING("Error in bookConfMaps(): " << "SCT" + subDetNameShort[reg]);
-    }
     if (bookErrHistos(reg).isFailure()) {
       ATH_MSG_WARNING("Error in bookErrHistos(): " << "SCT" + subDetNameShort[reg]);
     }
-  }
-
-  if (copyHistograms_book().isFailure()) {
-    ATH_MSG_WARNING("Error in copyHistograms_book() ");
   }
 
   ATH_CHECK(m_byteStreamErrTool.retrieve());
@@ -316,36 +230,35 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
     "Ave. Coverage of Links With No Bad Problem per LB" // All - Summary
   };
 
-  MonGroup monGr_shift{this, "SCT/DetectorCoverage", run, ATTRIB_UNMANAGED};
-
   bool status{true};
   if ( not m_CoverageCheck ) {
     return StatusCode::SUCCESS;
   }
 
   if (ManagedMonitorToolBase::newRunFlag()) {
+    MonGroup monGr_shift{this, "SCT/DetectorCoverage", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
 
     //All SCT module for counting good module
-    m_mapSCT[all] = new TH2F( "SCT_AllRegion", "Map of All Region",
-                              m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    m_mapSCT[allRegion] = new TH2F( "SCT_AllRegion", "Map of All Region",
+                              s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //Disabled
     m_mapSCT[disabled] = new TH2F( "SCT_MapOfDisabledLinks", "Map of Disabled Links",
-                                   m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                   s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //BadLinkLevelError
     m_mapSCT[badLinkError] = new TH2F( "SCT_MapOfLinksWithBadLinkLevelErrors", "Map of Links with bad LinkLevelErrors",
-                                       m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //BadRODLevelError
     m_mapSCT[badRODError] = new TH2F( "SCT_MapOfLinksWithBadRODLevelErrors", "Map of Links with Bad RODLevelErrors",
-                                      m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                      s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //BadError = BadLinkLevelError + BadRODLevelError
     m_mapSCT[badError] = new TH2F( "SCT_MapOfLinksWithBadErrors", "Map of Links with Bad Errors",
-                                   m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                   s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //Power supply trip (SCT_DCSConditionsTool)
     m_mapSCT[psTripDCS] = new TH2F( "SCT_MapOfLinksWithPSTrip", "Map of Links Affected by PS Trip",
-                                    m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                    s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //Total (SCT_ConditionsSummaryTool)
     m_mapSCT[summary] = new TH2F( "SCT_MapOfLinksWithAnyProbelm", "Map of Links with Any Bad Problem",
-                                  m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+                                  s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     
     //Detector Coverage vs LumiBlock
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage ; iProblem++) {
@@ -356,7 +269,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
     }
 
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      if (iProblem==all) continue;
+      if (iProblem==allRegion) continue;
 
       m_detectorCoverageVsLbs[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
       m_detectorCoverageVsLbs[iProblem]->GetXaxis()->SetTitle("LumiBlock");
@@ -390,12 +303,11 @@ SCTErrMonTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pEvent{m_eventInfoKey};
   if (not pEvent.isValid()) {
     ATH_MSG_WARNING("Could not retrieve event info!");
-    return StatusCode::RECOVERABLE;
+    return StatusCode::SUCCESS;
   }
   m_current_lb = pEvent->lumiBlock();
   bool sctflag{false};
   if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
-    // ATH_MSG_WARNING("SCT_Flag==FALSE:: LVL1ID Errors >500 ");
     m_NumberOfSCTFlagErrorsVsLB->Fill(m_current_lb);
     m_FractionOfSCTFlagErrorsPerLB->Fill(m_current_lb, 1);
     sctflag = true;
@@ -410,65 +322,6 @@ SCTErrMonTool::fillHistograms() {
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer{m_dataObjectName};
-
-  // Define variables for error histograms
-  int numFirstHit{0}, numSecondHit{0}, numSCTRDOs{0};
-  int numFirstHit_ECp{0}, numSecondHit_ECp{0}, numSCTRDOs_ECp{0};
-  int numFirstHit_ECm{0}, numSecondHit_ECm{0}, numSCTRDOs_ECm{0};
-
-  int count_SCT_RDO{0};
-  for (const InDetRawDataCollection<SCT_RDORawData>*SCT_Collection: *p_rdocontainer) {
-    if (SCT_Collection==nullptr) continue;  // select only SCT RDOs
-
-    for (const SCT_RDORawData* rdo: *SCT_Collection) {
-      count_SCT_RDO++;
-      const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
-      if (rdo3==nullptr) continue;
-
-      Identifier SCT_Identifier{rdo3->identify()};
-      int barrel_ec{m_pSCTHelper->barrel_ec(SCT_Identifier)};
-      if (barrel_ec == BARREL) ++numSCTRDOs;
-      if ((barrel_ec == ENDCAP_A) and m_doPositiveEndcap) ++numSCTRDOs_ECp;
-      if ((barrel_ec == ENDCAP_C) and m_doNegativeEndcap) ++numSCTRDOs_ECm;
-
-      if (not SCT_Identifier.is_valid()) {
-        ATH_MSG_ERROR("The SCT identifier is not valid.");
-        return StatusCode::RECOVERABLE;
-      }
-
-      // Start filling histograms, whilst counting the number of each type of errors. A map of vectors contains
-      // histograms for each type of error. The vectors contain one histogram for each plane of the SCT
-      if (rdo3) {
-        if (rdo3->FirstHitError()) {
-          if (barrel_ec == BARREL) numFirstHit++;
-          else if ((barrel_ec == ENDCAP_A) and m_doPositiveEndcap) numFirstHit_ECp++;
-          else if ((barrel_ec == ENDCAP_C) and m_doNegativeEndcap) numFirstHit_ECm++;
-        }
-        if ((rdo3)->SecondHitError()) {
-          if (barrel_ec == BARREL) numSecondHit++;
-          else if ((barrel_ec == ENDCAP_A) and m_doPositiveEndcap) numSecondHit_ECp++;
-          else if ((barrel_ec == ENDCAP_C) and m_doNegativeEndcap) numSecondHit_ECm++;
-        }
-      }
-    }
-  }// end for (SCT_RDO_Container...
-
-  if (numSCTRDOs > 0) {
-    double scale{100. / static_cast<double>(numSCTRDOs)};
-    m_firstHit[BARREL_INDEX]->Fill(static_cast<double>(numFirstHit)*scale, 1.);
-    m_secondHit[BARREL_INDEX]->Fill(static_cast<double>(numSecondHit)*scale, 1.);
-  }
-  if ((numSCTRDOs_ECp > 0) and m_doPositiveEndcap) {
-    double scale{100. / static_cast<double>(numSCTRDOs_ECp)};
-    m_firstHit[ENDCAP_A_INDEX]->Fill(static_cast<double>(numFirstHit_ECp)*scale, 1.);
-    m_secondHit[ENDCAP_A_INDEX]->Fill(static_cast<double>(numSecondHit_ECp)*scale, 1.);
-  }
-  if ((numSCTRDOs_ECm > 0) and m_doNegativeEndcap) {
-    double scale{100. / static_cast<double>(numSCTRDOs_ECm)};
-    m_firstHit[ENDCAP_C_INDEX]->Fill(static_cast<double>(numFirstHit_ECm)*scale, 1.);
-    m_secondHit[ENDCAP_C_INDEX]->Fill(static_cast<double>(numSecondHit_ECm)*scale, 1.);
-  }
   if (m_environment == AthenaMonManager::online) {
     if ((m_numberOfEvents == 1) or ((m_numberOfEvents > 1) and (m_numberOfEvents % m_checkrate) == 0)) {
       if (resetCondDBMaps().isFailure()) {
@@ -511,7 +364,6 @@ SCTErrMonTool::checkRateHists() {
       float content{0.};
       float cxb{0.};
       float cyb{0.};
-      int evt{m_numberOfEvents};
       int evt_lumi{m_numberOfEventsLumi};
       for (int reg{0}; reg<N_REGIONS; reg++) {
         if (m_doPerLumiErrors and endOfLumiBlockFlag()) {
@@ -521,33 +373,11 @@ SCTErrMonTool::checkRateHists() {
             cxb = m_numErrorsPerLumi[reg]->GetXaxis()->GetBinCenter(xb);
             for (unsigned int yb{1}; yb < ybins; ++yb) {
               cyb = m_numErrorsPerLumi[reg]->GetYaxis()->GetBinCenter(yb);
-              int num_modules{getNumModules(reg, yb - 1)};
+              int num_modules{getNumModules(index2Bec(reg), yb - 1)};
               content = m_numErrorsPerLumi[reg]->GetBinContent(xb, yb);
               if (num_modules > 0) {
                 m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 1, content);
                 m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 0, (evt_lumi * (static_cast<double>(num_modules)) - content));
-              }
-            }
-          }
-        }
-        int nLayers{n_layers[reg]*2};
-        for (int lyr{0}; lyr < nLayers; ++lyr) {
-          const unsigned int xbins{m_pallErrs[0][reg][lyr]->GetNbinsX() + 1};
-          const unsigned int ybins{m_pallErrs[0][reg][lyr]->GetNbinsY() + 1};
-          for (unsigned int xb{1}; xb < xbins; ++xb) {
-            cxb = m_pallErrs[0][reg][lyr]->GetXaxis()->GetBinCenter(xb);
-            for (unsigned int yb{1}; yb < ybins; ++yb) {
-              cyb = m_pallErrs[0][reg][lyr]->GetYaxis()->GetBinCenter(yb);
-              if (isEndOfEventsBlock) {
-                for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-                  fillRateHistogram(m_pallErrs[errType][reg][lyr], m_allErrs[errType][reg][lyr], xb, yb, cxb, cyb, evt);
-                }
-              }
-              // per lumi hists
-              if (m_doPerLumiErrors and endOfLumiBlockFlag() and m_doErr2DPerLumiHists) {
-                for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-                  fillRateHistogram(m_pallErrsPerLumi[errType][reg][lyr], m_allErrsPerLumi[errType][reg][lyr], xb, yb, cxb, cyb, evt);
-                }
               }
             }
           }
@@ -581,18 +411,12 @@ SCTErrMonTool::checkRateHists() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::procHistograms() {
-  /** TO BE REPLACED **/
-  bool endOfEventsBlock{endOfLumiBlockFlag()};
-
-  if (endOfEventsBlock or endOfLumiBlockFlag()) {
+  if (endOfLumiBlockFlag()) {
     ATH_MSG_DEBUG("finalHists()");
     ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
     ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
     if (checkRateHists().isFailure()) {
       ATH_MSG_WARNING("Error in checkRateHists()");
-    }
-    if (endOfEventsBlock and copyHistograms().isFailure()) {
-      ATH_MSG_WARNING("Error in copyHistograms()");
     }
     ATH_MSG_DEBUG("Exiting finalHists");
   }
@@ -604,21 +428,18 @@ SCTErrMonTool::procHistograms() {
 // ====================================================================================================
 int
 SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
-                                          TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][N_ENDCAPSx2],
                                           bool lumi2DHist, int err_type) {
 
   //--- Check categories of the BS error
   bool b_category[CategoryErrors::N_ERRCATEGORY];
 
-  b_category[CategoryErrors::MASKEDLINKALL] = false;
   b_category[CategoryErrors::MASKEDLINKALL] =
     (err_type == SCT_ByteStreamErrors::MaskedLink) or (err_type == SCT_ByteStreamErrors::MaskedROD);
 
   b_category[CategoryErrors::SUMMARY] = true;
 
   b_category[CategoryErrors::BADERR] = false;
-
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     if (err_type == tmpBadError) {
       b_category[CategoryErrors::BADERR] = true;
       break;
@@ -627,8 +448,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 
 
   b_category[CategoryErrors::LINKLEVEL] = false;
-
-  for (SCT_ByteStreamErrors::errorTypes linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
     if (err_type == linkLevelError) {
       b_category[CategoryErrors::LINKLEVEL] = true;
       break;
@@ -636,14 +456,13 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::RODLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
     if (err_type == rodLevelError) {
       b_category[CategoryErrors::RODLEVEL] = true;
       break;
     }
   }
 
-  b_category[CategoryErrors::MASKEDCHIP] = false;
   b_category[CategoryErrors::MASKEDCHIP] =
     (err_type == SCT_ByteStreamErrors::TempMaskedChip0) or (err_type == SCT_ByteStreamErrors::TempMaskedChip1) or
     (err_type == SCT_ByteStreamErrors::TempMaskedChip2) or (err_type == SCT_ByteStreamErrors::TempMaskedChip3) or
@@ -670,30 +489,15 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     else if (barrel_ec == ENDCAP_A) regionIndex = ENDCAP_A_INDEX;
     else if (barrel_ec == ENDCAP_C) regionIndex = ENDCAP_C_INDEX;
 
-    //--- Fill BS errors to the map
-    histo[err_type][regionIndex][layer]->Fill(ieta, iphi);
-
     //--- Fill BS errors to the map for each categories
     if (b_category[CategoryErrors::MASKEDLINKALL]) m_MaskedAllLinks->Fill(GENERAL_INDEX);
     if (b_category[CategoryErrors::MASKEDLINKALL] and (regionIndex!=GENERAL_INDEX)) m_MaskedAllLinks->Fill(regionIndex);
 
-    if (lumi2DHist) {
-      if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
-        if (b_category[CategoryErrors::MASKEDLINKALL]) m_pallErrsCatePerLumi[CategoryErrors::MASKEDLINKALL][regionIndex][layer]->Fill(ieta, iphi);
-        if (b_category[CategoryErrors::SUMMARY])       m_pallErrsCatePerLumi[CategoryErrors::SUMMARY][regionIndex][layer]->Fill(ieta, iphi);
-        if (b_category[CategoryErrors::BADERR])        m_pallErrsCatePerLumi[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
-        if (b_category[CategoryErrors::LINKLEVEL])     m_pallErrsCatePerLumi[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
-        if (b_category[CategoryErrors::RODLEVEL])      m_pallErrsCatePerLumi[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
-        if (b_category[CategoryErrors::MASKEDCHIP])    m_pallErrsCatePerLumi[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
-      }
-    } else {
+    if (not lumi2DHist) {
       if (m_doPerLumiErrors) m_numErrorsPerLumi[regionIndex]->Fill(err_type, layer);
-      if (b_category[CategoryErrors::MASKEDLINKALL]) m_pallErrsCate[CategoryErrors::MASKEDLINKALL][regionIndex][layer]->Fill(ieta, iphi);
-      if (b_category[CategoryErrors::SUMMARY])       m_pallErrsCate[CategoryErrors::SUMMARY][regionIndex][layer]->Fill(ieta, iphi);
-      if (b_category[CategoryErrors::BADERR])        m_pallErrsCate[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
-      if (b_category[CategoryErrors::LINKLEVEL])     m_pallErrsCate[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
-      if (b_category[CategoryErrors::RODLEVEL])      m_pallErrsCate[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
-      if (b_category[CategoryErrors::MASKEDCHIP])    m_pallErrsCate[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
+      for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
+        if (b_category[errType]) m_pallErrsCate[errType][regionIndex][layer]->Fill(ieta, iphi);
+      }
     }
   }
 
@@ -705,19 +509,11 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 //          SCTErrMonTool :: numByteStreamErrors, Daniel Damiani 04/07/2011
 // ====================================================================================================
 void
-SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot, int& nbar, int& neca, int& necc) const {
+SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot) const {
 
   for (const auto& fit: errors) {
     if (fit.is_valid()) {
-      Identifier fitId{m_pSCTHelper->wafer_id(fit)};
-      int layer{m_pSCTHelper->layer_disk(fitId)};
-      int side{m_pSCTHelper->side(fitId)};
-      int barrel_ec{m_pSCTHelper->barrel_ec(fitId)};
-      layer = layer * 2 + side;
       ntot++;
-      if ((barrel_ec == BARREL) and (layer >= 0) and (layer < N_BARRELSx2)) nbar++;
-      else if (barrel_ec == ENDCAP_A) neca++;
-      else if (barrel_ec == ENDCAP_C) necc++;
     }
   }
 
@@ -731,7 +527,6 @@ SCTErrMonTool::fillByteStreamErrors() {
 
   //--- Get event information
   SG::ReadHandle<xAOD::EventInfo> pEvent{m_eventInfoKey};
-  ATH_MSG_INFO("INFO|| monitor ||INFO");
   if (not pEvent.isValid()) {
     ATH_MSG_ERROR("Could not retrieve event info!");
     return StatusCode::RECOVERABLE;
@@ -745,19 +540,12 @@ SCTErrMonTool::fillByteStreamErrors() {
 
   //--- Fill 1D histograms (vs LumiBlock) for each BS
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    int bs_errs[NREGIONS_INC_GENERAL];
-    bs_errs[GENERAL_INDEX] = 0; // ALL
-    bs_errs[BARREL_INDEX] = 0; // BARREL
-    bs_errs[ENDCAP_A_INDEX] = 0; // ECA
-    bs_errs[ENDCAP_C_INDEX] = 0; // ECC
+    int bs_errs{0}; // ALL
     // get number of BS errors
     numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType),
-                        bs_errs[GENERAL_INDEX], bs_errs[BARREL_INDEX], bs_errs[ENDCAP_A_INDEX], bs_errs[ENDCAP_C_INDEX]);
+                        bs_errs);
     // fill number of BS errors vs LBs
-    for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-      if (not sctflag) m_ByteStreamVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
-      else m_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(current_lb, static_cast<double>(bs_errs[reg]));
-    }
+    if (not sctflag) m_ByteStreamVsLB[errType]->Fill(current_lb, static_cast<double>(bs_errs));
   }
 
   if (sctflag) {
@@ -767,31 +555,18 @@ SCTErrMonTool::fillByteStreamErrors() {
   //--- Reset Histograms
   m_MaskedAllLinks->Reset();
 
-  int bytestreamCate_errs[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  int tot_mod_bytestreamCate_errs[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL];
-  int tot_mod_bytestreamCate_errs_layer[CategoryErrors::N_ERRCATEGORY][NREGIONS_INC_GENERAL][N_DISKSx2];
+  int tot_mod_bytestreamCate_errs[CategoryErrors::N_ERRCATEGORY];
+  for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
+    tot_mod_bytestreamCate_errs[errType] = 0;
+  }
 
-  for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-    int nLayers{n_layers[reg]*2};
-    for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-      bytestreamCate_errs[errType][reg] = 0;
-      tot_mod_bytestreamCate_errs[errType][reg] = 0;
-      for (int lyr{0}; lyr < nLayers; ++lyr) {
-        if (reg==NREGIONS_INC_GENERAL-1)continue;
-        tot_mod_bytestreamCate_errs_layer[errType][reg][lyr] = 0;
-        if (m_pallErrsCate[errType][reg][lyr]) m_pallErrsCate[errType][reg][lyr]->Reset();
-        if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
-          if (m_pallErrsCatePerLumi[errType][reg][lyr]) m_pallErrsCatePerLumi[errType][reg][lyr]->Reset();
-        }
-        if ((m_environment == AthenaMonManager::online) and
-            (m_numberOfEvents % m_checkrate == 0) and m_runOnline) {
-          m_allErrs[errType][reg][lyr]->Reset();
-        }
-      }
-    }
+  for (int reg{0}; reg < N_REGIONS; ++reg) {
+    const int nLayers{n_layers[reg]*2};
     for (int lyr{0}; lyr < nLayers; ++lyr) {
+      for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
+        if (m_pallErrsCate[errType][reg][lyr]) m_pallErrsCate[errType][reg][lyr]->Reset();
+      }
       if ((m_environment == AthenaMonManager::online) and 
-          (abs(reg)<NREGIONS_INC_GENERAL) and
           (m_current_lb % m_checkrecent == 0) and
           (m_current_lb > m_last_reset_lb) and
           m_summaryErrsRecent[reg][lyr]) {
@@ -801,12 +576,9 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //--- Fill map histograms for each BS
-  int total_errors = 0;
-  for (int errType = 0; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrs, false, errType);
-    if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
-      fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrsPerLumi, false, errType);
-    }
+  int total_errors{0};
+  for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), false, errType);
   }
 
   //--- Fill detector coverage histograms
@@ -817,26 +589,26 @@ SCTErrMonTool::fillByteStreamErrors() {
       m_mapSCT[iProblem]->Reset("ICE");
     }
 
-    syncDisabledSCT(m_SCTHash[disabled]);
-    syncErrorSCT(m_SCTHash[badLinkError], m_SCTHash[badRODError], m_SCTHash[badError]);
-    summarySCT(m_SCTHash[all], m_SCTHash[summary]);
+    std::set<IdentifierHash> sctHash[numberOfProblemForCoverage]{{}};
+    syncDisabledSCT(sctHash[disabled]);
+    syncErrorSCT(sctHash[badLinkError], sctHash[badRODError], sctHash[badError]);
+    summarySCT(sctHash[allRegion], sctHash[summary]);
     float PSTripModules{0.};
-    psTripDCSSCT(m_SCTHash[psTripDCS], PSTripModules);
+    psTripDCSSCT(sctHash[psTripDCS],
+                 PSTripModules);
     
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      for (const IdentifierHash& hash: m_SCTHash[iProblem]) {
+      for (const IdentifierHash& hash: sctHash[iProblem]) {
         fillWafer(m_geo[hash], m_mapSCT[iProblem]);
       }
     }
     
     //detector coverage
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      if (iProblem==all) continue;
+      if (iProblem==allRegion) continue;
 
       double detector_coverage{calculateDetectorCoverage(m_mapSCT[iProblem])};
       m_detectorCoverageVsLbs[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
-      double good_detector_coverage{m_detectorCoverageVsLbs[iProblem]->GetBinContent(current_lb)};
-      ATH_MSG_INFO("Detector Coverage : " << good_detector_coverage);
     }
 
     //Modules affected by PS Tirp
@@ -845,8 +617,8 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //--- Counting # of links with categorised errors
-  for (int reg{0}; reg < NREGIONS_INC_GENERAL - 1; ++reg) {
-    int nLayers{n_layers[reg]*2};
+  for (int reg{0}; reg < N_REGIONS; ++reg) {
+    const int nLayers{n_layers[reg]*2};
     for (int lyr{0}; lyr < nLayers; ++lyr) {
       const unsigned int nBinsX{m_pallErrsCate[CategoryErrors::SUMMARY][reg][lyr]->GetNbinsX() + 1};
       const unsigned int nBinsY{m_pallErrsCate[CategoryErrors::SUMMARY][reg][lyr]->GetNbinsY() + 1};
@@ -855,25 +627,16 @@ SCTErrMonTool::fillByteStreamErrors() {
         for (unsigned int yb{1}; yb < nBinsY; ++yb) {
           double cyb{m_pallErrsCate[CategoryErrors::SUMMARY][reg][lyr]->GetYaxis()->GetBinCenter(yb)};
           for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-            bytestreamCate_errs[errType][reg] += m_pallErrsCate[errType][reg][lyr]->GetBinContent(xb, yb);
             if (m_pallErrsCate[errType][reg][lyr]->GetBinContent(xb, yb) > 0) {
               m_allErrsCate[errType][reg][lyr]->Fill(cxb, cyb, 1);
               if ((errType == CategoryErrors::SUMMARY) and (m_environment == AthenaMonManager::online)) {
                 m_summaryErrsRecent[reg][lyr]->Fill(cxb, cyb, 1);
               }
-              tot_mod_bytestreamCate_errs[errType][reg]++;
-              tot_mod_bytestreamCate_errs_layer[errType][reg][lyr]++;
+              tot_mod_bytestreamCate_errs[errType]++;
             } else {
               m_allErrsCate[errType][reg][lyr]->Fill(cxb, cyb, 0);
               if ((errType == CategoryErrors::SUMMARY) and (m_environment == AthenaMonManager::online)) {
                 m_summaryErrsRecent[reg][lyr]->Fill(cxb, cyb, 0);
-              }
-            }
-            if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
-              if (m_pallErrsCatePerLumi[errType][reg][lyr]->GetBinContent(xb, yb) > 0) {
-                m_allErrsCatePerLumi[errType][reg][lyr]->Fill(cxb, cyb, 1);
-              } else {
-                m_allErrsCatePerLumi[errType][reg][lyr]->Fill(cxb, cyb, 0);
               }
             }
           }
@@ -896,63 +659,7 @@ SCTErrMonTool::fillByteStreamErrors() {
   } // Loop for Region
 
   for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-    bytestreamCate_errs[errType][GENERAL_INDEX] =
-      bytestreamCate_errs[errType][BARREL_INDEX] +
-      bytestreamCate_errs[errType][ENDCAP_A_INDEX] +
-      bytestreamCate_errs[errType][ENDCAP_C_INDEX];
-    tot_mod_bytestreamCate_errs[errType][GENERAL_INDEX] =
-      tot_mod_bytestreamCate_errs[errType][BARREL_INDEX] +
-      tot_mod_bytestreamCate_errs[errType][ENDCAP_A_INDEX] +
-      tot_mod_bytestreamCate_errs[errType][ENDCAP_C_INDEX];
-  }
-
-  for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-    for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-      m_ByteStreamCategorisedVsLB[errType][reg]->Fill(current_lb, (bytestreamCate_errs[errType][reg]));
-      m_LinksWithCategorisedErrorsVsLB[errType][reg]->Fill(current_lb, (tot_mod_bytestreamCate_errs[errType][reg]));
-      if (reg==NREGIONS_INC_GENERAL-1)continue;
-      int nLayers{n_layers[reg]*2};
-      for (int lyr{0}; lyr < nLayers; ++lyr) {
-        m_LinksWithCategorisedErrorsVsLBLayer[errType][reg][lyr]->Fill(current_lb,
-                                                                       (tot_mod_bytestreamCate_errs_layer[errType][reg][lyr]));
-      }
-    }
-  }
-
-  //--- Time Dependent SP plots only online
-  m_nErrors_buf[m_nErrors_pos] = total_errors;
-  m_nLinksWithErrors_buf[m_nErrors_pos] = tot_mod_bytestreamCate_errs[CategoryErrors::SUMMARY][GENERAL_INDEX];
-  m_nErrors_pos++;
-  if (m_nErrors_pos == m_evtsbins) {
-    m_nErrors_pos = 0;
-  }
-  if (m_numberOfEvents % m_checkrate == 0) {
-    m_nErrors->Reset();
-    int latest_nErrors_pos{m_nErrors_pos};
-    m_nLinksWithErrors->Reset();
-    for (int i{1}; i < m_evtsbins; i++) {
-      if (latest_nErrors_pos == m_evtsbins) {
-        latest_nErrors_pos = 0;
-      }
-      if (m_numberOfEvents < m_evtsbins) {
-        if (i < m_nErrors_pos) {
-          m_nErrors->SetBinContent(i, m_nErrors_buf[i]);
-          m_nLinksWithErrors->SetBinContent(i, m_nLinksWithErrors_buf[i]);
-        } else {
-          m_nErrors->SetBinContent(i, 0);
-          m_nLinksWithErrors->SetBinContent(i, 0);
-        }
-      } else {
-        m_nErrors->SetBinContent(i, m_nErrors_buf[latest_nErrors_pos]);
-        m_nLinksWithErrors->SetBinContent(i, m_nLinksWithErrors_buf[latest_nErrors_pos]);
-        m_nErrors->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
-        m_nLinksWithErrors->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
-      }
-      latest_nErrors_pos++;
-      if (latest_nErrors_pos == m_evtsbins) {
-        latest_nErrors_pos = 0;
-      }
-    }
+    m_LinksWithCategorisedErrorsVsLB[errType]->Fill(current_lb, (tot_mod_bytestreamCate_errs[errType]));
   }
 
   m_numberOfEvents++;
@@ -1035,14 +742,14 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
 
   if (reg==-1) return StatusCode::FAILURE;
 
-  int nLayers{n_layers[reg]*2};
+  const int nLayers{n_layers[reg]*2};
   string regName{("SCT" + subDetNameShort[reg]).Data()};
   string layerTitle{layerName[reg].Data()};
   layerTitle.at(0)=toupper(layerTitle.at(0));
 
   if (m_doPerLumiErrors) {
-    MonGroup lumiErr{this, ("SCT/"+regName+"/errors").c_str(), lumiBlock, ATTRIB_UNMANAGED};
     if (ManagedMonitorToolBase::newLumiBlockFlag()) {
+      MonGroup lumiErr{this, ("SCT/"+regName+"/errors").c_str(), ManagedMonitorToolBase::lumiBlock, ATTRIB_UNMANAGED};
       //______________________________________________________________________________________
       m_numErrorsPerLumi[reg] =
         TH2F_LW::create("NumErrsPerLumi", ("Total Number of Error Types for "+layerTitle+" per Lumi-Block").c_str(),
@@ -1061,84 +768,35 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
       }
       //______________________________________________________________________________________
       for (unsigned int bin{0}; bin < SCT_ByteStreamErrors::NUM_ERROR_TYPES; bin++) {
-        m_numErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
-        m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
+        m_numErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::ErrorTypeDescription[bin].c_str());
+        m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::ErrorTypeDescription[bin].c_str());
       }
       for (int bin{0}; bin < nLayers; bin++) {
         m_numErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
         m_rateErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
       }
-      bool somethingFailed{false};
-      if (m_doErr2DPerLumiHists) {
-        for (int layer{0}; layer < nLayers; ++layer) {
-          for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-            MonGroup lumiErr2{this, "SCT/"+regName+"/errors/"+SCT_ByteStreamErrors::errorTypesDescription[errType], lumiBlock, ATTRIB_UNMANAGED};
-            string name1{"SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + subDetNameShort[reg].Data() + "_PerLumi"};
-            string title{SCT_ByteStreamErrors::errorTypesDescription[errType] + " per Lumi-Block per "+layerTitle};
-            string name2{"SCT_T" + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_PerLumi_"};
-            somethingFailed |= bookErrHistosHelper(lumiErr2, name1, title, name2,m_allErrsPerLumi[errType][reg][layer],
-                                                   m_pallErrsPerLumi[errType][reg][layer], layer, reg==BARREL_INDEX).isFailure();
-          }
-          for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-            MonGroup lumiErr2{this, "SCT/"+regName+"/errors/"+errorsString(errType).Data(), lumiBlock, ATTRIB_UNMANAGED};
-            string name1{("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_PerLumi").Data()};
-            string title{("Num of " + errorsString(errType) + " Errors per Lumi-Block per "+layerTitle).Data()};
-            string name2{("SCT_T" + errorsString(errType)  + subDetNameShort[reg].Data() + "_PerLumi_").Data()};
-            somethingFailed |= bookErrHistosHelper(lumiErr2, name1, title, name2, m_allErrsCatePerLumi[errType][reg][layer],
-                                                   m_pallErrsCatePerLumi[errType][reg][layer], layer, reg==BARREL_INDEX).isFailure();
-          }
-        }
-      }
-      if (somethingFailed) {
-        return StatusCode::FAILURE;
-      }
     }
   }
 
   if (ManagedMonitorToolBase::newRunFlag()) {
-    MonGroup err{this, "SCT/"+regName+"/errors/", run, ATTRIB_UNMANAGED};
     bool somethingFailed{false};
     // Book percentage error histograms
-    //______________________________________________________________________________________
-    m_firstHit[reg] = TH1F_LW::create("FirstHit_"+subDetNameShort[reg], ("Percentage of FirstHit errors in "+regName).c_str(), 50, 0., 100.);
-    m_firstHit[reg]->GetXaxis()->SetTitle("Percentage of FirstHit errors");
-    if (err.regHist(m_firstHit[reg]).isFailure()) {
-      ATH_MSG_WARNING("Cannot book Histogram:" << "FirstHit");
-    }
-    //______________________________________________________________________________________
-    m_secondHit[reg] = TH1F_LW::create("SecondHit_"+subDetNameShort[reg], ("Percentage of SecondHit errors in "+regName).c_str(), 50, 0., 100.);
-    m_secondHit[reg]->GetXaxis()->SetTitle("Percentage of SecondHit errors");
-    if (err.regHist(m_secondHit[reg]).isFailure()) {
-      ATH_MSG_WARNING("Cannot book Histogram:" << "SecondHit");
-    }
-    //______________________________________________________________________________________
     for (int layer{0}; layer < nLayers; ++layer) {
-      for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-        MonGroup err2{this, "SCT/"+regName+"/errors/"+SCT_ByteStreamErrors::errorTypesDescription[errType], run, ATTRIB_UNMANAGED};
-        string name1{"SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_"};
-        string title{SCT_ByteStreamErrors::errorTypesDescription[errType] + " per "  + layerTitle};
-        string name2{"SCT_T" + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_"};
-        //______________________________________________________________________________________
-        somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrs[errType][reg][layer],
-                                               m_pallErrs[errType][reg][layer], layer, reg==BARREL_INDEX).isFailure();
-        m_allErrs[errType][reg][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
-        m_allErrs[errType][reg][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
-        //______________________________________________________________________________________
-      }
       for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-        MonGroup err2{this, "SCT/"+regName+"/errors/"+errorsString(errType).Data(), lumiBlock, ATTRIB_UNMANAGED};
+        MonGroup err2{this, "SCT/"+regName+"/errors/"+errorsString(errType).Data(), ManagedMonitorToolBase::lumiBlock, ATTRIB_UNMANAGED};
         string name1{("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
         string title{("Num of " + errorsString(errType) + " per "+layerTitle).Data()};
         string name2{("SCT_T" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
         somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrsCate[errType][reg][layer],
                                                m_pallErrsCate[errType][reg][layer], layer, reg==BARREL_INDEX).isFailure();
-      }
-      if (m_environment == AthenaMonManager::online) {
-        somethingFailed |= bookErrHistosHelper(err, 
-                                               ("summaryErrsRecent"+subDetNameShort[reg]+"_").Data(), 
-                                               "summary recent Layer ", 
-                                               m_summaryErrsRecent[reg][layer], 
-                                               layer, reg==BARREL_INDEX).isFailure();
+     }
+     if (m_environment == AthenaMonManager::online) {
+       MonGroup err{this, "SCT/"+regName+"/errors/", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
+       somethingFailed |= bookErrHistosHelper(err, 
+                                              ("summaryErrsRecent"+subDetNameShort[reg]+"_").Data(), 
+                                              "summary recent Layer ", 
+                                              m_summaryErrsRecent[reg][layer], 
+                                              layer, reg==BARREL_INDEX).isFailure();
       }
     }
     if (somethingFailed) {
@@ -1151,7 +809,6 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
 
 StatusCode
 SCTErrMonTool::bookErrHistosGen() {
-
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup MaskErrs{this, "SCT/GENERAL/errors", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
     m_MaskedAllLinks = new TH1I("Masked Links", "Number of Masked Links for SCT,ECA,B,ECC", 4, -0.5, 3.5); // should reorder to C,B,A,total ?
@@ -1162,31 +819,12 @@ SCTErrMonTool::bookErrHistosGen() {
     if (MaskErrs.regHist(m_MaskedAllLinks).isFailure()) {
       ATH_MSG_WARNING("Couldn't book MaskedLinks");
     }
-    // Book errors vs event numbers
-    MonGroup Errors{this, "SCT/GENERAL/errors", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-    m_nErrors = new TH1I("sct_errors_vs_en", "Number of Errors vs Event Number", m_evtsbins, 1, m_evtsbins + 1);
-    m_nErrors->GetXaxis()->SetTitle("Event Number");
-    m_nErrors->GetYaxis()->SetTitle("Num of Errors");
-    m_nLinksWithErrors = new TH1I("sct_links_with_errors_vs_en","Number of Links with Errors vs Event Number",
-                                  m_evtsbins, 1, m_evtsbins + 1);
-    m_nLinksWithErrors->GetXaxis()->SetTitle("Event Number");
-    m_nLinksWithErrors->GetYaxis()->SetTitle("Num of Links with Errors");
-    m_nErrors_buf.reserve(m_evtsbins);
-    m_nLinksWithErrors_buf.reserve(m_evtsbins);
-    m_nErrors_pos = 0;
-    if (Errors.regHist(m_nErrors).isFailure()) {
-      ATH_MSG_WARNING("Couldn't book nErrors vs event number hist");
-    }
-    if (Errors.regHist(m_nLinksWithErrors).isFailure()) {
-      ATH_MSG_WARNING("Couldn't book nLinksWithErrors vs event number hist");
-    }
-
   }
   return StatusCode::SUCCESS;
 }
 
 // ====================================================================================================
-//                         SCTErrMonTool :: bookConfMaps
+//                         SCTErrMonTool :: bookConfMapsGen
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookConfMapsGen() {
@@ -1199,15 +837,15 @@ SCTErrMonTool::bookConfMapsGen() {
   static const string OnlineBinNames[ConfbinsOnline] = {
     "Mod Out", "Flagged Links", "Masked Links", "Errors"
   };
-  static const TString regLabel[NREGIONS_INC_GENERAL] = {
+  static const TString regLabel[N_REGIONS_INC_GENERAL] = {
     "EndcapC", "Barrel", "EndcapA", ""
   };
-  static const TString regTitle[NREGIONS_INC_GENERAL] = {
+  static const TString regTitle[N_REGIONS_INC_GENERAL] = {
     "EndcapC", "Barrel", "EndcapA", "All Region"
   };
 
   if (ManagedMonitorToolBase::newRunFlag()) {
-    MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
+    MonGroup ConfHist[N_REGIONS_INC_GENERAL] = {
       MonGroup{this, "SCT/SCTEC/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
       MonGroup{this, "SCT/SCTB/Conf",    ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
       MonGroup{this, "SCT/SCTEA/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
@@ -1224,158 +862,92 @@ SCTErrMonTool::bookConfMapsGen() {
       for (int bin{0}; bin < ConfbinsDetailed; bin++) {
         m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin + 1, DetailedBinNames[bin].c_str());
       }
+      if (ConfHist[GENERAL_INDEX].regHist(m_DetailedConfiguration).isFailure()) {
+        ATH_MSG_WARNING("Cannot book Histogram:SCTConfDetails");
+      }
+      
+      m_ConfNew = TProfile_LW::create("SCTConf"+regLabel[GENERAL_INDEX]+"New", "Num of Problematic Modules in "+regTitle[GENERAL_INDEX],
+                                      ConfbinsSummary-1, -0.5, ConfbinsSummary-1-0.5);
+      for (int bin{1}; bin < ConfbinsSummary; bin++) {
+        m_ConfNew->GetXaxis()->SetBinLabel(bin, SummaryBinNames[bin].c_str());
+      }
+      if (ConfHist[GENERAL_INDEX].regHist(m_ConfNew).isFailure()) {
+        ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
+      }
 
-      for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-        m_Conf[reg] = TProfile_LW::create("SCTConf"+regLabel[reg], "Num of Problematic Modules in "+regTitle[reg],
-                                          ConfbinsSummary, -0.5, ConfbinsSummary-0.5);
-        m_ConfRN[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"RN", "Num of Problematic Modules in "+regTitle[reg],
-                                            ConfbinsSummary, -0.5, ConfbinsSummary-0.5);
-        for (int bin{0}; bin < ConfbinsSummary; bin++) {
-          m_Conf[reg]->GetXaxis()->SetBinLabel(bin + 1, SummaryBinNames[bin].c_str());
-          m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin + 1, SummaryBinNames[bin].c_str());
+      m_ConfOutModules = TProfile_LW::create("SCTConf"+regLabel[GENERAL_INDEX]+"OutM", "Num of Out Modules in "+regTitle[GENERAL_INDEX], 1, -0.5, 0.5);
+      m_ConfOutModules->GetXaxis()->SetBinLabel(1, "Mod Out");
+      if (ConfHist[GENERAL_INDEX].regHist(m_ConfOutModules).isFailure()) {
+        ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
+      }
+
+      for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
+        m_ByteStreamVsLB[errType] =
+          TProfile_LW::create("SCT_" + SCT_ByteStreamErrors::ErrorTypeDescription[errType] + "VsLbs" + regLabel[GENERAL_INDEX],
+                              "Ave. " + SCT_ByteStreamErrors::ErrorTypeDescription[errType] + " per LB in " + regTitle[GENERAL_INDEX],
+                              NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+        m_ByteStreamVsLB[errType]->GetXaxis()->SetTitle("LumiBlock");
+        m_ByteStreamVsLB[errType]->GetYaxis()->SetTitle("Num of " + TString(SCT_ByteStreamErrors::ErrorTypeDescription[errType]));
+
+        if (ConfHist[GENERAL_INDEX].regHist(m_ByteStreamVsLB[errType]).isFailure()) {
+          ATH_MSG_WARNING("Cannot book Histogram:" + SCT_ByteStreamErrors::ErrorTypeDescription[errType]);
         }
+      }
 
-        m_ConfOutModules[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"OutM", "Num of Out Modules in "+regTitle[reg], 1, -0.5, 0.5);
-        m_ConfNew[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"New", "Num of Problematic Modules in "+regTitle[reg],
-                                             ConfbinsSummary-1, -0.5, ConfbinsSummary-1-0.5);
-        m_ConfOutModules[reg]->GetXaxis()->SetBinLabel(1, "Mod Out");
-        for (int bin{1}; bin < ConfbinsSummary; bin++) {
-          m_ConfNew[reg]->GetXaxis()->SetBinLabel(bin, SummaryBinNames[bin].c_str());
-        }
+      for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
+        m_LinksWithCategorisedErrorsVsLB[errType] =
+          TProfile_LW::create("SCT_LinksWith" + errorsString(errType) + "VsLbs" + regLabel[GENERAL_INDEX],
+                              "Ave. Num of Links with " + errorsString(errType) + " per LB in " + regTitle[GENERAL_INDEX],
+                              NBINS_LBs, 0.5, NBINS_LBs+0.5);
+        m_LinksWithCategorisedErrorsVsLB[errType]->GetXaxis()->SetTitle("LumiBlock");
+        m_LinksWithCategorisedErrorsVsLB[errType]->GetYaxis()->SetTitle("Num of Links with "+errorsString(errType));
 
-        if ((m_environment == AthenaMonManager::online) or testOffline) {
-          m_ConfOnline[reg] = TProfile_LW::create("SCTOnlineConf"+regLabel[reg], "Num of Out Links in "+regTitle[reg]+" Online",
-                                                  ConfbinsOnline, -0.5, ConfbinsOnline-0.5);
-          for (int bin{0}; bin < ConfbinsOnline; bin++) {
-            m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin + 1, OnlineBinNames[bin].c_str());
-          }
-        }
-
-        for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-          m_ByteStreamVsLB[errType][reg] =
-            TProfile_LW::create("SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + "VsLbs" + regLabel[reg],
-                                "Ave. " + SCT_ByteStreamErrors::errorTypesDescription[errType] + " per LB in " + regTitle[reg],
-                                NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-          m_ByteStreamVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-          m_ByteStreamVsLB[errType][reg]->GetYaxis()->SetTitle("Num of " + TString(SCT_ByteStreamErrors::errorTypesDescription[errType]));
-          m_ByteStreamWithSctFlagVsLB[errType][reg] =
-            TProfile_LW::create("SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + "WithSctFlagVsLbs" + regLabel[reg],
-                                "Ave. " + SCT_ByteStreamErrors::errorTypesDescription[errType] + " with SCT flag per LB in " + regTitle[reg],
-                                NBINS_LBs, 0.5, NBINS_LBs+0.5);
-          m_ByteStreamWithSctFlagVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-          m_ByteStreamWithSctFlagVsLB[errType][reg]->GetYaxis()->SetTitle(("Num of " + SCT_ByteStreamErrors::errorTypesDescription[errType]).c_str());
-        }
-
-        for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-          m_ByteStreamCategorisedVsLB[errType][reg] =
-            TProfile_LW::create("SCT_NumberOf" + errorsString(errType) + "VsLbs" + regLabel[reg],
-                                "Ave. Number of " + errorsString(errType) + " per LB in " + regTitle[reg],
-                                NBINS_LBs, 0.5, NBINS_LBs+0.5);
-          m_ByteStreamCategorisedVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-          m_ByteStreamCategorisedVsLB[errType][reg]->GetYaxis()->SetTitle(("Num of "+errorsString(errType)));
-
-          m_LinksWithCategorisedErrorsVsLB[errType][reg] =
-            TProfile_LW::create("SCT_LinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg],
-                                "Ave. Num of Links with " + errorsString(errType) + " per LB in " + regTitle[reg],
-                                NBINS_LBs, 0.5, NBINS_LBs+0.5);
-          m_LinksWithCategorisedErrorsVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-          m_LinksWithCategorisedErrorsVsLB[errType][reg]->GetYaxis()->SetTitle("Num of Links with "+errorsString(errType));
-          if (reg==NREGIONS_INC_GENERAL-1) continue;
-          const int nLayers{n_layers[reg]*2};
-          for (int layer{0}; layer < nLayers; ++layer) {
-            m_LinksWithCategorisedErrorsVsLBLayer[errType][reg][layer] =
-              TProfile_LW::create("SCT_LinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg] + "lyr" + to_string(layer/2) + "_" + to_string(layer%2),
-                                  "Ave. num of links with " + errorsString(errType) + " per LB in " + regTitle[reg] + " layer" + to_string(layer/2) + "_" + to_string(layer%2),
-                                  NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-            m_LinksWithCategorisedErrorsVsLBLayer[errType][reg][layer]->GetXaxis()->SetTitle("LumiBlock");
-          }
+        if (ConfHist[GENERAL_INDEX].regHist(m_LinksWithCategorisedErrorsVsLB[errType]).isFailure()) {
+          ATH_MSG_WARNING("Cannot book Histogram:SCTLinksWith" + errorsString(errType) + "VsLbs" + regLabel[GENERAL_INDEX]);
         }
       }
 
       m_NumberOfSCTFlagErrorsVsLB = TH1F_LW::create("NumberOfSCTFlagErrorsVsLB","Num of SCT Flag errors per LB ",NBINS_LBs, 0.5, NBINS_LBs + 0.5);
       m_NumberOfSCTFlagErrorsVsLB->GetXaxis()->SetTitle("LumiBlock");
-
-      m_NumberOfEventsVsLB = TH1F_LW::create("NumberOfEventsVsLB", "Num of events per LB ", NBINS_LBs, 0.5,NBINS_LBs + 0.5);
-      m_NumberOfEventsVsLB->GetXaxis()->SetTitle("LumiBlock");
-
-      m_FractionOfSCTFlagErrorsPerLB = TProfile_LW::create("FractionOfSCTFlagErrorsPerLB", "Frac of SCT Flag errors per LB ",NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-      m_FractionOfSCTFlagErrorsPerLB->GetXaxis()->SetTitle("LumiBlock");
-
-      if ((m_environment == AthenaMonManager::online) or testOffline) {
-        m_ConfEffOnline = new TProfile("SCTEffConf", "Number of Inefficient Modules Online",
-                                       NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL-0.5);
-        m_ConfNoiseOnline = TProfile_LW::create("SCTNoiseConf", "Number of Noisy Modules Online",
-                                                NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL-0.5);
-        m_ConfNoiseOnlineRecent = TProfile_LW::create("SCTNoiseConfRecent", "Number of Noisy Modules Online Recent",
-                                                      NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL - 0.5);
-        for (int bin{0}; bin < NREGIONS_INC_GENERAL; bin++) {
-          m_ConfEffOnline->GetXaxis()->SetBinLabel(bin + 1, ("Ineff "+subDetNameShort[bin]).Data());
-          m_ConfNoiseOnline->GetXaxis()->SetBinLabel(bin + 1, ("Noisy "+subDetNameShort[bin]).Data());
-          m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(bin + 1, ("Noisy "+subDetNameShort[bin]).Data());
-        }
-      }
-
-      if (ConfHist[GENERAL_INDEX].regHist(m_DetailedConfiguration).isFailure()) {
-        ATH_MSG_WARNING("Cannot book Histogram:SCTConfDetails");
-      }
-      for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
-        if (ConfHist[reg].regHist(m_Conf[reg]).isFailure()) {
-          ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
-        }
-        if (ConfHist[reg].regHist(m_ConfRN[reg]).isFailure()) {
-          ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
-        }
-        if (ConfHist[reg].regHist(m_ConfNew[reg]).isFailure()) {
-          ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
-        }
-        if (ConfHist[reg].regHist(m_ConfOutModules[reg]).isFailure()) {
-          ATH_MSG_WARNING("Cannot book Histogram:SCTConf");
-        }
-
-        if ((m_environment == AthenaMonManager::online) or testOffline) {
-          if (ConfHist[reg].regHist(m_ConfOnline[reg]).isFailure()) {
-            ATH_MSG_WARNING("Cannot book Histogram:SCTConfOnline");
-          }
-        }
-
-        for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-          if (ConfHist[reg].regHist(m_ByteStreamVsLB[errType][reg]).isFailure()) {
-            ATH_MSG_WARNING("Cannot book Histogram:" + SCT_ByteStreamErrors::errorTypesDescription[errType]);
-          }
-          if (ConfHist[reg].regHist(m_ByteStreamWithSctFlagVsLB[errType][reg]).isFailure()) {
-            ATH_MSG_WARNING("Cannot book Histogram:" + SCT_ByteStreamErrors::errorTypesDescription[errType] << "with SCT flag");
-          }
-        }
-        for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
-          if (ConfHist[reg].regHist(m_ByteStreamCategorisedVsLB[errType][reg]).isFailure()) {
-            ATH_MSG_WARNING("Cannot book Histogram:SCTNumberOf" + errorsString(errType) + "VsLbs" + regLabel[reg]);
-          }
-          if (ConfHist[reg].regHist(m_LinksWithCategorisedErrorsVsLB[errType][reg]).isFailure()) {
-            ATH_MSG_WARNING("Cannot book Histogram:SCTLinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg]);
-          }
-          if (reg==NREGIONS_INC_GENERAL-1)continue;
-          int nLayers{n_layers[reg]*2};
-          for (int layer{0}; layer < nLayers; ++layer) {
-            if (ConfHist[reg].regHist(m_LinksWithCategorisedErrorsVsLBLayer[errType][reg][layer]).isFailure()) {
-              ATH_MSG_WARNING("Cannot book Histogram:SCTLinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg] + "lyr" + to_string(layer/2) + "_" + to_string(layer%2) << "with SCT flag");
-            }
-          }
-        }
-      }
-
       if (ConfHist[GENERAL_INDEX].regHist(m_NumberOfSCTFlagErrorsVsLB).isFailure()) {
         ATH_MSG_WARNING("Cannot book Histogram:NumberOfSCTFlagErrors");
       }
 
+      m_NumberOfEventsVsLB = TH1F_LW::create("NumberOfEventsVsLB", "Num of events per LB ", NBINS_LBs, 0.5,NBINS_LBs + 0.5);
+      m_NumberOfEventsVsLB->GetXaxis()->SetTitle("LumiBlock");
       if (ConfHist[GENERAL_INDEX].regHist(m_NumberOfEventsVsLB).isFailure()) {
         ATH_MSG_WARNING("Cannot book Histogram:NumberOfEventsVsLB");
       }
 
+      m_FractionOfSCTFlagErrorsPerLB = TProfile_LW::create("FractionOfSCTFlagErrorsPerLB", "Frac of SCT Flag errors per LB ",NBINS_LBs, 0.5, NBINS_LBs + 0.5);
+      m_FractionOfSCTFlagErrorsPerLB->GetXaxis()->SetTitle("LumiBlock");
       if (ConfHist[GENERAL_INDEX].regHist(m_FractionOfSCTFlagErrorsPerLB).isFailure()) {
         ATH_MSG_WARNING("Cannot book Histogram:FractionOfSCTFlagErrorsPerLB");
       }
 
       if ((m_environment == AthenaMonManager::online) or testOffline) {
+        m_ConfEffOnline = new TProfile("SCTEffConf", "Number of Inefficient Modules Online",
+                                       N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
+        m_ConfNoiseOnline = TProfile_LW::create("SCTNoiseConf", "Number of Noisy Modules Online",
+                                                N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
+        m_ConfNoiseOnlineRecent = TProfile_LW::create("SCTNoiseConfRecent", "Number of Noisy Modules Online Recent",
+                                                      N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL - 0.5);
+        for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
+          m_ConfOnline[GENERAL_INDEX] = TProfile_LW::create("SCTOnlineConf"+regLabel[GENERAL_INDEX], "Num of Out Links in "+regTitle[GENERAL_INDEX]+" Online",
+                                                  ConfbinsOnline, -0.5, ConfbinsOnline-0.5);
+          for (int bin{0}; bin < ConfbinsOnline; bin++) {
+            m_ConfOnline[GENERAL_INDEX]->GetXaxis()->SetBinLabel(bin + 1, OnlineBinNames[bin].c_str());
+          }
+
+          if (ConfHist[GENERAL_INDEX].regHist(m_ConfOnline[GENERAL_INDEX]).isFailure()) {
+            ATH_MSG_WARNING("Cannot book Histogram:SCTConfOnline");
+          }
+
+          m_ConfEffOnline->GetXaxis()->SetBinLabel(reg + 1, ("Ineff "+subDetNameShort[GENERAL_INDEX]).Data());
+          m_ConfNoiseOnline->GetXaxis()->SetBinLabel(reg + 1, ("Noisy "+subDetNameShort[GENERAL_INDEX]).Data());
+          m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(reg + 1, ("Noisy "+subDetNameShort[GENERAL_INDEX]).Data());
+        }
+
         if (ConfHist[GENERAL_INDEX].regHist(m_ConfEffOnline).isFailure()) {
           ATH_MSG_WARNING("Cannot book Histogram:SCTConfEffOnline");
         }
@@ -1393,73 +965,57 @@ SCTErrMonTool::bookConfMapsGen() {
 }
 
 // ====================================================================================================
-//                   SCTErrMonTool :: bookConfMaps
-// ====================================================================================================
-StatusCode
-SCTErrMonTool::bookConfMaps(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
-  if (reg==-1) return StatusCode::FAILURE;
-
-  string regName{("SCT" + subDetNameShort[reg]).Data()};
-  int nLayers{n_layers[reg]*2};
-
-  if (ManagedMonitorToolBase::newRunFlag()) {
-    MonGroup confMaps{this, ("SCT/"+regName+"/Conf").c_str(), ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-    m_p2DmapHistoVectorAll[reg].clear();
-    for (int layer{0}; layer < nLayers; ++layer) {
-      string mapName{string{"modulemap"} + subDetNameShort[reg].Data() + to_string(layer/2) + "_" + to_string(layer%2)};
-      TH2F_LW* hitsHisto_tmp = TH2F_LW::create(mapName.c_str(),
-                                               (string{"Module Out of Configuration : "}+subDetName[reg].Data()+", "+
-                                                layerName[reg].Data()+" "+to_string(layer/2)+
-                                                " side "+to_string(layer%2)).c_str(),
-                                               n_etabins[reg], f_etabin[reg] - 0.5, l_etabin[reg] + 0.5,
-                                               n_phibins[reg], f_phibin[reg] - 0.5, l_phibin[reg] + 0.5);
-      hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta");
-      hitsHisto_tmp->GetYaxis()->SetTitle("Index in the direction of #phi");
-      if (confMaps.regHist(hitsHisto_tmp).isFailure()) {
-        ATH_MSG_WARNING("Cannot book Histogram:" << mapName);
-      }
-      m_p2DmapHistoVectorAll[reg].push_back(hitsHisto_tmp);
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-// ====================================================================================================
 //                          SCTErrMonTool :: fillCondDBMaps
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::fillCondDBMaps() {
-  int Flagged[NREGIONS_INC_GENERAL] = {
+  int Flagged[N_REGIONS_INC_GENERAL] = { // Not updated. Always zero.
     0, 0, 0, 0
   };
-  int MOut[NREGIONS_INC_GENERAL] = {
+  int MOut[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int MaskedAllLinks[NREGIONS_INC_GENERAL] = {
-    static_cast<int>(m_MaskedAllLinks->GetBinContent(1)), static_cast<int>(m_MaskedAllLinks->GetBinContent(2)),
-    static_cast<int>(m_MaskedAllLinks->GetBinContent(3)), static_cast<int>(m_MaskedAllLinks->GetBinContent(4))
+  int MaskedAllLinks[N_REGIONS_INC_GENERAL] = {
+    static_cast<int>(m_MaskedAllLinks->GetBinContent(1)),
+    static_cast<int>(m_MaskedAllLinks->GetBinContent(2)),
+    static_cast<int>(m_MaskedAllLinks->GetBinContent(3)),
+    static_cast<int>(m_MaskedAllLinks->GetBinContent(4))
   };
-  int ModErr[NREGIONS_INC_GENERAL] = {
+  int ModErr[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int InEffModules[NREGIONS_INC_GENERAL] = {
+  int InEffModules[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int NoisyModules[NREGIONS_INC_GENERAL] = {
+  int NoisyModules[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int NoisyModulesRecent[NREGIONS_INC_GENERAL] = {
-    0, 0, 0, 0
-  };
-  int RNoisyModules[NREGIONS_INC_GENERAL] = {
+  int NoisyModulesRecent[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
 
   bool failedbooking{false};
   TH2* hitsHisto_tmp[2];
 
+  std::vector<TH2F> p2DmapHistoVectorAll[SCT_Monitoring::N_REGIONS]{};
+  for (int reg{0}; reg < N_REGIONS; ++reg) {
+    string regName{("SCT" + subDetNameShort[reg]).Data()};
+    const int nLayers{n_layers[reg]*2};
+    for (int layer{0}; layer < nLayers; ++layer) {
+      string mapName{string{"modulemap"} + subDetNameShort[reg].Data() + to_string(layer/2) + "_" + to_string(layer%2)};
+      TH2F hitsHisto_tmp2{TH2F(mapName.c_str(),
+                               (string{"Module Out of Configuration : "}+subDetName[reg].Data()+", "+
+                                layerName[reg].Data()+" "+to_string(layer/2)+
+                                " side "+to_string(layer%2)).c_str(),
+                               n_etabins[reg], f_etabin[reg] - 0.5, l_etabin[reg] + 0.5,
+                               n_phibins[reg], f_phibin[reg] - 0.5, l_phibin[reg] + 0.5)};
+      hitsHisto_tmp2.GetXaxis()->SetTitle("Index in the direction of #eta");
+      hitsHisto_tmp2.GetYaxis()->SetTitle("Index in the direction of #phi");
+      p2DmapHistoVectorAll[reg].push_back(hitsHisto_tmp2);
+    }
+  }
+
   // Pointers are deleted by regHist() method
-  string stem;
   SCT_ID::const_id_iterator planeIterator{m_pSCTHelper->wafer_begin()};
   SCT_ID::const_id_iterator planeEnd{m_pSCTHelper->wafer_end()};
   for (; planeIterator not_eq planeEnd; ++planeIterator) {
@@ -1481,21 +1037,21 @@ SCTErrMonTool::fillCondDBMaps() {
     // danger: no check that barrel_ec is valid
     int y{phi + 1};
     int x{(barrel_ec == BARREL) ? (eta + 7) : (eta + 1)};
-    m_p2DmapHistoVectorAll[reg][element]->SetBinContent(x, y, IN);
+    p2DmapHistoVectorAll[reg][element].SetBinContent(x, y, IN);
   }
 
   // region
   for (int reg{0}; reg<N_REGIONS; reg++) {
-    int nLayers{n_layers[reg]};
+    const int nLayers{n_layers[reg]};
     for (int lyr{0}; lyr < nLayers; ++lyr) {
 
       // Check for the number of Modules with more than m_errThreshold error rate
-      const unsigned int xbins{m_allErrs[0][reg][lyr]->GetNbinsX() + 1};
-      const unsigned int ybins{m_allErrs[0][reg][lyr]->GetNbinsY() + 1};
+      const unsigned int xbins{m_allErrsCate[CategoryErrors::SUMMARY][reg][lyr]->GetNbinsX() + 1};
+      const unsigned int ybins{m_allErrsCate[CategoryErrors::SUMMARY][reg][lyr]->GetNbinsY() + 1};
       for (unsigned int xb{1}; xb < xbins; ++xb) {
         for (unsigned int yb{1}; yb < ybins; ++yb) {
-          if (m_allErrsCate[CategoryErrors::SUMMARY][reg][2 * lyr]->GetBinContent(xb,yb) > m_errThreshold or
-              m_allErrsCate[CategoryErrors::SUMMARY][reg][2 * lyr + 1]->GetBinContent(xb, yb) > m_errThreshold) {
+          if (m_allErrsCate[CategoryErrors::SUMMARY][reg][2*lyr  ]->GetBinContent(xb, yb) > m_errThreshold or
+              m_allErrsCate[CategoryErrors::SUMMARY][reg][2*lyr+1]->GetBinContent(xb, yb) > m_errThreshold) {
             ModErr[GENERAL_INDEX]++;
             ModErr[reg]++;
           }
@@ -1526,7 +1082,7 @@ SCTErrMonTool::fillCondDBMaps() {
           // if (testOffline) printContents(hitsHisto_tmp[0]);
           for (int xb{1}; xb < xbins; ++xb) {
             for (int yb{1}; yb < ybins; ++yb) {
-              float outOfConfig{static_cast<float>(m_p2DmapHistoVectorAll[reg][2 * lyr]->GetBinContent(xb, yb))};
+              float outOfConfig{static_cast<float>(p2DmapHistoVectorAll[reg][2 * lyr].GetBinContent(xb, yb))};
               if (outOfConfig < 1.) { // i.e. its in the configuration
                 int nSides{numberOfInefficientSides(hitsHisto_tmp, xb, yb, 1 - m_effThreshold)};
                 InEffModules[GENERAL_INDEX] += nSides;
@@ -1540,26 +1096,14 @@ SCTErrMonTool::fillCondDBMaps() {
   }
 
   if (m_makeConfHisto) {
-    for (int reg{0}; reg <= 3; ++reg) {
-      m_Conf[reg]->Fill(0., static_cast<double>(MOut[reg]));
-      m_ConfRN[reg]->Fill(0., static_cast<double>(MOut[reg]));
-      m_ConfOutModules[reg]->Fill(0., static_cast<double>(MOut[reg]));
-      m_Conf[reg]->Fill(1., static_cast<double>(Flagged[reg]));
-      m_ConfRN[reg]->Fill(1., static_cast<double>(Flagged[reg]));
-      m_ConfNew[reg]->Fill(0., static_cast<double>(Flagged[reg]));
-      m_Conf[reg]->Fill(2., static_cast<double>(MaskedAllLinks[reg]));
-      m_ConfRN[reg]->Fill(2., static_cast<double>(MaskedAllLinks[reg]));
-      m_ConfNew[reg]->Fill(1., static_cast<double>(MaskedAllLinks[reg]));
-      m_Conf[reg]->Fill(3., static_cast<double>(ModErr[reg]));
-      m_ConfRN[reg]->Fill(3., static_cast<double>(ModErr[reg]));
-      m_ConfNew[reg]->Fill(2., static_cast<double>(ModErr[reg]));
-      m_Conf[reg]->Fill(4., static_cast<double>(InEffModules[reg]));
-      m_ConfRN[reg]->Fill(4., static_cast<double>(InEffModules[reg]));
-      m_ConfNew[reg]->Fill(3., static_cast<double>(InEffModules[reg]));
-      m_Conf[reg]->Fill(5., static_cast<double>(NoisyModules[reg]));
-      m_ConfRN[reg]->Fill(5., static_cast<double>(RNoisyModules[reg]));
-      m_ConfNew[reg]->Fill(4., static_cast<double>(NoisyModules[reg]));
-      if (m_environment == AthenaMonManager::online) {
+    m_ConfOutModules->Fill(0., static_cast<double>(MOut[GENERAL_INDEX]));
+    m_ConfNew->Fill(0., static_cast<double>(Flagged[GENERAL_INDEX]));
+    m_ConfNew->Fill(1., static_cast<double>(MaskedAllLinks[GENERAL_INDEX]));
+    m_ConfNew->Fill(2., static_cast<double>(ModErr[GENERAL_INDEX]));
+    m_ConfNew->Fill(3., static_cast<double>(InEffModules[GENERAL_INDEX]));
+    m_ConfNew->Fill(4., static_cast<double>(NoisyModules[GENERAL_INDEX]));
+    if (m_environment == AthenaMonManager::online) {
+      for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
         m_ConfOnline[reg]->Fill(0., static_cast<double>(MOut[reg]));
         m_ConfOnline[reg]->Fill(1., static_cast<double>(Flagged[reg]));
         m_ConfOnline[reg]->Fill(2., static_cast<double>(MaskedAllLinks[reg]));
@@ -1568,14 +1112,15 @@ SCTErrMonTool::fillCondDBMaps() {
     }
     if ((m_environment == AthenaMonManager::online) or testOffline) {
       m_ConfEffOnline->Reset("ICE");
-      for (int i{0}; i < 4; ++i) {
-        const float f{static_cast<float>(i)};
-        m_ConfEffOnline->Fill(f, static_cast<double>(InEffModules[i]));
-        m_ConfNoiseOnline->Fill(f, static_cast<double>(NoisyModules[i]));
-        m_ConfNoiseOnlineRecent->Fill(f, static_cast<double>(NoisyModulesRecent[i]));
+      for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
+        const float f{static_cast<float>(reg)};
+        m_ConfEffOnline->Fill(f, static_cast<double>(InEffModules[reg]));
+        m_ConfNoiseOnline->Fill(f, static_cast<double>(NoisyModules[reg]));
+        m_ConfNoiseOnlineRecent->Fill(f, static_cast<double>(NoisyModulesRecent[reg]));
       }
     }
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -1641,9 +1186,9 @@ SCTErrMonTool::fillConfigurationDetails() {
   ATH_MSG_DEBUG("Number of bad strips                           = " << nBadStrips);
   ATH_MSG_DEBUG("Number of bad strips exclusive                 = " << nBadStripsExclusive);
   ATH_MSG_DEBUG("Number of bad strips exclusive (ECC, B, ECA)   = "
-                << nBadStripsExclusiveBEC[0] << ", "
-                << nBadStripsExclusiveBEC[1] << ", "
-                << nBadStripsExclusiveBEC[2] << ", ");
+                << nBadStripsExclusiveBEC[ENDCAP_C_INDEX] << ", "
+                << nBadStripsExclusiveBEC[BARREL_INDEX] << ", "
+                << nBadStripsExclusiveBEC[ENDCAP_A_INDEX] << ", ");
   ATH_MSG_DEBUG("-----------------------------------------------------------------------");
 
   return StatusCode::SUCCESS;
@@ -1658,9 +1203,7 @@ SCTErrMonTool::resetCondDBMaps() {
     return StatusCode::SUCCESS;
   }
   if (m_makeConfHisto) {
-    for (int reg{0}; reg <= 3; ++reg) {
-      m_Conf[reg]->Reset();
-      m_ConfRN[reg]->Reset();
+    for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
       m_ConfOnline[reg]->Reset();
     }
     m_ConfEffOnline->Reset();
@@ -1713,15 +1256,31 @@ SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* his
     shname2 = "";
   }
   bool failedBooking{false};
-  histo[0]=0;
-  histo[1]=0;
-  if (shname1!="") failedBooking |= m_thistSvc->getHist(shname1, histo[0]).isFailure();
-  if (shname2!="") failedBooking |= m_thistSvc->getHist(shname2, histo[1]).isFailure();
-  if (failedBooking) {
-    ATH_MSG_WARNING("Error getting Histogram from ITHistSvc : " << shname1 << "," << shname2);
-    return true;
+  histo[0]=nullptr;
+  histo[1]=nullptr;
+  if (shname1!="") {
+    if (m_thistSvc->existsHist(shname1)) {
+      if (m_thistSvc->getHist(shname1, histo[0]).isFailure()) {
+        ATH_MSG_WARNING("Retrieval of " << shname1 << " failed");
+        failedBooking = true;
+      }
+    } else {
+      ATH_MSG_INFO(shname1 << " does not exist");
+      failedBooking = true;
+    }
   }
-  return false;
+  if (shname2!="") {
+    if (m_thistSvc->existsHist(shname2)) {
+      if (m_thistSvc->getHist(shname2, histo[1]).isFailure()) {
+        ATH_MSG_WARNING("Retrieval of " << shname2 << " failed");
+        failedBooking = true;
+      }
+    } else {
+      ATH_MSG_INFO(shname2 << " does not exist");
+      failedBooking = true;
+    }
+  }
+  return failedBooking;
 }
 
 // ====================================================================================================
@@ -1734,15 +1293,32 @@ SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH
   };
   string shname1{m_path + trm[type][reg] + to_string(layer) + "_0"};
   string shname2{m_path + trm[type][reg] + to_string(layer) + "_1"};
-  bool failedBooking{false};
 
-  failedBooking |= m_thistSvc->getHist(shname1, histo[0]).isFailure();
-  failedBooking |= m_thistSvc->getHist(shname2, histo[1]).isFailure();
-  if (failedBooking) {
-    ATH_MSG_WARNING("Error getting Histogram from ITHistSvc : " << shname1 << "," << shname2);
-    return true;
+  bool failedBooking{false};
+  histo[0] = nullptr;
+  histo[1] = nullptr;
+
+  if (m_thistSvc->existsHist(shname1)) {
+    if (m_thistSvc->getHist(shname1, histo[0]).isFailure()) {
+      ATH_MSG_WARNING("Retrieval of " << shname1 << " failed");
+      failedBooking = true;
+    }
+  } else {
+    ATH_MSG_INFO(shname1 << " does not exist");
+    failedBooking = true;
   }
-  return false;
+
+  if (m_thistSvc->existsHist(shname2)) {
+    if (m_thistSvc->getHist(shname2, histo[1]).isFailure()) {
+      ATH_MSG_WARNING("Retrieval of " << shname2 << " failed");
+      failedBooking = true;
+    }
+  } else {
+    ATH_MSG_INFO(shname2 << " does not exist");
+    failedBooking = true;
+  }
+
+  return failedBooking;
 }
 
 //====================================================================================================
@@ -1752,8 +1328,8 @@ void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
   double etaMin{module.first.first}, etaMax{module.first.second};
   double phiMin{module.second.first}, phiMax{module.second.second};
   unsigned int nRep{1};
-  if (etaMin<-2.5) { etaMin = -2.5; }
-  if (etaMax>2.5) { etaMax = 2.5; }
+  if (etaMin<-s_rangeEta) { etaMin = -s_rangeEta; }
+  if (etaMax> s_rangeEta) { etaMax =  s_rangeEta; }
   if (phiMin>phiMax) {
     phiMin = -M_PI;
     nRep=2;
@@ -1763,20 +1339,20 @@ void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
       phiMin = module.second.first;
       phiMax = M_PI;
     }
-    const int ixMin{static_cast<int>((etaMin/m_rangeEta+1.)*m_nBinsEta/2)+1};
-    const int ixMax{static_cast<int>((etaMax/m_rangeEta+1.)*m_nBinsEta/2)};
-    const int iyMin{static_cast<int>((phiMin/M_PI+1.)*m_nBinsPhi/2)+1};
-    const int iyMax{static_cast<int>((phiMax/M_PI+1.)*m_nBinsPhi/2)};
-    const double xMin{(static_cast<double>(ixMin)/m_nBinsEta*2-1.)*m_rangeEta};
-    const double xMax{(static_cast<double>(ixMax)/m_nBinsEta*2-1.)*m_rangeEta};
-    const double yMin{(static_cast<double>(iyMin)/m_nBinsPhi*2-1.)*M_PI};
-    const double yMax{(static_cast<double>(iyMax)/m_nBinsPhi*2-1.)*M_PI};
-    const double wxMin{(xMin-etaMin)/m_rangeEta*m_nBinsEta/2};
-    const double wxMax{(etaMax-xMax)/m_rangeEta*m_nBinsEta/2};
-    const double wxOne{(etaMax-etaMin)/m_rangeEta*m_nBinsEta/2};
-    const double wyMin{(yMin-phiMin)/M_PI*m_nBinsPhi/2};
-    const double wyMax{(phiMax-yMax)/M_PI*m_nBinsPhi/2};
-    const double wyOne{(phiMax-phiMin)/M_PI*m_nBinsPhi/2};
+    const int ixMin{static_cast<int>((etaMin/s_rangeEta+1.)*s_nBinsEta/2)+1};
+    const int ixMax{static_cast<int>((etaMax/s_rangeEta+1.)*s_nBinsEta/2)};
+    const int iyMin{static_cast<int>((phiMin/M_PI+1.)*s_nBinsPhi/2)+1};
+    const int iyMax{static_cast<int>((phiMax/M_PI+1.)*s_nBinsPhi/2)};
+    const double xMin{(static_cast<double>(ixMin)/s_nBinsEta*2-1.)*s_rangeEta};
+    const double xMax{(static_cast<double>(ixMax)/s_nBinsEta*2-1.)*s_rangeEta};
+    const double yMin{(static_cast<double>(iyMin)/s_nBinsPhi*2-1.)*M_PI};
+    const double yMax{(static_cast<double>(iyMax)/s_nBinsPhi*2-1.)*M_PI};
+    const double wxMin{(xMin-etaMin)/s_rangeEta*s_nBinsEta/2};
+    const double wxMax{(etaMax-xMax)/s_rangeEta*s_nBinsEta/2};
+    const double wxOne{(etaMax-etaMin)/s_rangeEta*s_nBinsEta/2};
+    const double wyMin{(yMin-phiMin)/M_PI*s_nBinsPhi/2};
+    const double wyMax{(phiMax-yMax)/M_PI*s_nBinsPhi/2};
+    const double wyOne{(phiMax-phiMin)/M_PI*s_nBinsPhi/2};
     for (int ix{ixMin}; ix<=ixMax+1; ix++) {
       double weightx{1.};
       if (ixMin==ixMax+1) weightx = wxOne;
@@ -1805,7 +1381,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   sctHashBadError.clear();
  
   //BadLinkLevelError
-  for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
@@ -1813,7 +1389,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadRODError.insert(waferHash);
@@ -1821,7 +1397,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadError.insert(waferHash);
@@ -1889,20 +1465,25 @@ bool SCTErrMonTool::psTripDCSSCT(set<IdentifierHash>& sctHashPSTripDCS, float& P
 double SCTErrMonTool::calculateDetectorCoverage( const TH2F* histo ) const {
   double occupancy{0.};
 
-  for (unsigned int i{0}; i < m_nBinsEta; i++) {
-    for (unsigned int j{0}; j < m_nBinsPhi; j++) {
-      double waferCell{m_mapSCT[all]->GetBinContent(i+1, j+1) - histo->GetBinContent(i+1, j+1)};
+  for (unsigned int i{0}; i < s_nBinsEta; i++) {
+    for (unsigned int j{0}; j < s_nBinsPhi; j++) {
+      double waferCell{m_mapSCT[allRegion]->GetBinContent(i+1, j+1) - histo->GetBinContent(i+1, j+1)};
 
-      if (waferCell >= m_WafersThreshold) {
+      if (waferCell >= s_WafersThreshold) {
         occupancy += 1.0;
-      } else if (waferCell > m_WafersThreshold - 1.0 ) {
-        occupancy += waferCell - (m_WafersThreshold - 1.0);
+      } else if (waferCell > s_WafersThreshold - 1.0 ) {
+        occupancy += waferCell - (s_WafersThreshold - 1.0);
         //Calculating the bin occupancy which has less than 1. 
         //For example, bin have a 2.3. In this case, we can understand that 30% of the bin is coverd by 3 sides/wafers and 70% of the bin is coverd by 2 sides/wafers.
-        //And it means that occupancy of the bin is 0.3 So, in this line, I take difference between m_WafersThreshold(3)-1 and waferCell, and add it to the occupancy.
+        //And it means that occupancy of the bin is 0.3 So, in this line, I take difference between s_WafersThreshold(3)-1 and waferCell, and add it to the occupancy.
       }
     }
   }
-  double detector_coverage{100. * static_cast<double>( occupancy )/( static_cast<double>( m_nBinsEta ) * static_cast<double>( m_nBinsPhi ) )};
+  double detector_coverage{100. * static_cast<double>( occupancy )/( static_cast<double>( s_nBinsEta ) * static_cast<double>( s_nBinsPhi ) )};
   return detector_coverage;
 }
+
+const unsigned int SCTErrMonTool::s_nBinsEta = 100;
+const double SCTErrMonTool::s_rangeEta = 2.5;
+const unsigned int SCTErrMonTool::s_nBinsPhi = 100;
+const double SCTErrMonTool::s_WafersThreshold = 3.0;

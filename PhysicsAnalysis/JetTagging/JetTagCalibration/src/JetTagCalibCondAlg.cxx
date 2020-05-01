@@ -211,10 +211,15 @@ namespace Analysis {
     //Dl1 taggers
     if (std::find(m_taggers.begin(), m_taggers.end(), "DL1") != m_taggers.end()) {
       initializeDL1("DL1");
-      initializeDL1("DL1mu");
-      initializeDL1("DL1rnn");
     }
 
+    if (std::find(m_taggers.begin(), m_taggers.end(), "DL1mu") != m_taggers.end()) {
+      initializeDL1("DL1mu");
+    }
+
+    if (std::find(m_taggers.begin(), m_taggers.end(), "DL1rnn") != m_taggers.end()) {
+      initializeDL1("DL1rnn");
+    }
 
     return StatusCode::SUCCESS;
   }

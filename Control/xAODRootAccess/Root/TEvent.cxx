@@ -1,6 +1,4 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <cassert>
@@ -28,6 +26,7 @@
 #ifndef XAOD_STANDALONE
 #   include "SGTools/CurrentEventStore.h"
 #endif // not XAOD_STANDALONE
+#include "CxxUtils/no_sanitize_undefined.h"
 
 // Interface include(s):
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
@@ -56,8 +55,6 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/tools/TChainStateTracker.h"
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
-
-#include "CxxUtils/no_sanitize_undefined.h"
 
 namespace {
 
@@ -97,19 +94,21 @@ namespace {
       return;
    }
 
-   class ForceTrackIndices
-     : public SG::AuxVectorBase
-   {
+   /// Helper class for exposing the @c SG::AuxVectorBase::initAuxVectorBase
+   /// function
+   class ForceTrackIndices : public SG::AuxVectorBase {
    public:
-     using SG::AuxVectorBase::initAuxVectorBase;
-   };
+      using SG::AuxVectorBase::initAuxVectorBase;
+   }; // class ForceTrackIndices
 
-   void forceTrackIndices NO_SANITIZE_UNDEFINED (SG::AuxVectorBase& vec)
-   {
-     ForceTrackIndices& xvec = static_cast<ForceTrackIndices&> (vec);
-     xvec.initAuxVectorBase<DataVector<SG::IAuxElement> > (SG::OWN_ELEMENTS, SG::ALWAYS_TRACK_INDICES);
+   /// Helper function for calling @c SG::AuxVectorBase::initAuxVectorBase
+   void forceTrackIndices NO_SANITIZE_UNDEFINED ( SG::AuxVectorBase& vec ) {
+      // Treat the received object like it would be of type @c ForceTrackIndices
+      ForceTrackIndices& xvec = static_cast< ForceTrackIndices& >( vec );
+      xvec.initAuxVectorBase< DataVector< SG::IAuxElement > >( SG::OWN_ELEMENTS,
+                                                               SG::ALWAYS_TRACK_INDICES );
+      return;
    }
-
 
 } // private namespace
 
@@ -118,7 +117,7 @@ namespace xAOD {
    //
    // Initialise the static data:
    //
-   const ::Int_t TEvent::CACHE_SIZE = 30000000;
+   const ::Int_t TEvent::CACHE_SIZE = -1;
    const char* TEvent::EVENT_TREE_NAME    = "CollectionTree";
    const char* TEvent::METADATA_TREE_NAME = "MetaData";
 
@@ -129,13 +128,13 @@ namespace xAOD {
 
    TEvent::TEvent( EAuxMode mode )
       : m_auxMode( mode ),
-        m_inTree( 0 ), m_inTreeMissing( kFALSE ),
-        m_inChain( 0 ), m_inChainTracker( 0 ),
-        m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_inTree( nullptr ), m_inTreeMissing( kFALSE ),
+        m_inChain( nullptr ), m_inChainTracker( nullptr ),
+        m_inTreeNumber( -1 ), m_inMetaTree( nullptr ),
+        m_entry( -1 ), m_outTree( nullptr ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
-        m_inputEventFormat(), m_outputEventFormat( 0 ),
+        m_inputEventFormat(), m_outputEventFormat( nullptr ),
         m_auxItemList(), m_listeners(), m_nameRemapping() {
 
       // Make sure that the I/O monitoring is active:
@@ -162,13 +161,13 @@ namespace xAOD {
 
    TEvent::TEvent( ::TFile* file, EAuxMode mode )
       : m_auxMode( mode ),
-        m_inTree( 0 ), m_inTreeMissing( kFALSE ),
-        m_inChain( 0 ), m_inChainTracker( 0 ),
-        m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_inTree( nullptr ), m_inTreeMissing( kFALSE ),
+        m_inChain( nullptr ), m_inChainTracker( nullptr ),
+        m_inTreeNumber( -1 ), m_inMetaTree( nullptr ),
+        m_entry( -1 ), m_outTree( nullptr ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
-        m_inputEventFormat(), m_outputEventFormat( 0 ),
+        m_inputEventFormat(), m_outputEventFormat( nullptr ),
         m_auxItemList(), m_listeners(), m_nameRemapping() {
 
       // Make sure that the I/O monitoring is active:
@@ -198,13 +197,13 @@ namespace xAOD {
 
    TEvent::TEvent( ::TTree* tree, EAuxMode mode )
       : m_auxMode( mode ),
-        m_inTree( 0 ), m_inTreeMissing( kFALSE ),
-        m_inChain( 0 ), m_inChainTracker( 0 ),
-        m_inTreeNumber( -1 ), m_inMetaTree( 0 ),
-        m_entry( 0 ), m_outTree( 0 ),
+        m_inTree( nullptr ), m_inTreeMissing( kFALSE ),
+        m_inChain( nullptr ), m_inChainTracker( nullptr ),
+        m_inTreeNumber( -1 ), m_inMetaTree( nullptr ),
+        m_entry( -1 ), m_outTree( nullptr ),
         m_inputObjects(), m_outputObjects(),
         m_inputMetaObjects(), m_outputMetaObjects(),
-        m_inputEventFormat(), m_outputEventFormat( 0 ),
+        m_inputEventFormat(), m_outputEventFormat( nullptr ),
         m_auxItemList(), m_listeners(), m_nameRemapping() {
 
       // Make sure that the I/O monitoring is active:
@@ -383,8 +382,9 @@ namespace xAOD {
       }
       m_inputMetaObjects.clear();
 
-      // Reset the internal flag:
+      // Reset the internal flags:
       m_inTreeMissing = kFALSE;
+      m_entry = -1;
 
       // Make sure we return to the current directory:
       TDirectoryReset dr;
@@ -680,8 +680,8 @@ namespace xAOD {
 
       // Create the only branch in it:
       metatree->Branch( "EventFormat",
-                        ClassName< xAOD::EventFormat >::name().c_str(),
-                        &m_outputEventFormat );
+         SG::normalizedTypeinfoName( typeid( xAOD::EventFormat ) ).c_str(),
+         &m_outputEventFormat );
 
       // Create a copy of the m_outputMetaObjects variable. This is necessary
       // because the putAux(...) function will modify this variable while we
@@ -1048,8 +1048,7 @@ namespace xAOD {
 
       // Check if a name re-mapping should be applied or not:
       std::string keyToUse = key;
-      std::map< std::string, std::string >::const_iterator remap_itr =
-         m_nameRemapping.find( key );
+      auto remap_itr = m_nameRemapping.find( key );
       if( ( remap_itr != m_nameRemapping.end() ) &&
           ( ! m_inputEventFormat.exists( key ) ) &&
           m_inputEventFormat.exists( remap_itr->second ) ) {
@@ -1088,8 +1087,7 @@ namespace xAOD {
 
       // Check if we have a filtering rule for the store:
       const std::set< std::string >* filter = 0;
-      std::map< std::string, std::set< std::string > >::const_iterator fitr =
-         m_auxItemList.find( key + "Aux." );
+      auto fitr = m_auxItemList.find( key + "Aux." );
       if( fitr != m_auxItemList.end() ) {
          filter = &( fitr->second );
       }
@@ -1252,8 +1250,8 @@ namespace xAOD {
       // If we have a chain as input:
       if( m_inChain ) {
          // Make sure that the correct tree is loaded:
-         m_entry = m_inChain->LoadTree( entry );
-         if( m_entry < 0 ) {
+         const ::Long64_t fileEntry = m_inChain->LoadTree( entry );
+         if( fileEntry < 0 ) {
             ::Error( "xAOD::TEvent::getEntry",
                      XAOD_MESSAGE( "Failure in loading entry %i from the "
                                    "input chain" ),
@@ -1278,6 +1276,8 @@ namespace xAOD {
                return -1;
             }
          }
+         // Restore the previously received entry number.
+         m_entry = fileEntry;
       }
       // If we have a regular file/tree as input:
       else {
@@ -1920,8 +1920,7 @@ namespace xAOD {
 
       // Check if a name remapping should be applied or not:
       std::string keyToUse = key;
-      std::map< std::string, std::string >::const_iterator remap_itr =
-         m_nameRemapping.find( key );
+      auto remap_itr = m_nameRemapping.find( key );
       if( ( remap_itr != m_nameRemapping.end() ) &&
           ( ! m_inputEventFormat.exists( key ) ) &&
           m_inputEventFormat.exists( remap_itr->second ) ) {
@@ -1938,7 +1937,8 @@ namespace xAOD {
       }
 
       // A sanity check before checking for an object from the input file:
-      if( ( ! m_inTree ) && ( ! metadata ) ) {
+      if( ( ( ! m_inTree ) || ( m_entry < 0 ) ) &&
+          ( ! metadata ) ) {
          return 0;
       }
       if( ( ! m_inMetaTree ) && metadata ) {
@@ -2906,94 +2906,94 @@ namespace xAOD {
       Object_t& objects = ( metadata ?
                             m_inputMetaObjects : m_inputObjects );
 
-      // If it's an auxiliary store, then all we need to do is to make sure that
-      // its dynamic store is updated as well.
-      if( ( ! metadata ) && isAuxStore( mgr ) ) {
-         Object_t::const_iterator dynAuxMgr =
-            objects.find( key + "Dynamic" );
-         if( dynAuxMgr != objects.end() ) {
-            dynAuxMgr->second->getEntry( m_entry );
-         }
-         return TReturnCode::kSuccess;
-      }
 
       // Look up the auxiliary object's manager:
-      Object_t::const_iterator auxMgr = objects.find( key + "Aux." );
-      if( auxMgr == objects.end() ) {
-         // Apparently there's no auxiliary object for this DV, so let's
-         // give up:
-         return TReturnCode::kSuccess;
+      TVirtualManager* auxMgr = nullptr;
+      std::string auxKey;
+      if( isAuxStore( mgr ) ) {
+         auxMgr = &mgr;
+         auxKey = key;
+      } else {
+         auto itr = objects.find( key + "Aux." );
+         if( itr == objects.end() ) {
+            // Apparently there's no auxiliary object for this DV, so let's
+            // give up:
+            return TReturnCode::kSuccess;
+         }
+         auxMgr = itr->second;
+         auxKey = key + "Aux.";
       }
 
       if( ! metadata ) {
          // Make sure the auxiliary object is up to date:
-         ::Int_t readBytes = auxMgr->second->getEntry( m_entry );
+         ::Int_t readBytes = auxMgr->getEntry( m_entry );
 
          // Check if there is a separate auxiliary object for the dynamic
          // variables:
-         Object_t::const_iterator dynAuxMgr =
-            objects.find( key + "Aux.Dynamic" );
-         if( dynAuxMgr != objects.end() ) {
-            if( readBytes ) {
-               // Do different things based on the access mode:
-               if( m_auxMode != kAthenaAccess ) {
-                  // In "normal" access modes just tell the dynamic store object
-                  // to switch to a new event.
-                  dynAuxMgr->second->getEntry( m_entry );
-               } else {
-                  // In "Athena mode" this object has already been deleted when
-                  // the main auxiliary store object was switched to the new
-                  // event. So let's re-create it:
-                  xAOD::TObjectManager& auxMgrRef =
-                     dynamic_cast< xAOD::TObjectManager& >( *( auxMgr->second ) );
-                  RETURN_CHECK( "xAOD::TEvent::setAuxStore",
-                                setUpDynamicStore( auxMgrRef,
-                                                   ( metadata ?
-                                                     m_inMetaTree :
-                                                     m_inTree ) ) );
-                  // Now tell the newly created dynamic store object which event
-                  // it should be looking at:
-                  Object_t::const_iterator dynAuxMgr =
-                     objects.find( key + "Aux.Dynamic" );
-                  if( dynAuxMgr == objects.end() ) {
-                     ::Error( "xAOD::TEvent::setAuxStore",
-                              XAOD_MESSAGE( "Internal logic error detected" ) );
-                     return TReturnCode::kFailure;
-                  }
-                  dynAuxMgr->second->getEntry( m_entry );
+         const std::string dynAuxKey = auxKey + "Dynamic";
+         auto dynAuxMgr = objects.find( dynAuxKey );
+
+         if( ( dynAuxMgr != objects.end() ) &&
+             ( readBytes || ( m_auxMode == kAthenaAccess ) ||
+               ( auxMgr == &mgr ) ) ) {
+            // Do different things based on the access mode:
+            if( m_auxMode != kAthenaAccess ) {
+               // In "normal" access modes just tell the dynamic store object
+               // to switch to a new event.
+               dynAuxMgr->second->getEntry( m_entry );
+            } else {
+               // In "Athena mode" this object has already been deleted when
+               // the main auxiliary store object was switched to the new
+               // event. So let's re-create it:
+               xAOD::TObjectManager& auxMgrRef =
+                  dynamic_cast< xAOD::TObjectManager& >( *auxMgr );
+               RETURN_CHECK( "xAOD::TEvent::setAuxStore",
+                             setUpDynamicStore( auxMgrRef,
+                                                ( metadata ?
+                                                  m_inMetaTree :
+                                                  m_inTree ) ) );
+               // Now tell the newly created dynamic store object which event
+               // it should be looking at:
+               auto dynAuxMgr = objects.find( dynAuxKey );
+               if( dynAuxMgr == objects.end() ) {
+                  ::Error( "xAOD::TEvent::setAuxStore",
+                           XAOD_MESSAGE( "Internal logic error detected" ) );
+                  return TReturnCode::kFailure;
                }
+               dynAuxMgr->second->getEntry( m_entry );
             }
          }
+      }
+
+      // Stop here if we've set up an auxiliary store.
+      if( auxMgr == &mgr ) {
+         return TReturnCode::kSuccess;
       }
 
       // Access the auxiliary base class of the object/vector:
       SG::AuxVectorBase* vec = 0;
       SG::AuxElement* aux = 0;
-      switch (mgr.holder()->typeKind()) {
-      case THolder::DATAVECTOR: {
-         void* vvec = mgr.holder()->getAs( typeid( SG::AuxVectorBase ) );
-         vec = reinterpret_cast< SG::AuxVectorBase* >( vvec );
+      switch( mgr.holder()->typeKind() ) {
+      case THolder::DATAVECTOR:
+         {
+            void* vvec = mgr.holder()->getAs( typeid( SG::AuxVectorBase ) );
+            vec = reinterpret_cast< SG::AuxVectorBase* >( vvec );
+         }
          break;
-      }
-      case THolder::AUXELEMENT: {
-         void* vaux = mgr.holder()->getAs( typeid( SG::AuxElement ) );
-         aux = reinterpret_cast< SG::AuxElement* >( vaux );
+      case THolder::AUXELEMENT:
+         {
+            void* vaux = mgr.holder()->getAs( typeid( SG::AuxElement ) );
+            aux = reinterpret_cast< SG::AuxElement* >( vaux );
+         }
          break;
-      }
       default:
-        break;
+         break;
       }
 
-      // Check whether index tracking is enabled for the type. If not, let's not
-      // get any further:
+      // Check whether index tracking is enabled for the type. If not, then
+      // we need to fix it...
       if( vec && ( ! vec->trackIndices() ) ) {
-      /*
-         ::Warning( "xAOD::TEvent::setAuxStore", "Can't associate auxiliary "
-                    "store to container %s, as it's not tracking its indices",
-                    key.c_str() );
-         return TReturnCode::kSuccess;
-         */
-         forceTrackIndices (*vec);
+         forceTrackIndices( *vec );
       }
 
       // Check if we were successful:
@@ -3008,11 +3008,11 @@ namespace xAOD {
       const SG::IConstAuxStore* store = 0;
       if( m_auxMode == kBranchAccess ) {
          // Get the concrete auxiliary manager:
-         TAuxManager* amgr = dynamic_cast< TAuxManager* >( auxMgr->second );
+         TAuxManager* amgr = dynamic_cast< TAuxManager* >( auxMgr );
          if( ! amgr ) {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
-                                   "right type" ), auxMgr->first.c_str() );
+                                   "right type" ), auxKey.c_str() );
          }
          store = amgr->getConstStore();
          // If the store still doesn't know its type, help it now:
@@ -3026,11 +3026,11 @@ namespace xAOD {
       } else if( m_auxMode == kClassAccess || m_auxMode == kAthenaAccess ) {
          // Get the concrete auxiliary manager:
          TObjectManager* omgr =
-            dynamic_cast< TObjectManager* >( auxMgr->second );
+            dynamic_cast< TObjectManager* >( auxMgr );
          if( ! omgr ) {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
-                                   "right type" ), auxMgr->first.c_str() );
+                                   "right type" ), auxKey.c_str() );
          }
          void* p = omgr->holder()->getAs( typeid( SG::IConstAuxStore ) );
          store = reinterpret_cast< const SG::IConstAuxStore* >( p );
@@ -3098,8 +3098,7 @@ namespace xAOD {
       // Check if we have rules defined for which auxiliary properties
       // to write out:
       if( ! metadata ) {
-         std::map< std::string, std::set< std::string > >::const_iterator
-            item_itr = m_auxItemList.find( mgr->branch()->GetName() );
+         auto item_itr = m_auxItemList.find( mgr->branch()->GetName() );
          if( item_itr != m_auxItemList.end() ) {
             aux->selectAux( item_itr->second );
          }
@@ -3122,18 +3121,22 @@ namespace xAOD {
       // Select which container to add the variables to:
       Object_t& objects = ( metadata ? m_outputMetaObjects : m_outputObjects );
 
-      // Extract all the dynamic variables from the object:
       // This iteration will determine the ordering of branches within
       // the tree, so sort auxids by name.
       const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-      typedef std::pair<std::string, SG::auxid_t> AuxVarSort_t;
-      std::vector<AuxVarSort_t> varsort;
-      varsort.reserve (auxids.size());
-      for (SG::auxid_t id : auxids)
-        varsort.emplace_back (r.getName(id), id);
-      std::sort (varsort.begin(), varsort.end());
-      for (const auto& p : varsort) {
-         SG::auxid_t id = p.second;
+      typedef std::pair< std::string, SG::auxid_t > AuxVarSort_t;
+      std::vector< AuxVarSort_t > varsort;
+      varsort.reserve( auxids.size() );
+      for( SG::auxid_t id : auxids ) {
+         varsort.emplace_back( r.getName( id ), id );
+      }
+      std::sort( varsort.begin(), varsort.end() );
+
+      // Extract all the dynamic variables from the object:
+      for( const auto& p : varsort ) {
+
+         // The auxiliary ID:
+         const SG::auxid_t id = p.second;
 
          // Construct a name for the branch that we will write:
          const std::string brName = dynNamePrefix + p.first;
@@ -3146,6 +3149,12 @@ namespace xAOD {
 
             // Construct the full type name of the variable:
             const std::type_info* brType = aux->getIOType( id );
+            if( ! brType ) {
+               ::Error( "xAOD::TEvent::putAux",
+                        XAOD_MESSAGE( "No I/O type found for variable %s" ),
+                        brName.c_str() );
+               return TReturnCode::kFailure;
+            }
             const std::string brTypeName =
                Utils::getTypeName( *brType );
             std::string brProperTypeName = "<unknown>";

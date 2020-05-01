@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id$
 # File: root_pickle_t.py
 # Created: Oct, 2012
 # Purpose: Regression tests for root_pickle.py
 #
+
+from __future__ import print_function
 
 
 def _regr_basic():
@@ -18,19 +19,13 @@ def _regr_basic():
     >>> root_pickle.dump_root (l1, 'test.root')
     >>> l2 = root_pickle.load_root ('test.root')
     >>> assert len(l2) == 2
-    >>> print [h.GetName() for h in l2]
+    >>> print ([h.GetName() for h in l2])
     ['h1', 'h2']
     >>> import os
     >>> os.remove ('test.root')
 """
     
-
-
-#from PyUtils import coverage
-#c = coverage.Coverage ('PyAnalysisUtils.pydraw')
-#c.doctest_cover ()
-
 import doctest
-print ''
+print ('PyAnalysisUtils/root_pickle_t')
 doctest.testmod()
 

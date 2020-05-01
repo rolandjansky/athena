@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 def DQTBackgroundMonAlgConfig(flags, isOld=False):
@@ -39,19 +39,19 @@ def DQTBackgroundMonAlgConfig(flags, isOld=False):
         "CosmicStandAlone","CosmicStandAloneTight","CosmicCombined",
         "CosmicCombinedTight","BkgdResvBit1","BkgdResvBit2","BkgdResvBit3",
         "BkgdResvBit4","BkgdResvBit5"]
-    group.defineHistogram('bitSet', title=bgT, labels=bitSetLabels,
+    group.defineHistogram('bitSet', title=bgT, xlabels=bitSetLabels,
                           xbins=len(bitSetLabels),xmin=0,xmax=len(bitSetLabels))
     group.defineHistogram('bitSetFilled', weight='filled',
-                          title=bgT+filledT, labels=bitSetLabels,
+                          title=bgT+filledT, xlabels=bitSetLabels,
                           xbins=len(bitSetLabels),xmin=0,xmax=len(bitSetLabels))
     group.defineHistogram('bitSetEmpty', weight='empty',
-                          title=bgT+emptyT, labels=bitSetLabels,
+                          title=bgT+emptyT, xlabels=bitSetLabels,
                           xbins=len(bitSetLabels),xmin=0,xmax=len(bitSetLabels))
     group.defineHistogram('bitSetUnpairIso', weight='unpairIso',
-                          title=bgT+unpairIsoT, labels=bitSetLabels,
+                          title=bgT+unpairIsoT, xlabels=bitSetLabels,
                           xbins=len(bitSetLabels),xmin=0,xmax=len(bitSetLabels))
     group.defineHistogram('bitSetUnpairNonIso', weight='unpairNonIso',
-                          title=bgT+unpairNonIsoT, labels=bitSetLabels,
+                          title=bgT+unpairNonIsoT, xlabels=bitSetLabels,
                           xbins=len(bitSetLabels),xmin=0,xmax=len(bitSetLabels))
 
     # Pixel spacepoint histograms

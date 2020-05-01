@@ -9,7 +9,7 @@
 #include "MuonSimEvent/MdtHitIdHelper.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Takashi Kubota - June 30, 2008 */
@@ -204,7 +204,7 @@ Muon::RpcCoinDataContainerCnv_p1::TRANS* Muon::RpcCoinDataContainerCnv_p1::creat
             return 0;
         } 
     }
-    std::auto_ptr<Muon::RpcCoinDataContainer> trans(new Muon::RpcCoinDataContainer(m_RpcId->module_hash_max()));
+    std::unique_ptr<Muon::RpcCoinDataContainer> trans(new Muon::RpcCoinDataContainer(m_RpcId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

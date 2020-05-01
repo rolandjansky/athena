@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class setupData:
 	def __init__ (self, name):
@@ -79,7 +81,7 @@ class setupData:
 		import os
 		self.fileListName = self.name+"_"+self.dataType+".txt"
 		if os.path.isfile(self.fileListName):
-			print "The file ", self.fileListName, " exists, using the existing one."
+			print ("The file ", self.fileListName, " exists, using the existing one.")
 			return 0
 	
 		outputFile = open(self.fileListName, "w")
@@ -123,19 +125,19 @@ class setupData:
 			elif "Egamma" == self.dataType:
 				path = "/eos/atlas/atlasdatadisk/data11_7TeV/DESD_SGLEL/%s/data11_7TeV.%08d.physics_Egamma.merge.DESD_SGLEL.%s/" % (self.RecoTags[count],run,self.RecoTags[count])
 			else:
-				print "Creation of the file list for this data type is not coded yet"
+				print ("Creation of the file list for this data type is not coded yet")
 				return 0
 			self.setSTAGE_SVCCLASS(path)
 			
-			print "Reading castor directory: ", path
+			print ("Reading castor directory: ", path)
 			if "castor" in path:
 				inputfiles = os.popen("rfdir "+ path).read().splitlines()
 			elif "eos" in path:
 				inputfiles = os.popen("/afs/cern.ch/project/eos/installation/0.2.31/bin/eos.select ls " + path).read().splitlines()
-				print "Reading input files from eos"
-				print inputfiles 
+				print ("Reading input files from eos")
+				print (inputfiles )
 			files = 0
-			print self.STAGE_SVCCLASS
+			print (self.STAGE_SVCCLASS)
 			for file in inputfiles:
 				if "eos" in path:
 					outputFile.write('root://eosatlas.cern.ch/'+path + '/' + file + '\n')
@@ -155,9 +157,9 @@ class setupData:
 						if files >= self.limitFiles and self.limitFiles != -1:
 							break
 					else:
-						print "File ", file.split()[8], " no STAGED, skipping file"
+						print ("File ", file.split()[8], " no STAGED, skipping file")
 			count = count + 1
-		print "Created file " ,self.fileListName, " with the list of datafiles"
+		print ("Created file " ,self.fileListName, " with the list of datafiles")
 	def getFileList(self):
 		return self.fileListName
 	def setCustomFileList(self,filelist):
@@ -166,7 +168,7 @@ class setupData:
 		num_lines = sum(1 for line in open(self.fileListName))
 		return num_lines
 	def setSTAGE_SVCCLASS(self,path):
-		print path
+		print (path)
 		if "atlasdatadisk" in path:
 			self.STAGE_SVCCLASS="atldata"
 		if "DAQ" in path or "tzero" in path:
@@ -179,20 +181,20 @@ class setupData:
 			self.STAGE_SVCCLASS="atlascerngroupdisk"
 			import os
 			os.environ["STAGE_HOST"] = "castoratlast3"
-		print "STAGE_SVCCLASS set to ", self.STAGE_SVCCLASS
+		print ("STAGE_SVCCLASS set to ", self.STAGE_SVCCLASS)
 		import os
 		os.environ['STAGE_SVCCLASS']=self.STAGE_SVCCLASS
 
 	def Print(self):
-		print "---------------------------"
-		print "Dataset with name ", self.name
-		print "The data is: ", self.dataType
-		print "ProjectName: ", self.projectName
-		print "Is ByteStream? ", self.ByteStream
-		print "Are data Cosmics? ", self.AreCosmics
-		print "The list of files to use is in: ", self.fileListName
-		print "CPUs: ", self.CPUs
-		print "Events: ", self.Events
+		print ("---------------------------")
+		print ("Dataset with name ", self.name)
+		print ("The data is: ", self.dataType)
+		print ("ProjectName: ", self.projectName)
+		print ("Is ByteStream? ", self.ByteStream)
+		print ("Are data Cosmics? ", self.AreCosmics)
+		print ("The list of files to use is in: ", self.fileListName)
+		print ("CPUs: ", self.CPUs)
+		print ("Events: ", self.Events)
 		
 		
 		

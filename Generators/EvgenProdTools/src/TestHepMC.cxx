@@ -312,7 +312,7 @@ StatusCode TestHepMC::execute() {
     int vtxDisplacedstatuscodenot12CheckRateCnt=0;
     for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) {
       const HepMC::GenVertex* vtx = *vitr;
-      const HepMC::ThreeVector pos = vtx->point3d();
+      const HepMC::FourVector pos = vtx->position();
 
       // Check for NaNs and infs in vertex position components
       if ( std::isnan(pos.x()) || std::isinf(pos.x()) ||
@@ -348,8 +348,8 @@ StatusCode TestHepMC::execute() {
         for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
           ATH_MSG_WARNING("Outgoing particle : ");
           if (m_dumpEvent) (*par)->print();
-          ATH_MSG_WARNING("production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z());
-          ATH_MSG_WARNING("end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z());
+          ATH_MSG_WARNING("production vertex = " << (*par)->production_vertex()->position().x() << ", " << (*par)->production_vertex()->position().y() << ", " << (*par)->production_vertex()->position().z());
+          ATH_MSG_WARNING("end vertex        = " << (*par)->end_vertex()->position().x() << ", " << (*par)->end_vertex()->position().y() << ", " << (*par)->end_vertex()->position().z());
           ATH_MSG_WARNING("parents info: ");
           if ((*par)->production_vertex()) {
             HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
@@ -376,18 +376,18 @@ StatusCode TestHepMC::execute() {
             m_h_px_dispVtxCheck->Fill((*par)->momentum().px()*1e-3);
             m_h_py_dispVtxCheck->Fill((*par)->momentum().py()*1e-3);
             m_h_pz_dispVtxCheck->Fill((*par)->momentum().pz()*1e-3);
-            m_h_vx_dispVtxCheck->Fill((*par)->end_vertex()->point3d().x());
-            m_h_vy_dispVtxCheck->Fill((*par)->end_vertex()->point3d().y());
-            m_h_vz_dispVtxCheck->Fill((*par)->end_vertex()->point3d().z());
-            m_h_vxprod_dispVtxCheck->Fill((*par)->production_vertex()->point3d().x());
-            m_h_vyprod_dispVtxCheck->Fill((*par)->production_vertex()->point3d().y());
-            m_h_vzprod_dispVtxCheck->Fill((*par)->production_vertex()->point3d().z());
-            double endvx = (*par)->end_vertex()->point3d().x();
-            double endvy = (*par)->end_vertex()->point3d().y();
-            double endvz = (*par)->end_vertex()->point3d().z();
-            double prodvx = (*par)->production_vertex()->point3d().x();
-            double prodvy = (*par)->production_vertex()->point3d().y();
-            double prodvz = (*par)->production_vertex()->point3d().z();
+            m_h_vx_dispVtxCheck->Fill((*par)->end_vertex()->position().x());
+            m_h_vy_dispVtxCheck->Fill((*par)->end_vertex()->position().y());
+            m_h_vz_dispVtxCheck->Fill((*par)->end_vertex()->position().z());
+            m_h_vxprod_dispVtxCheck->Fill((*par)->production_vertex()->position().x());
+            m_h_vyprod_dispVtxCheck->Fill((*par)->production_vertex()->position().y());
+            m_h_vzprod_dispVtxCheck->Fill((*par)->production_vertex()->position().z());
+            double endvx = (*par)->end_vertex()->position().x();
+            double endvy = (*par)->end_vertex()->position().y();
+            double endvz = (*par)->end_vertex()->position().z();
+            double prodvx = (*par)->production_vertex()->position().x();
+            double prodvy = (*par)->production_vertex()->position().y();
+            double prodvz = (*par)->production_vertex()->position().z();
             double enddis = sqrt(endvx*endvx + endvy*endvy + endvz*endvz);
             double proddis = sqrt(prodvx*prodvx + prodvy*prodvy + prodvz*prodvz);
             m_h_vtxend_dispVtxCheck->Fill(enddis);

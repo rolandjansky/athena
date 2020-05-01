@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from ROOT import TCanvas,  TH1D, TFile, TDirectory
 import sys
 
@@ -6,9 +8,9 @@ inFileName = sys.argv[1]
 outFileName= sys.argv[2]
 outFileType = sys.argv[3]
 
-print "Input           " + inFileName
-print "Output          " + outFileName
-print "Ouput File Type " + outFileType
+print ("Input           " + inFileName)
+print ("Output          " + outFileName)
+print ("Ouput File Type " + outFileType)
 
 cscRootName ="MUON_CSC_PED"
 overviewName = "Overview"

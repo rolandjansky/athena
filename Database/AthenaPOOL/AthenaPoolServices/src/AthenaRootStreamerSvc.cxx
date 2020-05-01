@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaRootStreamerSvc.cxx
@@ -21,6 +21,7 @@
 #include "DataModelRoot/RootType.h"
 #include "TInterpreter.h"
 
+#include <mutex>
 #include <vector>
 
 
@@ -111,13 +112,18 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
 {
    RootType streamer_class( converter_classname );
    if( !streamer_class ) {
-      // Class not yet known to Reflex
-      // try autoloading
-      static bool first = true;
-      if (first) {
-         gInterpreter->EnableAutoLoading();
-         first = false;
-      }
+
+      // Enable library auto-loading. Only once per job.
+      static std::once_flag libLoadFlag;
+      std::call_once( libLoadFlag, []( TInterpreter& interpreter ) {
+
+         // Enable library auto-loading.
+         TClass::ReadRules();
+         interpreter.LoadLibraryMap();
+         interpreter.SetClassAutoloading( true );
+
+      }, *gInterpreter );
+
       // int ntypesBefore = Reflex::Type::TypeSize();
       gInterpreter->AutoLoad( converter_classname.c_str() );
 

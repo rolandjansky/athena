@@ -3,7 +3,7 @@
 */
 
 #include "DecisionHandling/HypoBase.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 using namespace TrigCompositeUtils;
 

@@ -9,7 +9,7 @@
 #include "RingerThresholdWrapper.h"
 #include "RingerProcedureWrapper.icc"
 
-#include "RingerSelectorTools/tools/cxx/is_same.h"
+#include <type_traits>
 
 #include "RingerSelectorTools/procedures/Thresholds.h"
 
@@ -197,7 +197,7 @@ std::string RingerProcedureWrapper<
   std::stringstream ss;
   ss << "RingerProcedureWrapper<"
         << toStr(procedure_t::template procType<procEnum_t>() )
-        << ((Ringer::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
+        << ((std::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
         << toStr(static_cast<EtaDependency>(etaDependency)) << ","
         << toStr(static_cast<EtDependency>(etDependency)) << ","
         << toStr(NoSegmentation) << ">";
@@ -429,7 +429,7 @@ RingerProcedureWrapper<
                                       [thresIdxVec[1]];
 
     // Check which procedure_t this pre-processing wrapper holds.
-    if ( Ringer::is_same<procedure_t, IThresholdVarDep >::value )
+    if ( std::is_same<procedure_t, IThresholdVarDep >::value )
     {
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler

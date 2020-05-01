@@ -10,10 +10,12 @@
 #   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration#                 
 #
 
+from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
 def _makeRegSelTool( detector, enable, CondAlgConstructor ) :
                 
     from RegionSelector.RegionSelectorConf import RegSelTool
+
     tool = RegSelTool(name="RegSelTool_"+detector)
     
     # should we enable the look up table access for this subsystem ?
@@ -121,4 +123,40 @@ def makeRegSelTool_sTGC() :
         enabled = DetFlags.detdescr.sTGC_on()
     from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegSelCondAlg
     return _makeRegSelTool( "sTGC", enabled, sTGC_RegSelCondAlg )
+
+
+
+# calorimeter 
+
+def makeRegSelTool_TTEM() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
+    return _makeRegSelTool( "TTEM", enabled, RegSelCondAlg_LAr )
+
+def makeRegSelTool_TTHEC() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
+    return _makeRegSelTool( "TTHEC", enabled, RegSelCondAlg_LAr )
+            
+def makeRegSelTool_FCALEM() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
+    return _makeRegSelTool( "FCALEM", enabled, RegSelCondAlg_LAr )
+
+def makeRegSelTool_FCALHAD() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from LArRegionSelector.LArRegionSelectorConf import RegSelCondAlg_LAr
+    return _makeRegSelTool( "FCALHAD", enabled, RegSelCondAlg_LAr )
+
+# tile calorimeter
+
+def makeRegSelTool_TILE() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.Calo_on()
+    from TileRawUtils.TileRawUtilsConf import RegSelCondAlg_Tile
+    return _makeRegSelTool( "TILE", enabled, RegSelCondAlg_Tile )
 

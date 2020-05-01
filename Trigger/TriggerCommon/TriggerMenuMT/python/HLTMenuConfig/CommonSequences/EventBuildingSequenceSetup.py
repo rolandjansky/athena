@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from TrigEDMConfig import DataScoutingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
@@ -66,10 +67,17 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
-    elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
+    elif 'SCTPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
+                         SubDetector.SCT_BARREL_C_SIDE,
+                         SubDetector.SCT_ENDCAP_A_SIDE,
+                         SubDetector.SCT_ENDCAP_C_SIDE
+        ])
+    elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
-        moduleId = EventBuildingInfo.getDataScoutingResultID(eventBuildType)
+        moduleId = DataScoutingInfo.getDataScoutingResultID(eventBuildType)
         tool.addHLTResultToROBList(moduleId)
 
     # Name not matched

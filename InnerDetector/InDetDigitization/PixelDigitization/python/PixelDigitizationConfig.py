@@ -118,8 +118,15 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from RecExConfig.AutoConfiguration import GetRunNumber
     runNum = GetRunNumber()
 
-    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
+    #################
+    # Module status #
+    #################
+    useNewDeadmapFormat = False
+    useNewChargeFormat  = False
+
+    if not useNewDeadmapFormat:
+        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -294,9 +301,16 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
-############################################################################################
-# Set up Conditions DB
-############################################################################################
+    ############################################################################################
+    # Set up Conditions DB
+    ############################################################################################
+    if useNewDeadmapFormat:
+        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
         condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
@@ -323,19 +337,31 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
         condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey="/TDAQ/Resources/ATLAS/PIXEL/Modules")
 
-    if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+    #####################
+    # Calibration Setup #
+    #####################
+    if not useNewChargeFormat:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    else:
+        if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+            condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
 
+    #####################
+    # Cabling map Setup #
+    #####################
     if geoFlags.isIBL()==True and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
     if geoFlags.isIBL()==True and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
         condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
-
-    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
@@ -386,14 +412,14 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
         condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
                                               SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
-                                              UseMagFieldSvc = True,
+                                              UseMagFieldCache = True,
                                               UseMagFieldDcs = True)
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
         ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", 
                                       DetectorName="Pixel", 
-                                      UseMagFieldSvc = True,
+                                      UseMagFieldCache = True,
                                       SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
 ############################################################################################

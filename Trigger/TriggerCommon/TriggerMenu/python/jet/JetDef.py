@@ -350,6 +350,7 @@ def generateHLTChainDef(caller_data):
     try:
         cd, chain_config = _make_chaindef(caller_data_copy, instantiator)
     except Exception as e:
+        import traceback
         traceback.print_exc()
         tb = exc2string2()
         msg = 'JetDef error: error: %s\n%s' % (str(e), tb)

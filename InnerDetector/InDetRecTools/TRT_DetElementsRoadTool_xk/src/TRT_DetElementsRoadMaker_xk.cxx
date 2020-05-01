@@ -290,14 +290,16 @@ std::ostream& InDet::TRT_DetElementsRoadMaker_xk::dump( std::ostream& out ) cons
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
-(const Trk::TrackParameters& Tp,Trk::PropDirection D, 
+(const EventContext& ctx,
+ MagField::AtlasFieldCache& fieldCache,
+ const Trk::TrackParameters& Tp,Trk::PropDirection D,
  std::vector<const InDetDD::TRT_BaseElement*>& R) const
 {
 
   double qp   = fabs(500.*Tp.parameters()[4]) ; if( qp < 1.e-10  ) qp = 1.e-10; 
   double S    = m_step/qp                     ; if( S  > 200.    ) S  = 200.  ; if(D<0) S=-S; 
 
-  Trk::CylinderBounds CB = getBound(Tp);
+  Trk::CylinderBounds CB = getBound(fieldCache, Tp);
 
   double rminTRT = getTRTMinR();
 
@@ -307,7 +309,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
     Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
     std::list<Amg::Vector3D> G;
-    m_proptool->globalPositions(G,Tp,fieldprop,CB,S,Trk::pion);
+    m_proptool->globalPositions(ctx, G,Tp,fieldprop,CB,S,Trk::pion);
 
     if(G.size() > 1 ) {
       detElementsRoadATL(G,R);
@@ -326,10 +328,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
-(const Trk::TrackParameters& Tp,Trk::PropDirection D, 
+(const EventContext& ctx,
+ MagField::AtlasFieldCache& fieldCache,
+ const Trk::TrackParameters& Tp,
+ Trk::PropDirection D,
  std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >& R) const
 {
- std::vector<const InDetDD::TRT_BaseElement*> RE;  detElementsRoad(Tp,D,RE);
+ std::vector<const InDetDD::TRT_BaseElement*> RE;
+ detElementsRoad(ctx, fieldCache, Tp,D,RE);
 
  if (msgLvl(MSG::VERBOSE)) {
     dumpEvent(msg(MSG::VERBOSE), R.size());
@@ -345,7 +351,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
  const Trk::TrackParameters* tp0 = 
-   m_proptool->propagate(Tp,(*r)->surface(),D,false,fieldprop,Trk::pion);
+   m_proptool->propagate(ctx, Tp,(*r)->surface(),D,false,fieldprop,Trk::pion);
  if(!tp0) return;
 
  std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP0((*r),tp0);
@@ -354,7 +360,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  for(++r; r!=re; ++r) {
    
    const Trk::TrackParameters* tp = 
-     m_proptool->propagate((*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion);
+     m_proptool->propagate(ctx, (*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion);
    if(!tp) return;
 
    std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP((*r),tp);
@@ -597,7 +603,7 @@ double InDet::TRT_DetElementsRoadMaker_xk::stepToDetElement
 ///////////////////////////////////////////////////////////////////
 
 Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
-(const Trk::TrackParameters& Tp) const
+(MagField::AtlasFieldCache& fieldCache, const Trk::TrackParameters& Tp) const
 {
   const double cor = 0.8;
 
@@ -605,7 +611,11 @@ Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
   if(m_fieldModeEnum!=Trk::NoField && m_fieldService->solenoidOn()) {
     const Amg::Vector3D& pos = Tp.position();
     double f[3], p[3] ={pos[Amg::x],pos[Amg::y],pos[Amg::z]};
-    m_fieldService->getFieldZR(p,f);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR  (p, f);
+    else                                m_fieldService->getFieldZR(p,f);
+
     zfield =  299.7925*f[2];
   }
 

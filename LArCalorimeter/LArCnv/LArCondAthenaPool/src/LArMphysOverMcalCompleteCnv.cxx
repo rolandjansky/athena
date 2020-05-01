@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,8 +25,8 @@ LArMphysOverMcalCompleteCnv::createTransient ()
   if (p) 
     return p;
   else if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
     MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
     //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endmsg; 
     return TPconverter.createTransient( col_vect.get(), log );
@@ -37,7 +37,7 @@ LArMphysOverMcalCompleteCnv::createTransient ()
     MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
     log << MSG::DEBUG << "Reading LArMphysOverMcalSubset (original)" << endmsg; 
     
-    std::auto_ptr< LArConditionsSubset<LArMphysOverMcalP> > subset ( poolReadObject< LArConditionsSubset<LArMphysOverMcalP> >() );
+    std::unique_ptr< LArConditionsSubset<LArMphysOverMcalP> > subset ( poolReadObject< LArConditionsSubset<LArMphysOverMcalP> >() );
     // Here we must convert from LArMphysOverMcalP to LArMphysOverMcalP1
     
     log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 

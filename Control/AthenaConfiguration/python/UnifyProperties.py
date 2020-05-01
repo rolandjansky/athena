@@ -48,7 +48,7 @@ def unifyAppendDict(prop1,prop2):
     #Unify two dictionaries by appending. Throws on conflicting keys
     #find conflicting keys
     doubleKeys= set(prop1.keys()) & set(prop2.keys())
-    for k in doubleKeys():
+    for k in doubleKeys:
         if prop1[k]!= prop2[k]:
             from AthenaConfiguration.Deduplication import DeduplicationFailed
             raise DeduplicationFailed("Map-property defined multiple times with conflicting values for key %s" % k)

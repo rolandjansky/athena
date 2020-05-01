@@ -33,8 +33,9 @@ namespace Trk
     sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
     sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
     sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
-    if (parameters().rows() > 5 )
+    if (parameters().rows() > 5 ) {
       sl << " * mass  : " << parameters()[Trk::trkMass] << " (extended parameters)" << std::endl;
+    }
     sl << " * charge: " << charge() << std::endl;
     sl << " * covariance matrix = " << covariance() << std::endl;
     sl << " * corresponding global parameters:" << std::endl;
@@ -63,8 +64,9 @@ namespace Trk
     sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
     sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
     sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
-    if (parameters().rows() > 5 )
+    if (parameters().rows() > 5 ) {
       sl << " * mass  : " << parameters()[Trk::trkMass] << " (extended parameters)" << std::endl;
+    }
     sl << " * charge: " << charge() << std::endl;
     sl << " * covariance matrix = " << covariance() << std::endl;
     sl << " * corresponding global parameters:" << std::endl;

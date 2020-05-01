@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
@@ -113,7 +113,9 @@ namespace FlavorTagDiscriminants {
       }
 
       input_config = get_input_config(
-        input_names, type_regexes, default_flag_regexes, var_map);
+        input_names, type_regexes, default_flag_regexes);
+      // allow the user to remape some of the inputs
+      remap_inputs(config.inputs.at(0).variables, input_config, var_map);
     } else if (config.inputs.size() > 1) {
       throw std::logic_error("DL2 doesn't support multiple inputs");
     }

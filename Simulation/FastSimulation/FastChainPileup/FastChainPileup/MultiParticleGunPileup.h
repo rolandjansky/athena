@@ -18,9 +18,7 @@
 #include "GeneratorModules/GenModule.h"
 #include "FastChainPileup/Samplers.h"
 
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 class MultiParticleGunPileup : public GenModule {
 

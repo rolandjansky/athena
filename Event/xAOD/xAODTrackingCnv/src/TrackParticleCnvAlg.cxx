@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.cxx 298303 2013-12-05 08:41:30Z emoyse $
@@ -104,6 +104,8 @@ namespace xAODMaker {
     declareProperty( "PrintIDSummaryInfo",      m_IdOutputInfo = false ); 
     declareProperty( "TrackCollectionCnvTool",                 m_TrackCollectionCnvTool );
     declareProperty( "RecTrackParticleContainerCnvTool",       m_RecTrackParticleContainerCnvTool );
+    declareProperty( "DoMonitoring",      m_doMonitoring = false  );
+    declareProperty( "TrackMonTool",      m_trackMonitoringTool  );
   }
 
   StatusCode TrackParticleCnvAlg::initialize() {
@@ -128,6 +130,10 @@ namespace xAODMaker {
     ATH_CHECK(m_truthParticleLinkVec.initialize(m_addTruthLink));
     ATH_CHECK(m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
     ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
+
+
+    //Retrieve monitoring tool if provided
+    ATH_CHECK( m_trackMonitoringTool.retrieve(DisableTool{!m_doMonitoring}) );
 
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -193,6 +199,9 @@ namespace xAODMaker {
       SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodout(m_xaodout);
       ATH_CHECK(wh_xaodout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
       convert((*tracks), trackTruth, m_TrackCollectionCnvTool,  wh_xaodout, truthLinks);
+
+      if( m_doMonitoring) m_trackMonitoringTool->monitor_tracks( "Track", "Pass", *wh_xaodout );
+
     }
     if (m_convertAODTrackParticles){
       SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodTrackParticlesout(m_xaodTrackParticlesout);
@@ -249,6 +258,7 @@ namespace xAODMaker {
       ATH_MSG_ERROR("Couldn't convert aod to xaod (" << xaod.name() << ") with the converting tool");
       return -1;
     }
+
     // Create the xAOD objects:
     xAOD::TrackParticleContainer::iterator itr_xaod = xaod->begin();
     xAOD::TrackParticleContainer::iterator end_xaod = xaod->end();
@@ -381,6 +391,11 @@ namespace xAODMaker {
                 origin = truthClass.second;
                 ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
               }
+            }
+            else {
+               if (result->second.particleLink().barcode()>0) {
+                  ATH_MSG_WARNING( "No associated xAOD truth for valid truth link " << result->second.particleLink());
+               }
             }
           }
         }

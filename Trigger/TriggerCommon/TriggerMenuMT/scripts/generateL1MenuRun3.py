@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys,os
 
@@ -48,6 +48,13 @@ def generateL1Menu(menu, cmdline):
     return l1cfg.l1menu
 
 
+def generateDefaultMCBunchgroupSet(cmdline):
+    from TriggerMenuMT.L1.Base.BunchGroupSet import createMCDefaultBunchGroupSet
+    bgs = createMCDefaultBunchGroupSet()
+    bgs.writeJSON( outputFile = "L1BunchGroupSet.json", destdir = cmdline.dest)
+    
+
+
 def main():
 
 
@@ -61,7 +68,9 @@ def main():
         ("phyr3v1"   , "Physics_pp_run3_v1"       ),
         ("phyp1r3v1"   , "PhysicsP1_pp_run3_v1"       ),
         ("mcr3v1"   , "MC_pp_run3_v1"       ),
-        ("cosmic", "Cosmic_pp_run3_v1"),
+        ("cosmic", "Cosmic_run3_v1"),
+        ("hip1r3v1", "PhysicsP1_HI_run3_v1" ),
+        ("devhir3v1", "Dev_HI_run3_v1" ),
         ("hiphy4","Physics_HI_v4"),
         ("hiphy", "Physics_HI_v4"),
         ("himc4", "MC_HI_v4"     ),
@@ -76,6 +85,8 @@ def main():
             menu = [menu]
         for m in menu:
             generateL1Menu(menu=m, cmdline=cmdline)
+    elif cmdline.menu.lower() == "bgrp":
+        generateDefaultMCBunchgroupSet(cmdline=cmdline)
     else:
         generateL1Menu(menu=cmdline.menu, cmdline=cmdline)
 

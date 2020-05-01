@@ -8,7 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // Local include(s):
 #include "GenParticleGetterTool.h"

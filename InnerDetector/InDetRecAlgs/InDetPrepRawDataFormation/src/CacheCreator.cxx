@@ -32,6 +32,7 @@ namespace InDet{
         ATH_CHECK( m_SCTRDOCacheKey.initialize(!m_SCTRDOCacheKey.key().empty()) );
         ATH_CHECK( m_SCTBSErrCacheKey.initialize(!m_SCTBSErrCacheKey.key().empty()) );
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
+	ATH_CHECK( m_PixBSErrCacheKey.initialize(!m_PixBSErrCacheKey.key().empty()) );
         if (!m_disableTRT.value()) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
         ATH_CHECK(detStore()->retrieve(m_pix_idHelper, "PixelID"));
@@ -70,9 +71,11 @@ namespace InDet{
 
         ATH_CHECK(createContainer(m_SCTRDOCacheKey, m_sct_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(createValueContainer(m_SCTBSErrCacheKey, m_sct_idHelper->wafer_hash_max(), ctx, std::numeric_limits<int>::min()));
+        ATH_CHECK(createValueContainer(m_SCTBSErrCacheKey, m_sct_idHelper->wafer_hash_max(), ctx, std::numeric_limits<uint64_t>::min()));
 
         ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
+
+	ATH_CHECK(createValueContainer(m_PixBSErrCacheKey,  m_pix_idHelper->wafer_hash_max(), ctx, std::numeric_limits<uint64_t>::min()));
 
         return StatusCode::SUCCESS;
     }

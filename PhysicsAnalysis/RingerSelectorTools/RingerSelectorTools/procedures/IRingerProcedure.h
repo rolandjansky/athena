@@ -17,10 +17,7 @@
 // Local includes:
 #include "RingerSelectorTools/tools/VariableDependency.h"
 #include "RingerSelectorTools/tools/IRedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/StaticAssert.h"
-#include "RingerSelectorTools/tools/cxx/is_base_of.h"
-#include "RingerSelectorTools/tools/cxx/conditional.h"
-#include "RingerSelectorTools/tools/cxx/enable_if.h"
+#include <type_traits>
 
 #ifndef INCLUDE_HEADER_ONLY
 #define INCLUDE_HEADER_ONLY
@@ -73,7 +70,7 @@
 #define __RINGER_DEFINE_PROCEDURE_STANDARD_METHODS__(self)                     \
                                                                                \
     virtual const char* name() const                                           \
-      ATH_RINGER_OVERRIDE;                                                     \
+      override;                                                                \
     template <typename T = const char*>                                        \
     static T procType();                                                       \
                                                                                \
@@ -87,7 +84,7 @@
     __RINGER_DEFINE_PROCEDURE_STANDARD_METHODS__(self)                         \
                                                                                \
     virtual void print(MSG::Level lvl) const                                   \
-      ATH_RINGER_OVERRIDE;
+      override;
 
 /**
  * Use this macro when procedure hasn't member properties
@@ -98,7 +95,7 @@
     __RINGER_DEFINE_PROCEDURE_STANDARD_METHODS__(self)                         \
                                                                                \
     virtual void print(MSG::Level lvl) const                                   \
-      ATH_RINGER_OVERRIDE                                                      \
+      override                                                                 \
     {                                                                          \
       if ( !this->isStreamAvailable() ) {                                      \
         std::cerr << "Cannot print " << this->name() << ", stream unavailable" \
@@ -193,53 +190,46 @@ namespace Discrimination {
 template<typename procedure_t >
 struct RingerProcedureType {
 
-  RINGER_STATIC_ASSERT( (Ringer::is_base_of<IRingerProcedure,procedure_t>::value),
+  static_assert( (std::is_base_of<IRingerProcedure,procedure_t>::value),
       "Requested to check Ringer procedure type from class that is not a IRingerProcedure.");
 
   // Determine which procedure type it is:
-#if RINGER_USE_NEW_CPP_FEATURES || defined(FORCE_RINGER_PROCEDURE_TYPE_CONST_EXPR)
   static constexpr bool is_pre_processor =
-    Ringer::is_base_of<PreProcessing::IPreProcessor,procedure_t>::value;
+    std::is_base_of<PreProcessing::IPreProcessor,procedure_t>::value;
   static constexpr bool is_discriminator =
-    Ringer::is_base_of<Discrimination::IDiscriminator,procedure_t>::value;
+    std::is_base_of<Discrimination::IDiscriminator,procedure_t>::value;
   static constexpr bool is_threshold =
-    Ringer::is_base_of<Discrimination::IThreshold,procedure_t>::value;
+    std::is_base_of<Discrimination::IThreshold,procedure_t>::value;
 
-  RINGER_STATIC_ASSERT( ( is_pre_processor || is_discriminator || is_threshold ),
+  static_assert( ( is_pre_processor || is_discriminator || is_threshold ),
       "Couldn't find a procedure type.");
 
   // Determine which enumType it should have been declared
-  typedef typename Ringer::conditional< is_pre_processor,
+  typedef typename std::conditional< is_pre_processor,
     preProcEnum_t,  // true, it is_pre_processor
-      typename Ringer::conditional< is_discriminator,
+      typename std::conditional< is_discriminator,
     discrEnum_t, // true, it is discriminator
       thresEnum_t >::type >::type procEnum_t;
 
   // Boolean to determine whether this procedure inherits from VariableDependency
-  static constexpr bool inherits_from_var_dep = Ringer::is_base_of< VariableDependency,
+  static constexpr bool inherits_from_var_dep = std::is_base_of< VariableDependency,
                                                              procedure_t>::value;
 
   // Determine which interface this Ringer procedure inherits from
-  typedef typename Ringer::conditional< is_pre_processor,
+  typedef typename std::conditional< is_pre_processor,
     // true, it is_pre_processor
-    typename Ringer::conditional< inherits_from_var_dep,
+    typename std::conditional< inherits_from_var_dep,
         PreProcessing::IPreProcessorVarDep, PreProcessing::IPreProcessor>::type,
     // not pre_processor, check if is_discriminator
-    typename Ringer::conditional< is_discriminator,
+    typename std::conditional< is_discriminator,
       // true, it is_discriminator
-      typename Ringer::conditional< inherits_from_var_dep,
+      typename std::conditional< inherits_from_var_dep,
           Discrimination::IDiscriminatorVarDep, Discrimination::IDiscriminator>::type,
       // otherwise it has to be threshold
-      typename Ringer::conditional< inherits_from_var_dep,
+      typename std::conditional< inherits_from_var_dep,
           Discrimination::IThresholdVarDep, Discrimination::IThreshold>::type
     >::type
   >::type baseInterface_t;
-
-#else
-  static const bool is_pre_processor;
-  static const bool is_discriminator;
-  static const bool is_threshold;
-#endif
 };
 
 /**

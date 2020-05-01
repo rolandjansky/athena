@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # Test the reflex dictionary usage in PyROOT to
 # instantiate and configure the overlap removal tool(s).
 
@@ -11,7 +13,7 @@ from ROOT import gROOT
 gROOT.Macro('$ROOTCOREDIR/scripts/load_packages.C')
 
 # Import using the PyROOT bindings and reflex dictionary
-from ROOT import ORUtils, OverlapRemovalTool
+from ROOT import ORUtils
 
 # Define some testing helper functions
 
@@ -29,14 +31,6 @@ def test_tool_init(tool_type, verbose=False):
     if verbose:
         print '  => Success'
     return tool
-
-# Configure the legacy tool
-orToolLegacy = OverlapRemovalTool('OverlapRemovalToolLegacy')
-
-test_sc( orToolLegacy.setProperty('OverlapLabel', 'overlaps') )
-test_sc( orToolLegacy.setProperty(bool)('LinkOverlapObjects', True) )
-# Initialize the tool
-test_sc( orToolLegacy.initialize() )
 
 # Configure the new master tool
 orTool = ORUtils.OverlapRemovalTool('OverlapRemovalTool')

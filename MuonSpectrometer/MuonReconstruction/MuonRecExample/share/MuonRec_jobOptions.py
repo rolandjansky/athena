@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 ## @file MuonRec_jobOptions.py
 #
 # @brief Main jobOptions to setup muon reconstruction. Main muon entry point for RecExCommon.
@@ -14,7 +16,6 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.ConfiguredMuonRec import GetConfiguredMuonRec
 from MuonRecExample.MuonRecUtils import logMuon, logMuonResil
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ServiceMgr
@@ -36,6 +37,7 @@ topSequence = AlgSequence()
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
 # do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
 if rec.readESD() or rec.readAOD():
+    from MuonRecExample.MuonRecTools import MuonIdHelperTool
     MuonIdHelperTool()
 
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False

@@ -13,17 +13,6 @@ CaloClusterChangeSignalState::CaloClusterChangeSignalState (xAOD::CaloCluster* p
   //std::cout << "SignalStateHelper: Setting state for clu " << pClus << std::endl;
 }
 
-#if __cplusplus < 201100
-void CaloClusterChangeSignalState::init (xAOD::CaloCluster* pClus, xAOD::CaloCluster::State s) {
-  m_clus=pClus;
-  m_oldstate=pClus->signalState();
-  pClus->setSignalState(s);
-  //std::cout << "SignalStateHelper: Setting state for clu " << pClus << std::endl;
-}
-#endif
-
-
-
 
 CaloClusterChangeSignalState::~CaloClusterChangeSignalState()
 {

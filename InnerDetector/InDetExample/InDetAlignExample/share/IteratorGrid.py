@@ -4,8 +4,14 @@
 #             Song-Ming Wang (smwang@phys.sinica.edu.tw)
 #################################################################
 
+from __future__ import print_function
+
 import os, string, time, datetime
 import sys, glob
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 # ===================================================================================================
 # ===================================================================================================
@@ -45,7 +51,7 @@ os.chdir(thisJobDir)
 
 
 os.system(" get_files -jo InDetAlignExample/NewInDetAlignAlgSetup.py  > /dev/null ")
-print"current path:", (os.getcwd())
+print ("current path:", (os.getcwd()))
 cpath = os.getcwd()
 
 GridAccSubJobID          = 'GridAccSubJobID.txt'
@@ -54,8 +60,8 @@ GridAccOutDS             = 'GridAccOutDS.txt'
 GridTotalAccOutDS        = 'GridTotalAccOutDS.txt'
 GridSolvingOutDS         = 'GridSolvingOutDS.txt'
 
-#print GridAccSubJobID
-#print GridAccSubInfo
+#print (GridAccSubJobID)
+#print (GridAccSubInfo)
 
 
 # Prepare number of files and events per CPU
@@ -67,7 +73,7 @@ CosmicsBon = {}
 CosmicsBoff = {}
 
 
-print
+print()
 if not os.path.isdir(OutputPath):
 	os.mkdir(OutputPath)
 
@@ -78,10 +84,10 @@ info.write("----------------------------------------------\n")
 #info.write("Release %s\n" % ATHENAREL)
 info.write("Output stored in %s\n\n" % OutputPath)
 
-print "Info stored in: " +OutputPath+"/info.txt"
+print ("Info stored in: " +OutputPath+"/info.txt")
 
 
-print
+print()
 info.write("\n")
 StartTime=time.time()   # Start the total time counter
 info.close()
@@ -108,9 +114,9 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 	else:
 		ReadAlignmentConstants = True
 
-	print '\n'
-	print " ---> Iteration "+repr(iteration)
-	print '\n'
+	print ('\n')
+	print (" ---> Iteration "+repr(iteration))
+	print ('\n')
 	info=open(OutputPath+"/info.txt",'a')
 	info.write('\n')
 	info.write("---> Iteration "+repr(iteration))
@@ -124,8 +130,8 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			countdir += 1
 		os.rename("%s/Iter%02d" % (OutputPath, iteration),("%s/Iter%02d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)))
 
-		print "WARNING: %s/Iter%02d directory exists" % (OutputPath, iteration)
-		print "Renamed to %s/Iter%02d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)
+		print ("WARNING: %s/Iter%02d directory exists" % (OutputPath, iteration))
+		print ("Renamed to %s/Iter%02d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir))
 
 	# Make OutputPaths
 	os.mkdir(OutputPath+'/Iter%02d' % iteration )
@@ -147,7 +153,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 	if GridOptions["CosBonCPUs"][iteration]   > 0:
 		os.mkdir('%s/Iter%02d/CosmicsBon/'   % (OutputPath, iteration) )
 
-	print "Processing..."
+	print ("Processing...")
 
 			
 		
@@ -188,7 +194,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			if iteration == 0:
 
 				if False == os.path.isfile('%s' % inputAlignmentPoolFile):
-					print "Error: the inputAlignmentPoolFile not exit ..."
+					print ("Error: the inputAlignmentPoolFile not exit ...")
 					sys.exit()
 				else:
 					os.system("cp %s initial_AlignmentConstants.root " % inputAlignmentPoolFile)
@@ -259,7 +265,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 					else : 
 						RecoOptions["Cosmics"] = False
 
-					print " detDescrVersion Customed " ,  Datasets.detDescrVersion("Customed", i)
+					print (" detDescrVersion Customed " ,  Datasets.detDescrVersion("Customed", i))
 
 					if Datasets.detDescrVersion("Customed", i) : 
 						RecoOptions["detectorDescription"] = Datasets.detDescrVersion("Customed", i)
@@ -267,7 +273,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 					RecoScript       	                   = Datasets.recoScript("Customed", i)
 
 
-					print " global tag Customed " , Datasets.globalTag("Customed", i)
+					print (" global tag Customed " , Datasets.globalTag("Customed", i))
 					if Datasets.globalTag("Customed", i) :
 						RecoOptions["globalTag"]  	   = Datasets.globalTag("Customed", i )
 
@@ -288,7 +294,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 
 			### not do detailed tags configuration, submit one job with long inDS list
 			else : 
-				print "....."
+				print (".....")
 				Datasets.configDatasetTags("Customed")
 				thisJobName   = "%s_Iter%02d_Accumulate_Customed_%s.py" % (preName, iteration, thisJobDir)
 				JOBNAMES["Customed"] = thisJobName
@@ -297,11 +303,11 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 				os.system("echo %s >> %s\n" % (thisOutDSName, GridAccOutDS))
 				os.system("echo %s >> %s\n" % (thisOutDSName, GridTotalAccOutDS))
 
-				print " detDescrVersion Customed " ,  Datasets.detDescrVersion("Customed")
+				print (" detDescrVersion Customed " ,  Datasets.detDescrVersion("Customed"))
 				if Datasets.detDescrVersion("Customed") :
 					RecoOptions["detectorDescription"] = Datasets.detDescrVersion("Customed")
 				RecoScript                                 = Datasets.recoScript("Customed")
-				print " global tag Customed " , Datasets.globalTag("Customed")
+				print (" global tag Customed " , Datasets.globalTag("Customed"))
 				if Datasets.globalTag("Customed") :
 					RecoOptions["globalTag"]           = Datasets.globalTag("Customed")
 
@@ -328,7 +334,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			if  GridOptions["ColCPUs"][iteration]:
 				JOBNAMES["Collision"]           = "%s_Iter%02d_Accumulate_Collision_%s.py" % (preName, iteration, thisJobDir)
 				outputTarFileNames["Collision"] = "%s.%s.Iter%02d_Accumulate_outDS_Collision_%s" % (GridOptions["userIDnum"], GridOptions["userIDname"], iteration, thisJobDir)
-				print outputTarFileNames["Collision"]
+				print (outputTarFileNames["Collision"])
 				os.system("echo %s >> %s\n" % (outputTarFileNames["Collision"], GridAccOutDS))
 				os.system("echo %s >> %s\n" % (outputTarFileNames["Collision"], GridTotalAccOutDS))
 
@@ -359,7 +365,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			if GridOptions["CosBonCPUs"][iteration]:
 				JOBNAMES["CosmicsBon"]           = "%s_Iter%02d_Accumulate_CosBon_%s.py" % (preName, iteration, thisJobDir)
 				outputTarFileNames["CosmicsBon"] = "%s.%s.Iter%02d_Accumulate_outDS_CosBon_%s" % (GridOptions["userIDnum"], GridOptions["userIDname"], iteration, thisJobDir)
-				print outputTarFileNames["CosmicsBon"]
+				print (outputTarFileNames["CosmicsBon"])
 				os.system("echo %s >> %s\n" % (outputTarFileNames["CosmicsBon"], GridAccOutDS))
 				os.system("echo %s >> %s\n" % (outputTarFileNames["CosmicsBon"], GridTotalAccOutDS))
 
@@ -388,7 +394,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			if GridOptions["CosBoffCPUs"][iteration]:
 				JOBNAMES["CosmicsBoff"]           = "%s_accumulate_Iter%02d_CosBoff_%s.py" % (preName, iteration, thisJobDir)
 				outputTarFileNames["CosmicsBoff"] = "%s.%s.Iter%02d_Accumulate_outDS_CosBoff_%s" % (GridOptions["userIDnum"], GridOptions["userIDname"], iteration, thisJobDir)
-				print outputTarFileNames["CosmicsBoff"]
+				print (outputTarFileNames["CosmicsBoff"])
 				os.system("echo %s >> %s\n" % (outputTarFileNames["CosmicsBoff"], GridAccOutDS))
 				os.system("echo %s >> %s\n" % (outputTarFileNames["CosmicsBoff"], GridTotalAccOutDS))
 
@@ -509,9 +515,9 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 #########################################################################################################################
 	if doSolve:
 
-		print "----------------------------------------------"
-		print "  Solving Iter"+repr(iteration)
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
+		print ("  Solving Iter"+repr(iteration))
+		print ("----------------------------------------------")
 		info.write('\n')
 		info.write("----------------------------------------------\n")
 		info.write("  Solving Iter %02d\n" % iteration)
@@ -524,12 +530,12 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 		JOBNAMES["Solve"] = "%s_Iter%02d_Solve_%s.py"  % (preName, iteration, postfix)
 		SCRIPTNAME        = "%s_Iter%02d_Solve_%s.lsf" % (preName, iteration, postfix)
 
-		print "Logs stored in %s/Iter%02d/logs/Iter%02dSolve_%s.log" % (OutputPath, iteration, iteration, postfix)
+		print ("Logs stored in %s/Iter%02d/logs/Iter%02dSolve_%s.log" % (OutputPath, iteration, iteration, postfix))
 
 		##################################################################################################################
 		outputTarFileNames["Solve"] = "%s.%s.Iter%02d_%s_Solve" % (GridOptions["userIDnum"], GridOptions["userIDname"], iteration, thisJobDir)
 						
-		print "outputSolvingDS: ", outputTarFileNames["Solve"]
+		print ("outputSolvingDS: ", outputTarFileNames["Solve"])
 						
 		AlignmentOptions = {}
 
@@ -545,7 +551,7 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 		if ReadAlignmentConstants:
 			if iteration == 0:
 				if False == os.path.isfile('%s' % inputAlignmentPoolFile):
-					print "Error: the inputAlignmentPoolFile not exit ..."
+					print ("Error: the inputAlignmentPoolFile not exit ...")
 					sys.exit()
 				else : 
 					os.system("cp %s initial_AlignmentConstants.root " % inputAlignmentPoolFile)
@@ -601,9 +607,9 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 		if GridOptions["runSolveMode"] != "Prun" :
 			matrices, vectors, hitmaps             = mergeMatrix(OutputPath, iteration, GridAccOutDS, GridOptions) 
 
-			print "matrices: ", matrices
-			print "vector: "  , vectors
-			print "hitmaps: " , hitmaps
+			print ("matrices: ", matrices)
+			print ("vector: "  , vectors)
+			print ("hitmaps: " , hitmaps)
 		
 			AlignmentOptions["inputMatrixFiles"]           = matrices
 			AlignmentOptions["inputVectorFiles"] 	       = vectors
@@ -778,9 +784,9 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 			#	os.system("dq2-get -n 1 -H -V %s  %s/ \n "  %   ("fileForSolve" , self.Datasets.oneDatasetName("Collision")) )
 
 			#else :
-			#	print " why do you come here ?? "
+			#	print (" why do you come here ?? ")
 
-			#ret, out = commands.getstatusoutput("cat %s") % JOBNAMES["Solve"]
+			#ret, out = subprocess.getstatusoutput("cat %s") % JOBNAMES["Solve"]
 			#solveJO  = open('%s' , 'w') % JOBNAMES["Solve"]
 			#lines    = out.split("\n")
 
@@ -848,20 +854,20 @@ for iteration in range(FirstIteration, FirstIteration+Iterations):
 
 	else:
 
-		print "-----------------------------------------------------\n"
-		print " WARNING: Skipping the solving due to low statistics or set doSolve=False\n"
-		print "-----------------------------------------------------\n"
+		print ("-----------------------------------------------------\n")
+		print (" WARNING: Skipping the solving due to low statistics or set doSolve=False\n")
+		print ("-----------------------------------------------------\n")
 
-		print "  Iteration %02d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime))
-		print "-------------------------------------------------------"
+		print ("  Iteration %02d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime)))
+		print ("-------------------------------------------------------")
 
 
 
 
 if GridOptions["getMonitoringFiles"] == True : 
 
-	ret, out = commands.getstatusoutput("cat %s" % GridTotalAccOutDS)
-	print " GridTotalAccOutDS files : ",out
+	ret, out = subprocess.getstatusoutput("cat %s" % GridTotalAccOutDS)
+	print (" GridTotalAccOutDS files : ",out)
 	lines = out.split('\n')
 	for line in lines :
 		temp    = line 
@@ -875,21 +881,21 @@ if GridOptions["getMonitoringFiles"] == True :
 		MonitoringFilesList = []
 		ValidationFilesList = []
 
-		ret, out = commands.getstatusoutput("dq2-ls -f %s/ " % line)
+		ret, out = subprocess.getstatusoutput("dq2-ls -f %s/ " % line)
 		items = out.split('\n')
 		for item in items : 
 			strs = item.split()
 			for str in strs :
-				print " str: " , str
+				print (" str: " , str)
 				if str.find("CombinedMonitoring") != -1 : 
 					MonitoringFilesList.append(str)
 				if str.find("TRKVAL")             != -1 : 
 					ValidationFilesList.append(str)
 		MonitoringFilesStr = ",".join(MonitoringFilesList)
 		ValidationFilesStr = ",".join(ValidationFilesList)
-		print " in iteration : " , iter
-		print " MonitoringFilesStr for this iteration : " , MonitoringFilesStr
-		print " ValidationFilesStr for this iteration : " , ValidationFilesStr
+		print (" in iteration : " , iter)
+		print (" MonitoringFilesStr for this iteration : " , MonitoringFilesStr)
+		print (" ValidationFilesStr for this iteration : " , ValidationFilesStr)
 		os.system(" dq2-get -f %s -H %s/ -V %s/ "  % ( MonitoringFilesStr, thisDir, line ))
 		os.system(" dq2-get -f %s -H %s/ -V %s/ "  % ( ValidationFilesStr, thisDir, line ))
 
@@ -903,9 +909,9 @@ if GridOptions["getMonitoringFiles"] == True :
 
 #if MonitoringScript == True:
 if doCompareMonitoring == True:
-	print
-	print "Comparing the Monitoring Files"
-	print
+	print()
+	print ("Comparing the Monitoring Files")
+	print()
 	info.write('\n')
 	info.write("Comparing the Monitoring Files \n" )
 	info.write("\n")
@@ -918,9 +924,9 @@ if doCompareMonitoring == True:
 	compareMonitoring.write()
 	compareMonitoring.send()
    
-	print
-	print "Processed %d iterations !!!" % Iterations
-	print "  %5.3f  seconds" % (time.time()-StartTime)
+	print()
+	print ("Processed %d iterations !!!" % Iterations)
+	print ("  %5.3f  seconds" % (time.time()-StartTime))
    	
 	info=open(OutputPath+"/info.txt",'a')
 	info.write('\n')

@@ -15,9 +15,7 @@
 // G4 forward declarations
 class G4Track;
 // forward declarations in namespace
-namespace HepMC {
-	class FourVector;
-}
+#include "AtlasHepMC/SimpleVector.h"
 // Namespace for the ShowerLib related classes
 namespace ShowerLib {
 

@@ -102,7 +102,7 @@ class Lvl1Menu(object):
 
 
     def readMenuFromXML(self,inputFile):
-        from XMLMenuReader import readMenuFromXML
+        from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLMenuReader import readMenuFromXML
         readMenuFromXML(self, inputFile)
 
     def printCabling(self):

@@ -1,4 +1,6 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
+
+from __future__ import print_function
 
 #================================
 # Example to run over several runs and obtain
@@ -57,7 +59,7 @@ for run in runlist:
 	Data1[counter].setDetDescrVersion("ATLAS-GEO-20-19-01")
 	DataToRun.append(Data1[counter])
 	counter += 1
-print len(DataToRun), counter
+print (len(DataToRun), counter)
 
 AlignmentMethod = "GX2"
 
@@ -134,5 +136,5 @@ errorScalingTag		= ''
 MonitoringScript	= ""
 
 os.system("get_files -jo InDetAlignExample/NewInDetIterator.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator.py")
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator.py"))
 execfile("NewInDetIterator.py")

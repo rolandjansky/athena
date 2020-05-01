@@ -9,8 +9,8 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 // STL includes
 #include <string>

@@ -2,6 +2,7 @@
 #
 # art-description: Run the full reconstruction on HITS with pile-up for JZ6W samples (leading jet pt: 1300-1800 GeV) for validation of tracking overlay
 # art-include: 21.0/Athena
+# art-include: master/Athena
 # art-type: grid
 
 export inputHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrackingOverlay/JZ6W_HITS
@@ -22,7 +23,7 @@ Reco_tf.py --inputHITSFile $inputHitsFile/*root.? \
            --autoConfiguration everything \
            --conditionsTag "default:OFLCOND-MC16-SDR-25" \
            --geometryVersion "default:ATLAS-R2-2016-01-00-01" \
-           --postExec "all:CfgMgr.MessageSvc().setError+=['HepMcParticleLink']" \
+           --postExec "all:CfgMgr.MessageSvc().setError+=['HepMcParticleLink']" 'svcMgr.AthenaPoolCnvSvc.MaxFileSizes=["15000000000"]' \
            --postInclude "default:PyJobTransforms/UseFrontier.py" \
            --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)" 'HITtoRDO:userRunLumiOverride={"run":310000,"lb":61,"starttstamp":1550003600,"mu":60.500};' "from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" \
            --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_user.py" \

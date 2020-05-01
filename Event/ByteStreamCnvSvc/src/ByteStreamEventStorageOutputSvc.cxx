@@ -13,7 +13,6 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
-#include "ByteStreamData/ByteStreamUserMetadata.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -32,8 +31,7 @@
 // Constructor.
 ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::string& name, ISvcLocator* svcloc) :
 		ByteStreamOutputSvc(name,svcloc),
-	m_totalEventCounter(0),
-        m_attlistsvc("ByteStreamAttListMetadataSvc", name)
+	m_totalEventCounter(0)
 {
    declareProperty("OutputDirectory", m_inputDir);
    // a set of fields for making up filename
@@ -62,7 +60,6 @@ ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::stri
 
    declareProperty("MaxFileMB", m_maxFileMB = 10000);
    declareProperty("MaxFileNE", m_maxFileNE = 100000);
-   declareProperty("AttributeListKeys", m_keys);
 
    declareProperty("EformatVersion", m_eformatVersion = "current",
                    "Version of the event format data, use \"v40\" or \"run1\" "
@@ -103,12 +100,6 @@ StatusCode ByteStreamEventStorageOutputSvc::initialize() {
       }
    }
 
-   // Retrieve AttListSvc
-   if (!m_attlistsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get metadata AttListSvc.");
-      return(StatusCode::FAILURE);
-   }
-
    // validate m_eformatVersion and m_eventStorageVersion
    const char* choices_ef[] = {"current", "v40", "run1"};
    if (std::find(std::begin(choices_ef), std::end(choices_ef), m_eformatVersion.value()) == std::end(choices_ef)) {
@@ -145,7 +136,7 @@ StatusCode ByteStreamEventStorageOutputSvc::stop() {
          if (stat.isSuccess()) metaData = *(metaDataCont->begin());
       }
       // Try to write metadata to file
-      dWok = initDataWriterContents(0,metaData);
+      dWok = initDataWriterContents(0, metaData);
       if (!dWok) ATH_MSG_WARNING("Could not write Metadata for eventless file");
    }
    return(StatusCode::SUCCESS);
@@ -172,15 +163,8 @@ bool ByteStreamEventStorageOutputSvc::initDataWriter() {
       ATH_MSG_ERROR("Cannot retrieve EventInfo");
       return(false);
    }
-   const ByteStreamMetadata* metaData = 0;
-   ServiceHandle<StoreGateSvc> mds("InputMetaDataStore", name());
-   StatusCode status = mds.retrieve();
-   if (!status.isFailure()) {
-      status = mds->retrieve(metaData);
-      if (status.isFailure()) ATH_MSG_INFO("No ByteStreamMetadata in InputMetaDataStore");
-   }
    // Now try to write metadata to file
-   return initDataWriterContents(evtInfo,metaData);
+   return initDataWriterContents(evtInfo, 0);
 }
 //__________________________________________________________________________
 // Open the first input file and read the first event.
@@ -273,10 +257,6 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
       }
    }
 
-   // Finally, check storegate for meta strings
-   this->checkForUserMetadata(freeMetaDataStrings);
-
-
    std::string fileNameCore;
    EventStorage::CompressionType compression = m_compressEvents ? EventStorage::ZLIB : EventStorage::NONE;
    int eventStorageVersion = 0;
@@ -307,41 +287,6 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
       ATH_MSG_DEBUG("initialized file for with name " << fileNameCore);
    }
    return(true);
-}
-
-void ByteStreamEventStorageOutputSvc::checkForUserMetadata(EventStorage::freeMetaDataStrings& freeMetaDataStrings)
-{
-   ATH_MSG_DEBUG("checkForUserMetadata");
-
-   // Check for attributeLists with user metadata
-   if (m_keys.size()>0) {
-      StatusCode sc = m_attlistsvc->toBSMetadata(m_keys);
-      if (sc.isFailure()) {
-         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
-      }
-   }
-
-   ServiceHandle<StoreGateSvc> ds("DetectorStore", name());
-   if (ds.retrieve().isSuccess()) {
-      SG::ConstIterator<ByteStream::FreeMetadata> userfmdF;
-      SG::ConstIterator<ByteStream::FreeMetadata> userfmdL;
-      StatusCode sc = ds->retrieve( userfmdF, userfmdL);
-      if (sc.isSuccess() && userfmdF != userfmdL) {
-         ATH_MSG_DEBUG("Found ByteStreamUserMetadata in DetectorStore");
-         for (; userfmdF != userfmdL; ++userfmdF) {
-            for (ByteStream::FreeMetadata::const_iterator it = userfmdF->begin(); 
-                 it != userfmdF->end(); 
-                 ++it) {
-               ATH_MSG_DEBUG("Processing " << userfmdF.key() + "::" << it->toString());
-               freeMetaDataStrings.push_back("UMD" + ByteStreamFreeMetadataString::foldersep() + userfmdF.key() + ByteStreamFreeMetadataString::foldersep() + it->toString());
-            }
-         }
-      }
-      else {
-         ATH_MSG_WARNING("Did not find /ByteStream/Output/FreeMetadataStrings in detstore. Skipping.");
-      }
-   }
-   return;
 }
 
 //__________________________________________________________________________

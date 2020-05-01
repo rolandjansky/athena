@@ -18,9 +18,7 @@
 // forward declarations
 class EventInformation;
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace ISF {
   class ISFParticle;

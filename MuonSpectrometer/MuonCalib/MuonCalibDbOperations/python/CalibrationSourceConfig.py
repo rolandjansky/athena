@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys
 from MuonCalibDbOperations.MuonCalibDbOperationsConf import MuonCalib__MuonCalibDbCalibrationSource
@@ -14,8 +16,8 @@ class MuonCalib__CalibrationSourceConfig:
 	def __init__(self, site_name, head_id, region="", store_rt=True, store_t0=True):
 		
 		if not site_name in self.__working_schemata:
-			print "FATAL: unknown site name ", site_name
-			print "FATAL: must be one of", self.__working_schemata.keys()
+			print ("FATAL: unknown site name ", site_name)
+			print ("FATAL: must be one of", self.__working_schemata.keys())
 			sys.exit(1)
 			
 		self.UserName="ATLAS_MUONCALIBR_READER"

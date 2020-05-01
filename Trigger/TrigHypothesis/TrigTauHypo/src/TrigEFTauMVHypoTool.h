@@ -7,8 +7,8 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEFTauMVHypoTool.h"
 
 class StoreGateSvc;
@@ -50,6 +50,8 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
   Gaudi::Property<bool>  m_applyIDon0p{ this, "applyIDon0p", true, "Apply Id on 0-prong taus" };
   Gaudi::Property<int>  m_numTrack{ this, "numTrack", -100, "Tau number of tracks" };
   Gaudi::Property<int>  m_numWideTrack{ this, "numWideTrack", 1, "Tau number of wide tracks" };
+
+  Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
 
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 

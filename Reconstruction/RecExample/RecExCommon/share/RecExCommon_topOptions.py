@@ -101,13 +101,6 @@ if rec.doESDReconstruction():
     from RecAlgs.RecAlgsConf import EventInfoUnlocker
     topSequence+=EventInfoUnlocker("UnlockEventInfo")
 
-try:
-    if rec.abortOnUncheckedStatusCode():
-      svcMgr.StatusCodeSvc.AbortOnError=True
-      logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")
-except Exception:
-    logRecExCommon_topOptions.info("Did not enable aboort on unchecked status code")
-
 if rec.readESD():
     rec.readRDO = False
 
@@ -477,51 +470,13 @@ if globalflags.InputFormat.is_bytestream():
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
-        if rec.readTAG():
-            # FIXME need cleaner merger between ReadAthenaPool.py and ReadByteStream.py
+        from ByteStreamCnvSvc import ReadByteStream
 
-            # for EventType
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-            svcMgr += ByteStreamCnvSvc()
-            #EventPersistencySvc = svcMgr.EventPersistencySvc
-            svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-            # ByteStreamAddressProviderSvc
-            from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-            svcMgr += ByteStreamAddressProviderSvc()
-            ByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-
-            # proxy provider
-            from SGComps.SGCompsConf import ProxyProviderSvc
-            svcMgr += ProxyProviderSvc()
-
-            #specific for tag
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamNavigationProviderSvc
-            svcMgr += ByteStreamNavigationProviderSvc( "ByteStreamNavigationProviderSvc" )
-
-            import AthenaPoolCnvSvc.ReadAthenaPool
-
-            svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamNavigationProviderSvc" ]
-
-            EventSelector = svcMgr.EventSelector
-            # List of input collections:
-            EventSelector.InputCollections = athenaCommonFlags.FilesInput()
-            # Type of input collections:
-            EventSelector.CollectionType = "ExplicitROOT"
-            # Query applied to event tag collection metadata:
-            EventSelector.Query = athenaCommonFlags.PoolInputQuery()
-            EventSelector.RefName = "StreamRAW"
-
-
-        else: #Regular offline case:
-            from ByteStreamCnvSvc import ReadByteStream
-
-
-            # Specify input file
-            if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
-            elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+        # Specify input file
+        if len(athenaCommonFlags.FilesInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+        elif len(athenaCommonFlags.BSRDOInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")

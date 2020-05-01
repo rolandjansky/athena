@@ -23,10 +23,9 @@
 #include <limits>  /* numeric_limits */
 #include <string>
 
-namespace HepMC {
-  class GenParticle;
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
+
 class IProxyDict;
 class McEventCollection;
 

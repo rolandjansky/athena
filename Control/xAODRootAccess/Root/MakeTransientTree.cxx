@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: MakeTransientTree.cxx 796518 2017-02-10 05:11:37Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <cstring>
@@ -44,9 +40,6 @@ namespace {
    /// it's fine that we don't use ClassDef/ClassImp for it.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 796518 $
-   /// $Date: 2017-02-10 06:11:37 +0100 (Fri, 10 Feb 2017) $
    ///
    class TEventNotifier : public ::TObject {
 
@@ -104,9 +97,6 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 796518 $
-   /// $Date: 2017-02-10 06:11:37 +0100 (Fri, 10 Feb 2017) $
-   ///
    class TTransObjectHolder {
 
    private:
@@ -128,11 +118,7 @@ namespace {
          ~TTransObject() {
             // If ROOT is already deleted, then at least some of the objects
             // are probably also deleted by now.
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 6, 0 )
             if( ! ROOT::Internal::gROOTLocal ) {
-#else
-            if( ! ROOT::gROOTLocal ) {
-#endif // ROOT_VERSION
                m_obj.release();
             }
             // If we're in global cleanup, then they may also have been deleted.
@@ -255,12 +241,10 @@ namespace xAOD {
       // Go back to the original directory:
       dir->cd();
 
-      // It can happen with a TChain input that at this point the TEvent
-      // object doesn't actually have the correct file open. This should address
-      // the issue:
-      if( ( ! event.m_inTree ) && ( event.getEntry( 0 ) < 0 ) ) {
+      // Make sure that the first file/event is loaded at this point.
+      if( event.getEntry( 0 ) < 0 ) {
          ::Error( "xAOD::MakeTransientTree",
-                  XAOD_MESSAGE( "Internal logic error detected" ) );
+                  XAOD_MESSAGE( "Couldn't load first event" ) );
          return 0;
       }
 

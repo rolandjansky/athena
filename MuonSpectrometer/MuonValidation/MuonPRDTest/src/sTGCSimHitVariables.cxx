@@ -71,6 +71,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
       Identifier offId = simToOffline.convert(hit.sTGCId());
       
+
       std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(offId));
       int off_stationEta   = m_sTgcIdHelper->stationEta(offId); 
       int off_stationPhi   = m_sTgcIdHelper->stationPhi(offId);
@@ -82,8 +83,8 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       int isSmall = stName[2] == 'S';
 
       if( type == 2 && off_channel == 63) {
-	ATH_MSG_DEBUG("Found sTGC Wire Sim Hit with channel number 63 (dead region), skipping this hit");
-	continue;
+        ATH_MSG_DEBUG("Found sTGC Wire Sim Hit with channel number 63 (dead region), skipping this hit");
+        continue;
       }
 
       const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(offId);
@@ -167,6 +168,9 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
 
       // hitOnSurface.x() will be susequent smeared to simulate the detector resolution, here we do not apply any smearing
       Amg::Vector2D  posOnSurf(hitOnSurface.x(), rSurface_pos.y());
+
+      // remember whether the given hit is inside the active volume (and produces a valid digit)
+      m_NSWsTGC_isInsideBounds->push_back( surf.insideBounds(posOnSurf) );
 
       int stripNumber = detEl->stripNumber(posOnSurf,newId);
       if( stripNumber == -1 ){
@@ -254,6 +258,8 @@ StatusCode sTGCSimHitVariables::clearVariables()
 {
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId->clear();
+
+  m_NSWsTGC_isInsideBounds->clear();
 
   m_NSWsTGC_globalTime->clear();
   m_NSWsTGC_hitGlobalPositionX->clear();
@@ -368,6 +374,8 @@ void sTGCSimHitVariables::deleteVariables()
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = nullptr;
 
+  m_NSWsTGC_isInsideBounds = nullptr;
+
   m_NSWsTGC_globalTime = nullptr;
   m_NSWsTGC_hitGlobalPositionX = nullptr;
   m_NSWsTGC_hitGlobalPositionY = nullptr;
@@ -426,6 +434,8 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = new std::vector<int>();
 
+  m_NSWsTGC_isInsideBounds = new std::vector<bool>;
+
   m_NSWsTGC_globalTime = new std::vector<double>;
   m_NSWsTGC_hitGlobalPositionX = new std::vector<double>;
   m_NSWsTGC_hitGlobalPositionY = new std::vector<double>;
@@ -480,6 +490,8 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   if(m_tree) {
     m_tree->Branch("Hits_sTGC_n", &m_NSWsTGC_nSimHits, "Hits_sTGC_nSimHits/i");
     m_tree->Branch("Hits_sTGC_trackId", &m_NSWsTGC_trackId);
+
+    m_tree->Branch("Hits_sTGC_isInsideBounds", &m_NSWsTGC_isInsideBounds);
 
     m_tree->Branch("Hits_sTGC_globalTime", &m_NSWsTGC_globalTime);
     m_tree->Branch("Hits_sTGC_hitGlobalPositionX", &m_NSWsTGC_hitGlobalPositionX);

@@ -24,7 +24,7 @@
 
 //typedef
 #include "InDetRawData/PixelRDO_Container.h"
-
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 #include <string>
 
@@ -61,8 +61,11 @@ namespace InDet {
     const PixelID*                        m_id; 
 
     PixelRDO_Container*                   m_container;
+
     std::string                           m_RDO_Key;
 
+    IDCInDetBSErrContainer*               m_decodingErrors;
+    std::string                           m_decodingErrorsKey;
     //
   };
 

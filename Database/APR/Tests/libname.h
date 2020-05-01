@@ -9,23 +9,7 @@
  */
 
 #include "DataModelRoot/RootType.h"
-
-#include "RVersion.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#include "Reflex/SharedLibrary.h"
-std::string libname (const std::string &name)
-{ 
-#ifdef _WIN32 
-  return name + ".dll"; 
-#elif defined __hpux 
-  return "lib" + name + ".sl"; 
-#else 
-  return "lib" + name + ".so"; 
-#endif 
-} 
-#else
 #include "GaudiKernel/System.h"
-#endif
 
 
 namespace pool {}
@@ -37,16 +21,9 @@ void TestDriver::loadLibraries( const std::vector<std::string>& libraries )
     const std::string& library = *iLibrary;
     std::cout << "Loading library " << library << std::endl;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-    Reflex::SharedLibrary libloader( libname(library) );    
-    if(!libloader.Load()){
-      std::cout << libloader.Error() << std::endl;
-    }
-#else
     System::ImageHandle         libhandle;
     if( System::loadDynamicLib(library, &libhandle) != 1 ) {
        std::cout << "Error! library loading failed"  << std::endl;
     }
-#endif    
   }
 }

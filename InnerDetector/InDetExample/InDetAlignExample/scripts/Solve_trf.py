@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 ##
@@ -20,7 +20,14 @@
 ##
 ##########################################################################
 
-import sys, string, commands, os.path, os, pickle, time, pprint, xmlrpclib
+from __future__ import print_function
+
+import sys, string, os.path, os, pickle, time, pprint, xmlrpclib
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
 
 #########################################################################
 
@@ -45,17 +52,17 @@ def runAthena(picklefile) :
 
   t0 = time.time()
   
-  print "\n##################################################################"
-  print   "##             ATLAS Tier-0 Alignment Processing                   ##"
-  print   "##################################################################\n"
+  print ("\n##################################################################")
+  print (  "##             ATLAS Tier-0 Alignment Processing                   ##")
+  print (  "##################################################################\n")
 
   # extract parameters from pickle file
-  print "Using pickled file ", picklefile, " for input parameters"
-  f = open(picklefile, 'r')
+  print ("Using pickled file ", picklefile, " for input parameters")
+  f = open(picklefile, 'rb')
   parmap = pickle.load(f)
   f.close()
 
-  print "\nFull Tier-0 run options:\n"
+  print ("\nFull Tier-0 run options:\n")
   pprint.pprint(parmap)
 
   inputfilelist = parmap.get('inputTFiles', [])
@@ -100,7 +107,7 @@ def runAthena(picklefile) :
     ouputAlignmentConstantsdb = (parmap['outputAlignmentConstantsdb']).split('#')[1]
     
     # assemble jobOptions fragment
-    (s,o) = commands.getstatusoutput('rm -f myJobOptions.py')
+    (s,o) = subprocess.getstatusoutput('rm -f myJobOptions.py')
     jOFile = open('myJobOptions.py', 'w')
     cont = '''
 ###############################################################
@@ -244,11 +251,11 @@ if len(loadInDetRec_Options["inputPoolFiles"]):
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += CondProxyProvider()
     ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-    print 'Loading initial alignment File'
-    print 'Loading: ', loadInDetRec_Options["inputPoolFiles"]
+    print ('Loading initial alignment File')
+    print ('Loading: ', loadInDetRec_Options["inputPoolFiles"])
     ServiceMgr.CondProxyProvider.InputCollections = loadInDetRec_Options["inputPoolFiles"]
     ServiceMgr.CondProxyProvider.OutputLevel=INFO
-    print ServiceMgr.CondProxyProvider
+    print (ServiceMgr.CondProxyProvider)
     IOVSvc = Service("IOVSvc")
     IOVSvc.preLoadData = True
     ServiceMgr.PoolSvc.AttemptCatalogPatch = True
@@ -265,9 +272,9 @@ if loadInDetRec_Options["beamSpotTag"]:
 
 if loadInDetRec_Options["TRTCalibTextFile"]:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
+
 
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )
@@ -302,16 +309,16 @@ include("InDetAlignExample/NewInDetAlignAlgSetup.py")
     # run athena
     cmd = "python -u `which athena.py` myJobOptions.py"
 
-    print "\nRun command:"
-    print cmd
-    print "\nLogfile:"
-    print "------------------------------------------------------------------"
+    print ("\nRun command:")
+    print (cmd)
+    print ("\nLogfile:")
+    print ("------------------------------------------------------------------")
     retcode = os.system(cmd)
-    print "------------------------------------------------------------------"
+    print ("------------------------------------------------------------------")
     dt = int(time.time() - t0)
 
-    print "\n## athena.py finished with retcode = %s" % retcode
-    print   "## ... elapsed time: ", dt, " sec"
+    print ("\n## athena.py finished with retcode = %s" % retcode)
+    print (  "## ... elapsed time: ", dt, " sec")
 
     # Move alignment constants db file
     os.system("mv mycool.db %s\n" % ouputAlignmentConstantsdb)
@@ -328,7 +335,7 @@ include("InDetAlignExample/NewInDetAlignAlgSetup.py")
       fmap = getFileMap(outfile, outdsname, nevts=nevts)
       outfiles = [fmap]
     if retcode != 0 :
-      print "ERROR: athena.py execution problem!"
+      print ("ERROR: athena.py execution problem!")
       acronym = 'TRF_ATHENA_EXE'
       txt = "athena.py execution problem"
 
@@ -342,13 +349,13 @@ include("InDetAlignExample/NewInDetAlignAlgSetup.py")
              }
   
   # pickle report map
-  f = open('jobReport.gpickle', 'w')
+  f = open('jobReport.gpickle', 'wb')
   pickle.dump(outmap, f)
   f.close()
 
-  print "\n##################################################################"
-  print   "## End of job."
-  print   "##################################################################\n"
+  print ("\n##################################################################")
+  print (  "## End of job.")
+  print (  "##################################################################\n")
 
 
 ########################################
@@ -358,13 +365,13 @@ include("InDetAlignExample/NewInDetAlignAlgSetup.py")
 if __name__ == "__main__":
 
   if (len(sys.argv) != 2) and (not sys.argv[1].startswith('--argdict=')) :
-    print "Input format wrong --- use "
-    print "   --argdict=<pickled-dictionary containing input info> "
-    print "   with key/value pairs: "
-    print "     1) 'inputFiles': python list "
-    print "          ['datasetname#filename1','datasetname#filename2',...] (input dataset + file names) "
-    print "     2) 'outputFile': string 'datasetname#filename' "
-    print "        (merged output dataset name + file) "
+    print ("Input format wrong --- use ")
+    print ("   --argdict=<pickled-dictionary containing input info> ")
+    print ("   with key/value pairs: ")
+    print ("     1) 'inputFiles': python list ")
+    print ("          ['datasetname#filename1','datasetname#filename2',...] (input dataset + file names) ")
+    print ("     2) 'outputFile': string 'datasetname#filename' ")
+    print ("        (merged output dataset name + file) ")
     sys.exit(-1)
   
   else :

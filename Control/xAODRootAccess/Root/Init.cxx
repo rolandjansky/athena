@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: Init.cxx 796983 2017-02-14 05:09:12Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <iostream>
@@ -19,18 +15,6 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-
-// Integrate with Apple's crash reporter. Taken directly from ROOT's TError.cxx.
-// Disabled for now, as it doesn't seem to make any difference on top of 6.02/12
-// on MacOS X 10.10.4.
-#ifdef __APPLE__
-/*
-extern "C" {
-   static const char* __crashreporter_info__ = 0;
-   asm( ".desc ___crashreporter_info__, 0x10" );
-}
-*/
-#endif // __APPLE__
 
 namespace xAOD {
 
@@ -108,11 +92,7 @@ namespace xAOD {
       }
 
       // Source of the missing dictionary warnings:
-#if ROOT_VERSION_CODE < ROOT_VERSION( 6, 0, 2 )
-      static const char* DICT_WARNING_SOURCE = "TClass::TClass";
-#else
       static const char* DICT_WARNING_SOURCE = "TClass::Init";
-#endif // ROOT_VERSION
 
       // Filter out warnings about missing dictionaries. As these are relatively
       // common. In case a problem occurs because of a missing dictionary, some
@@ -153,15 +133,6 @@ namespace xAOD {
       if( ! abort ) {
          return;
       }
-
-#ifdef __APPLE__
-      /*
-      if( __crashreporter_info__ ) {
-         delete[] __crashreporter_info__;
-      }
-      __crashreporter_info__ = StrDup( output.str().c_str() );
-      */
-#endif // __APPLE__
 
       // Abort with a stack trace if possible:
       std::cout << std::endl << "Aborting..." << std::endl;

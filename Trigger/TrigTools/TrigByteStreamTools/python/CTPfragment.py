@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Minimal python module for CTP fragment access/modification
 
 For C++ implementation see:
-https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/DataFlow/CTPfragment/trunk/CTPfragment/
+https://gitlab.cern.ch/atlas-tdaq-software/CTPfragment
 """
 
 import sys
@@ -18,6 +18,7 @@ cppyy.loadDictionary('TrigByteStreamToolsDict')
 cppyy.loadDictionary('CTPfragment')
 from ROOT import CTPdataformat
 from ROOT import CTPfragment as _CTPfragment
+from ROOT.CTPfragment import getFolderUpdates  # noqa: F401  (import into our namespace)
 
 # Import classes from C++ namespace
 FolderEntry = _CTPfragment.FolderEntry

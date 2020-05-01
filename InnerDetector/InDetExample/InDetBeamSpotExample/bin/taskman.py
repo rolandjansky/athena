@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 taskman is a command line utility to run TaskManager functions.
 """
@@ -29,10 +32,14 @@ deleteTask DSNAME TASKNAME        Delete task files and corresponding TaskManage
                                   option --batch is used)
 '''
 
-import sys, os, stat, commands
+import sys, os, stat
 import pprint
 from InDetBeamSpotExample.TaskManager import *
 from InDetBeamSpotExample.Utils import getRunFromName
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 from optparse import OptionParser
@@ -63,7 +70,7 @@ def getTaskManager(dbconn=None):
     try:
         return TaskManager(dbconn)
     except:
-        print 'ERROR: Unable to access task manager database %s' % dbconn
+        print ('ERROR: Unable to access task manager database %s' % dbconn)
         sys.exit(1)
 
 #
@@ -75,21 +82,21 @@ if cmd == 'init':
         dbtype, dbname = TaskManager.parseConnectionInfo(options.dbconn)
     except ValueError as e:
         sys.exit('ERROR: {}'.format(e))
-    print 'Will initialise schema for database: {}:{}'.format(dbtype, dbname)
+    print ('Will initialise schema for database: {}:{}'.format(dbtype, dbname))
 
-    print
-    print 'Checking for existing database ...'
+    print()
+    print ('Checking for existing database ...')
     try:
         with TaskManager(options.dbconn): pass
     except ValueError as e:
-        print 'Test connection failed: {}'.format(e)
+        print ('Test connection failed: {}'.format(e))
     else:
-        print 'Test connection succeeded: the database already exists!'
+        print ('Test connection succeeded: the database already exists!')
 
     if not options.batch:
         a = raw_input('\nRECREATING TASK DATABASE SCHEMA - ANY EXISTING DATA WILL BE ERASED!\n\nARE YOU REALLY ABSOLUTELY SURE [n] ? ')
         if a != 'y': sys.exit('ERROR: Rebuilding aborted by user')
-        print
+        print()
     with TaskManager(options.dbconn, createDatabase=True): pass
     sys.exit(0)
 
@@ -108,31 +115,31 @@ if cmd == 'checkdb':
     if not os.path.exists(dbfile):
         sys.exit('ERROR: SQLite file %s does not exist' % dbfile)
 
-    (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+    (status, output) = subprocess.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
     if status != 0:
         sys.exit('ERROR: Error executing sqlite3 command')
     if output != 'ok':
-        print 'ERROR: SQLite database file has errors:'
-        print output
-        print
+        print ('ERROR: SQLite database file has errors:')
+        print (output)
+        print()
 
         if not options.batch:
             a = raw_input('Do you want to try VACUUM [n] ? ')
             if a != 'y':
                 sys.exit('\nERROR: VACUUM not executed - please fix database file manually')
-        (status, output) = commands.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
-        print output
+        (status, output) = subprocess.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
+        print (output)
         if status != 0:
             sys.exit('ERROR: VACUUM failed')
 
-        (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+        (status, output) = subprocess.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
         if status != 0 or output != 'ok':
-            print output
+            print (output)
             sys.exit('ERROR: Integrity check still failed - please check')
-        print 'INFO: SQLite file now passes integrity test (content may still have errors)'
+        print ('INFO: SQLite file now passes integrity test (content may still have errors)')
         sys.exit(2)
 
-    print 'INFO: SQLite file {} ok'.format(dbfile)
+    print ('INFO: SQLite file {} ok'.format(dbfile))
     sys.exit(0)
 
 
@@ -147,13 +154,13 @@ if cmd == 'checkdup':
         for t in taskman.taskIter('dsname,taskname,count(*)', ['group by dsname,taskname']):
             if t[2] > 1:
                 nDuplicates += 1
-                print 'Duplicate task:  {} / {}'.format(t[0], t[1])
+                print ('Duplicate task:  {} / {}'.format(t[0], t[1]))
                 for d in taskman.taskIterDict(qual=[
                     'where DSNAME =', DbParam(t[0]),
                     'and TASKNAME =', DbParam(t[1]),
                     'order by taskid']):
-                    print '   TASKID =', d['TASKID']
-    print nDuplicates, 'duplicates found'
+                    print ('   TASKID =', d['TASKID'])
+    print (nDuplicates, 'duplicates found')
     sys.exit(0)
 
 
@@ -163,16 +170,16 @@ if cmd == 'checkdup':
 if cmd == 'dump':
     if not cmdargs:
         with getTaskManager() as taskman:
-            print taskman.getNTasks(),'task(s) found:\n'
+            print (taskman.getNTasks(),'task(s) found:\n')
             if options.pretty:
                 for t in taskman.taskIterDict():
-                    print '\n\nTask {}  /  {}:\n'.format(
+                    print ('\n\nTask {}  /  {}:\n'.format(
                             t['DSNAME'],
-                            t['TASKNAME'])
-                    print pprint.pformat(t)
+                            t['TASKNAME']))
+                    print (pprint.pformat(t))
             else:
                 for t in taskman.taskIter():
-                    print t
+                    print (t)
         sys.exit(0)
 
     elif len(cmdargs) == 2:
@@ -183,17 +190,17 @@ if cmd == 'dump':
             try:
                 taskList = getFullTaskNames(taskman, dsname, taskname,
                         addWildCards=not options.nowildcards)
-            except TaskManagerCheckError, e:
+            except TaskManagerCheckError as e:
                 sys.exit(e)
             for t in taskList:
                 taskEntry = taskman.getTaskDict(t[0], t[1])
                 if options.pretty is None or options.pretty:
-                    print '\n\nTask {}  /  {}:\n'.format(
+                    print ('\n\nTask {}  /  {}:\n'.format(
                             taskEntry['DSNAME'],
-                            taskEntry['TASKNAME'])
-                    print pprint.pformat(taskEntry)
+                            taskEntry['TASKNAME']))
+                    print (pprint.pformat(taskEntry))
                 else:
-                    print taskEntry
+                    print (taskEntry)
         sys.exit(0)
 
     else: parser.error('Command dump takes either 0 or 2 arguments')
@@ -208,15 +215,15 @@ if cmd=='show' and (len(args)==2 or len(args)==3):
     try:
         with getTaskManager() as taskman:
             taskList = getFullTaskNames(taskman,dsname,taskname,addWildCards=not options.nowildcards)
-        print
-        print "    %-50s  %s" % ('DATASET NAME','TASK NAME')
-        print "    %s" % (75*'-')
+        print()
+        print ("    %-50s  %s" % ('DATASET NAME','TASK NAME'))
+        print ("    %s" % (75*'-'))
         for t in taskList:
-            print "    %-50s  %s" % (t[0],t[1])  
-        print '\n%i task(s) found\n' % len(taskList)
+            print ("    %-50s  %s" % (t[0],t[1])  )
+        print ('\n%i task(s) found\n' % len(taskList))
         sys.exit(0)
-    except TaskManagerCheckError, e:
-        print e
+    except TaskManagerCheckError as e:
+        print (e)
         sys.exit(1)
 
 
@@ -233,7 +240,7 @@ if cmd=='update' and len(args)==1:
                 TaskManager.OnDiskCodes['ARCHIVED'])]):
             a = TaskAnalyzer(proddir, t['DSNAME'], t['TASKNAME'])
             if a.analyzeFiles():
-                print 'Updating task {}/{}'.format(t['DSNAME'], t['TASKNAME'])
+                print ('Updating task {}/{}'.format(t['DSNAME'], t['TASKNAME']))
                 a.updateStatus(taskman)
             else:
                 taskman.setDiskStatus(t['DSNAME'], t['TASKNAME'],
@@ -244,13 +251,13 @@ if cmd=='update' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         for t in taskList:
             a = TaskAnalyzer(proddir,t[0],t[1])
             if a.analyzeFiles():
-                print 'Updating task %s/%s' % (t[0],t[0])
+                print ('Updating task %s/%s' % (t[0],t[0]))
                 a.updateStatus(taskman)
             else:
                 taskman.setDiskStatus(t[0],t[0],TaskManager.OnDiskCodes['DELETED'])
@@ -270,16 +277,16 @@ if cmd == 'rebuild':
     else:
         parser.error('Command rebuild takes 0 or 2 arguments')
 
-    print 'Will reconstruct database from directory: {}'.format(taskpath)
-    print
+    print ('Will reconstruct database from directory: {}'.format(taskpath))
+    print()
 
     with getTaskManager() as taskman:
         dirs = []
         if not options.batch:
-            print 'Rebuilding the following tasks:'
-            print
-            print  '    DB  {:50}  {}'.format('DATASET NAME','TASK NAME')
-            print '    {}'.format(85 * '-')
+            print ('Rebuilding the following tasks:')
+            print()
+            print ( '    DB  {:50}  {}'.format('DATASET NAME','TASK NAME'))
+            print ('    {}'.format(85 * '-'))
             for p in glob.glob(taskpath):
                 if not os.path.isdir(p): continue
                 (dsName, taskName) = p.split('/')[-2:]
@@ -289,23 +296,23 @@ if cmd == 'rebuild':
                 dirs.append((dsName, taskName, nDefined))
 
                 if nDefined == 0:
-                    print '        {:50}  {}'.format(dsName, taskName)
+                    print ('        {:50}  {}'.format(dsName, taskName))
                 elif options.verbose:
-                    print '    *   {:50}  {}'.format(dsName, taskName)
+                    print ('    *   {:50}  {}'.format(dsName, taskName))
 
             a = raw_input('\nARE YOU SURE [n] ? ')
             if a != 'y':
                 sys.exit('ERROR: Rebuilding aborted by user')
-            print
+            print()
 
         for (dsName, taskName, nDefined) in dirs:
             if nDefined == 0:
-                print 'Adding missing entry for task {}/{}'.format(dsName, taskName)
+                print ('Adding missing entry for task {}/{}'.format(dsName, taskName))
                 configFile = glob.glob(os.path.join(proddir, dsName, taskName, '*', '*.config.py'))
                 if configFile:
                     mtime = os.stat(configFile[0])[stat.ST_MTIME]
                     config = {}
-                    execfile(configFile[0], config)    # Eval config file and put defs into config dict
+                    exec(compile(open(configFile[0]).read()), config)
                     try:
                         template = config['jobConfig']['joboptionpath']
                     except KeyError:
@@ -328,7 +335,7 @@ if cmd == 'rebuild':
                             createdHost='UNKNOWN',
                             comment=comment)
                 else:
-                    print 'WARNING: no config file found, unable to determine task creation time and configuration details'
+                    print ('WARNING: no config file found, unable to determine task creation time and configuration details')
                     # Should we still add such a task - most likely this is a directory of files, e.g. some AOD or ESD files
                     taskman.addTask(dsName, taskName, 'UNKNOWN', 'UNKNOWN', 0,
                             comment='rebuilt, no config file found')
@@ -336,9 +343,9 @@ if cmd == 'rebuild':
                 a.analyzeFiles()
                 a.updateStatus(taskman)
             elif nDefined == 1:
-                print 'Entry exists already for task {}/{} - SKIPPED'.format(dsName, taskName)
+                print ('Entry exists already for task {}/{} - SKIPPED'.format(dsName, taskName))
             elif nDefined > 1:
-                print 'ERROR: {:d} conflicting task entries for task {}/{} - SKIPPED'.format(nDefined, dsName, taskName)
+                print ('ERROR: {:d} conflicting task entries for task {}/{} - SKIPPED'.format(nDefined, dsName, taskName))
     sys.exit(0)
 
 
@@ -374,17 +381,17 @@ if cmd == 'import':
         fromDbtype, fromDbname = TaskManager.parseConnectionInfo(fromDbconn)
     except ValueError as e:
         sys.exit('ERROR: Bad database connection string {}'.format(e))
-    print
-    print 'Import from: {}:{}'.format(fromDbtype, fromDbname)
-    print 'Import into: {}:{}'.format(destDbtype, destDbname)
-    print
+    print()
+    print ('Import from: {}:{}'.format(fromDbtype, fromDbname))
+    print ('Import into: {}:{}'.format(destDbtype, destDbname))
+    print()
 
     with getTaskManager() as taskman:
         with getTaskManager(fromDbconn) as fromman:
             nImported = 0
             qual.append('order by RUNNR desc')
             for t in fromman.taskIterDict(qual=qual):
-                print 'Importing ', t['DSNAME'], '/' , t['TASKNAME'], '...'
+                print ('Importing ', t['DSNAME'], '/' , t['TASKNAME'], '...')
                 if not 'RUNNR' in t.keys():
                     # Fill run number from DSNAME
                     t['RUNNR'] = getRunFromName(t['DSNAME'], None, True)
@@ -439,8 +446,8 @@ if cmd == 'import':
                 q.append(')')
                 taskman.execute(q, True)
                 nImported += 1
-    print
-    print '{:d} tasks imported'.format(nImported)
+    print()
+    print ('{:d} tasks imported'.format(nImported))
     sys.exit(0)
 
 
@@ -455,23 +462,23 @@ if cmd == 'setstatus':
 
     status = TaskManager.StatusCodes.get(statusName)
     if status:
-        print 'Setting task status to {} (code {:d})'.format(statusName,status)
+        print ('Setting task status to {} (code {:d})'.format(statusName,status))
     else:
         sys.exit('ERROR: Illegal status code name {}'.format(statusName))
-    print
+    print()
 
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman, dsname, taskname,
                     confirmWithUser=not options.batch,
                     addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
+        except TaskManagerCheckError as e:
             sys.exit(e)
 
         n = 0
         for t in taskList:
             n += taskman.setValue(t[0], t[1], 'STATUS', status)
-    print '%i task status entries updated\n' % (n)
+    print ('%i task status entries updated\n' % (n))
     sys.exit(0)
 
 
@@ -485,18 +492,18 @@ if cmd == 'setfield':
     fieldName = cmdargs[2].upper()
     fieldValue = cmdargs[3]
 
-    print 'Setting field %s to:   %s' % (fieldName,fieldValue)
-    print
+    print ('Setting field %s to:   %s' % (fieldName,fieldValue))
+    print()
     with getTaskManager() as taskman:
         try:
             [(dsname,task)] = getFullTaskNames(taskman, dsname, taskname,
                     requireSingleTask=True,
                     confirmWithUser=not options.batch,
                     addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
+        except TaskManagerCheckError as e:
             sys.exit(e)
         n = taskman.setValue(dsname,task,fieldName,fieldValue)
-    print '{:d} task status entries updated'.format(n)
+    print ('{:d} task status entries updated'.format(n))
     sys.exit(0)
 
 
@@ -507,13 +514,13 @@ if cmd=='delete' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         n = 0
         for t in taskList:
             n += taskman.deleteTask(t[0],t[1])
-    print '\n%i task entries deleted\n' % (n)
+    print ('\n%i task entries deleted\n' % (n))
     sys.exit(0)
 
 # List results for selected sets of tasks
@@ -522,13 +529,13 @@ if cmd=='listResults' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         for t in taskList:
-            print 'Listing results for task %s/%s ...' % (t[0],t[1]) 
-            print taskman.getTaskValue(t[0],t[1],'RESULTFILES')
-            print taskman.getTaskValue(t[0],t[1],'RESULTLINKS')
+            print ('Listing results for task %s/%s ...' % (t[0],t[1]) )
+            print (taskman.getTaskValue(t[0],t[1],'RESULTFILES'))
+            print (taskman.getTaskValue(t[0],t[1],'RESULTLINKS'))
     sys.exit(0)
 
 
@@ -540,11 +547,11 @@ if cmd=='deleteResults' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         for t in taskList:
-            print 'Deleting results for task %s/%s ...' % (t[0],t[1]) 
+            print ('Deleting results for task %s/%s ...' % (t[0],t[1]) )
             taskman.setValue(t[0],t[1],'RESULTFILES','')
             taskman.setValue(t[0],t[1],'RESULTLINKS','')
     sys.exit(0)
@@ -557,23 +564,23 @@ if cmd=='deleteTask' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,requireSingleTask=True,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         dir = '/'.join([proddir,dsname,task])
-        print
+        print()
         if os.path.exists(dir):
             os.system('du -hs %s' % dir)
         else:
-            print 'No task files found (no directory %s)' % dir
+            print ('No task files found (no directory %s)' % dir)
         if not options.batch:
             a = raw_input('\nDeleteing task entry and all files - ARE YOU SURE [n] ? ')
             if a!='y':
-                print "ERROR: Deletion aborted by user."
+                print ("ERROR: Deletion aborted by user.")
                 sys.exit(1)
         n = taskman.deleteTask(dsname,task)
-    print '\n%i task entry deleted.' % (n)
-    print 'Deleting ',dir,' ...'
+    print ('\n%i task entry deleted.' % (n))
+    print ('Deleting ',dir,' ...')
     os.system('rm -rf %s' % dir)
     sys.exit(0)
 
@@ -591,7 +598,7 @@ if cmd=='notifyFailed' and len(args)<3:
                                            "order by RUNNR desc"]):
 
             # Change status to string version
-            t['STATUS'] = [k for k, v in TaskManager.StatusCodes.iteritems() if v == t['STATUS']][0]
+            t['STATUS'] = [k for k, v in TaskManager.StatusCodes.items() if v == t['STATUS']][0]
             taskList.append(t)
 
     if taskList:
@@ -611,7 +618,7 @@ if cmd=='notifyFailed' and len(args)<3:
         stat = os.system('source /afs/cern.ch/user/a/atlidbs/cron/mailwrapper; mailwrapper "[atlidbs] %s tasks report failures" "%s"' %(len(taskList), mailBody)) >> 8
 
         if stat:
-            print '\nERROR: Unable to send mail\n'
+            print ('\nERROR: Unable to send mail\n')
 
     sys.exit(0)
 
@@ -625,9 +632,9 @@ if cmd=='debug' and len(args)==1:
     taskman = getTaskManager()
     taskman.debug = True
     os.environ['PYTHONINSPECT'] = '1'
-    print
-    print 'Entering python shell. taskman is the TaskManager object. Be careful!'
-    print
+    print()
+    print ('Entering python shell. taskman is the TaskManager object. Be careful!')
+    print()
 else:
-    print 'ERROR: Illegal command or number of arguments'
+    print ('ERROR: Illegal command or number of arguments')
     sys.exit(1)

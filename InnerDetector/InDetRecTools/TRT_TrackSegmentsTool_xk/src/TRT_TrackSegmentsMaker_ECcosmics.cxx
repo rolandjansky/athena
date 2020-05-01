@@ -194,7 +194,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::finalize()
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
-InDet::TRT_TrackSegmentsMaker_ECcosmics::newEvent () const
+InDet::TRT_TrackSegmentsMaker_ECcosmics::newEvent (const EventContext& /*ctx*/) const
 {
 
   std::unique_ptr<TRT_TrackSegmentsMaker_ECcosmics::EventData>
@@ -241,7 +241,7 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::newEvent () const
 
 std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
 InDet::TRT_TrackSegmentsMaker_ECcosmics::newRegion
-(const std::vector<IdentifierHash>& vTRT) const
+(const EventContext& /*ctx*/, const std::vector<IdentifierHash>& vTRT) const
 {
   (void) vTRT;
   std::unique_ptr<TRT_TrackSegmentsMaker_ECcosmics::EventData>
@@ -340,7 +340,7 @@ namespace InDet{
 // Methods of TRT segment reconstruction in one event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ECcosmics::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
+void InDet::TRT_TrackSegmentsMaker_ECcosmics::find(const EventContext & /*ctx*/, InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
   TRT_TrackSegmentsMaker_ECcosmics::EventData &
      event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getPrivateEventData(virt_event_data);

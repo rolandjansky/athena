@@ -192,7 +192,7 @@ void TestTrigSF::CheckSF(const xAOD::Muon *ptr)
 
     std::string key = "endcap";
 
-    if (std::fabs(ptr->eta()) < 1.05) {
+    if (std::abs(ptr->eta()) < 1.05) {
         h = m_barrel_sf;
         h_stat_up = m_barrel_sf_err_stat_up;
         h_stat_dw = m_barrel_sf_err_stat_dw;
@@ -272,7 +272,7 @@ void TestTrigSF::FillHist(TH2 *h, const xAOD::Muon *ptr, double val)
 
     if (hcont > 0.0) {
 
-        if (std::fabs(hcont - val) > 0.0001) {
+        if (std::abs(hcont - val) > 0.0001) {
             msg(MSG::WARNING) << " hist=" << h->GetName() << "   content=" << hcont << " != val=" << val << endmsg;
         }
     }

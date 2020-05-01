@@ -27,7 +27,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"

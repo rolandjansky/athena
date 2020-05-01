@@ -5,7 +5,7 @@
 */
 
 #include "MuonChainFilterAlg.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 
 MuonChainFilterAlg::MuonChainFilterAlg(const std::string& name, ISvcLocator* pSvcLocator )

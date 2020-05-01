@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
@@ -1139,35 +1139,30 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     oldcard = open(reweight_card+'.old','r')
     newcard = open(reweight_card,'w')
     changed = False
-    nrwgt = 1
+    info_expression=r'launch.*--rwgt_info\s*=\s*(\S+).*'
+    name_expression=info_expression.replace('info','name')
+    goodname_expression=r'^[A-Za-z0-9_\-.]+$'
     for line in oldcard:
+        # we are only interested in the 'launch' line
         if not line.strip().startswith('launch') :
             newcard.write(line)
         else:
-            # if both rwgt_info and name are given, fine
-            if '--rwgt_info' in line and '--rwgt_name' in line:
+            rwgt_name_match=re.match(name_expression,line.strip())
+            rwgt_info_match=re.match(info_expression,line.strip())
+            if rwgt_name_match is None and rwgt_info_match is None:
+                raise RuntimeError('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Line to fix: '+line)
+            for match in [rwgt_info_match,rwgt_name_match]:
+                if match is None:
+                    continue
+                if len(match.groups())!=1:
+                    raise RuntimeError('Unexpected format of reweight card in line: '+line)
+                if not re.match(goodname_expression,match.group(1)):
+                    raise RuntimeError('No special character in reweighting info/name, only allowing '+goodname_expression)
+            if rwgt_info_match is not None:
                 newcard.write(line)
-            # if only one of the two is defined, set the other to the same value
-            elif '--rwgt_info' in line:
-                m=re.match(r'launch\s*--rwgt_info\s*=\s*([\s\S]+)',line.strip())
-                if m is None or len(m.groups())!=1:
-                    raise RuntimeError('Unexpected format of reweight card')
-                else:
-                    newcard.write(line.strip()+' --rwgt_name='+m.group(1).strip()+'\n')
-                    changed=True
-            elif '--rwgt_name' in line:
-                m=re.match(r'launch\s*--rwgt_name\s*=\s*([\s\S]+)',line.strip())
-                if m is None or len(m.groups())!=1:
-                    raise RuntimeError('Unexpected format of reweight card')
-                else:
-                    newcard.write(line.strip()+' --rwgt_info='+m.group(1).strip()+'\n')
-                    changed=True
-            # if none is defined: complain
-            else:
-                mglog.warning('Every reweighting launch needs a --rwgt_name (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Added a dummy name for now.')
-                newcard.write(line.strip()+' --rwgt_name=dummy_rwgt_name_{0}  --rwgt_info=dummy_rwgt_info_{0}\n'.format(nrwgt))
-                nrwgt+=1
-
+            elif rwgt_name_match is not None:
+                newcard.write(line.strip()+' --rwgt_info={0}\n'.format(rwgt_name_match.group(1)))
+                changed=True
     if changed:
         mglog.info('Updated reweight_card')
     newcard.close()
@@ -1419,6 +1414,21 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
     return lhe_file_new_tmp
 
 
+def find_key_and_update(akey,dictionary):
+    """ Helper function when looking at param cards
+    In some cases it's tricky to match keys - they may differ
+    only in white space. This tries to sort out when we have
+    a match, and then uses the one in blockParams afterwards.
+    In the case of no match, it returns the original key.
+    """
+    test_key = ' '.join(akey.strip().replace('\t',' ').split())
+    for key in dictionary:
+        mod_key = ' '.join(key.strip().replace('\t',' ').split())
+        if mod_key==test_key:
+            return key
+    return akey
+
+
 def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
@@ -1468,7 +1478,13 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
-            akey = line.strip().split()[0]
+            # The line is already without the comment.
+            # In the case of mixing matrices this is a bit tricky
+            if len(line.split())==2:
+                akey = line.upper().strip().split()[0]
+            else:
+                # Take everything but the last word
+                akey = line.upper().strip()[:line.strip().rfind(' ')].strip()
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
         if akey is None:
@@ -1480,6 +1496,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
            newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
+        # Check the spacing in the key
+        akey = find_key_and_update(akey,blockParams)
 
         # look for a string key, which would follow a #
         stringkey = None
@@ -1539,7 +1557,7 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
     newcard.close()
 
 
-def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,runArgs=None,settings={}):
+def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,runArgs=None,settings={},skipBaseFragment=False):
     """Build a new run_card.dat from an existing one.
     This function can get a fresh runcard from DATAPATH or start from the process directory.
     Settings is a dictionary of keys (no spaces needed) and values to replace.
@@ -1556,7 +1574,8 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     # guess NLO
     isNLO=is_NLO_run(process_dir=process_dir)
     # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
-    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,settings,isNLO)
+    if not skipBaseFragment:
+        MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,settings,isNLO)
 
     # Get some info out of the runArgs
     if runArgs is not None:
@@ -1786,8 +1805,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
     if not checkSetting('event_norm','average',mydict):
         modify_run_card(process_dir=process_dir,settings={'event_norm':'average'})
-    # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
-    # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
+        mglog.warning("setting event_norm to average, there is basically no use case where event_norm=sum is a good idea")
 
     if not isNLO:
         #Check CKKW-L setting
@@ -1810,7 +1828,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
                 syst_settings_update={'systematics_arguments':syst_arguments}
                 for s in syscalc_settings:
                     syst_settings_update[s]=None
-                modify_run_card(process_dir=process_dir,settings=syst_settings_update)
+                modify_run_card(process_dir=process_dir,settings=syst_settings_update,skipBaseFragment=True)
 
 
     # usually the pdf and systematics should be set during modify_run_card
@@ -1819,7 +1837,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     if not MadGraphSystematicsUtils.base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
         # still need to set pdf and systematics
         syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
-        modify_run_card(process_dir=process_dir,settings=syst_settings)
+        modify_run_card(process_dir=process_dir,settings=syst_settings,skipBaseFragment=True)
 
     mydict_new=getDictFromCard(cardpath)
     if 'systematics_arguments' in mydict_new:
@@ -1827,7 +1845,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
         if 'weight_info' not in systematics_arguments:
             mglog.info('Enforcing systematic weight name convention')
             systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
-            modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)})
+            modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)},skipBaseFragment=True)
 
     if not isNLO:
         if 'python_seed' not in mydict:

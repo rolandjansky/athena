@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #James Walder
+
+from __future__ import print_function
+
 
 __doc__ ="""Simple Transform to understand what goes on"""
 
@@ -18,7 +21,7 @@ class BeamSpotVertexTransform( JobTransform ):
                               skeleton = 'InDetBeamSpotExample/skeleton.BeamSpotVertex.py',
                               help    = __doc__)
                               #,config = recConfig)
-        print "JW: In Init"
+        print ("JW: In Init")
         self.add( InputDPDFileArg(name='InputDESDM_BEAMSPOTFile'))
         self.add( NtupleFileArg(name='beamspotFile'))
         self.add( NtupleFileArg(name='monitoringFile'),default='mon.root')
@@ -32,10 +35,10 @@ class BeamSpotVertexTransform( JobTransform ):
 
         
     def doPostRunActions(self):
-        print "JW: in PostRun"
+        print ("JW: in PostRun")
         
 
 if __name__ == '__main__':
-    print "JW: Run from Main"
+    print ("JW: Run from Main")
     trf = BeamSpotVertexTransform()
     sys.exit(trf.exeSysArgs().exitCode())

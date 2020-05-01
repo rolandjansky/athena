@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
      addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
@@ -18,9 +18,8 @@ addTypesOnlyToSkip( "ICaloNoiseTool" )
 # Tools from other packages
 ################################################################################
 
-# put this here until it is set in the appropriate package
+# put this here until it is set in the appropriate package (needed for Trigger_topOptions_standalone.py", line 141)
 addTool("TrkExTools.AtlasExtrapolator.AtlasExtrapolator","AtlasExtrapolator")
-
 
 ################################################################################
 # Tools from MuonRecExample.MuonRecTools
@@ -63,7 +62,7 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
-addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
@@ -86,7 +85,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2TrackFitter
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitter", StraightLine=True )
 
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentum", "MuonSegmentMomentum" )
-addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField")
     
 addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" )
 
@@ -235,6 +234,10 @@ addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMCl
 addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
 
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
+
+addTool("NSWCalibTools.NSWCalibToolsConfig.MMCalibSmearingTool","MMCalibSmearingTool")
+addTool("NSWCalibTools.NSWCalibToolsConfig.STgcCalibSmearingTool","STgcCalibSmearingTool")
+addTool("NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool")
 
 ################################################################################
 # Tools from MuonRecExample.MuPatTools

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ SLHC_Setup
     Python module to hold storegate keys of InDet objects.
@@ -46,10 +48,10 @@ class SLHC_Setup :
             database_file_path = self.search_file(database_file,data_path)
             dict_file_path = self.search_file(dict_file,data_path)
             # screen output
-            print '[ SLHC ] Local geometry database: ',database_file
-            print '           - found in: ',database_file_path
-            print '[ SLHC ] Local dictionary: ',dict_file
-            print '           - found in: ',dict_file_path
+            print ('[ SLHC ] Local geometry database: ',database_file)
+            print ('           - found in: ',database_file_path)
+            print ('[ SLHC ] Local dictionary: ',dict_file)
+            print ('           - found in: ',dict_file_path)
 
             # the database 
             database_full_path_name = database_file_path+'/'+database_file
@@ -66,7 +68,7 @@ class SLHC_Setup :
             os.environ["LocalSlhcGeometryDatabase"]=database_full_path_name
 
         else:
-            print 'SLHC_Setup: Geometry coming fully from database'
+            print ('SLHC_Setup: Geometry coming fully from database')
             
 
         # GeoModelConfiguration 
@@ -87,13 +89,13 @@ class SLHC_Setup :
                 fileName=xmlFileDict[subDet][key]+".xml"
                 envName=subDet.upper()+"_"+key+"_GEO_XML"
                 os.environ[envName]=fileName
-                print "ENV ",envName," ",fileName
+                print ("ENV ",envName," ",fileName)
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
-        print "******************************************************************************************"
-        print "PixelGeoModel - import module and design tools"
+        print ("******************************************************************************************")
+        print ("PixelGeoModel - import module and design tools")
         # Service used to build module geometry
         from PixelModuleTool.PixelModuleToolConf import PixelModuleBuilder
         moduleGeomBuilder=PixelModuleBuilder(name="PixelModuleSvc")
@@ -104,8 +106,8 @@ class SLHC_Setup :
         moduleDesignBuilder=PixelDesignBuilder(name="PixelDesignSvc")
         svcMgr+=moduleDesignBuilder
 
-        print "******************************************************************************************"
-        print "PixelGeoModel - import PixelServiceTool"
+        print ("******************************************************************************************")
+        print ("PixelGeoModel - import PixelServiceTool")
         from PixelServicesTool.PixelServicesToolConf import PixelServicesTool
         serviceTool=PixelServicesTool(name="PixelServicesTool")
         serviceTool.ReadSvcFromDB = True
@@ -113,8 +115,8 @@ class SLHC_Setup :
         serviceTool.BarrelModuleMaterial = True
         toolSvc+=serviceTool
                     
-        print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelLayerInclRefTool"
+        print ("******************************************************************************************")
+        print ("PixelGeoModel - import GeoPixelLayerInclRefTool")
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
         geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
         toolSvc+=geoLayerInnerTool
@@ -122,7 +124,7 @@ class SLHC_Setup :
         geoLayerOuterTool=GeoPixelLayerPlanarRefTool(name="OuterPixelLayerTool")
         toolSvc+=geoLayerOuterTool
 
-        print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
+        print ("PixelGeoModel - import GeoPixelBarrelInclRefTool")
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
         geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
         geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
@@ -131,7 +133,7 @@ class SLHC_Setup :
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
 
-        print "******************************************************************************************"
+        print ("******************************************************************************************")
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
         toolSvc+=geoECLayerTool
@@ -142,8 +144,8 @@ class SLHC_Setup :
         geoEndcapTool.PixelServicesTool = serviceTool
         toolSvc+=geoEndcapTool
 
-        print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
+        print ("******************************************************************************************")
+        print ("PixelGeoModel - import GeoPixelEnvelopeInclRefTool")
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelEnvelopeInclRefTool
         geoEnvelopeTool=GeoPixelEnvelopeInclRefTool(name="GeoPixelEnvelopeInclRefTool")
         geoEnvelopeTool.GeoPixelBarrelTool = geoBarrelTool
@@ -151,7 +153,7 @@ class SLHC_Setup :
         geoEnvelopeTool.PixelServicesTool = serviceTool
         toolSvc+=geoEnvelopeTool
 
-        print "******************************************************************************************"
+        print ("******************************************************************************************")
 
         from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
         pixelTool =  PixelDetectorTool()

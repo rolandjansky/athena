@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys
 from PyCool import cool,coral
@@ -12,7 +14,7 @@ class MuonCalib__CalibrationTargetConfig:
 
 	def __init__(self, FolderType="T0"):
 		if not FolderType in ["T0", "RT", "T0BLOB", "RTBLOB"]:
-			print "FATAL Folder type must be 'T0[BLOB]' or 'RT[BLOB]'"
+			print ("FATAL Folder type must be 'T0[BLOB]' or 'RT[BLOB]'")
 			sys.exit(1)
 
 #set defaults
@@ -41,17 +43,17 @@ class MuonCalib__CalibrationTargetConfig:
 
 	def ResolveGlobalTag(self, tag, dbstring="COOLOFL_MDT/CONDBR2"):
 		if self.Tag:
-			print "INFO Tag for", self.Folder, "already set to", self.Tag
-			print "INFO Not resolving global tag"
+			print ("INFO Tag for", self.Folder, "already set to", self.Tag)
+			print ("INFO Not resolving global tag")
 			return
 		try:
 			db=AtlCoolLib.indirectOpen(dbstring, oracle=True, readOnly=True, debug=True)
-		except Exception,e:
-			print 'Problem opening database',e
+		except Exception as e:
+			print ('Problem opening database',e)
 			sys.exit(-1)	
 		cool_folder=db.getFolder(self.Folder)
 		self.Tag=ResolveTag(cool_folder, tag)
-		print "INFO tag '" + tag + "' resolves to '" + self.Tag + "' for folder '" + self.Folder + "'"
+		print ("INFO tag '" + tag + "' resolves to '" + self.Tag + "' for folder '" + self.Folder + "'")
 		
 		
 	

@@ -12,7 +12,7 @@
 // 
 // ************************************************
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 #include "TrigBjetBtagHypoTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"

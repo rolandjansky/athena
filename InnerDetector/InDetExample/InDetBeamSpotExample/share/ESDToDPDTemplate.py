@@ -8,7 +8,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: ESDToDPDTemplate.py 323418 2010-09-23 23:28:02Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: ESDToDPDTemplate.py 323418 2010-09-23 23:28:02Z beringer $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -44,7 +44,7 @@ if not 'commissioning' in jobConfig:                 jobConfig['commissioning'] 
 if jobConfig['doOtherPrimaryVertexers']:
   if 'primaryVertexSetup' in jobConfig:
     del jobConfig['primaryVertexSetup']
-    print 'WARNING: Running other vertexers - resetting primaryVertexSetup to default'
+    printfunc ('WARNING: Running other vertexers - resetting primaryVertexSetup to default')
 
 
 # General job setup
@@ -82,12 +82,12 @@ if hasattr(ToolSvc,'InDetDetailedTrackSelectorTool'):
     ToolSvc.InDetDetailedTrackSelectorTool.d0MaxPreselection = 25
     ToolSvc.InDetDetailedTrackSelectorTool.IPz0Max = 500
 
-  print ToolSvc.InDetDetailedTrackSelectorTool
+  printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 
 # If InDetPriVxFinderTool is configured, print its configuration
 if 'InDetPriVxFinderTool' in dir():
-  print InDetPriVxFinderTool
+  printfunc (InDetPriVxFinderTool)
 
 
 # If desired, run other primary vertexers using InDetVertexRTT/InDetVertexRTT_RerunOtherPrimarVertexers.py

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """ This file takes an alignment output (or input) file and writes out the alignment constants with respect to the nominal (0,0,0,0,0,0) positions in the Cartesian frame, from the euler angles"""
 
 import sys
@@ -5,7 +7,7 @@ import sys
 from ROOT import *
 
 if sys.argv.__len__() == 1:
-    print "You have to give an alignmentinput.txt file"
+    print ("You have to give an alignmentinput.txt file")
     sys.exit(-1)
 
 onlyL1 = False
@@ -47,49 +49,49 @@ for line in inputFile:
         # Barrel
         if AlignmentContainer == 'TRT':
             if words[0] == '-1':
-                print "====================================="
-                print "The L1 alignment for the Barrel is: "
+                print ("=====================================")
+                print ("The L1 alignment for the Barrel is: ")
             elif words[0] == '-2':
-                print "====================================="
-                print "The L1 alignment for the Endcap C is: "
+                print ("=====================================")
+                print ("The L1 alignment for the Endcap C is: ")
             elif words[0] == '2':
-                print "====================================="
-                print "The L1 alignment for the Endcap A is: "
+                print ("=====================================")
+                print ("The L1 alignment for the Endcap A is: ")
         elif AlignmentContainer == "B0":
             if onlyL1:
                 sys.exit()
             elif onlyL2EC or onlyL2ECA or onlyL2ECC:
                 continue
-            print "==========================="
-            print " The L2 alignment for Layer 0, Phi Sector", words[2],"is"
+            print ("===========================")
+            print (" The L2 alignment for Layer 0, Phi Sector", words[2],"is")
         elif AlignmentContainer == "B1":
             if onlyL1:
                 sys.exit()
             elif onlyL2EC or onlyL2ECA or onlyL2ECC:
                 continue
-            print "==========================="
-            print " The L2 alignment for Layer 1, Phi Sector", words[2],"is"
+            print ("===========================")
+            print (" The L2 alignment for Layer 1, Phi Sector", words[2],"is")
         elif AlignmentContainer == "B2":
             if onlyL1:
                 sys.exit()
             elif onlyL2EC or onlyL2ECA or onlyL2ECC:
                 continue
-            print "==========================="
-            print " The L2 alignment for Layer 2, Phi Sector", words[2],"is" 
+            print ("===========================")
+            print (" The L2 alignment for Layer 2, Phi Sector", words[2],"is" )
         elif AlignmentContainer == "L2A":
             if onlyL1:
                 sys.exit()
             elif onlyL2B or onlyL2ECC:
                 continue
-            print "==========================="
-            print " The L2 alignment for Endcap A, Wheel",words[1],"StrayLayer",words[2],"is"
+            print ("===========================")
+            print (" The L2 alignment for Endcap A, Wheel",words[1],"StrayLayer",words[2],"is")
         elif AlignmentContainer == "L2C":
             if onlyL1:
                 sys.exit()
             elif onlyL2B or onlyL2ECA:
                 continue
-            print "==========================="
-            print " The L2 alignment for Endcap C, Wheel",words[1],"StrayLayer",words[2],"is"
+            print ("===========================")
+            print (" The L2 alignment for Endcap C, Wheel",words[1],"StrayLayer",words[2],"is")
                 
         dx =    float(words[3])
         dy =    float(words[4])
@@ -101,9 +103,9 @@ for line in inputFile:
         rotation = TRotation()
         rotation.SetXEulerAngles(Phi, Theta, Psi)
 
-        print "Dx = ",dx
-        print "Dy = ",dy
-        print "Dz = ",dz
+        print ("Dx = ",dx)
+        print ("Dy = ",dy)
+        print ("Dz = ",dz)
                 
         # To get rotation around X
         #============================
@@ -118,7 +120,7 @@ for line in inputFile:
             sign = -1.0
 
         rotationAboutX = sign * vectorAlongZ.Angle(rotatedVectorProjectedYZPlane)
-        print "Rotx = ",rotationAboutX
+        print ("Rotx = ",rotationAboutX)
         
         # To get rotation around Y
         #============================
@@ -132,7 +134,7 @@ for line in inputFile:
             sign = -1.0
         
         rotationAboutY = sign*vectorAlongZ.Angle(rotatedVectorProjectedXZPlane)
-        print "Roty = ",rotationAboutY
+        print ("Roty = ",rotationAboutY)
         
         # To get rotation around Z
         #============================
@@ -149,10 +151,10 @@ for line in inputFile:
         
                 
         rotationAboutZ = sign*vectorAlongX.Angle(rotatedVectorProjectedXYPlane)
-        print "Rotz = ",rotationAboutZ
+        print ("Rotz = ",rotationAboutZ)
         
 
 
         
-print sys.argv
+print (sys.argv)
 

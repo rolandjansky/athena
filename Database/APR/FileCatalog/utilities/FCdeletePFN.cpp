@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     exit(0);
   }
   try{
-    std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
+    std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     pool::URIParser p( myuri );
     p.parse();
     mycatalog->setWriteCatalog(p.contactstring());

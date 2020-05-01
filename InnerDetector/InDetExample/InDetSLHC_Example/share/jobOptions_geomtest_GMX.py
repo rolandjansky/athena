@@ -16,8 +16,8 @@
 
 doFastCheck = True
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput="singleMuon_testGeometry_slhc_Hits.pool.root"
@@ -49,11 +49,11 @@ ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 
 if (doFastCheck) :
   def test_preInit():
-    print "CALLBACK AT PREINIT"
+    printfunc ("CALLBACK AT PREINIT")
   def test_postInit():
-    print "CALLBACK AT POSTINIT"
+    printfunc ("CALLBACK AT POSTINIT")
   def use_geometry_check():
-    print "CALLBACK use_geometry_check"
+    printfunc ("CALLBACK use_geometry_check")
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetGeometryCheck(1000)
   simFlags.InitFunctions.add_function("preInitG4", use_geometry_check)

@@ -26,16 +26,10 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    from ByteStreamCnvSvc import ReadByteStream
    # Define the input
    svcMgr.ByteStreamInputSvc.FullFileName = [ "metatest.data" ]
-   svcMgr.ByteStreamInputSvc.AttributeListKeys = ['RunEventTag']
-   #svcMgr.ByteStreamEventStorageInputSvc.ListKeys = ['RunEventTag']
-   #svcMgr.ByteStreamInputSvc.FullFileName = [ "extractedEvents.data" ]
    theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
-svcMgr += ByteStreamAttListMetadataSvc("ByteStreamAttListMetadataSvc")
 svcMgr.ByteStreamCnvSvc.OutputLevel = DEBUG
 svcMgr.ByteStreamInputSvc.OutputLevel = DEBUG
-svcMgr.ByteStreamAttListMetadataSvc.OutputLevel = DEBUG
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

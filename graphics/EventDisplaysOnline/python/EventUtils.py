@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os, re, time
 
@@ -15,8 +15,8 @@ def getEventlist(msg, directory):
 
 		# Event file, add tot the list
 		if matches:
-			run = "%012d" % long(matches.group(1))
-			event = "%012d" % long(matches.group(2))
+			run = "%012d" % int(matches.group(1))
+			event = "%012d" % int(matches.group(2))
 
 			fileentry = run, event, file
 			filelist.append(fileentry)
@@ -30,7 +30,7 @@ def getEventlist(msg, directory):
 					msg.info("File '%s' does not belong in the output directory, removing it." % file)
 					try:
 						os.unlink("%s/%s" % (directory, file))
-					except OSError, err:
+					except OSError as err:
 						msg.warning("Could not remove '%s': %s" % (file, err))
 			except OSError:
 				# File was probably a temp file from another thread that already disappeared
@@ -50,7 +50,7 @@ def getEventlist(msg, directory):
 		#		msg.warning("One of the files is missing for run %s, event %s, removing the other as well." % (filelist[i][0], filelist[i][1]))
 		#		try:
 		#			os.unlink("%s/%s" % (directory, filelist[i][2]))
-		#		except OSError, err:
+		#		except OSError as err:
 		#			msg.warning("Could not remove '%s': %s" % (filelist[i][2], err))
 
 			# Do not include such files in the list for atlas-live.cern.ch
@@ -76,7 +76,7 @@ def pruneEvents(msg, directory, maxevents, eventlist):
 			try:
 				os.unlink("%s/%s" % (directory, atlantis))
 				os.unlink("%s/%s" % (directory, vp1))
-			except OSError, err:
+			except OSError as err:
 				msg.warning("Could not remove files for run %s, event %s: %s" % (run, event, err))
 
 	else:
@@ -90,13 +90,13 @@ def writeEventlist(msg, directory, eventlist):
 		for run, event, atlantis, vp1 in eventlist:
 			file.write("run:%s,event:%s,atlantis:%s,vp1:%s\n" % (run, event, atlantis, vp1))
 		file.close()
-	except IOError, err:
+	except IOError as err:
 		msg.warning("Could not write event list: %s" % err)
 
 	# Rename for an atomic overwrite operation
 	try:
 		os.rename("%s/event.%d" % (directory, pid), "%s/event.list" % directory)
-	except OSError, err:
+	except OSError as err:
 		msg.warning("Could not rename event.%d to event.list: %s" % (pid, err))
 
 # Perform all of these in one command

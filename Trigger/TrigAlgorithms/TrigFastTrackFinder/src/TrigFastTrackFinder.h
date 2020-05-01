@@ -133,7 +133,6 @@ protected:
 
   int  m_minHits;
 
-  int                     m_nSeeds;       //!< Number seeds 
   int                     m_nfreeCut;     // Min number free clusters 
 
 

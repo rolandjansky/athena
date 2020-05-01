@@ -1061,8 +1061,9 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG("        Number of vertices from SG: " << iPV );
 	if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(iPV);
 
-	  // Jets and PV through jet link
-	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	// Jets and PV through jet link
+	//  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, m_onlineBjetContainerKey); // TM 240320
 	int ijet = 0;
 	for(const auto jetLinkInfo : onlinejets) {
 	  // jetPt

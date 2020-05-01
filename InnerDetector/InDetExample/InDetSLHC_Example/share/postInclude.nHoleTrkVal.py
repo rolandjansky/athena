@@ -5,7 +5,7 @@ from TrkValTools.TrkValToolsConf import Trk__TrackSummaryNtupleTool
 InDetTrackSummaryNtupleTool = Trk__TrackSummaryNtupleTool(name="InDetTrackSummaryNtupleTool")
 ToolSvc += InDetTrackSummaryNtupleTool
 if InDetFlags.doPrintConfigurables():
-   print InDetTrackSummaryNtupleTool
+   printfunc (InDetTrackSummaryNtupleTool)
 
 from TrkValAlgs.TrkValAlgsConf import Trk__TrackValidationNtupleWriter
 TrkValNtupleWriter = Trk__TrackValidationNtupleWriter(name = 'InDetValNtupleWriter',

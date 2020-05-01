@@ -1007,7 +1007,7 @@ StatusCode ISF_HitAnalysis::execute()
          }  
 
          if((*it)->production_vertex()) {
-           truth.set_vertex((*it)->production_vertex()->point3d().x(), (*it)->production_vertex()->point3d().y(), (*it)->production_vertex()->point3d().z());
+           truth.set_vertex((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
          } else {
            truth.set_vertex(direction.X(),direction.Y(),direction.Z());
            ATH_MSG_WARNING("No particle production vetext, use VERTEX from direction: x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
@@ -1634,8 +1634,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  if (vtx)
  {
-  //const HepMC::ThreeVector vtxPos(vtx->point3d());
-  pos = Amg::Vector3D( vtx->point3d().x(),vtx->point3d().y(), vtx->point3d().z());
+  pos = Amg::Vector3D( vtx->position().x(),vtx->position().y(), vtx->position().z());
  }
 
  Amg::Vector3D mom(part.momentum().x(),part.momentum().y(),part.momentum().z());

@@ -1,32 +1,27 @@
-################################################################################
-# Package: xAODCaloRingsAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODCaloRingsAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODCaloRings )
-
-atlas_install_joboptions( share/*.py )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODCaloRingsAthenaPoolPoolCnv
-                           src/*.cxx
-                           FILES xAODCaloRings/CaloRingsContainer.h xAODCaloRings/CaloRingsAuxContainer.h xAODCaloRings/RingSetContainer.h xAODCaloRings/RingSetAuxContainer.h xAODCaloRings/RingSetConfContainer.h xAODCaloRings/RingSetConfAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::CaloRingsContainer xAOD::CaloRingsAuxContainer xAOD::RingSetContainer xAOD::RingSetAuxContainer xAOD::RingSetConfContainer xAOD::RingSetConfAuxContainer
-                           CNV_PFX xAOD
-                           LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities xAODCaloRings )
+   src/*.h src/*.cxx
+   FILES xAODCaloRings/CaloRingsContainer.h
+         xAODCaloRings/CaloRingsAuxContainer.h
+         xAODCaloRings/RingSetContainer.h
+         xAODCaloRings/RingSetAuxContainer.h
+         xAODCaloRings/RingSetConfContainer.h
+         xAODCaloRings/RingSetConfAuxContainer.h
+   TYPES_WITH_NAMESPACE xAOD::CaloRingsContainer xAOD::CaloRingsAuxContainer
+                        xAOD::RingSetContainer xAOD::RingSetAuxContainer
+                        xAOD::RingSetConfContainer xAOD::RingSetConfAuxContainer
+   CNV_PFX xAOD
+   LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities xAODCaloRings )
 
+# Install files from the package.
+atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
@@ -36,6 +31,6 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
                    REQUIRED_LIBRARIES xAODCaloRingsAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODCALORINGSATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
-                         
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()

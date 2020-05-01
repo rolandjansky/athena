@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -47,7 +47,7 @@ TrigOperationalInfoCollection* TrigOperationalInfoCollectionCnv::createTransient
   if( compareClassGuid(tlp1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigOperationalInfoCollection_tlp1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_tlp1 >() );
+    std::unique_ptr< TrigOperationalInfoCollection_tlp1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_tlp1 >() );
     mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
     
@@ -55,7 +55,7 @@ TrigOperationalInfoCollection* TrigOperationalInfoCollectionCnv::createTransient
   else if( compareClassGuid(p1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigOperationalInfoCollection_p1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_p1 >() );
+    std::unique_ptr< TrigOperationalInfoCollection_p1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_p1 >() );
     mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
     

@@ -60,17 +60,17 @@ StatusCode PixelDigitizationTool::finalize() {
 //=======================================
 // P R O C E S S   S U B E V E N T S
 //=======================================
-StatusCode PixelDigitizationTool::processAllSubEvents() {
+StatusCode PixelDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   // Prepare event
   ATH_MSG_DEBUG("Prepare event");
-  ATH_CHECK(prepareEvent(0));
+  ATH_CHECK(prepareEvent(ctx, 0));
 
   // Get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get Pixel SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -98,7 +98,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
     }
   }
   // Digitize hits
-  ATH_CHECK(digitizeEvent());
+  ATH_CHECK(digitizeEvent(ctx));
 
   ATH_MSG_DEBUG("Digitize success!");
   return StatusCode::SUCCESS;
@@ -107,10 +107,10 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 //=======================================
 // D I G I T I Z E   E V E N T (main)
 //=======================================
-StatusCode PixelDigitizationTool::digitizeEvent() {
+StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
@@ -126,8 +126,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
   // Set the RNG to use for this event.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
   
@@ -298,15 +298,15 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
 //=======================================
 // P R E P A R E   E V E N T
 //=======================================
-StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
+StatusCode PixelDigitizationTool::prepareEvent(const EventContext& ctx, unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
   // Prepare event
-  m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+  m_rdoContainer = SG::makeHandle(m_rdoContainerKey, ctx);
   ATH_CHECK(m_rdoContainer.record(std::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())));
   ATH_MSG_DEBUG("PixelRDO_Container " << m_rdoContainer.name() << " registered in StoreGate");
 
-  m_simDataColl = SG::makeHandle(m_simDataCollKey);
+  m_simDataColl = SG::makeHandle(m_simDataCollKey, ctx);
   ATH_CHECK(m_simDataColl.record(std::make_unique<InDetSimDataCollection>()));
   ATH_MSG_DEBUG("InDetSimDataCollection " << m_simDataColl.name() << " registered in StoreGate");
 
@@ -321,11 +321,11 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 //=======================================
 // M E R G E   E V E N T
 //=======================================
-StatusCode PixelDigitizationTool::mergeEvent() {
+StatusCode PixelDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
 
   // Digitize hits
-  ATH_CHECK(digitizeEvent());
+  ATH_CHECK(digitizeEvent(ctx));
 
   for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin();it!=m_hitCollPtrs.end();it++) {
     (*it)->Clear();

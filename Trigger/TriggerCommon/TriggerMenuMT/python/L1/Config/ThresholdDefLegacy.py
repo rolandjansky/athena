@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
@@ -18,8 +18,8 @@ class ThresholdDefLegacy:
     def registerThresholds(tc):
 
         isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
-        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'pp_run3_v1' in TriggerFlags.triggerMenuSetup()
-        isHI = '_HI' in TriggerFlags.triggerMenuSetup()
+        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'run3_v1' in TriggerFlags.triggerMenuSetup()
+        isHI = '_HI' in TriggerFlags.triggerMenuSetup() and 'HI_run3_v1' not in TriggerFlags.triggerMenuSetup()
 
 
         if ThresholdDefLegacy.alreadyExecuted:

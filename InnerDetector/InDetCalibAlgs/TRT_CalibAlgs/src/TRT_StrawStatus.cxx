@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_HWMappingSvc.h"
 #include "TRT_ConditionsServices/ITRT_DCS_ConditionsSvc.h"
 
@@ -52,7 +52,7 @@ m_TRTHelper(0),
 m_mapSvc("TRT_HWMappingSvc",name),
 m_DCSSvc("TRT_DCS_ConditionsSvc",name),
 m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name), // use this service to retrieve barrel and end-cap straw number later on, as well as DTMROC,.. 
-m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", name),
+m_TRTStrawStatusSummaryTool("TRT_StrawStatusSummaryTool", this),
 m_trt_hole_finder("TRTTrackHoleSearchTool"),
 m_locR_cut(1.4),
 m_fileName("TRT_StrawStatusOutput"),
@@ -365,9 +365,9 @@ void InDet::TRT_StrawStatus::printDetailedInformation() {
                 ATH_MSG_INFO( "if you do not need the detailed print information, you can also just set printDetailedInformation to 0 to avoid this crash" ); 
                 printStatusCount++;
             }
-            int status = m_TRTStrawStatusSummarySvc->get_status( id );  
-            int statusTemporary = m_TRTStrawStatusSummarySvc->getStatus( id );
-            int statusPermanent = m_TRTStrawStatusSummarySvc->getStatusPermanent( id ); 
+            int status = m_TRTStrawStatusSummaryTool->get_status( id );  
+            int statusTemporary = m_TRTStrawStatusSummaryTool->getStatus( id );
+            int statusPermanent = m_TRTStrawStatusSummaryTool->getStatusPermanent( id ); 
             for (int j=0; j<6; j++) fprintf(f, "%d ", index[j]);
             fprintf(f, "%d %d %d %d %d\n", chip, HVpad, status, statusTemporary, statusPermanent);
         }

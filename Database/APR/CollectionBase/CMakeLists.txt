@@ -35,8 +35,9 @@ atlas_add_dictionary( CollectionDict
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                       LINK_LIBRARIES CollectionBase )
 
-atlas_add_test( Factory_test
-                SOURCES test/Factory_test.cxx
-                LINK_LIBRARIES CollectionBase
-                PROPERTIES TIMEOUT 300 )
-
+if( NOT GENERATIONBASE )
+  atlas_add_test( Factory_test
+                  SOURCES test/Factory_test.cxx
+                  LINK_LIBRARIES CollectionBase
+                  PROPERTIES TIMEOUT 300 )
+endif()

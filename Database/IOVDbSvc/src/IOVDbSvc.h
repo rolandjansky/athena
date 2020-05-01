@@ -130,7 +130,7 @@ public:
                                const IOVTime& time,
                                IOVRange& range,
                                std::string& tag,
-                               IOpaqueAddress*& ioa) override;
+                               std::unique_ptr<IOpaqueAddress>& ioa) override;
 
 
 

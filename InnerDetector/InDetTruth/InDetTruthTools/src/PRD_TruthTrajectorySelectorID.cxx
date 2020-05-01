@@ -13,7 +13,7 @@
 // DetectorDescription
 #include "AtlasDetDescr/AtlasDetectorID.h"
 // HepMC
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 InDet::PRD_TruthTrajectorySelectorID::PRD_TruthTrajectorySelectorID(const std::string& t, const std::string& n, const IInterface* p) :

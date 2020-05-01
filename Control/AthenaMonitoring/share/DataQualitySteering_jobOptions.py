@@ -138,6 +138,7 @@ if DQMonFlags.doMonitoring():
                           DataType            = DQMonFlags.monManDataType())
          topSequence += LArMon
          include("LArMonTools/LArAllMonitoring_jobOptions.py")
+         include("LArMonitoring/LArMonitoring_jobOption.py")
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LAr monitoring")
 

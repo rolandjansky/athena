@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTLorentzMonTool.h
@@ -22,7 +22,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"

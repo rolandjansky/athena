@@ -1,54 +1,89 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
 #include "RegionSelector/RegSelectorMap.h"
 #include "PathResolver/PathResolver.h"
 #include <cstring>
-// using namespace std;
 
-double RegSelectorMap::etaminValue(void){
+
+
+
+/// implementation of the IRegSelUT interface - intentionally inlined                                                                               
+
+/// hash id methods                                                                                                                                 
+
+void RegSelectorMap::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+  if ( roi.isFullscan() ) regionSelector( TILE, -4.9, 4.9, 0, 2*M_PI, idlist );
+  regionSelector( TILE, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), idlist );
+}
+
+void RegSelectorMap::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {;
+  if ( roi.isFullscan() ) regionSelector( layer, -4.9, 4.9, 0, 2*M_PI, idlist );
+  regionSelector( layer, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), idlist );
+}
+
+/// Rob identifier methods                                                                                                                          
+
+void RegSelectorMap::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) regionSelectorRobIdUint( TILE, -4.9, 4.9, 0, 2*M_PI, roblist );
+  regionSelectorRobIdUint( TILE, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), roblist );
+}
+
+void RegSelectorMap::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) regionSelectorRobIdUint( layer, -4.9, 4.9, 0, 2*M_PI, roblist );
+  regionSelectorRobIdUint( layer, roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), roblist );
+}
+
+
+/// the rest of the class starts here
+
+double RegSelectorMap::etaminValue(void) const {
   return m_etaminDet;
 }
 
-double RegSelectorMap::etamaxValue(void){
+double RegSelectorMap::etamaxValue(void) const {
   return m_etamaxDet;
 }
 
-double RegSelectorMap::phiminValue(void){
+double RegSelectorMap::phiminValue(void) const {
   return m_phiminDet;
 }
 
-double RegSelectorMap::phimaxValue(void){
+double RegSelectorMap::phimaxValue(void) const {
   return m_phimaxDet;
 }
 
-std::vector<IdentifierHash> RegSelectorMap::hashIdOut(void){
+const std::vector<IdentifierHash>& RegSelectorMap::hashIdOut(void) const {
   return m_hashId;
 }
-std::vector<uint32_t> RegSelectorMap::robIdOut(void){
+
+const std::vector<uint32_t>& RegSelectorMap::robIdOut(void) const {
   return m_robId;
 }
 
-std::vector<int> RegSelectorMap::barORendOut(void){
+const std::vector<int>& RegSelectorMap::barORendOut(void) const {
   return m_barORend;
 }
 
-std::vector<int> RegSelectorMap::layORdskOut(void){
+const std::vector<int>& RegSelectorMap::layORdskOut(void) const {
   return m_layORdsk;
 }
 
-std::vector<double> RegSelectorMap::etaMinOut(void){
+const std::vector<double>& RegSelectorMap::etaMinOut(void) const {
   return m_etamin;
 }
-std::vector<double> RegSelectorMap::etaMaxOut(void){
+
+const std::vector<double>& RegSelectorMap::etaMaxOut(void) const {
   return m_etamax;
 }
-std::vector<double> RegSelectorMap::phiMinOut(void){
+
+const std::vector<double>& RegSelectorMap::phiMinOut(void) const {
   return m_phimin;
 }
-std::vector<double> RegSelectorMap::phiMaxOut(void){
+
+const std::vector<double>& RegSelectorMap::phiMaxOut(void) const {
   return m_phimax;
 }
 
@@ -78,33 +113,25 @@ void RegSelectorMap::mountDataStruct(void){
   findMaxMinValues(m_negdataList);
 }
 
-void RegSelectorMap::regionSelectorRobIdUint(DETID TYPE, double& etaminIn, double& etamaxIn,
-					    double& phiminIn, double& phimaxIn,std::vector<uint32_t>& outList){
+void RegSelectorMap::regionSelectorRobIdUint( DETID TYPE, 
+					      double etaminIn, double etamaxIn,
+					      double phiminIn, double phimaxIn,
+					      std::vector<uint32_t>& outList ) const {
+  
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
-  std::list<RegSelectorMapElement>::iterator it;
+  std::list<RegSelectorMapElement>::const_iterator it;
   std::set<uint32_t> outset;
-  std::set<uint32_t>::iterator itset, negbarrelbeg, negbarrelend;
+  std::set<uint32_t>::const_iterator itset, negbarrelbeg, negbarrelend;
   bool divideEta = false;
 
-  for(it = m_barreldataList.begin(); //barrel list
-      it != m_barreldataList.end(); it++){ // runs trought all RegSelectElementUints
-	   (*it).selectionRobIdUint(etaminIn, etamaxIn, phiminIn, phimaxIn, outset);
+  for( it = m_barreldataList.begin(); //barrel list
+       it != m_barreldataList.end(); it++){ // runs trought all RegSelectElementUints
+	   (*it).selectionRobIdUint( etaminIn, etamaxIn, phiminIn, phimaxIn, outset );
   }
 
   switch(TYPE){
-  case PIXEL: divideEta = true; break;
-  case SCT: divideEta = true; break;
-  case TRT: divideEta = false; break;
-  case LAR: break;
-  case TTEM: break;
-  case TTHEC: break;
-  case FCALEM: break;
-  case FCALHAD: break;
   case TILE: divideEta = true; break;
-  case MDT: divideEta = true; break;
-  case RPC: divideEta = true; break;
-  case TGC: divideEta = true; break;
-  case CSC: divideEta = true; break;
   default: break;
   }
 
@@ -150,29 +177,33 @@ void RegSelectorMap::regionSelectorRobIdUint(DETID TYPE, double& etaminIn, doubl
 
 }
 
-void RegSelectorMap::addLut(const RegionSelectorLUT &detLut){
-  unsigned int i;
+void RegSelectorMap::addLut( const RegionSelectorLUT* detLut ){
 
-  for( i=0; i< detLut.maxHash(); i++){
-    writeLine(detLut.layerDiskPosition(i),
-              detLut.layerDiskNumber(i),
-	      detLut.hashId(i),
-	      detLut.robId(i),
-              detLut.etaMin(i),
-              detLut.etaMax(i),
-              detLut.phiMin(i),
-              detLut.phiMax(i));
+
+  for( size_t i=0; i< detLut->maxHash(); i++) {
+    writeLine(detLut->layerDiskPosition(i),
+              detLut->layerDiskNumber(i),
+	      detLut->hashId(i),
+	      detLut->robId(i),
+              detLut->etaMin(i),
+              detLut->etaMax(i),
+              detLut->phiMin(i),
+              detLut->phiMax(i));
     //    std::cout << "RSDEBUG i=" << i << " hashid=" << detLut.hashId(i) << std::endl;
   }
 
 }
 
-void RegSelectorMap::regionSelector(DETID TYPE, double& etaminIn, double& etamaxIn,
-					    double& phiminIn, double& phimaxIn,std::vector<IdentifierHash>& outList){
+void RegSelectorMap::regionSelector( DETID TYPE, 
+				     double etaminIn,  double etamaxIn,
+				     double phiminIn,  double phimaxIn,
+				     std::vector<IdentifierHash>& outList) const {
+  
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
 
-  std::list<RegSelectorMapElement>::iterator it;
+  std::list<RegSelectorMapElement>::const_iterator it;
   std::set<IdentifierHash> outset;
-  std::set<IdentifierHash>::iterator itset, negbarrelbeg,negbarrelend;
+  std::set<IdentifierHash>::const_iterator itset, negbarrelbeg,negbarrelend;
   bool divideEta = false;
 
   for(it = m_barreldataList.begin(); //barrel list
@@ -181,19 +212,7 @@ void RegSelectorMap::regionSelector(DETID TYPE, double& etaminIn, double& etamax
   }
 
   switch(TYPE){
-  case PIXEL: divideEta = true; break;
-  case SCT: divideEta = true; break;
-  case TRT: divideEta = false; break;
-  case LAR: break;
-  case TTEM: break;
-  case TTHEC: break;
-  case FCALEM: break;
-  case FCALHAD: break;
   case TILE: divideEta = true; break;
-  case MDT: divideEta = true; break;
-  case RPC: divideEta = true; break;
-  case TGC: divideEta = true; break;
-  case CSC: divideEta = true; break;
   default: break;
   }
 
@@ -239,11 +258,16 @@ void RegSelectorMap::regionSelector(DETID TYPE, double& etaminIn, double& etamax
 
 }
 
-void RegSelectorMap::regionSelector(TYPEID typeinID, double& etaminIn, double& etamaxIn, double& phiminIn,
-                      double& phimaxIn, std::vector<IdentifierHash>& outList){
-  std::list<RegSelectorMapElement>::iterator it;
+ void RegSelectorMap::regionSelector( TYPEID typeinID, 
+				      double etaminIn, double etamaxIn,
+				      double phiminIn, double phimaxIn,
+				      std::vector<IdentifierHash>& outList) const {
+
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+
+  std::list<RegSelectorMapElement>::const_iterator it;
   std::set<IdentifierHash> outset;
-  std::set<IdentifierHash>::iterator itset;
+  std::set<IdentifierHash>::const_iterator itset;
   bool posORneg;
 
 
@@ -271,11 +295,18 @@ void RegSelectorMap::regionSelector(TYPEID typeinID, double& etaminIn, double& e
   }
 }
 
-void RegSelectorMap::regionSelector(long layNumber, double& etaminIn, double& etamaxIn, double& phiminIn,
-                      double& phimaxIn, std::vector<IdentifierHash>& outList){
-  std::list<RegSelectorMapElement>::iterator it, itEnd;
+
+
+void RegSelectorMap::regionSelector( long layNumber, 
+				     double etaminIn, double etamaxIn,
+				     double phiminIn, double phimaxIn,
+				     std::vector<IdentifierHash>& outList) const {
+
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+
+  std::list<RegSelectorMapElement>::const_iterator it, itEnd;
   std::set<IdentifierHash> outset;
-  std::set<IdentifierHash>::iterator itset;
+  std::set<IdentifierHash>::const_iterator itset;
   bool posORneg;
 
 
@@ -307,7 +338,7 @@ void RegSelectorMap::regionSelector(long layNumber, double& etaminIn, double& et
   
 }
 
-StatusCode RegSelectorMap::read(const char *filename, DETID type){
+StatusCode RegSelectorMap::read(const char *filename, DETID type) {
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -323,29 +354,14 @@ StatusCode RegSelectorMap::read(const char *filename, DETID type){
   //std::cout << "RegSelectDataIdentifierHash::read fullFileName=" << fullFileName << std::endl;
 
   switch(type){
-  case PIXEL:
-    break;
-  case SCT:
-    break;
-  case TRT:
-    break;
- case TILE:
+  case TILE:
     sc = readTILE(fullFileName.c_str());
     break;
-  case MDT:
-    sc = readMuon(MDET_MDT,fullFileName.c_str());
-    break;
-  case RPC:
-    sc = readMuon(MDET_RPC,fullFileName.c_str());
-    break;
-  case TGC:
-    sc = readMuon(MDET_TGC,fullFileName.c_str());
-    break;
-  case CSC:
-    sc = readMuon(MDET_CSC,fullFileName.c_str());
-    break;
   default:
-    sc = StatusCode::SUCCESS;
+    /// can't call the msg stream in this class - oh dear leave the code in place for the 
+    /// time being until we sort out a solution 
+    //    ATH_MSG_ERROR( "Don't EVER use this code for anything except the Tile Calorimeter" );
+    sc = StatusCode::FAILURE;
   }
   return sc;
 }
@@ -366,10 +382,10 @@ void RegSelectorMap::summaryDataFile(std::list<RegSelectorMapElement> &dataList)
   }
 }
 
-StatusCode RegSelectorMap::verifyInputs(double &etaminIn, double &etamaxIn,
-				 double &phiminIn, double &phimaxIn){
 
-  StatusCode sc = StatusCode::SUCCESS;
+
+void RegSelectorMap::verifyInputsInternal( double &etaminIn, double &etamaxIn,
+					   double &phiminIn, double &phimaxIn ) const {
 
   while (phiminIn > 2*M_PI) phiminIn -= 2*M_PI;
   while (phiminIn < 0     ) phiminIn += 2*M_PI;
@@ -378,7 +394,6 @@ StatusCode RegSelectorMap::verifyInputs(double &etaminIn, double &etamaxIn,
 
   if( ( (etaminIn < m_etaminDet) && (etamaxIn < m_etaminDet) ) ||
       ( (etaminIn > m_etamaxDet) && (etamaxIn > m_etamaxDet) ) ){
-    //sc = StatusCode::FAILURE;
   }
   else{
     if( (etaminIn < m_etaminDet) && (etamaxIn > m_etaminDet) ){
@@ -389,11 +404,19 @@ StatusCode RegSelectorMap::verifyInputs(double &etaminIn, double &etamaxIn,
     }
   }
 
-  return sc;
 }
 
-StatusCode RegSelectorMap::verifyInputsMinusPi(double &etaminIn, double &etamaxIn,
-				 double &phiminIn, double &phimaxIn){
+
+StatusCode RegSelectorMap::verifyInputs( double &etaminIn, double &etamaxIn,
+					 double &phiminIn, double &phimaxIn ) const {
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode RegSelectorMap::verifyInputsMinusPi( double &etaminIn, double &etamaxIn,
+						double &phiminIn, double &phimaxIn) const {
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -418,9 +441,10 @@ StatusCode RegSelectorMap::verifyInputsMinusPi(double &etaminIn, double &etamaxI
   return sc;
 }
 
-void RegSelectorMap::verifyOutput(double etaminIn, double etamaxIn,
-				 double phiminIn, double phimaxIn,
-				 std::vector<IdentifierHash> outputIdlist){
+void RegSelectorMap::verifyOutput( double etaminIn, double etamaxIn,
+				   double phiminIn, double phimaxIn,
+				   std::vector<IdentifierHash> outputIdlist) const {
+
   std::vector<IdentifierHash> outset;
   int i;
   unsigned int j;
@@ -470,8 +494,13 @@ void RegSelectorMap::verifyOutput(double etaminIn, double etamaxIn,
   std::cout << std::endl;
 }
 
-void RegSelectorMap::regionSelectorRobIdUint(double& etaminIn, double& etamaxIn, double& phiminIn,
-  			       double& phimaxIn, std::vector<uint32_t>& outList){
+
+void RegSelectorMap::regionSelectorRobIdUint( double etaminIn, double etamaxIn,
+					      double phiminIn, double phimaxIn,
+					      std::vector<uint32_t>& outList) const {
+  
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+
   std::set<uint32_t> outset;
   int i;
   unsigned int j;
@@ -528,11 +557,19 @@ void RegSelectorMap::regionSelectorRobIdUint(double& etaminIn, double& etamaxIn,
   std::cout << std::endl;
 }
 
-void RegSelectorMap::regionSelectorRobIdUint(long layNumber,double& etaminIn, double& etamaxIn, 
-					double& phiminIn, double& phimaxIn, std::vector<uint32_t>& outList){
+
+
+
+void RegSelectorMap::regionSelectorRobIdUint( long layNumber,
+					      double etaminIn, double etamaxIn,
+					      double phiminIn, double phimaxIn,
+					      std::vector<uint32_t>& outList) const {
+  
+  verifyInputsInternal( etaminIn, etamaxIn, phiminIn, phimaxIn );
+
   std::set<uint32_t> outset;
-  std::list<RegSelectorMapElement>::iterator it, itEnd;
-  std::set<uint32_t>::iterator itset;
+  std::list<RegSelectorMapElement>::const_iterator it, itEnd;
+  std::set<uint32_t>::const_iterator itset;
   bool posORneg;
 
 
@@ -564,10 +601,10 @@ void RegSelectorMap::regionSelectorRobIdUint(long layNumber,double& etaminIn, do
   
 }
 
-void RegSelectorMap::findPosition(TYPEID& typeinID, bool& posORneg,
-				  std::list<RegSelectorMapElement>::iterator& it){
+void RegSelectorMap::findPosition( TYPEID typeinID, bool posORneg,
+				   std::list<RegSelectorMapElement>::const_iterator& it)  const {
   
-  std::list<RegSelectorMapElement>::iterator itPos, itNeg, itEnd;
+  std::list<RegSelectorMapElement>::const_iterator itPos, itNeg, itEnd;
 
   itPos = m_posdataList.begin(); // positioning iterator at the begining of POSITIVE eta value list
 				 // each element of this list is a EtaPhiMap of a MDT chamber
@@ -582,6 +619,11 @@ void RegSelectorMap::findPosition(TYPEID& typeinID, bool& posORneg,
      itEnd = m_negdataList.end();
    }
 
+   /// what does this even do ? just loops over the oiterators and 
+   /// then exits with the value of the iterator set ?? 
+   /// this is quite dangerous - in principle it can return itEnd 
+   /// but will any calling function test for this properly ??
+
    while(it != itEnd) {
      if( (*it).layerDiskNumber() == typeinID )
        break;
@@ -590,10 +632,10 @@ void RegSelectorMap::findPosition(TYPEID& typeinID, bool& posORneg,
 
 }
 
-void RegSelectorMap::findPosition(long& layNumber, bool& posORneg,
-				  std::list<RegSelectorMapElement>::iterator& it){
+void RegSelectorMap::findPosition( long layNumber, bool posORneg,
+				   std::list<RegSelectorMapElement>::const_iterator& it) const {
   
-  std::list<RegSelectorMapElement>::iterator itPos, itNeg, itEnd;
+  std::list<RegSelectorMapElement>::const_iterator itPos, itNeg, itEnd;
 
   itPos = m_posdataList.begin(); // positioning iterator at the begining of POSITIVE eta value list
   itNeg = m_negdataList.begin(); // NEGATIVE eta value list 
@@ -615,7 +657,8 @@ void RegSelectorMap::findPosition(long& layNumber, bool& posORneg,
 
 }
 
-void RegSelectorMap::findMaxMinValues(std::list<RegSelectorMapElement> &dataList){
+void RegSelectorMap::findMaxMinValues(std::list<RegSelectorMapElement> &dataList) {
+
   std::list<RegSelectorMapElement>::iterator it;
 
   for(it = dataList.begin(); it != dataList.end(); it++){ // runs through entire list
@@ -634,7 +677,7 @@ void RegSelectorMap::findMaxMinValues(std::list<RegSelectorMapElement> &dataList
 RegSelectorMapElement RegSelectorMap::creatingElement( int&    positionIn, int&    numberIn, //????
 						       double& etaminIn,   double& etamaxIn,
 						       double& phiminIn,   double& phimaxIn,
-						       IdentifierHash& hashIdIn, uint32_t& robIdIn ){
+						       IdentifierHash& hashIdIn, uint32_t& robIdIn ) {
   RegSelectorMapElement newElement;
 
   newElement.additem( hashIdIn, 
@@ -646,9 +689,9 @@ RegSelectorMapElement RegSelectorMap::creatingElement( int&    positionIn, int& 
 }
 
 void RegSelectorMap::insertList(std::list<RegSelectorMapElement> &dataList, int positionIn,
-					     int numberIn, double etaminIn, double etamaxIn,
-			                     double phiminIn, double phimaxIn,
-			                     IdentifierHash hashIdIn, uint32_t& robIdIn){
+				int numberIn, double etaminIn, double etamaxIn,
+				double phiminIn, double phimaxIn,
+				IdentifierHash hashIdIn, uint32_t& robIdIn){
   bool flag = false;
   RegSelectorMapElement newElement;
   std::list<RegSelectorMapElement>::iterator it;
@@ -678,7 +721,7 @@ void RegSelectorMap::insertList(std::list<RegSelectorMapElement> &dataList, int 
 }
 
 void RegSelectorMap::insertDataElement(int& positionIn, int& numberIn, double& etaminIn, double& etamaxIn,
-				      double& phiminIn, double& phimaxIn, IdentifierHash& hashIdIn, uint32_t& robIdIn){
+				       double& phiminIn, double& phimaxIn, IdentifierHash& hashIdIn, uint32_t& robIdIn){
   if(positionIn > 0 ){ // list of positive values
     insertList(m_posdataList, positionIn, numberIn,
 	       etaminIn, etamaxIn, phiminIn, phimaxIn, hashIdIn, robIdIn);
@@ -694,8 +737,8 @@ void RegSelectorMap::insertDataElement(int& positionIn, int& numberIn, double& e
 }
 
 void RegSelectorMap::writeLine(int barORend, int layORdsk, IdentifierHash hashId, uint32_t robId, 
-		double emin, double emax,
-		 double pmin, double pmax){
+			       double emin, double emax,
+			       double pmin, double pmax){
 
   m_barORend.push_back(barORend);
   m_layORdsk.push_back(layORdsk);
@@ -733,76 +776,11 @@ StatusCode RegSelectorMap::readTILE(const char *filename){
   return sc;
 }
 
-StatusCode RegSelectorMap::readMuon(MDET mtype, const char *filename){
-  StatusCode sc = StatusCode::SUCCESS;
-  char  buffer_[256];
-  char *buffer = buffer_;
-  std::ifstream fin(filename);
-   if(fin.bad()){  //Test if the file failed:
-     sc = StatusCode::FAILURE;
-     return sc;
-   }
-  fin.getline(buffer,128,'\n');
-  switch(mtype){
-  case MDET_MDT:
-    readMDTData(fin);
-    break;
-  case MDET_RPC:
-    readRPCData(fin);
-    break;
-  case MDET_TGC:
-    readMDTData(fin);
-    break;
-  case MDET_CSC:
-    readMDTData(fin);
-    break;
-  default: 
-    break;
-  }
-  fin.close();
 
-  return sc;
-}
-
-void RegSelectorMap::readMDTData(std::ifstream &fin){
- int aux[5];
- int barORend, layORdsk;
- IdentifierHash hashId;
- double emin, emax, pmin, pmax;
- char  buffer_[256];
- char *buffer = buffer_;
- while (fin.getline(buffer, 128, '\n')){
-   sscanf(buffer, "%d/%d/%d/%d/%d %u %lf %lf %lf %lf", &aux[0], &aux[1], &aux[2], &aux[3],&aux[4],(unsigned int*)&hashId, &emin, &emax, &pmin, &pmax);
-   aux[1] += 1;
-   if(aux[2] > 0) barORend = 1*aux[1]; // positive eta values
-   else barORend = -1*aux[1]; // negative eta values
-   layORdsk = aux[1];
-   writeLine(barORend, layORdsk, hashId, 0, emin, emax, pmin, pmax);
-  }
-}
-
-void RegSelectorMap::readRPCData(std::ifstream &fin){
-  int aux[6];
-  int barORend, layORdsk;
-  IdentifierHash hashId;
-  double emin, emax, pmin, pmax;
-  char buffer_[256];
-  char *buffer = buffer_;
-
-  while (fin.getline(buffer, 128, '\n')){
-    sscanf(buffer, "%d/%d/%d/%d/%d/%d %u %lf %lf %lf %lf", &aux[0], &aux[1], &aux[2],&aux[3],&aux[4],
-	   &aux[5], (unsigned int*)&hashId, &emin, &emax, &pmin, &pmax);
-    if (aux[1] == 0) aux[1] = 11;
-    if(aux[2] > 0) barORend = 1*aux[1];
-    else barORend = -1*aux[1];
-    layORdsk = aux[1];
-    writeLine(barORend, layORdsk, hashId, 0, emin, emax, pmin, pmax);
-  }
-}
 
 void RegSelectorMap::getEtaPhi(IdentifierHash hashId, 
-		double *etaMin, double *etaMax,
-		double *phiMin, double *phiMax){
+			       double *etaMin, double *etaMax,
+			       double *phiMin, double *phiMax) const {
 
 	(*etaMin) = m_etamin[hashId];
 	(*etaMax) = m_etamax[hashId];

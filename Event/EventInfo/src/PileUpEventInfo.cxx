@@ -55,7 +55,6 @@ PileUpEventInfo::SubEvent::operator = (const SubEvent& rhs) {
   return *this;
 }
 
-#if __cplusplus > 201100
 PileUpEventInfo::SubEvent::SubEvent(SubEvent&& rhs) :
   m_timeIndex(rhs.m_timeIndex),
   pSubEvt(rhs.pSubEvt),
@@ -74,8 +73,6 @@ PileUpEventInfo::SubEvent::operator = (SubEvent&& rhs) {
   }
   return *this;
 }
-
-#endif
 
 PileUpEventInfo::SubEvent::~SubEvent() {
   delete pSubEvt;

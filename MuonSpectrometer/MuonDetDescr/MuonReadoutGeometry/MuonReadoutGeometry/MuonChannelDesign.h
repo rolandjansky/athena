@@ -140,7 +140,11 @@ namespace MuonGM {
     // As such,our calculations are in 1D and do not require the use of the angle
     // We are commenting out instead of removing while we come to a permanent solution
     // Alexandre Laurier September 12 2018
-    Amg::Vector2D chLoc( pos.x()-chPos.x() , pos.y()-chPos.y());
+
+    //In the new geometry from November 2019 the layers are not anymore tilted, therefore we need
+    //to introduce the correction for the stereo angle in the distance
+    //Patrick Scholer March 18 2020
+    Amg::Vector2D chLoc( (pos.x()-pos.y()*tan(sAngle))-chPos.x() , pos.y()-chPos.y());
     if ( validMode && fabs(chLoc.x()) > 0.5*channelWidth( pos) ) {
       MsgStream log(Athena::getMessageSvc(),"MuonChannelDesign");
       if (log.level()<=MSG::INFO) log << MSG::INFO << "Problem in identification of the channel: distance to nearest channel, channel width: "
@@ -307,12 +311,9 @@ namespace MuonGM {
        
         else if (detType==MuonChannelDesign::DetType::MM) { //its a MM eta layer | for MM the strips indices start from 0 to reflect the electronics channels numbering
             
-             if( st < 0 ) return false;
-             if( st > totalStrips ) return false;
+             if( st < nMissedBottomEta ) return false;
+             if( st > totalStrips-nMissedTopEta ) return false;
             
-            if(st<nMissedBottomEta || st>=(totalStrips-nMissedTopEta) || st == 1023 || st == 1024 || st == 2047 || st == 2048 || st == 3071 || st == 3072 || st == 4095 || st == 4096) return false;
-           
-           
             else{
                     pos[0] = firstPos + inputPitch*(st-nMissedBottomEta);
                     pos[1] = 0;
@@ -329,10 +330,9 @@ namespace MuonGM {
       }
       else if (sAngle!=0. && detType==MuonChannelDesign::DetType::MM) { //its a MM stereo layer
         
-          if( st < 0 ) return false;
-          if( st > totalStrips ) return false;
+          if( st < nMissedBottomStereo ) return false;
+          if( st > totalStrips-nMissedTopStereo ) return false;
           
-          if(st<nMissedBottomStereo || st>=(totalStrips-nMissedTopStereo) || st == 1023 || st == 1024 || st == 2047 || st == 2048 || st == 3071 || st == 3072 || st == 4095 || st == 4096) return false;
           else{
                 pos[0] = firstPos + inputPitch*(st-nMissedBottomStereo);
                 pos[1] = 0;

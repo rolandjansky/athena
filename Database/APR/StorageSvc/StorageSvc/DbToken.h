@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbToken.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -48,11 +48,11 @@ namespace pool    {
     };
   private:
     /// Buffer to hold user key identifying full token
-    mutable Guid                m_keyFull;
+    Guid                        m_keyFull;
     /// Buffer to hold user key #1
-    mutable Guid                m_contKey;
+    Guid                        m_contKey;
     /// Optional other user keys
-    mutable std::vector< Guid > m_ukeys;
+    std::vector< Guid >         m_ukeys;
     /// Database type information cache
     mutable const DbTypeInfo*   m_info;
     /// Flag to indicate if toekn is local or foreign

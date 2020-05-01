@@ -52,6 +52,10 @@ TTree* getTree( ITHistSvc* histSvc, const std::string& treeName ) {
 void resetHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h ATLAS_THREAD_SAFE = const_cast<TH1*>(getHist( histSvc, histName ));
   h->Reset();
+  THashList* labels = h->GetXaxis()->GetLabels();
+  if (labels) labels->Clear();
+  labels = h->GetYaxis()->GetLabels();
+  if (labels) labels->Clear();
 }
 
 void resetHists( ITHistSvc* histSvc ) {
@@ -212,7 +216,6 @@ bool fillFromScalarIndependentScopes( ToolHandle<GenericMonitoringTool>& monTool
 
 bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-
   auto fill = [&]() {
     //! [fill2D_correct]
     // For 2D histogram to be filled the two histogrammed variables need to be grouped.
@@ -262,6 +265,29 @@ bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
   return true;
 }
+
+
+bool fillProfile( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+
+  auto fill = [&]() {
+    auto pt = Monitored::Scalar<double>( "pt", 3.0 );
+    auto eta = Monitored::Scalar( "Eta", 0.2 );
+    auto group = Monitored::Group( monTool, eta, pt );
+    return 1;
+  };
+
+  auto check = [&](size_t N) {
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 1 ) ) EXPECTED( 0 );
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 2 ) ) EXPECTED( 3 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta" )->GetEntries() ) EXPECTED( N );
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
 
 bool fillExplicitly( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
@@ -520,7 +546,7 @@ bool timerFilling( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
   double t1_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetMean();
   double t2_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetMean();
-  assert( 9000 < t1_value && t1_value < 11000 );
+  assert( 8000 < t1_value && t1_value < 12000 );
   assert( 8 < t2_value && t2_value < 12 );
 
   // Test scoped timer
@@ -571,6 +597,26 @@ bool stringFilling(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
 
   return true;
 }
+
+bool stringFillingGen(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
+
+  auto fill = [&]() {
+    auto det = Monitored::Scalar<std::string>( "DetID", [&](){return "SCT";} );
+    Monitored::Group(monTool, det);
+    return 1;
+  };
+  auto check = [&](size_t N) {
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID" );
+    VALUE( h->GetEntries() ) EXPECTED( N );
+    VALUE( h->GetXaxis()->FindFixBin("SCT") ) EXPECTED( 1 );
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
 
 bool stringFromCollection(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
 
@@ -702,6 +748,8 @@ int main() {
   assert( fillFromScalarIndependentScopes( validMon, histSvc ) );
   log << MSG::DEBUG << "fill2D" << endmsg;
   assert( fill2D( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillProfile" << endmsg;
+  assert( fillProfile( validMon, histSvc ) );
   log << MSG::DEBUG << "fillExplicitly" << endmsg;
   assert( fillExplicitly( validMon, histSvc ) );
   log << MSG::DEBUG << "fillWithCutMask" << endmsg;
@@ -716,6 +764,8 @@ int main() {
   assert( timerFilling( validMon, histSvc ) );
   log << MSG::DEBUG << "stringFilling" << endmsg;
   assert( stringFilling( validMon, histSvc ) );
+  log << MSG::DEBUG << "stringFillingGen" << endmsg;
+  assert( stringFillingGen( validMon, histSvc ) );
   log << MSG::DEBUG << "string2DFilling" << endmsg;
   assert( string2DFilling( validMon, histSvc ) );
   log << MSG::DEBUG << "stringFromCollection" << endmsg;

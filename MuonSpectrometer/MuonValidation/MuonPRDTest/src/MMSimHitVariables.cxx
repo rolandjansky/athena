@@ -173,7 +173,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     //  int LastStripNumber = detEl->stripNumber(posOnTopSurf, offId);
      
     // perform bound check
-    if( !surf.insideBounds(posOnSurf) ) continue;
+    m_NSWMM_isInsideBounds->push_back( surf.insideBounds(posOnSurf) );
         
     if( stripNumber == -1 ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain strip number " << m_MmIdHelper->print_to_string(offId) );
@@ -249,6 +249,7 @@ StatusCode MMSimHitVariables::clearVariables()
   m_NSWMM_nSimHits = 0;
   m_NSWMM_trackId->clear();
   m_NSWMM_globalTime->clear();
+  m_NSWMM_isInsideBounds->clear();
   m_NSWMM_hitGlobalPositionX->clear();
   m_NSWMM_hitGlobalPositionY->clear();
   m_NSWMM_hitGlobalPositionZ->clear();
@@ -301,6 +302,7 @@ void MMSimHitVariables::deleteVariables()
   delete m_NSWMM_trackId;
 
   delete m_NSWMM_globalTime;
+  delete m_NSWMM_isInsideBounds;
   delete m_NSWMM_hitGlobalPositionX;
   delete m_NSWMM_hitGlobalPositionY;
   delete m_NSWMM_hitGlobalPositionZ;
@@ -350,6 +352,7 @@ void MMSimHitVariables::deleteVariables()
 
   m_NSWMM_trackId = nullptr;
   m_NSWMM_globalTime = nullptr;
+  m_NSWMM_isInsideBounds = nullptr;
   m_NSWMM_hitGlobalPositionX = nullptr;
   m_NSWMM_hitGlobalPositionY = nullptr;
   m_NSWMM_hitGlobalPositionZ = nullptr;
@@ -403,6 +406,7 @@ StatusCode MMSimHitVariables::initializeVariables()
   m_NSWMM_nSimHits = 0;
   m_NSWMM_trackId  = new std::vector<int>;
   m_NSWMM_globalTime = new std::vector<double>;
+  m_NSWMM_isInsideBounds = new std::vector<bool>;
   m_NSWMM_hitGlobalPositionX = new std::vector<double>;
   m_NSWMM_hitGlobalPositionY = new std::vector<double>;
   m_NSWMM_hitGlobalPositionZ = new std::vector<double>;
@@ -453,6 +457,7 @@ StatusCode MMSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_MM_n", &m_NSWMM_nSimHits, "Hits_MM_n/i");
     m_tree->Branch("Hits_MM_trackId", &m_NSWMM_trackId);
     m_tree->Branch("Hits_MM_globalTime", &m_NSWMM_globalTime);
+    m_tree->Branch("Hits_MM_isInsideBounds", &m_NSWMM_isInsideBounds);
     m_tree->Branch("Hits_MM_hitGlobalPositionX", &m_NSWMM_hitGlobalPositionX);
     m_tree->Branch("Hits_MM_hitGlobalPositionY", &m_NSWMM_hitGlobalPositionY);
     m_tree->Branch("Hits_MM_hitGlobalPositionZ", &m_NSWMM_hitGlobalPositionZ);

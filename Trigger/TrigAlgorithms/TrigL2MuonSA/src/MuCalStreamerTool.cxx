@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
@@ -21,8 +21,6 @@
 #include "circ/Circ.h"
 #include "circ/Circservice.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/checker_macros.h"
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -49,49 +47,9 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::MuCalStreamerTool::~MuCalStreamerTool() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
 {
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-
-   // Retrieve the RPC cabling service
-   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   ATH_CHECK( RpcCabGet.retrieve() );
-   ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-   m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
-   if ( !m_rpcCablingSvc ) {
-     ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
-     return StatusCode::FAILURE;
-   } 
-
-   // retrieve the TGC cabling svc
-   //   ServiceHandle<ITGCcablingServerSvc> TgcCabGet ("TGCCablingServerSvc", name());
-   //  sc = TgcCabGet.retrieve();
-   //  if ( sc != StatusCode::SUCCESS ) {
-   //   ATH_MSG_ERROR("Could not retrieve the TGC cabling service");
-   //   return StatusCode::FAILURE;
-   //  }
-   // sc = TgcCabGet->giveCabling(m_tgcCabling);
-   // if ( sc != StatusCode::SUCCESS ) {
-   //   ATH_MSG_ERROR("Could not retrieve the TGC Cabling Server");
-   //   return sc;
-   // }
-   // m_tgcCablingSvc = m_tgcCabling->getTGCCabling();
-   //if ( !m_tgcCablingSvc ) {
-   //  ATH_MSG_ERROR("Could not retrieve the TGC cabling svc");
-   //  return StatusCode::FAILURE;
-   //} 
+   ATH_CHECK(AthAlgTool::initialize());
 
    // locate the region selector
    ATH_CHECK( m_regionSelector.retrieve() );
@@ -120,8 +78,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::finalize()
    // delete the calibration buffer
    if ( m_localBuffer ) delete m_localBuffer; 
 
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
+   return AthAlgTool::finalize();
 }
 
 // --------------------------------------------------------------------------------
@@ -523,44 +480,26 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
   unsigned int side =  sectorAddress & 0x00000001;
   unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
-  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
-  //  unsigned int padNumber = roiNumber/4; 
-  
+  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;  
 
-  unsigned int logic_sector;
-  unsigned short int PADId;
   Identifier padId;
   
   // retrieve the pad container
-  const RpcPadContainer* rpcPadContainer; 
-  StatusCode sc = evtStore()->retrieve(rpcPadContainer,"RPCPAD");
-  if ( sc != StatusCode::SUCCESS ) { 
-    ATH_MSG_ERROR("Could not retrieve the ");
-    return sc;
-  }
+  const RpcPadContainer* rpcPadContainer=nullptr; 
+  ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
 
-//  std::cout << ">>>>>>>>>>>>>>>>>>> ROI PARAMETERS" << std::endl;
-//  std::cout << "sectorAddress: " << sectorAddress << std::endl;
-//  std::cout << "sectorRoIOvl : " << sectorRoIOvl << std::endl;
-//  std::cout << "side         : " << side << std::endl;
-//  std::cout << "sector       : " << sector << std::endl;
-//  std::cout << "roiNumber    : " << roiNumber << std::endl;
-//  std::cout << "padNumber    : " << padNumber << std::endl;
-
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
   unsigned int padIdHash;
-
-  if ( m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
+  if (readCdo->give_PAD_address( side, sector, roiNumber, padIdHash)) {
 
     RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
     if( itPad==rpcPadContainer->end() ) {        
       ATH_MSG_WARNING("Failed to retrieve PAD hash Id " << padIdHash);  
       return StatusCode::FAILURE;                         
-    } 
-
+    }
     const RpcPad* rpcPad = *itPad;
-    //unsigned int subsys_id = (subsystemID==1)? 0x65 : 0x66;
-    //  unsigned int robId     = (subsys_id << 16) | (sectorID/2);
-    
+
     if(rpcPad) {
       uint16_t sector = rpcPad->sector();
       uint16_t sysId  = (sector<32)? 0x66 : 0x65;
@@ -610,7 +549,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
     }
   }
   else {
-    ATH_MSG_WARNING("Can't get the pad address from the rpc cabling service");
+    ATH_MSG_WARNING("Can't get the pad address from the RpcCablingCondData");
     return StatusCode::FAILURE;
   }
 

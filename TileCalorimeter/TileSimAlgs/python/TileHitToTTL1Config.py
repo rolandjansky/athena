@@ -2,6 +2,7 @@
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -84,9 +85,14 @@ def TileTTL1OutputCfg(flags, TileHitToTTL1):
     mbtsTTL1Container = mbtsTTL1Container.split('+').pop()
     outputItemList += ['TileTTL1Container#' + mbtsTTL1Container]
 
+    acc = ComponentAccumulator()
     if flags.Output.doWriteRDO:
+        if flags.Digitization.TruthOutput:
+            outputItemList += ["CaloCalibrationHitContainer#*"]
+            from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+            acc.merge(TruthDigitizationOutputCfg(flags))
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-        acc = OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList)
+        acc.merge(OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList))
 
     return acc
 

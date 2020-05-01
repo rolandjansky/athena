@@ -37,8 +37,6 @@
 #include "McParticleEvent/TruthParticleParamDefs.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
-namespace HepMC { class GenParticle; }
 class McEventCollection;
 
 class TruthEtIsolations

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,6 +26,8 @@
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IColumn.h"
 #include "RelationalAccess/SchemaException.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -97,7 +99,7 @@ void RDBRecordset::getData(coral::ISessionProxy* session,
     queryStructure->addToTableList(upperName + "_DATA");
     queryStructure->addToTableList(upperName + "_DATA2TAG");
 
-    coral::AttributeList bindsData;
+    coral::AttributeList bindsData ATLAS_THREAD_SAFE;
     bindsData.extend<std::string>("tagID");
 
     // Compose condition for structure query

@@ -24,33 +24,11 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "FastCaloSimAthenaPool/FastShowerInfoContainer.h"
 
-/*
-  #if FastCaloSim_project_release_v1 == 12
-  #include "CLHEP/HepPDT/ParticleDataTable.hh"
-  #else
-  #include "HepPDT/ParticleDataTable.hh"
-  #endif
-*/
-/*
-  #include "AtlfastEvent/CollectionDefs.h"
 
-  namespace HepMC_helper{
-  class IMCselector;
-  }
 
-  namespace FastShower{
-  class GridletForger;
-  }
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
 
-  namespace Atlfast {
-  class TesIO;
-  }
-*/
-
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
 
 namespace Trk {
   class TrackingVolume;
@@ -182,8 +160,6 @@ private:
   ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
   const TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange) const;
 
-  //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
-  //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
 
 
 public:

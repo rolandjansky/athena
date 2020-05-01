@@ -9,8 +9,8 @@
 
 #include "GaudiKernel/IPartPropSvc.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
@@ -77,21 +77,6 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   double charge = 0.0;
   const HepPDT::ParticleData* pd = nullptr;
 
-  /* // -- backup: get the genparticle prod vertex
-  if(part->production_vertex()) {
-    HepMC::ThreeVector tv = part->production_vertex()->point3d();
-    prodVertexVector = CLHEP::Hep3Vector(tv.x(),tv.y(),tv.z());
-    globalPos = prodVertexVector;
-
-    HepMC::FourVector fv = part->momentum();
-    CLHEP::Hep3Vector hv2(fv.px(),fv.py(),fv.pz());
-    globalMom = hv2;
-
-    id = part->pdg_id();
-    // the table seems to lack antiparticles, thus the use of abs()
-    pd = m_particleDataTable->particle(std::abs(id));
-
-  }*/
 
   SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
       
@@ -115,7 +100,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
@@ -186,7 +171,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector  tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 

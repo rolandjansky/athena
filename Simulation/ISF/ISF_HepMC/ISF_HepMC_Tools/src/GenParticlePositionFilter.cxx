@@ -10,8 +10,8 @@
 #include "GenParticlePositionFilter.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 /** Constructor **/
 ISF::GenParticlePositionFilter::GenParticlePositionFilter( const std::string& t,
@@ -59,8 +59,8 @@ bool ISF::GenParticlePositionFilter::pass(const HepMC::GenParticle& particle) co
     return false;
   }
 
-  // (x,y,z) position
-  HepMC::ThreeVector pos = vtx->point3d();
+  // (x,y,z,t) position
+  HepMC::FourVector pos = vtx->position();
 
   bool inside = false;
   // check if the particle position is inside (or on surface)

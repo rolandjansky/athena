@@ -20,8 +20,8 @@
 #include "./DebugInfoCollector.h"
 #include "./xAODJetCollector.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;

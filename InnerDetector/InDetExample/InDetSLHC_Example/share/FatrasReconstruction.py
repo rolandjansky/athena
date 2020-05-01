@@ -13,8 +13,8 @@ class FatrasReconstruction :
     ############################################################################
     # PRINT MESSAGE IF NOTHING IS PROVIDED
     if fatrasJob is None :
-        print 'CONFIGURATION PROBLEM in FatrasReconstruction setup: '
-        print '    - providing a FatrasJob instance is mandatory'
+        printfunc ('CONFIGURATION PROBLEM in FatrasReconstruction setup: ')
+        printfunc ('    - providing a FatrasJob instance is mandatory')
          
     fatrasTools                = fatrasJob.tools()
     fatrasPrimary              = fatrasJob.primarySimulation()
@@ -52,8 +52,6 @@ class FatrasReconstruction :
       # --- setup InDetFlags according to InDetFlagsJobProperty
       from InDetRecExample.InDetJobProperties import InDetFlags
       # the different pattern components
-      InDetFlags.doxKalman       = False
-      InDetFlags.doiPatRec       = False
       InDetFlags.doNewTracking   = True
       InDetFlags.doBackTracking  = True
       InDetFlags.doTruth         = True
@@ -151,7 +149,7 @@ class FatrasReconstruction :
          MuonHitNtuple.Extrapolator         = "Trk::Extrapolator/FatrasRecoExtrapolator" 
          MuonHitNtuple.TreeFolderLocation   = '/'+FatrasValidationFlags.ValidationStream()+'/hits'
          topSequence += MuonHitNtuple
-         print MuonHitNtuple
+         printfunc (MuonHitNtuple)
       
        
         

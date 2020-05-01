@@ -92,6 +92,7 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
       if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
     }
 
+    if (true == m_addShowerSubtractedClusters) thisPFO->setAttribute("PFOShowerSubtractedClusterLink",thisEfRecCluster->getClusElementLink());
 
     ATH_MSG_VERBOSE("  Sucessfully set cluster link");
 

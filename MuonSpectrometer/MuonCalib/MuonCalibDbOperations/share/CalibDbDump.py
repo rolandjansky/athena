@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import getopt
 import sys
 import CalibDbDefaults
@@ -42,17 +44,17 @@ if not cool_tag:
 	cool_tag = GetFolderTag(cool_database_string, cool_folder)
 	
 	
-print "Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag 
+print ("Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag )
 
 if len(args)==1:
 	DumpFolderSummary(cool_database_string, cool_folder, cool_tag)
 	sys.exit(0)
 
 for run_nr in args[1:]:
-	print "IOVs for run ", run_nr
-	print (len("IOVs for run ") + len(run_nr) + 1) * "="
+	print ("IOVs for run ", run_nr)
+	print ((len("IOVs for run ") + len(run_nr) + 1) * "=")
 	DumpFolderSummary(cool_database_string, cool_folder, cool_tag, int(run_nr))
-	print
+	print()
 
 
 

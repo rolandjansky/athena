@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -40,11 +39,6 @@ Muon::CSC_RawDataProviderToolCore::CSC_RawDataProviderToolCore(const std::string
 
 }
 
-//================ Destructor =================================================
-
-Muon::CSC_RawDataProviderToolCore::~CSC_RawDataProviderToolCore()
-{}
-
 //================ Initialisation =================================================
 
 StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
@@ -55,15 +49,12 @@ StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
   ATH_CHECK( m_robDataProvider.retrieve() );
   ATH_MSG_INFO ( "Retrieved service " << m_robDataProvider );
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  m_hid2re.set( &(*m_cabling), m_muonIdHelperTool.get() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
+  m_hid2re.set( &(*m_cabling), &m_idHelperSvc->cscIdHelper() );
 
   // Retrieve decoder
-  if (m_decoder.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Failed to retrieve tool " << m_decoder );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO ( "Retrieved tool " << m_decoder );
+  ATH_CHECK(m_decoder.retrieve());
+  ATH_MSG_INFO ( "Retrieved tool " << m_decoder );
 
   ATH_MSG_INFO ( "The Muon Geometry version is " << m_muonMgr->geometryVersion() );
 
@@ -71,13 +62,6 @@ StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
   ATH_CHECK( m_eventInfoKey.initialize() );
 
   ATH_MSG_INFO ( "initialize() successful in " << name() );
-  return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::CSC_RawDataProviderToolCore::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

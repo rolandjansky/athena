@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 if __name__=="__main__":
 
@@ -17,28 +17,48 @@ if __name__=="__main__":
    ConfigFlags.Input.Files = defaultTestFiles.RAW
 
    ConfigFlags.Output.HISTFileName = 'LArMonitoringOutput.root'
+   ConfigFlags.DQ.enableLumiAccess = False
+   ConfigFlags.DQ.useTrigger = False
+   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
    ## Cell building
    from CaloRec.CaloRecoConfig import CaloRecoCfg
    cfg=CaloRecoCfg(ConfigFlags)
 
+  #larCoverage monitoring
+   from LArMonitoring.LArCoverageAlg import LArCoverageConfig
+   cov_acc = LArCoverageConfig(ConfigFlags)
+   cfg.merge(cov_acc)
+
+   #affectedRegions monitoring
    from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfig
    aff_acc = LArAffectedRegionsConfig(ConfigFlags)
    cfg.merge(aff_acc)
 
-   # try collision time algo 
+   #collision time algo 
    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
    cfg.merge(LArCollisionTimeCfg(ConfigFlags))
    cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
 
-   # and finally monitoring algo
+   # and collision time monitoring algo
    from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfig
    collmon=LArCollisionTimeMonConfig(ConfigFlags)
-   collmon.getEventAlgo("larCollTimeMonAlg").timeDiffCut=5.0
-   collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
-   collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=30
    cfg.merge(collmon) 
+
+   #ROD monitoring
+   from LArMonitoring.LArRODMonAlg import LArRODMonConfig
+   rodmon = LArRODMonConfig(ConfigFlags)
+   cfg.merge(rodmon)
+
+   #Digit monitoring
+
+   from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
+   cfg.merge(LArNoisyROSummaryCfg(ConfigFlags))
+
+   from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
+   digimon = LArDigitMonConfig(ConfigFlags)
+   cfg.merge(digimon)
 
 
    ConfigFlags.dump()

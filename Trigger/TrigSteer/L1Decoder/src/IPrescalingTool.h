@@ -4,7 +4,7 @@
 #ifndef L1DEcoder_IPrescalingTool_h
 #define L1DEcoder_IPrescalingTool_h
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "GaudiKernel/IAlgTool.h"
 
 class EventContext;

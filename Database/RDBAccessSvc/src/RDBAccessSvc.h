@@ -114,8 +114,9 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
 				      const std::string& tag2node,
 				      const std::string& connName) override;
 
-  RDBTagDetails getTagDetails(const std::string& tag,
-			      const std::string& connName = "ATLASDD") override;
+  void getTagDetails(RDBTagDetails& tagDetails,
+                     const std::string& tag,
+                     const std::string& connName = "ATLASDD") override;
 
   void getAllLeafNodes(std::vector<std::string>& list,
 		       const std::string& connName = "ATLASDD");

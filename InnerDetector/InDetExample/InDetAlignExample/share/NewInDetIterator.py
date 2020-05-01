@@ -4,6 +4,8 @@
 #             Vicente Lacuesta [started 12-03-2008]             #
 #################################################################
 
+from __future__ import print_function
+
 import os, string, time, datetime
 import sys
 
@@ -19,7 +21,7 @@ import sys
 # Don not edit the lines below unless you know what you're doing!
 #
 
-print "Output saved in:",OutputPath
+print ("Output saved in:",OutputPath)
 
 # AW: moved that one to python dir such that it can be imported from anywhere
 from InDetAlignExample.NewInDet_IteratorClasses import *
@@ -36,7 +38,7 @@ from InDetAlignExample.NewInDet_IteratorClasses import *
 ATHENACFG = getAthenaConfig(ASetupOptions)
 
 
-print
+print()
 if not os.path.isdir(OutputPath):
 	os.mkdir(OutputPath)
 
@@ -47,16 +49,16 @@ info.write("----------------------------------------------\n")
 #info.write("Release %s\n" % ATHENAREL)
 info.write("Output stored in %s\n\n" % OutputPath)
 
-print "Info stored in: " +OutputPath+"/info.txt"
+print ("Info stored in: " +OutputPath+"/info.txt")
 
 if runMode == 'batch':
-	print "Alignment Algorithm will run in Lxbatch"
+	print ("Alignment Algorithm will run in Lxbatch")
 	info.write("Alignment Algorithm run in Lxbatch\n")
 elif runMode == ' local':
-	print "Alignment Algorithm will run on local machine"
+	print ("Alignment Algorithm will run on local machine")
 	info.write("Alignment Algorithm run on local machine\n")
 	info.write("----------------------------------------------\n")
-	print "System Info"
+	print ("System Info")
 	info.write("----------------------------------------------\n")
 	info.write("System Info\n")
 	os.system('grep processor /var/log/dmesg | grep MHz')
@@ -72,7 +74,7 @@ elif runMode == ' local':
 	info.write("----------------------------------------------\n")
 	info.write("\n")
 
-print
+print()
 info.write("\n")
 StartTime=time.time()   # Start the total time counter
 info.close()
@@ -85,9 +87,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 	else:
 		ReadAlignmentConstants = True
 
-	print '\n'
-	print " ---> Iteration "+repr(iteration)
-	print '\n'
+	print ('\n')
+	print (" ---> Iteration "+repr(iteration))
+	print ('\n')
 	info=open(OutputPath+"/info.txt",'a')
 	info.write('\n')
 	info.write("---> Iteration "+repr(iteration))
@@ -99,8 +101,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 			countdir += 1
 		os.rename("%s/Iter%d" % (OutputPath, iteration),("%s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)))
 
-		print "WARNING: %s/Iter%d directory exists" % (OutputPath, iteration)
-		print "Renamed to %s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir)
+		print ("WARNING: %s/Iter%d directory exists" % (OutputPath, iteration))
+		print ("Renamed to %s/Iter%d-%s-%d" % (OutputPath, iteration, datetime.date.today(), countdir))
 
 	# Make OutputPaths
 	#os.mkdir(OutputPath+'/Iter'+repr(iteration))
@@ -120,8 +122,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 				while os.path.isdir("%s/Iter%d-%s-%d" % (OutputPaths, iteration, datetime.date.today(), countdir)):
 					countdir += 1
 				os.rename("%s/Iter%d" % (OutputPaths, iteration),("%s/Iter%d-%s-%d" % (OutputPaths, iteration, datetime.date.today(), countdir)))
-				print "WARNING: %s/Iter%d directory exists" % (OutputPaths, iteration)
-				print "Renamed to %s/Iter%d-%s-%d" % (OutputPaths, iteration, datetime.date.today(), countdir)
+				print ("WARNING: %s/Iter%d directory exists" % (OutputPaths, iteration))
+				print ("Renamed to %s/Iter%d-%s-%d" % (OutputPaths, iteration, datetime.date.today(), countdir))
 		else:
 			OutputPaths = OutputPath
 		if not os.path.isdir(OutputPaths):
@@ -134,22 +136,22 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 		os.system("get_files -jo InDetAlignExample/NewInDetAlignLevels.py >/dev/null")
 		os.system("cp NewInDetAlignLevels.py %s" %(OutputPaths+'/Iter'+repr(iteration)))
 		alignLevels = OutputPaths+'/Iter'+repr(iteration)+"/NewInDetAlignLevels.py"
-		print "----------------------------------------------"
-		print "Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(iteration))
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
+		print ("Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(iteration)))
+		print ("----------------------------------------------")
 
 		info.write("Number of CPUs used to process the sample %s : %s\n\n" % (data.getName(), data.getCPUs(iteration)))
 
 		if data.getEvents(iteration)!=-1:
-			print "Number of events per CPU: " +  str(data.getEventsPerCPU(iteration))
+			print ("Number of events per CPU: " +  str(data.getEventsPerCPU(iteration)))
 			info.write("Number of events per CPU: %d\n\n" % data.getEventsPerCPU(iteration))
 			
 		else:
-			print "Number of events per CPU: All" 
+			print ("Number of events per CPU: All" )
 			info.write("Number of events per CPU: All" )
 		os.mkdir(OutputPaths+'/Iter'+repr(iteration)+'/'+data.getName()+'/')
 
-		print "Processing..."
+		print ("Processing...")
 
 		# Get the Input file
 		dataFiles = SortCpus(data.getCPUs(iteration)
@@ -291,9 +293,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 					OutputPaths = OutputPath+'/'+data.getName()
 				else:
 					OutputPaths = OutputPath
-				print "----------------------------------------------"
-				print "  Solving dataset %s, Iter %s"%(data.getName(),iteration)
-				print "----------------------------------------------"
+				print ("----------------------------------------------")
+				print ("  Solving dataset %s, Iter %s"%(data.getName(),iteration))
+				print ("----------------------------------------------")
 
 				info.write('\n')
 				info.write("----------------------------------------------\n")
@@ -305,7 +307,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 				JOBNAME="%s_R%s_Iter%d_Solve.py" % (preName,data.getName(),iteration)
 				SCRIPTNAME="%s_R%s_Iter%dSolve.lsf" % (preName,data.getName(),iteration)
 
-				print "Logs stored in %s/Iter%d/logs/Iter%d_Solve.log" % (OutputPaths, iteration, iteration)
+				print ("Logs stored in %s/Iter%d/logs/Iter%d_Solve.log" % (OutputPaths, iteration, iteration))
 	
 				# Get the aligment options
 				AlignmentOptions = {}
@@ -426,9 +428,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 			currentjob.wait()
 		
 	else:
-		print "-----------------------------------------------------\n"
-		print " WARNING: Skipping the solving due to low statistics\n"
-		print "-----------------------------------------------------\n"
+		print ("-----------------------------------------------------\n")
+		print (" WARNING: Skipping the solving due to low statistics\n")
+		print ("-----------------------------------------------------\n")
 	for data in DataToRun:
 		if "doMonitoring" in extraOptions and extraOptions["doMonitoring"]==True:
 			OutputPaths = OutputPath+'/'
@@ -448,8 +450,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 		monitoringMerge.write()
 		monitoringMerge.send(runMode)
 
-#	print "  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime))
-#	print "----------------------------------------------"
+#	print ("  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime)))
+#	print ("----------------------------------------------")
 #
 #	info.write("\n")
 #	info.write("----------------------------------------------\n")
@@ -465,9 +467,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 ## =======================
 ##if MonitoringScript == True:
 #if False:
-#	print
-#	print "Comparing the Monitoring Files"
-#	print
+#	print()
+#	print ("Comparing the Monitoring Files")
+#	print()
 #	info.write('\n')
 #	info.write("Comparing the Monitoring Files \n" )
 #	info.write("\n")
@@ -480,9 +482,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 #	compareMonitoring.write()
 #	compareMonitoring.send(runMode)
 #
-#	print
-#	print "Processed %d iterations !!!" % Iterations
-#	print "  %5.3f  seconds" % (time.time()-StartTime)
+#	print()
+#	print ("Processed %d iterations !!!" % Iterations)
+#	print ("  %5.3f  seconds" % (time.time()-StartTime))
 #
 #info=open(OutputPath+"/info.txt",'a')
 #info.write('\n')

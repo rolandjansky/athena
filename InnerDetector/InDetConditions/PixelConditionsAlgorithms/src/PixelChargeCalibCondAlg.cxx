@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelChargeCalibCondAlg.h"
@@ -11,7 +11,7 @@
 #include <sstream>
 
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -19,14 +19,10 @@ StatusCode PixelChargeCalibCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelChargeCalibCondAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
-
   ATH_CHECK(m_condSvc.retrieve());
-
   ATH_CHECK(m_configKey.initialize());
   ATH_CHECK(m_readKey.initialize());
-
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -35,23 +31,23 @@ StatusCode PixelChargeCalibCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelChargeCalibCondAlg::execute() {
+StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelChargeCalibCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<PixelModuleData> configData(m_configKey);
+  SG::ReadCondHandle<PixelModuleData> configData(m_configKey, ctx);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelChargeCalibCondData> writeCdo(std::make_unique<PixelChargeCalibCondData>());
@@ -61,7 +57,7 @@ StatusCode PixelChargeCalibCondAlg::execute() {
 
   EventIDRange rangeW{start, stop};
   if (configData->getUseCalibConditions()) {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
+    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -76,9 +72,10 @@ StatusCode PixelChargeCalibCondAlg::execute() {
     ATH_MSG_INFO("Range of input is " << rangeW);
 
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-      CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      const CondAttrListCollection::AttributeList& payload = attrList->second;
+      const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
+      const CondAttrListCollection::AttributeList &payload = attrList->second;
 
+      // RUN-2 format
       if (payload.exists("data") and not payload["data"].isNull()) {
         std::string stringStatus = payload["data"].data<std::string>();
 
@@ -136,7 +133,8 @@ StatusCode PixelChargeCalibCondAlg::execute() {
         int layer = m_pixelID->layer_disk(wafer_id);
         const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
         const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-        for (int j=0; j<p_design->numberOfCircuits(); j++) {
+        int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+        for (int j=0; j<numFE; j++) {
           writeCdo -> setAnalogThreshold((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
           writeCdo -> setAnalogThresholdSigma((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
           writeCdo -> setAnalogThresholdNoise((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
@@ -174,7 +172,8 @@ StatusCode PixelChargeCalibCondAlg::execute() {
       int layer = m_pixelID->layer_disk(wafer_id);
       const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
       const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-      for (int j=0; j<p_design->numberOfCircuits(); j++) {
+      int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
+      for (int j=0; j<numFE; j++) {
         writeCdo -> setAnalogThreshold(i,     configData->getDefaultAnalogThreshold(bec,layer));
         writeCdo -> setAnalogThresholdSigma(i,configData->getDefaultAnalogThresholdSigma(bec,layer));
         writeCdo -> setAnalogThresholdNoise(i,configData->getDefaultAnalogThresholdNoise(bec,layer));

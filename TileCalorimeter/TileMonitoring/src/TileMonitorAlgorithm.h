@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILEMONITORALGORITHM_H
@@ -77,6 +77,18 @@ class TileMonitorAlgorithm : public AthMonitorAlgorithm {
     * @param cell Calo cell
     */
     Partition getPartition(const CaloCell* cell, const TileID* tileID) const;
+
+   /**
+    * @brief Return Partition for Tile cell identifier or MAX_PART otherwise
+    * @param id Calo cell identifier
+    */
+    Partition getPartition(Identifier id, const TileID* tileID) const;
+
+    /**
+    * @brief Return Partition for Tile cell identifier hash or MAX_PART otherwise
+    * @param hash Calo cell identifier hash
+    */
+    Partition getPartition(IdentifierHash hash, const TileID* tileID) const;
 
 
   private:

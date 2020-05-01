@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDigitContainer/MmDigit.h"
@@ -219,7 +219,7 @@ MmDigitContainer* Muon::MM_DigitContainerCnv_p2::createTransient(const Muon::MM_
       return 0;
     } 
   }
-  std::auto_ptr<MmDigitContainer> trans(new MmDigitContainer(m_MMId->detectorElement_hash_max()));
+  std::unique_ptr<MmDigitContainer> trans(new MmDigitContainer(m_MMId->detectorElement_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return trans.release();
 }

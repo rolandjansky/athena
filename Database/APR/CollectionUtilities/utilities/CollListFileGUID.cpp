@@ -160,7 +160,7 @@ int main(int argc, const char *argv[])
               dynamic_cast<ICollectionRelationalExtensions*>(collection);
             if (!relcoll)
               std::abort();
-            auto_ptr<pool::ICollectionGUIDQuery>
+            unique_ptr<pool::ICollectionGUIDQuery>
                collQuery( relcoll->newGUIDQuery() );
             collQuery->setCondition( queryinfo.query(i) );
             if( mainToken ) {

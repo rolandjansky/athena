@@ -52,8 +52,7 @@
 TRT_RegSelCondAlg::TRT_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm( name, pSvcLocator ),
   m_managerName("TRT"),
-  m_printTable(false),
-  m_TRT_IdMapping("TRT_CablingSvc", name)
+  m_printTable(false)
 { 
   ATH_MSG_DEBUG( "TRT_RegSelCondAlg::TRT_RegSelCondAlg() " << this->name() );
   declareProperty( "PrintTable",  m_printTable=false );  
@@ -98,15 +97,19 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
     msg(MSG::ERROR) << " Can't get ToolSvc " << endmsg;
     return StatusCode::FAILURE;
   }
-  
-  // Get TRT IdentifierConversionTool
-  sc = m_TRT_IdMapping.retrieve();
 
-  if (sc != StatusCode::SUCCESS){
-    msg(MSG::ERROR) << " Can't get TRTCablingSvc " << endmsg;
+
+  
+  // Get TRT cabling mapping 
+  
+  ServiceHandle<ITRT_CablingSvc>  mapping( "TRT_CablingSvc", name() );
+
+  if ( mapping.retrieve().isFailure() ) { 
+    msg(MSG::ERROR) << " Can't get TRT CablingSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
+  
   // Get the id helper 
   const TRT_ID* idHelper = 0;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
@@ -143,7 +146,6 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   constexpr double twoPi=2.*M_PI;
   constexpr double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
 
-
   for (unsigned int index = 0; index < maxHash; index++) {
     IdentifierHash idHash = index;
     Identifier id = idHelper->layer_id(idHash);
@@ -178,7 +180,7 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
       double zmax = Belement->strawZPos(theLastStraw) + Length*0.5;
       double rmin = ( r0<r1 ? r0 : r1 ) - InnerRadiusOfStraw;
       double rmax = ( r1>r0 ? r1 : r0 ) + InnerRadiusOfStraw;
-      std::vector<uint32_t> vrob = m_TRT_IdMapping->getRobID(idelement);  
+      std::vector<uint32_t> vrob = mapping->getRobID(idelement);  
       for (unsigned int ii=0 ; ii < vrob.size(); ++ii) { 
         RegSelModule smod( zmin, zmax, rmin, rmax, phiMin, phiMax, idLayerWheel, idSide, vrob[ii], idHash);
         rd->addModule(smod);
@@ -209,9 +211,7 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
       double zmax = rz+InnerRadiusOfStraw;
       double rmin = radius;
       double rmax = radius+length;
-      std::vector<uint32_t> vrob;
-      // ??????
-      vrob = m_TRT_IdMapping->getRobID(idelement);  
+      std::vector<uint32_t> vrob = mapping->getRobID(idelement);  
       for (unsigned int ii=0 ; ii < vrob.size(); ++ii) { 
         RegSelModule smod( zmin, zmax, rmin, rmax, phiMin, phiMax, idLayerWheel, idSide+2, vrob[ii], idHash);
         rd->addModule(smod);
@@ -229,10 +229,10 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   // write out new new LUT to a file if need be
   if ( m_printTable ) rd->write( name()+".map" );
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
   try { 
-    SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
+    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

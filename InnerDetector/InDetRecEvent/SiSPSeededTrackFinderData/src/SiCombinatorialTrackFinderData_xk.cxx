@@ -16,7 +16,6 @@ namespace InDet {
   void SiCombinatorialTrackFinderData_xk::setTools(const Trk::IPatternParametersPropagator* propTool,
                                                    const Trk::IPatternParametersUpdator* updatorTool,
                                                    const Trk::IRIO_OnTrackCreator* rioTool,
-                                                   MagField::IMagFieldSvc* fieldService,
                                                    const IInDetConditionsTool* pixCondTool,
                                                    const IInDetConditionsTool* sctCondTool,
                                                    const Trk::MagneticFieldProperties* fieldProp)
@@ -25,8 +24,7 @@ namespace InDet {
     //
     m_tools.setTools(propTool,
                      updatorTool,
-                     rioTool,
-                     fieldService);
+                     rioTool);
     m_tools.setTools(pixCondTool,
                      sctCondTool);
     m_tools.setTools(fieldProp);
@@ -38,6 +36,11 @@ namespace InDet {
     m_initialized = true;
   }
 
+  void SiCombinatorialTrackFinderData_xk::setFieldCondObj(const  AtlasFieldCacheCondObj* fieldCondObj) 
+  {
+    m_tools.setFieldCondObj(fieldCondObj);
+  }
+    
   void SiCombinatorialTrackFinderData_xk::setPixContainer(const InDet::PixelClusterContainer* pixcont) {
     m_pixcontainer = pixcont;
   }

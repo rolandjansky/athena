@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv.cxx 
@@ -76,33 +76,28 @@ McEventCollection* McEventCollectionCnv::createTransient()
 
    } else if ( compareClassGuid(p1_guid) ) {
 
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<McEventCollection_p1> persObj( poolReadObject<McEventCollection_p1>() );
+      std::unique_ptr<McEventCollection_p1> persObj( poolReadObject<McEventCollection_p1>() );
       McEventCollectionCnv_p1 cnv;
       transObj = cnv.createTransient( persObj.get(), msg );
    } else if ( compareClassGuid(p2_guid) ) {
 
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<McEventCollection_p2> persObj( poolReadObject<McEventCollection_p2>() );
+      std::unique_ptr<McEventCollection_p2> persObj( poolReadObject<McEventCollection_p2>() );
       McEventCollectionCnv_p2 cnv;
       transObj = cnv.createTransient( persObj.get(), msg );
    } else if ( compareClassGuid(p3_guid) ) {
 
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<McEventCollection_p3> persObj( poolReadObject<McEventCollection_p3>() );
+      std::unique_ptr<McEventCollection_p3> persObj( poolReadObject<McEventCollection_p3>() );
       McEventCollectionCnv_p3 cnv;
       transObj = cnv.createTransient( persObj.get(), msg ); 
    } else if ( compareClassGuid(p4_guid) ) {
 
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<McEventCollection_p4> persObj( poolReadObject<McEventCollection_p4>() );
+      std::unique_ptr<McEventCollection_p4> persObj( poolReadObject<McEventCollection_p4>() );
       McEventCollectionCnv_p4 cnv;
       if(isPileup) cnv.setPileup();
       transObj = cnv.createTransient( persObj.get(), msg );
    } else if ( compareClassGuid(p5_guid) ) {
 
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<McEventCollection_p5> persObj( poolReadObject<McEventCollection_p5>() );
+      std::unique_ptr<McEventCollection_p5> persObj( poolReadObject<McEventCollection_p5>() );
       McEventCollectionCnv_p5 cnv;
       if(isPileup) cnv.setPileup();
       transObj = cnv.createTransient( persObj.get(), msg );

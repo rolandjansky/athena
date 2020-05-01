@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import include
 
@@ -85,6 +85,7 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
 #############################################################################
 def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
+  kwargs.setdefault("NSWCalibTool","NSWCalibTool")
   from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataTool
   return Muon__MmRdoToPrepDataTool(name,**kwargs)
 

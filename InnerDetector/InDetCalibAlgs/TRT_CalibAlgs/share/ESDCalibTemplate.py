@@ -132,8 +132,6 @@ DetFlags.Print()
 # --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.preProcessing      = False
-InDetFlags.doiPatRec          = False
-InDetFlags.doxKalman          = False
 InDetFlags.doNewTracking      = False
 InDetFlags.doLowPt            = False
 InDetFlags.doBackTracking     = False
@@ -229,9 +227,6 @@ TRTCondStream=AthenaOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.
 ToolSvc += TRTCondStream
 print TRTCondStream
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -359,12 +354,13 @@ print          SelectTRTAlignTracks
                                      
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrkCollections      = [ 'TRTCalibTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],
                                        DoCalibrate         = True,
                                        FitTools            = [ TRTCalFitTool],
                                        TrackFitter         = RecalibrationFitter,
-                                       TRTCalDBTool        = TRTCalSvc )
+                                       TRTCalDBTool        = TRTCalTool )
 
 topSequence += CosmicsTRTCalibMgr
 print CosmicsTRTCalibMgr
@@ -385,8 +381,6 @@ conddb.blockFolder("/TRT/Calib/T0" )
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalSvc.calibTextFile="%s"\n' % (calibconstants)
-
-    ostring+='TRTCalSvc.StreamTool=TRTCondStream'
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
     return ostring

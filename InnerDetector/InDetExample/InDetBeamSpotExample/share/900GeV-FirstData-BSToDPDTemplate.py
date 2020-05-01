@@ -9,7 +9,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: 900GeV-FirstData-BSToDPDTemplate.py 230959 2009-11-30 15:40:19Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: 900GeV-FirstData-BSToDPDTemplate.py 230959 2009-11-30 15:40:19Z beringer $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -116,8 +116,6 @@ InDetFlags.doTruth       = jobConfig['doTruth']
 #InDetFlags.doLowPt        = True
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doSingleSpBackTracking = True
@@ -186,7 +184,7 @@ ToolSvc.InDetDetailedTrackSelectorTool.sigIPz0Max = 10.0
 
 InDetPriVxFinderTool.enableMultipleVertices = 0
 
-print ToolSvc.InDetDetailedTrackSelectorTool
+printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 
 # General job setup

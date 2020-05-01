@@ -15,7 +15,7 @@
 #pragma clang diagnostic ignored "-Wkeyword-macro"
 #endif
 #define private public
-#   include "HepMC/WeightContainer.h"
+#include "AtlasHepMC/WeightContainer.h"
 #undef private
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -38,10 +38,10 @@
 
 #include <unordered_set>
 
-namespace HepMC {
-  class GenVertex;
-  class GenParticle;
-}
+
+#include "AtlasHepMC/GenVertex_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
+
 
 namespace xAODMaker {
 

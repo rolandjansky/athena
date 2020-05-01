@@ -1,8 +1,11 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
 # =====================================================================
 # Main script to run the NewInDetIterator
 # run with ./RunIterator.py
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -81,5 +84,5 @@ doDetailedSplitting = False
 
 GoodRunList = "/afs/cern.ch/user/a/atlasdqm/www/grlgen/CombinedPerf/Egamma/Eg_standard_v5/data11_7TeV.periodAllYear_DetStatus-v32-pro09_CoolRunQuery-00-04-00_Eg_standard.xml"
 os.system("get_files -jo InDetAlignExample/NewInDetIterator_EoPMaps.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator_EoPMaps.py")
-execfile("NewInDetIterator_EoPMaps.py")
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator_EoPMaps.py"))
+exec(compile(open('NewInDetIterator_EoPMaps.py').read()))

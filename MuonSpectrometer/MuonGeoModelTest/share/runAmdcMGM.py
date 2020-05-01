@@ -31,7 +31,7 @@ if not 'ConditionsTag' in dir():
     #ConditionsTag="OFLCOND-SIM-00-00-00" ### for MC condition tags OFLP200 (default DB choice) will work out of teh box
 
 if useAlignData:
-    print "Setting up DB name / Instance to COMP200 (default is OFLP200)"
+    printfunc ("Setting up DB name / Instance to COMP200 (default is OFLP200)")
     conddb.dbname = "COMP200"
     conddb.iovdbsvc.DBInstance="COMP200"
 
@@ -42,9 +42,9 @@ ServiceMgr.IOVDbSvc.GlobalTag=ConditionsTag
 # Select geometry version
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-GEO-16-00-01"
-    print 'MuonGeoModelTest/runAmdcMGM DetDescrVersion now set to ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/runAmdcMGM DetDescrVersion now set to ', DetDescrVersion)
 else:
-    print 'MuonGeoModelTest/runAmdcMGM DetDescrVersion is already ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/runAmdcMGM DetDescrVersion is already ', DetDescrVersion)
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = DetDescrVersion
 
@@ -75,7 +75,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE define alignment data from cond. tags
 if useAlign:
@@ -117,7 +117,7 @@ else:
 MuonDetectorTool.UseAsciiConditionData = 0; #default is 0 
 MuonDetectorTool.OutputLevel = DEBUG
 
-print MuonDetectorTool
+printfunc (MuonDetectorTool)
 MessageSvc.setDebug+=["MGM::MuonDetectorManager::updateAlignment"]
 
 
@@ -137,7 +137,7 @@ AmdcsimrecAthenaSvc.TruncateALine = 0;
 AmdcsimrecAthenaSvc.TruncatePLine = 0 ;
 AmdcsimrecAthenaSvc.OutputLevel=DEBUG
 
-print AmdcsimrecAthenaSvc
+printfunc (AmdcsimrecAthenaSvc)
 
 #***************************************************** HERE setup AmdcDumpGeoModel
 from AmdcMGM.AmdcMGMConf import AmdcDumpGeoModel
@@ -179,7 +179,7 @@ AmdcDumpGeoModel.StationSelection = 0
 #if 1 initialize() return FAILURE to speed up analysis
 AmdcDumpGeoModel.EmergencyOut = 0
 
-print AmdcDumpGeoModel
+printfunc (AmdcDumpGeoModel)
 
 ######################################################
 ############### HERE DEFINE THE SEQUENCE #############
@@ -189,19 +189,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += AmdcDumpGeoModel
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)
 
 

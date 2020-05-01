@@ -135,7 +135,7 @@ EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,
   }
   // call calorimeter isolation tool only if needed
   if (m_UseCaloIsoTool) {
-    ATH_CHECK(CalcHadronicLeakage(eg, clus, cellcoll));
+    ATH_CHECK(CalcHadronicLeakage(eg, cmgr, clus, cellcoll));
   }
 
   // Calculate shower shapes in all samplings
@@ -150,6 +150,7 @@ EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,
 
 StatusCode
 EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
+                                     const CaloDetDescrManager& cmgr,
                                      const xAOD::CaloCluster* clus,
                                      const CaloCellContainer* cellcoll) const {
   //
@@ -164,15 +165,9 @@ EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
   if (m_HadronicLeakageTool.empty()) {
     return StatusCode::SUCCESS;
   }
-  // define a new Calo Cell list corresponding to HAD Calo
-  // retrieve the corresponding CaloCell_ID for LarHec and TILE
-  static const std::vector<CaloCell_ID::SUBCALO> theVecCalo = {
-      CaloCell_ID::LARHEC, CaloCell_ID::TILE};
-  // define a new Calo Cell list
-  CaloCellList HADccl(cellcoll, theVecCalo);
-  // calculate information concerning just the hadronic leakage
+ // calculate information concerning just the hadronic leakage
   IegammaIso::Info info;
-  StatusCode sc = m_HadronicLeakageTool->execute(*clus, HADccl, info);
+  StatusCode sc = m_HadronicLeakageTool->execute(*clus,cmgr,*cellcoll,info);
   if (sc.isFailure()) {
     ATH_MSG_WARNING("call to Iso returns failure for execute");
     return sc;

@@ -16,12 +16,12 @@
 
 import os
 if os.path.exists('./PoolFileCatalog.xml') :
-   print '[!] PoolFileCatalog exists in the run directory (may use old PFN!)'
-   print '[>] Deleting it now !'
+   printfunc ('[!] PoolFileCatalog exists in the run directory (may use old PFN!)')
+   printfunc ('[>] Deleting it now !')
    os.remove('./PoolFileCatalog.xml')
 
-execfile ("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 # set to monte carlo ---------------------------
 import AthenaCommon.AtlasUnixStandardJob    

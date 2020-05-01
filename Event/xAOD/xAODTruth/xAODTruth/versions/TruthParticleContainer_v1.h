@@ -1,10 +1,9 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthParticleContainer_v1.h 622193 2014-10-16 16:08:34Z krasznaa $
 #ifndef XAODTRUTH_VERSIONS_TRUTHPARTICLECONTAINER_V1_H
 #define XAODTRUTH_VERSIONS_TRUTHPARTICLECONTAINER_V1_H
 
@@ -14,7 +13,6 @@
 
 // Local include(s):
 #include "xAODTruth/versions/TruthParticle_v1.h"
-#include "xAODTruth/TruthParticleContainerFwd.h" // Only as long as this is the most recent version...
 
 namespace xAOD {
    // Alias

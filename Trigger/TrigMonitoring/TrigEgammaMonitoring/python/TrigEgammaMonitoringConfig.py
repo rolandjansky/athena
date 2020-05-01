@@ -77,19 +77,16 @@ class TrigEgammaMonToolBuilder:
 
         if not self._configured:
             for key,value in kwargs.items():
-                print key,value
+                log_trigeg.info("%s,%s",key,value)
                 if key in self.__acceptable_keys_list:
                     setattr(self,key,value)
-            #print self.derivation,self.emulation
 
             self.config()
-            print('monTool')
-            print(self.monTool)
+            log_trigeg.info("monTool: %s",self.monTool)
         
     def config(self):
         log_trigeg.info("TrigEgammaMonToolBuilder.config()")
         self._get_monitoring_mode_success = self.get_monitoring_mode()
-        #print self._get_monitoring_mode_success
         if self._get_monitoring_mode_success == False:
             log_trigeg.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
         else:

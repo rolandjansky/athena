@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////
-//
-// chi2validation_x
-// -------------
-// 
-//////////////////////////////////////////////////////////////////////////////
 
 #include "MuonFixedId.h"
 #include "Tools.h"
@@ -46,7 +39,6 @@
 
 #include "TH2F.h"
 
-using namespace std;
 using namespace MuonCalib;
  
 MuonFixedId* mid;

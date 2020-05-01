@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSpacePointCountsCollectionCnv.h"
@@ -37,12 +37,12 @@ TrigSpacePointCountsCollection * TrigSpacePointCountsCollectionCnv::createTransi
   static pool::Guid p0_guid( "633C9739-C3D1-4F5D-9678-887445DA42B6" );
   
   if( compareClassGuid( p4_guid ) ) {
-         std::auto_ptr< TrigSpacePointCountsCollection_p4 > col_vect( poolReadObject< TrigSpacePointCountsCollection_p4 >() );
+         std::unique_ptr< TrigSpacePointCountsCollection_p4 > col_vect( poolReadObject< TrigSpacePointCountsCollection_p4 >() );
          //         std::cout << "Reading IMFC p4" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   }  else if( compareClassGuid( tlp1_guid ) ) {
-         std::auto_ptr< TrigSpacePointCountsCollection_tlp1 > col_vect( poolReadObject< TrigSpacePointCountsCollection_tlp1 >() );
+         std::unique_ptr< TrigSpacePointCountsCollection_tlp1 > col_vect( poolReadObject< TrigSpacePointCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 

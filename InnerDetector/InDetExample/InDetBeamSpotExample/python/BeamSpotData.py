@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Tools for handling beam spot data in ntuples or in COOL.
 For functionality requiring COOL access, you'll probably need to use
@@ -445,11 +448,11 @@ class BeamSpotValue:
                 tokens = line.split()
                 if len(tokens) < 5: tokens.append(0.0)
                 point, start, end, sep, acq = tokens
-                print "point %s %s %s %s" % (point,start,sep,acq)
+                print ("point %s %s %s %s" % (point,start,sep,acq))
                 BeamSpotValue.pseudoLbDict[int(point)] = (int(int(start)*timeUnit), int(int(end)*timeUnit), float(sep), float(acq))
 
         if not self.lbStart in self.pseudoLbDict:
-            print "Missing %s in pseudoLbDict" % self.lbStart
+            print ("Missing %s in pseudoLbDict" % self.lbStart)
             return
 
         self.timeStart = self.pseudoLbDict[self.lbStart][0]
@@ -457,7 +460,7 @@ class BeamSpotValue:
         self.separation = self.pseudoLbDict[self.lbStart][2]
         self.acquisitionFlag = self.pseudoLbDict[self.lbStart][3]
 
-        #print self.lbStart, self.timeStart, self.timeEnd, time.strftime('%a %b %d %X %Z %Y',time.localtime(self.timeStart))
+        #print (self.lbStart, self.timeStart, self.timeEnd, time.strftime('%a %b %d %X %Z %Y',time.localtime(self.timeStart)))
 
         if not BeamSpotValue.coolQuery:
             from InDetBeamSpotExample.COOLUtils import COOLQuery
@@ -508,9 +511,9 @@ class BeamSpotValue:
     def dump(self,verbose=False):
         """Standard printout of beam spot parameters."""
         if verbose:
-            print self
+            print (self)
         else:
-            print self.summary()
+            print (self.summary())
 
     def varList(self):
         """Get list of variable names in BeamSpotValue object."""
@@ -578,9 +581,9 @@ class BeamSpotAverage:
         """Read iLumiCalc.exe ntuple with luminosity data, store data in self.lumiData dict."""
         lumiFile = ROOT.TFile(lumiCalcNtupleName)
         lumiNt = lumiFile.Get('LumiMetaData')
-        print 'Reading',lumiNt.GetEntries(), 'entries from luminosity ntuple',lumiCalcNtupleName
+        print ('Reading',lumiNt.GetEntries(), 'entries from luminosity ntuple',lumiCalcNtupleName)
         self.lumiData = {}
-        for j in xrange(lumiNt.GetEntries()):
+        for j in range(lumiNt.GetEntries()):
             lumiNt.GetEntry(j)
             run = lumiNt.RunNbr
             lb = lumiNt.LBStart
@@ -591,10 +594,10 @@ class BeamSpotAverage:
                 self.lumiData[run] = {}
                 self.lumiData[run][lb] = lumi
         lumiSum = 0.
-        for (run,lbdict) in self.lumiData.iteritems():
-            for (lb,lumi) in lbdict.iteritems():
+        for (run,lbdict) in self.lumiData.items():
+            for (lb,lumi) in lbdict.items():
                 lumiSum += lumi
-        print '... total luminosity = %6.1f / pb' % (lumiSum/1.E6)
+        print ('... total luminosity = %6.1f / pb' % (lumiSum/1.E6))
         return self.lumiData
 
     def add(self,b):
@@ -602,13 +605,13 @@ class BeamSpotAverage:
         if self.lumiData is not None:
             lumi = 0
             if b.lbEnd <= b.lbStart:
-                print 'ERROR: Illegal luminosity block range: [%i,%i]' % (b.lbStart,b.lbEnd)
+                print ('ERROR: Illegal luminosity block range: [%i,%i]' % (b.lbStart,b.lbEnd))
                 self.nWarnings += 1
             for lb in range(b.lbStart,b.lbEnd):
                 try:
                     lumi += self.lumiData[b.run][lb]
                 except:
-                    print 'ERROR: missing luminosity information for run %i LB %i (in [%i,%i]) - weight set to zero!!' % (b.run,lb,b.lbStart,b.lbEnd)
+                    print ('ERROR: missing luminosity information for run %i LB %i (in [%i,%i]) - weight set to zero!!' % (b.run,lb,b.lbStart,b.lbEnd))
                     self.nWarnings += 1
         for i in range(len(self.varList)):
             parName = self.varList[i]
@@ -622,7 +625,7 @@ class BeamSpotAverage:
                     w = 1./valErr/valErr
                 else:
                     w = 0.
-                    print 'WARNING: Divison by zero for parameter %s   (val = %f  valErr = %f)\n' % (parName,val,valErr)
+                    print ('WARNING: Divison by zero for parameter %s   (val = %f  valErr = %f)\n' % (parName,val,valErr))
                     self.nWarnings += 1
             else:
                 w = lumi
@@ -765,6 +768,10 @@ class BeamSpotContainer:
         """Return next selected element in the container."""
         return self.iter.next()
 
+    def __next__(self):
+        """Return next selected element in the container."""
+        return self.iter.next()
+
     def allData(self):
         """Default generator to iterate over all data. Must be overridden by derived classes."""
         raise StopIteration
@@ -826,13 +833,13 @@ class BeamSpotContainer:
             self.selTimeMin = min(self.selTimeMin,b.timeStart)
             self.selTimeMax = max(self.selTimeMax,b.timeEnd)
             yield b
-        print '\n%i entries selected out of total of %i entries in ntuple:' % (self.nSel,self.nTot)
-        print '... runs   %6i - %6i' % (self.selRunMin,self.selRunMax)
-        print '... fills  %6i - %6i' % (self.selFillMin,self.selFillMax)
-        print '... bcids  %6i - %6i' % (self.selBcidMin,self.selBcidMax)
-        print '... %s - %s' % (time.strftime('%a %b %d %X %Z %Y',time.localtime(self.selTimeMin)),
-                               time.strftime('%a %b %d %X %Z %Y',time.localtime(self.selTimeMax)))
-        print
+        print ('\n%i entries selected out of total of %i entries in ntuple:' % (self.nSel,self.nTot))
+        print ('... runs   %6i - %6i' % (self.selRunMin,self.selRunMax))
+        print ('... fills  %6i - %6i' % (self.selFillMin,self.selFillMax))
+        print ('... bcids  %6i - %6i' % (self.selBcidMin,self.selBcidMax))
+        print ('... %s - %s' % (time.strftime('%a %b %d %X %Z %Y',time.localtime(self.selTimeMin)),
+                               time.strftime('%a %b %d %X %Z %Y',time.localtime(self.selTimeMax))))
+        print()
 
     def getDataCache(self):
         """Get a cache of all data in the form of a dict of runs, where each element
@@ -843,7 +850,7 @@ class BeamSpotContainer:
             if not r in cache:
                 cache[r] = {}
             if b.lbEnd-b.lbStart > 500:
-                print 'WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r)
+                print ('WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r))
             else:
                 for i in range(b.lbStart,b.lbEnd+1):
                     if b.status in self.statusList or not self.statusList:
@@ -903,7 +910,7 @@ class BeamSpotNt(BeamSpotContainer):
             self.rootFile = ROOT.TFile(fileName)
             self.nt = self.rootFile.Get(self.treeName)
             if not self.nt:
-                raise ValueError, 'Tree %s not found in ntuple file %s' % (self.treeName,self.fileName)
+                raise ValueError ('Tree %s not found in ntuple file %s' % (self.treeName,self.fileName))
 
         # Register instance's __del__() with exit handler
         # This is needed for ROOT >= 5.28 to prevent ROOTs exit handler cleaning up the file
@@ -920,7 +927,7 @@ class BeamSpotNt(BeamSpotContainer):
 
     def allData(self):
         varList = BeamSpotValue(self.fullCorrelations).varList()
-        for j in xrange(self.nt.GetEntries()):
+        for j in range(self.nt.GetEntries()):
             self.nt.GetEntry(j)
             bs = BeamSpotValue(self.fullCorrelations)
             for v in varList:
@@ -960,7 +967,7 @@ class BeamSpotFinderNt(BeamSpotContainer):
         self.nt = self.rootFile.Get(treeName)
         self.fullCorrelations = fullCorrelations
         if not self.nt:
-            raise ValueError, 'Tree %s not found in ntuple file %s' % (treeName,fileName)
+            raise ValueError ('Tree %s not found in ntuple file %s' % (treeName,fileName))
 
         # Register instance's __del__() with exit handler
         # This is needed for ROOT >= 5.28 to prevent ROOTs exit handler cleaning up the file
@@ -974,14 +981,14 @@ class BeamSpotFinderNt(BeamSpotContainer):
             self.rootFile = None
 
     def allData(self):
-        for j in xrange(self.nt.GetEntries()):
+        for j in range(self.nt.GetEntries()):
             self.nt.GetEntry(j)
             bs = BeamSpotValue(self.fullCorrelations)
             try:
                 bs.status = BeamSpotFinderNt.fitIdToStatusMap[self.nt.fitID]+BeamSpotFinderNt.fitResultToStatusMap[self.nt.fitStatus]
             except:
                 bs.status = 0
-                print "ERROR: can't translate (fitID,fitStatus) = (%i,%i) into status word" % (self.nt.fitID,self.nt.fitStatus)
+                print ("ERROR: can't translate (fitID,fitStatus) = (%i,%i) into status word" % (self.nt.fitID,self.nt.fitStatus))
             bs.run = self.nt.run
             try:
                 bs.bcid = self.nt.bcid
@@ -1239,5 +1246,5 @@ if __name__ == '__main__':
     #Test for CSV reading
     #data = BeamSpotCSV("/afs/cern.ch/user/a/atlidbs/data/69OnlineBeamspots.csv")
     for b in data:
-        print b
+        print (b)
     pass

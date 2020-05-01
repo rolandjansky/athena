@@ -300,7 +300,6 @@ namespace Trk {
     bool                            m_requireMaterialDestinationHit; //!< require the destination surface hit for material collection
     bool                            m_stopWithNavigationBreak;       //!< return 0 if navigation breaks - for validation reasons
     bool                            m_stopWithUpdateZero;            //!< return 0 if update kills the trajectory 
-    bool                            m_subSurfaceLevel;               //!< tep down to sub-surface level
     bool                            m_skipInitialLayerUpdate;        //!< skip the initial post-Update at the layer [Fatras conversion mode]
     bool                            m_referenceMaterial;             //!< use the reference material for the update
     bool                            m_extendedLayerSearch;           //!< extended layer search
@@ -337,6 +336,13 @@ namespace Trk {
     struct Cache {
        Cache(unsigned int max_navig_surf=1000.) : m_path(0.,0) {
           m_navigSurfs.reserve(max_navig_surf);
+       }
+       ~Cache() {
+	  for (std::pair<const Trk::TrackParameters *, bool> param : m_garbageBin) {
+             if (param.second) {
+                delete param.first;
+             }
+	  }
        }
        bool                    m_dense {};                         //!<  internal switch for resolved configuration
 

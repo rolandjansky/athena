@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxSecVertex
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigSteer/TrigInterfaces
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigTools/TrigTrackJetFinderTool
 			  Control/AthViews
                           InnerDetector/InDetConditions/BeamSpotConditionsData
@@ -50,7 +51,7 @@ atlas_add_component( TrigBjetHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODBase xAODTracking GaudiKernel Particle VxSecVertex TrigInDetEvent TrigInterfacesLib AthContainers GeoPrimitives EventInfo EventPrimitives FourMomUtils xAODBTagging xAODCore xAODJet xAODMuon BTaggingLib JetEvent VxVertex TrigCaloEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent DecisionHandlingLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODBase xAODTracking GaudiKernel Particle VxSecVertex TrigInDetEvent TrigInterfacesLib AthContainers GeoPrimitives EventInfo EventPrimitives FourMomUtils xAODBTagging xAODCore xAODJet xAODMuon BTaggingLib JetEvent VxVertex TrigCaloEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent DecisionHandlingLib AthViews TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigBjetHypo )

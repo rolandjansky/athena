@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TEvent.icc 663791 2015-04-29 13:08:06Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TEVENT_ICC
 #define XAODROOTACCESS_TEVENT_ICC
 
@@ -12,7 +9,7 @@
 #include <TError.h>
 
 // EDM include(s):
-#include "AthContainers/ClassName.h"
+#include "AthContainers/normalizedTypeinfoName.h"
 
 namespace xAOD {
 
@@ -66,7 +63,8 @@ namespace xAOD {
          if( ! result ) {
             ::Warning( "xAOD::TEvent::retrieve",
                        "Couldn't (const) retrieve \"%s/%s\"",
-                       ClassName< T >::name().c_str(), key.c_str() );
+                       SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
+                       key.c_str() );
             return TReturnCode::kRecoverable;
          }
       } else {
@@ -102,7 +100,8 @@ namespace xAOD {
       if( ! result ) {
          ::Warning( "xAOD::TEvent::retrieve",
                     "Couldn't (non-const) retrieve \"%s/%s\"",
-                    ClassName< T >::name().c_str(), key.c_str() );
+                    SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
+                    key.c_str() );
          return TReturnCode::kRecoverable;
       }
 
@@ -127,7 +126,8 @@ namespace xAOD {
                                ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      return record( obj, ClassName< T >::name(), key, basketSize, splitLevel );
+      return record( obj, SG::normalizedTypeinfoName( typeid( T ) ), key,
+                     basketSize, splitLevel );
    }
 
    /// This function is used to add an object to the output. As the interface
@@ -148,8 +148,9 @@ namespace xAOD {
                                ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      const TReturnCode rc = record( obj.get(), ClassName< T >::name(), key,
-                                     basketSize, splitLevel );
+      const TReturnCode rc =
+         record( obj.get(), SG::normalizedTypeinfoName( typeid( T ) ), key,
+                 basketSize, splitLevel );
       if( ! rc.isSuccess() ) {
          return rc;
       }
@@ -207,7 +208,8 @@ namespace xAOD {
       if( ! result ) {
          ::Warning( "xAOD::TEvent::retrieveMetaInput",
                     "Couldn't (const) retrieve \"%s/%s\"",
-                    ClassName< T >::name().c_str(), key.c_str() );
+                    SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
+                    key.c_str() );
          return TReturnCode::kRecoverable;
       }
 
@@ -233,7 +235,8 @@ namespace xAOD {
       if( ! result ) {
          ::Warning( "xAOD::TEvent::retrieveMetaOutput",
                     "Couldn't (const) retrieve \"%s/%s\"",
-                    ClassName< T >::name().c_str(), key.c_str() );
+                    SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
+                    key.c_str() );
          return TReturnCode::kRecoverable;
       }
 
@@ -258,7 +261,8 @@ namespace xAOD {
       if( ! result ) {
          ::Warning( "xAOD::TEvent::retrieveMetaOutput",
                     "Couldn't (non-const) retrieve \"%s/%s\"",
-                    ClassName< T >::name().c_str(), key.c_str() );
+                    SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
+                    key.c_str() );
          return TReturnCode::kRecoverable;
       }
 
@@ -283,8 +287,8 @@ namespace xAOD {
                                    ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      return record( obj, ClassName< T >::name(), key, basketSize, splitLevel,
-                     kFALSE, kTRUE );
+      return record( obj, SG::normalizedTypeinfoName( typeid( T ) ), key,
+                     basketSize, splitLevel, kFALSE, kTRUE );
    }
 
    /// This function can be used to add a metadata object to the output. As the
@@ -305,8 +309,9 @@ namespace xAOD {
                                    ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      const TReturnCode rc = record( obj.get(), ClassName< T >::name(), key,
-                                     basketSize, splitLevel, kFALSE, kTRUE );
+      const TReturnCode rc =
+         record( obj.get(), SG::normalizedTypeinfoName( typeid( T ) ), key,
+                 basketSize, splitLevel, kFALSE, kTRUE );
       if( ! rc.isSuccess() ) {
          return rc;
       }

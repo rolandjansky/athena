@@ -42,11 +42,7 @@ namespace CP
     SystematicSet(const std::vector<SystematicVariation>& systematics);
 
     /// construct with an std::initializer_list
-    #ifndef __CINT__
-    #if __cplusplus >= 201100
     SystematicSet(const std::initializer_list<SystematicVariation>& systematics);
-    #endif
-    #endif
 
   public:
     // Public set-interface methods
@@ -84,7 +80,7 @@ namespace CP
     void swap(SystematicSet& otherSet);
 
     /// description: clear the set
-    void clear() { return m_sysVariations.clear(); }
+    void clear();
 
   public:
     // Specialized search and filtering methods
@@ -173,11 +169,6 @@ namespace CP
     mutable std::size_t m_hash;
     mutable bool m_hashIsCached;
 
-    /// description: flags this set as already cached using
-    /// its current full set of systematics. Is set to false
-    /// when the set is modified.
-    //bool m_isCached;
-
   };
 
 
@@ -200,13 +191,11 @@ namespace CP
 namespace std
 {
   /// Specialization of std::hash for std::unordered_map
-  #if __cplusplus >= 201100
   template<> struct hash<CP::SystematicSet>
   {
     std::size_t operator()(const CP::SystematicSet& sysSet) const
     { return sysSet.hash(); }
   };
-  #endif
 }
 
 #endif

@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TDestructorRegistry.icc 599851 2014-06-02 12:32:51Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_ICC
 #define XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_ICC
 
@@ -39,10 +36,8 @@ namespace xAOD {
       // Get a "write lock":
       std::unique_lock< std::shared_timed_mutex > lock( m_mutex );
 
-      // Create a new destructor object:
-      TVirtualDestructor* d = new TDestructor< T >();
-      // ...and remember it:
-      m_types[ &ti ].m_destructor = d;
+      // Create a new destructor object.
+      m_types[ &ti ] = std::make_unique< TDestructor< T > >();
 
       return;
    }

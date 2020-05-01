@@ -6,8 +6,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 class TrackCountHypoTool : virtual public ::AthAlgTool
 {

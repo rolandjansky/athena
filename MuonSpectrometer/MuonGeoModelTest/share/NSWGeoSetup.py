@@ -2,9 +2,9 @@
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-R2-2015-03-01-00"
     #DetDescrVersion="ATLAS-GEOTEST"
-    print 'MuonGeoModelTest/NSWGeoSetup DetDescrVersion now set to ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/NSWGeoSetup DetDescrVersion now set to ', DetDescrVersion)
 else:
-    print 'MuonGeoModelTest/NSWGeoSetup DetDescrVersion is already ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/NSWGeoSetup DetDescrVersion is already ', DetDescrVersion)
  
 
 from AthenaCommon.JobProperties import jobproperties
@@ -20,11 +20,11 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 if DetDescrVersion=="ATLAS-GEOTEST" or DetDescrVersion=="ATLAS-GEO-21-00-01":
     # do nothing
-    print 'NSWGeoSetup: no need to override tag on the MuonSpectrometer Node with ATLAS tag ', DetDescrVersion 
-    print 'Be aware that the job is running with NSW TDR setup!'
+    printfunc ('NSWGeoSetup: no need to override tag on the MuonSpectrometer Node with ATLAS tag ', DetDescrVersion )
+    printfunc ('Be aware that the job is running with NSW TDR setup!')
 else:
     GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE setup MuonDetectorManager
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool

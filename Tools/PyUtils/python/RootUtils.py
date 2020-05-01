@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.RootUtils
 # @author Sebastien Binet
@@ -56,6 +56,7 @@ def import_root(batch=True):
     return ROOT
 
 _tempfiles = []
+_first_compile = True
 def root_compile(src=None, fname=None, batch=True):
     """a helper method to compile a set of C++ statements (via ``src``) or
     a C++ file (via ``fname``) via ACLiC
@@ -66,6 +67,18 @@ def root_compile(src=None, fname=None, batch=True):
     if src is None and fname is None:
         raise ValueError("'src' xor 'fname' should be None, *not* both")
 
+    # Cling bug workaround: Cling will try to find a definition for the
+    # hidden __gmon_start__ by opening all libraries on LD_LIBRARY_PATH.
+    # But it will crash if it encounters a separate-debug library.
+    # Work around by adding a dummy definition of __gmon_start__.
+    # See !31633.
+    global _first_compile
+    if _first_compile:
+        _first_compile = False
+        root_compile ('extern "C" { void __gmon_start__(){}; }', None, True)
+    return _root_compile (src, fname, batch)
+
+def _root_compile (src, fname, batch):
     import os
     from .Helpers import ShutUp as root_shutup
     

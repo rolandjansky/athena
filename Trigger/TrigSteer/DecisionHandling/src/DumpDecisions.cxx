@@ -4,7 +4,7 @@
 // DecisionHandling includes
 
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"

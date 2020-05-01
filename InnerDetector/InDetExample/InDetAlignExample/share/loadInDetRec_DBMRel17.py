@@ -46,12 +46,12 @@ if loadInDetRec_Options["GoodRunList"] != "":
   GoodRunsTool.GoodRunsListVec   = [ loadInDetRec_Options["CollisionGRL"] ]
   GoodRunsTool.EventSelectorMode = True
   GoodRunsTool.OutputLevel = DEBUG
-  print GoodRunsTool
+  printfunc (GoodRunsTool)
 
   AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
   AthenaEventLoopMgr.PreSelectTools+=[GoodRunsTool]
   AthenaEventLoopMgr.OutputLevel = DEBUG
-  print AthenaEventLoopMgr
+  printfunc (AthenaEventLoopMgr)
 
 
 
@@ -67,7 +67,7 @@ doReadBS        = loadInDetRec_Options["doReadBS"]
 #--------------------------------------------------------------
 
 if "IDCosmic" in loadInDetRec_Options["inputFiles"][0]:
-	print "Switched manually to cosmics"
+	printfunc ("Switched manually to cosmics")
 	from AthenaCommon.BeamFlags import jobproperties
 	jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -185,9 +185,6 @@ InDetFlags.doNewTracking          = True
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-#if not Cosmics:
-InDetFlags.doxKalman              = False
-InDetFlags.doiPatRec              = False
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 #InDetFlags.doTRTStandalone        = False
@@ -276,10 +273,10 @@ if loadInDetRec_Options["siPoolFile"]:
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += CondProxyProvider()
     ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-    print 'Loading initial alignment File'
+    printfunc ('Loading initial alignment File')
     ServiceMgr.CondProxyProvider.InputCollections = [ loadInDetRec_Options["siPoolFile"] ]
     ServiceMgr.CondProxyProvider.OutputLevel=INFO
-    print ServiceMgr.CondProxyProvider
+    printfunc (ServiceMgr.CondProxyProvider)
     IOVSvc = Service("IOVSvc")
     IOVSvc.preLoadData = True
 
@@ -310,15 +307,14 @@ from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackErro
 InDetRotErrorScalingTool = Trk__RIO_OnTrackErrorScalingTool( name        = 'RIO_OnTrackErrorScalingTool',
                                                              OutputLevel = INFO )
 ToolSvc += InDetRotErrorScalingTool
-#print InDetRotErrorScalingTool
+#printfunc (InDetRotErrorScalingTool)
 
   
 # Correct TRT calibration for cosmics
 if loadInDetRec_Options["TRTCalibTextFile"] and Cosmics:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
   
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )

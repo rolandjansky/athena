@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -95,10 +95,11 @@ class IRDBAccessSvc : virtual public IInterface
 
   /// Returns AttributeList with tag details
   /// Attributes in the list: Locked (bool), Supported (bool)
+  /// @param tagDetails [OUT] attribute list with tag details
   /// @param tag [IN] name of the tag
-  /// @return attribute list with tag details
-  virtual RDBTagDetails getTagDetails(const std::string& tag,
-				      const std::string& connName = "ATLASDD") = 0;
+  virtual void getTagDetails(RDBTagDetails& tagDetails,
+                             const std::string& tag,
+                             const std::string& connName = "ATLASDD") = 0;
 
  protected:
   /// Connect to the relational DB.

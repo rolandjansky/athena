@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -29,7 +29,7 @@
 #include "../src/HistogramFiller/CumulativeHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
-#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable.h"
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
 #include "../src/HistogramFiller/HistogramFiller2DProfile.h"
@@ -48,7 +48,7 @@ class HistogramProviderGetter : public HistogramFiller {
     HistogramProviderGetter(const HistogramFiller& hf) 
       : HistogramFiller(hf) {}
 
-    virtual unsigned fill() { return 0; }
+    virtual unsigned fill() const { return 0; }
     virtual HistogramFiller* clone() const { return nullptr; }
 
     std::shared_ptr<IHistogramProvider> histogramProvider() { return m_histogramProvider; }

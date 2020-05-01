@@ -18,6 +18,7 @@
 #include "TrkTrack/Track.h"
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <list>
 
@@ -63,15 +64,14 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       //@{
       virtual std::list<Trk::Track*>
-	getTracks(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>&) const =0;
-
+        getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>&) const =0;
       virtual std::list<Trk::Track*>
-	getTracks(SiTrackMakerEventData_xk& data, const Trk::TrackParameters&, const std::list<Amg::Vector3D>&) const =0;
-      
-      virtual void newEvent(SiTrackMakerEventData_xk& data, bool, bool) const =0;
+	getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const Trk::TrackParameters&, const std::list<Amg::Vector3D>&) const =0;
 
-      virtual void newTrigEvent(SiTrackMakerEventData_xk& data, bool, bool) const =0;
-      
+      virtual void newEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool, bool) const =0;
+
+      virtual void newTrigEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool, bool) const =0;
+
       virtual void endEvent(SiTrackMakerEventData_xk& data) const =0;
       //@}
 

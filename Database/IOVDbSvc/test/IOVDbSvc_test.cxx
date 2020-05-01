@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -26,6 +26,7 @@
 #include "CoolKernel/Record.h"
 #include "CoolKernel/IFolder.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 #include "TInterpreter.h"
 #include <cassert>
 #include <iostream>
@@ -37,7 +38,7 @@ void test1 (IIOVDbSvc& iovdbsvc)
 
   IOVRange range;
   std::string tag;
-  IOpaqueAddress* addr = nullptr;
+  std::unique_ptr<IOpaqueAddress> addr;
   assert( iovdbsvc.getRange (1238547719, "/key1", IOVTime (10, 15),
                              range, tag, addr).isSuccess() );
   assert (std::string(range) == "{[10,10] - [10,20]}");

@@ -18,62 +18,45 @@ log_trigeg = logging.getLogger( 'TrigEgammaMonitorAlgorithm' )
 def TrigEgammaMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
+ 
     # The following class will make a sequence, configure algorithms, and link
-    # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    #from AthenaConfiguration.ComponentFactory import CompFactory
-    
-    
-    ##from TrigEgammaAnalysisToolsMT.TrigEgammaAnalysisToolsMTConf import TrigEgammaMonAlgorithm
     helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
-    ##monAlg = helper.addAlgorithm(TrigEgammaMonAlgorithm,'TrigEgammaMonAlg')
-    
-
-
     # configure alg and ana tools
-    ##from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonToolBuilder
-    # The last arg shold be an config flag for future
-    # The helper.resobj is the component accumulator created by the helper and will hold all 
-    # algs and tools created by this configuration
-    ##montoolCfg = TrigEgammaMonToolBuilder( monAlg , "TrigEgammaMonAlg", helper.resobj, '2018') # Using 2018 e/g tunings
+    from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonAlgBuilder
+    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistogram=True ) # Using 2018 e/g tunings
+    
+    # Force monitor builder
+    monAlgCfg.activate_zee=False
+    monAlgCfg.activate_jpsiee=False
+    monAlgCfg.activate_electron=True
+    monAlgCfg.activate_photon=False
+    # build monitor and book histograms
+    monAlgCfg.configure()
 
 
 
 
-    # configure all histograms
-    ##from TrigEgammaAnalysisToolsMT.TrigEgammaAnalysisMTBuilder import TrigEgammaAnalysisBuilder
-    ## get the histogram builder for all analysis tools for e/g staff. 
-    ## link the algotihm and helper with the ana builder.    
-    ## All generic monitoring tools will be attached inside of the monAlg and componenet accumulator
-    ##anatoolCfg = TrigEgammaAnalysisBuilder( helper, monAlg, 'TrigEgammaMonAlg', montoolCfg.basePath ,
-    ##                                        montoolCfg.detailLevel)
+    # Test matching tool 
+    # The following class will make a sequence, configure algorithms, and link
+    #from AthenaMonitoring import AthMonitorCfgHelper
+    #helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
+    #from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import TrigEgammaMatchingToolMTTest, Trig__TrigEgammaMatchingToolMT 
+    #mon = helper.addAlgorithm( TrigEgammaMatchingToolMTTest, "TrigEgammaMatchingToolMTTest" )
+    #triggers = [
+    #    "HLT_e26_etcut_L1EM22VHI",
+    #    "HLT_e26_lhtight_L1EM24VHI",
+    #    "HLT_e300_etcut_L1EM24VHI",
+    #    "HLT_e3_etcut_L1EM3",
+    #    "HLT_e5_etcut_L1EM3",
+    #    "HLT_e7_etcut_L1EM3",
+    #    ]
+    #tool = Trig__TrigEgammaMatchingToolMT("MatchingTool")
+    #mon.TrigEgammaMatchingToolMT = tool
+    #mon.TriggerList = triggers
+    #helper.resobj.addPublicTool(tool)
+   
 
-
-
-
-    # Get only unique triggers
-    #triggerList = []
-    #for anaTool in montoolCfg.anaTools:
-    #  triggerList.extend(anaTool.TriggerList)
-
-
-    # Check there is duplicate trigger into the trigger list. If we have, abort
-    #if not (len(triggerList) == len(set(triggerList))):
-    #  raise RuntimeError( "There are duplicate trigger into the e/g monitoring list.")
-
-
-
-
-    # Attach the histogram manager my monAlg that pointet to "TrigEgammaMonAlg"
-    # All hisograms will be "TrigEgammaMonAlg/HLT/Egamma/trigger/..." where
-    # "TrigEgammaMonAlg" is the monname and HLT/Egamma is the basepath
-    #for trigger in triggerList:
-    #  anatoolCfg.bookTriggerHistograms( trigger , doJpsiee = True if 'Jpsi' in anaTool.name() else False )
-
-
-
-    #for anaTool in montoolCfg.anaTools:
-    #  anatoolCfg.bookEventHistograms( anaTool )
 
 
 
@@ -97,15 +80,14 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    log.setLevel(DEBUG)
+    from AthenaCommon.Constants import INFO
+    log.setLevel(INFO)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/eos/user/f/fernando/data18_13TeV/'
-    file = 'AOD.15529645._000080.pool.root.1'
 
-    ConfigFlags.Input.Files = [nightly+file]
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/AOD.20745922._000041.pool.root.1'
+    ConfigFlags.Input.Files = [path]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
     
@@ -123,7 +105,7 @@ if __name__=='__main__':
 
 
     # If you want to turn on more detailed messages ...
-    trigEgammaMonitorAcc.getEventAlgo('TrigEgammaMonAlg').OutputLevel = 2 # DEBUG
-    cfg.printConfig(withDetails=True) # set True for exhaustive info
+    #trigEgammaMonitorAcc.getEventAlgo('TrigEgammaMonAlg').OutputLevel = 2 # DEBUG
+    cfg.printConfig(withDetails=False) # set True for exhaustive info
 
     cfg.run(10) #use cfg.run(20) to only run on first 20 events

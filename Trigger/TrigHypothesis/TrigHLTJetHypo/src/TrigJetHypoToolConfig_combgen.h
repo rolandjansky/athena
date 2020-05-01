@@ -15,9 +15,9 @@
 
 #include "ITrigJetHypoToolConfig.h"
 #include "./ConditionsDefsMT.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 

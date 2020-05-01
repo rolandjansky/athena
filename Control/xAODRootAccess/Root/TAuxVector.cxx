@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxVector.cxx 793778 2017-01-25 04:06:29Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -102,9 +98,9 @@ namespace xAOD {
       return *this;
    }
 
-   std::unique_ptr<SG::IAuxTypeVector> TAuxVector::clone() const {
+   std::unique_ptr< SG::IAuxTypeVector > TAuxVector::clone() const {
 
-      return std::make_unique<TAuxVector>( *this );
+      return std::make_unique< TAuxVector >( *this );
    }
 
    void* TAuxVector::toPtr() {

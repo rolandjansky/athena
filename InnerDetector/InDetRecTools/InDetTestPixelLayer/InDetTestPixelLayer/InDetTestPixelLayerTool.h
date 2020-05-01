@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTestPixelLayerTool_H
@@ -44,45 +44,42 @@ namespace InDet {
                     const std::string& n, const IInterface* p);
     virtual ~InDetTestPixelLayerTool();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     //    bool expectHitInPixelLayer(const Rec::TrackParticle*) const ;
-    virtual bool expectHitInPixelLayer(const Trk::TrackParticleBase*, int pixel_layer, bool recompute=false) const;
-    virtual bool expectHitInPixelLayer(const Trk::Track*, int pixel_layer, bool recompute=false) const;
-    virtual bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar, int pixel_layer) const;
+    virtual bool expectHitInPixelLayer(const Trk::TrackParticleBase*, int pixel_layer, bool recompute=false) const override;
+    virtual bool expectHitInPixelLayer(const Trk::Track*, int pixel_layer, bool recompute=false) const override;
+    virtual bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar, int pixel_layer) const override;
 
-    virtual bool expectHit(const Trk::TrackParameters* trackpar) const;
+    virtual bool expectHit(const Trk::TrackParameters* trackpar) const override;
 
-    virtual const Trk::ResidualPull* pixelLayerHitResidual(const Trk::Track*, int pixel_layer=0) const;
-    virtual const Trk::ResidualPull* pixelLayerHitResidual(const Trk::TrackParticleBase*, int pixel_layer=0) const;
+    virtual const Trk::ResidualPull* pixelLayerHitResidual(const Trk::Track*, int pixel_layer=0) const override;
+    virtual const Trk::ResidualPull* pixelLayerHitResidual(const Trk::TrackParticleBase*, int pixel_layer=0) const override;
 
     //// return false if extrapolation failed
     virtual bool getTrackStateOnPixelLayerInfo(const Trk::TrackParticleBase*,
-					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const;
+					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const override;
     virtual bool getTrackStateOnPixelLayerInfo(const Trk::Track*,
-					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const;
+					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const override;
     virtual bool getTrackStateOnPixelLayerInfo(const Trk::TrackParameters* trackpar,
-					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const;
+					       std::vector<TrackStateOnPixelLayerInfo>& infoList) const override;
 
 
-    virtual double getFracGood(const Trk::TrackParticleBase* trackpar, int pixel_layer) const;
-    virtual double getFracGood(const Trk::TrackParameters* trackpar, int pixel_layer) const;
-    virtual double getFracGood() const;
+    virtual double getFracGood(const Trk::TrackParticleBase* trackpar, int pixel_layer) const override;
+    virtual double getFracGood(const Trk::TrackParameters* trackpar, int pixel_layer) const override;
 
-    virtual double getExtrapolPixelEta() const;
-    virtual double getExtrapolPixelPhi() const;
 
   private:
-
-    void pixelLayerHitResiduals(const Trk::TrackParticleBase*) const ;
-    void pixelLayerHitResiduals(const Trk::Track* ) const ;
+    PixelLayerResidualPullMap pixelLayerHitResiduals(const Trk::TrackParticleBase*) const ;
+    PixelLayerResidualPullMap pixelLayerHitResiduals(const Trk::Track* ) const ;
 
     bool IsInCorrectLayer(Identifier&,PixelIDVec&, int) const;
     bool IsInSameLayer(Identifier&,Identifier&) const;
 
     bool isActive(const Trk::TrackParameters* trackpar) const ;
-    bool getPixelLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& pixelLayerParam) const;
+    bool getPixelLayerParameters(const Trk::TrackParameters* trackpar,
+                                 std::vector<std::unique_ptr<const Trk::TrackParameters> >& pixelLayerParam) const;
     double getFracGood(const Trk::TrackParameters* trackpar, double phiRegionSize, double etaRegionSize) const;
 
     /** Pointer to Extrapolator AlgTool*/
@@ -108,26 +105,6 @@ namespace InDet {
     double m_phiRegionSize;
     double m_etaRegionSize;
     double m_goodFracCut;
-
-    /** For cached objects */
-    struct CacheEntry {
-      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-      double m_cachedFracGood;
-      const Trk::TrackParameters* m_cachedTrkParam;
-      const Trk::Track* m_cached_track_residual;
-      PixelLayerResidualPullMap m_residual_map;
-      std::recursive_mutex m_mutex;
-      void checkEvent(const EventContext& ctx) {
-        if (m_evt!=ctx.evt()) {
-          m_cachedFracGood = -9999.;
-          m_cachedTrkParam = nullptr;
-          m_cached_track_residual = nullptr;
-          m_residual_map.clear();
-          m_evt = ctx.evt();
-        }
-      }
-    };
-    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
   };
   
   

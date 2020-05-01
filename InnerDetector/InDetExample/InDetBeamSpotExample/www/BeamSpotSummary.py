@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 ATLAS beam spot web page for displaying beam spot job data.
@@ -123,7 +125,7 @@ class BeamSpotSummary(BeamSpotWebPage):
                         table += '<a href="http://atlas-runquery.cern.ch/query.py?q=find+run+%s+/+show+bs+%s">%s</a> ' % (runnr,tag,tag)
                         table += '<br>'
                     table += "</td>"
-                except Exception, e:
+                except Exception as e:
                     table += "<td>%s</td>" % str(e)
                     table += "<td></td>"
                     table += "<td></td>"
@@ -142,4 +144,4 @@ class BeamSpotSummary(BeamSpotWebPage):
 # Code to test or run locally
 if __name__ == '__main__':
     p = BeamSpotSummary()
-    print p.index()
+    print (p.index())

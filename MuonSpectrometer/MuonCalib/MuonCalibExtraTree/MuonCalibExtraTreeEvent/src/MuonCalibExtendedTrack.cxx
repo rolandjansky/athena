@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedTrack.h"
@@ -22,7 +22,6 @@ namespace MuonCalib {
     Amg::setPhi(m_dir, phi());
 
     MuonFixedIdManipulator idManip;
-    // MuonFixedIdPrinter     printer;
 
     m_summary.nhits  = 0;
     m_summary.nscatters = 0; 
@@ -58,15 +57,13 @@ namespace MuonCalib {
 	  } else if ((*it_hit)->position().perp() < 540.) {
 	    ++m_summary.nsct;
 	  } else if ((*it_hit)->position().perp() < 1100.) {
-	    if(fabs((*it_hit)->position().z()) < 750.) ++m_summary.ntrtBarrel;
+	    if(std::abs((*it_hit)->position().z()) < 750.) ++m_summary.ntrtBarrel;
 	    else                                       ++m_summary.ntrtEndcap;
 	  }
 	}
 	continue;
       }
       
-      //else std::cout << " WARNING duplicate hit on track found " << printer.fullIdentifier(id) << std::endl;
-
       MuonFixedId chId = idManip.chamberIdentifier(id);
 
       bool measuresPhi = idManip.measuresPhi(id);
@@ -310,7 +307,6 @@ namespace MuonCalib {
     
     const IdHitsMap& chHitMap = track.hitsPerChamberMap();
     MuonFixedIdManipulator manip;
-    MuonFixedIdPrinter printer;
 
     MuonCalibExtendedTrackOverlap overlap;
 
@@ -327,8 +323,6 @@ namespace MuonCalib {
 	// shared chamber add to list
 	sharedChambers.insert(rit->first);
 
-	std::cout << " shared chamber " << printer.fullIdentifier(rit->first) << std::endl;
-
 	std::set<MuonFixedId> foundIds;
 	std::set<MuonFixedId> sharedEtaLayers;
 	std::set<MuonFixedId> sharedPhiLayers;
@@ -343,13 +337,11 @@ namespace MuonCalib {
 	  const MuonFixedId& id = (*it1)->identify();
 	  bool measuresPhi = manip.measuresPhi(id);
 	  MuonFixedId layerId = manip.moduleIdentifier(id,true);
-	  //std::cout << " hit  " << printer.fullIdentifier(id);
 
 	  std::vector<const MuonCalibHit_E*>::const_iterator hit = std::find_if( pos->second.begin(),pos->second.end(),SameFixedId(id));
 	  if( hit != pos->second.end() ){	   
-	    //std::cout << " is Overlap " << std::endl;
 	    if( id.is_mdt() ){
-	      if( fabs((*it1)->driftRadius()) > 2. && fabs((*hit)->driftRadius()) > 2.&& 
+	      if( std::abs((*it1)->driftRadius()) > 2. && std::abs((*hit)->driftRadius()) > 2.&& 
 		  (*it1)->driftRadius()*(*hit)->driftRadius() < 0. ) ++wrongSign;
 	      else sharedEtaLayers.insert(id);
 	      foundIds.insert(id);
@@ -360,26 +352,19 @@ namespace MuonCalib {
 	    }
 	  }else{
 	    if( !id.is_mdt() && foundIds.count(layerId) ) continue;
-	    //std::cout << " only on this track " << std::endl;
 	    if( measuresPhi ) firstPhiLayers.insert(layerId);
 	    else              firstEtaLayers.insert(layerId);
 	  }
 	}
 	std::vector<const MuonCalibHit_E*>::const_iterator it2 = pos->second.begin();
-	//std::vector<const MuonCalibHit_E*>::const_iterator it2_end = pos->second.end();
 	for( ;it1!=it1_end;++it1){
 	  MuonFixedId id = (*it2)->identify().is_mdt() ? (*it2)->identify() : manip.moduleIdentifier((*it2)->identify(),true);
-	  if( !foundIds.count(id) ) {
-	    //std::cout << " hit  only on second " << printer.fullIdentifier(id) << std::endl;
-	    
+	  if( !foundIds.count(id) ) {	    
 	    bool measuresPhi = manip.measuresPhi(id);
 	    if( measuresPhi ) secondPhiLayers.insert(id);
 	    else              secondEtaLayers.insert(id);
 	  }
 	}
-// 	std::cout << " chamber summary: shared " << sharedEtaLayers.size() << " " << sharedPhiLayers.size() << std::endl
-// 		  << "              only first " << firstEtaLayers.size() << " " << firstPhiLayers.size() << std::endl
-// 		  << "             only second " << secondEtaLayers.size() << " " << secondPhiLayers.size() << std::endl;
 	if( rit->first.is_mdt() ){
 	  overlap.mdt.shared += sharedEtaLayers.size();
 	  overlap.mdt.first  += firstEtaLayers.size();
@@ -407,8 +392,6 @@ namespace MuonCalib {
 	  overlap.cscPhi.second += secondPhiLayers.size();	  
 	}
       }else{
-
-	//std::cout << " only first chamber " << printer.fullIdentifier(rit->first) << std::endl;
 	std::set<MuonFixedId> foundIds;
 	std::vector<const MuonCalibHit_E*>::const_iterator it1 = rit->second.begin();
 	std::vector<const MuonCalibHit_E*>::const_iterator it1_end = rit->second.end();
@@ -420,7 +403,6 @@ namespace MuonCalib {
 	    MuonFixedId id = manip.moduleIdentifier((*it1)->identify(),true);
 	    if( foundIds.count(id) ) continue;
 	    foundIds.insert(id);
-	    //std::cout << " hit  only on first " << printer.fullIdentifier(id) << std::endl;
 	    bool measuresPhi = manip.measuresPhi((*it1)->identify());
 	    if( rit->first.is_rpc() ){
 	      if( !measuresPhi) ++overlap.rpcEta.first;
@@ -444,9 +426,6 @@ namespace MuonCalib {
     for( ;rit!=rit_end;++rit ){
       // skip already handled chambers
       if( sharedChambers.count(rit->first) ) continue;
-
-      //std::cout << " only second chamber " << printer.fullIdentifier(rit->first) << std::endl;
-
       std::set<MuonFixedId> foundIds;
       std::vector<const MuonCalibHit_E*>::const_iterator it1 = rit->second.begin();
       std::vector<const MuonCalibHit_E*>::const_iterator it1_end = rit->second.end();
@@ -458,7 +437,6 @@ namespace MuonCalib {
 	  MuonFixedId id = manip.moduleIdentifier((*it1)->identify(),true);
 	  if( foundIds.count(id) ) continue;
 	  foundIds.insert(id);
-	  //std::cout << " hit  only on second " << printer.fullIdentifier(id) << std::endl;
 	  bool measuresPhi = manip.measuresPhi((*it1)->identify());
 	  if( rit->first.is_rpc() ){
 	    if( !measuresPhi) ++overlap.rpcEta.second;
@@ -473,21 +451,6 @@ namespace MuonCalib {
 	}
       }
     }
-
-//     std::cout << " First " << std::endl
-// 	      << dumpSummary() 
-// 	      << " Second " << std::endl
-// 	      << track.dumpSummary() << std::endl
-// 	      << "  overlap: precicion " << overlap.sharedPrecisionHits() << " frac " << overlap.overlapFracionPrecision() 
-// 	      << " Trigger: eta " << overlap.sharedEtaTriggerHits()
-// 	      << " phi " << overlap.sharedPhiHits() << std::endl
-// 	      << "  only first: precicion " << overlap.firstPrecisionHits()
-// 	      << " Trigger: eta " << overlap.firstEtaTriggerHits()
-// 	      << " phi " << overlap.firstPhiHits() << std::endl
-// 	      << "  only second: precicion " << overlap.secondPrecisionHits()
-// 	      << " Trigger: eta " << overlap.secondEtaTriggerHits()
-// 	      << " phi " << overlap.secondPhiHits() << std::endl;
-    
     return overlap;
   }
 }

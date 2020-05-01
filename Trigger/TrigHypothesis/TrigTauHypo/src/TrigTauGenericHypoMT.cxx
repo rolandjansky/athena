@@ -42,8 +42,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 //class ISvcLocator;

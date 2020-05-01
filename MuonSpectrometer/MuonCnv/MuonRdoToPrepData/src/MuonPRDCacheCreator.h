@@ -8,6 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
+#include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 
@@ -39,6 +40,9 @@ protected:
   SG::WriteHandleKey<TgcPrepDataCollection_Cache>       m_TgcCacheKey;
   SG::WriteHandleKey<sTgcPrepDataCollection_Cache>      m_sTgcCacheKey;
   SG::WriteHandleKey<MMPrepDataCollection_Cache>        m_MmCacheKey;
+  SG::WriteHandleKey<RpcCoinDataCollection_Cache>       m_RpcCoinCacheKey;
+  SG::WriteHandleKey<TgcCoinDataCollection_Cache>       m_TgcCoinCacheKey;
+
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

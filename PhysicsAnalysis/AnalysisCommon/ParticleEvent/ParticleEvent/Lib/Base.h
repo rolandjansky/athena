@@ -14,8 +14,6 @@
 // STL includes
 #include <iosfwd>
 
-// HepMC / CLHEP includes
-
 // Gaudi includes
 
 // EventKernel includes

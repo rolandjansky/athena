@@ -58,7 +58,7 @@ if not 'ConditionsTag' in dir():
     ConditionsTag="OFLCOND-SIM-00-00-00" ### for MC condition tags OFLP200 (default DB choice) will work out of teh box
 
 if useAlignData:
-    print "Setting up DB name / Instance to COMP200 (default is OFLP200)"
+    printfunc ("Setting up DB name / Instance to COMP200 (default is OFLP200)")
     conddb.dbname = "COMP200"
     conddb.iovdbsvc.DBInstance="COMP200"
 
@@ -79,7 +79,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.03.14"
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE define alignment data from cond. tags
 

@@ -138,8 +138,6 @@ InDetFlags.doTrackSegmentsTRT   = False
 
 InDetFlags.doNewTracking  =         False
 InDetFlags.doLowPt        =         False
-InDetFlags.doxKalman      =         False
-InDetFlags.doiPatRec      =         False
 InDetFlags.doBackTracking =         False
 InDetFlags.doTRTStandalone =        False
 #InDetFlags.doSingleSpBackTracking = False
@@ -285,7 +283,7 @@ from FatrasExample.FatrasValidation import FatrasValidationFlags
 if FatrasFlags.RefittingID() and not FatrasFlags.ReconstructionID():
    FatrasValidationFlags.Refitting                = True
    if FatrasFlags.SingleTrackSimulation() and abs(FatrasSingleTrackSimulationFlags.ParticleType()) == 221:
-      print 'Warning: Fatras Standalone Refit does not work for Pions!'
+      printfunc ('Warning: Fatras Standalone Refit does not work for Pions!')
 #FatrasValidationFlags.Simulation               = True
 #FatrasValidationFlags.Refitting                = True
 #FatrasValidationFlags.Residuals                = True

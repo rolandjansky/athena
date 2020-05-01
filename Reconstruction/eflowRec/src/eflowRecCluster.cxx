@@ -19,6 +19,7 @@ eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& 
   const xAOD::CaloCluster* originalCluster = *clusElementLink;
   m_cluster = new xAOD::CaloCluster();
   newClusContainer.push_back(m_cluster);
+  m_clusElementLink = ElementLink<xAOD::CaloClusterContainer>(newClusContainer,newClusContainer.size()-1);
 
   const CaloClusterCellLink* theOldCellLinks = originalCluster->getCellLinks();
 

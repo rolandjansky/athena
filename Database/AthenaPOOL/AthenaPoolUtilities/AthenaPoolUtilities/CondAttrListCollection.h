@@ -24,6 +24,7 @@
 
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/DataObject.h"
 
 #include <vector>
@@ -77,7 +78,7 @@ public:
     ~CondAttrListCollection();
 
     // copy constructor and assignment operator - have to be explicitly 
-    // implemented to control use of the cachced AttributeListSpecification
+    // implemented to control use of the cached AttributeListSpecification
     CondAttrListCollection(const CondAttrListCollection& rhs);
     // no copy with new Gaudi
     CondAttrListCollection& operator=(const CondAttrListCollection& rhs) = delete;
@@ -132,9 +133,9 @@ public:
     bool                 hasUniqueIOV() const;
 
     /// Adding in chan/attrList pairs
-    void                 add(ChanNum chanNum, const AttributeList& attributeList);
+    bool                 add(ChanNum chanNum, const AttributeList& attributeList);
     /// Adding in chan/attrList pairs with shared data
-    void                 addShared(ChanNum chanNum, const AttributeList& attributeList);
+    void                 addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
 
     /// Adding in chan/iov range pairs
     void                 add(ChanNum chanNum, const IOVRange& range);
@@ -251,9 +252,10 @@ inline CondAttrListCollection::CondAttrListCollection(
       m_spec->extend(aspec.name(),aspec.typeName());
     }
     for (const_iterator itr=rhs.m_attrMap.begin();itr!=rhs.m_attrMap.end();
-       ++itr) {
-      m_attrMap[itr->first]=coral::AttributeList(*m_spec,true);
-      m_attrMap[itr->first].fastCopyData(itr->second);
+       ++itr)
+    {
+      auto newit = m_attrMap.try_emplace (itr->first, *m_spec, true).first;
+      newit->second.fastCopyData(itr->second);
     }
   }
 }
@@ -446,8 +448,8 @@ CondAttrListCollection::hasUniqueIOV() const
 }
 
 /// Adding in chan/attrList pairs: ASSUMED TO BE IN ORDER
-inline void                    
-CondAttrListCollection::add(ChanNum chanNum, const AttributeList& attributeList)
+inline bool                    
+CondAttrListCollection::add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();
@@ -458,11 +460,13 @@ CondAttrListCollection::add(ChanNum chanNum, const AttributeList& attributeList)
   }
   m_attrMap[chanNum]=coral::AttributeList(*m_spec,true);
   m_attrMap[chanNum].fastCopyData(attributeList);
+
+  return true;
 }
 
 /// Adding in chan/attrList pairs with shared AttrList: ASSUMED TO BE IN ORDER
 inline void                    
-CondAttrListCollection::addShared(ChanNum chanNum, const AttributeList& attributeList)
+CondAttrListCollection::addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();

@@ -146,7 +146,6 @@ StatusCode sTGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
   return StatusCode::SUCCESS;
 }
 
-
 /** ---------- clearing of variables */
 /** ---------- to be called inside filling method before filling starts */
 StatusCode sTGCDigitVariables::clearVariables()
@@ -189,6 +188,9 @@ StatusCode sTGCDigitVariables::clearVariables()
   m_NSWsTGC_dig_globalPosX->clear();
   m_NSWsTGC_dig_globalPosY->clear();
   m_NSWsTGC_dig_globalPosZ->clear();
+  m_NSWsTGC_dig_PadglobalCornerPosX->clear();
+  m_NSWsTGC_dig_PadglobalCornerPosY->clear();
+  m_NSWsTGC_dig_PadglobalCornerPosZ->clear();
 
   return StatusCode::SUCCESS;
 }
@@ -240,6 +242,9 @@ StatusCode sTGCDigitVariables::initializeVariables()
   m_NSWsTGC_dig_globalPosX = new std::vector<double>();
   m_NSWsTGC_dig_globalPosY = new std::vector<double>();
   m_NSWsTGC_dig_globalPosZ = new std::vector<double>();
+  m_NSWsTGC_dig_PadglobalCornerPosX = new std::vector<double>();
+  m_NSWsTGC_dig_PadglobalCornerPosY = new std::vector<double>();
+  m_NSWsTGC_dig_PadglobalCornerPosZ = new std::vector<double>();
 
   if(m_tree) {
     ATH_MSG_DEBUG("sTGC digit:  init m_tree ");
@@ -325,6 +330,9 @@ void sTGCDigitVariables::deleteVariables()
   delete m_NSWsTGC_dig_globalPosX;
   delete m_NSWsTGC_dig_globalPosY;
   delete m_NSWsTGC_dig_globalPosZ;
+  delete m_NSWsTGC_dig_PadglobalCornerPosX;
+  delete m_NSWsTGC_dig_PadglobalCornerPosY;
+  delete m_NSWsTGC_dig_PadglobalCornerPosZ;
 
   delete m_NSWsTGC_dig_time;
   delete m_NSWsTGC_dig_bctag;
@@ -370,6 +378,9 @@ void sTGCDigitVariables::deleteVariables()
   m_NSWsTGC_dig_globalPosX  = nullptr;
   m_NSWsTGC_dig_globalPosY  = nullptr;
   m_NSWsTGC_dig_globalPosZ  = nullptr;
+  m_NSWsTGC_dig_PadglobalCornerPosX  = nullptr;
+  m_NSWsTGC_dig_PadglobalCornerPosY  = nullptr;
+  m_NSWsTGC_dig_PadglobalCornerPosZ  = nullptr;
 
   return;
 }

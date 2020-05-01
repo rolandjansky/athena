@@ -498,24 +498,11 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   }
 
   // Units correction
-  #ifdef HEPMC_HAS_UNITS
-  //std::cout << (evt->momentum_unit() == HepMC::Units::GEV ? "GeV" : "MeV") << std::endl;
   /// @todo We shouldn't be having to rescale these events if they're already in MeV :S Where's the screw-up: HepMC or Py8?
   /// Hopefully this is permanently fixed in version 8.170 onwards
   if(pythiaVersion() < 8.170 ){
     GeVToMeV(evt);
   }
-  #else
-  ATH_MSG_DEBUG("Not scaling HepMC energies for Py8 > 8.153!");
-  /// @todo We *should* be having to rescale these events! Again, is HepMC or Py8 wrong? Or us?
-  //GeVToMeV(evt);
-  #endif
-
-#ifndef HEPMC_HAS_UNITS
-  ATH_MSG_DEBUG();
-#endif
-  
-  //HepMC::GenEvent *evtCopy = new HepMC::GenEvent(*evt);
 
   return StatusCode::SUCCESS;
 }

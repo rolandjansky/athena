@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Utilities for writing job transforms for use at T0 and at the CAF Task Management System.
 """
@@ -8,11 +11,15 @@ __author__  = 'Juerg Beringer'
 __version__ = 'TrfUtils.py atlas/athena'
 
 
-import commands, os, sys, pprint
+import os, sys, pprint
 import json, yaml
 from InDetBeamSpotExample import JobRunner
 from InDetBeamSpotExample.TaskManager import TaskManager
 from optparse import OptionParser
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 def readJSON(fname):
     """Read a JSON file and return its data."""
@@ -25,7 +32,7 @@ def readJSON(fname):
 def writeJSON(fname, data):
     """Serialize data and write to fname."""
     f = open(fname,'w')
-    print >> f,json.dumps(data)
+    print (json.dumps(data), file=f)
     f.close()
 
 def getDataSetName(name, sep='#'):
@@ -62,7 +69,7 @@ def getGuid(name):
     pfc='PoolFileCatalog.xml'
     if not os.path.isfile(pfc) :
         try :
-            (s,o) = commands.getstatusoutput('uuidgen')
+            (s,o) = subprocess.getstatusoutput('uuidgen')
             guid = o.strip()
         except :
             guid = 'UUIDGENERROR'
@@ -70,11 +77,11 @@ def getGuid(name):
         try :
             cmd  = 'grep -B2 %s %s' % (name,pfc)
             cmd += ' | grep "File ID" | sed -e "s/  <File ID=\\\"//g" | sed -e "s/\\\">//g"'
-            (s,o) = commands.getstatusoutput(cmd)
+            (s,o) = subprocess.getstatusoutput(cmd)
             guid = o.strip()
             # there might be a PFC from earlier processing steps
             if guid == '' :
-                (s,o) = commands.getstatusoutput('uuidgen')
+                (s,o) = subprocess.getstatusoutput('uuidgen')
                 guid = o.strip()
         except :
             guid = 'PFCPARSINGERROR'
@@ -140,22 +147,22 @@ class JobRunnerTransform:
         try:
             self.argdictFileName = options.argJSON 
             self.argdict = readJSON(options.argJSON)
-        except Exception,e:
+        except Exception as e:
             self.report('ARGDICTNOTREADABLE_ERROR','File %s with JSON-serialized argdict cannot be read' % options.argJSON)
-            print 'ERROR: file %s with JSON-serialized argdict cannot be read' % options.argJSON
-            print 'DEBUG: Exception =',e
+            print ('ERROR: file %s with JSON-serialized argdict cannot be read' % options.argJSON)
+            print ('DEBUG: Exception =',e)
             sys.exit(1)
 
         # Print argdict
-        print '\nInput argdict (%s):\n' % options.argJSON
-        print pprint.pformat(self.argdict)
-        print '\n'
+        print ('\nInput argdict (%s):\n' % options.argJSON)
+        print (pprint.pformat(self.argdict))
+        print ('\n')
 
         # Check for all mandatory parameters
         missingArgs = [ x for x in mandatoryArgs if not x in self.argdict ]
         if missingArgs:
             self.report('MISSINGPARAM_ERROR','Mandatory parameter(s) missing from argdict: '+str(missingArgs))
-            print 'ERROR: mandatory parameter(s) missing from argdict:', missingArgs
+            print ('ERROR: mandatory parameter(s) missing from argdict:', missingArgs)
             sys.exit(1)
 
         # Extract input and output dataset and file names
@@ -163,19 +170,19 @@ class JobRunnerTransform:
         self.inputds, self.inputfiles = parseQualifiedFileNames(self.argdict[inputParamName])
         if not self.inputfiles:
             self.report('NOINPUTFILE_ERROR','No input file specified (only dataset name?)')
-            print 'ERROR: no input file specified'
+            print ('ERROR: no input file specified')
             sys.exit(1)
         self.outputfile = getFileName(self.argdict[outputParamName])
         #self.outputList.append(self.argdict[outputParamName])
         self.outputds = getDataSetName(self.argdict[outputParamName])
         if not self.outputds:
             self.report('NODATASET_ERROR','No dataset given in parameter '+outputParamName)
-            print 'ERROR: No dataset given in parameter',outputParamName
+            print ('ERROR: No dataset given in parameter',outputParamName)
             sys.exit(1)
         splitDSName = self.outputds.split('.')
         if len(splitDSName)<5:
             self.report('DATASETNAME_ERROR',"Output dataset name %s doesn't conform to standard naming convention" % self.outputds)
-            print "ERROR: Output dataset name %s doesn't conform to standard naming convention" % self.outputds
+            print ("ERROR: Output dataset name %s doesn't conform to standard naming convention" % self.outputds)
             sys.exit(1)
         self.dataset = '.'.join(splitDSName[:-3])
         self.taskname = '.'.join(splitDSName[-2:])
@@ -188,7 +195,7 @@ class JobRunnerTransform:
             self.prodDir = dir
         else:
             # Continue anyway or abort?
-            print 'ERROR: No write access to production directory',dir,'- will use current working directory instead:', os.getcwd()
+            print ('ERROR: No write access to production directory',dir,'- will use current working directory instead:', os.getcwd())
             self.prodDir = os.getcwd()
             sys.exit(1)
 
@@ -197,7 +204,7 @@ class JobRunnerTransform:
 
     def getJobRunner(self,**jobRunnerArgs):
         if self.runner:
-            print 'WARNING: Overwriting already configured JobRunner'
+            print ('WARNING: Overwriting already configured JobRunner')
         self.runner = JobRunner.JobRunner(jobdir=self.prodDir+'/'+self.dataset+'/'+self.taskname+'/'+self.jobname,
                                           jobname=self.jobname,
                                           inputds=self.inputds,
@@ -231,7 +238,7 @@ class JobRunnerTransform:
             self.runner.appendParam('cmdjobpostprocessing',
                                     'cp %s %s/%s-%s' % (f,self.runner.getParam('jobdir'),self.jobname,jobDirName))
     def showParams(self):
-        print 'JobRunner parameters:\n'
+        print ('JobRunner parameters:\n')
         self.runner.showParams()
 
     def configure(self):
@@ -248,7 +255,7 @@ class JobRunnerTransform:
                     d = '%s/%s/%s/%s.v%s' % (self.prodDir,self.dataset,self.taskname,os.path.basename(self.outputfile),i)
                 if os.path.exists(d):
                     retriedJobDir = '%s/%s/%s/RETRIED_JOBS' % (self.prodDir,self.dataset,self.taskname)
-                    print '\nMoving previous job directory %s to %s' % (d,retriedJobDir)
+                    print ('\nMoving previous job directory %s to %s' % (d,retriedJobDir))
                     os.system('mkdir -p %s' % (retriedJobDir))
                     os.system('mv -f %s %s' % (d,retriedJobDir))
 
@@ -263,15 +270,15 @@ class JobRunnerTransform:
                                     self.runner.getNJobs(),
                                     self.runner.getParam('taskpostprocsteps'),
                                     comment=comment)
-            except Exception,e:
-                print 'ERROR: Unable to add task to task manager database '+self.prodTaskDb
-                print 'DEBUG: Exception =',e
+            except Exception as e:
+                print ('ERROR: Unable to add task to task manager database '+self.prodTaskDb)
+                print ('DEBUG: Exception =',e)
         else:
-            print 'WARNING: No task manager database configured'
+            print ('WARNING: No task manager database configured')
 
     def run(self):
         self.runner.run()
-        #print self.runner.jobStatus
+        #print (self.runner.jobStatus)
 
 
     def go(self,commentForTaskDb=''):
@@ -280,10 +287,10 @@ class JobRunnerTransform:
         try:
             self.showParams()
             self.configure()
-        except Exception,e:
+        except Exception as e:
             self.report('JOBRUNNER_CONFIGURE_ERROR','Unable to configure JobRunner job - perhaps same job was already configured / run before?')
-            print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-            print 'DEBUG: Exception =',e
+            print ("ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?")
+            print ('DEBUG: Exception =',e)
         else:
             try:
                 self.addTaskToDatabase(commentForTaskDb)
@@ -328,11 +335,11 @@ class JobRunnerTransform:
         if jobStatus==0:
             try:
                 os.system('cp %s %s/%s.%s' % (self.reportName,self.runner.getParam('jobdir'),self.jobname,self.reportName) )
-            except Exception,e:
-                print 'WARNING: Copying of job report file (%s) to job directory failed' % self.reportName
-                print 'DEBUG: Exception =',e
+            except Exception as e:
+                print ('WARNING: Copying of job report file (%s) to job directory failed' % self.reportName)
+                print ('DEBUG: Exception =',e)
 
         # Nicely print job report to stdout
-        print '\n\nJob report (jobReport.json):\n'
-        print pprint.pformat(report)
-        print '\n'
+        print ('\n\nJob report (jobReport.json):\n')
+        print (pprint.pformat(report))
+        print ('\n')

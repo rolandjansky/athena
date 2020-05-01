@@ -28,7 +28,7 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeSt
         TimeStamp = '_' + TimeStamp
 
     for sv, assoc in SVandAssoc.items():
-        VxSecVertexInfoNameList.append(sv+'VxSecVertexInfo')
+        VxSecVertexInfoNameList.append(sv+'VxSecVertexInfo_'+JetCollection)
         secVtxFinderTrackNameList.append(assoc)
         secVtxFinderxAODBaseNameList.append(sv)
 

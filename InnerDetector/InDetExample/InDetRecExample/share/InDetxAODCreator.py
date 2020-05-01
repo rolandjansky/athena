@@ -22,9 +22,9 @@ def getRecVertexNameIfInFile(coll_name) :
 from AthenaCommon.GlobalFlags import globalflags
 is_mc = (globalflags.DataSource == 'geant4')
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() ) \
-                    and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() \
+                   or InDetFlags.doLowPtLargeD0() )  and InDetFlags.doParticleCreation()
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0()\
                     and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
 
 if doCreation:

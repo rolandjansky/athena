@@ -3,19 +3,30 @@
 import json
 from collections import OrderedDict as odict
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName
-
+from AthenaCommon.CFElements import getSequenceChildren, isSequence
 from AthenaCommon.Logging import logging
 __log = logging.getLogger( __name__ )
+
+def getChildrenIfSequence( s ):
+    return  getSequenceChildren( s ) if isSequence( s ) else []
 
 def __getStepsDataFromAlgSequence(HLTAllSteps):
     """ Generates a list where the index corresponds to a Step number and the stored object is a list of Sequencers making up the Step 
     """
     stepsData = []
     if HLTAllSteps is not None:
-        for HLTStep in HLTAllSteps.getChildren():
-            if "_reco" not in HLTStep.name(): # Avoid the pre-step Filter execution
+        for HLTStep in getSequenceChildren( HLTAllSteps ):
+            if "_reco" not in HLTStep.getName(): # Avoid the pre-step Filter execution
+                # Look for newJO reco
+                for Step in getChildrenIfSequence( HLTStep ):
+                    for View in getChildrenIfSequence( Step ):
+                        for Reco in getChildrenIfSequence( View ):
+                            if "_reco" in Reco.getName() and HLTStep.getName() not in stepsData:
+                                stepsData.append( getSequenceChildren( HLTStep ) )
+                                break
                 continue
-            stepsData.append( HLTStep.getChildren() )
+
+            stepsData.append( getSequenceChildren( HLTStep ) )
     else:
         __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")
     return stepsData
@@ -26,16 +37,17 @@ def __getChainSequencers(stepsData, chainName):
     """
     sequencers = []
     counter = 0
+    from DecisionHandling.TrigCompositeUtils import chainNameFromLegName
     for step in stepsData:
         counter += 1
         mySequencer = None
         endOfChain = False
         for sequencer in step:
-            sequencerFilter = sequencer.getChildren()[0] # Always the first child in the step
-            if chainName in sequencerFilter.Chains:
+            sequencerFilter = getSequenceChildren( sequencer )[0] # Always the first child in the step
+            if any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",
-                        mySequencer.name(), sequencer.name(), chainName, counter)
+                        mySequencer.getName(), sequencer.getName(), chainName, counter)
                 mySequencer = sequencer
         if mySequencer is None:
             endOfChain = True
@@ -46,7 +58,7 @@ def __getChainSequencers(stepsData, chainName):
                 __log.error( "Found another Step, (Step %i) for chain %s "
                     "which looked like it had already finished after %i Steps!", 
                     counter, chainName, sequencers.len())
-            sequencers.append(mySequencer.name())
+            sequencers.append(mySequencer.getName())
     return sequencers
 
 def __getSequencerAlgs(stepsData):
@@ -56,7 +68,7 @@ def __getSequencerAlgs(stepsData):
     sequencerAlgs = odict()
     for step in stepsData:
         for sequencer in step:
-            sequencerAlgs[ sequencer.name() ] = list(map(lambda x: x.getFullName(), findAllAlgorithms(sequencer)))
+            sequencerAlgs[ sequencer.getName() ] = list(map(lambda x: x.getFullJobOptName(), findAllAlgorithms(sequencer)))
     return sorted(sequencerAlgs.items(), key=lambda t: t[0])
 
 def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
@@ -99,6 +111,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
+
 
 def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")

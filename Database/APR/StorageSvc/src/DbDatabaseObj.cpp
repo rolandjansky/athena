@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -40,7 +40,7 @@ ostream& operator << (ostream& os, const Token::OID_t oid ) {
 }
 
 static const Guid s_localDb("00000000-0000-0000-0000-000000000000");
-static DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
+static const DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
 
 
 // Standard Constructor
@@ -227,7 +227,7 @@ const DbTypeInfo* DbDatabaseObj::contShape(const string& nam) {
   }
   LinkVector::const_iterator j=m_linkVec.begin();
   for(; j != m_linkVec.end(); ++j ) {
-    const DbToken* t = (*j);
+    DbToken* t = (*j);
     if ( !t->typeInfo() )    {
       t->setTypeInfo(objectShape(t->classID()));
     }
@@ -504,7 +504,8 @@ DbStatus DbDatabaseObj::open()   {
 	    return Error;
 	  }
         }
-        return m_info->onOpen(DbDatabase(this), mode());
+        DbDatabase dbd (this);
+        return m_info->onOpen(dbd, mode());
       }
     }
     deletePtr(m_info);
@@ -611,7 +612,7 @@ DbStatus DbDatabaseObj::retire()  {
 const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt) const   {
   Sections::const_iterator i = m_sections.find(cnt);
   if ( i == m_sections.end() ) {
-    static ContainerSections s_sect(1,DbSection());
+    static const ContainerSections s_sect(1,DbSection());
     return s_sect;
   }
   return (*i).second;
@@ -825,7 +826,8 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
 
       DbContainer cntH( type() );
       const DbTypeInfo* typ_info = objectShape( token.classID() );
-      if( cntH.open( DbDatabase(this), containerName, typ_info, token.technology(), mode() ).isSuccess() )  {
+      DbDatabase dbd (this);
+      if( cntH.open( dbd, containerName, typ_info, token.technology(), mode() ).isSuccess() )  {
          if ( typ_info && typ_info == shape ) {
             return DbObjectAccessor::read(object, shape, cntH, oid, sectionN );
          }

@@ -3,8 +3,8 @@
 #  - Simulation
 #--------------------------------------------------------------
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 import random
 if 'randomSeedPhrase' not in dir() :

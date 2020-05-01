@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -137,9 +137,7 @@ public:
 
 bool fitCallByReference(MuonCalibSegment & r_segment, HitSelection &r_selection) const;
 
-	void printLevel(int level);
-	                                ///< set the print level, this call
-					///< has no effect
+void printLevel(int /*level*/){};
 
 private:
 // internal co-ordinate definition //

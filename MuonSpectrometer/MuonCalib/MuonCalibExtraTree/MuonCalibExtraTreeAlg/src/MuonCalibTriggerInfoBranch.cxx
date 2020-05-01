@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibTriggerInfoBranch.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
-
 #include "MuonCalibNtuple/NtupleBranchCreator.h"
-
 #include "TrigT1Result/CTP_Decoder.h"
 #include "TrigT1Result/CTP_RDO.h"
 
 #include "TTree.h"
-
 #include <iostream>
 #include <set>
 #include <map>
-
-using namespace std;
 
 namespace MuonCalib {
 

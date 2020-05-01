@@ -9,9 +9,9 @@ from PyCool import cool
 import ROOT
 from array import array
 import copy
-import TileDCSDataInfo
 from CoolConvUtilities.AtlCoolTool import connect
-from ProgressBar import progressBar
+from TileCoolDcs.TileDCSDataInfo import TileDCSDataInfo
+from TileCoolDcs.ProgressBar import progressBar
 
 #====================================================================================================
 class IOVDict:
@@ -66,7 +66,7 @@ class IOVDict:
         if search < seq[0]:
             return -1
         while True:
-            center = (left + right) / 2
+            center = (left + right) // 2
             candidate = seq[center]
             if search == candidate:
                 return center
@@ -125,7 +125,7 @@ class FolderVarSet:
 
         #=== check if all variables have been set
         notSet = []
-        for var, stat in self.index.items():
+        for var, stat in list(self.index.items()):
             mod = stat[1]
             if mod is False:
                 notSet.append(var)
@@ -141,7 +141,7 @@ class FolderVarSet:
         self.iovDictStore[drawer].addData(iovSince, valueCopy)
 
         #=== reset all values and modification flags
-        for var in self.index.iterkeys():
+        for var in self.index.keys():
             self.index[var][1] = False
             self.val[ self.index[var][0] ] = 0
 
@@ -157,23 +157,23 @@ class FolderVarSet:
     def getUniqueIOVs(self):
 
         uniqueIOVList = []
-        for iovDict in self.iovDictStore.values():
+        for iovDict in list(self.iovDictStore.values()):
             uniqueIOVList.extend( iovDict.iovList )
         return list(set(uniqueIOVList))
 
     def getUniqueVariables(self):
 
         uniqueVariableList = []
-        for drawer in self.iovDictStore.iterkeys():
-            for variable in self.index.iterkeys():
+        for drawer in self.iovDictStore.keys():
+            for variable in self.index.keys():
                 uniqueVariableList.append( (drawer,variable) )
         return uniqueVariableList
 
     def getVariables(self):
-        return self.index.keys()
+        return list(self.index.keys())
 
     def getDrawers(self):
-        return self.iovDictStore.keys()
+        return list(self.iovDictStore.keys())
 
 
 
@@ -198,7 +198,7 @@ class TileDCSDataGrabber:
         #=== connect to DB, depending on technology
         self.db = 0
         self.dbV = []
-        self.info = TileDCSDataInfo.TileDCSDataInfo(dbstring)
+        self.info = TileDCSDataInfo(dbstring)
         if dbSource=="COOL":
             if dbstring is None:
                 self.dbV.append(0)
@@ -237,8 +237,6 @@ class TileDCSDataGrabber:
         ##############################################################################
         #
         #     TileDCSDataGrabber   --   Access to TileCal DCS data in COOL / ORACLE
-        #
-        #         problems, suggestions, etc... :  andrey.ryzhov@cern.ch
         #
         ##############################################################################
 
@@ -349,7 +347,7 @@ class TileDCSDataGrabber:
             if evTime[0]!=timeEnd:
                 timeEnd=evTime[0]
                 valKey = cool.ValidityKey(evTime[0]*self.unix2cool)
-                for folder, varlist in folders.items():
+                for folder, varlist in list(folders.items()):
                     coolFolder = self.db.getFolder(folder)
                     channel = self.info.get_channel(folder,drawer)
                     obj = coolFolder.findObject(valKey,channel)
@@ -567,7 +565,7 @@ class TileDCSDataGrabber:
         folderVarSetList = []
 
         #=== loop over all different folders and build list of FolderVarSets
-        for folder, channels in folderChannelDict.items():
+        for folder, channels in list(folderChannelDict.items()):
             logging.debug( "treating folder: %s", folder )
             varsInFolder =  folderVariableDict[folder]
             logging.debug( "---> variables in this folder: %s", varsInFolder )
@@ -634,13 +632,13 @@ class TileDCSDataGrabber:
 
         #=== get all tables spanned by query
         tableRange = self.getEventHistoryTables( iovStart, iovEnd)
-        tables = tableRange.keys()
+        tables = list(tableRange.keys())
         tables.sort()
         print ("===> Going to access the following oracle table(s):")
         for table in tables:
             print ("     * ", table, " ---> validity range: ", tableRange[table])
 
-        for folder, channels in folderChannelDict.items():
+        for folder, channels in list(folderChannelDict.items()):
             logging.debug( "treating folder: %s", folder )
             varsInFolder = folderVariableDict[folder]
             logging.debug( "---> variables in this folder: %s", varsInFolder )
@@ -726,7 +724,7 @@ class TileDCSDataGrabber:
         key = ( folder , drawer)
         if key not in self.info.folderDrawer_to_oracleId:
             logging.error( "Can not resolve key: %s , known keys are:", key )
-            for key, val in self.info.folderDrawer_to_oracleId.items():
+            for key, val in list(self.info.folderDrawer_to_oracleId.items()):
                 logging.error( "%s %s", key, val)
             return None
         oracleId = self.info.folderDrawer_to_oracleId[key]

@@ -5,8 +5,8 @@
 #include <vector>
 
 #include "FastCaloSim/FastCaloSimIsGenSimulStable.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
   using std::vector;
   using std::abs;
@@ -18,8 +18,6 @@
 
   bool FastCaloSimIsGenSimulStable::operator()( const HepMC::GenParticle* const p ) const {
     int status=p->status();
-//    int barcode=p->barcode();
-//    int pdg_id=abs(p->pdg_id());
     HepMC::GenVertex* vertex = p->end_vertex();
 // we want to keep primary particle with status==2 but without vertex in HepMC
     int vertex_barcode=-999999;

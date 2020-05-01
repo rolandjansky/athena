@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileCosmicMuonContainerCnv.cxx 
@@ -52,14 +52,14 @@ TileCosmicMuonContainer* TileCosmicMuonContainerCnv::createTransient() {
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<TileCosmicMuonContainer_p1> persObj( poolReadObject<TileCosmicMuonContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<TileCosmicMuonContainer_p1> persObj( poolReadObject<TileCosmicMuonContainer_p1>() );
     TileCosmicMuonContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<TileCosmicMuonContainer_p2> persObj( poolReadObject<TileCosmicMuonContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<TileCosmicMuonContainer_p2> persObj( poolReadObject<TileCosmicMuonContainer_p2>() );
     TileCosmicMuonContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else {

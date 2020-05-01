@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -12,7 +12,7 @@ from JetTagTools.InDetTrackSelectorConfig import InDetTrackSelectorCfg
 from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 
 # import the IPTag configurable
-Analysis__IPTag=CompFactory.Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis.IPTag
 
 def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.
@@ -60,7 +60,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'impactParameterView'              : '3D',
                      'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : True,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'jetCollectionList'                : [], #used only in reference mode
                      'unbiasIPEstimation'               : False,
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',

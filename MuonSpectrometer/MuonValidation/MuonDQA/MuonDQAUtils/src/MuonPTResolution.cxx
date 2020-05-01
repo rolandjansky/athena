@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TF1.h"
@@ -10,7 +10,6 @@
 #include <map>
 #include <math.h>
 #include "MuonDQAUtils/MuonPTResolution.h"
-using namespace std;
 
 double getContentInRange(TH1F *hist, double centralX, double halfWidth)
 {

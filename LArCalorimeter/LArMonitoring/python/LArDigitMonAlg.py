@@ -1,16 +1,33 @@
+
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+def LArDigitMonConfigOld(inputFlags, topSequence):
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArDigitMonAlgCfg')
+    LArDigitMonConfigCore(helper, LArDigitMonAlg,inputFlags)
+    return helper.result()
 
 def LArDigitMonConfig(inputFlags):
+    '''Function to configures some algorithms in the monitoring system.'''
 
-    from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArDigitMonCfg')
+    # The following class will make a sequence, configure algorithms, and link                                                                   
+    # them to GenericMonitoringTools                                                                                                                                 
+    
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
+    helper = AthMonitorCfgHelper(inputFlags,'LArDigitMonAlgCfg')
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    return LArDigitMonConfigCore(helper, CompFactory.LArDigitMonAlg,inputFlags)
+
+def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
+
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    larDigitMonAlg = helper.addAlgorithm(CompFactory.LArDigitMonAlg,'larDigitMonAlg')
+    larDigitMonAlg = helper.addAlgorithm(algoinstance,'larDigitMonAlg')
 
     summaryGroupName="Summary"
     nslots=[]
@@ -23,17 +40,28 @@ def LArDigitMonConfig(inputFlags):
     larDigitMonAlg.LArDigitsNslots=nslots
 
     # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    cfg=ComponentAccumulator()
-    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-    acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-    larDigitMonAlg.LArBadChannelMask=acc.popPrivateTools()
-    cfg.merge(acc)
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg() :
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        cfg=ComponentAccumulator()
+
+        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
+        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
+        larDigitMonAlg.LArBadChannelMask=acc.popPrivateTools()
+        cfg.merge(acc)
+    else :
+
+        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
+        theLArBadChannelsMasker.DoMasking=True
+        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
+        larDigitMonAlg.LArBadChannelMask=theLArBadChannelsMasker
+
 
     summaryGroup = helper.addGroup(
         larDigitMonAlg,
         summaryGroupName,
-        '/LAr/Digits'
+        '/LAr/DigitsNewAlg'
     )
 
 
@@ -59,13 +87,13 @@ def LArDigitMonConfig(inputFlags):
     # now individual partitions, because we need a different directories, will have only 2dim arrays (side)
     for subdet in range(0,lArDQGlobals.N_SubDet):
        array = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larDigitMonAlg,lArDQGlobals.SubDet[subdet])
-       hist_path='/LAr/Digits/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/DigitsNewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
-       slot_n = slot_up - slot_low 
+       slot_n = int(slot_up - slot_low)
        ft_low = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
-       ft_n = ft_up - ft_low 
+       ft_n = int(ft_up - ft_low) 
        chan_n = lArDQGlobals.FEB_N_channels
        chan_low = lArDQGlobals.FEB_channels_Min
        chan_up = lArDQGlobals.FEB_channels_Max
@@ -110,7 +138,7 @@ def LArDigitMonConfig(inputFlags):
                                   title='% chan/FEB/events with max=4095 ADC - Med/High Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
+                                  weight='Saturweight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -118,7 +146,6 @@ def LArDigitMonConfig(inputFlags):
                                   title='% chan/FEB/events with max=4095 ADC ',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
        array.defineHistogram('SaturLowslot,SaturLowFT,SaturLowweight;SaturationLow', 
@@ -127,11 +154,11 @@ def LArDigitMonConfig(inputFlags):
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('SaturLowcrate,SaturLowchan;SaturationLowChan', 
+       array.defineHistogram('SaturLowcrate,SaturLowchan;SaturationChanLow', 
                                   title='% chan/FEB/events with max=4095 ADC - Low Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
+                                  weight='SaturLowweight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -152,7 +179,6 @@ def LArDigitMonConfig(inputFlags):
                                   title='% chan/FEB/events with min=0 ADC - All Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -172,7 +198,6 @@ def LArDigitMonConfig(inputFlags):
                                   title='Energy vs max sample ',
                                   type='TH2F',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max,
                                   ybins=lArDQGlobals.Energy_Bins, ymin=lArDQGlobals.Energy_Min, ymax=lArDQGlobals.Energy_Max)
 
@@ -188,18 +213,21 @@ def LArDigitMonConfig(inputFlags):
                                   weight='weight',
                                   path=hist_path,
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max)
-    pass
+    
 
 
-    cfg.merge(helper.result())
-    return cfg
+    if isRun3Cfg():
+        cfg.merge(helper.result())
+        return cfg
+    else:    
+        return helper.result()
     
 
 if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG
+   from AthenaCommon.Constants import DEBUG #,WARNING
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
@@ -223,6 +251,7 @@ if __name__=='__main__':
    from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
    cfg.merge(LArNoisyROSummaryCfg(ConfigFlags))
 
+  # from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
    aff_acc = LArDigitMonConfig(ConfigFlags)
    cfg.merge(aff_acc)
 

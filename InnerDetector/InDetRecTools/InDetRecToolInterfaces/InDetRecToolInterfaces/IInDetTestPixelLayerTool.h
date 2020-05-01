@@ -44,12 +44,6 @@ namespace InDet {
 
     virtual double getFracGood(const Trk::TrackParticleBase* trackpar, int pixel_layer) const=0;
     virtual double getFracGood(const Trk::TrackParameters* trackpar, int pixel_layer) const=0;
-    virtual double getFracGood() const =0;
-
-    virtual double getExtrapolPixelEta() const=0;
-    virtual double getExtrapolPixelPhi() const=0;
-
-
   };
   
   

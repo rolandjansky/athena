@@ -19,5 +19,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( EventInfoUtils
                    src/*.cxx
                    PUBLIC_HEADERS EventInfoUtils
-                   LINK_LIBRARIES EventInfo xAODEventInfo
+                   LINK_LIBRARIES EventInfo xAODEventInfo StoreGateLib
                    )

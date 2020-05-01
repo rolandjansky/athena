@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 ATLAS beam spot web page for letting users create their customized beam spot plots.
@@ -15,8 +17,11 @@ import os
 import time
 import glob
 from math import floor
-import commands
 from cgi import escape
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 cmdoutput = """\
 <div class="boldtext">
@@ -208,7 +213,7 @@ class MyPlots(BeamSpotWebPage):
                 cmd += ' summary'
             else:
                 cmd += ' %s %s' % (args['plotType'], args['varName'])
-            (status,output) = commands.getstatusoutput(cmd)
+            (status,output) = subprocess.getstatusoutput(cmd)
 
             # Plot
             if not status:
@@ -227,4 +232,4 @@ class MyPlots(BeamSpotWebPage):
 # Code to test or run locally
 if __name__ == '__main__':
     page = MyPlots()
-    print p.index()
+    print (p.index())

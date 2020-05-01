@@ -18,7 +18,7 @@ import re
 #===
 #==================================================
 #=== Input files with OFCs
-ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-5.3.0.0/TileDSPofc/v4r3p3/share/"
+ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-7.1.0.0/TileDSPofc/share/"
 ofcFiles = [ofcDataPath+'W_OF2_PHYSICS_7s.dat',
             ofcDataPath+'W_OF1_PHYSICS_7s.dat',
             ofcDataPath+'W_OF2_LED_7s.dat',

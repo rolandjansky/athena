@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloThinCellsByClusterAlg.cxx
@@ -44,6 +44,8 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
      ATH_MSG_WARNING( "Collection  " << m_clusters.key()<<" is not valid");
      return StatusCode::SUCCESS;
   }
+  const CaloDetDescrManager* caloDDMgr = nullptr;
+  ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
   for (const xAOD::CaloCluster* clust : *clusters) {
     const CaloClusterCellLink* cellLinks = clust->getCellLinks();
     if (!cellLinks) {
@@ -83,7 +85,7 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
       // get cell lists for each sampling we want to add
       for (int isamp : m_validSamplings) {
         CaloCellList cell_list (cells.cptr());
-        cell_list.select (eta, phi, deta, dphi, isamp);
+        cell_list.select (*caloDDMgr,eta, phi, deta, dphi, isamp);
 
         ATH_MSG_DEBUG( "sampling " << isamp
                        << ", size of list = " << cell_list.ncells()

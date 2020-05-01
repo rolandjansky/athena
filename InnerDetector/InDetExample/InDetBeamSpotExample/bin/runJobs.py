@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Front-end script to run JobRunner jobs
+
+
+from __future__ import print_function
 
 __authors__  = ['Juerg Beringer', 'Carl Suster']
 __version__ = 'runJobs.py atlas/athena'
@@ -39,10 +42,10 @@ def extract_file_list_legacy(inputdata, options):
         # INPUTDATA is filename
         rundir = os.path.join(os.getcwd(), dsname)
         if not os.path.exists(rundir):
-            fail('Run ' + dsname + ' (directory ' + rundir + ') not found')
+            raise Exception('Run ' + dsname + ' (directory ' + rundir + ') not found')
         dpddir = os.path.join(rundir, inputdata)
         if not os.path.exists(dpddir):
-            fail('Dataset with name ' + inputdata + ' (directory ' + dpddir + ') not found')
+            raise Exception('Dataset with name ' + inputdata + ' (directory ' + dpddir + ') not found')
         fs = DiskUtils.FileSet.from_glob(os.path.join(dpddir, '*', '*-dpd.root*'))
     else:
         # INPUTDATA is a directory with files
@@ -105,7 +108,7 @@ def process_flags(options, legacy=False):
                 p = s.split('=', 1)
                 flags[p[0].strip()] = eval(p[1].strip())
             except:
-                print '\nERROR parsing user parameter', p, '- parameter will be ignored'
+                print ('\nERROR parsing user parameter', p, '- parameter will be ignored')
 
     return flags
 
@@ -218,8 +221,8 @@ if __name__ == '__main__':
 
     legacy_options = len(args) == 4
     if legacy_options:
-        print "WARNING: the four-argument invocation of runJobs is deprecated"
-        print "WARNING: enabling (imperfect) legacy compatibility mode"
+        print ("WARNING: the four-argument invocation of runJobs is deprecated")
+        print ("WARNING: enabling (imperfect) legacy compatibility mode")
         files = extract_file_list_legacy(args[3], opts)
         grid_mode = bool(opts.legacy_griduser)
         runner_type = opts.legacy_runner
@@ -285,20 +288,20 @@ if __name__ == '__main__':
         runner.registerToBeCopied('alignmentfile')
         runner.registerToBeCopied('beamspotfile')
 
-    print
+    print()
     runner.showParams(-1)
-    print
+    print()
 
     # Temporary warning. TODO: still needed?
     if grid_mode and opts.autoconfparams:
-        print "WARNING: Automatic configuration of parameters such as DetDescrVersion doesn't work yet on the grid!"
-        print "         Please be sure the values of each of the following parameters are specified explicitly above,"
-        print "         unless the defaults in the job option template are correct:\n"
-        print "           ", opts.autoconfparams
-        print
+        print ("WARNING: Automatic configuration of parameters such as DetDescrVersion doesn't work yet on the grid!")
+        print ("         Please be sure the values of each of the following parameters are specified explicitly above,")
+        print ("         unless the defaults in the job option template are correct:\n")
+        print ("           ", opts.autoconfparams)
+        print()
 
-    print len(files), "input file(s)/dataset found."
-    print
+    print (len(files), "input file(s)/dataset found.")
+    print()
     if not opts.testonly:
         runner.configure()
         if opts.taskdb != 'None':
@@ -306,16 +309,16 @@ if __name__ == '__main__':
                 with TaskManager.TaskManager(opts.taskdb) as taskman:
                     taskman.addTask(dsname,taskname,joboptiontemplate,runner.getParam('release'),runner.getNJobs(),opts.postprocsteps,comment=cmd)
             except:
-                print 'WARNING: Unable to add task to task manager database ' + opts.taskdb
+                print ('WARNING: Unable to add task to task manager database ' + opts.taskdb)
         runner.run()
         if opts.legacy_dowait and not grid_mode:
             if not opts.legacy_interactive: runner.wait()
-            print
-            print "Job directories in %s for this task:" % workdir
-            print
+            print()
+            print ("Job directories in %s for this task:" % workdir)
+            print()
             os.system('ls -l %s' % workdir)
-            print
-            print "The following output file(s) were produced:"
-            print
-            print runner.getOutputFiles()
-            print
+            print()
+            print ("The following output file(s) were produced:")
+            print()
+            print (runner.getOutputFiles())
+            print()

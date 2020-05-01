@@ -17,11 +17,6 @@
 #==============================================================================
 from D2PDMaker.D2PDFlags import D2PDFlags
 
-# A temporary fix for an unchecked StatusCode
-from RecExConfig.RecFlags import rec
-rec.abortOnUncheckedStatusCode=False
-
-
 #==============================================================================
 # If you have your own DPD Maker scripts
 # (see:

@@ -8,9 +8,9 @@
 #include "baseAnalysis.h"
 
 // forward declarations
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/PdfInfo.h"
+
 class TH1D;
 
 class PdfAnalysis: public baseAnalysis

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/dbline.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include <type_traits>
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////// PRIVATE MEMBER FUNCTIONS FOR SETTING INTERNAL STATUS /////////////
@@ -32,11 +32,11 @@ void
 DBline::erase_comment()
 {
     unsigned long int pos = m_data.find("#");
-    if(pos != string::npos) m_data.erase(pos);
+    if(pos != std::string::npos) m_data.erase(pos);
 }
 
 void
-DBline::GetToken( unsigned long int pos, const string &token)
+DBline::GetToken( unsigned long int pos, const std::string &token)
 {
     GoodExtraction();
     m_data.erase(pos,token.length());
@@ -44,20 +44,18 @@ DBline::GetToken( unsigned long int pos, const string &token)
 }
 
 void
-DBline::GetLine(istream& input)
+DBline::GetLine(std::istream& input)
 {
     if(!check_data())
     {
-        cerr << "line " << setw(4) << m_line << " -|" << m_data.c_str();
-        cerr << "  .. not understood!" << endl;
+        MsgStream log(Athena::getMessageSvc(), "DBline");
+        log<<MSG::WARNING<<"line "<<std::setw(4)<<m_line<<" -|"<<m_data.c_str()<<"  .. not understood!"<<endmsg;
     }
     reset();
     if(input.eof()) {m_fail = true; return;}
     m_line++;
     char ch;
     while(input.get(ch) && ch !='\n') m_data += ch;
-    //std::string tmp = m_store;
-    // m_store = m_store + m_data;// + '\n';
     m_store += m_data;
     erase_comment();
     check_data();
@@ -74,15 +72,10 @@ DBline::GetValue(type &value)
 {
     if (!m_extraction||m_fail) return;
     std::string::size_type start = m_data.find_first_not_of(" ",m_pos);
-    if(start == string::npos) {BadExtraction();return;}
+    if(start == std::string::npos) {BadExtraction();return;}
     std::string::size_type stop = m_data.find_first_of(" ",start+1);
     if (stop == std::string::npos) stop = m_data.size();
 
-//    __isstream tmp(m_data.substr(start,stop).c_str());
-
-//    tmp.flags(flags());
-//    tmp >> value;
-    
     if (typename std::is_unsigned<type>::type()) {
       unsigned long temp=std::stoul(m_data.substr(start,stop-start),nullptr,m_base);
       value = temp;
@@ -101,14 +94,9 @@ DBline::GetValue(std::string &value)
 {
     if (!m_extraction||m_fail) return;
     std::string::size_type start = m_data.find_first_not_of(" ",m_pos);
-    if(start == string::npos) {BadExtraction();return;}
+    if(start == std::string::npos) {BadExtraction();return;}
     std::string::size_type stop = m_data.find_first_of(" ",start+1);
     if (stop == std::string::npos) stop = m_data.size();
-
-//    __isstream tmp(m_data.substr(start,stop).c_str());
-
-//    tmp.flags(flags());
-//    tmp >> value;
 	
     value = m_data.substr(start,stop-start);
 
@@ -117,7 +105,7 @@ DBline::GetValue(std::string &value)
 }
 
 void 
-DBline::GetStr(string &str)
+DBline::GetStr(std::string &str)
 {
     GetValue(str);
     quote pos = check_quote(str);
@@ -125,7 +113,7 @@ DBline::GetStr(string &str)
     if(pos == begin_quote)
     {
 	unsigned long int pos = m_data.find('"',m_pos);
-        if(pos == string::npos) {str=""; BadExtraction(); return;}
+        if(pos == std::string::npos) {str=""; BadExtraction(); return;}
         str += m_data.substr(m_pos,pos);
         m_data.erase(m_pos,(pos-m_pos)+1);
     }
@@ -133,10 +121,10 @@ DBline::GetStr(string &str)
 }
 
 DBline::quote
-DBline::check_quote(string &str)
+DBline::check_quote(std::string &str)
 {
     std::string::size_type pos = str.find('"');
-    if(pos == string::npos) return no_quote;
+    if(pos == std::string::npos) return no_quote;
     else if(pos == 0) {str.erase(0,1);return begin_quote;}
     else if(pos == str.length()-1) {str.erase(pos,1);return end_quote;}
     return error;
@@ -162,7 +150,7 @@ DBline::check_data(void)
 ///////////////////////////////////////////////////////////////////////////////
 
 void
-DBline::connect(ifstream& file)
+DBline::connect(std::ifstream& file)
 {
     if((&file) != m_file)
     {
@@ -175,7 +163,7 @@ DBline::connect(ifstream& file)
 }
 
 void
-DBline::connect(istream& stream)
+DBline::connect(std::istream& stream)
 {
     if((&stream) != m_stream)
     {
@@ -192,13 +180,13 @@ DBline::connect(istream& stream)
 ///////////////////////////////////////////////////////////////////////////////
 
 DBline&
-DBline::token(const string &token)
+DBline::token(const std::string &token)
 {
     if(m_extraction) m_backup = m_data;
     if(check_data()) {BadExtraction();return *this;}
     unsigned long int pos = m_data.find(token);
 
-    if (pos != string::npos) 
+    if (pos != std::string::npos) 
     {
         unsigned long int finalpos = pos + token.length();
         char prev = (pos)? m_data[pos-1] : ' ';
@@ -211,15 +199,15 @@ DBline::token(const string &token)
 }
 
 template <class type> DBline&
-DBline::token(const string &str, type t)
+DBline::token(const std::string &str, type t)
 {
-    string new_token = str;
+    std::string new_token = str;
     unsigned long int pos = new_token.find('#');
-    if (pos != string::npos)
+    if (pos != std::string::npos)
     {
       __osstream tmp;
       tmp << t ;
-      string rep = tmp.str();
+      std::string rep = tmp.str();
 
       new_token.replace(pos,rep.length(),rep);
       token(new_token);
@@ -229,16 +217,15 @@ DBline::token(const string &str, type t)
 }
 
 template <class type> DBline&
-DBline::token(const string &str, type t, int /*size*/)
+DBline::token(const std::string &str, type t, int /*size*/)
 {
-    //size = 0;
-    string new_token = str;
+    std::string new_token = str;
     unsigned long int pos = new_token.find('#');
-    if (pos != string::npos)
+    if (pos != std::string::npos)
     {
       __osstream tmp;
-      tmp << setw(2) << setfill('0') << t ;
-      string rep = tmp.str();
+      tmp << std::setw(2) << std::setfill('0') << t ;
+      std::string rep = tmp.str();
 
       new_token.replace(pos,rep.length(),rep);
       token(new_token);
@@ -248,10 +235,10 @@ DBline::token(const string &str, type t, int /*size*/)
 }    
 
 void 
-DBline::go_until (const string &token)
+DBline::go_until (const std::string &token)
 {
-    if(m_file) do GetLine(*m_file);while(m_data.find(token) == string::npos);
-    if(m_stream) do GetLine(*m_stream);while(m_data.find(token) == string::npos);
+    if(m_file) do GetLine(*m_file);while(m_data.find(token) == std::string::npos);
+    if(m_stream) do GetLine(*m_stream);while(m_data.find(token) == std::string::npos);
 }
 
 
@@ -273,9 +260,9 @@ const char* DBline::dump(void) {return m_store.c_str();}
 //////////////////////// FUNCTIONS TO SET THE I/O FORMAT //////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-DBline& DBline::hex(void){m_base=16;setf(ios::hex,ios::basefield);return*this;}
-DBline& DBline::dec(void){m_base=10;setf(ios::dec,ios::basefield);return*this;}
-DBline& DBline::oct(void){m_base=8; setf(ios::dec,ios::basefield);return*this;}
+DBline& DBline::hex(void){m_base=16;setf(std::ios::hex,std::ios::basefield);return*this;}
+DBline& DBline::dec(void){m_base=10;setf(std::ios::dec,std::ios::basefield);return*this;}
+DBline& DBline::oct(void){m_base=8; setf(std::ios::dec,std::ios::basefield);return*this;}
 DBline& DBline::reset_fmt(void) {m_base=10;flags(m_default);return*this;}
 
 
@@ -297,8 +284,8 @@ DBline& DBline::operator>> (float &f)             {GetValue(f);  return*this;}
 DBline& DBline::operator>> (float *f)             {GetValue(*f); return*this;}
 DBline& DBline::operator>> (double &f)            {GetValue(f);  return*this;}
 DBline& DBline::operator>> (double *f)            {GetValue(*f); return*this;}
-DBline& DBline::operator>> (string &str)          {GetStr(str);  return*this;}
-DBline& DBline::operator>> (string *str)          {GetStr(*str); return*this;}
+DBline& DBline::operator>> (std::string &str)          {GetStr(str);  return*this;}
+DBline& DBline::operator>> (std::string *str)          {GetStr(*str); return*this;}
 DBline& DBline::operator>> (char &c)              {GetValue(c);  return*this;}
 //DBline& DBline::operator>> (unsigned char &c)     {GetValue(c);  return*this;}
 
@@ -327,11 +314,11 @@ DBline& DBline::operator>> (DBfmt* f) {
 ///////////////////////////////////////////////////////////////////////////////
 
 DBline&
-DBline::operator >>(const string &token)
+DBline::operator >>(const std::string &token)
 {
     if (!m_extraction || check_data() || m_fail) return *this;
     unsigned long int pos = m_data.find(token,m_pos);
-    if ( pos != string::npos) GetToken(pos,token);
+    if ( pos != std::string::npos) GetToken(pos,token);
     else BadExtraction();
     return *this;
 }
@@ -383,13 +370,13 @@ DBline::operator DBstatus(){return m_extraction;}
 //////////////////////// OPERATORS FOR EXTRACTING TOKENS //////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-DBline& DBline::operator()(const string &str) {token(str);return*this;}
+DBline& DBline::operator()(const std::string &str) {token(str);return*this;}
     
 DBline& 
-DBline::operator()(const string& str, int n) {token(str,n);return*this;}
+DBline::operator()(const std::string& str, int n) {token(str,n);return*this;}
     
 DBline&
-DBline::operator()(const string& str, int n, int s) {token(str,n,s);return*this;}
+DBline::operator()(const std::string& str, int n, int s) {token(str,n,s);return*this;}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -424,7 +411,7 @@ DBline::DBline():
   m_del_dbfmt = true;
 }
 
-DBline::DBline(ifstream& file): 
+DBline::DBline(std::ifstream& file): 
   m_file(&file),m_stream(0),m_data(""),m_backup(""),m_store(""),
   m_pos(0), m_line(0), 
   m_fail(false),m_empty(false),m_extraction(extracted),
@@ -456,7 +443,7 @@ DBline::DBline(ifstream& file):
   m_del_dbfmt = true;
 }
 
-DBline::DBline(istream& stream): 
+DBline::DBline(std::istream& stream): 
   m_file(0),m_stream(&stream),m_data(""),m_backup(""),m_store(""),
   m_pos(0), m_line(0), 
   m_fail(false),m_empty(false),m_extraction(extracted),
@@ -489,7 +476,7 @@ DBline::DBline(istream& stream):
 }
 
 DBline&
-DBline::operator <<(ifstream &file)
+DBline::operator <<(std::ifstream &file)
 {
     connect(file);
     GetLine(file);
@@ -497,7 +484,7 @@ DBline::operator <<(ifstream &file)
 }
 
 DBline&
-DBline::operator <<(istream &input)
+DBline::operator <<(std::istream &input)
 {
     connect(input);
     GetLine(input);
@@ -533,23 +520,21 @@ void DBline::setdbfmtflag(int delfl)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-ifstream &operator>>(ifstream &file, DBline &db)
+std::ifstream &operator>>(std::ifstream &file, DBline &db)
 { 
     db.connect(file);
     db.GetLine(file);
     return file;
 }
 
-istream &operator>>(istream &stream, DBline &db)
+std::istream &operator>>(std::istream &stream, DBline &db)
 { 
-  //    db.m_file = 0;
-  //    db.m_fail = 0;
     db.connect(stream);
     db.GetLine(stream);
     return stream;
 }
 
-ostream &operator<<(ostream &stream, DBline &db) 
+std::ostream &operator<<(std::ostream &stream, DBline &db) 
 {
     stream << db.m_data.c_str();
     return stream;
@@ -591,20 +576,20 @@ DBfmt::DBfmt()
 DBfmt* hex(void)
 {
     DBfmt* fmt = new (DBfmt);
-    fmt->setf(ios::hex,ios::basefield);
+    fmt->setf(std::ios::hex,std::ios::basefield);
     return fmt;
 }
 
 DBfmt* oct(void)
 {
     DBfmt* fmt = new (DBfmt);
-    fmt->setf(ios::oct,ios::basefield);
+    fmt->setf(std::ios::oct,std::ios::basefield);
     return fmt;
 }
 DBfmt* dec(void)
 {
     DBfmt* fmt = new (DBfmt);
-    fmt->setf(ios::dec,ios::basefield);
+    fmt->setf(std::ios::dec,std::ios::basefield);
     return fmt;
 }
 
@@ -615,14 +600,14 @@ DBfmt* resetflags(void)
   return fmt; 
 }
 
-DBfmt* setflags(ios::fmtflags f)
+DBfmt* setflags(std::ios::fmtflags f)
 {
   DBfmt* fmt = new (DBfmt);
   fmt->setf(f);
   return fmt;
 }
 
-DBfmt* setflags(ios::fmtflags f1,ios::fmtflags f2)
+DBfmt* setflags(std::ios::fmtflags f1,std::ios::fmtflags f2)
 {
   DBfmt* fmt = new (DBfmt);
   fmt->setf(f1,f2);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationCondAlg.h"
@@ -10,9 +10,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_Cabling/SCT_SerialNumber.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
-
-// Gaudi includes
-#include "GaudiKernel/EventIDRange.h"
 
 // STL include
 #include <memory>
@@ -94,39 +91,28 @@ StatusCode SCT_ConfigurationCondAlg::execute(const EventContext& ctx) const {
   writeCdo->clear();
 
   // Fill module data
-  EventIDRange rangeModule;
-  if (fillModuleData(writeCdo.get(), rangeModule, ctx).isFailure()) {
+  if (fillModuleData(writeCdo.get(), writeHandle, ctx).isFailure()) {
     return StatusCode::FAILURE;
   }
 
   // Fill strip, chip and link info if Chip or MUR folders change
-  EventIDRange rangeChannel;
-  EventIDRange rangeMur;
-  EventIDRange rangeDetEle;
-  if (fillChannelData(writeCdo.get(), rangeChannel, rangeMur, rangeDetEle, ctx).isFailure()) {
+  if (fillChannelData(writeCdo.get(), writeHandle, ctx).isFailure()) {
     return StatusCode::FAILURE;
   }
 
-  // Define validity of the output cond obbject and record it
-  // rangeDetEle is run-lumi. Others are time.
-  EventIDRange rangeW{EventIDRange::intersect(rangeChannel, rangeModule, rangeMur/*, rangeDetEle*/)};
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << rangeChannel << " " << rangeModule << " " << rangeMur/* << " " << rangeDetEle*/);
-    return StatusCode::FAILURE;
-  }
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_ConfigurationCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
 
 // Fill bad strip, chip and link info
-StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle, const EventContext& ctx) const {
+StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -163,7 +149,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   writeCdo->clearBadStripIds();
   writeCdo->clearBadChips();
   // Fill link status
-  if (fillLinkStatus(writeCdo, rangeMur, ctx).isFailure()) return StatusCode::FAILURE;
+  if (fillLinkStatus(writeCdo, writeHandle, ctx).isFailure()) return StatusCode::FAILURE;
 
   // Get channel folder for link info 
   SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyChannel, ctx};
@@ -173,12 +159,8 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Size of " << m_readKeyChannel.key() << " folder is " << readCdo->size());
-
-  // Get EventIDRange
-  if (not readHandle.range(rangeChannel)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey, ctx};
@@ -187,11 +169,8 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  // Get EventIDRange
-  if (not sctDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << sctDetEle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(sctDetEle);
 
   // Loop over modules (i.e groups of 12 chips) in DB folder 
   CondAttrListVec::const_iterator itr{readCdo->begin()};
@@ -291,7 +270,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
 }
 
 // Fill bad module info
-StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule, const EventContext& ctx) const {
+StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -316,11 +295,8 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
   }
   ATH_MSG_INFO("Size of " << m_readKeyModule.key() << " is " << readCdo->size());
 
-  // Get EventIDRange
-  if (not readHandle.range(rangeModule)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   // Set index
   enum RUN1_INDICES{PK, FOREIGN_KEY, ID_1, GROUP_1, ACTIVE_1, SELECT_1};
@@ -364,7 +340,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
 }
 
 // Fill link info
-StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur, const EventContext& ctx) const {
+StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -386,11 +362,8 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
   }
   ATH_MSG_INFO("Size of " << m_readKeyMur.key() << " is " << readCdo->size());
 
-  // Get EventIDRange
-  if (not readHandle.range(rangeMur)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   // Set indices
   enum RUN1_INDICES{PK, FOREIGN_KEY, MUR_1, MODULE_1, MODULEID_1, RMODULEID_1, RX0FIBRE_1, RX1FIBRE_1, TXFIBRE_1};

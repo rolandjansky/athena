@@ -3,8 +3,8 @@
 */
 
 #include "ComboHypo.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/View.h"
 #include <sstream>
@@ -204,20 +204,19 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         break;
       }
   
-      //keep track of the number of unique features
+      //keep track of the number of unique features/rois
       for (const ElementLink<DecisionContainer>& dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0;
         uint16_t featureIndex = 0, roiIndex = 0;
-        // NOTE: roiKey, roiIndex not currently used in this discrimination
+        // NOTE: roiKey, roiIndex are only currently used in the discrimination for L1 Decision objects (which don't have a 'feature' link)
+        // NOTE: We should make it configurable to choose either the feature or the ROI here, as done in the InputMaker base class when merging.
         ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex) );
-	// TODO: move this to InitialRoI for serial merging
-        const uint32_t featureHash = (featureKey + featureIndex); 
-        if (featureHash == 0) {
-          ATH_MSG_WARNING("Disregarding feature hash of zero");
-          continue;
+        const uint32_t uniquenessHash = (featureKey != 0 ? (featureKey + featureIndex) : (roiKey + roiIndex)); 
+        if (uniquenessHash == 0) {
+          ATH_MSG_ERROR("Object has no feature, and no initialRoI. Cannot get obtain unique element to avoid double-counting.");
+          return StatusCode::FAILURE;
         }
-        uniqueDecisionFeatures.insert( featureHash );
-        // TODO - do something with the ROI
+        uniqueDecisionFeatures.insert( uniquenessHash );
       }
 
       // save combinations of all legs for the tools
@@ -276,22 +275,17 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
   const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
   if (!result) {
-    // WARNING?
-    ATH_MSG_ERROR("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
+    ATH_MSG_WARNING("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
   }
   // Try and get seeding ROI data too. Don't need to be type-less here
-  if (m_requireUniqueROI) {
-    LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
-    if (roiSeedLI.isValid()) {
-      roiKey = roiSeedLI.link.key();
-      roiIndex = roiSeedLI.link.index();
-    }
-    else {
-      ATH_MSG_ERROR("Did not find a seeding ROI for " << dEL.dataID() << " index " << dEL.index());
-    }
+  LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
+  if (roiSeedLI.isValid()) {
+    roiKey = roiSeedLI.link.key();
+    roiIndex = roiSeedLI.link.index();
   }
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventContext& context) const {
   for ( size_t inputContainerIndex = 0; inputContainerIndex < m_inputs.size(); ++inputContainerIndex ) {   

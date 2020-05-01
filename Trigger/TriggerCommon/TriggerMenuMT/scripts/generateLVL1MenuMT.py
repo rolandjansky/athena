@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys,os
 
@@ -76,7 +76,7 @@ def findUnneededRun2():
 
 def findRequiredItemsFromXML():
     
-    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1', 'Physics_pp_run3_v1', 'PhysicsP1_pp_run3_v1', 'MC_pp_run3_v1', 'Cosmic_pp_run3_v1']
+    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1', 'Physics_pp_run3_v1', 'PhysicsP1_pp_run3_v1', 'MC_pp_run3_v1', 'Cosmic_run3_v1', 'PhysicsP1_HI_run3_v1', 'Dev_HI_run3_v1']
 
     from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
 
@@ -142,7 +142,10 @@ def main():
         generateL1Menu(menu="Physics_pp_run3_v1" )
         generateL1Menu(menu="PhysicsP1_pp_run3_v1" )
         generateL1Menu(menu="MC_pp_run3_v1" )
-        generateL1Menu(menu="Cosmic_pp_run3_v1")
+        generateL1Menu(menu="Cosmic_run3_v1")
+        generateL1Menu(menu="Dev_HI_run3_v1" )
+        generateL1Menu(menu="PhysicsP1_HI_run3_v1" )
+
         return 0
  
 
@@ -162,6 +165,16 @@ def main():
 
     if sys.argv[1].lower().startswith("mc_pp_run3_v1"):
         menu = generateL1Menu(menu="MC_pp_run3_v1")
+        menu.printCabling()
+        return 0
+
+    if sys.argv[1].lower().startswith("physicsp1_hi_run3_v1"):
+        menu = generateL1Menu(menu="PhysicsP1_HI_run3_v1")
+        menu.printCabling()
+        return 0
+
+    if sys.argv[1].lower().startswith("dev_hi_run3_v1"):
+        menu = generateL1Menu(menu="Dev_HI_run3_v1")
         menu.printCabling()
         return 0
 
@@ -210,7 +223,7 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("cosmic"):
-        menu = generateL1Menu(menu="Cosmic_pp_run3_v1")
+        menu = generateL1Menu(menu="Cosmic_run3_v1")
         menu.printCabling()
         return 0
 

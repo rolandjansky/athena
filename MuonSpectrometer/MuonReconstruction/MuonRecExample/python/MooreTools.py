@@ -288,6 +288,7 @@ class MuonSegmentMatchingTool(CfgMgr.Muon__MuonSegmentMatchingTool):
     def __init__(self,name='MuonSegmentMatchingTool',**kwargs):
         kwargs.setdefault( "doThetaMatching", muonStandaloneFlags.useSegmentMatching() )
         kwargs.setdefault( "doPhiMatching", False )
+        kwargs.setdefault( "ToroidOn", jobproperties.BField.allToroidOn() )
         if beamFlags.beamType() == 'cosmics':
             # switch off cut of phi hit pulls
             kwargs.setdefault("OverlapMatchAveragePhiHitPullCut", 200. )

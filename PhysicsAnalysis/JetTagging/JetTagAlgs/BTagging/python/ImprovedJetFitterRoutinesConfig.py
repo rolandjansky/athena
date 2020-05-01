@@ -6,7 +6,7 @@ from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitt
 from BTagging.TrkDistanceFinderNeutralNeutralConfig import TrkDistanceFinderNeutralNeutralCfg
 from BTagging.TrkDistanceFinderNeutralChargedConfig import TrkDistanceFinderNeutralChargedCfg
 
-Trk__JetFitterRoutines=CompFactory.Trk__JetFitterRoutines
+Trk__JetFitterRoutines=CompFactory.Trk.JetFitterRoutines
 
 def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterRoutines tool and returns it.

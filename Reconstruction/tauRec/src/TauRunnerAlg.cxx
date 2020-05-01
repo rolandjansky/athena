@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ListItem.h"
-
 #include "tauRec/TauRunnerAlg.h"
 
 #include "xAODJet/Jet.h"
@@ -26,10 +24,7 @@
 //-----------------------------------------------------------------------------
 TauRunnerAlg::TauRunnerAlg(const std::string &name,
     ISvcLocator * pSvcLocator) :
-AthAlgorithm(name, pSvcLocator),
-m_tools(this) //make tools private
-{
-  declareProperty("Tools", m_tools);
+AthAlgorithm(name, pSvcLocator) {
 }
 
 //-----------------------------------------------------------------------------
@@ -67,15 +62,12 @@ StatusCode TauRunnerAlg::initialize() {
     //-------------------------------------------------------------------------
     ATH_CHECK( m_tools.retrieve() );
 
-    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
     unsigned int tool_count = 0;
-    for (; itT != itTE; ++itT) {
+    for (ToolHandle<ITauToolBase>& tool : m_tools) {
       ++tool_count;
-      ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+      ATH_MSG_INFO(tool->type() << " - " << tool->name());
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -98,13 +90,10 @@ StatusCode TauRunnerAlg::finalize() {
   //-----------------------------------------------------------------
   // Loop stops when Failure indicated by one of the tools
   //-----------------------------------------------------------------
-  ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-  ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-  for (; itT != itTE; ++itT) {
-    ATH_MSG_VERBOSE("Invoking tool " << (*itT)->name());
-    sc = (*itT)->finalize();
-    if (sc.isFailure())
-      break;
+  for (ToolHandle<ITauToolBase>& tool : m_tools) {
+    ATH_MSG_VERBOSE("Invoking tool " << tool->name());
+    sc = tool->finalize();
+    if (sc.isFailure()) break;
   }
 
   if (sc.isSuccess()) {
@@ -184,33 +173,30 @@ StatusCode TauRunnerAlg::execute() {
       //-----------------------------------------------------------------
       StatusCode sc;
     
-      ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-      ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-      for (; itT != itTE; ++itT) {
-	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << (*itT)->name());
-	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
-          sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
+      for (ToolHandle<ITauToolBase>& tool : m_tools) {
+	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
+	if ( tool->name().find("Pi0ClusterCreator") != std::string::npos){
+          sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
         }
-	else if ( (*itT)->name().find("VertexVariables") != std::string::npos){
-	  sc = (*itT)->executeVertexVariables(*pTau, *pSecVtxContainer);
+	else if ( tool->name().find("VertexVariables") != std::string::npos){
+	  sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);
 	}
-	else if ( (*itT)->name().find("Pi0ClusterScaler") != std::string::npos){
-	  sc = (*itT)->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
+	else if ( tool->name().find("Pi0ClusterScaler") != std::string::npos){
+	  sc = tool->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0ScoreCalculator") != std::string::npos){
-	  sc = (*itT)->executePi0nPFO(*pTau, *neutralPFOContainer);
+	else if ( tool->name().find("Pi0ScoreCalculator") != std::string::npos){
+	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0Selector") != std::string::npos){
-	  sc = (*itT)->executePi0nPFO(*pTau, *neutralPFOContainer);
+	else if ( tool->name().find("Pi0Selector") != std::string::npos){
+	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
 	}
-	else if ( (*itT)->name().find("PanTau") != std::string::npos){
-	  sc = (*itT)->executePanTau(*pTau, *pi0Container);
+	else if ( tool->name().find("PanTau") != std::string::npos){
+	  sc = tool->executePanTau(*pTau, *pi0Container);
 	}
 	else {
-	  sc = (*itT)->execute(*pTau);
+	  sc = tool->execute(*pTau);
 	}
-	if (sc.isFailure())
-	  break;
+	if (sc.isFailure())  break;
       }
       if (sc.isSuccess()) {
         ATH_MSG_VERBOSE("The tau candidate has been modified successfully by all the invoked tools.");

@@ -146,6 +146,10 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::initialize() {
 
     ATH_CHECK( m_jo_trtcontainername.initialize());
 
+    ////////////////////////////////////////////////////////////////////////////////
+    ATH_CHECK( m_fieldCondObjInputKey.initialize());
+    ////////////////////////////////////////////////////////////////////////////////
+
     return StatusCode::SUCCESS;
 }
 
@@ -272,10 +276,10 @@ std::ostream& InDet::TRT_TrackExtensionTool_DAF::dump( std::ostream& out ) const
 // Track extension init for a new event
 ///////////////////////////////////////////////////////////////////
 std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
-InDet::TRT_TrackExtensionTool_DAF::newEvent() const {
+InDet::TRT_TrackExtensionTool_DAF::newEvent(const EventContext& ctx) const {
     // -----------
     // get the container with TRT RIOs
-   SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_jo_trtcontainername);
+   SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_jo_trtcontainername, ctx);
 
    if((not trtcontainer.isValid())) {
       std::stringstream msg;
@@ -294,7 +298,8 @@ InDet::TRT_TrackExtensionTool_DAF::newEvent() const {
 // Main methods for track extension to TRT
 ///////////////////////////////////////////////////////////////////
 std::vector<const Trk::MeasurementBase*>&
-InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::Track& track,
+InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
+                                               const Trk::Track& track,
                                                InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_DAF::EventData &
@@ -316,12 +321,13 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::Track& track,
         }
     }
     // call main function
-    return extendTrack(*trackPar,event_data);
+    return extendTrack(ctx, *trackPar,event_data);
 }
 
 
 std::vector<const Trk::MeasurementBase*>&
-InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::TrackParameters& trackPar,
+InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
+                                               const Trk::TrackParameters& trackPar,
                                                InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
    InDet::TRT_TrackExtensionTool_DAF::EventData &
@@ -351,10 +357,24 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::TrackParameters& track
     event_data.m_siliconTrkParams = &trackPar;
 
     ATH_MSG_DEBUG("starting TRT detector elements road maker with initial TrackParemeters: "<< *event_data.m_siliconTrkParams );
+
+
+    // Get AtlasFieldCache
+    MagField::AtlasFieldCache fieldCache;
+
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    
+
     // ----------------------------------
     // start the TRT detector elements road maker to get a list of possibly interesting detector elements
     std::vector<const InDetDD::TRT_BaseElement*> detElements;
-    m_roadtool->detElementsRoad(*event_data.m_siliconTrkParams, Trk::alongMomentum, detElements);
+    m_roadtool->detElementsRoad(ctx, fieldCache, *event_data.m_siliconTrkParams, Trk::alongMomentum, detElements);
 
     ATH_MSG_DEBUG("TRT detector elements road maker found "<< detElements.size()<< " detElements" );
 
@@ -900,7 +920,8 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
 // Main methods for segment finding in TRT
 ///////////////////////////////////////////////////////////////////
 Trk::TrackSegment*
-InDet::TRT_TrackExtensionTool_DAF::findSegment(const Trk::TrackParameters&,
+InDet::TRT_TrackExtensionTool_DAF::findSegment(const EventContext& /*ctx*/,
+                                               const Trk::TrackParameters&,
                                                InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
     return 0;
@@ -911,7 +932,8 @@ InDet::TRT_TrackExtensionTool_DAF::findSegment(const Trk::TrackParameters&,
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track*
-InDet::TRT_TrackExtensionTool_DAF::newTrack(const Trk::Track&,
+InDet::TRT_TrackExtensionTool_DAF::newTrack(const EventContext& /*ctx*/,
+                                            const Trk::Track&,
                                             InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
   return 0;

@@ -35,7 +35,6 @@ public:
   */ 
   TileHid2RESrcID(const TileHWID* tileHWID=0, uint32_t runnum=0); 
   void setTileHWID (const TileHWID* tileHWID, uint32_t runnum=0);
-  void setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum=0);
 
   void initialize(uint32_t runnum);
   void initializeMuRcv(uint32_t runnum);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibIdentifier/MdtGasChannel.h"
@@ -47,10 +47,8 @@ bool MdtGasChannel::readFile()
 		GasChannel c;
 		chanstr>>c.first;
 		chanstr>>c.second;
-//		std::cout<<"Channel: "<<c.first<<" "<<c.second<<std::endl;
 		while((pos=stations.find(","))!=std::string::npos)
 			{
-//			std::cout<<pos<<std::endl;
 			stations[pos]=' ';
 			}
 		std::istringstream st_stream(stations);
@@ -59,18 +57,16 @@ bool MdtGasChannel::readFile()
 			{
 			if(st_stream.eof()) break;
 			st_stream>>station;
-//			std::cout<<station<<std::endl;
 			MuonFixedId ml=OnlineToOffline(station);
 			if(!ml.isValid()) continue;
-			//std::cout<<ml.stationNameString()<<",phi="<<ml.phi()<<",eta="<<ml.eta()<<std::endl;
 			m_channel_map[ml]=c;
 		//treat connected chambers
-			if(ml.stationName()==15 && abs(ml.eta())==5 && (ml.phi()==1 || ml.phi()==5))
+			if(ml.stationName()==15 && std::abs(ml.eta())==5 && (ml.phi()==1 || ml.phi()==5))
 				{
 				ml.setStationEta(ml.eta()==-5?-4:4);
 				m_channel_map[ml]=c;
 				}
-			else if (ml.stationName()==15 && abs(ml.eta())==2)
+			else if (ml.stationName()==15 && std::abs(ml.eta())==2)
 				{
 				ml.setStationEta(ml.eta()==-2?-3:3);
 				m_channel_map[ml]=c;

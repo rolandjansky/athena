@@ -4,7 +4,7 @@
 #ifndef DECISIONHANDLING_ICOMBOHYPOTOOL_H
 #define DECISIONHANDLING_ICOMBOHYPOTOOL_H 1
 
-#include "DecisionHandling/TrigCompositeUtils.h" 
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "GaudiKernel/IAlgTool.h"
 
 

@@ -19,9 +19,7 @@
 class AtlasDetectorID;
 class PRD_MultiTruthCollection;  
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
   
 namespace Trk {
   class IPRD_Provider;

@@ -33,7 +33,7 @@ atlas_add_component( MuonTrackingGeometry
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces GeoModelUtilities )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrGeoModelCnv TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkVolumes StoreGateLib SGtests GeoPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkGeometrySurfaces TrkSurfaces GeoModelUtilities SubDetectorEnvelopesLib )
 
 # Install files from the package:
 atlas_install_headers( MuonTrackingGeometry )

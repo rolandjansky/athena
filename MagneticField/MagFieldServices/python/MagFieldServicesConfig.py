@@ -1,43 +1,71 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-# JobOption fragment to set up the AtlasFieldSvc
-# Valerio Ippolito - Harvard University
-
-# inspired by https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonCnv/MuonCnvExample/trunk/python/MuonCalibConfig.py
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
-# The magneticfields is going to need a big update for MT, so this is all temporary. Ed
+    
 def MagneticFieldSvcCfg(flags, **kwargs):
     result=ComponentAccumulator()
     
     # initialise required conditions DB folders
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     
-    # This handles addFolderSplitMC https://gitlab.cern.ch/atlas/athena/blob/master/Database/IOVDbSvc/python/CondDB.py#L240
-    # i.e. replaces conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Maps <noover/>','/GLOBAL/BField/Maps <noover/>')
-    # def addFolders(configFlags,folderstrings,detDb=None,className=None):
     if flags.Input.isMC:
         db='GLOBAL_OFL'
     else:
         db='GLOBAL'
         
-    result.merge(addFolders(flags,['/GLOBAL/BField/Maps <noover/>'],detDb=db) )
+    result.merge(addFolders(flags,['/GLOBAL/BField/Maps <noover/>'], detDb=db, className="CondAttrListCollection") )
         
     if not flags.Common.isOnline:
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )
             
+
+    # AtlasFieldSvc - old one
+    afsArgs = {
+      "name": "AtlasFieldSvc",
+    }
     if flags.Common.isOnline:
-      kwargs.setdefault( "UseDCS", False )
-      kwargs.setdefault( "UseSoleCurrent", 7730 )
-      kwargs.setdefault( "UseToroCurrent", 20400 )
+      afsArgs.update( UseDCS = False )
+      afsArgs.update( UseSoleCurrent = 7730 )
+      afsArgs.update( UseToroCurrent = 20400 )
     else:
-      kwargs.setdefault( "UseDCS", True )
+      afsArgs.update( UseDCS = True )
+    if 'UseDCS' in kwargs:
+      afsArgs['UseDCS'] = kwargs['UseDCS']
+    mag_field_svc = CompFactory.MagField.AtlasFieldSvc(**afsArgs)  
+    result.addService(mag_field_svc, primary=True)
 
-
-    mag_field_svc = CompFactory.MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
-    result.addService(mag_field_svc,primary=True)
+    # AtlasFieldMapCondAlg - for reading in map
+    afmArgs = {
+      "name": "AtlasFieldMapCondAlg",
+    }
+    if flags.Common.isOnline:
+      # Set UseMapsFromCOOL for online to force the map creation at start
+      afmArgs.update( UseMapsFromCOOL = False )
+    else:
+      # Otherwise read from cool
+      afmArgs.update( UseMapsFromCOOL = True )
+    afmArgs.update( UseMapsFromCOOL = True )
+    mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
+    result.addCondAlgo(mag_field_map_cond_alg)
+    
+    # AtlasFieldCacheCondAlg - for reading in current
+    afcArgs = {
+      "name": "AtlasFieldCacheCondAlg",
+    }
+    if flags.Common.isOnline:
+      afcArgs.update( UseDCS = False )
+      afcArgs.update( UseSoleCurrent = 7730 )
+      afcArgs.update( UseToroCurrent = 20400 )
+      afcArgs.update( LockMapCurrents = True )
+    else:
+      afcArgs.update( UseDCS = True )
+      afcArgs.update( UseNewBfieldCache = True )
+    if 'UseDCS' in kwargs:
+      afcArgs['UseDCS'] = kwargs['UseDCS']
+    mag_field_cache_cond_alg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 
+    result.addCondAlgo(mag_field_cache_cond_alg)
+    
     return result 
     
 if __name__=="__main__":

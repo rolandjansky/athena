@@ -69,11 +69,12 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
 def BCM_OutputCfg(flags):
     """Return ComponentAccumulator with Output for BCM. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["BCM_RDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["BCM_RDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: pool.h 590734 2014-04-01 21:49:36Z gemmeren $
@@ -96,9 +96,6 @@ namespace pool   {
   /// Check for tracing
   bool      doTrace();
 
-  /// Enable debug breaks
-  void      enableBreak(bool yes_no);
-
   /// Translate acce mode to string
   const char* accessMode(pool::DbAccessMode access_mode);
 
@@ -133,7 +130,7 @@ namespace pool   {
 
   class RefCounter {
   private: 
-    mutable int m_count = 1;
+    int m_count = 1;
   public:
     RefCounter() {}
     RefCounter( const RefCounter& ) { m_count = 1; }

@@ -31,17 +31,17 @@ def TileDigitsMakerCfg(flags, **kwargs):
     infoLoader = infoLoaderAcc.getPrimary()
     acc.merge( infoLoaderAcc )
 
-    infoLoaderProperties = infoLoader.getValuedProperties()
+    infoLoaderProperties = infoLoader._properties.items()
 
     if 'TileNoise' in infoLoaderProperties:
         tileNoise = infoLoaderProperties['TileNoise']
     else:
-        tileNoise = infoLoader.getDefaultProperty('TileNoise')
+        tileNoise = infoLoader._descriptors['TileNoise'].default
 
     if 'TileCoherNoise' in infoLoaderProperties:
         tileCoherNoise = infoLoaderProperties['TileCoherNoise']
     else:
-        tileCoherNoise = infoLoader.getDefaultProperty('TileCoherNoise')
+        tileCoherNoise = infoLoader._descriptors['TileCoherNoise'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -149,8 +149,13 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
     outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
+    
 
     if flags.Output.doWriteRDO:
+        if flags.Digitization.TruthOutput:
+            outputItemList += ["CaloCalibrationHitContainer#*"]
+            from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+            acc.merge(TruthDigitizationOutputCfg(flags))
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(  OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 

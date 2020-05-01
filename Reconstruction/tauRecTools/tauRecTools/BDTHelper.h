@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgMessaging.h"
 #include "AsgTools/StatusCode.h"
-
+#include "xAODTau/TauJet.h"
 #include "MVAUtils/BDT.h"
 
 class TString;
@@ -20,7 +20,11 @@ namespace tauRecTools {
    
       StatusCode initialize(const TString& weightFileName);
 
-      StatusCode getGradBoostMVA(const std::map<TString, float>& availableVariables, float& score) const; 
+      float getGradBoostMVA(const std::map<TString, float>& availableVariables) const; 
+
+      float getResponse(const std::map<TString, float*>& availableVariables) const; 
+
+      float getGradBoostMVA(const xAOD::TauJet& tau) const; 
 
       MVAUtils::BDT* getBDT() const { return m_BDT.get(); }
 
@@ -28,6 +32,10 @@ namespace tauRecTools {
       std::vector<TString> parseString(const TString& str, const TString& delim = ",") const;
       
       std::vector<float> getInputVariables(const std::map<TString, float>& availableVariables) const ;
+      
+      std::vector<float> getInputVariables(const std::map<TString, float*>& availableVariables) const;
+
+      std::vector<float> getInputVariables(const xAOD::TauJet& tau) const ;
 
       std::unique_ptr<MVAUtils::BDT> m_BDT;
       std::vector<TString> m_inputVariableNames;

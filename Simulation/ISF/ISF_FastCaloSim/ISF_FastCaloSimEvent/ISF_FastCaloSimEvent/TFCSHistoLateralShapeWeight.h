@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSHistoLateralShapeWeight_h
@@ -19,6 +19,8 @@ public:
 
   /// Init from histogram. The integral of the histogram is used as number of expected hits to be generated
   bool Initialize(TH1* hist);
+
+  TH1* getHistogram() const {return m_hist;};
   
   virtual void Print(Option_t *option = "") const override;
   virtual void setMinWeight(float minWeight) {m_minWeight=minWeight;}

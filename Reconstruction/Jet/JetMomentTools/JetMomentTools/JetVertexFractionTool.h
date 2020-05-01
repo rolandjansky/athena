@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetVertexFractionTool.h
@@ -9,6 +9,9 @@
 
 /// Steven Schramm \n
 /// February 2014
+///
+/// Updated for Run 3 by Bill Balunas
+/// March 2020
 ///
 /// Tool to calculate the jet vertex fraction (JVF)
 /// JVF is a vector<float> with respect to all vertices
@@ -32,6 +35,7 @@
 
 
 #include "AsgTools/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -39,14 +43,18 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "JetInterface/IJetTrackSelector.h"
-#include "JetRec/JetModifierBase.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetEDM/TrackVertexAssociation.h"
+
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 #include <vector>
 #include <string>
 
-class JetVertexFractionTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetVertexFractionTool,IJetModifier)
+class JetVertexFractionTool : public asg::AsgTool,
+                              virtual public IJetDecorator{
+  ASG_TOOL_CLASS(JetVertexFractionTool,IJetDecorator)
 
 public:  // methods
 
@@ -54,32 +62,18 @@ public:  // methods
   JetVertexFractionTool(const std::string& name);
 
   // Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  // Inherited methods to modify a jet
-  // Calls getJetVertexFraction and puts the result in the jet
-  int modifyJet(xAOD::Jet& jet) const;
-
-  // Inherited methods to modify a jet
+  // Inherited method to decorate a jet
   // Computes JVF for all jets from track sum information
   // Also adds JVF corrected to be insensitive to NPV
-  StatusCode modify(xAOD::JetContainer& jetCont) const;
-
-  // Local method to calculate and return the JVF vector
-  const std::vector<float> getJetVertexFraction(const xAOD::VertexContainer*,
-                                                const std::vector<const xAOD::TrackParticle*>&,
-                                                const jet::TrackVertexAssociation*) const;
-
-  // Local method to calculate the JVF for a given vertex
-  float getJetVertexFraction(const xAOD::Vertex*,
-                             const std::vector<const xAOD::TrackParticle*>&,
-                             const jet::TrackVertexAssociation*) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const override;
 
   // Local method to calculate the JVF for a given vertex
   float getCorrJetVertexFraction(const xAOD::Vertex*,
-				 const std::vector<const xAOD::TrackParticle*>&,
-				 const xAOD::TrackParticleContainer*&,
-				 const jet::TrackVertexAssociation*) const;
+                                 const std::vector<const xAOD::TrackParticle*>&,
+                                 const xAOD::TrackParticleContainer*&,
+                                 const jet::TrackVertexAssociation*) const;
 
   // Local method to determine the highest JVF vertex and get an ElementLink to it
   ElementLink<xAOD::VertexContainer> getMaxJetVertexFraction(const xAOD::VertexContainer*,
@@ -89,20 +83,24 @@ public:  // methods
 private:  // data
 
   // Configurable parameters
-  std::string m_assocTracksName;
-  std::string m_sumPtTrkName;
-  ToolHandle<IJetTrackSelector> m_htsel;
-  std::string m_jvfname;
-  float m_kcorrJVF;
-  float m_PUtrkptcut;
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for input jet container"};
+  Gaudi::Property<std::string> m_assocTracksName{this, "AssociatedTracks", "", "Name of associated track container"};
+  Gaudi::Property<float> m_kcorrJVF{this, "K_JVFCorrScale", 0.01, "Value of k for JVFCorr calculation"};
+  Gaudi::Property<float> m_PUtrkptcut{this, "PUTrkPtCut", 30000., "Pileup track pt cut (MeV)"};
+
+  ToolHandle<IJetTrackSelector> m_htsel{this, "TrackSelector", "", "Track selector tool"};
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "", "Input vertex container"};
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key{this, "TrackVertexAssociation", "", "Input track-vertex association"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksCont_key{this, "TrackParticleContainer", "", "Input track container"};
+  SG::ReadDecorHandleKey<xAOD::JetContainer> m_sumPtTrkKey{this, "SumPtTrkName", "SumPtTrkPt500", "SG key for input SumPtTrk decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_jvfKey{this, "JVFName", "JVF", "SG key for output JVF decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_jvfCorrKey{this, "JVFCorrName", "JVFCorr", "SG key for output JVFCorr decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_maxJvfVtxKey{this, "HighestJVFVertexName", "HighestJVFVtx", "SG key for output HighestJVFVertex decoration"};
 
 private:  // methods
 
   std::vector<float> getEmptyJetVertexFraction(const xAOD::VertexContainer*) const;
-  
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksCont_key;
 
   // Local method to count the number of pileup tracks in the event
   int getPileupTrackCount(const xAOD::Vertex*,
@@ -120,7 +118,8 @@ private:  // methods
                         const jet::TrackVertexAssociation*) const;
 
 protected:
-  bool m_isTrigger;  
+  Gaudi::Property<bool> m_isTrigger{this, "IsTrigger", false, "Is this in the trigger?"};
+
 };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,13 +21,13 @@
 #ifndef DBDATAOBJECTS_TAGATHENAATTRIBUTELIST_H
 # define DBDATAOBJECTS_TAGATHENAATTRIBUTELIST_H 
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/DataObject.h"
 
@@ -48,11 +48,11 @@ class TagAthenaAttributeList : public coral::AttributeList,
 public:
 
     /// Construct empty attribute list with empty specification.
-    TagAthenaAttributeList();
+    TagAthenaAttributeList() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
     /// Copy attribute lists.
-    TagAthenaAttributeList(const coral::AttributeList& rhs);
-    TagAthenaAttributeList(const TagAthenaAttributeList& rhs);
+    TagAthenaAttributeList(const coral::AttributeList& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    TagAthenaAttributeList(const TagAthenaAttributeList& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     /// Assignment.
     TagAthenaAttributeList& operator= (const TagAthenaAttributeList& rhs);
         
@@ -64,9 +64,9 @@ public:
 
     /// base on Spec with (name,type,info) tuple as well
     /// Otherwise it acts as coral version
-    explicit TagAthenaAttributeList(const AthenaAttributeListSpecification& rhs);
+    explicit TagAthenaAttributeList(const AthenaAttributeListSpecification& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
-    ~TagAthenaAttributeList();
+    ~TagAthenaAttributeList() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
     /// Extends the AttributeList by one attribute, given a specification. 
     /// In case the specification is shared, a copy is triggered.
@@ -84,7 +84,7 @@ public:
     bool hasDesc() const;
     const AthenaAttributeListSpecification* getDesc() const;
 
-    coral::AttributeList coralList() const {return static_cast<coral::AttributeList>(*this);}
+    const coral::AttributeList& coralList() const {return *static_cast<const coral::AttributeList*>(this);}
 
 private:
 
@@ -95,9 +95,6 @@ private:
 };
 
 CLASS_DEF(TagAthenaAttributeList, 40774349, 0)
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 
 inline

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 A small utility to deal with pickled files.
 """
@@ -25,14 +28,14 @@ if options.create:
     data = inFile.read()
     inFile.close()
     object = eval(data)
-    outFile = open(args[1], 'w')
+    outFile = open(args[1], 'wb')
     pickle.dump(object,outFile)
     outFile.close()
 
 else:
     if len(args)<1:
         parser.error('missing input file')
-    inFile = open(args[0], 'r')
+    inFile = open(args[0], 'rb')
     data = pickle.load(inFile)
     inFile.close()
     if options.pretty:
@@ -45,4 +48,4 @@ else:
         outFile.write('\n')
         outFile.close()
     else:
-        print s
+        print (s)

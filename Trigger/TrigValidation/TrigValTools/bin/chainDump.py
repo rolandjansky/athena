@@ -13,11 +13,12 @@ import ROOT
 from collections import OrderedDict
 
 total_events_key = 'TotalEventsProcessed'
-json_file_name = 'chainDump.json'
+column_width = 10  # width of the count columns for print out
+name_width = 50  # width of the item name column for print out
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(usage='%(prog)s [options] files',
+    parser = argparse.ArgumentParser(usage='%(prog)s [options]',
                                      description=__doc__)
     parser.add_argument('-f', '--inputFile',
                         metavar='PATH',
@@ -38,9 +39,10 @@ def get_parser():
                         default=False,
                         help='Only store out of tolerance results (does not change JSON)')
     parser.add_argument('--json',
-                        action='store_true',
-                        default=False,
-                        help='Save outputs also to {:s}'.format(json_file_name))
+                        metavar='PATH',
+                        nargs='?',
+                        const='chainDump.json',
+                        help='Save outputs also to a json file with the given name or %(const)s if no name is given')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
                         default=0.001,
@@ -218,18 +220,20 @@ def compare_ref(json_dict, thr_frac, thr_num):
         good = True
         if len(diff_val) > 0:
             good = False
-            dump = '\n'.join(['  {e[0]:s} {e[1]:14d} {e[2]:14d}'.format(e=element) for element in diff_val])
+            dump = '\n'.join(
+                ['  {e[0]:{nw}s} {e[1]:>{w}d} {e[2]:>{w}d}'.format(
+                    e=element, nw=name_width, w=column_width) for element in diff_val])
             logging.info('%s has %d item(s) out of tolerance:\n%s',
                          text_name, len(diff_val), dump)
         if (len(missing_ref)) > 0:
             good = False
             dump = '\n'.join(['  {e[0]:s}'.format(e=element) for element in missing_ref])
-            logging.info('%s has %d item(s) missing in the reference',
+            logging.info('%s has %d item(s) missing in the reference:\n%s',
                          text_name, len(missing_ref), dump)
         if (len(missing_val)) > 0:
             good = False
             dump = '\n'.join(['  {e[0]:s}'.format(e=element) for element in missing_val])
-            logging.info('%s has %d item(s) missing with respect to the reference',
+            logging.info('%s has %d item(s) missing with respect to the reference:\n%s',
                          text_name, len(missing_val), dump)
         if good:
             logging.info('%s is matching the reference', text_name)
@@ -254,14 +258,25 @@ def print_counts(json_dict):
         dump_lines = []
         for item_name, item_counts in counts.items():
             v = item_counts['count']
-            line = '  {:s} {:14d}'.format(item_name, v)
+            line = '  {name:{nw}s} {val:>{w}d}'.format(name=item_name, val=v, nw=name_width, w=column_width)
             if not no_ref:
                 ref_v = item_counts['ref_count']
                 diff = item_counts['ref_diff']
-                line += ' {:14d}'.format(ref_v)
+                line += ' {val:>{w}d}'.format(val=ref_v, w=column_width)
                 if diff:
                     line += ' <<<<<<<<<<'
         logging.info('Writing %s counts from histogram %s:\n%s', text_name, hist_name, '\n'.join(dump_lines))
+
+
+def format_txt_count(count):
+    if type(count) is int:
+        return '{val:>{w}d}'.format(val=count, w=column_width)
+    elif type(count) is not str:
+        logging.error('Unexpected count type %s', type(count))
+        count = 'ERROR'
+    if count == 'n/a':
+        count = '-'
+    return '{val:>{w}s}'.format(val=count, w=column_width)
 
 
 def write_txt_output(json_dict, diff_only=False):
@@ -282,11 +297,11 @@ def write_txt_output(json_dict, diff_only=False):
         with open('{:s}.txt'.format(text_name), 'w') as outfile:
             for item_name, item_counts in counts.items():
                 v = item_counts['count']
-                line = '{:s} {:14d}'.format(item_name, v)
+                line = '{name:{nw}s} '.format(name=item_name, nw=name_width) + format_txt_count(v)
                 if not no_ref:
                     ref_v = item_counts['ref_count']
                     diff = item_counts['ref_diff']
-                    line += ' {:14d}'.format(ref_v)
+                    line += ' ' + format_txt_count(ref_v)
                     if diff:
                         line += ' <<<<<<<<<<'
                     elif diff_only:
@@ -403,8 +418,8 @@ def main():
         write_txt_output(json_dict, args.diffOnly)
 
     if args.json:
-        logging.info('Writing results to %s', json_file_name)
-        with open(json_file_name, 'w') as outfile:
+        logging.info('Writing results to %s', args.json)
+        with open(args.json, 'w') as outfile:
             json.dump(json_dict, outfile)
 
     return retcode

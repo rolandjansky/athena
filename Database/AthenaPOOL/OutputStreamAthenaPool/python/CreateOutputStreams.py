@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
@@ -14,7 +14,8 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
-                        eventInfoKey = "EventInfo", decisionFilter="" ):
+                        eventInfoKey = "EventInfo", decisionFilter="",
+                        trigNavThinningSvc = None ):
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -63,6 +64,8 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
    from AthenaServices.AthenaServicesConf import Athena__ThinningCacheTool
    tct = Athena__ThinningCacheTool ('ThinningCacheTool_' + streamName,
                                     StreamName = streamName)
+   if trigNavThinningSvc is not None:
+      tct.TrigNavigationThinningSvc = trigNavThinningSvc
    outputStream.HelperTools += [tct]
 
 

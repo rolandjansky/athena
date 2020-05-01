@@ -11,9 +11,9 @@
 using namespace InDetVertexTruthMatchUtils;
 
 InDetVertexTruthMatchTool::InDetVertexTruthMatchTool( const std::string & name ) : asg::AsgTool(name) {
-  declareProperty("trackMatchProb", m_trkMatchProb = 0.7 );
+  declareProperty("trackMatchProb", m_trkMatchProb = 0.5 );
   declareProperty("vertexMatchWeight", m_vxMatchWeight = 0.7 );
-  declareProperty("trackPtCut", m_trkPtCut = 100. );
+  declareProperty("trackPtCut", m_trkPtCut = 500. );
 }
 
 StatusCode InDetVertexTruthMatchTool::initialize() {
@@ -211,6 +211,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     if (vxType == xAOD::VxType::NoVtx) {
       //skip dummy vertices -> match info will be empty vector if someone tries to access later
       //type will be set to dummy
+      ATH_MSG_DEBUG("FOUND xAOD::VxType::NoVtx");
       continue;
     }
 
@@ -245,7 +246,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
       continue;
     }
 
-    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks:");
+    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks, at index: " << vxit->index());
 
     float totalWeight = 0.;
     float totalFake = 0.;
@@ -261,7 +262,9 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
       const ElementLink<xAOD::TruthParticleContainer> & truthPartLink = trk_truthPartAcc( trk );
       float prob = trk_truthProbAcc( trk );
 
-      if (truthPartLink.isValid() && prob > m_trkMatchProb) {
+      if (!truthPartLink.isValid()) continue;
+
+      if (prob > m_trkMatchProb) {
         const xAOD::TruthParticle & truthPart = **truthPartLink;
         //check if the truth particle is "good"
         if ( pass( truthPart) ) {
@@ -405,18 +408,8 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
 bool InDetVertexTruthMatchTool::pass( const xAOD::TruthParticle & truthPart ) const {
 
   //remove the registered secondaries
-  if ( truthPart.barcode() > 200000 ) return false;
+  if( truthPart.pt() < m_trkPtCut ) return false;
 
   return true;
 
 }
-
-/*
-bool InDetVertexTruthMatchTool::pass( const xAOD::TrackParticle & trackPart ) {
-
-  if( trackPart.pt() < m_trkPtCut ) return false;
-
-  return true;
-
-}
-*/

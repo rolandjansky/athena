@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_PHIETAUTIL_H
@@ -20,7 +20,7 @@ class PhiEtaNameConverter {
     ToString ts ;
     if (!id.is_mdt() ) return chamberName ;
     chamberName = id.stationNumberToFixedStationString(stationId);
-    int absoluteEta = abs(eta) ;
+    int absoluteEta = std::abs(eta) ;
     std::string side = "A";
     if(eta<0) side="C";
     int sector = phi_8to16(stationId, phi) ;

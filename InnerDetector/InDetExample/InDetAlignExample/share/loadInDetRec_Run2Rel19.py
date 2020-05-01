@@ -1,5 +1,5 @@
 ## The Following options can be specified seperately in a file that include this one
-print " <loadInDetRec> Starting loadInDet_Rec"
+printfunc (" <loadInDetRec> Starting loadInDet_Rec")
 
 if loadInDetRec_Options["realData"]:    
   rec.projectName="Cosm14"
@@ -7,7 +7,7 @@ if loadInDetRec_Options["realData"]:
 #Just make sure for now it is set. Might needs further changes in the future
 
 
-print "conddb loaded"
+printfunc ("conddb loaded")
   
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc.IgnoreTagDifference=True
@@ -21,11 +21,11 @@ if loadInDetRec_Options["GoodRunList"] != "":
   GoodRunsTool.GoodRunsListVec   = [ loadInDetRec_Options["GoodRunList"] ]
   GoodRunsTool.EventSelectorMode = True
   GoodRunsTool.OutputLevel = DEBUG
-  print GoodRunsTool
+  printfunc (GoodRunsTool)
   AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
   AthenaEventLoopMgr.PreSelectTools+=[GoodRunsTool]
   AthenaEventLoopMgr.OutputLevel = DEBUG
-  print AthenaEventLoopMgr
+  printfunc (AthenaEventLoopMgr)
 
 
 # --- read BS - please look at the default input file(s) to know the det descr and cond tag
@@ -39,7 +39,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = loadInDetRec_Options["inputFiles"]
 
 
-print "Before Autoconfig"
+printfunc ("Before Autoconfig")
 
 
 if not loadInDetRec_Options["Cosmics"]:
@@ -86,7 +86,7 @@ if len(globalflags.ConditionsTag())!=0:
   conddb.setGlobalTag(globalflags.ConditionsTag())
 
 
-print "INFO:: JobProperties Printing "
+printfunc ("INFO:: JobProperties Printing ")
 globalflags.print_JobProperties()
 
 
@@ -104,7 +104,7 @@ if doReadBS:
   ByteStreamInputSvc = ByteStreamEventStorageInputSvc("ByteStreamInputSvc",
                                                         FullFileName = ["RawEvent.re"])
   ServiceMgr            += ByteStreamInputSvc
-  print                    ByteStreamInputSvc
+  printfunc               (ByteStreamInputSvc)
   
   from AthenaCommon.GlobalFlags import globalflags
   if len(globalflags.ConditionsTag())!=0:
@@ -185,7 +185,7 @@ if not loadInDetRec_Options["useTRT"]:
 #DetFlags.dcs.TRT_setOff()
 
 # --- printout
-print "INFO:: Printing DetFlags"
+printfunc ("INFO:: Printing DetFlags")
 DetFlags.Print()
 
 # --- output level
@@ -236,9 +236,6 @@ else:
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-if not loadInDetRec_Options["Cosmics"]:
-  InDetFlags.doxKalman              = False
-  InDetFlags.doiPatRec              = False
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 #InDetFlags.doTRTStandalone        = False
@@ -331,8 +328,8 @@ import MagFieldServices.SetupField
 # load master joboptions file
 #--------------------------------------------------------------
 
-print 'before Rec all'
+printfunc ('before Rec all')
  
 include("InDetRecExample/InDetRec_all.py")
  
-print 'after Rec all'
+printfunc ('after Rec all')

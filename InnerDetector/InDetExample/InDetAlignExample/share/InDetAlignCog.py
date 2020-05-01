@@ -36,7 +36,7 @@ globalflags.DataSource='data'
 
 # Select the geometry version. 
 globalflags.DetDescrVersion = 'ATLAS-GEO-03-00-00'      
-print globalflags.DetDescrVersion()
+printfunc (globalflags.DetDescrVersion())
 
 from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag("COMCOND-REPC-002-13")
@@ -68,11 +68,11 @@ if ReadAlignmentConstants:
 	from AthenaCommon.AppMgr import ServiceMgr
 	ServiceMgr += CondProxyProvider()
 	ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-	print 'Loading initial alignment File',inputfilename
+	printfunc ('Loading initial alignment File',inputfilename)
 	ServiceMgr.CondProxyProvider.InputCollections = [ inputfilename ]
 	ServiceMgr.PoolSvc.AttemptCatalogPatch = True
 	ServiceMgr.CondProxyProvider.OutputLevel=INFO
-	print ServiceMgr.CondProxyProvider
+	printfunc (ServiceMgr.CondProxyProvider)
 	ServiceMgr.IOVSvc.preLoadData = True
 else:
 	conddb.addOverride("/Indet/Align","InDet_Cosmic_2008_05_03" )
@@ -96,7 +96,7 @@ include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 InDetCondStream = AthenaOutputStreamTool( name="CondStream1",OutputFile=outFilename )
 ToolSvc += InDetCondStream
-print InDetCondStream
+printfunc (InDetCondStream)
 
 # To produced a local SQLite DB with new Alignment Parameters
 include( "RegistrationServices/IOVRegistrationSvc_jobOptions.py" )
@@ -134,7 +134,7 @@ InDetAlignCog = InDetAlignCog(name = 'InDetAlignCog',
 			      OutputLevel      = 3)
 
 topSequence += InDetAlignCog
-print topSequence.InDetAlignCog
+printfunc (topSequence.InDetAlignCog)
 if onlySilicon:
     InDetAlignCog.Det = 12    # no TRT
 #    InDetAlignCog.SiBec = 0

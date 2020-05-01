@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/src/CondCont.cpp
@@ -844,11 +844,13 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
   CondContSet* tsmap ATLAS_THREAD_SAFE =
     const_cast<CondContSet*>(reinterpret_cast<const CondContSet*> (tsmap_void));
 
-  if (!r.start().isTimeStamp() || !r.stop().isTimeStamp())
+  // Only test start timestamp.  stop timestamp may be missing
+  // for open-ended ranges.
+  if (!r.start().isTimeStamp() )
   {
     MsgStream msg (Athena::getMessageSvc(), title());
     msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
-        << "Range does not have both start and stop timestamps defined."
+        << "Range does not have start timestamp defined."
         << endmsg;
     return StatusCode::FAILURE;
   }
@@ -880,6 +882,18 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
               sc = CondContStatusCode::EXTENDED;
               sc.ignore();
               extended = true;
+
+              // We also need to update the ending run+lbn value
+              // for each entry in the tsmap.
+              // (This doesn't affect sorting within the tsmap.)
+              tsmap->updateRanges ([&] (RangeKey& k)
+                                   { EventIDBase start = k.m_range.start();
+                                     EventIDBase stop = k.m_range.stop();
+                                     stop.set_run_number(r.stop().run_number());
+                                     stop.set_lumi_block(r.stop().lumi_block());
+                                     k.m_range = EventIDRange (start, stop);
+                                   },
+                                   ctx);
             }
           }
         }

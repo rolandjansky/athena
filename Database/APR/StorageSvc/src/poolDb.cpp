@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -20,7 +20,7 @@
 using namespace std;
 using namespace pool;
 
-static bool s_debug = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
+static const bool s_debug = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
 
 static void startDebugger()  {
 #ifdef WIN32
@@ -30,10 +30,6 @@ static void startDebugger()  {
 
 bool pool::doTrace() {
   return s_debug;
-}
-
-void pool::enableBreak(bool yes_no)   {
-  s_debug = yes_no;
 }
 
 /// Debug break with printout and exception chaining

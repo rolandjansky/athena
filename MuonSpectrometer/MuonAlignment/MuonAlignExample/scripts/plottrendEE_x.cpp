@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ChamberNames.h"
@@ -21,8 +21,6 @@
 #include "TChain.h"
 #include "TPaveStats.h"
 #include "TStyle.h"
-
-using namespace std;
 
 int main()
 {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -823,8 +823,10 @@ class triggerMenuSetup(JobProperty):
         'MC_pp_run3_v1', # MC_pp_run3 for AthenaMT
         'PhysicsP1_pp_run3_v1', # PhysicsP1_pp_run3 for AthenaMT
         'Physics_pp_run3_v1', # Physics_pp_run3 for AthenaMT
+        'PhysicsP1_HI_run3_v1',  # PhysicsP1_HI_run3 for AthenaMT
+        'Dev_HI_run3_v1', # Dev_HI_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
-        'Cosmic_pp_run3_v1',
+        'Cosmic_run3_v1',
         ]
 
     _default_menu='Physics_pp_v7_primaries'

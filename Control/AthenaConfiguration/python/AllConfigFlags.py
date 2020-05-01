@@ -128,6 +128,10 @@ def _createCfgFlags():
     from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
 
+    def __bfield():
+        from MagFieldConfig.BFieldConfigFlags import createBFieldConfigFlags
+        return createBFieldConfigFlags()
+    _addFlagsCategory(acf, "BField", __bfield, 'MagFieldConfig')
 
     def __lar():
         from LArConfiguration.LArConfigFlags import createLArConfigFlags

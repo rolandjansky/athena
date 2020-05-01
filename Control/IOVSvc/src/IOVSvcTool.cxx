@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvcTool.h"
@@ -879,7 +879,7 @@ IOVSvcTool::getRange(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key, 
                            IOVRange& range, std::string &tag, 
-                           IOpaqueAddress*& ioa) const {
+                           std::unique_ptr<IOpaqueAddress>& ioa) const {
 
   if (m_curTime.isValid()) {
     return getRangeFromDB(clid, key, m_curTime, range, tag, ioa);
@@ -895,7 +895,8 @@ IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key,
                            const IOVTime& time, IOVRange& range, 
-                           std::string& tag, IOpaqueAddress*& ioa) const {
+                           std::string& tag,
+                           std::unique_ptr<IOpaqueAddress>& ioa) const {
   StatusCode sc(StatusCode::FAILURE);
   DataProxy* dp = p_cndSvc->proxy(clid,key);
   if (nullptr != dp) {

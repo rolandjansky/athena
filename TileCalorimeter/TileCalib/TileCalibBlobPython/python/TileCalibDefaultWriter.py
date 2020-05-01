@@ -44,7 +44,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
     This class provides methods to write default values for the various
     TileCal COOL folders.
     """
-    __slots__ = ["__db","__tilePrefixOfl","__tilePrefixOnl"]
+    __slots__ = ["__author","__db","__tilePrefixOfl1","__tilePrefixOfl","__tilePrefixOnl"]
 
     #____________________________________________________________________
     def __init__(self, db):
@@ -1332,7 +1332,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                    }
 
 
-        for source, info in sources.items():
+        for source, info in list(sources.items()):
 
             path = pathDef
 

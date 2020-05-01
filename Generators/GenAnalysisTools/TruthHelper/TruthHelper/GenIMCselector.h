@@ -5,7 +5,7 @@
 #ifndef TRUTHHELPER_GENIMCSELECTOR_H
 #define TRUTHHELPER_GENIMCSELECTOR_H
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <functional>
 
 namespace TruthHelper {

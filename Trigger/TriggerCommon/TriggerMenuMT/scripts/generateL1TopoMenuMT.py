@@ -35,7 +35,7 @@ def main():
         generateL1TopoMenu(menu="MC_pp_run3_v1" )
         return 0
 
-    if sys.argv[1] in ["LS2_v1","Physics_pp_v7", "MC_pp_v7", "Physics_pp_run3_v1", "PhysicsP1_pp_run3_v1", "MC_pp_run3_v1"]: # explicit names for TMXML nightly
+    if sys.argv[1] in ["LS2_v1","Physics_pp_v7", "MC_pp_v7", "Physics_pp_run3_v1", "PhysicsP1_pp_run3_v1", "MC_pp_run3_v1", "PhysicsP1_HI_run3_v1", "Dev_HI_run3_v1" ]: # explicit names for TMXML nightly
         generateL1TopoMenu(menu=sys.argv[1])
         return 0
 

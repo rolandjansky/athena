@@ -20,7 +20,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigNavigation.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavigation/Navigation.h"
 #include "GaudiKernel/ToolHandle.h"
 

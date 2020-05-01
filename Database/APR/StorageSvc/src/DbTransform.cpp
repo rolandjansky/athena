@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModel/Guid.h"
@@ -47,6 +47,7 @@ namespace {
 
 /// debug function for unit tests
 const ShapeVector allShapes() {
+   upgrading_lock_t lock(shapesMutex); 
    ShapeVector sv;
    for( auto& map_entry : _Init::shapes() ) {
       for( const DbTypeInfo* info : map_entry.second ) {
@@ -111,8 +112,8 @@ void DbTransform::ownShape(const DbTypeInfo*  shape)  {
 /// Access entry in shape registry
 DbStatus DbTransform::removeShape (const DbTypeInfo* shape)  {
   if ( shape )    {
-    if (_Init::shapes().size() == 0) return Success;
     lock_guard_t lock(shapesMutex); 
+    if (_Init::shapes().size() == 0) return Success;
     ShapeVector& v = _Init::shape(shape->shapeID());
     ShapeVector::iterator i=find(v.begin(), v.end(), shape);
     if ( i != v.end() ) {

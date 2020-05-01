@@ -9,8 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 /**

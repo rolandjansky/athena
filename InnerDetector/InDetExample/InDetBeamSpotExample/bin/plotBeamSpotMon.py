@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Plot histograms from beam spot monitoring file.
 """
@@ -83,13 +86,13 @@ for hname in ['trkDPhi', 'trkDPhiCorr',
               'pvChiSqDof', 'pvNTracks', 'pvTrackPt'
               ]:
     c.cd(nc)
-    print 'Processing histogram',hname
+    print ('Processing histogram',hname)
     ROOT.gStyle.SetOptStat(hDef[hname].get('stats',0))
     h = mon.Get(mondir+hname)
     if h != None:
         h.Draw(hDef[hname].get('opts',''))
     else:
-        print "... no histogram with name %s" % hname
+        print ("... no histogram with name %s" % hname)
     c.Modified()
     c.Update()
     nc += 1
@@ -102,6 +105,6 @@ if options.output:
         else:
             c.SaveAs(o)
 
-print
+print()
 if options.interactive:
     os.environ['PYTHONINSPECT'] = '1'

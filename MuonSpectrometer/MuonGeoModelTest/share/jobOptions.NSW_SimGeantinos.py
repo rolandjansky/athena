@@ -51,9 +51,9 @@ simFlags.EventFilter.set_Off()
 
 ## Register callback functions at various init stages
 #def test_preInit():
-#    print "CALLBACK AT PREINIT"
+#    printfunc ("CALLBACK AT PREINIT")
 #def test_postInit():
-#    print "CALLBACK AT POSTINIT"
+#    printfunc ("CALLBACK AT POSTINIT")
 #simFlags.InitFunctions.add_function("preInit", test_preInit)
 #simFlags.InitFunctions.add_function("postInit", test_postInit)
 def nsw_SetSensitiveDetectors():

@@ -20,6 +20,10 @@
 #include "TrkTrack/Track.h" 
 #include "StoreGate/ThinningHandleKey.h"
 #include "StoreGate/ThinningHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+
 
 namespace DerivationFramework {
 
@@ -40,12 +44,16 @@ namespace DerivationFramework {
     
     StringProperty m_streamName
       { this, "StreamName", "", "Name of the stream being thinned" };
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsContainerKey
+      { this, "electronContainerName", "Electrons", "" };
+    SG::ReadHandleKey<xAOD::PhotonContainer>   m_photonsContainerKey
+      { this, "photonContainerName", "Photons", ""};
     SG::ThinningHandleKey<TrackCollection> m_tracksCollectionName
       { this, "tracksCollectionName", "Tracks", "" };
-    std::string m_electronsContainerName;
-    std::string m_photonsContainerName;
-    double m_dr;
-    double m_minEtEg;
+    Gaudi::Property<double> m_dr
+      { this, "deltaR", 0.5, "" };
+    Gaudi::Property<double> m_minEtEg
+      { this, "minEtEg", 0,""};
 
     std::set<int> findGoodTracks(const TrackCollection* trackCont,
                                  const TLorentzVector& candHepLorentz, 

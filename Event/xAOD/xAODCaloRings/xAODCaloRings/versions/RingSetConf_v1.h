@@ -21,7 +21,6 @@
 
 // local includes:
 #include "xAODCaloRings/CaloRingsDefs.h"
-#include "xAODCaloRings/tools/cxx/RingerUseNewCppFeatures.h"
 
 namespace xAOD {
 

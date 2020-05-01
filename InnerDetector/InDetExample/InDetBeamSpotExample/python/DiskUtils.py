@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import glob
@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import time
+import functools
 
 # DEPRECATED CODE #############################################################
 
@@ -102,7 +103,7 @@ def filelist(files, prefix=None):
         flist = filter(lambda x: re.search(pattern, x), flist)
 
     if prefix:
-        if isinstance(prefix, basestring):
+        if isinstance(prefix, str):
             return [os.path.join(prefix+path, p) for p in flist]
         else:
             return [os.path.join(mgr.prefix+path, p) for p in flist]
@@ -173,11 +174,11 @@ def make_lumi_block_map_file(file_set, path):
 
 
 class Backend:
-    def exists(self, path): raise NotImplemented
-    def is_file(self, path): raise NotImplemented
-    def is_directory(self, path): raise NotImplemented
-    def children(self, path): raise NotImplemented
-    def glob(self, pattern): raise NotImplemented
+    def exists(self, path): raise NotImplementedError
+    def is_file(self, path): raise NotImplementedError
+    def is_directory(self, path): raise NotImplementedError
+    def children(self, path): raise NotImplementedError
+    def glob(self, pattern): raise NotImplementedError
     def wrap(self, path): return path
 
 class Local(Backend):
@@ -340,7 +341,7 @@ class FileSet:
             def generator(em):
                 for name, ext in em.items():
                     yield '.'.join([name, ext])
-            it = generator(reduce(fn, self, {}))
+            it = generator(functools.reduce(fn, self, {}))
         if self._single_dataset: # see: only_single_dataset
             def generator(i):
                 dataset = None

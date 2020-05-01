@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // #ifndef XAOD_ANALYSIS
@@ -63,25 +63,25 @@ TrigRoiDescriptorCollection* TrigRoiDescriptorCollectionCnv::createTransient()
   if( compareClassGuid(p3_guid) ) {
 
     mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading p3 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptorCollection_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p3 >() );
+    std::unique_ptr< TrigRoiDescriptorCollection_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p3 >() );
     trans_obj = m_impl->m_TPConverter_p3.createTransient( col_vect.get(), mlog );    
   }
   else if( compareClassGuid(p2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading p2 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptorCollection_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p2 >() );
+    std::unique_ptr< TrigRoiDescriptorCollection_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p2 >() );
     trans_obj = m_impl->m_TPConverter_p2.createTransient( col_vect.get(), mlog );    
   }
   else if( compareClassGuid(tlp1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptorCollection_tlp1 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_tlp1 >() );
+    std::unique_ptr< TrigRoiDescriptorCollection_tlp1 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_tlp1 >() );
     trans_obj = m_impl->m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );    
   }
   else if( compareClassGuid(p1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigRoiDescriptorCollection_p1 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p1 >() );
+    std::unique_ptr< TrigRoiDescriptorCollection_p1 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p1 >() );
     trans_obj = m_impl->m_TPConverter_p1.createTransient( col_vect.get(), mlog );    
   }
   else {

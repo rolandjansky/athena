@@ -15,7 +15,7 @@
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TruthTrajectory.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <map>
 #include "AthLinks/ElementLink.h"

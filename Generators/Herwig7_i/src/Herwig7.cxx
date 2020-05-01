@@ -52,11 +52,7 @@ namespace ThePEG {
                              HepMC::PdfInfo>
   {
     static bool hasUnits() {
-      #ifdef HEPMC_HAS_UNITS
       return true;
-      #else
-      return false;
-      #endif
     }
   };
 }
@@ -71,11 +67,7 @@ namespace ThePEG {
                              HepMC::PdfInfo>
   {
     static bool hasUnits() {
-      #ifdef HEPMC_HAS_UNITS
       return true;
-      #else
-      return false;
-      #endif
     }
   };
 }

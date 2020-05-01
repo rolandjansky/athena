@@ -1,9 +1,8 @@
-
-fileName = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.301030.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250.deriv.DAOD_MUON1.e3649_s3126_r10751_p4062/DAOD_MUON1.20298065._000005.pool.root.1'
-print 'File Name: ', fileName
+path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON6.e3601_s3126_r10201_p4029'
+files = [os.path.join(path, f) for f in os.listdir(path)]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = [ fileName ]
+ServiceMgr.EventSelector.InputCollections = files 
 
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence

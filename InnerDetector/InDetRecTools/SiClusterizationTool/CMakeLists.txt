@@ -22,8 +22,8 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDEscr/PixelReadoutGeometry
-   InnerDetector/InDetDetDEscr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
    InnerDetector/InDetRawEvent/InDetRawData
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecTools/InDetRecToolInterfaces
@@ -54,14 +54,15 @@ atlas_add_library( SiClusterizationToolLib
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
    Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
-   InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
+   InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces InDetConditionsSummaryService
    TrkParameters TrkNeuralNetworkUtilsLib CxxUtils PixelConditionsData
+   PixelGeoModelLib PixelCablingLib BeamSpotConditionsData
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities FileCatalog AtlasDetDescr
-   TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib )
+   TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib PoolSvcLib DetDescrCondToolsLib )
 
 atlas_add_component( SiClusterizationTool
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel PixelConditionsData SiClusterizationToolLib )
+   LINK_LIBRARIES GaudiKernel PixelConditionsData SiClusterizationToolLib PoolSvcLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

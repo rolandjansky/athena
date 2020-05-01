@@ -2,28 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- MM Readout Element properties
- -----------------------------------------
-***************************************************************************/
-
 #ifndef MUONGEOMODEL_MMREADOUTELEMENT_H
-# define MUONGEOMODEL_MMREADOUTELEMENT_H
+#define MUONGEOMODEL_MMREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include <cmath>
 
-class StoreGateSvc;
-
 class BLinePar;
-
-namespace Trk{
-  class RectangleBounds;
-  class PlaneSurface;
-}
-
 
 namespace MuonGM {
   /**
@@ -44,38 +31,42 @@ namespace MuonGM {
     ~MMReadoutElement();                  
 
     /** function to be used to check whether a given Identifier is contained in the readout element */
-    bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip position -- local or global
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const;
+    virtual bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const override;
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
-    
+
     double stripLength( const Identifier& id) const;
 
     /** number of layers in phi/eta projection */
-    int numberOfLayers( bool ) const;
+    virtual int numberOfLayers( bool ) const override;
 
     /** number of strips per layer */
-    int numberOfStrips( const Identifier& layerId )   const;
-    int numberOfStrips( int , bool measuresPhi ) const;
+    virtual int numberOfStrips( const Identifier& layerId )   const override;
+    virtual int numberOfStrips( int , bool measuresPhi ) const override;
+
+    /** Number of missing bottom and top strips (not read out) */
+    int numberOfMissingTopStrips( const Identifier& layerId )   const;
+    int numberOfMissingBottomStrips( const Identifier& layerId )   const;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     /** space point position for a pair of phi and eta local positions and a layer identifier 
 	The LocalPosition is expressed in the reference frame of the phi projection.
@@ -89,25 +80,25 @@ namespace MuonGM {
     
 
     /** @brief function to fill tracking cache */
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-    int surfaceHash( const Identifier& id ) const;
+    virtual int surfaceHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
     int surfaceHash( int gasGap, int measPhi) const;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
-    int layerHash( const Identifier& id ) const;
+    virtual int layerHash( const Identifier& id ) const override;
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
     int layerHash( int gasGap) const;
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    int  boundaryHash(const Identifier& id) const;  
+    virtual int  boundaryHash(const Identifier& id) const override;
 
     /** @brief returns whether the current identifier corresponds to a phi measurement */
-    bool measuresPhi(const Identifier& id) const;
+    virtual bool measuresPhi(const Identifier& id) const override;
 
     /** @brief initialize the design classes for this readout element */
     void initDesign(double largeY, double smallY, double lengthX, double pitch, double thickness);
@@ -127,11 +118,9 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double); //input: translations, rotations
-    void setBLinePar(BLinePar* bLine) const;
-    inline void clearBLinePar() const;
+    void setBLinePar(BLinePar* bLine);
+    inline void clearBLinePar();
     inline const BLinePar* getBLinePar() const { return m_BLinePar;}
-    void clearBLineCache() const;
-    void fillBLineCache() const;
   private:
 
 
@@ -158,13 +147,13 @@ namespace MuonGM {
 
     HepGeom::Transform3D* m_delta;
 
-    mutable BLinePar* m_BLinePar;
+    BLinePar* m_BLinePar;
     
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
 
-  void MMReadoutElement::clearBLinePar() const
+  void MMReadoutElement::clearBLinePar()
   { m_BLinePar = 0;}
 
   double MMReadoutElement::getALine_rots() const
@@ -252,6 +241,20 @@ namespace MuonGM {
   inline int MMReadoutElement::numberOfStrips( int lay, bool /*measPhi*/ ) const {
     if (lay>-1 && lay<(int)m_nStrips.size()) return m_nStrips[lay]; 
     else return -1;
+  }
+
+  inline int MMReadoutElement::numberOfMissingTopStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedTopEta : design->nMissedTopStereo;
+    return nStrips;
+  }
+
+  inline int MMReadoutElement::numberOfMissingBottomStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedBottomEta : design->nMissedBottomStereo;
+    return nStrips;
   }
 
   inline bool MMReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {

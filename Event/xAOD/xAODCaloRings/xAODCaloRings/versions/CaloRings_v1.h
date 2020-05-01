@@ -20,8 +20,6 @@
 // Local include(s):
 #include "xAODCaloRings/versions/RingSetContainer_v1.h"
 #include "xAODCaloRings/versions/RingSetConf_v1.h"
-#include "xAODCaloRings/tools/cxx/mutable.h"
-#include "xAODCaloRings/tools/cxx/RingerUseNewCppFeatures.h"
 
 namespace xAOD {
 

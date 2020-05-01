@@ -49,8 +49,7 @@ namespace Monitored {
      */
     Scalar(std::string name, const T& defaultValue = {}) :
         IMonitoredVariable(std::move(name)),
-        m_value(defaultValue),
-        m_valueTransform()
+        m_value(defaultValue)
     {}
 
     /**
@@ -80,8 +79,6 @@ namespace Monitored {
      */
     Scalar(std::string name, std::function<T()> generator) :
       IMonitoredVariable(std::move(name)),
-      m_value(0),
-      m_valueTransform(),
       m_valueGenerator( generator )
     {}
 
@@ -111,7 +108,7 @@ namespace Monitored {
     }
 
     std::vector<std::string> getStringVectorRepresentation() const override{
-      return { convertToString( m_value ) };
+      return { convertToString( m_value, m_valueGenerator ) };
     }
 
     virtual bool hasStringRepresentation() const override {
@@ -123,17 +120,19 @@ namespace Monitored {
     }
     
   private:
-    T m_value;
+    T m_value{};
     std::function<double(const T&)> m_valueTransform;
     std::function<T()> m_valueGenerator;
 
-    template< typename U, typename = typename std::enable_if< std::is_constructible<std::string, U>::value >::type >
-    std::string convertToString( const U& value ) const {
-      return  std::string{value};
+    template< typename U, typename Generator,
+              typename = typename std::enable_if< std::is_constructible<std::string, U>::value >::type >
+    std::string convertToString( const U& value, Generator g ) const {
+      return  ( g ? g() : value );
     }
 
-    template< typename U, typename = typename std::enable_if< ! std::is_constructible<std::string, U>::value >::type, typename = void >
-    std::string convertToString( const U& ) const {
+    template< typename U, typename Generator,
+              typename = typename std::enable_if< ! std::is_constructible<std::string, U>::value >::type, typename = void >
+    std::string convertToString( const U&, Generator ) const {
       return "";
     }
 

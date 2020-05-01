@@ -1,0 +1,44 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline const DataVector<const TrackStateOnSurface>*
+Track::trackStateOnSurfaces() const
+{
+  return m_trackStateVector;
+}
+
+
+inline DataVector<const TrackStateOnSurface>*
+Track::trackStateOnSurfaces()
+{
+  return m_trackStateVector;
+}
+
+inline const TrackInfo&
+Track::info() const
+{
+  return m_trackInfo;
+}
+
+inline TrackInfo&
+Track::info()
+{
+  return m_trackInfo;
+}
+
+inline const Trk::TrackSummary*
+Track::trackSummary() const
+{
+  return m_trackSummary;
+}
+
+inline Trk::TrackSummary*
+Track::trackSummary()
+{
+  return m_trackSummary;
+}
+
+}

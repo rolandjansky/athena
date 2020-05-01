@@ -13,9 +13,9 @@
  *********************************************************************/
 
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include "ITrigStreamerHypoToolMT.h"
 

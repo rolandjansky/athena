@@ -12,7 +12,7 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 #include "AthViews/View.h"
 

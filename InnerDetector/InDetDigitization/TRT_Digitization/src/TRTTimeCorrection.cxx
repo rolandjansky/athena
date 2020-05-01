@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTTimeCorrection.h"
@@ -17,15 +17,15 @@
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/IService.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+
 //__________________________________________________________________________________________________________
-TRTTimeCorrection::TRTTimeCorrection(const std::string& name,
-                                     const TRTDigSettings* digset,
+TRTTimeCorrection::TRTTimeCorrection(const TRTDigSettings* digset,
                                      const InDetDD::TRT_DetectorManager* detmgr,
-                                     const TRT_ID* trt_id)
+                                     const TRT_ID* trt_id,
+                                     const ITRT_CalDbTool* calDbTool)
   : m_settings(digset), m_detmgr(detmgr), m_trt_id(trt_id),
     m_subdetectorMask(0x00200000), m_right5Bits(0x0000001F),
-    m_shift5Bits(5), m_shift10Bits(10), m_shift15Bits(15), m_notInitVal(-999999.0), m_trtcaldbsvc("TRT_CalDbSvc",name), m_msg("TRTTimeCorrection")
+    m_shift5Bits(5), m_shift10Bits(10), m_shift15Bits(15), m_notInitVal(-999999.0), m_trtcaldbtool(calDbTool), m_msg("TRTTimeCorrection")
 {
   Initialize();
 }
@@ -45,7 +45,7 @@ void TRTTimeCorrection::Initialize() {
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTTimeCorrection::Initialize()" << endmsg;
 
-  if ( (m_getT0FromData) && (m_trtcaldbsvc.retrieve().isFailure()) ) {
+  if ( m_getT0FromData && !m_trtcaldbtool ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Could not find TRT_CalDbTool => cannot use t0 of data." << endmsg;
     m_getT0FromData=false;
   }
@@ -270,7 +270,7 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
     bool identifierOK;
     const Identifier idStraw(getIdentifier(strawID, identifierOK));
     if (identifierOK) {
-      shift = m_trtcaldbsvc->getT0(idStraw);
+      shift = m_trtcaldbtool->getT0(idStraw);
     } else {
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
                                   << "Attempt to use t0 from data failed: TRTCalDbSvc was not able to supply t0 for straw with identifier: "

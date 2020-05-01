@@ -8,7 +8,7 @@
 
 #include "GeoAdaptors/GeoSiHit.h"
 #include "InDetSimEvent/SiHitCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <TH2D.h>
 #include <TProfile.h>

@@ -7,8 +7,8 @@ if "appendToExistingFile" in dir():
 	appendToExistingFile_flag = appendToExistingFile
 	
 if os.path.exists(coolFileName) and not appendToExistingFile_flag:
-	print "FATAL File", coolFileName, "already exists"
-	print "FATAL remove file or set 'appendToExistingFile = True'"
+	printfunc ("FATAL File", coolFileName, "already exists")
+	printfunc ("FATAL remove file or set 'appendToExistingFile = True'")
 	sys.exit(1)
 
 ### Setup Athena common flags
@@ -75,7 +75,7 @@ for source_config in MuonCalib__gCalibrationSourceConfigs:
 	MuonCalibDbCalibrationSource = source_config.GenCalibrationSource(readerPassword)
 	ToolSvc += MuonCalibDbCalibrationSource
 	CoolInserter.CalibrationSources.append(MuonCalibDbCalibrationSource)
-	print MuonCalibDbCalibrationSource
+	printfunc (MuonCalibDbCalibrationSource)
 
 MuonCalib_gCalibrationDefaultSourceConfig.ConfigureTool(ToolSvc, CoolInserter)
 
@@ -98,4 +98,4 @@ RegionSelectionSvc.Region = regionToInsert
 CoolInserter.IOVStart=targetIov[0]
 CoolInserter.IOVEnd=targetIov[1]
 
-print CoolInserter
+printfunc (CoolInserter)

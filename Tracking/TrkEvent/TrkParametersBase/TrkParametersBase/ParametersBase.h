@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -125,8 +125,14 @@ namespace Trk
     /** Returns charge of concrete type (i.e. must be implemented in inheriting classes) */
     virtual double charge() const = 0;
 
-    /** Update parameters of these TrackParameters - be careful when using if you don't own the object! */
-    virtual void updateParameters(const AmgVector(DIM)&,AmgSymMatrix(DIM)* = 0) {};
+
+    /** Update parameters and covariance */
+    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) = 0;
+
+    /** Update parameters  and covariance , passing covariance by ref. A covariance
+     * is created if one does not exist.  Otherwise in place update occurs*/
+    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) = 0;
+
 
     /** DESIGN TO BE REVISITED */
   public:

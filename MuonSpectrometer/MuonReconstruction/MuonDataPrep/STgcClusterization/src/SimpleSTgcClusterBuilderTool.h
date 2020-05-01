@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef SimpleSTgcClusterBuilderTool_h
 #define SimpleSTgcClusterBuilderTool_h
@@ -34,13 +34,10 @@ namespace Muon
     SimpleSTgcClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
     
     /** Default destructor */
-    virtual ~SimpleSTgcClusterBuilderTool();
+    virtual ~SimpleSTgcClusterBuilderTool()=default;
 
     /** standard initialize method */
     virtual StatusCode initialize();
-    
-    /** standard finalize method */
-    virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
 			   std::vector<Muon::sTgcPrepData*>& clustersVect)const;

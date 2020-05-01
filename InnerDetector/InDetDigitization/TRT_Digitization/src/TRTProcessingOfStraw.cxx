@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTProcessingOfStraw.h"
@@ -24,7 +24,6 @@
 #include "InDetSimEvent/TRTHitIdHelper.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include "CLHEP/Geometry/Point3D.h"
 
 // Units & Constants
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -32,7 +31,6 @@
 
 // Particle data table
 #include "HepPDT/ParticleData.hh"
-//#include "HepPDT/ParticleDataTable.hh"
 
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandPoisson.h"//randpoissonq? (fixme)
@@ -61,7 +59,8 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const HepPDT::ParticleDataTable* pdt,
                                            const TRT_ID* trt_id,
                                            ITRT_PAITool* paitoolAr,
-                                           ITRT_PAITool* paitoolKr)
+                                           ITRT_PAITool* paitoolKr,
+                                           const ITRT_CalDbTool* calDbTool)
 
 : m_settings(digset),
   m_detmgr(detmgr),
@@ -83,7 +82,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
 
 {
   ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Constructor begin" );
-  Initialize();
+  Initialize(calDbTool);
   ATH_MSG_VERBOSE ( "Constructor done" );
 }
 
@@ -96,7 +95,7 @@ TRTProcessingOfStraw::~TRTProcessingOfStraw()
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::Initialize()
+void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
 {
 
   m_useMagneticFieldMap    = m_settings->useMagneticFieldMap();
@@ -131,7 +130,7 @@ void TRTProcessingOfStraw::Initialize()
   ATH_MSG_INFO ( "Kr barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 1) << " ns." );
   ATH_MSG_INFO ( "Ar barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 2) << " ns." );
 
-  m_pTimeCorrection = new TRTTimeCorrection("TRTTimeCorrection", m_settings, m_detmgr, m_id_helper);
+  m_pTimeCorrection = new TRTTimeCorrection(m_settings, m_detmgr, m_id_helper, calDbTool);
 
   const double intervalBetweenCrossings(m_settings->timeInterval() / 3.);
   m_minCrossingTime = - (intervalBetweenCrossings * 2. + 1.*CLHEP::ns);
@@ -208,6 +207,7 @@ void TRTProcessingOfStraw::Initialize()
         }
     }
 
+
   ATH_MSG_VERBOSE ( "Initialization done" );
 
   return;
@@ -261,7 +261,8 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
+void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
+                                          hitCollConstIter i,
                                           hitCollConstIter e,
                                           TRTDigit& outdigit,
                                           bool & alreadyPrintedPDGcodeWarning,
@@ -521,8 +522,9 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   //////////////////////////////////////////////////////////
 
   m_depositList.clear();
-  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
+  ClustersToDeposits(fieldCache, hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -558,11 +560,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
-                                               const std::vector<cluster>& clusters,
-                                               std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-                                               Amg::Vector3D TRThitGlobalPos,
-                                               double cosmicEventPhase, // was const ComTime* m_ComTime,
+void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldCache, const int& hitID,
+					       const std::vector<cluster>& clusters,
+					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+					       Amg::Vector3D TRThitGlobalPos,
+					       double cosmicEventPhase, // was const ComTime* m_ComTime,
                                                int strawGasType,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
@@ -606,7 +608,13 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       globalPosition[0]=TRThitGlobalPos[0]*CLHEP::mm;
       globalPosition[1]=TRThitGlobalPos[1]*CLHEP::mm;
       globalPosition[2]=TRThitGlobalPos[2]*CLHEP::mm;
-      m_magneticfieldsvc->getField(&globalPosition, &mField);
+
+    // MT Field cache is stored in cache
+
+    // MT version uses cache, temporarily keep old version
+      if (fieldCache.useNewBfieldCache()) fieldCache.getField         (globalPosition.data(), mField.data());
+      else                                m_magneticfieldsvc->getField(&globalPosition, &mField);
+
       map_x2 = mField.x()*mField.x(); // would be zero for a uniform field
       map_y2 = mField.y()*mField.y(); // would be zero for a uniform field
       map_z2 = mField.z()*mField.z(); // would be m_solenoidfieldstrength^2 for uniform field

@@ -48,6 +48,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))
     kwargs.setdefault("Override_TrtRangeCutProperty", flags.Digitization.TRTRangeCut)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("Override_noiseInSimhits", 0)
         kwargs.setdefault("Override_noiseInUnhitStraws", 0)
@@ -129,11 +130,12 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
 def TRT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for TRT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["TRT_RDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["TRT_RDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

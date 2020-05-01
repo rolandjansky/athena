@@ -106,7 +106,7 @@ namespace TestMuonSF {
             } 
            
             /// No data-mc efficiencies provided for eta beyond 2.5
-            if (std::fabs(muon.eta()) > 2.5) {
+            if (std::abs(muon.eta()) > 2.5) {
                 Syst_SF.second.data_eff = -1;
                 Syst_SF.second.mc_eff = -1;
                 continue;

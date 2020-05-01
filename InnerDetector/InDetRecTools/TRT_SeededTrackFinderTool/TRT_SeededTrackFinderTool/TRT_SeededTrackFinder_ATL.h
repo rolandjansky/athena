@@ -37,6 +37,12 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Si Tools
 //
 #include "TRT_SeededTrackFinderTool/SiNoise_bt.h"
@@ -99,14 +105,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       /** Main method. Calls private methods and returns a list of Si tracks */
-      virtual std::list<Trk::Track*> getTrack (InDet::ITRT_SeededTrackFinder::IEventData &event_data,
+      virtual std::list<Trk::Track*> getTrack (const EventContext& ctx, InDet::ITRT_SeededTrackFinder::IEventData &event_data,
                                                const Trk::TrackSegment&) const override;
       /** New event initialization */
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-         newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) const override;
+         newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData) const override;
       /** New region intialization */
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-         newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+         newRegion(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData,
                    const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const override;
       /** End of event tasks       */
       virtual void endEvent(InDet::ITRT_SeededTrackFinder::IEventData &event_data) const override;
@@ -171,6 +177,7 @@ namespace InDet{
       ToolHandle<Trk::IUpdator>                      m_updatorTool;  /** Updator tool        */
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder; /** Combinatorial track finder tool */
 
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
       /**ID TRT helper*/
       const TRT_ID* m_trtId;
@@ -207,17 +214,18 @@ namespace InDet{
                                                                     InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Find the corresponding list of Si tracks  */
-      std::list<Trk::Track*>                                 findTrack(InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
+      std::list<Trk::Track*>                                 findTrack(const EventContext& ctx,
+                                                                       InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
                                                                        const Trk::TrackParameters*,const Trk::TrackSegment&) const;
 
       /** Add material effects   */
       const Trk::TrackParameters*                            addNoise(double,double,double,double,const Trk::TrackParameters*,int) const;
 
       /** Get better track theta initial estimate using the SPs from the seed */
-      double                                                 getNewTheta(std::list<const Trk::SpacePoint*>&) const;
+      double                                                 getNewTheta(std::vector<const Trk::SpacePoint*>&) const;
 
       /** Check consistency of seed and TRT track segment */
-      bool                                                   checkSeed(std::list<const Trk::SpacePoint*>&,const Trk::TrackSegment&,const Trk::TrackParameters*) const;
+      bool                                                   checkSeed(std::vector<const Trk::SpacePoint*>&,const Trk::TrackSegment&,const Trk::TrackParameters*) const;
 
       /** Modify track parameters if brem correction  */
       const Trk::TrackParameters*                            modifyTrackParameters(const Trk::TrackParameters&,int) const;
@@ -231,11 +239,11 @@ namespace InDet{
                                                                             const;
 
       /** Seed used by another track?  */
-      bool                                                   newClusters(const std::list<const Trk::SpacePoint*>&,
+      bool                                                   newClusters(const std::vector<const Trk::SpacePoint*>&,
                                                                          InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Seed SPs used by other high quality tracks? */
-      bool                                                   newSeed(const std::list<const Trk::SpacePoint*>&,
+      bool                                                   newSeed(const std::vector<const Trk::SpacePoint*>&,
                                                                      InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Clean-up duplicate tracks  */

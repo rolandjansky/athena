@@ -1,7 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #####################################################################################
 # Add a filter algorithm that cuts on IS parameters for the public stream
 #####################################################################################
-from EventDisplayFilters.PublicStreamFilter import *
+from EventDisplayFilters.PublicStreamFilter import PublicStreamFilter
 
 PublicStreamFilter = PublicStreamFilter(
     name = "PublicStreamFilter",

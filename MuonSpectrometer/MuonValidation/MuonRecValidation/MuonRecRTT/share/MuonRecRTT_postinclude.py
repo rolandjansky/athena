@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #from RecExConfig.RecAlgsFlags import recAlgs as recAlgsFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.ConfigurationShelve import saveToAscii

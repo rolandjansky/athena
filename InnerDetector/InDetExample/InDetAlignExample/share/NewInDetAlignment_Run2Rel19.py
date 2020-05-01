@@ -21,46 +21,46 @@
 
 if 'eventType' in dir():
     if eventType=="cosmics":
-        print "Config: Alignment is performed on Cosmics: "
+        printfunc ("Config: Alignment is performed on Cosmics: ")
 
 
         Cosmics = True
     elif eventType=="collisions":
-        print "Config: Alignment is performed on Collisions: "
+        printfunc ("Config: Alignment is performed on Collisions: ")
         Cosmics = False
 else:
     Cosmics = False
     eventType = "collisions"
-    print "Config: Alignment is performed on Collisions and as EventType is not specified, and Cosmics-flag is set to: ",Cosmics
+    printfunc ("Config: Alignment is performed on Collisions and as EventType is not specified, and Cosmics-flag is set to: ",Cosmics)
 
 if 'inputConstantsFile' in dir():
-    print "Config: Read alignment constants from Pool-file instead of DB: "
+    printfunc ("Config: Read alignment constants from Pool-file instead of DB: ")
     readConstantsFromPool = True
     readTRT = False   # this is for now important as the pool file does not contain TRT     
-    print "Config: inputConstantsFile is specified as: ", inputConstantsFile
+    printfunc ("Config: inputConstantsFile is specified as: ", inputConstantsFile)
 else:
     inputConstantsFile = ""
     readConstantsFromPool = False
     readTRT = True
-    print "Config: Reading alignment constants from DB. "
+    printfunc ("Config: Reading alignment constants from DB. ")
 
 if 'nEvents' in dir():
-    print "Config: nEvents = ",nEvents
+    printfunc ("Config: nEvents = ",nEvents)
 else:
     nEvents = -1
-    print "Config: setting nEvents to: ",nEvents
+    printfunc ("Config: setting nEvents to: ",nEvents)
 
 if 'preIBLgeometry' in dir():
-    print "Config: You configured to run on pre-IBL geometry. Make sure all conditions are set correctly! "
-    print "Config: This is especially important when running on MC"
+    printfunc ("Config: You configured to run on pre-IBL geometry. Make sure all conditions are set correctly! ")
+    printfunc ("Config: This is especially important when running on MC")
 else:
-    print "Config: Running geometry including IBL"
+    printfunc ("Config: Running geometry including IBL")
     preIBLgeometry=False
 
 
 if 'inputFileDir' in dir():
-    print  "Config: Data directory for files is configured to: ",inputFileDir
-    print  "Config: !!Note!! All root files within this directory will be used as input"
+    printfunc ( "Config: Data directory for files is configured to: ",inputFileDir)
+    printfunc ( "Config: !!Note!! All root files within this directory will be used as input")
     oldFileDefault=False
 else:
     if preIBLgeometry == False:
@@ -70,18 +70,18 @@ else:
         #inputFileDir='/afs/cern.ch/user/m/mdanning/eos/atlas/user/s/shuli/Alignment_DATA/data12_8TeV.00200863.physics_Muons.recon.DESD_ZMUMU.r4644_p1559_r4644_tid01296318_00/DESD_ZMUMU.01296318._000001.pool.root.1'
         oldFileDefault=True
         inputFileDir='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.197117._000005.pool.root.1'
-    print  "Config: !!Note!! You have not specified an inputFileDir -- Default sample is chosen!"
+    printfunc ( "Config: !!Note!! You have not specified an inputFileDir -- Default sample is chosen!")
 
 if 'doMonitoring' in dir():
-    print "Config: Monitoring is enabled"
+    printfunc ("Config: Monitoring is enabled")
 else:
     doMonitoring = False;
 
 if 'isData' in dir():
-    print "Config: Running on real data"
+    printfunc ("Config: Running on real data")
     realData = True    
 else:
-    print "Config: Running on MC"
+    printfunc ("Config: Running on MC")
     realData = False;
 
 ## ===================================================================
@@ -431,7 +431,7 @@ if oldFileDefault == True:
 else:
     inputFiles = glob.glob(str(inputFileDir)+'*')
 
-print inputFiles
+printfunc (inputFiles)
 #x-check the files I read in  
 
 # Run cosmic reconstruction or Collision: This is the same script now. 

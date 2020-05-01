@@ -1,11 +1,23 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
+def LArHVCorrMonConfigOld(inputFlags):
+
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import  LArHVCorrectionMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArHVCorrMonAlgOldCfg')
+    LArHVCorrMonConfigCore(helper, LArHVCorrectionMonAlg, inputFlags)
+
+    from LArConditionsCommon import LArHVDB # noqa: F401
+
+    return helper.result()
+    
 def LArHVCorrMonConfig(inputFlags):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArHVCorrMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArHVCorrMonAlgCfg')
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     acc = LArGMCfg(inputFlags)
@@ -15,7 +27,14 @@ def LArHVCorrMonConfig(inputFlags):
     acc.merge(LArHVScaleCfg(inputFlags))
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    larHVCorrAlg = helper.addAlgorithm(CompFactory.LArHVCorrectionMonAlg,'larHVCorrMonAlg')
+    LArHVCorrMonConfigCore(helper, CompFactory.LArHVCorrectionMonAlg, inputFlags)
+
+    acc.merge(helper.result())
+    return acc
+
+def LArHVCorrMonConfigCore(helper, algoinstance,inputFlags):
+
+    larHVCorrAlg = helper.addAlgorithm(algoinstance,'larHVCorrMonAlg')
 
     #define the group names here, as you'll use them multiple times
     hvCorrGroupName="LArHVCorrMonGroup"
@@ -34,7 +53,7 @@ def LArHVCorrMonConfig(inputFlags):
 
 
     from LArMonitoring.GlobalVariables import lArDQGlobals #to define the ranges
-    larHVCorr_hist_path='HVCorrection/' #histogram path
+    larHVCorr_hist_path='HVCorrectionNewAlg/' #histogram path
     
 
     hvCorrGroup = helper.addGroup( larHVCorrAlg,
@@ -172,9 +191,6 @@ def LArHVCorrMonConfig(inputFlags):
                                           path=larHVCorr_hist_path,
                                           xbins=num_LB,xmin=0.5,xmax=num_LB+0.5
     )
-    
-    acc.merge(helper.result())
-    return acc
     
 
 if __name__=='__main__':

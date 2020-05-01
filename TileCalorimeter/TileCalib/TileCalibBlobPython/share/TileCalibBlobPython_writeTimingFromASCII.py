@@ -133,7 +133,7 @@ timingDict = {
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 tag = "RUN2-HLT-UPD1-00"
-for directory in sorted(timingDict.iterkeys()):
+for directory in sorted(timingDict.keys()):
     since = timingDict[directory]
 #    fileTdlas = directory+"/Tile.tdlas"
     fileTclas = directory+"/Tile.tclas"

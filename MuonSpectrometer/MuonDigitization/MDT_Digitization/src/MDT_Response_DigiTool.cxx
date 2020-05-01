@@ -1,17 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/MDT_Response_DigiTool.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <iostream>
 
 using namespace MuonGM;
-using namespace std;
 
 MDT_Response_DigiTool::MDT_Response_DigiTool( const std::string& type,
 					      const std::string& name,

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
 from PyCool import cool,coral
@@ -24,14 +26,14 @@ def UnpackData(data):
 		return unpacked
 
 def iov_keygen(iov):
-	return long(iov[0])*10000000 + iov[1]
+	return iov[0]*10000000 + iov[1]
 
 def DumpFolderSummary(db_string, folder, tag, run=None):
 	
 	try:
 		db=AtlCoolLib.indirectOpen(db_string, oracle=True, readOnly=True, debug=True)
-	except Exception,e:
-		print 'Problem opening database',e
+	except Exception as e:
+		print ('Problem opening database',e)
 		sys.exit(-1)
 
 #get folder and tag	
@@ -62,15 +64,15 @@ def DumpFolderSummary(db_string, folder, tag, run=None):
 			counters[ident] = 0
 		counters[ident] +=1
 	for ident in sorted(counters.keys(), key=iov_keygen):
-		print "[", ident[0], ",", ident[1], "[", ident[2], ident[3], ident[4], ":" , counters[ident]
+		print ("[", ident[0], ",", ident[1], "[", ident[2], ident[3], ident[4], ":" , counters[ident])
 			
 
 def ReadRtCool(db_string, folder, tag, run_number):
 
 	try:
 		db=AtlCoolLib.indirectOpen(db_string, oracle=True, readOnly=True, debug=True)
-	except Exception,e:
-		print 'Problem opening database',e
+	except Exception as e:
+		print ('Problem opening database',e)
 		sys.exit(-1)
 
 #get folder and tag	
@@ -96,10 +98,10 @@ def ReadRtCool(db_string, folder, tag, run_number):
 		graphs[chamber]=TGraphErrors(n_points)
 		up=MuonFixedIdUnpack(chamber)
 		if up.stationNameString()=='XXX':
-			print "Invalid station name in ", obj.payload()['file']
+			print ("Invalid station name in ", obj.payload()['file'])
 			sys.exit(1)
 		nm=up.stationNameString() + "_" + str(up.stationPhi()) + "_" + str(up.stationEta())
-#		print nm
+#		print (nm)
 		ts_applied=TimeSlewingApplied(obj)
 		for i in range(0, n_points):
 			r=float(sp2[3*i])
@@ -122,8 +124,8 @@ def ReadT0Cool(db_string, folder, tag, run_number):
 	
 	try:
 		db=AtlCoolLib.indirectOpen(db_string, oracle=True, readOnly=True, debug=True)
-	except Exception,e:
-		print 'Problem opening database',e
+	except Exception as e:
+		print ('Problem opening database',e)
 		sys.exit(-1)
 
 #get folder and tag	
@@ -158,8 +160,8 @@ def GetFolderTag(db_string, folder):
 	dbSvc=cool.DatabaseSvcFactory.databaseService()
 	try:
 		db=dbSvc.openDatabase(db_string)
-	except Exception,e:
-		print 'Problem opening database',e
+	except Exception as e:
+		print ('Problem opening database',e)
 		sys.exit(-1)
 
 #get folder and tag	

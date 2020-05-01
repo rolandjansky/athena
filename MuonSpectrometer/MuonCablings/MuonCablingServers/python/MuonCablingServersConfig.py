@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from MuonCablingServers.MuonCablingServersConf import *
+from __future__ import print_function
+
+from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc, TGCcablingServerSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr,theApp
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.Configurable import Configurable
 
 class RpcCablingServerConfig (RPCcablingServerSvc):
     
@@ -25,8 +28,8 @@ class RpcCablingServerConfig (RPCcablingServerSvc):
     
     def setDefaults(cls,handle):
         if hasattr(handle,'Atlas'):
-            if handle.Atlas != True:
-                print "RPCcabling Server uses the old RPC cabling schema"
+            if handle.Atlas is not True:
+                print ("RPCcabling Server uses the old RPC cabling schema")
 
 class TgcCablingServerConfig (TGCcablingServerSvc):
 
@@ -40,19 +43,19 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
              globalflags.DetDescrVersion().startswith('DC2') or \
              globalflags.DetDescrVersion().startswith('DC3')) :
             self.Atlas = False
-            print "DC"
+            print ("DC")
 
         if (muonByteStreamFlags.TgcDataType()=='m3' or \
             muonByteStreamFlags.TgcDataType()=='oldSimulation') :
             self.Atlas = False
             if (muonByteStreamFlags.TgcDataType()=='m3'):
-                print "TgcDataType is set to m3"
+                print ("TgcDataType is set to m3")
             else:
-                print "TgcDataType is set to oldSim"
+                print ("TgcDataType is set to oldSim")
 
 
         # setting the default to ATLAS cabling
-        print self.Atlas;
+        print (self.Atlas)
 
         # Setting of the default 12-fold (ATLAS) cabling
         # New MuonTGC_CablingSvc (True) uses COOL DB and old TGCcabling12Svc (False) does not use COOL DB
@@ -82,10 +85,10 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
 
     def setDefaults(cls,handle):
         if hasattr(handle,'Atlas'):
-            if handle.Atlas != True:
-                print "TGCcabling Server uses the old TGC cabling schema"
+            if handle.Atlas is not True:
+                print ("TGCcabling Server uses the old TGC cabling schema")
             else:
-                print "TGCcabling Server uses the new 12-fold cabling schema"
+                print ("TGCcabling Server uses the new 12-fold cabling schema")
 
 
 if "RPCcablingInterface" not in theApp.Dlls:

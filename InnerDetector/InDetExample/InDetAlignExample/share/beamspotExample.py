@@ -2,6 +2,8 @@
 # Sample python script to determine beamspot.
 # Written by Juerg Beringer in April 2008.
 
+from __future__ import print_function
+
 from InDetAlignExample.InDetAlignJobRunner import InDetAlignJobRunner as JobRunner
 import os
 
@@ -14,7 +16,7 @@ except:
     workdir = os.getcwd()+'/bs'
     FirstBS = True
 else:
-    print "Output path get from superscript - BS"
+    print ("Output path get from superscript - BS")
     if FirstBS:
         workdir = OutputPath+'/FirstBs'
     else:
@@ -32,10 +34,10 @@ except:
     GlobalTag = "OFLCOND-CSC-00-00-00"
 else:
     GlobalTag = sGlobalTag
-    print "GlobalTag get from superscript and set to '",GlobalTag,"'"
+    print ("GlobalTag get from superscript and set to '",GlobalTag,"'")
 
-print
-print "Producing AOD files ..."
+print()
+print ("Producing AOD files ...")
 if FirstBS:
     aodrunner = JobRunner(startdirTemplate=workdir+'/%(jobname)s',
                           batchType='LSF',
@@ -95,17 +97,17 @@ for fname in fileList:
 aodrunner.run()
 aodrunner.wait()
 outputFiles = aodrunner.getOutputFiles()
-print
-print "The following AOD files were produced:"
-print outputFiles
+print()
+print ("The following AOD files were produced:")
+print (outputFiles)
 
 #
 ####################################################################
 # Determine beamspot using AOD files (single job over all AOD files)
 ####################################################################
 #
-print
-print "Calculating beamspot on AOD files..."
+print()
+print ("Calculating beamspot on AOD files...")
 
 finder = JobRunner(startdirTemplate=workdir,
                    outputfileTemplate='%(startdir)s/beamspot.db',
@@ -126,6 +128,6 @@ finder.setOption('filesPerJob', len(outputFiles))
 finder.run()
 finder.wait()
 
-print
+print()
 os.system('ls -l %s' % workdir)
 

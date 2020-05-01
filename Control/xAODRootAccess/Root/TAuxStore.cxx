@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxStore.cxx 796624 2017-02-10 17:17:23Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <string.h>

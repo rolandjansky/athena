@@ -1,5 +1,7 @@
 #!/bin/env python
 
+from __future__ import print_function
+
 from CalibDataClass import *
 import readline
 import sys
@@ -121,7 +123,7 @@ def perr(error,exc=None,exit=False,):
 			if not isinstance(exc,SystemExit):
 				output += ": " + exc.__str__()
 		output += "\n"
-		print >> sys.stderr, output
+		print (output, file=sys.stderr)
 	if exit == True:
 		sys.exit(1)
 
@@ -129,7 +131,7 @@ def pout(output,newline=True):
 	if newline:
 		output += "\n"
 	if quiet == False:
-		print output
+		print (output)
 		
 def check_path(path):
 	if os.path.isdir(path) or os.path.isfile(path):
@@ -188,10 +190,10 @@ def summary(cd):
 # options
 try:                                
 	opts, args = getopt.getopt(sys.argv[1:], "hup:d:t:b:c:m:i:nf:r:ylqDFL:U:W:P:", ["help", "upload","path=","delete=","type=","tube=","chamber=","implementation=","id=","newid","newidfile=","setvalid=","yes","list","quiet","debug","force","lowrun=","uprun=","lowtime=","uptime=","from=","copy=","modifyhead","luminosity=","rootfile=","statusflag=","listdb","db=","sync","synclimit=" ])
-except getopt.GetoptError, err:
-	print >> sys.stderr, "A bad option was passed:"
-	print >> sys.stderr, str(err)
-	print >> sys.stderr, "Use option -h or --help for usage instructions"                         
+except getopt.GetoptError as err:
+	print ("A bad option was passed:", file=sys.stderr)
+	print (str(err), file=sys.stderr)
+	print ("Use option -h or --help for usage instructions", file=sys.stderr)
 	sys.exit(2)
 
 if len(opts) == 0:
@@ -210,7 +212,7 @@ for opt,arg in opts:
 		sys.exit()
 
 	if opt in ["--listdb"]:
-		print CalibData.format_dblist()
+		print (CalibData.format_dblist())
 		sys.exit(0)
 
 	if opt in ["--list", "-l"]:
@@ -221,7 +223,7 @@ for opt,arg in opts:
 			usedb = arg
 		else:
 			perr("An unknown database was specified, valid databases are:");
-			print CalibData.format_dblist()
+			print (CalibData.format_dblist())
 			sys.exit(1)
 
 	if opt in ['--sync']:
@@ -359,7 +361,7 @@ try:
 				scount += 1
 
 		for copy_id in sync_ids:
-			print "\nSyncing head id %s" % copy_id
+			print ("\nSyncing head id %s" % copy_id)
 			syncsrc = CalibData(copy_id)
 			syncsrc.setdb(copysrc)
 			syncsrc.debug = debug
@@ -485,7 +487,7 @@ try:
 								pout("Source head id %s from database has information:" % cdsource.head_id)
 								pout(cdsource.format_headinfo())
 						
-						except QueryError, exc:
+						except QueryError as exc:
 							output = "\nCould not retrieve head id(s) from database: "
 							if "cdsource" not in locals() and head_id != None:
 								output += "ID %s" % head_id
@@ -678,7 +680,7 @@ try:
 				perr("No modification specified")
 				sys.exit(1)
 			cd.write_headid()
-		except HeadInsertError, exc:
+		except HeadInsertError as exc:
 			perr("Error modifying head id" + cd.head_id, exc)
 			raise
 				
@@ -688,9 +690,9 @@ try:
 			cd = CalibData()
 			cd.debug = debug
 			cd.setdb(usedb)
-			print cd.format_head_data(cd.fetch_head_data())
+			print (cd.format_head_data(cd.fetch_head_data()))
 			sys.exit(0)
-		except QueryError, exc:
+		except QueryError as exc:
 			perr("Error querying for head ids", exc)
 			sys.exit(1)
 	    
@@ -705,7 +707,7 @@ try:
 			cd.debug = debug
 		try:
 			cd.get_head_info()
-		except QueryError, exc:
+		except QueryError as exc:
 			perr("Could not retrieve information for head id: %s" % head_id, exc)
 			sys.exit(1)
 
@@ -808,7 +810,7 @@ try:
 				raise
 	  
 # catch unhandled exceptions
-except (Exception,KeyboardInterrupt), exc:
+except (Exception,KeyboardInterrupt) as exc:
 	# catch when we exit(0) by intent
 	if isinstance(exc,SystemExit):
 		if exc.code == 0:
@@ -835,7 +837,7 @@ try:
 	if commit == True:
 		cd.commit(force=True)
 	summary(cd)
-except Exception, exc:
+except Exception as exc:
 	perr("There was an error committing data", exc)
 	if cd:
 		cd.rollback()

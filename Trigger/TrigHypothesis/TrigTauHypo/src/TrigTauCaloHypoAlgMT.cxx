@@ -4,8 +4,8 @@
 
 #include "GaudiKernel/Property.h"
 #include "TrigTauCaloHypoAlgMT.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils;

@@ -10,8 +10,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODEgamma/Photon.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"
 
 

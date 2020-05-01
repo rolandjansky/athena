@@ -5,7 +5,7 @@
 #ifndef FLUKAPARTICLE_H
 #define FLUKAPARTICLE_H
 
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include <string>
 #include <vector>
 
@@ -54,8 +54,8 @@ class FlukaParticle {
   HepMC::FourVector positionAtScoringPlane(void) const { return m_positionAtScoringPlane; }
 
   /** A function to return the directional cosines of this
-      particle. */
-  HepMC::ThreeVector directionalCosines(void) const { return m_directionalCosines; }  
+      particle. The fourth component is 0 */
+  HepMC::FourVector directionalCosines(void) const { return m_directionalCosines; }  
 
   /** A function to return the particle or event weight. */
   double weight(void) const { return m_weight; }
@@ -81,7 +81,7 @@ class FlukaParticle {
   int m_partGenNum;
   double m_kineticEnergy;
   HepMC::FourVector m_positionAtScoringPlane;
-  HepMC::ThreeVector m_directionalCosines;
+  HepMC::FourVector m_directionalCosines;
   double m_weight;
   double m_totalEnergy;
   HepMC::FourVector m_positionAtPrimary;

@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
 #include "RPC_CondCabling/CablingObject.h"
-
-using namespace std;
 
 CablingObject::CablingObject(int num,int stat,int type,std::string name) : 
     BaseObject(Logic,name),m_number(num),m_station(stat),m_sector_type(type) {}
@@ -32,12 +30,12 @@ CablingObject::operator=(const CablingObject& obj)
     return*this;
 }
 
-ostream& operator<< (ostream& stream,const CablingObject& obj)
+std::ostream& operator<< (std::ostream& stream,const CablingObject& obj)
 {
-    stream   << obj.name() << " number " << setw(3) << obj.number()
-             << "  associated to sector type " << setw(3) 
+    stream   << obj.name() << " number " << std::setw(3) << obj.number()
+             << "  associated to sector type " << std::setw(3) 
 	     << obj.sector_type() << " in station n. " << obj.station()
-             << endl;
+             << std::endl;
     return stream;
 }
 
@@ -47,20 +45,20 @@ CablingObject::error_header(void) const
 
     __osstream disp;
     disp << "Error in Sector Type " << m_sector_type;
-    if( m_station >0 ) disp << ", station " << m_station << ":" << endl;
-    else disp << ":" << endl;
+    if( m_station >0 ) disp << ", station " << m_station << ":" << std::endl;
+    else disp << ":" << std::endl;
 
     display_error(disp);
 }
 
 void
-CablingObject::no_connection_error(string name,int num)
+CablingObject::no_connection_error(std::string name,int num)
 {
     this->error_header();
 
     DISP << this->name() << " n. " << m_number
          << " is supposed to receive input from " << name << " n. " << num
-         << " which doesn't exist!" << endl;
+         << " which doesn't exist!" << std::endl;
     DISP_ERROR;
 }
 

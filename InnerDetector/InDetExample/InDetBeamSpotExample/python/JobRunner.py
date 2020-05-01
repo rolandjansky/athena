@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 JobRunner is a set of classes aimed at simplifying the running of
 (athena) jobs on a set of input files. JobRunner provides each
@@ -204,7 +207,7 @@ class JobRunner:
         """A generic routine for checking job parameters. Check that all parameters
            can be evaluated. May be overrridden by a subclass if desired."""
         if len(self.paramOrder)!=len(self.params):
-            raise JobRunnerError, 'Inconsistent parameter definition'
+            raise JobRunnerError ('Inconsistent parameter definition')
         try:
             tmp = { }
             for p in self.paramOrder:
@@ -215,7 +218,7 @@ class JobRunner:
                 else:
                     tmp[p] = value
         except:
-            raise JobRunnerError, 'Unable to evaluate parameter: '+p+' = '+value+' (check parameter order)'
+            raise JobRunnerError ('Unable to evaluate parameter: '+p+' = '+value+' (check parameter order)')
 
 
     def showParams(self,maxLineLength=80):
@@ -224,7 +227,7 @@ class JobRunner:
             s = str(self.params[p])
             if maxLineLength > 0 and len(s) > maxLineLength:
                 s = s[0:maxLineLength-3] + '...'
-            print s
+            print (s)
 
 
     def dumpParams(self,format='%(name)-20s = %(value)s',maxLineLength=0):
@@ -252,7 +255,7 @@ class JobRunner:
         """Configure parameters for a single job and write job configuration files. If inputLIst
            is given, this is the list of input files used for the job."""
         if jobnr in self.jobs:
-            raise JobRunnerError, 'Job number %s already configured' % jobnr
+            raise JobRunnerError ('Job number %s already configured' % jobnr)
         jobConfig = { }
 
         jobConfig['jobnr'] = jobnr
@@ -265,7 +268,7 @@ class JobRunner:
             inputfiles = self.getParam('inputfiles')
             iFirst = self.getParam('filesperjob')*jobnr
             if iFirst >= len(inputfiles):
-                raise JobRunnerError, 'Jobnr = %i too high for available number of files' % jobnr
+                raise JobRunnerError ('Jobnr = %i too high for available number of files' % jobnr)
             iLast = iFirst + self.getParam('filesperjob')
             if iLast > len(inputfiles):
                 iLast=len(inputfiles)
@@ -336,10 +339,10 @@ class JobRunner:
         #       current directory
         for f in jobConfig['outputfilelist']:
             if os.access(jobConfig['outputfileprefix']+f,os.F_OK):
-                raise JobRunnerError, 'Job output file %s exists already' % jobConfig[f]
+                raise JobRunnerError ('Job output file %s exists already' % jobConfig[f])
         for f in ('configfile', 'scriptfile', 'logfile'):
             if os.access(jobConfig[f],os.F_OK):
-                raise JobRunnerError, 'Job configuration or log file %s exists already' % jobConfig[f]
+                raise JobRunnerError ('Job configuration or log file %s exists already' % jobConfig[f])
 
         # Make sure start directory where script and config files will be written to exists
         os.makedirs('%(jobdir)s' % jobConfig) 
@@ -359,7 +362,7 @@ class JobRunner:
         script = open(jobConfig['scriptfile'],'w')
         script.write(jobConfig['script'])
         script.close()
-        os.chmod(jobConfig['scriptfile'],0755)
+        os.chmod(jobConfig['scriptfile'],0o755)
 
         # Record job configuration
         self.jobs[jobnr] = jobConfig
@@ -368,12 +371,12 @@ class JobRunner:
     def configure(self):
         """Configure all jobs."""
         if self.getParam('filesperjob')==0 or not self.getParam('inputfiles'):
-            raise JobRunnerError, "No input files or illegal parameter 'filesperjob'"
+            raise JobRunnerError ("No input files or illegal parameter 'filesperjob'")
         lbperjob = self.getParam('lbperjob')
         if lbperjob:
             # Bunched job submission with all files from LB range in single job
             if lbperjob<=0:
-                raise JobRunnerError, 'Negative number of luminosity blocks per job not allowed'
+                raise JobRunnerError ('Negative number of luminosity blocks per job not allowed')
             inputfiles = self.getParam('inputfiles')
             jobInputDict = {}
             jobLBDict = {}
@@ -382,10 +385,10 @@ class JobRunner:
                 lbnrs = lbpattern.findall(f)
                 
                 if(len(lbnrs) < 1) :
-                    raise JobRunnerError, 'Unable to determine luminosity block number of file %s' % f
+                    raise JobRunnerError ('Unable to determine luminosity block number of file %s' % f)
 
                 if(len(lbnrs) > 2) :
-                    raise JobRunnerError, 'Too many luminosity block numbers in filename %s' % f
+                    raise JobRunnerError ('Too many luminosity block numbers in filename %s' % f)
 
                 lbnr = int(lbnrs[0])
                 if(len(lbnrs) > 1) :
@@ -396,7 +399,7 @@ class JobRunner:
                 while (lbnr <=  lbnrmax) :                    
 
                     jobId = int((lbnr-1)/lbperjob)
-                    #print 'LB = %4i  jobid = %i' % (lbnr,jobId)
+                    #print ('LB = %4i  jobid = %i' % (lbnr,jobId))
                     if not jobId in jobInputDict:
                         jobInputDict[jobId] = [f]
                         jobLBDict[jobId] = [lbnr]
@@ -424,7 +427,7 @@ class JobRunner:
             njobs = int(math.ceil(float(len(self.getParam('inputfiles')))/self.getParam('filesperjob')))
             if self.getParam('maxjobs'):
                 njobs = min(self.getParam('maxjobs'),njobs)
-            print '\nConfiguring %i job(s) ...' % (njobs)
+            print ('\nConfiguring %i job(s) ...' % (njobs))
             for i in range(njobs):
                 self.configureJob(i)
 
@@ -449,7 +452,7 @@ class JobRunner:
     def runJob(self,jobnr):
         """Run a single configured job."""
         if not jobnr in self.jobs:
-            raise JobRunnerError, 'Job number %s is not configured' % jobnr
+            raise JobRunnerError ('Job number %s is not configured' % jobnr)
         jobConfig = self.jobs[jobnr]
         subprocess.call('touch '+jobConfig['subflag'], shell=True)
         status = self.submitJob(jobConfig)
@@ -459,11 +462,11 @@ class JobRunner:
     def run(self,jobnr=None):
         """Run all configured job(s)"""
         if not self.jobs:
-            raise JobRunnerError, 'No configured jobs'
+            raise JobRunnerError ('No configured jobs')
         njobs = len(self.jobs)
         self.log('JobRunner: starting '+str(njobs)+' jobs',self.dumpParams())
         for j in sorted(self.jobs.keys()):
-            print '\nStarting job %i (using %s) ...\n' % (j,self.__class__)
+            print ('\nStarting job %i (using %s) ...\n' % (j,self.__class__))
             self.runJob(j)
 
 
@@ -489,8 +492,8 @@ class JobRunner:
             time.sleep(30)
             runningJobs = self.getRunningJobs()
             if not runningJobs: break
-            print
-            print time.asctime(),' Waiting for %2s job(s) (%s)' % (len(runningJobs),runningJobs)
+            print()
+            print (time.asctime(),' Waiting for %2s job(s) (%s)' % (len(runningJobs),runningJobs))
         self.log('JobRunner: finished',self.dumpParams(),outputFiles=self.getOutputFiles())
 
 
@@ -526,8 +529,8 @@ class JobRunner:
 # Test code
 #
 if __name__ == '__main__':
-    print __doc__
-    print 'Testing JobRunner:'
+    print (__doc__)
+    print ('Testing JobRunner:')
     t = JobRunner()
     t.addFiles(['file1.dat','file2.dat','file3.dat'])
     t.showParams()

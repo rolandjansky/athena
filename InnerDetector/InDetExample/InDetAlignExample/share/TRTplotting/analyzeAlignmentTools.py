@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 #======function for printing the errors in a decent manner
 from math import *
 
@@ -6,20 +8,20 @@ def printerror(val, err):
         prec = int(abs(round(log10(err))))
     else:
         prec = 3
-    #print str(round(val, prec))+"("+"%.1g)" % err,
+    #print (str(round(val, prec))+"("+"%.1g)" % err,)
     return str(round(val, prec+1))+"("+"%.1g)" % err
 
 #===error handling functions=====
 def isOk(dirOrfile):
     if not os.access(dirOrfile,os.F_OK):
-        print "The directory/file: "+dirOrfile+" is bogus, or cant be reached from where you are."
-        print "Check the path and the spelling."
+        print ("The directory/file: "+dirOrfile+" is bogus, or cant be reached from where you are.")
+        print ("Check the path and the spelling.")
         sys.exit()
     return ""
 
 def isOkJustGiveWarning(dirOrfile):
     if not os.access(dirOrfile,os.F_OK):
-        print "WARNING: The file: "+dirOrfile+" is bogus, looks like failed job."
+        print ("WARNING: The file: "+dirOrfile+" is bogus, looks like failed job.")
         return 0
     else:
         return 1
@@ -51,42 +53,42 @@ def getDofNotAligned():
             continue
         if words[0] == 'dx' and not didDx:
             didDx = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'dy' and not didDy:
             didDy = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'dz' and not didDz:
             didDz = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'rotx' and not didRotx:
             didRotx = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'roty' and not didRoty:
             didRoty = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'rotz' and not didRotz:
             didRotz = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
     file.close()
 
 
     if not didDx:
-        print "Dx NOT Aligned"
+        print ("Dx NOT Aligned")
         DofNotAligned.append("Dx")
     if not didDy:
-        print "Dy NOT Aligned"
+        print ("Dy NOT Aligned")
         DofNotAligned.append("Dy")
     if not didDz:
-        print "Dz NOT Aligned"
+        print ("Dz NOT Aligned")
         DofNotAligned.append("Dz")
     if not didRotx:
-        print "rotx NOT Aligned"
+        print ("rotx NOT Aligned")
         DofNotAligned.append("Rotx")
     if not didRoty:
-        print "roty NOT Aligned"
+        print ("roty NOT Aligned")
         DofNotAligned.append("Roty")
     if not didRotz:
-        print "rotz NOT Aligned"
+        print ("rotz NOT Aligned")
         DofNotAligned.append("Rotz")
 
     os.chdir(currentdir)
@@ -121,42 +123,42 @@ def getDofNotAlignedNew():
             continue
         if words[0] == 'TransX' and not didDx:
             didDx = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'TransY' and not didDy:
             didDy = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'TransZ' and not didDz:
             didDz = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'RotX' and not didRotx:
             didRotx = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'RotY' and not didRoty:
             didRoty = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
         if words[0] == 'RotZ' and not didRotz:
             didRotz = True
-            print words[0],"aligned"
+            print (words[0],"aligned")
     file.close()
 
 
     if not didDx:
-        print "Dx NOT Aligned"
+        print ("Dx NOT Aligned")
         DofNotAligned.append("Dx")
     if not didDy:
-        print "Dy NOT Aligned"
+        print ("Dy NOT Aligned")
         DofNotAligned.append("Dy")
     if not didDz:
-        print "Dz NOT Aligned"
+        print ("Dz NOT Aligned")
         DofNotAligned.append("Dz")
     if not didRotx:
-        print "rotx NOT Aligned"
+        print ("rotx NOT Aligned")
         DofNotAligned.append("Rotx")
     if not didRoty:
-        print "roty NOT Aligned"
+        print ("roty NOT Aligned")
         DofNotAligned.append("Roty")
     if not didRotz:
-        print "rotz NOT Aligned"
+        print ("rotz NOT Aligned")
         DofNotAligned.append("Rotz")
 
     os.chdir(currentdir)
@@ -188,9 +190,9 @@ def getChi2Method():
     os.chdir(currentdir)
 
     if Chi2Method:
-        print "Aligned using the global method"
+        print ("Aligned using the global method")
     else:
-        print "Aligned using the local method"
+        print ("Aligned using the local method")
 
 
     return Chi2Method
@@ -217,9 +219,9 @@ def getChi2MethodNew():
     os.chdir(currentdir)
 
     if Chi2Method:
-        print "Aligned using the global method"
+        print ("Aligned using the global method")
     else:
-        print "Aligned using the local method"
+        print ("Aligned using the local method")
 
 
     return Chi2Method
@@ -251,9 +253,9 @@ def getLevelOfAlignment():
     os.chdir(currentdir)
 
     if LevelOfAlignment:
-        print "Reading in the L2 alignment"
+        print ("Reading in the L2 alignment")
     else:
-        print "Reading in the L1 alignment"
+        print ("Reading in the L1 alignment")
 
 
     return LevelOfAlignment
@@ -283,9 +285,9 @@ def getLevelOfAlignmentNew():
     os.chdir(currentdir)
 
     if LevelOfAlignment:
-        print "Reading in the L2 alignment"
+        print ("Reading in the L2 alignment")
     else:
-        print "Reading in the L1 alignment"
+        print ("Reading in the L1 alignment")
 
 
     return LevelOfAlignment
@@ -309,10 +311,10 @@ def getModuleNumber(bec,lay,phi):
         if bec<0:
             sign = -1
         if bec == -1:
-            #print "returning ",sign*(abs(bec)*1000+lay*100+phi), bec, lay, phi
+            #print ("returning ",sign*(abs(bec)*1000+lay*100+phi), bec, lay, phi)
             return sign*(abs(bec)*1000+lay*100+phi)
         else:
-            #print "returning ",sign*(abs(bec)*10000+phi*100+lay), bec, lay, phi
+            #print ("returning ",sign*(abs(bec)*10000+phi*100+lay), bec, lay, phi)
             return sign*(abs(bec)*10000+phi*100+lay)
 
 def getModules():

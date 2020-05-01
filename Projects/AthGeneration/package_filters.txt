@@ -1,6 +1,11 @@
 #
 # Package filtering rules for the AthGeneration project build.
 #
+
+# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
+- Generators/Rivet_i
+
++ AsgExternal/Asg_Test
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloCondBlobObjs
@@ -19,6 +24,7 @@
 + Control/AthenaBaseComps
 + Control/AthenaCommon
 + Control/AthenaConfiguration
++ Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess
 + Control/AthenaKernel
 + Control/AthenaMP
@@ -71,7 +77,7 @@
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
 + Database/AthenaRoot/RootAuxDynIO
-#+ Database/AtlasSTLAddReflex
++ Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 + Database/ConnectionManagement/AtlasAuthentication
@@ -125,6 +131,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
@@ -139,6 +146,7 @@
 + External/AtlasDataArea
 + External/Pythia8
 + Generators/Charybdis_i
+- Generators/TrackRecordGenerator
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
@@ -153,6 +161,7 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 #+ PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
 + PhysicsAnalysis/PATJobTransforms
++ PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
 #+ Projects/AthGeneration
@@ -164,7 +173,6 @@
 + Reconstruction/Jet/JetInterface
 + Reconstruction/Jet/JetRec
 #+ Reconstruction/Jet/JetRecConfig
-+ Reconstruction/MissingETEvent
 + Reconstruction/Particle
 #+ Reconstruction/RecAlgs
 #+ Reconstruction/RecEvent

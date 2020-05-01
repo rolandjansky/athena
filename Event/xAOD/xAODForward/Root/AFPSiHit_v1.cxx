@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,7 +33,7 @@ namespace xAOD
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, int, pixelColIDChip, setPixelColIDChip)
   
   AUXSTORE_OBJECT_SETTER_AND_GETTER (AFPSiHit_v1, std::vector< AFPSiHit_v1::AFPTrackLink_t >, tracksLinks, setTracksLinks)
-  static SG::AuxElement::Accessor< std::vector<AFPSiHit_v1::AFPTrackLink_t> > tracksLinksAcc( "tracksLinks" );
+  static const SG::AuxElement::Accessor< std::vector<AFPSiHit_v1::AFPTrackLink_t> > tracksLinksAcc( "tracksLinks" );
   
   void AFPSiHit_v1::addTrackLink( const AFPTrackLink_t& link )
   {
@@ -44,7 +44,7 @@ namespace xAOD
     // Prepare the tracks links for persistification:
     if ( tracksLinksAcc.isAvailableWritable( *this ) )
       for (AFPTrackLink_t trackLink : tracksLinksAcc( *this ) )
-	trackLink.toPersistent();
+        trackLink.toPersistent();
   }
 
   

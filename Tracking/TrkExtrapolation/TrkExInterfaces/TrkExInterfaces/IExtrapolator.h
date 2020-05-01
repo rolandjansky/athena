@@ -55,7 +55,7 @@ namespace Trk {
   class TrackStateOnSurface;      
   class Layer;
   class Volume;
-
+    
   class IExtrapolator : virtual public IAlgTool {
      public:
      
@@ -75,7 +75,7 @@ namespace Trk {
 
 
 
-       /** xAOD 0) neutral xAOD particle */
+        /** xAOD 0) xAOD track particle */
         virtual const TrackParameters* extrapolate(const xAOD::TrackParticle& particleBase,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
@@ -112,8 +112,8 @@ namespace Trk {
        /** S 2) <b>Strategy Pattern extrapolation method</b>
         - returns a vector of TrackParameters representing the tracking detector elements
           hit in between and the TrackParameters at the destination Surface (if final extrapolation suceeds),
-          0 if the extrapolation to the destination surface does not suceed*/
-       virtual const std::vector<const TrackParameters*>*  extrapolateStepwise(
+          empty if the extrapolation to the destination surface does not suceed*/
+       virtual std::vector<std::unique_ptr<const TrackParameters> >  extrapolateStepwise(
                                                              const IPropagator& prop,
                                                              const TrackParameters& parm,
                                                              const Surface& sf,
@@ -147,35 +147,33 @@ namespace Trk {
                                                    
         /** S 5) <b>Strategy Pattern extrapolation method</b>:
          - blind inside the given tracking Volume (boundaryVol), 
-           if non is given the reference surface for destination is used
+           if none is given the reference surface for destination is used
         */          
-        virtual const std::vector<const TrackParameters*>* extrapolateBlindly(const IPropagator& prop,
-                                                                              const TrackParameters& parm,
-                                                                              PropDirection dir=anyDirection,
-                                                                              const BoundaryCheck& bcheck = true,
-                                                                              ParticleHypothesis particle=pion,
-                                                                              const Volume* boundaryVol=0) const = 0;
+        virtual std::vector<std::unique_ptr<const TrackParameters> > extrapolateBlindly(const IPropagator& prop,
+                                                                       const TrackParameters& parm,
+                                                                       PropDirection dir=anyDirection,
+                                                                       const BoundaryCheck& bcheck = true,
+                                                                       ParticleHypothesis particle=pion,
+                                                                       const Volume* boundaryVol=0) const = 0;
 
         /** S 6) <b>Strategy Pattern extrapolation method</b>:
          - extrapolation to the next active layer, based on the extrapolation to the next layer
            and layer identification
         */          
-        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(
-                                                                                       const IPropagator& prop,
-											                                           const TrackParameters& parm,
-											                                           PropDirection dir,
-											                                           const BoundaryCheck& bcheck,
-											                                           ParticleHypothesis particle=pion,
-											                                           MaterialUpdateMode matupmode=addNoise) const=0;
+        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(const IPropagator& prop,
+                                                                                            const TrackParameters& parm,
+											    PropDirection dir,
+                                                                                            const BoundaryCheck& bcheck,
+											    ParticleHypothesis particle=pion,
+											    MaterialUpdateMode matupmode=addNoise) const=0;
 
-        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(
-                                                                                       const IPropagator& prop,
-											                                           const TrackParameters& parm,
-											                                           PropDirection dir,
-											                                           const BoundaryCheck& bcheck,
-											                                           std::vector<const Trk::TrackStateOnSurface*>& material,
-											                                           ParticleHypothesis particle=pion,
-											                                           MaterialUpdateMode matupmode=addNoise) const=0;
+        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(const IPropagator& prop,
+											     const TrackParameters& parm,
+											     PropDirection dir,
+                                                                                             const BoundaryCheck& bcheck,
+											     std::vector<const Trk::TrackStateOnSurface*>& material,
+											     ParticleHypothesis particle=pion,
+											     MaterialUpdateMode matupmode=addNoise) const=0;
               
         /** S 8) <b>Strategy Pattern extrapolation method</b>:
          - Extrapolation using specific intermediate surfaces and energy loss effects to be accounted for at
@@ -221,7 +219,7 @@ namespace Trk {
                                                    Trk::ExtrapolationCache* cache = 0 ) const = 0;
         
         /** C 2) <b>Configured AlgTool extrapolation method</b> of S 2):*/
-        virtual const std::vector<const TrackParameters*>*  extrapolateStepwise(const TrackParameters& parm,
+        virtual std::vector<std::unique_ptr<const TrackParameters> >  extrapolateStepwise(const TrackParameters& parm,
                                                                                 const Surface& sf,
                                                                                 PropDirection dir=anyDirection,
                                                                                 const BoundaryCheck& bcheck = true,
@@ -244,11 +242,11 @@ namespace Trk {
                                                            ParticleHypothesis particle=pion) const = 0;
                                                            
         /** C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/                        
-        virtual const std::vector<const TrackParameters*>*  extrapolateBlindly(const TrackParameters& parm,
-                                                                               PropDirection dir=anyDirection,
-                                                                               const BoundaryCheck& bcheck = true,
-                                                                               ParticleHypothesis particle=pion,
-                                                                               const Volume* boundaryVol=0) const = 0;
+        virtual std::vector<std::unique_ptr<const TrackParameters> >  extrapolateBlindly(const TrackParameters& parm,
+                                                                        PropDirection dir=anyDirection,
+                                                                        const BoundaryCheck& bcheck = true,
+                                                                        ParticleHypothesis particle=pion,
+                                                                        const Volume* boundaryVol=0) const = 0;
 
         /** C 6) <b>Configured AlgTool extrapolation method</b> of S 6):*/                        
         virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
@@ -79,6 +79,33 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
+    elif menu_name.startswith('PhysicsP1_HI_run3_v1'):
+        log.info('PhysicsP1_HI_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_HI_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
+
+    elif menu_name.startswith('Dev_HI_run3_v1'):
+        log.info('Dev_HI_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Dev_HI_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
 
     elif menu_name.startswith('LS2_emu_v1'):
         log.info('LS2_v1 menu setup')
@@ -94,9 +121,9 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
-    elif menu_name.startswith('Cosmic_pp_run3_v1'):
-        log.info('Cosmic_pp_run3_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_pp_run3_v1 import setupMenu, Prescales
+    elif menu_name.startswith('Cosmic_run3_v1'):
+        log.info('Cosmic_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_run3_v1 import setupMenu, Prescales
         setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics

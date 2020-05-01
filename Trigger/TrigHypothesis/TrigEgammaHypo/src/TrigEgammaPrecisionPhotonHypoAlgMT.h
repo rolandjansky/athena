@@ -12,7 +12,7 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Photon.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"

@@ -231,10 +231,13 @@ private:
     this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
 
   Gaudi::Property<unsigned int> m_forceRunNumber{
-    this, "forceRunNumber", 0, "Override run number during prepareForRun"};
+    this, "forceRunNumber", 0, "Override run number"};
+
+  Gaudi::Property<unsigned int> m_forceLumiblock{
+    this, "forceLumiblock", 0, "Override lumiblock number"};
 
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
-    this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
+    this, "forceStartOfRunTime", 0, "Override SOR time (epoch in nano-seconds)"};
 
   Gaudi::Property<bool> m_rewriteLVL1{
     this, "RewriteLVL1", false,

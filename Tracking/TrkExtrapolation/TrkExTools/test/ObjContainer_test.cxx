@@ -18,7 +18,7 @@ public:
       }
       return s_ctorCounter == s_dtorCounter;
    }
-   static void stat(std::string head="") {
+   static void stat(const std::string& head="") {
       std::cout << head
                 << "TestObj::stat: constructor and destructor counts "
                 << s_ctorCounter << " : " << s_dtorCounter
@@ -53,7 +53,7 @@ void test0()
 
    TestObj external_obj;
    GuardedPtr gptr(container,external_obj);
-   Ptr out(func(container,gptr.index()));
+   [[maybe_unused]] Ptr out (func(container,gptr.index()));
 }
 
 void test1()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigVertexCountsCnv.h"
@@ -30,7 +30,7 @@ TrigVertexCounts* TrigVertexCountsCnv::createTransient() {
 
   if( compareClassGuid(p1_guid) ) {   
     mlog << MSG::DEBUG << "TrigVertexCountsCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigVertexCounts_p1 > pers_ptr( poolReadObject< TrigVertexCounts_p1 >() );
+    std::unique_ptr< TrigVertexCounts_p1 > pers_ptr( poolReadObject< TrigVertexCounts_p1 >() );
     TrigVertexCountsCnv_p1 converter;
     transObj = converter.createTransient(pers_ptr.get(), mlog);
   }

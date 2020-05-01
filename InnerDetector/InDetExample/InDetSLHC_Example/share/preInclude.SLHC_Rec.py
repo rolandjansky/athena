@@ -22,10 +22,10 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
     InDetFlags.doSLHC = True
 
     # switch of tracking and vertex finding for AOD and ESD making
-    print 'RecoStep:',rec.OutputFileNameForRecoStep()
+    printfunc ('RecoStep:',rec.OutputFileNameForRecoStep())
     if ( rec.OutputFileNameForRecoStep() == 'ESDtoAOD' or
          rec.OutputFileNameForRecoStep() == 'ESDtoDPD' ):
-        print 'switching off tracking and vertex finding for AOD and ESD making'
+        printfunc ('switching off tracking and vertex finding for AOD and ESD making')
         InDetFlags.doNewTracking  =         False
         InDetFlags.doVertexFinding =        False
 
@@ -47,9 +47,6 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
         InDetFlags.doTRTStandalone = False
         InDetFlags.loadTRTSeededSPFinder = False
         #InDetFlags.doSingleSpBackTracking.set_Value_and_Lock(False)
-        # --- turn off alternatives
-        InDetFlags.doxKalman = False
-        InDetFlags.doiPatRec = False
         # --- no special tracking
         InDetFlags.doBeamGas = False
         InDetFlags.doBeamHalo = False

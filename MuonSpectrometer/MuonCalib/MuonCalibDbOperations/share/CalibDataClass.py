@@ -1,5 +1,7 @@
 #!/bin/env python
 
+from __future__ import print_function
+
 import cx_Oracle
 import sys
 import traceback
@@ -189,7 +191,7 @@ class CalibData:
 					print("Closing metadata database connection")
 				try:
 					self.mconn.close()
-				except cx_Oracle.InterfaceError, exc:
+				except cx_Oracle.InterfaceError as exc:
 					# IF there is only one consolidated schema then dconn and mconn point to the same connection
 					# ignore a 'not connected' error from trying to close that connection twice
 					if exc == 'not connected':
@@ -232,7 +234,7 @@ class CalibData:
 
 	def dbgout(self, output):
 		if self.debug:
-			print output + '\n'
+			print (output + '\n')
 
 	# returns False if no class attributes in list are unset
 	def missing_attributes(self,checkvars):
@@ -328,7 +330,7 @@ class CalibData:
 				self.dcursor = self.dconn.cursor()
 				self.datauser = userstring
 
-		except Exception, exc:
+		except Exception as exc:
 			output = "There was an error connecting to the database "
 			if self.mschema != None and schema == "meta":
 				output += "Schema: %s" % self.mschema
@@ -353,7 +355,7 @@ class CalibData:
 		try:
 			self.dbgout("SQL in set_active_db: %s" % sql)
 			self.mcursor.execute(sql)
-		except Exception, exc:
+		except Exception as exc:
 			raise QueryError(self,exc)
 
 		result = self.mcursor.fetchone()
@@ -453,7 +455,7 @@ class CalibData:
 				self.opcount = 0 
 				self.transtotal += 1
 					
-		except Exception, exc:
+		except Exception as exc:
 			raise CalibDataError(self,exc)
 
 	def rollback(self):
@@ -469,13 +471,13 @@ class CalibData:
 					self.opcount += self.dcursor.rowcount
 				try: 
 					self.dcursor.close()
-				except cx_Oracle.InterfaceError, exc:
+				except cx_Oracle.InterfaceError as exc:
 					# sometimes the cursor isn't open if we didn't do anything - not a problem I need to know about
 					if exc == 'not open':
 						pass
 				self.dconn.rollback()
 				self.dcursor = self.dconn.cursor()   
-		except Exception, exc:
+		except Exception as exc:
 				raise CalibDataError(self,exc)
 				
 		# split (if necessary) id argument like headid@database into id and database.  returns "None" if no database or None id provided
@@ -520,7 +522,7 @@ class CalibData:
 					self.dbgout("SQL in setup_dblink: %s" % dblink_sql)
 					self.mcursor.execute(dblink_sql)
 					self.linkid = linkid
-				except Exception, exc:
+				except Exception as exc:
 					raise CalibDataError(self,exc)			
 
 	def drop_dblink(self):
@@ -531,7 +533,7 @@ class CalibData:
 			try:
 				self.dbgout("SQL in drop_dblink: %s" % drop_sql)
 				self.mcursor.execute(drop_sql)
-			except Exception, exc:
+			except Exception as exc:
 				raise CalibDataError(self,exc)			
 
 	def format_headinfo(self):
@@ -573,7 +575,7 @@ class CalibData:
 		exepath = sys.path[0] + "/muonfixedid"
 		retval = subprocess.Popen([exepath,tube], stdout=subprocess.PIPE).stdout.read()
 		if "ERROR" in retval:
-				print retval
+				print (retval)
 				raise Exception
 		else:
 				return retval
@@ -606,7 +608,7 @@ class CalibData:
 
 		try:
 				self.mcursor.execute(sql)
-		except Exception, exc:
+		except Exception as exc:
 				raise QueryError(self,exc)
 
 		result = self.mcursor.fetchone()
@@ -664,7 +666,7 @@ class CalibData:
 
 		try:
 				self.dcursor.execute(sql,{'hid':self.head_id,'cid':chamber_id,'tid':tube_id})
-		except Exception, exc:
+		except Exception as exc:
 				raise QueryError(self,exc)
 
 		rowcount = 0
@@ -679,7 +681,7 @@ class CalibData:
 			sql += " AND region_id = :rid"
 		try:
 			self.dcursor.execute(sql,{'rid':chamber_id})
-		except Exception, exc:
+		except Exception as exc:
 			raise QueryError(self,exc)
 		rowcount = 0
 		for r in self.cursor.fetchall():
@@ -711,7 +713,7 @@ class CalibData:
 					raise Exception(self,"Tried to write new MDT_DATA SCHEMA %s but SCHEMA_NAME exists" % self.dschema)
 				else:
 					return
-		except Exception,e:
+		except Exception as e:
 			raise QueryError(self,e)
 
 		
@@ -719,7 +721,7 @@ class CalibData:
 
 		try:
 			self.mcursor.execute(sql_insert)
-		except Exception,exc:
+		except Exception as exc:
 			raise HeadInsertError(self,"Unable to insert into MDT_DATA_SCHEMA: %s" % exc)
 
 
@@ -772,7 +774,7 @@ class CalibData:
 				self.head_id = int(newid.getvalue())
 				if self.replica == False:
 					self.dschema = schema.getvalue()
-		except Exception, exc:
+		except Exception as exc:
 			raise HeadInsertError(self,exc)
 
 	def copy_head(self,sourceobj=None):
@@ -855,11 +857,11 @@ class CalibData:
 			self.exec_insert(sql_rt_map)
 			if self.dcursor.rowcount == 0 and ignore_missing == False:
 				raise DataCopyError(self,"There is no RT data in the source head id")
-		except cx_Oracle.IntegrityError,exc:
+		except cx_Oracle.IntegrityError as exc:
 				raise DataUniqueError(self,exc)
 		except HeadInsertError:
 			raise
-		except Exception, exc:
+		except Exception as exc:
 			raise DataCopyError(self,exc)
 			    
 		# copy existing T0 to this object.  new head_id must exist (use write_headid if object created with empty headid)
@@ -923,11 +925,11 @@ class CalibData:
 				raise DataCopyError(self,"There is no T0 data in the source head id")
 			self.exec_insert(mdt_tube_c_sql)
 			self.exec_insert(mdt_tube_v_sql)		
-		except cx_Oracle.IntegrityError, exc:
+		except cx_Oracle.IntegrityError as exc:
 			raise DataUniqueError(self,exc)
 		except HeadInsertError:
 			raise
-		except cx_Oracle.Error, exc:
+		except cx_Oracle.Error as exc:
 			raise DataCopyError(self,exc)
                         
 	def insert_rt_map(self,point_nr, r, t, s):
@@ -938,12 +940,12 @@ class CalibData:
 		try: 
 			if point_nr == 99 or point_nr == 199:
                                 tmax = float(t)
-				if tmax > 800. or tmax < 700.:
-					raise Exception("Tmax value %s: Tmax must be in range 700 to 800 ns" % t)
+                                if tmax > 800. or tmax < 700.:
+                                        raise Exception("Tmax value %s: Tmax must be in range 700 to 800 ns" % t)
 			self.exec_insert(sql_map)
-		except cx_Oracle.IntegrityError, exc:
+		except cx_Oracle.IntegrityError as exc:
 			raise DataUniqueError(self,exc)
-		except Exception, exc:
+		except Exception as exc:
 			raise MapInsertError(self,exc)
     
 	def insert_rt(self,regionid):
@@ -958,9 +960,9 @@ class CalibData:
 		try: 
 				self.regionid = regionid
 				self.exec_insert(sql_rt)
-		except cx_Oracle.IntegrityError, exc:
+		except cx_Oracle.IntegrityError as exc:
 				raise DataUniqueError(self,exc)
-		except Exception, exc:
+		except Exception as exc:
 				raise RTInsertError(self,exc)
 
 	def insert_adc(self,tube_id,chamber_id,nhits,adc_0,adc_0_err,adc_1,adc_1_err,adc_2,adc_2_err,adc_3,adc_3_err,adc_chisquare):
@@ -975,9 +977,9 @@ class CalibData:
 		try:
 			self.exec_insert(sql_tube)
 			self.exec_insert(sql_tube_c)
-		except cx_Oracle.IntegrityError, exc:
+		except cx_Oracle.IntegrityError as exc:
 			raise DataUniqueError(self,exc)
-		except Exception, exc:
+		except Exception as exc:
 			raise ADCInsertError(self,exc)		
 	   
 	def insert_t0(self,tube_id,chamber_id, tzero,avg_adc,calibflag,stats,chi2,t0err,tmax,tmax_err,noise,noise_err,slope,slope_err):
@@ -999,9 +1001,9 @@ class CalibData:
 			self.exec_insert(sql_tube)
 			self.exec_insert(sql_tube_c)
 			self.exec_insert(sql_tube_v)
-		except cx_Oracle.IntegrityError, exc:
+		except cx_Oracle.IntegrityError as exc:
 			raise DataUniqueError(self,exc)
-		except Exception, exc:
+		except Exception as exc:
 			raise T0InsertError(self,exc)		
 			
 	# returns true on success or else throws DeleteError
@@ -1014,7 +1016,7 @@ class CalibData:
 
 		try:
 				self.exec_delete(sql,"meta")
-		except Exception, exc:
+		except Exception as exc:
 				raise DeleteError(self,exc)
 
 	def delete_rt(self,region=None):
@@ -1030,7 +1032,7 @@ class CalibData:
 		try:
 			self.exec_delete(sql_rt_map)	
 			self.exec_delete(sql_rt)						
-		except Exception, exc:
+		except Exception as exc:
 			raise DeleteError(self,exc)
 	
 	def delete_tube(self,tube=None,chamber=None):
@@ -1058,7 +1060,7 @@ class CalibData:
 			self.exec_delete(sql_tube_v)
 			self.exec_delete(sql_tube_c)
 			self.exec_delete(sql_tube)
-		except Exception, exc:
+		except Exception as exc:
 			raise DeleteError(self,exc)
 
 	def set_rt_valid(self,tube=None):
@@ -1071,7 +1073,7 @@ class CalibData:
 
 		try:
 			self.exec_insert(sql_valid)
-		except Exception, exc:
+		except Exception as exc:
 			raise UpdateError(self,exc)
 
 	def set_t0_valid(self,tube=None):
@@ -1084,7 +1086,7 @@ class CalibData:
 
 		try:
 			self.exec_insert(sql_valid)
-		except Exception, exc:   
+		except Exception as exc:   
 			raise DeleteError(self,exc)
 	
 	def fetch_head_data(self):
@@ -1095,7 +1097,7 @@ class CalibData:
 		
 		try:
 			self.mcursor.execute(sql)
-		except Exception, exc:
+		except Exception as exc:
 			raise QueryError(self,exc)
 			#"%-8s\t%-30s\t%-8s\t%-8s\t%-10s\t%-10s\t%-2s\t%-2s\t%-28s\n"
  #"%-8s%-30s%-8s%-8s%-10s%-10s%-2s%-2s%-28s\n"

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
@@ -27,8 +26,12 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <list>
 #include <map>
@@ -85,7 +88,7 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 const TrackQualityCuts&) const override;
@@ -93,7 +96,7 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const override;
@@ -101,14 +104,14 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracksWithBrem
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
 	 bool) const override;
    
-      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data) const override;
-      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data,
+      virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
+      virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
 
       virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const override;
@@ -127,10 +130,8 @@ namespace InDet {
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      /// @name Service and tool handles
+      /// @name Tool handles
       //@{
-      ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc",
-          "AtlasFieldSvc"};
       ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool",
           "PixelConditionsSummaryTool"};
       ToolHandle<IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool",
@@ -156,6 +157,7 @@ namespace InDet {
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
           "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
       //@}
 
       /// @name Properties
@@ -179,7 +181,7 @@ namespace InDet {
       bool findTrack
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
@@ -192,17 +194,17 @@ namespace InDet {
       void magneticFieldInit();
 
       bool spacePointsToClusters
-	(const std::list<const Trk::SpacePoint*>&,
+	(const std::vector<const Trk::SpacePoint*>&,
 	 std::list<const InDet::SiCluster*> &) const; 
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&) const;
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&) const;
 
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
 
-      void initializeCombinatorialData(SiCombinatorialTrackFinderData_xk& data) const;
+      void initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const;
 
     };
 

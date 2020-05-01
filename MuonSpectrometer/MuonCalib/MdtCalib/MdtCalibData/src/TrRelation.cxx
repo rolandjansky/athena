@@ -1,35 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 21.08.2009, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF CONSTRUCTORS AND METHODS DEFINED IN THE ::
-//::                    CLASS TrRelation                       ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <cmath>
 #include <iostream>
 
-// MuonCalib //
 #include "MdtCalibData/TrRelation.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -46,8 +25,8 @@ TrRelation::TrRelation(const IRtRelation &input_rt) {
   // step size in r
   double step_size(input_rt.radius(input_rt.tUpper())/
 		   static_cast<double>(nb_points-1));
-  m_r = vector<double>(nb_points);
-  m_t = vector<double>(nb_points);
+  m_r = std::vector<double>(nb_points);
+  m_t = std::vector<double>(nb_points);
 
 ///////////////////////////
 // FILL THE (r, t) PAIRS //
@@ -103,7 +82,6 @@ double TrRelation::tFromR(const double &r, bool &out_of_bound_flag) const {
     }
   }
   MsgStream log(Athena::getMessageSvc(), "TrRelation");
-  
   log<< MSG::ERROR << "Class TrRelation, method tFromR: ERROR!"<<endmsg;
   return 0.0;
 }  //end TrRelation::tFromR
@@ -139,8 +117,8 @@ double TrRelation::rFromT(const double &t, bool &out_of_bound_flag) const {
       return m_r[k]+(t-m_t[k])*(m_r[k+1]-m_r[k])/(m_t[k+1]-m_t[k]);
     }
   }
-  
-  cerr << "Class TrRelation, method rFromT: ERROR!\n";
+  MsgStream log(Athena::getMessageSvc(), "TrRelation");
+  log<< MSG::ERROR << "Class TrRelation, method rFromT: ERROR!"<<endmsg;
   return 0.0;
 }  //end TrRelation::rFromT
 
@@ -162,7 +140,7 @@ double TrRelation::getTFromR(const double & r, const IRtRelation & input_rt) {
 // SEARCH FOR THE CORRESPONDING DRIFT TIME //
 /////////////////////////////////////////////
   while (t_max-t_min>0.1 &&
-	 fabs(input_rt.radius(0.5*(t_min+t_max))-r)>precision) {
+	 std::abs(input_rt.radius(0.5*(t_min+t_max))-r)>precision) {
 
     if (input_rt.radius(0.5*(t_min+t_max))>r) {
       t_max = 0.5*(t_min+t_max);

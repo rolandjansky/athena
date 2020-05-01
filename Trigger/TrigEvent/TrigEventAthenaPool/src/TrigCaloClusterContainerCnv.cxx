@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloClusterContainerCnv.h"
@@ -30,7 +30,7 @@ TrigCaloClusterContainer * TrigCaloClusterContainerCnv::createTransient()
   static pool::Guid p3_guid( "98A28943-662A-4141-82C3-537447264DA3" );
 
  if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigCaloClusterContainer_p3 > col_vect( poolReadObject< TrigCaloClusterContainer_p3 >() );
+         std::unique_ptr< TrigCaloClusterContainer_p3 > col_vect( poolReadObject< TrigCaloClusterContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else { throw std::runtime_error( "Unsupported persistent version of TrigCaloClusterContainer" ); }

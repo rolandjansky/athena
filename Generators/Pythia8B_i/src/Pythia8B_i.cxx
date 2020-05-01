@@ -14,7 +14,7 @@
 #include "Pythia8B_i/Pythia8B_i.h"
 #include "Pythia8B_i/UserSelections.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -357,8 +357,6 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     evt->set_event_number(*(m_internalEventNumbers.begin()));
     m_pythiaToHepMC.fill_next_event(pyev, evt, 1);
     
-    // fill the pdf information
-    //m_pythiaToHepMC.put_pdf_info(evt, m_pythia, false);
     
     // set the randomseeds
     if(useRndmGenSvc() && Pythia8B_i::p_AtRndmGenSvc)
@@ -368,23 +366,14 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     evt->weights().push_back(m_pythia->info.weight());
     
     // Units correction
-#ifdef HEPMC_HAS_UNITS
     if(Pythia8_i::pythiaVersion() < 8.170 ){
         GeVToMeV(evt);
     }
-#else
-    ATH_MSG_DEBUG("Not scaling HepMC energies for Py8 > 8.153!");
-#endif
-    
-#ifndef HEPMC_HAS_UNITS
-    ATH_MSG_DEBUG();
-#endif
     
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());
     m_internalEventNumbers.erase(m_internalEventNumbers.begin());
     
-    //HepMC::GenEvent *evtCopy = new HepMC::GenEvent(*evt);
     
     return StatusCode::SUCCESS;
 }

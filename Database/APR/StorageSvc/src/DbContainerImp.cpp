@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -314,6 +314,6 @@ const DbSection& DbContainerImp::getSection(const Token::OID_t& oid)  const {
     }
   }
   if ( m_sections.size() > 0 ) return m_sections[0];
-  static DbSection s;
+  static const DbSection s;
   return s;
 }

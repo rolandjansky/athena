@@ -12,7 +12,7 @@
 #include "TruthHelper/IsGenNonInteracting.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include<cmath>
 
 #include<fstream>

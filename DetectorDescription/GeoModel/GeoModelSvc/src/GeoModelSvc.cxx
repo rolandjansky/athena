@@ -263,7 +263,8 @@ StatusCode GeoModelSvc::geoInit()
   }
 
   if(!m_ignoreTagSupport) {
-    RDBTagDetails atlasTagDetails = rdbAccess->getTagDetails(m_AtlasVersion);
+    RDBTagDetails atlasTagDetails;
+    rdbAccess->getTagDetails(atlasTagDetails, m_AtlasVersion);
     const coral::AttributeSpecification& supportedSpec = atlasTagDetails["SUPPORTED"].specification();
     if(supportedSpec.type()==typeid(bool)) {
       if(!atlasTagDetails["SUPPORTED"].data<bool>()) {

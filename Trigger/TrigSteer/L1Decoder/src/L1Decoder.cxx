@@ -6,7 +6,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigConfHLTData/HLTUtils.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)

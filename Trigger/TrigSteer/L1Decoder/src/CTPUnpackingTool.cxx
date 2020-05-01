@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 #include <boost/algorithm/string.hpp>
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"

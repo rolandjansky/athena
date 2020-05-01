@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Dumps the beam spot parameters to a text (ascii) file
 """
@@ -58,21 +61,21 @@ plotrange = int(options.plotrange) + 1
 outlierCut = 20
 plotSV = TH1D("p(s)SV","Pull vs # Tracks",plotrange*2,-.25,plotrange-.25) 
 
-for i in xrange(0,plotrange*2):
+for i in range(0,plotrange*2):
     nameSV = "plotSV%s" % i
     subplotSVs[nameSV]=TH1D(nameSV,nameSV,fitbins,-1*outlierCut,outlierCut) 
 
 splitfile.cd()
 tree = gDirectory.Get("splitVertex")
 entries = tree.GetEntriesFast()
-for entry in xrange(entries):
+for entry in range(entries):
     noprint = tree.GetEntry(entry)
     binSV = (tree.tracks_odd+tree.tracks_even)
     nameSV = "plotSV%i" % binSV
     if (binSV < (plotrange-1)*2 and tree.tracks_odd >= 4 and tree.tracks_even >= 4):
         subplotSVs[nameSV].Fill( (tree.x_odd - tree.x_even)/sqrt(tree.c00_odd+tree.c00_even) )
 
-for i in xrange(0,plotrange*2):
+for i in range(0,plotrange*2):
     nameSV = "plotSV%s" % i
     if subplotSVs[nameSV].Integral() > 2:
         fitsigma = subplotSVs[nameSV].GetRMS()
@@ -116,7 +119,7 @@ if gDirectory.Get("BeamSpotNt"):
 elif gDirectory.Get("Beamspot/Beamspots"):
     bstree = gDirectory.Get("Beamspot/Beamspots")
 entries = bstree.GetEntriesFast()
-for i in xrange(entries):
+for i in range(entries):
     noprint = bstree.GetEntry(i)
     if bstree.k != 0:
         lumibegin = bstree.lbStart
@@ -125,7 +128,7 @@ for i in xrange(entries):
         name = str(lumibegin) + "to" + str(lumiend)
         lumibins = lumibins + 1
         subplots[name]=TH1D(name,name,fitbins,-100,100)
-        for lb in xrange(lumibegin,lumiend+1):
+        for lb in range(lumibegin,lumiend+1):
             bstable[lb] = {}
             bstable[lb]["x0"] = bstree.x0
             bstable[lb]["y0"] = bstree.y0
@@ -141,14 +144,14 @@ lumiedge.append(lumiend)
 plotX = TH1D("p(s)X","k vs Lumi Block",lumibins,lumiedge) 
 plotBS = TH1D("p(s)bs","k vs Lumi Block",lumibins,lumiedge) 
 
-for i in xrange(0,21):
+for i in range(0,21):
     splitWeight.append(0.0)
     fullWeight.append(0.0)
 
 splitfile.cd()
 sptree = gDirectory.Get("splitVertex")
 entries = sptree.GetEntriesFast()
-for entry in xrange(entries):
+for entry in range(entries):
     noprint = sptree.GetEntry(entry)
     splitBin = int(.5*(sptree.tracks_odd + sptree.tracks_even) )
     if splitBin < 11: splitWeight[splitBin] = splitWeight[splitBin] + 1.0
@@ -160,20 +163,20 @@ if gDirectory.Get('Vertices'):
 elif gDirectory.Get('Beamspot/Vertices'):
     vxtree = gDirectory.Get('Beamspot/Vertices')
 entries = vxtree.GetEntriesFast()
-for entry in xrange(entries):
+for entry in range(entries):
     noprint = vxtree.GetEntry(entry)
     fullBin = vxtree.nTracks
     if fullBin < 11: fullWeight[fullBin] = fullWeight[fullBin] + 1.0
     else: fullWeight[11] = fullWeight[11] + 1.0
 
-for i in xrange(0,len(splitWeight)):
+for i in range(0,len(splitWeight)):
     if splitWeight[i] != 0 and fullWeight[i] != 0:
         splitWeight[i] = fullWeight[i]/splitWeight[i]
 
 splitfile.cd()
 sptree = gDirectory.Get("splitVertex")
 entries = sptree.GetEntriesFast()
-for entry in xrange(entries):
+for entry in range(entries):
     noprint = sptree.GetEntry(entry)
     lumi = sptree.lumi
     if not lumi in bstable.keys(): continue
@@ -261,7 +264,7 @@ elif gDirectory.Get('Beamspot/Beamspots'):
     bstree = gDirectory.Get('Beamspot/Beamspots')
 #bstree = gDirectory.Get("BeamSpotNt")
 entries = bstree.GetEntriesFast()
-for i in xrange(entries):
+for i in range(entries):
     noprint = bstree.GetEntry(i)
     fitsigma = bstree.k
     fserror = sqrt(bstree.kk)
@@ -279,8 +282,8 @@ for i in xrange(entries):
 bsavg = sumwx/sumw
 bserr = 1.0/sumw
 
-print "Splitting: ",vsavg," +- ",vserr
-print "Beam spot: ",bsavg," +- ",bserr
+print ("Splitting: ",vsavg," +- ",vserr)
+print ("Beam spot: ",bsavg," +- ",bserr)
 
 canvas.cd(2)
 

@@ -1,5 +1,5 @@
 
-print 'Loading default InDetAlignExample_Flags'
+printfunc ('Loading default InDetAlignExample_Flags')
 include.block("InDetAlignExample/InDetAlignExample_Flags.py")
 
 # Default options 

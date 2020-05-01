@@ -9,7 +9,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: 900GeV-BSToDPDTemplate.py 279935 2010-02-16 23:18:33Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: 900GeV-BSToDPDTemplate.py 279935 2010-02-16 23:18:33Z beringer $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -126,8 +126,6 @@ InDetFlags.doTruth       = jobConfig['doTruth']
 #InDetFlags.doLowPt        = True
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doSingleSpBackTracking = True
@@ -218,7 +216,7 @@ if not jobConfig['hasMag']:
 if 'InDetPriVxFinderTool' in dir() and hasattr(InDetPriVxFinderTool,'enableMultipleVertices'):
     InDetPriVxFinderTool.enableMultipleVertices = 0
 
-print ToolSvc.InDetDetailedTrackSelectorTool
+printfunc (ToolSvc.InDetDetailedTrackSelectorTool)
 
 
 # General job setup

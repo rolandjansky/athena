@@ -18,13 +18,9 @@
 
 #include "VxVertex/RecVertex.h"
 
-// xAOD Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-
-namespace Trk {
-  class ITrackSelectorTool;
-  class IParticleCaloExtensionTool;
-}
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -97,41 +93,28 @@ private:
     //-------------------------------------------------------------
     //! tools
     //-------------------------------------------------------------
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
-    ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
-    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool for the extrapolation of charged tracks"};
+    ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau {this, "TrackSelectorToolTau", "", "Tool for track selection"};
+    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool {this, "TrackToVertexTool", "Reco::TrackToVertex"};
     //output particle calo extension collection
     SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
       "tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
-    //-------------------------------------------------------------
-    //! Input parameters for algorithm
-    //-------------------------------------------------------------
-    double  m_maxJetDr_tau;
-    double  m_maxJetDr_wide;
+    Gaudi::Property<double>  m_maxJetDr_tau {this, "MaxJetDrTau", 0.2};
+    Gaudi::Property<double> m_maxJetDr_wide {this, "MaxJetDrWide", 0.4};
+   
+    Gaudi::Property<bool> m_applyZ0cut {this, "removeTracksOutsideZ0wrtLeadTrk", false};
+    Gaudi::Property<float> m_z0maxDelta {this, "maxDeltaZ0wrtLeadTrk", 1000};
     
-    //-------------------------------------------------------------
-    // z0 cuts
-    //-------------------------------------------------------------
-    float m_z0maxDelta;
-    bool m_applyZ0cut;
-    bool m_storeInOtherTrks;
-    bool m_removeDuplicateCoreTracks;
-    
-    //-------------------------------------------------------------
-    // Bypass TrackSelectorTool / Extrapolation
-    //-------------------------------------------------------------
-    bool m_bypassSelector;
-    bool m_bypassExtrapolator;
-
-    //-------------------------------------------------------------
-    // Sets of EM/Had samplings for track extrapolation 
-    //-------------------------------------------------------------
-    std::set<CaloSampling::CaloSample> m_EMSamplings;
-    std::set<CaloSampling::CaloSample> m_HadSamplings;
+    Gaudi::Property<bool> m_storeInOtherTrks {this, "StoreRemovedCoreWideTracksInOtherTracks", true};
+    Gaudi::Property<bool> m_removeDuplicateCoreTracks {this, "removeDuplicateCoreTracks", true};
+    Gaudi::Property<bool> m_bypassSelector {this, "BypassSelector", false};
+    Gaudi::Property<bool> m_bypassExtrapolator {this, "BypassExtrapolator", false};
 
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
-
+    
+    std::set<CaloSampling::CaloSample> m_EMSamplings;
+    std::set<CaloSampling::CaloSample> m_HadSamplings;
 };
 
 #endif //TAUREC_TAUTRACKFINDER_H

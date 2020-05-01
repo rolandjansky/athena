@@ -24,7 +24,9 @@ PrescalingTool::~PrescalingTool()
 StatusCode
 PrescalingTool::initialize()
 {
-   CHECK(m_hltPrescaleSetInputKey.initialize( ! m_hltPrescaleSetInputKey.key().empty() ));
+   ATH_CHECK(m_hltPrescaleSetInputKey.initialize( ! m_hltPrescaleSetInputKey.key().empty() ));
+   if ( !m_monTool.empty() ) ATH_CHECK(m_monTool.retrieve());
+
    return StatusCode::SUCCESS;
 }
 
@@ -58,6 +60,9 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
 
    // access to psk
    ATH_MSG_DEBUG("Using HLT PSK " << hltPrescaleSet->psk());
+   auto mon_lb = Monitored::Scalar<int>("LB", [&](){ return ctx.eventID().lumi_block(); });
+   auto mon_psk = Monitored::Scalar<std::string>("HLTPSK", [&](){ return std::to_string(hltPrescaleSet->psk()); });
+   auto mon = Monitored::Group(m_monTool, mon_lb, mon_psk);
 
    // prepare the result
    remainActive.reserve( initiallyActive.size() );

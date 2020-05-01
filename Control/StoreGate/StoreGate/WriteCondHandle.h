@@ -40,8 +40,11 @@ namespace SG {
     const std::string& key() const { return m_hkey.key(); }
     const DataObjID& fullKey() const { return m_hkey.fullKey(); }
 
-    bool isValid();
+    bool isValid() const;
     bool isValid(const EventIDBase& t) const;
+
+    bool isValid(EventIDRange& range) const;
+    bool isValid(const EventIDBase& t, EventIDRange& range) const;
 
     template <typename R>
     void addDependency(SG::ReadCondHandle<R>& rch);
@@ -243,9 +246,28 @@ namespace SG {
 
   template <typename T>
   bool 
-  WriteCondHandle<T>::isValid() {
+  WriteCondHandle<T>::isValid() const {
 
     return (m_cc->valid(m_ctx.eventID()));
+  }
+
+  //---------------------------------------------------------------------------
+
+  template <typename T>
+  bool 
+  WriteCondHandle<T>::isValid(const EventIDBase& t, EventIDRange& range) const {
+
+    return (m_cc->range(t, range));
+  }
+
+
+  //---------------------------------------------------------------------------
+
+  template <typename T>
+  bool 
+  WriteCondHandle<T>::isValid (EventIDRange& range) const {
+
+    return (m_cc->range(m_ctx.eventID(), range));
   }
 
   //---------------------------------------------------------------------------

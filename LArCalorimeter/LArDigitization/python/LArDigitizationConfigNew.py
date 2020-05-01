@@ -16,6 +16,7 @@ from Digitization.PileUpToolsConfig import PileUpToolsCfg
 # for Digitization
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
 from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
@@ -162,6 +163,9 @@ def LArOutputCfg(flags):
             ]
         if flags.Detector.SimulateHGTD:
             ItemList += ["LArHitContainer#HGTDDigitContainer_MC"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["CaloCalibrationHitContainer#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
         acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
@@ -236,6 +240,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
 def LArTriggerDigitizationCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower and Output"""
     acc = LArTriggerDigitizationBasicCfg(flags)
+    acc.merge(LArOutputCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
     return acc
 

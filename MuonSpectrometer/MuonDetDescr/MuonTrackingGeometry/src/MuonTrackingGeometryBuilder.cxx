@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -2027,8 +2027,6 @@ bool Muon::MuonTrackingGeometryBuilder::enclosed(const Trk::Volume* vol, const M
     phiLim = true;
   } 
   //
-  //const Muon::Span* s = findVolumeSpan(&(cs->volumeBounds()), cs->transform(), 0.,0.) ;
-  //std::auto_ptr<const Muon::Span> s (findVolumeSpan(&(cs->volumeBounds()), cs->transform(), 0.,0.) );
   ATH_MSG_VERBOSE( "enclosing volume:z:"<< zMin<<","<<zMax<<":r:"<< rMin<<","<<rMax<<":phi:"<<pMin<<","<<pMax);
   //
   bool rLimit = (!aLVC.m_static3d || ( (*s)[4] < rMax-tol && (*s)[5] > rMin+tol ) ); 

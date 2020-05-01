@@ -17,9 +17,9 @@ DetFlags.detdescr.Calo_setOn()
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 globalflags.DataSource.set_Value_and_Lock('geant4')  # geant4 or data
-print globalflags
+printfunc (globalflags)
 include ("RecExCond/AllDet_detDescr.py")
-print svcMgr.IOVDbSvc
+printfunc (svcMgr.IOVDbSvc)
 svcMgr.IOVDbSvc.DBInstance=''
 
 # Set the input file

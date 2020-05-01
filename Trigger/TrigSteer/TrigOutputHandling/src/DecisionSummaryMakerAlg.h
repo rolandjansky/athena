@@ -6,7 +6,7 @@
 
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 

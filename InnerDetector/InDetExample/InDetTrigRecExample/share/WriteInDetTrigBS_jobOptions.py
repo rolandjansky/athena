@@ -28,8 +28,6 @@ doVP1 = False
 from InDetRecExample.InDetJobProperties import InDetFlagsJobProperty
 
 InDetFlagsJobProperty.preProcessing = False
-InDetFlagsJobProperty.iPatRec = False
-InDetFlagsJobProperty.xKalman = False
 InDetFlagsJobProperty.newTracking = False
 InDetFlagsJobProperty.postProcessing = False
 InDetFlagsJobProperty.doTruth = False

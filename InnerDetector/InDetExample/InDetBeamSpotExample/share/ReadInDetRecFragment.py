@@ -7,7 +7,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using ReadInDetRecFragment.py atlas/athena"
+printfunc ("InDetBeamSpotExample INFO Using ReadInDetRecFragment.py atlas/athena")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -64,7 +64,7 @@ doWriteESD = False and readESD
 doWriteAOD = False # jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing'] or jobConfig['doForceWriteDPD']
 
 
-print jobConfig['inputfiles']
+printfunc (jobConfig['inputfiles'])
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = jobConfig['inputfiles']
 
@@ -111,22 +111,22 @@ if redoPatternRecoAndTracking and reDoParticleCreation:
   reDoPrimaryVertexing = True
 
 if not (readESD or readAOD):
-  print "You have to turn on reading of ESD or AOD! That's the purpose of this jobO!"
+  printfunc ("You have to turn on reading of ESD or AOD! That's the purpose of this jobO!")
 if readESD and readAOD:
-  print "I can either read ESD or AOD but not both at the same time! Turn one or the other off!"
+  printfunc ("I can either read ESD or AOD but not both at the same time! Turn one or the other off!")
 if readESD and reDoPrimaryVertexing and not reDoParticleCreation:
-  print "INFO! You are running on ESD, redoing the vertexing but not recreating the TrackParticles!"
-  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  printfunc ("INFO! You are running on ESD, redoing the vertexing but not recreating the TrackParticles!")
+  printfunc ("INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!")
   if doWriteESD or doWriteAOD:
-    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new ESD/AOD!"
+    printfunc ("INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new ESD/AOD!")
 if readAOD and reDoPrimaryVertexing:
-  print "INFO! You are running on AOD, and redoing the vertexing. At the moment new track particles cannot be made from old ones."
-  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  printfunc ("INFO! You are running on AOD, and redoing the vertexing. At the moment new track particles cannot be made from old ones.")
+  printfunc ("INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!")
   if doWriteAOD:
-    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new AOD!"
+    printfunc ("INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new AOD!")
 if doRefitTracks and (reDoPrimaryVertexing or reDoParticleCreation):
-  print "INFO! You are refitting tracks and also revertex and/or recreate track particles"
-  print "INFO! The input for that will be the refitted tracks!"
+  printfunc ("INFO! You are refitting tracks and also revertex and/or recreate track particles")
+  printfunc ("INFO! The input for that will be the refitted tracks!")
 
 
 #--------------------------------------------------------------
@@ -213,14 +213,12 @@ InDetFlags.preProcessing      = redoPatternRecoAndTracking
 InDetFlags.doPRDFormation        = False                       # those two will be (later) automatically false if
 InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing is false
 InDetFlags.doNewTracking      = redoPatternRecoAndTracking
-InDetFlags.doiPatRec          = False
-InDetFlags.doxKalman          = False
 InDetFlags.doLowPt            = jobConfig['doLowPt']
 if jobConfig['doRobustReco']:
     try:
         InDetFlags.doRobustReco = True
     except:
-        print 'ERROR: Unable to set InDetFlags.doRobustReco = True'
+        printfunc ('ERROR: Unable to set InDetFlags.doRobustReco = True')
 InDetFlags.doBackTracking     = redoPatternRecoAndTracking
 InDetFlags.doTRTStandalone    = redoPatternRecoAndTracking
 InDetFlags.doTrtSegments      = redoPatternRecoAndTracking
@@ -273,7 +271,7 @@ from InDetRecExample.InDetKeys import InDetKeys
 if InDetFlags.doVertexFinding() and readAOD:
   InDetKeys.Tracks = InDetKeys.TrackParticles()
   if jobConfig['doPrintIndetConfig']:
-    print "InDetKeys.Tracks = "+InDetKeys.Tracks()
+    printfunc ("InDetKeys.Tracks = "+InDetKeys.Tracks())
 
 if readESD and not redoPatternRecoAndTracking:
   InDetKeys.UnslimmedTracks              = 'Tracks'
@@ -287,14 +285,14 @@ try:
   if doWriteAOD:
     InDetKeys.OutputAODFileName = jobConfig['outputfile']
 except:
-  print "WARNING: Release doesn't seem to have fix for missing version tags - will try to apply patch"
+  printfunc ("WARNING: Release doesn't seem to have fix for missing version tags - will try to apply patch")
   needsOutputFilePatch = True
 else:
   needsOutputFilePatch = False
 
 InDetKeys.lockAllExceptAlias()
 if jobConfig['doPrintIndetConfig']:
-  print "Printing InDetKeys"
+  printfunc ("Printing InDetKeys")
   InDetKeys.print_JobProperties()
 
 

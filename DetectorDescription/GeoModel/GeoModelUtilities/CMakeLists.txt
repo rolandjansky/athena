@@ -26,7 +26,7 @@ atlas_add_library( GeoModelUtilities
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelUtilities
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools 
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools GeoModelInterfaces
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_test( GeoGetIds_test

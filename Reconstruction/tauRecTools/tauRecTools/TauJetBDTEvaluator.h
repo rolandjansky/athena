@@ -7,7 +7,7 @@
 
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/HelperFunctions.h"
+#include "tauRecTools/BDTHelper.h"
 
 /**
  * @brief Implementation of a generic BDT for tau ID
@@ -28,21 +28,21 @@ class TauJetBDTEvaluator
   virtual ~TauJetBDTEvaluator() { }
     
   StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode execute(xAOD::TauJet& xTau) override
+  {
+    return static_cast<const TauJetBDTEvaluator*>(this)->execute(xTau);
+  }
+  StatusCode execute(xAOD::TauJet& xTau) const;
   StatusCode finalize() override;
   
  private:
-
+  std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
   std::string m_weightsFile;
   std::string m_outputVarName;
-
-  std::unique_ptr<tauRecTools::TRTBDT> m_myBdt;
   int m_minNTracks;
   int m_maxNTracks;
   float m_minAbsTrackEta;
   float m_maxAbsTrackEta;
-  float m_dummyValue;// in case no configs are set, set a dummy value.
-
-  bool m_isGrad;
+  float m_dummyValue;
 };
 #endif

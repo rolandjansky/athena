@@ -13,7 +13,6 @@
 
 
 #include <AsgTools/AsgTool.h>
-#include <AsgTools/Deprecated.h>
 #include <AsgTools/ToolHandle.h>
 #include <atomic>
 #include <list>
@@ -824,22 +823,22 @@ namespace asg
     bool isConfigurable () const;
 
   public:
-    ASG_DEPRECATED ("please use isInitialized() instead")
+    [[deprecated("please use isInitialized() instead")]]
     bool inPremakeState () const noexcept {
       return !isInitialized();}
 
   public:
-    ASG_DEPRECATED ("please use isInitialized() instead")
+    [[deprecated("please use isInitialized() instead")]]
     bool inBrokenState () const noexcept {
       return false;};
 
   public:
-    ASG_DEPRECATED ("no longer need to call make()")
+    [[deprecated("no longer need to call make()")]]
     StatusCode make () {
       return StatusCode::SUCCESS;};
 
   public:
-    ASG_DEPRECATED ("please use setType() or setTypeAndName() instead")
+    [[deprecated("please use setType() or setTypeAndName() instead")]]
     StatusCode make (std::string val_type) noexcept {
       if (!val_type.empty()) {
 	if (val_type.find ('/') != std::string::npos)
@@ -849,14 +848,14 @@ namespace asg
       return StatusCode::SUCCESS; };
 
   // public:
-  //   ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
+  //   [[deprecated]] ("please use either getHandle() or declarePropertyFor() instead")
   //   ToolHandle<T>& handle () {
   //     return *m_handleUser;};
 
 #ifdef XAOD_STANDALONE
   public:
     template<class T2>
-    ASG_DEPRECATED ("please use setTypeRegisterNew() instead")
+    [[deprecated("please use setTypeRegisterNew() instead")]]
     StatusCode makeNew (std::string val_type) {
       setTypeRegisterNew<T2> (std::move (val_type));
       return StatusCode::SUCCESS;}

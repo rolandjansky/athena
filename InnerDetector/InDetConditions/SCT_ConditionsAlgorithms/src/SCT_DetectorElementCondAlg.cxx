@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -60,7 +60,6 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // ____________ Construct new Write Cond Object ____________
   std::unique_ptr<InDetDD::SiDetectorElementCollection> writeCdo{std::make_unique<InDetDD::SiDetectorElementCollection>()};
-  EventIDRange rangeW;
 
   // ____________ Get Read Cond Object ____________
   SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey, ctx};
@@ -70,11 +69,8 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
-  // Define validity of the output cond object and record it
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   // ____________ Update writeCdo using readCdo ____________
   std::map<const InDetDD::SiDetectorElement*, const InDetDD::SiDetectorElement*> oldToNewMap;
@@ -118,13 +114,13 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // Record WriteCondHandle
   const std::size_t size{writeCdo->size()};
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " with size of " << size << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " with size of " << size << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

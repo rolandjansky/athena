@@ -2,10 +2,12 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 def regSelCfg( flags ):
     """ Configures Region Selector Svc according to the detector flags """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from RegionSelector.RegionSelectorConf import RegSelSvc
+    RegSelSvc=CompFactory.RegSelSvc
     from AthenaCommon.SystemOfUnits import mm
     acc = ComponentAccumulator()
 
@@ -18,7 +20,7 @@ def regSelCfg( flags ):
         from LArGeoAlgsNV.LArGMConfig import LArGMCfg
         acc.merge( LArGMCfg(  flags ) )
 
-        from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
+        LArRegionSelectorTable=CompFactory.LArRegionSelectorTable
         regSel.LArRegionSelectorTable = LArRegionSelectorTable(name="LArRegionSelectorTable")
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -31,13 +33,13 @@ def regSelCfg( flags ):
         acc.merge( TileGMCfg( flags ) )
         acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
-        from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
+        TileRegionSelectorTable=CompFactory.TileRegionSelectorTable
         regSel.TileRegionSelectorTable = TileRegionSelectorTable(name="TileRegionSelectorTable")
 
     if flags.Detector.GeometryPixel:
         regSel.enableID = True
         regSel.enablePixel = True        
-        from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+        SiRegionSelectorTable=CompFactory.SiRegionSelectorTable
         regSel.PixelRegionLUT_CreatorTool = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
                                                                   ManagerName = "Pixel",
                                                                   OutputFile  = "RoITablePixel.txt",
@@ -47,7 +49,7 @@ def regSelCfg( flags ):
     if flags.Detector.GeometrySCT:
         regSel.enableID = True
         regSel.enableSCT = True
-        from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+        SiRegionSelectorTable=CompFactory.SiRegionSelectorTable
         regSel.SCT_RegionLUT_CreatorTool = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
                                                                  ManagerName = "SCT",
                                                                  OutputFile  = "RoITableSCT.txt",
@@ -57,7 +59,7 @@ def regSelCfg( flags ):
     if flags.Detector.GeometryTRT:
         regSel.enableID = True
         regSel.enableTRT = True
-        from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
+        TRT_RegionSelectorTable=CompFactory.TRT_RegionSelectorTable
         regSel.TRT_RegionLUT_CreatorTool = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
                                                                    ManagerName = "TRT",
                                                                    OutputFile  = "RoITableTRT.txt",
@@ -69,28 +71,28 @@ def regSelCfg( flags ):
         regSel.enableRPC  = False
     else:
         regSel.enableMuon = True
-        from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
+        RPC_RegionSelectorTable=CompFactory.RPC_RegionSelectorTable
         regSel.RPCRegionSelectorTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
 
     if not flags.Detector.GeometryMDT:
         regSel.enableMDT  = False
     else:
         regSel.enableMuon = True
-        from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
+        MDT_RegionSelectorTable=CompFactory.MDT_RegionSelectorTable
         regSel.MDTRegionSelectorTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
 
     if not flags.Detector.GeometryTGC:
         regSel.enableTGC  = False
     else:
         regSel.enableMuon = True
-        from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
+        TGC_RegionSelectorTable=CompFactory.TGC_RegionSelectorTable
         regSel.TGCRegionSelectorTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
 
     if not flags.Detector.GeometryCSC:
         regSel.enableCSC  = False
     else:
         regSel.enableMuon = True
-        from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
+        CSC_RegionSelectorTable=CompFactory.CSC_RegionSelectorTable
         regSel.CSCRegionSelectorTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
     if not flags.Detector.GeometryMM:
@@ -105,8 +107,6 @@ def regSelCfg( flags ):
 
 if __name__ == "__main__":
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -144,15 +144,15 @@ if __name__ == "__main__":
     cfg.merge( acc )
 
 
-    from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg
+    RegSelTestAlg=CompFactory.RegSelTestAlg
     testerAlg = RegSelTestAlg()
     testerAlg.Mt=True    
     testerAlg.OutputLevel=DEBUG
     cfg.addEventAlgo( testerAlg )
-    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
     apcs=AthenaPoolCnvSvc()
     cfg.addService(apcs)
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     cfg.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     cfg.getService("IOVDbSvc").OutputLevel=DEBUG

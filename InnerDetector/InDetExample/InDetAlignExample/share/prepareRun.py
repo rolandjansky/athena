@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 ##########################################################
 #             Auxiliary code                             #
 ##########################################################
@@ -45,9 +47,9 @@ if __name__ == '__main__':
     parser.add_option("--run", type="int", dest="num")
     (options, args) = parser.parse_args()
 
-    print '###############################################'
-    print '####### Setting up directory for Run', options.num
-    print '###############################################'
+    print ('###############################################')
+    print ('####### Setting up directory for Run', options.num)
+    print ('###############################################')
     
     
     testarea = os.environ['TestArea']
@@ -60,7 +62,7 @@ if __name__ == '__main__':
     lbrange = getLBrange(options.num)
     firstLB = lbrange[0]
     lastLB = lbrange[1]
-    #print " LBrange: ", firstLB, " --> ", lastLB 
+    #print (" LBrange: ", firstLB, " --> ", lastLB )
         
     f1=open(run_command, 'w+')
     f1.write("python TotalIterator.py --inputList \"/afs/cern.ch/work/m/martis/public/athena/BowTest/data15_13TeV/data/Run_%i_calibration_IDTracks.txt\" --eventType \"collisions\" --isData True --nEvents 100000 --nCpus 20 --ptmin 5000 --inputBowingDb \"%s/InnerDetector/InDetExample/InDetAlignExample/BowingDB/BowingNULL.db\" --useLBselector --FirstLB %i --LastLB %i --NLB 100 --suffix %i --nIter 2 --queue 8nh" % (options.num, testarea, firstLB, lastLB, options.num))

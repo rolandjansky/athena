@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import getopt
 import sys
 import CalibDbDefaults
@@ -54,11 +56,11 @@ if not cool_tag:
 	cool_tag = GetFolderTag(cool_database_string, cool_folder)
 	
 outfile.mkdir("cool").cd()
-print "Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag + " " + str(run_number)
+print ("Cool database: " + cool_database_string + " " + cool_folder + " " + cool_tag + " " + str(run_number))
 cool_gr, cool_sp, dummy=ReadRtCool(cool_database_string, cool_folder, cool_tag, run_number)
 
 outfile.mkdir("calibdb").cd()
-print "Calibration database: " + db + "/" + str(head_id)
+print ("Calibration database: " + db + "/" + str(head_id))
 calib_gr, calib_sp=ReadRtCalibDb(db, reader_password, head_id)
 
 outfile.cd()
@@ -85,7 +87,7 @@ tree.Branch("dt13",  dt13, "dt13/F")
 tree.Branch("dr13",  dr13, "dr13/F")
 
 for chamber_id in cool_gr:
-	if not calib_gr.has_key(chamber_id):
+	if chamber_id not in calib_gr:
 		continue
 	region_id[0]=chamber_id
 	up=MuonFixedIdUnpack(chamber_id)

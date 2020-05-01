@@ -6,8 +6,8 @@
 #define TrigPartialEventBuilding_PEBInfoWriterToolBase_h
 
 // Trigger includes
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 // Athena includes

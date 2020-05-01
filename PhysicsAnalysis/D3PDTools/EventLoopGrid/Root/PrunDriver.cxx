@@ -38,10 +38,8 @@
 #include <string>
 #include <vector>
 
-#if __cplusplus >= 201103L
 #include "pool.h"
 #include <mutex>
-#endif
 
 ClassImp(EL::PrunDriver)
 
@@ -242,10 +240,8 @@ static Status::Enum download(SH::Sample* const sample)
   RCU_REQUIRE(sample);
 
   {
-#if __cplusplus >= 201103L
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
-#endif
     std::cout << "Downloading output from: " 
 	      << sample->name() << "..." << std::endl;
   }
@@ -355,8 +351,6 @@ static void processAllInState(const SH::SampleHandler& sh, JobState::Enum state,
 {
   RCU_REQUIRE(sh.size());
 
-#if __cplusplus >= 201103L
-
   WorkList workList;
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
     if (sampleState(*s) == state) {
@@ -364,16 +358,6 @@ static void processAllInState(const SH::SampleHandler& sh, JobState::Enum state,
     }
   }    
   process(workList, nThreads);
-
-#else
-
-  for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
-    if (sampleState(*s) == state) {
-      processTask(*s);
-    }
-  }    
-
-#endif
 
 }
 
@@ -554,7 +538,7 @@ doManagerStep (Detail::ManagerData& data) const
 ::StatusCode EL::PrunDriver::doRetrieve (Detail::ManagerData& data) const 
 {
   RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());  
+  RCU_REQUIRE(not data.submitDir.empty());  
 
   TmpCd tmpDir(data.submitDir);
 

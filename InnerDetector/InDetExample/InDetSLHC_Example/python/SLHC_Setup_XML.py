@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ SLHC_Setup
     Python module to hold storegate keys of InDet objects.
@@ -19,18 +21,18 @@ class SLHC_Setup_XMLReader :
     def __init__(self,**kwargs):
 
         from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
-        print dir(XMLReaderFlags)
+        print (dir(XMLReaderFlags))
         if XMLReaderFlags.Initialized(): return
 
         import os, shutil
         from PyJobTransformsCore.envutil import find_file_env
 
-        print "*******************************************************************************************"
-        print "*******************************************************************************************"
-        print "*******************************************************************************************"
+        print ("*******************************************************************************************")
+        print ("*******************************************************************************************")
+        print ("*******************************************************************************************")
 
         for key in kwargs:
-            print "another keyword arg: %s: %s" % (key, kwargs[key])
+            print ("another keyword arg: %s: %s" % (key, kwargs[key]))
         
         #--------------------------------------------------------------
         # XML reader
@@ -41,9 +43,9 @@ class SLHC_Setup_XMLReader :
         xmlReader = InDet__XMLReaderSvc(name='InDetXMLReaderSvc')
 
         dictionaryFileName = ""
-        if kwargs.has_key("dictionaryFileName"): dictionaryFileName = kwargs["dictionaryFileName"]
+        if "dictionaryFileName" in kwargs: dictionaryFileName = kwargs["dictionaryFileName"]
         createXML = False
-        if kwargs.has_key("createXML"): createXML = kwargs["createXML"]
+        if "createXML" in kwargs: createXML = kwargs["createXML"]
         doPix = kwargs["doPix"]
         doSCT = kwargs["doSCT"]
         
@@ -51,7 +53,7 @@ class SLHC_Setup_XMLReader :
         PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
         PIXBARRELFILE = str(kwargs["PixelLayout"]) + "_PixelBarrel.xml"
         PIXENDCAPFILE = str(kwargs["PixelLayout"]) + "_PixelEndcap.xml"
-        if kwargs.has_key("PixelEndcapLayout"): PIXENDCAPFILE = str(kwargs["PixelEndcapLayout"]) + "_PixelEndcap.xml"
+        if "PixelEndcapLayout" in kwargs: PIXENDCAPFILE = str(kwargs["PixelEndcapLayout"]) + "_PixelEndcap.xml"
         
         SCTMODULEFILE = "ITK_SCTModules.xml"
         SCTSTAVEFILE  = str(kwargs["SCTLayout"]) + "_SCTStave.xml"
@@ -64,7 +66,7 @@ class SLHC_Setup_XMLReader :
         ##     os.makedirs(dictDir)
 
         ###### Setup XMLreader flags
-        print "**** FLAGS **************************************************"
+        print ("**** FLAGS **************************************************")
         XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH'),
                                            PixelEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH'),
                                            SCTBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH'),
@@ -73,12 +75,12 @@ class SLHC_Setup_XMLReader :
                                            doSCT = kwargs["doSCT"]
                                            )
         XMLReaderFlags.dump()
-        print "******************************************************"
+        print ("******************************************************")
 
         ###### Setup XML builders properties ######
         xmlReader.dictionaryFileName  = kwargs["dictionaryFileName"]
         xmlReader.createXMLDictionary = False
-        if kwargs.has_key("createXML"): xmlReader.createXMLDictionary = kwargs["createXML"]
+        if "createXML" in kwargs: xmlReader.createXMLDictionary = kwargs["createXML"]
         xmlReader.doPix = XMLReaderFlags.doPix()
         xmlReader.doSCT = XMLReaderFlags.doSCT()
 
@@ -103,4 +105,4 @@ class SLHC_Setup_XMLReader :
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr += xmlReader
         theApp.CreateSvc.insert(0,"InDet::XMLReaderSvc/InDetXMLReaderSvc")
-#        print svcMgr
+#        print (svcMgr)

@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TStore.h 663791 2015-04-29 13:08:06Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TSTORE_H
 #define XAODROOTACCESS_TSTORE_H
 
@@ -17,9 +14,7 @@
 #include <Rtypes.h>
 
 // EDM include(s):
-#ifndef __CINT__
-#   include "AthContainers/ConstDataVector.h"
-#endif // __CINT__
+#include "AthContainers/ConstDataVector.h"
 
 // Local include(s):
 #include "xAODRootAccess/tools/TReturnCode.h"
@@ -43,9 +38,6 @@ namespace xAOD {
    /// directly is usually a better approach than using a store in my mind...)
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 663791 $
-   /// $Date: 2015-04-29 15:08:06 +0200 (Wed, 29 Apr 2015) $
    ///
    class TStore {
 
@@ -118,12 +110,10 @@ namespace xAOD {
       /// Function recording an object that has no dictionary
       TReturnCode record( void* obj, const std::string& key,
                           const std::type_info& ti );
-#if !defined(__GCCXML__) and !defined(__CINT__)
       /// Function doing the first step of recording a ConstDataVector object
       template< class T >
       TReturnCode record( ConstDataVector< T >* obj, const std::string& key,
                           const std::type_info& ti );
-#endif // not __GCCXML__ or __CINT__
       /// Function doing the second step of recording a ConstDataVector object
       TReturnCode record( THolder* hldr, const std::string& key );
 
@@ -155,9 +145,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Include the template implementation:
-#if !defined(__GCCXML__) and !defined(__CINT__)
-#   include "TStore.icc"
-#endif // not __GCCXML__ or __CINT__
+// Include the template implementation.
+#include "TStore.icc"
 
 #endif // XAODROOTACCESS_TSTORE_H

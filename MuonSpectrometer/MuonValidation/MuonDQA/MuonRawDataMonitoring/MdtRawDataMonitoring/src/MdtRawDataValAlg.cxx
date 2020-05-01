@@ -330,7 +330,6 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
         return sc;
        }
      m_firstTime = m_time;
-    //std::cout << "m_firstTime listed as: " << m_firstTime << std::endl; 
  
     sc= GetEventNum();
                         if (sc.isFailure()){
@@ -574,15 +573,17 @@ StatusCode MdtRawDataValAlg::fillHistograms()
         if( isHit_above_ADCCut ) 
           nColl_ADCCut++;
       } //loop in MdtPrepDataContainer
+
       int nHighOccChambers = 0;
       std::map<std::string,float>::iterator iterstat;
 
       for( iterstat = evnt_hitsperchamber_map.begin(); iterstat != evnt_hitsperchamber_map.end(); ++iterstat ) {
-          std::map<std::string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
-          float nTubes = iter_tubesperchamber->second;
-          float hits = iterstat->second;
-          float occ = hits/nTubes;
-          if ( occ > 0.1 ) nHighOccChambers++;
+	std::string hardware_name = iterstat->first;
+	std::map<std::string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
+	float nTubes = iter_tubesperchamber->second;
+	float hits = iterstat->second;
+	float occ = hits/nTubes;
+	if ( occ > 0.1 ) nHighOccChambers++;
       }
       if (m_nummdtchamberswithHighOcc) m_nummdtchamberswithHighOcc->Fill(nHighOccChambers);
       else {ATH_MSG_DEBUG("m_nummdtchamberswithHighOcc not in hist list!" );}
@@ -634,7 +635,6 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 
       //if(nPrdcut > 20000){
         //int realTime = m_time - m_firstTime;
-        //std::cout << "printing out time... " << m_time << "and the time difference: " << realTime << std::endl;
         if (m_mdtglobalhitstime) m_mdtglobalhitstime->Fill(m_time - m_firstTime);
       //}
 

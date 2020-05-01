@@ -38,8 +38,7 @@ for opt, arg in options:
     elif opt in ('--schema'):
         schema = arg
 
-from string import find
-if find(folder,"ONL01")!=-1:
+if 'ONL01' in folder:
     print (' it does not work with singleversion folders')
     sys.exit(0)
 
@@ -65,12 +64,9 @@ if help:
 
 
 from TileCalibBlobPython import TileCalibTools
-#------------------------- from Misha
-#sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/ [cern.ch]')
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 from AtlCoolBKLib import resolveAlias
 current = resolveAlias.getCurrent()
-next = resolveAlias.getNext()
+nexttag = resolveAlias.getNext()
 #--------------------------------
 from TileCalibBlobPython.TileCalibLogger import getLogger
 #import logging
@@ -84,7 +80,7 @@ log.setLevel(logging.WARNING)
 
 
 #if instance == 'CONDBR2' :
-print ("alias CURRENT = %s alias NEXT = %s" % (current, next))
+print ("alias CURRENT = %s alias NEXT = %s" % (current, nexttag))
 
 if folder == '':
         sys.exit()

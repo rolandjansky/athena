@@ -102,8 +102,8 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
 	Trk::RIO_OnTrack(rot),
   m_globalPosition{},
-  m_localAngle(rot.m_localAngle.load()),
-  m_positionAlongWire(rot.m_positionAlongWire.load()),
+  m_localAngle(rot.m_localAngle),
+  m_positionAlongWire(rot.m_positionAlongWire),
   m_rio(rot.m_rio),
   m_idDE(rot.m_idDE),
   m_status(rot.m_status),
@@ -127,8 +127,8 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
       m_globalPosition.release().reset();
     }
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle.load();
-    m_positionAlongWire     = rot.m_positionAlongWire.load();
+    m_localAngle            = rot.m_localAngle;
+    m_positionAlongWire     = rot.m_positionAlongWire;
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -145,8 +145,8 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
     Trk::RIO_OnTrack::operator= (rot);
     m_globalPosition        = std::move(rot.m_globalPosition);
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle.load();
-    m_positionAlongWire     = rot.m_positionAlongWire.load();
+    m_localAngle            = rot.m_localAngle;
+    m_positionAlongWire     = rot.m_positionAlongWire;
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;

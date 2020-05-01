@@ -1,26 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-#include <iostream>
 
 #include "AGDDControl/XercesParser.h"
 #include "AGDDControl/XMLHandler.h"
 #include "AGDDControl/XMLHandlerStore.h"
 #include "PathResolver/PathResolver.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 #include "xercesc/util/XMLException.hpp"
-
 #include <xercesc/dom/DOM.hpp>
-
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLUni.hpp>
-
 #include <xercesc/util/OutOfMemoryException.hpp>
+
+#include <iostream>
 
 using namespace xercesc;
 
@@ -33,31 +32,24 @@ XercesParser::~XercesParser()
 	Finalize();
 }
 
-XercesParser::XercesParser():IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false)
-{
-//	std::cout<<"+++++++++++> Xerces Parser being created!" <<std::endl;
-//	AGDDController::GetController()->SetParser(this);
-//	std::cout<<"exiting constructor"<<std::endl;
-}
-XercesParser::XercesParser(std::string s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false)
-{
-//	std::cout<<"+++++++++++> Xerces Parser being created!" <<std::endl;
-//	AGDDController::GetController()->SetParser(this);
-//	std::cout<<"exiting constructor"<<std::endl;
-}
+XercesParser::XercesParser():IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false) {}
+
+XercesParser::XercesParser(std::string s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false) {}
+
 bool XercesParser::ParseFile(std::string s)
 {
-//	std::cout<<"+++++++++++> Xerces Parser parsing file "<<s <<std::endl;
-        m_fileName=s;
+	bool errorsOccured = false;
+    m_fileName=s;
 	s=PathResolver::find_file(s,"XMLPATH",PathResolver::RecursiveSearch);
-	if (s.empty())
-		std::cout<<" something wrong, could not find XML file "<<s<<std::endl;
+	if (s.empty()) {
+		MsgStream log(Athena::getMessageSvc(), "XercesParser");
+		log<<MSG::WARNING<<"ParseFile() - something wrong, could not find XML file "<<s<<endmsg;
+		errorsOccured = true;
+	}
 	else
 	{
-//		std::cout<<" loading file "<<s<<std::endl;
 		if (!m_initialized) Initialize();
         m_parser = new XercesDOMParser;
-        bool errorsOccured = false;
     	try
     	{
         	m_parser->parse(s.c_str());
@@ -75,7 +67,7 @@ bool XercesParser::ParseFile(std::string s)
     	}
         catch (const DOMException& e)
         {
-                const unsigned int maxChars = 2047;
+            const unsigned int maxChars = 2047;
         	XMLCh errText[maxChars + 1];
 
         	XERCES_STD_QUALIFIER cerr << "\nDOM Error during parsing: '" << s << "'\n"
@@ -86,7 +78,6 @@ bool XercesParser::ParseFile(std::string s)
 
         	errorsOccured = true;
     	}
-
     	catch (...)
     	{
         	XERCES_STD_QUALIFIER cerr << "An error occurred during parsing\n " << XERCES_STD_QUALIFIER endl;
@@ -95,21 +86,17 @@ bool XercesParser::ParseFile(std::string s)
 		m_doc=m_parser->getDocument();
 		return errorsOccured;
 	}
-
-    return false;
-
+    return errorsOccured;
 }
 bool XercesParser::ParseFileAndNavigate(std::string s)
 {
-//    std::cout<<"+++++++++++> Xerces Parser parsing and navigating file "<<s <<std::endl;
     bool errorOccured = ParseFile(s);
-	if (!errorOccured) navigateTree();
+    if (errorOccured) return false;
+	navigateTree();
 	return true;
 }
 bool XercesParser::ParseString(std::string s)
 {
-//	std::cout<<"+++++++++++> Xerces Parser parsing string "<<std::endl;
-//	std::cout<<s<<std::endl;
 	const char* str=s.c_str();
 	static const char* memBufID="prodInfo";
 	MemBufInputSource* memBuf = new MemBufInputSource((const XMLByte*)str,strlen(str),memBufID,false);
@@ -144,7 +131,6 @@ bool XercesParser::ParseString(std::string s)
 
     	errorsOccured = true;
     }
-
     catch (...)
     {
     	XERCES_STD_QUALIFIER cerr << "An error occurred during parsing\n " << XERCES_STD_QUALIFIER endl;
@@ -155,8 +141,6 @@ bool XercesParser::ParseString(std::string s)
 }
 bool XercesParser::ParseStringAndNavigate(std::string s)
 {
-//    std::cout<<"+++++++++++> Xerces Parser parsing and navigating string "<<s <<std::endl;
-
     bool errorOccured = ParseString(s);
 	if (!errorOccured) navigateTree();
 	return true;
@@ -188,28 +172,25 @@ bool XercesParser::WriteToFile(std::string s)
 
 void XercesParser::navigateTree()
 {
-	if (!m_doc) 
-	{
-		std::cout<<" something is wrong! no document set!"<<std::endl;
-		std::cout<<" doing nothing!"<<std::endl;
-		return;
-	}
-	DOMNode* node = 0;
-	node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
-	if( !node ) throw;
-	s_currentElement=node;
-	elementLoop(node);
+    if (!m_doc) {
+        MsgStream log(Athena::getMessageSvc(), "XercesParser");
+        log<<MSG::WARNING<<"navigateTree() - something is wrong! no document set! doing nothing!"<<endmsg;
+        return;
+    }
+    DOMNode* node = 0;
+    node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
+    if( !node ) throw;
+    s_currentElement=node;
+    elementLoop(node);
 }
 
-void XercesParser::elementLoop()
-{
-}
+void XercesParser::elementLoop() {}
 
 void XercesParser::elementLoop(DOMNode *e)
 {
-	if (!e)
-	{
-		std::cout<<"Calling elementLoop() with NULL pointer!!!"<<std::endl;
+	if (!e) {
+		MsgStream log(Athena::getMessageSvc(), "XercesParser");
+		log<<MSG::WARNING<<"Calling elementLoop() with NULL pointer!!!"<<endmsg;
 		return;
 	}
 	if (!(e->getNodeType()==DOMNode::ELEMENT_NODE)) return;
@@ -227,33 +208,14 @@ void XercesParser::elementLoop(DOMNode *e)
 	{
 		char* name=XMLString::transcode(e->getNodeName());
 		sName=name;
-//		std::cout <<" found element "<<name<<std::endl;
 		XMLString::release(&name);
 		for (child=e->getFirstChild();child!=0;child=child->getNextSibling())
 		{
 			if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-//				std::cout<<sName<<" child name "<<XMLString::transcode(child->getNodeName())<<std::endl;
 				elementLoop(child);
 			}
 		}
 	}
-//	XMLHandler *h=XMLHandlerStore::GetHandlerStore()->GetHandler(element);
-//	bool stopLoop=false;
-//	if (h)
-//	{
-//		h->Handle(element);
-//		stopLoop=h->IsLoopToBeStopped();
-//	}
-//	TiXmlElement* subelement;
-//	subelement=element->FirstChildElement();
-//	
-//	if (!stopLoop && subelement) 
-//	do
-//	{
-//	   // std::cout<<" \telement  "<<subelement->Value()<<std::endl;
-//	   elementLoop(subelement);
-//	   subelement = subelement->NextSiblingElement();
-//	} while (subelement);
 }
 
 ExpressionEvaluator& XercesParser::Evaluator()
@@ -264,20 +226,18 @@ ExpressionEvaluator& XercesParser::Evaluator()
 
 bool XercesParser::Initialize()
 {
-    	try
-    	{
-        	XMLPlatformUtils::Initialize();
-    	}
+    try {
+        XMLPlatformUtils::Initialize();
+    }
 
-    	catch(const XMLException &toCatch)
-    	{
-        	XERCES_STD_QUALIFIER cerr << "Error during Xerces-c Initialization.\n"
-             	<< "  Exception message:"
-             	<< XERCES_STD_QUALIFIER endl;
-        	return 1;
-    	}
-		m_initialized=true;
-	return 0;
+    catch(const XMLException &toCatch) {
+        XERCES_STD_QUALIFIER cerr << "Error during Xerces-c Initialization.\n"
+         	<< "  Exception message:"
+         	<< XERCES_STD_QUALIFIER endl;
+        return 1;
+    }
+    m_initialized=true;
+    return 0;
 }
 
 bool XercesParser::Finalize()

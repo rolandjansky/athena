@@ -1,44 +1,35 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MmRdoToPrepDataToolCore.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMmRdoToPrepDataToolCore_H
 #define MUONMmRdoToPrepDataToolCore_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
+
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MMClusterization/IMMClusterBuilderTool.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 
 #include <string>
 #include <vector>
-class AtlasDetectorID;
-class Identifier;
-class MuonIdHelper;
+
 class MM_RawDataCollection;
 
 namespace MuonGM
 {    
     class MuonDetectorManager;
-    class MMReadoutElement;
 }
-
 
 namespace Muon 
 {
-
-  class IMuonRawDataProviderTool;
-  class IMMClusterBuilderTool;
 
   class MmRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
   {
@@ -46,13 +37,10 @@ namespace Muon
     MmRdoToPrepDataToolCore(const std::string&,const std::string&,const IInterface*);
     
     /** default destructor */
-    virtual ~MmRdoToPrepDataToolCore ();
+    virtual ~MmRdoToPrepDataToolCore()=default;
     
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-    
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize();
     
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
     StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
@@ -81,9 +69,7 @@ namespace Muon
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager * m_muonMgr;
     
-    /// MM and muon identifier helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     bool m_fullEventDone;
     
@@ -96,6 +82,7 @@ namespace Muon
     bool m_merge; 
 
     ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
+    ToolHandle<INSWCalibTool> m_calibTool;
 
   }; 
 } // end of namespace

@@ -6,8 +6,7 @@
 
 
 L1MuonMonMT :: L1MuonMonMT(const std::string& name, ISvcLocator* pSvcLocator )
-  : TrigMuonMonitorAlgorithm(name, pSvcLocator),
-    m_MuonRoIContainerKey("LVL1MuonRoIs")
+  : TrigMuonMonitorAlgorithm(name, pSvcLocator)
 {}
 
 

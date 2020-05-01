@@ -17,7 +17,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "CLHEP/Geometry/Point3D.h"
 

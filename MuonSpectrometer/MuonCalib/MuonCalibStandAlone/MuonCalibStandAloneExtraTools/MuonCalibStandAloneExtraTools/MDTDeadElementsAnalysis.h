@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **************************************************** *
@@ -12,7 +12,6 @@
 #include <string>
 #include <stdio.h>
 
-//using namespace std;
 static const int nmmax=100;
 static const int ntmax=600;
 Double_t polnml3(Double_t *x, Double_t *parf);

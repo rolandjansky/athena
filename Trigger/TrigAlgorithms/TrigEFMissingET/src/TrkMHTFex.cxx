@@ -47,14 +47,7 @@ namespace HLT { namespace MET {
       ATH_MSG_ERROR("JVT container key does not match jet key!");
       return StatusCode::FAILURE;
     }
-    if (m_trackGAKey.key().find(".") == std::string::npos) {
-      m_trackGAKey = m_jetKey.key() + "." + m_trackGAKey.key();
-      CHECK( m_trackGAKey.initialize() );
-    }
-    else if (SG::contKeyFromKey(m_trackGAKey.key() ) != m_jetKey.key() ) {
-      ATH_MSG_ERROR("track links container key does not match jet key!");
-      return StatusCode::FAILURE;
-    }
+    m_trackGA.emplace(m_trackGAName);
 
     return initializeBase(
         {"JETB1", "JETB2", "JETE1", "JETE2", "TrackSoftTerm"});
@@ -71,7 +64,7 @@ namespace HLT { namespace MET {
     auto vertices = SG::makeHandle(m_vertexKey, context);
     auto tva = SG::makeHandle(m_tvaKey, context);
     auto jvtAcc = SG::makeHandle<float>(m_jvtKey, context);
-    auto trackLinksAcc = SG::makeHandle<std::vector<ElementLink<xAOD::IParticleContainer>>>(m_trackGAKey, context);
+    auto& trackLinksAcc = *m_trackGA;
 
     // Work out which is the primary vertex
     // I do not know if there is a way to see which vertex was counted as
@@ -127,7 +120,7 @@ namespace HLT { namespace MET {
         // Iterate over the ghost-associated tracks
         for (const auto& link : trackLinksAcc(*ijet) ) {
           if (link.getDataPtr() != tracks.ptr() ) {
-            ATH_MSG_ERROR("Tracks linked with key '" << m_trackGAKey
+            ATH_MSG_ERROR("Tracks linked with key '" << m_trackGAName
                 << "' do not match tracks retrieved with '"
                 << m_trackKey << "'!");
             return StatusCode::FAILURE;

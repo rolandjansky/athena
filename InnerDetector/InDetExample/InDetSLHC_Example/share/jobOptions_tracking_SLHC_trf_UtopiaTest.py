@@ -114,18 +114,16 @@ InDetFlags.doTrackSegmentsSCT   = False
 InDetFlags.doTrackSegmentsTRT   = False
 
 # switch of tracking and vertex finding for AOD and ESD making
-print 'RecoStep:',rec.OutputFileNameForRecoStep()
+printfunc ('RecoStep:',rec.OutputFileNameForRecoStep())
 if ( rec.OutputFileNameForRecoStep() == 'ESDtoAOD' or
      rec.OutputFileNameForRecoStep() == 'ESDtoDPD' ):
-    print 'switching off tracking and vertex finding for AOD and ESD making'
+    printfunc ('switching off tracking and vertex finding for AOD and ESD making')
     InDetFlags.doNewTracking  =         False
     InDetFlags.doVertexFinding =        False
 
 else:
-    print 'setting flags for RAWtoESD'
+    printfunc ('setting flags for RAWtoESD')
     InDetFlags.doLowPt        =         False
-    InDetFlags.doxKalman      =         False
-    InDetFlags.doiPatRec      =         False
     InDetFlags.doBackTracking =         False
     InDetFlags.doTRTStandalone =        False
     #InDetFlags.doSingleSpBackTracking = False

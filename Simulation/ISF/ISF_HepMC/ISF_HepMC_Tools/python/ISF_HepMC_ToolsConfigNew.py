@@ -8,7 +8,7 @@ KG Tan, 17/06/2012
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter=CompFactory.getComps("ISF__GenericTruthStrategy","ISF__GenParticleFinalStateFilter","ISF__GenParticlePositionFilter","ISF__GenParticleGenericFilter","ISF__GenParticleInteractingFilter",)
+ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter=CompFactory.getComps("ISF::GenericTruthStrategy","ISF::GenParticleFinalStateFilter","ISF::GenParticlePositionFilter","ISF::GenParticleGenericFilter","ISF::GenParticleInteractingFilter",)
 
 from AthenaCommon.SystemOfUnits import MeV, mm
 

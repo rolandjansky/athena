@@ -11,7 +11,7 @@ from AthenaCommon.BeamFlags import jobproperties
 
 # check (for robustness) if ID is on at all!
 if not DetFlags.detdescr.ID_on():
-  print "InDetRec_jobOptions.py: DetFlags ID is turned off. Not including anything!"
+  printfunc ("InDetRec_jobOptions.py: DetFlags ID is turned off. Not including anything!")
 else:
   # +++++++++++++++++++++++
   # Control 
@@ -34,14 +34,14 @@ else:
     #
     from InDetRecExample.InDetKeys import InDetKeys
     InDetKeys.lockAllExceptAlias()
-    print "Printing InDetKeys"
+    printfunc ("Printing InDetKeys")
     InDetKeys.print_JobProperties()
     
     #
     # --- setup of cut values for NewTracking  
     #
     if (not 'InDetNewTrackingCuts' in dir()):
-      print "InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now"
+      printfunc ("InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now")
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
       if InDetFlags.doCosmics():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
@@ -61,7 +61,7 @@ else:
     # --- setup of cut values for  Primary vertexing  
     #
     if (not 'InDetPrimaryVertexingCuts' in dir()):
-      print "InDetRec_jobOptions: InDetPrimaryVertexingCuts not set before - import them now"
+      printfunc ("InDetRec_jobOptions: InDetPrimaryVertexingCuts not set before - import them now")
       from InDetRecExample.ConfiguredVertexingCuts import ConfiguredVertexingCuts
       if InDetFlags.primaryVertexCutSetup() == "StartUp":
         InDetPrimaryVertexingCuts      = ConfiguredVertexingCuts("StartUp")
@@ -154,7 +154,7 @@ else:
                                                             SummaryTool             = InDetTrackSummaryToolSharedHits)
       topSequence += TrkTrackCollectionMerger
       if (InDetFlags.doPrintConfigurables()):
-        print TrkTrackCollectionMerger
+        printfunc (TrkTrackCollectionMerger)
 
       # --- Delete unmerged tracks (Si, back-tracking, TRT)
       from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
@@ -194,10 +194,6 @@ else:
     #  InputTrackCollection = InDetKeys.UnslimmedTracks()
     #elif InDetFlags.doCTBTracking():
       #InputTrackCollection = InDetKeys.UnslimmedTracks_CTB()
-    #elif InDetFlags.doiPatRec():
-      #InputTrackCollection = InDetKeys.IPatConvertedTracks()
-    #elif InDetFlags.doxKalman():
-      #InputTrackCollection = InDetKeys.XKalConvertedTracks()
     #else:
       # --- in case of reading from ESD, so we just set the Collection and truth
       #InputTrackCollection      = InDetKeys.Tracks()

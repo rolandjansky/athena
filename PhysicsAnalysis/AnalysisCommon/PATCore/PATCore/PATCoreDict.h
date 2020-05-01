@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -19,12 +19,6 @@
 
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
-#include "PATCore/TSelectorToolBase.h"
 #include "PATCore/IAsgSelectionTool.h"
-
-#ifndef ROOTCORE
-#include "PATCore/IAthHistogramTool.h"
-#include "PATCore/IUserDataCalcTool.h"
-#endif
 
 #endif

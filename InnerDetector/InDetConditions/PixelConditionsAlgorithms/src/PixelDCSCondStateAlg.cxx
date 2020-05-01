@@ -41,27 +41,23 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelDCSStateData> writeCdoState(std::make_unique<PixelDCSStateData>());
 
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,                     0,                       
-                                              0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop {EventIDBase::UNDEFNUM,   EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, 
-                          EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  
+  SG::ReadCondHandle<PixelModuleData> modDataHdl(m_moduleDataKey,ctx);
+  const PixelModuleData* modData=(*modDataHdl);
+  writeHandleState.addDependency(modDataHdl);
+  ATH_MSG_INFO("Range of input PixelModule data is " << modDataHdl.getRange()); 
+  
 
-  EventIDRange rangeW{start, stop};
-
-  if (SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getUseDCSStateConditions()) {
+  if (modData->getUseDCSStateConditions()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandleState(m_readKeyState, ctx);
+    writeHandleState.addDependency(readHandleState);
     const CondAttrListCollection* readCdoState(*readHandleState); 
     if (readCdoState==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object (state)");
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range (state)
-    if (not readHandleState.range(rangeW)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-      return StatusCode::FAILURE;
-    }
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleState.fullKey() << " readCdo->size()= " << readCdoState->size());
-    ATH_MSG_INFO("Range of state input is " << rangeW);
+    ATH_MSG_INFO("Range of state input is " << readHandleState.getRange());
 
     // Read state info
     std::string paramState = "FSM_state";
@@ -86,11 +82,11 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
     for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) { writeCdoState->setModuleStatus(i,PixelDCSStateData::DCSModuleState::READY); }
   }
 
-  if (writeHandleState.record(rangeW, std::move(writeCdoState)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelDCSStateData " << writeHandleState.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandleState.record(std::move(writeCdoState)).isFailure()) {
+    ATH_MSG_FATAL("Could not record PixelDCSStateData " << writeHandleState.key() << " with EventRange " << writeHandleState.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandleState.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandleState.key() << " with range " << writeHandleState.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

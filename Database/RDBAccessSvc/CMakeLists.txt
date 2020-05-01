@@ -9,7 +9,8 @@ atlas_subdir( RDBAccessSvc )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Control/AthenaBaseComps )
+                          Control/AthenaBaseComps
+                          Control/CxxUtils )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -31,7 +32,7 @@ atlas_add_component( RDBAccessSvc
                      src/SourceCompAlg.cxx
                      src/components/RDBAccessSvc_entries.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel RDBAccessSvcLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel RDBAccessSvcLib )
 
 atlas_add_executable( geomdb2sqlite
                       replicator/geomdb2sqlite.cpp
@@ -41,7 +42,7 @@ atlas_add_executable( geomdb2sqlite
 atlas_add_executable( geomdb2oracle
                       replicator/geomdb2oracle.cpp
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} RDBAccessSvcLib )
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} RDBAccessSvcLib CxxUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

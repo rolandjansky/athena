@@ -9,6 +9,7 @@ atlas_subdir( TrigMuonHypoMT )
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMuon
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Control/AthViews
                           PRIVATE
                           Trigger/TrigT1/TrigT1Interfaces
@@ -25,7 +26,7 @@ atlas_add_component( TrigMuonHypoMT
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon TrigInterfacesLib DecisionHandlingLib AthViews xAODMuon GaudiKernel TrigT1Interfaces AthenaMonitoringKernelLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon TrigInterfacesLib DecisionHandlingLib TrigCompositeUtilsLib AthViews xAODMuon GaudiKernel TrigT1Interfaces AthenaMonitoringKernelLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

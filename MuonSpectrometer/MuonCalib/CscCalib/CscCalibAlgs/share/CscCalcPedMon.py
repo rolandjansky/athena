@@ -121,13 +121,13 @@ from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
 MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "MuonCscRawDataProviderTool",
     Decoder = CscRodDecoder)
 ToolSvc += MuonCscRawDataProviderTool
-print      MuonCscRawDataProviderTool
+printfunc (MuonCscRawDataProviderTool)
 
 # --- RawData Provider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
 topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
     ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
-print          topSequence.MuonCscRawDataProvider
+printfunc (topSequence.MuonCscRawDataProvider)
 
 # --- BS Converter 
 theApp.Dlls   += [ "ByteStreamCnvSvc", "ByteStreamCnvSvcBase"]
@@ -150,8 +150,8 @@ include ( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
 # BS input files
 #---------------------------------------------------------------
 
-print 'File list is'
-print myInputFiles
+printfunc ('File list is')
+printfunc (myInputFiles)
 
 ServiceMgr.ByteStreamInputSvc.FullFileName = myInputFiles
 #ServiceMgr.ByteStreamInputSvc.FullFileName = myTestFiles

@@ -759,9 +759,7 @@ namespace met {
 	    }
 	  } // end muon-jet overlap-removal
 
-	  //m_muEloss && 
-	  if(!isMuFSRJet) {
-	    switch(mu_in_jet->energyLossType()) {
+	  switch(mu_in_jet->energyLossType()) {
 	    case xAOD::Muon::Parametrized:
 	    case xAOD::Muon::MOP:
 	    case xAOD::Muon::Tail:
@@ -772,7 +770,6 @@ namespace met {
 	      // The correction is limited to the selected clusters
 	      total_eloss += mu_Eloss;
 	      muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
-	    }
 	  }
 	}
 	ATH_MSG_VERBOSE("Muon selection flags: " << muons_selflags);
@@ -1003,12 +1000,13 @@ namespace met {
 			  << " this calvec E: " << assoc->calVec(iKey).ce());
 	  if(selector) mu_calovec += assoc->calVec(iKey);
 	}
-	if(m_muEloss) mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
-	opx += mu_calovec.cpx();
-	opy += mu_calovec.cpy();
-	osumpt += mu_calovec.sumpt();
-	ATH_MSG_VERBOSE("Mu cluster sumpt " << mu_calovec.sumpt());
-
+	if(m_muEloss){
+          mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
+	  opx += mu_calovec.cpx();
+	  opy += mu_calovec.cpy();
+	  osumpt += mu_calovec.sumpt();
+	}
+        ATH_MSG_VERBOSE("Mu cluster sumpt " << mu_calovec.sumpt());
 
 	ATH_MSG_VERBOSE( "Misc cluster px, py, sumpt = " << opx << ", " << opy << ", " << osumpt );
 	metSoftClus->add(opx,opy,osumpt);

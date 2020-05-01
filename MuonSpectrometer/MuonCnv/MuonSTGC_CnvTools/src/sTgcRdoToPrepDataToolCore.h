@@ -1,26 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// sTgcRdoToPrepDataToolCore.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-#include <string>
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "STgcClusterization/ISTgcClusterBuilderTool.h"
 
-class AtlasDetectorID;
-class Identifier;
-
-class ITGCcablingSvc;
+#include <string>
 
 namespace MuonGM 
 {
@@ -30,9 +25,6 @@ namespace MuonGM
 
 namespace Muon 
 {
-  class IMuonRawDataProviderTool;
-  class ISTgcClusterBuilderTool;
-
   /** @class STGC_RawDataToPrepDataTool 
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
@@ -44,12 +36,10 @@ namespace Muon
       sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~sTgcRdoToPrepDataToolCore();
+      virtual ~sTgcRdoToPrepDataToolCore()=default;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
-      /** Standard AthAlgTool finalize method */
-      virtual StatusCode finalize() override;
       
       /** Decode RDO to PRD  
        *  A vector of IdentifierHash are passed in, and the data corresponding to this list (i.e. in a Region of Interest) are converted.  
@@ -84,11 +74,9 @@ namespace Muon
       void processRDOContainer(std::vector<IdentifierHash>& idWithDataVect);
 
       /** muon detector manager */
-      const MuonGM::MuonDetectorManager * m_muonMgr;
+      const MuonGM::MuonDetectorManager* m_muonMgr;
 
-      /** TGC identifier helper */
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       bool m_fullEventDone;
 

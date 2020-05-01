@@ -33,7 +33,7 @@ def CSC_RangeToolCfg(flags, name="CSC_Range", **kwargs):
     return PileUpXingFolder(name, **kwargs)
 
 
-def CSC_DigitizationToolCommonCfg(flags, name="CSC_DigitizationTool", **kwargs):
+def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp:
@@ -56,7 +56,7 @@ def CSC_DigitizationToolCommonCfg(flags, name="CSC_DigitizationTool", **kwargs):
     return acc
 
 
-def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
+def CSC_DigitizationToolCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
@@ -78,11 +78,12 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CscOverlayDigitizationTool", **k
 def CSC_OutputCfg(flags):
     """Return ComponentAccumulator with Output for CSC. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["CscRawDataContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["CscRawDataContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 

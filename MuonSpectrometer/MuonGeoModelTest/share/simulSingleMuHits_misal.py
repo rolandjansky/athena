@@ -1,16 +1,16 @@
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-GEO-11-01-00"
-    print "MuonGeoModelTest/simulGeantinoHits Setting now DetDescrVersion to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/simulGeantinoHits Setting now DetDescrVersion to ", DetDescrVersion)
 else:
-    print "MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", DetDescrVersion)
 
 # now it's necessary to specify the global condition tag
 from AthenaCommon.GlobalFlags import globalflags
 if not 'ConditionsTag' in dir():
    ConditionsTag="OFLCOND-SIM-01-00-00"
-   print "MuonGeoModelTest/simulGeantinoHits Setting now ConditionsTag to ", ConditionsTag
+   printfunc ("MuonGeoModelTest/simulGeantinoHits Setting now ConditionsTag to ", ConditionsTag)
 else:
-    print "MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", ConditionsTag
+    printfunc ("MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", ConditionsTag)
                     
 #globalflags.ConditionsTag = 'OFLCOND-SIM-01-00-00'
 globalflags.ConditionsTag = ConditionsTag
@@ -52,7 +52,7 @@ simFlags.SimLayout.set_Value(DetDescrVersion) # specific value
 #  sets the EtaPhi, VertexSpread and VertexRange checks on
 simFlags.EventFilter.set_On()
 #
-print "Reading alignment constants from DB"
+printfunc ("Reading alignment constants from DB")
 from IOVDbSvc.CondDB import conddb
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')

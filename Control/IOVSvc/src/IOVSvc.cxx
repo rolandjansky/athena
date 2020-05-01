@@ -20,6 +20,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/DataBucketBase.h"
 
 #include "IOVSvc/IIOVSvcTool.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -404,7 +405,8 @@ IOVSvc::getRange(const CLID& clid, const std::string& key,
 
 StatusCode 
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key, 
-                       IOVRange& range, std::string& tag, IOpaqueAddress*& ioa) const { 
+                       IOVRange& range, std::string& tag,
+                       std::unique_ptr<IOpaqueAddress>& ioa) const { 
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -424,7 +426,8 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
                        const IOVTime& time, IOVRange& range, 
-                       std::string& tag, IOpaqueAddress*& ioa) const {
+                       std::string& tag,
+                       std::unique_ptr<IOpaqueAddress>& ioa) const {
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -784,7 +787,6 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
 
   IOVTime t(now.run_number(), now.lumi_block(), (long long)now.time_stamp()*1000000000+now.time_stamp_ns_offset());
   IOVRange range;
-  IOpaqueAddress* ioa;
   std::string tag;
   // remove storename from key
   std::string sgKey = id.key();
@@ -793,6 +795,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     sgKey.erase(0,sep+1);
   }
   
+  std::unique_ptr<IOpaqueAddress> ioa;
   if (getRangeFromDB(id.clid(), sgKey, t, range, tag, ioa).isFailure()) {
     ATH_MSG_ERROR( "unable to get range from db for " 
                    << id.clid() << " " << sgKey );
@@ -800,7 +803,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   }
      
   ATH_MSG_DEBUG( " new range for ID " << id << " : " << range 
-                 << " IOA: " << ioa);
+                 << " IOA: " << ioa.get());
 
   // If the start of the new range matches the start of the last range, then
   // extend the last range rather than trying to insert a new range.
@@ -828,13 +831,20 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   DataObject* dobj(0);
   void* v(0);
 
-  if (dp->store()->createObj(dp->loader(), ioa, dobj).isFailure()) {
+  if (dp->store()->createObj(dp->loader(), ioa.get(), dobj).isFailure()) {
     ATH_MSG_ERROR(" could not create a new DataObject ");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG(" created new obj at " << dobj );
 
     v = SG::Storable_cast(dobj, id.clid());
+  }
+
+  // Free the DataBucket that was created along with the object we read.
+  if (DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (dobj)) {
+    dbb->relinquish();
+    delete dobj;
+    dobj = 0;
   }
 
   // DataObject *d2 = static_cast<DataObject*>(v);

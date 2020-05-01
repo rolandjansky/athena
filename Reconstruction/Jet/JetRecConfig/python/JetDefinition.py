@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -17,9 +17,7 @@ jetlog = Logging.logging.getLogger('JetDefinition')
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
-    print "Yay"
-except:
-    print "No"
+except Exception:
     pass
 import ROOT
 from ROOT import xAODType
@@ -54,13 +52,16 @@ class JetConstit(object):
                  objtype,         # The type of xAOD object from which to build the jets
                  modifiers=[],    # Modifications to be applied to constituents prior to jet finding
                  rawname=None,    # Override the default input collection
-                 inputname=None): # Override the default output collection (not to be used with modifiers)
+                 inputname=None,  # Override the default output collection (not to be used with modifiers)
+                 prefix=None):    # Optional prefix for the inputname (mainly for trigger)
         self.__basetype = objtype
         self.__modifiers = modifiers
         # Override for unmodified container name
         self.__rawname = rawname
         # Override for final container name
         self.__inputname = inputname
+        # Prefix for inputname
+        self.__prefix = prefix
 
         self.defineLabelAndContainerNames()
         pass
@@ -72,7 +73,7 @@ class JetConstit(object):
         return self.__hash__() == rhs.__hash__()
 
     def __ne__(self,rhs):
-        return (not __eq__(self,rhs))
+        return (not self.__eq__(rhs))
 
     # Define type and modifiers as properties, with
     # custom setter/getter such that if changed, these
@@ -168,6 +169,8 @@ class JetConstit(object):
             else:
                 self.inputname = modstring+containernames[self.basetype]
 
+        if self.__prefix:
+            self.inputname = self.__prefix+self.inputname
     pass
 
     # Define a string conversion for printing
@@ -191,7 +194,7 @@ class JetGhost(object):
         return self.__hash__() == rhs.__hash__()
 
     def __ne__(self,rhs):
-        return (not __eq__(self,rhs))
+        return (not self.__eq__(rhs))
 
     # Define a string conversion for printing
     def __str__(self):
@@ -215,7 +218,7 @@ class JetDefinition(object):
         # Should add some type checking here
         # Could use JetContainerInfo conversion
         self.__algorithm = algorithm
-        if not self.__algorithm in ["Kt","AntiKt","CamKt"]:
+        if self.__algorithm not in ["Kt","AntiKt","CamKt"]:
             jetlog.error("FastJet algorithm specification was not one of Kt, AntiKt, CamKt!")
             raise KeyError("Invalid fastjet algorithm choice: {0}".format(self.algorithm))
 
@@ -239,13 +242,13 @@ class JetDefinition(object):
         pass
 
     def __hash__(self):
-        return hash((self.__radius,self.__inputdef,self.ptmin,self.ptminfilter,str(self.ghostdefs),str(self.modifiers),str(extradeps)))
+        return hash((self.__radius,self.__inputdef,self.ptmin,self.ptminfilter,str(self.ghostdefs),str(self.modifiers),str(self.extrainputs)))
 
     def __eq__(self,rhs):
         return self.__hash__() == rhs.__hash__()
 
     def __ne__(self,rhs):
-        return (not __eq__(self,rhs))
+        return (not self.__eq__(rhs))
 
     # Define core attributes as properties, with
     # custom setter/getter such that if changed, these
@@ -294,7 +297,6 @@ class JetDefinition(object):
 # Helper to instantiate a generic jet modifier
 # Tools that typically have more complex properties set should have
 # their own dedicated helper functions defined
-from AthenaCommon import CfgMgr
 
 class JetModifier(object):
     def __init__(self,tooltype,toolname,
@@ -316,7 +318,7 @@ class JetModifier(object):
         # modifier, and a ComponentAccumulator instance, 
         # in case additional supporting tools/services
         # need to be set up.
-        if helperfn==None:
+        if helperfn is None:
             self.helperfn = self.getGenericModifier
         else:
             self.helperfn = helperfn
@@ -336,7 +338,7 @@ class JetModifier(object):
         return self.__hash__() == rhs.__hash__()
 
     def __ne__(self,rhs):
-        return (not __eq__(self,rhs))
+        return (not self.__eq__(rhs))
 
     # Define a string conversion for printing
     def __str__(self):
@@ -345,7 +347,8 @@ class JetModifier(object):
     __repr__ = __str__
 
     def getGenericModifier(self,**kwargs):
-        tool = getattr(CfgMgr,self.tooltype)(self.toolname)
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        tool = getattr(CompFactory,self.tooltype)(self.toolname)
         return tool
 
     def getPrereqs(self,modspec="",jetdef=None):

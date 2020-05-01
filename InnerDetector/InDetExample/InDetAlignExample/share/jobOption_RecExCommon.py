@@ -23,7 +23,7 @@ for var in loadInDetRec_Options:
   if var in dir():
     loadInDetRec_Options[var] = eval(var)
 
-print "Starting loadInDet_Rec"
+printfunc ("Starting loadInDet_Rec")
 
 #--------------------------------------------------------------
 # Import config
@@ -44,7 +44,7 @@ ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.BFieldFlags import jobproperties
 if not loadInDetRec_Options["realData"] and loadInDetRec_Options["Cosmics"]: # and not loadInDetRec_Options["BField"] PF: I think this causes the wrong setup in Cosmics MC
-  print "INFO::Setting Up Manually for MC Cosmics"
+  printfunc ("INFO::Setting Up Manually for MC Cosmics")
   jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0)
   jobproperties.Beam.beamType.set_Value_and_Lock("cosmics")
   jobproperties.BField.solenoidOn.set_Value_and_Lock	(loadInDetRec_Options["BField"])
@@ -79,8 +79,8 @@ if len(loadInDetRec_Options["projectName"])!=0:
 
 
 if len(globalflags.ConditionsTag())!=0:
-  print "setting global tag"
-  print rec.projectName()
+  printfunc ("setting global tag")
+  printfunc (rec.projectName())
   from IOVDbSvc.CondDB import conddb
   conddb.setGlobalTag(globalflags.ConditionsTag())
 
@@ -213,14 +213,14 @@ rec.doTrigger.set_Value_and_Lock             (False)
 #--------------------------------------------------------------
 
 from AthenaCommon.GlobalFlags import globalflags
-print "globalflags configuration:"
-print globalflags
+printfunc ("globalflags configuration:")
+printfunc (globalflags)
 
-print "detflags configuration:"
+printfunc ("detflags configuration:")
 DetFlags.Print()
 
-print "rec configuration:"
-print rec
+printfunc ("rec configuration:")
+printfunc (rec)
 
 #--------------------------------------------------------------
 # Load InDet configuration
@@ -268,7 +268,7 @@ if loadInDetRec_Options["HeavyIons"]:
 
 # --- Options that we may change in the alignment
 if loadInDetRec_Options["Cosmics"]:
-    print "#### INFO:: jobOptions_RecExCommon: Cosmics"
+    printfunc ("#### INFO:: jobOptions_RecExCommon: Cosmics")
     InDetFlags.doPixelClusterSplitting.set_Value_and_Lock          (False)
     InDetFlags.doTIDE_Ambi.set_Value_and_Lock                      (False);
     #InDetFlags.cutLevel.set_Value_and_Lock                             (8) #is for cosmics
@@ -291,7 +291,7 @@ InDetFlags.doBackTracking.set_Value_and_Lock                       (False)
 InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock         (False)
 InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);
 if loadInDetRec_Options["DigitalClustering"]:
-    print "jobOptions_RecExCommon: DigitalClustering"
+    printfunc ("jobOptions_RecExCommon: DigitalClustering")
     InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False);
     InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);
 else:

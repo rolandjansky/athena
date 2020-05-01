@@ -14,7 +14,6 @@
 // STL includes
 #include <string>
 
-// HepMC / CLHEP includes
 #include "GeneratorObjects/McEventCollection.h"
 
 // FrameWork includes

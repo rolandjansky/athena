@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGC_STATUSConditionsSvc.h"
-
 #include "MuonCondInterface/ITGCConditionsSvc.h"
 #include "MuonCondInterface/ITGC_STATUSConditionsTool.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-//#include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <set>
@@ -19,13 +17,7 @@
 
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/Property.h"
-
 #include "Identifier/IdentifierHash.h"
-
-
-//using namespace std;
-
-
 
 TGC_STATUSConditionsSvc::TGC_STATUSConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),

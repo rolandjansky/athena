@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -12,6 +12,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Guards.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 #include "AthenaKernel/IOVRange.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 #include "AthenaKernel/IAddressProvider.h"
@@ -424,7 +425,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   }
 
   // data should now be in cache
-  IOpaqueAddress* address=0;
+  std::unique_ptr<IOpaqueAddress> address;
   IOVRange range;
   // setup address and range
   {
@@ -450,7 +451,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     ATH_MSG_ERROR( "setRange failed for folder " << folder->folderName() );
     return StatusCode::FAILURE;
   }
-  tad->setAddress(address);
+  tad->setAddress(address.release());
   return StatusCode::SUCCESS;
 }
 
@@ -461,7 +462,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
                                const IOVTime&     time,
                                IOVRange&          range,
                                std::string&       tag,
-                               IOpaqueAddress*&   address) {
+                               std::unique_ptr<IOpaqueAddress>&   address) {
 
   ATH_MSG_DEBUG( "getRange  clid: " << clid << " key: \""<< dbKey << "\"  t: " << time );
   const std::string& key=dbKey;
@@ -515,7 +516,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   }
 
   // data should now be in cache
-  address=0;
+  address.reset();
   // setup address and range
   {
     Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(key.empty() ? "anonymous" : key),

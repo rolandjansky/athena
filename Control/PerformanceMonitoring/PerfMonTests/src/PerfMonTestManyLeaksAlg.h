@@ -16,7 +16,6 @@
 #include <list>
 #include <vector>
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"

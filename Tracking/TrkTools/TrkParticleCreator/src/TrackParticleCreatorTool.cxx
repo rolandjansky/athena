@@ -1086,7 +1086,7 @@ namespace Trk
     }
   }
 
-  const InDet::BeamSpotData* TrackParticleCreatorTool::CacheBeamSpotData(const EventContext &ctx) const {
+  const InDet::BeamSpotData* TrackParticleCreatorTool::CacheBeamSpotData(const ::EventContext &ctx) const {
     // if (ctx.evt() == m_lastEvent) return m_lastBeamSpot;
     return m_trackToVertex->GetBeamSpotData(ctx);
     // m_lastEvent = ctx.evt();

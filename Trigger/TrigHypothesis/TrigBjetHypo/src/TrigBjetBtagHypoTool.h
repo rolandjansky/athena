@@ -26,8 +26,8 @@
 #include "xAODBTagging/BTagging.h"
 
 // Are these new?
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 

@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Event/EventInfoMgt
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -34,14 +35,13 @@ find_package( AIDA )
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( RPC_Digitization
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps PileUpToolsLib xAODEventInfo GaudiKernel MuonSimData MuonSimEvent HitManagement AthenaKernel EventInfo GeneratorObjects MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib PathResolver )
+                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps PileUpToolsLib xAODEventInfo GaudiKernel MuonSimData MuonSimEvent HitManagement AthenaKernel EventInfo GeneratorObjects MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib PathResolver )
 
 # Install files from the package:
 atlas_install_headers( RPC_Digitization )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -19,7 +19,7 @@ from __future__ import print_function
 
 EF_PixRDOKey="PixelRDOs_EF"
 EF_SCTRDOKey="SCT_RDOs_EF"
-EF_TRTRDOKey="TRT_RDOs_EF"
+EF_TRTRDOKey="TRT_RDOs_TRIG"
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 if not TriggerFlags.doTransientByteStream():
    EF_PixRDOKey="PixelRDOs"

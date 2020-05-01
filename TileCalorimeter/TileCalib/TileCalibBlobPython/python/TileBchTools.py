@@ -19,7 +19,7 @@ import cppyy
 from TileCalibBlobObjs.Classes import TileBchStatus, TileCalibUtils, \
      TileBchPrbs, TileBchDecoder
 from TileCalibBlobPython import TileCalibTools
-from TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
+from TileCalibBlobPython.TileCalibTools  import MINRUN, MINLBK, MAXRUN, MAXLBK
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger
 
 #
@@ -375,7 +375,7 @@ class TileBchMgr(TileCalibLogger):
         dict = parser.getDict()
         self.log().info("Updating dictionary from file with %i entries", len(dict))
         self.log().info("... filename: %s", fileName )
-        for key, stat in dict.items():
+        for key, stat in list(dict.items()):
             ros = key[0]
             mod = key[1]
             chn = key[2]

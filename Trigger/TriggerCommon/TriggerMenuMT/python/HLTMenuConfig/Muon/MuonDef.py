@@ -82,7 +82,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        #log.debug("Assembling leg for chain " + self.chainName)
 
         stepDictionary = self.getStepDictionary()
 
@@ -236,13 +235,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 
     #--------------------
-
     def getmuCombDr(self):     
-        step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg])
-        step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
+        step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict])
         return step
 
-    def getmuFastDr(self):     
-        step=self.getStep(1,"mufast", [muFastSequenceCfg] )
-        step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
+    def getmuFastDr(self):
+        step=self.getStep(1,"mufast", [muFastSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict]  )
         return step
