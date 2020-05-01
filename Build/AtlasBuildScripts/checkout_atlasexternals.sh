@@ -111,9 +111,9 @@ fi
 # check whether the source directory points to the right repository
 RECLONE=false
 pushd ${SOURCEDIR}
-SOURCEURL=$(git remote get-url origin)
+SOURCEURL=$(git ls-remote --get-url origin)
 if [ "${SOURCEURL}" != "${EXTERNALSURL}" ] ; then
-    echo "${SOURCEURL} wasn't cloned from ${EXTERNALSURL}, deleting"
+    echo "checkout_externals: Warning! ${SOURCEURL} wasn't cloned from ${EXTERNALSURL}, deleting"
     RECLONE=true
 fi
 popd
