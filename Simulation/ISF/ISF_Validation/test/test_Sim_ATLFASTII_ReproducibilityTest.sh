@@ -76,6 +76,6 @@ HITSMerge_tf.py --inputHitsFile 'hitsFull.ttbar.pool.root' --outputHitsFile 'hit
 echo "art-result: $? dummy-merge"
 
 # Compare the merged outputs
-acmd.py diff-root hitsFullMerged.ttbar.pool.root hitsMerged.ttbar.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings
+acmd.py diff-root hitsFullMerged.ttbar.pool.root hitsMerged.ttbar.pool.root --error-mode resilient --mode=semi-detailed --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings
 
 echo "art-result: $? comparison"
