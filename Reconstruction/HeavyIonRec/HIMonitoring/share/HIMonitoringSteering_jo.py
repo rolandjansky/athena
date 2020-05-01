@@ -1,4 +1,4 @@
-## Event Shape
+## Event Shape 
 from HIMonitoring.HIMonitoringConf import HIMonitoringEventShapeTool
 
 HIEventShapeMonTool = HIMonitoringEventShapeTool (
@@ -12,7 +12,7 @@ ESmon = True,
 #if DQMonFlags.useTrigger():
 #   HIEventShapeMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
-## Photons
+## Photons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringPhotonsTool
 HIPhotonsMonTool = HIMonitoringPhotonsTool (
 name           = "HIPhotonsMonTool",
@@ -22,7 +22,7 @@ name           = "HIPhotonsMonTool",
 #if DQMonFlags.useTrigger():
 #    HIPhotonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
-## Muons
+## Muons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringMuonsTool
 HIMuonsMonTool = HIMonitoringMuonsTool (
 name           = "HIMuonsMonTool",
@@ -32,7 +32,7 @@ name           = "HIMuonsMonTool",
 #if DQMonFlags.useTrigger():
 #    HIMuonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
-## ZDC
+## ZDC  
 from HIMonitoring.HIMonitoringConf import HIMonitoringZdcTool
 HIZdcMonTool = HIMonitoringZdcTool (
 name           = "HIZdcMonTool",
@@ -42,7 +42,7 @@ name           = "HIZdcMonTool",
 #if DQMonFlags.useTrigger():
 #    HIZdcMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
-## Electrons
+## Electrons  
 from HIMonitoring.HIMonitoringConf import HIMonitoringElectronsTool
 HIElectronsMonTool = HIMonitoringElectronsTool (
 name           = "HIElectronsMonTool",
@@ -54,7 +54,7 @@ name           = "HIElectronsMonTool",
 
 
 
-if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0':
+if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0': 
     #ToolSvc += HIEventShapeMonTool
     HIEventShapeMonMan = AthenaMonManager( "HIEventShapeManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
@@ -66,7 +66,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
                                    LumiBlock           = DQMonFlags.monManLumiBlock(),           #1
                                    AthenaMonTools      = [ HIEventShapeMonTool ])
     topSequence += HIEventShapeMonMan
-
+    
     #ToolSvc += HIPhotonsMonTool
     HIPhotonsMonMan = AthenaMonManager( "HIPhotonsMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
@@ -90,7 +90,7 @@ if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment ==
                                    LumiBlock           = DQMonFlags.monManLumiBlock(),           #1
                                    AthenaMonTools      = [ HIMuonsMonTool ])
     topSequence += HIMuonsMonMan
-
+        
     #ToolSvc += HIElectronsMonTool
     HIElectronsMonMan = AthenaMonManager( "HIElectronsMonManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
