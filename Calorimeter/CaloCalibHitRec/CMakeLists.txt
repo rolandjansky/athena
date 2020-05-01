@@ -35,6 +35,7 @@ find_package( CLHEP )
 # Component(s) in the package:
 atlas_add_library( CaloCalibHitRecLib
                      src/*.cxx
+		     PUBLIC_HEADERS CaloCalibHitRec
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent xAODTruth GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
 
