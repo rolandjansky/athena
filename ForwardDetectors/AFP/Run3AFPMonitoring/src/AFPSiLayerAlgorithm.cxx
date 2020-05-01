@@ -49,7 +49,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
     auto timeOverThreshold = Monitored::Scalar<float>("timeOverThreshold", 0.0);
     auto clusterX = Monitored::Scalar<float>("clusterX", 0.0);
-    auto clusterY = Monitored::Scalar<float>("clusterY", 0.0);
+    auto clusterY = Monitored::Scalar<float>("clusterY", 0.0); 
+    auto trackX = Monitored::Scalar<float>("trackX", 0.0);
+    auto trackY = Monitored::Scalar<float>("trackY", 0.0);
     
     lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -70,6 +72,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
       pixelRowIDChip = hitsItr->pixelRowIDChip();
       pixelColIDChip = hitsItr->pixelColIDChip();
       timeOverThreshold = hitsItr->timeOverThreshold();
+      std::cout << "\tTime Over Threshold: " << timeOverThreshold << "\n";
 	
       if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
       {
@@ -94,7 +97,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     for (const auto& track : fast.tracks()) {
       //ATH_MSG_INFO("t: " << track.x << " " << track.y);
-      
+      trackX = track.x;
+      trackY = track.y;
+      //fill(m_tools[m_HitmapGroups.at(m_stationnames.at(track.station))], trackX, trackY);
     }
  
 

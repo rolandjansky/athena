@@ -14,11 +14,15 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'Run3AFPMonitorCfg')
+    
+    from AthenaConfiguration.ComponentFactory import CompFactory
 
-    from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
+    #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
+    afpSiLayerAlgorithm = CompFactory.AFPSiLayerAlgorithm
     afpSiLayerAlgorithm = helper.addAlgorithm(AFPSiLayerAlgorithm,'AFPSiLayerAlg')
 
-    from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPToFAlgorithm
+    #from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPToFAlgorithm
+    afpToFAlgorithm = CompFactory.AFPToFAlgorithm
     afpToFAlgorithm = helper.addAlgorithm(AFPToFAlgorithm,'AFPToFAlg')
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
@@ -39,15 +43,15 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside']
 
     array = helper.addArray([combinedList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
-    array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
-    array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
-    array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
-    array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1}', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1};pixelColIDChip', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
+    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1};pixelRowIDChip', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
+    array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1};pixelColIDChip;pixelRowIDChip', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('timeOverThreshold', type='TH1F', title='1D Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
+    array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1};clusterX;clusterY', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
-    #tofStations = [ 'Aside', 'Cside' ]
-    arrayToF = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
-    arrayToF.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
+    arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
+    arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
+    array.defineHistogram('trackX,trackY', title='Track posistion position in station {0}trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)   
 
     #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=80, ymin=0.5, ymax=80.5)
     #array.defineHistogram('pixelRowIDChip,pixelRowIDChip', title='Correlation Col {0} Col {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
