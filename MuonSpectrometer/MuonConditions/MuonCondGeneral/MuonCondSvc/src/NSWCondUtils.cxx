@@ -107,6 +107,8 @@ namespace MuonCalib{
         tmp_str = tokens[ival++];
         sscanf(tmp_str.c_str(),"%80f",&bp);
         tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&bn);
+        tmp_str = tokens[ival++];
         sscanf(tmp_str.c_str(),"%80f",&sp);
         tmp_str = tokens[ival++];
         sscanf(tmp_str.c_str(),"%80f",&sn);
