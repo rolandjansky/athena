@@ -324,7 +324,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     theFactory.setDBkey( detectorKey );
     theFactory.setDBnode(detectorNode);
     theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
-    theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideC);
+    theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
     
     theFactory.setLayout(m_layout);
     //theFactory.setIncludeInertMats(m_includeInertMaterials);
