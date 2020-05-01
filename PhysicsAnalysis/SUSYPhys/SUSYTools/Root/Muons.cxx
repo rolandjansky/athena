@@ -233,7 +233,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
   else if ( fabs(input.eta()) > etacut ) return false;
 
   if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
-  if (dec_d0sig(input) != 0) {
+  if (acc_d0sig(input) != 0) {
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
