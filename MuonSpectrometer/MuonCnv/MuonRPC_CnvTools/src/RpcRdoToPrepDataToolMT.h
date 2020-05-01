@@ -18,14 +18,25 @@ public:
   virtual ~RpcRdoToPrepDataToolMT();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
+  
 protected:
   virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
+  StatusCode transferOutputToCache();
+
 
 private:
   /// This is the key for the cache for the MDT PRD containers, can be empty
   SG::UpdateHandleKey<RpcPrepDataCollection_Cache> m_prdContainerCacheKey ;
   SG::UpdateHandleKey<RpcCoinDataCollection_Cache> m_coindataContainerCacheKey ;
+  /// As this code is complex, we will store access to the cache container in the MT tool
+  /// and make contents available to Core code 
+  Muon::RpcPrepDataContainer* m_rpcPrepDataContainerFromCache;
+  Muon::RpcCoinDataContainer* m_rpcCoinDataContainerFromCache;
+  SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepDataContainerKeyLocal;
+  SG::WriteHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinDataContainerKeyLocal;
+
 
 };
 

@@ -38,6 +38,8 @@ def MuonPrdCacheCfg():
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
 
+    cacheCreator.OutputLevel = DEBUG
+
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 
@@ -63,6 +65,11 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
+    if forTrigger:
+        RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
+        RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
+        RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
+
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -76,7 +83,6 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
-
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc

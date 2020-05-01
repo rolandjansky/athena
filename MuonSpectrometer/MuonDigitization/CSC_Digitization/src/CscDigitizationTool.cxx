@@ -100,12 +100,12 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(m_cscDigitContainerKey.initialize());
   ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
 
-  ATH_MSG_DEBUG("WP Current MSG Level FATAL ? " << msgLvl(MSG::FATAL) );
-  ATH_MSG_DEBUG("WP Current MSG Level ERROR ? " << msgLvl(MSG::ERROR) );
-  ATH_MSG_DEBUG("WP Current MSG Level WARNING ? " << msgLvl(MSG::WARNING) );
-  ATH_MSG_DEBUG("WP Current MSG Level INFO ? " << msgLvl(MSG::INFO) );
-  ATH_MSG_DEBUG("WP Current MSG Level DEBUG ? " << msgLvl(MSG::DEBUG) );
-  ATH_MSG_DEBUG("WP Current MSG Level VERBOSE ? " << msgLvl(MSG::VERBOSE) );
+  ATH_MSG_DEBUG("WP Current MSG Level F-A-T-A-L ? " << msgLvl(MSG::FATAL) );
+  ATH_MSG_DEBUG("WP Current MSG Level E-R-R-O-R ? " << msgLvl(MSG::ERROR) );
+  ATH_MSG_DEBUG("WP Current MSG Level W-A-R-N-I-N-G ? " << msgLvl(MSG::WARNING) );
+  ATH_MSG_DEBUG("WP Current MSG Level I-N-F-O ? " << msgLvl(MSG::INFO) );
+  ATH_MSG_DEBUG("WP Current MSG Level D-E-B-U-G ? " << msgLvl(MSG::DEBUG) );
+  ATH_MSG_DEBUG("WP Current MSG Level V-E-R-B-O-S-E ? " << msgLvl(MSG::VERBOSE) );
 
 
   return StatusCode::SUCCESS;

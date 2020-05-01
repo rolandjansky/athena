@@ -64,8 +64,8 @@ public:
   StatusCode finalize();
 
   // decoding method 
-  StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-  StatusCode decode( const std::vector<uint32_t>& robIds );
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds );
 
   // debugging 
   void printInputRdo();
