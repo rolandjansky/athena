@@ -223,7 +223,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            "pt",
            "m",
            "eta",
-	   "et",
+           "et",
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
@@ -236,14 +236,14 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    if 'smc' in chain:
      trigConf.appendHistos(
              SelectSpec( 'm50', '50<m', chain, FillerTools = [
-	       ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
-	     ] ),
+             ] ),
              SelectSpec( 'et500', '500<et', chain, FillerTools = [
-	       ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
