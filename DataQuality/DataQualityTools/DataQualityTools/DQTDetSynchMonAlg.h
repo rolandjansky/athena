@@ -76,13 +76,13 @@ private:
   
   // storegate keys
   SG::ReadHandleKeyArray<InDetTimeCollection> m_InDetTimeCollectionKeys
-    { "TRT_BCID", "SCT_BCID", "PixelBCID", "TRT_LVL1ID", "SCT_LVL1ID", "PixelLVL1ID" } ;
+    { this, "InDetTimeCollectionKeys", {"TRT_BCID", "SCT_BCID", "PixelBCID", "TRT_LVL1ID", "SCT_LVL1ID", "PixelLVL1ID"} } ;
   SG::ReadHandleKey<LArFebHeaderContainer> m_LArFebHeaderContainerKey
-    { "LArFebHeader" };
+    { this, "LArFebHeaderKey", "LArFebHeader" };
   SG::ReadHandleKey<TileDigitsContainer> m_TileDigitsContainerKey
-    { "TileDigitsFlt" };
+    { this, "TileDigitsContainerKey", "TileDigitsFlt" };
   SG::ReadHandleKey<RpcPadContainer> m_RpcPadContainerKey
-    { "RPCPAD" };
+    { this, "RpcPadContainerKey", "RPCPAD" };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
                                                                        "Name of the Magnetic Field conditions object key"};
