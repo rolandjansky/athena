@@ -11,6 +11,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/AtlasHepMC
                           Simulation/ISF/ISF_Core/ISF_Event )
 
-# Install files from the package:
-atlas_install_headers( ISF_HepMC_Interfaces )
+atlas_add_library( ISF_HepMC_Interfaces
+                   ISF_HepMC_Interfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS ISF_HepMC_Interfaces
+                   LINK_LIBRARIES AtlasHepMCLib GaudiKernel ISF_Event )
 
