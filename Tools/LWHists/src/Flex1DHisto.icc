@@ -307,9 +307,6 @@ template <class T>
 inline void Flex1DHisto<T>::setBinError(unsigned bin, const double& e)
 {
   if (bin>m_nbinsPlus1) {//as in root
-#if defined(LW_STRICT_ROOT_BEHAVIOUR) && ROOT_VERSION_CODE < ROOT_VERSION(6,18,0)
-    m_flexArray.forcePretendSumWMode();
-#endif
     return;
   }
   assert(bin<m_nbinsPlus1+1);
@@ -321,9 +318,6 @@ template <class T>
 inline void Flex1DHisto<T>::setBinContentAndError(unsigned bin, const double& cont, const double& err )
 {
   if (bin>m_nbinsPlus1) {//as in root
-#if defined(LW_STRICT_ROOT_BEHAVIOUR) && ROOT_VERSION_CODE < ROOT_VERSION(6,18,0)
-    m_flexArray.forcePretendSumWMode();
-#endif
     return;
   }
   assert(bin<m_nbinsPlus1+1);
