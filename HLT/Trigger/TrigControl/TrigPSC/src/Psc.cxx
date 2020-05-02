@@ -676,7 +676,11 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 
   if ( Py_IsInitialized() ) {
     ERS_DEBUG(1, "Post-fork initialization of Python interpreter");
+#if PY_VERSION_HEX >= 0x03070000
+    PyOS_AfterFork_Child();
+#else
     PyOS_AfterFork();
+#endif
 
     /* Release the Python GIL (which we inherited from the mother)
        to avoid dead-locking on the first call to Python. Only relevant
