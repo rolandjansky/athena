@@ -1,17 +1,17 @@
 #!/bin/sh
 #
-# art-description: Run the full reconstruction on HITS with pile-up for JZ6W samples (leading jet pt: 1300-1800 GeV) for validation of tracking overlay
+# art-description: Run the full reconstruction on HITS with pile-up for JZ5W samples (leading jet pt: 800-1300 GeV) for validation of tracking overlay
 # art-include: 21.0/Athena
 # art-include: master/Athena
 # art-type: grid
 
-export inputHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrackingOverlay/JZ6W_HITS
+export inputHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrackingOverlay/JZ5W_HITS
 export inputHighPtMinbiasHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.simul.HITS.e4981_s3087_s3161
 export inputLowPtMinbiasHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.simul.HITS.e4981_s3087_s3161
-export outputRDOFile=RDO.JZ6W_wPU.root
-export outputESDFile=ESD.JZ6W_wPU.root
-export outputAODFile=AOD.JZ6W_wPU.root
-export outputNTUP_PHYSVALFile=NTUP_PHYSVAL.JZ6W_wPU.root
+export outputRDOFile=RDO.JZ5W_wPU.root
+export outputESDFile=ESD.JZ5W_wPU.root
+export outputAODFile=AOD.JZ5W_wPU.root
+export outputNTUP_PHYSVALFile=NTUP_PHYSVAL.JZ5W_wPU.root
 
 # Copied from r11627 (asetup Athena,21.0.97)
 # Running also with asetup 21.0,Athena,2020-02-28T2145
