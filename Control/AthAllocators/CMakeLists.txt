@@ -31,7 +31,7 @@ atlas_add_dictionary( AthAllocatorsDict
 macro( _simple_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES CxxUtils AthAllocators )
+      LINK_LIBRARIES CxxUtils AthAllocators TestTools )
 endmacro( _simple_test )
 
 _simple_test( exceptions_test )
@@ -57,5 +57,5 @@ _simple_test( LockedAllocator_test )
 
 atlas_add_test( DataPool_test
    SOURCES test/DataPool_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthAllocators
+   LINK_LIBRARIES GaudiKernel TestTools AthAllocators CxxUtils
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

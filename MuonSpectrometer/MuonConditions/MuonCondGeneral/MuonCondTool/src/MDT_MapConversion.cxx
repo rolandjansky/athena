@@ -147,10 +147,16 @@ const Identifier& MDT_MapConversion::ConvertToOffline(const std::string &OnlineI
   //const Identifier m_Online_empty;
   
   if (m_Chamber_Map.size()!=0){
-    const Identifier & OfflineName = (m_Chamber_Map.find(OnlineId)->second);
+    const auto& mapit = m_Chamber_Map.find(OnlineId);
+    if (ATH_UNLIKELY(mapit == m_Chamber_Map.end())) { 
+      log << MSG::ERROR << "Lookup of ID " << OnlineId << " in MDT_MapConversion::ConvertToOffline failed" << endmsg; 
+      return m_Online_empty; // not quite right but should never get here
+    }
+    const Identifier & OfflineName = (mapit->second);
     return OfflineName;
+  } else { 
+    return m_Online_empty; 
   }
-  else return m_Online_empty;
   
   
 }

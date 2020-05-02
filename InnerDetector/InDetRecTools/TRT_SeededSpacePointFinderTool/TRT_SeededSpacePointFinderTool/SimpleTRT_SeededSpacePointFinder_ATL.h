@@ -69,7 +69,8 @@ namespace InDet{
       /** main method, calls the private methods and returns a pointer to
           the list of SpacePointpairs. The list itself is a private member of this
           class */
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const Trk::TrackParameters&,
+      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const EventContext& ctx,
+                                                                                    const Trk::TrackParameters&,
                                                                                     InDet::ITRT_SeededSpacePointFinder::IEventData &event_data) const override;
       
       ///////////////////////////////////////////////////////////////////
@@ -138,7 +139,11 @@ namespace InDet{
        void getSearchRange(double& deltaPhi, double& deltaEta) const;
 
        /** retrieves SP Collections of modules in the ROI and sorts them by SCT layer */
-       void getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT,  std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints) const;
+       void getSpacePointsInROI(const EventContext& ctx,
+                                std::set<IdentifierHash>& setOfSCT_Hashes,
+                                int modulTRT,
+                                std::multimap<int,
+                                const Trk::SpacePoint*>& relevantSpacePoints) const;
 
        /** obtains the hashes of modules in the ROI */ 
        void getHashesInROI(const Trk::TrackParameters& directionTRT, std::set<IdentifierHash>& setOfSCT_Hashes) const;

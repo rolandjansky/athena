@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_IonizationCluster.h"
-
-using namespace std;
 
 MM_NelectronProb MM_IonizationCluster::s_NelectronProb;
 

@@ -47,7 +47,7 @@ class TauRunnerAlg: public AthAlgorithm
 
  private:
        
-	ToolHandleArray<ITauToolBase>  m_tools{this, "TauRunnerTools", {}, "Tools building taus"};
+	ToolHandleArray<ITauToolBase>  m_tools{this, "Tools", {}, "Tools building taus"};
 
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauInputContainer{this,"Key_tauInputContainer","tmp_TauJets","input temp tau key"};
 	SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterInputContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};

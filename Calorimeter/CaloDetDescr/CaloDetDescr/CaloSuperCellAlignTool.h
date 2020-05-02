@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -21,7 +21,7 @@
 #include "CaloDetDescr/ICaloSuperCellAlignTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "CxxUtils/checker_macros.h"
 
 class CaloSuperCellDetDescrManager;
 class CaloDetDescrManager;
@@ -32,7 +32,7 @@ class ICaloSuperCellIDTool;
 /**
  * @brief Propagate alignent changes to supercell geometry.
  */
-class CaloSuperCellAlignTool
+class ATLAS_NOT_THREAD_SAFE CaloSuperCellAlignTool
   : public extends2<AthAlgTool, ICaloSuperCellAlignTool, IGeoAlignTool>
 {
 public:
@@ -146,9 +146,9 @@ private:
 
 
   /// Not implemented.
-  CaloSuperCellAlignTool();
-  CaloSuperCellAlignTool (const CaloSuperCellAlignTool&);
-  CaloSuperCellAlignTool& operator= (const CaloSuperCellAlignTool&);
+  CaloSuperCellAlignTool() = delete;
+  CaloSuperCellAlignTool (const CaloSuperCellAlignTool&) = delete;
+  CaloSuperCellAlignTool& operator= (const CaloSuperCellAlignTool&) = delete;
 };
 
 

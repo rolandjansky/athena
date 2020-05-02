@@ -145,7 +145,7 @@ StatusCode TRTFastDigitizationTool::initialize()
 }
 
 
-StatusCode TRTFastDigitizationTool::prepareEvent( unsigned int )
+StatusCode TRTFastDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int )
 {
   m_trtHitCollList.clear();
   m_thpctrt = new TimedHitCollection< TRTUncompressedHit >();
@@ -292,11 +292,11 @@ StatusCode TRTFastDigitizationTool::setNumericalConstants() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode TRTFastDigitizationTool::produceDriftCircles() {
+StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx) {
   
   if(m_useEventInfo){
 
-     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey);
+     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey, ctx);
      if(eventInfoContainer.isValid()){
        m_NCollPerEvent = (float) eventInfoContainer->averageInteractionsPerCrossing();
      }
@@ -445,7 +445,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 }
 
 
-StatusCode TRTFastDigitizationTool::processAllSubEvents() {
+StatusCode TRTFastDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::processAllSubEvents()" );
 
@@ -475,7 +475,7 @@ StatusCode TRTFastDigitizationTool::processAllSubEvents() {
   m_thpctrt = &timedHitCollection;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  CHECK( this->produceDriftCircles() );
+  CHECK( this->produceDriftCircles(ctx) );
 
   CHECK( this->createAndStoreRIOs() );
   ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
@@ -512,7 +512,7 @@ StatusCode TRTFastDigitizationTool::createOutputContainers() {
 }
 
 
-StatusCode TRTFastDigitizationTool::mergeEvent() {
+StatusCode TRTFastDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::mergeEvent()" );
 
@@ -520,7 +520,7 @@ StatusCode TRTFastDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
   if ( m_thpctrt != 0 ) {
-    CHECK( this->produceDriftCircles() );
+    CHECK( this->produceDriftCircles(ctx) );
   }
 
   // Clean up temporary containers

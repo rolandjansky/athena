@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -256,14 +256,15 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 	const Identifier end_id = end_surf.associatedDetectorElementIdentifier();
 
 	// look for holes
-	const std::vector<const Trk::TrackParameters*>* steps = m_extrapolator->extrapolateStepwise(*start_parameters, end_surf, Trk::alongMomentum, m_bcheck, partHyp);
+	std::vector<std::unique_ptr<const Trk::TrackParameters> > steps =
+          m_extrapolator->extrapolateStepwise(*start_parameters, end_surf, Trk::alongMomentum, m_bcheck, partHyp);
 
-	if(!steps) {
+	if(steps.empty()) {
 		ATH_MSG_DEBUG("extrapolateBetweenHits: extrapolateStepwise returned null");
 	} else {
 		// loop over parameters from extrapolation
 		// note: the last element in the vector is always the track parameters at the destination surface
-		for(std::vector<const Trk::TrackParameters*>::const_iterator step = steps->begin(); step != steps->end()-1; ++step) {
+                for(std::vector<std::unique_ptr<const Trk::TrackParameters> >::const_iterator step = steps.begin(); step != steps.end()-1; ++step) {
 			// check for surface
 			const Trk::Surface& surf = (*step)->associatedSurface();
 			
@@ -359,11 +360,6 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			hole_count++;
 			previous_id = id;
 		} // end loop over parameters from extrapolation
-		// clean up memory
-		for(std::vector<const Trk::TrackParameters*>::const_iterator it = steps->begin(); it != steps->end(); ++it)
-			delete (*it);
-		delete steps;
-		steps = 0;
 	}
 	return hole_count;
 }

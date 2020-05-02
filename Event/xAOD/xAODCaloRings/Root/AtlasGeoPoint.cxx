@@ -14,11 +14,6 @@
 const float AtlasGeoPoint::PHI_MIN = CaloPhiRange::phi_min();
 const float AtlasGeoPoint::PHI_MAX = CaloPhiRange::phi_max();
 
-#if !(RINGER_USE_NEW_CPP_FEATURES)
-const float AtlasGeoPoint::ETA_MIN = -5;
-const float AtlasGeoPoint::ETA_MAX = 5;
-#else
 constexpr float AtlasGeoPoint::ETA_MIN;
 constexpr float AtlasGeoPoint::ETA_MAX;
-#endif
 

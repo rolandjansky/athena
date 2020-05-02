@@ -97,17 +97,17 @@ public:
      @brief Called before processing physics events
   */
   virtual StatusCode initialize();
-  StatusCode prepareEvent( unsigned int );
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int );
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode mergeEvent();
-  StatusCode processAllSubEvents();
-  StatusCode createAndStoreRIOs();
+  StatusCode mergeEvent(const EventContext& ctx);
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
 
 private:
 
-  StatusCode digitize();
+  StatusCode digitize(const EventContext& ctx);
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
   void Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;

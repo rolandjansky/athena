@@ -93,7 +93,7 @@ endif()
 atlas_add_test( ConcurrentBitset_test
   SOURCES test/ConcurrentBitset_test.cxx
   INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CK_INCLUDE}
-  LINK_LIBRARIES CxxUtils ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${CK_LIBRARIES} )
+  LINK_LIBRARIES CxxUtils TestTools ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${CK_LIBRARIES} )
 if ( IS_DIRECTORY /usr/include/ck )
   target_compile_definitions(CxxUtils_ConcurrentBitset_test
     PRIVATE "-DHAVE_CK" )
@@ -118,7 +118,7 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"
-      LINK_LIBRARIES CxxUtils )
+      LINK_LIBRARIES CxxUtils TestTools )
 endforeach()
 # Needed because this executable directly uses multiversioned functions.
 set_property( TARGET CxxUtils_crc64_test PROPERTY POSITION_INDEPENDENT_CODE ON )

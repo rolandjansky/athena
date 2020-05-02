@@ -88,7 +88,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	// pTau.setAuthor(TauJetParameters::tau1P3P);
 	//***********************************************************************
 	
-    if (m_in_trigger && pJetSeed->e() < 0) {
+    if (inTrigger() && pJetSeed->e() < 0) {
 		// SL/SX trigger mode with negative jet_seed - do not set TauJet eta and phi in JetSeedBuilder
 		ATH_MSG_DEBUG("TauJet eta/phi will be set in Level2 Trigger for negative energy jet");
 		pTau.setP4(pJetSeed->pt(),pTau.eta(),pTau.phi(),0.0);

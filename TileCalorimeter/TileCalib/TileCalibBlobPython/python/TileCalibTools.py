@@ -13,12 +13,9 @@ Python helper module for managing COOL DB connections and TileCalibBlobs.
 
 from __future__ import print_function
 
-import ROOT
-ROOT.gInterpreter.EnableAutoLoading()
-
 import cx_Oracle # noqa: F401
 from PyCool import cool
-import time, re, sys, os
+import datetime, time, re, sys, os
 try:
     # For Python 3.0 and later
     from urllib.request import urlopen
@@ -592,7 +589,7 @@ class TileBlobWriter(TileCalibLogger):
             self.log().info( "... %d cool channels have been written in total (including comment field)", cnt )
 
     #____________________________________________________________________
-    def setComment(self, author, comment):
+    def setComment(self, author, comment=None):
         """
         Sets a general comment in the comment channel.
         """
@@ -604,12 +601,16 @@ class TileBlobWriter(TileCalibLogger):
                 data = cool.Record( spec )
                 self.__chanDictRecord[chanNum] = data
             blob = data['TileCalibBlob']
-            TileCalibDrawerCmt.getInstance(blob,author,comment)
+            if isinstance(author,tuple) and len(author)==3:
+                tm=time.mktime(datetime.datetime.strptime(author[2], "%a %b %d %H:%M:%S %Y").timetuple())
+                TileCalibDrawerCmt.getInstance(blob,author[0],author[1],int(tm))
+            else:
+                TileCalibDrawerCmt.getInstance(blob,author,comment)
         except Exception as e:
             self.log().critical( e )
         
     #____________________________________________________________________
-    def getComment(self):
+    def getComment(self, split=False):
         """
         Returns the general comment (default if none is set)
         """
@@ -620,7 +621,10 @@ class TileBlobWriter(TileCalibLogger):
                 return "<No general comment!>"
             blob = data['TileCalibBlob']
             cmt = TileCalibDrawerCmt.getInstance(blob)
-            return cmt.getFullComment()
+            if split:
+                return (cmt.getAuthor(),cmt.getComment(),cmt.getDate())
+            else:
+                return cmt.getFullComment()
         except Exception as e:
             self.log().critical( e )
 
@@ -735,7 +739,7 @@ class TileBlobReader(TileCalibLogger):
         self.__objDict = {}
 
     #____________________________________________________________________
-    def getComment(self, pointInTime):
+    def getComment(self, pointInTime, split=False):
         """
         Returns the general comment (default if none is set)
         """
@@ -746,7 +750,10 @@ class TileBlobReader(TileCalibLogger):
             self.log().debug("getComment:Fetching from DB: %s", obj)
             blob = obj.payload()[0]
             cmt = TileCalibDrawerCmt.getInstance(blob)
-            return cmt.getFullComment()
+            if split:
+                return (cmt.getAuthor(),cmt.getComment(),cmt.getDate())
+            else:
+                return cmt.getFullComment()
         except Exception:
             return "<no comment found>"
         
@@ -1146,20 +1153,26 @@ class TileASCIIParser(TileCalibLogger):
 class TileASCIIParser2(TileCalibLogger):
     """
     This is a class capable of parsing TileCal conditions data stored in
-    ASCII files. Both the single and multi-line formats are supported. 
+    ASCII files. This version of parser can be used when mutiple IOVs are
+    given in the file. First column is (run,lumi) pair in this case
     """
 
     #____________________________________________________________________
-    def __init__(self, fileName, calibId="", isSingleLineFormat=True):
+    def __init__(self, fileName, calibId="", readGain=True):
         """
         Input:
         - fileName          : input file name
-        - calibId           : like Ped, ...  but can be empty string as well
-        - isSingleLineFormat: if False, multi line format is assumed
+        - calibId           : like Ped, Las, ... or (r,l) or (run,lumi) but can be empty string as well
+        - readGain          : if False, no gain field in input file
         """
         
         TileCalibLogger.__init__(self,"TileASCIIParser2")
         self.__dataDict = {}
+        self.__manyIOVs = (calibId=="(run,lumi)" or calibId=="(r,l)" )
+        self.__readGain = readGain
+        iov=(0,0)
+        gain=-1
+
         try:
             lines = open(fileName,"r").readlines()
         except Exception as e:
@@ -1181,23 +1194,30 @@ class TileASCIIParser2(TileCalibLogger):
 
             #=== read in fields
             if len(calibId)>0:
-                type = fields[0]
+                pref = fields[0]
                 frag = fields[1]
                 chan = fields[2]
-                gain = fields[3]
-                data = fields[4:] 
+                if readGain:
+                    gain = fields[3]
+                    data = fields[4:]
+                else:
+                    data = fields[3:]
 
                 #=== check for correct calibId
-                if type!=calibId:
-                    raise Exception("%s is not calibId=%s" % (type,calibId))
+                if self.__manyIOVs:
+                    iov=tuple(int(i) for i in pref[1:-1].split(","))
+                    if len(iov)!=2 or pref[0]!="(" or pref[-1]!=")":
+                        raise Exception("%s is not %s IOV" % (pref,calibId))
+                elif pref!=calibId:
+                    raise Exception("%s is not calibId=%s" % (pref,calibId))
             else:
                 frag = fields[0]
                 chan = fields[1]
-                gain  = fields[2]
-                data = fields[3:] 
-
-            if not isSingleLineFormat:
-                raise Exception("Multiline format not implemented yet")
+                if readGain:
+                    gain  = fields[2]
+                    data = fields[3:]
+                else:
+                    data = fields[2:]
 
             #=== decode fragment 
             if frag.startswith('0x') or frag.startswith('-0x'):
@@ -1270,12 +1290,24 @@ class TileASCIIParser2(TileCalibLogger):
                      if allchannels or self.channel2PMT(ros,mod,chn)>0: 
                         for adc in range (adcmin,adcmax):
                            dictKey = (ros,mod,chn,adc)
-                           self.__dataDict[dictKey] = data
+                           if self.__manyIOVs:
+                               if dictKey in self.__dataDict:
+                                   self.__dataDict[dictKey] += [(iov,data)]
+                               else:
+                                   self.__dataDict[dictKey] = [(iov,data)]
+                           else:
+                               self.__dataDict[dictKey] = data
 
     #____________________________________________________________________
-    def getData(self, ros, drawer, channel, adc):
+    def getData(self, ros, drawer, channel, adc, iov=(MAXRUN,MAXLBK)):
         dictKey = (int(ros), int(drawer), int(channel), int(adc))
         data = self.__dataDict.get(dictKey,[])
+        if self.__manyIOVs and len(data)>0:
+            before= [i for i in sorted(data) if i[0] <= iov ]
+            if len(before)>0:
+                data = before[-1][1]
+            else:
+                data = []
         return data
 
     #____________________________________________________________________
@@ -1385,7 +1417,3 @@ class TileASCIIParser3(TileCalibLogger):
         import copy
         return copy.deepcopy(self.__dataDict)
 
-
-
-
-        

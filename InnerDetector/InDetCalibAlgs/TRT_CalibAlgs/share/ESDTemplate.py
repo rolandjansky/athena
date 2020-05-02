@@ -142,8 +142,6 @@ InDetFlags.preProcessing                = redoPatternRecoAndTracking
 InDetFlags.doPRDFormation               = False                       # those two will be (later) automatically false if
 InDetFlags.doSpacePointFormation        = redoPatternRecoAndTracking  # preProcessing is false
 InDetFlags.doNewTracking                = redoPatternRecoAndTracking
-InDetFlags.doiPatRec                    = False
-InDetFlags.doxKalman                    = False
 InDetFlags.doLowPt                      = False
 InDetFlags.doCTBTracking                = False
 InDetFlags.doBackTracking               = redoPatternRecoAndTracking
@@ -279,31 +277,27 @@ conddb.addFolder("TRT","/TRT/Calib/RT" )
 conddb.addFolder("TRT","/TRT/Calib/T0" )   
 """
     ostring+="""
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
 ServiceMgr += TRTStrawNeighbourSvc
 
 
-#from TRT_ConditionsTools.TRT_ConditionsToolsConf import TRTCalDbTool
-#TRTCalTool=TRTCalDbTool(name="TRTCalDbTool",StreamTool=TRTCondStream)
+from TRT_ConditionsTools.TRT_ConditionsToolsConf import TRTCalDbTool
+TRTCalTool=TRTCalDbTool(name="TRT_CalDbTool")
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalSvc.calibTextFile="%s"\n' % (calibconstants)
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
 
     ostring+="""
-#ToolSvc+=TRTCalTool
-#print TRTCalTool
+
 
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
                                                    AllowDataMCOverride = True,
-                                                   TRTCalDbTool=TRTCalSvc,
+                                                   TRTCalDbTool=TRTCalTool,
                                                    ForceData = True,
                                                    IsMC=(globalflags.DataSource == 'geant4'))
 
@@ -324,7 +318,7 @@ print      FillAlignTrkInfo
 
 from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits 
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits', 
-				      TRTCalDbSvc  = TRTCalSvc,
+				      TRTCalDbSvc  = TRTCalTool,
                                       minTimebinsOverThreshold=0,
                                       NeighbourSvc=TRTStrawNeighbourSvc)
 ToolSvc += FillAlignTRTHits
@@ -395,12 +389,13 @@ print          SelectTRTAlignTracks
                                      
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrkCollections      = [ 'TRTCalibTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],
                                        #AccumulatorTools    = [ TRTCalAccumulator ],
                                        FitTools            = [ TRTCalFitTool],
-                                       TrackFitter         = RecalibrationFitter,
-                                       TRTCalDBTool        = TRTCalSvc )
+                                       TrackFitter         = RecalibrationFitter)
+
 
 topSequence += CosmicsTRTCalibMgr
 print CosmicsTRTCalibMgr

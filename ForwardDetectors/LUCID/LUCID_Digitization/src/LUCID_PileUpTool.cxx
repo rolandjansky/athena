@@ -120,7 +120,7 @@ StatusCode LUCID_PileUpTool::initialize()
 }
 
 /// ----------------------------------------------------------------------------------------------------
-StatusCode LUCID_PileUpTool::prepareEvent(const unsigned int nInputEvents)
+StatusCode LUCID_PileUpTool::prepareEvent(const EventContext& /*ctx*/, const unsigned int nInputEvents)
 {
   ATH_MSG_DEBUG ( "prepareEvent() called for " << nInputEvents << " input events" );
 
@@ -175,7 +175,7 @@ StatusCode LUCID_PileUpTool::processBunchXing(int bunchXing,
 }
 
 /// ----------------------------------------------------------------------------------------------------
-StatusCode LUCID_PileUpTool::mergeEvent()
+StatusCode LUCID_PileUpTool::mergeEvent(const EventContext& /*ctx*/)
 {
   CHECK(m_digitToolBox->fillDigitContainer(m_mergedhitList, m_rndEngine));
   ATH_MSG_DEBUG ( " LUCID_DigitContainer successfully registered in StoreGate " );
@@ -184,7 +184,7 @@ StatusCode LUCID_PileUpTool::mergeEvent()
 }
 
 /// ----------------------------------------------------------------------------------------------------
-StatusCode LUCID_PileUpTool::processAllSubEvents()
+StatusCode LUCID_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
   if(!m_mergeSvc)

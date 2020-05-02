@@ -1,30 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmdcDumpGeoModel_H
 #define AmdcDumpGeoModel_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h" 
-
-
-class StoreGateSvc;
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-
-using namespace MuonGM;
-
 /////////////////////////////////////////////////////////////////////////////
 #include "AmdcMGM/AmdcMGMMisc.h"
-
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
+
+namespace MuonGM {
+    class MdtReadoutElement;
+    class RpcReadoutElement;
+    class TgcReadoutElement;
+    class CscReadoutElement;
+}
 
   /**
    @class AmdcDumpGeoModel
@@ -38,14 +35,10 @@ using namespace MuonGM;
 
 class AmdcDumpGeoModel:public AthAlgorithm {
 public:
-  AmdcDumpGeoModel (const std::string& name, ISvcLocator* pSvcLocator);
-
-public:
-///////////////////////////////////
+   AmdcDumpGeoModel (const std::string& name, ISvcLocator* pSvcLocator);
 
    StatusCode initialize();
-   StatusCode execute();
-   StatusCode finalize();
+   StatusCode execute(){return StatusCode::SUCCESS;}
 
    StatusCode DoItCallback(IOVSVC_CALLBACK_ARGS);
 
@@ -59,7 +52,7 @@ private:
    /**Comparison for Mdt */
    void MdtCompare(std::ofstream&           OutFile,
                    Identifier               channelId,
-                   const MdtReadoutElement* pReadoutElement);
+                   const MuonGM::MdtReadoutElement* pReadoutElement);
    void MdtCompare(
                    std::ofstream& OutFile             ,
                    double         EpsLoMdt            ,
@@ -87,7 +80,7 @@ private:
    /**Comparison for Rpc */
    void RpcCompare(std::ofstream&           OutFile,
                    Identifier               channelId,
-                   const RpcReadoutElement* pReadoutElement);
+                   const MuonGM::RpcReadoutElement* pReadoutElement);
    void RpcCompare(
                    std::ofstream& OutFile              ,
                    double         EpsLoRpc             ,
@@ -114,7 +107,7 @@ private:
    /**Comparison for Tgc */
    void TgcCompare(std::ofstream&           OutFile,
                    Identifier               channelId,
-                   const TgcReadoutElement* pReadoutElement);
+                   const MuonGM::TgcReadoutElement* pReadoutElement);
    void TgcCompare(
                    std::ofstream& OutFile             ,
                    double         EpsLoTgc            ,
@@ -138,7 +131,7 @@ private:
    /**Comparison for Csc */
    void CscCompare(std::ofstream&           OutFile,
                    Identifier               channelId,
-                   const CscReadoutElement* pReadoutElement);
+                   const MuonGM::CscReadoutElement* pReadoutElement);
    void CscCompare(
                    std::ofstream& OutFile             ,
                    double         EpsLoCsc            ,
@@ -196,7 +189,6 @@ private:
 
    int m_EmergencyOut ; //!< Optional stop at the end of initialisation
 
-   StoreGateSvc*   p_detStore    ; //!< Pointer On StoreGateSvc
    const MuonGM::MuonDetectorManager* p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 
    double m_Mdt_MaxDiffZ  ; //!< Max deviation
@@ -223,8 +215,7 @@ private:
    int m_KountCallsDoIt     ; //!< Kount calls to DoIt
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
-   ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{this, "idHelper", 
-      "Muon::MuonIdHelperSvc/MuonIdHelperSvc", "Handle to the service providing the IMuonIdHelperSvc interface"};
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
    StatusCode regFcnDoIt();
    StatusCode DoIt();

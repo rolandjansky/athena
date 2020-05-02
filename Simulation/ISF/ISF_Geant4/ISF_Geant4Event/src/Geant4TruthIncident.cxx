@@ -19,7 +19,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // Geant4 includes
 #include "G4Step.hh"

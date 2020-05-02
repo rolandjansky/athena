@@ -36,18 +36,20 @@ public:
  
 private:
 
-    StatusCode loadDataHv     (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    typedef SG::WriteCondHandle<CscCondDbData> writeHandle_t;
 
-    StatusCode loadData       (EventIDRange &, CscCondDbData*, SG::ReadCondHandle<CondAttrListCollection>, const std::string, bool = false) const;
+    StatusCode loadDataHv     (writeHandle_t &, CscCondDbData*, const EventContext&) const;
 
-    StatusCode loadDataF001   (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataNoise  (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataPed    (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataPSlope (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataRMS    (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataStatus (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataT0Base (EventIDRange &, CscCondDbData*, const EventContext&) const;
-    StatusCode loadDataT0Phase(EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadData       (CscCondDbData*, const CondAttrListCollection*, const std::string, bool = false) const;
+
+    StatusCode loadDataF001   (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataNoise  (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataPed    (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataPSlope (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataRMS    (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataStatus (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataT0Base (writeHandle_t &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataT0Phase(writeHandle_t &, CscCondDbData*, const EventContext&) const;
 
     StatusCode cache   (std::string  , CscCondDbData*, const std::string) const;
     StatusCode cacheASM(std::string  , CscCondDbData*, const std::string) const;

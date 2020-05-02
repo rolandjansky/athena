@@ -10,10 +10,12 @@
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
 #include "TrigConfIO/TrigDBHLTPrescalesSetLoader.h"
+#include "TrigConfIO/TrigDBL1BunchGroupSetLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1PrescalesSet.h"
 #include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 using namespace std;
 
@@ -22,7 +24,7 @@ public:
    ~Config(){}
    Config(){}
 
-   std::vector<std::string> knownParameters { "file", "smk", "l1psk", "hltpsk", "db", "write", "help", "h", "d", "detail" };
+   std::vector<std::string> knownParameters { "file", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "help", "h", "d", "detail" };
 
    // parameters
    // input
@@ -30,6 +32,7 @@ public:
    unsigned int smk { 0 };
    unsigned int l1psk { 0 };
    unsigned int hltpsk { 0 };
+   unsigned int bgsk { 0 };
    std::string  dbalias { "TRIGGERDBDEV2" };
 
    // output
@@ -60,6 +63,7 @@ void Config::usage() {
   cout << "  --smk                 smk                           ... smk \n";
   cout << "  --l1psk               l1psk                         ... the L1 prescale key \n";
   cout << "  --hltpsk              hltpsk                        ... the HLT prescale key \n";
+  cout << "  --bgsk                bgsk                          ... the bunchgroup key \n";
   cout << "  --db                  dbalias                       ... dbalias (default " << dbalias << ") \n";
   cout << "[Output options]\n";
   cout << "  --write               [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
@@ -121,6 +125,10 @@ Config::parseProgramOptions(int argc, char* argv[]) {
          hltpsk = stoul(currentWord);
          continue; 
       }
+      if(currentParameter == "bgsk") {
+         bgsk = stoul(currentWord);
+         continue;
+      }
       if(currentParameter == "db") { 
          dbalias = currentWord;
          continue; 
@@ -135,8 +143,8 @@ Config::parseProgramOptions(int argc, char* argv[]) {
    }
 
    // some sanity checks
-   if ( inputFiles.size() == 0 and smk == 0 and l1psk == 0 and hltpsk == 0 ) {
-      error.push_back("No input specified! Please provide either one of the following: input file(s), smk, l1psk, or hltpsk");
+   if ( inputFiles.size() == 0 and smk == 0 and l1psk == 0 and hltpsk == 0 and bgsk == 0 ) {
+      error.push_back("No input specified! Please provide either one of the following: input file(s), smk, l1psk, hltpsk, or bgsk");
    }
 
    if ( listofUnknownParameters.size() > 0 ) {
@@ -193,8 +201,13 @@ int main(int argc, char** argv) {
             fileLoader.loadFile( fn, hltpss);
             cout << "Loaded HLT prescales set file " << fn << " with " << hltpss.size() << " prescales" << endl;
             hltpss.printPrescaleSet(cfg.detail);
+         } else if(filetype == "bunchgroupset" ) {
+            TrigConf::L1BunchGroupSet bgs;
+            fileLoader.loadFile( fn, bgs);
+            cout << "Loaded L1 BunchGroup set file " << fn << " with " << bgs.sizeNonEmpty() << " non-empty bunchgroups" << endl;
+            bgs.printSummary(cfg.detail);
          } else {
-            cerr << "File " << fn << " not recognized as being an L1 or HLT menu or prescale set" << endl;
+            cerr << "File " << fn << " not recognized as being an L1 or HLT menu or prescale set or bunchgroup set" << endl;
          }
 
       }
@@ -269,6 +282,21 @@ int main(int argc, char** argv) {
          cout << "Loaded HLT prescales set with " << hltpss.size() << " prescales" <<  endl;
       } else {
          cout << "Did not load an HLT prescales set" << endl;
+      }
+   }
+
+
+   if( cfg.bgsk != 0 ) {
+      // load L1 prescales set from DB
+      TrigConf::TrigDBL1BunchGroupSetLoader dbloader(cfg.dbalias);
+      TrigConf::L1BunchGroupSet bgs;
+
+      dbloader.loadBunchGroupSet( cfg.bgsk, bgs );
+      if (bgs) {
+         cout << "Loaded L1 bunchgroup set with " << bgs.size() << " bunchgroups" <<  endl;
+         bgs.printSummary(cfg.detail);
+      } else {
+         cout << "Did not load an L1 bunchgroups set" << endl;
       }
    }
 

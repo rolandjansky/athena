@@ -63,9 +63,8 @@ if idDxAOD_doTrt:
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
   TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
   ServiceMgr += TRTStrawNeighbourSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr += TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
 
 
 #====================================================================
@@ -81,15 +80,6 @@ IDTIDE1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "I
 ToolSvc += IDTIDE1TrackToVertexWrapper 
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
 _info(IDTIDE1TrackToVertexWrapper)
-
-# Add decoration with truth parameters if running on simulation
-if IsMonteCarlo:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                        DecorationPrefix = "")
-    ToolSvc += TruthDecor
-    augmentationTools.append(TruthDecor)
-    _info(TruthDecor)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
@@ -109,6 +99,22 @@ _info(DFTSOS)
 
 # Sequence for skimming kernel (if running on data) -> PrepDataToxAOD -> ID TIDE kernel
 IDTIDESequence = CfgMgr.AthSequencer("IDTIDESequence")
+# Add decoration with truth parameters if running on simulation
+if IsMonteCarlo:
+  # add track parameter decorations to truth particles but only if the decorations have not been applied already
+  import InDetPhysValMonitoring.InDetPhysValDecoration
+  meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
+  from AthenaCommon.Logging import logging
+  logger = logging.getLogger( "DerivationFramework" )
+  if len(meta_data) == 0 :
+    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
+    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg([truth_track_param_decor_alg.getName()]) == None :
+      IDTIDESequence += truth_track_param_decor_alg
+    else :
+      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
+  else :
+    logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
+
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -305,21 +311,6 @@ IDTIDESequence += idtide_kernel
 DerivationFrameworkJob += IDTIDESequence
 accept_algs=[ idtide_kernel.name() ]
 
-if IsMonteCarlo:
-  # add track parameter decorations to truth particles but only if the decorations have not been applied already
-  import InDetPhysValMonitoring.InDetPhysValDecoration
-  meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
-  from AthenaCommon.Logging import logging
-  logger = logging.getLogger( "DerivationFramework" )
-  if len(meta_data) == 0 :
-    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
-    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg(truth_track_param_decor_alg.getName()) == None :
-      accept_algs.append( truth_track_param_decor_alg )
-    else :
-      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
-  else :
-    logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
-
 # Set the accept algs for the stream
 IDTIDE1Stream.AcceptAlgs( accept_algs )
 
@@ -348,7 +339,7 @@ IDTIDE1Stream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 IDTIDE1Stream.AddItem("xAOD::ElectronContainer#Electrons")
 IDTIDE1Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 IDTIDE1Stream.AddItem("xAOD::PhotonContainer#Photons")

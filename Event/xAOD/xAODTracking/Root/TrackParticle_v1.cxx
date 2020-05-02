@@ -626,17 +626,7 @@ namespace xAOD {
 
   void TrackParticle_v1::setPatternRecognitionInfo(const std::bitset<xAOD::NumberOfTrackRecoInfo>& patternReco)  {
     static const Accessor< uint64_t > acc( "patternRecoInfo" );
-  #if __cplusplus < 201100
-    uint64_t value = 0;
-    unsigned int i = 0;
-    unsigned int size=patternReco.size();
-    for (;i<32;++i)       value   |= ((patternReco[i]) << i);
-    for (i=32;i<size;++i) value   |= ((patternReco[i]) << (i-32));
-    acc( *this ) = value;
-
-  #else
     acc( *this ) = patternReco.to_ullong();
-  #endif
   }
 
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::ParticleHypothesis, particleHypothesis, setParticleHypothesis)

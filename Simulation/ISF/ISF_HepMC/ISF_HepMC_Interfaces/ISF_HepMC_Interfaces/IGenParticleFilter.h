@@ -15,9 +15,7 @@
 // Simulation includes
 #include "ISF_Event/SimSvcID.h" 
 
-namespace HepMC {
-    class GenParticle;
-} 
+#include "AtlasHepMC/GenParticle_fwd.h"
  
 namespace ISF {
  

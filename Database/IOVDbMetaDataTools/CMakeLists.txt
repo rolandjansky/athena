@@ -14,6 +14,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Database/IOVDbDataModel )
 
+atlas_add_library( IOVDbMetaDataToolsLib
+                   INTERFACE
+                   PUBLIC_HEADERS IOVDbMetaDataTools
+                   LINK_LIBRARIES GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( IOVDbMetaDataTools
                      src/IOVDbMetaDataTool.cxx

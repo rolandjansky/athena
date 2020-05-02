@@ -224,13 +224,9 @@ namespace Athena_test
     //can't record with same key
     SGASSERTERROR(rSG.record(new Foo(5), key).isSuccess());
     SGASSERTERROR(rSG.record(new Foo(6), key, LOCKED).isSuccess());
-#if __cplusplus > 201100
-    {
-      std::unique_ptr<Foo> foo5 (new Foo(5));
-      SGASSERTERROR(rSG.record(std::move(foo5), key).isSuccess());
-      assert (foo5.get() == 0);
-    }
-#endif
+    std::unique_ptr<Foo> foo5 (new Foo(5));
+    SGASSERTERROR(rSG.record(std::move(foo5), key).isSuccess());
+    assert (foo5.get() == 0);
 
     assert(rSG.record(new Foo(7), "UnLocked", !LOCKED).isSuccess());
     assert(rSG.record(new Foo(8), "Locked", LOCKED).isSuccess());
@@ -238,26 +234,16 @@ namespace Athena_test
     assert(rSG.record(new Foo(10), "UnLockedReset", !LOCKED, RESET).isSuccess());
     assert(rSG.record(new Foo(11), "LockedDelete", LOCKED, DELETE).isSuccess());
 
-#if __cplusplus > 201100
-    {
-      std::unique_ptr<Foo> foo12 (new Foo(12));
-      assert(rSG.record(std::move(foo12),
-                        "UnLockedDelete", !LOCKED, DELETE).isSuccess());
-      assert(foo12.get() == 0);
-    }
-#else
-    assert(rSG.record(new Foo(12), "UnLockedDelete", !LOCKED, DELETE).isSuccess());
-#endif
+    std::unique_ptr<Foo> foo12 (new Foo(12));
+    assert(rSG.record(std::move(foo12),
+                      "UnLockedDelete", !LOCKED, DELETE).isSuccess());
+    assert(foo12.get() == 0);
 
     assert(rSG.record(cpFoo=new Foo(13), "Const").isSuccess());
 
-#if __cplusplus > 201100
     std::unique_ptr<const Foo> foo13a (new Foo(130));
     assert(rSG.record(std::move(foo13a), "Const2").isSuccess());
     assert(foo13a.get() == 0);
-#else
-    assert(rSG.record(cpFoo=new Foo(130), "Const2").isSuccess());
-#endif
 
     //FIXME!!! assert(rSG.record(cpFoo=new Foo(14), "ConstUnLocked", !LOCKED).isSuccess());
     SGASSERTERROR(rSG.record(cpFoo=new Foo(15), "Const").isSuccess());
@@ -266,19 +252,11 @@ namespace Athena_test
     /// Test overwriting.
     assert (rSG.record(new Foo(101), "ow").isSuccess());
     assert (rSG.overwrite(new Foo(102), "ow").isSuccess());
-#if __cplusplus > 201100
     assert (rSG.overwrite(make_unique<Foo>(103), "ow").isSuccess());
-#else
-    assert (rSG.overwrite(new Foo(103), "ow").isSuccess());
-#endif
 
     assert (rSG.record(new Foo(104), "ow2", LOCKED).isSuccess());
     assert (rSG.overwrite(new Foo(105), "ow2", LOCKED).isSuccess());
-#if __cplusplus > 201100
     assert (rSG.overwrite(make_unique<Foo>(106), "ow2", LOCKED).isSuccess());
-#else
-    assert (rSG.overwrite(new Foo(106), "ow2", LOCKED).isSuccess());
-#endif
 
     /// 14 Foo objects recorded above : check it
     assert(rSG.typeCount<Foo>() == 14);

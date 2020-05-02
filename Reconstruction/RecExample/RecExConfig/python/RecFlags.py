@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/RecFlags.py
@@ -370,13 +370,6 @@ class doFloatingPointException(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class abortOnUncheckedStatusCode(JobProperty):
-    """ If True abort on first unchecked status code
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
 #
 class doHist(JobProperty):
     """ If True output some histograms . Not tested on 13.0.X.
@@ -724,7 +717,7 @@ class doAFP(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     def _undo_action(self):
         if not jobproperties.Rec.doLucid and not jobproperties.Rec.doZdc and not jobproperties.Rec.doAlfa and not jobproperties.Rec.doFwdRegion and jobproperties.Rec.doForwardDet  :
             jobproperties.Rec.doForwardDet=False
@@ -1026,7 +1019,7 @@ _list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
 doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
-doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
+doDumpTDS, doDumpTES, doFloatingPointException, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
 doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \

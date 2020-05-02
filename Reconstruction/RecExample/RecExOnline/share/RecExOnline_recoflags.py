@@ -40,9 +40,6 @@ if (not 'doEgammaTau' in dir()):
 if (not 'doCommissioning' in dir()):
   doCommissioning = False
 
-if ( not 'abortonuncheckedstatuscode' in dir()):
-  abortonuncheckedstatuscode = False
-
 if (not 'doHIRec' in dir()):
   doHIRec = False
 
@@ -82,5 +79,3 @@ rec.doEgamma.set_Value_and_Lock(doEgammaTau)
 rec.doTau.set_Value_and_Lock(doEgammaTau)
 
 rec.Commissioning.set_Value_and_Lock(True) # set to True by default
-
-rec.abortOnUncheckedStatusCode.set_Value_and_Lock(abortonuncheckedstatuscode)

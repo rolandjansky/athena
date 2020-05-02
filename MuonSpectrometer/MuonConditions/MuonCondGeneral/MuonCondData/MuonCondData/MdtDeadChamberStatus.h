@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_MDTDEADCHAMBERSTATUS_H
@@ -11,7 +11,6 @@
 #include <vector>
 #include <string>
 
-
 class MdtDeadChamberStatus {
  public:
   
@@ -21,10 +20,10 @@ class MdtDeadChamberStatus {
   typedef std::map<std::string, MdtMultilayerData> MdtChamberData;
 
   // Constructor
-  MdtDeadChamberStatus();
+  MdtDeadChamberStatus() {};
   
   // Destructor
-  virtual ~MdtDeadChamberStatus();
+  virtual ~MdtDeadChamberStatus()=default;
 
   /// Add defects for a chamber
   bool addChamberDead( const std::string & chamberId, const MdtMultilayerData & multilayerData );

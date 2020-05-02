@@ -352,8 +352,6 @@ else:
     #
     # ------------------------------------------------------------
     
-    if InDetFlags.doxKalman() or InDetFlags.doiPatRec():
-      include ("InDetRecExample/InDetRecXKalIPat.py")
     
     #
     # --- TRT track segment finding
@@ -994,7 +992,7 @@ else:
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
                                                               AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
-                                                              AssociationMapName      = "" if not InDetFlags.doCosmics() else ("PRDtoTrackMap" + InDetKeys.UnslimmedTracks()),
+                                                              AssociationMapName      = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
@@ -1078,10 +1076,6 @@ else:
         InputTrackCollection = InDetKeys.UnslimmedTracks() 
     elif InDetFlags.doPseudoTracking():
       InputTrackCollection = InDetKeys.PseudoTracks()
-    elif InDetFlags.doiPatRec():
-      InputTrackCollection = InDetKeys.IPatConvertedTracks()
-    elif InDetFlags.doxKalman():
-      InputTrackCollection = InDetKeys.XKalConvertedTracks()
     else:
       # --- in case of reading from ESD, so we just set the Collection and truth
       InputTrackCollection      = InDetKeys.Tracks()

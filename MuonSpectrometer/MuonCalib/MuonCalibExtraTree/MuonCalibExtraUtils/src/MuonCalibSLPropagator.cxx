@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraUtils/MuonCalibSLPropagator.h"
@@ -13,7 +13,7 @@ namespace MuonCalib {
 							       const Amg::Vector3D& planePos, const Amg::Vector3D& planeNormal ) const {
     
     double denom = dir.dot(planeNormal);
-    if( fabs(denom) < 0.00001 ) denom = 0.00001;
+    if( std::abs(denom) < 0.00001 ) denom = 0.00001;
     double u = (planeNormal.dot(planePos - pos))/(denom);
     return pos + u * dir;
   }
@@ -32,7 +32,7 @@ namespace MuonCalib {
     double sinThsqinv	= 1./dir.perp2();
     double stepLength	= (-pos.x()*dir.x() - pos.y()*dir.y())* sinThsqinv;
     double deltaRSq	= (radiusCylinder*radiusCylinder - pos.perp2())*sinThsqinv + stepLength*stepLength;
-    if (deltaRSq > 0.)  stepLength += sqrt(deltaRSq);
+    if (deltaRSq > 0.)  stepLength += std::sqrt(deltaRSq);
 
     return pos + dir*stepLength;
   }

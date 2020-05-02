@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -39,8 +39,6 @@
 #include "TrkFitterInterfaces/IDynamicNoiseAdjustor.h"
 #include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
 
-#include <ext/algorithm>
-
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 // Gaudi AlgTool control (constructor, initialise ...)                        //
@@ -75,13 +73,8 @@ Trk::ForwardRefTrackKalmanFitter::~ForwardRefTrackKalmanFitter(){}
 StatusCode Trk::ForwardRefTrackKalmanFitter::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
-
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR ("Could not get AtlasDetectorID helper");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK (detStore()->retrieve(m_idHelper, "AtlasID"));
   m_utility = new ProtoTrajectoryUtility(m_idHelper);
-
   ATH_MSG_INFO ("stability precut on state Chi2/ndf set to "<< m_StateChiSquaredPerNumberDoFPreCut );
   ATH_MSG_INFO ("initialize() successful in " << name());
   return sc;

@@ -29,6 +29,10 @@
 #include <iosfwd>
 #include <vector>
 
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+
 class MsgStream;
 class TRT_ID;
 
@@ -70,14 +74,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const Trk::Track&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::Track&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const Trk::TrackParameters&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::TrackSegment* findSegment
-        (const Trk::TrackParameters&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+        (const EventContext& ctx, const Trk::TrackParameters&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::Track* newTrack
-        (const Trk::Track&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
-      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const override;
+        (const EventContext& ctx, const Trk::Track&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -107,7 +111,8 @@ namespace InDet{
 
 
       std::vector<const Trk::MeasurementBase*>& extendTrackFromParameters
-      (const Trk::TrackParameters&,
+      (const EventContext& ctx,
+       const Trk::TrackParameters&,
        InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
@@ -123,6 +128,9 @@ namespace InDet{
       ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackD ; //
       ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackN ; //
 
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+        
+        
       int                              m_segmentFindMode; // Method of segment find
       int                              m_outputlevel    ; // Print level
       int                              m_nprint         ; // Kind of print
@@ -148,7 +156,9 @@ namespace InDet{
 
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
-      bool isGoodExtension(const Trk::TrackParameters&, InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
+      bool isGoodExtension(const EventContext& ctx,
+                           const Trk::TrackParameters&,
+                           InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
       bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;

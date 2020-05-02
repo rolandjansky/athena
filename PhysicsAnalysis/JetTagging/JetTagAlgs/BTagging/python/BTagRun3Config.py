@@ -29,7 +29,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
       #IP3D
       #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
 
-      JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+      JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
       jettagcalibcondalg = "JetTagCalibCondAlg"
       readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
       connSchema = "GLOBAL_OFL"
@@ -168,10 +168,20 @@ def BTagCfg(inputFlags,**kwargs):
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
-    from AthenaCommon import CfgGetter
-    result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( inputFlags ))
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+    result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
+    #result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_ONL'))
+    #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
+    result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
+    
+    MagField__AtlasFieldSvc=CompFactory.MagField.AtlasFieldSvc
+    kwargs.setdefault( "UseDCS", True )
+    result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
+    del kwargs['UseDCS']
+
     #load folders needed for Run2 ID alignment
     result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))

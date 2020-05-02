@@ -59,8 +59,8 @@ class ClusterMakerTool : public AthAlgTool {
 public:
 
   ClusterMakerTool(const std::string &type,
-		   const std::string &name,
-		   const IInterface *parent);
+                   const std::string &name,
+                   const IInterface *parent);
   ~ClusterMakerTool() = default;
   
   static const InterfaceID& interfaceID() { return IID_ClusterMakerTool; };
@@ -91,33 +91,33 @@ public:
   //     Omegay: similar definition with columns rather than rows ]
 
   PixelCluster* pixelCluster(const Identifier& clusterID,
-			     const Amg::Vector2D& localPos,
-			     const std::vector<Identifier>& rdoList,
-			     const int lvl1a,
-			     const std::vector<int>& totList,
-			     const SiWidth& width,
-			     const InDetDD::SiDetectorElement* element, 
-			     bool ganged,
-			     int errorStrategy,
-			     const float omegax,
-			     const float omegay,
-			     bool split = false,
-                 double splitProb1 = 0.,
-                 double splitProb2 = 0.) const;
+                             const Amg::Vector2D& localPos,
+                             const std::vector<Identifier>& rdoList,
+                             const int lvl1a,
+                             const std::vector<int>& totList,
+                             const SiWidth& width,
+                             const InDetDD::SiDetectorElement* element, 
+                             bool ganged,
+                             int errorStrategy,
+                             const float omegax,
+                             const float omegay,
+                             bool split = false,
+                             double splitProb1 = 0.,
+                             double splitProb2 = 0.) const;
 
   PixelCluster* pixelCluster(const Identifier& clusterID,
-			     const Amg::Vector2D& localPos,
-			     const std::vector<Identifier>& rdoList,
-			     const int lvl1a,
-			     const std::vector<int>& totList,
-			     const SiWidth& width,
-			     const InDetDD::SiDetectorElement* element, 
-			     bool ganged,
-			     int errorStrategy,
-			     const PixelID& pixelID,
- 			     bool split = false,
-                 double splitProb1 = 0.,
-                 double splitProb2 = 0.) const;
+                             const Amg::Vector2D& localPos,
+                             const std::vector<Identifier>& rdoList,
+                             const int lvl1a,
+                             const std::vector<int>& totList,
+                             const SiWidth& width,
+                             const InDetDD::SiDetectorElement* element, 
+                             bool ganged,
+                             int errorStrategy,
+                             const PixelID& pixelID,
+                             bool split = false,
+                             double splitProb1 = 0.,
+                             double splitProb2 = 0.) const;
 
 
 
@@ -135,7 +135,7 @@ public:
   //    1: Set to a different values for one and two-strip clusters (def.)
 
   SCT_Cluster* sctCluster(const Identifier& clusterID,
-			 const Amg::Vector2D& localPos,
+                         const Amg::Vector2D& localPos,
                          const std::vector<Identifier>& rdoList,
                          const SiWidth& width,
                          const InDetDD::SiDetectorElement* element,

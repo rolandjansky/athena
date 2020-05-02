@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 template < class CONTAINER >
@@ -29,11 +29,26 @@ StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromEventView( const EventContex
 
   ATH_MSG_DEBUG( "Retrieving object from Event View from " << inputKey.key() );
 
+  // This vector is for checking we are not reading more than once from the same View, thus retrieving the same objects multiple times!
+  std::vector< ElementLink< ViewContainer > > readViews;
+
   for ( const TrigCompositeUtils::Decision* previousDecision: *prevDevisionContainer ) {
     // get View
     ElementLink< ViewContainer > viewEL = previousDecision->objectLink< ViewContainer >( TrigCompositeUtils::viewString() );
     ATH_CHECK( viewEL.isValid() );
     ATH_MSG_DEBUG( "Retrieved View" );
+
+    bool alreadyUsed = false;
+    for ( const ElementLink< ViewContainer >& storedViews : readViews ) {
+      if ( viewEL == storedViews ) {
+        ATH_MSG_DEBUG( "We have already used this view!" );
+	alreadyUsed = true;    
+	break;
+      } 
+    }
+    if ( alreadyUsed ) continue;
+
+    readViews.push_back( viewEL );
 
     SG::ReadHandle< CONTAINER > Handle = ViewHelper::makeHandle( *viewEL, inputKey, context );
     ATH_CHECK( Handle.isValid() );

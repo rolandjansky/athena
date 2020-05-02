@@ -164,7 +164,7 @@ def _main():
 
 	if output is None:
 		if is_json:
-			print(json.dumps(metadata, indent= indent))
+			print(json.dumps(metadata, indent=indent))
 		else:
 			enc = sys.stdout.encoding.lower()
 			ascii = not sys.stdout.isatty() or enc.find('ansi') >= 0 or enc.find('ascii') >= 0

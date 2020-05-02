@@ -4,16 +4,16 @@
 #ifndef ProjectionMMClusterBuilderTool_h
 #define ProjectionMMClusterBuilderTool_h
 
+#include <numeric>
+#include <string>
+#include <vector>
+
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-
-#include <numeric>
-
 
 class MmIdHelper;
 namespace MuonGM
@@ -47,7 +47,7 @@ namespace Muon
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    double m_vDrift,m_tmin,m_tmax,m_tOffset;
+    double m_tmin,m_tmax,m_tOffset;
     double m_p0,m_p1,m_p2; //correction factors for charge dependence
 
     int m_t0;

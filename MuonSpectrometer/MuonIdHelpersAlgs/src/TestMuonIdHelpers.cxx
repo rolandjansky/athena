@@ -1,28 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "MuonIdHelpersAlgs/TestMuonIdHelpers.h"
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "MuonDigitContainer/CscDigitContainer.h"
 #include "MuonDigitContainer/CscDigitCollection.h"
 #include "MuonDigitContainer/CscDigit.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonDigitContainer/RpcDigitCollection.h"
 #include "MuonDigitContainer/RpcDigit.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
-#include "MuonIdHelpersAlgs/TestMuonIdHelpers.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -34,12 +30,7 @@
 
 TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_activeStore("ActiveStoreSvc", name),
-  m_mdtId(0), m_cscId(0),
-  m_rpcId(0), m_tgcId(0), m_muon_mgr(0),
-  m_deltaUser(0), m_deltaKernel(0), m_deltaElapsed(0), m_nTries(0)
-  
-   {
+  m_activeStore("ActiveStoreSvc", name) {
 
   m_testMDT = true;
   m_testCSC = true;
@@ -47,7 +38,6 @@ TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcL
   m_testTGC = true;
 
   // Declare the properties
-
   declareProperty ("testMDT", m_testMDT);
   declareProperty ("testCSC", m_testCSC);
   declareProperty ("testRPC", m_testRPC);
@@ -55,27 +45,16 @@ TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcL
 
 }
 
-TestMuonIdHelpers::~TestMuonIdHelpers()
-{}
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TestMuonIdHelpers::initialize(){
 
-  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_MSG_DEBUG(" in initialize()");
 
-  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK(m_activeStore.retrieve());
 
-  ATH_CHECK( detStore()->retrieve( m_muon_mgr ) );
-  m_mdtId = m_muon_mgr->mdtIdHelper();
-  m_cscId = m_muon_mgr->cscIdHelper();
-  m_rpcId = m_muon_mgr->rpcIdHelper();
-  m_tgcId = m_muon_mgr->tgcIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
-  m_deltaUser    = 0;
-  m_deltaKernel  = 0;
-  m_deltaElapsed = 0;
-  m_nTries       = 0;
   return StatusCode::SUCCESS;
 
 }
@@ -112,12 +91,12 @@ StatusCode TestMuonIdHelpers::finalize() {
 
 }
 
-StatusCode TestMuonIdHelpers::testMdtIdHelper() {
+StatusCode TestMuonIdHelpers::testMdtIdHelper() const {
   ATH_MSG_DEBUG( "in execute(): testing MDT IdHelper"  );
 
   // get the helper from the manager
  
-  if (!m_mdtId) {
+  if (!m_idHelperSvc->hasMDT()) {
     ATH_MSG_ERROR( "cannot retrieve the MDT id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
@@ -138,11 +117,11 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
 
   int nc1 = 0 ; 
   for (  ; it1_coll!=it2_coll; ++it1_coll) {
-    const  MdtDigitCollection* mdtCollection = *it1_coll; 
+    const MdtDigitCollection* mdtCollection = *it1_coll; 
     ++nc1; 
     Identifier moduleId = mdtCollection->identify();
-    if (!m_mdtId->validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid MDT module identifier " << m_mdtId->show_to_string(moduleId)  );
+    if (!m_idHelperSvc->mdtIdHelper().validElement(moduleId)) {
+      ATH_MSG_ERROR( "Invalid MDT module identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = mdtCollection->begin();
     digit_iterator it2_digit = mdtCollection->end();
@@ -154,7 +133,7 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
       if (testMDT != 0) error = true;
       ++nc2;
     }
-    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_mdtId->show_to_string(moduleId) 
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_idHelperSvc->mdtIdHelper().show_to_string(moduleId) 
                   <<" = " << nc2  );
   }
   ATH_MSG_DEBUG("  Number of MDT Collections  Accessed " << nc1  );
@@ -166,12 +145,12 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
 }
 
 
-StatusCode TestMuonIdHelpers::testCscIdHelper() {
+StatusCode TestMuonIdHelpers::testCscIdHelper() const {
   ATH_MSG_DEBUG( "in execute(): testing CSC IdHelper"  );
   
   // get the helper from the manager
  
-  if (!m_cscId) {
+  if (!m_idHelperSvc->hasCSC()) {
     ATH_MSG_ERROR( "cannot retrieve the CSC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
@@ -195,8 +174,8 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
     const  CscDigitCollection* cscCollection = *it1_coll; 
     ++nc1; 
     Identifier moduleId = cscCollection->identify();
-    if (!m_cscId->validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid CSC module identifier " << m_cscId->show_to_string(moduleId)  );
+    if (!m_idHelperSvc->cscIdHelper().validElement(moduleId)) {
+      ATH_MSG_ERROR( "Invalid CSC module identifier " << m_idHelperSvc->cscIdHelper().show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = cscCollection->begin();
     digit_iterator it2_digit = cscCollection->end();
@@ -208,7 +187,7 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
       if (testCSC != 0) error = true;
       ++nc2;
     }
-    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_cscId->show_to_string(moduleId) 
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_idHelperSvc->cscIdHelper().show_to_string(moduleId) 
                   <<" = " << nc2  );
   }
   ATH_MSG_DEBUG("Number of CSC Collections  Accessed " << nc1  );
@@ -219,12 +198,12 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestMuonIdHelpers::testRpcIdHelper() {
+StatusCode TestMuonIdHelpers::testRpcIdHelper() const {
   ATH_MSG_DEBUG( "in execute(): testing RPC IdHelper"  );
   
   // get the helper from the manager
  
-  if (!m_rpcId) {
+  if (!m_idHelperSvc->hasRPC()) {
     ATH_MSG_ERROR( "cannot retrieve the RPC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
@@ -248,8 +227,8 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
     const  RpcDigitCollection* rpcCollection = *it1_coll; 
     ++nc1; 
     Identifier moduleId = rpcCollection->identify();
-    if (!m_rpcId->validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid RPC module identifier " << m_rpcId->show_to_string(moduleId)  );
+    if (!m_idHelperSvc->rpcIdHelper().validElement(moduleId)) {
+      ATH_MSG_ERROR( "Invalid RPC module identifier " << m_idHelperSvc->rpcIdHelper().show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = rpcCollection->begin();
     digit_iterator it2_digit = rpcCollection->end();
@@ -261,7 +240,7 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
       if (testRPC != 0) error = true;
       ++nc2;
     }
-    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_rpcId->show_to_string(moduleId) 
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_idHelperSvc->rpcIdHelper().show_to_string(moduleId) 
                   <<" = " << nc2  );
   }
   ATH_MSG_DEBUG("  Number of RPC Collections  Accessed " << nc1  );
@@ -272,12 +251,12 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestMuonIdHelpers::testTgcIdHelper() {
+StatusCode TestMuonIdHelpers::testTgcIdHelper() const {
   ATH_MSG_DEBUG( "in execute(): testing TGC IdHelper"  );
   
   // get the helper from the manager
  
-  if (!m_tgcId) {
+  if (!m_idHelperSvc->hasTGC()) {
     ATH_MSG_ERROR( "cannot retrieve the TGC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
@@ -301,8 +280,8 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
     const  TgcDigitCollection* tgcCollection = *it1_coll; 
     ++nc1; 
     Identifier moduleId = tgcCollection->identify();
-    if (!m_tgcId->validElement(moduleId)) {
-      ATH_MSG_ERROR( "Invalid TGC module identifier " << m_tgcId->show_to_string(moduleId)  );
+    if (!m_idHelperSvc->tgcIdHelper().validElement(moduleId)) {
+      ATH_MSG_ERROR( "Invalid TGC module identifier " << m_idHelperSvc->tgcIdHelper().show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = tgcCollection->begin();
     digit_iterator it2_digit = tgcCollection->end();
@@ -314,7 +293,7 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
       if (testTGC != 0) error = true;
       ++nc2;
     }
-    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_tgcId->show_to_string(moduleId) 
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_idHelperSvc->tgcIdHelper().show_to_string(moduleId) 
                   <<" = " << nc2  );
   }
   ATH_MSG_DEBUG("Number of TGC Collections  Accessed " << nc1  );
@@ -325,7 +304,7 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
   return StatusCode::SUCCESS;
 }
 
-int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
+int TestMuonIdHelpers::testMDTIds(const Identifier& id) const {
 
   bool error = false;
 
@@ -333,112 +312,112 @@ int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
   longlong startOfKernelTime  = System::kernelTime   ( System::microSec );
   longlong startOfElapsedTime = System::ellapsedTime ( System::microSec );
 
-  IdContext   context = m_mdtId->channel_context();    
+  IdContext   context = m_idHelperSvc->mdtIdHelper().channel_context();    
 
-  m_mdtId->test_id(id,context);
-  if (!m_mdtId->valid(id)) {
+  m_idHelperSvc->mdtIdHelper().test_id(id,context);
+  if (!m_idHelperSvc->mdtIdHelper().valid(id)) {
     ATH_MSG_ERROR( " testMDTIds invalid identifier "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  int stationName = m_mdtId->stationName(id);
-  std::string name = m_mdtId->stationNameString(stationName);
-  if (m_mdtId->isBarrel(id) && name[0] != 'B') {
+  int stationName = m_idHelperSvc->mdtIdHelper().stationName(id);
+  std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(stationName);
+  if (m_idHelperSvc->mdtIdHelper().isBarrel(id) && name[0] != 'B') {
     ATH_MSG_ERROR( " testMDTIds problem in isBarrel() and stationName() "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_mdtId->isEndcap(id) && name[0] == 'B') {
+  if (m_idHelperSvc->mdtIdHelper().isEndcap(id) && name[0] == 'B') {
     ATH_MSG_ERROR( " testMDTIds problem in isEndCap() and stationName() "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_mdtId->stationNameIndex(name) != m_mdtId->stationName(id)) {
+  if (m_idHelperSvc->mdtIdHelper().stationNameIndex(name) != m_idHelperSvc->mdtIdHelper().stationName(id)) {
     ATH_MSG_ERROR( " testMDTIds problem in stationNameIndex() and stationName() "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  const int etaMin = m_mdtId->stationEtaMin(id);
-  const int etaMax = m_mdtId->stationEtaMax(id);
-  const int eta    = m_mdtId->stationEta(id);
+  const int etaMin = m_idHelperSvc->mdtIdHelper().stationEtaMin(id);
+  const int etaMax = m_idHelperSvc->mdtIdHelper().stationEtaMax(id);
+  const int eta    = m_idHelperSvc->mdtIdHelper().stationEta(id);
   if (eta < etaMin || eta > etaMax) {
     ATH_MSG_ERROR( " testMDTIds problem in etaMin, etaMax or eta "
                    << "etaMin = " << etaMin
                    << "etaMax = " << etaMax
                    << "eta    = " << eta << " "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  const int phiMin = m_mdtId->stationPhiMin(id);
-  const int phiMax = m_mdtId->stationPhiMax(id);
-  const int phi    = m_mdtId->stationPhi(id);
+  const int phiMin = m_idHelperSvc->mdtIdHelper().stationPhiMin(id);
+  const int phiMax = m_idHelperSvc->mdtIdHelper().stationPhiMax(id);
+  const int phi    = m_idHelperSvc->mdtIdHelper().stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
     ATH_MSG_ERROR( " testMDTIds problem in phiMin, phiMax or phi "
                    << "phiMin = " << phiMin
                    << "phiMax = " << phiMax
                    << "phi    = " << phi << " "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  const int technology = m_mdtId->technology(id);
-  if (technology != m_mdtId->technologyIndex("MDT")) {
+  const int technology = m_idHelperSvc->mdtIdHelper().technology(id);
+  if (technology != m_idHelperSvc->mdtIdHelper().technologyIndex("MDT")) {
     ATH_MSG_ERROR( " testMDTIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_mdtId->technologyIndex("MDT")
-                   << m_mdtId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->mdtIdHelper().technologyIndex("MDT")
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  if ("MDT" != m_mdtId->technologyString(0) || technology != 0) {
+  if ("MDT" != m_idHelperSvc->mdtIdHelper().technologyString(0) || technology != 0) {
     ATH_MSG_ERROR( " testMDTIds problem in technology() "
 	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_mdtId->technologyIndex("MDT")
-	<< m_mdtId->show_to_string(id) );
+	<< "technologyIndex = " << m_idHelperSvc->mdtIdHelper().technologyIndex("MDT")
+	<< m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  const int multilayerMin = m_mdtId->multilayerMin(id);
-  const int multilayerMax = m_mdtId->multilayerMax(id);
-  const int multilayer    = m_mdtId->multilayer(id);
+  const int multilayerMin = m_idHelperSvc->mdtIdHelper().multilayerMin(id);
+  const int multilayerMax = m_idHelperSvc->mdtIdHelper().multilayerMax(id);
+  const int multilayer    = m_idHelperSvc->mdtIdHelper().multilayer(id);
   if (multilayer < multilayerMin || multilayer > multilayerMax) {
     ATH_MSG_ERROR( " testMDTIds problem in multilayerMin, multilayerMax or multilayer "
                    << "multilayerMin = " << multilayerMin
                    << "multilayerMax = " << multilayerMax
                    << "multilayer    = " << multilayer << " "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
-  const int tubeLayerMin = m_mdtId->tubeLayerMin(id);
-  const int tubeLayerMax = m_mdtId->tubeLayerMax(id);
-  const int tubeLayer    = m_mdtId->tubeLayer(id);
+  const int tubeLayerMin = m_idHelperSvc->mdtIdHelper().tubeLayerMin(id);
+  const int tubeLayerMax = m_idHelperSvc->mdtIdHelper().tubeLayerMax(id);
+  const int tubeLayer    = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
   if (tubeLayer < tubeLayerMin || tubeLayer > tubeLayerMax) {
     ATH_MSG_ERROR( " testMDTIds problem in tubeLayerMin, tubeLayerMax or tubeLayer "
                    << "tubeLayerMin = " << tubeLayerMin
                    << "tubeLayerMax = " << tubeLayerMax
                    << "tubeLayer    = " << tubeLayer << " "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
 
-  const int tube    = m_mdtId->tube(id);
-  const int tubeMin = m_mdtId->tubeMin(id);
-  const int tubeMax = m_mdtId->tubeMax(id);
+  const int tube    = m_idHelperSvc->mdtIdHelper().tube(id);
+  const int tubeMin = m_idHelperSvc->mdtIdHelper().tubeMin(id);
+  const int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(id);
  
   if (tube < tubeMin || tube > tubeMax) {
     ATH_MSG_ERROR( " testMDTIds problem in tubeMin, tubeMax or tube "
                    << "tubeMin = " << tubeMin
                    << "tubeMax = " << tubeMax
                    << "tube    = " << tube << " "
-                   << m_mdtId->show_to_string(id) );
+                   << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
     error = true;
   }
 
-  Identifier oldChild  = m_mdtId->channelID(stationName,eta,phi,multilayer,tubeLayer,tube);
-  if (!m_mdtId->valid(oldChild)) error = true; 
-  Identifier oldParent = m_mdtId->parentID(oldChild);
-  if (!m_mdtId->validElement(oldParent)) error = true;
-  Identifier newParent = m_mdtId->elementID(stationName,eta,phi);
-  if (!m_mdtId->validElement(newParent)) error = true;
-  Identifier newChild  = m_mdtId->channelID(newParent,multilayer,tubeLayer,tube);
-  if (!m_mdtId->valid(newChild)) error = true;
+  Identifier oldChild  = m_idHelperSvc->mdtIdHelper().channelID(stationName,eta,phi,multilayer,tubeLayer,tube);
+  if (!m_idHelperSvc->mdtIdHelper().valid(oldChild)) error = true; 
+  Identifier oldParent = m_idHelperSvc->mdtIdHelper().parentID(oldChild);
+  if (!m_idHelperSvc->mdtIdHelper().validElement(oldParent)) error = true;
+  Identifier newParent = m_idHelperSvc->mdtIdHelper().elementID(stationName,eta,phi);
+  if (!m_idHelperSvc->mdtIdHelper().validElement(newParent)) error = true;
+  Identifier newChild  = m_idHelperSvc->mdtIdHelper().channelID(newParent,multilayer,tubeLayer,tube);
+  if (!m_idHelperSvc->mdtIdHelper().valid(newChild)) error = true;
 
    /// following lines could be platform dependent!
   m_deltaUser    += System::userTime    ( System::microSec ) - startOfUserTime   ;
@@ -456,7 +435,7 @@ int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
   return 0;
 }
 
-int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
+int TestMuonIdHelpers::testCSCIds(const Identifier& id) const {
 
   bool error = false;
  
@@ -464,121 +443,121 @@ int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
   longlong startOfKernelTime  = System::kernelTime   ( System::microSec );
   longlong startOfElapsedTime = System::ellapsedTime ( System::microSec );
 
-  IdContext   context = m_cscId->channel_context();   
+  IdContext   context = m_idHelperSvc->cscIdHelper().channel_context();   
  
-  m_cscId->test_id(id,context);
-  if (!m_cscId->valid(id)) {
+  m_idHelperSvc->cscIdHelper().test_id(id,context);
+  if (!m_idHelperSvc->cscIdHelper().valid(id)) {
     ATH_MSG_ERROR( " testCSCIds invalid identifier "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  int stationName = m_cscId->stationName(id);
-  std::string name = m_cscId->stationNameString(stationName);
-  if (m_cscId->isEndcap(id) && name[0] != 'C') {
+  int stationName = m_idHelperSvc->cscIdHelper().stationName(id);
+  std::string name = m_idHelperSvc->cscIdHelper().stationNameString(stationName);
+  if (m_idHelperSvc->cscIdHelper().isEndcap(id) && name[0] != 'C') {
     ATH_MSG_ERROR( " testCSCIds problem in isEndcap() and stationName() "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  if (!m_cscId->isBarrel(id) && name[0] != 'C') {
+  if (!m_idHelperSvc->cscIdHelper().isBarrel(id) && name[0] != 'C') {
     ATH_MSG_ERROR( " testCSCIds problem in isBarrel() and stationName() "
-	<< m_cscId->show_to_string(id) );
+	<< m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_cscId->stationNameIndex(name) != m_cscId->stationName(id)) {
+  if (m_idHelperSvc->cscIdHelper().stationNameIndex(name) != m_idHelperSvc->cscIdHelper().stationName(id)) {
     ATH_MSG_ERROR( " testCSCIds problem in stationNameIndex() and stationName() "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int etaMin = m_cscId->stationEtaMin(id);
-  const int etaMax = m_cscId->stationEtaMax(id);
-  const int eta    = m_cscId->stationEta(id);
+  const int etaMin = m_idHelperSvc->cscIdHelper().stationEtaMin(id);
+  const int etaMax = m_idHelperSvc->cscIdHelper().stationEtaMax(id);
+  const int eta    = m_idHelperSvc->cscIdHelper().stationEta(id);
   if (eta < etaMin || eta > etaMax) {
     ATH_MSG_ERROR( " testCSCIds problem in etaMin, etaMax or eta "
                    << "etaMin = " << etaMin
                    << "etaMax = " << etaMax
                    << "eta    = " << eta << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int phiMin = m_cscId->stationPhiMin(id);
-  const int phiMax = m_cscId->stationPhiMax(id);
-  const int phi    = m_cscId->stationPhi(id);
+  const int phiMin = m_idHelperSvc->cscIdHelper().stationPhiMin(id);
+  const int phiMax = m_idHelperSvc->cscIdHelper().stationPhiMax(id);
+  const int phi    = m_idHelperSvc->cscIdHelper().stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
     ATH_MSG_ERROR( " testCSCIds problem in phiMin, phiMax or phi "
                    << "phiMin = " << phiMin
                    << "phiMax = " << phiMax
                    << "phi    = " << phi << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int technology = m_cscId->technology(id);
-  if (technology != m_cscId->technologyIndex("CSC")) {
+  const int technology = m_idHelperSvc->cscIdHelper().technology(id);
+  if (technology != m_idHelperSvc->cscIdHelper().technologyIndex("CSC")) {
     ATH_MSG_ERROR( " testCSCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_cscId->technologyIndex("CSC")
-                   << m_cscId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->cscIdHelper().technologyIndex("CSC")
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  if ("CSC" != m_cscId->technologyString(1) || technology != 1) {
+  if ("CSC" != m_idHelperSvc->cscIdHelper().technologyString(1) || technology != 1) {
     ATH_MSG_ERROR( " testCSCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_cscId->technologyIndex("CSC")
-                   << m_cscId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->cscIdHelper().technologyIndex("CSC")
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int chamberLayerMin = m_cscId->chamberLayerMin(id);
-  const int chamberLayerMax = m_cscId->chamberLayerMax(id);
-  const int chamberLayer    = m_cscId->chamberLayer(id);
+  const int chamberLayerMin = m_idHelperSvc->cscIdHelper().chamberLayerMin(id);
+  const int chamberLayerMax = m_idHelperSvc->cscIdHelper().chamberLayerMax(id);
+  const int chamberLayer    = m_idHelperSvc->cscIdHelper().chamberLayer(id);
   if (chamberLayer < chamberLayerMin || chamberLayer > chamberLayerMax) {
     ATH_MSG_ERROR( " testCSCIds problem in chamberLayerMin, chamberLayerMax or chamberLayer "
                    << "chamberLayerMin = " << chamberLayerMin
                    << "chamberLayerMax = " << chamberLayerMax
                    << "chamberLayer    = " << chamberLayer << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int wireLayerMin = m_cscId->wireLayerMin(id);
-  const int wireLayerMax = m_cscId->wireLayerMax(id);
-  const int wireLayer    = m_cscId->wireLayer(id);
+  const int wireLayerMin = m_idHelperSvc->cscIdHelper().wireLayerMin(id);
+  const int wireLayerMax = m_idHelperSvc->cscIdHelper().wireLayerMax(id);
+  const int wireLayer    = m_idHelperSvc->cscIdHelper().wireLayer(id);
   if (wireLayer < wireLayerMin || wireLayer > wireLayerMax) {
     ATH_MSG_ERROR( " testCSCIds problem in wireLayerMin, wireLayerMax or wireLayer "
                    << "wireLayerMin = " << wireLayerMin
                    << "wireLayerMax = " << wireLayerMax
                    << "wireLayer    = " << wireLayer << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int measuresPhiMin = m_cscId->measuresPhiMin(id);
-  const int measuresPhiMax = m_cscId->measuresPhiMax(id);
-  const int measuresPhi    = m_cscId->measuresPhi(id);
+  const int measuresPhiMin = m_idHelperSvc->cscIdHelper().measuresPhiMin(id);
+  const int measuresPhiMax = m_idHelperSvc->cscIdHelper().measuresPhiMax(id);
+  const int measuresPhi    = m_idHelperSvc->cscIdHelper().measuresPhi(id);
   if (measuresPhi < measuresPhiMin || measuresPhi > measuresPhiMax) {
     ATH_MSG_ERROR( " testCSCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
                    << "measuresPhiMin = " << measuresPhiMin
                    << "measuresPhiMax = " << measuresPhiMax
                    << "measuresPhi    = " << measuresPhi << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
-  const int stripMin = m_cscId->stripMin(id);
-  const int stripMax = m_cscId->stripMax(id);
-  const int strip    = m_cscId->strip(id);
+  const int stripMin = m_idHelperSvc->cscIdHelper().stripMin(id);
+  const int stripMax = m_idHelperSvc->cscIdHelper().stripMax(id);
+  const int strip    = m_idHelperSvc->cscIdHelper().strip(id);
   if (strip < stripMin || strip > stripMax) {
     ATH_MSG_ERROR( " testCSCIds problem in stripMin, stripMax or strip "
                    << "stripMin = " << stripMin
                    << "stripMax = " << stripMax
                    << "strip    = " << strip << " "
-                   << m_cscId->show_to_string(id) );
+                   << m_idHelperSvc->cscIdHelper().show_to_string(id) );
     error = true;
   }
 
-  Identifier oldChild  = m_cscId->channelID(stationName,eta,phi,chamberLayer,wireLayer,measuresPhi,strip);
-  if (!m_cscId->valid(oldChild)) error = true;
-  Identifier oldParent = m_cscId->parentID(oldChild);
-  if (!m_cscId->validElement(oldParent)) error = true;
-  Identifier newParent = m_cscId->elementID(stationName,eta,phi);
-  if (!m_cscId->validElement(newParent)) error = true;
-  Identifier newChild  = m_cscId->channelID(newParent,chamberLayer,wireLayer,measuresPhi,strip);
-  if (!m_cscId->valid(newChild)) error = true;
+  Identifier oldChild  = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamberLayer,wireLayer,measuresPhi,strip);
+  if (!m_idHelperSvc->cscIdHelper().valid(oldChild)) error = true;
+  Identifier oldParent = m_idHelperSvc->cscIdHelper().parentID(oldChild);
+  if (!m_idHelperSvc->cscIdHelper().validElement(oldParent)) error = true;
+  Identifier newParent = m_idHelperSvc->cscIdHelper().elementID(stationName,eta,phi);
+  if (!m_idHelperSvc->cscIdHelper().validElement(newParent)) error = true;
+  Identifier newChild  = m_idHelperSvc->cscIdHelper().channelID(newParent,chamberLayer,wireLayer,measuresPhi,strip);
+  if (!m_idHelperSvc->cscIdHelper().valid(newChild)) error = true;
 
   /// following lines could be platform dependent!
   m_deltaUser    += System::userTime    ( System::microSec ) - startOfUserTime   ;
@@ -597,7 +576,7 @@ int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
   return 0;
 }
 
-int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
+int TestMuonIdHelpers::testRPCIds(const Identifier& id) const {
 
   bool error = false;
   
@@ -605,144 +584,144 @@ int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
   longlong startOfKernelTime  = System::kernelTime   ( System::microSec );
   longlong startOfElapsedTime = System::ellapsedTime ( System::microSec );
 
-  IdContext    context = m_rpcId->channel_context();    
+  IdContext    context = m_idHelperSvc->rpcIdHelper().channel_context();    
 
-  m_rpcId->test_id(id,context);
-  if (!m_rpcId->valid(id)) {
+  m_idHelperSvc->rpcIdHelper().test_id(id,context);
+  if (!m_idHelperSvc->rpcIdHelper().valid(id)) {
     ATH_MSG_ERROR( " testRPCIds invalid identifier "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  int stationName = m_rpcId->stationName(id);
-  std::string name = m_rpcId->stationNameString(stationName);
-  if (m_rpcId->isBarrel(id) && name[0] != 'B') {
+  int stationName = m_idHelperSvc->rpcIdHelper().stationName(id);
+  std::string name = m_idHelperSvc->rpcIdHelper().stationNameString(stationName);
+  if (m_idHelperSvc->rpcIdHelper().isBarrel(id) && name[0] != 'B') {
     ATH_MSG_ERROR( " testRPCIds problem in isBarrel() and stationName() "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  if (!m_rpcId->isEndcap(id) && name[0] != 'B') {
+  if (!m_idHelperSvc->rpcIdHelper().isEndcap(id) && name[0] != 'B') {
     ATH_MSG_ERROR( " testRPCIds problem in isEndCap() and stationName() "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_rpcId->stationNameIndex(name) != m_rpcId->stationName(id)) {
+  if (m_idHelperSvc->rpcIdHelper().stationNameIndex(name) != m_idHelperSvc->rpcIdHelper().stationName(id)) {
     ATH_MSG_ERROR( " testRPCIds problem in stationNameIndex() and stationName() "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int etaMin = m_rpcId->stationEtaMin(id);
-  const int etaMax = m_rpcId->stationEtaMax(id);
-  const int eta    = m_rpcId->stationEta(id);
+  const int etaMin = m_idHelperSvc->rpcIdHelper().stationEtaMin(id);
+  const int etaMax = m_idHelperSvc->rpcIdHelper().stationEtaMax(id);
+  const int eta    = m_idHelperSvc->rpcIdHelper().stationEta(id);
   if (eta < etaMin || eta > etaMax) {
     ATH_MSG_ERROR( " testRPCIds problem in etaMin, etaMax or eta "
                    << "etaMin = " << etaMin
                    << "etaMax = " << etaMax
                    << "eta    = " << eta << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int phiMin = m_rpcId->stationPhiMin(id);
-  const int phiMax = m_rpcId->stationPhiMax(id);
-  const int phi    = m_rpcId->stationPhi(id);
+  const int phiMin = m_idHelperSvc->rpcIdHelper().stationPhiMin(id);
+  const int phiMax = m_idHelperSvc->rpcIdHelper().stationPhiMax(id);
+  const int phi    = m_idHelperSvc->rpcIdHelper().stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
     ATH_MSG_ERROR( " testRPCIds problem in phiMin, phiMax or phi "
                    << "phiMin = " << phiMin
                    << "phiMax = " << phiMax
                    << "phi    = " << phi << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int technology = m_rpcId->technology(id);
-  if (technology != m_rpcId->technologyIndex("RPC")) {
+  const int technology = m_idHelperSvc->rpcIdHelper().technology(id);
+  if (technology != m_idHelperSvc->rpcIdHelper().technologyIndex("RPC")) {
     ATH_MSG_ERROR( " testRPCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_rpcId->technologyIndex("RPC")
-                   << m_rpcId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->rpcIdHelper().technologyIndex("RPC")
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  if ("RPC" != m_rpcId->technologyString(2) || technology != 2) {
+  if ("RPC" != m_idHelperSvc->rpcIdHelper().technologyString(2) || technology != 2) {
     ATH_MSG_ERROR( " testRPCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_rpcId->technologyIndex("RPC")
-                   << m_rpcId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->rpcIdHelper().technologyIndex("RPC")
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int doubletRMin = m_rpcId->doubletRMin(id);
-  const int doubletRMax = m_rpcId->doubletRMax(id);
-  const int doubletR    = m_rpcId->doubletR(id);
+  const int doubletRMin = m_idHelperSvc->rpcIdHelper().doubletRMin(id);
+  const int doubletRMax = m_idHelperSvc->rpcIdHelper().doubletRMax(id);
+  const int doubletR    = m_idHelperSvc->rpcIdHelper().doubletR(id);
   if (doubletR < doubletRMin || doubletR > doubletRMax) {
     ATH_MSG_ERROR( " testRPCIds problem in doubletRMin, doubletRMax or doubletR "
                    << "doubletRMin = " << doubletRMin
                    << "doubletRMax = " << doubletRMax
                    << "doubletR    = " << doubletR << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int doubletZMin = m_rpcId->doubletZMin(id);
-  const int doubletZMax = m_rpcId->doubletZMax(id);
-  const int doubletZ    = m_rpcId->doubletZ(id);
+  const int doubletZMin = m_idHelperSvc->rpcIdHelper().doubletZMin(id);
+  const int doubletZMax = m_idHelperSvc->rpcIdHelper().doubletZMax(id);
+  const int doubletZ    = m_idHelperSvc->rpcIdHelper().doubletZ(id);
   if (doubletZ < doubletZMin || doubletZ > doubletZMax) {
     ATH_MSG_ERROR( " testRPCIds problem in doubletZMin, doubletZMax or doubletZ "
                    << "doubletZMin = " << doubletZMin
                    << "doubletZMax = " << doubletZMax
                    << "doubletZ    = " << doubletZ << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int doubletPhiMin = m_rpcId->doubletPhiMin(id);
-  const int doubletPhiMax = m_rpcId->doubletPhiMax(id);
-  const int doubletPhi    = m_rpcId->doubletPhi(id);
+  const int doubletPhiMin = m_idHelperSvc->rpcIdHelper().doubletPhiMin(id);
+  const int doubletPhiMax = m_idHelperSvc->rpcIdHelper().doubletPhiMax(id);
+  const int doubletPhi    = m_idHelperSvc->rpcIdHelper().doubletPhi(id);
   if (doubletPhi < doubletPhiMin || doubletPhi > doubletPhiMax) {
     ATH_MSG_ERROR( " testRPCIds problem in doubletPhiMin, doubletPhiMax or doubletPhi "
                    << "doubletPhiMin = " << doubletPhiMin
                    << "doubletPhiMax = " << doubletPhiMax
                    << "doubletPhi    = " << doubletPhi << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int gasGapMin = m_rpcId->gasGapMin(id);
-  const int gasGapMax = m_rpcId->gasGapMax(id);
-  const int gasGap    = m_rpcId->gasGap(id);
+  const int gasGapMin = m_idHelperSvc->rpcIdHelper().gasGapMin(id);
+  const int gasGapMax = m_idHelperSvc->rpcIdHelper().gasGapMax(id);
+  const int gasGap    = m_idHelperSvc->rpcIdHelper().gasGap(id);
   if (gasGap < gasGapMin || gasGap > gasGapMax) {
     ATH_MSG_ERROR( " testRPCIds problem in gasGapMin, gasGapMax or gasGap "
                    << "gasGapMin = " << gasGapMin
                    << "gasGapMax = " << gasGapMax
                    << "gasGap    = " << gasGap << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int measuresPhiMin = m_rpcId->measuresPhiMin(id);
-  const int measuresPhiMax = m_rpcId->measuresPhiMax(id);
-  const int measuresPhi    = m_rpcId->measuresPhi(id);
+  const int measuresPhiMin = m_idHelperSvc->rpcIdHelper().measuresPhiMin(id);
+  const int measuresPhiMax = m_idHelperSvc->rpcIdHelper().measuresPhiMax(id);
+  const int measuresPhi    = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
   if (measuresPhi < measuresPhiMin || measuresPhi > measuresPhiMax) {
     ATH_MSG_ERROR( " testRPCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
                    << "measuresPhiMin = " << measuresPhiMin
                    << "measuresPhiMax = " << measuresPhiMax
                    << "measuresPhi    = " << measuresPhi << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int stripMin = m_rpcId->stripMin(id);
-  const int stripMax = m_rpcId->stripMax(id);
-  const int strip    = m_rpcId->strip(id);
+  const int stripMin = m_idHelperSvc->rpcIdHelper().stripMin(id);
+  const int stripMax = m_idHelperSvc->rpcIdHelper().stripMax(id);
+  const int strip    = m_idHelperSvc->rpcIdHelper().strip(id);
   if (strip < stripMin || strip > stripMax) {
     ATH_MSG_ERROR( " testRPCIds problem in stripMin, stripMax or strip "
                    << "stripMin = " << stripMin
                    << "stripMax = " << stripMax
                    << "strip    = " << strip << " "
-                   << m_rpcId->show_to_string(id) );
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(id) );
     error = true;
   }
 
-  Identifier oldChild  = m_rpcId->channelID(stationName,eta,phi,doubletR,
+  Identifier oldChild  = m_idHelperSvc->rpcIdHelper().channelID(stationName,eta,phi,doubletR,
 					    doubletZ,doubletPhi,gasGap,measuresPhi,strip);
-  if (!m_rpcId->valid(oldChild)) error = true;
-  Identifier oldParent = m_rpcId->parentID(oldChild);
-  if (!m_rpcId->validElement(oldParent)) error = true;
-  Identifier newParent = m_rpcId->elementID(stationName,eta,phi,doubletR);
-  if (!m_rpcId->validElement(newParent)) error = true;
-  Identifier newChild  = m_rpcId->channelID(newParent,doubletZ,doubletPhi,gasGap,measuresPhi,strip);
-  if (!m_rpcId->valid(newChild)) error = true;
+  if (!m_idHelperSvc->rpcIdHelper().valid(oldChild)) error = true;
+  Identifier oldParent = m_idHelperSvc->rpcIdHelper().parentID(oldChild);
+  if (!m_idHelperSvc->rpcIdHelper().validElement(oldParent)) error = true;
+  Identifier newParent = m_idHelperSvc->rpcIdHelper().elementID(stationName,eta,phi,doubletR);
+  if (!m_idHelperSvc->rpcIdHelper().validElement(newParent)) error = true;
+  Identifier newChild  = m_idHelperSvc->rpcIdHelper().channelID(newParent,doubletZ,doubletPhi,gasGap,measuresPhi,strip);
+  if (!m_idHelperSvc->rpcIdHelper().valid(newChild)) error = true;
 
   /// following lines could be platform dependent!
   m_deltaUser    += System::userTime    ( System::microSec ) - startOfUserTime   ;
@@ -760,7 +739,7 @@ int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
   return 0;
 }
 
-int TestMuonIdHelpers::testTGCIds(const Identifier& id) {
+int TestMuonIdHelpers::testTGCIds(const Identifier& id) const {
 
   bool error = false;
  
@@ -768,110 +747,110 @@ int TestMuonIdHelpers::testTGCIds(const Identifier& id) {
   longlong startOfKernelTime  = System::kernelTime   ( System::microSec );
   longlong startOfElapsedTime = System::ellapsedTime ( System::microSec );
 
-  IdContext    context = m_tgcId->channel_context();    
+  IdContext    context = m_idHelperSvc->tgcIdHelper().channel_context();    
 
-  m_tgcId->test_id(id,context);
-  if (!m_tgcId->valid(id)) {
+  m_idHelperSvc->tgcIdHelper().test_id(id,context);
+  if (!m_idHelperSvc->tgcIdHelper().valid(id)) {
     ATH_MSG_ERROR( " testTGCIds invalid identifier "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  int stationName = m_tgcId->stationName(id);
-  std::string name = m_tgcId->stationNameString(stationName);
-  if (!m_tgcId->isForward(id) && name[2] != 'E') {
+  int stationName = m_idHelperSvc->tgcIdHelper().stationName(id);
+  std::string name = m_idHelperSvc->tgcIdHelper().stationNameString(stationName);
+  if (!m_idHelperSvc->tgcIdHelper().isForward(id) && name[2] != 'E') {
     ATH_MSG_ERROR( " testTGCIds problem in isEndcap() and stationName() "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_tgcId->isForward(id) && name[2] != 'F') {
+  if (m_idHelperSvc->tgcIdHelper().isForward(id) && name[2] != 'F') {
     ATH_MSG_ERROR( " testTGCIds problem in isForward() and stationName() "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  if (m_tgcId->stationNameIndex(name) != m_tgcId->stationName(id)) {
+  if (m_idHelperSvc->tgcIdHelper().stationNameIndex(name) != m_idHelperSvc->tgcIdHelper().stationName(id)) {
     ATH_MSG_ERROR( " testTGCIds problem in stationNameIndex() and stationName() "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int etaMin = m_tgcId->stationEtaMin(id);
-  const int etaMax = m_tgcId->stationEtaMax(id);
-  const int eta    = m_tgcId->stationEta(id);
+  const int etaMin = m_idHelperSvc->tgcIdHelper().stationEtaMin(id);
+  const int etaMax = m_idHelperSvc->tgcIdHelper().stationEtaMax(id);
+  const int eta    = m_idHelperSvc->tgcIdHelper().stationEta(id);
   if (eta < etaMin || eta > etaMax) {
     ATH_MSG_ERROR( " testTGCIds problem in etaMin, etaMax or eta "
                    << "etaMin = " << etaMin
                    << "etaMax = " << etaMax
                    << "eta    = " << eta << " "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int phiMin = m_tgcId->stationPhiMin(id);
-  const int phiMax = m_tgcId->stationPhiMax(id);
-  const int phi    = m_tgcId->stationPhi(id);
+  const int phiMin = m_idHelperSvc->tgcIdHelper().stationPhiMin(id);
+  const int phiMax = m_idHelperSvc->tgcIdHelper().stationPhiMax(id);
+  const int phi    = m_idHelperSvc->tgcIdHelper().stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
     ATH_MSG_ERROR( " testTGCIds problem in phiMin, phiMax or phi "
                    << "phiMin = " << phiMin
                    << "phiMax = " << phiMax
                    << "phi    = " << phi << " "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int technology = m_tgcId->technology(id);
-  if (technology != m_tgcId->technologyIndex("TGC")) {
+  const int technology = m_idHelperSvc->tgcIdHelper().technology(id);
+  if (technology != m_idHelperSvc->tgcIdHelper().technologyIndex("TGC")) {
     ATH_MSG_ERROR( " testTGCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_tgcId->technologyIndex("TGC")
-                   << m_tgcId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->tgcIdHelper().technologyIndex("TGC")
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  if ("TGC" != m_tgcId->technologyString(3) || technology != 3) {
+  if ("TGC" != m_idHelperSvc->tgcIdHelper().technologyString(3) || technology != 3) {
     ATH_MSG_ERROR( " testTGCIds problem in technology() "
                    << "technolog(id) = " << technology
-                   << "technologyIndex = " << m_tgcId->technologyIndex("TGC")
-                   << m_tgcId->show_to_string(id) );
+                   << "technologyIndex = " << m_idHelperSvc->tgcIdHelper().technologyIndex("TGC")
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int gasGapMin = m_tgcId->gasGapMin(id);
-  const int gasGapMax = m_tgcId->gasGapMax(id);
-  const int gasGap    = m_tgcId->gasGap(id);
+  const int gasGapMin = m_idHelperSvc->tgcIdHelper().gasGapMin(id);
+  const int gasGapMax = m_idHelperSvc->tgcIdHelper().gasGapMax(id);
+  const int gasGap    = m_idHelperSvc->tgcIdHelper().gasGap(id);
   if (gasGap < gasGapMin || gasGap > gasGapMax) {
     ATH_MSG_ERROR( " testTGCIds problem in gasGapMin, gasGapMax or gasGap "
                    << "gasGapMin = " << gasGapMin
                    << "gasGapMax = " << gasGapMax
                    << "gasGap    = " << gasGap << " "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int isStripMin = m_tgcId->isStripMin(id);
-  const int isStripMax = m_tgcId->isStripMax(id);
-  const int isStrip    = m_tgcId->isStrip(id);
+  const int isStripMin = m_idHelperSvc->tgcIdHelper().isStripMin(id);
+  const int isStripMax = m_idHelperSvc->tgcIdHelper().isStripMax(id);
+  const int isStrip    = m_idHelperSvc->tgcIdHelper().isStrip(id);
   if (isStrip < isStripMin || isStrip > isStripMax) {
     ATH_MSG_ERROR( " testTGCIds problem in isStripMin, isStripMax or isStrip "
                    << "isStripMin = " << isStripMin
                    << "isStripMax = " << isStripMax
                    << "isStrip    = " << isStrip << " "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
-  const int channelMin = m_tgcId->channelMin(id);
-  const int channelMax = m_tgcId->channelMax(id);
-  const int channel    = m_tgcId->channel(id);
+  const int channelMin = m_idHelperSvc->tgcIdHelper().channelMin(id);
+  const int channelMax = m_idHelperSvc->tgcIdHelper().channelMax(id);
+  const int channel    = m_idHelperSvc->tgcIdHelper().channel(id);
   if (channel < channelMin || channel > channelMax) {
     ATH_MSG_ERROR( " testTGCIds problem in channelMin, channelMax or channel "
                    << "channelMin = " << channelMin
                    << "channelMax = " << channelMax
                    << "channel    = " << channel << " "
-                   << m_tgcId->show_to_string(id) );
+                   << m_idHelperSvc->tgcIdHelper().show_to_string(id) );
     error = true;
   }
   
-  Identifier oldChild  = m_tgcId->channelID(stationName,eta,phi,gasGap,isStrip,channel);
-  if (!m_tgcId->valid(oldChild)) error = true;
-  Identifier oldParent = m_tgcId->parentID(oldChild);
-  if (!m_tgcId->validElement(oldParent)) error = true;
-  Identifier newParent = m_tgcId->elementID(stationName,eta,phi);
-  if (!m_tgcId->validElement(newParent)) error = true;
-  Identifier newChild  = m_tgcId->channelID(newParent,gasGap,isStrip,channel);
-  if (!m_tgcId->valid(newChild)) error = true;
+  Identifier oldChild  = m_idHelperSvc->tgcIdHelper().channelID(stationName,eta,phi,gasGap,isStrip,channel);
+  if (!m_idHelperSvc->tgcIdHelper().valid(oldChild)) error = true;
+  Identifier oldParent = m_idHelperSvc->tgcIdHelper().parentID(oldChild);
+  if (!m_idHelperSvc->tgcIdHelper().validElement(oldParent)) error = true;
+  Identifier newParent = m_idHelperSvc->tgcIdHelper().elementID(stationName,eta,phi);
+  if (!m_idHelperSvc->tgcIdHelper().validElement(newParent)) error = true;
+  Identifier newChild  = m_idHelperSvc->tgcIdHelper().channelID(newParent,gasGap,isStrip,channel);
+  if (!m_idHelperSvc->tgcIdHelper().valid(newChild)) error = true;
 
   /// following lines could be platform dependent!
   m_deltaUser    += System::userTime    ( System::microSec ) - startOfUserTime   ;

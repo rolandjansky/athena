@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Sat Aug 30 2014 14:38:03 CEST  
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef COMPUTILS_H
@@ -786,7 +786,6 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) { 
       if ( at(i).href() ) ::xrange( at(i).href(), symmetric );
       ::xrange( at(i).htest(), symmetric );
-      // ::xrange( at(i).htest(), symmetric );
     }
   }
 
@@ -999,7 +998,8 @@ private:
 
 inline std::ostream& operator<<( std::ostream& s, const Panel& p ) { 
   s << "Panel: " << p.name();
-  for ( size_t i=0 ; i<p.size() ; i++ ) s << "\n\t" << p[i];
+  if ( p.size() == 1 ) s << "\t" << p[0];
+  else for ( size_t i=0 ; i<p.size() ; i++ ) s << "\n\t" << p[i];
   return s;
 }
 

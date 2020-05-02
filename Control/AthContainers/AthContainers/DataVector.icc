@@ -309,29 +309,8 @@ private:
 ENTER_ROOT_SELECTION_NS
 namespace DataVector_detail {
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-template <class B1, class B2, class B3>
-class VirtBases
-{
-public:
-  typedef DataVector_detail::VirtBases<B1, B2, B3> self;
-
-  ROOT_SELECTION_NS::TEMPLATE_DEFAULTS<
-   ROOT_SELECTION_NS::NODEFAULT,
-    ::DataModel_detail::NoBase,
-    ::DataModel_detail::NoBase> dum1;
-  ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dum2;
-};
-
-#else
-
 template< class B1, class B2, class B3 >
-class VirtBases : KeepFirstTemplateArguments< 1 >
-// The SelectNoInstance type was added after 6.00/02...
-#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
-   , SelectNoInstance
-#endif // > v6.00/02
+class VirtBases : KeepFirstTemplateArguments< 1 >, SelectNoInstance
 {
 
 public:
@@ -339,8 +318,6 @@ public:
    typedef DataVector_detail::VirtBases< B1, B2, B3 > self;
 
 };
-
-#endif // ROOT_VERSION
 
 }
 EXIT_ROOT_SELECTION_NS

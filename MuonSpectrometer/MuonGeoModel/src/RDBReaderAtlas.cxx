@@ -361,9 +361,9 @@ void RDBReaderAtlas::ProcessCscInternalAlignments()
         tras      = m_iacsc[ipos].tras      ; // T ROTATION
       }
     }
-    CscInternalAlignmentPar * myPar = new CscInternalAlignmentPar();
-    myPar->setAmdbId(name, jff, jzz, job, wireLayer);
-    myPar->setParameters(tras, traz, trat, rots, rotz, rott);
+    CscInternalAlignmentPar myPar;
+    myPar.setAmdbId(name, jff, jzz, job, wireLayer);
+    myPar.setParameters(tras, traz, trat, rots, rotz, rott);
 
     m_mgr->storeCscInternalAlignmentParams(myPar);
   }
@@ -473,7 +473,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
           iwgs3[i] = (float)(*ggcd)[ich]->getDouble("IWGS3"+A);
         }
 
-        TgcReadoutParams* rpar =  new TgcReadoutParams(name, type, version, wirespacing,
+        auto rpar = std::make_unique<TgcReadoutParams>(name, type, version, wirespacing,
                                                        nchrng,
                                                        &(nwgs[0]),
                                                        &(iwgs1[0]),
@@ -482,8 +482,8 @@ void RDBReaderAtlas::ProcessTGCreadout () {
                                                        &roffst[0],
                                                        &nsps[0],
                                                        &poffst[0]);
-        MYSQL::GetPointer()->StoreTgcRPars(rpar);
-        m_mgr->storeTgcReadoutParams(rpar);
+        MYSQL::GetPointer()->StoreTgcRPars(rpar.get());
+        m_mgr->storeTgcReadoutParams(std::move(rpar));
       }
     }
   } else { //if (getGeometryVersion().substr(0,1) == "Q")
@@ -560,20 +560,20 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         sshort[i] = (float)(*ggln)[ich]->getFloat("SHORT"+A);
       }
 
-      TgcReadoutParams* rpar = new TgcReadoutParams(name, type, version, wirespacing,
-                                                    nchrng,
-                                                    &(nwgs[0]),
-                                                    &(iwgs1[0]),
-                                                    &iwgs2[0],
-                                                    &iwgs3[0],
-                                                    pdist,
-                                                    &slarge[0],
-                                                    &sshort[0],
-                                                    &roffst[0],
-                                                    &nsps[0],
-                                                    &poffst[0]);
-      MYSQL::GetPointer()->StoreTgcRPars(rpar);
-      m_mgr->storeTgcReadoutParams(rpar);
+      auto rpar = std::make_unique<TgcReadoutParams>(name, type, version, wirespacing,
+                                                     nchrng,
+                                                     &(nwgs[0]),
+                                                     &(iwgs1[0]),
+                                                     &iwgs2[0],
+                                                     &iwgs3[0],
+                                                     pdist,
+                                                     &slarge[0],
+                                                     &sshort[0],
+                                                     &roffst[0],
+                                                     &nsps[0],
+                                                     &poffst[0]);
+      MYSQL::GetPointer()->StoreTgcRPars(rpar.get());
+      m_mgr->storeTgcReadoutParams(std::move(rpar));
 
       // parameters for TGC inactive inner structure
 

@@ -5,7 +5,6 @@
 #ifndef XAOD_ANALYSIS
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -17,32 +16,9 @@
 
 
 TauTrackFinder::TauTrackFinder(const std::string& name ) :
-        TauRecToolBase(name),
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-        m_trackSelectorTool_tau(""),
-        m_trackToVertexTool("Reco::TrackToVertex"),
-        m_z0maxDelta(1000),
-        m_applyZ0cut(false),
-        m_storeInOtherTrks(true),
-        m_bypassSelector(false),
-        m_bypassExtrapolator(false)
-{
-    declareProperty("MaxJetDrTau", m_maxJetDr_tau = 0.2);
-    declareProperty("MaxJetDrWide", m_maxJetDr_wide = 0.4);
-    declareProperty("TrackSelectorToolTau", m_trackSelectorTool_tau);
-    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
-    declareProperty("TrackToVertexTool",m_trackToVertexTool);
-    declareProperty("maxDeltaZ0wrtLeadTrk", m_z0maxDelta);
-    declareProperty("removeTracksOutsideZ0wrtLeadTrk", m_applyZ0cut);
-    declareProperty("StoreRemovedCoreWideTracksInOtherTracks", m_storeInOtherTrks = true);
-    declareProperty("removeDuplicateCoreTracks", m_removeDuplicateCoreTracks = true);
-    declareProperty("BypassSelector", m_bypassSelector = false);
-    declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
-
-    // initialize samplings
+        TauRecToolBase(name) {
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};
     m_HadSamplings = {CaloSampling::TileBar1, CaloSampling::HEC1, CaloSampling::TileExt1};
-
 }
 
 TauTrackFinder::~TauTrackFinder() {
@@ -382,7 +358,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                 if( validECal and validHCal ) break;
             }
             // EM failure warn if within acceptance 
-            if( not validECal and abs(orgTrack->pt()) < 2.48 ){
+            if( not validECal and std::abs(orgTrack->pt()) < 2.48 ){
                 ATH_MSG_DEBUG("Failed extrapolation to ECal");
             }
             // Had failure warn if enough pt to reach HCal
@@ -437,7 +413,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
         float deltaZ0=z0 - z0_leadTrk;
         ATH_MSG_VERBOSE("core Trks: deltaZ0= " << deltaZ0);
 
-        if ( fabs(deltaZ0) < maxDeltaZ0 ) {++itr;}
+        if ( std::abs(deltaZ0) < maxDeltaZ0 ) {++itr;}
         else {
             if (m_storeInOtherTrks) otherTracks.push_back(*itr);
             itr = tauTracks.erase(itr); //remove from core track collection
@@ -451,7 +427,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
         float deltaZ0=z0 - z0_leadTrk;
         ATH_MSG_VERBOSE("wide Trks: deltaZ0= " << deltaZ0);
 
-        if ( fabs(deltaZ0) < maxDeltaZ0 ) { ++itr; }
+        if ( std::abs(deltaZ0) < maxDeltaZ0 ) { ++itr; }
         else {
             if (m_storeInOtherTrks) otherTracks.push_back(*itr);
             itr = wideTracks.erase(itr); //remove from wide track collection

@@ -2,9 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRec/TauProcessorAlg.h"
 
 #include "xAODJet/Jet.h"
@@ -31,16 +28,7 @@ using Gaudi::Units::GeV;
 //-----------------------------------------------------------------------------
 TauProcessorAlg::TauProcessorAlg(const std::string &name,
     ISvcLocator * pSvcLocator) :
-AthAlgorithm(name, pSvcLocator),
-m_tools(this), //make tools private
-m_maxEta(2.5),
-m_minPt(10 * GeV),
-m_cellMakerTool("",this)
-{
-  declareProperty("Tools", m_tools);
-  declareProperty("MaxEta", m_maxEta);
-  declareProperty("MinPt", m_minPt);
-  declareProperty("CellMakerTool", m_cellMakerTool);
+AthAlgorithm(name, pSvcLocator) {
 }
 
 //-----------------------------------------------------------------------------
@@ -61,9 +49,6 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
     ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
-    ATH_CHECK( m_pixelDetEleCollKey.initialize() ); 
-    ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
-    ATH_CHECK( m_trtDetEleContKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );
 
@@ -172,15 +157,15 @@ StatusCode TauProcessorAlg::execute() {
   for (const xAOD::Jet* pSeed : *pSeedContainer) {
     ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
 
-      if (fabs(pSeed->eta()) > m_maxEta) {
-	ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
-	continue;
-      }
+    if (std::abs(pSeed->eta()) > m_maxEta) {
+      ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
+      continue;
+    }
 
-      if (fabs(pSeed->pt()) < m_minPt) {
-	ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
-	continue;
-      }
+    if (pSeed->pt() < m_minPt) {
+      ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
+      continue;
+    }
 
       //-----------------------------------------------------------------                                                                 
       // Seed passed cuts --> create tau candidate

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOL_CSCRODREADOUT_H
 #define MUONCSC_CNVTOOL_CSCRODREADOUT_H
 
 #include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <stdint.h>
 #include <vector>
@@ -26,7 +25,7 @@ public:
   CscRODReadOut();
   CscRODReadOut(double startTime, uint16_t samplingTime, 
                 double signalWidth, uint16_t numIntegration);
-  ~CscRODReadOut();
+  ~CscRODReadOut()=default;
 
   // more static header/footer information
   uint32_t getHeaderSize()    {return ROD_HEADER_SIZE;}
@@ -57,7 +56,7 @@ public:
 		       std::vector<uint32_t>& v) const;
 
   // initialize helper
-  void set (const Muon::MuonIdHelperTool* muonIdHelperTool) { m_muonIdHelperTool = muonIdHelperTool; }
+  void set (const CscIdHelper* cscIdHelper) { m_cscIdHelper = cscIdHelper; }
   void setChamberBitVaue( uint32_t value ) {
     m_chamberBitValue = value;
   }
@@ -98,11 +97,7 @@ public:
   uint32_t address()    const {return m_address;}
 
 private:
-  const CscIdHelper& cscHelper() const {
-    return m_muonIdHelperTool->cscIdHelper();
-  }
-
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+  const CscIdHelper* m_cscIdHelper;
   uint16_t  m_sourceID;
   uint16_t  m_moduleType;
   uint16_t  m_rodId;
@@ -222,7 +217,7 @@ inline Identifier CscRODReadOut::decodeAddress() {
   int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
   int stationPhi  =  ( ( m_address & 0x0000E000) >> 13 ) + 1;
   
-  return cscHelper().elementID(stationName,stationEta,stationPhi);
+  return m_cscIdHelper->elementID(stationName,stationEta,stationPhi);
 
 }
 
@@ -245,28 +240,12 @@ inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId) {
 
   int stationEta  =  ( ((m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
 
-  //  To Validate it.. This is decodeAddress called often by CscRDO_Decoder....
-  //  std::cout << " #################### >>  " << m_address << " "
-  //            << stationEta << " " << measuresPhi  << " "
-  //            << strip << " "; 
-  
   // Added to Online -> Offline id  in A side number is opposite bug#56002
   if (measuresPhi) {
     if (stationEta>0) strip = 49-strip;
   }
 
-  //  std::cout << strip << "  shown string for strip " << strip-1 << " " << strip << " " << strip+1 << std::endl;
-  //  std::cout << " ##################### >>  " <<
-  //    cscHelper().show_to_string( cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip-1))
-  //            << std::endl;
-  //  std::cout << " ##################### >>  " <<
-  //    cscHelper().show_to_string( cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip))
-  //            << std::endl;
-  //  std::cout << " ##################### >>  " <<
-  //    cscHelper().show_to_string( cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip+1))
-  //            << std::endl;
-  
-  return cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
+  return m_cscIdHelper->channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
 }
 
 // module Id is given and strip is from address.
@@ -285,7 +264,7 @@ inline Identifier CscRODReadOut::decodeAddress(const Identifier& moduleId, int j
     if (stationEta>0) strip = 49-strip;
   }
 
-  return cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
+  return m_cscIdHelper->channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
 }
 
 // module Id is given and strip is from address.
@@ -305,10 +284,10 @@ inline uint32_t CscRODReadOut::hashIdentifier(const Identifier& moduleId) {
   }
 
 
-  Identifier id     = cscHelper().channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
-  IdContext context = cscHelper().channel_context();
+  Identifier id     = m_cscIdHelper->channelID(moduleId,chamberLayer,wireLayer,measuresPhi,strip);
+  IdContext context = m_cscIdHelper->channel_context();
   IdentifierHash hash;
-  cscHelper().get_hash(id, hash, &context );
+  m_cscIdHelper->get_hash(id, hash, &context );
   return (uint32_t) hash;
 
 }
@@ -317,7 +296,7 @@ inline uint32_t CscRODReadOut::numberOfStrips(const uint32_t fragment) {
   decodeAddress(fragment);
   Identifier moduleId = decodeAddress();
   Identifier channelId = decodeAddress(moduleId);
-  return uint32_t(cscHelper().stripMax(channelId));
+  return uint32_t(m_cscIdHelper->stripMax(channelId));
 }
 
 // get the signal amplitude for a given sampling time (ns)
@@ -345,13 +324,13 @@ inline uint32_t CscRODReadOut::address (const Identifier& channelId,
 					   int& eta, int& phi) const {
 
   // unpack the strip identifier
-  int name         = cscHelper().stationName(channelId);
-  eta              = cscHelper().stationEta(channelId);
-  phi              = cscHelper().stationPhi(channelId);
-  int chamberLayer = cscHelper().chamberLayer(channelId);
-  int wireLayer    = cscHelper().wireLayer(channelId);
-  int orientation  = cscHelper().measuresPhi(channelId);
-  int strip        = cscHelper().strip(channelId);
+  int name         = m_cscIdHelper->stationName(channelId);
+  eta              = m_cscIdHelper->stationEta(channelId);
+  phi              = m_cscIdHelper->stationPhi(channelId);
+  int chamberLayer = m_cscIdHelper->chamberLayer(channelId);
+  int wireLayer    = m_cscIdHelper->wireLayer(channelId);
+  int orientation  = m_cscIdHelper->measuresPhi(channelId);
+  int strip        = m_cscIdHelper->strip(channelId);
 
   // NOPE. Don't flip it!! This strip is for CscDigitToCscRdoTool online address 
 
@@ -378,9 +357,4 @@ inline uint32_t CscRODReadOut::address (const Identifier& channelId,
   return address;
 }
 
-
-
-
 #endif // MUONCSC_CNVTOOL_CSCRODREADOUT_H
-
-

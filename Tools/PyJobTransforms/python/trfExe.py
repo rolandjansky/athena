@@ -860,7 +860,7 @@ class athenaExecutor(scriptExecutor):
 
         if perfMonFile:
             self._perfMonFile = None
-            msg.warning("Resource monitoring from PerfMon is now deprecated")
+            msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
         if isinstance(skeletonFile, basestring):

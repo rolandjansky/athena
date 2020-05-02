@@ -11,22 +11,10 @@
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 
 #include "TString.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
-//#include "GeneratorObjects/McEventCollection.h"
-//#include "TrackRecord/TrackRecordCollection.h"
-//#include "HepMC/GenParticle.h"
-
-//#include "TrkParameters/Perigee.h"
-//#include "TrkParameters/MeasuredPerigee.h"
-//#include "TrkValTools/ResidualPull.h"
-//#include "TrkEventPrimitives/ResidualPull.h"
-
-//#include "TrkSurfaces/StraightLineSurface.h"
-//#include "TrkParameters/TrackParameters.h"
-//#include "TrkGeometry/MagneticFieldProperties.h"
 
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"

@@ -16,7 +16,7 @@
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "AthContainers/DataVector.h"
 

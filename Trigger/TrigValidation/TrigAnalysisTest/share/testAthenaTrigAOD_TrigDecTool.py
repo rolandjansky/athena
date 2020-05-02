@@ -79,11 +79,6 @@ doTAG=False
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
-
-
-
 from TrigValAlgs.TrigValAlgsConfig import TrigDecisionChecker
 
 TrigDecChecker = TrigDecisionChecker("TrigDecChecker")

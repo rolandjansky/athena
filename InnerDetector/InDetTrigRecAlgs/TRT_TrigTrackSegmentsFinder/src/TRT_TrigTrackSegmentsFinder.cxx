@@ -17,6 +17,7 @@
 #include "TRT_TrigTrackSegmentsFinder/TRT_TrigTrackSegmentsFinder.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 //Trigger stuff
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -136,17 +137,17 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
     if(doTiming()) m_timerRegSel->stop();
 
     if(doTiming()) m_timerSegMaker->resume();
-    event_data = m_segmentsMakerTool->newRegion(listOfTRTIds);
+    event_data = m_segmentsMakerTool->newRegion(Gaudi::Hive::currentContext(), listOfTRTIds);
     if(doTiming()) m_timerSegMaker->stop();
   } 
   else{
     if(doTiming()) m_timerSegMaker->resume();
-    event_data = m_segmentsMakerTool->newEvent();
+    event_data = m_segmentsMakerTool->newEvent(Gaudi::Hive::currentContext());
     if(doTiming()) m_timerSegMaker->stop();
   }
 
   if(doTiming()) m_timerFind->resume();
-  m_segmentsMakerTool->find    (*event_data);
+  m_segmentsMakerTool->find    (Gaudi::Hive::currentContext(), *event_data);
   if(doTiming()) m_timerFind->stop();
 
   if(doTiming()) m_timerMainLoop->resume();

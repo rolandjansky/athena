@@ -10,7 +10,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
-    acc.addCondAlgo(CompFactory.InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg", **kwargs))
+    acc.addCondAlgo(CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg", **kwargs))
     return acc
 
 def InDetSiTrackerSpacePointFinderCfg(flags, **kwargs):
@@ -21,7 +21,7 @@ def InDetSiTrackerSpacePointFinderCfg(flags, **kwargs):
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
 
-    InDetSiSpacePointMakerTool = CompFactory.InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool", **kwargs)
+    InDetSiSpacePointMakerTool = CompFactory.InDet.SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool", **kwargs)
         
     acc = ComponentAccumulator()
     acc.addPublicTool(InDetSiSpacePointMakerTool) ## I decided to merge it
@@ -49,14 +49,14 @@ def InDetSiTrackerSpacePointFinderCfg(flags, **kwargs):
             VertexX              = 0,
             VertexY              = 99999999,
             OverlapLimitOpposite = 5)  
-    acc.addEventAlgo(CompFactory.InDet__SiTrackerSpacePointFinder(name = "InDetSiTrackerSpacePointFinder", **kwargs))
+    acc.addEventAlgo(CompFactory.InDet.SiTrackerSpacePointFinder(name = "InDetSiTrackerSpacePointFinder", **kwargs))
     return acc
 
-''' ### Py:ConfigurableDb WARNING : Class InDet__PRD_MultiTruthMakerSi not in database 
+''' ### Py:ConfigurableDb WARNING : Class InDet.PRD_MultiTruthMakerSi not in database 
 
 def InDetPRD_MultiTruthMakerSiCfg(flags, **kwargs):
-    InDet__PRD_MultiTruthMakerSi = CompFactory.InDet__PRD_MultiTruthMakerSi
-    InDetPRD_MultiTruthMakerSi = InDet__PRD_MultiTruthMakerSi(name = "InDetPRD_MultiTruthMakerSi")
+    InDet.PRD_MultiTruthMakerSi = CompFactory.InDet.PRD_MultiTruthMakerSi
+    InDetPRD_MultiTruthMakerSi = InDet.PRD_MultiTruthMakerSi(name = "InDetPRD_MultiTruthMakerSi")
     kwargs.update(
         PixelClusterContainerName   = flags.InDetKeys.PixelClusters,
         SCTClusterContainerName     = flags.InDetKeys.SCT_Clusters,
@@ -80,7 +80,7 @@ def InDetPRD_MultiTruthMakerSiCfg(flags, **kwargs):
             TruthNameSCT              = "")
     
     acc = ComponentAccumulator()
-    acc.addEventAlgo(CompFactory.InDet__PRD_MultiTruthMakerSi(name = "InDetPRD_MultiTruthMakerSi", **kwargs))
+    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMakerSi(name = "InDetPRD_MultiTruthMakerSi", **kwargs))
     return acc
 
 def InDetPRD_MultiTruthMakerSiPUCfg(flags, **kwargs):
@@ -108,7 +108,7 @@ def InDetPRD_MultiTruthMakerSiPUCfg(flags, **kwargs):
             TruthNameSCT              = "")
     
     acc = ComponentAccumulator()
-    acc.addEventAlgo(CompFactory.InDet__PRD_MultiTruthMakerSiPU(name = "InDetPRD_MultiTruthMakerSi", **kwargs))
+    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMakerSiPU(name = "InDetPRD_MultiTruthMakerSi", **kwargs))
     return acc '''
 
 if __name__ == "__main__":

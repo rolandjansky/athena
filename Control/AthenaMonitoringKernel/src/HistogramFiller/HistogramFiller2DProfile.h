@@ -6,6 +6,7 @@
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFiller2DProfile_h
 
 #include "TProfile2D.h"
+#include "boost/range/combine.hpp"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
 
@@ -23,7 +24,7 @@ namespace Monitored {
     }
 
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (m_monVariables.size() != 3) {
         return 0;
       }

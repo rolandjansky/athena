@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaServices/src/ThinningCacheTool.h
@@ -17,6 +17,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
+#include "AthenaKernel/ITrigNavigationThinningSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 
 namespace Athena {
@@ -35,6 +37,12 @@ class ThinningCacheTool : public extends<AthAlgTool, IAthenaOutputTool>
 {
 public:
   using base_class::base_class;
+
+
+  /**
+   * @brief Gaudi initialize method.
+   */
+  virtual StatusCode initialize() override;
 
 
   /**
@@ -78,6 +86,11 @@ private:
   /// Name of the stream for this tool.
   StringProperty m_streamName
   { this, "StreamName", "", "Name of the stream being written." };
+
+
+  /// Optional TrigNavigation thinning service to use.
+  ServiceHandle<ITrigNavigationThinningSvc> m_trigNavigationThinningSvc
+  { this, "TrigNavigationThinningSvc", "", "Service to use for TrigNavigation thinning (optional)." };
 
   
   /// Thinning cache instance for this stream.

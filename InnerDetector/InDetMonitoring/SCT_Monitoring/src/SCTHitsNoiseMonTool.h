@@ -31,29 +31,26 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <array>
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // Forward declarations
 class ISCT_ConfigurationConditionsTool;
 class SCT_ID;
 
-class TH1F;
-class TH2F;
-class TH1I;
-class TH2I;
 class TH1F_LW;
 class TH2F_LW;
-class TH2I_LW;
-class TProfile;
-class TProfile2D;
 class TProfile_LW;
+
+class TH1F;
+class TProfile2D;
 
 class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
  public:
@@ -74,93 +71,26 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   //@} 
   
  private:
-  enum Thresholds {thresh100, thresh1000, thresh10000, nThreshes};
-  static const double s_thresholds[nThreshes];
-  static const std::string s_thresholdNames[nThreshes];
-
   static constexpr int s_commonSize{std::max(SCT_Monitoring::N_BARRELSx2, SCT_Monitoring::N_DISKSx2)};
-
-  /// stream stem for the ROOT histograms
-  std::string m_stream{"/stat"};
-
-  int m_current_lb{0};
-  int m_last_reset_lb{0};
-  //Count number of events
-  int m_numberOfEvents{0};
-  //Count number of events in the selected stream
-  int m_numberOfEventsTrigger{0};
-  //Count number of events since last reset
-  int m_numberOfEventsRecent{0};
-  //CAM adds skip events counter
-  int m_skipEvents{0};
-
-  int m_noisyM[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_occ_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_events_lb{0};
-  int m_noisyMTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_eventsTrigger_lb{0};
-  
-  int m_noisyMWithHO[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_hitocc_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_noisyMWithHOTrigger[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
-  int m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1][SCT_Monitoring::NBINS_LBs+1]{};
-
-  std::vector<int> m_nSP_buf{};
-  int m_nSP_pos{0};
-  std::vector<int> m_nHits_buf{};
-  int m_nHits_pos{0};
-  std::vector<int> m_nmaxHits_buf{};
-  std::vector<Identifier> m_nmaxModule_buf{};
-  std::vector<int> m_nminHits_buf{};
-  std::vector<Identifier> m_nminModule_buf{};
-
-  std::vector<Identifier> m_RDOsOnTracks;
-
-  ///additional maps for track NO to compare with SP NO calc
-  std::map<Identifier, int> m_RDOs;
-
-  std::map<Identifier, float> m_occSumUnbiased;
-  std::map<Identifier, float> m_occSumUnbiasedTrigger;
-  std::map<Identifier, float> m_occSumUnbiasedRecent;
-
-  std::map<Identifier, float> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
-  std::map<Identifier, float> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
-   
-  std::map<Identifier, float> m_hitoccSumUnbiased{};
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger{};
-  std::map<Identifier, float> m_hitoccSumUnbiasedRecent{};
-
-  std::map<Identifier, float> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1]{};
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1]{};
 
   /// Name of the L1 Type to use for filling the extra NO histograms
   StringProperty m_NOTriggerItem{this, "NOTrigger", "L1_RD0_EMPTY"};
   BooleanProperty m_doTrigger{this, "doTrigger", false};
   /// Switch on or off the hitmaps histograms
   BooleanProperty m_boolhitmaps{this, "doHitmapHistos", false};
-  /// Set bin width to increase exponentially (fixed width on a Log-X plot) 
-  BooleanProperty m_doLogXNoise{this, "doLogXNoise", true};
   /// Switch on or off the endcaps
   BooleanProperty m_doPositiveEndcap{this, "doPositiveEndcap", true};
   BooleanProperty m_doNegativeEndcap{this, "doNegativeEndcap", true};
   ///Select the noise algorithm
-  BooleanProperty m_doTrackBasedNoise{this, "doTrackBasedNoise", false};
   BooleanProperty m_doSpacePointBasedNoise{this, "doSpacePointBasedNoise", true};
   /// Add time-bin filtering to space point NO algorithm
   BooleanProperty m_doTimeBinFilteringForNoise{this, "doTimeBinFilteringForNoise", true};
-  /// Switch on or off the hits histos as a function of TriggerType and L1ID for TX scan
-  BooleanProperty m_booltxscan{this, "doTXScan", false};
   /// CheckHists() frequency
   IntegerProperty m_checkrate{this, "CheckRate", 1000};
   IntegerProperty m_checkrecent{this, "CheckRecent", 30};
-  /// ChechHists() frequency
-  IntegerProperty m_evtsbins{this, "EvtsBins", 5000};
   //Things for doing time bin distributions for track hits
   BooleanProperty m_doTrackHits{this, "doTrackHits", true};
   UnsignedIntegerProperty m_maxTracks{this, "MaxTracks", 1000};
-  ///Determines whether a local summary is written
-  IntegerProperty m_localSummary{this, "localSummary", 0};
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
@@ -184,174 +114,145 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   const SCT_ID* m_pSCTHelper{nullptr};
   //@}
 
+  ///// Not used in checkNoiseMaps /////
+
+  //Count number of events
+  int m_numberOfEvents{0}; // Used in bookHistograms, bookHistogramsRecurrent, fillHistograms
+
+  int m_last_reset_lb{0}; // Used in fillHistograms
+
+  std::array<std::unordered_set<Identifier>, SCT_Monitoring::N_WAFERS> m_RDOsOnTracks; // Used in generalHistsandNoise, makeVectorOfTrackRDOIdentifiers
+
+  ///// Read in checkNoiseMaps /////
+
+  //Count number of events since last reset
+  int m_numberOfEventsRecent{0}; // Used in fillHistograms, checkNoiseMaps
+
+  std::map<Identifier, float> m_occSumUnbiasedRecent; // Used in generalHistsandNoise, checkNoiseMaps, initializeNoiseMaps, resetNoiseMapsRecent
+
+  std::map<Identifier, float> m_hitoccSumUnbiasedRecent{}; // Used in checkNoiseMaps, initializeNoiseMaps, resetNoiseMapsRecent, generalHistsandNoise
+
   /// ---------------------------------------
   //@name Histograms related members
   //@{
+
+  ///// Not used in checkNoiseMaps and not reset at all /////
+
   /// Vector of pointers to hitmaps histograms
-  std::vector<TH1F_LW*> m_phitmapHistoVector;
+  std::vector<TH1F_LW*> m_phitmapHistoVector; // Used in generalHistsandNoise, book1DHitHists
   
   /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
-  std::vector<TH2F_LW*> m_phitsHistoVector[SCT_Monitoring::N_REGIONS];
-  std::vector<TH2F_LW*> m_phitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVector[SCT_Monitoring::N_REGIONS];
-  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS];
-  
-  TH1F* m_nSP{nullptr};
-  TH1F* m_nHits{nullptr};
-  TH1F* m_nmaxHits{nullptr};
-  TH1F* m_nminHits{nullptr};
+  std::vector<TH2F_LW*> m_phitsHistoVector[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralHits, generalHistsandNoise
 
-  //Histograms with hits per luminosity block
-  TH1F_LW* m_numHitsPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
-
-  //Histograms with SPs per luminsity block
-  TH1F_LW* m_numSPPerLumiBlock[SCT_Monitoring::N_REGIONS]{};
-
-  TH2F_LW* m_rioMap{nullptr};
-  //@}
-  //Histograms with NO distribution
-  TH1F* m_NO[SCT_Monitoring::N_REGIONS+1]{};
-  TH1F* m_NOTrigger[SCT_Monitoring::N_REGIONS+1]{};
-
-  //---- results required no triggers
-  // # of hits vs LBs
-  TProfile_LW* m_NallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  TProfile_LW* m_NSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  // NO with hits subtracted by SP
-  TProfile_LW* m_NO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  TProfile_LW* m_NoisyModules_vsLB[nThreshes]{};
-  
-  //---- results required trigger
-  // # of hits vs LBs
-  TProfile_LW* m_NallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
-  TProfile_LW* m_NSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
-  // NO with hits subtracted by SP
-  TProfile_LW* m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  TProfile_LW* m_NoisyModulesTrigger_vsLB[nThreshes]{};
-
-  //Online code- template vector
-  std::vector<TH1F_LW*> m_pstripmapTemplateVector{};
-  TH1F_LW* m_MaxOccupancyStripHist{nullptr};
-  TH1F_LW* m_MinOccupancyStripHist{nullptr};
   /// Pointers to histogram of SCT cluster width.
-  TH1F_LW* m_clusize{nullptr};
-  TH1F_LW* m_clusizeRecent{nullptr};
-
-  /// Pointers to histogram of hits as a function of TriggerType.
-  TH1F_LW* m_hitsvstrigger{nullptr};
-
-  /// Pointers to histogram of hits as a function of L1ID.
-  TH1F_LW* m_hitsvsL1ID{nullptr};
-
-  /// Pointers to vector of histograms of SCT cluster width; 1 histo per layer and side.
-  std::vector<TH1F_LW*> m_clusizeHistoVector[SCT_Monitoring::N_REGIONS]{};
-  std::vector<TH1F_LW*> m_clusizeHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
+  TH1F_LW* m_clusize{nullptr}; // Used in generalHistsandNoise, bookClusterSize
 
   /// Pointer to 1D histogram of Number of SCT Clusters per Event
-  TH1F* m_ncluHisto{nullptr};
-
-  /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
-  std::vector<TH1F_LW*> m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{};
-
-  //Pointer to histogram of time bin coincidences
-  TH2I_LW* m_coincidenceHist{nullptr};
-
-  std::vector<TH2F_LW*> m_ptrackhitsHistoVector[SCT_Monitoring::N_REGIONS];
-  std::vector<TH2F_LW*> m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS];
-  std::vector<TH1F_LW*> m_tbinHistoVector[SCT_Monitoring::N_REGIONS]{};
-  std::vector<TH1F_LW*> m_tbinHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
-  TH1F_LW* m_tbinHisto[SCT_Monitoring::N_REGIONS]{};
-  TH1F_LW* m_tbinHistoRecent[SCT_Monitoring::N_REGIONS]{};
-  TProfile2D* m_tbinfrac[SCT_Monitoring::N_REGIONS][s_commonSize]{};
-  TProfile2D* m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{};
-  TProfile_LW* m_tbinfracall{nullptr};
-  TProfile_LW* m_tbinfracVsLB[SCT_Monitoring::N_REGIONS]{};
-
-  std::vector<TProfile2D*> m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{};
-  std::vector<TProfile2D*> m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{};
-  std::vector<TProfile2D*> m_phitoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]{};
-
-  //Histograms with HO distribution
-  TH1F* m_HO[SCT_Monitoring::N_REGIONS+1]{};
-  TH1F* m_HOTrigger[SCT_Monitoring::N_REGIONS+1]{};
+  TH1F* m_ncluHisto{nullptr}; // Used in bookHistograms, bookHistogramsRecurrent, generalHistsandNoise
 
   //---- results required no triggers
   // # of hits vs LBs
-  TProfile_LW* m_HallHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  TProfile_LW* m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS]{};
-  // HO with hits subtracted by SP
-  TProfile_LW* m_HO_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  TProfile_LW* m_NoisyModulesWithHO_vsLB[nThreshes]{};
+  TProfile_LW* m_HallHits_vsLB[SCT_Monitoring::N_REGIONS]{}; // Used in generalHistsandNoise, bookGeneralHitOccupancyMaps
+  TProfile_LW* m_HSPHits_vsLB[SCT_Monitoring::N_REGIONS]{}; // Used in generalHistsandNoise, bookGeneralHitOccupancyMaps
 
   //---- results required trigger
   // # of hits vs LBs
-  TProfile_LW* m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
-  TProfile_LW* m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{};
+  TProfile_LW* m_HallHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{}; // Used in generalHistsandNoise, bookGeneralHitOccupancyMaps
+  TProfile_LW* m_HSPHitsTrigger_vsLB[SCT_Monitoring::N_REGIONS]{}; // Used in generalHistsandNoise, bookGeneralHitOccupancyMaps
+
+  /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
+  std::vector<TH1F_LW*> m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHits, generalHistsandNoise
+
+  TProfile_LW* m_tbinfracall{nullptr}; // Used in bookGeneralTrackTimeHistos, generalHistsandNoise
+
+  //---- results required no triggers
+  // NO with hits subtracted by SP
+  TProfile_LW* m_NO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
   // HO with hits
-  TProfile_LW* m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS+1]{};
-  TProfile_LW* m_NoisyModulesWithHOTrigger_vsLB[nThreshes]{};
-
-  StatusCode makeVectorOfTrackRDOIdentifiers();
- 
-  //@name Histograms related methods
-  //@{
+  TProfile_LW* m_HO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookNoiseDistributions, bookGeneralHitOccupancyMaps, generalHistsandNoise
   
-  StatusCode bookGeneralTrackHits(const unsigned int systemIndex);
-  StatusCode bookGeneralTrackTimeHistos(const unsigned int systemIndex);
+  //---- results required trigger
+  // NO with hits subtracted by SP
+  TProfile_LW* m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
+  // HO with hits
+  TProfile_LW* m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralHitOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
 
-  // Book Hitmaps Histograms
-  StatusCode book1DHitHists();
+  ///// Not used in checkNoiseMaps and are reset at some point /////
 
-  StatusCode bookHitMaps();
-  StatusCode bookSPvsEventNumber();
-  StatusCode makeSPvsEventNumber();
-  // Book noise map histograms
-  StatusCode bookNoiseMaps();
-  StatusCode bookNoiseDistributions();
+  /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
+  std::vector<TH2F_LW*> m_phitsHistoVectorRecent[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralHits, generalHistsandNoise, resetHitMapHists
 
-  // Book noise occupancy map histograms
-  StatusCode bookGeneralNoiseOccupancyMaps(const unsigned int systemIndex);
-  //Book hit occupancy map histograms
-  StatusCode bookGeneralHitOccupancyMaps(const unsigned int systemIndex);
+  /// Pointers to histogram of SCT cluster width.
+  TH1F_LW* m_clusizeRecent{nullptr}; // Used in generalHistsandNoise, bookClusterSize, resetHitMapHists
 
-  // Book Hits Histograms
-  StatusCode bookGeneralHits(const unsigned int systemIndex);
+  std::vector<TH2F_LW*> m_ptrackhitsHistoVector[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralTrackHitso, generalHistsandNoise, resetHitMapHists
+  std::vector<TH2F_LW*> m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralTrackHitso, generalHistsandNoise, resetHitMapHists
 
-  StatusCode bookClusterSize();
-  StatusCode bookGeneralCluSize(const unsigned int systemIndex);
+  /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHitOccupancyMaps, generalHistsandNoise, resetNoiseMapHists
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralNoiseOccupancyMaps, generalHistsandNoise, resetNoiseMapHists
+
+  ///// Updated in checkNoiseMaps /////
+
+  /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralNoiseOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
+
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHitOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
+
   //@}
 
-  //Do checking of noise maps
-  StatusCode checkNoiseMaps(bool final);
+  //@name Histograms related methods
+  //@{
+
+  // Used in bookHistograms and bookHistogramsRecurrent
+  StatusCode bookGeneralTrackHits(const unsigned int systemIndex);
+  StatusCode bookGeneralTrackTimeHistos();
+  StatusCode book1DHitHists(); // Book Hitmaps Histograms
+  StatusCode bookNoiseDistributions(); // Book noise map histograms
+  StatusCode bookGeneralNoiseOccupancyMaps(const unsigned int systemIndex); // Book noise occupancy map histograms
+  StatusCode bookGeneralHitOccupancyMaps(const unsigned int systemIndex); // Book hit occupancy map histograms
+  StatusCode bookGeneralHits(const unsigned int systemIndex); // Book Hits Histograms
+  StatusCode bookClusterSize();
   StatusCode initializeNoiseMaps();
-  StatusCode resetNoiseMapHists();
+
+  // Used in fillHistograms
+  StatusCode makeVectorOfTrackRDOIdentifiers();
   StatusCode resetNoiseMapsRecent();
   StatusCode resetHitMapHists();
-  StatusCode generalHistsandNoise();
+  StatusCode generalHistsandNoise(const EventContext& ctx);
 
-  StatusCode resetVecProf2(std::vector<TProfile2D*>& hists) const;
-  StatusCode resetVecH2(std::vector<TH2F_LW*>& hists) const;
-  StatusCode resetVecH1(std::vector<TH1F_LW*>& hists) const;
+  // Used in fillHistograms and procHistograms
+  StatusCode checkNoiseMaps(); // Do checking of noise maps
 
+  // Used in book1DHitHists, bookGeneralHits, bookGeneralCluSize, bookGeneralTrackTimeHistos
   TH1F_LW* h1Factory(const std::string& name, const std::string& title, MonGroup& registry, std::vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const;
+  // Used in bookGeneralHits, bookClusterSize, bookGeneralTrackTimeHistos
   TH1F_LW* h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins) const;
 
-  TH1F* th1Factory(const std::string& name, const std::string& title, MonGroup& registry, std::vector<TH1F*>& storageVector, const float lo, const float hi, const unsigned int nbins) const;
-  TH1F* th1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo, const float hi, const unsigned int nbins) const;
-
+  // Used in bookGeneralHits, bookGeneralTrackHits
   TH2F_LW* h2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TH2F_LW*>& storageVector) const;
 
-  TH2I_LW* h2IFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
-
+  // Used in bookGeneralNoiseOccupancyMaps, bookGeneralHitOccupancyMaps
   TProfile2D* prof2Factory(const std::string& name, const std::string& title, const SCT_Monitoring::Bec bec, MonGroup& registry, std::vector<TProfile2D*>& storageVector) const;
+  // Used in bookClusterSize, bookGeneralTrackTimeHistos
   TProfile2D* prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi) const;
 
-  TProfile_LW* profFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbin, float lo, float hi) const;
+  // Used in bookGeneralTrackTimeHistos
   TProfile_LW* profFactory(const std::string& name, const std::string& title, MonGroup& registry) const;
 
-  ///Format the position as a string
-  std::string positionString(const Identifier& plane) const;
+  // Used in book1DHitHists
+  std::string positionString(const Identifier& plane) const; /// Format the position as a string
+
+  // Used in resetNoiseMapHists
+  StatusCode resetVecProf2(std::vector<TProfile2D*>& hists) const;
+
+  // Used in resetHitMapHists
+  StatusCode resetVecH2(std::vector<TH2F_LW*>& hists) const;
+
+  // Used in checkNoiseMaps
+  StatusCode resetNoiseMapHists();
+
+  //@}
 };
 
 #endif // SCTHITSNOISEMONTOOL_H

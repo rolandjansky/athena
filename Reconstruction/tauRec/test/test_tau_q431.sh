@@ -9,7 +9,7 @@
 # art-output: *.log
 # art-output: *.ps
 
-NEVENTS=1000
+NEVENTS=500
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q431"
 
 # run the reconstruction
@@ -17,7 +17,7 @@ Reco_tf.py --maxEvents=${NEVENTS} --AMI=q431
 echo "art-result: $? Reconstrution"
 
 # compare the AOD file
-art.py compare ref --entries ${NEVENTS} --mode=semi-detailed --order-trees --diff-root myAOD.pool.root ${REF_DIR}/myAOD.pool.root >> AOD_diff_root.log 2>&1
+art.py compare ref --entries 200 --mode=semi-detailed --order-trees --diff-root myAOD.pool.root ${REF_DIR}/myAOD.pool.root >> AOD_diff_root.log 2>&1
 echo "art-result: $? diff-root"
 
 # run the physics validation

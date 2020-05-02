@@ -131,25 +131,19 @@ namespace D3PD {
 
 			HepMC::GenParticle* pi1=0;
 			HepMC::GenParticle* pi2=0;
-			//HepMC::GenParticle* p1=0;
 			HepMC::GenParticle* p2=0;
 
 			int pint = 0;
 			int pcount = 0;
 			
 			LogStream << MSG::DEBUG << " just before " << endmsg;
-			//HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particle_1;
 			HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particles().first;
-			//HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particle_2;
 			HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particles().second;
 			
 			LogStream << MSG::DEBUG << " beam1 pointer " << beam_p1 << endmsg;
 			LogStream << MSG::DEBUG << " beam2 pointer " << beam_p2 << endmsg;
 			LogStream << MSG::DEBUG << " just after " << endmsg;
-			
-			//double beam1_energy = beam_p1->momentum().e();
-			//double beam2_energy = beam_p2->momentum().e();
-			
+						
 			double beam1_energy = 0.; //MeV
 			double beam2_energy = 0.; //MeV
 			
@@ -186,18 +180,8 @@ namespace D3PD {
 
 				for(; child != child_end; ++child){
 
-					//px =      (*child)->momentum().px();
-					//py =      (*child)->momentum().py();
 					pz =      (*child)->momentum().pz();
-					//E  =      (*child)->momentum().e();
-					//phi=      (*child)->momentum().phi();
-					//barcode = (*child)->barcode();
 
-					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
-					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
-					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
-					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
-					//LogStream << MSG::DEBUG << " " << endmsg;
 
 					// incoming protons (status code = 4) at the interaction point; 
 					if( (*child)->status() == 4){ // note, it can be any colliding particle, hopefully Pb too

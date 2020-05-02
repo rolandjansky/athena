@@ -64,6 +64,10 @@ StatusCode DQTDetSynchMonAlg::initialize() {
   ATH_CHECK( m_TileDigitsContainerKey.initialize() );
   ATH_CHECK( m_RpcPadContainerKey.initialize() );
   ATH_CHECK( m_field.retrieve() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -390,15 +394,33 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
 	tile_l1id16, rpcl1id, pixell1id, diffx, diffy);
 
 
+ ////////////////////////////////////////////////////////////////////////////////////////////////////
    // B field
    Amg::Vector3D f; 
    Amg::Vector3D gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
-   m_field->getField(&gP1,&f);
+   MagField::AtlasFieldCache    fieldCache;
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+   if (fieldCondObj == nullptr) {
+       ATH_MSG_ERROR("DQTDetSynchMonAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+       return StatusCode::FAILURE;
+   }
+   fieldCondObj->getInitializedCache (fieldCache);
+
+   // MT version uses cache, temporarily keep old version
+   if (fieldCache.useNewBfieldCache()) fieldCache.getField(gP1.data(),f.data());
+   else                                 m_field->getField(&gP1,&f);
+
    // field is in kilotesla (!)
    auto solenoid_bz = Monitored::Scalar("solenoid_bz", f[2]*1000.);
 
    Amg::Vector3D  gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
-   m_field->getField(&gP2,&f);
+
+   // MT version uses cache, temporarily keep old version
+   if (fieldCache.useNewBfieldCache()) fieldCache.getField(gP2.data(),f.data());
+ ////////////////////////////////////////////////////////////////////////////////////////////////////
+
    auto toroid_bx = Monitored::Scalar("toroid_bx", f[0]*1000.);
 
    fill("bfield", solenoid_bz, toroid_bx, lb);

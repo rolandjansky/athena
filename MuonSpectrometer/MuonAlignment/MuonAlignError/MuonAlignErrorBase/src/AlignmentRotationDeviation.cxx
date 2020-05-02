@@ -1,24 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
 #include <iostream>
 
 using namespace MuonAlign;
-using namespace std;
 
-AlignmentRotationDeviation::AlignmentRotationDeviation (Amg::Vector3D center, Amg::Vector3D axis, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits)
-  : m_center(center),
+AlignmentRotationDeviation::AlignmentRotationDeviation (Amg::Vector3D center, Amg::Vector3D axis, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits) :
+  m_center(center),
   m_axis(axis),
   m_sigma(sigma)
 {
   m_hits = hits;
   m_hitshash = 0;
   m_hitshashdone = false;
-}
-
-AlignmentRotationDeviation::~AlignmentRotationDeviation () {
 }
 
 int AlignmentRotationDeviation::nPar () const {
@@ -40,6 +36,6 @@ Amg::Transform3D AlignmentRotationDeviation::getTransform (const std::vector<dou
 }
 
 void AlignmentRotationDeviation::print (std::ostream& out) const {
-  out << "A rotation around center = (" << m_center.x() << ", " << m_center.y() << ", " << m_center.z() << ") and axis = (" << m_axis.x() << ", " << m_axis.y() << ", " << m_axis.z() << ") with sigma=" << m_sigma << " mrad applied to " << m_hits.size() << " hits" << endl;
+  out << "A rotation around center = (" << m_center.x() << ", " << m_center.y() << ", " << m_center.z() << ") and axis = (" << m_axis.x() << ", " << m_axis.y() << ", " << m_axis.z() << ") with sigma=" << m_sigma << " mrad applied to " << m_hits.size() << " hits" << std::endl;
 }
 

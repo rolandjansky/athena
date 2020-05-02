@@ -1,16 +1,19 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "egammaIso.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "FourMomUtils/P4Helpers.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <cmath> 
 
-using CLHEP::MeV;
+namespace{
+    const double size = 0.12;
+    const std::vector<CaloCell_ID::SUBCALO> theVecCalo = {
+      CaloCell_ID::LARHEC, CaloCell_ID::TILE};
+}
 
 egammaIso::egammaIso(const std::string& type,
         const std::string& name,
@@ -31,37 +34,40 @@ StatusCode egammaIso::finalize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster, CaloCellList& HADCellList,  Info& info) const {
+StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster,
+                              const CaloDetDescrManager& cmgr,                                                           
+                              const CaloCellContainer& cellcoll,
+                              Info& info) const {
     const double eta  = cluster.eta(); 
     const double phi  = cluster.phi(); 
     double egap=0.;
     double ehad=0.;
-    const double size = 0.12;
-
+    // define a new Calo Cell list corresponding to HAD Calo
+    // retrieve the corresponding CaloCell_ID for LarHec and TILE
+   // define a new Calo Cell list
+    CaloCellList HADCellList(&cellcoll, theVecCalo);
     // increase window size a bit to avoid problems due to 4cm shift.
     // considering that in the tile the granularity is 0.1, the value
-    // choosen below is safe.
-    // all hadron in 0.2X0.2
-    HADCellList.select(eta,phi,size,size);       
+    // choosen below is safe. All hadrons in 0.2X0.2
+    HADCellList.select(cmgr,eta,phi,size,size);       
     ehad +=HADCellList.energy(); 
-    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap3);       
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap3);       
     egap +=HADCellList.energy(); 
 
-    HADCellList.select(eta,phi,size,size,CaloSampling::HEC0);       
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::HEC0);       
     info.ehad1 +=HADCellList.energy(); 
 
-    HADCellList.select(eta,phi,size,size,CaloSampling::TileBar0);       
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileBar0);       
     info.ehad1 +=HADCellList.energy(); 
 
     // Fix had leakage in crack (TileGap1 and TileGap2 missing before 14.2)
-    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap1);
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap1);
     info.ehad1 +=HADCellList.energy();
-    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap2);       
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap2);       
     info.ehad1 +=HADCellList.energy(); 
 
-    HADCellList.select(eta,phi,size,size,CaloSampling::TileExt0);       
+    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileExt0);       
     info.ehad1 +=HADCellList.energy(); 
-
 
     const double eta2 = cluster.etaBE(2);
     if (eta2==-999.) {

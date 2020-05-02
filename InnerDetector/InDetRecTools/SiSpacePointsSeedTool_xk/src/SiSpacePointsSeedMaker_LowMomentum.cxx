@@ -44,13 +44,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   //
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  // Get magnetic field service
-  //
-  if ( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
 
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
@@ -87,7 +81,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(const EventContext& ctx, EventData& data, int) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -103,7 +97,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -114,7 +108,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   //
   if (m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -141,7 +135,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   //
   if (m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -171,7 +165,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const{
   if (not data.initialized) initializeEventData(data);
 
@@ -187,7 +181,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -198,7 +192,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   //
   if (m_pixel && vPixel.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -229,7 +223,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   //
   if (m_sct && vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
@@ -262,11 +256,11 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor&) const
 {
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -306,7 +300,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find2Sp(EventData& data, const s
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -323,7 +317,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
     data.endlist = true;
     data.fNmin   = 0;
     data.zMin    = 0;
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
   data.i_seed = data.l_seeds.begin();
 
@@ -333,9 +327,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(data, lv);
+  find3Sp(ctx, data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -344,7 +338,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -361,7 +355,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(EventData& data, const s
     data.endlist = true;
     data.fNmin   = 0;
     data.zMin    = 0;
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
   data.i_seed = data.l_seeds.begin();
 
@@ -537,7 +531,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent(EventData& data,
 // Find next set space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(const EventContext& ctx, EventData& data) const
 {
   if (data.endlist) return;
   
@@ -545,9 +539,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(EventData& data) const
   if (data.mode==0 || data.mode==1) {
     production2Sp(data);
   } else if (data.mode==2 || data.mode==3) {
-    production3Sp(data);
+    production3Sp(ctx, data);
   } else if (data.mode==5 || data.mode==6) {
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
 
   data.i_seed = data.l_seeds.begin();
@@ -796,15 +790,27 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production2Sp(EventData& data) c
 // Production 3 space points seeds (new version)
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(const EventContext& ctx, EventData& data) const
 {
   if (data.nsaz<3) return;
 
   float K = 0.;
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+  MagField::AtlasFieldCache    fieldCache;
+
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_LowMomentum: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP, f);
+
     K = 2./(300.*f[2]);
   } else {
     K = 2./(300.* 5. );
@@ -1058,12 +1064,12 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::next(const EventContext& ctx, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 
   if (data.i_seed==data.i_seede) {
-    findNext(data);
+    findNext(ctx, data);
     if (data.i_seed==data.i_seede) return nullptr;
   } 
   return &(*data.i_seed++);

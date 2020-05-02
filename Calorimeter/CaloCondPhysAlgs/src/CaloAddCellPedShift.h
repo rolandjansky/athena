@@ -26,11 +26,13 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class CaloCondBlobFlt;
 class CondAttrListCollection;
 
 
-class CaloAddCellPedShift : public AthAlgorithm {
+class ATLAS_NOT_THREAD_SAFE /* CallBacks*/CaloAddCellPedShift : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods

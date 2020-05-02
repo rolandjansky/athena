@@ -6,7 +6,6 @@
 #define MUONGEOMODEL_MUONDETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
@@ -15,7 +14,7 @@ namespace MuonGM
 }
 
 
-class MuonDetectorTool : public GeoModelTool, virtual public IIncidentListener {
+class MuonDetectorTool : public GeoModelTool {
 
 public:
 
@@ -34,9 +33,6 @@ public:
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
-
-  // incident svc handle
-  virtual void handle(const Incident&) override;
 
 
 private:
@@ -67,6 +63,9 @@ private:
   bool m_useCscIntAlinesFromGM;
   std::string m_altCscIntAlinesFile;
   Gaudi::Property<int> m_cachingFlag { this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)" };
+  //the following two properties are for local validation, not for production
+  Gaudi::Property<std::string> m_NSWABLinesAsciiSideA { this, "NSWABLinesAsciiSideA", "", "Pass A/B Lines for NSW from Ascii file" };
+  Gaudi::Property<std::string> m_NSWABLinesAsciiSideC { this, "NSWABLinesAsciiSideC", "", "Pass A/B Lines for NSW from Ascii file" };
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
   std::string m_altMdtAsBuiltFile;

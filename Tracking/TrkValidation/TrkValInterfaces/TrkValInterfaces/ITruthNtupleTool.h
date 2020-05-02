@@ -20,11 +20,7 @@
 #include "TrkParameters/TrackParameters.h"
 //#include "TrkValInterfaces/ITrackTruthClassifier.h"
 
-namespace HepMC {
-
-class GenParticle; //!< Truth information
-
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 namespace Trk {
     class ITrackTruthClassifier;
 

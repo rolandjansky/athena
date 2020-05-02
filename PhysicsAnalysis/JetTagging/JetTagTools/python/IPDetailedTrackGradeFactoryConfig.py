@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the DetailedTrackGradeFactory configurable
-Analysis__DetailedTrackGradeFactory=CompFactory.Analysis__DetailedTrackGradeFactory
+Analysis__DetailedTrackGradeFactory=CompFactory.Analysis.DetailedTrackGradeFactory
 
 def IPDetailedTrackGradeFactoryCfg( name = 'IPDetailedTrackGradeFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPDetailedTrackGradeFactory tool and returns it.

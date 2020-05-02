@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/Barcode/BarcodeEvent
                           Simulation/G4Sim/MCTruth
                           PRIVATE
+                          Generators/AtlasHepMC
                           DetectorDescription/GeoPrimitives )
 
 
@@ -21,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 find_package( Geant4 )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
 
@@ -31,17 +31,17 @@ atlas_add_library( ISF_Geant4Event
                    PUBLIC_HEADERS ISF_Geant4Event
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                    ${GEANT4_INCLUDE_DIRS}
                    ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES}
-                   ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
+                   ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
                    ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ISF_Event
                    SimHelpers GeoPrimitives MCTruth)
 
 #atlas_add_test(SOURCES
 #               INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-#              ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+#               ${EIGEN_INCLUDE_DIRS}
 #               LINK_LIBRARIES
-#              ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
+#              ${CLHEP_LIBRARIES} AtlasHepMCLib
 #               ${EIGEN_LIBRARIES} ISF_Event SimHelpers GeoPrimitives
 #               BarcodeEvent MCTruth)

@@ -1,26 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* Author:Marco Vanadia  vanadiam@roma1.infn.it*/
-
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
-
-using std::string;
 
 namespace MuonCalib {
 
   MDTName::MDTName() : m_eta_on(-1), m_eta_off(-1), m_sector_on(-1), m_sector_off(-1), m_side('X')
   {}
 
-  MDTName::MDTName(MuonFixedId the_id) {
+  MDTName::MDTName(const MuonFixedId& the_id) {
     m_name=TString(the_id.stationNameString());
     m_eta_off=the_id.eta();
-    m_eta_on=abs(m_eta_off);
+    m_eta_on=std::abs(m_eta_off);
     if(m_eta_off<0) m_side='C';
     if(m_eta_off>=0) m_side='A';
     //Here chambers with eta=0 are included in m_side A;
-    //if(m_eta_off==0) m_side='B'; 
     m_sector_off=the_id.phi();
     if((m_name[2]=='L')||(m_name[2]=='M')||(m_name[2]=='R')) m_sector_on=((the_id.phi())*2)-1;
     else m_sector_on=((the_id.phi())*2);
@@ -41,21 +36,21 @@ namespace MuonCalib {
     }
   }
 
-  MDTName::MDTName(string the_name) {
+  MDTName::MDTName(const std::string& the_name) {
     TString s(the_name);
     MDTName_init(s);
   }
 
-  MDTName::MDTName(char *the_name) {
+  MDTName::MDTName(const char *the_name) {
     TString s(the_name);
     MDTName_init(s);
   }
 
-  MDTName::MDTName(TString the_name) {
+  MDTName::MDTName(const TString& the_name) {
     MDTName_init(the_name);
   }
 
-  MDTName::MDTName(string the_name, int sector, int eta) {
+  MDTName::MDTName(const std::string& the_name, const int sector, const int eta) {
     TString temp=the_name;
     temp+="_";
     temp+=sector;
@@ -64,7 +59,7 @@ namespace MuonCalib {
     MDTName_init(temp);
   }
 
-  MDTName::MDTName(string the_name, int eta, string side, int sector) {
+  MDTName::MDTName(const std::string& the_name, const int eta, const std::string& side, const int sector) {
     TString temp=the_name;
     temp+=eta;
     temp+=side;
@@ -72,7 +67,8 @@ namespace MuonCalib {
     MDTName_init(temp);
   }
 
-  void MDTName::MDTName_init(TString the_name) {
+  void MDTName::MDTName_init(const TString& name) {
+    TString the_name(name);
     the_name.ToUpper();
     m_name=the_name(0,3);
     if(the_name.Contains('_')) {
@@ -82,7 +78,7 @@ namespace MuonCalib {
       if(the_name.Contains('-')) {
 	m_eta_off=the_name.Atoi();
 	m_side='C';
-	m_eta_on=abs(m_eta_off);
+	m_eta_on=std::abs(m_eta_off);
       } else {
 	m_eta_off=the_name.Atoi();
 	m_side='A';
@@ -159,22 +155,22 @@ namespace MuonCalib {
     }
   }  //end MDTName::MDTName_init
 
-  string MDTName::getOnlineName() {
+  std::string MDTName::getOnlineName() {
     TString the_name(m_name);
     the_name+=m_eta_on;
     the_name+=m_side;
     if(m_sector_on<10) the_name+="0";
     the_name+=m_sector_on;
-    return (string)the_name;
+    return (std::string)the_name;
   }
 
-  string MDTName::getOfflineName() {
+  std::string MDTName::getOfflineName() {
     TString the_name(m_name);
     the_name+='_';
     the_name+=m_sector_off;
     the_name+='_';
     the_name+=m_eta_off;
-    return (string)the_name;
+    return (std::string)the_name;
   }
 
   bool MDTName::isBarrel() {
@@ -249,60 +245,60 @@ namespace MuonCalib {
     return m_eta_off;
   }
 
-  string MDTName::getRegion() {
-    string temp="Barrel";
+  std::string MDTName::getRegion() {
+    std::string temp="Barrel";
     if(this->isEndcap()) temp="Endcap";
     return temp;
   }
 
-  string MDTName::getStation() {
-    string temp="";
+  std::string MDTName::getStation() {
+    std::string temp="";
     temp+=m_name[1];
     return temp;
   }
 
-  string MDTName::getSize() {
-    string temp="";
+  std::string MDTName::getSize() {
+    std::string temp="";
     temp+=m_name[2];
     return temp;
   }
 
-  string MDTName::getSide() {
-    string temp="";
+  std::string MDTName::getSide() {
+    std::string temp="";
     temp+=m_side;
     return temp;
   }
 
-  string MDTName::getName() {
-    return (string)m_name;
+  std::string MDTName::getName() {
+    return (std::string)m_name;
   }
 
-  TString MDTName::OnlineToOfflineName(TString the_name) {
+  TString MDTName::OnlineToOfflineName(const TString& the_name) {
     MDTName temp(the_name);
     return temp.getOfflineName();
   }
 
-  TString MDTName::OnlineToOfflineName(char *the_name) {
+  TString MDTName::OnlineToOfflineName(const char *the_name) {
     MDTName temp(the_name);
     return temp.getOfflineName();
   }
 
-  TString MDTName::OnlineToOfflineName(string the_name) {
+  TString MDTName::OnlineToOfflineName(const std::string& the_name) {
     MDTName temp(the_name);
     return temp.getOfflineName();
   }
 
-  TString MDTName::OfflineToOnlineName(TString the_name)   {
+  TString MDTName::OfflineToOnlineName(const TString& the_name)   {
     MDTName temp(the_name);
     return temp.getOnlineName();
   }
 
-  TString MDTName::OfflineToOnlineName(char* the_name) {
+  TString MDTName::OfflineToOnlineName(const char* the_name) {
     MDTName temp(the_name);
     return temp.getOnlineName();
   }
 
-  TString MDTName::OfflineToOnlineName(string the_name) {
+  TString MDTName::OfflineToOnlineName(const std::string& the_name) {
     MDTName temp(the_name);
     return temp.getOnlineName();
   }

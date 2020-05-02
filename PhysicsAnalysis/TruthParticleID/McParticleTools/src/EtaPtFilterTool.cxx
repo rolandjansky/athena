@@ -14,7 +14,7 @@
 
 // FrameWork includes
 
-// CLHEP/HepMC includes
+// CLHEP includes
 #include "TruthHelper/IsGenerator.h"
 #include "TruthHelper/IsGenStable.h"
 #include "CLHEP/Units/SystemOfUnits.h"

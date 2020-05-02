@@ -45,28 +45,26 @@ public:
   virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
-  virtual std::unique_ptr<MultiComponentState> update(
+  virtual MultiComponentState update(
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> preUpdate(
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState preUpdate(const MultiComponentState&,
+                                        const Layer&,
+                                        PropDirection direction = anyDirection,
+                                        ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> postUpdate(
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState postUpdate(const MultiComponentState&,
+                                         const Layer&,
+                                         PropDirection direction = anyDirection,
+                                         ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Retain for now redundant simplified material effects
-  virtual std::unique_ptr<MultiComponentState> simplifiedMaterialUpdate(
+  virtual MultiComponentState simplifiedMaterialUpdate(
     const MultiComponentState& multiComponentState,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;

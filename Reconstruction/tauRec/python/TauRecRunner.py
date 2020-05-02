@@ -79,7 +79,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
             ### TauRecVariablesProcessor ###
             from InDetRecExample.InDetJobProperties import InDetFlags
             # Tools in this section were originally in TauRecVariablesProcessor
-            if InDetFlags.doVertexFinding():
+            if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexVariables())
 
             tools.append(taualgs.getTauCommonCalcVars())

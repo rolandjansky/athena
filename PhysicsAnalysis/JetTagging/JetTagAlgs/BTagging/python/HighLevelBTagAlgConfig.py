@@ -3,8 +3,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__HighLevelBTagAlg=CompFactory.Analysis__HighLevelBTagAlg
-FlavorTagDiscriminants__DL2Tool=CompFactory.FlavorTagDiscriminants__DL2Tool
+Analysis__HighLevelBTagAlg=CompFactory.Analysis.HighLevelBTagAlg
+FlavorTagDiscriminants__DL2Tool=CompFactory.FlavorTagDiscriminants.DL2Tool
 
 def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
     acc = ComponentAccumulator()

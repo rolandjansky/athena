@@ -68,8 +68,6 @@ TriggerFlags.doHLT=True
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
 
 #-----------------Monitoring and leak check-----------------
 jobproperties.PerfMonFlags.doMonitoring = True

@@ -65,6 +65,8 @@ public:
   inline void hasCSC(bool value);
   inline void hasSTgc(bool value);
   inline void hasMM(bool value);
+  inline void setABLinesAsciiSideA(const std::string& );
+  inline void setABLinesAsciiSideC(const std::string& );
 
 private:
 
@@ -94,6 +96,9 @@ private:
   bool m_hasCSC;
   bool m_hasSTgc;
   bool m_hasMM;
+
+  std::string m_NSWABLinesSideA;
+  std::string m_NSWABLinesSideC;
 
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
@@ -142,6 +147,9 @@ void MuonDetectorFactory001::setFineClashFixingFlag(int value){m_enableFineClash
 void MuonDetectorFactory001::hasCSC(bool value){m_hasCSC = value;}
 void MuonDetectorFactory001::hasSTgc(bool value){m_hasSTgc = value;}
 void MuonDetectorFactory001::hasMM(bool value){m_hasMM = value;}
+void MuonDetectorFactory001::setABLinesAsciiSideA(const std::string& str) {m_NSWABLinesSideA = str; }
+void MuonDetectorFactory001::setABLinesAsciiSideC(const std::string& str) {m_NSWABLinesSideC = str; }
+
 
 } // namespace MuonGM
 

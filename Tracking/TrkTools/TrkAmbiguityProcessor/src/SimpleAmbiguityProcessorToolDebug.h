@@ -19,7 +19,7 @@
 typedef HepGeom::Point3D<double> HepPoint3D;
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
      typedef std::map<const Trk::Track*, const Trk::Track*> TrackCollectionConnection;
 #ifndef SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF

@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
   PRIVATE
   Control/AthContainers
   Event/xAOD/xAODJet
+  Event/xAOD/xAODTruth
   ${extra_deps} )
 
 # Component(s) in the package:
@@ -32,7 +33,7 @@ atlas_add_library( PFlowUtilsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PFlowUtils
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps xAODJet xAODPFlow GaudiKernel
+      LINK_LIBRARIES AthenaBaseComps xAODJet xAODPFlow GaudiKernel xAODTruth
       PFlowUtilsLib )
 endif()
 

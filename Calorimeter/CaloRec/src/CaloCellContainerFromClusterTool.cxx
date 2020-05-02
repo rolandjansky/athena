@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -152,6 +152,8 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
   //Build bitmap to keep track which cells have been added to reducedCellContainer;
   std::bitset<200000> addedCellsMap;
 
+  const CaloDetDescrManager* caloDDMgr = nullptr;
+  ATH_CHECK(detStore()->retrieve(caloDDMgr, "CaloMgr") );
   //Loop over list cluster container keys
   for (const SG::ReadHandleKey<xAOD::CaloClusterContainer>& clusKey :
          m_clusterKeys)
@@ -191,7 +193,7 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
         if (!addedCellsMap.test(cellHash)) {
           theCont->push_back(cell);
           addedCellsMap.set(cellHash);
-	  ++nCells;
+          ++nCells;
         } else {
           ATH_MSG_VERBOSE( "Cell with hash " << cellHash << " added more than once." );
         }
@@ -209,7 +211,7 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
         // get cell lists for each sampling we want to add
         for (int isamp : m_validSamplings) {
           CaloCellList cell_list(cellContainer.cptr());
-          cell_list.select(eta, phi, deta, dphi, isamp);
+          cell_list.select(*caloDDMgr,eta, phi, deta, dphi, isamp);
 
           ATH_MSG_DEBUG( "sampling " << isamp
                         << ", size of list = " << cell_list.ncells()
@@ -225,7 +227,7 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
               theCont->push_back(cell);
               ATH_MSG_DEBUG( "adding gap/tile cell " << cellHash );
               addedCellsMap.set(cellHash);
-	      ++nCells;
+              ++nCells;
             } else {
               ATH_MSG_VERBOSE( "Cell with hash " << cellHash << " added more than once." );
 	    }

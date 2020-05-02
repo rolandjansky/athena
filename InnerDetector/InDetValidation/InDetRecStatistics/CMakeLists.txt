@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           PRIVATE
@@ -31,15 +32,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_component( InDetRecStatistics
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps Identifier GaudiKernel GeneratorObjects TrkTrack TrkTrackSummary AtlasDetDescr IdDictDetDescr TruthHelper InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkTruthData VxVertex TrkToolInterfaces )
+                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps Identifier GaudiKernel GeneratorObjects TrkTrack TrkTrackSummary AtlasDetDescr IdDictDetDescr TruthHelper InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkTruthData VxVertex TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetRecStatistics )

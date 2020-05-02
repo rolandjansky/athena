@@ -197,6 +197,9 @@ private:
    /// Try to match a DataProxy to a vector of strings
    bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
 
+   /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
+   void writeMetaData( const std::string outputFN="" );
+
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H

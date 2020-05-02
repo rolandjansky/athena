@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@
 // Author: Daiki Hayakawa ( daiki.hayakawa@cern.ch )
 
 #include "DerivationFrameworkInDet/EventInfoBSErrDecorator.h"
+#include "DerivationFrameworkInDet/DecoratorUtils.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -20,28 +21,20 @@ namespace DerivationFramework {
 
   EventInfoBSErrDecorator::EventInfoBSErrDecorator(const std::string& type,
       const std::string& name,
-      const IInterface* parent) : 
-    AthAlgTool(type,name,parent),  
-    m_sgName(""),
-    m_containerName(""),
-    m_sctId(0)  
+      const IInterface* parent) :
+    AthAlgTool(type,name,parent)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("DecorationPrefix",       m_sgName);
-    declareProperty("ContainerName",          m_containerName="EventInfo");
   }
 
   StatusCode EventInfoBSErrDecorator::initialize()
   {
 
-    if (m_sgName=="") {
+    if (m_prefix.empty()) {
       ATH_MSG_WARNING("No decoration prefix name provided for the output of EventInfoBSErrDecorator!");
     }
-    
-    if (m_containerName=="") {
-      ATH_MSG_ERROR("No TrackParticle collection provided for EventInfoBSErrDecorator!");
-      return StatusCode::FAILURE;
-    }
+
+    ATH_CHECK(m_eventInfoKey.initialize() );
 
     // need Atlas id-helpers to identify sub-detectors, take them from detStore
     if( detStore()->retrieve(m_sctId,"SCT_ID").isFailure() ){
@@ -51,6 +44,21 @@ namespace DerivationFramework {
 
     CHECK ( m_byteStreamErrTool.retrieve() );
     CHECK ( m_cabling.retrieve() );
+
+    {
+       std::vector<std::string> names;
+       names.resize(kNIntDecor);
+       names[kSCT_BSErr_Ntot]    ="SCT_BSErr_Ntot";
+       names[kSCT_BSErr_bec]     ="SCT_BSErr_bec";
+       names[kSCT_BSErr_layer]   ="SCT_BSErr_layer";
+       names[kSCT_BSErr_eta]     ="SCT_BSErr_eta";
+       names[kSCT_BSErr_phi]     ="SCT_BSErr_phi";
+       names[kSCT_BSErr_side]    ="SCT_BSErr_side";
+       names[kSCT_BSErr_rodid]   ="SCT_BSErr_rodid";
+       names[kSCT_BSErr_channel] ="SCT_BSErr_channel";
+       names[kSCT_BSErr_type]    ="SCT_BSErr_type";
+       createDecoratorKeys(*this,m_eventInfoKey,m_prefix.value()+"_",names, m_intDecorKeys);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -64,18 +72,11 @@ namespace DerivationFramework {
   {
     ATH_MSG_DEBUG("Adding ByteStream errors to EventInfo");
 
-    const xAOD::EventInfo* eventInfo;
-    CHECK( evtStore()->retrieve( eventInfo, m_containerName ) );
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,ctx);
+    CHECK( eventInfo.isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE );
 
-    std::vector<int> scterr_Ntot;
-    std::vector<int> scterr_bec;
-    std::vector<int> scterr_layer;
-    std::vector<int> scterr_eta;
-    std::vector<int> scterr_phi;
-    std::vector<int> scterr_side;
-    std::vector<int> scterr_rodid;
-    std::vector<int> scterr_channel;
-    std::vector<int> scterr_type;
+    std::array<std::vector<int>,kNIntDecor> scterr;
     int totalNumErrors=0;
 
     // fill BS error information
@@ -84,7 +85,7 @@ namespace DerivationFramework {
       int eta=0,phi=0,bec=0,layer=0,side=0;
       // add totalNumErrors to vector
       totalNumErrors += errorSet.size();
-      scterr_Ntot.push_back(totalNumErrors);
+      scterr[kSCT_BSErr_Ntot].push_back(totalNumErrors);
 
       // loop in errorSet
       for(const auto error : errorSet) {
@@ -99,34 +100,28 @@ namespace DerivationFramework {
         bec = m_sctId->barrel_ec(itId);
 
         // add variables to vector
-        scterr_bec.push_back(bec);
-        scterr_layer.push_back(layer);
-        scterr_eta.push_back(eta);
-        scterr_phi.push_back(phi);
-        scterr_side.push_back(side);
-        scterr_type.push_back(n_type);
+        scterr[kSCT_BSErr_bec].push_back(bec);
+        scterr[kSCT_BSErr_layer].push_back(layer);
+        scterr[kSCT_BSErr_eta].push_back(eta);
+        scterr[kSCT_BSErr_phi].push_back(phi);
+        scterr[kSCT_BSErr_side].push_back(side);
+        scterr[kSCT_BSErr_type].push_back(n_type);
 
         uint32_t onlineID = m_cabling->getOnlineIdFromHash(error);
         SCT_OnlineId online(onlineID);
         uint32_t rod = online.rod();
         uint32_t fibre = online.fibre();
-        scterr_rodid.push_back((int)rod);
-        scterr_channel.push_back((int)fibre);
+        scterr[kSCT_BSErr_rodid].push_back((int)rod);
+        scterr[kSCT_BSErr_channel].push_back((int)fibre);
       }
-      
     }
+    std::vector<SG::WriteDecorHandle<xAOD::EventInfo,std::vector<int> > >   int_decor_handles(createDecorators<xAOD::EventInfo,std::vector<int> >(m_intDecorKeys,ctx));
 
+    assert(int_decor_handles.size() == kNIntDecor);
     // decorate SCT BS error
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_Ntot")    = scterr_Ntot;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_bec")     = scterr_bec;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_layer")   = scterr_layer;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_eta")     = scterr_eta;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_phi")     = scterr_phi;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_side")    = scterr_side;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_rodid")   = scterr_rodid;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_channel") = scterr_channel;
-    eventInfo->auxdecor< std::vector<int> >(m_sgName+"_SCT_BSErr_type")    = scterr_type;
-    
+    for(unsigned int decorate_i=0; decorate_i<int_decor_handles.size(); ++decorate_i) {
+       int_decor_handles[decorate_i](*eventInfo) = std::move(scterr[decorate_i]);
+    }
     return StatusCode::SUCCESS;
   }  
   

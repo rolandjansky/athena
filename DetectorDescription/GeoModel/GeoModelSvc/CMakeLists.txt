@@ -32,7 +32,7 @@ atlas_add_component( GeoModelSvc
                      src/RDBMaterialManager.cxx
                      src/components/GeoModelSvc_entries.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel RDBAccessSvcLib EventInfoMgtLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

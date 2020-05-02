@@ -6,11 +6,7 @@
 #include "RingerSelectorTools/procedures/RingerPreProcessorWrapper.h"
 
 namespace Ringer {
-#if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IPreProcWrapper::wrapName = "RingerPreProcessorWrapper";
-#else
 constexpr const char* IPreProcWrapper::wrapName;
-#endif
 
 // =============================================================================
 void IPreProcWrapper::writeCol(const IPreProcWrapperCollection &ppWrapperCol,

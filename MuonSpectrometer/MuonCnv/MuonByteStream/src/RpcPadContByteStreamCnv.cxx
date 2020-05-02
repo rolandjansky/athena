@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/RpcPadContByteStreamCnv.h"
-#include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "ByteStreamData/RawEvent.h" 
-
-//using namespace EventFormat::RawMemory ; 
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
@@ -21,11 +18,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-// Tool 
-#include "GaudiKernel/IToolSvc.h"
-
 #include <sstream>
 #include <map> 
+#include <string> 
 
 RpcPadContByteStreamCnv::RpcPadContByteStreamCnv(ISvcLocator* svcloc) :
     Converter(storageType(), classID(),svcloc),
@@ -95,6 +90,6 @@ RpcPadContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
 
    pAddr = addr; 
 
-   return m_tool->convert(cont, re, log); 
+   return m_tool->convert(cont, re);
 
 }

@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm, findOwningSequence
 from AthenaCommon.AlgSequence import dumpMasterSequence
@@ -42,19 +43,23 @@ flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
 
 flags.Trigger.L1Decoder.forceEnableAllChains = True
+flags.Concurrency.NumThreads=1
+flags.Concurrency.NumConcurrentEvents=1
 
+flags.InDet.useSctDCS=False
+flags.InDet.usePixelDCS=False
 
 flags.lock()
 
 from AthenaCommon.Constants import INFO,DEBUG,WARNING
-acc = ComponentAccumulator()
+acc = MainServicesThreadedCfg( flags )
 
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-acc.merge(TrigBSReadCfg(flags ))
+acc.merge(TrigBSReadCfg( flags ))
 
 
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
-acc.merge(TriggerHistSvcConfig(flags ))
+acc.merge(TriggerHistSvcConfig( flags ))
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
@@ -64,7 +69,7 @@ from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
 
 
-from TrigInDetConfig.InDetConfig import TrigInDetCondConfig
+from TrigInDetConfig.TrigInDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
@@ -87,5 +92,6 @@ acc.printConfig()
 fname = "newJOtest.pkl"
 print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
-    acc.store( p, nEvents=20, useBootStrapFile=False, threaded=True )
+    acc.store( p )
     p.close()
+#acc.run(maxEvents=20)

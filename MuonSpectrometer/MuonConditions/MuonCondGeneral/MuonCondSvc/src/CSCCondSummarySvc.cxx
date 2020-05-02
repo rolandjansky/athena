@@ -1,30 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/CSCCondSummarySvc.h"
-//STL includes
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
 #include "GaudiKernel/ISvcLocator.h"
-
-//Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-//Athena
 #include "Identifier/IdentifierHash.h"
-//Muon
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonCondInterface/ICSCConditionsSvc.h"
-
 #include "Identifier/Identifier.h"
 
-
-using namespace std;
-
-// Constructor
 CSCCondSummarySvc::CSCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_reportingServices(name),

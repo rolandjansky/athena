@@ -66,7 +66,7 @@
 
 // Forward declaration
 class McEventCollection;
-namespace HepMC { class GenVertex; }
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 class McVtxFilterTool : virtual public IMcVtxFilterTool,
 			        public AthAlgTool

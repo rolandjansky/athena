@@ -22,6 +22,8 @@ import six
 default_ignore_patterns = [
     r'TrigCOOLUpd.*INFO.*Reload',
     r'TrigCOOLUpd.*INFO.*Invalidated',
+    r'warn.*frontier.c.*Request',
+    r'warn.*frontier.c.*Trying',
 ]
 
 

@@ -15,14 +15,8 @@
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/HadronUtils.h"
 
-//#include "GeneratorObjects/McEventCollection.h"
-//#include "HepMC/GenEvent.h"
-//#include "HepMC/GenVertex.h"
-//#include "HepMC/GenParticle.h"
 #include <algorithm>
 
-// new
-//#include "TruthHelper/PileUpType.h"
 
 #define GeVtoMeV 1000.0
 
@@ -90,29 +84,7 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
   int barcc = 0;
   int barcb = 0;
   unsigned int nLab = 0;
-  /*
-  PileUpType pileupType( myMcEventCollection );
-  McEventCollection::const_iterator itEvt, itEvtE;
-  if (m_inTime == -1) {
-    // Label with signal event only
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = pileupType.in_time_minimum_bias_event_begin();
-  } else if (m_inTime == 0) {
-    // Label with all in time events
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = pileupType.in_time_event_end();
-  } else if (m_inTime == 1) {
-    // Label with in time pile-up : removing the signal event...
-    itEvt  = pileupType.in_time_minimum_bias_event_begin();
-    itEvtE = pileupType.in_time_event_end();
-  } else if (m_inTime == 2) {
-    //Does one really want to allow for this possibility ? Or in a given BC range ?
-    // should use PileUpEventInfo maybe for a time selection...
-    // (Cavern and halo are there, but hopefully there is no heavy quark there ;-) )
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = myMcEventCollection->end(); 
-  }
-  */
+
   xAOD::TruthEventContainer::const_iterator itEvt = truthEventContainer->begin(); // see if this works for now
   xAOD::TruthEventContainer::const_iterator itEvtE = truthEventContainer->end();
   const xAOD::TruthParticle* LabellingParticle(0);
@@ -121,7 +93,6 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
     const xAOD::TruthEvent* GenEvent = *itEvt;
     std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator ELpitr = GenEvent->truthParticleLinks().begin();
     std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator pitrE = GenEvent->truthParticleLinks().end();
-    //HepMC::GenEvent::particle_const_iterator pitr = GenEvent->particles_begin();
     for (; ELpitr != pitrE; ++ELpitr) {
       ElementLink<xAOD::TruthParticleContainer> pitr = (*ELpitr);
       if(!pitr.isValid() || !(*pitr)) {
@@ -132,8 +103,6 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
       int pdg = (*pitr)->pdgId();
       
       // We want to use some special functions from HepLorentzVector
-      // HepMC::Fourvector does not have these functions. 
-      // => transform to HepLorentzVector
       TLorentzVector part_momentum_lv = (*pitr)->p4();
       
       // label b, c and light jets
@@ -147,30 +116,12 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
 			   << " eta= " <<part_momentum_lv.Eta()
 			   << " phi= " <<part_momentum_lv.Phi()
 			   << " dR= "  <<part_momentum_lv.DeltaR(jet_hlv));
-/*	  if ((*pitr)->prodVtx() != NULL) {
-	    HepMC::GenVertex::particle_iterator firstParent =
-	      (*pitr)->prodVtx()->particles_begin(HepMC::ancestors);
-	    HepMC::GenVertex::particle_iterator endParent =
-	      (*pitr)->prodVtx()->particles_end(HepMC::ancestors);
-	    HepMC::GenVertex::particle_iterator thisParent = firstParent;
-	    for(; thisParent != endParent; ++thisParent){
-	      if (HadronClass::HeavyHadron((*thisParent)->pdg_id())) 
-		fromHadron = true;
-	      ATH_MSG_VERBOSE("In the parent loop "<< (*thisParent)->pdg_id() << " " << fromHadron);
-	      if (fromHadron) break;
-	    }
-	    }*/
 	  // do not label by quark before FSR
 	  bool afterFSR = true;
 	  if ((*pitr)->hasDecayVtx()) {
 	    std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator firstChild = (*pitr)->decayVtx()->outgoingParticleLinks().begin();
 	    std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator endChild = (*pitr)->decayVtx()->outgoingParticleLinks().begin();
 	    std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator thisChild = firstChild;
-	      //HepMC::GenVertex::particle_iterator firstChild =
-	      //(*pitr)->end_vertex()->particles_begin(HepMC::children);
-	      //HepMC::GenVertex::particle_iterator endChild =
-	      //(*pitr)->end_vertex()->particles_end(HepMC::children);
-	      //HepMC::GenVertex::particle_iterator thisChild = firstChild;
 	    for(; thisChild != endChild; ++thisChild){
 	      if(!thisChild->isValid() || !(**thisChild)) {
 		// Allow for possibility that truth content has been thinned.
@@ -228,106 +179,6 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
       ATH_MSG_WARNING("A b labelled jet without a labelling particle ? Should not exist");
       return true;
     }
-    //HepMC::GenParticle *theB = LabellingEvent->barcode_to_particle( barcb );
-    /*    if (theB) {
-      ATH_MSG_VERBOSE( 
-	      " bquark px = " << theB->momentum().px() 
-	   << " py = " << theB->momentum().py() 
-	   << " pz = " << theB->momentum().pz() );
-      if (theB->hasDecayVertex()) {
-	double deltaRbBmin = 9999;
-	int barB = -1;
-	std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator firstChild = theB->decayVertex()->outgoingParticles().begin();
-	std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator endChild = theB->decayVertex()->outgoingParticles().begin();
-	std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator ELthisChild = firstChild
-	//HepMC::GenVertex::particle_iterator firstChild =
-	//theB->end_vertex()->particles_begin(HepMC::descendants);
-	//HepMC::GenVertex::particle_iterator endChild =
-	//theB->end_vertex()->particles_end(HepMC::descendants);
-	//HepMC::GenVertex::particle_iterator thisChild = firstChild;
-	for(; thisChild != endChild; ++thisChild){
-	  ElementLink<xAOD::TruthParticleContainer> thisChild = (*ELthisChild);
-	  int pdg = (*thisChild)->pdgId();
-	  short typeH = HadronClass::type(pdg).first;
-	  short typeP = HadronClass::type(pdg).second;
-	  if ( typeP == 5 && ( (typeH == 1 && (abs(pdg)%10) == 2) || (typeH == 0 && (abs(pdg)%10) == 1) ) ) {
-	    CLHEP::HepLorentzVector theB_momentum_lv(theB->momentum().px(),
-					      theB->momentum().py(),
-					      theB->momentum().pz(),
-					      theB->momentum().e());
-	    CLHEP::HepLorentzVector child_momentum_lv((*thisChild)->momentum().px(),
-						      (*thisChild)->momentum().py(),
-						      (*thisChild)->momentum().pz(),
-						      (*thisChild)->momentum().e());
-	    
-	    
-	    double deltaRbB = theB_momentum_lv.deltaR(child_momentum_lv);
-	    ATH_MSG_VERBOSE("b quark child " << pdg << " barcode = " << (*thisChild)->barcode()); 
-	    if (deltaRbB < deltaRbBmin) {
-	      if ((*thisChild)->hasDecayVtx()) {
-                if (info) {
-  		  info->BDecVtx[0] = (*thisChild)->decayVtx()->position().x();
-		  info->BDecVtx[1] = (*thisChild)->decayVtx()->position().y();
-		  info->BDecVtx[2] = (*thisChild)->decayVtx()->position().z();
-		  info->Bpdg    = pdg;
-                }
-		std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator goodChildEL = (*thisChild)->decayVertex()->outgoingParticles().begin();
-		std::vector<ElementLink<xAOD::TruthParticleContainer> >::const_iterator goodChildE = (*thisChild)->decayVertex()->outgoingParticles().begin();
-		//HepMC::GenVertex::particle_iterator goodChild  = (*thisChild)->end_vertex()->particles_begin(HepMC::children);
-		//HepMC::GenVertex::particle_iterator goodChildE = (*thisChild)->end_vertex()->particles_end(HepMC::children);
-		for(; goodChild != goodChildE; ++goodChild){
-		  ElementLink<xAOD::TruthParticleContainer> goodChild = (*goodChildEL);
-		  if (abs((*goodChild)->pdgId()) == 5) {
-		    ATH_MSG_VERBOSE("Decay vertex corrupted !");
-		    if ((*goodChild)->hasDecayVtx()) {
-		      HepMC::GenVertex::particle_iterator goodbChild  = (*goodChild)->end_vertex()->particles_begin(HepMC::children);
-		      while (abs((*goodbChild)->pdg_id()) <= 4) {
-			if ((*goodbChild)->end_vertex()) { 
-			  goodbChild = (*goodbChild)->end_vertex()->particles_begin(HepMC::children);
-			} else {
-			  break;
-			}
-		      }
-		      if ((*goodbChild)->end_vertex()) {
-                        if (info) {
-			  info->BDecVtx[0] = (*goodbChild)->end_vertex()->position().x();
-			  info->BDecVtx[1] = (*goodbChild)->end_vertex()->position().y();
-			  info->BDecVtx[2] = (*goodbChild)->end_vertex()->position().z();
-			  ATH_MSG_VERBOSE( "Trying to recover pdg Good Child = " << (*goodbChild)->pdg_id() 
-			       << " Decay vertex " << info->BDecVtx[0] << " " << info->BDecVtx[1] << " " << info->BDecVtx[2] );
-                        }
-			break;
-		      }
-		    }
-		  }
-		}
-	      }
-	      deltaRbBmin = deltaRbB;
-	      barB = (*thisChild)->barcode();
-	    }
-	  }
-	  }
-	if (msgLvl(MSG::VERBOSE)) {
-	  HepMC::GenParticle *theBHad = LabellingEvent->barcode_to_particle( barB );
-	  if (theBHad) {
-	    ATH_MSG_VERBOSE("The nearest B hadron for a b-labelled jet ");
-	    ATH_MSG_VERBOSE("barc = " << barB << " DR = " << deltaRbBmin);
-	    ATH_MSG_VERBOSE( 
-		    " px = " << theBHad->momentum().px() 
-		 << " py = " << theBHad->momentum().py() 
-		 << " pz = " << theBHad->momentum().pz() );
-            if (info) {
-	      ATH_MSG_VERBOSE(
-		      " vx = " << info->BDecVtx[0] 
-		   << " vy = " << info->BDecVtx[1] 
-		   << " vz = " << info->BDecVtx[2] );
-            }
-	  }
-	}
-	}
-      }*/
-  
-    //
     return true;
   } else if (deltaRC < m_deltaRCut) {
     if (info) {

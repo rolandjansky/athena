@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODShallowAuxContainerCnv.h"
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/getThinningCache.h"
-
-#include "AthContainers/tools/getThinnedFlags.h"
 #include "AthContainers/AuxTypeRegistry.h"
 
 xAODShallowAuxContainerCnv::xAODShallowAuxContainerCnv( ISvcLocator* svcLoc ) :
@@ -27,8 +24,6 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
          const xAOD::ShallowAuxContainer& orig = *trans; //need the 'const' version to ensure use the const methods!
          size_t nremaining = 0;
          size_t size = orig.size();
-         std::vector<unsigned char> flags;
-         bool thinned = getThinnedFlags (IThinningSvc::instance(), orig, nremaining, flags);
 
          std::string key2 = key;
          if (key2.size() >= 4 && key2.substr (key2.size()-4, 4) == "Aux.")
@@ -36,13 +31,12 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
            key2.erase (key2.size()-4, 4);
          }
          const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key2);
-
-         if (!thinned && dec) {
+         if (dec) {
            nremaining = dec->thinnedSize();
          }
 
          //if there is no thinning to do, then just return a regular copy 
-         if(!thinned && !dec) return new xAOD::ShallowAuxContainer(orig);
+         if(!dec) return new xAOD::ShallowAuxContainer(orig);
          xAOD::ShallowAuxContainer* newcont = new xAOD::ShallowAuxContainer; //dont use copy constructor (like copyThinned.h), want it to have it's own internal store
          newcont->setParent(trans->parent());newcont->setShallowIO(trans->shallowIO());
 
@@ -70,8 +64,7 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
          
             // Copy over all elements, with thinning.
             for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {
-              if ( ! ((dec && dec->thinned(isrc)) ||
-                      (thinned && flags[isrc])) )
+              if ( ! (dec && dec->thinned(isrc)) )
               {
                 r.copyForOutput (auxid, dst, idst, src, isrc);
                 ++idst;
@@ -82,7 +75,7 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
 
 /* HERE is the old code which is non optimal, but functional if modification to 'resize' method of shallowauxcontainer is made
          newcont->setShallowIO(false); //necessary so that branch selections work
-         copyAuxStoreThinned (*trans, *newcont,  IThinningSvc::instance()); //FIXME: In this methods call to 'getData' it ends up doing an unnecessary copy of the parent store's values!
+         copyAuxStoreThinned (*trans, *newcont,  dec); //FIXME: In this methods call to 'getData' it ends up doing an unnecessary copy of the parent store's values!
 */       //  std::cout << " Thinned size = " << newcont->size() << std::endl;
          return newcont;
    }

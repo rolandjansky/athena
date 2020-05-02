@@ -33,8 +33,8 @@ public:
 private:
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
-    
-    std::string m_weightfile;
+
+    std::string m_weightfile;    
     std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
 };
 

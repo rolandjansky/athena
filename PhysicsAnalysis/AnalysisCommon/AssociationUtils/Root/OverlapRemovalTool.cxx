@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 // Local includes
 #include "AssociationUtils/OverlapRemovalTool.h"
 #include "AssociationUtils/MacroChecks.h"
@@ -14,12 +15,13 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   OverlapRemovalTool::OverlapRemovalTool(const std::string& name)
     : asg::AsgTool(name),
-      m_eleEleORT("", this),
+      m_muPFJetORT("", this), m_eleEleORT("", this),
       m_eleMuORT("", this), m_eleJetORT("", this), m_muJetORT("", this),
       m_tauEleORT("", this), m_tauMuORT("", this), m_tauJetORT("", this),
       m_phoEleORT("", this), m_phoMuORT("", this), m_phoJetORT("", this),
       m_eleFatJetORT("", this), m_jetFatJetORT("", this)
   {
+    declareProperty("MuPFJetORT", m_muPFJetORT, "Muon-jet overlap tool");
     declareProperty("EleEleORT", m_eleEleORT, "Electron-electron overlap tool");
     declareProperty("EleMuORT", m_eleMuORT, "Electron-muon overlap tool");
     declareProperty("EleJetORT", m_eleJetORT, "Electron-jet overlap tool");
@@ -49,7 +51,10 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode OverlapRemovalTool::initialize()
   {
-    ATH_MSG_DEBUG("initialize");
+    ATH_MSG_DEBUG("Initializing master tool " << name());
+    ATH_MSG_DEBUG("Master tool config: InputLabel " << m_inputLabel <<
+                  " OutputLabel " << m_outputLabel <<
+                  " OutputPassValue " << m_outputPassValue);
 
     // Initialize the decoration helper
     m_decHelper =
@@ -57,6 +62,7 @@ namespace ORUtils
         (m_inputLabel, m_outputLabel, m_outputPassValue);
 
     // Retrieve the configured tools
+    if(!m_muPFJetORT.empty())  ATH_CHECK( m_muPFJetORT.retrieve() );
     if(!m_eleEleORT.empty()) ATH_CHECK( m_eleEleORT.retrieve() );
     if(!m_eleMuORT.empty())  ATH_CHECK( m_eleMuORT.retrieve() );
     if(!m_eleJetORT.empty()) ATH_CHECK( m_eleJetORT.retrieve() );
@@ -96,6 +102,8 @@ namespace ORUtils
     // NOTE: some details are still unspecific in the recommendations.
     // Talk to me if this does not support your needs.
 
+    // PFlow-Muon-jet OR
+    ATH_CHECK( removeOverlap(m_muPFJetORT, muons, jets) );
     // Electron-electron OR
     ATH_CHECK( removeOverlap(m_eleEleORT, electrons, electrons) );
     // Tau-electron OR

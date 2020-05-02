@@ -46,6 +46,7 @@ output the muon calibration input.
     StatusCode execute();
 
   private:
+
     /** retrieve patterns and segments from storegate */
     //    const Muon::MuonSegmentCollection* retrieveSegments();
   

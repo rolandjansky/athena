@@ -22,19 +22,13 @@
 
 
 // STL include(s):
-#if __cplusplus < 201100
-#   include <tr1/functional>
-namespace HASH_NS = std::tr1;
-#else
-#   include <functional>
-namespace HASH_NS = std;
-#endif // C++
+#include <functional>
 
 namespace {
 
    unsigned int UtilsHash( const std::string& name ) {
       // The helper object:
-      static const HASH_NS::hash< std::string > helper;
+      static const std::hash< std::string > helper;
       // Let the helper do the work:
       return helper( name );
    }

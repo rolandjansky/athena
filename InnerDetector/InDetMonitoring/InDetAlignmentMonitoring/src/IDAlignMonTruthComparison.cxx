@@ -18,7 +18,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TrkTruthData/TrackTruth.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"

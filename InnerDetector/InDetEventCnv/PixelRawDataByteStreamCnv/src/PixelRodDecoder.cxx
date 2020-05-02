@@ -153,7 +153,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
 
   unsigned int errorcode = 0;
-  int bsErrCode = 0; // new BS Errors handling
+  uint64_t bsErrCode = 0; // new BS Errors handling
   // m_errors->reset(); // reset the collection of errors
 
   StatusCode sc = StatusCode::SUCCESS;

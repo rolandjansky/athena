@@ -13,8 +13,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
-
 // AssociationUtils includes
 #include "DeltaROverlapFilter.h"
 

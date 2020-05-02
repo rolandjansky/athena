@@ -31,7 +31,7 @@ StatusCode MergeGenericMuonSimHitCollTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeGenericMuonSimHitCollTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MergeGenericMuonSimHitCollTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
   ATH_MSG_DEBUG ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent = true;
@@ -74,7 +74,7 @@ StatusCode MergeGenericMuonSimHitCollTool::processBunchXing(int bunchXing,
   return sc;
 }
 
-StatusCode MergeGenericMuonSimHitCollTool::mergeEvent() {
+StatusCode MergeGenericMuonSimHitCollTool::mergeEvent(const EventContext& /*ctx*/) {
   for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
     if ( m_outputContainers[iHitContainer]==0 ) { continue; } //don't bother recording unused containers!
     if (!(evtStore()->record(m_outputContainers[iHitContainer],m_SimHitContainerNames[iHitContainer]).isSuccess())) {
@@ -85,7 +85,7 @@ StatusCode MergeGenericMuonSimHitCollTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeGenericMuonSimHitCollTool::processAllSubEvents()
+StatusCode MergeGenericMuonSimHitCollTool::processAllSubEvents(const EventContext& /*ctx*/)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
   if(!m_pMergeSvc) {

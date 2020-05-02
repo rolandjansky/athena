@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvCollectionCnv_p1.h"
@@ -26,7 +26,7 @@ AFP_SIDLocRecoEvCollection* AFP_SIDLocRecoEvCollectionCnv::createTransient() {
     static const pool::Guid p1_guid ("D0C144F2-E82E-44B3-84BC-22C7D10F262E");
     
     if( this->compareClassGuid(p1_guid)) {
-         std::auto_ptr< AFP_SIDLocRecoEvCollection_p1 >   col_vect( this->poolReadObject< AFP_SIDLocRecoEvCollection_p1 >() );
+         std::unique_ptr< AFP_SIDLocRecoEvCollection_p1 >   col_vect( this->poolReadObject< AFP_SIDLocRecoEvCollection_p1 >() );
         trans_cont = TPConverter_p1.createTransient( col_vect.get(), mlog );
     }
  

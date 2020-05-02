@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_MajorityCondAlg.h"
 
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -60,12 +58,8 @@ StatusCode SCT_MajorityCondAlg::execute(const EventContext& ctx) const
   }
   ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
 
-  // Define validity of the output cond object
-  EventIDRange rangeW;
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   int numFilled{0};
 
@@ -115,13 +109,13 @@ StatusCode SCT_MajorityCondAlg::execute(const EventContext& ctx) const
   writeCdo->setFilled(numFilled==SCT_ConditionsData::N_REGIONS);
 
   // Record the out output Cond Object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_MajorityCondData " << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

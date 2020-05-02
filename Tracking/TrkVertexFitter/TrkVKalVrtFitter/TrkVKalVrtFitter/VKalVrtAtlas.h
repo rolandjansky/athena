@@ -10,6 +10,7 @@
 // Mag field service
 #include  "MagFieldInterfaces/IMagFieldSvc.h"
 #include  "TrkVKalVrtCore/VKalVrtBMag.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 // External propagator
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -33,13 +34,13 @@ class TrkVKalVrtFitter;
        VKalAtlasMagFld();
       ~VKalAtlasMagFld();
        void getMagFld(const double,const double,const double,double&,double&,double&)const;
-       void setAtlasField(MagField::IMagFieldSvc *);
+       void setAtlasField(MagField::AtlasFieldCache *);
        void setAtlasField(const double );
        void setAtlasMagRefFrame( double, double, double );
 
     private:
     
-       MagField::IMagFieldSvc*  m_VKalAthenaField;
+       MagField::AtlasFieldCache * m_VKalAthenaField;
        double m_FIXED_ATLAS_FIELD=1.997;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
 

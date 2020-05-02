@@ -101,7 +101,7 @@ atlas_add_tpcnv_library( TrkEventTPCnv
    TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack
    TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersBase
    TrkParticleBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack
-   TrkSegment TrkTrack TrkTrackSummary TrkV0Vertex TrkVertexOnTrack
+   TrkSegment TrkTrack TrkTrackSummary TrkV0Vertex TrkVertexOnTrack TrkEventCnvToolsLib
    VxMultiVertex VxVertex
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils TrkDetDescrUtils
    DEFINITIONS ${_definitions} )

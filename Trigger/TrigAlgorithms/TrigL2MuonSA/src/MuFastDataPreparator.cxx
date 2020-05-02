@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -30,49 +28,43 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    // Get a message stream instance
    ATH_MSG_DEBUG("Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION);
     
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-     return sc;
-   }
+   ATH_CHECK(AthAlgTool::initialize());
 
-   ATH_CHECK( m_recRPCRoiSvc.retrieve() );
+   ATH_CHECK(m_recRPCRoiSvc.retrieve());
    ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
 
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );
+   ATH_CHECK(m_readKey.initialize());
   
-   ATH_CHECK( m_regionSelector.retrieve() );
+   ATH_CHECK(m_regionSelector.retrieve());
    ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
 
    if (m_use_rpc) {
-     ATH_CHECK( m_rpcDataPreparator.retrieve() );
+     ATH_CHECK(m_rpcDataPreparator.retrieve());
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
    }
 
-   ATH_CHECK( m_tgcDataPreparator.retrieve() );
+   ATH_CHECK(m_tgcDataPreparator.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator);
 
-   ATH_CHECK( m_mdtDataPreparator.retrieve() );
+   ATH_CHECK(m_mdtDataPreparator.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_mdtDataPreparator);
    
-   ATH_CHECK( m_cscDataPreparator.retrieve() );
+   ATH_CHECK(m_cscDataPreparator.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
 
-   ATH_CHECK( m_rpcRoadDefiner.retrieve() );
+   ATH_CHECK(m_rpcRoadDefiner.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcRoadDefiner);
 
-   ATH_CHECK( m_tgcRoadDefiner.retrieve() );
+   ATH_CHECK(m_tgcRoadDefiner.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_tgcRoadDefiner);
 
-   ATH_CHECK( m_rpcPatFinder.retrieve() );
+   ATH_CHECK(m_rpcPatFinder.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
 
    // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_muonIdHelperTool.get());
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector,m_muonIdHelperTool.get());
+   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector);
+   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector);
 
-   // 
    return StatusCode::SUCCESS; 
 }
 
@@ -188,6 +180,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
     m_rpcPatFinder->clear();
 
+    m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
@@ -201,14 +194,17 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
     }
   }
+
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
  
   m_recRPCRoiSvc->reconstruct(p_roi->roiWord());
   double roiEtaMinLow = 0.;
   double roiEtaMaxLow = 0.;
   double roiEtaMinHigh = 0.;
   double roiEtaMaxHigh = 0.;
-  m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow);
-  m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh);
+  m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow, readCdo);
+  m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh, readCdo);
 
   ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
 

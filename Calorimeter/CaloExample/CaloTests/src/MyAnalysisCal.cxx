@@ -13,8 +13,8 @@
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/ReadHandle.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 

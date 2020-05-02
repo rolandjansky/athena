@@ -21,5 +21,5 @@ StatusCode AFP_DigiTop::initialize()
 StatusCode AFP_DigiTop::execute()
 {
   ATH_MSG_DEBUG ( "AFP_DigiTop::execute" );
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

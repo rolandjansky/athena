@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 // System includes
 #include <typeinfo>
 #include <exception>
@@ -61,6 +62,11 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleEleOverlapTool::initializeDerived()
   {
+    ATH_MSG_DEBUG("UseTrackMatch " << m_useTrackMatch <<
+                  " UseClusterMatch " << m_useClusterMatch <<
+                  " ClusterDeltaEta " << m_clusterDeltaEta <<
+                  " ClusterDeltaPhi " << m_clusterDeltaPhi);
+
     // Sanity check
     if(!m_useTrackMatch && !m_useClusterMatch) {
       ATH_MSG_ERROR("You must enable at least one: UseTrackMatch or UseClusterMatch");

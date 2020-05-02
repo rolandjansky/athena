@@ -12,9 +12,9 @@
 #include "TruthJetFilterTool.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "boost/range/iterator_range_core.hpp"
 #include <utility>
@@ -375,13 +375,11 @@ TruthJetFilterTool::acceptParticle (const HepMC::GenParticle* p)
 		
 		if (vprod && vprod->particles_in_size() > 0) {
 			int mom_pdg_id = pdg_id;
-			//int mom_barcode = barcode;
 			// Ascend decay chain looking for when actual decay occurs (not jsut evolution of particle)
 			while (pdg_id == mom_pdg_id) {
 				const HepMC::GenParticle* mother = *(vprod->particles_in_const_begin());
 				if (mother) {
 					mom_pdg_id = abs(mother->pdg_id());
-					//mom_barcode = mother->barcode();
 				} else break;
 				if (pdg_id != mom_pdg_id) break;
 

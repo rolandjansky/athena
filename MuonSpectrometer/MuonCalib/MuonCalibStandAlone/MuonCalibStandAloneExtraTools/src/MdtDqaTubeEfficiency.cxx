@@ -2,28 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHOR: MAURO IODICE class rearranged from Efficiency by Steffen Kaiser
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MdtDqaTubeEfficiency     ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <cstdlib>
 
-// Athena //
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-// MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -32,35 +17,25 @@
 #include "MdtCalibUtils/GlobalTimeFitter.h"
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneExtraTools/PhiEtaUtils.h"
-
-// MuonCalib //
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MdtCalibFitters/QuasianalyticLineReconstruction.h"
 #include "MdtCalibFitters/DCSLFitter.h"
 #include "MuonCalibEventBase/MuonCalibEvent.h"
-
-// MdtDqaTubeEfficiency     //
 #include "MuonCalibStandAloneExtraTools/MdtDqaTubeEfficiency.h"
 
-//this
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
 
 #include "MdtCalibData/IRtResolution.h"
 
-//root
 #include "TFile.h"
 #include "TH1.h"
 #include "TNtuple.h"
 #include "TString.h"
 #include "TDirectory.h"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
 
 namespace MuonCalib {
 
@@ -537,7 +512,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 		    double resid = distance-hitRadius;
 		    if(heffiVsRadius) heffiVsRadius->Fill(distance, resid);
 		    float averageExtrapolError = 0.090; // ..an educated guess!
-		    float sig = sqrt(resol*resol + averageExtrapolError*averageExtrapolError);
+		    float sig = std::hypot(resol, averageExtrapolError);
 		    
 		    if ( m_nsigma>0. && std::abs(resid) < m_nsigma*sig ) hit_tube.push_back( tubeHit );
 		  } // END NEW HIT FOUND
@@ -678,7 +653,7 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
 	    float entries    = heffiEntries->GetBinContent(ibin);
 	    float counts     = heffiCounts->GetBinContent(ibin);
 	    float efficiency = (counts+1.)/(entries+2.);
-	    float error      = sqrt(efficiency*(1-efficiency))/sqrt(entries+3.);
+	    float error      = std::sqrt(efficiency*(1-efficiency))/std::sqrt(entries+3.);
 	    //
 	    // Fill MdtDqa Histos
 	    //

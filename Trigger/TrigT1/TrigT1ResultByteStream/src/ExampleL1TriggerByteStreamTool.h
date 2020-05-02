@@ -40,7 +40,7 @@ public:
   virtual StatusCode convertToBS(std::vector<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment*>& vrobf,
                                  const EventContext& eventContext) override;
   /// Declare ROB IDs for conversion
-  virtual const std::vector<uint32_t> robIds() const override {return m_robIds.value();}
+  virtual const std::vector<uint32_t>& robIds() const override {return m_robIds.value();}
 
 private:
   // ------------------------- Properties --------------------------------------

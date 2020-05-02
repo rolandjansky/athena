@@ -1,30 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.02.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS StationT0FromFile ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include <iostream>
 #include <fstream>
 #include "MdtCalibDbAsciiTool/StationT0FromFile.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
-
 
 //*****************************************************************************
 
@@ -34,12 +16,12 @@ using namespace MuonCalib;
 
 void StationT0FromFile::init(void) {
 
-	m_t0 = vector< vector< vector<double> > >(2); // two multilayers
+	m_t0 = std::vector< std::vector< std::vector<double> > >(2); // two multilayers
 	for (unsigned int k=0; k<m_t0.size(); k++) {
-		m_t0[k] = vector< vector<double> >(4); // up to four layers in 
+		m_t0[k] = std::vector< std::vector<double> >(4); // up to four layers in 
 						       // a multilayer
 		for (unsigned l=0; l<m_t0[k].size(); l++) {
-			m_t0[k][l] = vector<double>(72, 0);
+			m_t0[k][l] = std::vector<double>(72, 0);
 						// up to 72 tubes per layer
 		}
 	}
@@ -74,7 +56,7 @@ void StationT0FromFile::readT0File(std::istream &infile) {
 // VARIABLES //
 ///////////////
 
-	string sdummy; // auxiliary string for file reading
+	std::string sdummy; // auxiliary string for file reading
 	int idummy; // auxiliary integer for file reading
 	double dummy; // auxiliary double for file reading
 	int ml, ly, tb; // multilayer, layer, tube

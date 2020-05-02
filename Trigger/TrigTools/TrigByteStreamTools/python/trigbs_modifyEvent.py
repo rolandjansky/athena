@@ -12,7 +12,7 @@ class Config:
   """Configuration options for this module"""
   firstLB = 1                 # first LB number
   incLB = 1                   # step-size to increment LB
-  eventsPerLB = 10            # events per LB
+  eventsPerLB = None          # events per LB
   runNumber = None            # modify run number if set
   bc_sec = None               # event timestamp
 
@@ -31,7 +31,8 @@ def modify(event):
   Store.eventCounter += 1
 
   if Config.eventsPerLB is not None:
-    Store.currentLB = Config.firstLB + (Store.eventCounter-1) // Config.eventsPerLB
+    if Store.eventCounter % Config.eventsPerLB == 0:
+      Store.currentLB += Config.incLB
 
     # Find CTP ROB
     ctp_robs = [rob for rob in newevt.children()
@@ -75,7 +76,7 @@ def main():
 
   args = parser.parse_args()
 
-  Config.firstLB = args.firstLB
+  Config.firstLB = Store.currentLB = args.firstLB
   Config.incLB = args.incLB
   Config.eventsPerLB = args.eventsPerLB
   Config.runNumber = args.runNumber

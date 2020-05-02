@@ -78,7 +78,7 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
-      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
+      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib TrigConfInterfaces
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent )
 else()
    if( XAOD_ANALYSIS )
@@ -89,7 +89,7 @@ else()
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
+         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib  TrigConfInterfaces
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    else()
@@ -102,7 +102,7 @@ else()
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib TrigCompositeUtilsLib
+         TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()

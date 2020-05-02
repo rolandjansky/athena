@@ -19,7 +19,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include <cstdlib>
 
 

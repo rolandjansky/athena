@@ -7,7 +7,7 @@
 
 #include "GeneratorModules/GenModule.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/IO_BaseClass.h"
+#include "AtlasHepMC/IO_BaseClass.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 

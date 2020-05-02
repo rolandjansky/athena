@@ -8,8 +8,6 @@
  * Author: Lorenz Hauswald
  */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
@@ -17,13 +15,14 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TLorentzVector.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_nVtx(1)
+  m_incShowerSubtr(true)
 {
+  declareProperty("IncShowerSubtr", m_incShowerSubtr);
 }
 
 StatusCode TauIDVarCalculator::initialize()
@@ -34,9 +33,10 @@ StatusCode TauIDVarCalculator::initialize()
 
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
 {
-  if(!m_in_trigger){
+  int nVtx = 0;
+  if(!inTrigger()){
 
-    m_nVtx = int(LOW_NUMBER);    
+    nVtx = int(LOW_NUMBER);    
     // Get the primary vertex container from StoreGate
     const xAOD::VertexContainer* vertexContainer = nullptr;
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
@@ -46,14 +46,14 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     }
     else{
       vertexContainer = vertexInHandle.cptr();
-      m_nVtx=0;
+      nVtx=0;
       for( auto vertex : *vertexContainer ){
 	if(!vertex) continue;
 	// WARNING! the nVtx definition is different from the MVA TES equivalent, where we only count pileup vertices
 	int nTrackParticles = vertex->nTrackParticles();
         if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
             (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-          m_nVtx++;
+          nVtx++;
         }
       }
     }
@@ -63,10 +63,10 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
     return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);
+  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(m_in_trigger) return StatusCode::SUCCESS;
+  if(inTrigger()) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
   SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
@@ -123,15 +123,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
 
-  xAOD::JetConstituentVector vec = jetSeed->getConstituents();
-  xAOD::JetConstituentVector::iterator it = vec.begin();
-  xAOD::JetConstituentVector::iterator itE = vec.end();
-  for( ; it!=itE; ++it){
+  // Loop through jets, get links to clusters
+  std::vector<const xAOD::CaloCluster*> clusterList;
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
 
-    const xAOD::CaloCluster* cl = nullptr;
-    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
-    // Skip if charged PFO
-    if (!cl){ continue; }
+  for( auto cl : clusterList){
     
     // Only take clusters with dR<0.2 w.r.t IntermediateAxis
     if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
@@ -149,10 +145,10 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   if(tau.nTracks() > 0){
     const xAOD::TrackParticle* track = 0;
     track = tau.track(0)->track();
-    acc_absEtaLead(tau) = fabs( track->eta() );
-    acc_leadTrackEta(tau) = fabs( track->eta() );
-    acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
-    acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
+    acc_absEtaLead(tau) = std::abs( track->eta() );
+    acc_leadTrackEta(tau) = std::abs( track->eta() );
+    acc_absDeltaEta(tau) = std::abs( track->eta() - tau.eta() );
+    acc_absDeltaPhi(tau) = std::abs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
     float etEMScale1 = acc_etEMAtEMScale(tau);
     float etEMScale2 = acc_etHadAtEMScale(tau);
@@ -200,8 +196,8 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
           etHotShotDR1 = etShot;
         }
         // In 0.012 x 0.1 window
-        if(abs(shot->eta() - etaCalo) > 0.012 ) continue;
-        if(abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
+        if(std::abs(shot->eta() - etaCalo) > 0.012 ) continue;
+        if(std::abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
         if(etShot > etHotShotWin) etHotShotWin = etShot;
     }
     acc_etHotShotDR1(tau) = etHotShotDR1;
@@ -222,7 +218,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     acc_etHotShotWinOverPtLeadTrk(tau) = LOW_NUMBER; 
   }
   //CORRFTRK
-  float correction = m_nVtx != int(LOW_NUMBER) ? 0.003 * m_nVtx : 0.;
+  float correction = nVtx != int(LOW_NUMBER) ? 0.003 * nVtx : 0.;
   float etOverpTLeadTrk = acc_etOverPtLeadTrk(tau);
   float ptLeadTrkOverEt = etOverpTLeadTrk > 0 ? 1. / etOverpTLeadTrk : LOW_NUMBER;
   acc_corrftrk(tau) = ptLeadTrkOverEt != -1111. ? ptLeadTrkOverEt + correction : ptLeadTrkOverEt;

@@ -23,7 +23,7 @@
 //-----------------------------------------------------------------------------
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -32,6 +32,7 @@
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
@@ -43,12 +44,7 @@ using Gaudi::Units::GeV;
 // Constructor
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
-TauRecToolBase(name),
-m_doVertexCorrection(false), //FF: don't do cell correction by default
-m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
-{
-    declareProperty("VertexCorrection", m_doVertexCorrection);
-    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
+TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -105,7 +101,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     float phimaxcut = 0.1;
     float signum_eta = 0.;
 
-    signum_eta = pTau.track(0)->eta() / fabs(pTau.track(0)->eta());
+    signum_eta = pTau.track(0)->eta() / std::abs(pTau.track(0)->eta());
 
     float sumETCellsLAr = 0.;
     float eta0cut = 0.075;
@@ -204,22 +200,20 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       return StatusCode::FAILURE;
     }
 
-    xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
+    // Loop through jets, get links to clusters
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
 
     std::bitset<200000> cellSeen;
 
-    for (; cItr != cItrE; ++cItr) {
-      
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-      
+    for (auto cluster : clusterList){
+
       CaloClusterCellLink::const_iterator pCellIter  = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator pCellIterE = cluster->getCellLinks()->end();
 
-      double cellPhi;
-      double cellEta;
-      double cellET;
       for (; pCellIter != pCellIterE; pCellIter++) {
+
+	double cellEta, cellPhi, cellET;
 
         pCell = *pCellIter;
 	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;
@@ -255,7 +249,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         if (sampling == 12 || sampling == 13 || sampling == 14) i = 3;
 
         detPhiTrk = Tau1P3PKineUtils::deltaPhi( cellPhi, phi_extrapol[i] );
-	    detEtaTrk = std::fabs( cellEta - eta_extrapol[i] );
+	    detEtaTrk = std::abs( cellEta - eta_extrapol[i] );
 	    clEtaTrk = eta_extrapol[i];
 	    distEtaTrk = cellEta - eta_extrapol[i];
 
@@ -269,18 +263,18 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
         if (sampling == 12 && detEtaTrk < etahadcut && detPhiTrk < phihadcut) sumETCellsHad1 += cellET;
 
-        if (fabs(cellEta) > 0.8 && fabs(cellEta) <= 1.2 && (sampling == 13 || sampling == 14) && detEtaTrk < etahadcut && detPhiTrk < phihadcut) {
+        if (std::abs(cellEta) > 0.8 && std::abs(cellEta) <= 1.2 && (sampling == 13 || sampling == 14) && detEtaTrk < etahadcut && detPhiTrk < phihadcut) {
             sumETCellsHad1 += cellET;
         }
 
-        if (fabs(pTau.track(0)->eta()) <= 1.7) {
+        if (std::abs(pTau.track(0)->eta()) <= 1.7) {
             if (sampling == 1 && detEtaTrk < etamaxcut && detPhiTrk <= phimaxcut) {
-                if ((fabs(cellEta) < 1.37 || fabs(cellEta) > 1.52) && fabs(cellEta) < 1.85) {
-                    if (fabs(clEtaTrk) <= etacase1 && fabs(cellEta) <= etacase1) {
+                if ((std::abs(cellEta) < 1.37 || std::abs(cellEta) > 1.52) && std::abs(cellEta) < 1.85) {
+                    if (std::abs(clEtaTrk) <= etacase1 && std::abs(cellEta) <= etacase1) {
                         n = 50 + int(distEtaTrk / etagran1);
                     }
-                    if (fabs(clEtaTrk) <= etacase1 && fabs(cellEta) > etacase1) {
-                        n = 50 + int(signum_eta * ((etacase1 - fabs(clEtaTrk)) / etagran1 + (-etacase1 + fabs(cellEta)) / etagran2));
+                    if (std::abs(clEtaTrk) <= etacase1 && std::abs(cellEta) > etacase1) {
+                        n = 50 + int(signum_eta * ((etacase1 - std::abs(clEtaTrk)) / etagran1 + (-etacase1 + std::abs(cellEta)) / etagran2));
                     }
                     energy_3phi[n] = energy_3phi[n] + cellET / GeV;
                     eta[n] = signum_eta * (clEtaTrk - cellEta);
@@ -294,7 +288,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
             eta[n] = 0;
         }
 
-        if (fabs(cellEta) <= etacase1) {
+        if (std::abs(cellEta) <= etacase1) {
             etareg = 0.00315;
         } else {
             etareg = 0.00415;
@@ -320,7 +314,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         }
     }
 
-    if (fabs(eta[max1]) >= etareg) {
+    if (std::abs(eta[max1]) >= etareg) {
         max = max1;
     } else {
         max = max2;

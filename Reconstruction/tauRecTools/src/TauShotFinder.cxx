@@ -31,17 +31,7 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauShotFinder::TauShotFinder(   const string& name ) :
-    TauRecToolBase(name)
-    , m_caloWeightTool("H1WeightToolCSC12Generic")
-    , m_calo_id(NULL)
-    , m_pt1(0)
-    , m_pt3(0)
-    , m_pt5(0)
-{
-    declareProperty("CaloWeightTool", m_caloWeightTool);
-    declareProperty("NCellsInEta",           m_nCellsInEta);
-    declareProperty("MinPtCut",              m_minPtCut);
-    declareProperty("AutoDoubleShotCut",     m_autoDoubleShotCut);
+    TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -250,17 +240,17 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
         int etaBin = getEtaBin(cell->eta());
 
         // set variables used for photon counting
-        m_pt1=TauShotVariableHelpers::ptWindow(cellBlock,1,m_caloWeightTool);
-        m_pt3=TauShotVariableHelpers::ptWindow(cellBlock,3,m_caloWeightTool);
-        m_pt5=TauShotVariableHelpers::ptWindow(cellBlock,5,m_caloWeightTool);
+        float pt1=TauShotVariableHelpers::ptWindow(cellBlock,1,m_caloWeightTool);
+        float pt3=TauShotVariableHelpers::ptWindow(cellBlock,3,m_caloWeightTool);
+        float pt5=TauShotVariableHelpers::ptWindow(cellBlock,5,m_caloWeightTool);
 
         // Calculate number of photons in shot
-        int nPhotons = getNPhotons(etaBin, m_pt1);
+        int nPhotons = getNPhotons(etaBin, pt1);
 
         // Set variables in shot PFO
-        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt1, m_pt1);
-        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt3, m_pt3);
-        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt5, m_pt5);
+        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt1, pt1);
+        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt3, pt3);
+        shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt5, pt5);
         shot->setAttribute<int>(xAOD::PFODetails::PFOAttributes::tauShots_nPhotons, nPhotons);
 
         // remove shot(s) from list
@@ -328,20 +318,25 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
 }
 
 float TauShotFinder::getEtaBin(float seedEta){
-    float absSeedEta=fabs(seedEta);
-    if(fabs(absSeedEta)<0.80)      return 0; // Central Barrel
-    else if(fabs(absSeedEta)<1.39) return 1; // Outer Barrel
-    else if(fabs(absSeedEta)<1.51) return 2; // crack
-    else if(fabs(absSeedEta)<1.80) return 3; // endcap, fine granularity
+    float absSeedEta=std::abs(seedEta);
+    if(absSeedEta < 0.80)      return 0; // Central Barrel
+    else if(absSeedEta<1.39) return 1; // Outer Barrel
+    else if(absSeedEta<1.51) return 2; // crack
+    else if(absSeedEta<1.80) return 3; // endcap, fine granularity
     else return 4;                           // endcap, coarse granularity
 }
 
-float TauShotFinder::getNPhotons(int etaBin, float seedEnergy){
-    if(etaBin==2) return 0; // no photon counting in crack atm
-    ATH_MSG_DEBUG("etaBin = " << etaBin  << ", seedEnergy = " << seedEnergy << ", m_minPtCut.at(etaBin) = " << m_minPtCut.at(etaBin) 
-               << ", m_autoDoubleShotCut.at(etaBin) = " << m_autoDoubleShotCut.at(etaBin) );
-    if( seedEnergy < m_minPtCut.at(etaBin) ) return 0;
-    if( seedEnergy > m_autoDoubleShotCut.at(etaBin) ) return 2;
+float TauShotFinder::getNPhotons(int etaBin, float seedEnergy) {
+    // no photon counting in crack region, e.g. [1.39, 1.51]
+    if(etaBin==2) return 0;
+
+    const std::vector<float>& minPtCut = m_minPtCut.value();
+    const std::vector<float>& autoDoubleShotCut = m_autoDoubleShotCut.value();
+    ATH_MSG_DEBUG("etaBin = " << etaBin  << ", seedEnergy = " << seedEnergy);
+    ATH_MSG_DEBUG("MinPtCut: " << minPtCut.at(etaBin) << "DoubleShotCut: " << autoDoubleShotCut.at(etaBin));
+
+    if( seedEnergy < minPtCut.at(etaBin) ) return 0;
+    if( seedEnergy > autoDoubleShotCut.at(etaBin) ) return 2;
     return 1;
 }
 

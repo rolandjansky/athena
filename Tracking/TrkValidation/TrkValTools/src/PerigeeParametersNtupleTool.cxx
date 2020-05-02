@@ -22,7 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 //Truth
 #include "TrkTruthData/TrackTruth.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // constructor
 Trk::PerigeeParametersNtupleTool::PerigeeParametersNtupleTool(

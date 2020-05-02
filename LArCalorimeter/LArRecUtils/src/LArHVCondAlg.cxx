@@ -147,39 +147,29 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Executing with doHV " << doHVData << " doAffected " << doAffected );
 
-  //The HV-Cabling is run/lumi, the DCS data is time-stamped. Need mixed range. 
-  EventIDRange rangeW=IOVInfiniteRange::infiniteMixed(); 
-  EventIDRange rangeIn;
-
   std::vector<const CondAttrListCollection*> attrvec;
   const LArHVIdMapping* hvCabling{nullptr};
 
   if(doHVData || (doAffected && m_doAffectedHV) ) {
-    SG::ReadCondHandle<LArHVIdMapping> cHdl{m_hvMappingKey, ctx};
-    hvCabling = *cHdl;
+    SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
+    hvCabling = *mappingHdl;
     if(!hvCabling) {
       ATH_MSG_ERROR("Unable to access LArHVIdMapping Cond Object");
       return StatusCode::FAILURE;
     }
-    if (!cHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range of LArCabling CDO with key " << m_hvMappingKey.key());
-      return StatusCode::FAILURE;
-    } 
-    rangeW=EventIDRange::intersect(rangeW,rangeIn);
-    ATH_MSG_DEBUG("Range of HV-Cabling " << rangeIn << ", intersection: " << rangeW);
+    writeHandle.addDependency(mappingHdl);
+    writeAffectedHandle.addDependency(mappingHdl);
+    ATH_MSG_DEBUG("Range of HV-Cabling " << mappingHdl.getRange());
     // get handles to DCS Database folders
     for (const auto& fldkey: m_DCSFolderKeys ) {
-      SG::ReadCondHandle<CondAttrListCollection> cHdl(fldkey, ctx);
-      const CondAttrListCollection* cattr = *cHdl;
+      SG::ReadCondHandle<CondAttrListCollection> dcsHdl(fldkey, ctx);
+      const CondAttrListCollection* cattr = *dcsHdl;
       if(cattr) {
-        ATH_MSG_DEBUG("Folder: "<<cHdl.key()<<" has size: "<<std::distance(cattr->begin(),cattr->end()));
+        ATH_MSG_DEBUG("Folder: "<<dcsHdl.key()<<" has size: "<<std::distance(cattr->begin(),cattr->end()));
         attrvec.push_back(cattr);
-        if(!cHdl.range(rangeIn)) {
-          ATH_MSG_ERROR("Failed to retrieve validity range for " << cHdl.key());
-          return StatusCode::FAILURE;
-        }
-	rangeW=EventIDRange::intersect(rangeW,rangeIn);
-	ATH_MSG_DEBUG("Range of " << cHdl.key() << " " << rangeIn << ", intersection: " << rangeW);
+	writeHandle.addDependency(dcsHdl);
+	writeAffectedHandle.addDependency(dcsHdl);
+	ATH_MSG_DEBUG("Range of " << dcsHdl.key() << " " << dcsHdl.getRange() << ", intersection: " << writeHandle.getRange());
        
       } else {
          ATH_MSG_WARNING("Why do not have DCS folder " << fldkey.fullKey());
@@ -211,14 +201,11 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
        ATH_MSG_WARNING("Why do not have HV pathology object " << m_pathologiesKey.fullKey() << " ? Work without pathologies !!!");
        doPathology=false;
     }
-    if(!pHdl.range(rangeIn)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << pHdl.key());
-      return StatusCode::FAILURE;
-    }
-    rangeW=EventIDRange::intersect(rangeW,rangeIn);
-    ATH_MSG_DEBUG("Range of HV-Pathology " << rangeIn << ", intersection: " << rangeW);
  
     if(doPathology) {
+      writeHandle.addDependency(pHdl);
+      writeAffectedHandle.addDependency(pHdl);
+      ATH_MSG_DEBUG("Range of HV-Pathology " << pHdl.getRange() << ", intersection: " << writeHandle.getRange());
        const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
        ATH_MSG_INFO( " Number of HV pathologies found " << pathCont.size());
        for(unsigned i=0; i<pathologyContainer->getPathology().size(); ++i) {
@@ -283,32 +270,23 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     const LArHVData* hvdataOld = nullptr;
     
     std::unique_ptr<LArHVData> hvdata = std::make_unique<LArHVData>();
-    LArHVData* p_hvdata = hvdata.get();
   
-    ATH_CHECK(fillPayload(p_hvdata, hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
+    ATH_CHECK(fillPayload(hvdata.get(), hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
   
  
-    if(writeHandle.record(rangeW,hvdata.release()).isFailure()) {
-        ATH_MSG_ERROR("Could not record LArHVData object with " << writeHandle.key()
-                      << " with EventRange " << rangeW << " into Conditions Store");
-        return StatusCode::FAILURE;
-    }
-  
-    ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_CHECK(writeHandle.record(std::move(hvdata)));
+    ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
   } // doHVData
 
   if(doAffected) {
        SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey, ctx};
        const LArBadFebCont* bfCont{*readBFHandle};
        if(!bfCont){
-         ATH_MSG_WARNING(" Do not have Bad FEBs info, will be not filled " << m_BFKey.key() );
+         ATH_MSG_ERROR("Faild to get Bad FEBs info with key " << m_BFKey.key() );
+         return StatusCode::FAILURE;
        }
-       if(!readBFHandle.range(rangeIn)) {
-	 ATH_MSG_ERROR("Failed to retrieve validity range for " << readBFHandle.key());
-	 return StatusCode::FAILURE;
-       }
-       rangeW=EventIDRange::intersect(rangeW,rangeIn);
-       ATH_MSG_DEBUG("Range of BadFeb " << rangeIn << ", intersection: " << rangeW);
+       writeAffectedHandle.addDependency(readBFHandle);
+       ATH_MSG_DEBUG("Range of BadFeb " << readBFHandle.getRange() << ", intersection: " << writeAffectedHandle.getRange());
 
        SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
        const LArOnOffIdMapping* cabling{*cablingHdl};
@@ -316,36 +294,27 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
          ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
          return StatusCode::FAILURE;
        }
-       if(!cablingHdl.range(rangeIn)) {
-	 ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingHdl.key());
-	 return StatusCode::FAILURE;
-       }
-       rangeW=EventIDRange::intersect(rangeW,rangeIn);
-       ATH_MSG_DEBUG("Range of LArCabling " << rangeIn << ", intersection: " << rangeW);
+       writeAffectedHandle.addDependency(cablingHdl);
+       ATH_MSG_DEBUG("Range of LArCabling " << cablingHdl.getRange() << ", intersection: " << writeAffectedHandle.getRange());
 
    
-       CaloAffectedRegionInfoVec *vAffected = new CaloAffectedRegionInfoVec();
-   
+       //CaloAffectedRegionInfoVec *vAffected = new CaloAffectedRegionInfoVec();
+       std::unique_ptr<CaloAffectedRegionInfoVec> vAffected = std::make_unique<CaloAffectedRegionInfoVec>();
        if (m_doAffectedHV) {
-         ATH_CHECK(searchNonNominalHV_EMB(vAffected, hvCabling, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected, hvCabling, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected, hvCabling, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_HEC(vAffected, hvCabling, voltage, hvlineidx));
-         ATH_CHECK(searchNonNominalHV_FCAL(vAffected, hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMB(vAffected.get(), hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected.get(), hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected.get(), hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_HEC(vAffected.get(), hvCabling, voltage, hvlineidx));
+         ATH_CHECK(searchNonNominalHV_FCAL(vAffected.get(), hvCabling, voltage, hvlineidx));
        }
    
    
-       ATH_CHECK(updateMethod(vAffected, bfCont, cabling));
+       ATH_CHECK(updateMethod(vAffected.get(), bfCont, cabling));
    
-       std::unique_ptr<CaloAffectedRegionInfoVec> affectedVec = std::make_unique<CaloAffectedRegionInfoVec>(std::move(*vAffected));
-   
-       if(writeAffectedHandle.record(rangeW,affectedVec.release()).isFailure()) {
-	 ATH_MSG_ERROR("Could not record CaloAffectedRegionInfoVec object with " << writeHandle.key()
-		       << " with EventRange " << rangeW << " into Conditions Store");
-                return StatusCode::FAILURE;
-       }
+       ATH_CHECK(writeAffectedHandle.record(std::move(vAffected)));
        
-       ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+       ATH_MSG_INFO("recorded new " << writeAffectedHandle.key() << " with range " 
+		    <<  writeAffectedHandle.getRange()<< " into Conditions Store");
   } //doAffected
 
   return StatusCode::SUCCESS;
