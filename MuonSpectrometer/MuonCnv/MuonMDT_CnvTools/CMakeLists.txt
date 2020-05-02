@@ -30,14 +30,19 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
 
+atlas_add_library( MuonMDT_CnvToolsLib
+                   MuonMDT_CnvTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonMDT_CnvTools
+                   LINK_LIBRARIES GaudiKernel ByteStreamData )
+
 # Component(s) in the package:
 atlas_add_component( MuonMDT_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonCablingData GeoModelUtilities )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonCablingData GeoModelUtilities MuonCnvToolInterfacesLib MuonMDT_CnvToolsLib )
 
 # Install files from the package:
-atlas_install_headers( MuonMDT_CnvTools )
 atlas_install_python_modules( python/*.py )
 
