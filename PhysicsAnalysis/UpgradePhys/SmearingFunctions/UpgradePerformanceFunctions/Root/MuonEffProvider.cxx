@@ -27,6 +27,8 @@ bool MuonEffProvider::initialize(const std::string & effi_dir, const std::string
     m_dummy_eventInfo = new xAOD::EventInfo();
     m_dummy_eventInfoCont->push_back(m_dummy_eventInfo);
 
+    m_dummy_eventInfo->setEventTypeBitmask(true); // set to simulation
+
     SG::AuxElement::Decorator<unsigned int> dec_rnd("RandomRunNumber");
     dec_rnd(*m_dummy_eventInfo) = 999999;
 
