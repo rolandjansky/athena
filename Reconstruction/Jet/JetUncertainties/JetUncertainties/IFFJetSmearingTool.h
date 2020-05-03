@@ -27,14 +27,12 @@ class IFFJetSmearingTool : public virtual CP::ISystematicsTool
     // Declare the interface that the class provides
     ASG_TOOL_INTERFACE( IFFJetSmearingTool )
 
-  public:
+    public:
 
-    /// Virtual destructor
-    virtual ~IFFJetSmearingTool(){};
+        /// Virtual destructor
+        virtual ~IFFJetSmearingTool(){};
 
-
-      virtual CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco) = 0;
-
+        virtual CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco) = 0;
 
 }; // class IFFJetSmearingTool
 

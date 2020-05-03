@@ -70,7 +70,6 @@
 class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool 
 {
 
-
     /// Proper constructor for Athena
     ASG_TOOL_CLASS( FFJetSmearingTool, IFFJetSmearingTool )
 
@@ -83,27 +82,24 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
 
 
 
+        //New systematic functions
+        /// @name Methods implementing the ISystematicsTool interface
+        /// @{
 
+        /// Specify whether tool is affected by provided systematic
+        virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
 
-//New systematic functions
-
-   /// @name Methods implementing the ISystematicsTool interface
-  /// @{
-
-    /// Specify whether tool is affected by provided systematic
-    virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
-
-    /// List of all systematics affecting this tool
-    virtual CP::SystematicSet affectingSystematics() const;
+        /// List of all systematics affecting this tool
+        virtual CP::SystematicSet affectingSystematics() const;
        
-    /// List of all systematics recommended for this tool
-   virtual CP::SystematicSet recommendedSystematics() const;
+        /// List of all systematics recommended for this tool
+        virtual CP::SystematicSet recommendedSystematics() const;
 
-    /// Configure tool to apply systematic variation
-    virtual CP::SystematicCode applySystematicVariation
-    (const CP::SystematicSet& systematics);
+        /// Configure tool to apply systematic variation
+        virtual CP::SystematicCode applySystematicVariation
+        (const CP::SystematicSet& systematics);
 
-    /// @}
+        /// @}
 
 
         CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco);// The user has to use this function to smear it's jet mass
@@ -111,14 +107,14 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
         StatusCode getMatchedTruthJet( xAOD::Jet* jet_reco, xAOD::Jet& jet_truth_matched);
 
     protected:
-//TO COMPLETE
+        //TO COMPLETE
 
     private:
 
 
         StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-	StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass, std::string CALO_or_TA,std::string jetTopology, double& JMS_err, double& JMR_err);
+        StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass, std::string CALO_or_TA,std::string jetTopology, double& JMS_err, double& JMR_err);
 
         StatusCode getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology);
 
@@ -126,50 +122,48 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
 
 
 
-
         // Private members
-	bool m_isInit;
+        bool m_isInit;
         std::string m_name;
         std::string m_release;
         std::string m_truth_jetColl;
-	std::string m_truthlabelaccessor;
-	float m_EtaRange;
+        std::string m_truthlabelaccessor;
+        float m_EtaRange;
         float m_MassRange;
         float m_PtRange;
         TString m_histFileName;
-	TString m_MassDef;
-	std::string m_configFile;
-	std::string m_calibArea;
+        TString m_MassDef;
+        std::string m_configFile;
+        std::string m_calibArea;
         std::string m_path;
-	TString m_HistogramsFilePath;
+        TString m_HistogramsFilePath;
 
-	//Response matrix
-	TH2D* m_CALO_ResponseMap;
+        //Response matrix
+        TH2D* m_CALO_ResponseMap;
         TH2D* m_TA_ResponseMap;
 
-	//Two histograms to extract the Calo and TA weights in the Combined mass of the jet
-	TH3F* m_caloMassWeight;
+        //Two histograms to extract the Calo and TA weights in the Combined mass of the jet
+        TH3F* m_caloMassWeight;
         TH3F* m_TAMassWeight;
 
 
-	//The list of systemaics
+        //The list of systemaics
         CP::SystematicSet  m_SysList;
 
-	//Maps that relates the systematic name with some of its caracteristics
+        //Maps that relates the systematic name with some of its caracteristics
         std::map<std::string,std::string> m_Syst_HistPath_map;
         std::map<std::string,std::string> m_Syst_MassDefAffected_map;
         std::map<std::string,std::string> m_Syst_TopologyAffected_map;
-	 std::map<std::string,TH2D*> m_Syst_Hist_map;
-         std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
+        std::map<std::string,TH2D*> m_Syst_Hist_map;
+        std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
 
-	int m_InfoWarnings;
+        int m_InfoWarnings;
 
+        typedef std::unordered_map<CP::SystematicSet, CP::SystematicSet> SysFiterMap_t;
+        SysFiterMap_t m_sysFilterMap;
 
-    typedef std::unordered_map<CP::SystematicSet, CP::SystematicSet> SysFiterMap_t;
-    SysFiterMap_t m_sysFilterMap;
-
-    /// Points to the current systematic configuration
-    const CP::SystematicSet* m_sysConfig;
+        /// Points to the current systematic configuration
+        const CP::SystematicSet* m_sysConfig;
 
 }; // Class FFJetSmearingTool
 
