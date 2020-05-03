@@ -224,8 +224,8 @@ namespace TClassEdit {
       return nullptr;
    }
    return demangled_name;
-   }
 #endif
+   }
    char* DemangleTypeIdName(const std::type_info& ti, int& errorCode);
 
 
