@@ -11,7 +11,7 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 
 if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnhanced():
-  include("InDetRecExample/InDetMonitoringGlobalRun3Test.py")
+  include("InDetRecExample/InDetMonitoringGlobal.py")
 if InDetFlags.doMonitoringPixel():
   include( "InDetRecExample/InDetMonitoringPixel.py")
 if InDetFlags.doMonitoringSCT():
