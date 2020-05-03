@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UpgradePerformanceFunctions/MuonEffProvider.h"
@@ -56,7 +56,7 @@ float MuonEffProvider::getEfficiency (double pt, double eta, double phi) {
     else {
         updateMuon(pt < 14e6 ?  pt : 13.9e6 , eta, phi);
         if (m_reco_MESF->getMCEfficiency(*m_auxMuon, aux_eff, m_dummy_eventInfo) != CP::CorrectionCode::Ok) {
-            //ATH_MSG_WARNING("had a problem retrieving the efficiency for a muon with pt "<<pt<<", eta "<< eta<<", phi --> returning Eff==0");
+            ATH_MSG_WARNING("had a problem retrieving the efficiency for a muon with pt "<<pt<<", eta "<< eta<<", phi --> returning Eff==0");
             return 0;
         }
         return aux_eff;
