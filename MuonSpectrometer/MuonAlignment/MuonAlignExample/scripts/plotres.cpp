@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////
-//
-// plotres_x
-// -------------
-// 
-//////////////////////////////////////////////////////////////////////////////
 
 #include "MuonFixedId.h"
 #include "Tools.h"
@@ -31,7 +24,6 @@
 #include "TH1F.h"
 #include "TStyle.h"
 #include "TLine.h"
-//#include "TBox.h"
 #include <TLegend.h>
 #include <TString.h>
 
@@ -45,22 +37,11 @@
 #include <vector>
 #include <set>
 
-using namespace std;
 using namespace MuonCalib;
 
 map<TString,TH1*> getHistos(TChain* tree, TString combinetype);
-//const bool BATCH=false;
 
 MuonFixedId* mid;
-
-//enum CombineType{
-//  Chamber,
-   // Tower,
-//Sector,
-//  Side,
-// BarrelEC,
-// MS
-//};
 
 int    m_xbins;
 double m_xmax;

@@ -19,11 +19,7 @@
 
 #include <vector>
 
-namespace HepMC {
-
-class GenParticle; //!< Truth information
-
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 namespace Trk {
     class GenParticleJet;
 

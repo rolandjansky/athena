@@ -19,7 +19,7 @@
 #ifdef MUONCOMBDEBUG
 #include "TrkTruthData/TrackTruth.h" 
 #include "TrkTruthData/TrackTruthCollection.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 #endif
 
 using namespace MuonCombined;

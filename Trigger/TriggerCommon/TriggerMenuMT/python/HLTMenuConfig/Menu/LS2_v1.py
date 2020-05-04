@@ -55,7 +55,7 @@ def setupMenu():
 
         # this is for test only
         ChainProp(name='HLT_2mu6_Dr_L12MU4',  groups=MultiMuonGroup),
-      #  ChainProp(name='HLT_mu6_Dr_mu4_Dr_L12MU4', l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
+         #  ChainProp(name='HLT_mu6_Dr_mu4_Dr_L12MU4', l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
@@ -89,8 +89,11 @@ def setupMenu():
 
         # Primary
         ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e300_etcut_L1EM24VHI', groups=SingleElectronGroup),
 
         ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -118,6 +121,10 @@ def setupMenu():
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_pfsum_L1XE10', groups=SingleMETGroup),
+
+        ChainProp(name='HLT_xe110_tc_em_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe110_mht_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe110_tcpufit_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
@@ -142,6 +149,12 @@ def setupMenu():
 
         ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),
 
+        ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_pf_nojcalib_L1J20', groups=SingleJetGroup),
+#        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
+
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
@@ -160,7 +173,7 @@ def setupMenu():
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         #ATR-20049
         ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU60", groups=SingleTauGroup),        
+        ChainProp(name="HLT_tau0_perf_ptonly_L1TAU60", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_idperf_track_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_perf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
@@ -188,18 +201,20 @@ def setupMenu():
     ]
     # TimM temporary disable due to !31039
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-        # #ATR 20603
+        #ATR 20603
         # ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
         # ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
-        # #ATR-20839
-        # ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
+        #ATR-20839
+        # ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
-    ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+        ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+        # ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+        # ChainProp(name='HLT_mb_sp600_trk45_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
     ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [

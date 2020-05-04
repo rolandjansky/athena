@@ -12,13 +12,16 @@
 #include "TGraph.h"
 
 //C++ includes
-#include <math.h>
+#include <cmath>
 #include <string.h>
 
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 
-  TauRecToolBase(name)
-{
+  TauRecToolBase(name) {
+
+  declareProperty("addCalibrationResultVariables", m_addCalibrationResultVariables = false);
+  declareProperty("addUseCaloPtFlag", m_addUseCaloPtFlag = false);
+  declareProperty("WeightFileName", m_sWeightFileName = "");
 }
 
 //_____________________________________________________________________________
@@ -195,19 +198,19 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) const {
 
 
 int CombinedP4FromRecoTaus::getIndexEta(float eta) const{
-  if( fabs(eta) < 0.3 ) {
+  if( std::abs(eta) < 0.3 ) {
     return 0;
   }
-  if( fabs(eta) < 0.8 ) {
+  if( std::abs(eta) < 0.8 ) {
     return 1;
   }
-  if( fabs(eta) < 1.3 ) {
+  if( std::abs(eta) < 1.3 ) {
     return 2;
   }
-  if( fabs(eta) < 1.6 ) {
+  if( std::abs(eta) < 1.6 ) {
     return 3;
   }
-  if( fabs(eta) < 2.7 ) {
+  if( std::abs(eta) < 2.7 ) {
     return 4;
   }
   
@@ -393,7 +396,7 @@ double CombinedP4FromRecoTaus::getCombinedEt(double et_tauRec,
   double et_diff = getTauRecEt( et_tauRec, etaIndex, mode, variables.et_postcalib ) - getCellbased2PantauEt( et_substructure, etaIndex, mode, variables.et_cb2PT_postcalib );
   ATH_MSG_DEBUG( "et_diff (getTauRecEt - GetCellb2PEt): " << et_diff );
 
-  if( fabs( et_diff ) > getNsigmaCompatibility(et_tauRec)*variables.combined_res) {
+  if( std::abs( et_diff ) > getNsigmaCompatibility(et_tauRec)*variables.combined_res) {
     et_reco = et_tauRec;
   }
   return et_reco;
@@ -426,7 +429,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau, Va
 
   ATH_MSG_DEBUG( "tau IsPanTauCandidate = " << isPanTauCandidate );
 
-  if (isPanTauCandidate == 0 || DecayMode>xAOD::TauJetParameters::Mode_3pXn || fabs(tauRecP4.Eta()) > 2.5) {
+  if (isPanTauCandidate == 0 || DecayMode>xAOD::TauJetParameters::Mode_3pXn || std::abs(tauRecP4.Eta()) > 2.5) {
     variables.et_cb2PT_postcalib = substructureP4.Et();
     variables.et_postcalib = tauRecP4.Et();
     variables.et_weighted = tauRecP4.Et();

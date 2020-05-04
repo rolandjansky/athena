@@ -347,7 +347,6 @@ namespace VKalVrtAthena {
     StatusCode getNewTruthInfo();
     
     //
-    //HepMC::GenParticle *getTrkGenParticle(const xAOD::TrackParticle*, double& matchProb);
     const xAOD::TruthParticle *getTrkGenParticle(const xAOD::TrackParticle* /*, double& matchProb*/) const;
     
     

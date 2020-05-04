@@ -140,7 +140,6 @@ def setupCommonServices():
 
     # Explicitly set a few OutputLevels (needed because some services are created in
     # different order when running with the PSC)
-    svcMgr.StatusCodeSvc.OutputLevel = theApp.OutputLevel
     svcMgr.IncidentSvc.OutputLevel = theApp.OutputLevel
     svcMgr.ProxyProviderSvc.OutputLevel = theApp.OutputLevel
     svcMgr.StoreGateSvc.OutputLevel = theApp.OutputLevel
@@ -186,10 +185,6 @@ def setupCommonServicesEnd():
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
     svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 
-    # Disable StatusCodeSvc (causes problems with shutting down children at stop in HLTPU)
-    svcMgr.StatusCodeSvc.SuppressCheck = True
-    svcMgr.StatusCodeSvc.AbortOnError = False
-        
     svcMgr.IOVSvc.updateInterval = "RUN"
     svcMgr.IOVSvc.preLoadData = True
     svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392

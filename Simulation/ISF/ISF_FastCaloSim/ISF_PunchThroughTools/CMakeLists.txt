@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasGeometryCommon/SubDetectorEnvelopes
                           Control/AthContainers
                           GaudiKernel
+                          Generators/AtlasHepMC
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Tools/PathResolver )
@@ -24,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
-find_package( HepMC )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -32,8 +32,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( ISF_PunchThroughTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives ISF_FastCaloSimInterfaces AthContainers GaudiKernel ISF_Event ISF_Interfaces PathResolver )
+                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives ISF_FastCaloSimInterfaces AthContainers GaudiKernel ISF_Event ISF_Interfaces PathResolver )
 
 # Install files from the package:
 atlas_install_runtime( Data/*.root )

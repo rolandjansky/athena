@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__ParticleToJetAssociator=CompFactory.Analysis__ParticleToJetAssociator
+Analysis__ParticleToJetAssociator=CompFactory.Analysis.ParticleToJetAssociator
 
 def BTagTrackToJetAssociatorCfg(flags, name, options = {}):
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_H
@@ -12,6 +12,7 @@
 #include "L1TopoRDO/L1TopoRDO.h"
 #include "TrigT1Result/Header.h"
 #include "TrigT1Result/Trailer.h"
+#include "TrigT1ResultByteStream/IL1TriggerByteStreamTool.h"
 
 // Athena includes:
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -38,7 +39,7 @@ namespace ROIB {
  *  @author Attila Krasznahorkay
  *    @date $Date: 2008-03-28 17:25:52 $
  */
-class RoIBResultByteStreamTool : public AthAlgTool {
+class RoIBResultByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> {
 
 public:
   /// Default constructor
@@ -51,17 +52,15 @@ public:
   virtual StatusCode initialize() override;
 
   /// Convert ROB fragments to RoIBResult
-  StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
-                      ROIB::RoIBResult& resultToFill ) const;
-  /// Convert ROB fragments to RoIBResult (legacy Run-2 interface)
-  template< class ROBF > [[deprecated("Use the non-template version instead")]]
-  StatusCode convert( const std::vector< ROBF >& robs, ROIB::RoIBResult*& cont ) const;
+  virtual StatusCode convertFromBS(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+                                   const EventContext& eventContext) const override;
 
   /// Convert RoIBResult to ByteStream
-  StatusCode convert( ROIB::RoIBResult* cont, RawEventWrite* re );
+  virtual StatusCode convertToBS(std::vector<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment*>& vrobf,
+                                 const EventContext& eventContext) override;
 
   /// Vector of ROB IDs corresponding to the modules configured for decoding
-  const std::vector<uint32_t>& configuredROBIds() const {return m_configuredROBIds;}
+  virtual const std::vector<uint32_t>& robIds() const override {return m_configuredROBIds;}
 
 private:
 
@@ -109,27 +108,45 @@ private:
   /// CTP Module ID to decode
   Gaudi::Property<uint16_t> m_ctpModuleID {
     this, "CTPModuleId", 1,
-    "Module ID of CTP ROB with RoI information"
+    "Module ID of CTP ROB with RoI information. Value 0xFF disables CTP decoding/encoding in this tool."
   };
   /// MUCTPI Module ID to decode
   Gaudi::Property<uint16_t> m_muCTPIModuleID {
     this, "MUCTPIModuleId", 1,
-    "Module ID of MUCTPI ROB with RoI information"
+    "Module ID of MUCTPI ROB with RoI information. Value 0xFF disables MUCTPI decoding/encoding in this tool."
   };
   /// Jet Module IDs to decode
   Gaudi::Property<std::vector<uint16_t>> m_jetModuleID {
     this, "JetModuleIds", {0xac, 0xad},
-    "Vector of module IDs of Jet RoI ROBs"
+    "Vector of module IDs of Jet RoI ROBs. Empty vector disables Jet/Energy decoding/encoding in this tool."
   };
   /// EM Module IDs to decode
   Gaudi::Property<std::vector<uint16_t>> m_emModuleID {
     this, "EMModuleIds", {0xa8, 0xa9, 0xaa, 0xab},
-    "Vector of module IDs of EM RoI ROBs"
+    "Vector of module IDs of EM RoI ROBs. Empty vector disables EMTau decoding/encoding in this tool."
   };
   /// L1Topo Module IDs to decode
   Gaudi::Property<std::vector<uint16_t>> m_l1TopoModuleID {
     this, "L1TopoModuleIds", {0x81,0x91},
-    "Vector of module IDs of L1Topo RoI ROBs"
+    "Vector of module IDs of L1Topo RoI ROBs. Empty vector disables L1Topo decoding/encoding in this tool."
+  };
+  /// @}
+
+  /// Detector event type to write when converting to ByteStream
+  Gaudi::Property<uint16_t> m_detEvType {
+    this, "DetEvType", 1, // RB: It was hard-coded to 1 in the past, no idea why
+    "Detector event type to write when converting to ByteStream"
+  };
+
+  /// @name Data handles
+  /// @{
+  SG::WriteHandleKey<ROIB::RoIBResult> m_roibResultWriteKey {
+    this, "RoIBResultWriteKey", "",
+    "Write handle key to RoIBResult for conversion from ByteStream"
+  };
+  SG::ReadHandleKey<ROIB::RoIBResult> m_roibResultReadKey {
+    this, "RoIBResultReadKey", "",
+    "Read handle key to RoIBResult for conversion to ByteStream"
   };
   /// @}
 
@@ -138,17 +155,15 @@ private:
   std::vector<uint32_t> m_configuredROBIds;
   /// Object used in creating the RoI Builder ROB fragments
   FullEventAssembler<L1SrcIdMap> m_fea;
+  /// @name Flags to switch decoding/encoding of each system
+  /// @{
+  bool m_doCTP {true};
+  bool m_doMuon {true};
+  bool m_doJetEnergy {true};
+  bool m_doEMTau {true};
+  bool m_doTopo {true};
+  /// @}
 
 }; // class RoIBResultByteStreamTool
-
-// Implementation of the legacy template method has to be included in the header file to avoid linking errors
-template< class ROBF >
-StatusCode RoIBResultByteStreamTool::convert(const std::vector< ROBF >& robs,
-                                             ROIB::RoIBResult*& result ) const {
-  ATH_MSG_WARNING("This convert method is deprecated! Use the non-template version instead");
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vrobf;
-  for (const ROBF& robf : robs) vrobf.push_back(&robf);
-  return convert(vrobf,*result);
-}
 
 #endif // TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_H

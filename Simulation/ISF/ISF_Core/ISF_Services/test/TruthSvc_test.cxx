@@ -41,9 +41,9 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // STL includes
 #include <cstdlib> // quick_exit

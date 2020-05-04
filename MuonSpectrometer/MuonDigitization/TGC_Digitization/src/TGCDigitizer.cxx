@@ -21,5 +21,5 @@ StatusCode TGCDigitizer::initialize() {
 
 StatusCode TGCDigitizer::execute() {
   ATH_MSG_DEBUG("in execute()");
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

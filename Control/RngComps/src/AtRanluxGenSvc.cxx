@@ -28,34 +28,11 @@ using namespace std;
 /// Standard Constructor
 AtRanluxGenSvc::AtRanluxGenSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc), 
-    m_read_from_file(false),
-    m_file_to_read(name + ".out"),    
-    m_save_to_file(true),
-    m_file_to_write(name + ".out"),
-    m_useOldBrokenSeeding(false),
-    m_eventReseed(true),
-    m_reseedStreamNames(),
     m_reseedingOffsets(),
     m_engines(), m_engines_copy(),
     m_defaultLuxLevel(1) ///depends on Ranlux64 implementation. 1 is default at least up until 2010
 {
-    // Get user's input
-    declareProperty("Seeds", m_streams_seeds,
-		    "seeds for the engines, a string of the form ['SequenceName [LUXURY luxLevel (range 0:2 default 1)()] [OFFSET num] Seed1 Seed2', ...] where OFFSET is an optional integer that allows to change the sequence of randoms for a given run/event no and SequenceName combination. Notice that Seed1/Seed2 are dummy when EventReseeding is used");
-    declareProperty("ReadFromFile", m_read_from_file,
-		    "set/restore the status of the engine from file");
-    declareProperty("FileToRead",   m_file_to_read,
-		    "name of a ASCII file, usually produced by AtRanLuxGenSvc itself at the end of a job, containing the information to fully set/restore the status of Ranlux64");
-    declareProperty("SaveToFile", m_save_to_file,
-		    "save the status of the engine to file");
-    declareProperty("FileToWrite",   m_file_to_write,
-		    "name of an ASCII file which will be produced on finalize, containing the information to fully set/restore the status of Ranlux64");
-    declareProperty("UseOldBrokenSeeding",   m_useOldBrokenSeeding,
-		    "use old seeding mechanism. This is broken in that the same seeds generate different sequences for 32 and 64 bit architectures");
-    declareProperty("EventReseeding", m_eventReseed, "reseed every event using a hash of run and event numbers");
-    declareProperty("ReseedStreamNames", m_reseedStreamNames, "the streams we are going to set the seeds of (default: all streams)");
-
-    // Set Default values
+  // Set Default values
     m_default_seed1		=	3591;
     m_default_seed2		=	2309736;
     m_PYTHIA_default_seed1	=	93453591;
@@ -128,9 +105,9 @@ AtRanluxGenSvc::initialize()
 
   if (m_read_from_file) {
     // Read from a file
-    ifstream	infile( m_file_to_read.c_str() );
+    ifstream	infile( m_file_to_read.value().c_str() );
     if ( !infile ) {
-      ATH_MSG_ERROR (" Unable to open: " << m_file_to_read);
+      ATH_MSG_ERROR (" Unable to open: " << m_file_to_read.value());
       return StatusCode::FAILURE;
     } else {
       std::string buffer;
@@ -151,7 +128,7 @@ AtRanluxGenSvc::initialize()
             // across platforms.
             msg() << ((*i) & 0xffffffffu) << " ";
 	  }
-	  msg() << " read from file " << m_file_to_read << endmsg;
+	  msg() << " read from file " << m_file_to_read.value() << endmsg;
 	  if (CreateStream(seeds, stream)) {
 	    msg(MSG::DEBUG)
 	      << stream << " stream initialized succesfully" <<endmsg;
@@ -163,7 +140,7 @@ AtRanluxGenSvc::initialize()
 	} else {		
 	  msg(MSG::ERROR)
 	    << "bad line\n" << buffer 
-	    << "\n in input file " << m_file_to_read << endmsg;
+	    << "\n in input file " << m_file_to_read.value() << endmsg;
 	  return StatusCode::FAILURE;
 	}		
       }
@@ -171,18 +148,19 @@ AtRanluxGenSvc::initialize()
     }
   }
   // Create the various streams according to user's request
-  for (VStrings::const_iterator i = m_streams_seeds.begin(); i != m_streams_seeds.end(); ++i) {
+  //for (VStrings::const_iterator i = m_streams_seeds.begin(); i != m_streams_seeds.end(); ++i) {
+  for (const auto& i : m_streams_seeds) {
     string stream; 
     uint32_t seed1, seed2, offset(0);
     //parse the stream property string
     short ll(m_defaultLuxLevel); // temp copy so we don't overwrite default
-    if (interpretSeeds(*i, stream, seed1, seed2, ll, offset)) {
+    if (interpretSeeds(i, stream, seed1, seed2, ll, offset)) {
       ATH_MSG_VERBOSE("Seeds property: stream " << stream 
 		      << " seeds " << seed1 << ' ' << seed2 
 		      << ", luxury level " << ll
 		      << ", reseeding offset " << offset);
     } else {
-      ATH_MSG_ERROR("bad Seeds property\n" << (*i));
+      ATH_MSG_ERROR("bad Seeds property\n" << i);
       return StatusCode::FAILURE;
     }		
     	
@@ -309,9 +287,9 @@ AtRanluxGenSvc::finalize()
 
   if (m_save_to_file) {
     // Write the status of the Service to file
-    std::ofstream outfile( m_file_to_write.c_str() );
+    std::ofstream outfile( m_file_to_write.value().c_str() );
     if ( !outfile ) {
-      ATH_MSG_ERROR ("error: unable to open: " << m_file_to_write);
+      ATH_MSG_ERROR ("error: unable to open: " << m_file_to_write.value());
     } else {
       for (std::map<std::string, std::vector<uint32_t> >::const_iterator i = m_engines_copy.begin();
 	   i != m_engines_copy.end();
@@ -322,7 +300,7 @@ AtRanluxGenSvc::finalize()
 	}
 	outfile << endl;
       }
-      ATH_MSG_DEBUG (" wrote seeds to " << m_file_to_write );
+      ATH_MSG_DEBUG (" wrote seeds to " << m_file_to_write.value() );
       
     }
   }

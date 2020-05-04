@@ -7,7 +7,7 @@ from BTagging.BTagTrackAssociationConfig import BTagTrackAssociationCfg
 from BTagging.BTagToolConfig import BTagToolCfg
 
 
-JetBTaggerAlg=CompFactory.Analysis__JetBTaggerAlg
+JetBTaggerAlg=CompFactory.Analysis.JetBTaggerAlg
 
 def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", **options):
 

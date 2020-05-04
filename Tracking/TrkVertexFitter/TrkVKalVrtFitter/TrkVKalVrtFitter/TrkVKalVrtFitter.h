@@ -7,11 +7,10 @@
 #ifndef TRKVKALVRTFITTER_VKALVRTFITTER_H
 #define TRKVKALVRTFITTER_VKALVRTFITTER_H
 // Normal STL and physical vectors
-//#include <vector>
 // Gaudi includes
-//#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 //
 // Interfaces
 #include  "TrkVertexFitterInterfaces/IVertexFitter.h"
@@ -28,6 +27,8 @@
 #include  "TrkNeutralParameters/NeutralParameters.h"
 //#include  "VxVertex/ExtendedVxCandidate.h"
 #include  "MagFieldInterfaces/IMagFieldSvc.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 //
 #include <thread>
 #include <mutex>
@@ -293,11 +294,13 @@ namespace Trk{
       std::vector<double>    m_c_MassInputParticles;
 
       ToolHandle < IExtrapolator >          m_extPropagator;   //External propagator
-      ////ServiceHandle < IMagFieldAthenaSvc >  m_magFieldAthenaSvc;            //Athena magnetic field----old version
-      ServiceHandle<MagField::IMagFieldSvc> m_magFieldAthenaSvc;                //Athena magnetic field
+      ////ServiceHandle<MagField::IMagFieldSvc> m_magFieldAthenaSvc;                //Athena magnetic field
+      //Read handle for conditions object to get the field cache
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field key"};
       SimpleProperty<bool>   m_firstMeasuredPoint;
       SimpleProperty<bool>   m_firstMeasuredPointLimit;
       SimpleProperty<bool>   m_makeExtendedVertex;
+      SimpleProperty<bool>   m_useFixedField;
 
       bool m_isAtlasField;
 
@@ -356,6 +359,7 @@ namespace Trk{
 
         VKalAtlasMagFld m_fitField;
         VKalVrtControl m_vkalFitControl;
+        MagField::AtlasFieldCache m_fieldCache;
 
         const TrackParameters *  m_globalFirstHit = nullptr;
 

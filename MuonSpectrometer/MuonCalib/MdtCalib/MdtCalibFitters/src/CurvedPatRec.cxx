@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -13,26 +13,16 @@
 //                                     and direction added.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS CurvedPatRec ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibFitters/CurvedPatRec.h"
 #include "MdtCalibFitters/CurvedCandidateFinder.h"
 #include "MuonCalibMath/Combination.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 #include "time.h"
 #include "cmath"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -193,16 +183,16 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
     time_t start, end; // start and end times (needed for time-out)
 	double diff; // difference of start and end time (needed for time-out)
     Combination combination;
-    vector<unsigned int> hit_index; // hit indices for a given combination
+    std::vector<unsigned int> hit_index; // hit indices for a given combination
     unsigned int try_nb_hits; // try to find a segment with try_nb_hits hits
     bool segment_found(false); // flag indicating the a segment has been found
-    vector<const MdtCalibHitBase *> cand_track_hits; // vector of the track hits
+    std::vector<const MdtCalibHitBase *> cand_track_hits; // vector of the track hits
                                                      // found so far
     CurvedLine aux_line; // memory for reconstructed curved lines
 	Amg::Vector3D null(0.0, 0.0, 0.0);
 	Amg::Vector3D xhat(1.0, 0.0, 0.0);
-    vector<Amg::Vector3D> points; // hit points for the track fit
-	vector<const MdtCalibHitBase*> loc_track_hits; // track hit store
+    std::vector<Amg::Vector3D> points; // hit points for the track fit
+	std::vector<const MdtCalibHitBase*> loc_track_hits; // track hit store
 
 ////////////
 // RESETS //
@@ -217,11 +207,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 ////////////////////////////////////////
 
     if (r_selection.size()!=r_segment.mdtHitsOnTrack()) {
-        cerr << endl
-             << "Class CurvedPatRec, method fit: ERROR!\n"
-             << "Size of selection vector does not match the number of hits on"
-             << "track!\n";
-        exit(1);
+    	throw std::runtime_error(Form("File: %s, Line: %d\nCurvedPatRec::fit - Size of selection vector does not match the number of hits on track!", __FILE__, __LINE__));
     }
 
 //////////////////////
@@ -267,11 +253,8 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
             time (&end);
             diff = difftime (end,start);
             if (diff>m_time_out) {
-                cerr << endl
-	   		         << "Class CurvedPatRec: "
-	   		         << "time-out for track finding after "
-			         << m_time_out
-			         << " seconds!\n";
+            	MsgStream log(Athena::getMessageSvc(), "CurvedPatRec");
+            	log<< MSG::WARNING << "Class CurvedPatRec, method fit: time-out for track finding after "<<m_time_out<<" seconds!"<<endmsg;
                 return false;
             }
 
@@ -281,14 +264,14 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
             } else {
                 combination.nextCombination(hit_index);
             }
-            vector<const MdtCalibHitBase *> track_hits;
+            std::vector<const MdtCalibHitBase *> track_hits;
             for (unsigned int k=0; k<try_nb_hits; k++) {
                 track_hits.push_back(loc_track_hits[hit_index[k]-1]);
             }
 
         // find candidates //
             CurvedCandidateFinder finder(track_hits);
-            const vector<CurvedLine> &candidates(finder.getCandidates(
+            const std::vector<CurvedLine> &candidates(finder.getCandidates(
                                                        m_road_width, est_dir));
 			if (candidates.size()==0) {
                 continue;
@@ -300,7 +283,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
  //           m_track_hits = track_hits;
 
             for (unsigned int cand=0; cand<candidates.size(); cand++) {
-                vector<Amg::Vector3D> errors(track_hits.size());
+                std::vector<Amg::Vector3D> errors(track_hits.size());
                 for (unsigned int k=0; k<errors.size(); k++) {
                     if (track_hits[k]->sigmaDriftRadius()>0.0) {
  			            errors[k] = Amg::Vector3D(1.0,
@@ -325,7 +308,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 									track_hits[k]->localPosition().y(),
 									track_hits[k]->localPosition().z()),
 									xhat, null, null);
-                    double d(fabs(tang.signDistFrom(wire)));
+                    double d(std::abs(tang.signDistFrom(wire)));
                     if (track_hits[k]->sigma2DriftRadius()!=0) {
                         tmp_chi2 = tmp_chi2+
                                     std::pow(d-track_hits[k]->driftRadius(), 2)/
@@ -368,7 +351,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 
 // get hit points //
     points = getHitPoints(m_track_hits, m_curved_track);
-    vector<Amg::Vector3D> errors(m_track_hits.size());
+    std::vector<Amg::Vector3D> errors(m_track_hits.size());
     for (unsigned int k=0; k<errors.size(); k++) {
         if (m_track_hits[k]->sigmaDriftRadius()>0.0) {
  		    errors[k] = Amg::Vector3D(1.0,
@@ -393,7 +376,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 									m_track_hits[k]->localPosition().y(),
 									m_track_hits[k]->localPosition().z()),
 									xhat, null, null);
-		double d(fabs(tang.signDistFrom(wire)));
+		double d(std::abs(tang.signDistFrom(wire)));
 		if (m_track_hits[k]->sigma2DriftRadius()!=0) {
             m_chi2 = m_chi2+ std::pow(d-m_track_hits[k]->driftRadius(), 2)/
 									m_track_hits[k]->sigma2DriftRadius();
@@ -445,21 +428,6 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 
 //*****************************************************************************
 
-//:::::::::::::::::::::::
-//:: METHOD printLevel ::
-//:::::::::::::::::::::::
-
-void CurvedPatRec::printLevel(int level) {
-
-	cerr << "Class CurvedPatRec: method printLevel: " << level
-			<< " has no effect!\n";
-
-	return;
-
-}
-
-//*****************************************************************************
-
 //:::::::::::::::::::::::::
 //:: METHOD getHitPoint ::
 //:::::::::::::::::::::::::
@@ -496,12 +464,8 @@ Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase * hit,
 // CALCULATE HIT POINT //
 /////////////////////////
 
-// 	d0 = sqrt((y0-dy)*(y0-dy)+(z0-dz)*(z0-dz));
-
-
-
   Amg::Vector3D point = straight_track.positionVector() + (straight_track.directionVector().unit().dot(hit->localPosition() - straight_track.positionVector() ) ) * straight_track.directionVector().unit();
-  Amg::Vector3D point_2 = hit->localPosition() + hit->driftRadius() * (point - hit->localPosition()).unit() ;
+  Amg::Vector3D point_2 = hit->localPosition() + hit->driftRadius() * (point - hit->localPosition()).unit();
 
   return point_2;
 	
@@ -521,7 +485,7 @@ std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(
 // VARIABLES //
 ///////////////
 
-	vector<Amg::Vector3D> hit_vec;
+	std::vector<Amg::Vector3D> hit_vec;
 
 /////////////////////
 // FILL HIT VECTOR //
@@ -552,7 +516,7 @@ std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(
 // VARIABLES //
 ///////////////
 
-	vector<Amg::Vector3D> hit_vec;
+	std::vector<Amg::Vector3D> hit_vec;
 
 /////////////////////
 // FILL HIT VECTOR //

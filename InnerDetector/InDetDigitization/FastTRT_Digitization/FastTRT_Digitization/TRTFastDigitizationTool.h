@@ -66,7 +66,7 @@ public:
 
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  StatusCode mergeEvent();
+  StatusCode mergeEvent(const EventContext& ctx);
 
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
@@ -78,11 +78,11 @@ public:
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
-  StatusCode prepareEvent( const unsigned int /*nInputEvents*/ );
+  StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/ );
 
   ///alternative interface which uses the PileUpMergeSvc to obtain all
   ///the required SubEvents.
-  StatusCode processAllSubEvents();
+  StatusCode processAllSubEvents(const EventContext& ctx);
 
   /** Initialize */
   virtual StatusCode initialize();
@@ -95,7 +95,7 @@ private:
   StatusCode initializeNumericalConstants();    // once per run 
   StatusCode setNumericalConstants();    // once per event (pileup-dependent constants) 
 
-  StatusCode produceDriftCircles();
+  StatusCode produceDriftCircles(const EventContext& ctx);
   StatusCode createOutputContainers();
 
   Identifier getIdentifier( int hitID, IdentifierHash &hash, Identifier &layer_id, bool &status ) const;

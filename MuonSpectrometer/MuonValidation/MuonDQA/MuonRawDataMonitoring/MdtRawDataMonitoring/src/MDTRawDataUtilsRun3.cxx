@@ -443,42 +443,33 @@ int MdtRawDataMonAlg::mezzmdt(Identifier digcoll_id) const { //int mezz_chamber,
 // the 'if' statements are for chambers with ML1 != ML2
 // except for BIS8 -- mdtIdHelper gets the # layers wrong in this instance
 int MdtRawDataMonAlg::GetTubeMax( const Identifier & digcoll_id, const std::string & hardware_name ) {
-  int numtubes = m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
-  int numlayers = m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id);
-  int numML = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(digcoll_id);
-  int tubeMax = numtubes * numlayers * numML;
-
-  if( hardware_name.substr(0,4) == "BIS8" ) // Why does mdtIdHelper get this one wrong?
+  int tubeMax(0);
+  if( hardware_name.substr(0,4) == "BIS8" ) { // Why does mdtIdHelper get this one wrong?
     tubeMax = 16*3;
-  if( hardware_name.substr(0,4) == "BIR5" )
+  } else if( hardware_name.substr(0,4) == "BIR5" ) {
     //     tubeMax = 21*4 + 24*4;
     tubeMax = 24*4 + 24*4;
-  if( hardware_name.substr(0,4) == "BIR2" || hardware_name.substr(0,4) == "BIR4" )
+  } else if( hardware_name.substr(0,4) == "BIR2" || hardware_name.substr(0,4) == "BIR4" ) {
     //     tubeMax = 27*4 + 30*4;
     tubeMax = 30*4 + 30*4;
-  if( hardware_name.substr(0,4) == "BIR3" )
+  } else if( hardware_name.substr(0,4) == "BIR3" ) {
     tubeMax = 36*4 + 36*4;
-  if( hardware_name.substr(0,4) == "BIR1" )
+  } else if( hardware_name.substr(0,4) == "BIR1" ) {
     //     tubeMax = 24*4 + 30*4;
     tubeMax = 30*4 + 30*4;
-  if( hardware_name.substr(0,4) == "BMS4" || hardware_name.substr(0,4) == "BMS6" )
+  } else if( hardware_name.substr(0,4) == "BMS4" || hardware_name.substr(0,4) == "BMS6" ) {
     //     tubeMax = 40*3 + 48*3;
     tubeMax = 48*3 + 48*3;
-  if( hardware_name == "EEL1A05" || hardware_name == "EEL1C05" )
+  } else if( hardware_name == "EEL1A05" || hardware_name == "EEL1C05" ) {
     tubeMax = 48*3 + 48*3;
-  if( hardware_name.substr(0,3) == "BME")
+  } else if( hardware_name.substr(0,3) == "BME") {
 	  tubeMax = 546;
-  //DEV maybe this should be passed to the function?
-  //std::map<std::string,float> tubesperchamber_map;
-  std::map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
-  if ( iter_tubesperchamber == m_tubesperchamber_map.end() ) { 
-      m_tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
-      ATH_MSG_DEBUG("Chamber " << hardware_name << " has " << tubeMax << " tubes.");
-  } 
-  else {
-      ATH_MSG_WARNING("GetTubeMax: computing tubes per chamber twice for this chamber!");
-  }     
-  
+  } else {
+    int numtubes = m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
+    int numlayers = m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id);
+    int numML = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(digcoll_id);
+    tubeMax = numtubes * numlayers * numML;
+  }
   return tubeMax;
   
   

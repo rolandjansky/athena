@@ -39,16 +39,8 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
     
     #Setup up general geometry
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.merge(GeoModelCfg(inputFlags))
-
-    #Setup Pixel geometry including IBL and /Indet(/Onl)/Align folders
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg(inputFlags))
-
-    #Setup TRT geometry including /TRT/Align folders                                                                                      
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(inputFlags))
+    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
 
     #Setup TRT conditions                                                                                                                                  
     TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
@@ -71,9 +63,9 @@ def PFCfg(inputFlags,**kwargs):
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
-    from AthenaCommon import CfgGetter
-    result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
-    result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+    #from AthenaCommon import CfgGetter
+    #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+    #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
     #Setup TRT geometry
     TRT_DetectorTool=CompFactory.TRT_DetectorTool

@@ -19,6 +19,7 @@
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/RCUObject.h"
+#include "GaudiKernel/IAlgResourcePool.h" 
 #include "AthenaBaseComps/AthService.h"
 #include "SGTools/TransientAddress.h"
 #include "CxxUtils/checker_macros.h"
@@ -31,9 +32,6 @@
 class IClassIDSvc;
 class IProxyDict;
 class IRCUSvc;
-class IAlgResourcePool;
-
-//template <class TYPE> class SvcFactory;
 
 /** @class AddressRemappingSvc
  *  @brief This class provides the interface to the LCG POOL persistency software.
@@ -83,17 +81,25 @@ private:
 
 private: // Data
    ServiceHandle<IClassIDSvc> m_clidSvc;
-   ServiceHandle<IProxyDict> m_proxyDict;
-   ServiceHandle<Athena::IRCUSvc> m_RCUSvc;
-   ServiceHandle<IAlgResourcePool> m_algResourcePool;
+  ServiceHandle<IProxyDict> m_proxyDict{this,"ProxyDict","StoreGateSvc",
+      "the IProxyDict we want to apply the remapping to (by default the event store)"};
+  ServiceHandle<Athena::IRCUSvc> m_RCUSvc;
+  ServiceHandle<IAlgResourcePool> m_algResourcePool{this,"AlgResourcePool","AlgResourcePool",
+      "Algorithm resource pool service."};
 
-   /// TypeKeyOverwriteMaps, map for type#key overwrites.
-   StringArrayProperty m_overwriteMaps;
-   std::vector<SG::TransientAddress> m_oldTads;
-   std::vector<SG::TransientAddress> m_newTads;
+  /// TypeKeyOverwriteMaps, map for type#key overwrites.
+  StringArrayProperty m_overwriteMaps{this,"TypeKeyOverwriteMaps",{},"","Set<std::string>"};
+  std::vector<SG::TransientAddress> m_oldTads;
+  std::vector<SG::TransientAddress> m_newTads;
 
    /// Property: list of requested input renames.
-   std::vector<std::string> m_typeKeyRenameMaps;
+  Gaudi::Property<std::vector<std::string> >m_typeKeyRenameMaps{this,"TypeKeyRenameMaps",{},
+      "List of renamings to apply to input objects.  This is distinct from the "
+	"mappings given by TypeKeyOverwriteMaps in that objects listed under "
+	"TypeKeyOverwriteMaps are accessible by both the old and new names; "
+	"while for TypeKeyRenameMaps, only the new names are visible (so the old names "
+	"may be rewritten).  Overwriting may also change the visible type of an object, "
+	"while renaming may not.  Format of list elements is OLDNAME#TYPE->NEWNAME.","Set<std::string>"};
 
    /// Map of sgkey->sgkey for input renames.
    /// This object is exported via inputRenameMap and is synchronized
@@ -102,9 +108,10 @@ private: // Data
   typedef Athena::IInputRename::InputRenameRCU_t InputRenameRCU_t;
    std::unique_ptr<InputRenameRCU_t> m_inputRenames;
 
-   bool m_skipBadRemappings;
+  Gaudi::Property<bool> m_skipBadRemappings{this,"SkipBadRemappings",false,
+      "If true, will delay the remapping setup until the first load, and will check against the given file"};
 
-   bool m_haveDeletes;
+   bool m_haveDeletes=false;
    std::unordered_multimap<std::string, CLID> m_deletes;
 
    // FIXME: calling getFlatAlgList() can result in a recursive call!

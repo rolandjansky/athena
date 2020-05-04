@@ -1,29 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.03.2006, AUTHORS: OLIVER KORTNER, FELIX RAUSCHER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "cmath"
 #include <iostream>
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
 
 using namespace MuonCalib;
-
-//using namespace std;
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MTStraightLine ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //*****************************************************************************
 
@@ -159,7 +142,7 @@ double MTStraightLine::a_x1_error(void) const {
 		return 0.0;
 	}
 
-	return sqrt(std::pow(m_direction_error.x()/m_direction_error.z(), 2)
+	return std::sqrt(std::pow(m_direction_error.x()/m_direction_error.z(), 2)
 		+std::pow(m_direction_error.y()*a_x1()/m_direction_error.z(), 2));
 
 }
@@ -189,7 +172,7 @@ double MTStraightLine::b_x1(void) const {
 
 double MTStraightLine::b_x1_error(void) const {
 
-	return sqrt(std::pow(m_position_error.x(), 2)+
+	return std::sqrt(std::pow(m_position_error.x(), 2)+
 			std::pow(a_x1()*m_position_error.z(), 2)+
 			std::pow(m_position.z()*a_x1_error(),2));
 
@@ -222,7 +205,7 @@ double MTStraightLine::a_x2_error(void) const {
 		return 0.0;
 	}
 
-	return sqrt(std::pow(m_direction_error.y()/m_direction_error.z(), 2)
+	return std::sqrt(std::pow(m_direction_error.y()/m_direction_error.z(), 2)
 		+std::pow(m_direction_error.y()*a_x2()/m_direction_error.z(), 2));
 
 }
@@ -252,7 +235,7 @@ double MTStraightLine::b_x2(void) const {
 
 double MTStraightLine::b_x2_error(void) const {
 
-	return sqrt(std::pow(m_position_error.y(), 2)+
+	return std::sqrt(std::pow(m_position_error.y(), 2)+
 			std::pow(a_x2()*m_position_error.z(), 2)+
 			std::pow(m_position.z()*a_x2_error(),2));
 
@@ -302,7 +285,7 @@ double MTStraightLine::signDistFrom(const MTStraightLine & h) const {
 	if (n.dot(n) == 0.0) {
 		// straight lines are parallel
 		// no sign given
-	  return sqrt(d.dot(d)-(u.unit().dot(d))*(u.unit().dot(d)));
+	  return std::sqrt(d.dot(d)-(u.unit().dot(d))*(u.unit().dot(d)));
 	}
 	
 	return (d.dot(n.unit()));
@@ -327,7 +310,7 @@ double MTStraightLine::distFromLine(const Amg::Vector3D & point) const {
 //:: CALCULATE DISTANCE ::
 //::::::::::::::::::::::::
 
-	return sqrt((point-m_position).dot(point-m_position) -
+	return std::sqrt((point-m_position).dot(point-m_position) -
 		    ((point-m_position).dot(u.unit()))*((point-m_position).dot(u.unit())));
 
 }

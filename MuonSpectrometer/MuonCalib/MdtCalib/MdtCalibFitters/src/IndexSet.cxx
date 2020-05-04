@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9,25 +9,12 @@
 //                      != operator corrected.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATIONS OF METHODS DEFINED IN THE CLASS IndexSet ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibFitters/IndexSet.h"
+#include <TString.h> // for Form
 #include <algorithm>
 #include <cstdlib>
 
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -51,7 +38,7 @@ void IndexSet::init(void) {
 void IndexSet::init(const unsigned int & r_nb_indices) {
 
 	m_nb_indices = r_nb_indices;
-	m_index = vector<int>(m_nb_indices);
+	m_index = std::vector<int>(m_nb_indices);
 	return;
 
 }
@@ -63,17 +50,14 @@ void IndexSet::init(const unsigned int & r_nb_indices) {
 //::::::::::::::::::::::::
 
 void IndexSet::init(const unsigned int & r_nb_indices,
-					const vector<int> r_index) {
+					const std::vector<int> r_index) {
 
 ///////////////////////
 // CHECK VECTOR SIZE //
 ///////////////////////
 
 	if (r_index.size()<r_nb_indices) {
-		cerr << endl
-			<< "Class IndexSet, method init: ERROR!\n"
-			<< "Index vector too short!\n";
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nIndexSet::init() - Index vector too short!", __FILE__, __LINE__));
 	}
 
 ////////////////////
@@ -81,7 +65,7 @@ void IndexSet::init(const unsigned int & r_nb_indices,
 ////////////////////
 
 	m_nb_indices = r_nb_indices;
-	m_index = vector<int>(m_nb_indices);
+	m_index = std::vector<int>(m_nb_indices);
 	for (unsigned int k=0; k<m_nb_indices; k++) {
 		if (k<r_index.size()) {
 			m_index[k] = r_index[k];
@@ -118,14 +102,14 @@ void IndexSet::resize(const unsigned int & r_size) {
 //:: VARIABLES ::
 //:::::::::::::::
 
-	vector<int> aux_index = m_index; // vector for temporary storage of
+	std::vector<int> aux_index = m_index; // vector for temporary storage of
 	                                 // the indices
 
 //:::::::::::::::::::::::::::::::::::::
 //:: RESIZE AND COPY THE OLD INDICES ::
 //:::::::::::::::::::::::::::::::::::::
 
-	m_index = vector<int>(r_size);
+	m_index = std::vector<int>(r_size);
 	for (unsigned int k=0; k<r_size; k++) {
 		if (k<m_nb_indices) {
 			m_index[k] = aux_index[k];

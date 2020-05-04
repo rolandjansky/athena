@@ -56,9 +56,7 @@ public:
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
 private:
-  ToolHandleArray<TrackRNN> m_vClassifier;
-  std::vector<std::string> m_vClassifierNames;//optional
-
+  ToolHandleArray<TrackRNN> m_vClassifier {this, "Classifiers", {}};
 }; // class TauTrackRNNClassifier
   
 //______________________________________________________________________________

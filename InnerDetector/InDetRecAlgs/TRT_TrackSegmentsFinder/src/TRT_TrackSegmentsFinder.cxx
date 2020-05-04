@@ -38,6 +38,10 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   ATH_CHECK( m_caloKey.initialize(m_useCaloSeeds) );
   ATH_CHECK( m_foundSegmentsKey.initialize() );
 
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
+  
   // Get output print level
   //
   if (msgLvl(MSG::DEBUG)) {
@@ -61,8 +65,8 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
   std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> event_data_p;
   if(!m_useCaloSeeds) {
 
-    event_data_p = m_segmentsMakerTool->newEvent();
-    m_segmentsMakerTool->find    (*event_data_p);
+    event_data_p = m_segmentsMakerTool->newEvent(ctx);
+    m_segmentsMakerTool->find    (ctx, *event_data_p);
 
     // Loop through all segments and reconsrtucted segments collection preparation
     //
@@ -97,9 +101,20 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
         std::unique_ptr<const Trk::TrackParameters>
            par(PS.createTrackParameters(0.,0.,atan2(y,x), atan2(1.,z/sqrt(x*x+y*y)),0.,0));
 
+        // Get AtlasFieldCache
+        MagField::AtlasFieldCache fieldCache;
+
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+            return StatusCode::FAILURE;
+        }
+        fieldCondObj->getInitializedCache (fieldCache);
+  
 	// TRT detector elements road builder
 	//
-	m_roadtool->detElementsRoad(*par,Trk::alongMomentum,DE);
+	m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum, DE);
         }
 	if(int(DE.size()) < m_minNumberDCs) continue;
 
@@ -109,8 +124,8 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
            vTR.push_back(d->identifyHash());
         }
 
-	event_data_p = m_segmentsMakerTool->newRegion(vTR);
-	m_segmentsMakerTool->find(*event_data_p);
+	event_data_p = m_segmentsMakerTool->newRegion(ctx, vTR);
+	m_segmentsMakerTool->find(ctx, *event_data_p);
 
 	// Loop through all segments and reconsrtucted segments collection preparation
 	//

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // egDetailContainerCnv_p1.cxx 
@@ -22,6 +22,7 @@
 #include "egammaEvent/EMBremFit.h"
 #include "egammaEvent/EMTrackFit.h"
 #include "egammaEvent/EMErrorDetail.h"
+#include "GaudiKernel/GaudiException.h"
 
 #ifdef MSG_DEBUG
 #undef MSG_DEBUG

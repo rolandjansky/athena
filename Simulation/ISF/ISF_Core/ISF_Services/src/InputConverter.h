@@ -27,10 +27,9 @@ namespace Barcode {
 namespace HepPDT {
   class ParticleDataTable;
 }
-namespace HepMC {
-  class GenParticle;
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
+
 class IPartPropSvc;
 class McEventCollection;
 namespace ISFTesting {

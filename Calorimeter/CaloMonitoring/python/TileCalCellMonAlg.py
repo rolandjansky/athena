@@ -8,30 +8,6 @@
 '''
 
 from __future__ import print_function
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
-
-def DQAtlasReadyFilterToolConfig(inputFlags, **kwargs):
-    ''' Function to configure DQAtlasReadyFilterTool tool in the monitoring system.'''
-    
-    cfg = ComponentAccumulator()
-
-    if (inputFlags.Input.isMC
-        or inputFlags.DQ.Environment == 'online'
-        or 'collisions' not in inputFlags.DQ.DataType
-        or inputFlags.DQ.disableAtlasReadyFilter):
-        
-        atlasReadyFilterTool = CompFactory.DQDummyFilterTool
-    else:
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        cfg.merge(addFolders(inputFlags, '/TDAQ/RunCtrl/DataTakingMode',
-                             'TDAQ', className='AthenaAttributeList'))
-    
-        atlasReadyFilterTool = CompFactory.DQAtlasReadyFilterTool
-
-    cfg.setPrivateTools( atlasReadyFilterTool(**kwargs) )
-    return cfg
-
 
 def TileCalCellMonAlgConfig(inputFlags, **kwargs):
     ''' Function to configure TileCalCellMonAlg algorithm in the monitoring system.'''
@@ -68,7 +44,8 @@ def TileCalCellMonAlgConfig(inputFlags, **kwargs):
         cfg.merge(LArCollisionTimeCfg(inputFlags))
 
     if kwargs['useReadyFilterTool'] and 'ReadyFilterTool' not in kwargs:
-        readyFilterTool = cfg.popToolsAndMerge(DQAtlasReadyFilterToolConfig(inputFlags))
+        from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+        readyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
         kwargs['ReadyFilterTool'] = readyFilterTool
         
     from AthenaConfiguration.ComponentFactory import CompFactory

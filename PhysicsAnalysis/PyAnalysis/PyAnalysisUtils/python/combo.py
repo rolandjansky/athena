@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: combo.py,v 1.3 2005-05-12 16:36:59 ssnyder Exp $
@@ -6,6 +6,8 @@
 # Created: sss, Mar 2005, from http://aspn.activestate.com/.
 # Purpose: Generators for combinations and permutations.
 #
+
+from __future__ import print_function
 
 """Generators for combinations and permutations.
 
@@ -59,7 +61,7 @@ Differences in ordering are considered significant.
 For example, all_combinations([1,2,3],2) will yield both [1,2] and [2,1].
 
 >>> for c in all_combinations(['l','o','v','e'],2):
-...   print ''.join(c)
+...   print (''.join(c))
 lo
 lv
 le
@@ -73,7 +75,8 @@ el
 eo
 ev
 """
-    if n==0: yield []
+    if n==0:
+        yield []
     else:
         for i in range(len(items)):
             for cc in all_combinations(items[:i]+items[i+1:],n-1):
@@ -83,7 +86,7 @@ def combinations(items, n):
     """Yields all unique subsequences of length n from items.
 
 >>> for uc in combinations(['l','o','v','e'],2):
-...   print ''.join(uc)
+...   print (''.join(uc))
 lo
 lv
 le
@@ -91,7 +94,8 @@ ov
 oe
 ve
 """
-    if n==0: yield []
+    if n==0:
+        yield []
     else:
         for i in range(len(items)):
             for cc in combinations(items[i+1:],n-1):
@@ -102,7 +106,7 @@ def selections(items, n):
 items, where any given item may be picked multiple times.
 
 >>> for s in selections(['l','o','v','e'],2):
-...   print ''.join(s)
+...   print (''.join(s))
 ll
 lo
 lv
@@ -120,7 +124,8 @@ eo
 ev
 ee
 """
-    if n==0: yield []
+    if n==0:
+        yield []
     else:
         for i in range(len(items)):
             for ss in selections(items, n-1):
@@ -131,7 +136,7 @@ def permutations(items):
 Equivalent to all_combinations(items,len(items)).
 
 >>> for p in permutations(['l','o','v','e']):
-...   print ''.join(p)
+...   print (''.join(p))
 love
 loev
 lvoe
@@ -163,11 +168,12 @@ evol
 __test__ = {}
 __test__['tests'] = """
 >>> # Permutations of 'love'
->>> print map(''.join, list(permutations('done')))
+>>> print (list(map(''.join, list(permutations('done')))))
 ['done', 'doen', 'dnoe', 'dneo', 'deon', 'deno', 'odne', 'oden', 'onde', 'oned', 'oedn', 'oend', 'ndoe', 'ndeo', 'node', 'noed', 'nedo', 'neod', 'edon', 'edno', 'eodn', 'eond', 'endo', 'enod']
 """
 
 
 if __name__ == "__main__":
+    print ('PyAnalysisUtils/combo.py test')
     import doctest
     doctest.testmod()

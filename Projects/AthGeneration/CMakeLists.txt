@@ -8,7 +8,7 @@ project( AthGeneration VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E101,E7,E9,W6 --ignore ATL238,ATL9,E701,E702,E704,E741 --enable-extensions ATL902"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
@@ -42,19 +42,6 @@ set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
-
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()
 
@@ -64,10 +51,6 @@ atlas_ctest_setup()
 # Set up the "ATLAS project".
 atlas_project( USE AthGenerationExternals ${AthGenerationExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
-
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )

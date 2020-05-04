@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
@@ -14,6 +14,8 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 
+#include "StoreGate/ReadCondHandle.h"
+
 #include <stdexcept>
 #include <math.h>//for sincos function
 
@@ -26,11 +28,11 @@ void InDet::SiTrajectoryElement_xk::setTools(const InDet::SiTools_xk* t)
   m_tools        = t                      ;
   m_prdToTrackMap= m_tools->PRDtoTrackMap();
   m_useassoTool  = m_tools->usePRDtoTrackAssociation() ;
-  m_fieldService = m_tools->magfield    ();
   m_updatorTool  = m_tools->updatorTool ();
   m_proptool     = m_tools->propTool    ();
   m_riotool      = m_tools->rioTool     ();
-} 
+  m_tools->fieldCondObj()->getInitializedCache (m_fieldCache);
+}
 
 void InDet::SiTrajectoryElement_xk::setParameters()
 {
@@ -1145,10 +1147,13 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   else  if( (Pa*S0) > .3) {
     S > 0. ? S = .3/Pa : S=-.3/Pa;
   }
-  
-  bool   ste   = false; 
 
-  double f0[3],f[3]; m_fieldService->getFieldZR(R,f0); 
+  bool   ste   = false;
+
+  double f0[3],f[3];
+
+  m_fieldCache.getFieldZR(R,f0);
+
 
   while(true) {
 
@@ -1172,7 +1177,9 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     //
     if(!Helix) {
       double gP[3]={R[0]+A1*S4, R[1]+B1*S4, R[2]+C1*S4};
-      m_fieldService->getFieldZR(gP,f);
+
+      m_fieldCache.getFieldZR(gP,f);
+
     }
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];}
 
@@ -1190,8 +1197,10 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     // Last point
     //
     if(!Helix) {
-      double gP[3]={R[0]+S*A4, R[1]+S*B4, R[2]+S*C4};    
-      m_fieldService->getFieldZR(gP,f);
+      double gP[3]={R[0]+S*A4, R[1]+S*B4, R[2]+S*C4};
+
+      m_fieldCache.getFieldZR(gP,f);
+
     }
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];} 
     
@@ -1399,7 +1408,6 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_cluster     = 0 ;
   m_clusterOld  = 0 ;
   m_clusterNoAdd= 0 ;
-  m_fieldService= 0 ;
   m_updatorTool = 0 ;
   m_proptool    = 0 ;
   m_riotool     = 0 ;

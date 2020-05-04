@@ -20,8 +20,6 @@
 #include "RingerSelectorTools/tools/RingerIOVarDepObj.h"
 #include "RingerSelectorTools/tools/VariableDependency.h"
 #include "RingerSelectorTools/tools/RedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
 
 /**
  * @brief Namespace dedicated for Ringer utilities
@@ -48,7 +46,7 @@ class UniqueThreshold : virtual public IThreshold,
 
     /** Execute threshold */
     virtual void execute(const std::vector<float> &input,
-        std::vector<bool> &output, const DepVarStruct &depVar) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+        std::vector<bool> &output, const DepVarStruct &depVar) const override final;
 
     float threshold() const { return m_threshold; }
     void setThreshold(float val) { m_threshold = val; }
@@ -85,7 +83,7 @@ class LinearPileupCorrectionThreshold : virtual public IThreshold,
 
     /** Execute threshold */
     virtual void execute(const std::vector<float> &input,
-        std::vector<bool> &output, const DepVarStruct &depVar) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+        std::vector<bool> &output, const DepVarStruct &depVar) const override final;
 
     float intercept() const { return m_intercept; }
     float slope() const { return m_slope; }

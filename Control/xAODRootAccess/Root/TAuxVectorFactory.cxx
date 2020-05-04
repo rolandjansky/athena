@@ -5,6 +5,7 @@
 #include <TError.h>
 #include <TString.h>
 #include <TVirtualCollectionProxy.h>
+#include <TInterpreter.h>
 
 // Local include(s):
 #include "xAODRootAccess/tools/TAuxVectorFactory.h"
@@ -15,7 +16,7 @@ namespace xAOD {
 
    TAuxVectorFactory::TAuxVectorFactory( ::TClass* cl )
       : m_class( cl ), m_proxy( cl->GetCollectionProxy() ),
-        m_assign(), m_defElt( 0 ) {
+        m_defElt( 0 ) {
 
       // A little sanity check:
       if( ! m_proxy ) {
@@ -31,8 +32,9 @@ namespace xAOD {
          ::TString proto = "const ";
          proto += eltClass->GetName();
          proto += "&";
-         m_assign.InitWithPrototype( eltClass, "operator=", proto );
-         if( ! m_assign.IsValid() ) {
+         m_assign = new TMethodCall;
+         m_assign->InitWithPrototype( eltClass, "operator=", proto );
+         if( ! m_assign->IsValid() ) {
             ::Warning( "xAOD::TAuxVectorFactory::TAuxVectorFactory",
                        XAOD_MESSAGE( "Can't get assignment operator for "
                                      "class %s" ),
@@ -47,6 +49,12 @@ namespace xAOD {
       // Remove the default element from memory if it exists:
       if( m_defElt ) {
          m_proxy->GetValueClass()->Destructor( m_defElt );
+      }
+
+      // The TMethodCall destructor will fail if TCling has already
+      // been destroyed...
+      if( gCling ) {
+        delete m_assign;
       }
    }
 
@@ -78,10 +86,10 @@ namespace xAOD {
 
       // Do the copy either using the assignment operator of the type, or using
       // simple memory copying:
-      if( m_assign.IsValid() ) {
-         m_assign.ResetParam();
-         m_assign.SetParam( ( Long_t ) src );
-         m_assign.Execute( dst );
+      if( m_assign && m_assign->IsValid() ) {
+         m_assign->ResetParam();
+         m_assign->SetParam( ( Long_t ) src );
+         m_assign->Execute( dst );
       } else {
          memcpy( dst, src, eltsz );
       }
@@ -113,24 +121,24 @@ namespace xAOD {
       b = reinterpret_cast< void* >( reinterpret_cast< unsigned long >( b ) +
                                      eltsz * bindex );
 
-      if( m_assign.IsValid() ) {
+      if( m_assign && m_assign->IsValid() ) {
 
          // Create a temporary object in memory:
          TClass* eltClass = m_proxy->GetValueClass();
          void* tmp = eltClass->New();
 
          // tmp = a
-         m_assign.ResetParam();
-         m_assign.SetParam( ( Long_t ) a );
-         m_assign.Execute( tmp );
+         m_assign->ResetParam();
+         m_assign->SetParam( ( Long_t ) a );
+         m_assign->Execute( tmp );
          // a = b
-         m_assign.ResetParam();
-         m_assign.SetParam( ( Long_t ) b );
-         m_assign.Execute( a );
+         m_assign->ResetParam();
+         m_assign->SetParam( ( Long_t ) b );
+         m_assign->Execute( a );
          // b = tmp
-         m_assign.ResetParam();
-         m_assign.SetParam( ( Long_t ) tmp );
-         m_assign.Execute( b );
+         m_assign->ResetParam();
+         m_assign->SetParam( ( Long_t ) tmp );
+         m_assign->Execute( b );
 
          // Delete the temporary object:
          eltClass->Destructor( tmp );
@@ -159,11 +167,11 @@ namespace xAOD {
       dst = reinterpret_cast< void* >( reinterpret_cast< unsigned long >( dst ) +
                                        eltsz * dst_index );
 
-      if( m_assign.IsValid() ) {
+      if( m_assign && m_assign->IsValid() ) {
          // Assign the default element's contents to this object:
-         m_assign.ResetParam();
-         m_assign.SetParam( ( Long_t ) m_defElt );
-         m_assign.Execute( dst );
+         m_assign->ResetParam();
+         m_assign->SetParam( ( Long_t ) m_defElt );
+         m_assign->Execute( dst );
       } else {
          // Set the memory to zero:
          memset( dst, 0, eltsz );

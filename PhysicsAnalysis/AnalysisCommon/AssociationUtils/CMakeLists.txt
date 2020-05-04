@@ -1,5 +1,3 @@
-# $Id: CMakeLists.txt 793296 2017-01-21 01:09:39Z sfarrell $
-
 # The name of the package:
 atlas_subdir( AssociationUtils )
 
@@ -24,7 +22,10 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
+   PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PRIVATE
+   Control/AthToolSupport/AsgTesting
+   Control/CxxUtils
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    ${extra_dep} )
@@ -35,33 +36,18 @@ find_package( Boost COMPONENTS program_options )
 find_package( GTest )
 
 # Libraries in the package:
-atlas_add_root_dictionary( AssociationUtilsLib AssociationUtilsLibDict
-   ROOT_HEADERS AssociationUtils/OverlapRemovalTool.h
-   AssociationUtils/BaseOverlapTool.h AssociationUtils/DeltaROverlapTool.h
-   AssociationUtils/EleEleOverlapTool.h
-   AssociationUtils/EleMuSharedTrkOverlapTool.h
-   AssociationUtils/EleJetOverlapTool.h AssociationUtils/MuJetOverlapTool.h
-   AssociationUtils/AltMuJetOverlapTool.h
-   AssociationUtils/TauLooseEleOverlapTool.h
-   AssociationUtils/TauLooseMuOverlapTool.h AssociationUtils/TauJetOverlapTool.h
-   AssociationUtils/TauAntiTauJetOverlapTool.h
-   AssociationUtils/ObjLinkOverlapTool.h AssociationUtils/ToolBox.h
-   AssociationUtils/BJetHelper.h AssociationUtils/DeltaRMatcher.h
-   AssociationUtils/MuJetGhostDRMatcher.h
-   AssociationUtils/OverlapDecorationHelper.h
-   AssociationUtils/OverlapLinkHelper.h
-   AssociationUtils/IOverlapRemovalToolLegacy.h
-   AssociationUtils/OverlapRemovalToolLegacy.h
-   Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
-
 atlas_add_library( AssociationUtilsLib
-   AssociationUtils/*.h Root/*.cxx ${AssociationUtilsLibDict}
+   AssociationUtils/*.h Root/*.cxx
    PUBLIC_HEADERS AssociationUtils
-   INCLUDE_DIRS ${ROOT_ICNLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet
-   xAODMuon xAODTau xAODTracking AthContainers AthLinks
-   PRIVATE_LINK_LIBRARIES FourMomUtils )
+   xAODMuon xAODTau xAODTracking AthContainers AthLinks AnaAlgorithmLib
+   PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils )
+
+atlas_add_dictionary( AssociationUtilsDict
+    AssociationUtils/AssociationUtilsDict.h
+    AssociationUtils/selection.xml
+    LINK_LIBRARIES AssociationUtilsLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AssociationUtils
@@ -77,12 +63,6 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODEgamma xAODMuon xAODJet xAODTau xAODEgamma
       AssociationUtilsLib )
-
-   atlas_add_executable( OverlapRemovalTesterLegacy
-      util/OverlapRemovalTesterLegacy.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODMuon xAODJet xAODTau xAODEgamma AssociationUtilsLib )
 endif()
 
 # Tests in the package:
@@ -103,13 +83,12 @@ endmacro( _add_gtest )
 # Define the google unit tests.
 # Disabling some which don't work in Athena.
 foreach( test gt_AnaToolHandle_test ) # gt_OverlapRemovalInit_test gt_toolbox_test
-   _add_gtest( ${test} )
+   _add_gtest( ${test} LINK_LIBRARIES AsgTestingLib )
 endforeach()
 
 if( XAOD_STANDALONE )
    atlas_add_test( ut_assocUtilsDict SCRIPT test/ut_assocUtilsDict.py )
    atlas_add_test( ut_ort_tester SCRIPT test/ut_ort_tester.sh )
-   atlas_add_test( ut_ort_tester_legacy SCRIPT test/ut_ort_tester_legacy.sh )
 endif()
 
 # Install files from the package:

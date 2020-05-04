@@ -18,7 +18,7 @@ namespace CP {
   class WeightPFOTool : public virtual IWeightPFOTool, public asg::AsgTool {
 
     /** Athena constructor */
-    ASG_TOOL_CLASS( WeightPFOTool, IWeightPFOTool );
+    ASG_TOOL_CLASS( WeightPFOTool, IWeightPFOTool )
 
   public:
     /** Rootcore constructor */

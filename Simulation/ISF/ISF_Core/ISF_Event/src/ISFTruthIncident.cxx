@@ -14,8 +14,8 @@
 #include "ISF_Event/ParticleHelper.h"
 
 // HepMC includes
-#include "HepMC/SimpleVector.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
+#include "AtlasHepMC/GenParticle.h"
 
 ISF::ISFTruthIncident::ISFTruthIncident( ISF::ISFParticle &parent,
                                          const ISFParticleVector& children,

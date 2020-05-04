@@ -19,6 +19,7 @@ def TileEMScaleCondAlgCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+
     acc.merge( TileCablingSvcCfg(flags) )
 
     source = kwargs.get('Source', 'COOL')
@@ -65,7 +66,7 @@ def TileEMScaleCondAlgCfg(flags, **kwargs):
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
         acc.merge( addFolderList(flags, folders.get()) )
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt = CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         if not oflLasFibFolder: 
             oflLasFibProxy = None
         else: 
@@ -84,7 +85,7 @@ def TileEMScaleCondAlgCfg(flags, **kwargs):
     else:
         # Connect FILE Tile conditions proxies to the tool
         # Undoing "online" calibrations makes no sense here and is disabled
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt = CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         oflCisLinProxy = TileCondProxyFileFlt('TileCondProxyFile_OflCisLin', Source = 'TileDefault.cisFitLin')
         oflCisNlnProxy = TileCondProxyFileFlt('TileCondProxyFile_OflCisNln', Source = 'TileDefault.cisFitNln')
         oflLasLinProxy = TileCondProxyFileFlt('TileCondProxyFile_OflLasLin', Source = 'TileDefault.lasLin')

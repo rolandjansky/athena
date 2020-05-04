@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOLSVC_H
@@ -182,16 +182,16 @@ public: // Non-static members
 
 private: // data
    typedef std::recursive_mutex CallMutex;
-   mutable CallMutex                                 m_pool_mut;
+   mutable CallMutex                                 m_pool_mut ATLAS_THREAD_SAFE;
    coral::Context*                                   m_context{nullptr};
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
-   std::vector<CallMutex*>                           m_pers_mut;
+   mutable std::vector<CallMutex*>                   m_pers_mut ATLAS_THREAD_SAFE;
    std::map<std::string, unsigned int>               m_contextLabel;
    std::string                                       m_mainOutputLabel{};
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
    // Cache for open file guids for each m_persistencySvcVec member, protected by m_pers_mut
-   mutable std::map<unsigned int, std::list<Guid> >  m_guidLists;
+   mutable std::map<unsigned int, std::list<Guid> >  m_guidLists ATLAS_THREAD_SAFE;
 
 private: // properties
    /// FileOpen, the open mode for the file ("append" or "overwrite").

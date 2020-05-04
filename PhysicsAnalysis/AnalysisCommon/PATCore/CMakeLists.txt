@@ -22,25 +22,25 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core )
 
-# In the standalone build create a "CINT dictionary":
-if( XAOD_STANDALONE )
-   atlas_add_root_dictionary( PATCoreLib PATCoreLibDictSource
-      ROOT_HEADERS PATCore/TSelectorToolBase.h Root/LinkDef.h
-      EXTERNAL_PACKAGES ROOT )
-endif()
-
 # Component(s) in the package:
 atlas_add_library( PATCoreLib
-   PATCore/*.h Root/*.cxx ${PATCoreLibDictSource}
+   PATCore/*.h Root/*.cxx
    PUBLIC_HEADERS PATCore
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools ${extra_libs} )
 
-# Only build the "Reflex dictionary" in the offline environment:
 atlas_add_dictionary( PATCoreDict
    PATCore/PATCoreDict.h
    PATCore/selection.xml
    LINK_LIBRARIES PATCoreLib )
+
+# second dictionary for Athena-only classes
+if( NOT XAOD_STANDALONE )
+   atlas_add_dictionary( PATCoreAthenaDict
+      PATCore/PATCoreAthenaDict.h
+      PATCore/selection_athena.xml
+      LINK_LIBRARIES PATCoreLib )
+endif ()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

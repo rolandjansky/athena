@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -54,7 +54,7 @@ StatusCode HepMCTruthReader::execute() {
     if (cntr>0) ATH_MSG_INFO("Printing pileup events...");  
 
     if (cntr==0) {
-      HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex();
+      auto signalProcessVtx = genEvt->signal_process_vertex();
       ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
 		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
            << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)

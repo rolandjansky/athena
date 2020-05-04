@@ -27,27 +27,12 @@
 #include <set>
 #include <string>
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#define ROOT6_MIGRATION_HAVE_REFLEX
-namespace Reflex {
-   class Type;
-   class Member;
-}
-typedef Reflex::Base          ReflexBase;
-typedef Reflex::Member        ReflexMember;
-typedef Reflex::PropertyList  ReflexPropertyList;
-typedef Reflex::Scope         ReflexScope;
-typedef Reflex::Type          ReflexType;
-typedef Reflex::Type_Iterator ReflexType_Iterator;
-#else /* ROOT6 */
 #include "DataModelRoot/RootType.h"
 typedef RootBase         ReflexBase;
 typedef RootDataMember   ReflexMember;
 typedef RootPropertyList ReflexPropertyList;
 typedef RootScope        ReflexScope;
 typedef RootType         ReflexType;
-#endif
 
 
 template <class TYPE> class SvcFactory;

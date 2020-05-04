@@ -75,11 +75,11 @@ atlas_add_test( ut_xaodcore_safedeepcopy_test
 
 atlas_add_test( ut_xaodcore_auxcontainerbase_test
    SOURCES test/ut_xaodcore_auxcontainerbase_test.cxx
-   LINK_LIBRARIES AthContainers xAODCore )
+   LINK_LIBRARIES AthContainers xAODCore TestTools )
 
 atlas_add_test( ut_xaodcore_auxinfobase_test
    SOURCES test/ut_xaodcore_auxinfobase_test.cxx
-   LINK_LIBRARIES AthContainers xAODCore )
+   LINK_LIBRARIES AthContainers xAODCore TestTools )
 
 atlas_add_test( ut_xaodcore_shallowcopy_test
    SOURCES test/ut_xaodcore_shallowcopy.cxx

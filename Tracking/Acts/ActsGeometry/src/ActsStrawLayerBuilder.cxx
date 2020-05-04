@@ -61,7 +61,9 @@ ActsStrawLayerBuilder::positiveLayers(const Acts::GeometryContext& gctx) const
 const Acts::LayerVector
 ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 {
-  ACTS_VERBOSE("Building central Straw layers")
+  ACTS_VERBOSE("Building central Straw layers");
+
+  using LBBV = Acts::LineBounds::BoundValues;
 
   const InDetDD::TRT_Numerology* trtNums = m_cfg.mng->getNumerology();
   size_t    nBarrelRings  = trtNums->getNBarrelRings();
@@ -128,8 +130,8 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
             auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
             if (not strawBounds) continue;
             // units should be fine since they're already converted in det elem construction
-            double radius = strawBounds->r();
-            double length = strawBounds->halflengthZ();
+            double radius = strawBounds->get(LBBV::eR);
+            double length = strawBounds->get(LBBV::eHalfLengthZ);
             fudge = radius / 4.;
 
             // calculate min/max R and Z
@@ -167,7 +169,8 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 const Acts::LayerVector
 ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 {
-  ACTS_VERBOSE("Building endcap Straw layers")
+  ACTS_VERBOSE("Building endcap Straw layers");
+  using LBBV = Acts::LineBounds::BoundValues;
 
   const InDetDD::TRT_Numerology* trtNums = m_cfg.mng->getNumerology();
   size_t    nEndcapWheels  = trtNums->getNEndcapWheels();
@@ -226,8 +229,8 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
           if (straw){
             auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
             if (strawBounds){
-              double radius = strawBounds->r();
-              double length = strawBounds->halflengthZ();
+              double radius = strawBounds->get(LBBV::eR);
+              double length = strawBounds->get(LBBV::eHalfLengthZ);
 
               Vector3D ctr = straw->center(gctx);
               pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);

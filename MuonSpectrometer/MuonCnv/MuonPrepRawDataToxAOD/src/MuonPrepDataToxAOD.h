@@ -24,7 +24,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 

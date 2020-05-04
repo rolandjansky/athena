@@ -10,6 +10,7 @@ atlas_subdir( Starlight_i )
 atlas_depends_on_subdirs(
    PUBLIC
    Generators/GeneratorModules
+   Generators/AtlasHepMC
    PRIVATE
    Control/AthenaKernel
    Control/StoreGate
@@ -19,7 +20,6 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( Starlight )
 
 # Remove the --as-needed linker flags:
@@ -30,10 +30,10 @@ atlas_add_library( Starlight_iLib
    Starlight_i/*.h src/*.cxx
    PUBLIC_HEADERS Starlight_i
    INCLUDE_DIRS ${STARLIGHT_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${STARLIGHT_LIBRARIES} GeneratorModulesLib StoreGateLib
-   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel
+   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel
    GaudiKernel TruthUtils )
 
 atlas_add_component( Starlight_i

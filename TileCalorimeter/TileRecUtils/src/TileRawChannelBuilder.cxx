@@ -517,6 +517,13 @@ StatusCode TileRawChannelBuilder::build(const TileDigitsCollection* coll)
     ATH_CHECK( m_rawChannelCnt->push_back (rch) );
   }
 
+  IdentifierHash hash = m_rawChannelCnt->hashFunc().hash(coll->identify());
+  TileRawChannelCollection* rawChannelCollection = m_rawChannelCnt->indexFindPtr(hash);
+  rawChannelCollection->setLvl1Id(coll->getLvl1Id());
+  rawChannelCollection->setLvl1Type(coll->getLvl1Type());
+  rawChannelCollection->setDetEvType(coll->getDetEvType());
+  rawChannelCollection->setRODBCID(coll->getRODBCID());
+
   return StatusCode::SUCCESS;
 }
 

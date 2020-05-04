@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GenericMuonSimHitCollectionCnv.h"
@@ -39,11 +39,11 @@ GenericMuonSimHitCollection* GenericMuonSimHitCollectionCnv::createTransient() {
     GenericMuonSimHitCollection* p_collection(0);
     if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-      std::auto_ptr< Muon::GenericMuonSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::GenericMuonSimHitCollection_p2 >() );
+      std::unique_ptr< Muon::GenericMuonSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::GenericMuonSimHitCollection_p2 >() );
       p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-      std::auto_ptr< Muon::GenericMuonSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::GenericMuonSimHitCollection_p1 >() );
+      std::unique_ptr< Muon::GenericMuonSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::GenericMuonSimHitCollection_p1 >() );
       p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------

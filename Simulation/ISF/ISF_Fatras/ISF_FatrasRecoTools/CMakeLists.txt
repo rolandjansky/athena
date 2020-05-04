@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           Event/EventPrimitives
+                          Generators/AtlasHepMC
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -35,15 +36,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( ISF_FatrasRecoTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier ISF_FatrasEvent TrkEventPrimitives TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces AtlasDetDescr EventPrimitives GaudiKernel InDetIdentifier InDetPrepRawData SiSpacePoint ISF_FatrasDetDescrModel TrkDetElementBase TrkCompetingRIOsOnTrack TrkEventUtils TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTruthData )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AtlasHepMCLib AthenaBaseComps GeoPrimitives Identifier ISF_FatrasEvent TrkEventPrimitives TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces AtlasDetDescr EventPrimitives GaudiKernel InDetIdentifier InDetPrepRawData SiSpacePoint ISF_FatrasDetDescrModel TrkDetElementBase TrkCompetingRIOsOnTrack TrkEventUtils TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( ISF_FatrasRecoTools )

@@ -72,9 +72,9 @@ if dumpTrtInfo:
     TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
     ServiceMgr += TRTStrawNeighbourSvc
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    TRTCalibDBSvc=TRT_CalDbSvc()
-    ServiceMgr += TRTCalibDBSvc
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
+
 
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="NCBTRT_ToT_dEdx")
@@ -343,7 +343,7 @@ IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 
 # Add vertices
 IDNCBStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 # Add info about electrons and muons (are small containers)
 IDNCBStream.AddItem("xAOD::MuonContainer#Muons")

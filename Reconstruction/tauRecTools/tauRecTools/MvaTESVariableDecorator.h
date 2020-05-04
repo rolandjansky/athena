@@ -29,6 +29,8 @@ class MvaTESVariableDecorator
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
+  bool m_incShowerSubtr;
 };
 
 

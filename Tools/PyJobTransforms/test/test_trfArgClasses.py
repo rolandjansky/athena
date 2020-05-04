@@ -378,7 +378,7 @@ class argSteeringTests(unittest.TestCase):
     def test_steeringAlias(self):
         steer = argSubstepSteering('doRDO_TRIG')
         self.assertEqual(len(steer.value), 1)
-	self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]})
+        self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]})
 
 
 class argConditionsTests(unittest.TestCase):

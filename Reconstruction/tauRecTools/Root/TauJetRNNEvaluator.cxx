@@ -10,10 +10,12 @@
 #include "tauRecTools/TauJetRNN.h"
 #include "tauRecTools/HelperFunctions.h"
 
-TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
-    : TauRecToolBase(name), m_net_0p(nullptr), m_net_1p(nullptr), m_net_3p(nullptr) {
-    // Network weight files for 0-, 1- and 3-prong taus
-    // If the filename is an empty string a default value is decorated
+TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name): 
+    TauRecToolBase(name),
+    m_net_0p(nullptr),
+    m_net_1p(nullptr),
+    m_net_3p(nullptr){
+    
     declareProperty("NetworkFile0P", m_weightfile_0p = "");
     declareProperty("NetworkFile1P", m_weightfile_1p = "");
     declareProperty("NetworkFile3P", m_weightfile_3p = "");
@@ -28,6 +30,8 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
     declareProperty("InputLayerClusters", m_input_layer_clusters = "clusters");
     declareProperty("OutputLayer", m_output_layer = "rnnid_output");
     declareProperty("OutputNode", m_output_node = "sig_prob");
+    
+    declareProperty("IncShowerSubtr", m_incShowerSubtr = true, "use shower subtracted clusters in calo calculations");
 }
 
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
@@ -180,20 +184,17 @@ StatusCode TauJetRNNEvaluator::get_clusters(
         return StatusCode::FAILURE;
     }
 
-    xAOD::JetConstituentVector vec = jet_seed->getConstituents();
-    xAOD::JetConstituentVector::iterator jc = vec.begin();
-    xAOD::JetConstituentVector::iterator jcE = vec.end();
-    for( ; jc!=jcE; ++jc){
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr));
 
-      const xAOD::CaloCluster *cl = nullptr;
-      ATH_CHECK(tauRecTools::GetJetConstCluster(jc, cl));
-      // Skip if charged pfo
-      if (!cl){ continue; }
-      // Select clusters in cone centered on the tau detector axis
+    // remove clusters that do not meet dR requirement
+    auto cItr = clusterList.begin();
+    while( cItr != clusterList.end() ){
       const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
-      if (lc_p4.DeltaR(cl->p4()) < m_max_cluster_dr) {
-	clusters.push_back(cl);
+      if (lc_p4.DeltaR((*cItr)->p4()) > m_max_cluster_dr) {
+	clusterList.erase(cItr);
       }
+      else ++cItr;
     }
 
     // Sort by descending et

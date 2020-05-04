@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Analysis__BTagTool=CompFactory.Analysis__BTagTool
+Analysis__BTagTool=CompFactory.Analysis.BTagTool
 from BTagging.BTaggingFlags import BTaggingFlags
 
 def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True):

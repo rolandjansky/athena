@@ -6,7 +6,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolCfg
 
 # import the JetFitterNNTool configurable
-Analysis__JetFitterNNTool=CompFactory.Analysis__JetFitterNNTool
+Analysis__JetFitterNNTool=CompFactory.Analysis.JetFitterNNTool
 
 def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.

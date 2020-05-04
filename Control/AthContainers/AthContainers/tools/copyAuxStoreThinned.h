@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,32 +16,12 @@
 #define ATHCONTAINERS_COPYAUXSTORETHINNED_H
 
 
-class IThinningSvc;
-
-
 namespace SG {
 
 
 class IConstAuxStore;
 class IAuxStore;
 class ThinningDecisionBase;
-
-
-/**
- * @brief Helper to copy an aux store while applying thinning.
- * @param orig Source aux store from which to copy.
- * @param copy Destination aux store to which to copy.
- * @param svc The thinning service.
- *
- * @c orig and @c copy are both auxiliary store objects.
- * The data from @c orig will be copied to @c copy, with individual
- * elements removed according to thinning recorded for @c orig in @c svc.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
-                          SG::IAuxStore& copy,
-                          IThinningSvc* svc);
 
 
 /**
@@ -59,15 +39,6 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
                           const SG::ThinningDecisionBase* dec);
 
 
-/**
- * @brief For compatibility with old code, that passed `0' as the third arg.
- *        (Can be removed when old thinning is removed.)
- */
-void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
-                          SG::IAuxStore& copy,
-                          int);
-
-                         
 } // namespace SG
 
 

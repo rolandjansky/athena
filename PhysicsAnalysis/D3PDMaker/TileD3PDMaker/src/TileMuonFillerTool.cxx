@@ -20,9 +20,9 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 // MONTE CARLO INCLUDES
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
 
 //xAOD tools
 #include "xAODPrimitives/IsolationType.h"

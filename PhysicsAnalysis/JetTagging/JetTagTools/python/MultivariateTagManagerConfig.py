@@ -6,7 +6,7 @@ from JetTagTools.DL1TagConfig import DL1TagCfg
 from JetTagTools.MV2TagConfig import MV2TagCfg
 
 # import the MultivariateTagManager configurable
-Analysis__MultivariateTagManager=CompFactory.Analysis__MultivariateTagManager
+Analysis__MultivariateTagManager=CompFactory.Analysis.MultivariateTagManager
 
 def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList = ['DL1', 'DL1rnn', 'DL1mu', 'MV2c10'], scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a MultivariateTagManager tool and returns it.

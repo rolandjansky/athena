@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+#  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+
+# this is the 'old' postprocessing script, updated to use the compiled 
+# executable for backward compatibility. 
+
 function printhelp(){
        echo "
        Script summs InDetPhysValMonitorinig outputs from independent runs.
@@ -48,19 +53,12 @@ if [[ "$#" > "$NMANDARGS" ]]; then
 	exit 1;
     fi
 fi
-
 echo "---------------------------------------------------------------------------------------"
-echo "$0 : 2nd step: compiling posprocessing script"
+echo "$0 : 2rd step: running postprocessing"
 echo "---------------------------------------------------------------------------------------"
-NAME=postprocessHistos
-g++ -O2 -Wall -fPIC -std=c++11 $(root-config --cflags) -o ${NAME} ${NAME}.cxx $(root-config --libs)
-
-echo "---------------------------------------------------------------------------------------"
-echo "$0 : 3rd step: running postprocessing"
-echo "---------------------------------------------------------------------------------------"
-./postprocessHistos $1
+postProcessIDPVMHistos $1
 if [[ "0" != "$?" ]]; then
-    echo "$0 : postprocessHistos failed for file $1"
+    echo "$0 : postProcessIDPVMHistos failed for file $1"
     exit 1;
 fi
 

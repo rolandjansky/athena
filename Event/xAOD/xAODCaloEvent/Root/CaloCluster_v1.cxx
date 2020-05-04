@@ -90,38 +90,6 @@ namespace xAOD {
       static const Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
       static const Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
 
-#if __cplusplus < 201100
-      static std::vector<  Accessor< std::vector< float > >* > allAcc;
-      if( ! allAcc.size() ) {
-         allAcc.push_back( &etaAcc );
-         allAcc.push_back( &phiAcc );
-         allAcc.push_back( &eAcc );
-         allAcc.push_back( &emaxAcc );
-         allAcc.push_back( &phimaxAcc );
-         allAcc.push_back( &etamaxAcc );
-         allAcc.push_back( &etasizeAcc );
-         allAcc.push_back( &phisizeAcc );
-      }
-      std::vector< Accessor< std::vector< float > >* >::iterator acc_itr =
-         allAcc.begin();
-      std::vector< Accessor< std::vector< float > >* >::iterator acc_end =
-         allAcc.end();
-      for( ; acc_itr != acc_end; ++acc_itr ) {
-         if( ( *acc_itr )->isAvailable( *this ) ) {
-           if ((**acc_itr)(*this).size() > 0) {
-             if (clearSamplingVars){
-               (**acc_itr)(*this).clear();
-             }
-             else{
-               std::cerr << "CaloCluster_v1 ERROR Attempt update sampling "
-                         << "pattern while sampling variables are already set!"
-                         << std::endl;
-             }
-	      //std::abort();
-           }
-         }
-      }
-#else
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
          { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc, &etasizeAcc,
            &phisizeAcc } };
@@ -140,7 +108,6 @@ namespace xAOD {
            }
          }
       }
-#endif // C++11
 
       m_samplingPattern=sp;
    }
@@ -748,39 +715,15 @@ namespace xAOD {
       static const Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
       static const Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
 
-#if __cplusplus < 201100
-      static std::vector<  Accessor< std::vector< float > >* > allAcc;
-      if (!allAcc.size()) {
-        allAcc.push_back(&etaAcc);
-        allAcc.push_back(&phiAcc);
-        allAcc.push_back(&eAcc);
-        allAcc.push_back(&emaxAcc);
-        allAcc.push_back(&phimaxAcc);
-        allAcc.push_back(&etamaxAcc);
-        allAcc.push_back(&etasizeAcc);
-        allAcc.push_back(&phisizeAcc);
-      }
-      std::vector< Accessor< std::vector< float > >* >::iterator acc_itr =
-         allAcc.begin();
-      std::vector< Accessor< std::vector< float > >* >::iterator acc_end =
-         allAcc.end();
-      for (; acc_itr != acc_end; ++acc_itr) {
-        if ((*acc_itr)->isAvailableWritable(*this)) {
-          (**acc_itr)(*this).clear();
-        }
-      }
-#else
       static const std::array< const Accessor< std::vector< float > >*, 8 > allAcc = {
-         { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
-           &etasizeAcc, &phisizeAcc } };
+        { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
+          &etasizeAcc, &phisizeAcc } };
       for (auto a : allAcc) {
         if (a->isAvailableWritable(*this)) {
           (*a)(*this).clear();
         }
       }
-#endif // C++11
-
-        }
+   }
 
   bool CaloCluster_v1::retrieveMoment( MomentType type, double& value ) const {
 

@@ -11,9 +11,7 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-namespace HepMC {
-class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace D3PD {
 

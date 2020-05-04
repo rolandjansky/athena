@@ -3,6 +3,19 @@
 # Declare the package name:
 atlas_subdir( HFORTools )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODJet
+   Event/xAOD/xAODTruth
+   Event/xAOD/xAODEventInfo
+   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
+   PRIVATE
+   Event/xAOD/xAODBase
+   Tools/PathResolver
+)
+
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core RIO )

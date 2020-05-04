@@ -1,0 +1,95 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgTools/MessageCheck.h>
+#include <SystematicsHandles/CopyHelpers.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> template<typename T2> SysCopyHandle<T> ::
+  SysCopyHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner), m_inputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+    owner->declareProperty (propertyName + "Out", m_outputName, "name to which to copy " + propertyName);
+  }
+
+
+
+  template<typename T> bool SysCopyHandle<T> ::
+  empty () const noexcept
+  {
+    return m_inputName.empty();
+  }
+
+
+
+  template<typename T> SysCopyHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_inputName.empty();
+  }
+
+
+
+  template<typename T> ::StatusCode SysCopyHandle<T> ::
+  getCopy (T*& object, const CP::SystematicSet& sys) const
+  {
+    auto cache = m_nameCache.find (sys);
+    if (cache == m_nameCache.end())
+    {
+      std::string inputName = makeSystematicsName (m_inputName, m_affectingRegex, sys);
+      std::string outputName = makeSystematicsName (m_outputName, sys);
+      ANA_MSG_DEBUG ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
+      m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
+      cache = m_nameCache.find (sys);
+      assert (cache != m_nameCache.end());
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    assert (m_evtStore);
+    if (std::get<1>(cache->second).empty())
+    {
+      // if no output name is configured, act like an update handle
+      return m_evtStore->retrieve (object, std::get<0>(cache->second));
+    } else
+    {
+      // if an output name is configured, retrieve the input object as
+      // a const object, (shallow) copy it, record the copy and return
+      // it.
+
+      const T *inputObject = nullptr;
+      if (m_evtStore->retrieve (inputObject, std::get<0>(cache->second)).isFailure())
+        return StatusCode::FAILURE;
+
+      return detail::ShallowCopy<T>::getCopy
+        (msg(), *m_evtStore, object, inputObject,
+         std::get<1>(cache->second), std::get<2>(cache->second));
+    }
+  }
+
+
+
+  template<typename T> std::string SysCopyHandle<T> ::
+  getInputAffecting () const
+  {
+    return m_affectingRegex;
+  }
+}

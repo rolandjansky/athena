@@ -19,12 +19,17 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
+atlas_add_library( SubDetectorEnvelopesLib
+                   INTERFACE
+                   PUBLIC_HEADERS SubDetectorEnvelopes
+                   LINK_LIBRARIES GaudiKernel AtlasDetDescr )
+
 # Component(s) in the package:
 atlas_add_component( SubDetectorEnvelopes
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr GaudiKernel AthenaBaseComps )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr GaudiKernel AthenaBaseComps RDBAccessSvcLib GeoModelInterfaces )
 
 # Install files from the package:
 atlas_install_headers( SubDetectorEnvelopes )

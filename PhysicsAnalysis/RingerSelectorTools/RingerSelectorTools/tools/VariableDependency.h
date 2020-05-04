@@ -17,10 +17,6 @@
 
 // Local includes:
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
-#include "RingerSelectorTools/tools/cxx/constexpr.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
-#include "RingerSelectorTools/tools/cxx/mutable.h"
 
 
 /**
@@ -144,69 +140,69 @@ class VariableDependency /*: virtual public IVariableDependency*/
     /**
      * Check if depVar is within this procedure range
      **/
-    bool isWithinRange(const DepVarStruct &depVar) const /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+    bool isWithinRange(const DepVarStruct &depVar) const /*override
+      final*/;
 
     /**
      * Check if eta is within this procedure range
      **/
-    bool isWithinEtaRange(const float eta) const /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+    bool isWithinEtaRange(const float eta) const /*override
+      final*/;
 
     /**
      * Returns whether it is et dependent
      **/
-    EtaDependency etaDep() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    EtaDependency etaDep() const /*override final*/;
 
     /**
      * Get eta min
      **/
-    float etaMin() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    float etaMin() const /*override final*/;
 
     /**
      * Get eta max
      **/
-    float etaMax() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    float etaMax() const /*override final*/;
 
     /**
      * Get et min
      **/
-    float etMin() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    float etMin() const /*override final*/;
 
     /**
      * Get et max
      **/
-    float etMax() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    float etMax() const /*override final*/;
 
     /**
      * Set this procedure to be eta dependent:
      **/
-    void setEtaDep(const float etaMin, const float etaMax) /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+    void setEtaDep(const float etaMin, const float etaMax) /*override
+      final*/;
 
     /**
      * Check if et is within this procedure et range
      **/
-    bool isWithinEtRange(const float et) const /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+    bool isWithinEtRange(const float et) const /*override
+      final*/;
 
     /**
      * Returns whether it is et dependent
      **/
-    EtDependency etDep() const /*ATH_RINGER_OVERRIDE ATH_RINGER_FINAL*/;
+    EtDependency etDep() const /*override final*/;
 
     /**
      * Set this procedure to be et dependent
      **/
-    void setEtDep(const float etMin, const float etMax) /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+    void setEtDep(const float etMin, const float etMax) /*override
+      final*/;
 
     /**
      * Set this procedure to be et dependent
      **/
     void setEtaEtDep(const float etaMin, const float etaMax,
-        const float etMin, const float etMax) /*ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL*/;
+        const float etMin, const float etMax) /*override
+      final*/;
 
     /**
      * Return this variable dependency string
@@ -249,7 +245,7 @@ class VariableDependency /*: virtual public IVariableDependency*/
     float m_etMin, m_etMax;
 
     /// The string holder for type:
-    ATH_RINGER_MUTABLE std::string m_type;
+    mutable std::string m_type;
 
 };
 

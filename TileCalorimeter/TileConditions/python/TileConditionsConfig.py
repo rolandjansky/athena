@@ -11,11 +11,11 @@ def tileCondCfg( flags ):
     def __addFolder(f):        
         acc.merge( addFolders( flags, '%s <key>%s</key>' %(f,f),   'TILE_OFL' if '/OFL' in f else 'TILE_ONL',  className="CondAttrListCollection") )
 
-    #TileCondProxyFileFlt=CompFactory.TileCondProxyFile_TileCalibDrawerFlt_
-    #TileCondProxyFileBch=CompFactory.TileCondProxyFile_TileCalibDrawerBch_
-    TileCondProxyCoolFlt=CompFactory.TileCondProxyFile_TileCalibDrawerFlt_
-    TileCondProxyCoolBch=CompFactory.TileCondProxyCool_TileCalibDrawerBch_
-    #TileCondProxyCoolOfc=CompFactory.TileCondProxyCool_TileCalibDrawerOfc_
+    #TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
+    #TileCondProxyFileBch=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerBch>")
+    TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
+    TileCondProxyCoolBch=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerBch>")
+    #TileCondProxyCoolOfc=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerOfc>")
 
     emScale = 'TileEMScale'
     TileEMScaleCondAlg=CompFactory.TileEMScaleCondAlg
@@ -50,7 +50,7 @@ def tileCondCfg( flags ):
     emScaleTool = TileCondToolEmscale(name = 'TileCondToolEmscale', TileEMScale = emScale)
     acc.addPublicTool( emScaleTool )
 
-    TileCalibFltCondAlg=CompFactory.TileCalibCondAlg_TileCalibDrawerFlt_
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     def __addCondAlg(calibData, proxy):
         calibCondAlg = calibData + 'CondAlg'
         condAlg = TileCalibFltCondAlg( name = calibCondAlg, ConditionsProxy = proxy, TileCalibData = calibData)

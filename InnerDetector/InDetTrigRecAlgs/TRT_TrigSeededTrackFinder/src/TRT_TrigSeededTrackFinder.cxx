@@ -27,6 +27,7 @@
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
 #include "TrigNavigation/NavigationCore.icc"
+#include "GaudiKernel/ThreadLocalContext.h"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -239,12 +240,12 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 
   ///Initialize the TRT seeded track tool's new event
   std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p;
-  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p (m_trtExtension->newEvent());
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p (m_trtExtension->newEvent(Gaudi::Hive::currentContext()));
   if(!m_doFullScan){
-    event_data_p = m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
+    event_data_p = m_trackmaker->newRegion(Gaudi::Hive::currentContext(), combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
   }
   else{
-    event_data_p = m_trackmaker->newEvent(combinatorialData); // FullScan mode
+    event_data_p = m_trackmaker->newEvent(Gaudi::Hive::currentContext(), combinatorialData); // FullScan mode
   }
 
   if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endmsg;
@@ -268,7 +269,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endmsg;
       if(trackTRT->numberOfMeasurementBases()>9){  //Ask for at least 10 TRT hits in order to process
         m_nTrtSegGood++;
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(Gaudi::Hive::currentContext(), *event_data_p, *trackTRT); //Get the possible Si extensions
 
 	if(trackSi.size()==0){
 	  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "No Si track candidates associated to the TRT track " << endmsg;
@@ -299,7 +300,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	    Trk::Track* globalTrackNew = 0;
 
 	    if(int(temptsos->size())>=4 && m_doExtension){
-               std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt),*ext_event_data_p);
+               std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(Gaudi::Hive::currentContext(), *(*itt),*ext_event_data_p);
 
 	      if(tn.size()) {
 

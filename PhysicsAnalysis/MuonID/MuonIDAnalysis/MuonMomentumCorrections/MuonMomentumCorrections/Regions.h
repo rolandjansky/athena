@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGIONS_H
@@ -8,6 +8,9 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "AsgMessaging/MessageCheck.h"
+
+ANA_MSG_HEADER(msgMMC)
 
 class Regions{
     bool m_loadNames;
@@ -32,17 +35,10 @@ class Regions{
     std::vector<std::string> m_macroRegionName;
     std::vector<double> m_macroRegionInnerEta, m_macroRegionDeltaEta;//I need these vars in few occasions
 public:
-    static
-#if __cplusplus < 201100
-       const
-#else
-       constexpr
-#endif // C++11
-          double EtaTanLimit = 2.0;
+    static constexpr double EtaTanLimit = 2.0;
     void PrintRegions() const;
     unsigned int GetNRegions() const;
-    bool verb;
-    Regions(std::string inRegionFile, int doMacroRegionsFlag = 0);    
+    Regions(const std::string& inRegionFile, int doMacroRegionsFlag = 0);    
     int GetRegion(double eta, const double phi) const;
     float GetRegionDeltaEta(const int r_i) const; //Return Eta span of region
     float GetRegionInnerEta(const int r_i) const; //Return Eta closer to the origin

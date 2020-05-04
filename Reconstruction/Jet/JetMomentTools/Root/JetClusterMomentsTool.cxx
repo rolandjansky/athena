@@ -13,7 +13,7 @@ JetClusterMomentsTool::JetClusterMomentsTool(const std::string& name)
 
 StatusCode JetClusterMomentsTool::initialize(){
   if(m_jetContainerName.empty()){
-    ATH_MSG_ERROR("JetBadChanCorrTool needs to have its input jet container name configured!");
+    ATH_MSG_ERROR("JetClusterMomentsTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }
 

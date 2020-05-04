@@ -1,43 +1,43 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 EXOT14SmartContent = [
-	"TauJets",
-  "MET_Reference_AntiKt4LCTopo",
-  "MET_Reference_AntiKt4EMTopo",
-	"PrimaryVertices",
-	"Photons",
-	"Electrons",
+        "TauJets",
+        "MET_Reference_AntiKt4LCTopo",
+        "MET_Reference_AntiKt4EMTopo",
+        "PrimaryVertices",
+        "Photons",
+        "Electrons",
         "Muons",
-	"InDetTrackParticles",
-	"AntiKt4EMTopoJets",
-	"AntiKt4LCTopoJets",
-  "BTagging_AntiKt4LCTopo",
-  "BTagging_AntiKt4EMTopo",
+        "InDetTrackParticles",
+        "AntiKt4EMTopoJets",
+        "AntiKt4LCTopoJets",
+        "BTagging_AntiKt4LCTopo",
+        "BTagging_AntiKt4EMTopo",
 ]
 
 EXOT14AllVariablesContent = [
-	"GSFTrackParticles",
-	"egammaClusters",
-	"CaloCalTopoClusters",
-  "GSFConversionVertices",
-  "METAssoc_AntiKt4LCTopo",
-  "MET_Core_AntiKt4LCTopo",
-  "METAssoc_AntiKt4EMTopo",
-  "MET_Core_AntiKt4EMTopo",
-  "AntiKt4TruthJets",
-  "LVL1JetRoIs",
-  "LVL1MuonRoIs",
-  "LVL1EmTauRoIs",
-  'MET_Truth',
-  'TruthEvents',
-  #'TruthVertex', # MenuTruthThinning does not keep vertices
-  'TruthParticles',
-  "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-  "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
-  "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
-  "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl",
-  "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
-  "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC"
+   "GSFTrackParticles",
+   "egammaClusters",
+   "CaloCalTopoClusters",
+   "GSFConversionVertices",
+   "METAssoc_AntiKt4LCTopo",
+   "MET_Core_AntiKt4LCTopo",
+   "METAssoc_AntiKt4EMTopo",
+   "MET_Core_AntiKt4EMTopo",
+   "AntiKt4TruthJets",
+   "LVL1JetRoIs",
+   "LVL1MuonRoIs",
+   "LVL1EmTauRoIs",
+   'MET_Truth',
+   'TruthEvents',
+   #'TruthVertex', # MenuTruthThinning does not keep vertices
+   'TruthParticles',
+   "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+   "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
+   "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
+   "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl",
+   "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
+   "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC"
 ]
 
 EXOT14ExtraVariablesContent = [
@@ -49,4 +49,3 @@ EXOT14ExtraVariablesContent = [
 
 EXOT14Content = [
 ]
-

@@ -25,6 +25,12 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
+atlas_add_library( MuonRegionSelectorLib
+                   MuonRegionSelector/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonRegionSelector
+                   LINK_LIBRARIES RegSelLUT AthenaBaseComps GaudiKernel GeoPrimitives )
+
 # Component(s) in the package:
 atlas_add_component( MuonRegionSelector
                      src/*.cxx
@@ -36,9 +42,8 @@ atlas_add_component( MuonRegionSelector
 		     MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib 
 		     MuonReadoutGeometry
 
-	             MuonAGDDDescription )
+	             MuonAGDDDescription MuonRegionSelectorLib )
 
 # Install files from the package:
-atlas_install_headers( MuonRegionSelector )
 atlas_install_joboptions( share/*.py )
 

@@ -79,9 +79,11 @@ SLpatterns::operator<<(PADpatterns* patterns)
     return *this;
 }
 
-void
-SLpatterns::create_hardware(void)
+SectorLogic*
+SLpatterns::give_SectorL(const RpcCablingCondData* readCdo)
 {
+  if(!m_SectorL) 
+  {
     int subsystem    = (m_sector < 32)? 0 : 1;
     int logic_sector = m_sector%32;
 
@@ -91,39 +93,35 @@ SLpatterns::create_hardware(void)
     bool oldSimulation=false;
     // M. Corradi 3/3/2010: check if using old cabling 
     if (pad != m_pad_patterns.end()) {        
-        oldSimulation=(*pad)->give_pad()->isOldSimulation();
+      oldSimulation=(*pad)->give_pad(readCdo)->isOldSimulation();
     }
-        
+
     m_SectorL = new SectorLogic(0,0,m_debug,subsystem,logic_sector,oldSimulation);
 
     while(pad != m_pad_patterns.end())
     {
-        Pad* Pad_board = (*pad)->give_pad();
-        for (int bunch=0;bunch<NOBXS;++bunch)
-        {
-            m_SectorL->load( (*pad)->pad_id(), 
-                             bunch, 
-                             Pad_board->getRoI(bunch), 
-                             Pad_board->getPTCoding(bunch), 
-                             Pad_board->getOPL(bunch),
-                             Pad_board->getOverlapPhi(bunch), 
-                             Pad_board->getOverlapEta(bunch), 
-                             Pad_board->getRoIAmbiguity(bunch),
-                             Pad_board->getBCIDCounter(bunch) );
-        }
+      Pad* Pad_board = (*pad)->give_pad(readCdo);
+      for (int bunch=0;bunch<NOBXS;++bunch)
+      {
+        m_SectorL->load( (*pad)->pad_id(), 
+            bunch, 
+            Pad_board->getRoI(bunch), 
+            Pad_board->getPTCoding(bunch), 
+            Pad_board->getOPL(bunch),
+            Pad_board->getOverlapPhi(bunch), 
+            Pad_board->getOverlapEta(bunch), 
+            Pad_board->getRoIAmbiguity(bunch),
+            Pad_board->getBCIDCounter(bunch) );
+      }
 
-	++pad;
+      ++pad;
     }
 
     m_SectorL->execute();
 
-}
+  }
 
-SectorLogic*
-SLpatterns::give_SectorL(void)
-{
-    if(!m_SectorL) this->create_hardware();
-    return m_SectorL;
+  return m_SectorL;
 }
 
 void

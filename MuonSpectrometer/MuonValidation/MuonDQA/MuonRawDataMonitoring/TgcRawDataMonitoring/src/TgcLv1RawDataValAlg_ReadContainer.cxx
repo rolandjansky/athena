@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 
-// GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
@@ -36,10 +35,7 @@
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
-//for express menu
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // clearVectorsArrays
@@ -258,8 +254,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 ///////////////////////////////////////////////////////////////////////////
 // Reads Tgc Coincidence Data from container into vectors for use in filling histograms
 StatusCode
-TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float>* mu_eta,
-					      vector<float>* mu_phi,vector<float>* mu_q){
+TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+					      std::vector<float>* mu_phi,std::vector<float>* mu_q){
   mu_pt->clear();
   mu_eta->clear();
   mu_phi->clear();
@@ -324,10 +320,6 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
 	trt=true;
       }
     }
-    //int siliconHits = (*it)->numberOfPixelHits() + (*it)->numberOfSCTHits();
-    //int phiHits = (*it)->numberOfRCPPhiHits() + (*it)->numberOfTGCPhiHits();
-    //float matchChi2 = (*it)->matchChi2();
-
     //Muid MCP except phi hits
     if(!( (*it)->combinedTrackParticleLink() &&
 	  sctHits >= 6 &&
@@ -335,18 +327,6 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
 	  pixHoles+sctHoles <=1 &&
 	  trt 
 	 ) ) continue;
-
-
-    /*
-       if( !(*it)->combinedMuonTrackParticle() ||
-    //( (*it)->numberOfMDTHits() < 5 &&
-    //( (*it)->numberOfCSCEtaHits() < 3 || (*it)->numberOfCSCPhiHits() < 3 ) ) ||
-    //(*it)->numberOfTGCPhiHits() < 1  ||
-    (*it)->numberOfPixelHits() < 1 ||
-    (*it)->numberOfSCTHits() < 6 ||
-    (*it)->matchChi2() > 100 ) continue;
-    */
-
 
     bool overlapped = false;
 
@@ -468,17 +448,6 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
     m_L1Caloetas.push_back((*j_it)->eta());
     m_L1Calophis.push_back((*j_it)->phi());
   }
-
-
-  //*  const xAOD::JetEtRoI* jetetRoIs; 
-  //*  sc = (*m_activeStore)->retrieve(jetetRoIs);
-  //*  if (sc != StatusCode::SUCCESS ) {
-  //*    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endmsg;
-  //*    return sc ;
-  //*  }
-  //*  m_L1TriggerType[3]++;
-  //*  m_L1Caloetas.push_back(50.);//no position of RoI for JetEt trigger
-  //*  m_L1Calophis.push_back(50.);//no position of RoI for JetEt trigger
 
   SG::ReadHandle<xAOD::EnergySumRoI> esumRoIs(m_L1esumRoIName); 
 

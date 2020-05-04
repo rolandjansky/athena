@@ -80,6 +80,5 @@ TrigConf::HLTPrescalesSet::printPrescaleSet(bool full) const
          std::cout << "  " << c++ << ": " << ps.first << " -> " << ps.second.prescale << (ps.second.enabled ? "" : " (disabled)" ) << std::endl;
       }
    }
-   std::cout << "The PrescaleSet " << (ownsData() ? "owns" : "does not own") << " the ptree" << std::endl;
 }
 

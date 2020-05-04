@@ -26,7 +26,6 @@ ASG_TOOL_INTERFACE(IJetDecorator)
 public:
 
   /// Decorate a jet collection without otherwise modifying it.
-  /// Returns 0 for success.
   virtual StatusCode decorate(const xAOD::JetContainer& jets) const = 0;
 
   /// Concrete implementation of the function inherited from IJetModifier.

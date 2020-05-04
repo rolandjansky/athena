@@ -17,18 +17,18 @@ description          : Implementation code for PosteriorWeightsCalculator class
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
 
-std::unique_ptr<std::vector<Trk::ComponentParameters>>
+std::vector<Trk::ComponentParameters>
 Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState, const MeasurementBase& measurement) const
 {
 
   const size_t predictedStateSize = predictedState.size();
   if (predictedStateSize == 0) {
-    return nullptr;
+    return {};
   }
-  auto returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters>>();
+  std::vector<Trk::ComponentParameters> returnMultiComponentState{};
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
-  returnMultiComponentState->reserve(predictedStateSize);
+  returnMultiComponentState.reserve(predictedStateSize);
   componentDeterminantR.reserve(predictedStateSize);
   componentChi2.reserve(predictedStateSize);
 
@@ -109,8 +109,8 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState, c
   } // end loop over components
 
   if (componentDeterminantR.size() != predictedState.size() || componentChi2.size() != predictedState.size()) {
-    returnMultiComponentState.reset();
-    return nullptr;
+    returnMultiComponentState.clear();
+    return {};
   }
 
   // Calculate posterior weights.
@@ -135,19 +135,19 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState, c
     } else {
       updatedWeight = 1e-10;
     }
-    returnMultiComponentState->emplace_back(component->first.release(), updatedWeight);
+    returnMultiComponentState.emplace_back(component->first.release(), updatedWeight);
     sumWeights += updatedWeight;
   }
 
   // Renormalise the state to total weight = 1
-  Trk::MultiComponentState::iterator returnComponent = returnMultiComponentState->begin();
+  Trk::MultiComponentState::iterator returnComponent = returnMultiComponentState.begin();
   component = predictedState.begin();
   if (sumWeights > 0.) {
-    for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
+    for (; returnComponent != returnMultiComponentState.end(); ++returnComponent, ++component) {
       (*returnComponent).second /= sumWeights;
     }
   } else {
-    for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
+    for (; returnComponent != returnMultiComponentState.end(); ++returnComponent, ++component) {
       (*returnComponent).second = component->second;
     }
   }

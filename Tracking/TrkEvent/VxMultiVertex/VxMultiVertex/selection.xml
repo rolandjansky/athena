@@ -8,6 +8,7 @@
     <field name="m_vertexes" transient="true" />
   </class>
   <class name="Trk::MvfFitInfo" />
+  <class name="std::vector<Trk::MvfFitInfo*>" />
   <class name="DataVector<Trk::MVFVxCandidate>"/>
 </lcgdict>
 

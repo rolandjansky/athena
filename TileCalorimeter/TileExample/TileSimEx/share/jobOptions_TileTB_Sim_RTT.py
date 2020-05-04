@@ -1,8 +1,6 @@
 
 include("TileSimEx/jobOptions_TileTB_Sim.py")
 
-svcMgr.StatusCodeSvc.AbortOnError = False
-
 if not 'doD3PD' in dir():
     doD3PD = True
 

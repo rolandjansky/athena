@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/TgcRoadDefiner.h"
@@ -39,43 +39,26 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::TgcRoadDefiner::~TgcRoadDefiner(void)
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 {
   ATH_MSG_DEBUG("Initializing TgcRoadDefiner - package version " << PACKAGE_VERSION) ;
    
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
+  ATH_CHECK(AthAlgTool::initialize());
 
-  sc =m_tgcFit.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_tgcFit);
-    return sc;
-  }
+  ATH_CHECK(m_tgcFit.retrieve());
   ATH_MSG_DEBUG("Retrieved service " << m_tgcFit);
 
-  // 
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                                                   const Muon::MuonIdHelperTool* muonIdHelperTool)
+void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector)
 {
   m_regionSelector = regionSelector;
-  m_muonIdHelperTool = muonIdHelperTool;
 }
 
 // --------------------------------------------------------------------------------
@@ -377,7 +360,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   std::vector<IdentifierHash> mdtHashList;
   
   // get sector_trigger and sector_overlap by using the region selector
-  IdContext context = m_muonIdHelperTool->mdtIdHelper().module_context();
+  IdContext context = m_idHelperSvc->mdtIdHelper().module_context();
   
   double etaMin =  p_roi->eta()-.02;
   double etaMax =  p_roi->eta()+.02;
@@ -393,15 +376,15 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
     Identifier id;
-    int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
+    int convert = m_idHelperSvc->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
 
     if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
 
     muonRoad.stationList.push_back(id);
-    std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+    std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
     if ( name.substr(0, 1) == 'B' ) continue;
     if ( name.substr(1, 1) != 'M' ) continue;
-    int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+    int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
     float floatPhi = (stationPhi-1)*CLHEP::pi/4;
     if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + CLHEP::pi/8;
     tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);
@@ -481,17 +464,3 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
 
    return true;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::TgcRoadDefiner::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // EDM include(s):
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // D3PDMaker include(s):
 #include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"

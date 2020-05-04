@@ -73,14 +73,14 @@ public:
   ~PixelFastDigitizationTool();
 
   StatusCode initialize();
-  StatusCode prepareEvent(unsigned int);
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int);
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode processAllSubEvents();
-  StatusCode mergeEvent();
-  StatusCode digitize();
-  StatusCode createAndStoreRIOs();
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode mergeEvent(const EventContext& ctx);
+  StatusCode digitize(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
 
 
 

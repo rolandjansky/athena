@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -36,15 +36,14 @@
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h" // 15/06/2015 T.Saito
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MMSimHit.h"
+#include "PileUpTools/PileUpToolBase.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-#include "PileUpTools/PileUpToolBase.h"
-#include "Identifier/Identifier.h"
 
 #include "MM_Digitization/MM_SortedHitVector.h"
 
@@ -58,6 +57,14 @@
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
+#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
+#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
+
+#include "NSWCalibTools/INSWCalibSmearingTool.h"
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -67,24 +74,15 @@
 
 namespace MuonGM{
   class MuonDetectorManager;
-  class MMReadoutElement;
-  struct MuonChannelDesign;
 }
 namespace CLHEP{
   class HepRandomEngine;
 }
-
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
-
-class MmIdHelper;
 class MicromegasHitIdHelper;
 class IAtRndmGenSvc;
-class MsgStream;
-
 class IMM_DigitizationTool;
-
+class StoreGateSvc;
 class TTree;
 class TFile;
 
@@ -99,25 +97,25 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		virtual StatusCode initialize() override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-		StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+                StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
 		StatusCode  processBunchXing(int bunchXing,
-									SubEventIterator bSubEvents,
-									SubEventIterator eSubEvents) override final;
+					     SubEventIterator bSubEvents,
+					     SubEventIterator eSubEvents) override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-		StatusCode mergeEvent() override final;
+		StatusCode mergeEvent(const EventContext& ctx) override final;
 
 		/** When being run from MM_Digitizer, this method is called during the event loop */
 
 		/** alternative interface which uses the PileUpMergeSvc to obtain
 		all the required SubEvents. */
-		virtual StatusCode processAllSubEvents() override;
+		virtual StatusCode processAllSubEvents(const EventContext& ctx) override;
 
 		/** Just calls processAllSubEvents - leaving for back-compatibility
 		(IMuonDigitizationTool) */
-		StatusCode digitize() override;
+		StatusCode digitize(const EventContext& ctx) override;
 
 		/** Finalize */
 		StatusCode finalize() override final;
@@ -132,25 +130,26 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		/** Record MmDigitContainer and MuonSimDataCollection */
 		StatusCode getNextEvent();
-		StatusCode doDigitization();
+		StatusCode doDigitization(const EventContext& ctx);
 
 		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
 		ServiceHandle<StoreGateSvc> m_storeGateService;
-		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service
 		ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
 		CLHEP::HepRandomEngine *m_rndmEngine;    // Random nu
 		std::string m_rndmEngineName;// name of random enginember engine used - not init in SiDigitization
+
+		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
 		// Tools
 		ToolHandle <IMM_DigitizationTool> m_digitTool;
 		TFile *m_file;
 		TTree *m_ntuple;
 
-		const MmIdHelper*       m_idHelper;
+		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		MicromegasHitIdHelper*  m_muonHelper;
 		const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
 		std::list<MMSimHitCollection*> m_MMHitCollList;
@@ -161,9 +160,11 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		bool m_writeOutputFile;
 		TimedHitCollection<MMSimHit>* m_timedHitCollection_MM; // the pileup hits
 
-		std::string m_inputObjectName; // name of the input objects
         SG::WriteHandleKey<MmDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","MM_DIGITS","WriteHandleKey for Output MmigitContainer"}; // name of the output digits
         SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","MM_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
+
+		std::string m_inputObjectName; // name of the input objects
+		bool m_needsMcEventCollHelper;
 
 		bool m_checkMMSimHits;
 
@@ -173,6 +174,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		double m_timeWindowLowerOffset;
 		double m_timeWindowUpperOffset;
+		double m_DiffMagSecondMuonHit;
 
 		// StripsResponse stuff...
 		MM_StripsResponseSimulation *m_StripsResponseSimulation;
@@ -190,6 +192,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		float m_electronicsThreshold; // threshold "Voltage" for histoBNL
 		float m_stripdeadtime; // dead-time for strip
 		float m_ARTdeadtime; // dead-time for ART
+
+		bool  m_vmmNeighborLogic; // switch for the usage of the vmm neighbor logic
 
 		std::string m_vmmReadoutMode;
 		std::string m_vmmARTMode;
@@ -222,6 +226,10 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
+
+		/// tool handle for the smearing 
+		bool m_doSmearing;
+		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
 
 };
 

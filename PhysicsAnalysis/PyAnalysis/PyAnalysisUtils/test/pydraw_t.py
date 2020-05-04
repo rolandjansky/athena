@@ -1,19 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: pydraw_t.py,v 1.3 2009-02-24 03:22:49 ssnyder Exp $
 # File: pydraw_t.py
 # Created: Dec, 2008
 # Purpose: Regression tests for pydraw.py
 #
+
+from __future__ import print_function
 
 
 import sys
 
 
 def maxrep(x):
-    if x == sys.maxint:
-        return 'maxint'
+    if x == sys.maxsize:
+        return 'maxsize'
     return x
 
 
@@ -21,7 +22,7 @@ class Tree_Test:
     def GetEntries (self):
         return 10
     def GetEntry (self, i):
-        print 'GetEntry', i
+        print ('GetEntry', i)
         return
 
 
@@ -29,6 +30,7 @@ class Loop_Test:
     def  __init__ (self):
         self.foo = []
         self.bar = []
+        self.baz = []
         self.fee = 0
         return
     def loop (self, f, lo, hi):
@@ -37,6 +39,7 @@ class Loop_Test:
         for i in range(lo, hi):
             self.foo = [i*10+j for j in range(5)]
             self.bar = [i*10+j for j in range(5,10)]
+            self.baz = [x + 0.5 for x in self.bar]
             self.fee = i+0.5
             f(i, self)
         return
@@ -55,27 +58,27 @@ def _regr_parserange():
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> tt = Loop_Test()
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi)
-    None tt 0 maxint
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi))
+    None tt 0 maxsize
     >>> c = Draw_Cmd ("tt[10].foo")
-    >>> print c.errstr, c.tuple, c.lo, c.hi
+    >>> print (c.errstr, c.tuple, c.lo, c.hi)
     None tt 10 11
     >>> c = Draw_Cmd ("tt[10:].foo")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi)
-    None tt 10 maxint
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi))
+    None tt 10 maxsize
     >>> c = Draw_Cmd ("tt[:10].foo")
-    >>> print c.errstr, c.tuple, c.lo, c.hi
+    >>> print (c.errstr, c.tuple, c.lo, c.hi)
     None tt 0 10
     >>> c = Draw_Cmd ("tt[10:20].foo")
-    >>> print c.errstr, c.tuple, c.lo, c.hi
+    >>> print (c.errstr, c.tuple, c.lo, c.hi)
     None tt 10 20
     >>> ten = 10
     >>> twenty = 20
     >>> c = Draw_Cmd ("tt[ten:twenty].foo")
-    >>> print c.errstr, c.tuple, c.lo, c.hi
+    >>> print (c.errstr, c.tuple, c.lo, c.hi)
     None tt 10 20
     >>> c = Draw_Cmd ("(tt)[ten:twenty].foo")
-    >>> print c.errstr, c.tuple, c.lo, c.hi
+    >>> print (c.errstr, c.tuple, c.lo, c.hi)
     None tt 10 20
     """
 
@@ -87,46 +90,46 @@ def _regr_tupleparse():
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> tt = Loop_Test()
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint [] ['_e_foo'] None []
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize [] ['_e_foo'] None []
     >>> c = Draw_Cmd ("tt.foo:fee; bar")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint ['bar'] ['_e_foo', '_e_fee'] None []
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize ['bar'] ['_e_foo', '_e_fee'] None []
     >>> c = Draw_Cmd ("")
-    >>> print c.errstr
+    >>> print (c.errstr)
     Empty draw string.
     >>> c = Draw_Cmd ("tt")
-    >>> print c.errstr
+    >>> print (c.errstr)
     Missing period in tuple specification.
     >>> c = Draw_Cmd ("tt.a=b@d=c@foo; bar fee")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint ['bar', 'fee'] ['_e_foo'] None ['a=b', 'd=c']
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize ['bar', 'fee'] ['_e_foo'] None ['a=b', 'd=c']
     >>> c = Draw_Cmd ("tt.foo if bee==1")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint [] ['_e_foo'] bee==1 []
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize [] ['_e_foo'] bee==1 []
     >>> c = Draw_Cmd ("tt.[f in foo if f.x()] if bee==1")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint [] ['[f in _e_foo if f.x()]'] bee==1 []
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize [] ['[f in _e_foo if f.x()]'] bee==1 []
     >>> c = Draw_Cmd ("xx.bar")
-    >>> print c.errstr
+    >>> print (c.errstr)
     Can't find sample xx
     >>> c = Draw_Cmd ("tt[1/0].foo")
-    >>> print c.errstr
-    integer division or modulo by zero
+    >>> print (c.errstr.replace('integer ', '').replace ('or modulo ', ''))
+    division by zero
     >>> yy = 1
     >>> c = Draw_Cmd ("yy.bar")
-    >>> print c.errstr
+    >>> print (c.errstr)
     Sample yy doesn't have a correct interface.
     >>> zz = Tree_Test()
     >>> c = Draw_Cmd ("zz.bar")
-    >>> print c.errstr, c.tuple_o.__class__
-    None PyAnalysisUtils.pydraw.TreeLoopWrapper
+    >>> print (c.errstr, c.tuple_o.__class__.__name__)
+    None TreeLoopWrapper
     >>> c = Draw_Cmd ("tt.foo$i:bar$i if bar$i>0")
-    >>> print c.sel, c.sel_orig, c.exprs, c.expr_orig
+    >>> print (c.sel, c.sel_orig, c.exprs, c.expr_orig)
     _it_i_bar>0 bar$i>0 ['_it_i_foo', '_it_i_bar'] foo$i:bar$i
     >>> c = Draw_Cmd ("tt.foo; bar   baz")
-    >>> print c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts
-    None tt 0 maxint ['bar', 'baz'] ['_e_foo'] None []
+    >>> print (c.errstr, c.tuple, c.lo, maxrep(c.hi), c.histspec, c.exprs, c.sel, c.stmts)
+    None tt 0 maxsize ['bar', 'baz'] ['_e_foo'] None []
     """
 
 
@@ -136,15 +139,14 @@ def _regr_mung_id():
     >>> tt = Loop_Test()
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_id ("foo")
+    >>> print (c._mung_id ("foo"))
     _e_foo
-    >>> print c._mung_id ("bar")
+    >>> print (c._mung_id ("bar"))
     _e_bar
-    >>> print c._mung_id ("foo")
+    >>> print (c._mung_id ("foo"))
     _e_foo
-    >>> from test.test_support import sortdict
-    >>> print sortdict (c._iddict)
-    {'bar': '_e_bar', 'foo': '_e_foo'}
+    >>> print (sorted (c._iddict.items()))
+    [('bar', '_e_bar'), ('foo', '_e_foo')]
     """
 
 
@@ -155,28 +157,27 @@ def _regr_mung_index():
     >>> tt = Loop_Test()
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_index ("foo", "2"), c.errstr
+    >>> print (c._mung_index ("foo", "2"), c.errstr)
     _e_foo[1] None
-    >>> print c._mung_index ("foo", "x"), c.errstr
+    >>> print (c._mung_index ("foo", "x"), c.errstr)
      Bad index
     >>> c.errstr = None
-    >>> print c._mung_index ("foo", "0"), c.errstr
+    >>> print (c._mung_index ("foo", "0"), c.errstr)
      Bad index
     >>> c.errstr = None
-    >>> print c._mung_index ("...", "2"), c.errstr
+    >>> print (c._mung_index ("...", "2"), c.errstr)
      Bad index
     >>> c.errstr = None
-    >>> from test.test_support import sortdict
-    >>> print sortdict (c._limdict)
-    {'foo': 2}
-    >>> print c._mung_index ("foo", "3"), c.errstr
+    >>> print (sorted (c._limdict.items()))
+    [('foo', 2)]
+    >>> print (c._mung_index ("foo", "3"), c.errstr)
     _e_foo[2] None
-    >>> print sortdict (c._limdict)
-    {'foo': 3}
-    >>> print c._mung_index ("foo", "1"), c.errstr
+    >>> print (sorted (c._limdict.items()))
+    [('foo', 3)]
+    >>> print (c._mung_index ("foo", "1"), c.errstr)
     _e_foo[0] None
-    >>> print sortdict (c._limdict)
-    {'foo': 3}
+    >>> print (sorted (c._limdict.items()))
+    [('foo', 3)]
     """
 
 
@@ -187,7 +188,7 @@ def _regr_mung_n():
     >>> tt = Loop_Test()
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_n ("abc*", "nfoo+2"), c.errstr
+    >>> print (c._mung_n ("abc*", "nfoo+2"), c.errstr)
     abc* len(_e_foo)+2 None
     """
 
@@ -197,25 +198,25 @@ def _regr_Loopvar():
     >>> from PyAnalysisUtils import pydraw
     >>> from PyAnalysisUtils.pydraw import _Loopvar
     >>> l = _Loopvar ('a')
-    >>> print l.name
+    >>> print (l.name)
     a
-    >>> print l.explicit
+    >>> print (l.explicit)
     0
     >>> l.explicit = 1
-    >>> print l.explicit
+    >>> print (l.explicit)
     1
-    >>> print l.get_ids()
+    >>> print (l.get_ids())
     []
-    >>> print l.itname ('foo')
+    >>> print (l.itname ('foo'))
     _it_a_foo
-    >>> print l.dumname()
+    >>> print (l.dumname())
     _dum_a
-    >>> print l.add_id ('foo')
+    >>> print (l.add_id ('foo'))
     _it_a_foo
-    >>> print l.add_id ('bar')
+    >>> print (l.add_id ('bar'))
     _it_a_bar
-    >>> print l.get_ids()
-    ['foo', 'bar']
+    >>> print (sorted (l.get_ids()))
+    ['bar', 'foo']
     """
 
 
@@ -226,28 +227,27 @@ def _regr_mung_loop():
     >>> tt = Loop_Test()
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_loop ('1+foo', 'i+2'), c.errstr
+    >>> print (c._mung_loop ('1+foo', 'i+2'), c.errstr)
     1+_it_i_foo+2 None
-    >>> print c._mung_loop ('1+foo', ''), c.errstr
+    >>> print (c._mung_loop ('1+foo', ''), c.errstr)
      Bad loop var
     >>> c.errstr = None
-    >>> print c._mung_loop ('1+', 'j+2'), c.errstr
+    >>> print (c._mung_loop ('1+', 'j+2'), c.errstr)
     1+_dum_j+2 None
-    >>> print c._mung_loop ('1+bar', 'i+2'), c.errstr
+    >>> print (c._mung_loop ('1+bar', 'i+2'), c.errstr)
     1+_it_i_bar+2 None
-    >>> print c._mung_loop ('1+bar', 'j+2'), c.errstr
+    >>> print (c._mung_loop ('1+bar', 'j+2'), c.errstr)
     1+_it_j_bar+2 None
-    >>> print c._mung_loop ('', 'j'), c.errstr
+    >>> print (c._mung_loop ('', 'j'), c.errstr)
     _dum_j None
-    >>> print c._mung_loop ('l', 'j'), c.errstr
+    >>> print (c._mung_loop ('l', 'j'), c.errstr)
     _it_j_l None
-    >>> ll = c._loopdict.keys()
-    >>> ll.sort()
-    >>> print ll
+    >>> ll = sorted(c._loopdict.keys())
+    >>> print (ll)
     ['i', 'j']
-    >>> print c._loopdict['i'].get_ids(), c._loopdict['i'].explicit
-    ['foo', 'bar'] 0
-    >>> print c._loopdict['j'].get_ids(), c._loopdict['j'].explicit
+    >>> print (sorted(c._loopdict['i'].get_ids()), c._loopdict['i'].explicit)
+    ['bar', 'foo'] 0
+    >>> print (sorted(c._loopdict['j'].get_ids()), c._loopdict['j'].explicit)
     ['bar', 'l'] 1
     """
 
@@ -259,19 +259,19 @@ def _regr_mung_expr_dollar():
     >>> tt = Loop_Test()
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_expr_dollar ("1+foo+2"), c.errstr
+    >>> print (c._mung_expr_dollar ("1+foo+2"), c.errstr)
     1+foo+2 None
-    >>> print c._mung_expr_dollar ("1+foo$i+len('$foo')+bar $1+$i+2"), c.errstr
+    >>> print (c._mung_expr_dollar ("1+foo$i+len('$foo')+bar $1+$i+2"), c.errstr)
     1+_it_i_foo+len('$foo')+_e_bar[0]+_dum_i+2 None
-    >>> print c._mung_expr_dollar ("foo$i+($i+2)"), c.errstr
+    >>> print (c._mung_expr_dollar ("foo$i+($i+2)"), c.errstr)
     _it_i_foo+(_dum_i+2) None
-    >>> print c._mung_expr_dollar ("1+$nfoo+bar$n+2"), c.errstr
+    >>> print (c._mung_expr_dollar ("1+$nfoo+bar$n+2"), c.errstr)
     1+ len(_e_foo)+_it_n_bar+2 None
-    >>> print c._mung_expr_dollar ("1+$+2"), c.errstr
+    >>> print (c._mung_expr_dollar ("1+$+2"), c.errstr)
     1+$+2 None
-    >>> print c._mung_expr_dollar (None), c.errstr
+    >>> print (c._mung_expr_dollar (None), c.errstr)
     None None
-    >>> print c._mung_expr_dollar ("cond and $nfoo>0"), c.errstr
+    >>> print (c._mung_expr_dollar ("cond and $nfoo>0"), c.errstr)
     cond and len(_e_foo)>0 None
     """
 
@@ -284,11 +284,11 @@ def _regr_mung_expr_ids():
     >>> tt.foo=[1,2,3,4]
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_expr_ids ("1+xyz+2"), c.errstr
+    >>> print (c._mung_expr_ids ("1+xyz+2"), c.errstr)
     1+xyz+2 None
-    >>> print c._mung_expr_ids ("1+foo+2"), c.errstr
+    >>> print (c._mung_expr_ids ("1+foo+2"), c.errstr)
     1+_e_foo+2 None
-    >>> print c._mung_expr_ids (None), c.errstr
+    >>> print (c._mung_expr_ids (None), c.errstr)
     None None
     """
 
@@ -301,9 +301,9 @@ def _regr_mung_expr():
     >>> tt.foo=[1,2,3,4]
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> c = Draw_Cmd ("tt.foo")
-    >>> print c._mung_expr ("1+foo+bar$i+2"), c.errstr
+    >>> print (c._mung_expr ("1+foo+bar$i+2"), c.errstr)
     1+_e_foo+_it_i_bar+2 None
-    >>> print c._mung_expr (None), c.errstr
+    >>> print (c._mung_expr (None), c.errstr)
     None None
     """
 
@@ -316,59 +316,59 @@ def _regr_make_func():
     >>> from PyAnalysisUtils.pydraw import Draw_Cmd
     >>> pydraw._debug = True
     >>> c = Draw_Cmd ("tt.asd")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
       foo()
     <BLANKLINE>
     def _loopfunc(_i, _ev):
       foo()
-    None
+     None
     >>> pydraw._debug = False
     >>> c = Draw_Cmd ("tt.bar$i+bar$1+$i+fee$j if fee$j<10")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
-      _e_fee = _ev.fee
       _e_bar = _ev.bar
+      _e_fee = _ev.fee
       for (_dum_i,_it_i_bar) in enumerate(_e_bar):
         for _it_j_fee in _e_fee:
           if (len(_e_bar)>=1 and (_it_j_fee<10)):
             foo()
-    None
+     None
     >>> c = Draw_Cmd ("tt.ele=_ev.xx@ele[0]")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
       ele=_ev.xx
       foo()
-    None
+     None
     >>> c = Draw_Cmd ("tt.foo$10")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
       _e_foo = _ev.foo
       if (len(_e_foo)>=10):
         foo()
-    None
+     None
     >>> c = Draw_Cmd ("tt.foo$i+bar$i")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
-      _e_foo = _ev.foo
       _e_bar = _ev.bar
-      for (_it_i_foo,_it_i_bar) in zip(_e_foo,_e_bar):
+      _e_foo = _ev.foo
+      for (_it_i_bar,_it_i_foo) in zip(_e_bar,_e_foo):
         foo()
-    None
+     None
     >>> c = Draw_Cmd ("tt.foo$i if ($i%2)==0 and max(bar)<10")
-    >>> print c._make_func ("foo()"), c.errstr
+    >>> print (c._make_func ("foo()"), c.errstr)
     def _loopfunc(_i, _ev):
-      _e_foo = _ev.foo
       _e_bar = _ev.bar
+      _e_foo = _ev.foo
       for (_dum_i,_it_i_foo) in enumerate(_e_foo):
         if ((_dum_i%2)==0 and max(_e_bar)<10):
           foo()
-    None
+     None
     """
 
 
 def floop(i, e):
-    print 'floop', i, e.__class__.__name__
+    print ('floop', i, e.__class__.__name__)
     return
 
 def _regr_tree_loop_wrapper():
@@ -410,43 +410,42 @@ def _regr_get_hist():
     >>> pydraw._globals = globals()
     >>> from PyAnalysisUtils.pydraw import _get_hist
     >>> (h, opt) = _get_hist (1, ['50','0','10'], "tmp1", "tmp2")
-    >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
+    >>> print (h.__class__.__name__, h.GetName(), h.GetTitle())
     TH1F tmp1 tmp2
-    >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
+    >>> print (h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h)))
     50 0.0 10.0 False
-    >>> print opt
+    >>> print (opt)
     <BLANKLINE>
     >>> (h, opt) = _get_hist (1, [], "tmp1", "tmp2")
-    >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
+    >>> print (h.__class__.__name__, h.GetName(), h.GetTitle())
     TH1F tmp1 tmp2
-    >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
+    >>> print (h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h)))
     50 0.0 1.0 True
-    >>> print opt
+    >>> print (opt)
     <BLANKLINE>
     >>> (h, opt) = _get_hist (2, ['50','0','10','10','2','5','fooopt'], "tmp1", "tmp2")
-    >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
-    RootUtils::ScatterH2 tmp1 tmp2
-    >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
+    >>> print (h.__class__.__name__, h.GetName(), h.GetTitle())
+    ScatterH2 tmp1 tmp2
+    >>> print (h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h)))
     50 0.0 10.0 False
-    >>> print h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
-        h.GetYaxis().GetXmax(), bool (h.scatter())
+    >>> print (h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
+        h.GetYaxis().GetXmax(), bool (h.scatter()))
     10 2.0 5.0 True
-    >>> print opt
+    >>> print (opt)
     fooopt
     >>> del h
     >>> (h, opt) = _get_hist (2, ['50','0','10','10','2','5','fooopt','prof'], "tmp1", "tmp2")
-    >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
+    >>> print (h.__class__.__name__, h.GetName(), h.GetTitle())
     TProfile tmp1 tmp2
-    >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
+    >>> print (h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h)))
     50 0.0 10.0 False
-    >>> print h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
-        h.GetYaxis().GetXmax(), h.GetMinimum(), h.GetMaximum()
+    >>> print (h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
+        h.GetYaxis().GetXmax(), h.GetMinimum(), h.GetMaximum())
     1 0.0 1.0 2.0 5.0
-    >>> print opt
+    >>> print (opt)
     fooopt 
     """
 
@@ -465,11 +464,11 @@ def _regr_draw():
         _hfill (_it_i_foo)
     <BLANKLINE>
     True
-    >>> print pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle()
-    foo$i tt.foo$i
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle())
+    tt.foo$i tt.foo$i
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     30
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(1,31)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(1,31)])
     [5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     >>> draw("tt.foo$i if ($i%2)==0; 30 0 150")
     def _loopfunc(_i, _ev, _hfill = _hfill):
@@ -479,11 +478,11 @@ def _regr_draw():
           _hfill (_it_i_foo)
     <BLANKLINE>
     True
-    >>> print pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle()
-    foo$i tt.foo$i{($i%2)==0}
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle())
+    tt.foo$i tt.foo$i{($i%2)==0}
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     30
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(1,31)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(1,31)])
     [3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     >>> h1 = ROOT.TH1F ('h1', 'h1', 40, 0, 120)
     >>> draw("tt.foo$i; >>h1")
@@ -493,11 +492,11 @@ def _regr_draw():
         _hfill (_it_i_foo)
     <BLANKLINE>
     True
-    >>> print id(h1) == id(pydraw.last_hist)
+    >>> print (id(h1) == id(pydraw.last_hist))
     True
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     40
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(1,31)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(1,31)])
     [3.0, 2.0, 0.0, 2.0, 3.0, 0.0, 1.0, 3.0, 1.0, 0.0, 3.0, 2.0, 0.0, 2.0, 3.0, 0.0, 1.0, 3.0, 1.0, 0.0, 3.0, 2.0, 0.0, 2.0, 3.0, 0.0, 1.0, 3.0, 1.0, 0.0]
     >>> draw("tt.foo$i; !")
     def _loopfunc(_i, _ev, _hfill = _hfill):
@@ -506,42 +505,42 @@ def _regr_draw():
         _hfill (_it_i_foo)
     <BLANKLINE>
     True
-    >>> print id(h1) == id(pydraw.last_hist)
+    >>> print (id(h1) == id(pydraw.last_hist))
     True
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     40
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(1,31)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(1,31)])
     [6.0, 4.0, 0.0, 4.0, 6.0, 0.0, 2.0, 6.0, 2.0, 0.0, 6.0, 4.0, 0.0, 4.0, 6.0, 0.0, 2.0, 6.0, 2.0, 0.0, 6.0, 4.0, 0.0, 4.0, 6.0, 0.0, 2.0, 6.0, 2.0, 0.0]
     >>> draw("alkskjd")
     Missing period in tuple specification.
     False
     >>> draw("tt.foo$i:bar$i")
     def _loopfunc(_i, _ev, _hfill = _hfill):
-      _e_foo = _ev.foo
       _e_bar = _ev.bar
-      for (_it_i_foo,_it_i_bar) in zip(_e_foo,_e_bar):
+      _e_foo = _ev.foo
+      for (_it_i_bar,_it_i_foo) in zip(_e_bar,_e_foo):
         _hfill ((_it_i_foo),(_it_i_bar))
     <BLANKLINE>
     True
-    >>> print pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle()
-    foo$i:bar$i tt.foo$i:bar$i
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetName(), pydraw.last_hist.GetTitle())
+    tt.foo$i:bar$i tt.foo$i:bar$i
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     50
-    >>> print pydraw.last_hist.GetYaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetYaxis().GetNbins())
     50
     >>> draw("tt.foo$i:bar$i; 5 0 150 5 0 150")
     def _loopfunc(_i, _ev, _hfill = _hfill):
-      _e_foo = _ev.foo
       _e_bar = _ev.bar
-      for (_it_i_foo,_it_i_bar) in zip(_e_foo,_e_bar):
+      _e_foo = _ev.foo
+      for (_it_i_bar,_it_i_foo) in zip(_e_bar,_e_foo):
         _hfill ((_it_i_foo),(_it_i_bar))
     <BLANKLINE>
     True
-    >>> print pydraw.last_hist.GetXaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetXaxis().GetNbins())
     5
-    >>> print pydraw.last_hist.GetYaxis().GetNbins()
+    >>> print (pydraw.last_hist.GetYaxis().GetNbins())
     5
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(1,26)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(1,26)])
     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0]
     >>> draw("tt.fee; 10 0 10")
     def _loopfunc(_i, _ev, _hfill = _hfill):
@@ -549,7 +548,7 @@ def _regr_draw():
       _hfill (_e_fee)
     <BLANKLINE>
     True
-    >>> print [pydraw.last_hist.GetBinContent(i) for i in range(0,11)]
+    >>> print ([pydraw.last_hist.GetBinContent(i) for i in range(0,11)])
     [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     """
 
@@ -565,63 +564,63 @@ def _regr_scan():
     >>> scan("asdasd")
     Missing period in tuple specification.
     False
-    >>> scan("tt.foo$i:bar$i")
+    >>> scan("tt.foo$i:baz$i")
     def _loopfunc(_i, _ev, _print = _print):
+      _e_baz = _ev.baz
       _e_foo = _ev.foo
-      _e_bar = _ev.bar
-      for (_it_i_foo,_it_i_bar) in zip(_e_foo,_e_bar):
-        _print (_i, (_it_i_foo),(_it_i_bar))
+      for (_it_i_baz,_it_i_foo) in zip(_e_baz,_e_foo):
+        _print (_i, (_it_i_foo),(_it_i_baz))
     <BLANKLINE>
-         0        0        5
-         0        1        6
-         0        2        7
-         0        3        8
-         0        4        9
-         1       10       15
-         1       11       16
-         1       12       17
-         1       13       18
-         1       14       19
-         2       20       25
-         2       21       26
-         2       22       27
-         2       23       28
-         2       24       29
-         3       30       35
-         3       31       36
-         3       32       37
-         3       33       38
-         3       34       39
-         4       40       45
-         4       41       46
-         4       42       47
-         4       43       48
-         4       44       49
-         5       50       55
-         5       51       56
-         5       52       57
-         5       53       58
-         5       54       59
-         6       60       65
-         6       61       66
-         6       62       67
-         6       63       68
-         6       64       69
-         7       70       75
-         7       71       76
-         7       72       77
-         7       73       78
-         7       74       79
-         8       80       85
-         8       81       86
-         8       82       87
-         8       83       88
-         8       84       89
-         9       90       95
-         9       91       96
-         9       92       97
-         9       93       98
-         9       94       99
+         0        0      5.5
+         0        1      6.5
+         0        2      7.5
+         0        3      8.5
+         0        4      9.5
+         1       10     15.5
+         1       11     16.5
+         1       12     17.5
+         1       13     18.5
+         1       14     19.5
+         2       20     25.5
+         2       21     26.5
+         2       22     27.5
+         2       23     28.5
+         2       24     29.5
+         3       30     35.5
+         3       31     36.5
+         3       32     37.5
+         3       33     38.5
+         3       34     39.5
+         4       40     45.5
+         4       41     46.5
+         4       42     47.5
+         4       43     48.5
+         4       44     49.5
+         5       50     55.5
+         5       51     56.5
+         5       52     57.5
+         5       53     58.5
+         5       54     59.5
+         6       60     65.5
+         6       61     66.5
+         6       62     67.5
+         6       63     68.5
+         6       64     69.5
+         7       70     75.5
+         7       71     76.5
+         7       72     77.5
+         7       73     78.5
+         7       74     79.5
+         8       80     85.5
+         8       81     86.5
+         8       82     87.5
+         8       83     88.5
+         8       84     89.5
+         9       90     95.5
+         9       91     96.5
+         9       92     97.5
+         9       93     98.5
+         9       94     99.5
     True
     >>> scan("tt[0:2].foo$i")
     def _loopfunc(_i, _ev, _print = _print):
@@ -666,9 +665,9 @@ def _regr_loop():
     >>> xsum[0]=0
     >>> loop("tt.sum(foo$i):sum(bar$i)")
     def _loopfunc(_i, _ev):
-      _e_foo = _ev.foo
       _e_bar = _ev.bar
-      for (_it_i_foo,_it_i_bar) in zip(_e_foo,_e_bar):
+      _e_foo = _ev.foo
+      for (_it_i_bar,_it_i_foo) in zip(_e_bar,_e_foo):
         (sum(_it_i_foo),sum(_it_i_bar),)
     <BLANKLINE>
     True
@@ -811,6 +810,7 @@ import ROOT
 ROOT.gROOT.SetBatch (True)
 
 h1=ROOT.TH1F('hx','hx', 10, 0, 10)
+ROOT.TPad
 h1.Draw()
 p=ROOT.gPad
 p.SetPad('pad', 'pad', 0, 0.25, 0.5, 1)
@@ -818,7 +818,7 @@ p.Range(0, 1,2,3)
 
 from PyUtils import coverage
 c = coverage.Coverage ('PyAnalysisUtils.pydraw')
-print ''
+print ('')
 c.doctest_cover ()
 
 #from PyAnalysisUtils import pydraw

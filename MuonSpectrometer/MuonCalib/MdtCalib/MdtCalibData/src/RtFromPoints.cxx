@@ -1,30 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 30.06.2006, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibData/RtFromPoints.h"
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/ChebyshevPolynomial.h"
 #include "MuonCalibMath/PolygonBase.h"
 #include "MdtCalibData/RtSpline.h"
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 using namespace MuonCalib;
-using namespace std;
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS RtFromPoints ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //*****************************************************************************
 
@@ -56,16 +42,16 @@ void RtFromPoints::get_min_max(const std::vector<SamplePoint> &sample_points,
 //:: METHOD getRtChebyshev ::
 //:::::::::::::::::::::::::::
 RtChebyshev RtFromPoints::getRtChebyshev(
-					 const vector<SamplePoint> &sample_points,
+					 const std::vector<SamplePoint> &sample_points,
 					 const unsigned int &order) {
 
 ///////////////
 // VARIABLES //
 ///////////////
-  vector<double> rt_param(order+3); // input parameters of RtChebyshev
+  std::vector<double> rt_param(order+3); // input parameters of RtChebyshev
   BaseFunctionFitter fitter(order+1); // Chebyshev fitter
   ChebyshevPolynomial chebyshev; // Chebyshev polynomial
-  vector<SamplePoint> my_points(sample_points); // copy of the sample to add reduced times
+  std::vector<SamplePoint> my_points(sample_points); // copy of the sample to add reduced times
 
 ///////////////////////////////////////////////////////////////////
 // GET THE MINIMUM AND MAXIMUM TIMES AND CALCULATE REDUCED TIMES //
@@ -82,10 +68,8 @@ RtChebyshev RtFromPoints::getRtChebyshev(
 // PERFORM A CHEBYSHEV FIT TO THE SAMPLE POINTS //
 //////////////////////////////////////////////////
   if (fitter.fit_parameters(my_points, 1, sample_points.size(), &chebyshev)) {
-    cerr << "\n"
-	 << "Class RtFromPoints, method getRtChebyshev: "
-	 << "WARNING!\n"
-	 << "Could not determine Chebyshev coefficients.\n";
+    MsgStream log(Athena::getMessageSvc(), "RtFromPoints");
+    log<< MSG::WARNING << "Class RtFromPoints, method getRtChebyshev: Could not determine Chebyshev coefficients."<<endmsg;
   }
   for (unsigned int k=0; k<order+1; k++) {
     rt_param[k+2] = fitter.coefficients()[k];
@@ -103,7 +87,7 @@ RtChebyshev RtFromPoints::getRtChebyshev(
 //::::::::::::::::::::::::::::::::
 //:: METHOD getRtRelationLookUp ::
 //::::::::::::::::::::::::::::::::
-RtRelationLookUp RtFromPoints::getRtRelationLookUp(const vector<SamplePoint> & sample_points) {
+RtRelationLookUp RtFromPoints::getRtRelationLookUp(const std::vector<SamplePoint> & sample_points) {
 
 // create spline rt relation
   CalibFunc :: ParVec pars(2 * sample_points.size());
@@ -117,7 +101,7 @@ RtRelationLookUp RtFromPoints::getRtRelationLookUp(const vector<SamplePoint> & s
   unsigned int nb_points(100); // number of (r, t) points
   double bin_width((rt.tUpper()-rt.tLower())/
 		   static_cast<double>(nb_points-1)); // step size
-  vector<double> rt_param(nb_points+2); // r-t parameters
+  std::vector<double> rt_param(nb_points+2); // r-t parameters
 
 ///////////////////////////////////////////////////////////////////
 // CREATE AN RtRelationLookUp OBJECT WITH THE CORRECT PARAMETERS //

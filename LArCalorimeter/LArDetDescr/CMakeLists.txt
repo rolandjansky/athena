@@ -34,7 +34,7 @@ atlas_add_component( LArDetDescr
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel CaloDetDescrLib CaloGeoHelpers AthenaBaseComps Identifier GaudiKernel LArReadoutGeometry CaloIdentifier StoreGateLib SGtests GeoModelUtilities GeoPrimitives )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel CaloDetDescrLib CaloGeoHelpers AthenaBaseComps Identifier GaudiKernel LArReadoutGeometry CaloIdentifier StoreGateLib SGtests GeoModelUtilities GeoPrimitives RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_headers( LArDetDescr )

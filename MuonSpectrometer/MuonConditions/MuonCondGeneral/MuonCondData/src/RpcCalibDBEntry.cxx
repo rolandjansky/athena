@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/RpcCalibData.h"
@@ -11,69 +11,39 @@
 #include <sstream>
 #include <algorithm>
 
-//     class RpcCalibDBEntry
-//     {
-//         public:
-//             RpcCalibDBEntry(Identifier gapID, std::string payload);
-//             ~RpcCalibDBEntry() {}
-
-// 	    const RpcCalibData * getData(int measPhi, int strip);
-
-//         private:
-// 	    std::vector<RpcCalibData*> thePhiData;
-// 	    std::vector<RpcCalibData*> theEtaData;
-
-
-
-using namespace std;
-
 namespace MuonCalib{
 
-  // initialize from  whole string read from file
-
-
   RpcCalibDBEntry::~RpcCalibDBEntry(){
-
     // free nmemory used for data
-
     for(unsigned int k=0;k<m_theEtaData.size();k++) delete m_theEtaData[k];
-
     for(unsigned int k=0;k<m_thePhiData.size();k++) delete m_thePhiData[k];
-
-
   }
-
-// 	    int m_nRecEta, m_nDetEta,m_nRecPhi1,m_nRecPhi2,m_nDetPhi1,m_nDetPhi2;
-// 	    Identifier m_theGap;
-// 	    std::vector<RpcCalibData*> m_thePhiData;
-// 	    std::vector<RpcCalibData*> m_theEtaData;
-
 
   RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string payLoad):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID) {
 
     
-    string::size_type end=payLoad.find("END ");
-    string etaRec=payLoad.substr(0,end);
+    std::string::size_type end=payLoad.find("END ");
+    std::string etaRec=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    string etaDet=payLoad.substr(0,end);
+    std::string etaDet=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    string phiRec1=payLoad.substr(0,end);
+    std::string phiRec1=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    string phiRec2=payLoad.substr(0,end);
+    std::string phiRec2=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    string phiDet1=payLoad.substr(0,end);
+    std::string phiDet1=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    string phiDet2=payLoad.substr(0,end);
+    std::string phiDet2=payLoad.substr(0,end);
 
     this->initData(etaRec, etaDet,phiRec1,phiRec2,phiDet1,phiDet2);
     
@@ -84,7 +54,7 @@ namespace MuonCalib{
 
     unsigned long int pos = 0;
     std::string::size_type start = etaRec.find_first_not_of(" ",pos);
-    if(start == string::npos) {
+    if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecEta -- crashing." << std::endl;
       throw;      
     }
@@ -95,7 +65,7 @@ namespace MuonCalib{
 
     pos = 0;
     start = phiRec1.find_first_not_of(" ",pos);
-    if(start == string::npos) {
+    if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecPhi1 -- crashing." << std::endl;
       throw;      
     }
@@ -104,12 +74,12 @@ namespace MuonCalib{
     m_nRecPhi1 = std::stoi(phiRec1.substr(start,stop-start),nullptr);
     phiRec1.erase(pos,stop-pos);
 
-    istringstream etaRec_str; 
-    istringstream etaDet_str; 
-    istringstream phiRec1_str;
-    istringstream phiRec2_str;
-    istringstream phiDet1_str;
-    istringstream phiDet2_str;
+    std::istringstream etaRec_str; 
+    std::istringstream etaDet_str; 
+    std::istringstream phiRec1_str;
+    std::istringstream phiRec2_str;
+    std::istringstream phiDet1_str;
+    std::istringstream phiDet2_str;
     
     etaRec_str.str(etaRec);     
     etaDet_str.str(etaDet); 
@@ -208,7 +178,7 @@ namespace MuonCalib{
     
   }
   
-  void RpcCalibDBEntry::getColumns(string &recEta, string &detEta,string &recPhi1, string &recPhi2, string &detPhi1,string &detPhi2) const{
+  void RpcCalibDBEntry::getColumns(std::string &recEta, std::string &detEta,std::string &recPhi1, std::string &recPhi2, std::string &detPhi1,std::string &detPhi2) const{
     
 
     std::ostringstream recEta_str,detEta_str,recPhi1_str,recPhi2_str,detPhi1_str,detPhi2_str;

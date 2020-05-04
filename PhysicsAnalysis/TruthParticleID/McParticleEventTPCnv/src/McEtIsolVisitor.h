@@ -14,8 +14,6 @@
 // STL includes
 #include <stdexcept>
 
-// HepMC / CLHEP includes
-
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 

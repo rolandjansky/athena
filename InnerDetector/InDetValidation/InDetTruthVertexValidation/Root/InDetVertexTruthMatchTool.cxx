@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
@@ -136,7 +136,11 @@ InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContain
 StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) {
 
   ATH_MSG_DEBUG("Start vertex matching");
-
+  if (vxContainer.empty() ||   // reject empty vertex containers
+       (vxContainer.size() == 1 && vxContainer.at(0)->vertexType() == xAOD::VxType::NoVtx)){  // as well as containers containing only a dummy vertex
+    ATH_MSG_DEBUG("No vertices to match.");
+    return StatusCode::SUCCESS; 
+  }
   // Identify MC vertices to match to -- this is the collection for hard scatter
   const xAOD::TruthEventBaseContainer * truthEvents = nullptr;
   if ( evtStore()->contains<xAOD::TruthEventBaseContainer>( "TruthEvents" ) )
@@ -211,6 +215,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     if (vxType == xAOD::VxType::NoVtx) {
       //skip dummy vertices -> match info will be empty vector if someone tries to access later
       //type will be set to dummy
+      ATH_MSG_DEBUG("FOUND xAOD::VxType::NoVtx");
       continue;
     }
 
@@ -245,7 +250,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
       continue;
     }
 
-    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks:");
+    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks, at index: " << vxit->index());
 
     float totalWeight = 0.;
     float totalFake = 0.;

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Sim/SimHelpers
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           PRIVATE
+                          Generators/AtlasHepMC                          
                           Control/AthenaBaseComps
                           Control/StoreGate
                           Simulation/G4Atlas/G4AtlasInterfaces
@@ -24,16 +25,15 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
-find_package( HepMC )
 find_package( XercesC )
 
 # Component(s) in the package:
 atlas_add_library( MCTruthBaseLib
                    src/*.cxx
                    PUBLIC_HEADERS MCTruthBase
-                   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests G4AtlasToolsLib
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel GaudiKernel StoreGateLib SGtests G4AtlasToolsLib
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps
                    G4AtlasInterfaces MCTruth SimHelpers ISF_Interfaces
                    AtlasDetDescr ISF_Geant4Event
@@ -41,10 +41,10 @@ atlas_add_library( MCTruthBaseLib
 
 atlas_add_component( MCTruthBase
                      src/components/*.cxx
-                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${GEANT4_LIBRARIES}
                      ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES}
-                     ${HEPMC_LIBRARIES} AthenaKernel GaudiKernel
+                     AtlasHepMCLib AthenaKernel GaudiKernel
                      AthenaBaseComps StoreGateLib SGtests
                      G4AtlasInterfaces G4AtlasToolsLib MCTruth
                      SimHelpers ISF_Interfaces

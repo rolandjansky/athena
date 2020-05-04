@@ -55,7 +55,7 @@
 
 #include "TrackSelectionTool.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
 
@@ -189,7 +189,7 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 
 IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent )
  :ManagedMonitorToolBase( type, name, parent ),
-  m_trtcaldbSvc("TRT_CalDbSvc",name),
+  m_trtcaldbTool("TRT_CalDbTool",this),
   m_hWeightInFile(0),
   m_etapTWeight(0)
 {
@@ -272,7 +272,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	declareProperty("maxSiResFillRange"         , m_maxSiResFillRange);
 	declareProperty("do3DOverlapHistos"         , m_do3DOverlapHistos);
 	declareProperty("doClusterSizeHistos"       , m_doClusterSizeHistos);
-	declareProperty("ITRT_CalDbSvc"             , m_trtcaldbSvc);
+	declareProperty("ITRT_CalDbTool"             , m_trtcaldbTool);
 	declareProperty("useExtendedPlots"          , m_extendedPlots);
 	declareProperty("maxPIXResXFillRange"       , m_maxPIXResXFillRange);
 	declareProperty("minPIXResXFillRange"       , m_minPIXResXFillRange);
@@ -574,33 +574,27 @@ StatusCode IDAlignMonResiduals::initialize()
 	m_SCTBarrelXSize = 61.54;  // mm
 	m_SCTBarrelYSize = 128.;  // mm
 
-	if(msgLvl(MSG::VERBOSE)) msg() << ">> Range of histograms: m_minSiResFillRange= "<< m_minSCTResFillRange  << endmsg;
-	if(msgLvl(MSG::VERBOSE)) msg() << ">> Range of histograms: m_maxSiResFillRange= "<< m_maxSCTResFillRange  << endmsg;
-	if(msgLvl(MSG::VERBOSE)) msg() << ">> Range of histograms: m_RangeOfPullHistos= "<< m_RangeOfPullHistos  << endmsg;
+	ATH_MSG_VERBOSE( ">> Range of histograms: m_minSiResFillRange= "<< m_minSCTResFillRange );
+	ATH_MSG_VERBOSE( ">> Range of histograms: m_maxSiResFillRange= "<< m_maxSCTResFillRange );
+	ATH_MSG_VERBOSE( ">> Range of histograms: m_RangeOfPullHistos= "<< m_RangeOfPullHistos );
 
 	//initialize tools and services
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
+	ATH_MSG_DEBUG( "Calling initialize() to setup tools/services");
 	StatusCode sc = setupTools();
 	if (sc.isFailure()) {
-		if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize tools/services!" << endmsg;
+	  ATH_MSG_WARNING( "Failed to initialize tools/services!");
 		return StatusCode::SUCCESS;
 	}
-	else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
+	else ATH_MSG_DEBUG( "Successfully initialized tools/services");
 
 	sc = ManagedMonitorToolBase::initialize();
 	if (sc.isFailure()) {
-		if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize ManagedMonitorToolBase!" << endmsg;
+	  ATH_MSG_WARNING( "Failed to initialize ManagedMonitorToolBase!");
 		return StatusCode::SUCCESS;
 	}
 
 	/** Get TRTCalDbTool */
-	if (m_trtcaldbSvc.name() == ""){
-		if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_CalDbSvc not given."<<endmsg;
-	} else {
-		if(m_trtcaldbSvc.retrieve().isFailure()){
-			msg(MSG::ERROR) << "Cannot get TRTCalDBSvc !"<<endmsg;
-		}
-	}
+	ATH_CHECK( m_trtcaldbTool.retrieve() );
 
 	// Get the weight histogram
 	if(m_applyHistWeight){
@@ -1074,7 +1068,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
   }
 
   if (!m_hasBeenCalledThisEvent){
-    m_mu = eventInfo->averageInteractionsPerCrossing();
+    m_mu = lbAverageInteractionsPerCrossing();
     m_hasBeenCalledThisEvent=true;
   }
   else
@@ -1347,7 +1341,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    ATH_MSG_DEBUG("RawDriftCircles are NULL pointer");
 
 	  Identifier DCoTId = trtCircle->identify();
-	  float t0 = m_trtcaldbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
+	  float t0 = m_trtcaldbTool->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
 
 	  ATH_MSG_DEBUG("Filling TRT HISTOS");
 

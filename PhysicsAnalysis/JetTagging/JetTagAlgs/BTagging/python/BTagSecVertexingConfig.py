@@ -8,7 +8,7 @@ from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-Analysis__BTagSecVertexing=CompFactory.Analysis__BTagSecVertexing
+Analysis__BTagSecVertexing=CompFactory.Analysis.BTagSecVertexing
 
 def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.

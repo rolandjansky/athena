@@ -7,7 +7,7 @@ from BTagging.MV2defaultValues import default_values
 from BTagging.MV2defaultValues import MVTM_varNames
 
 # import the MV2Tag configurable
-Analysis__MV2Tag=CompFactory.Analysis__MV2Tag
+Analysis__MV2Tag=CompFactory.Analysis.MV2Tag
 
 def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a MV2c10Tag tool and returns it.

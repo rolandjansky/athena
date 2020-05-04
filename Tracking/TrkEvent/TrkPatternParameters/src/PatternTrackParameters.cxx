@@ -45,9 +45,11 @@ const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert
 
 bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Charged>* T) {
 
-  if(!T) return false;
+  if(!T) { return false;
+}
 
-  m_surface = &T->associatedSurface(); if(!m_surface) return false;
+  m_surface = &T->associatedSurface(); if(!m_surface) { return false;
+}
 
   const AmgVector(5) Vp = T->parameters() ;
   m_parameters[0] = Vp[0];
@@ -143,7 +145,8 @@ Amg::Vector3D Trk::PatternTrackParameters::position() const
 {
   
   Amg::Vector3D gp(0.,0.,0.);
-  if(!m_surface) return gp;
+  if(!m_surface) { return gp;
+}
 
   const Trk::PlaneSurface       * plane  ;
   if((plane   = dynamic_cast<const Trk::PlaneSurface*>       (m_surface))) {
@@ -215,13 +218,13 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   const Trk::CylinderSurface* cy;
   const Trk::StraightLineSurface* li;
   
-  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) name = "Plane"   ;
-  else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) name = "Line"    ;
-  else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) name = "Disc"    ;
-  else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) name = "Cylinder";
-  else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) name = "Perigee" ;
-  else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) name = "Cone"    ;
-  else  {
+  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) { name = "Plane"   ;
+  } else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) { name = "Line"    ;
+  } else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) { name = "Disc"    ;
+  } else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) { name = "Cylinder";
+  } else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) { name = "Perigee" ;
+  } else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) { name = "Cone"    ;
+  } else  {
     out << "Track parameters are not valid " << std::endl;
     ias.restore();
     return out;
@@ -280,13 +283,13 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   const Trk::CylinderSurface* cy;
   const Trk::StraightLineSurface* li;
 
-  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) name = "Plane"   ;
-  else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) name = "Line"    ;
-  else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) name = "Disc"    ;
-  else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) name = "Cylinder";
-  else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) name = "Perigee" ;
-  else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) name = "Cone"    ;
-  else  {
+  if     ((pl=dynamic_cast<const Trk::PlaneSurface*>       (s))) { name = "Plane"   ;
+  } else if((li=dynamic_cast<const Trk::StraightLineSurface*>(s))) { name = "Line"    ;
+  } else if((di=dynamic_cast<const Trk::DiscSurface*>        (s))) { name = "Disc"    ;
+  } else if((cy=dynamic_cast<const Trk::CylinderSurface*>    (s))) { name = "Cylinder";
+  } else if((pe=dynamic_cast<const Trk::PerigeeSurface*>     (s))) { name = "Perigee" ;
+  } else if((cn=dynamic_cast<const Trk::ConeSurface*>        (s))) { name = "Cone"    ;
+  } else  {
     out << "Track parameters are not valid " << std::endl;
     return out;
   }
@@ -489,7 +492,8 @@ bool Trk::PatternTrackParameters::initiate
 (PatternTrackParameters& Tp, const Amg::Vector2D& P,const Amg::MatrixX& E)
 {
   
-  int n = E.rows(); if(n<=0 || n>2) return false;
+  int n = E.rows(); if(n<=0 || n>2) { return false;
+}
 
   m_parameters[0] = P  (0); 
   m_covariance[0] = E(0,0); 
@@ -540,13 +544,15 @@ void Trk::PatternTrackParameters::changeDirection()
   m_parameters[ 3] =  pi-m_parameters[3];
   m_parameters[ 4] = -m_parameters[4]   ;
 
-  if( m_parameters[2] < -pi) m_parameters[2]+=pi2;
+  if( m_parameters[2] < -pi) { m_parameters[2]+=pi2;
+}
 
 
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface)) {
     
-    if(!m_iscovariance) return;
+    if(!m_iscovariance) { return;
+}
 
     m_covariance[ 6] = -m_covariance[ 6];
     m_covariance[ 7] = -m_covariance[ 7];
@@ -559,7 +565,8 @@ void Trk::PatternTrackParameters::changeDirection()
 
   m_parameters[ 0] = -m_parameters[ 0];
 
-  if(!m_iscovariance) return;
+  if(!m_iscovariance) { return;
+}
 
   m_covariance[ 1] = -m_covariance[ 1];
   m_covariance[ 3] = -m_covariance[ 3];

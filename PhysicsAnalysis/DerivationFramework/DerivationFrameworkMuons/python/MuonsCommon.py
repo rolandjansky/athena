@@ -7,8 +7,10 @@
 #********************************************************************
 from __future__ import print_function
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 from DerivationFrameworkMuons import DFCommonMuonsConfig
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon import CfgMgr 
 DFCommonMuonsTrtCutOff = DFCommonMuonsConfig.TrtCutOff
 
 #====================================================================
@@ -29,7 +31,7 @@ DFCommonMuonsSelector.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelector.TurnOffMomCorr = True
 
-if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
+if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelector
 print (DFCommonMuonsSelector)
 
@@ -49,7 +51,7 @@ DFCommonMuonsSelectorPreselection.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelectorPreselection.TurnOffMomCorr = True
 
-if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
+if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelectorPreselection
 print (DFCommonMuonsSelectorPreselection)
 
@@ -72,7 +74,10 @@ DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperPreselection)
 #############
 #  Add tools
 #############
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFCommonMuonsKernel",
                                                                          AugmentationTools = DFCommonMuonToolWrapperTools
                                                                         )
+
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()

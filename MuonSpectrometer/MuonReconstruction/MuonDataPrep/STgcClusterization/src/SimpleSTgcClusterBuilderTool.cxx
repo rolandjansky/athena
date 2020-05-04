@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "SimpleSTgcClusterBuilderTool.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
 
@@ -8,23 +9,13 @@
 #include <vector>
 
 using namespace Muon;
-using namespace std;
 
-Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::string& t,
-								 const std::string& n,
-								 const IInterface*  p )
-  :  
+Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p)
 {
   declareProperty("ChargeCut", m_chargeCut=0.0);
   declareProperty("maxHoleSize",m_maxHoleSize=1);
 }
-
-Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
-{
-
-}
-
 
 StatusCode Muon::SimpleSTgcClusterBuilderTool::initialize()
 {
@@ -32,12 +23,6 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
-{
-
-  return StatusCode::SUCCESS;
-}
 //
 // Build the clusters given a vector of single-hit PRD
 //
@@ -183,8 +168,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
   if (clustersStripNum[multilayer][gasGap].size()==0 ) {
 
     ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
-    set<unsigned int> clusterStripNum;
-    vector<Muon::sTgcPrepData> cluster;
+    std::set<unsigned int> clusterStripNum;
+    std::vector<Muon::sTgcPrepData> cluster;
 
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);
@@ -206,7 +191,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
     //
     for ( unsigned int i=0 ; i<clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
 
-      set<unsigned int> &clusterStripNum = clustersStripNum[multilayer][gasGap].at(i);
+      std::set<unsigned int> &clusterStripNum = clustersStripNum[multilayer][gasGap].at(i);
 
       unsigned int firstStrip = *(clusterStripNum.begin());
       unsigned int lastStrip  = *(--clusterStripNum.end());
@@ -228,8 +213,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
     }
     // if not, build a new cluster starting from it
     //
-    set<unsigned int> clusterStripNum;
-    vector<Muon::sTgcPrepData> cluster;
+    std::set<unsigned int> clusterStripNum;
+    std::vector<Muon::sTgcPrepData> cluster;
         
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);

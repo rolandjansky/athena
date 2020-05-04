@@ -33,6 +33,7 @@
 #include "TrkFitterInterfaces/IKalmanPiecewiseAnnealingFilter.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <array>
 
 class AtlasDetectorID;            //!< to identify measurements
 
@@ -177,7 +178,6 @@ private:
   // Private data:
   ///////////////////////////////////////////////////////////////////
     mutable MsgStream             m_log;         //!< msgstream as private member (-> speed)
-    int                           m_outputlevel; //!< private member to control debug messages
 
     //! extrapolation tool: does propagation and applies material effects
     ToolHandle< IExtrapolator >             m_extrapolator;
@@ -214,7 +214,6 @@ private:
     bool                          m_option_reintegrateOutliers;
     bool                          m_option_doValidationAction;
     bool                          m_option_callValidationToolForFailedFitsOnly;
-    // bool                          m_useReferenceTrack;
     std::vector<double>           m_option_sortingRefPoint;
 
     mutable bool                  m_callValidationTool;
@@ -240,7 +239,7 @@ private:
 			     MinimalTrackFailure, PerigeeMakingFailure, BadInput, nFitStatsCodes};
     mutable std::vector< std::vector<int> > m_fitStatistics;
     enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, nStatIndex = 4};
-    mutable std::vector<double> m_chiSquaredAfb, m_chiSquaredAfbNontriviality;
+    mutable std::array<double, nStatIndex> m_chiSquaredAfb, m_chiSquaredAfbNontriviality;
 
     //! methods to do bookkeeping about fitter calls, error situations and chiSquared
     void monitorTrackFits(FitStatisticsCode, const double&) const;

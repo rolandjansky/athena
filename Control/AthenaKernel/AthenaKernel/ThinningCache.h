@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthKernel/ThinningCache.h
@@ -20,6 +20,9 @@
 #include <string>
 #include <vector>
 #include <memory>
+
+
+class ITrigNavigationThinningSvc;
 
 
 namespace SG {
@@ -87,6 +90,19 @@ public:
 
 
   /**
+   * @brief Return the TrigNavigation helper for this stream, or nullptr.
+   */
+  const ITrigNavigationThinningSvc* trigNavigationThinningSvc() const;
+
+
+  /**
+   * @brief Set the TrigNavigation helper for this stream.
+   * @param thinning TrigNavigation helper.
+   */
+  void setTrigNavigationThinningSvc (const ITrigNavigationThinningSvc* thinning);
+
+
+  /**
    * @brief Lock all the @c ThinningDecisionBase objects that we own.
    *
    * This should be called after all thinning objects have been added,
@@ -112,6 +128,9 @@ private:
 
   /// List of decision objects we've copied in order to handle merges.
   std::vector<std::unique_ptr<ThinningDecisionBase> > m_owned;
+
+  /// Optional TrigNavigation thinning helper for this stream.
+  const ITrigNavigationThinningSvc* m_trigNavigationThinningSvc = nullptr;
 
 
   /**

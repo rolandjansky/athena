@@ -43,6 +43,7 @@ _knownHistos = [
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
     HistoSpec( 'e:GeV',  (100,0,500) , title='E;E [GeV];'),    
+    HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar

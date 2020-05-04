@@ -40,12 +40,12 @@ class PixelDigitizationTool : public PileUpToolBase {
     PixelDigitizationTool(const std::string &type, const std::string &name, const IInterface *pIID);
 
     virtual StatusCode initialize() override;
-    virtual StatusCode processAllSubEvents() override;
+    virtual StatusCode processAllSubEvents(const EventContext& ctx) override;
     virtual StatusCode finalize() override;
 
-    virtual StatusCode prepareEvent(unsigned int) override;
-    StatusCode digitizeEvent();
-    virtual StatusCode mergeEvent() override;
+    virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int) override;
+    StatusCode digitizeEvent(const EventContext& ctx);
+    virtual StatusCode mergeEvent(const EventContext& ctx) override;
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:

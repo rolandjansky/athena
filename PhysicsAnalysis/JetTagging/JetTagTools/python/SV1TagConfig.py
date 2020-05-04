@@ -6,7 +6,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the SVTag configurable
-Analysis__SVTag=CompFactory.Analysis__SVTag
+Analysis__SVTag=CompFactory.Analysis.SVTag
 
 def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SV1Tag tool and returns it.

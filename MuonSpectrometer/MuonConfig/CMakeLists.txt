@@ -6,7 +6,7 @@
 atlas_subdir( MuonConfig )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py test/MdtIntersectGeometry_test.py )
+atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py test/MdtIntersectGeometry_test.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 
@@ -49,9 +49,5 @@ if( NOT SIMULATIONBASE )
 
    atlas_add_test( MuonSegmentFindingConfigTest
                    SCRIPT python -m MuonConfig.MuonSegmentFindingConfig --run
-                   POST_EXEC_SCRIPT nopost.sh )
-                   
-   atlas_add_test( flake8
-                   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
                    POST_EXEC_SCRIPT nopost.sh )
 endif()

@@ -59,7 +59,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__RpcRdoToPrepDataToolMT=CompFactory.Muon__RpcRdoToPrepDataToolMT
+    Muon__RpcRdoToPrepDataToolMT=CompFactory.Muon.RpcRdoToPrepDataToolMT
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
@@ -93,7 +93,7 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon__TgcRdoToPrepDataToolMT
+    Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon.TgcRdoToPrepDataToolMT
     TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataToolMT(name           = "TgcRdoToTgcPrepDataTool")
     acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -127,7 +127,7 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon__MdtRdoToPrepDataToolMT
+    Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon.MdtRdoToPrepDataToolMT
     MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
     acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -161,7 +161,7 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon__CscRdoToCscPrepDataToolMT
+    Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon.CscRdoToCscPrepDataToolMT
     CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool")
     acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -266,8 +266,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg.merge(cscbuildingAcc)
 
     # Need to add POOL converter  - may be a better way of doing this?
-    from AthenaCommon import CfgMgr
-    cfg.addService( CfgMgr.AthenaPoolCnvSvc() )
+    cfg.addService( CompFactory.AthenaPoolCnvSvc() )
     cfg.getService("EventPersistencySvc").CnvServices += [ "AthenaPoolCnvSvc" ]
 
     log.info('Print Config')

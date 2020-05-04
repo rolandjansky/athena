@@ -18,9 +18,9 @@
 #include "ISF_Event/ISFParticleContainer.h"
 
 // HepMC include needed for FastCaloSim
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
@@ -314,42 +314,6 @@ StatusCode ISF::NativeFastCaloSimSvc::processOneParticle( const ISF::ISFParticle
   ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Simulating pdgid = "<< isfp.pdgCode());
 
   StatusCode sc(StatusCode::SUCCESS);
-  //ZH commented out these to avoid warnings at the moment
-  //ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_simulate.begin();
-  //ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_simulate.end();
-
-  /*
-  // loop on tools
-  for (;itrTool!=endTool;++itrTool) {
-    FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
-    if(!fcs) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "tool " << itrTool->name()<< "is not a FastShowerCellBuilderTool" );   
-      continue;
-    }
-    
-    ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );   
-    std::string chronoName=this->name()+"_"+ itrTool->name();
-    
-    if (m_chrono) m_chrono->chronoStart( chronoName);
-
-    HepMC::FourVector momentum(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(), sqrt( isfp.mass()*isfp.mass() + isfp.momentum().mag2()) );
-    HepMC::GenParticle* part=new HepMC::GenParticle(momentum,isfp.pdgCode());
-    HepMC::FourVector position(isfp.position().x(),isfp.position().y(),isfp.position().z(),isfp.timeStamp());
-    HepMC::GenVertex vertex(position);
-    vertex.add_particle_out( part ); // HepMC::GenVertex destructor will delete the particle
-
-    //sc = (*itrTool)->process(m_theContainer);
-    if(fcs->process_particle(m_theContainer,part,0).isFailure()) {
-      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );   
-      sc = StatusCode::FAILURE;
-    }
-
-    if (m_chrono) m_chrono->chronoStop( chronoName );
-    //ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) * CLHEP::microsecond / CLHEP::second << " second " );
-  } //end of for-loop
-  */
-
-  //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
   return sc;
 }
 

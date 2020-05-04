@@ -100,7 +100,7 @@ atlas_add_test( RCUObject_test
 
 atlas_add_test( CondCont_test
    SOURCES test/CondCont_test.cxx
-   LINK_LIBRARIES AthenaKernel )
+   LINK_LIBRARIES AthenaKernel TestTools )
 
 atlas_add_test( CLIDRegistry_test
    SOURCES test/CLIDRegistry_test.cxx
@@ -157,3 +157,7 @@ atlas_add_test( ThinningCache_test
 atlas_add_test( getThinningCache_test
   SOURCES test/getThinningCache_test.cxx
   LINK_LIBRARIES AthenaKernel TestTools )
+
+  atlas_add_test( AlgorithmTimer_test
+  SOURCES test/AlgorithmTimer_test.cxx
+  LINK_LIBRARIES AthenaKernel )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiLorentzAngleTool.h"
@@ -12,21 +12,20 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 
 SiLorentzAngleTool::SiLorentzAngleTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_isPixel{true},
-  m_condData{"SCTSiLorentzAngleCondData"},
-  m_magFieldSvc{"AtlasFieldSvc", name}
+  m_condData{"SCTSiLorentzAngleCondData"}
 {
   declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false, 
                   "Treat methods that take a local position as if one called the methods without a local position");
-  // IF SCT, YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTSiLorentzAngleCondAlg!!!
+  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN Pixel/SCTSiLorentzAngleCondAlg!!!
   declareProperty("DetectorName", m_detectorName="Pixel", "Detector name (Pixel or SCT)");
-  declareProperty("MagFieldSvc", m_magFieldSvc);
   declareProperty("NominalField", m_nominalField = 2.0834*Gaudi::Units::tesla);
-  declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
+  declareProperty("UseMagFieldCache", m_useMagFieldCache = true);
   declareProperty("SiLorentzAngleCondData", m_condData, "Key of input SiLorentzAngleCondData");
 }
 
@@ -44,12 +43,11 @@ StatusCode SiLorentzAngleTool::initialize() {
   ATH_CHECK(m_condData.initialize());
   ATH_CHECK(m_detEleCollKey.initialize());
 
-  // MagneticFieldSvc handles updates itself
-  if (not m_useMagFieldSvc) {
-    ATH_MSG_DEBUG("Not using MagneticFieldSvc - Will be using Nominal Field!");
-  } else if (m_magFieldSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Could not retrieve MagneticFieldSvc - Will be using Nominal Field!");
-    m_useMagFieldSvc = false;
+  // MagneticFieldCache
+  if (not m_useMagFieldCache) {
+    ATH_MSG_DEBUG("Not using Magnetic Field cache - Will be using Nominal Field!");
+  } else {
+    ATH_CHECK(m_fieldCondObjInputKey.initialize());
   }
   
   return StatusCode::SUCCESS;
@@ -214,14 +212,26 @@ double SiLorentzAngleTool::getCorrectionFactor() const
 
 Amg::Vector3D SiLorentzAngleTool::getMagneticField(const Amg::Vector3D& pointvec) const {
   // Get the magnetic field.
-  if (m_useMagFieldSvc) {
+  bool useMagFieldCache{m_useMagFieldCache};
+  MagField::AtlasFieldCache fieldCache;
+  if (useMagFieldCache) {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      useMagFieldCache = false;
+    } else {
+      fieldCondObj->getInitializedCache(fieldCache);
+    }
+  }
+  if (useMagFieldCache) {
     ATH_MSG_VERBOSE("Getting magnetic field from magnetic field service.");
     double field[3];
     double point[3];
     point[0] = pointvec[0];
     point[1] = pointvec[1];
     point[2] = pointvec[2];
-    m_magFieldSvc->getField(point, field);
+    fieldCache.getField(point, field);
     return Amg::Vector3D(field[0], field[1], field[2]);
   } else {
     ATH_MSG_VERBOSE("Using Nominal Field");

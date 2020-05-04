@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// HepMC / CLHEP includes
-
 // FrameWork includes
 
 // McParticleTools includes
@@ -26,7 +24,7 @@ namespace TruthHelper{
      class GenAccessIO;
 }
 
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 class IMcVtxFilterTool;
 
 class PileupFilterTool : public TruthParticleFilterBaseTool

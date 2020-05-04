@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,12 +22,13 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "iPatInterfaces/IFinderConfiguration.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class IIncidentSvc;
 namespace InDetDD	{ class PixelDetectorManager; }
-namespace MagField	{ class IMagFieldSvc; }
 
 class FinderTolerances: public AthAlgTool,
 			virtual public IFinderConfiguration, IIncidentListener
@@ -37,10 +38,9 @@ public:
     FinderTolerances	(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent);
-    ~FinderTolerances	(void);
+    ~FinderTolerances()=default;
 
-    StatusCode		initialize();
-    StatusCode		finalize();
+    StatusCode initialize();
     
     /** handle for incident service */
     void		handle(const Incident& inc) ;
@@ -85,8 +85,8 @@ private:
 
     // services and managers:
     ServiceHandle<IIncidentSvc>	       	m_incidentSvc;   //!< IncidentSvc to catch begin of event
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
     const InDetDD::PixelDetectorManager*	m_manager;
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
     
     double				m_halfField;
     double				m_maxPhiSlope;

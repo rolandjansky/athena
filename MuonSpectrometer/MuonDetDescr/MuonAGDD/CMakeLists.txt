@@ -41,7 +41,8 @@ atlas_add_component( MuonAGDD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AGDDControl GaudiKernel StoreGateLib SGtests AGDDKernel AGDDModel MuonAGDDBase MuonReadoutGeometry ${extra_lib} )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AGDDControl GaudiKernel StoreGateLib SGtests AGDDKernel AGDDModel MuonAGDDBase MuonReadoutGeometry ${extra_lib}
+                     PRIVATE_LINK_LIBRARIES AGDD2GeoSvcLib )
 
 # Install files from the package:
 atlas_install_headers( MuonAGDD )

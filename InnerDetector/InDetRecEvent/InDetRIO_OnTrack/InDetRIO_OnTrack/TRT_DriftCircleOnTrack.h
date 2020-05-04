@@ -163,10 +163,10 @@ namespace InDet{
       CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
       
       /**local angle to be written out */     
-      mutable std::atomic<float> m_localAngle;
+      float m_localAngle;
       
       /**local position along wire to be written out*/
-      mutable std::atomic<float> m_positionAlongWire;
+      float m_positionAlongWire;
       
       ElementLinkToIDCTRT_DriftCircleContainer m_rio;
       

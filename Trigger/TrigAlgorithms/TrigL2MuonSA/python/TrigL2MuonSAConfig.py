@@ -120,6 +120,10 @@ class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
 
         self.RpcErrToDebugStream = True
 
+        MuonSA.MuFastSteering.topoRoad = False
+        MuonSA.MuFastSteering.dEtasurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
+        MuonSA.MuFastSteering.dPhisurrRoI = 0.14 # wide enough comparing to L1 RoI in barrel
+
         if TriggerFlags.run2Config=='2016':
           self.UseEndcapInnerFromBarrel = False
         else:
@@ -197,6 +201,10 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.USE_ROIBASEDACCESS_CSC = True
 
         self.RpcErrToDebugStream = True
+
+        MuonSA.MuFastSteering.topoRoad = False
+        MuonSA.MuFastSteering.dEtasurrRoI = 0.14
+        MuonSA.MuFastSteering.dPhisurrRoI = 0.14
 
         if TriggerFlags.run2Config=='2016':
           self.UseEndcapInnerFromBarrel = False

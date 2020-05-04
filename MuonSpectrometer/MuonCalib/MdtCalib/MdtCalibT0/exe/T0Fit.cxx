@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibT0/T0MTHistos.h"
+
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -15,9 +16,6 @@
 #include "cstdlib"
 
 using namespace MuonCalib;
-using namespace std;
-
-
 
 int main(int argc, char * argv[])
 	{

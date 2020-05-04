@@ -42,11 +42,6 @@ art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 
 lastref_dir=last_results
 
-if [ \( $dosim -ne 0 -a -n "$dcube_sim_lastref" \) -o \( $dorec -ne 0 -a -n "$dcube_rec_lastref" \) ]; then
-  run art.py download --user=artprod --dst="$lastref_dir" InDetPhysValMonitoring "$script"
-  run ls -la "$lastref_dir"
-fi
-
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
   step="$1" statname="$2" dcubemon="$3" dcubecfg="$4" dcuberef="$5" dcubedir="$6"
@@ -142,6 +137,13 @@ if [ $dorec -ne 0 ]; then
     AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
     AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
   echo "art-result: $? reco"
+
+  if [ rec_tf_exit_code  eq 0 ]  ;then
+    if [ \( $dosim -ne 0 -a -n "$dcube_sim_lastref" \) -o \( $dorec -ne 0 -a -n "$dcube_rec_lastref" \) ]; then
+    run art.py download --user=artprod --dst="$lastref_dir" InDetPhysValMonitoring "$script"
+    run ls -la "$lastref_dir"
+    fi
+  fi
 
   # DCube InDetPhysValMonitoring performance plots
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"

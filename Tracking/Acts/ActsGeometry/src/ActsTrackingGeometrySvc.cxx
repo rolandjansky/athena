@@ -362,14 +362,16 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   trtNegEC.zMax = -absZMinEC;
   trtPosEC.zMin = absZMinEC;
   trtPosEC.zMax = absZMaxEC;
+  
+  using CVBBV = Acts::CylinderVolumeBounds::BoundValues;
 
   // if pixel is present, shrink SCT volumes in R
   if(pixel) {
     ATH_MSG_VERBOSE("Shrinking SCT to fit around Pixel");
     auto pixelBounds = dynamic_cast<const Acts::CylinderVolumeBounds*>(&pixel->volumeBounds());
-    sctNegEC.rMin = pixelBounds->outerRadius();
-    sctPosEC.rMin = pixelBounds->outerRadius();
-    sctBrl.rMin = pixelBounds->outerRadius();
+    sctNegEC.rMin = pixelBounds->get(CVBBV::eMaxR);
+    sctPosEC.rMin = pixelBounds->get(CVBBV::eMaxR);
+    sctBrl.rMin = pixelBounds->get(CVBBV::eMaxR);
   }
 
 
@@ -458,20 +460,20 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
     auto posGap = cvh.createGapTrackingVolume(gctx, 
                                               noVolumes,
                                               nullptr, // no material,
-                                              pixelBounds->innerRadius(),
-                                              pixelBounds->outerRadius(),
-                                              pixelBounds->halflengthZ(),
-                                              containerBounds->halflengthZ(),
+                                              pixelBounds->get(CVBBV::eMinR),
+                                              pixelBounds->get(CVBBV::eMaxR),
+                                              pixelBounds->get(CVBBV::eHalfLengthZ),
+                                              containerBounds->get(CVBBV::eHalfLengthZ),
                                               0, // material layers,
                                               true, // cylinder
                                               "Pixel::PositiveGap");
     auto negGap = cvh.createGapTrackingVolume(gctx,
                                               noVolumes,
                                               nullptr, // no material,
-                                              pixelBounds->innerRadius(),
-                                              pixelBounds->outerRadius(),
-                                              -containerBounds->halflengthZ(),
-                                              -pixelBounds->halflengthZ(),
+                                              pixelBounds->get(CVBBV::eMinR),
+                                              pixelBounds->get(CVBBV::eMaxR),
+                                              -containerBounds->get(CVBBV::eHalfLengthZ),
+                                              -pixelBounds->get(CVBBV::eHalfLengthZ),
                                               0, // material layers,
                                               true, // cylinder
                                               "Pixel::NegativeGap");

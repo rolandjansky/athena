@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement, division
 
@@ -143,7 +143,8 @@ class DCSC_Variable(object):
         IOVSet = iovs.empty
         iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
         
-        quantizer = lambda iovs: min(i.good for i in iovs) if iovs else None
+        def quantizer (iovs):
+            return min(i.good for i in iovs) if iovs else None
         
         result = quantize_iovs_slow_mc(lbtime, iovs, quantizer)
         return IOVSet(GoodIOV(*iov) 

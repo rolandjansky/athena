@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-Analysis__JetSecVertexingAlg=CompFactory.Analysis__JetSecVertexingAlg
+Analysis__JetSecVertexingAlg=CompFactory.Analysis.JetSecVertexingAlg
 
 def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.

@@ -4,7 +4,7 @@
 
 #include "RadLenNtuple.h"
 #include "LArG4RunControl/LArGeoTBH1GeoOptions.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include <iostream>
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -40,7 +40,7 @@ namespace G4UA
     if (m_mcEvtColl.isValid()) {
       McEventCollection::const_iterator iEvt = m_mcEvtColl->begin();
       HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
-      m_xcoord = (*p)->production_vertex()->point3d().x();
+      m_xcoord = (*p)->production_vertex()->position().x();
     }
    
     ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen").ignore();

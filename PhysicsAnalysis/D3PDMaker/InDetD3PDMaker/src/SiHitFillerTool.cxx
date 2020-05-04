@@ -9,7 +9,7 @@
 //#include "InDetIdentifier/PixelID.h"
 //#include "InDetPrepRawData/PixelCluster.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 //#include "GeoAdaptors/GeoSiHit.h"
 
 /*
@@ -221,7 +221,6 @@ StatusCode SiHitFillerTool::fill (const SiHit& /*hit*/)
   *m_energyLoss=1.0;
   *m_meanTime=1.0;
   *m_trackNumber=1.0;
-  //const HepMcParticleLink & 	particleLink () const
   *m_isPixel=1;
   *m_isSCT=1;
   *m_BarrelEndcap=1;
@@ -230,15 +229,11 @@ StatusCode SiHitFillerTool::fill (const SiHit& /*hit*/)
   *m_PhiModule=1;
   *m_Side=1; 
 
-  //const HepMcParticleLink& mcLink = hit.particleLink();
   *m_truthbarcode2 = 1;
 
-  //const HepMC::GenParticle* genPart= mcLink.cptr();
-  //if(genPart){
+
    *m_truthbarcode = -999;
-   //}else{
-   //*m_truthbarcode=-999;
-   //}
+
 
   return StatusCode::SUCCESS;
 }

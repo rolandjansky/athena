@@ -136,8 +136,7 @@ RecExCommonFlags = {
       'doDumpTES' : False, # if dump storegate transient event store
       'doDumpTDS' : False, # if dump storegate transient detector store
       'doFloatingPointException' : True, # if enable floating-point exception
-      'abortOnUncheckedStatusCode' : True, # if enable abort on unchecked status code
-      'doDumpPoolInputContent' : False, # if dump pool input object list 
+      'doDumpPoolInputContent' : False, # if dump pool input object list
       'doDumpProperties' : False, # if dump all algs properties
       'doDetailedAuditor' : False, # if monitor alg/tools and services memory and CPU time
       'doSGAuditor' : False, # if monitor data flow, see https://twiki.cern.ch/twiki/bin/view/Atlas/DataFlowMonitoring 
@@ -172,8 +171,6 @@ RecExCommonFlags = {
 RecExCommonAlgs = {
       'doTrackRecordFilter' : True,
       'donewTracking' : True,   
-      'doxKalman' : False,
-      'doiPatRec' : True,
       'doBackTracking' : True,      
       'doEmCluster' : True,
       'doCaloCluster' : False,
@@ -297,7 +294,6 @@ except Exception:
 try:
    from InDetRecExample.InDetJobProperties import InDetFlags
    # change default here
-   InDetFlags.doxKalman=False
    InDetFlags.doPrintConfigurables=False
 except Exception:
    treatException("Could not instantiate InDetFlags ")
@@ -864,7 +860,6 @@ if not rec.doInDet:
 else:
    if rec.Production:
       from InDetRecExample.InDetJobProperties import InDetFlags
-      InDetFlags.doiPatRec=False
    
 if not rec.doLArg:
    DetFlags.LAr_setOff()
@@ -1001,12 +996,6 @@ except Exception:
    DetFlags.ID_setOff()
 
 
-##    if rec.doAODall() and oneTrackingAlg :
-##       if recAlgs.donewTracking() + recAlgs.doiPatRec() +recAlgs.doxKalman() <= 1 :
-##          logRecExCommon_flags.warning('doAODall=True :  more than one tracking alg should be enabled ! So switching doAODall=False')
-##          rec.doAODall=False
-##       else:
-##          InDetFlags.setAODall()
 
 
 if not rec.doTruth() or ( globalflags.DetDescrVersion()[0:3]=="DC1" or globalflags.DetDescrVersion()[0:3]=="DC2" )  :

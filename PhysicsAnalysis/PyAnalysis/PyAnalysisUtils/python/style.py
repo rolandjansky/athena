@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: style.py,v 1.1 2005-05-11 19:47:29 ssnyder Exp $
@@ -26,7 +26,7 @@ def style():
     s.SetOptStat (1110)
 
     # title size
-    s.SetOptFit(0o111)
+    s.SetOptFit(111)
     s.SetTitleFont(42)
     s.SetTitleH(0.09)
     s.SetTitleX(0.1)

@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//////////////////////////////////////////////////////////////////
-// IMuonTrackQuery.h, (c) ATLAS Combined Muon software
-//   extract some muon-specific info from combined muon tracks
-//////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUONTRACKQUERY_H
 #define MUIDINTERFACES_IMUONTRACKQUERY_H
@@ -94,11 +89,7 @@ public:
     /**IMuonTrackQuery interface:
        perigee expressed outgoing from IP */
     virtual const Trk::Perigee*	outgoingPerigee (const Trk::Track& track) const = 0;
-     
-    /**IMuonTrackQuery interface:
-       track expressed outgoing from IP */
-    virtual const Trk::Track*	outgoingTrack (const Trk::Track& track) const = 0;
-     
+
     /**IMuonTrackQuery interface:
      significance of inner scattering angle pattern for unslimmed tracks (wider than gaussian) */
     virtual ScatteringAngleSignificance	scatteringAngleSignificance (const Trk::Track& track) const = 0;

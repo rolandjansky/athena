@@ -74,6 +74,14 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)
       (*ii)->setEnergyFast(0.0);
   }
+  void reset_TileCol(TileCellCollection* col){
+     for ( TileCell* tr: *col ) {
+        (tr)->setEnergy_nonvirt(0.0F, 0.0F, 0, CaloGain::INVALIDGAIN);
+        (tr)->setTime_nonvirt(-100.0F);
+        (tr)->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 0);
+        (tr)->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 1);
+      } // end of for all channels
+   }
 
   /**
    * @brief Convenience structure to keep together all ROBs and IdentifierHashes 
@@ -100,6 +108,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
     LArCellCont* larContainer;
     TileCellCont* tileContainer;
     CaloCellContainer* fullcont;
+    TileROD_Decoder::D0CellsHLT* d0cells;
     unsigned int lastFSEvent;
   };
 
@@ -109,12 +118,14 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::mutex m_initMutex; // this will be gone once we move to new conditions
   std::mutex m_dataPrepMutex; // this will be gone when reg sel & Rob DP will become thread safe
   std::mutex m_getCollMutex; // this will be gone
+  std::mutex m_lardecoderProtect;  // protection for the larRodDecoder
+  std::mutex m_tiledecoderProtect;  // protection for the tileRodDecoder
 
   unsigned int lateInit();
   bool m_lateInitDone = false;
 
   unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
-  unsigned int convertROBs( const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell );
+  unsigned int convertROBs( const EventContext& context, const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell, TileROD_Decoder::D0CellsHLT* d0cells );
 
 
   /**

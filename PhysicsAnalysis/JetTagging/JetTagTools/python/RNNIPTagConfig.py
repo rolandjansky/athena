@@ -9,7 +9,7 @@ from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFa
 from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 
 # import the IPTag configurable
-Analysis__RNNIPTag=CompFactory.Analysis__RNNIPTag
+Analysis__RNNIPTag=CompFactory.Analysis.RNNIPTag
 
 def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFlagsDefaults = True, **options ):
     """Sets up a RNNIPTag tool and returns it.

@@ -153,7 +153,6 @@ doAllReco   = False
 
 
 #doCommissioning = False
-#abortonuncheckedstatuscode = False
 
 # Found that this must be true for REB runs but not for SFI
 if (partitionName == "L1CaloStandalone"):
@@ -234,7 +233,6 @@ printfunc ('| doLucid            = ',doLucid)
 #printfunc ('| doJiveXML          = ',doJiveXML)
 printfunc ('| doEgammaTau        = ',doEgammaTau)
 printfunc ('| doCommissioning    = ',doCommissioning)
-printfunc ('| abortonuncheckedstatuscode = ',abortonuncheckedstatuscode)
 printfunc ('-------------------------------------------------------------')
 printfunc ('|     RecExOnline_monitoring settings')
 printfunc ('| doAllMon           = ',doAllMon)

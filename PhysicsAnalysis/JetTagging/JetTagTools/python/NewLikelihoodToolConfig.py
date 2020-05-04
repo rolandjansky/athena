@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the NewLikelihoodTool configurable
-Analysis__NewLikelihoodTool=CompFactory.Analysis__NewLikelihoodTool
+Analysis__NewLikelihoodTool=CompFactory.Analysis.NewLikelihoodTool
 
 def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a NewLikelihoodTool tool and returns it.

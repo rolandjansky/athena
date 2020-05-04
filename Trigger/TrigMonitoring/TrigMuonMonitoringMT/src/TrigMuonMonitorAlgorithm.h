@@ -29,13 +29,19 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
 
  protected:
   virtual bool selectEvents() const;
-  virtual bool selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const;
+  virtual StatusCode selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const;
   virtual StatusCode fillVariables(const EventContext &ctx) const;
   virtual StatusCode fillVariablesPerOfflineMuon(const EventContext &ctx, const xAOD::Muon* mu) const;
+  virtual StatusCode fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const;
+  virtual StatusCode fillVariablesPerOfflineMuonPerChain(const EventContext &ctx, const xAOD::Muon* mu, const std::string &chain) const;
 
 
   // ReadHandles
-  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey {this, "MuonContainerName", "Muons", "Offline muon container"};
+
+  // Properties
+  Gaudi::Property<std::vector<std::string> > m_monitored_chains {this, "MonitoredChains", {}, "Trigger chains that are monitored"};
+  Gaudi::Property<int> m_muontype {this, "MuonType", xAOD::Muon::MuonType::Combined, "MuonType used for monitoring"};
   
 
 };

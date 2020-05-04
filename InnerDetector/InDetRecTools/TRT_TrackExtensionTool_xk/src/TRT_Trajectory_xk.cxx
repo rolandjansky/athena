@@ -36,11 +36,11 @@ void  InDet::TRT_Trajectory_xk::set
 }
 
 void  InDet::TRT_Trajectory_xk::set
-(Trk::MagneticFieldProperties& mp,const MagField::IMagFieldSvc* ms )
+(Trk::MagneticFieldProperties& mp,const MagField::IMagFieldSvc* ms, const AtlasFieldCacheCondObj* condObj )
 
 {
   m_fieldprop    = mp;
-  for(int i=0; i!=400; ++i) m_elements[i].set(mp,ms);  
+  for(int i=0; i!=400; ++i) m_elements[i].set(mp, ms, condObj);  
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -13,17 +13,18 @@
 #include "TLorentzVector.h"
 
 DerivationFramework::PixelNtupleMaker::PixelNtupleMaker(const std::string& t, const std::string& n, const IInterface* p) : 
-  AthAlgTool(t,n,p),
-  m_containerName("InDetTrackParticles")
+  AthAlgTool(t,n,p)
 {
   declareInterface<DerivationFramework::ISkimmingTool>(this);
-  declareProperty("ContainerName", m_containerName="InDetTrackParticles");
 }
 
 DerivationFramework::PixelNtupleMaker::~PixelNtupleMaker() {
-}  
+}
 
 StatusCode DerivationFramework::PixelNtupleMaker::initialize() {
+  ATH_CHECK(m_containerKey.initialize());
+  ATH_CHECK(m_measurementContainerKey.initialize());
+  ATH_CHECK(m_monitoringTracks.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -33,30 +34,25 @@ StatusCode DerivationFramework::PixelNtupleMaker::finalize()
 }
 
 bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const xAOD::TrackParticleContainer* tracks=0;
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_containerKey,ctx);
 //  ATH_CHECK(evtStore()->retrieve(tracks, m_containerName));
-  if (!evtStore()->retrieve(tracks, m_containerName).isSuccess()) { return false; }
+  if (!tracks.isValid()) { return false; }
 
   // Check the event contains tracks
   unsigned int nTracks = tracks->size();
 //  if (nTracks==0) return StatusCode::SUCCESS;
   if (nTracks==0) { return false; }
 
-  const xAOD::TrackMeasurementValidationContainer* pixClustersOrig = 0;
-//  ATH_CHECK(evtStore()->retrieve(pixClustersOrig,"PixelClusters"));
-  if (!evtStore()->retrieve(pixClustersOrig,"PixelClusters").isSuccess()) { return false; }
+  SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> pixClusters(m_measurementContainerKey,ctx);
+  if (!pixClusters.isValid()) { return false; }
 
-  std::pair< xAOD::TrackMeasurementValidationContainer*, xAOD::ShallowAuxContainer* > pixClustersPair = xAOD::shallowCopyContainer( *pixClustersOrig );
-  xAOD::TrackMeasurementValidationContainer* pixClusters =  pixClustersPair.first;
-
-  xAOD::TrackParticleContainer* PixelMonitoringTrack = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer* PixelMonitoringTrackAux = new xAOD::TrackParticleAuxContainer();
-  PixelMonitoringTrack->setStore(PixelMonitoringTrackAux);
-//  ATH_CHECK(evtStore()->record(PixelMonitoringTrack,"PixelMonitoringTrack"));
-//  ATH_CHECK(evtStore()->record(PixelMonitoringTrackAux,"PixelMonitoringTrackAux."));
-  if (!evtStore()->record(PixelMonitoringTrack,"PixelMonitoringTrack").isSuccess()) { return false; }
-  if (!evtStore()->record(PixelMonitoringTrackAux,"PixelMonitoringTrackAux.").isSuccess()) { return false; }
+  SG::WriteHandle<xAOD::TrackParticleContainer> PixelMonitoringTrack(m_monitoringTracks,ctx);
+  if (PixelMonitoringTrack.record(std::make_unique<xAOD::TrackParticleContainer>(),
+                                  std::make_unique<xAOD::TrackParticleAuxContainer>()).isFailure())  {
+     return false;
+  }
 
   std::vector<float> tmpCov(15,0.);
   static SG::AuxElement::ConstAccessor<MeasurementsOnTrack>  acc_MeasurementsOnTrack("msosLink");
@@ -127,7 +123,7 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
           } // not a hole
           const xAOD::TrackMeasurementValidation* msosClus =  *(msos->trackMeasurementValidationLink());        
 
-          for (xAOD::TrackMeasurementValidationContainer::iterator clus_itr=(pixClusters)->begin(); clus_itr!=(pixClusters)->end(); ++clus_itr) {
+          for (xAOD::TrackMeasurementValidationContainer::const_iterator clus_itr=pixClusters->begin(); clus_itr!=pixClusters->end(); ++clus_itr) {
             if ((*clus_itr)->identifier()!=(msosClus)->identifier()) { continue; }
             if ((*clus_itr)->auxdata<float>("charge")!=(msosClus)->auxdata<float>("charge")) { continue; }
 
@@ -163,7 +159,7 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
             int numNeighborCluster20x4 = 0;
             int nTotalClustersPerModule = 0;
             int nTotalPixelsPerModule = 0;
-            for (xAOD::TrackMeasurementValidationContainer::iterator clus_neighbor=(pixClusters)->begin(); clus_neighbor!=(pixClusters)->end(); ++clus_neighbor) {
+            for (xAOD::TrackMeasurementValidationContainer::const_iterator clus_neighbor=pixClusters->begin(); clus_neighbor!=pixClusters->end(); ++clus_neighbor) {
               if ((*clus_neighbor)->auxdata<int>("layer")==(*clus_itr)->auxdata<int>("layer")
                   && (*clus_neighbor)->auxdata<int>("bec")==(*clus_itr)->auxdata<int>("bec")
                   && (*clus_neighbor)->auxdata<int>("phi_module")==(*clus_itr)->auxdata<int>("phi_module")
@@ -301,42 +297,42 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoEta("RdoEta");
       d0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(0);
       z0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(2);
-      HoleIndex(*tp)         = holeIndex;
-      ClusterLayer(*tp)      = clusterLayer;
-      ClusterBEC(*tp)        = clusterBEC;
-      ClusterModulePhi(*tp)  = clusterModulePhi;
-      ClusterModuleEta(*tp)  = clusterModuleEta;
-      ClusterCharge(*tp)     = clusterCharge;
-      ClusterToT(*tp)        = clusterToT;
-      ClusterL1A(*tp)        = clusterL1A;
-      ClusterIsSplit(*tp)    = clusterIsSplit;
-      ClusterSize(*tp)       = clusterSize;
-      ClusterSizePhi(*tp)    = clusterSizePhi;
-      ClusterSizeZ(*tp)      = clusterSizeZ;
-      ClusterIsEdge(*tp)     = isEdge;
-      ClusterIsOverflow(*tp) = isOverflow;
-      TrackLocalPhi(*tp)     = trackPhi;
-      TrackLocalTheta(*tp)   = trackTheta;
-      TrackLocalX(*tp)       = trackX;
-      TrackLocalY(*tp)       = trackY;
-      ClusterLocalX(*tp)     = localX;
-      ClusterLocalY(*tp)     = localY;
-      ClusterGlobalX(*tp)    = globalX;
-      ClusterGlobalY(*tp)    = globalY;
-      ClusterGlobalZ(*tp)    = globalZ;
-      UnbiasedResidualX(*tp) = unbiasedResidualX;
-      UnbiasedResidualY(*tp) = unbiasedResidualY;
-      ClusterIsolation10x2(*tp) = clusterIsolation10x2;
-      ClusterIsolation20x4(*tp) = clusterIsolation20x4;
-      NumTotalClustersPerModule(*tp) = numTotalClustersPerModule;
-      NumTotalPixelsPerModule(*tp)   = numTotalPixelsPerModule;
-      ModuleBiasVoltage(*tp)  = moduleBiasVoltage;
-      ModuleTemperature(*tp)  = moduleTemperature;
-      ModuleLorentzShift(*tp) = moduleLorentzShift;
-      RdoToT(*tp)    = rdoToT;
-      RdoCharge(*tp) = rdoCharge;
-      RdoPhi(*tp)    = rdoPhi;
-      RdoEta(*tp)    = rdoEta;
+      HoleIndex(*tp)         = std::move(holeIndex);
+      ClusterLayer(*tp)      = std::move(clusterLayer);
+      ClusterBEC(*tp)        = std::move(clusterBEC);
+      ClusterModulePhi(*tp)  = std::move(clusterModulePhi);
+      ClusterModuleEta(*tp)  = std::move(clusterModuleEta);
+      ClusterCharge(*tp)     = std::move(clusterCharge);
+      ClusterToT(*tp)        = std::move(clusterToT);
+      ClusterL1A(*tp)        = std::move(clusterL1A);
+      ClusterIsSplit(*tp)    = std::move(clusterIsSplit);
+      ClusterSize(*tp)       = std::move(clusterSize);
+      ClusterSizePhi(*tp)    = std::move(clusterSizePhi);
+      ClusterSizeZ(*tp)      = std::move(clusterSizeZ);
+      ClusterIsEdge(*tp)     = std::move(isEdge);
+      ClusterIsOverflow(*tp) = std::move(isOverflow);
+      TrackLocalPhi(*tp)     = std::move(trackPhi);
+      TrackLocalTheta(*tp)   = std::move(trackTheta);
+      TrackLocalX(*tp)       = std::move(trackX);
+      TrackLocalY(*tp)       = std::move(trackY);
+      ClusterLocalX(*tp)     = std::move(localX);
+      ClusterLocalY(*tp)     = std::move(localY);
+      ClusterGlobalX(*tp)    = std::move(globalX);
+      ClusterGlobalY(*tp)    = std::move(globalY);
+      ClusterGlobalZ(*tp)    = std::move(globalZ);
+      UnbiasedResidualX(*tp) = std::move(unbiasedResidualX);
+      UnbiasedResidualY(*tp) = std::move(unbiasedResidualY);
+      ClusterIsolation10x2(*tp) = std::move(clusterIsolation10x2);
+      ClusterIsolation20x4(*tp) = std::move(clusterIsolation20x4);
+      NumTotalClustersPerModule(*tp) = std::move(numTotalClustersPerModule);
+      NumTotalPixelsPerModule(*tp)   = std::move(numTotalPixelsPerModule);
+      ModuleBiasVoltage(*tp)  = std::move(moduleBiasVoltage);
+      ModuleTemperature(*tp)  = std::move(moduleTemperature);
+      ModuleLorentzShift(*tp) = std::move(moduleLorentzShift);
+      RdoToT(*tp)    = std::move(rdoToT);
+      RdoCharge(*tp) = std::move(rdoCharge);
+      RdoPhi(*tp)    = std::move(rdoPhi);
+      RdoEta(*tp)    = std::move(rdoEta);
 
       PixelMonitoringTrack->push_back(tp);
     }

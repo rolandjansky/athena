@@ -25,6 +25,12 @@
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackParticle.h"
 
+// Local include(s):
+#include "xAODTrackingCnv/ITrackParticleMonitoring.h"
+
+
+
+
 namespace Trk {
   class ITrackParticleCreatorTool;
 }
@@ -33,6 +39,7 @@ namespace xAODMaker {
   class ITrackCollectionCnvTool;
   class IRecTrackParticleContainerCnvTool;
 }
+
 
 namespace xAODMaker {
 
@@ -91,6 +98,13 @@ namespace xAODMaker {
     SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthParticleLinkVec;    
     SG::ReadHandleKey<TrackParticleTruthCollection> m_aodTruth;
     SG::ReadHandleKey<TrackTruthCollection>  m_trackTruth;    
+
+
+    //Online Track monitoring
+    bool m_doMonitoring;
+    ToolHandle< ITrackParticleMonitoring > m_trackMonitoringTool;
+
+
 
     /// toggle on converting AOD track particles to xAOD
     bool m_convertAODTrackParticles;

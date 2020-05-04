@@ -60,6 +60,7 @@ declare -a FILES_POOLROOT
 declare -a FILES_VP1CFG
 declare -a FILES_EXTRAJOBOPT
 declare -a LOCALEVENTSRC_AVAILDIRS
+
 FLAG_FORCE=0
 FLAG_HELP=0
 FLAG_DATA=0
@@ -102,6 +103,7 @@ FLAG_CGAL=0
 FLAG_SLHC=0
 MUONLAYOUT=""
 NSWAGDDFILE=""
+MUONAGDDFILE=""
 FLAG_CUSTOMGEOMETRY=0
 MULTINP_SRC=""
 MULTINP_CPY=""
@@ -179,16 +181,32 @@ while [ $i -le $# ]; do
         FLAG_SLHC=1
     elif [ "x${arg}" == "x-customgeom" ]; then
         FLAG_CUSTOMGEOMETRY=1
+    ## Muon Layout
+    elif [ "x${arg:0:11}" == "x-muonLayout" ]; then
+        ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.02.NSW"
     elif [ "x${arg:0:12}" == "x-muonLayout=" ]; then
         MUONLAYOUT=${arg:12:$((${#arg}-12))}
         if [ "x$MUONLAYOUT" == "x" ]; then
-            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.00.AsymNSW"
+            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.02.NSW"
         fi
+    # Muon NSW AGDD custom file
+    elif [ "x${arg:0:8}" == "x-nswagdd" ]; then
+        ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.07.xml"
     elif [ "x${arg:0:9}" == "x-nswagdd=" ]; then
         NSWAGDDFILE=${arg:9:$((${#arg}-9))}
         if [ "x$NSWAGDDFILE" == "x" ]; then
-            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.07.xml"
         fi
+    ###
+    # Muon NSW AGDD custom file
+    elif [ "x${arg:0:9}" == "x-muonagdd" ]; then
+        ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
+    elif [ "x${arg:0:10}" == "x-muonagdd=" ]; then
+        MUONAGDDFILE=${arg:10:$((${#arg}-10))}
+        if [ "x$MUONAGDDFILE" == "x" ]; then
+            ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
+        fi
+    ###
     elif [ "x${arg}" == "x-mc" ]; then
 	FLAG_MC=1
     elif [ "x${arg}" == "x-multinp" ]; then
@@ -824,13 +842,17 @@ if [ "x$FLAG_CUSTOMGEOMETRY" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1CustomGeometry=True"
 fi
-if [ "x$MUONLAYOUT" != "x0" ]; then
+if [ "x$MUONLAYOUT" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1MuonLayout=\"$MUONLAYOUT\""
 fi
-if [ "x$NSWAGDDFILE" != "x0" ]; then
+if [ "x$NSWAGDDFILE" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1NSWAGDDFiles=[\"${NSWAGDDFILE}\"]"
+fi
+if [ "x$MUONAGDDFILE" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1MuonAGDDFiles=[\"${MUONAGDDFILE}\"]"
 fi
 if [ "x$FLAG_NOGUI" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
@@ -885,6 +907,10 @@ if [ "x$FLAG_TEST" != "x0" ]; then
     fi
     exit 0
 fi
+
+#print the final list of options that have been set
+echo "'dump-geo' - Options that have been set to run the application: ${OPTS}"
+
 
 ##################################################
 ##  Possibly get boot-strap file for http mode  ##

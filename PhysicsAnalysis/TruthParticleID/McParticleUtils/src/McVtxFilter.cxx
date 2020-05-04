@@ -17,8 +17,8 @@
 #include "GaudiKernel/GaudiException.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // AnalysisUtils includes
 #include "AnalysisUtils/AnalysisPermutation.h"

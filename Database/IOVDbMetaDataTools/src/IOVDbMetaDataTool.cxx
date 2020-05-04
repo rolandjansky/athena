@@ -267,8 +267,7 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 
   // Override run number if requested
   if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
-    // Should be ok.
-    StatusCode sc ATLAS_THREAD_SAFE = overrideIOV(payload);
+    StatusCode sc = overrideIOV(payload);
     ATH_CHECK( sc );
   }
 
@@ -504,8 +503,7 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	CondAttrListCollection* coll = new CondAttrListCollection(**itColl);
 	// Override run number if requested
 	if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
-          // Should be ok.
-          StatusCode sc ATLAS_THREAD_SAFE = overrideIOV(coll);
+          StatusCode sc = overrideIOV(coll);
           ATH_CHECK( sc );
         }
 
@@ -636,7 +634,7 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 //--------------------------------------------------------------------------
 
 StatusCode
-IOVDbMetaDataTool::overrideIOV ATLAS_NOT_THREAD_SAFE (CondAttrListCollection*& coll) const
+IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
 {
     ATH_MSG_DEBUG("overrideIOV ");
 
@@ -665,25 +663,25 @@ IOVDbMetaDataTool::overrideIOV ATLAS_NOT_THREAD_SAFE (CondAttrListCollection*& c
             return StatusCode::SUCCESS;
         }
         // Now over ride IOVs
-        CondAttrListCollection* coll1 = new CondAttrListCollection(true);
         if (iovSizeIsZero) { 
             // Only add in overall range if channels do not have
             // IOVs - otherwise this is automatically calculated
-            coll1->addNewStart(newRange.start());
-            coll1->addNewStop (newRange.stop());
+            coll->addNewStart(newRange.start());
+            coll->addNewStop (newRange.stop());
         }
-        // Add in channels
-        unsigned int nchans = coll->size();
-        bool hasChanNames = (coll->name_size() == nchans);
-        for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
+        else {
+          // Add in channels
+          unsigned int nchans = coll->size();
+          for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
+            // FIXME: O(N^2)!
             CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
-            coll1->add(chan, coll->attributeList(chan));
-            if (!iovSizeIsZero) coll1->add(chan, newRange);
-            if(hasChanNames)coll1->add(chan, coll->chanName(chan));
+            coll->add(chan, newRange);
             ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection " << chan);
+          }
         }
-        delete coll;
-        coll = coll1;
+        // must reset the collection range AFTER the channels, because the collection range will be
+        // 'narrowed' to that of the channels
+        coll->resetMinRange();
         if (msgLvl(MSG::DEBUG)) {
 	  std::ostringstream stream;
 	  coll->dump(stream);
