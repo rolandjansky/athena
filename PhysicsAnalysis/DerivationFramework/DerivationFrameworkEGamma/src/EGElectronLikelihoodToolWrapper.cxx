@@ -3,57 +3,60 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// EGSelectionToolWrapper.cxx, (c) ATLAS Detector software
+// EGElectronLikelihoodToolWrapper.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: Giovanni Marchiori (giovanni.marchiori@cern.ch)
-//
 
-#include "DerivationFrameworkEGamma/EGSelectionToolWrapper.h"
+#include "DerivationFrameworkEGamma/EGElectronLikelihoodToolWrapper.h"
 #include "xAODBase/IParticleContainer.h"
-#include "PATCore/AcceptData.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
+#include "PATCore/AcceptData.h"
+#include "PATCore/AcceptInfo.h"
+
 
 namespace DerivationFramework {
 
-  EGSelectionToolWrapper::EGSelectionToolWrapper(const std::string& t,
-      const std::string& n,
-      const IInterface* p) : 
+  EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(const std::string& t,
+								   const std::string& n,
+								   const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_cut(""),
     m_sgName(""),
-    m_containerName("")
+    m_containerName(""),
+    m_storeTResult(false)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("EGammaSelectionTool", m_tool);
+    declareProperty("EGammaElectronLikelihoodTool", m_tool);
     declareProperty("EGammaFudgeMCTool", m_fudgeMCTool);
     declareProperty("CutType", m_cut);
     declareProperty("StoreGateEntryName", m_sgName);
     declareProperty("ContainerName", m_containerName);
+    declareProperty("StoreTResult", m_storeTResult);
   }
 
-  StatusCode EGSelectionToolWrapper::initialize()
+  StatusCode EGElectronLikelihoodToolWrapper::initialize()
   {
-    if (m_sgName=="") {
-      ATH_MSG_ERROR("No SG name provided for the output of EGSelectionToolWrapper!");
+    if (m_sgName.empty()) {
+      ATH_MSG_ERROR("No SG name provided for the output of EGElectronLikelihoodToolWrapper!");
       return StatusCode::FAILURE;
     }
-    if (m_containerName!="Photons" && m_containerName!="Electrons" && m_containerName!="ForwardElectrons") {
+    if (m_containerName!="Photons" && m_containerName!="Electrons") {
       ATH_MSG_ERROR("Wrong container provided!");
       return StatusCode::FAILURE;
     }
     CHECK(m_tool.retrieve());
-    if (m_fudgeMCTool.name()!="") CHECK(m_fudgeMCTool.retrieve());
+    if (!(m_fudgeMCTool.name().empty())) CHECK(m_fudgeMCTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
-  StatusCode EGSelectionToolWrapper::finalize()
+  StatusCode EGElectronLikelihoodToolWrapper::finalize()
   {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode EGSelectionToolWrapper::addBranches() const
+  StatusCode EGElectronLikelihoodToolWrapper::addBranches() const
   {
     // retrieve container
     const xAOD::IParticleContainer* particles = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName );
@@ -71,15 +74,15 @@ namespace DerivationFramework {
 
       xAOD::Type::ObjectType type = (*pItr)->type();
       if (type!=xAOD::Type::Electron && type!=xAOD::Type::Photon) {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type (not electron nor photon) being passed to EGSelectionToolWrapper");
+	  ATH_MSG_ERROR ("addBranches(): Wrong particle type (not electron nor photon) being passed to EGElectronLikelihoodToolWrapper");
 	  return StatusCode::FAILURE;
       }
-      if (type==xAOD::Type::Electron && (m_containerName!="Electrons" && m_containerName!="ForwardElectrons")) {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGSelectionToolWrapper");
+      if (type==xAOD::Type::Electron && m_containerName!="Electrons") {
+	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGElectronLikelihoodToolWrapper");
 	  return StatusCode::FAILURE;
       }
       if (type==xAOD::Type::Photon && m_containerName!="Photons") {
-	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGSelectionToolWrapper");
+	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGElectronLikelihoodToolWrapper");
 	  return StatusCode::FAILURE;
       }
       
@@ -92,13 +95,13 @@ namespace DerivationFramework {
 	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
 	if (type==xAOD::Type::Electron) {
 	    const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(*pItr);
-	    xAOD::Electron* el = 0;
+	    xAOD::Electron* el = nullptr;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
 	    pCopy = el;
 	}
 	else {
 	    const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*pItr);
-	    xAOD::Photon* ph = 0;
+	    xAOD::Photon* ph = nullptr;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
 	    pCopy = ph;
 	}
@@ -107,22 +110,31 @@ namespace DerivationFramework {
 	else if (correctionCode==CP::CorrectionCode::Error)
 	    Error("addBranches()","Error applying fudge factors to current photon");
 	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange)
-	    Warning("addBranches()","Current photon has no valid fudge factors due to out-of-range");
+	    Warning("addBranches()","Current object has no valid fudge factors due to out-of-range");
 	else
-	    Warning("addBranches()","Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode);
+	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
       }
 
       // compute the output of the selector
       asg::AcceptData theAccept(m_tool->accept(pCopy));
-      //unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
       unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
+      double result(0.); // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
+
+      // Lukas Heinrich: interface in master not yet available.
+      //      if (m_storeTResult) {
+      //	result = double(m_tool->calculate(pCopy));
+      //      }
       
       // decorate the original object
-      if(m_cut==""){
+      if(m_cut.empty()){
 	bool pass_selection = (bool) theAccept;
 	if(pass_selection) decoratorPass(**pItr) = 1;
 	else decoratorPass(**pItr) = 0;
 	decoratorIsEM(**pItr) = isEM;
+	if (m_storeTResult) {
+	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
+	  decoratorResult(**pItr) = result;
+	}
       }
       else{
 	if (theAccept.getCutResult(m_cut)) {
@@ -131,6 +143,10 @@ namespace DerivationFramework {
 	  decoratorPass(**pItr) = 0;
 	}
 	decoratorIsEM(**pItr) = isEM;
+	if (m_storeTResult) {
+	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
+	  decoratorResult(**pItr) = result;
+	}
       }
 
       // delete the particle copy
