@@ -431,7 +431,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
             }
             // Fill the track hits histogram
             double dTbin{static_cast<double>((tbin == 2) or (tbin == 3))};
-            m_tbinfracall->Fill(thisBec+0.5, dTbin);
+            m_tbinfracall->Fill(systemIndex, dTbin);
           }
         }
         histogram->Fill(thisEta, thisPhi, numberOfStrips);

@@ -235,7 +235,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
 
   vector<int> vEtaOnTrack;
   vector<int> vPhiOnTrack;
-  vector<float> vBec0p5OnTrack;
+  vector<float> vSystemIndexOnTrack;
   vector<bool> vDTbinOnTrack;
 
   vector<int> vEta;
@@ -303,7 +303,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
             vEtaOnTrack.push_back(thisEta);
             vPhiOnTrack.push_back(thisPhi);
             vDTbinOnTrack.push_back((tbin == 2) or (tbin == 3));
-            vBec0p5OnTrack.push_back(barrel_ec+0.5);
+            vSystemIndexOnTrack.push_back(systemIndex);
           }
         }
         vEta.push_back(thisEta);
@@ -371,7 +371,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     }
   }// End of Loop on RDO container
 
-  auto Bec_TBinFracAllAcc{Monitored::Collection("Bec_TBinFracAll", vBec0p5OnTrack)};
+  auto Bec_TBinFracAllAcc{Monitored::Collection("Bec_TBinFracAll", vSystemIndexOnTrack)};
   auto TBin_TBinFracAllAcc{Monitored::Collection("TBin_TBinFracAll", vDTbinOnTrack)};
   fill("SCTHitsNoiseMonitorGeneral", Bec_TBinFracAllAcc, TBin_TBinFracAllAcc);
 
