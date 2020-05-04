@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from InDetConfig.TrackReco 	import InDetBCM_ZeroSuppressionCfg, InDetPixelClusterizationCfg, \
+from InDetConfig.TrackRecoConfig 	import InDetBCM_ZeroSuppressionCfg, InDetPixelClusterizationCfg, \
                                    InDetPixelClusterizationPUCfg, InDet_SCTClusterizationCfg, \
                                    InDet_SCTClusterizationPUCfg
 
