@@ -53,7 +53,7 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     from MuonCombinedRecToolsConfig import MuonInsideOutRecoToolCfg
 
     tools = []
-    result = MuonInsideOutRecoToolCfg(flags)
+    result = MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool")
     insideoutrecotool = result.getPrimary()
     tools.append( insideoutrecotool )
     result.addPublicTool( insideoutrecotool )
@@ -234,7 +234,7 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge( MuonCombinedAlgCfg(flags) )
 
     if flags.MuonCombined.doMuGirl:
-        result.merge(MuonInsideOutRecoAlgCfg(flags) ) 
+        result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
 
