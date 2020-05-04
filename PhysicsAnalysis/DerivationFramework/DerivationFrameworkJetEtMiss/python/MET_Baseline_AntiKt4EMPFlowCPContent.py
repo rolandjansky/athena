@@ -2,7 +2,7 @@
 
 MET_Baseline_AntiKt4EMPFlowCPContent  = [
 "AntiKt4EMPFlowJets",
-"AntiKt4EMPFlowJetsAux.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.GhostTrack.NumTrkPt500.SumPtTrkPt500.Width.EMFrac.EnergyPerSampling",
+"AntiKt4EMPFlowJetsAux.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.GhostTrack.NumTrkPt500.SumPtTrkPt500.Width.EMFrac.EnergyPerSampling.PSFrac",
 "Electrons",
 "InDetTrackParticles",
 "METAssoc_AntiKt4EMPFlow",
