@@ -250,12 +250,12 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
 def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     tools = []
     result=ComponentAccumulator()
-    if flags.MuonCombined.doCombinedFit():
+    if flags.MuonCombined.doCombinedFit:
         acc = MuonCombinedFitTagToolCfg(flags)
         tools.append( acc.popPrivateTools() )
         result.merge(acc)
-    if flags.MuonCombined.doStatisticalCombination() and flags.Beam.Type != 'cosmics':
-        acc = MuonCombinedStacoTagToolCfg()
+    if flags.MuonCombined.doStatisticalCombination and flags.Beam.Type != 'cosmics':
+        acc = MuonCombinedStacoTagToolCfg(flags)
         tools.append(acc.popPrivateTools())
         result.merge(acc)
 
