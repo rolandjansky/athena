@@ -82,7 +82,7 @@ enum EBC_EVCOLL{
 class HepMcParticleLink {
 public:
   typedef uint32_t barcode_type;
-  typedef uint16_t index_type;
+  typedef uint32_t index_type;
 
 
   enum PositionFlag {
