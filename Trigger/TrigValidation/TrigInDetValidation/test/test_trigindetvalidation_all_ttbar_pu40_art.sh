@@ -27,6 +27,7 @@
 # art-output: output-logs
 # art-input-nfiles: 3
 # art-athena-mt: 3
+# art-memory: 4096
 
 
 
