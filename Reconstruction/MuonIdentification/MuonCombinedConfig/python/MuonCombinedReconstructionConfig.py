@@ -130,6 +130,25 @@ def MuonCombinedInDetCandidateAlg(flags, name="MuonCombinedInDetCandidateAlg",**
     result.addEventAlgo( alg, primary=True )
     return result
 
+def MuonCombinedAlgCfg( flags, name="MuonCombinedAlg",**kwargs ):
+
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedToolCfg
+    result = MuonCombinedToolCfg(flags)
+
+    kwargs.setdefault("MuonCombinedTool",result.getPrimary())
+    tagmaps = []
+    # CombinedTagMaps must be in a 1-1 correspondence
+    # with MuonCombinedTagTools.
+    for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
+        if h.find('FitTagTool') >= 0:
+            tagmaps.append ('muidcoTagMap')
+        elif h.find('StacoTagTool') >= 0:
+            tagmaps.append ('stacoTagMap')
+    kwargs.setdefault("CombinedTagMaps", tagmaps)
+    alg = CompFactory.MuonCombinedAlg(name,**kwargs)
+    result.addEventAlgo( alg, primary=True )
+    return result
+
 def recordMuonCreatorAlgObjs (kw):
     Alg = CompFactory.MuonCreatorAlg
     def val (prop):
@@ -212,7 +231,7 @@ def MuonCombinedReconstructionCfg(flags):
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
-        result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
+        result.merge( MuonCombinedAlgCfg(flags) )
 
     if flags.MuonCombined.doMuGirl:
         result.merge(MuonInsideOutRecoAlgCfg(flags) ) 
