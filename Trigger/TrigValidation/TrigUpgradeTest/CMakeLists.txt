@@ -24,7 +24,7 @@ atlas_add_component( TrigUpgradeTest
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
+atlas_install_scripts( test/exec*.sh test/test*.sh )
 
 # Check python syntax:
 atlas_add_test( flake8
@@ -35,22 +35,6 @@ atlas_add_test( flake8
 atlas_add_test( ViewSchedule1  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=1 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( ViewSchedule2  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=2 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=64 POST_EXEC_SCRIPT nopost.sh )
-
-
-# Helper to define unit tests running in a separate directory
-# The test name is derived from the test script name: test/test_${name}.sh
-function( _add_test name )
-   set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${name} )
-   file( REMOVE_RECURSE ${rundir} )   # cleanup to avoid interference with previous run
-   file( MAKE_DIRECTORY ${rundir} )
-   atlas_add_test( ${name}
-      SCRIPT test/test_${name}.sh
-      PROPERTIES TIMEOUT 1000
-      PROPERTIES WORKING_DIRECTORY ${rundir}
-      ${ARGN} )
-endfunction( _add_test )
-
-
 
 # Unit tests of the test scripts
 atlas_add_test( flake8_test_dir
