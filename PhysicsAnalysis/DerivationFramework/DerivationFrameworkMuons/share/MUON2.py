@@ -15,6 +15,17 @@ if globalflags.DataSource()=='geant4':
 printfunc (isSimulation)
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName   = derivationFlags.WriteDAOD_MUON2Stream.StreamName
+fileName     = buildFileName( derivationFlags.WriteDAOD_MUON2Stream )
+MUON2Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
+MUON2Stream.AcceptAlgs(["MUON2Kernel"])
+
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
 ## 1/ setup vertexing tools and services
@@ -277,7 +288,7 @@ if not isSimulation: #Only Skim Data
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "MUON2_thinningTool_Tracks",
-  ThinningService            = "MUON2ThinningSvc",
+  StreamName                 = streamName,
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
   PassFlags                  = ["passed_Bs", "passed_Bplus", "passed_Bc"] )
@@ -287,7 +298,7 @@ ToolSvc += MUON2_thinningTool_Tracks
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
 MUON2_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "MUON2_thinningTool_PV",
-  ThinningService            = "MUON2ThinningSvc",
+  StreamName                 = streamName,
   CandidateCollections       = ["BsJpsiKKCandidates", "BpmJpsiKpmCandidates"],
   KeepPVTracks  =True
  )
@@ -299,7 +310,7 @@ ToolSvc += MUON2_thinningTool_PV
 ##    between decision from this and the previous tools.
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON2MuonTPThinningTool",
-                                                                         ThinningService         = "MUON2ThinningSvc",
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON2MuonTPThinningTool
@@ -307,14 +318,13 @@ ToolSvc += MUON2MuonTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 MUON2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(  
     name                    = "MUON2ElectronTPThinningTool",
-    ThinningService         = "MUON2ThinningSvc",
+    StreamName              = streamName,
     SGKey                   = "Electrons",
     GSFTrackParticlesKey = "GSFTrackParticles",        
     InDetTrackParticlesKey  = "InDetTrackParticles",
     SelectionString = "",
     BestMatchOnly = True,
-    ConeSize = 0.3,
-    ApplyAnd = False)
+    ConeSize = 0.3)
 
 ToolSvc+=MUON2ElectronTPThinningTool
 #====================================================================
@@ -340,23 +350,6 @@ bphy5Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON2Kernel",
                                                                        ThinningTools     = thiningCollection
                                                                        
                                                                        )
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName   = derivationFlags.WriteDAOD_MUON2Stream.StreamName
-fileName     = buildFileName( derivationFlags.WriteDAOD_MUON2Stream )
-MUON2Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
-MUON2Stream.AcceptAlgs(["MUON2Kernel"])
-
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-
-MUON2ThinningSvc = createThinningSvc( svcName="MUON2ThinningSvc", outStreams=[evtStream] )
-svcMgr += MUON2ThinningSvc
 
 #====================================================================
 # Slimming 
