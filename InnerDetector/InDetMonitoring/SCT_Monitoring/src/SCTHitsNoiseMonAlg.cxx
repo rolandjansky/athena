@@ -382,9 +382,9 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHits_vsLBAcc, numberOfHitsFromSPsHSPHits_vsLBAcc, numhitsHallHits_vsLBAcc);
 
     auto lbHitsTrigger_vsLBAcc{Monitored::Collection("lbh_HitsTrigger_vsLB", vLumiBlockTrigger[jReg])};
-    auto numhitsHallHitsTrigger_vsLBAcc{Monitored::Collection("numhitsh_HallHits_vsLB", vNumberOfHitsFromAllRDOsTrigger[jReg])};
+    auto numhitsHallHitsTrigger_vsLBAcc{Monitored::Collection("numhitsh_HallHitsTrigger_vsLB", vNumberOfHitsFromAllRDOsTrigger[jReg])};
     auto numberOfHitsFromSPsHSPHitsTrigger_vsLBAcc{Monitored::Collection("numberOfHitsFromSPsh_HSPHitsTrigger_vsLB", vNumberOfHitsFromSPsTrigger[jReg])};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHitsTrigger_vsLBAcc, numberOfHitsFromSPsHSPHitsTrigger_vsLBAcc, numhitsHallHits_vsLBAcc);
+    fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHitsTrigger_vsLBAcc, numberOfHitsFromSPsHSPHitsTrigger_vsLBAcc, numhitsHallHitsTrigger_vsLBAcc);
   }
 
   // if (m_environment!=AthMonitorAlgorithm::Environment_t::online) { // Uncomment this line to turn off cluster hists in online
