@@ -10,9 +10,6 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/Cosmic.py"
 
-# This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
-export REGTESTEXP="leaving with code"
-export REGTESTREF=`find_data.py TrigUpgradeTest/dummy_regtest.ref`
 #export EXTRA="isOnline=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;forceEnableAllChains=True"
 #export EXTRA="isOnline=True;doEmptyMenu=True;doWriteBS=False"
 export EXTRA="doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"

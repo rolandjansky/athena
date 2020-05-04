@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Trigger BS->RDO_TRIG athena test of the Dev_pp_run3_v1 menu
+# art-description: Test with reversed order of views to check their independence
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -12,14 +12,14 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.threads = 2
-ex.concurrent_events = 2
+ex.threads = 1
 precommand = ''.join([
   "setMenu='LS2_v1';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
   "doWriteBS=False;",
   "doWriteRDOTrigger=True;",
   "forceEnableAllChains=True;",
   "fpeAuditor=True;",
+  "reverseViews=True;"
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 
