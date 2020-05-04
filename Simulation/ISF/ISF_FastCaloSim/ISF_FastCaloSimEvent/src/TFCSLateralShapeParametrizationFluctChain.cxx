@@ -35,16 +35,43 @@ float TFCSLateralShapeParametrizationFluctChain::get_E_hit(TFCSSimulationState& 
 
 FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
+  MSG::Level old_level=level();
+  const bool debug = msgLvl(MSG::DEBUG);
+
+  //Execute the first get_nr_of_init() simulate calls only once. Used for example to initialize the center position
+  TFCSLateralShapeParametrizationHitBase::Hit hit;
+  hit.reset_center();
+  auto hitloopstart=m_chain.begin();
+  if(get_nr_of_init()>0) {
+    if (debug) {
+      PropagateMSGLevel(old_level);
+      ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" before init");
+    }
+
+    hitloopstart+=get_nr_of_init();
+    for(auto hititr=m_chain.begin(); hititr!=hitloopstart; ++hititr) {
+      TFCSLateralShapeParametrizationHitBase* hitsim=*hititr;
+
+      FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
+
+      if (status != FCSSuccess) {
+        ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit init call failed");
+        return FCSFatal;
+      }
+    }
+  }
+
+  //Initialize hit energy only now, as init loop above might change the layer energy
   const float Elayer=simulstate.E(calosample());
   if (Elayer == 0) {
     ATH_MSG_VERBOSE("Elayer=0, nothing to do");
     return FCSSuccess;
   }
   
-  // Call get_number_of_hits() only once, as it could contain a random number
+  // Call get_sigma2_fluctuation only once, as it could contain a random number
   float sigma2  = get_sigma2_fluctuation(simulstate, truth, extrapol);
   if (sigma2 >= s_max_sigma2_fluctuation) {
-    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): fluctuation of hits could not be calculated");
+    ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): fluctuation of hits could not be calculated");
     return FCSFatal;
   }
 
@@ -58,16 +85,14 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   float error2_sumEhit=0;
   float error2=2*s_max_sigma2_fluctuation;
 
-  const bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
+    PropagateMSGLevel(old_level);
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<Elayer<<" sigma2="<<sigma2);
   }
 
   int ihit=0;
   int ifail=0;
   int itotalfail=0;
-  TFCSLateralShapeParametrizationHitBase::Hit hit;
-  hit.reset_center();
   do {
     hit.reset();
     //hit.E()=Eavghit;
@@ -75,16 +100,20 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
       hit.E()=CLHEP::RandGauss::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
     } while (std::abs(hit.E())<absEavghit_tenth);
     bool failed=false;
-    for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
-      if (debug) {
-        if (ihit < 2) hitsim->setLevel(MSG::DEBUG);
-        else hitsim->setLevel(MSG::INFO);
-      }
+    if(debug) if(ihit==2) {
+      //Switch debug output back to INFO to avoid huge logs
+      PropagateMSGLevel(MSG::INFO);
+    }
+    for(auto hititr=hitloopstart; hititr!=m_chain.end(); ++hititr) {
+      TFCSLateralShapeParametrizationHitBase* hitsim=*hititr;
 
       FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
 
       if (status == FCSSuccess) continue;
-      if (status == FCSFatal) return FCSFatal;
+      if (status == FCSFatal) {
+        if (debug) PropagateMSGLevel(old_level); 
+        return FCSFatal;
+      }  
       failed=true;
       ++ifail;
       ++itotalfail;
@@ -103,12 +132,14 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
         ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit call failed after " << FCS_RETRY_COUNT << "retries");
       }
       if(ifail >= FCS_RETRY_COUNT*FCS_RETRY_COUNT) {
+        if (debug) PropagateMSGLevel(old_level); 
         return FCSFatal;
       }
     }
   } while (error2>sigma2);
 
   if (debug) {
+    PropagateMSGLevel(old_level); 
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<Elayer<<" sumE="<<sumEhit<<"+-"<<TMath::Sqrt(error2_sumEhit)<<" ~ "<<TMath::Sqrt(error2_sumEhit)/sumEhit*100<<"% rel error^2="<<error2<<" sigma^2="<<sigma2<<" ~ "<<TMath::Sqrt(sigma2)*100<<"% hits="<<ihit<<" fail="<<itotalfail);
   }
 

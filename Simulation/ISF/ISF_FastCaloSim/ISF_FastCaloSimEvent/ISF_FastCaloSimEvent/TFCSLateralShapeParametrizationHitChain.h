@@ -24,8 +24,9 @@ public:
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
-  //TODO: add generic functionality to determine the number of hits or center position only once
-  // and not for every iteration of the hit chain
+
+  unsigned int get_nr_of_init() const {return m_ninit;};
+  void set_nr_of_init(unsigned int ninit) {m_ninit=ninit;};
 
   /// set which instance should determine the number of hits
   virtual void set_number_of_hits_simul(TFCSLateralShapeParametrizationHitBase* sim) {m_number_of_hits_simul=sim;};
@@ -48,11 +49,15 @@ public:
   void Print(Option_t *option = "") const override;
 
 protected:
+  void PropagateMSGLevel(MSG::Level level) const;
+  
   Chain_t m_chain;
+  int m_ninit=0;
   
 private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
-  ClassDefOverride(TFCSLateralShapeParametrizationHitChain,1)  //TFCSLateralShapeParametrizationHitChain
+
+  ClassDefOverride(TFCSLateralShapeParametrizationHitChain,2)  //TFCSLateralShapeParametrizationHitChain
 };
 
 #endif
