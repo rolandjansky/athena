@@ -12,11 +12,12 @@ echo "art-result: $? HIST_Creation"
 ArtPackage=$1
 ArtJobName=$2
 art.py download ${ArtPackage} ${ArtJobName}
-hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -x TIME_execute -i > log.HIST_Diff 2>&1
+REFFILE=(./ref-*/ExampleMonitorOutput.root)
+hist_diff.sh ExampleMonitorOutput.root $REFFILE -x TIME_execute -i > log.HIST_Diff 2>&1
 echo "art-result: $? HIST_Diff"
 rm -rf ref-*
 
 art.py download AthenaMonitoring test_run3dq_r21_esd.sh
-hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -x TIME_execute -i > log.HIST_Diff_Serial 2>&1
+hist_diff.sh ExampleMonitorOutput.root $REFFILE -x TIME_execute -i > log.HIST_Diff_Serial 2>&1
 echo "art-result: $? HIST_Diff_Serial"
 
