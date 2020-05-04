@@ -252,11 +252,15 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     result=ComponentAccumulator()
     if flags.MuonCombined.doCombinedFit:
         acc = MuonCombinedFitTagToolCfg(flags)
-        tools.append( acc.popPrivateTools() )
+        tool = acc.popPrivateTools()
+        tools.append( tool  )
+        result.addPublicTool(tool)
         result.merge(acc)
     if flags.MuonCombined.doStatisticalCombination and flags.Beam.Type != 'cosmics':
         acc = MuonCombinedStacoTagToolCfg(flags)
-        tools.append(acc.popPrivateTools())
+        tool = acc.popPrivateTools()
+        tools.append( tool  )
+        result.addPublicTool(tool)
         result.merge(acc)
 
     kwargs.setdefault("MuonCombinedTagTools", tools )
@@ -273,7 +277,9 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
     #     kwargs.setdefault("VertexContainer", "")
     # else:
     result = CombinedMuonTrackBuilderCfg(flags)
-    kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
+    tool = result.popPrivateTools()
+    result.addPublicTool(tool)
+    kwargs.setdefault("TrackBuilder",  tool )
 
     acc = MuonTrackQueryCfg(flags)
     kwargs.setdefault("TrackQuery",           acc.popPrivateTools() )
