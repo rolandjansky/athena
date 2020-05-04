@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -169,6 +169,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
     return StatusCode::FAILURE;
   }
 
+  const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   // get the iterator pairs for this DetEl
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
 
@@ -203,7 +204,6 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
       std::vector<IdentifierHash>::const_iterator vecBeg = hashVec.begin();
       std::vector<IdentifierHash>::const_iterator vecEnd = hashVec.end();
-      //const HepMcParticleLink & particleLink = hit.particleLink();
       // Fetch the energy deposit.
       const double energy = hit.energyDeposit();
       // Determine where hit crosses the wire plane (x=0).
@@ -229,9 +229,10 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
         hashVec.clear();
         continue;
       }
-
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink trackLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag);
       for (; vecBeg != vecEnd; vecBeg++) {
-        CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
+        CscSimData::Deposit deposit(trackLink, CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit);
       }
       hashVec.clear();
