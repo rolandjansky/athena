@@ -3,37 +3,31 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// EGSelectionToolWrapper.h, (c) ATLAS Detector software
+// EGPhotonCleaningWrapper.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_EGSELECTIONTOOLWRAPPER_H
-#define DERIVATIONFRAMEWORK_EGSELECTIONTOOLWRAPPER_H
+#ifndef DERIVATIONFRAMEWORK_EGPHOTONCLEANINGWRAPPER_H
+#define DERIVATIONFRAMEWORK_EGPHOTONCLEANINGWRAPPER_H
 
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
-#include "PATCore/IAsgSelectionTool.h"
-#include "AsgTools/IAsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace DerivationFramework {
 
-  class EGSelectionToolWrapper : public AthAlgTool, public IAugmentationTool {
+  class EGPhotonCleaningWrapper : public AthAlgTool, public IAugmentationTool {
     public: 
-      EGSelectionToolWrapper(const std::string& t, const std::string& n, const IInterface* p);
+      EGPhotonCleaningWrapper(const std::string& t, const std::string& n, const IInterface* p);
 
       StatusCode initialize();
       StatusCode finalize();
       virtual StatusCode addBranches() const;
 
     private:
-      ToolHandle<IAsgSelectionTool> m_tool; // can't use isemValue, but can use TAccept and then getInvertedCutBitSet to retrieve isem-like value for both cut-based and LH selectors
-      //ToolHandle<IAsgEGammaIsEMSelector> m_tool; // provides isemValue, but will not work with likelihood..
       ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
-      std::string m_cut;
       std::string m_sgName;
       std::string m_containerName;
   }; 
