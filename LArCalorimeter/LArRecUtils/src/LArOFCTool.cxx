@@ -455,9 +455,9 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	    for(c=0;c<nsamples_AC_OFC;++c)
 	      std::cout<<Shape[c+iBeginOfNSamples]<<" ";
 	    std::cout<<" <- "<<iBeginOfNSamples<<std::endl;
-	    for(i=0;i<nsamples_AC_OFC;++i) std::cout<<ACinv_PS[i]<<" ";
-	    std::cout<<std::endl;
-	    for(i=0;i<nsamples_AC_OFC;++i) std::cout<<ACinv_PSD[i]<<" ";
+            for(i=0;i<nsamples_AC_OFC;++i) std::cout<<ACinv_PS[i]<<" ";
+            std::cout<<std::endl;
+            for(i=0;i<nsamples_AC_OFC;++i) std::cout<<ACinv_PSD[i]<<" ";
 	    std::cout<<std::endl;
 	    std::cout<<" Q1="<<Q1<<" Q2="<<Q2<<" Q3="<<Q3
 		     <<" DELTA="<<DELTA<<std::endl;
