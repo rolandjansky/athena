@@ -776,12 +776,13 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
 
 # Misc 
 def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kwargs ):
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg
     result = ComponentAccumulator() 
 
     csc2d=""
     csc4d=""
     if flags.Detector.GeometryCSC:
-        from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, Csc4dSegmentMakerCfg
+        from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, MuonClusterSegmentFinderCfg, Csc4dSegmentMakerCfg
         acc = Csc2dSegmentMakerCfg(flags)
         csc2d = acc.popPrivateTools()
         result.addPublicTool(csc2d)
@@ -793,6 +794,23 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     kwargs.setdefault("Csc2DSegmentMaker",               csc2d )
     kwargs.setdefault("Csc4DSegmentMaker",               csc4d )
 
+    acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMakerEJWM")
+    segmentmaker = acc.popPrivateTools()
+    kwargs.setdefault("SegmentMaker",               segmentmaker )
+    result.addPublicTool(segmentmaker)
+    result.merge(acc)
+
+    acc = MuonClusterSegmentFinderCfg(flags, name = "MuonClusterSegmentFinderEJWM")
+    clustersegmentfinder = acc.getPrimary() #Already adds it as a public tool.
+    kwargs.setdefault("MuonClusterSegmentFinder",               clustersegmentfinder )
+    result.merge(acc)
+    
+    acc = MuonClusterSegmentFinderToolCfg(flags, name = "MuonClusterSegmentFinderTool")
+    clustersegmentfindertool = acc.popPrivateTools() 
+    kwargs.setdefault("NSWMuonClusterSegmentFinderTool",               clustersegmentfindertool )
+    result.addPublicTool(clustersegmentfindertool)
+    result.merge(acc)
+
     tool = CompFactory.Muon.MuonLayerSegmentFinderTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
@@ -801,7 +819,7 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
 def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
 #    if TriggerFlags.MuonSlice.doTrigMuonConfig:
 #       kwargs.setdefault("VertexContainer", "")
-    result = MuonLayerSegmentFinderToolCfg(flags)
+    result = MuonLayerSegmentFinderToolCfg(flags, name= "MuonLayerSegmentFinderToolEJWM")
     layersegmentfindertool = result.popPrivateTools()
     kwargs.setdefault("MuonLayerSegmentFinderTool", layersegmentfindertool)
     result.addPublicTool(layersegmentfindertool)
