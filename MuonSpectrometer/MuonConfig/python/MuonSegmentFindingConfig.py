@@ -226,7 +226,6 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     result.merge(acc)
     
     kwargs.setdefault("MuonCompetingClustersCreator", muon_comp_cluster_creator)
-
     acc =  MuonSegmentFittingToolCfg(flags, name="MuonSegmentFittingTool")
     segment_fitter=acc.getPrimary()
     result.addPublicTool(segment_fitter)
@@ -541,21 +540,28 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
 
     acc = MCTBFitterCfg(flags, name = "SLFitter", StraightLine=True)
     slfitter = acc.getPrimary()      
-    acc.addPublicTool(slfitter)
+    result.addPublicTool(slfitter)
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
 
     acc = MuonTrackCleanerCfg(flags)
     cleaner = acc.getPrimary()      
-    acc.addPublicTool(cleaner)
-    result.merge(acc)
+    result.addPublicTool(cleaner)
     kwargs.setdefault("TrackCleaner", cleaner)
+    result.merge(acc)
 
     acc = MuonTrackSummaryToolCfg(flags)
     track_summary = acc.getPrimary( )
-    result.setPrivateTools(track_summary)
+    result.addPublicTool(track_summary)
     kwargs.setdefault('TrackSummaryTool', track_summary)
-    
+    result.merge(acc)
+
+    acc  = MuonAmbiProcessorCfg(flags, name='MuonAmbiProcessor')
+    ambi = acc.getPrimary()      
+    acc.addPublicTool(ambi)
+    result.merge(acc)
+    kwargs.setdefault("SegmentAmbiguityTool", ambi)
+
     # FIXME - remaining tools
     acc.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))
     return acc
@@ -575,28 +581,24 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
 
     acc = DCMathSegmentMakerCfg(flags,name="DCMathSegmentMaker")
     segment_maker = acc.getPrimary()      
-    
     acc.addPublicTool(segment_maker)
     kwargs.setdefault('MdtSegmentMaker', segment_maker)
     result.merge(acc)
 
     acc = MCTBFitterCfg(flags, name = "SLFitter", StraightLine=True)
     slfitter = acc.getPrimary()      
-    
     acc.addPublicTool(slfitter)
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
     
     acc  = MuonAmbiProcessorCfg(flags, name='NewMuonAmbiProcessor')
     ambi = acc.getPrimary()      
-    
     acc.addPublicTool(ambi)
     result.merge(acc)
     kwargs.setdefault("AmbiguityProcessor", ambi)
 
     acc = MuonTrackCleanerCfg(flags)
     cleaner = acc.getPrimary()      
-    
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
