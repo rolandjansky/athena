@@ -116,6 +116,28 @@ class doTimeCut(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class extendTimeCutOnNeighbor(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class extendTimeCutOnCell(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class doNeighborTimeCut(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
@@ -138,6 +160,9 @@ list_jobproperties = [
     ,doTreatEnergyCutAsAbsolute
     ,doMomentsfromAbs
     ,doTimeCut
+    ,extendTimeCutOnNeighbor
+    ,extendTimeCutOnCell
+    ,doNeighborTimeCut
     ]
 
 for i in list_jobproperties:

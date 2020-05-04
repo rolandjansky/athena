@@ -86,6 +86,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborThresholdOnEtorAbsEt     (  100.*MeV), 
     m_seedThresholdOnEtorAbsEt         (  200.*MeV),
     m_seedThresholdOnTAbs              (  12.5*ns),
+    m_neighborThresholdOnTAbs          (  12.5*ns),
     m_useNoiseTool                     (false),
     m_usePileUpNoise                   (false),
     m_noiseTool                        ("CaloNoiseTool"),
@@ -99,6 +100,9 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_cellCutsInAbsE                   (true),
     m_clusterEtorAbsEtCut              (    0.*MeV),
     m_seedCutsInT                      (false),
+    m_cutOOTseedFromNeighbour          (false),
+    m_cutOOTseedFromCell               (false),
+    m_neighCutsInT                     (false),
     m_twogaussiannoise                 (false),
     m_treatL1PredictedCellsAsGood      (true),
     m_minSampling                      (0),
@@ -135,6 +139,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 
   // Time thresholds (in abs. val.)
   declareProperty("SeedThresholdOnTAbs",m_seedThresholdOnTAbs);
+  declareProperty("NeighborThresholdOnTAbs",m_neighborThresholdOnTAbs);
 
   // Seed and cluster cuts are in E or Abs E
   declareProperty("SeedCutsInAbsE",m_seedCutsInAbsE);
@@ -147,6 +152,11 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 
   //do Seed cuts on Time              
   declareProperty("SeedCutsInT",m_seedCutsInT);
+  //exclude out-of-time seeds also from neighbouring stage              
+  declareProperty("CutOOTseedFromNeighbour",m_cutOOTseedFromNeighbour);
+  declareProperty("CutOOTseedFromCell",m_cutOOTseedFromCell);
+  //do Neighbour cut on time
+  declareProperty("NeighborCutsInT",m_neighCutsInT);
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
@@ -523,8 +533,16 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 
 
 
-	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell))); //time cut is applied here
-	  if ( passedCellCut || passedNeighborCut || passedSeedAndTimeCut ) {
+	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell,m_seedThresholdOnTAbs))); //time cut is applied here
+
+	  bool passedNeighborAndTimeCut = (passedNeighborCut &&
+					   (!m_cutOOTseedFromNeighbour || passedSeedAndTimeCut) && //exclude Out-Of-Time seeds from neighbouring stage as well (if required)
+					   (!m_neighCutsInT || passCellTimeCut(pCell,m_neighborThresholdOnTAbs))); //actual neighbour time cut (if required)
+
+	  bool passedCellAndTimeCut = (passedCellCut && (!m_cutOOTseedFromCell || passedSeedAndTimeCut)); //exclude Out-Of-Time seeds from cluster (if required)
+				       
+
+	  if ( passedCellAndTimeCut || passedNeighborAndTimeCut || passedSeedAndTimeCut ) {
 	    const CaloDetDescrElement* dde = pCell->caloDDE();
 	    IdentifierHash hashid = dde ? dde->calo_hash() : m_calo_id->calo_cell_hash(pCell->ID());
 	    CaloTopoTmpClusterCell *tmpClusterCell =
@@ -813,7 +831,7 @@ void CaloTopoClusterMaker::getClusterSize(){
 
 
 
-inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell) const 
+inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell,float threshold) const 
 {
   // get the cell time to cut on (the same as in CaloEvent/CaloCluster.h)                             
 
@@ -833,7 +851,7 @@ inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell) const
 	  // Is time defined?                                                                         
 	  if(pCell->provenance() & pmask)
 	    {
-	      return std::abs(pCell->time())<m_seedThresholdOnTAbs;
+	      return std::abs(pCell->time())<threshold;
 	    }
 	}
     }
