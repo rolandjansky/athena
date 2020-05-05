@@ -139,7 +139,7 @@ if rec.doFileMetaData():
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
-                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "beam_energy": str(int(jobproperties.Beam.energy())),
                                             "triggerStreamOfFile": str(rec.triggerStream()),
                                             "project_name": str(rec.projectName()),
                                             "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
@@ -152,11 +152,13 @@ try:
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
-# append new if previous exists otherwise take the new alone 
-if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
+# append new tag if previous exists and is not the same otherwise take the new alone 
+if amitag != "" and amitag != rec.AMITag():
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
+    printfunc ("Adding AMITag ", amitag, " _ ", rec.AMITag())
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    printfunc ("Adding AMITag ", rec.AMITag())
 
 
 
