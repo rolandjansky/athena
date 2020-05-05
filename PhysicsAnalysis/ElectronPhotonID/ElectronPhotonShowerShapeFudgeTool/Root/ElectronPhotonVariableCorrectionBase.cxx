@@ -236,7 +236,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
         return CP::CorrectionCode::Error;
     }
-    
+
     //declare objects needed to retrieve electron properties
     std::vector<float> properties; //safe value of function parameter i at place i
     properties.resize(m_numberOfFunctionParameters);
@@ -254,7 +254,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
         return CP::CorrectionCode::Error;
     }
-    
+
     // Apply the correction, write to the corrected AuxElement
     correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
@@ -676,13 +676,18 @@ const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return
     }
 
     // if evalPoint is left to the leftmost bin center, return the leftmost bin center without interpolation
-    if (evalPoint < binning.at(0))
+    float leftmost_bin_center = 0;
+    ANA_CHECK(getBinCenter(leftmost_bin_center, binning, 0));
+    if (evalPoint <= leftmost_bin_center)
     {
         return_parameter_value = binValues.at(0);
         return StatusCode::SUCCESS;
     }
+
     // if evalPoint is right to the rightmost bin center, return the rightmost bin center without interpolation
-    if (evalPoint > binning.at(binning.size()-1))
+    float rightmost_bin_center = 0;
+    ANA_CHECK(getBinCenter(rightmost_bin_center, binning, binning.size()-1))
+    if (evalPoint >= rightmost_bin_center)
     {
         return_parameter_value = binValues.at(binValues.size()-1);
         return StatusCode::SUCCESS;
@@ -690,24 +695,69 @@ const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return
 
     float left_bin_center = 0;
     float right_bin_center = 0;
+    float left_bin_value = 0;
+    float right_bin_value = 0;
+    float current_bin_center = 0;
+    ANA_CHECK(getBinCenter(current_bin_center, binning, bin));
 
     // else interpolate using next left or next right bin
-    if (evalPoint <= binValues.at(bin))
+    if (evalPoint <= current_bin_center)
     {
         //interpolate left
-        left_bin_center = 0.5 * (binning.at(bin) + binning.at(bin-1));
-        right_bin_center = 0.5 * (binning.at(bin) + binning.at(bin+1));
-        return_parameter_value = interpolate_function(evalPoint, left_bin_center, binValues.at(bin-1), right_bin_center, binValues.at(bin));
+        ANA_CHECK(getBinCenter(left_bin_center, binning, bin-1));
+        ANA_CHECK(getBinCenter(right_bin_center, binning, bin));
+        left_bin_value = binValues.at(bin-1);
+        right_bin_value = binValues.at(bin);
     }
     else // evalPoint is right from bin center
     {
         //interpolate right
-        left_bin_center = 0.5 * (binning.at(bin+1) + binning.at(bin));
-        right_bin_center = 0.5 * (binning.at(bin+1) + binning.at(bin+2));
-        return_parameter_value = interpolate_function(evalPoint, left_bin_center, binValues.at(bin), right_bin_center, binValues.at(bin+1));
+        ANA_CHECK(getBinCenter(left_bin_center, binning, bin));
+        ANA_CHECK(getBinCenter(right_bin_center, binning, bin+1));
+        left_bin_value = binValues.at(bin);
+        right_bin_value = binValues.at(bin+1);
     }
+    // calculate return value
+    return_parameter_value = interpolate_function(evalPoint, left_bin_center, left_bin_value, right_bin_center, right_bin_value);
 
     // everything went fine, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const
+{
+    if (bin_int < 0)
+    {
+        ATH_MSG_ERROR("Bin number must be a non-negative integer.");
+        return StatusCode::FAILURE;
+    }
+
+    // implicitly convert to loong unsigend int for comparisons, to get rid of compiler warnings resulting from comparisons of int and unsigned int
+    long unsigned int bin = bin_int;
+    ATH_MSG_INFO("Bin int: " << bin_int << ", bin unsigned int: " << bin);
+
+    if (bin >= binning.size())
+    {
+        ATH_MSG_ERROR("The requested bin is out of range of the passed binning.");
+        return StatusCode::FAILURE;
+    }
+
+    // need special treatment for rightmost bin center:
+    // it goes up to infinity...assume it's as broad as the
+    // next to the rightmost bin for the interpolation
+    if (bin == binning.size()-1)
+    {
+        //calculate the width of the next to rightmost bin
+        float bin_width = binning.at(bin) - binning.at(bin-1);
+        return_bin_center = binning.at(bin) + 0.5 * bin_width;
+    }
+    // normal calculation
+    else
+    {
+        return_bin_center = 0.5 * (binning.at(bin) + binning.at(bin+1));
+    }
+
+    //everything went fine, so
     return StatusCode::SUCCESS;
 }
 

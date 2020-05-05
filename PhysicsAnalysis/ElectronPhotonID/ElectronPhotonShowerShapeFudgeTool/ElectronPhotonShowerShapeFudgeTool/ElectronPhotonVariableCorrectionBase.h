@@ -237,6 +237,12 @@ private:
      */
     const StatusCode interpolate(float& return_parameter_value, const float& evalPoint, const int& bin, const std::vector<float>& binning, const std::vector<float>& binValues) const;
 
+    /** @brief Get the bin center of a bin bin_int using the binning binning
+     * @param return_bin_center The bin center is saved in this parameter
+     * @param binning The binning which should be used to find the bin centers
+     * @param bin_int The bin for which the bin center should be found
+    const StatusCode getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const;
+
     /** @brief Returns the linearly intrpolated value of value given the bin centers and bin values
      * @param value The x-value at which the interpolation should be done
      * @param left_bin_center The x-value of the left bin center used for the interpolation
