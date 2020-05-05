@@ -125,8 +125,6 @@ InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.I
 #InDetFlags.doLowPt        = True
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doVertexFinding = False

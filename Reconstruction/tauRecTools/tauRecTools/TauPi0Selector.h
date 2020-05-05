@@ -27,9 +27,9 @@ public:
 
 private:
 
-    Gaudi::Property<std::vector<float>> m_clusterEtCut {this, "ClusterEtCut"};
-    Gaudi::Property<std::vector<float>> m_clusterBDTCut_1prong {this, "ClusterBDTCut_1prong"};
-    Gaudi::Property<std::vector<float>> m_clusterBDTCut_mprong {this, "ClusterBDTCut_mprong"};
+    std::vector<float> m_clusterEtCut;
+    std::vector<float> m_clusterBDTCut_1prong;
+    std::vector<float> m_clusterBDTCut_mprong;
     /** @brief function used to get eta bin of Pi0Cluster */
     int getPi0Cluster_etaBin(double Pi0Cluster_eta);
     /** @brief function used to calculate the visible tau 4 momentum */

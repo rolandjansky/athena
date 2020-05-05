@@ -12,8 +12,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // default constructor
 LArG4FastSimSvc::LArG4FastSimSvc(const std::string& name, ISvcLocator* sl)

@@ -40,21 +40,22 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkFitter/TrkFitterInterfaces )
+                          Tracking/TrkFitter/TrkFitterInterfaces 
+                          Generators/AtlasHepMC
+                          )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( Eigen )
-find_package( HepMC )
 find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_component( InDetAlignGenTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives Identifier EventPrimitives InDetAlignTrkInfo InDetPrepRawData TrkEventPrimitives TrkEventUtils TrkTrack TrkExInterfaces TrkToolInterfaces AthenaKernel AthContainers AtlasDetDescr DetDescrConditions GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces EventContainers )
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives Identifier EventPrimitives InDetAlignTrkInfo InDetPrepRawData TrkEventPrimitives TrkEventUtils TrkTrack TrkExInterfaces TrkToolInterfaces AthenaKernel AthContainers AtlasDetDescr DetDescrConditions GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces EventContainers )
 
 # Install files from the package:
 atlas_install_headers( InDetAlignGenTools )

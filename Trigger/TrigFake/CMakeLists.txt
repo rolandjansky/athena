@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigSteer/TrigInterfaces
@@ -23,21 +24,20 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( TrigFakeLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigFake
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigInDetEvent TrigSteeringEvent TrigSteeringLib StoreGateLib SGtests TrigNavigationLib TrigInterfacesLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects TrigConfHLTData TrigT1Interfaces TrigT1Result )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GeneratorObjects TrigConfHLTData TrigT1Interfaces TrigT1Result )
 
 atlas_add_component( TrigFake
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel TrigInDetEvent TrigSteeringEvent TrigSteeringLib StoreGateLib SGtests GeneratorObjects TrigConfHLTData TrigNavigationLib TrigInterfacesLib TrigT1Interfaces TrigT1Result TrigFakeLib )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel TrigInDetEvent TrigSteeringEvent TrigSteeringLib StoreGateLib SGtests GeneratorObjects TrigConfHLTData TrigNavigationLib TrigInterfacesLib TrigT1Interfaces TrigT1Result TrigFakeLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/jobOfragment_TrigFake.* )

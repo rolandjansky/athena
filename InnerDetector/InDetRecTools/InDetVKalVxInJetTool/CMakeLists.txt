@@ -54,11 +54,12 @@ atlas_install_headers( InDetVKalVxInJetTool )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.txt )
 
-
-atlas_add_test( InDetTrkInJetType_test
-                SOURCES test/InDetTrkInJetType_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
-		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
-		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver
-                LOG_IGNORE_PATTERN "Booking|AtlasFieldSvc|weight file|create data set info" )
+#This test is temporarily commented in order not to slow down magnetic field migration to condition data.
+#Will be restored later
+#atlas_add_test( InDetTrkInJetType_test
+#                SOURCES test/InDetTrkInJetType_test.cxx
+#                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+#                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
+#		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+#		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver
+#                LOG_IGNORE_PATTERN "Booking|AtlasFieldSvc|weight file|create data set info" )

@@ -9,7 +9,7 @@
 //#include "InDetIdentifier/PixelID.h"
 //#include "InDetPrepRawData/PixelCluster.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 //#include "GeoAdaptors/GeoSiHit.h"
 
 /*

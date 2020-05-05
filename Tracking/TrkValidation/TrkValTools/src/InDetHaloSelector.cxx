@@ -10,11 +10,11 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkValTools/InDetHaloSelector.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 Trk::InDetHaloSelector::InDetHaloSelector(const std::string& type, const std::string& name,

@@ -19,7 +19,7 @@
 // Truth
 #include "TrkTruthData/TrackTruth.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <TGraphAsymmErrors.h>
 #include "TTree.h"

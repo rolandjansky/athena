@@ -95,16 +95,16 @@ namespace Muon {
 
     /// Returns the mother particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// It traces the decay chain until if finds the first particle that is different flavor from the starting one.
-    const HepMC::GenParticle& getMother( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getMother( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the ancestor particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// Ancestor here means the last particle at generator level that has a status code different from final state, e.g. Z
-    const HepMC::GenParticle& getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the initial particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// For example a mu undergoing a mubrem would create a second mu, in which case this method returns the mu prior to bremsstrahlung.
     /// This interface calls the method getInitialPair.
-    const HepMC::GenParticle& getInitial( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getInitial( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the number of steps a particle took while maintaining its PDG ID.
     /// This method calls getInitialPair for calculating this number.

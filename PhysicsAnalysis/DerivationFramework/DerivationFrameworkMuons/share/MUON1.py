@@ -40,7 +40,7 @@ triggerList1 = ['HLT_.*mu\d+.*']
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 MUON1ThinningHelper = ThinningHelper( "MUON1ThinningHelper" )
 MUON1ThinningHelper.TriggerChains = '|'.join(triggerList1)
-print MUON1ThinningHelper.TriggerChains
+printfunc (MUON1ThinningHelper.TriggerChains)
 MUON1ThinningHelper.AppendToStream( MUON1Stream )
 
 #====================================================================
@@ -79,7 +79,7 @@ ToolSvc += MUON1AugmentTool1a
 MUON1AugmentTools.append(MUON1AugmentTool1a)
 skimmingORs.append(brPrefix1a+'DIMU_pass>0')
 thinningORs.append(brPrefix1a+'DIMU_trkStatus>0')
-print MUON1AugmentTool1a
+printfunc (MUON1AugmentTool1a)
 
 
 ### Jpsi for tag-probe
@@ -114,7 +114,7 @@ ToolSvc += MUON1AugmentTool1b
 MUON1AugmentTools.append(MUON1AugmentTool1b)
 skimmingORs.append(brPrefix1b+'DIMU_pass>0')
 thinningORs.append(brPrefix1b+'DIMU_trkStatus>0')
-print MUON1AugmentTool1b
+printfunc (MUON1AugmentTool1b)
 
 
 ### Jpsi for calibration
@@ -149,7 +149,7 @@ ToolSvc += MUON1AugmentTool1c
 MUON1AugmentTools.append(MUON1AugmentTool1c)
 skimmingORs.append(brPrefix1c+'DIMU_pass>0')
 thinningORs.append(brPrefix1c+'DIMU_trkStatus>0')
-print MUON1AugmentTool1c
+printfunc (MUON1AugmentTool1c)
 
 ### Upsilon tagging
 brPrefix1d = 'MUON1d'
@@ -182,7 +182,7 @@ ToolSvc += MUON1AugmentTool1d
 MUON1AugmentTools.append(MUON1AugmentTool1d)
 skimmingORs.append(brPrefix1d+'DIMU_pass>0')
 thinningORs.append(brPrefix1d+'DIMU_trkStatus>0')
-print MUON1AugmentTool1d
+printfunc (MUON1AugmentTool1d)
 
 ### isolation decorations
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1IDTrackDecorator as MUON1AugmentTool2a
@@ -192,12 +192,12 @@ MUON1AugmentTool2a.SelectionFlagValue = 0
 
 ToolSvc += MUON1AugmentTool2a
 MUON1AugmentTools.append(MUON1AugmentTool2a)
-print MUON1AugmentTool2a
+printfunc (MUON1AugmentTool2a)
 
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1MSTrackDecorator as MUON1AugmentTool3
 ToolSvc += MUON1AugmentTool3
 MUON1AugmentTools.append(MUON1AugmentTool3)
-print MUON1AugmentTool3
+printfunc (MUON1AugmentTool3)
 
 #====================================================================
 # SKIMMING
@@ -256,7 +256,7 @@ MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name              
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                               ConeSize                = 0.5)
 ToolSvc += MUON1ThinningTool4
-print MUON1ThinningTool4
+printfunc (MUON1ThinningTool4)
 MUON1ThinningTools.append(MUON1ThinningTool4)
 
 ### also for forward tracks
@@ -278,7 +278,8 @@ theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"
 
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
-for t in MUON1AugmentTools: print t
+for t in MUON1AugmentTools:
+  printfunc (t)
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(

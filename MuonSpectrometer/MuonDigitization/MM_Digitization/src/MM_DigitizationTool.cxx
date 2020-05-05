@@ -60,7 +60,7 @@
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -648,7 +648,9 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	  continue;
 	}
       }
-      
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
       // Read the information about the Micro Megas hit
       ATH_MSG_DEBUG ( "> hitID  "
 		      <<     hitID
@@ -665,7 +667,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      << " z "
 		      <<     globalHitPosition.z()
 		      << " mclink "
-		      <<     hit.particleLink()
+		      <<     particleLink
 		      << " station eta "
 		      <<     m_idHelperSvc->mmIdHelper().stationEta(layerID)
 		      << " station phi "
@@ -683,7 +685,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
                                      hit.kineticEnergy(),
                                      hit.globalDirection(),
                                      hit.depositEnergy(),
-                                     hit.trackNumber()
+                                     particleLink
                                      );
       
       inputSimHitColl->Insert(*copyHit);
@@ -892,23 +894,23 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
       
       if( stripNumber == -1 ){
-	ATH_MSG_WARNING("!!! Failed to obtain strip number "
-			<< m_idHelperSvc->mmIdHelper().print_to_string(layerID)
-			<<  "\n\t\t with pos "
-			<< positionOnSurface
-			<< " z "
-			<< stripLayerPosition.z()
-			<< " eKin: "
-			<< hit.kineticEnergy()
-			<< " eDep: "
-			<< hit.depositEnergy()
-			<< " unprojectedStrip: "
-			<< detectorReadoutElement->stripNumber(positionOnSurfaceUnprojected, layerID)
-			);
-	m_exitcode = 2;
-	if(m_writeOutputFile) m_ntuple->Fill();
-	ATH_MSG_DEBUG( "m_exitcode = 2 " );
-	continue;
+	      ATH_MSG_WARNING("!!! Failed to obtain strip number "
+			    << m_idHelperSvc->mmIdHelper().print_to_string(layerID)
+			    <<  "\n\t\t with pos "
+			    << positionOnSurface
+			    << " z "
+			    << stripLayerPosition.z()
+			    << " eKin: "
+			    << hit.kineticEnergy()
+			    << " eDep: "
+			    << hit.depositEnergy()
+			    << " unprojectedStrip: "
+			    << detectorReadoutElement->stripNumber(positionOnSurfaceUnprojected, layerID)
+        );
+	      m_exitcode = 2;
+	      if(m_writeOutputFile) m_ntuple->Fill();
+	      ATH_MSG_DEBUG( "m_exitcode = 2 " );
+	      continue;
       }
       
       // Re-definition Of ID
@@ -975,18 +977,17 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       ////////////////////////////////////////////////////////////////////
       
-      
       ////////////////////////////////////////////////////////////////////
       //
       // Strip Response Simulation For This Hit
       //
-      
       const MM_DigitToolInput stripDigitInput( stripNumber,
 					       distToChannel,
 					       inAngle_XZ,
 					       inAngle_YZ,
 					       localMagneticField,
-					       detectorReadoutElement->numberOfStrips(layerID),
+					       detectorReadoutElement->numberOfMissingBottomStrips(layerID),
+					       detectorReadoutElement->numberOfStrips(layerID)-detectorReadoutElement->numberOfMissingTopStrips(layerID),
 					       m_idHelperSvc->mmIdHelper().gasGap(layerID),
 					       m_eventTime+m_globalHitTime
 					       );
@@ -999,7 +1000,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // digitize input for strip response
       
-      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      MuonSimData::Deposit deposit(particleLink, MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
       
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
@@ -1022,25 +1023,22 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
-      if (stripNumber!=1){ // Extra if statement from quick fix from deadstrip = #1
-	for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
-	  int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
-	  bool isValid;
-	  Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
-	  if (!isValid) {
-	    ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
-	  } else {
-	    Amg::Vector2D cr_strip_pos(0., 0.);
-	    if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
-	      ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
-			      << tmpStripID
-			      << "; associated positions will be set to 0.0."
-			      );
-	    }
-	  }
-	}
+      for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
+        int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
+        bool isValid;
+        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
+        if (!isValid) {
+          ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
+        } else {
+          Amg::Vector2D cr_strip_pos(0., 0.);
+          if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
+            ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
+      	        << tmpStripID
+      	        << "; associated positions will be set to 0.0."
+      	      );
+          }
+        }
       }
-      
       
       v_stripDigitOutput.push_back(stripDigitOutput);
       

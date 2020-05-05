@@ -428,10 +428,11 @@ StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
     // Fill a vector of deposits
     depositVector.clear();
     depositVector.reserve(std::distance(i,e));
+    const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
-
+      const HepMcParticleLink::PositionFlag idxFlag = (hit_iter->eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX; // suspect that we could use evtIndex here rather than hit_iter->eventId()
       // create a new deposit
-      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId()), (*hit_iter)->GetEnergyDeposit() );
+      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId(), evColl, idxFlag), (*hit_iter)->GetEnergyDeposit() );
       if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
         continue;
       }

@@ -21,18 +21,17 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( tdaq-common )
 
-# Component(s) in the package:
-atlas_add_component( AFP_ByteStream2RawCnv
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv)
-
 atlas_add_library( AFP_ByteStream2RawCnvLib
 		   src/*.cxx
 	           PUBLIC_HEADERS AFP_ByteStream2RawCnv
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv)
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv ByteStreamCnvSvcBaseLib )
+
+# Component(s) in the package:
+atlas_add_component( AFP_ByteStream2RawCnv
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv AFP_ByteStream2RawCnvLib )
 
 # Install files from the package:
 atlas_install_headers( AFP_ByteStream2RawCnv )

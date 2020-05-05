@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_PARTICLEGAMMA_H
@@ -40,14 +40,15 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 #include <iostream>
 
 // SB
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 //
 
-double particleGamma(const MDTSimHit& hit){
+double particleGamma(const MDTSimHit& hit, unsigned short eventId=0){
 
-	double QGamma=-9999.; 
-	
-    const HepMcParticleLink& trkParticle = hit.particleLink();
+    double QGamma=-9999.; 
+    const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+    const HepMcParticleLink::PositionFlag idxFlag = (eventId==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+    const HepMcParticleLink trkParticle(hit.trackNumber(),eventId,evColl,idxFlag);
     const HepMC::GenParticle* genParticle = trkParticle.cptr(); 
     if (genParticle){
 		

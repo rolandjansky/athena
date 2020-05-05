@@ -1,11 +1,12 @@
 include.block ("MuonTGC_CnvTools/TgcPrepDataReplicationAlg_jopOptions.py")
 
 # Muon::TgcPrepDataReplicationTool
-from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcPrepDataReplicationTool
-TgcPrepDataReplicationTool = Muon__TgcPrepDataReplicationTool("Muon::TgcPrepDataReplicationTool")
-ToolSvc += TgcPrepDataReplicationTool
+from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcPrepDataReplicationToolAllBCto3BC
+TgcPrepDataReplicationToolAllBCto3BC = Muon__TgcPrepDataReplicationToolAllBCto3BC("Muon::TgcPrepDataReplicationTool")
+ToolSvc += TgcPrepDataReplicationToolAllBCto3BC
 
 # Muon::TgcPrepDataReplicationAlg
 from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcPrepDataReplicationAlg
 TgcPrepDataReplicationAlg = Muon__TgcPrepDataReplicationAlg("Muon::TgcPrepDataReplicationAlg")
+TgcPrepDataReplicationAlg.Tool = TgcPrepDataReplicationToolAllBCto3BC
 topSequence += TgcPrepDataReplicationAlg

@@ -29,12 +29,10 @@ Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
 StatusCode Muon::NSWCalibSmearingTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize()");
-
-  // initialize the MuonIdHelperTool and check the configuration
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
-    ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
+    ATH_MSG_ERROR("MM or STGC not part of initialized detector layout");
     return StatusCode::FAILURE;
   }
  

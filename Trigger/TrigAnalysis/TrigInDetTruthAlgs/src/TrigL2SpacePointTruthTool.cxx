@@ -28,7 +28,7 @@
 
 // monte carlo edm
 #include "GenzModuleEvent/KineHepMcmap.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
 #include "TrigL2SpacePointTruthTool.h"

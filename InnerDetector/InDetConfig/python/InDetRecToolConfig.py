@@ -225,9 +225,10 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
     
   else :
       ConditionsTools= [ SCT_ConfigurationConditionsTool,
-                         SCT_FlaggedConditionTool,
                          SCT_MonitorConditionsTool,
                          SCT_ReadCalibDataTool]
+      if withFlaggedCondTool:
+        ConditionsTools.append(SCT_FlaggedConditionTool)
       if flags.InDet.useSctDCS:
           ConditionsTools += [ SCT_DCSConditionsTool ]
 

@@ -19,9 +19,9 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenSimulStable.h"
 #include "TruthHelper/IsGenerator.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // McParticleKernel includes

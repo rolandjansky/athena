@@ -53,7 +53,6 @@ else:
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.doTruth = doTruth
 InDetTrigFlags.doNewTracking = True
-InDetTrigFlags.doiPatRec = False
 
 #--------------------------------------------------------------
 # load Global Flags and set defaults

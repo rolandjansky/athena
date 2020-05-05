@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import sys 
 import os
 sys.path.append(os.path.abspath("../python"))
 import MuonsCPContent as mcc
 
-print mcc.MuonsCPContent
+print (mcc.MuonsCPContent)
 
 def makeContent(l):
     ct = 'MuonsCPContent = [\n'
@@ -29,10 +32,10 @@ def mergeList(l1, l2, excludeList=[]):
             found = True
             for m in x[1:]:
                 if m in y[1:]: continue
-                print m, 'is not found for', tag
+                print (m, 'is not found for', tag)
                 l2[ji] += '.'+m
         if (not found) and (not (tag in excludeList)):
-            print tag, 'is not found'
+            print (tag, 'is not found')
             l1a.append(i)
     return l2+l1a
 
@@ -41,8 +44,8 @@ list1 = []
 with open(ifile) as if1:
     for line in if1.readlines():
         list1.append(line.rstrip())
-print makeContent(list1)
-print makeContent(mcc.MuonsCPContent)
+print (makeContent(list1))
+print (makeContent(mcc.MuonsCPContent))
 
 kk = mergeList(list1, mcc.MuonsCPContent, ['EventInfo', 'EventInfoAux']) 
 nc = makeContent(kk)

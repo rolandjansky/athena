@@ -193,7 +193,6 @@ InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
 
-#InDetFlags.doiPatRec.set_Value_and_Lock                            (True)
 
 # --- possibility to run tracking on subdetectors separately (and independent from each other)
 # --- Si track segments incompatible with TIDE setup, which is now default

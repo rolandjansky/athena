@@ -6,7 +6,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <iostream>
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"

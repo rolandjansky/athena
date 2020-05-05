@@ -32,6 +32,7 @@ elseif( XAOD_ANALYSIS )
 elseif(GENERATIONBASE)
 	set(extra_deps 
 		GaudiKernel
+		Generators/AtlasHepMC
 		Generators/GeneratorObjects
 		PRIVATE
 		Control/AthenaKernel)
@@ -66,6 +67,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
    Generators/TruthUtils
+   Generators/AtlasHepMC
    ${extra_deps} )
 
 # External dependencies:

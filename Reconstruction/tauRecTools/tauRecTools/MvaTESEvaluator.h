@@ -70,7 +70,7 @@ class MvaTESEvaluator
   std::unique_ptr<tauRecTools::BDTHelper> m_bdtHelper;
 
   // Configurable properties
-  Gaudi::Property<std::string> m_sWeightFileName{this, "WeightFileName", "MvaTES_20170207_v2_BDTG.weights.root"};
+  std::string m_sWeightFileName;
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

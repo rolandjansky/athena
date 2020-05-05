@@ -236,9 +236,6 @@ else:
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-if not loadInDetRec_Options["Cosmics"]:
-  InDetFlags.doxKalman              = False
-  InDetFlags.doiPatRec              = False
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 #InDetFlags.doTRTStandalone        = False

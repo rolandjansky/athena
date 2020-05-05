@@ -103,10 +103,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
   // Array to store all of the distances between components
   AlignedDynArray<float, alignment> distances(nn2,
                                               std::numeric_limits<float>::max()); 
-  AlignedDynArray<float, alignment> qonp(n, 0.0);    // Array of qonp for each component
-  AlignedDynArray<float, alignment> qonpCov(n, 0.0); // Array of Cov(qonp,qonp) for each component
-  AlignedDynArray<float, alignment> qonpG(n, 1e10);  // Array of 1/Cov(qonp,qonp) for each component
-
+  AlignedDynArray<Component1D, alignment> components(n);    // Arrayfor each component
   // Needed to convert the triangular index to (i,j)
   std::vector<triangularToIJ> convert(nn2, { -1, -1 });
   // Calculate indicies
@@ -122,15 +119,16 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
   // Create an array of all components to be merged
   for (int32_t i = 0; i < n; ++i) {
     const AmgSymMatrix(5)* measuredCov = statesToMerge[i].first->covariance();
-    const AmgVector(5) parameters = statesToMerge[i].first->parameters();
+    const AmgVector(5)& parameters = statesToMerge[i].first->parameters();
     // Fill in infomation
-    qonp[i] = parameters[Trk::qOverP];
-    qonpCov[i] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
-    qonpG[i] = qonpCov[i] > 0 ? 1. / qonpCov[i] : 1e10;
+    const double cov= measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
+    components[i].mean= parameters[Trk::qOverP];
+    components[i].cov = cov;
+    components[i].invCov = cov > 0 ? 1./cov : 1e10;
   }
   // Calculate distances for all pairs
   // This loop can be vectorised
-  calculateAllDistances(qonp, qonpCov, qonpG, distances, n);
+  calculateAllDistances(components, distances, n);
 
   /*
    *  Loop over all components until you reach the target amount
@@ -171,15 +169,18 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
      */
     const AmgSymMatrix(5)* measuredCov = statesToMerge[mini].first->covariance();
     const AmgVector(5)& parameters = statesToMerge[mini].first->parameters();
-    qonp[mini] = parameters[Trk::qOverP];
-    qonpCov[mini] = (*measuredCov)(Trk::qOverP, Trk::qOverP);
-    qonpG[mini] = qonpCov[mini] > 0 ? 1. / qonpCov[mini] : 1e10;
-    qonp[minj] = 0.;
-    qonpCov[minj] = 0.;
-    qonpG[minj] = 1e10;
-
+    const double cov = (*measuredCov)(Trk::qOverP, Trk::qOverP);
+    
+    components[mini].mean= parameters[Trk::qOverP];
+    components[mini].cov = cov;
+    components[mini].invCov = cov > 0 ? 1./cov : 1e10;
+    
+    components[minj].mean = 0.;
+    components[minj].cov = 0.;
+    components[minj].invCov = 1e10;
+    
     // re-calculate distances wrt the new component at mini
-    int32_t possibleNextMin = recalculateDistances(qonp, qonpCov, qonpG, distances, mini, n);
+    int32_t possibleNextMin = recalculateDistances(components, distances, mini, n);
     //We might already got something smaller than the previous minimum
     //we can therefore use the new one directly
     if (possibleNextMin > 0 && distances[possibleNextMin] < currentMinValue) {

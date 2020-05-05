@@ -41,10 +41,10 @@ bool isResolutionHelper(TObject* entry){
 // Relies on the conventions within IDPVM
 std::pair<std::string, std::string> getObservableAndReso(const TObject* resHelper){
     const std::string name{resHelper->GetName()};
-    const std::string keyWord {"Helper"}; 
+    const std::string keyWord {"Helper_"}; 
     const size_t offset = keyWord.size();
     auto start = name.find(keyWord)+offset;
-    auto sep = name.find("_");
+    auto sep = name.find("_",start);
     return {name.substr(start, sep-start), name.substr(sep+1)}; 
 
 }
@@ -69,7 +69,20 @@ TH1* cloneExisting(const std::string & name){
     return ret; // will also catch ret == nullptr
 }
 
-// so far, we only support the 2D --> 1D case. 3D --> 2D is not used in IDPVM to date. 
+// get the names of the 1D histograms following IDPVM conventions. 
+std::pair<std::string, std::string> getPullAndResoNames(const std::string & type){
+  if (type == "res"){
+    return {"resolution","resmean"}; 
+  }
+  else if (type == "pull"){
+    return {"pullwidth","pullmean"}; 
+  }
+  else {
+    std::cerr << " Not able to identify the histogram names for a resolution type "<<type<<" - supported are 'res' and 'pull'. "<<std::endl;
+  }
+  return {"",""}; 
+}
+
 int postProcessHistos(TObject* resHelper, IDPVM::ResolutionHelper & theHelper){
     // here we have to rely on the naming conventions of IDPVM to identify what we are looking at 
     auto vars = getObservableAndReso(resHelper); 
@@ -80,9 +93,10 @@ int postProcessHistos(TObject* resHelper, IDPVM::ResolutionHelper & theHelper){
         std::cerr <<"Unable to reduce the histogram "<<resHelper->GetName()<<" to a TH2 - this histo can not yet be postprocessed! " <<std::endl; 
         return 1; 
     }
+    const auto & oneDimNames = getPullAndResoNames(type);  
     // get the corresponding 1D histos by cloning the existing ones in the same folder 
-    TH1* h_width = cloneExisting(type + "width_vs_"+vars.first+"_"+vars.second); 
-    TH1* h_mean = cloneExisting(type + "mean_vs_"+vars.first+"_"+vars.second); 
+    TH1* h_width = cloneExisting(oneDimNames.first+"_vs_"+vars.first+"_"+vars.second); 
+    TH1* h_mean = cloneExisting(oneDimNames.second+"_vs_"+vars.first+"_"+vars.second); 
     // then call the resolution helper as done in "online" IDPVM
     theHelper.makeResolutions(resHelper2D, h_width, h_mean); 
     // update our 1D histos 

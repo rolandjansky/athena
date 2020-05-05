@@ -34,8 +34,8 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'momwidthhi': 'inf',
                 'smclo': '0',
                 'smchi': 'inf',                
-		'jvtlo': '0',
-		'jvthi': 'inf',
+                'jvtlo': '0',
+                'jvthi': 'inf',
     }
 
     if parameter not in  defaults:

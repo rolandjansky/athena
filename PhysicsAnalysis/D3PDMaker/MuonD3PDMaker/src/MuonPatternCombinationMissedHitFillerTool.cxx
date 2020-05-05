@@ -10,7 +10,7 @@
 #include "MuonPatternCombinationMissedHitFillerTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TrkTruthData/TruthTrajectory.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/DetailedMuonPatternTruthCollection.h"

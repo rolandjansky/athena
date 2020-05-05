@@ -1,0 +1,114 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgTools/MessageCheck.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T,typename Aux> template<typename T2> SysWriteHandle<T,Aux> ::
+  SysWriteHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner), m_outputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_outputName, propertyDescription);
+  }
+
+
+
+  template<typename T,typename Aux> ::StatusCode SysWriteHandle<T,Aux> ::
+  record (std::unique_ptr<T> object, std::unique_ptr<Aux> aux,
+          const CP::SystematicSet& sys) const
+  {
+    auto cache = m_outputNameCache.find (sys);
+    if (cache == m_outputNameCache.end())
+    {
+      std::string newName = makeSystematicsName (m_outputName, sys);
+      ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
+      m_outputNameCache.insert (std::make_pair (sys, newName));
+      cache = m_outputNameCache.find (sys);
+      assert (cache != m_outputNameCache.end());
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    assert (m_evtStore);
+    if (m_evtStore->record (aux.release(), cache->second + "Aux.").isFailure())
+      return StatusCode::FAILURE;
+    if (m_evtStore->record (object.release(), cache->second).isFailure())
+      return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T,typename Aux> std::string SysWriteHandle<T,Aux> ::
+  getInputAffecting () const
+  {
+    return "";
+  }
+
+
+
+  template<typename T> template<typename T2> SysWriteHandle<T,void> ::
+  SysWriteHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner), m_outputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_outputName, propertyDescription);
+  }
+
+
+
+  template<typename T> const std::string& SysWriteHandle<T,void> ::
+  getName (const CP::SystematicSet& sys) const
+  {
+    auto cache = m_outputNameCache.find (sys);
+    if (cache == m_outputNameCache.end())
+    {
+      std::string newName = makeSystematicsName (m_outputName, sys);
+      ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
+      m_outputNameCache.insert (std::make_pair (sys, newName));
+      cache = m_outputNameCache.find (sys);
+      assert (cache != m_outputNameCache.end());
+
+      // retrieving this here, just so that it exists
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    return cache->second;
+  }
+
+
+
+  template<typename T> ::StatusCode SysWriteHandle<T,void> ::
+  record (std::unique_ptr<T> object, const CP::SystematicSet& sys) const
+  {
+    const std::string& name = getName (sys);
+    assert (m_evtStore);
+    return m_evtStore->record (object.release(), name);
+  }
+
+
+
+  template<typename T> std::string SysWriteHandle<T,void> ::
+  getInputAffecting () const
+  {
+    return "";
+  }
+}

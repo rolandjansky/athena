@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 //tau
 #include "tauRecTools/TauCalibrateLC.h"
 #include "xAODTau/TauJet.h"
@@ -13,11 +11,18 @@
 #include "TF1.h"
 #include "TH1D.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name) {
+  declareProperty("calibrationFile", m_calibrationFile = "");
+  declareProperty("doEnergyCorrection", m_doEnergyCorr = false);
+  declareProperty("doPtResponse", m_doPtResponse = false);
+  declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices = false);
+  declareProperty("doAxisCorrection", m_doAxisCorr = false);
+  declareProperty("usePantauAxis", m_usePantauAxis = false);
+  declareProperty("isCaloOnly", m_isCaloOnly = false);
 }
 
 /********************************************************************/

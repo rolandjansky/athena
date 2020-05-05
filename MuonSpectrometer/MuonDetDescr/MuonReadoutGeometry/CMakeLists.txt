@@ -5,6 +5,14 @@
 # Declare the package name:
 atlas_subdir( MuonReadoutGeometry )
 
+# Extra dependencies, based on the environment (no MuonCondSvc needed in AthSimulation):
+set( extra_deps )
+set( extra_libs )
+if( NOT SIMULATIONBASE )
+  set( extra_deps MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc )
+  set( extra_libs MuonCondSvcLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
@@ -18,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkDistortedSurfaces
                           Tracking/TrkDetDescr/TrkSurfaces
+                          ${extra_deps}
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/AGDD/AGDDModel
@@ -33,7 +42,7 @@ atlas_add_library( MuonReadoutGeometry
                    src/*.c*
                    PUBLIC_HEADERS MuonReadoutGeometry
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib GeoModelUtilities CxxUtils
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib GeoModelUtilities CxxUtils ${extra_libs}
                    PRIVATE_LINK_LIBRARIES AGDDModel MuonAGDDDescription )
 
 

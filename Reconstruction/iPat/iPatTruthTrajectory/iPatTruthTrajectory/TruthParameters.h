@@ -13,7 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"

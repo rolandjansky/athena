@@ -9,7 +9,7 @@
 #include <map>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 

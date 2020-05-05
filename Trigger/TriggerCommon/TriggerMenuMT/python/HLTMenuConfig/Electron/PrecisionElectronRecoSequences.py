@@ -64,7 +64,7 @@ def precisionElectronRecoSequence(RoIs):
     electronPrecisionTrack += ViewVerifyPrecisionCluster
 
     """ Retrieve the factories now """
-    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
 
      
@@ -86,7 +86,7 @@ def precisionElectronRecoSequence(RoIs):
     trigElectronAlgo.InputEgammaRecContainerName = TrigEgammaAlgo.egammaRecContainer
     thesequence += trigElectronAlgo
 
-    trigTopoEgammaAlgo = TrigTopoEgammaElectron()
+    trigTopoEgammaAlgo = TrigTopoEgammaElectronCfg()
     trigTopoEgammaAlgo.SuperElectronRecCollectionName = trigElectronAlgo.SuperElectronRecCollectionName
     collectionOut = trigTopoEgammaAlgo.ElectronOutputName
     thesequence += trigTopoEgammaAlgo

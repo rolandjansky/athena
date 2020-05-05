@@ -21,15 +21,18 @@
 
 #include "tauRecTools/KineUtils.h"
 
-
+#define GeV 1000
 const double TauSubstructureVariables::DEFAULT = -1111.;
 
 //**********************************
 // Constructor
 //**********************************
 
-TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
-		TauRecToolBase(name) {
+TauSubstructureVariables::TauSubstructureVariables( const std::string& name )
+    : TauRecToolBase(name) {
+	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection = 4 * GeV);
+	declareProperty("pileUpAlpha", m_pileUpAlpha = 1.0);
+	declareProperty("VertexCorrection", m_doVertexCorrection = false);
 }
 
 

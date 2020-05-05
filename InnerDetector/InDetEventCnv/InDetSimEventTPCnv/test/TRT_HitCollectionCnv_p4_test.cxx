@@ -20,8 +20,8 @@
 #include <cmath>
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 
 using Athena_test::isEqual;
 using std::atan2;

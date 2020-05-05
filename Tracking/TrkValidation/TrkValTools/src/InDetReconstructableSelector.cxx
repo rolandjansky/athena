@@ -10,12 +10,12 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkValTools/InDetReconstructableSelector.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 Trk::InDetReconstructableSelector::InDetReconstructableSelector(const std::string& type, const std::string& name,

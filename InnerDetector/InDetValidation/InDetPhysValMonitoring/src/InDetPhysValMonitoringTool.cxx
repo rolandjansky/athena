@@ -78,7 +78,7 @@ namespace { // utility functions used here
   bool
   passJetCuts(const xAOD::Jet& jet) {
     const float absEtaMax = 2.5;
-    const float jetPtMin = 10.0;  // in GeV
+    const float jetPtMin = 100.0;  // in GeV
     const float jetPtMax = 1000.0; // in GeV
     const float jetPt = jet.pt() / Gaudi::Units::GeV; // GeV
     const float jetEta = jet.eta();
@@ -137,7 +137,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "SquirrelPlots/");
   declareProperty("SubFolder", m_folder);
-  declareProperty("PileupSwitch", m_pileupSwitch = "All");
+  declareProperty("PileupSwitch", m_pileupSwitch = "HardScatter");
   declareProperty("LowProb", m_lowProb=0.50);
   declareProperty("HighProb", m_highProb=0.80);
   declareProperty("SkillLevel", m_detailLevel=10);
@@ -497,10 +497,11 @@ const std::vector<const xAOD::TruthParticle*>
 InDetPhysValMonitoringTool::getTruthParticles() {
   // truthParticles.clear();
   std::vector<const xAOD::TruthParticle*> tempVec {};
-  if (m_truthParticleName.key().empty()) {
-    return tempVec;
-  }
   if (m_pileupSwitch == "All") {
+
+    if (m_truthParticleName.key().empty()) {
+      return tempVec;
+    }
     SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainer( m_truthParticleName);
     if (not truthParticleContainer.isValid()) {
       return tempVec;
@@ -518,7 +519,9 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       const auto& links = event->truthParticleLinks();
       tempVec.reserve(event->nTruthParticles());
       for (const auto& link : links) {
-        tempVec.push_back(*link);
+        if (link.isValid()){
+          tempVec.push_back(*link);
+        }
       }
       }
     } else if (m_pileupSwitch == "PileUp") {

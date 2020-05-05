@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMomentumFromField.h"
@@ -14,12 +14,8 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+#include <TString.h> // for Form
 
 MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& type,const std::string& name,const IInterface* 
 							   parent):AthAlgTool(type,name,parent)
@@ -29,31 +25,14 @@ MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& ty
 
 StatusCode MuonSegmentMomentumFromField::initialize()
 {
-
   ATH_MSG_VERBOSE(" MuonSegmentMomentumFromField::Initializing ");
-
-  ATH_CHECK( m_magFieldSvc.retrieve() );
-
-  ATH_CHECK( m_propagator.retrieve() );
-
-  ATH_CHECK( m_navigator.retrieve() );
-
-  if (m_hasCSC) ATH_CHECK( detStore()->retrieve( m_cscid ) );
-
-  ATH_CHECK( detStore()->retrieve( m_rpcid ) );
-
-  ATH_CHECK( detStore()->retrieve( m_tgcid ) );
-
-  if (m_hasSTgc) ATH_CHECK( detStore()->retrieve( m_stgcid ) );
-
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(m_propagator.retrieve());
+  ATH_CHECK(m_navigator.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
   ATH_MSG_VERBOSE("End of Initializing");  
-
   return StatusCode::SUCCESS; 
-}
-
-StatusCode MuonSegmentMomentumFromField::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
@@ -81,13 +60,8 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
     it++;
     it2++;
   }
-
-
   ATH_MSG_DEBUG( " Estimated signed momentum " << signedMomentum );
-
 }
-
-
 
 double MuonSegmentMomentumFromField::fieldIntegralEstimate( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const 
 {
@@ -104,13 +78,21 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate( const Muon::MuonSegm
   Amg::Vector3D point2=pos1+.5*posdiff;
   Amg::Vector3D point3=pos1+.75*posdiff;
   Amg::Vector3D field1,field2,field3;
-  m_magFieldSvc->getField(point1.data(),field1.data()); // field in kiloTesla
-  m_magFieldSvc->getField(point2.data(),field2.data());
-  m_magFieldSvc->getField(point3.data(),field3.data());
+
+  MagField::AtlasFieldCache fieldCache;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (!fieldCondObj) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonSegmentMomentumFromField::fieldIntegralEstimate() - Failed to retrieve AtlasFieldCacheCondObj with key %s", __FILE__, __LINE__, (m_fieldCondObjInputKey.key()).c_str()));
+  }
+  fieldCondObj->getInitializedCache(fieldCache);
+
+  fieldCache.getField(point1.data(),field1.data()); // field in kiloTesla
+  fieldCache.getField(point2.data(),field2.data());
+  fieldCache.getField(point3.data(),field3.data());
   ATH_MSG_DEBUG("Mid Point " << Amg::toString(point2) << " field " << Amg::toString(field2) );
   field1[2]=field2[2]=field3[2]=0;
   Amg::Vector3D fieldsum=field1+field2+field3;
-  //double averageBcrossl=(field1.cross(posdiff.unit()).mag()+field2.cross(posdiff.unit()).mag()+field3.cross(posdiff.unit()).mag())/3;
   Amg::Vector3D crossvec=posdiff.unit().cross(field1+field2+field3);
   Amg::Vector2D rphidir(-posdiff.y(),posdiff.x());
   double averagelcrossB=crossvec.mag()/3;
@@ -158,8 +140,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
+    if ((m_idHelperSvc->isRpc(id) && m_idHelperSvc->rpcIdHelper().measuresPhi(id)) || (m_idHelperSvc->isCsc(id) && m_idHelperSvc->cscIdHelper().measuresPhi(id)) || (m_idHelperSvc->isTgc(id) && m_idHelperSvc->tgcIdHelper().isStrip(id))
+        || (m_idHelperSvc->issTgc(id) && m_idHelperSvc->stgcIdHelper().measuresPhi(id) ) ){
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
     }
@@ -172,15 +154,15 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
+    if ((m_idHelperSvc->isRpc(id) && m_idHelperSvc->rpcIdHelper().measuresPhi(id)) || (m_idHelperSvc->isCsc(id) && m_idHelperSvc->cscIdHelper().measuresPhi(id)) || (m_idHelperSvc->isTgc(id) && m_idHelperSvc->tgcIdHelper().isStrip(id))
+        || (m_idHelperSvc->issTgc(id) && m_idHelperSvc->stgcIdHelper().measuresPhi(id) ) ){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;
     }
   }
   bool flip = false;
-  if (firstphi1) dist1=fabs((firstphi1->globalPosition()-lastphi1->globalPosition()).dot(myseg1->globalDirection()));
-  if (firstphi2) dist2=fabs((firstphi2->globalPosition()-lastphi2->globalPosition()).dot(myseg2->globalDirection()));
+  if (firstphi1) dist1=std::abs((firstphi1->globalPosition()-lastphi1->globalPosition()).dot(myseg1->globalDirection()));
+  if (firstphi2) dist2=std::abs((firstphi2->globalPosition()-lastphi2->globalPosition()).dot(myseg2->globalDirection()));
   if (dist2>dist1) {
     flip = true;
     bestseg=myseg2;
@@ -201,7 +183,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     }
 
     signedMomentum =-.3e3*fieldintegral/deltatheta;
-    if(fabs(signedMomentum)<1000.) signedMomentum = 1e6;
+    if(std::abs(signedMomentum)<1000.) signedMomentum = 1e6;
     ATH_MSG_DEBUG("integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum);
     double residual = 9999.;
     double resi[4],qoverp[4];
@@ -225,20 +207,20 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
           if(qoverp[i]!=qoverp[i-1]) {
             double derivative = -(resi[i]-resi[i-1])/(qoverp[i]-qoverp[i-1]);
             ATH_MSG_DEBUG(" numerical derivative " << derivative << " derivative from track " << (*jac)(1,4) << " der_simple " << der_simple);
-            if(fabs(derivative)>fabs((*jac)(1,4))) {
+            if(std::abs(derivative)>std::abs((*jac)(1,4))) {
               ATH_MSG_DEBUG(" use numerical derivative " << derivative << " derivative from track " << (*jac)(1,4));
               delta_qoverp = residual/derivative;
             }
           }
         } else {
-          if(fabs(der_simple)>fabs((*jac)(1,4))) {
+          if(std::abs(der_simple)>std::abs((*jac)(1,4))) {
             ATH_MSG_DEBUG(" use simple numerical derivative " << der_simple << " derivative from track " << (*jac)(1,4));
             delta_qoverp = residual/der_simple;
           }
         }
         ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " signedmomentum: " << signedMomentum << " delta_qoverp " << delta_qoverp);
         double signedMomentum_updated = signedMomentum/(1+signedMomentum*delta_qoverp);
-        if(fabs(signedMomentum_updated)<1000.) {
+        if(std::abs(signedMomentum_updated)<1000.) {
           ATH_MSG_DEBUG("Too low signed momentum " << signedMomentum_updated );
 //      protect against too low momenta as propagation will fail
           signedMomentum = signedMomentum_updated>0? 1000.:-1000;
@@ -251,7 +233,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
         if (std::abs(residual)<1) break;
       }
     }
-    if(fabs(residual)>10.) {
+    if(std::abs(residual)>10.) {
        ATH_MSG_DEBUG("NOT converged residual: " << residual << " itry " << itry);
        if(itry==1) ATH_MSG_DEBUG("NOT converged residual after two trials ");
     } else break;
@@ -274,9 +256,18 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate_old( const Muon::Muon
   Amg::Vector3D point2=pos1+.5*posdiff;
   Amg::Vector3D point3=pos1+.75*posdiff;
   Amg::Vector3D field1,field2,field3;
-  m_magFieldSvc->getField((double*)&point1,(double*)&field1); // field in kiloTesla
-  m_magFieldSvc->getField((double*)&point2,(double*)&field2);
-  m_magFieldSvc->getField((double*)&point3,(double*)&field3);
+
+  MagField::AtlasFieldCache fieldCache;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (!fieldCondObj) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonSegmentMomentumFromField::fieldIntegralEstimate_old() - Failed to retrieve AtlasFieldCacheCondObj with key %s", __FILE__, __LINE__, (m_fieldCondObjInputKey.key()).c_str()));
+  }
+  fieldCondObj->getInitializedCache(fieldCache);
+
+  fieldCache.getField(point1.data(),field1.data()); // field in kiloTesla
+  fieldCache.getField(point2.data(),field2.data());
+  fieldCache.getField(point3.data(),field3.data());
   ATH_MSG_DEBUG("Mid Point " << Amg::toString(point2) << " field " << Amg::toString(field2) );
   double averageBcrossl=(field1.cross(posdiff.unit()).mag()+field2.cross(posdiff.unit()).mag()+field3.cross(posdiff.unit()).mag())/3;
   ATH_MSG_DEBUG("field integral " << averageBcrossl << "dist " << posdiff.mag() << " tot " << averageBcrossl*posdiff.mag());
@@ -322,8 +313,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
-	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){    
+    if ((m_idHelperSvc->isRpc(id) && m_idHelperSvc->rpcIdHelper().measuresPhi(id)) || (m_idHelperSvc->isCsc(id) && m_idHelperSvc->cscIdHelper().measuresPhi(id)) ||
+	(m_idHelperSvc->isTgc(id) && m_idHelperSvc->tgcIdHelper().isStrip(id))){    
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
     }
@@ -336,21 +327,20 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
-	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){
+    if ((m_idHelperSvc->isRpc(id) && m_idHelperSvc->rpcIdHelper().measuresPhi(id)) || (m_idHelperSvc->isCsc(id) && m_idHelperSvc->cscIdHelper().measuresPhi(id)) ||
+	(m_idHelperSvc->isTgc(id) && m_idHelperSvc->tgcIdHelper().isStrip(id))){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;
     }
   }
 
-  if (firstphi1) dist1=fabs((firstphi1->globalPosition()-lastphi1->globalPosition()).dot(myseg1->globalDirection()));
-  if (firstphi2) dist2=fabs((firstphi2->globalPosition()-lastphi2->globalPosition()).dot(myseg2->globalDirection()));
+  if (firstphi1) dist1=std::abs((firstphi1->globalPosition()-lastphi1->globalPosition()).dot(myseg1->globalDirection()));
+  if (firstphi2) dist2=std::abs((firstphi2->globalPosition()-lastphi2->globalPosition()).dot(myseg2->globalDirection()));
   if (dist2>dist1) {
     bestseg=myseg2;
     worstseg=myseg1;
   }
   signedMomentum =-.3e3*fieldintegral/deltatheta;
-  //std::cout << "integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum << std::endl;
   ATH_MSG_DEBUG("integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum);
   for (int i=0;i<3;i++){
     Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),bestseg->globalDirection().theta(),
@@ -364,7 +354,6 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
       double delta_qoverp=residual/(*jac)(1,4);
       signedMomentum=1/(1/signedMomentum+delta_qoverp);
       ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " dp " << delta_qoverp << " signedmomentum: " << signedMomentum);
-      //std::cout << "residual: " << residual << " signedmomentum: " << signedMomentum << std::endl;
       delete par;
       delete jac;
       if (std::abs(residual)<1) break;

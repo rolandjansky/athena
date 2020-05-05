@@ -254,10 +254,11 @@ HepMcParticleLink::getEventPositionInCollection (const IProxyDict* sg) const
     return 0;
   }
 
+  const int intIndex = static_cast<int>(index);
   const McEventCollection* coll = retrieveMcEventCollection (sg);
   size_t sz = coll->size();
   for (size_t i = 0; i < sz; i++) {
-    if ((*coll)[i]->event_number() == index) {
+    if ((*coll)[i]->event_number() == intIndex) {
       return i;
     }
   }
