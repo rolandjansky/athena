@@ -27,7 +27,7 @@ from SCT_Monitoring.SCT_MonitoringConf import SCTHitsNoiseMonAlg
 myMonAlg = helper.addAlgorithm(SCTHitsNoiseMonAlg, "SCTHitsNoiseMonAlg")
 
 # Trigger histogram will be made only for data.
-doTrigger = True
+doTrigger = False
 if globalflags.DataSource == "data":
   from RecExConfig.RecFlags import rec
   if rec.doTrigger():
