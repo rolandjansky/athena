@@ -291,9 +291,11 @@ StatusCode LArAutoCorrTotalTool::getTerms()
 	// m_nsamples_AC_OFC = size of AC matrix & OFC vector (e.g 5 in Atlas)
 	//:::::::::::::::::::::::::::::::
         float fSigma2=0.;
+        float MinBiasRMS=0.;
+	float SigmaNoise=0.;
+        float Adc2MeV=0.;
         if(!m_NoPile) 
 	{
-	  float SigmaNoise;
 	  if(m_isMC)
 	    SigmaNoise = m_dd_noise->noise(id,igain);
 	  else          
@@ -306,11 +308,10 @@ StatusCode LArAutoCorrTotalTool::getTerms()
 	     SigmaNoise = 0.;//(we will have the ERROR message below)
 	  }
 	  float fSampl     = m_dd_fSampl->FSAMPL(id);
-	  float MinBiasRMS = m_dd_minbias->minBiasRMS(id);
+	  MinBiasRMS = m_dd_minbias->minBiasRMS(id);
 	  if(fSampl!=0) MinBiasRMS/=fSampl;
 	  const std::vector<float> *
 	    polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(id,igain));
-          float Adc2MeV=0.;
           if (polynom_adc2mev->size()>0) {
 	   Adc2MeV=(*polynom_adc2mev)[1];
           } 
