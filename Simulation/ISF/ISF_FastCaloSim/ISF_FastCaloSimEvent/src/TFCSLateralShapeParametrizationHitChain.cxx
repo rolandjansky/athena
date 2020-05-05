@@ -30,6 +30,17 @@ unsigned int TFCSLateralShapeParametrizationHitChain::size() const
    else return m_chain.size();
 }
 
+void TFCSLateralShapeParametrizationHitChain::push_back_init( const Chain_t::value_type& value ) 
+{
+  if(m_ninit==size()) {
+    chain().push_back(value);
+  } else {  
+    Chain_t::iterator it(&chain()[m_ninit]);
+    chain().insert(it,value);
+  }  
+  ++m_ninit;
+}
+
 const TFCSParametrizationBase* TFCSLateralShapeParametrizationHitChain::operator[](unsigned int ind) const 
 {
   if(m_number_of_hits_simul) {
@@ -260,9 +271,16 @@ void TFCSLateralShapeParametrizationHitChain::Print(Option_t *option) const
     if(longprint) ATH_MSG_INFO(optprint <<"#:Number of hits simulation:");
     m_number_of_hits_simul->Print(opt+"#:");
   }
+  if(longprint && get_nr_of_init()>0) ATH_MSG_INFO(optprint <<"> Simulation init chain:");
+  auto hitloopstart=m_chain.begin()+get_nr_of_init();
+  for(auto hititr=m_chain.begin(); hititr!=hitloopstart; ++hititr) {
+    TFCSLateralShapeParametrizationHitBase* hitsim=*hititr;
+    hitsim->Print(opt+"> ");
+  } 
   if(longprint) ATH_MSG_INFO(optprint <<"- Simulation chain:");
   char count='A';
-  for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+  for(auto hititr=hitloopstart; hititr!=m_chain.end(); ++hititr) {
+    TFCSLateralShapeParametrizationHitBase* hitsim=*hititr;
     hitsim->Print(opt+count+" ");
     count++;
   } 

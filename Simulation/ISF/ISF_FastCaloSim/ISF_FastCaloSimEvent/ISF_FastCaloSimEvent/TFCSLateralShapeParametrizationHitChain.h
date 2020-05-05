@@ -26,6 +26,7 @@ public:
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
+  void push_back_init( const Chain_t::value_type& value );
 
   unsigned int get_nr_of_init() const {return m_ninit;};
   void set_nr_of_init(unsigned int ninit) {m_ninit=ninit;};
@@ -57,7 +58,7 @@ protected:
   
 private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
-  int m_ninit=0;
+  unsigned int m_ninit=0;
 
   ClassDefOverride(TFCSLateralShapeParametrizationHitChain,2)  //TFCSLateralShapeParametrizationHitChain
 };
