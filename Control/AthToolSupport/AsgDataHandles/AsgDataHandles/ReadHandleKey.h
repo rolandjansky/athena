@@ -11,9 +11,12 @@
  */
 
 
-#ifndef STOREGATE_READHANDLEKEY_H
-#define STOREGATE_READHANDLEKEY_H
+#ifndef ASG_DATA_HANDLES_READ_HANDLE_KEY_H
+#define ASG_DATA_HANDLES_READ_HANDLE_KEY_H
 
+#ifndef XAOD_STANDALONE
+#include <StoreGate/ReadHandle.h>
+#else
 
 #include "AsgDataHandles/VarHandleKey.h"
 #include "AsgDataHandles/exceptions.h"
@@ -150,5 +153,6 @@ public:
 
 #include "AsgDataHandles/ReadHandleKey.icc"
 
+#endif
 
 #endif // not STOREGATE_READHANDLEKEY_H

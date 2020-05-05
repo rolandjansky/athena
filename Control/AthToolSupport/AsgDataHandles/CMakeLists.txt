@@ -16,7 +16,7 @@ atlas_add_library( AsgDataHandlesLib INTERFACE
    AsgDataHandles/*.h AsgDataHandles/*.icc
    PUBLIC_HEADERS AsgDataHandles
    PRIVATE_INCLUDE_DIRS
-   LINK_LIBRARIES StoreGate )
+   LINK_LIBRARIES StoreGateLib )
 
 else()
 

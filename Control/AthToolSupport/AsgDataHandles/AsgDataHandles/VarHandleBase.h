@@ -12,8 +12,12 @@
  * @brief Base class for VarHandle classes.
  */
 
-#ifndef STOREGATE_SG_VARHANDLEBASE_H
-#define STOREGATE_SG_VARHANDLEBASE_H 1
+#ifndef ASG_DATA_HANDLES_VAR_HANDLE_BASE_H
+#define ASG_DATA_HANDLES_VAR_HANDLE_BASE_H
+
+#ifndef XAOD_STANDALONE
+#incldue <StoreGate/VarHandleBase.h>
+#else
 
 // STL includes
 #include <string>
@@ -608,5 +612,6 @@ namespace SG {
 
 #include "AsgDataHandles/VarHandleBase.icc"
 
+#endif
 
 #endif //> !STOREGATE_SG_VARHANDLEBASE_H

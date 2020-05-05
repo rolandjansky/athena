@@ -11,9 +11,12 @@
  */
 
 
-#ifndef STOREGATE_EXCEPTIONS_H
-#define STOREGATE_EXCEPTIONS_H
+#ifndef ASG_DATA_HANDLES_EXCEPTIONS_H
+#define ASG_DATA_HANDLES_EXCEPTIONS_H
 
+#ifndef XAOD_STANDALONE
+#include <StoreGate/exceptions.h>
+#else
 
 #include "AsgDataHandles/common.h"
 // #include <stdexcept>
@@ -296,5 +299,6 @@ namespace SG {
 
 } // namespace SG
 
+#endif
 
 #endif // not STOREGATE_EXCEPTIONS_H
