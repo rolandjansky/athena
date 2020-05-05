@@ -123,7 +123,8 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     # This should get its own dictionary.
 
     # Add a simple jet modifier to the JetRecAlg
-    jclsmoms = CompFactory.JetClusterMomentsTool("clsmoms")
+    jclsmoms = CompFactory.JetClusterMomentsTool("clsmoms",
+                                                 JetContainer = buildjetsname)
 
     # Create the JetRecAlg, configure it to use the builder
     # using constructor syntax instead
@@ -153,7 +154,8 @@ def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     jcopy.InputJets = buildjetsname
 
     # Add a simple jet modifier to the JetRecAlg
-    jclsmoms = CompFactory.JetClusterMomentsTool("clsmoms")
+    jclsmoms = CompFactory.JetClusterMomentsTool("clsmoms",
+                                                 JetContainer = copyjetsname)
 
     # Create the JetRecAlg, configure it to use the copier
     # using constructor syntax instead
