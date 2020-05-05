@@ -465,27 +465,8 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFr
     //check if interpolation should be done
     if (getPtBins)
     {
-        if (env.Lookup(interpolate))
-        {
-            TString interpolation_str = env.GetValue(interpolate.Data(),"");
-            if (interpolation_str == "True" || interpolation_str == "true" || interpolation_str == "1")
-            {
-                m_interpolatePtFlags.at(parameter_number) = true;
-            }
-            else if (interpolation_str == "False" || interpolation_str == "false" || interpolation_str == "0")
-            {
-                m_interpolatePtFlags.at(parameter_number) = false;
-            }
-            else
-            {
-                ATH_MSG_ERROR("Could not read optional flag Parameter" << parameter_number << "Interpolate value: Options are true or false.");
-                return StatusCode::FAILURE;
-            }
-        }
-        else //set default to False!
-        {
-            m_interpolatePtFlags.at(parameter_number) = false;
-        }
+        // default is false
+        m_interpolatePtFlags.at(parameter_number) = env.GetValue(interpolate.Data(),false);
     }
     if ( getEtaBins || getPtBins)
     {
@@ -734,7 +715,6 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& retur
 
     // implicitly convert to loong unsigend int for comparisons, to get rid of compiler warnings resulting from comparisons of int and unsigned int
     long unsigned int bin = bin_int;
-    ATH_MSG_INFO("Bin int: " << bin_int << ", bin unsigned int: " << bin);
 
     if (bin >= binning.size())
     {
