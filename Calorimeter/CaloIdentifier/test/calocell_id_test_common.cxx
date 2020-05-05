@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file  CaloIdentifier/test/calocell_id_test_common.cxx
  * @author scott snyder
@@ -221,13 +220,8 @@ std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (IdDictParser& parser,
                                                   fcal_id.release(),
                                                   minifcal_id.release(),
                                                   tile_id.release());
-  assert (calo_id->initialize_from_dictionary (idd) == 0);
-
-  //assert (calo_id->em_idHelper() == em_id);
-  //assert (calo_id->hec_idHelper() == hec_id);
-  //assert (calo_id->fcal_idHelper() == fcal_id);
-  //assert (calo_id->minifcal_idHelper() == minifcal_id);
-  //assert (calo_id->tile_idHelper() == tile_id);
+  int stat = calo_id->initialize_from_dictionary (idd); 
+  assert (stat == 0);
 
   return calo_id;
 }
