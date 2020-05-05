@@ -14,6 +14,8 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
+  virtual FCSReturnCode init_hit(TFCSLateralShapeParametrizationHitBase::Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   typedef std::vector< TFCSLateralShapeParametrizationHitBase* > Chain_t;
@@ -52,10 +54,10 @@ protected:
   void PropagateMSGLevel(MSG::Level level) const;
   
   Chain_t m_chain;
-  int m_ninit=0;
   
 private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
+  int m_ninit=0;
 
   ClassDefOverride(TFCSLateralShapeParametrizationHitChain,2)  //TFCSLateralShapeParametrizationHitChain
 };

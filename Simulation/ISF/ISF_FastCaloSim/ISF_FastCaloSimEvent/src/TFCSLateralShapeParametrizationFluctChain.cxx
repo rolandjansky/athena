@@ -40,25 +40,9 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
 
   //Execute the first get_nr_of_init() simulate calls only once. Used for example to initialize the center position
   TFCSLateralShapeParametrizationHitBase::Hit hit;
-  hit.reset_center();
-  auto hitloopstart=m_chain.begin();
-  if(get_nr_of_init()>0) {
-    if (debug) {
-      PropagateMSGLevel(old_level);
-      ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" before init");
-    }
-
-    hitloopstart+=get_nr_of_init();
-    for(auto hititr=m_chain.begin(); hititr!=hitloopstart; ++hititr) {
-      TFCSLateralShapeParametrizationHitBase* hitsim=*hititr;
-
-      FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
-
-      if (status != FCSSuccess) {
-        ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit init call failed");
-        return FCSFatal;
-      }
-    }
+  if(init_hit(hit,simulstate,truth,extrapol)!=FCSSuccess) {
+    ATH_MSG_ERROR("init_hit() failed");
+    return FCSFatal;
   }
 
   //Initialize hit energy only now, as init loop above might change the layer energy
@@ -90,9 +74,12 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<Elayer<<" sigma2="<<sigma2);
   }
 
+  auto hitloopstart=m_chain.begin()+get_nr_of_init();
   int ihit=0;
   int ifail=0;
   int itotalfail=0;
+  int retry_warning=1;
+  int retry=0;
   do {
     hit.reset();
     //hit.E()=Eavghit;
@@ -117,6 +104,9 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
       failed=true;
       ++ifail;
       ++itotalfail;
+      retry=status-FCSRetry;
+      retry_warning=retry>>1;
+      if(retry_warning<1) retry_warning=1;
       break;
     }
     if(!failed) {
@@ -128,12 +118,13 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
       error2_sumEhit+=Ehit*Ehit;
       if(sumEhit2>0) error2=error2_sumEhit/sumEhit2;
     } else {
-      if (ifail >= FCS_RETRY_COUNT) {
-        ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit call failed after " << FCS_RETRY_COUNT << "retries");
-      }
-      if(ifail >= FCS_RETRY_COUNT*FCS_RETRY_COUNT) {
+      if(ifail >= retry) {
+        ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit call failed after " << ifail << "/"<< retry <<"retries, total fails="<<itotalfail);
         if (debug) PropagateMSGLevel(old_level); 
         return FCSFatal;
+      }
+      if (ifail >= retry_warning) {
+        ATH_MSG_WARNING("TFCSLateralShapeParametrizationFluctChain::simulate(): retry simulate_hit calls "<<ifail<<"/"<< retry<<", total fails="<<itotalfail);
       }
     }
   } while (error2>sigma2);
