@@ -98,7 +98,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
                           << " strip " << stripN
                           << " gasGap " << gasGapN
                           << " layer " << layerN);
-          if (abs(strip-stripN) <= m_maxHoleSize + 1) {
+          if (std::abs(strip-stripN) <= m_maxHoleSize + 1) {
           jmerge = j;
           break;
         }
@@ -126,7 +126,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_mmIdHelper->channel(id_prdN);
-	if( abs(mergeStrips[k]-stripN) <= 1 ) {
+	if( std::abs(mergeStrips[k]-stripN) <= 1 ) {
 	  int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
 	  int layerN   = m_mmIdHelper->multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
