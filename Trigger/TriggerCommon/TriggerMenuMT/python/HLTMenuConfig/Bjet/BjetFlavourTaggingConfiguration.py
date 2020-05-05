@@ -7,13 +7,15 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
 
     acc = ComponentAccumulator()
 
-    filesInput="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
+    #filesInput="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
     kwargs = {}
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.isMC=False
-    ConfigFlags.Input.Files=filesInput.split(",")
+    #ConfigFlags.Input.isMC=False
+    #ConfigFlags.Input.Files=filesInput.split(",")
 
-    from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
+    #from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    Analysis__BTagTrackAugmenterAlg=CompFactory.Analysis.BTagTrackAugmenterAlg
     bTagTrackAugmenter = Analysis__BTagTrackAugmenterAlg( "Analysis__BTagTrackAugmenterAlg" )
     bTagTrackAugmenter.TrackContainer = inputTracks
     bTagTrackAugmenter.PrimaryVertexContainer = inputVertex

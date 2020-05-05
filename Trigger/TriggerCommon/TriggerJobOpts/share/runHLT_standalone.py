@@ -555,6 +555,7 @@ if opt.doWriteBS:
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+ConfigFlags.Input.isMC = False
 # ID Cache Creators
 ConfigFlags.lock()
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
