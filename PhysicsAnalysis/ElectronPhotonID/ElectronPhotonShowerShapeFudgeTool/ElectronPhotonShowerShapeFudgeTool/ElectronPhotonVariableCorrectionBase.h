@@ -241,6 +241,7 @@ private:
      * @param return_bin_center The bin center is saved in this parameter
      * @param binning The binning which should be used to find the bin centers
      * @param bin_int The bin for which the bin center should be found
+     */
     const StatusCode getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const;
 
     /** @brief Returns the linearly intrpolated value of value given the bin centers and bin values
