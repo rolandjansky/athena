@@ -22,6 +22,8 @@
 
 #include <unordered_map>
 
+class TH1;
+
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;
 
