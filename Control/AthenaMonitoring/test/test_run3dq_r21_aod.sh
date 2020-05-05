@@ -5,7 +5,7 @@
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 
-Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1"]' DQ.Steering.doHLTMon=False DQ.Environment=AOD  > log.HIST_Creation 2>&1
+Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1"]' DQ.Steering.doHLTMon=False DQ.Environment=AOD  > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 
