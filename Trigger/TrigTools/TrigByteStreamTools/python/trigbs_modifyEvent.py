@@ -19,7 +19,7 @@ class Config:
 class Store:
   """Global variables"""
   eventCounter = 0
-  currentLB = 0
+  currentLB = 1
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -27,12 +27,14 @@ log = logging.getLogger(__name__)
 def modify(event):
   from TrigByteStreamTools import CTPfragment
 
+  if Store.eventCounter==0:
+    Store.currentLB = Config.firstLB
+
   newevt = event if isinstance(event,eformat.write.FullEventFragment) else eformat.write.FullEventFragment(event)
   Store.eventCounter += 1
 
   if Config.eventsPerLB is not None:
-    if Store.eventCounter % Config.eventsPerLB == 0:
-      Store.currentLB += Config.incLB
+    Store.currentLB = Config.firstLB + Config.incLB*((Store.eventCounter-1) // Config.eventsPerLB)
 
     # Find CTP ROB
     ctp_robs = [rob for rob in newevt.children()
