@@ -57,3 +57,20 @@ if 'fastZFinder' in dir() and fastZFinder==True:
 
   print 'zfinder settings modified by TrigInDetValidation_RTT_topOptions_BeamspotSlice.py'
   print zfinder
+
+else:
+  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_Instance
+  FTF.doZFinder = False
+
+  if 'mlExtensions' in dir() and mlExtensions==True:
+
+    FTF.doSeedRedundancyCheck = True
+    FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+    FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict
+  
+# good options for any slice - leave here commented while for use in 
+# tests in the near future  
+#  FTF.UseTrigSeedML = 3 #all pixel clusters in PPP seeds will passed through the filter
+#  FTF.UseSCT_MiddleSP = False #effectively switch to PPP mode as PPS are switched off by default
+#  FTF.maxEC_Pixel_cluster_length = 0.65 #will be replaced by a trained endcap LUT when it's available
+  

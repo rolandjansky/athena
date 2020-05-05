@@ -38,6 +38,9 @@
 #     include   "TrigInDetValidation_beamspot_ttbar_pu40_zfinder.xml"
 #     include   "TrigInDetValidation_beamspot_ttbar_pu80_zfinder.xml"
 
+#     include   "TrigInDetValidation_beamspot_ttbar_pu80_fs.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu80_fsml.xml"
+
 #     include   "TrigInDetValidation_el_Jpsiee_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0_PU.xml"
