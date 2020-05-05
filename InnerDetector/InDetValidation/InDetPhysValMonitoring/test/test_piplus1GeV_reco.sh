@@ -1,7 +1,7 @@
 #!/bin/bash
-# art-description: art job for InDetPhysValMonitoring, Single ele 1GeV
+# art-description: art job for InDetPhysValMonitoring, Single ele 10GeV
 # art-type: grid
-# art-input: user.keli.mc16_13TeV.422027.ParticleGun_single_ele_Pt1.recon.RDO.e7967_e5984_s3126_r11774_tid20254975_00
+# art-input: user.keli:user.keli.mc16_13TeV.422047.ParticleGun_single_piplus_Pt1.recon.RDO.e7967_e5984_s3126_r11774_tid20255143_00
 # art-input-nfiles: 10
 # art-cores: 4
 # art-include: master/Athena
@@ -34,7 +34,7 @@ case $ArtProcess in
       postProcessIDPVMHistos physval.root
 
       dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
-      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ele1GeV.root"
+      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_piplus1GeV_reco_r22.root"
       echo "compare with R21"
       $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
 	   -p -x dcube \
