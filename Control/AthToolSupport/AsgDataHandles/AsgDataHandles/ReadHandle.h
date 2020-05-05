@@ -12,9 +12,13 @@
  * @brief Handle class for reading from StoreGate.
  */
 
-#ifndef STOREGATE_SG_READHANDLE_H
-#define STOREGATE_SG_READHANDLE_H 1
+#ifndef ASG_DATA_HANDLES_READ_HANDLE_H
+#define ASG_DATA_HANDLES_READ_HANDLE_H
 
+
+#ifndef XAOD_STANDALONE
+#include <StoreGate/ReadHandle.h>
+#else
 
 #include "AsgDataHandles/VarHandleBase.h"
 // #include "AsgDataHandles/ReadHandleKey.h"
@@ -312,5 +316,7 @@ private:
 // } 
 // #endif
 
+
+#endif
 
 #endif //> !STOREGATE_SG_READHANDLE_H

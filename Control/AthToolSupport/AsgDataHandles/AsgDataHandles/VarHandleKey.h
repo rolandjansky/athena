@@ -13,8 +13,13 @@
  */
 
 
-#ifndef STOREGATE_VARHANDLEKEY_H
-#define STOREGATE_VARHANDLEKEY_H
+#ifndef ASG_DATA_HANDLES_VAR_HANDLE_KEY_H
+#define ASG_DATA_HANDLES_VAR_HANDLE_KEY_H
+
+#ifndef XAOD_STANDALONE
+#include <StoreGate/VarHandleKey.h>
+#else
+
 
 
 // #include "AthenaKernel/IProxyDict.h"
@@ -258,5 +263,6 @@ namespace std {
 
 #include "AsgDataHandles/VarHandleKey.icc"
 
+#endif
 
 #endif // not STOREGATE_VARHANDLEKEY_H
