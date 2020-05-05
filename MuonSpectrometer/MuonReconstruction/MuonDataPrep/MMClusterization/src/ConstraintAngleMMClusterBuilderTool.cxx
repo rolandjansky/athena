@@ -277,7 +277,7 @@ const{
 
         stripsOfCluster.push_back(prdPerLayer.at(idxCluster.at(i_strip)).identify());
         stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
-        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
+        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
         stripsOfClusterChannels.push_back(m_muonIdHelperTool->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
 
 
