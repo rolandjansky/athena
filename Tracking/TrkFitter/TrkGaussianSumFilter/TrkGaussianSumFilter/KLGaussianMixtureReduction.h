@@ -14,7 +14,8 @@
 
 #include "CxxUtils/restrict.h"
 #include "CxxUtils/features.h"
-#include <utility>  
+#include <vector>
+#include <utility>
 #include <cstdint>
 
 namespace GSFUtils {
@@ -48,6 +49,7 @@ struct Component1D{
   double mean=0.;
   double cov=0.;
   double invCov=1e10; 
+  double weight=0.;
 };
 
 /**
@@ -96,54 +98,29 @@ typedef Component1D* ATH_RESTRICT componentPtrRestrict;
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
 __attribute__((target("avx2")))
-int32_t
+std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 __attribute__((target("sse4.2,sse2"))) 
-int32_t
+std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 #endif //x86_64 specific targets
 __attribute__((target("default")))
 #endif// function multiversioning
-int32_t
+std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 
-
 /**
- * Extra methods for finding the index of the minimum
- * pairwise distance
+ * Merge the componentsIn and return 
+ * which componets got merged
  */
-int32_t
-findMinimumIndexSTL(const floatPtrRestrict distancesIn, const int n);
-//find a pair of the  indices of the 2 smaller values
-std::pair<int32_t, int32_t>
-findMinimumIndexPair(const floatPtrRestrict distancesIn, const int32_t n);
-
-/**
- * Recalculate the distances given a merged input 
- * and return the index of the minimum pair
- */
-int32_t
-recalculateDistances(const componentPtrRestrict componentsIn,
-                     floatPtrRestrict distancesIn,
-                     const int32_t mini,
-                     const int32_t n);
-
-/** 
- * Calculate the distances for all component pairs
- */
-void
-calculateAllDistances(const componentPtrRestrict componentsIn,
-                      floatPtrRestrict distancesIn,
-                      const int32_t n);
-
-/*
- * Reset the distances wrt to a mini index
- */
-void
-resetDistances(floatPtrRestrict distancesIn,
-               const int32_t mini,
-               const int32_t n);
+std::vector<std::pair<int32_t, int32_t>>
+findMerges(componentPtrRestrict componentsIn, 
+           const int32_t inputSize, 
+           const int32_t reducedSize);
 
 } // namespace KLGaussianMixtureReduction
+
+      
+
 
 #endif
