@@ -34,7 +34,7 @@ case $ArtProcess in
       postProcessIDPVMHistos physval.root
 
       dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
-      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ele10GeV.root"
+      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ele10GeV_reco_r22.root"
       echo "compare with R21"
       $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
 	   -p -x dcube \

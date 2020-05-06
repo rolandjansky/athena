@@ -31,6 +31,8 @@ StatusCode RpcCablingCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
   ATH_CHECK(m_idHelperSvc.retrieve());
+  RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
+
   return StatusCode::SUCCESS;
 }
 

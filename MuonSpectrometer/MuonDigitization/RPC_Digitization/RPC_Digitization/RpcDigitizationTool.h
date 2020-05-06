@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -157,7 +157,7 @@ private:
   /** Average calibration methods and parameters */
   StatusCode  PrintCalibrationVector();
   /** Evaluate detection efficiency */
-  StatusCode DetectionEfficiency(const EventContext& ctx, const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit);
+  StatusCode DetectionEfficiency(const EventContext& ctx, const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const HepMcParticleLink& trkParticle);
   double FCPEfficiency(const HepMC::GenParticle* genParticle);
   /** */
   int ClusterSizeEvaluation(const EventContext& ctx, const Identifier* id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);

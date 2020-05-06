@@ -45,7 +45,7 @@ MUON6AugmentToolSel = DerivationFramework__dimuonTaggingTool(name = 'MUON6Augmen
 
 ToolSvc += MUON6AugmentToolSel
 MUON6AugmentTools.append(MUON6AugmentToolSel)
-print MUON6AugmentToolSel
+printfunc (MUON6AugmentToolSel)
 
 # Isolation decorations
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1IDTrackDecorator as MUON6AugmentToolIsoDecID
@@ -55,12 +55,12 @@ MUON6AugmentToolIsoDecID.SelectionFlagValue = 0
 
 ToolSvc += MUON6AugmentToolIsoDecID
 MUON6AugmentTools.append(MUON6AugmentToolIsoDecID)
-print MUON6AugmentToolIsoDecID
+printfunc (MUON6AugmentToolIsoDecID)
 
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1MSTrackDecorator as MUON6AugmentToolIsoDecMS
 ToolSvc += MUON6AugmentToolIsoDecMS
 MUON6AugmentTools.append(MUON6AugmentToolIsoDecMS)
-print MUON6AugmentToolIsoDecMS
+printfunc (MUON6AugmentToolIsoDecMS)
 
 #====================================================================
 # SKIMMING

@@ -69,14 +69,14 @@ endfunction( _add_test )
 # Write 'Hits', with multistreamand
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute"
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList"
    PRE_EXEC test/pre_check.sh )
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
 #   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Append_ctest
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Write_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool" )
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
 # Read all output
 _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
@@ -86,16 +86,16 @@ _add_test( AthenaPoolExample_Read
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool" )
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
 # Read copied 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWriteAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Copy_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool" )
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
 _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool" )
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList" )
 # Read all
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
@@ -106,7 +106,7 @@ _add_test( AthenaPoolExample_ReadAgain
 _add_test( AthenaPoolExample_Concat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute"
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList"
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadConcat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
@@ -127,7 +127,7 @@ _add_test( AthenaPoolExample_RCond
 _add_test( AthenaPoolExample_WMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RCond_ctest
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool"
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|metadataItemList"
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"

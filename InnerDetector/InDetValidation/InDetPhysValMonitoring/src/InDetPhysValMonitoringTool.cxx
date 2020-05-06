@@ -497,10 +497,11 @@ const std::vector<const xAOD::TruthParticle*>
 InDetPhysValMonitoringTool::getTruthParticles() {
   // truthParticles.clear();
   std::vector<const xAOD::TruthParticle*> tempVec {};
-  if (m_truthParticleName.key().empty()) {
-    return tempVec;
-  }
   if (m_pileupSwitch == "All") {
+
+    if (m_truthParticleName.key().empty()) {
+      return tempVec;
+    }
     SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainer( m_truthParticleName);
     if (not truthParticleContainer.isValid()) {
       return tempVec;
@@ -518,7 +519,9 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       const auto& links = event->truthParticleLinks();
       tempVec.reserve(event->nTruthParticles());
       for (const auto& link : links) {
-        tempVec.push_back(*link);
+        if (link.isValid()){
+          tempVec.push_back(*link);
+        }
       }
       }
     } else if (m_pileupSwitch == "PileUp") {
