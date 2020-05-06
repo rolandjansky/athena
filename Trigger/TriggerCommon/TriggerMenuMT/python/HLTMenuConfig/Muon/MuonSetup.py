@@ -138,6 +138,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                             DoSeededDecoding = not forFullScan,
                                             RoIs             = RoIs)
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+  MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
 
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
   MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
