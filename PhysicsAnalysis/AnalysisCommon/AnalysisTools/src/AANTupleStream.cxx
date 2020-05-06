@@ -344,11 +344,7 @@ StatusCode AANTupleStream::execute()
 void AANTupleStream::writeAttributeListSpecification()
 {
   // go to the root dir of output file
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   TDirectory::TContext save;
-#else
-  TDirectory::TContext save(0);
-#endif
   gDirectory->cd((m_fileName+":/").c_str());
 
   AttributeListLayout all;
@@ -384,11 +380,7 @@ void AANTupleStream::setupTree()
     }
 
   // go to the root dir of output file
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   TDirectory::TContext save;
-#else
-  TDirectory::TContext save(0);
-#endif
   gDirectory->cd((m_fileName+":/").c_str());
   
   // instantiate TTree
