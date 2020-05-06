@@ -96,9 +96,14 @@ namespace Analysis
 				   const std::vector<std::string>& jetAliases,
 				   const std::map<std::string, std::string>& SFNames,
 				   const std::map<std::string, std::vector<std::string> >& EffNames,
-				   const std::vector<std::string>& excludeFromEV,
+				   const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 				   const std::map<std::string, Analysis::EVReductionStrategy> EVReductions,
-				   bool useEV = true, bool useMCMCSF = true, bool useTopologyRescaling = false);
+
+				   bool useEV = true,
+				   bool useMCMCSF = true,
+				   bool useTopologyRescaling = false,
+     				   bool useRecommendedEVExclusions = false,
+				   bool verbose = true);
 
       /** default constructor for PROOF object retrieval */
       CalibrationDataInterfaceROOT();
@@ -381,7 +386,7 @@ namespace Analysis
 
       /** @brief utility function taking care of object retrieval */
       // CalibrationDataContainer* retrieveContainer(const std::string& name, bool isSF);
-      CalibrationDataContainer* retrieveContainer(const std::string& dir, const std::string& cntname, bool isSF);
+      CalibrationDataContainer* retrieveContainer(const std::string& dir, const std::string& cntname, bool isSF, bool doPrint = true);
 
       /** @brief utility function taking care of eigenvector objects retrieval */
       //      const CalibrationDataEigenVariations* retrieveCalibrationDataEV(const CalibrationDataContainer* calibrationDataContainer) const;
@@ -407,7 +412,13 @@ namespace Analysis
       std::map<std::string, Analysis::EVReductionStrategy> m_EVReductions;
       
       /** store the uncertainties which should be excluded from building the full covariance matrix **/
-      std::vector<std::string> m_excludeFromCovMatrix;
+      std::map<std::string, std::vector<std::string> > m_excludeFromCovMatrix;
+
+      /** if true, exclude pre-recommended lists of uncertainties from the covariance matrix building, in addition to the above user specified lists **/
+      bool m_useRecommendedEVExclusions;
+      
+      /** if true, allow also for some informational (and not only error/warning) messages **/
+      bool m_verbose;
 
       // ------------------------------------------------------------------------------------------
 

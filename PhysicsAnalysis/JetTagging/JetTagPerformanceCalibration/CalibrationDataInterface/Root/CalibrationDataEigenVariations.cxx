@@ -8,13 +8,16 @@
 
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 #include "CalibrationDataInterface/CalibrationDataEigenVariations.h"
+#include "CalibrationDataInterface/CalibrationDataInternals.h"
 
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <set>
 #include <algorithm>
+#include <string>
 #include <cmath>
+
 #include "TH1.h"
 #include "TVectorT.h"
 #include "TDecompSVD.h"
@@ -22,6 +25,7 @@
 #include "TROOT.h"
 
 using Analysis::CalibrationDataEigenVariations;
+using Analysis::CalibrationDataInterface::split;
 using std::string;
 using std::map;
 using std::vector;
@@ -35,7 +39,10 @@ namespace {
   // But in order to avoid unnecessary overhead, the actual dimensionality of the histograms is accounted for.
 
   // Construct the (diagonal) covariance matrix for the statistical uncertainties on the "ref" results
-  TMatrixDSym getStatCovarianceMatrix(const TH1* hist) {
+  // Note that when statistical uncertainties are stored as variations, they are already accounted for and hence should not be duplicated; hence they are dummy here
+  // (this is not very nice, in that the result of this function will technically be wrong,
+  // but the statistical uncertainty covariance matrix is anyway not separately visible to the outside world)
+  TMatrixDSym getStatCovarianceMatrix(const TH1* hist, bool zero) {
     Int_t nbinx = hist->GetNbinsX()+2, nbiny = hist->GetNbinsY()+2, nbinz = hist->GetNbinsZ()+2;
     Int_t rows = nbinx;
     if (hist->GetDimension() > 1) rows *= nbiny;
@@ -51,7 +58,7 @@ namespace {
       for (Int_t biny = 1; biny < nbiny-1; ++biny)
 	for (Int_t binz = 1; binz < nbinz-1; ++binz) {
 	  Int_t bin = hist->GetBin(binx, biny, binz);
-	  double err = hist->GetBinError(bin);
+	  double err = zero ? 0 : hist->GetBinError(bin);
 	  stat(bin, bin) = err*err;
 	}
     return stat;
@@ -193,9 +200,23 @@ ClassImp(CalibrationDataEigenVariations)
 #endif
 
 //________________________________________________________________________________
-CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt) :
-  m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1)
+CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt,
+							       bool excludeRecommendedUncertaintySet) :
+m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1), m_statVariations(false)
 {
+  // if specified, add items recommended for exclusion from EV decomposition by the calibration group to the 'named uncertainties' list
+  if (excludeRecommendedUncertaintySet) {
+    std::vector<std::string> to_exclude = split(m_cnt->getExcludedUncertainties());
+    for (auto name : to_exclude) excludeNamedUncertainty(name);
+    if (to_exclude.size() == 0) {
+      std::cerr << "CalibrationDataEigenVariations warning: exclusion of pre-set uncertainties list requested but no (or empty) list found" << std::endl;
+    }
+  }
+  // also flag if statistical uncertainties stored as variations (this typically happens as a result of smoothing / pruning of SF results)
+  vector<string> uncs = m_cnt->listUncertainties();
+  for (auto name : uncs) {
+    if (name.find("stat_np") != string::npos) m_statVariations = true;
+  }
 }
 
 //________________________________________________________________________________
@@ -232,13 +253,14 @@ CalibrationDataEigenVariations::excludeNamedUncertainty(const std::string& name)
 	      << " initialization already done" << std::endl;
   else if (name == "comment"    || name == "result"   || name == "systematics" ||
 	   name == "statistics" || name == "combined" || name == "extrapolation" ||
-	   name == "MCreference" || name == "MChadronisation" || name == "ReducedSets")
+	   name == "MCreference" || name == "MChadronisation" || name == "ReducedSets" || name == "excluded_set")
     std::cerr << "CalibrationDataEigenVariations::excludeNamedUncertainty error:"
 	      << " name " << name << " not allowed" << std::endl;
   else if (! m_cnt->GetValue(name.c_str()))
     std::cerr << "CalibrationDataEigenVariations::excludeNamedUncertainty error:"
 	      << " uncertainty named " << name << " not found" << std::endl;
-  else {
+  // only really add if the entry is not yet in the list
+  else if (m_namedIndices.find(name) == m_namedIndices.end()) {
     m_named.push_back(std::pair<TH1*, TH1*>(0, 0));
     m_namedIndices[name] = m_named.size()-1;
   }
@@ -271,7 +293,9 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrix() const
   // First, treat the statistics separately.
   // Account for the possibility that this is handled as a (non-trivial) covariance matrix
   TMatrixDSym* sCov = dynamic_cast<TMatrixDSym*>(m_cnt->GetValue("statistics"));
-  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result);
+  // Alternatively, statistical uncertainties may be accounted for as variations (i.e., much like systematic uncertainties).
+  // In that case, we create a null matrix here and add the statistical contributions along with the systematic ones.
+  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result, m_statVariations);
 
   // Then loop through the list of (other) uncertainties
   std::vector<string> uncs = m_cnt->listUncertainties();
@@ -281,7 +305,7 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrix() const
 	uncs[t] == "combined" || uncs[t] == "statistics" ||
         uncs[t] == "systematics" || uncs[t] == "MCreference" ||
         uncs[t] == "MChadronisation" || uncs[t] == "extrapolation" ||
-        uncs[t] == "ReducedSets") continue;
+        uncs[t] == "ReducedSets" || uncs[t] == "excluded_set") continue;
     // entries that can be excluded if desired
     if (m_namedIndices.find(uncs[t]) != m_namedIndices.end()) continue;
 
@@ -304,17 +328,16 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrixFromVariations() const
   TMatrixD    jac = getJacobianReductionMatrix();
   int         nbins = jac.GetNcols();
   TMatrixDSym cov(nbins);
+  auto variation = std::make_unique<double[]>(nbins);
 
   for (std::vector<std::pair<TH1*, TH1*> >::const_iterator it = m_eigen.begin();
        it != m_eigen.end(); ++it) {
-    double *variation = new double[nbins];
     TH1* resultVariedUp = it->first;
     for (unsigned int u = 0; u < (unsigned int) nbins; ++u)
       variation[u] = resultVariedUp->GetBinContent(u) - result->GetBinContent(u);
     for (int u = 0; u < nbins; ++u)
       for (int v = 0; v < nbins; ++v)
         cov(u, v) += variation[u]*variation[v];
-    delete[] variation;
   }
 
   return cov;
@@ -729,7 +752,7 @@ CalibrationDataEigenVariations::initialize(double min_variance)
       final_set.insert(current_set);
     ++current_set;
   }
-  if (final_set.size() > 0) std::cout << "Removing " << final_set.size()
+  if (final_set.size() > 0) std::cout << "CalibrationDataEigenVariations: Removing " << final_set.size()
 				      << " eigenvector variations leading to sub-tolerance effects, retaining "
 				      << m_eigen.size()-final_set.size() << " variations" << std::endl;
   removeVariations(final_set);
@@ -745,7 +768,10 @@ CalibrationDataEigenVariations::removeVariations(const IndexSet &set)
 
   std::vector<std::pair<TH1*, TH1*> > new_eigen;
   for (size_t index = 0; index < m_eigen.size(); ++index)
-    if (set.count(index) == 0) new_eigen.push_back(m_eigen[index]);
+    {
+      if (set.count(index) == 0) new_eigen.push_back(m_eigen[index]);
+      else { delete m_eigen[index].first; delete m_eigen[index].second; }
+    }
   m_eigen = new_eigen;
 }
 
