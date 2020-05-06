@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIClusterSubtraction.h
@@ -28,6 +28,12 @@
 #include <HIJetRec/IHIUEModulatorTool.h>
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
+
 class HIClusterSubtraction : virtual public asg::AsgTool,
 			     virtual public IJetExecuteTool
 {
@@ -42,15 +48,18 @@ public:
 
 private:
   /// \brief Name of input cluster container
-  std::string m_cluster_key; 
-
+	SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clusterKey { this, "ClusterKey", "ClusterKey", "Name of the input Cluster Container"};
   /// \brief Name of HIEventShapeContainer defining background
-  std::string m_event_shape_key; 
+	SG::ReadHandleKey< xAOD::HIEventShapeContainer > m_eventShapeKey { this, "EventShapeKey", "EventShapeKey", "Name of HIEventShapeContainer defining background"};
 
-  /// \brief handle to IHISubtractorTool which does calculates subtracted kinematics
-  ToolHandle<IHISubtractorTool> m_subtractor_tool; 
-  ToolHandle<IHIUEModulatorTool> m_modulator_tool;
-  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools; 
-  bool m_set_moments;
+	// Tool handles
+  ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetSubtractorToolBase", "Handle to IHISubtractorTool which does calculates subtracted kinematics" };
+  ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool" , "Handle to IHIModulatorTool" };
+  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools { this, "ClusterCorrectionTools", {}, "" };
+
+	// Booleans
+	Gaudi::Property< bool > m_setMoments { this, "SetMoments", true, "Set Moments boolean switch"};
+	Gaudi::Property< bool > m_updateMode  { this, "UpdateOnly", false, "Update Mode boolean switch"};
+
 };
 #endif
