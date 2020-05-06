@@ -21,6 +21,9 @@
 // PathResolver
 #include "PathResolver/PathResolver.h"
 
+// TagInfo for special case of turning off toroid or solenoid
+#include "EventInfo/TagInfo.h"
+
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
@@ -41,6 +44,9 @@ MagField::AtlasFieldMapCondAlg::initialize() {
 
     // Read Handle for the map
     ATH_CHECK( m_mapsInputKey.initialize() );
+
+    // Read Handle for tagInfo
+    ATH_CHECK( m_tagInfoKey.initialize() );
 
     // Output handle for the field map
     ATH_CHECK( m_mapCondObjOutputKey.initialize() );
@@ -192,12 +198,44 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
         const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
         EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                             EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
+                             EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, UNDEFNUM, 0));
         cache.m_mapCondObjOutputRange = rangeW;
         ATH_MSG_INFO("updateFieldMap: useMapsFromCOOL == false, using default range " << rangeW);
     }
         
-        
+    // We allow to set currents via the TagInfoMgr which adds tags to the TagInfo object - only allowed for offline
+
+    if (m_useMapsFromCOOL) {
+    
+        // TagInfo object - used to get currents via TagInfoMgr
+        SG::ReadHandle<TagInfo> tagInfoH{m_tagInfoKey, ctx}; 
+        if (tagInfoH.isValid()) {
+            ATH_MSG_INFO("updateFieldMap: tagInfoH " << tagInfoH.fullKey() << " is valid. ");
+            int i = 0;
+            bool resetCurrentsFromTagInfo = false;
+            for ( auto tag : tagInfoH->getTags() ) {
+                ATH_MSG_DEBUG("updateFieldMap: i, tags: " << i << " " << tag.first << " " << tag.second);
+                ++i;
+                if (tag.first == "MapSoleCurrent") {
+                    cache.m_mapSoleCurrent = std::stof(tag.second);
+                    resetCurrentsFromTagInfo = true;
+                    ATH_MSG_INFO("updateFieldMap: found MapSoleCurrent in TagInfo, setting the solenoid current " << cache.m_mapSoleCurrent);
+                }
+                else 
+                    if (tag.first == "MapToroCurrent") {
+                        cache.m_mapToroCurrent = std::stof(tag.second);
+                        resetCurrentsFromTagInfo = true;
+                        ATH_MSG_INFO("updateFieldMap: found MapToroCurrent in TagInfo, setting the toroid current " << cache.m_mapToroCurrent);
+                    }
+            }
+            if (resetCurrentsFromTagInfo) ATH_MSG_INFO("updateFieldMap: reset currents from TagInfo");
+            else                          ATH_MSG_INFO("updateFieldMap: DID NOT reset currents from TagInfo");
+        }  
+        else {
+            ATH_MSG_INFO("updateFieldMap: tagInfoH " << tagInfoH.fullKey() << " is NOT valid. ");
+        }
+    }
+    
     // Select map file according to the value of the currents which indicate which map is 'on'
 
     // determine the map to load

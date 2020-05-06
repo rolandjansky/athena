@@ -118,8 +118,7 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     // initialize cond obj with current scale factors and the field svc (needed to setup cache)
     if (!fieldCondObj->initialize(cache.m_solScaleFactor, 
                                   cache.m_torScaleFactor, 
-                                  fieldMap, 
-                                  m_useNewBfieldCache)) {
+                                  fieldMap)) {
         ATH_MSG_ERROR("execute: Could not initialize conditions field object with solenoid/toroid currents "
                       << cache.m_solScaleFactor << "," << cache.m_torScaleFactor);
         return StatusCode::FAILURE;
@@ -136,7 +135,6 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_INFO ( "execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor "
                    << cache.m_solScaleFactor << "/" << cache.m_torScaleFactor );
     ATH_MSG_INFO ( "execute: solenoid zone id  " << fieldMap->solenoidZoneId());
-    ATH_MSG_INFO ( "execute: useNewBfieldCache " << m_useNewBfieldCache);
 
     return StatusCode::SUCCESS;
 }

@@ -52,10 +52,6 @@ namespace MagField {
         StatusCode updateCurrentFromParameters(Cache& cache) const;
         void       scaleField(Cache& cache, const MagField::AtlasFieldMap* fieldMap) const;
 
-        /// Temporary flag for switching between 'old' and 'new' magField usage
-        Gaudi::Property<bool> m_useNewBfieldCache {this, 
-                                                   "UseNewBfieldCache", true, "Temporary flag for switching between 'old' and 'new' magField usage. Default = true"};
-
         // threshold below which currents are considered zero
         Gaudi::Property<double> m_soleMinCurrent {this, 
                                                   "SoleMinCurrent", 1.0, "Minimum solenoid current (A) for which solenoid is considered ON"};
