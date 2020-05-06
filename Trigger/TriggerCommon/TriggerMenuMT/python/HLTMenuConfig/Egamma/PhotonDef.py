@@ -20,7 +20,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence('Photon')
+    return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence()
