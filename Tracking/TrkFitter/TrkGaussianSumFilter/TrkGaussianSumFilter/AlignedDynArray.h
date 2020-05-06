@@ -12,6 +12,7 @@
 #ifndef GSFUtils_AlignedDynArray_H
 #define GSFUtils_AlignedDynArray_H
 #include <cstdlib>
+#include <memory>
 namespace GSFUtils {
 template<typename T, int Alignment>
 /**
@@ -21,7 +22,7 @@ template<typename T, int Alignment>
  * Provides
  * - Additional RAII functionality 
  * - Default initialization of elements
- * - Value initialization of elements
+ * - Initialization with copies of elements with value value.
  */
 
 class AlignedDynArray
