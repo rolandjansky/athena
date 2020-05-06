@@ -5,6 +5,8 @@
 from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, InViewReco
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from AthenaConfiguration.ComponentFactory import CompFactory
+#from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -81,15 +83,16 @@ def bJetStep2Sequence():
     roisLink = "step1RoI"
     prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
-    InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
+    #from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
+    InputMakerAlg = CompFactory.EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
     InputMakerAlg.ViewFallThrough = True
     InputMakerAlg.RequireParentView = True
-    InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
+    InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     InputMakerAlg.InViewJets = recordable ( "HLT_InViewJets" )
     InputMakerAlg.ViewNodeName = "bJetBtagSequenceInView" 
+    
     
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
@@ -109,7 +112,7 @@ def bJetStep2Sequence():
     inViewReco.wasMerged()
 
     Configurable.configurableRun3Behavior=0
-    
+
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
     hypo.Tracks = PTTrackParticles[0]

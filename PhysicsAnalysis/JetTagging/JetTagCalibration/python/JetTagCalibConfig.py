@@ -39,10 +39,13 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
 
     CalibrationChannelAliases += ChannelAlias
 
-    JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
-    jettagcalibcondalg = "JetTagCalibCondAlg"
+    #JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+    #JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
+    #jettagcalibcondalg = "JetTagCalibCondAlg"
 
     if scheme == "Trig":
+        JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+        jettagcalibcondalg = "JetTagCalibCondAlg"
         readkeycalibpath = "/GLOBAL/Onl/TrigBTagCalib/RUN12"
         histoskey = "JetTagTrigCalibHistosKey"
         from IOVDbSvc.CondDB import conddb
@@ -61,6 +64,8 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
     else:
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         result=ComponentAccumulator()
+        JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
+        jettagcalibcondalg = "JetTagCalibCondAlg"
         readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
         histoskey = "JetTagCalibHistosKey"
         connSchema = "GLOBAL_OFL"

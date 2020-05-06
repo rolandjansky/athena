@@ -61,22 +61,23 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     acc.merge(JetBTaggingAlg)
 
 
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
-    bTagFex = TrigBtagFexMT( "TrigBtagFexMT" )
-    bTagFex.JetKey = inputJets
-    bTagFex.PriVtxKey = inputVertex
-    bTagFex.TracksKey = inputTracks
-    bTagFex.d0Key = inputTracks + ".btagIp_d0"
-    bTagFex.z0SinThetaKey = inputTracks + ".btagIp_d0Uncertainty"
-    bTagFex.d0UncertaintyKey = inputTracks + ".btagIp_z0SinTheta"
-    bTagFex.z0SinThetaUncertaintyKey = inputTracks + ".btagIp_z0SinThetaUncertainty"
-    bTagFex.trackposKey = inputTracks + ".btagIp_trackDisplacement"
-    bTagFex.trackmomKey = inputTracks + ".btagIp_trackMomentum"
-    bTagFex.BTaggingKey = "HLT_BTagging_AntiKt4EMTopo"
+    #from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
+    #Analysis__TrigBtagFexMT=CompFactory.Analysis.TrigBtagFexMT
+    #bTagFex = Analysis__TrigBtagFexMT( "TrigBtagFexMT" )
+    #bTagFex.JetKey = inputJets
+    #bTagFex.PriVtxKey = inputVertex
+    #bTagFex.TracksKey = inputTracks
+    #bTagFex.d0Key = inputTracks + ".btagIp_d0"
+    #bTagFex.z0SinThetaKey = inputTracks + ".btagIp_d0Uncertainty"
+    #bTagFex.d0UncertaintyKey = inputTracks + ".btagIp_z0SinTheta"
+    #bTagFex.z0SinThetaUncertaintyKey = inputTracks + ".btagIp_z0SinThetaUncertainty"
+    #bTagFex.trackposKey = inputTracks + ".btagIp_trackDisplacement"
+    #bTagFex.trackmomKey = inputTracks + ".btagIp_trackMomentum"
+    #bTagFex.BTaggingKey = "HLT_BTagging_AntiKt4EMTopo"
 
-    from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
-    bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
-    acc.addEventAlgo(bTagFex)
+    #from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
+    #bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
+    #acc.addEventAlgo(bTagFex)
 
 
     return acc
