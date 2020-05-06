@@ -16,7 +16,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IMetaDataTool.h"
-#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "TTree.h"
 #include "TString.h"
@@ -30,12 +29,7 @@
 class StoreGateSvc;
 class IGoodRunsListSelectorTool;
 
-
-namespace Root {
-  class TGRLCollection;
-}
-
-class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool {
+class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    LumiBlockMetaDataTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -65,11 +59,6 @@ public:
 
    /// Function writing the collected metadata to the output
    virtual StatusCode metaDataStop(const SG::SourceID&) {return this->metaDataStop();}
-
-   /// functions from ILumiBlockMetaDataTool
-   inline const Root::TGRLCollection* getGRLCollection() const { return m_grlcollection; }
-   inline const TString& getUniqueGRLString() const { return m_grlxmlstring; }
-   const TString getGRLString( const TString& grlname ) const;
 
 private:
 
@@ -102,7 +91,6 @@ private:
    std::string m_version;
    TString m_DQLBColl_name;
    TString m_unfinishedDQLBColl_name;
-   TString m_grlxmlstring;
 
    int m_nfiles;
    bool m_fileCurrentlyOpened;
@@ -110,7 +98,6 @@ private:
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-   Root::TGRLCollection* m_grlcollection;
 
    ToolHandle< IGoodRunsListSelectorTool > m_GoodRunsListSelectorTool;
 
