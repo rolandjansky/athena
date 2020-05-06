@@ -171,7 +171,7 @@ SCTHitsNoiseMonTool::bookHistograms() {
   if (newRunFlag()) {
     // book hits histogram
     MonGroup clu{this, "SCT/GENERAL/hits/summary", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-    m_ncluHisto = new TH1F{"sct_hits", "Total SCT Hits", N_HIT_BINS * 4, FIRST_HIT_BIN, LAST_HIT_BIN * 150.};
+    m_ncluHisto = new TH1F{"sct_hits", "Total SCT Hits", N_NOISE_HIT_BINS, FIRST_NOISE_HIT_BIN, LAST_NOISE_HIT_BIN};
     m_ncluHisto->GetXaxis()->SetTitle("Total SCT Hits");
     m_ncluHisto->GetYaxis()->SetTitle("Entries");
     if (clu.regHist(m_ncluHisto).isFailure()) {
@@ -233,9 +233,9 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent() {
 
   // book hits histogram
   MonGroup clu{this, "SCT/GENERAL/hits/summary", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-  m_ncluHisto = new TH1F("sct_hits", "Total SCT Hits", N_HIT_BINS * 4, FIRST_HIT_BIN, LAST_HIT_BIN * 150);
-  m_ncluHisto->GetXaxis()->SetTitle("Event Number");
-  m_ncluHisto->GetYaxis()->SetTitle("Num of SCT Hits");
+  m_ncluHisto = new TH1F("sct_hits", "Total SCT Hits", N_HIT_BINS * 20, FIRST_HIT_BIN, LAST_HIT_BIN * 3000);
+  m_ncluHisto->GetXaxis()->SetTitle("Total SCT Hits");
+  m_ncluHisto->GetYaxis()->SetTitle("Entries");
   if (clu.regHist(m_ncluHisto).isFailure()) {
     ATH_MSG_WARNING("Cannot book Histogram: SCT/GENERAL/hits/summary/sct_hits");
   }
@@ -1077,12 +1077,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     return StatusCode::SUCCESS;
   }
   // assemble list of rdo ids associated with tracks
-  for (int i{0}; i < static_cast<int>(tracks->size()); i++) {
-    const Trk::Track* track{(*tracks)[i]};
-    if (track == nullptr) {
-      ATH_MSG_WARNING("no pointer to track!!!");
-      break;
-    }
+  for (const Trk::Track* track : *tracks) {
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface>* trackStates{track->trackStateOnSurfaces()};
     if (trackStates == nullptr) {
