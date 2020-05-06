@@ -136,6 +136,9 @@ TrigSignatureMoniMT                                INFO -- #385248610 Features  
 TrigSignatureMoniMT                                INFO HLT_g5_tight_L1EM3 #3280865118
 TrigSignatureMoniMT                                INFO -- #3280865118 Events         20         20         16         16         16         9          -          9
 TrigSignatureMoniMT                                INFO -- #3280865118 Features                             45         45         84         9          -
+TrigSignatureMoniMT                                INFO HLT_j0_perf_L1J12_EMPTY #1341875780
+TrigSignatureMoniMT                                INFO -- #1341875780 Events         0          0          0          -          -          -          -          0
+TrigSignatureMoniMT                                INFO -- #1341875780 Features                             0          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 #4034799151
 TrigSignatureMoniMT                                INFO -- #4034799151 Events         19         19         15         -          -          -          -          15
 TrigSignatureMoniMT                                INFO -- #4034799151 Features                             425        -          -          -          -
