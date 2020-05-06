@@ -125,6 +125,8 @@ namespace top {
 
     m_config->systematicsMuons(specifiedSystematics());
 
+    m_isFirstEvent = true;
+
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker completed initialize");
     return StatusCode::SUCCESS;
   }
@@ -137,6 +139,7 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt500("ptvarcone30_TightTTVA_pt500");
     static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<int> chamberIndex("chamberIndex");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -175,6 +178,18 @@ namespace top {
 
       ///-- Loop over the xAOD Container and apply corrections--///
       for (auto muon : *(shallow_xaod_copy.first)) {
+	
+	///-- Check if chamberIndex is Available if UseMVALowPt is On in order to print some useful message before the crash
+	if ( m_isFirstEvent ) {
+	  if ( (m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) && !chamberIndex.isAvailable(*muon) ) {
+	    ATH_MSG_ERROR("MuonSegmentsAux.chamberIndex is not available in yout derivation so UseMVALowPt cannot be performed.");
+	    ATH_MSG_ERROR("Please turn OFF UseMVALowPt or use more recent p-tag");
+	    ATH_MSG_ERROR("AnalysisTop will crash soon...");
+	    throw std::runtime_error("Missing MuonSegmentsAux.chamberIndex variable");
+	  }
+	  m_isFirstEvent = false;
+	}
+
         ///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
           top::check(m_calibrationPeriodTool->applyCorrection(*muon), "Failed to applyCorrection");

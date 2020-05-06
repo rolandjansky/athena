@@ -98,11 +98,15 @@ PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
+UseMVALowPt False
+Use2stationMuonsHighPt True
+MuonIsolation PflowTight_FixedRad
 MuonQualityLoose Medium
-MuonIsolation FCTight_FixedRad
+UseMVALowPtLoose False
+Use2stationMuonsHighPtLoose True
 MuonIsolationLoose None
-doExtraSmearing False
-do2StationsHighPt False
+MuonDoExtraSmearingHighPt False
+MuonDoSmearing2stationHighPt True
 
 ### Tau configuration
 TauPt 25000
