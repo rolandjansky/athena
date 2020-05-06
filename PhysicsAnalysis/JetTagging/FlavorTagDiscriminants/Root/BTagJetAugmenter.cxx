@@ -112,11 +112,6 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
-  using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::Decorator<float> ADF;
-  typedef SG::AuxElement::Decorator<double> ADD;
-  typedef SG::AuxElement::Decorator<char> ADC;
-  typedef SG::AuxElement::Decorator<int> ADI;
 }
 
 BTagJetAugmenter::~BTagJetAugmenter() = default;
