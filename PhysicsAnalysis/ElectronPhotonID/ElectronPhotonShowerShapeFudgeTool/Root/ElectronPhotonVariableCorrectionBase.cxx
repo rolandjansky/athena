@@ -111,6 +111,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     m_ParameterTypeVector.resize(m_numberOfFunctionParameters);
     m_binValues.resize(m_numberOfFunctionParameters);
     m_graphCopies.resize(m_numberOfFunctionParameters);
+    m_interpolatePtFlags.resize(m_numberOfFunctionParameters);
 
     // Save the type of all parameters in the correction function (assuming m_numberOfFunctionParameters parameters)
     for (int parameter_itr = 0; parameter_itr < m_numberOfFunctionParameters; parameter_itr++)
@@ -235,7 +236,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
         return CP::CorrectionCode::Error;
     }
-    
+
     //declare objects needed to retrieve electron properties
     std::vector<float> properties; //safe value of function parameter i at place i
     properties.resize(m_numberOfFunctionParameters);
@@ -253,7 +254,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
         return CP::CorrectionCode::Error;
     }
-    
+
     // Apply the correction, write to the corrected AuxElement
     correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
@@ -333,6 +334,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFr
     TString filePathKey = TString::Format("Parameter%dFile",parameter_number);
     TString graphNameKey = TString::Format("Parameter%dGraphName",parameter_number);
     TString binValues = TString::Format("Parameter%dValues",parameter_number);
+    TString interpolate = TString::Format("Parameter%dInterpolate",parameter_number);
     // helpers
     TString filePath = "";
     TString graphName = "";
@@ -460,6 +462,12 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFr
             return StatusCode::FAILURE;
         }
     }
+    //check if interpolation should be done
+    if (getPtBins)
+    {
+        // default is false
+        m_interpolatePtFlags.at(parameter_number) = env.GetValue(interpolate.Data(),false);
+    }
     if ( getEtaBins || getPtBins)
     {
         // check if necessary information is in conf, else fail
@@ -524,31 +532,20 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(s
 
 const StatusCode ElectronPhotonVariableCorrectionBase::get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const
 {
-    ANA_MSG_VERBOSE("Get 1DBinnedParameters...");
-    ANA_MSG_VERBOSE("EvalPoint: " << evalPoint);
-    // check in which bin the evalPoint is
-    // if the evalPoint is < 0, something is very wrong
-    if (evalPoint < binning.at(0))
+    // need to find the bin in which the evalPoint is
+    int bin = -1;
+    ATH_CHECK(findBin(bin, evalPoint, binning));
+
+    // calculate return value
+    // if interpolation flag is true, interpolate
+    if (getInterpolationFlag(parameter_number))
     {
-        ATH_MSG_ERROR("Abs(Eta) or pT of object is smaller than 0.");
-        return StatusCode::FAILURE;
+        ATH_CHECK(interpolate(return_parameter_value, evalPoint, bin, binning, m_binValues.at(parameter_number)));
     }
-    // loop over bin boundaries
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int bin_itr = 0; bin_itr < binning.size()-1; bin_itr++)
+    else
     {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (evalPoint > binning.at(bin_itr) && evalPoint < binning.at(bin_itr + 1))
-        {
-            // we found the according bin, so return the according value
-            return_parameter_value = m_binValues.at(parameter_number).at(bin_itr);
-            return StatusCode::SUCCESS;
-        }
+        return_parameter_value = m_binValues.at(parameter_number).at(bin);
     }
-    //if this point is ever reached, the evaluation point is larger then the largest lowest bin edge
-    //if that's the case, return the value for the last bin
-    //the -1 is because the parameter numbering in a vector starts at 0
-    return_parameter_value = m_binValues.at(parameter_number).at(m_binValues.size()-1);
 
     // everything went fine, so
     return StatusCode::SUCCESS;
@@ -561,45 +558,10 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
     int etaBin = -1;
     int ptBin = -1;
 
-    // get eta bin
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int etaBin_itr = 0; etaBin_itr < m_etaBins.size()-1; etaBin_itr++)
-    {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (etaEvalPoint > m_etaBins.at(etaBin_itr) && etaEvalPoint < m_etaBins.at(etaBin_itr + 1))
-        {
-            // we found the according bin, so set to the according value
-            etaBin = etaBin_itr;
-        }
-    }
-    //if etaBin was not set yet, it's larger then the largest lower bin edge
-    //thus, need to set it to the last bin
-    if (etaBin == -1)
-    {
-        //need to correct for vector numbering starting at 0
-        etaBin = m_etaBins.size()-1;
-    }
+    ATH_CHECK(findBin(etaBin, etaEvalPoint, m_etaBins));
+    ATH_CHECK(findBin(ptBin, ptEvalPoint, m_ptBins));
 
-    // get pt bin
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int ptBin_itr = 0; ptBin_itr < m_ptBins.size()-1; ptBin_itr++)
-    {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (ptEvalPoint > m_ptBins.at(ptBin_itr) && ptEvalPoint < m_ptBins.at(ptBin_itr + 1))
-        {
-            // we found the according bin, so set to the according value
-            ptBin = ptBin_itr;
-        }
-    }
-    //if ptBin was not set yet, it's larger then the largest lower bin edge
-    //thus, need to set it to the last bin
-    if (ptBin == -1)
-    {
-        //need to correct for vector numbering starting at 0
-        ptBin = m_ptBins.size()-1;
-    }
-
-    // return the value corresponding to the pt x eta bin found
+    // get the corresponding pt x eta bin found
     /* Note: Assuming that the values are binned in pt x eta in the conf file:
      *           eta bin 0 | eta bin 1 | eta bin 2 | eta bin 3 | eta bin 4 | etc.
      * pt bin 0      0           1           2           3           4
@@ -608,12 +570,180 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
      * pt bin 3     15          16          17          18          19
      * pt bin 4     20          21          22          23          24
      * etc.
-     * the correct parameter is saved in the vector at 4*ptBinNumber + etaBinNumber
+     * the correct parameter is saved in the vector at (number of eta bins) * ptBinNumber + etaBinNumber
      * */
-    return_parameter_value = m_binValues.at(parameter_number).at(m_etaBins.size() * ptBin + etaBin);
+    int bin_number_in_bin_values = m_etaBins.size() * ptBin + etaBin;
+
+    // calculate return value
+    // if interpolation flag is true, interpolate
+    if (getInterpolationFlag(parameter_number))
+    {
+        // create the vector of correction values binned in pT at the found eta bin
+        std::vector<float> tmp_binValuesAtEtaSlice;
+        // from the full binning vector, need to cut one of the columns
+        for (unsigned int binValue_itr = etaBin; binValue_itr < m_binValues.at(parameter_number).size(); binValue_itr += m_etaBins.size())
+        {
+            tmp_binValuesAtEtaSlice.push_back(m_binValues.at(parameter_number).at(binValue_itr));
+        }
+        // interpolate using the above slice of the correction values
+        ATH_CHECK(interpolate(return_parameter_value, ptEvalPoint, ptBin, m_ptBins, tmp_binValuesAtEtaSlice));
+    }
+    else
+    {
+        return_parameter_value = m_binValues.at(parameter_number).at(bin_number_in_bin_values);
+    }
 
     // everything went fine, so
     return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float& evalPoint, const std::vector<float>& binning) const
+{
+    // need to find the bin in which the evalPoint is
+    return_bin = -1;
+    // if the evalPoint is < 0, something is very wrong
+    if (evalPoint < binning.at(0))
+    {
+        // I use it for eta and pT, so error message is tailored to that...
+        ATH_MSG_ERROR("Abs(Eta) or pT of object is smaller than 0.");
+        return StatusCode::FAILURE;
+    }
+    // loop over bin boundaries
+    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
+    for (unsigned int bin_itr = 0; bin_itr < binning.size()-1; bin_itr++)
+    {
+        // if the evaluation point is within the checked bins boundaries, this is the value we want
+        if (evalPoint > binning.at(bin_itr) && evalPoint < binning.at(bin_itr + 1))
+        {
+            // we found the according bin, so return the according value
+            return_bin = bin_itr;
+            // we can stop now
+            break;
+        }
+    }
+    //if this point is ever reached and bin == -1, the evaluation point is larger then the largest lowest bin edge
+    //if that's the case, return the value for the last bin
+    //the -1 is because the parameter numbering in a vector starts at 0
+    if (return_bin == -1)
+    {
+        return_bin = m_binValues.size()-1;
+    }
+
+    // everythin went fine, so
+    return StatusCode::SUCCESS;
+}
+
+bool ElectronPhotonVariableCorrectionBase::getInterpolationFlag(const int& parameter_number) const
+{
+    bool do_interpolation = false;
+    // get parameter number type
+    ElectronPhotonVariableCorrectionBase::parameterType type = m_ParameterTypeVector.at(parameter_number);
+    // check if parameter has a type for which we need to check if interpolation is wanted
+    if (type == ElectronPhotonVariableCorrectionBase::parameterType::PtBinned || type == ElectronPhotonVariableCorrectionBase::parameterType::EtaTimesPtBinned)
+    {
+        // get the flag
+        do_interpolation = m_interpolatePtFlags.at(parameter_number);
+    }
+    return do_interpolation;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return_parameter_value, const float& evalPoint, const int& bin, const std::vector<float>& binning, const std::vector<float>& binValues) const
+{
+    // check if passed binning is consistent
+    if (binning.size() != binValues.size())
+    {
+        ATH_MSG_ERROR("Binning and bin values have different sizes.");
+        return StatusCode::FAILURE;
+    }
+
+    // if evalPoint is left to the leftmost bin center, return the leftmost bin center without interpolation
+    float leftmost_bin_center = 0;
+    ANA_CHECK(getBinCenter(leftmost_bin_center, binning, 0));
+    if (evalPoint <= leftmost_bin_center)
+    {
+        return_parameter_value = binValues.at(0);
+        return StatusCode::SUCCESS;
+    }
+
+    // if evalPoint is right to the rightmost bin center, return the rightmost bin center without interpolation
+    float rightmost_bin_center = 0;
+    ANA_CHECK(getBinCenter(rightmost_bin_center, binning, binning.size()-1))
+    if (evalPoint >= rightmost_bin_center)
+    {
+        return_parameter_value = binValues.at(binValues.size()-1);
+        return StatusCode::SUCCESS;
+    }
+
+    float left_bin_center = 0;
+    float right_bin_center = 0;
+    float left_bin_value = 0;
+    float right_bin_value = 0;
+    float current_bin_center = 0;
+    ANA_CHECK(getBinCenter(current_bin_center, binning, bin));
+
+    // else interpolate using next left or next right bin
+    if (evalPoint <= current_bin_center)
+    {
+        //interpolate left
+        ANA_CHECK(getBinCenter(left_bin_center, binning, bin-1));
+        ANA_CHECK(getBinCenter(right_bin_center, binning, bin));
+        left_bin_value = binValues.at(bin-1);
+        right_bin_value = binValues.at(bin);
+    }
+    else // evalPoint is right from bin center
+    {
+        //interpolate right
+        ANA_CHECK(getBinCenter(left_bin_center, binning, bin));
+        ANA_CHECK(getBinCenter(right_bin_center, binning, bin+1));
+        left_bin_value = binValues.at(bin);
+        right_bin_value = binValues.at(bin+1);
+    }
+    // calculate return value
+    return_parameter_value = interpolate_function(evalPoint, left_bin_center, left_bin_value, right_bin_center, right_bin_value);
+
+    // everything went fine, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const
+{
+    if (bin_int < 0)
+    {
+        ATH_MSG_ERROR("Bin number must be a non-negative integer.");
+        return StatusCode::FAILURE;
+    }
+
+    // implicitly convert to loong unsigend int for comparisons, to get rid of compiler warnings resulting from comparisons of int and unsigned int
+    long unsigned int bin = bin_int;
+
+    if (bin >= binning.size())
+    {
+        ATH_MSG_ERROR("The requested bin is out of range of the passed binning.");
+        return StatusCode::FAILURE;
+    }
+
+    // need special treatment for rightmost bin center:
+    // it goes up to infinity...assume it's as broad as the
+    // next to the rightmost bin for the interpolation
+    if (bin == binning.size()-1)
+    {
+        //calculate the width of the next to rightmost bin
+        float bin_width = binning.at(bin) - binning.at(bin-1);
+        return_bin_center = binning.at(bin) + 0.5 * bin_width;
+    }
+    // normal calculation
+    else
+    {
+        return_bin_center = 0.5 * (binning.at(bin) + binning.at(bin+1));
+    }
+
+    //everything went fine, so
+    return StatusCode::SUCCESS;
+}
+
+float ElectronPhotonVariableCorrectionBase::interpolate_function(const float& value, const float& left_bin_center, const float& left_bin_value, const float& right_bin_center, const float& right_bin_value) const
+{
+    return left_bin_value + (value - left_bin_center) * (right_bin_value - left_bin_value) / (right_bin_center - left_bin_center);
 }
 
 const StatusCode ElectronPhotonVariableCorrectionBase::getDensity(float& value, const std::string& eventShapeContainer) const

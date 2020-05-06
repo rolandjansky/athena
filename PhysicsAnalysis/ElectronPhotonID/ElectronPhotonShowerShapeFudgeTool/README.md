@@ -145,6 +145,12 @@ The correction values for each respective bin are given to the tool using the fl
 Parameter2Values: 1.; 0.9; 0.7; 0.45; 0.6; 1.1
 ```
 
+If wanted, a partwise linear interpolation between the given pT bin values can be used. For this, simply set the flag `Parameter*Interpolate` to `TRUE` if `Parameter*` is a parameter binned in pT. If the flag is not set, it is assumed to be `FALSE`, however, the code does not complain if you explicitly set the flag to `FALSE`. The implemented method mostly follows the [interpolation method implemented in the ROOT TH1 class](https://root.cern.ch/doc/master/classTH1.html#a8ca269364ca55ea1e7fb65f9d3b21722). For interpolation into the last pt bin, whose upper boundary is infinity, we treat the bin as having the width "w" of the next-to-last bin. Thus, we interpolate a distance w/2 into the last bin, and after this distance the value is constant. For example, this would look like this:
+
+```bash
+Parameter2Interpolate: TRUE
+```
+
 For the **event density**, no further information must be given to the tool. The tool will extract the event density from the event and use it as the respective parameter.
 
 If you want to include parameters depending on other quantities, please read the [developer manual](#how-to-change-and-adapt-the-tool-developer-manual) or [contact the developers](mailto:nils.gillwald@desy.de).

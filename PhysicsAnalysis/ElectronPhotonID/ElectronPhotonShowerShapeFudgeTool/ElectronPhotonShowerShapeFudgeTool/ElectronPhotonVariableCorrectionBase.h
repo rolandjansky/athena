@@ -151,6 +151,8 @@ private:
     std::vector<float> m_etaBins;
     //! @brief List of bin boundaries in pT, stored if needed by any correction function parameter
     std::vector<float> m_ptBins;
+    //! @brief List of bools whether a parameter should use linear interpolation in pT if it's some kind of pT binned parameter
+    std::vector<bool> m_interpolatePtFlags;
     //! @brief The type of objects to which the specific conf file settings are allowed to be applied to
     ElectronPhotonVariableCorrectionBase::EGammaObjects m_applyToObjects;
     //! @brief Store if already retrieved eta binning
@@ -212,6 +214,44 @@ private:
      * @param parameter_number The number of the parameter with respect to the correction TF1. Needed in order to retrieve the correct values matching this parameter.
      */
     const StatusCode get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const;
+
+    /** @brief Find the bin number in which the evalPoint is located in the binning binning.
+     * @param return_bin The respective bin number is saved in this parameter
+     * @param evalPoint The evaluation point for which the bin number should be found
+     * @param binning The binning which should be evaluated
+     */
+    const StatusCode findBin(int& return_bin, const float& evalPoint, const std::vector<float>& binning) const;
+
+    /** @brief Return the interpolation flag of parameter parameter_number as a boolean.
+     * @param parameter_number Number of the parameter for which the interpolation flag should be checked
+     * @return The interpolation flag of parameter parameter_number (boolean)
+     */
+    bool getInterpolationFlag(const int& parameter_number) const;
+
+    /** @brief Given a point x, approximates the value via linear interpolation based on the two nearest bin centers. Re-implementation of Double_t TH1::Interpolate( Double_t x) const.
+     * @param return_parameter_value The interpolated parameter value is saved in this parameter
+     * @param evalPoint The point for which the interpolation should be done
+     * @param bin The bin in which the evalPoint is located with respect to binning
+     * @param binning The binning based on which the interpolation should be done
+     * @param binValues The bin values according to the binning given in binning
+     */
+    const StatusCode interpolate(float& return_parameter_value, const float& evalPoint, const int& bin, const std::vector<float>& binning, const std::vector<float>& binValues) const;
+
+    /** @brief Get the bin center of a bin bin_int using the binning binning
+     * @param return_bin_center The bin center is saved in this parameter
+     * @param binning The binning which should be used to find the bin centers
+     * @param bin_int The bin for which the bin center should be found
+     */
+    const StatusCode getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const;
+
+    /** @brief Returns the linearly intrpolated value of value given the bin centers and bin values
+     * @param value The x-value at which the interpolation should be done
+     * @param left_bin_center The x-value of the left bin center used for the interpolation
+     * @param left_bin_value The y-value of the left bin at the left bin center
+     * @param right_bin_center The x-value of the right bin center used for the interpolation
+     * @param right_bin_value The y-value of the right bin at the right bin center
+     */
+    float interpolate_function(const float& value, const float& left_bin_center, const float& left_bin_value, const float& right_bin_center, const float& right_bin_value) const;
 
     /** @brief Get the events energy density from the eventShape
      * @param value The respective correction function parameter value is saved in this parameter
