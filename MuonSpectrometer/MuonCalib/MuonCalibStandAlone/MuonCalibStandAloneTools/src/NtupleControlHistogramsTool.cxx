@@ -751,7 +751,7 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 
    // segment slopes //
 		m_MDT_segment_slope[station_identifier]->Fill(
-			57.30*atan((segments[k]->direction()).y()/
+			57.30*std::atan((segments[k]->direction()).y()/
 				(segments[k]->direction()).z()), 1.0);
 
    // track residuals //

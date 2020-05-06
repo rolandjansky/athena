@@ -407,7 +407,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     double p   = 0;
 
     phi = (*trk_CB_it2)->phi();
-    eta = -log(tan((*trk_CB_it2)->theta()/2.));
+    eta = -std::log(std::tan((*trk_CB_it2)->theta()/2.));
     pt  = (*trk_CB_it2)->pt()/1000;
     p   = (*trk_CB_it2)->p()/1000;      
     int CB_npixel = 0;
@@ -623,7 +623,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   /*::::::::::::::::::::::::::::::::::::::::::::::*/
   for(;track_it!=track_it_end;++track_it) {
       
-    double eta = -log ( tan ( (*track_it)->theta()/2));
+    double eta = -std::log ( std::tan ( (*track_it)->theta()/2));
 
     i_trk_sel++;
 

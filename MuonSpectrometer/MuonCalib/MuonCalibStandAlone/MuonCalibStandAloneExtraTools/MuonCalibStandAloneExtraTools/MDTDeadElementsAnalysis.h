@@ -2,15 +2,20 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* **************************************************** *
- * Authors: Toni Baroncelli                             *
- * **************************************************** */
-
 #ifndef SRC_MDTTUBEANA_H
 #define SRC_MDTTUBEANA_H
 
 #include <string>
 #include <stdio.h>
+#include <vector>
+#include "RtypesCore.h" // for Double_t etc.
+
+class TH1;
+class TH1I;
+class TH1F;
+class TF1;
+class TFile;
+class TString;
 
 static const int nmmax=100;
 static const int ntmax=600;
@@ -19,7 +24,7 @@ double completefunc(double *x, double *parf);
 class MDTDeadElementsAnalysis {
  public:
   MDTDeadElementsAnalysis();
-  ~MDTDeadElementsAnalysis();
+  ~MDTDeadElementsAnalysis()=default;
 
   TF1 *polfunc ;
   std::string chamberName;

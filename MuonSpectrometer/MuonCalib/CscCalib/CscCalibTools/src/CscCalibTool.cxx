@@ -4,12 +4,9 @@
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
+
 #include <sstream>
-
 #include <cmath>
-
-using std::ostringstream;
-using std::setw;
 
 CscCalibTool::CscCalibTool
 ( const std::string& t, const std::string& n, const IInterface*  p )
@@ -620,7 +617,7 @@ double CscCalibTool::getZ0() const{
 double CscCalibTool::signal( const double z ) const{
   double amplitude = (1.0 - z / (1 + m_integrationNumber2))
     * std::pow(z, 1.0 * m_integrationNumber)
-    * exp(-z);
+    * std::exp(-z);
   return amplitude;
 }
 
