@@ -66,6 +66,12 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
 
+# Set up the runtime environment for NumPy.
+set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
+   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
+mark_as_advanced( NumPyEnvironment_DIR )
+find_package( NumPyEnvironment )
+
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
