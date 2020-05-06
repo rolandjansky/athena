@@ -91,7 +91,7 @@ MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDe
     int stationName = TGCStationNames[stationNameIndex];
     for(int stationEta=-8; stationEta<=8; stationEta++){// Station Eta
       int tgcAC(stationEta<0);
-      int absStationEta = abs(stationEta);
+      int absStationEta = std::abs(stationEta);
       for(int stationPhi=0; stationPhi<=48; stationPhi++){// Station Phi
         // Exclude non-existent "zero" sectors included in the array for ease of use
         if(stationEta==0){
@@ -104,28 +104,28 @@ MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDe
         
         // Exclude sectors known not to exist
         if(stationNameIndex==6){         // Inner Forward
-          if(abs(stationEta)>1)continue;
+          if(std::abs(stationEta)>1)continue;
           if(stationPhi>24)continue;
         }
         else if(stationNameIndex==7){    // Inner Endcap
-          if(abs(stationEta)>1)continue;
+          if(std::abs(stationEta)>1)continue;
           if(stationPhi>21)continue;
         }
         else if((stationNameIndex==0)||  // Midstation Forward
                 (stationNameIndex==2)||
                 (stationNameIndex==4)){
-          if(abs(stationEta)>1)continue;
+          if(std::abs(stationEta)>1)continue;
           if(stationPhi>24)continue;
         }
         else{                            // Midstation Endcap
-          if(abs(stationEta)>5)continue;
+          if(std::abs(stationEta)>5)continue;
           if((stationNameIndex==1)&&
-             (abs(stationEta)>4))continue;
+             (std::abs(stationEta)>4))continue;
         } 
         
         // Get identifier of TRE at this set of indexes
         bool *isValid = new bool(true);
-        Identifier tgc_testId = m_muonIdHelperTool->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, isValid);
+        Identifier tgc_testId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, isValid);
         if(!*isValid){delete isValid; continue;}
         delete isValid;
         

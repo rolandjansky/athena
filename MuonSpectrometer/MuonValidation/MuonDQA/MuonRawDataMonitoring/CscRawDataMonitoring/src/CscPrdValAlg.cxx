@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -18,9 +18,6 @@
 #include "CscRawDataMonitoring/CscPrdValAlg.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
-
-#include "CscClusterization/ICscStripFitter.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 
 // ROOT include(s)
 #include "TClass.h"
@@ -65,8 +62,7 @@ namespace CscPrdBins {
 //
 // constructor ----------------------------------------------------------------
 //
-CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name, 
-    const IInterface* parent) : 
+CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name, const IInterface* parent) : 
   ManagedMonitorToolBase(type, name, parent),
   m_stripFitter(name),
   m_cscprd_oviewEA(0),
@@ -106,29 +102,13 @@ CscPrdValAlg::~CscPrdValAlg() {
 //
 StatusCode CscPrdValAlg::initialize() {
   ATH_MSG_INFO( "CscPrdValAlg: in initialize" );
-
-  ATH_MSG_DEBUG( "strip fitter " << m_stripFitter );
-
-  StatusCode sc;
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_MSG_DEBUG( " Found the MuonIdHelperTool. " );
-
-  //Fetch strip fitter
-  sc = m_stripFitter.retrieve();
-  if ( !m_stripFitter || sc.isFailure() ) {
-    ATH_MSG_DEBUG( "CscPrdValAlg " << name() << ": unable to retrieve strip fitter " << m_stripFitter );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "CscPrdValAlg " << name() << ": retrieved " << m_stripFitter );
-  }
-
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_stripFitter.retrieve());
+  ATH_MSG_DEBUG( "CscPrdValAlg " << name() << ": retrieved " << m_stripFitter );
   ATH_CHECK(m_cscPrdKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
-
-  ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
   return StatusCode::SUCCESS;
-
 } // end CscPrdValAlg::initialize()
 
 
@@ -226,12 +206,7 @@ void CscPrdValAlg::bookPrdHistograms() {
   float nxmaxLB = 2500.;  //
   /// ******************** DO NOT MODIFY (end) *********************************************** ///
 
-  //if (newEventsBlock){}
-  //if (newLumiBlock){}
-  //if (newRun) {
-
   // book histograms
-  //m_h1csc_prd_maxdiffamp = new TH1F("h1csc_prd_maxdiffamp", "Max Amplitude in ROD Cluster;ADC counts;;",500,0,5000);
 
   // strip hitmap
   m_h2csc_prd_hitmap = new TH2F("h2csc_prd_hitmap", "Hit Occupancy;channel;[sector] + [0.2 #times layer]",
@@ -383,13 +358,10 @@ void CscPrdValAlg::bookPrdHistograms() {
   m_regHExpert.push_back(m_h2csc_prd_eta_vs_phi_cluscount_noise);     // expert
 
   m_regHExpert.push_back(m_h2csc_prd_eta_vs_phi_cluswidth);       // expert
-  //m_regHShift.push_back(m_h2csc_prd_eta_vs_phi_hitmap);         // shift
   if(m_mapxyrz) {
     m_regHShift.push_back(m_h2csc_prd_r_vs_z_hitmap);               // shift
     m_regHShift.push_back(m_h2csc_prd_y_vs_x_hitmap);               // shift
   }
-
-  //}
 
 }
 
@@ -402,10 +374,6 @@ StatusCode CscPrdValAlg::bookHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
 
   bookPrdHistograms();
-
-  //if (newEventsBlock){}
-  //if (newLumiBlock){}
-  //if (newRun) {
 
   //declare a group of histograms
   MonGroup cscprd_shift( this, m_cscPRDPath+"/Shift", run, ATTRIB_MANAGED );
@@ -526,14 +494,14 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 
       // Identify the PRD cluster
       Identifier prawId = praw.identify();
-      int stationName = m_muonIdHelperTool->cscIdHelper().stationName(prawId);
-      std::string stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(stationName);
+      int stationName = m_idHelperSvc->cscIdHelper().stationName(prawId);
+      std::string stationString = m_idHelperSvc->cscIdHelper().stationNameString(stationName);
       int chamberType = stationString == "CSS" ? 0 : 1;
-      int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(prawId);
-      int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(prawId);
-      int wireLayer   = m_muonIdHelperTool->cscIdHelper().wireLayer(prawId);
-      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(prawId);
-      int stripId     = m_muonIdHelperTool->cscIdHelper().strip(prawId);
+      int stationEta  = m_idHelperSvc->cscIdHelper().stationEta(prawId);
+      int stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(prawId);
+      int wireLayer   = m_idHelperSvc->cscIdHelper().wireLayer(prawId);
+      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(prawId);
+      int stripId     = m_idHelperSvc->cscIdHelper().strip(prawId);
 
       int sectorNo  = stationEta * (2 * stationPhi - chamberType);
 
@@ -637,7 +605,6 @@ StatusCode CscPrdValAlg::fillHistograms()  {
     int numetasignal = 0, numphisignal = 0;
     for(int kl = 1; kl < 33; kl++ ) {
 
-      //int m_sec = kl < 17 ? kl*(-1) : kl; // [1->16](-side)  [17-32] (+side)
       for(int km = 1; km < 9; km++ ) {
         int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
         bool mphi = (km > 0 && km < 5) ? true : false; // 1,2,3,4 (phi-layers) 5,6,7,8 (eta-layers)
@@ -690,55 +657,6 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 
   return sc;
 } // end CscPrdValAlg::fillHistograms()
-
-//
-// procHistograms ----------------------------------------------------------------
-//
-StatusCode CscPrdValAlg::procHistograms() {
-  StatusCode sc = StatusCode::SUCCESS;
-  ATH_MSG_DEBUG( "CscPrdValAlg: in procHistograms" );
-  if(endOfRunFlag()){
-    /*
-       std::string m_cscGenPath = m_cscPRDPath.substr(0,m_cscPRDPath.find("CSC"));
-    //MonGroup m_cscprd_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-    for(size_t j = 0; j < m_regHOviewEC.size(); j++ ) {
-    TH1 *m_h(0);
-    m_h = m_regHOviewEC[j];
-    if(m_h != NULL) {
-    bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
-    if(m_hist2d) {
-    std::string m_hname = m_h->GetName();
-    // Get Y-projection (sec+0.2*lay)
-    TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
-    // set bin labels
-    CscPrdBins::PrdBinLabels(m_hY,-1);
-    // register histogram with Overview/CSCEC
-    sc = m_cscprd_oviewEC->regHist(m_hY);
-    if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
-    return sc;
-    }
-    // Get X-projection (counts)
-    TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-    sc = m_cscprd_oviewEC->regHist(m_hX);
-    if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
-    return sc;
-    }
-    } // end if hist2d
-    } // end if m_h
-    } // end for
-
-    //MonGroup m_cscprd_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-    for(size_t j = 0; j < m_regHOviewEA.size(); j++ ) {
-    TH1 *m_h(0);
-    m_h = m_regHOviewEA[j];
-    if(m_h != NULL) {
-    */
-  } // end isEndOfRun
-
-  return sc;
-  }
 
   //
   // checkHists ----------------------------------------------------------------
