@@ -340,15 +340,15 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 
             double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
             if (std::abs(gECF212) > 1e-12) {
-              L1 = gECF321 / (pow(gECF212, (1.0)));
-              L2 = gECF331 / (pow(gECF212, (3.0 / 2.0)));
+              L1 = gECF321 / gECF212;
+              L2 = gECF331 / sqrt(gECF212*gECF212*gECF212);
             }
             if (std::abs(gECF331) > 1e-12) {
-              L3 = gECF311 / (pow(gECF331, (1.0 / 3.0)));
-              L4 = gECF322 / (pow(gECF331, (4.0 / 3.0)));
+              L3 = gECF311 / pow(gECF331,1./3.);
+              L4 = gECF322 / pow(gECF331,4./3.);
             }
             if (std::abs(gECF441) > 1e-12) {
-              L5 = gECF422 / (pow(gECF441, (1.0)));
+              L5 = gECF422/gECF441;
             }
 
             rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
