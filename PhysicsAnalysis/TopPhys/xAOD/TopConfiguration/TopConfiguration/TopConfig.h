@@ -2040,9 +2040,9 @@ namespace top {
     float m_muonPtcut; // muon object selection pT cut
     float m_muonEtacut; // muon object selection (abs) eta cut
     std::string m_muonQuality; // muon quality used in object selection
-    std::string m_muonQualityLoose; // loose muon quality used in object selection
     bool m_muonUseMVALowPt; //to turn on MVA for low-pT muons
     bool m_muonUse2stationMuonsHighPt; //to allow muon reco with 2-station
+    std::string m_muonQualityLoose; // loose muon quality used in object selection
     bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
     bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
     std::string m_muonIsolation;
