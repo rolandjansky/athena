@@ -1138,9 +1138,11 @@ void AthenaPoolCnvSvc::handle(const Incident& incident) {
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-	::AthCnvSvc(name, pSvcLocator, POOL_StorageType) {
+	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
+	m_outputStreamingTool(this)
+{
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
-  }
+}
 //______________________________________________________________________________
 AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {
 }
