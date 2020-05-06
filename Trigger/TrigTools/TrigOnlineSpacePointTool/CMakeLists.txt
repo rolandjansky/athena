@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           Event/ByteStreamData
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/SCT_ConditionsServices
@@ -45,7 +46,7 @@ atlas_add_component( TrigOnlineSpacePointTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector Identifier ByteStreamData ByteStreamData_test GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector Identifier ReadoutGeometryBase ByteStreamData ByteStreamData_test GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineSpacePointTool )

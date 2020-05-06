@@ -6,7 +6,7 @@
 #include "PixelRDOAnalysis.h"
 #include "StoreGate/ReadHandle.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 #include "TTree.h"
 #include "TString.h"
