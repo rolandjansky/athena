@@ -101,8 +101,6 @@ namespace MuonCalib {
   bool MuonSegmentNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ) {
-      //   std::cout << "MuonSegmentNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-      //	<< std::endl;
       return false;
     }
 

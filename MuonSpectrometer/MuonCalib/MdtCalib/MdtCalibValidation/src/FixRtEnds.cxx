@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -69,14 +69,10 @@ bool FixRtEnds::checkMono(const std::vector<SamplePoint> & points, bool & fix_be
   double last_r(-9e9);
   fix_begin=false; fix_end=false;
   for(std::vector<SamplePoint>::const_iterator it=points.begin(); it!=points.end(); it++) {
-//		std::cout<<last_r<<"<"<<it->x2()<<std::endl;
     if(it->x2()<last_r)	{
-//			std::cout<<"*"<<std::endl;
       if(it->x2()<2.0) {
-//				std::cout<<"*k"<<std::endl;
 	fix_begin=true;
       } else if(it->x2()>13) {
-//				std::cout<<"*l"<<std::endl;
 	fix_end=true;
       }	else { //cannot fic if it is in the middle
 	return false;
@@ -111,7 +107,7 @@ inline bool FixRtEnds::fixBegin(std::vector<SamplePoint> & points) {
   fit_gr->Fit("pol2");
   fit_gr->Write("fix_begin");
   TF1 * fun=fit_gr->GetFunction("pol2");
-  if(fun == NULL) return false;
+  if(!fun) return false;
   for(int i=0; i<=i_max; i++) {
     points[i].set_x2(fun->Eval(points[i].x1()));
   }
@@ -123,7 +119,6 @@ inline bool FixRtEnds::fixEnd(std::vector<SamplePoint> & points) {
   int i_min(10000);
   for(unsigned int i=0; i<points.size(); i++) {
     if(points[i].x2()>12 && points[i].x2() <13)	{
-//			std::cout<<"p=("<<points[i].x1()<<", "<<points[i].x2()<<")"<<std::endl;
       t.push_back(points[i].x1());
       r.push_back(points[i].x2());
     }
@@ -139,11 +134,9 @@ inline bool FixRtEnds::fixEnd(std::vector<SamplePoint> & points) {
   fit_gr->Fit("pol2");
   fit_gr->Write("fix_end");	
   TF1 * fun=fit_gr->GetFunction("pol2");
-  if(fun == NULL) return false;
-//	std::cout<<i_min<<" "<<points.size()<<std::endl;
+  if(!fun) return false;
   for(unsigned int i=i_min; i<points.size(); i++) {
     points[i].set_x2(fun->Eval(points[i].x1()));
-//		std::cout<<i<<": ("<<points[i].x1()<<", "<<points[i].x2()<<")"<<std::endl;
   }
   return true;
 }

@@ -219,7 +219,6 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
       }
       if(!new_t0s) continue;
       if(m_postprocess_calibration) new_t0s = postprocess_t0s(new_t0s, the_id);
-      //      if(new_t0s == NULL) cerr<<"new_t0s == NULL"<<endl;
 	  
       sc=m_calib_output_tool->WriteT0(new_t0s, the_id, m_iov_start, m_iov_end);
       if(sc.isFailure()) return sc;
