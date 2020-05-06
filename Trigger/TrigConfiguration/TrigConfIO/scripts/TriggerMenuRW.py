@@ -11,14 +11,14 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-v",       help="increase output verbosity", action="count", default=0)
-    parser.add_argument("--file",   dest="filename", help="json file (menu, prescale set, or bunch group set)")
+    parser.add_argument("-f", "--file",   dest="filename", help="json file (menu, prescale set, or bunch group set)")
     parser.add_argument("--db",     dest="dbalias", help="TriggerDB connection alias")
     parser.add_argument("--smk",    type = int, help="SuperMaster key (when accessing menu or job options")
     parser.add_argument("--l1psk",  type = int, help="L1 PrescalesSet key (when accessing L1 prescales")
     parser.add_argument("--hltpsk", type = int, help="HLT PrescalesSet key (when accessing L1 prescales")
     parser.add_argument("--bgsk",   type = int, help="BunchGroupSet key (when accessing bunch groups")
     parser.add_argument("--print",  dest="doPrint", help="Prints the loaded information", action="store_true", default = False)
-    parser.add_argument("--write",  dest="doWrite", help="Writes the loaded information to a file", action="store_true", default = False)
+    parser.add_argument("-w", "--write",  dest="doWrite", help="Writes the loaded information to a file", action="store_true", default = False)
     
     args = parser.parse_args()
     
@@ -40,16 +40,17 @@ def main():
             print("Can't read file %s of unknown filetype '%s'" % (args.filename, filetype))
             return 1
     elif args.dbalias:
+        cfg = []
         if args.smk:
-            cfg  = [ L1MenuAccess( dbalias = args.dbalias, smkey = args.smk ) ]
+            cfg += [ L1MenuAccess( dbalias = args.dbalias, smkey = args.smk ) ]
             cfg += [ HLTMenuAccess( dbalias = args.dbalias, smkey = args.smk ) ]
             cfg += [ HLTJobOptionsAccess( dbalias = args.dbalias, smkey = args.smk ) ]
-        elif args.l1psk:
-            cfg  = L1PrescalesSetAccess( dbalias = args.dbalias, l1pskey = args.l1psk )
-        elif args.hltpsk:
-            cfg  = HLTPrescalesSetAccess( dbalias = args.dbalias, hltpskey = args.hltpsk )
-        else:
-            raise NotImplementedError("DB access for this type of key")
+        if args.l1psk:
+            cfg += [ L1PrescalesSetAccess( dbalias = args.dbalias, l1pskey = args.l1psk ) ]
+        if args.hltpsk:
+            cfg += [ HLTPrescalesSetAccess( dbalias = args.dbalias, hltpskey = args.hltpsk ) ]
+        if args.bgsk:
+            cfg += [ BunchGroupSetAccess( dbalias = args.dbalias, bgskey = args.bgsk ) ]
     else:
         print("Either a file or dbalias and key need to be specified")
         return 1
