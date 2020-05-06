@@ -35,7 +35,6 @@ namespace MagField {
  *  @author R.D.Schaffer -at- cern.ch
  */
 class AtlasFieldCache
-// : public ::AthMessaging
 {
 public:
   AtlasFieldCache();
@@ -43,13 +42,12 @@ public:
   // first access to field */
   AtlasFieldCache(double solFieldScale,
                   double torFieldScale,
-                  const AtlasFieldMap* fieldMap,
-                  bool useNewBfieldCache);
+                  const AtlasFieldMap* fieldMap);
   AtlasFieldCache& operator=(AtlasFieldCache&& other) = default;
   ~AtlasFieldCache() = default;
 
   /// Temporary flag for switching between 'old' and 'new' magField usage
-  bool useNewBfieldCache() { return m_useNewBfieldCache; }
+  bool useNewBfieldCache() { return true; }
 
   /** get B field value at given position */
   /** xyz[3] is in mm, bxyz[3] is in kT */
@@ -62,11 +60,8 @@ public:
                          double* ATH_RESTRICT deriv = nullptr);
 
   /** status of the magnets */
-  bool solenoidOn() const
-  {
-    return m_fieldMap ? m_fieldMap->solenoidOn() : false;
-  }
-  bool toroidOn() const { return m_fieldMap ? m_fieldMap->toroidOn() : false; }
+  bool solenoidOn() const;
+  bool toroidOn() const; 
 
 private:
   AtlasFieldCache(const AtlasFieldCache& other) = delete;
@@ -75,9 +70,6 @@ private:
 
   bool fillFieldCache(double z, double r, double phi);
   bool fillFieldCacheZR(double z, double r);
-
-  /// Temporary flag for switching between 'old' and 'new' magField usage
-  bool m_useNewBfieldCache{ false };
 
   /// magnetic field scales from currents
   double m_solScale{ 1 };
