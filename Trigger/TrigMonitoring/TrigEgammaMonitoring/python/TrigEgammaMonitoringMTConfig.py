@@ -6,7 +6,7 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-from AthenaCommon.Constants import DEBUG
+import AthenaCommon.Constants
 from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags_Run3, monitoring_electron_Run3, monitoring_photon_Run3, monitoringTP_electron_Run3, monitoringTP_Jpsiee_Run3
 #from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
@@ -56,7 +56,7 @@ class TrigEgammaMonAlgBuilder:
   __acceptable_keys_list=['derivation','emulation', 'debugLevel', 'detailedHistograms','basePath']
   emulation = False
   derivation = False
-  debugLevel = DEBUG
+  debugLevel = AthenaCommon.Constants.INFO
   detailedHistograms = False
   basePath = 'HLT/EgammaMon'
 
@@ -183,7 +183,7 @@ class TrigEgammaMonAlgBuilder:
 
     acc = self.helper.resobj
     EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
-    EgammaMatchTool.OutputLevel=2
+    EgammaMatchTool.OutputLevel=self.debugLevel
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
     cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
