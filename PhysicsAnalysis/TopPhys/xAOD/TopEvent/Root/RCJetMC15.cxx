@@ -348,9 +348,9 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double tau2 = m_nSub2_beta1->result(correctedJet);
             double tau3 = m_nSub3_beta1->result(correctedJet);
 
-            if (fabs(tau1) > 1e-8) tau21 = tau2 / tau1;
+            if (std::abs(tau1) > 1e-8) tau21 = tau2 / tau1;
             else tau21 = -999.0;
-            if (fabs(tau2) > 1e-8) tau32 = tau3 / tau2;
+            if (std::abs(tau2) > 1e-8) tau32 = tau3 / tau2;
             else tau32 = -999.0;
 
 
@@ -364,7 +364,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double vECF1 = m_ECF1->result(correctedJet);
             double vECF2 = m_ECF2->result(correctedJet);
             double vECF3 = m_ECF3->result(correctedJet);
-            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
+            if (std::abs(vECF2) > 1e-8) D2 = vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2);
             else D2 = -999.0;
 	    
 
@@ -406,15 +406,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double gECF311 = m_gECF311->result(correctedJet);
 
             double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
-            if (fabs(gECF212) > 1e-12) {
+            if (std::abs(gECF212) > 1e-12) {
               L1 = gECF321 / (pow(gECF212, (1.0)));
               L2 = gECF331 / (pow(gECF212, (3.0 / 2.0)));
             }
-            if (fabs(gECF331) > 1e-12) {
+            if (std::abs(gECF331) > 1e-12) {
               L3 = gECF311 / (pow(gECF331, (1.0 / 3.0)));
               L4 = gECF322 / (pow(gECF331, (4.0 / 3.0)));
             }
-            if (fabs(gECF441) > 1e-12) {
+            if (std::abs(gECF441) > 1e-12) {
               L5 = gECF422 / (pow(gECF441, (1.0)));
             }
 
@@ -526,7 +526,7 @@ bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
   if (jet.pt() < m_ptcut) return false;
 
   // [|eta|] calibrated < 2.5
-  if (std::fabs(jet.eta()) > m_etamax) return false;
+  if (std::abs(jet.eta()) > m_etamax) return false;
 
   // small-r jet mass not calibrated and no uncertainties
 
@@ -629,8 +629,8 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
           //Pileup suppression, using the nominal working point
           float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
 
-          if (fabs((*jetTrIt)->d0()) < 2 && fabs((*jetTrIt)->eta()) < 2.5 &&
-              fabs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
+          if (std::abs((*jetTrIt)->d0()) < 2 && std::abs((*jetTrIt)->eta()) < 2.5 &&
+              std::abs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
             temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
             clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
           }

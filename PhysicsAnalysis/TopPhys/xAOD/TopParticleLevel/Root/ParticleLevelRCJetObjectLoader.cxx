@@ -248,10 +248,10 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
 
               for (auto truthParticle: *myTruthParticle) {
                 double epsilon = 0.00001;
-                if (fabs(truthParticle->pt() - clus_itr->pt()) < epsilon &&
-                    fabs(truthParticle->eta() - clus_itr->eta()) < epsilon &&
-                    fabs(truthParticle->phi() - clus_itr->phi()) < epsilon &&
-                    fabs(truthParticle->m() - clus_itr->m()) < epsilon) {
+                if (std::abs(truthParticle->pt() - clus_itr->pt()) < epsilon &&
+                    std::abs(truthParticle->eta() - clus_itr->eta()) < epsilon &&
+                    std::abs(truthParticle->phi() - clus_itr->phi()) < epsilon &&
+                    std::abs(truthParticle->m() - clus_itr->m()) < epsilon) {
                   isCharged = truthParticle->isCharged();
                   found = true;
                   break;
@@ -282,9 +282,9 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
             double tau2 = m_nSub2_beta1->result(correctedJet);
             double tau3 = m_nSub3_beta1->result(correctedJet);
 
-            if (fabs(tau1) > 1e-8) tau21 = tau2 / tau1;
+            if (std::abs(tau1) > 1e-8) tau21 = tau2 / tau1;
             else tau21 = -999.0;
-            if (fabs(tau2) > 1e-8) tau32 = tau3 / tau2;
+            if (std::abs(tau2) > 1e-8) tau32 = tau3 / tau2;
             else tau32 = -999.0;
 
 
@@ -298,7 +298,7 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
             double vECF1 = m_ECF1->result(correctedJet);
             double vECF2 = m_ECF2->result(correctedJet);
             double vECF3 = m_ECF3->result(correctedJet);
-            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
+            if (std::abs(vECF2) > 1e-8) D2 = vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2);
             else D2 = -999.0;
 
             // now attach the results to the original jet
@@ -339,15 +339,15 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
             double gECF311 = m_gECF311->result(correctedJet);
 
             double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
-            if (fabs(gECF212) > 1e-12) {
+            if (std::abs(gECF212) > 1e-12) {
               L1 = gECF321 / (pow(gECF212, (1.0)));
               L2 = gECF331 / (pow(gECF212, (3.0 / 2.0)));
             }
-            if (fabs(gECF331) > 1e-12) {
+            if (std::abs(gECF331) > 1e-12) {
               L3 = gECF311 / (pow(gECF331, (1.0 / 3.0)));
               L4 = gECF322 / (pow(gECF331, (4.0 / 3.0)));
             }
-            if (fabs(gECF441) > 1e-12) {
+            if (std::abs(gECF441) > 1e-12) {
               L5 = gECF422 / (pow(gECF441, (1.0)));
             }
 
@@ -401,7 +401,7 @@ bool ParticleLevelRCJetObjectLoader::passSelection(const xAOD::Jet& jet) const {
   if (jet.pt() < m_ptcut) return false;
 
   // [|eta|] calibrated < 2.5
-  if (std::fabs(jet.eta()) > m_etamax) return false;
+  if (std::abs(jet.eta()) > m_etamax) return false;
 
   // small-r jet mass not calibrated and no uncertainties
 
