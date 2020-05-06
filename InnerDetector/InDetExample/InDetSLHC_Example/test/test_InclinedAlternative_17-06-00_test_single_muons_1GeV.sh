@@ -19,12 +19,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../share"  >/dev/null 2>&1 &
 
 
 
-file=${SCRIPT_DIR}/test_InclinedAlternative_17-06-00_single.sh
+file=${SCRIPT_DIR}/test_InclinedAlternative_single.sh
+script="`basename \"$0\"`"
+
+
 if [ -f "$file" ]
 then
 	echo "Executing script $file"
         echo " "
-        "$file" muons 1GeV  ATLAS-P2-ITK-17-06-00
+        "$file" muons 1GeV  ATLAS-P2-ITK-17-06-00 ${script}
 else
 	echo "ERROR: script $file not found."
 fi
