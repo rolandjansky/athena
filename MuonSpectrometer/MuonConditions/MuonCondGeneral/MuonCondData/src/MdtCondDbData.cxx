@@ -260,8 +260,8 @@ MdtCondDbData::isGoodChannel(const MdtIdHelper* idHelper, const Identifier & Id)
     if(not isGoodTube      (Id          )) return false;
     //if(not isGoodLayer     (layerId     )) return false;
     if(not isGoodMultilayer(multilayerId)) return false;
-    if(not isGoodChamber   (chamberId   )) return false;
-    //if(not isGoodStation   (stationId   )) return false;
+    // if(not isGoodChamber   (chamberId   )) return false; // will fail if any channel in same chamber is off
+    if(not isGoodStation   (chamberId   )) return false;
     return true;
 }
 
@@ -298,6 +298,9 @@ MdtCondDbData::isGoodStation(const Identifier & Id) const{
 } 
 
 // isGoodChamber
+/// this method probably doesn't do what you expect it to - it returns whether there is a
+/// bad multilayer/tube inside the chamber, not if the full chamber is disabled. For the
+/// latter, you need to use isGoodStation.
 bool
 MdtCondDbData::isGoodChamber(const Identifier & Id) const{
     if(m_cachedDeadChambersId.size()==0) return true;
