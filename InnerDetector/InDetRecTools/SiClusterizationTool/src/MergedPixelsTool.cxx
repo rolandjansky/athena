@@ -28,7 +28,7 @@
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetIdentifier/PixelID.h"

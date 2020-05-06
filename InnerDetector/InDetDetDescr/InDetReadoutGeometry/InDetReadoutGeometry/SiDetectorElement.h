@@ -283,6 +283,7 @@ namespace InDetDD {
       //
       // All return pitch in distance units. 
       //
+      double phiPitch() const;
       double phiPitch(const Amg::Vector2D &) const; // Useful for SCT Forward.
       //@}
     
@@ -509,6 +510,18 @@ namespace InDetDD {
     inline void SiDetectorElement::setOtherSide(const SiDetectorElement * element) // For SCT only
     {
       m_otherSide = element;
+    }
+
+    // implemented so that base class method isn't hidden
+    // by phiPitch(const Amg::Vector2D &)
+    inline double SiDetectorElement::phiPitch() const
+    {
+    return SolidStateDetectorElementBase::phiPitch();
+    }
+
+    inline double SiDetectorElement::phiPitch(const Amg::Vector2D & localPosition) const
+    {
+      return m_design->phiPitch(localPosition);
     }
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const

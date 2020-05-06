@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           Control/StoreGate
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/PixelConditionsServices
@@ -45,7 +46,7 @@ atlas_add_component( PixelDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GeneratorObjects PixelConditionsData SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement AtlasCLHEP_RandomGenerators PathResolver PixelCablingLib PixelGeoModelLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier ReadoutGeometryBase xAODEventInfo GeneratorObjects PixelConditionsData SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement AtlasCLHEP_RandomGenerators PathResolver PixelCablingLib PixelGeoModelLib )
 
 # Install files from the package:
 atlas_install_headers( PixelDigitization )

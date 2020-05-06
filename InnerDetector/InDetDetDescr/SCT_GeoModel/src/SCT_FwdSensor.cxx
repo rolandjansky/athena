@@ -40,8 +40,8 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include <cmath>
 

@@ -15,6 +15,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
+   DetectorDescription/ReadoutGeometryBase
    InnerDetector/InDetDetDescr/PixelLayouts/PixelInterfaces
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
@@ -37,7 +38,7 @@ atlas_add_library( PixelGeoModelLib
    PUBLIC_HEADERS PixelGeoModel
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelKernel
-   GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
+   GeoModelUtilities Identifier ReadoutGeometryBase GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry PixelReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
    InDetCondServices InDetIdentifier

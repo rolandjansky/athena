@@ -20,7 +20,7 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h"

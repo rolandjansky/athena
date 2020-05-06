@@ -8,7 +8,7 @@
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "StoreGate/StoreGate.h"

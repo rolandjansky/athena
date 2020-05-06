@@ -12,7 +12,7 @@
 #include "PixelDiodeCrossTalkGenerator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 
 using namespace InDetDD;

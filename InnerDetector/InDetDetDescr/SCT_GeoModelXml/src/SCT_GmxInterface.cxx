@@ -19,7 +19,7 @@
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 
 const int SCT_HitIndex = 1;
 

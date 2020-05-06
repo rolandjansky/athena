@@ -16,7 +16,7 @@
 // Authors: Grant Gorfine
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 namespace InDet {
 

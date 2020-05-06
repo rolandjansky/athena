@@ -14,7 +14,7 @@ ATLAS Collaboration
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 

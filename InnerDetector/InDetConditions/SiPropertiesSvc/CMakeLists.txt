@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          DetectorDescription/ReadoutGeometryBase
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/Identifier
@@ -26,11 +27,11 @@ atlas_add_library( SiPropertiesSvcLib
                    PUBLIC_HEADERS SiPropertiesSvc
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry ReadoutGeometryBase StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier InDetIdentifier )
 
 atlas_add_component( SiPropertiesSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry ReadoutGeometryBase StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
 

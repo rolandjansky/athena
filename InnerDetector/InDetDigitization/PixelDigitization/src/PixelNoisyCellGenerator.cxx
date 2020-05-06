@@ -11,8 +11,8 @@
 
 #include "PixelNoisyCellGenerator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandPoisson.h"

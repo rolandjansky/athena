@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/DataModel
    DetectorDescription/AtlasDetDescr
    DetectorDescription/GeoModel/GeoModelInterfaces
+   DetectorDescription/ReadoutGeometryBase
    Event/EventPrimitives
    Event/xAOD/xAODEventInfo
    Generators/GeneratorObjects
@@ -58,7 +59,7 @@ atlas_add_component( InDetTrackValidation
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
    AthenaBaseComps AthenaKernel GaudiKernel InDetRawData InDetPrepRawData
-   InDetSimEvent TrkParameters TrkTrack TrkValInterfaces DataModel AtlasDetDescr
+   InDetSimEvent TrkParameters TrkTrack TrkValInterfaces DataModel AtlasDetDescr ReadoutGeometryBase
    EventPrimitives xAODEventInfo GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase

@@ -8,6 +8,7 @@ atlas_subdir( ISF_FatrasDetDescrInterfaces )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventPrimitives
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry )
@@ -20,5 +21,5 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( ISF_FatrasDetDescrInterfaces
                    PUBLIC_HEADERS ISF_FatrasDetDescrInterfaces
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel InDetReadoutGeometry )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives ReadoutGeometryBase EventPrimitives GaudiKernel InDetReadoutGeometry )
 

@@ -19,8 +19,8 @@
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 
 // Input/output classes
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
 
 namespace InDetDD {
 
