@@ -109,28 +109,40 @@ StatusCode HLTEDMCreator::initialize()
 template<class T>
 struct plainGenerator {
   std::unique_ptr<T> data;
-  void create() {
-    data = std::make_unique<T>();
+  bool doRecord{true};
+  void create( bool create, bool record ) {
+    doRecord = record;
+    if ( create )
+      data = std::make_unique<T>();
   }
-  StatusCode record( SG::WriteHandle<T>& h ) {    
-    return h.record( std::move( data ) );
-  } 
+
+  StatusCode record( SG::WriteHandle<T>& h ) {
+    if ( doRecord )
+      return h.record( std::move( data ) );
+    return StatusCode::SUCCESS;
+  }
 };
 
 template<class T, class STORE>
 struct xAODGenerator {
   std::unique_ptr<T> data;
   std::unique_ptr<STORE> store;
+  bool doRecord{true};
 
-  void create() {
-    data  = std::make_unique<T>();
-    store = std::make_unique<STORE>();
-    data->setStore( store.get() );      
+  void create( bool create, bool record ) {
+    doRecord = record;
+    if ( create ) {
+      data  = std::make_unique<T>();
+      store = std::make_unique<STORE>();
+      data->setStore( store.get() );
+    }
   }
 
   StatusCode record ( SG::WriteHandle<T>& h ) {
-    return h.record( std::move( data ), std::move( store ) );
-  } 
+    if ( doRecord )
+      return h.record( std::move( data ), std::move( store ) );
+    return StatusCode::SUCCESS;
+  }
 };
 
 template<typename T>
@@ -240,40 +252,59 @@ StatusCode HLTEDMCreator::fixLinks() const {
   return StatusCode::SUCCESS;
 }
 
+
 template<typename T, typename G, typename M>
 StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G& generator, M merger ) const {
 
   for (size_t i = 0; i < handles.out.size(); ++i) {
-    SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i); 
+    SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
-    // Note: This is correct. We are testing if we can read, and if we cannot then we write.
-    // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
-    SG::ReadHandle<T> readHandle( writeHandleKey.key() );
-
-    if ( readHandle.isValid() ) {
-      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
-    } else {
-      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it" );
-      generator.create();      
-      if ( handles.views.size() != 0 ) {
-
-        SG::ReadHandleKey<ViewContainer> viewsReadHandleKey = handles.views.at(i);
-        ATH_MSG_DEBUG("Will be trying to merge from the " << viewsReadHandleKey.key() << " view container into that output");
-
-        auto viewsHandle = SG::makeHandle( viewsReadHandleKey, context );
-        if ( viewsHandle.isValid() ) {
-          SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
-          ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
-          CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
-        } else {
-          ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
-        }
-
+    if ( handles.views.size() == 0 ) { // no merging will be needed
+      // Note: This is correct. We are testing if we can read, and if we cannot then we write.
+      // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
+      SG::ReadHandle<T> readHandle( writeHandleKey.key() );
+      if ( readHandle.isValid() ) {
+	ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
+	generator.create(false, false);
+      } else {
+	ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it" );
+	generator.create(true, true);
       }
-      auto writeHandle = SG::makeHandle( writeHandleKey, context );
-      CHECK( generator.record( writeHandle ) );
+
+    } else {
+      // there are views, we assume that in the main store collection of given type#name is absent, else it will not work anyways
+      // simplest case, only one set of views is handled first
+      // below is handled the cases when the configuration of output keys is for example: A A B C C C D D E
+      // which means the first two collections come from first two views and because the names are the same they should end up in the same output collection
+      // thefore generators need to instructed to:
+      //   - create new collection when a new name is handled (or for the first key)
+      //   - and record when it is last identical name in the row (or it is last handled collection)
+      if ( handles.out.size() == 1  ) {
+      	generator.create(true, true);
+      } else  {
+	const bool doCreate = i == 0 or handles.out.at(i-1).key() != handles.out.at(i).key();
+	const bool doRecord = i == handles.out.size()-1 or handles.out.at(i+1).key() != handles.out.at(i).key();
+	ATH_MSG_DEBUG( "Instrucring generator " <<  (doCreate ? "to" : "NOT TO") <<  " create collection and " << (doRecord ? "to" : "NOT TO") << " record collection in this iteration");
+	generator.create(doCreate, doRecord);
+      }
+
+      SG::ReadHandleKey<ViewContainer> viewsReadHandleKey = handles.views.at(i);
+      ATH_MSG_DEBUG("Will be trying to merge from the " << viewsReadHandleKey.key() << " view container into that output");
+
+      auto viewsHandle = SG::makeHandle( viewsReadHandleKey, context );
+      if ( viewsHandle.isValid() ) {
+	SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
+	ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
+	CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
+      } else {
+	ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
+      }
     }
+
+    auto writeHandle = SG::makeHandle( writeHandleKey, context );
+    CHECK( generator.record( writeHandle ) );
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -340,6 +371,6 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   if ( m_dumpSGAfter )  
     ATH_MSG_DEBUG( evtStore()->dump() );
 
-
+  ATH_MSG_DEBUG("Done");
   return StatusCode::SUCCESS;
 }
