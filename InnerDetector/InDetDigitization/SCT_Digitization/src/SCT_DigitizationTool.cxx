@@ -62,7 +62,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
     m_rndmEngine(nullptr),
     m_atlasID(nullptr),
     m_thpcsi(nullptr),
-    chargedDiodes(nullptr),
+    m_chargedDiodes(nullptr),
     m_vetoThisBarcode(crazyParticleBarcode) {
     declareInterface<SCT_DigitizationTool>(this);
     declareProperty("FixedTime", m_tfix,
@@ -305,7 +305,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
     else {
         ATH_MSG_DEBUG("no hits found in event!");
     }
-    delete chargedDiodes;
+    delete m_chargedDiodes;
     ATH_MSG_DEBUG("Digitized Elements with Hits");
 
     // loop over elements without hits
@@ -374,7 +374,7 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
 
 
     m_thpcsi = new TimedHitCollection<SiHit>();
-    chargedDiodes = new SiChargedDiodeCollection;
+    m_chargedDiodes = new SiChargedDiodeCollection;
     m_HardScatterSplittingSkipper = false;
     return StatusCode::SUCCESS;
 }
@@ -389,16 +389,16 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
     if (m_enableHits) {
         digitizeAllHits();
     }
-    delete chargedDiodes;
+    delete m_chargedDiodes;
 
     digitizeNonHits();
 
-    for (std::vector<SiHitCollection *>::iterator it = hitCollPtrs.begin();
-         it != hitCollPtrs.end(); it++) {
+    for (std::vector<SiHitCollection *>::iterator it = m_hitCollPtrs.begin();
+         it != m_hitCollPtrs.end(); it++) {
         (*it)->Clear();
         delete(*it);
     }
-    hitCollPtrs.clear();
+    m_hitCollPtrs.clear();
 
     ATH_MSG_DEBUG("Digitize success!");
     return StatusCode::SUCCESS;
@@ -415,40 +415,40 @@ void SCT_DigitizationTool::digitizeAllHits() {
     ATH_MSG_DEBUG("Digitizing hits");
     int hitcount = 0; // First, elements with hits.
 
-    while (digitizeElement(chargedDiodes)) {
+    while (digitizeElement(m_chargedDiodes)) {
         ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(
-                          chargedDiodes->identify()));
+                          m_chargedDiodes->identify()));
 
         hitcount++;  // Hitcount will be a number in the hit collection minus
                      // number of hits in missing mods
 
         ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  "
-                      << m_detID->barrel_ec(chargedDiodes->identify()) << " - "
-                      << m_detID->layer_disk(chargedDiodes->identify()) << " - "
-                      << m_detID->eta_module(chargedDiodes->identify()) << " - "
-                      << m_detID->phi_module(chargedDiodes->identify()) << " - "
+                      << m_detID->barrel_ec(m_chargedDiodes->identify()) << " - "
+                      << m_detID->layer_disk(m_chargedDiodes->identify()) << " - "
+                      << m_detID->eta_module(m_chargedDiodes->identify()) << " - "
+                      << m_detID->phi_module(m_chargedDiodes->identify()) << " - "
                       << " processing hit number " << hitcount
                       );
 
         // Have a flag to check if the module is present or not
         // Generally assume it is:
 
-        IdentifierHash idHash = chargedDiodes->identifyHash();
+        IdentifierHash idHash = m_chargedDiodes->identifyHash();
 
         assert(idHash < m_processedElements.size());
         m_processedElements[idHash] = true;
 
         // create and store RDO and SDO
 
-        if (!chargedDiodes->empty()) {
-            StatusCode sc = createAndStoreRDO(chargedDiodes);
+        if (!m_chargedDiodes->empty()) {
+            StatusCode sc = createAndStoreRDO(m_chargedDiodes);
             if (sc.isSuccess()) { // error msg is given inside
                                   // createAndStoreRDO()
-                addSDO(chargedDiodes);
+                addSDO(m_chargedDiodes);
             }
         }
 
-        chargedDiodes->clear();
+        m_chargedDiodes->clear();
     }
     ATH_MSG_DEBUG("hits processed");
     return;
@@ -461,7 +461,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
     }
 
     ATH_MSG_DEBUG("processing elements without hits");
-    chargedDiodes = new SiChargedDiodeCollection;
+    m_chargedDiodes = new SiChargedDiodeCollection;
 
     for (unsigned int i = 0; i < m_processedElements.size(); i++) {
         if (!m_processedElements[i]) {
@@ -482,26 +482,26 @@ void SCT_DigitizationTool::digitizeNonHits() {
                     << "size: " << m_processedElements.size()
                     );
 
-                chargedDiodes->setDetectorElement(element);
+                m_chargedDiodes->setDetectorElement(element);
                 ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
-                applyProcessorTools(chargedDiodes);
+                applyProcessorTools(m_chargedDiodes);
 
                 // Create and store RDO and SDO
                 // Don't create empty ones.
-                if (!chargedDiodes->empty()) {
-                    StatusCode sc = createAndStoreRDO(chargedDiodes);
+                if (!m_chargedDiodes->empty()) {
+                    StatusCode sc = createAndStoreRDO(m_chargedDiodes);
                     if (sc.isSuccess()) {// error msg is given inside
                                          // createAndStoreRDO()
-                        addSDO(chargedDiodes);
+                        addSDO(m_chargedDiodes);
                     }
                 }
 
-                chargedDiodes->clear();
+                m_chargedDiodes->clear();
             }
         }
     }
 
-    delete chargedDiodes;
+    delete m_chargedDiodes;
     return;
 }
 
@@ -650,7 +650,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
         PileUpTimeEventIndex timeIndex(iEvt->time(), iEvt->index(), pileupTypeMapper(iEvt->type()));
         SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
         m_thpcsi->insert(timeIndex, hitCollPtr);
-        hitCollPtrs.push_back(hitCollPtr);
+        m_hitCollPtrs.push_back(hitCollPtr);
     }
 
     return StatusCode::SUCCESS;

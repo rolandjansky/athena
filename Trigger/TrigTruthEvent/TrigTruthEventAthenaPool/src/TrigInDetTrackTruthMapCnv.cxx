@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetTrackTruthMapCnv.h"
@@ -23,7 +23,7 @@ TrigInDetTrackTruthMap_PERS* TrigInDetTrackTruthMapCnv::createPersistent(TrigInD
 
     mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::createPersistent" << endreq;
 
-    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp2.createPersistent( transObj, mlog );
+    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp4.createPersistent( transObj, mlog );
 
     return persObj;
 }
@@ -37,12 +37,20 @@ TrigInDetTrackTruthMap* TrigInDetTrackTruthMapCnv::createTransient() {
   static pool::Guid tlp1_guid("08892FEB-5706-4938-9226-F45C0AA662E7");
   static pool::Guid tlp2_guid("02074F47-F290-4A48-B503-4DCAB4181B3D");
   static pool::Guid tlp3_guid("81BFA8A7-89A8-4072-B6E2-7124300CA9EB");
+  static pool::Guid tlp4_guid("5E3118C0-C379-481D-A2A5-BC94C0628C79");
   static pool::Guid p0_guid("41581666-F06D-44AE-93B9-D7E912A27AA1");
   
-  TrigInDetTrackTruthMap  *transObj = 0;
+  TrigInDetTrackTruthMap  *transObj = nullptr;
   
   
-  if( compareClassGuid(tlp3_guid) ) {
+  if( compareClassGuid(tlp4_guid) ) {
+
+    mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading tlp4 persistent object" << endreq;
+    poolReadObject< TrigInDetTrackTruthMap_tlp4 >( m_trigInDetTrackTruthMapCnv_tlp4 );
+    transObj = m_trigInDetTrackTruthMapCnv_tlp4.createTransient( mlog );
+
+  }
+  else if( compareClassGuid(tlp3_guid) ) {
 
     mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::reading tlp3 persistent object" << endreq;
     poolReadObject< TrigInDetTrackTruthMap_tlp3 >( m_trigInDetTrackTruthMapCnv_tlp3 );

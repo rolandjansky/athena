@@ -171,15 +171,66 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
       (*attrList).second.toOutputStream(attrStr);
       ATH_MSG_DEBUG( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
 
-      // Wafer ID hash is stored in the database
-      IdentifierHash waferID_hash((*attrList).second["waferHash"].data<int>());
-      Identifier pixelID = m_pixelid->wafer_id(waferID_hash);
-      constants.emplace_back( pixelID.get_compact() );
+      std::string stringData = (*attrList).second["data_array"].data<std::string>();
+      std::string delimiter = "],";
+      size_t pos = 0;
+      std::vector<std::string> component;
+      std::string buffer;
+      while ((pos = stringData.find(delimiter)) != std::string::npos) {
+	buffer = stringData.substr(0,pos);
+	component.push_back(buffer);
+	stringData.erase(0, pos + delimiter.length());
+      }
+      component.push_back(stringData);
+      ATH_MSG_INFO("Last component="<<stringData);
 
-      constants.emplace_back( (*attrList).second["delta_x"].data<float>() );
-      constants.emplace_back( (*attrList).second["delta_error_x"].data<float>() );
-      constants.emplace_back( (*attrList).second["delta_y"].data<float>() );
-      constants.emplace_back( (*attrList).second["delta_error_y"].data<float>() );
+      for (size_t i=0; i<component.size(); i++) {
+	std::string checkModule = component[i];
+	std::vector<std::string> moduleString;
+	delimiter = ":[";
+	pos = 0;
+	while ((pos = checkModule.find(delimiter)) != std::string::npos) {
+	  buffer = checkModule.substr(0,pos);
+	  moduleString.push_back(buffer);
+	  checkModule.erase(0, pos + delimiter.length());
+	}
+	moduleString.push_back(checkModule);
+
+	if (moduleString.size()!=2) {
+	  ATH_MSG_FATAL("String size (moduleString) is not 2. " << moduleString.size() << " in " << component[i] << " channel " <<  (*attrList).first << " read from " << readHandle.fullKey());
+	  return StatusCode::FAILURE;
+	}
+
+	std::stringstream checkModuleHash(moduleString[0]);
+	std::vector<std::string> moduleStringHash;
+	while (std::getline(checkModuleHash,buffer,'"')) { moduleStringHash.push_back(buffer); }
+
+	int waferHash   = std::atoi(moduleStringHash[1].c_str());
+	IdentifierHash waferID_hash(waferHash);
+	Identifier pixelID = m_pixelid->wafer_id(waferID_hash);
+	constants.emplace_back( pixelID.get_compact() );
+
+	std::stringstream moduleConstants(moduleString[1]);
+	std::vector<float> moduleConstantsVec;
+	while (std::getline(moduleConstants,buffer,',')) {  moduleConstantsVec.emplace_back(std::atof(buffer.c_str())); }
+
+	// Format v1 with no incident angle dependance
+	if(moduleConstantsVec.size()==4){
+	  constants.emplace_back(0); // period
+	  constants.emplace_back(0); // delta_x_slope
+	  constants.emplace_back(moduleConstantsVec[0]); // delta_x_offset
+	  constants.emplace_back(moduleConstantsVec[1]); // delta_error_x
+	  constants.emplace_back(0); // delta_y_slope
+	  constants.emplace_back(moduleConstantsVec[2]); // delta_y_offset
+	  constants.emplace_back(moduleConstantsVec[3]); // delta_error_y
+	}
+
+	// Format v2 with incident angle dependance
+	else if(moduleConstantsVec.size()==7){
+	  for( auto& x : moduleConstantsVec ) constants.emplace_back(x);
+	}
+
+      }
 
     }
 

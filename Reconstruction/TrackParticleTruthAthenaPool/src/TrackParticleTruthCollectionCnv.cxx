@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackParticleTruthCollectionCnv.h"
@@ -7,8 +7,10 @@
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p0.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p3.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p2.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p3.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -24,18 +26,20 @@ pool::Guid TrackParticleTruthCollectionCnv::s_p1_guid("D62AFEEE-EF2C-437A-B7BE-C
 
 pool::Guid TrackParticleTruthCollectionCnv::s_p2_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFB");
 
+pool::Guid TrackParticleTruthCollectionCnv::s_p3_guid("D6587356-C9A6-4F98-9271-51C8CE2A3F31");
+
 
 //================================================================
-TrackParticleTruthCollectionCnv::TrackParticleTruthCollectionCnv(ISvcLocator* svcLoc) : 
+TrackParticleTruthCollectionCnv::TrackParticleTruthCollectionCnv(ISvcLocator* svcLoc) :
   TrackParticleTruthCollectionCnvBase(svcLoc)
 {}
 
 //================================================================
 TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersistent(TrackParticleTruthCollection* trans) {
   MsgStream log(messageService(), "TrackParticleTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p2"<<endreq;
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p3"<<endreq;
   TrackParticleTruthCollectionPERS* pers=new TrackParticleTruthCollectionPERS();
-  m_converter_p2.transToPers(trans,pers,log);
+  m_converter_p3.transToPers(trans,pers,log);
   return pers;
 }
 
@@ -44,7 +48,13 @@ TrackParticleTruthCollection* TrackParticleTruthCollectionCnv::createTransient()
   MsgStream log(messageService(), "TrackParticleTruthCollectionCnv" );
   std::auto_ptr<TrackParticleTruthCollection> trans(new TrackParticleTruthCollection());
   
-  if (compareClassGuid(s_p2_guid)) {
+  if (compareClassGuid(s_p3_guid)) {
+    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p3. GUID="<<m_classID.toString()<<endreq;
+    Rec::TrackParticleTruthCollection_p3* pers=poolReadObject<Rec::TrackParticleTruthCollection_p3>();
+    m_converter_p3.persToTrans(pers, trans.get(), log);
+    delete pers;
+  }
+  else if (compareClassGuid(s_p2_guid)) {
     log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
     Rec::TrackParticleTruthCollection_p2* pers=poolReadObject<Rec::TrackParticleTruthCollection_p2>();
     m_converter_p2.persToTrans(pers, trans.get(), log);

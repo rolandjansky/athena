@@ -61,7 +61,7 @@ print m_TrackSelectorTool_NoCut
 m_TrackSelectorTool_TP = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolTightPrimary",
                                                         UseTrkTrackTools = True,
                                                         CutLevel = "TightPrimary",
-                                                        minPt = 4000,
+                                                        minPt = 20000,#4000
                                                         minNPixelHitsPhysical = 2,
                                                         minNSctHitsPhysical = 2,
                                                         TrackSummaryTool    = InDetTrackSummaryTool,
@@ -95,12 +95,11 @@ print " == runzmumu_script == TPSelection "
 print TPSelection
 
 allSelection = InDetAlignMon__TrackSelectionTool(name = "InDetAlignMonAlignTrackSelectionTool",
-                                                     PassAllTracks = True, ## Uncomment this line to bypass track slection
-                                                     PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
-                                                     UseIDTrackSelectionTool = True,
-                                                     IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
-                                                     #TrackSelectorTool    = InDetDetailedTrackSelector_Default
-							)
+                                                 PassAllTracks = True, ## Uncomment this line to bypass track slection
+                                                 PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
+                                                 UseIDTrackSelectionTool = True,
+                                                 IDTrackSelectionTool = m_TrackSelectorTool_TP
+                                                 )
 ToolSvc += allSelection
 
 
@@ -110,7 +109,8 @@ from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEffi
 
 
 for trackCollection in trackCollections:
-        theTrackSelection = LPSelection
+        #theTrackSelection = LPSelection
+        theTrackSelection = TPSelection
         if ("CombinedInDetTracks" in trackCollection):
                 theTrackSelection = TPSelection
         print " == runzmumu_script == monitoring for ",trackCollection," --> ",theTrackSelection
@@ -136,6 +136,7 @@ for trackCollection in trackCollections:
                 maxTRTResidualWindow =  0.550,
                 NSplitMap = 4,
                 RangeOfPullHistos  =   5,
+                PtRange = 50., # GeV
                 applyHistWeight = useWeightInMonitoring,
                 hWeightHistName = "h_eventMuVsTrkEta",
                 hWeightInFileName = "usr/WorkDir/21.0.68/InstallArea/x86_64-slc6-gcc62-opt/src/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimDataCollectionCnv.h"
@@ -18,14 +18,20 @@ InDetSimDataCollection* InDetSimDataCollectionCnv::createTransient() {
     InDetSimDataCollectionCnv_p1   converter_p1;
     InDetSimDataCollectionCnv_p2   converter_p2;
     InDetSimDataCollectionCnv_p3   converter_p3;
+    InDetSimDataCollectionCnv_p4   converter_p4;
 
-    InDetSimDataCollection       *trans_cont(0);
+    InDetSimDataCollection       *trans_cont(nullptr);
+    static const pool::Guid   p4_guid("E6B69A05-28A4-42C1-BC2C-FB703E764FFD");
     static const pool::Guid   p3_guid("1430AA7B-EE92-5A41-92F3-5DD5367D6BAA");
     static const pool::Guid   p2_guid("C648CA66-013D-44AC-B0D9-99BFB0060E84");
     static const pool::Guid   p1_guid("333EF996-1672-4AB8-917D-187F908F1EDE");
     static const pool::Guid   old_guid("5A50C32E-C036-4A49-AE97-716D53210BE1");
 
-    if( this->compareClassGuid(p3_guid)) {
+    if( this->compareClassGuid(p4_guid)) {
+        std::auto_ptr< InDetSimDataCollection_p4 >   col_vect( this->poolReadObject< InDetSimDataCollection_p4 >() );
+        trans_cont = converter_p4.createTransient( col_vect.get(), mlog );
+    }
+    else if( this->compareClassGuid(p3_guid)) {
         std::auto_ptr< InDetSimDataCollection_p3 >   col_vect( this->poolReadObject< InDetSimDataCollection_p3 >() );
         trans_cont = converter_p3.createTransient( col_vect.get(), mlog );
     }

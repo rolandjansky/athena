@@ -46,7 +46,7 @@ GeoModelSvc.AtlasVersion = detDescrVersion
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob("/eos/user/n/ncalace/21.9/RDO/user.ncalace.Step3p1.ttbar.mu200/RDO.user.ncalace.Step3p1.ttbar.mu200.0.pool.root")   
+athenaCommonFlags.FilesInput = glob("/eos/atlas/atlascerngroupdisk/perf-idtracking/21.9/RDO/user.ncalace.Step3p1.ttbar.mu200/RDO.user.ncalace.Step3p1.ttbar.mu200.*.pool.root")   
 print "CHECK FilesInput --> ", athenaCommonFlags.FilesInput()
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
@@ -75,7 +75,7 @@ from AthenaCommon.AppMgr import ToolSvc
 encodingCompBTNS1=RD53BEncodingTool("encodingCompBTNS1")
 encodingCompBTNS1.DoExpertPlots       =True
 encodingCompBTNS1.EventsPerStream     =1
-encodingCompBTNS1.SafetyFactor        =1.04
+encodingCompBTNS1.AuroraFactor        =1.04
 encodingCompBTNS1.Path                ="/Validation/encodingCompBTNS1/"
 encodingCompBTNS1.DoToTSuppression    =False
 encodingCompBTNS1.TestStreamFileName  ="TestStream_compBTNS1"

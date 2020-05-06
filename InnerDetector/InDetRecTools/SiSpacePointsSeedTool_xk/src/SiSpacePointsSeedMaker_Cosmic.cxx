@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   m_ptmin     = 500.    ;
   m_drmin     = 5.      ;
   m_drmax     = 1000.   ; 
-  m_rapcut    = 2.3     ;
+  m_etamax    = 2.3     ;
   m_zmin      = -10000. ;
   m_zmax      = +10000. ;
   m_diver     = 10.     ;
@@ -82,7 +82,6 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   declareProperty("maxZ"                  ,m_zmax                  );
   declareProperty("mindRadius"            ,m_drmin                 );
   declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("RapidityCut"           ,m_rapcut                );
   declareProperty("maxdImpact"            ,m_diver                 );
   declareProperty("maxdImpactPPS"         ,m_diverpps              );
   declareProperty("maxdImpactSSS"         ,m_diversss              );
@@ -525,8 +524,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions( MsgStream& out 
   out<<"| pTmin  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
-  out<<"| |rapidity|          <=  | " 
-     <<std::setw(12)<<std::setprecision(5)<<m_rapcut
+  out<<"| |eta|               <=  | "
+     <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 
@@ -643,8 +642,8 @@ std::ostream& InDet::operator <<
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork() 
 {
-  m_rapcut    = fabs(m_rapcut)                 ;
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut))); 
+  m_etamax    = fabs(m_etamax)                 ;
+  m_dzdrmax   = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin   =-m_dzdrmax                      ;
 
   m_ns = m_nsaz = m_nr = m_nrf = m_nrfz = 0;

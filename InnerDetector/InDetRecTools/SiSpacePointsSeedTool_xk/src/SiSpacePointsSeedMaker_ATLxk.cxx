@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -57,7 +57,6 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   m_r3max     = 600.    ;
   m_drmin     = 5.      ; m_drminv     = 20. ;    
   m_drmax     = 270.    ;    
-  m_rapcut    = 2.7     ;
   m_zmin      = -250.   ;
   m_zmax      = +250.   ;
   m_dzver     = 5.      ;
@@ -125,7 +124,6 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   declareProperty("maxVRadius1"           ,m_r1maxv                );
   declareProperty("minVRadius2"           ,m_r2minv                );
   declareProperty("maxVRadius2"           ,m_r2maxv                );
-  declareProperty("RapidityCut"           ,m_rapcut                );
   declareProperty("maxdZver"              ,m_dzver                 );
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
@@ -733,8 +731,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| pTmin  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
-  out<<"| |rapidity|          <=  | " 
-     <<std::setw(12)<<std::setprecision(5)<<m_rapcut
+  out<<"| |eta|               <=  | "
+     <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 

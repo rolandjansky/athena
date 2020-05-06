@@ -21,7 +21,9 @@ export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
 export MENU="MC_pp_v8"
 export EVENTS="50"
+export INPUT="run3_l1calo"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
+export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags as tf;tf.doLVL1PhaseI.set_Value_and_Lock(True);"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh

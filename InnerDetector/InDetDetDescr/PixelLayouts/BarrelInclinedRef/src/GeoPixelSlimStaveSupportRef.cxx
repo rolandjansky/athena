@@ -67,7 +67,8 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
   double eosZPos         = brlZMax + m_planarGap + (eosLength *  0.5);
   
   double outerOffsetMid = 0.25*(eosBaseWidth - eosTopWidth);           // Dy>0 if top width < bottom width, i.e. sides point inwards
-  double eosShellAngle  = atan( (0.5*radialLength) / outerOffsetMid);
+  double eosShellAngle  = 90*CLHEP::degree;//assume this as default value since this is the limit of atan(x) as x goes to infinity (such as when dividing by radial length by zero, which can happen for some pixel geometries)
+  if(outerOffsetMid!=0) eosShellAngle  = atan( (0.5*radialLength) / outerOffsetMid);
   if (eosShellAngle < 0.0) eosShellAngle = eosShellAngle + 180*CLHEP::degree; // Ensure angle is always positive to avoid heaches with sin and tan
 
   double halfEosRadius = 0.5*radialLength;

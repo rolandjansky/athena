@@ -34,7 +34,7 @@ class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
     std::string m_textFileName;
     int m_dump;
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/PixelITkClusterErrorData", "Input key of pixreco conditions folder"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/ITkClusterError", "Input key of pixreco conditions folder"};
     SG::WriteCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_writeKey{this, "WriteKey", "PixelITkOfflineCalibData", "Output key of pixel module data"};
 
     ServiceHandle<ICondSvc> m_condSvc;

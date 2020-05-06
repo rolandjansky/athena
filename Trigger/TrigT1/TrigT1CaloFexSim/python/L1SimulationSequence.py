@@ -79,6 +79,8 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if  jobproperties.Global.InputFormat() == 'bytestream':
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
+    #python options for supercells
+    include('LArROD/LArConfigureCablingSCFolder.py')
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
@@ -164,6 +166,10 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
                                SCBitMask = simflags.Calo.QualBitMask() )
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
+        
+        #jFEX taus 
+        from TrigT1CaloFexSim.TrigT1CaloFexSimConf import JFexEleTau
+        l1simAlgSeq += JFexEleTau(RegenerateSeeds = True, NoiseStrategy=0, ApplyNoise = False, CheckMax = True, UseRun2=False, SingleTowerSeed=True) 
 
         #include L1Topo Simulation
         if simflags.Topo.RunTopoAlgorithms():

@@ -5,6 +5,9 @@
   <class name="std::vector<LUCID_SimHit_p2>" id="149F1834-1D98-4F35-A1B3-C9AA083D6838" />
   <class name="LUCID_SimHit_p2" />
 
+  <class name="std::vector<LUCID_SimHit_p3>" id="17D22653-C44A-4C06-9FFE-67C518B9EAA0" />
+  <class name="LUCID_SimHit_p3" />
+
   <class name="std::vector<LUCID_RawData_p1>" />
   <class name="LUCID_RawData_p1" />
   <class name="LUCID_RawDataContainer_p1" id="88937AAE-D299-4A80-8608-96EFB3068F9A" />

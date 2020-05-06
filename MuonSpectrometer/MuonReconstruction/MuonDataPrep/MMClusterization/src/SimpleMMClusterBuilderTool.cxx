@@ -17,6 +17,7 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
   m_mmIdHelper(nullptr)
 {
   declareInterface<IMMClusterBuilderTool>(this);
+  declareProperty("useErrorParametrization",m_useErrorParametrization=true);
 
 }
 
@@ -165,6 +166,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     double weightedPosX = 0.0;
     double posY = 0.0;
     double totalCharge = 0.0;
+    double theta = 0.0;
     if ( mergeStrips.size() > 0 ) { 
       /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
       posY = MMprds[mergeIndices[0]].localPosition().y();
@@ -173,9 +175,11 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	double charge = MMprds[mergeIndices[k]].charge();
 	weightedPosX += posX*charge;
 	totalCharge += charge;
+  theta += std::atan(MMprds[mergeIndices[k]].globalPosition().perp()/std::abs(MMprds[mergeIndices[k]].globalPosition().z()))*charge;
 	ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
       } 
       weightedPosX = weightedPosX/totalCharge;
+      theta /= totalCharge;
     }
 
     
@@ -188,8 +192,16 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     Amg::MatrixX* covN = new Amg::MatrixX(1,1);
     covN->setIdentity();
-    (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-    if(nmerge<=1) (*covN)(0,0) = covX;
+    if(!m_useErrorParametrization) {
+      (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+      if(nmerge<=1) (*covN)(0,0) = covX;
+    } else {
+      double localUncertainty = 0.074+0.66*theta-0.15*theta*theta;
+      if ( m_mmIdHelper->isStereo(MMprds[i].identify()) ) {
+	localUncertainty = 10.;
+      }
+      (*covN)(0,0) = localUncertainty * localUncertainty;
+    }
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
     ///

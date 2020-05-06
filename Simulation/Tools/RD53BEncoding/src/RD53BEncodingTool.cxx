@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #include "./RD53BEncodingTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -18,10 +23,9 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   m_addresscompression(true),
   m_compression(true),
   m_suppressToT(false),
-  m_safetyFactor(1.04),
+  m_auroraFactor(1.04),
   m_eventsPerStream(1),
   m_testevent(0),
-  m_layoutVersion(""),
   m_path("/RD53BCompressed/"),
   m_thistSvc("THistSvc", n),
   m_testStream(false),
@@ -35,8 +39,7 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   declareProperty("DoToTSuppression"      , m_suppressToT       );
   declareProperty("DoExpertPlots"         , m_doExpertPlots     );
   declareProperty("EventsPerStream"       , m_eventsPerStream   );
-  declareProperty("LayoutVersion"         , m_layoutVersion     );
-  declareProperty("SafetyFactor"          , m_safetyFactor      );  
+  declareProperty("AuroraFactor"          , m_auroraFactor      );  
   declareProperty("Path"                  , m_path              );
   declareProperty("TestStreamCreation"    , m_testStream        );
   declareProperty("TestStreamFileName"    , m_testFileName    ="testStream");
@@ -67,6 +70,7 @@ StatusCode RD53BEncodingTool::initialize() {
   if (m_testStream) {
     // human readable format
     m_testChipFile.open(m_testFileName+"_chip.txt");
+    m_testChipFile << "MODULE = " << m_testBarrelEndcap << "/" << m_testLayerDisc << "/" << m_testModuleEta << "/" << m_testModulePhi << "\n";    
     m_testChipFile << "Chip Tag       Pixel Eta       Pixel Phi       cCol        qRow       tot       (bitmap size)     (tot size)      \n";
     
     // stream format
@@ -87,6 +91,10 @@ StatusCode RD53BEncodingTool::addStream(Identifier id, int chips) {
 void RD53BEncodingTool::resetStreamsIfNeeded(int event) {
   if (m_eventsPerStream==1 or (m_eventsPerStream>1 and (event)%m_eventsPerStream==0)) {
     m_stream_map.reset();
+    if (m_testStream) {
+      m_testStreams.clear();
+      m_testCores.clear();
+    }
   }
 }
 
@@ -113,10 +121,12 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
   //TODO: TEMPORARELY
   // TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
   // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+  // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
   if (barrel_endcap==2) {
     if (layer_disk>29) {
       layer_disk = layer_disk-28;          
     }  else if (layer_disk>16) {
+      eta_module=layer_disk;
       layer_disk=1;
     } else {
       std::swap(layer_disk, eta_module);
@@ -151,7 +161,8 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
     std::cout << "------------------------------------------" << std::endl;
   }
   
-  if (doPrint) {
+  bool dumpStream = (m_testStream and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
+  if (dumpStream) {
     testStream(chip_map, m_testStreams, m_testCores, event);    
   }
 }
@@ -171,17 +182,17 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
   // they are defined in the RD53B manual 
   // as well as the algorithm
   // https://cds.cern.ch/record/2665301
-  std::string NS_new                = "1" ;
-  std::string NS_old                = "0" ;
-  float NS   = 1.;
-  float TagX = 8.;
-  float TagY = 11.;  
-  float ccol_bits         = 6. ;
-  float crow_bits         = 8. ;
-  float islast_isneighbour = 2. ;
+  const std::string NS_new       = "1" ;
+  const std::string NS_old       = "0" ;
+  const int NS                 =  1 ;
+  const int TagX               =  8 ;
+  const int TagY               =  11;  
+  const int ccol_bits          =  6 ;
+  const int crow_bits          =  8 ;
+  const int islast_isneighbour =  2 ;
   
   // the tag is a simple counter from 0 to 207 incrementing every event and wrapping around
-  int chiptag = m_testevent-207.*floor(m_testevent/207.);
+  const int chiptag = m_testevent-207*floor(m_testevent/207.);
   m_testevent++;
   
   std::bitset<8> TagX_bitset;
@@ -209,7 +220,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
     }
     
     float current_stream = streams.back();
-    float orphan_bits = 64.*ceil(current_stream/64.) - current_stream;
+    const int orphan_bits = 64*ceil(current_stream/64.) - current_stream;
     
     if (m_eventsPerStream==1 or (m_eventsPerStream>1 and event%m_eventsPerStream==0)) {
       streams.back()+=orphan_bits;
@@ -249,11 +260,13 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
   // if the chip map is not empty you need to loop on all the fired cores and store the information
   // about the ccol, qrow, bittree, tot 
   // This requires some gymnastic in order to correctly control the orphan bits and the NS bits
+  const int all_cores = chipmap.getFiredCores();
+  int processed_core = 0;
   for (int ccol = 0; ccol < chipmap.getCcols(); ccol++) {
     bool isfirst_ccol = true;
     int previous_row = -10; // use a default negative value
     int processed_row = 0;
-    for (int crow = 0; crow < chipmap.getCrows(); crow++) {    
+    for (int crow = 0; crow < chipmap.getCrows(); crow++) {  
       
       // -- STEP 1) Construct the data (bitmap+tot)
       // 1) get the bit map length
@@ -264,23 +277,22 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       std::string bitmap_bits = chipmap.getBitTreeString(ccol, crow, m_compression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap_bits=="") continue;
-     
+      
+      // increase the number of processed cores and rows
+      processed_core++;
       processed_row++;
       
-      std::vector<int> tots;
-      
       // 2) get the tot for the selected core
+      std::vector<int> tots;
       std::string tot_bits = chipmap.getToTBitsString(ccol, crow, tots);
       if (m_suppressToT)
         tot_bits = "";
       
-      // the stream is bitmap + tot
-      float stream = bitmap_bits.length() + tot_bits.length();
-      
-      int min_eta = ccol*chipmap.getCcolsCore(); 
-      int max_eta = (ccol+1)*chipmap.getCcolsCore()-1;
-      int min_phi = crow*chipmap.getCrowsCore(); 
-      int max_phi = (crow+1)*chipmap.getCrowsCore()-1;
+      // get the values to print in the chip and stream files
+      const int min_eta = ccol*chipmap.getCcolsCore(); 
+      const int max_eta = (ccol+1)*chipmap.getCcolsCore()-1;
+      const int min_phi = crow*chipmap.getCrowsCore(); 
+      const int max_phi = (crow+1)*chipmap.getCrowsCore()-1;
       
       int el = 0;
       bool is_first = true;
@@ -309,6 +321,9 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       // 3) add the crow if the current crow is not neighbour of previous crow
       // 4) update the stream
       
+      // let's start with a stream that contains the data: bitmap + tot
+      float stream = bitmap_bits.length() + tot_bits.length();
+            
       // 1) add 2 bits for islast and isneighbour bits
       float address = 0;
       std::string string_to_add = "";     
@@ -364,7 +379,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       
       // read the description above
       float current_stream = streams.back();
-      float orphan_bits = 64.*ceil(current_stream/64.) - current_stream;
+      const int orphan_bits = 64*ceil(current_stream/64.) - current_stream;
   
       // -- STEP 3) Build a new stream if required:
       // 1) add all the orphans to the stream
@@ -372,7 +387,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       // 3) build the stream to add NS+TagX+ccol+islast+isneighbour+crow[opt.]+bitmap+tot
       // 4) add the needed bits to the new stream taking care of how many NS you need
 
-      if (m_testevent>1 and new_event and (m_eventsPerStream==1 or (m_eventsPerStream>1 and event%m_eventsPerStream==0))) {
+      if (event>0 and new_event and (m_eventsPerStream==1 or (m_eventsPerStream>1 and event%m_eventsPerStream==0))) {
 
         // 1) add all the orphans to the stream
         streams.back()+=orphan_bits;
@@ -380,14 +395,14 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
         // 2) reset the number of cores per stream
         cores.push_back(1.);
         // 3) build the stream to add NS+TagX+ccol+islast+isneighbour+crow[opt.]+bitmap+tot        
-        float toadd = NS+TagX+stream;        
+        const float toadd = NS+TagX+stream;        
         // 4) add the needed bits to the new stream taking care of how many NS you need
         streams.back()+=toadd;
         
         // adding NS bits if new 64bit containers need to be added
-        int n_NS = ceil(toadd/64.)-1;
+        const int n_NS = ceil(toadd/64.)-1;
         if (n_NS>0) {
-          streams.back()+=(float)n_NS;
+          streams.back()+=n_NS;
         }
         
         if (orphan_bits>0) {
@@ -399,7 +414,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
         
         int current_length = 0;
         for (auto& bit : string_to_add) {
-          if ((current_length+1)%64==0) {
+          if (current_length>0 and current_length%64==0) {
             m_testStreamFile << "\n";
             m_testStreamFile << (NS_old+bit);
             current_length+=2;            
@@ -408,6 +423,9 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
             current_length+=1;
           }
         }
+        
+        if (processed_core==all_cores and current_length%64==0)
+          m_testStreamFile << "\n";     
         
       } else {   
         // -- STEP 4) No need for a new stream: add the constructed stream to the current one
@@ -431,20 +449,24 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
         // if you need more than the available orphans you add a new 64bit container, hence NS
         // the additional containers can be more than 1
         if ((toadd-orphan_bits)>0) {
-          float n_NS = (float)(ceil((toadd-orphan_bits)/64.));
+          const int n_NS = ceil((toadd-orphan_bits)/64.);
           streams.back()+=n_NS;
         }
         // 5) increase the number of cores processed in this stream
         cores.back()+=1.;
         int current_length = int(current_stream);
         for (auto& bit : string_to_add) {
-          if (current_length%64==0) {
+          if (current_length>0 and current_length%64==0) {
             m_testStreamFile << "\n";
             m_testStreamFile << (NS_old+bit);      
-          } else
+            current_length+=2;            
+          } else {
             m_testStreamFile << bit;
-          current_length++;
+            current_length+=1;
+          }
         }
+        if (processed_core==all_cores and current_length%64==0)
+          m_testStreamFile << "\n";
       }
       new_event = false;
     }
@@ -475,12 +497,12 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
   // they are defined in the RD53B manual 
   // as well as the algorithm
   // https://cds.cern.ch/record/2665301
-  float NS                = 1. ;
-  float TagX              = 8. ;
-  float TagY              = 11.;
-  float ccol_bits         = 6. ;
-  float crow_bits         = 8. ;
-  float islast_isneighbour = 2. ;
+  const int NS                 = 1 ;
+  const int TagX               = 8 ;
+  const int TagY               = 11;
+  const int ccol_bits          = 6 ;
+  const int crow_bits          = 8 ;
+  const int islast_isneighbour = 2 ;
   
   // this call happens for each event 
   // --> trigger this to add the required TagY
@@ -520,7 +542,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
     // If so, you need to control the number of orphan bits and the NS bit.
     float current_stream = streams.back();
     // number of orphans at the end of the 64bits container
-    float orphan_bits = 64.*ceil(current_stream/64.) - current_stream;
+    const int orphan_bits = 64*ceil(current_stream/64.) - current_stream;
     
     // if you have to create of a new stream you need to add a new stream:
     // 1) add all the orphans to the stream
@@ -587,12 +609,12 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
       // 2) get the tot for the selected core
       
       // 1) get the bit map length
-      float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
+      const float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap==0.) continue;
 
       // 2) get the tot for the selected core
-      float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
+      const float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
       // the stream is bitmap + tot
       float stream = bitmap + tot;
             
@@ -630,8 +652,8 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
       stream += address;
       
       // read the description above
-      float current_stream = streams.back();
-      float orphan_bits = 64.*ceil(current_stream/64.) - current_stream;
+      const float current_stream = streams.back();
+      const int orphan_bits = 64*ceil(current_stream/64.) - current_stream;
   
       // -- STEP 3) Build a new stream if required:
       // 1) add all the orphans to the stream
@@ -649,7 +671,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
         // 2) reset the number of cores per stream
         cores.push_back(1.);
         // 3) build the stream to add NS+TagX+ccol+islast+isneighbour+crow[opt.]+bitmap+tot        
-        float toadd = NS+TagX+stream;        
+        const float toadd = NS+TagX+stream;        
         // 4) add the needed bits to the new stream taking care of how many NS you need
         streams.back()+=toadd;
         // split stream by type
@@ -659,10 +681,10 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
         totbits.push_back(tot);
         
         // adding NS bits if new 64bit containers need to be added
-        int n_NS = ceil(toadd/64.)-1;
+        const int n_NS = ceil(toadd/64.)-1;
         if (n_NS>0) {
-          streams.back()+=(float)n_NS;
-          tags.back()+=(float)n_NS;
+          streams.back()+=n_NS;
+          tags.back()+=n_NS;
         }
         
         if (test) {
@@ -701,8 +723,9 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
           std::cout << "      hitmap  = " << bitmap << std::endl;
           std::cout << "      tot     = " << tot << std::endl;
           std::cout << "              = " << toadd << std::endl;
-          std::cout << "adding NSs    = " << (ceil((toadd-orphan_bits)/64.)) << std::endl;
-          std::cout << "adding total  ===> " << toadd+(ceil((toadd-orphan_bits)/64.)) << std::endl;
+          std::cout << "      orphans = " << orphan_bits << std::endl;
+          std::cout << "adding NSs    = " << ceil((toadd-orphan_bits)/64.) << std::endl;
+          std::cout << "adding total  ===> " << toadd+ceil((toadd-orphan_bits)/64.) << std::endl;
         }
         // 3) add the stream to the existing stream
         streams.back()+=toadd;
@@ -713,7 +736,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
         // if you need more than the available orphans you add a new 64bit container, hence NS
         // the additional containers can be more than 1
         if ((toadd-orphan_bits)>0) {
-          float n_NS = (float)(ceil((toadd-orphan_bits)/64.));
+          const int n_NS = ceil((toadd-orphan_bits)/64.);
           streams.back()+=n_NS;
           tags.back()+=n_NS;
         }
@@ -732,13 +755,13 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
 }
 
 void RD53BEncodingTool::fillHistograms(ChipMap chipmap, int streams_per_event, float z, bool isBarrel, int layer) {
-  int nhits    = chipmap.getFiredPixels();
-  int channels = chipmap.getTotalChannels();
-  int ncores   = chipmap.getFiredCores();
-  std::vector<int> hits_per_core  = chipmap.getHitsPerCore();
-  std::vector<int> crows_per_ccol = chipmap.getCrowsPerCcol();
+  const int nhits    = chipmap.getFiredPixels();
+  const int channels = chipmap.getTotalChannels();
+  const int ncores   = chipmap.getFiredCores();
+  const std::vector<int> hits_per_core  = chipmap.getHitsPerCore();
+  const std::vector<int> crows_per_ccol = chipmap.getCrowsPerCcol();
   
-  Region region = isBarrel ? BARREL : ENDCAP;
+  const Region region = isBarrel ? BARREL : ENDCAP;
   
   // fill histograms and profiles
   // getting information on the number of hits (it might be 0)
@@ -765,11 +788,11 @@ void RD53BEncodingTool::fillHistograms(ChipMap chipmap, int streams_per_event, f
       int neig_crows = 0;
       int previous_row = -10; // use a default negative value
       for (int crow = 0; crow < chipmap.getCrows(); crow++) {
-        int core = chipmap.getCore(ccol,crow);      
-        float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
+        const int core = chipmap.getCore(ccol,crow);      
+        const float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
         if (bitmap==0.) continue;
-        float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
-        float data = bitmap+tot;
+        const float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
+        const float data = bitmap+tot;
         m_h2_bittree_per_core[layer][region]->Fill(z,bitmap);
         m_h2_tot_per_core[layer][region]->Fill(z,tot);
         m_h2_data_per_core[layer][region]->Fill(z,data);
@@ -797,16 +820,18 @@ void RD53BEncodingTool::fillDataRates() {
     int barrel_endcap = m_pixIdHelper->barrel_ec(id);
     int eta_module = m_pixIdHelper->eta_module(id);
     int layer_disk = m_pixIdHelper->layer_disk(id);
-    bool isBarrel = m_pixIdHelper->is_barrel(id);
-    Region region = isBarrel ? BARREL : ENDCAP;
+    const bool isBarrel = m_pixIdHelper->is_barrel(id);
+    const Region region = isBarrel ? BARREL : ENDCAP;
     
     //TODO: TEMPORARELY
     // TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
     // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+    // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
     if (barrel_endcap==2) {
       if (layer_disk>29) {
         layer_disk = layer_disk-28;          
       }  else if (layer_disk>16) {
+        eta_module=layer_disk;
         layer_disk=1;
       } else {
         std::swap(layer_disk, eta_module);
@@ -823,9 +848,9 @@ void RD53BEncodingTool::fillDataRates() {
       auto& tots      = single_streams.getTot();
       auto& bittrees  = single_streams.getData();
       
-      int phi_module = m_pixIdHelper->phi_module(id);
-      int chip = single_streams.chip();
-      bool doPrint = (m_debug and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
+      const int phi_module = m_pixIdHelper->phi_module(id);
+      const int chip = single_streams.chip();
+      const bool doPrint = (m_debug and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
       if (doPrint) {
         std::cout << "------------------------------------------" << std::endl;
         std::cout << "phi/chip = " << phi_module << "/" << chip << std::endl;
@@ -837,7 +862,7 @@ void RD53BEncodingTool::fillDataRates() {
         float current_orphans = orphans.at(stream);
         float length    = streams.at(stream);
         if (int(streams.at(stream))%64>0) {
-          int orphan_bits = 64-int(streams.at(stream))%64;
+          const int orphan_bits = 64-int(streams.at(stream))%64;
           length          += float(orphan_bits);
           current_orphans += float(orphan_bits);
         }
@@ -855,8 +880,8 @@ void RD53BEncodingTool::fillDataRates() {
         }
         
         m_p_streamlength_per_stream[layer_disk][region]->Fill(z,length);
-        m_p_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_safetyFactor);
-        m_p_datarate[layer_disk][region]->Fill(z,length*m_safetyFactor/float(m_eventsPerStream));
+        m_p_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_auroraFactor);
+        m_p_datarate[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream));
         m_p_cores_per_stream[layer_disk][region]->Fill(z,cores.at(stream));
         m_p_perc_orphans_per_stream[layer_disk][region]->Fill(z,current_orphans/length*100.);
         m_p_perc_tot_per_stream[layer_disk][region]->Fill(z,tots.at(stream)/length*100.);
@@ -869,8 +894,8 @@ void RD53BEncodingTool::fillDataRates() {
         m_p_tags_per_stream[layer_disk][region]->Fill(z,tags.at(stream));
         m_p_addressing_per_stream[layer_disk][region]->Fill(z,addresses.at(stream));            
         m_h2_streamlength_per_stream[layer_disk][region]->Fill(z,length);
-        m_h2_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_safetyFactor);
-        m_h2_datarate[layer_disk][region]->Fill(z,length*m_safetyFactor/float(m_eventsPerStream));
+        m_h2_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_auroraFactor);
+        m_h2_datarate[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream));
         if (m_doExpertPlots) {
           m_h2_cores_per_stream[layer_disk][region]->Fill(z,cores.at(stream));
           m_h2_orphans_per_stream[layer_disk][region]->Fill(z,current_orphans);
@@ -882,6 +907,17 @@ void RD53BEncodingTool::fillDataRates() {
       }
     }
   }
+  
+  if (m_testStream) {
+    if (int(m_testStreams.back())%64>0) {
+      const int orphan_bits = 64-int(m_testStreams.back())%64;
+      for (int orp=0; orp<orphan_bits; orp++)
+        m_testStreamFile << "0";
+      m_testStreamFile << "\n";
+      m_testStreams.back() += float(orphan_bits);
+    }
+  }
+  
   ATH_MSG_DEBUG("In RD53BEncodingAlg::fillDataRates ... done!" );
 }
   
@@ -930,7 +966,7 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_p_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream[layer][region]->GetName(), m_p_streamlength_per_stream[layer][region]));
       
-      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( +"+std::to_string(m_safetyFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);
+      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( +"+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);
       m_p_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_p_streamlength_per_stream_incl_prot[layer][region])); 
       
@@ -986,7 +1022,7 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_h2_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream[layer][region]->GetName(), m_h2_streamlength_per_stream[layer][region])); 
       
-      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( + "+std::to_string(m_safetyFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] ("+std::to_string(m_safetyFactor)+"%)").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
+      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( + "+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] ("+std::to_string(m_auroraFactor)+"%)").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
       m_h2_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_h2_streamlength_per_stream_incl_prot[layer][region])); 
       

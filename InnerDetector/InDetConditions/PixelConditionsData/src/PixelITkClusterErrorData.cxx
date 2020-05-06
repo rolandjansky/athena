@@ -40,18 +40,33 @@ void PixelITkClusterErrorData::initialize(){
 
 
 
-std::pair<double,double> PixelITkClusterErrorData::getDelta(const Identifier* pixelId) const{
+std::pair<double,double> PixelITkClusterErrorData::getDelta(const Identifier* pixelId,
+                                                            int sizePhi, double angle,
+                                                            int sizeZ, double eta) const{
 
-  std::tuple<double,double,double,double> value = m_constmap.at(*pixelId);
-  return std::make_pair(std::get<0>(value),std::get<2>(value));
+  std::vector<double> value = m_constmap.at(*pixelId);
+  double period = value[0];
+  double delta_x_slope = value[1];
+  double delta_x_offset = value[2];
+  double delta_y_slope = value[4];
+  double delta_y_offset = value[5];
+
+  double delta_x = delta_x_slope * fabs(angle - period*(sizePhi-2)) + delta_x_offset;
+  double delta_y = delta_y_slope * fabs(sinh(fabs(eta)) - period*(sizeZ-2)) + delta_y_offset;
+
+  return std::make_pair(delta_x,delta_y);
 
 }
 
 
 std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifier* pixelId) const{
 
-  std::tuple<double,double,double,double> value = m_constmap.at(*pixelId);
-  return std::make_pair(std::get<1>(value),std::get<3>(value));
+  std::vector<double> value = m_constmap.at(*pixelId);
+
+  double delta_x_error = value[3];
+  double delta_y_error = value[6];
+
+  return std::make_pair(delta_x_error,delta_y_error);
 
 }
 
@@ -59,9 +74,15 @@ std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifie
 
 // SET METHODS
 
-void PixelITkClusterErrorData::setDeltaError(const Identifier* pixelId, double delta_x, double error_x, double delta_y, double error_y){
+void PixelITkClusterErrorData::setDeltaError(const Identifier* pixelId,
+					     double period,
+					     double delta_x_slope, double delta_x_offset, double error_x,
+					     double delta_y_slope, double delta_y_offset, double error_y){
 
-  std::tuple<double,double,double,double> linevalues = std::make_tuple(delta_x,error_x,delta_y,error_y);
+  std::vector<double> linevalues = {period,
+				    delta_x_slope, delta_x_offset, error_x,
+				    delta_y_slope, delta_y_offset, error_y};
+
   m_constmap[*pixelId] = linevalues;
   return;
 
@@ -77,8 +98,8 @@ void PixelITkClusterErrorData::print(std::string file) const {
 
   for(auto& x : m_constmap){
 
-    std::tuple<double,double,double,double> value = x.second;
-    *outfile << m_pixelID->wafer_hash(x.first) << " " << std::get<0>(value) << " " << std::get<1>(value) << " " << std::get<2>(value) << " " << std::get<3>(value) << std::endl;
+    std::vector<double> value = x.second;
+    *outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << std::endl;
 
   }
 
@@ -97,22 +118,28 @@ void PixelITkClusterErrorData::load(std::string file){
        
     //
     // Data in the file is stored in the following columns:
-    // waferID_hash : delta_x : delta_error_x : delta_y : delta_error_y
+    // waferID_hash : period : delta_x_slope : delta_x_offset : delta_error_x : delta_y_slope : delta_y_offset : delta_error_y
     //
 
     int waferID_hash_int;
-    double delta_x;
+    double period;
+    double delta_x_slope;
+    double delta_x_offset;
     double delta_error_x;
-    double delta_y;
+    double delta_y_slope;
+    double delta_y_offset;
     double delta_error_y;    
 
     while(!infile.eof()){
 
-      infile >> waferID_hash_int >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
+      infile >> waferID_hash_int >> period >> delta_x_slope >> delta_x_offset >> delta_error_x >> delta_y_slope >> delta_y_offset >> delta_error_y;
         
       IdentifierHash waferID_hash(waferID_hash_int);
       Identifier pixelId = m_pixelID->wafer_id(waferID_hash);
-      setDeltaError(&pixelId,delta_x,delta_error_x,delta_y,delta_error_y);
+      setDeltaError(&pixelId,
+		    period,
+		    delta_x_slope, delta_x_offset, delta_error_x,
+		    delta_y_slope, delta_y_offset, delta_error_y);
 
     }
     

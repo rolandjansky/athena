@@ -11,7 +11,7 @@
 #include "TrigT1CaloFexSim/JGTower.h"
 
 //MET algorithms
-#include "TrigT1CaloFexSim/Rho.h"
+
 #include "TrigT1CaloFexSim/Softkiller.h"
 #include "TrigT1CaloFexSim/JwoJ.h"
 #include "TrigT1CaloFexSim/Pufit.h"
@@ -158,7 +158,7 @@ StatusCode METAlg::build_jFEX_bins( std::vector < std::vector < int > > &bins, s
 }
 
 //------------------------------------------------------------------------------------------------
-StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
+StatusCode METAlg::NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString metName, std::vector<float> noise, bool useNegTowers){
   
   float met_x=0;
   float met_y=0;
@@ -273,24 +273,19 @@ StatusCode METAlg::jXERHO(const xAOD::JGTowerContainer* towers, TString metName,
     return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useEtaBins, bool useRMS, bool useMedian, bool useNegTowers){
-  
+StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useEtaBins, bool useRMS, bool useNegTowers){
+  /*
+    This function is currently depreciated, as we currently compute a set of towers after pileup
+    subtraction that are passed to the NoiseCut_MET function with a set of noise cuts identical to 0 
+    However, because it may be useful in the future for a slightly different algorithm, we leave the function here for now.
+    B. Carlson March 27, 2020 
+   */
   float EtMiss = 0;
   float n = 3.;
   float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
   float threshold  = 0;
   
-  int fpga = 0;
-  //can calculate rho as either the average or median gTower energy in the barrel
-  if(metName.Contains("RhoSubA")) fpga = 1;
-  if(metName.Contains("RhoSubB")) fpga = 2;
-  if(metName.Contains("RhoSubC")) fpga = 3;
-  
-  //std::cout<<metName<<": "<<fpga<<std::endl;
-
-  float rho = Rho_bar(towers, useEtaBins, fpga, 0);
-  
-  if(useMedian) rho = Rho_med(towers, useNegTowers);
+  float rho = Rho_avg_barrel(towers,useNegTowers); 
 
   unsigned int size = towers->size();
 
@@ -304,11 +299,11 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
       float Et = tower->et();
 
       if(!useNegTowers && Et < 0) continue;
+      //if(Et > et_max)continue; 
       h_Et->Fill(Et);
     }
     
     threshold = n*(h_Et->GetRMS());
-    //std::cout<<"3 sigma = "<<threshold<<std::endl;
   }
 
   for(unsigned int t = 0; t < size; t++){
@@ -318,26 +313,9 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
     float phi = tower->phi();
     float eta = tower->eta();
 
-    //std::cout<<"Looking at tower ("<<eta<<", "<<phi<<")"<<std::endl;
     if(!useNegTowers && Et < 0) continue;
     
-    //float deta = tower->deta();
-    //float dphi = tower->dphi();
-
-    float area = 0.;//deta*dphi/default_area;
-    if(eta >= -2.5 && eta < 0 && fpga == 1){
-      if(eta > -2.4) area = 1.;
-      else area = 0.5;
-    }
-    if(eta > 0 && eta <= 2.5 && fpga == 2){
-      if(eta < 2.4) area = 1.;
-      else area = 0.5;
-    }
-    if(fabs(eta) > 2.5 && fpga == 3){
-      if(fabs(eta) < 3.2) area = 1.;
-      else area = 4.;
-    }
-    //std::cout<<"area = "<<area<<std::endl;
+    float area = GTowerArea(eta); 
     float Et_sub = 0;
 
     if(useEtaBins) Et_sub = TMath::Abs(Et) - area*rho;
@@ -383,7 +361,12 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
 
 //------------------------------------------------------------------------------------------------
 StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString metName, bool useNegTowers){
-
+  /*
+    This function is currently depreciated, but could be updated fairly easily. March 2020 
+    This function is designed to compute MET after applying SK 
+    First the standard rho correction is applied
+    Then towers that have ET > median are included in the MET calculation 
+   */
 
   float median = 0;
   unsigned int size = towers->size();
@@ -395,8 +378,7 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
   
   //find the true median of the tower energies
   median = Et_median_true(&EtMaxPerPatch);
-  
-  float rho = Rho_bar(towers, false,0,0);
+  float rho = Rho_avg_barrel(towers, useNegTowers);
   float Ex = 0, Ey = 0, Ex_ = 0, Ey_ = 0;
   
   for(unsigned int t = 0; t < size; t++){
@@ -436,15 +418,14 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
   return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metName, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers){
-  
+StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metName, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers){
 
-  //unsigned int size = towers->size();
+  /*
+    Function retrieve components of jets without jets
+    Then evaluate the calibrated version using the coefficients below 
+   */
 
-  float rho = 0;
-  if(useRho) rho = Rho_bar(towers, useEtaBins, 0, false);  
-  else rho = 0;
-  std::vector<float> Et_values = Run_JwoJ(towers, gBlocks, rho, pTcone_cut, useEtaBins, useNegTowers);
+  std::vector<float> Et_values = Run_JwoJ(towers, gBlocks, pTcone_cut, useRho, RhoA, RhoB, RhoC, useNegTowers);
 
   //set fit parameters for calculating MET
   //Look up table for parameters a,b,c depending on scalar sumEt
@@ -578,7 +559,7 @@ StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, TString metNam
   return StatusCode::SUCCESS;
 }
 
-float METAlg::Rho_avg(const xAOD::JGTowerContainer* towers, const bool useNegTowers){
+float METAlg::Rho_avg_barrel(const xAOD::JGTowerContainer* towers, const bool useNegTowers){
   float rho = 0;
   float et_max = 10*Gaudi::Units::GeV;
 
@@ -593,6 +574,7 @@ float METAlg::Rho_avg(const xAOD::JGTowerContainer* towers, const bool useNegTow
     if(!useNegTowers && Et < 0) continue;
 
     if(TMath::Abs(eta) < 2.4){
+      //estimating rho using the barrel, excluding the one tower that is 0.1x0.2 
       if(Et < et_max){
 	rho+=Et;
 	length++;
@@ -603,44 +585,38 @@ float METAlg::Rho_avg(const xAOD::JGTowerContainer* towers, const bool useNegTow
   return rho_bar;
 }
 
-float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, int fpga, bool useNegTowers){
+float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers){
+  /*
+    This function accounts for the different area of trigger towers, and 
+    returns the average energy per tower, in units of the area for 0.2x0.2 towers. 
+    To use this energy for towers that are larger or smaller, multiply by the ratio
+    of towers sizes, e.g., 2, 4, etc. 
+  */
+
   float rho = 0;
   float et_max = 10*Gaudi::Units::GeV;
 
   const unsigned int size = towers->size();
-  float area_a = 0;
-  float area_b = 0;
-  float area_c = 0;
+  float A_covered = 0; //Number of towers that pass selections E < max and >0 (if we allow negative towers) 
 
   for(unsigned int i = 0; i < size; i++){
     const xAOD::JGTower* tower = towers->at(i);
     
     float eta = tower->eta();
     float Et = tower->et();
+    float Area = GTowerArea(eta); 
 
     if(!useNegTowers && Et < 0) continue;
+    if(Et > et_max)continue;
 
-    if(eta < 0 && eta >=-2.5){
-      if(eta > -2.4) area_a += 1.;
-      else area_a += 0.5;
-    }
-    if(eta <= 2.5 && eta > 0){
-      if(eta < 2.4) area_b += 1.;
-      else area_b += 0.5;
-    }
-    if(fabs(eta) > 2.5){
-      if(fabs(eta) < 3.2) area_c += 1.;
-      else area_c += 4.;
-    }
-    
-    if(Et < et_max) rho+=Et; //sum ET together to compute total 
+    A_covered += Area; 
+    rho+=Et; //Total ET 
     
   }
-  //after computing total, divide by total area 
-  if(fpga == 1) rho=rho/area_a;
-  if(fpga == 2) rho=rho/area_b;
-  if(fpga == 3) rho=rho/area_c;
 
+  //Note that this function is designed to compute the area 
+  //for a collection of towers of a defined eta range. 
+  rho = rho/A_covered; 
   return rho;
 }
 

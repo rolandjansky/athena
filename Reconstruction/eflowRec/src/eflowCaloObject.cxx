@@ -113,28 +113,31 @@ void eflowCaloObject::simulateShower(eflowLayerIntegrator *integrator, eflowEEta
 	}
       }
     }//if vector of 0.15 clusters exists
-    
-    double pull_015 = (totalE_015-expectedEnergy)/expectedEnergySigma;
+
+    double pull_015 = NAN;
+    if (expectedEnergySigma > 1e-6 ) pull_015 = (totalE_015-expectedEnergy)/expectedEnergySigma;
     thisEfRecTrack->setpull15(pull_015);
 
     double trackPt = thisEfRecTrack->getTrack()->pt();
-    //We use a 2D cut in the pull_015 and log10 of track pt plane to define a dense environment - if too dense then we disable the charged shower subtraction
-    if (pull_015 > 0.0 + (log10(40000)-log10(trackPt))*33.2 && 0.0 != expectedEnergySigma && bestClusters_015 && bestClusters_02 && useUpdated2015ChargedShowerSubtraction){
-      thisEfRecTrack->setSubtracted(); //this tricks eflowRec into thinking this track was subtracted, and hence no further subtraction will be done
-      thisEfRecTrack->setIsInDenseEnvironment();
-      //recalculate the LHED and the ordering  and find the new  expected E + sigma of expected E (the new LHED can change the latter two values we find in the look up tables)
-      //we use a larger cone of 0.2 for this
-      std::vector<eflowRecCluster*> theBestEfRecClusters_02;
-      for (eflowTrackClusterLink* thisLink : *bestClusters_02) if (thisLink->getCluster()->getCluster()->e() > 0.0) theBestEfRecClusters_02.push_back(thisLink->getCluster());
-      integrator->measureNewClus(theBestEfRecClusters_02, thisEfRecTrack);
-      j1st = integrator->getFirstIntLayer();
-      cellSubtractionManager.getOrdering(binnedParameters, trackE, trackEM1eta, j1st);
-      thisEfRecTrack->setEExpect(cellSubtractionManager.fudgeMean() * trackE, fabs(cellSubtractionManager.fudgeStdDev()*trackE)*fabs(cellSubtractionManager.fudgeStdDev()*trackE));
+    //If the looked up expected energy deposit was 0.0, then pull_015 is NAN. In that case we should not try to apply the 2D cut described below.
+    if (!std::isnan(pull_015)){
+      //We use a 2D cut in the pull_015 and log10 of track pt plane to define a dense environment - if too dense then we disable the charged shower subtraction
+      if (pull_015 > 0.0 + (log10(40000)-log10(trackPt))*33.2 && 0.0 != expectedEnergySigma && bestClusters_015 && bestClusters_02 && useUpdated2015ChargedShowerSubtraction){
+        thisEfRecTrack->setSubtracted(); //this tricks eflowRec into thinking this track was subtracted, and hence no further subtraction will be done
+        thisEfRecTrack->setIsInDenseEnvironment();
+        //recalculate the LHED and the ordering  and find the new  expected E + sigma of expected E (the new LHED can change the latter two values we find in the look up tables)
+        //we use a larger cone of 0.2 for this
+        std::vector<eflowRecCluster*> theBestEfRecClusters_02;
+        for (eflowTrackClusterLink* thisLink : *bestClusters_02) if (thisLink->getCluster()->getCluster()->e() > 0.0) theBestEfRecClusters_02.push_back(thisLink->getCluster());
+        integrator->measureNewClus(theBestEfRecClusters_02, thisEfRecTrack);
+        j1st = integrator->getFirstIntLayer();
+        cellSubtractionManager.getOrdering(binnedParameters, trackE, trackEM1eta, j1st);
+        thisEfRecTrack->setEExpect(cellSubtractionManager.fudgeMean() * trackE, fabs(cellSubtractionManager.fudgeStdDev()*trackE)*fabs(cellSubtractionManager.fudgeStdDev()*trackE));
+      }
+      else {
+        thisEfRecTrack->setEExpect(expectedEnergy, expectedEnergySigma*expectedEnergySigma);
+      }//ok to do subtraction, and so we just set the usual expected E + sigma of expected E needed for subtraction	
     }
-    else {
-      thisEfRecTrack->setEExpect(expectedEnergy, expectedEnergySigma*expectedEnergySigma);
-    }//ok to do subtraction, and so we just set the usual expected E + sigma of expected E needed for subtraction	
-    
   }
 }
 

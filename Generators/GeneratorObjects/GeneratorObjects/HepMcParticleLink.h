@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTS_HEPMCPARTICLELINK_H
@@ -39,7 +39,7 @@ enum EBC_EVCOLL{
 class HepMcParticleLink {
 public:
   typedef uint32_t barcode_type;
-  typedef uint16_t index_type;
+  typedef uint32_t index_type;
 
   /// \name structors
   //@{
@@ -115,7 +115,7 @@ public:
   /// \name indexing accessors (e.g. for writing)
   //@{
   int barcode() const { return int(m_extBarcode.barcode()); } //FIXME ret type
-  static uint16_t getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position, IProxyDict* sg);
+  static index_type getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position, IProxyDict* sg);
   static index_type getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position) ; //if the an old event index (position in the collection) is stored, returns the event number of the corresponding GenEvent in the specified collection
   index_type getEventNumberForEventPosition(index_type position) const; //if the an old event index (position in the collection) is stored, returns the event number of the corresponding GenEvent
   static index_type getEventPositionForEventNumber(EBC_EVCOLL evColl, index_type evNumber); //Returns the position/index in the specified collection of the event having the given event number
@@ -149,13 +149,13 @@ public:
     ExtendedBarCode(barcode_type barcode, index_type eventIndex, EBC_EVCOLL evtColl=EBC_MAINEVCOLL, bool isIndexEventPosition=false) :
       m_BC(barcode), m_evtIndex(eventIndex), m_isIndexEventPosition(isIndexEventPosition)
     {
-      assert(eventIndex < std::numeric_limits<unsigned short>::max());
+      assert(eventIndex < std::numeric_limits<unsigned int>::max());
       setEventCollection(evtColl);
     }
     ExtendedBarCode(barcode_type barcode, index_type eventIndex, char evtColl, bool isIndexEventPosition=false) :
       m_BC(barcode), m_evtIndex(eventIndex), m_isIndexEventPosition(isIndexEventPosition)
     {
-      assert(eventIndex < std::numeric_limits<unsigned short>::max());
+      assert(eventIndex < std::numeric_limits<unsigned int>::max());
       setEventCollection(getEventCollection(evtColl));
     }
     ExtendedBarCode(const ExtendedBarCode& rhs) { m_BC=rhs.m_BC; m_evtIndex=rhs.m_evtIndex; m_evtColl=rhs.m_evtColl; m_isIndexEventPosition=rhs.m_isIndexEventPosition; };
@@ -196,6 +196,7 @@ public:
   private:
     friend class HepMcParticleLinkCnv_p1;
     friend class HepMcParticleLinkCnv_p2;
+    friend class HepMcParticleLinkCnv_p3;
 
     barcode_type m_BC;
     index_type m_evtIndex;
@@ -211,6 +212,7 @@ public:
 private:
   friend class HepMcParticleLinkCnv_p1;
   friend class HepMcParticleLinkCnv_p2;
+  friend class HepMcParticleLinkCnv_p3;
 
   static const std::string s_MAINEVCOLKEYS[4];
   static const std::string s_FIRSTPUEVCOLKEYS[4];

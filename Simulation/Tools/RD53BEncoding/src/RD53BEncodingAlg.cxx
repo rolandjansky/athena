@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #include "RD53BEncoding/RD53BEncodingAlg.h"
 #include "./RD53BEncodingTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -106,16 +111,18 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     // int chips = design->numberOfCircuits();
     // BUT IT IS CURRENTLY RETURNING 1 FOR ALL MODULES
     // THEREFORE WE CHECK THE NUMBERS OF ROWS
-    
+        
     int chips = (design->rowsPerCircuit() == m_rows) ? 1 : 4;
     
     // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
     // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+    // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
     if (pixBrlEc==2) {
       if (pixLayerDisk>29) {
         pixLayerDisk = pixLayerDisk-28;          
       }
       else if (pixLayerDisk>16) {
+        pixEtaMod=pixLayerDisk;
         pixLayerDisk=1;
       } else {
         std::swap(pixLayerDisk, pixEtaMod);
@@ -125,8 +132,9 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     // use one module to save the z location:
     // using phi_module == 0 is an arbitrary choice
     if (pixPhiMod==0) {
-      (*element)->isBarrel() ? barrel_module_z.at(pixLayerDisk).push_back((*element)->center().z()) : endcap_module_z.at(pixLayerDisk).push_back((*element)->center().z());  
-      
+      float module_z = (*element)->center().z();
+      (*element)->isBarrel() ? barrel_module_z.at(pixLayerDisk).push_back(module_z) : endcap_module_z.at(pixLayerDisk).push_back(module_z);  
+      ATH_MSG_DEBUG("--> MODULES: " << pixBrlEc << "/" << pixLayerDisk << "/" << pixEtaMod << "/" << pixPhiMod << " --> " << module_z);
     }
     
     for (const ToolHandle<RD53BEncodingTool>& encodingTool : encondingTools) {
@@ -219,11 +227,13 @@ void RD53BEncodingAlg::fillChipMaps() {
       
       // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
       // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+      // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
       if (pixBrlEc==2) {
         if (pixLayerDisk>29) {
           pixLayerDisk = pixLayerDisk-28;          
         }
         else if (pixLayerDisk>16) {
+          pixEtaMod=pixLayerDisk;
           pixLayerDisk=1;
         } else {
           std::swap(pixLayerDisk, pixEtaMod);

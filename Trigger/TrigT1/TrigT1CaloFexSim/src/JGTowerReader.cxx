@@ -79,7 +79,8 @@ histSvc("THistSvc",name){
   declareProperty("jJetRound_LargeR_max_r", m_jJetRound_LargeR_max_r=0.4);
   declareProperty("jJetRound_LargeR_r", m_jJetRound_LargeR_r=0.8);
   declareProperty("jJetRound_LargeR_seed_min_ET_MeV", m_jJetRound_LargeR_seed_min_ET_MeV = 2000.0);
-  declareProperty("jJetRound_LargeR_jet_min_ET_MeV", m_jJetRound_jet_min_ET_MeV = 2000.0);
+  declareProperty("jJetRound_LargeR_jet_min_ET_MeV",  m_jJetRound_LargeR_jet_min_ET_MeV = 2000.0);
+
   
   declareProperty("makeJetsFromMap", m_makeJetsFromMap = false);
   declareProperty("towerMap", m_towerMap = "");
@@ -94,21 +95,19 @@ histSvc("THistSvc",name){
   declareProperty("saveSeeds", m_saveSeeds = false);
 
   declareProperty("buildgBlockJets", m_buildgBlockJets=true);
-  declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
-  declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
+
   declareProperty("gJet_r", m_gJet_r=1.0);
-  declareProperty("gJet_seed_tower_noise_multiplier", m_gJet_seed_tower_noise_multiplier = 1.0);
-  declareProperty("gJet_seed_total_noise_multiplier", m_gJet_seed_total_noise_multiplier = 1.0);
-  declareProperty("gJet_seed_min_ET_MeV", m_gJet_seed_min_ET_MeV = 2000.0);
-  declareProperty("gJet_jet_tower_noise_multiplier", m_gJet_jet_tower_noise_multiplier = 1.0);
-  declareProperty("gJet_jet_total_noise_multiplier", m_gJet_jet_total_noise_multiplier = 0.0);
+  declareProperty("gJet_block_tower_noise_multiplier", m_gJet_block_tower_noise_multiplier = 0.0);
+  declareProperty("gJet_block_min_ET_MeV", m_gJet_block_min_ET_MeV = 0.0);
+  declareProperty("gJet_tower_noise_multiplier", m_gJet_tower_noise_multiplier = 0.0);
   declareProperty("gJet_jet_min_ET_MeV", m_gJet_jet_min_ET_MeV = 2000.0);
 
-  declareProperty("developerMET",m_developerMET=false); 
   declareProperty("useRMS", m_useRMS=true);
   declareProperty("useMedian", m_useMedian=false);
-  declareProperty("useNegTowers", m_useNegTowers=false);
-  declareProperty("pTcone_cut", m_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
+  declareProperty("gFEX_useNegTowers", m_gFEX_useNegTowers=true);
+  declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true); 
+  declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
+  declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
   
   declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200302.r11364.root");  //correction file for jXERHO
   declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
@@ -388,7 +387,7 @@ StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>&
 
     std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
     float seed_Et = seed->et();
-    if(!useNegTowers) seed_Et = TMath::Abs(seed_Et);
+    if(!useNegTowers && seed->et() < 0)continue;
     double block_area(0.0);
     double sum_deta(0.0);
     double sum_dphi(0.0);
@@ -401,7 +400,7 @@ StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>&
       sum_deta += neighbor->deta();
       sum_dphi += neighbor->dphi();
       neighbor_pt = neighbor->et();
-      if(!useNegTowers) neighbor_pt = TMath::Abs(neighbor_pt);
+      if(!useNegTowers && neighbor->et() < 0)continue;
       block_pt += neighbor_pt;
     }
 
@@ -428,7 +427,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
   
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
-  CHECK(METAlg::Baseline_MET(jTs, "jNOISECUT", jT_noise, m_useNegTowers));
+  CHECK(METAlg::NoiseCut_MET(jTs, "jNOISECUT", jT_noise, /*m_useNegTowers*/ false));
   if (!buildbins) {
       CHECK(METAlg::build_jFEX_bins(jFEX_bins, jFEX_bins_core, jTs ));
       buildbins=true;
@@ -448,15 +447,12 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
               CHECK( JetAlg::SeedGrid(jTs_PUsub, "jRoundSeedsPUsub", m_dumpSeedsEtaPhi) );
 
           ATH_MSG_DEBUG("JFexAlg using JetsPUsub: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-          CHECK( JetAlg::SeedFinding( jTs_PUsub, "jRoundSeedsPUsub", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, 
-                      m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier,
-                      m_jJetRound_seed_min_ET_MeV) );
+          CHECK( JetAlg::SeedFinding( jTs_PUsub, "jRoundSeedsPUsub", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise,
+				      /*m_jJetRound_seed_tower_noise_multiplier*/ 0,  m_jJetRound_seed_min_ET_MeV, /*electron*/false) );
 
           ATH_MSG_DEBUG("JFexAlg usinf JetsPUsub: BuildRoundJet");
-          CHECK( JetAlg::BuildRoundJet(jTs_PUsub, "jRoundSeedsPUsub", "jRoundJetsPUsub", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
+          CHECK( JetAlg::BuildRoundJet(jTs_PUsub, "jRoundSeedsPUsub", "jRoundJetsPUsub", m_jJetRound_r, jT_noise, /*m_jJetRound_jet_tower_noise_multiplier*/ 0,  m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
       }
-      delete jTs_PUsub;
-      delete jTs_PUsubAux;
   }
 
   if(m_makeSquareJets) {
@@ -471,11 +467,11 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     ATH_MSG_DEBUG( "JFexAlg: SeedFinding with jSeeds; m_jJet_seed_size = " 
                    << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
     CHECK( JetAlg::SeedFinding( jTs, "jSeeds", m_jJet_seed_size, m_jJet_max_r, jT_noise,
-                                m_jJet_seed_tower_noise_multiplier, m_jJet_seed_total_noise_multiplier, 
-                                m_jJet_seed_min_ET_MeV) );
+                                m_jJet_seed_tower_noise_multiplier, 
+                                m_jJet_seed_min_ET_MeV,/*electron*/false) );
 
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jJets", m_jJet_r, jT_noise, m_jJet_jet_tower_noise_multiplier, m_jJet_jet_total_noise_multiplier, m_jJet_jet_min_ET_MeV, m_saveSeeds) );
+    CHECK( JetAlg::BuildJet(jTs, "jSeeds", "jJets", m_jJet_r, jT_noise, m_jJet_jet_tower_noise_multiplier,  m_jJet_jet_min_ET_MeV, m_saveSeeds) );
   }
   if(m_makeRoundJets) {
     if( JetAlg::m_SeedMap.find("jRoundSeeds") == JetAlg::m_SeedMap.end() )
@@ -483,22 +479,17 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJet_seed_size = " << m_jJet_seed_size << ", m_jJet_max_r = " << m_jJet_max_r);
     CHECK( JetAlg::SeedFinding( jTs, "jRoundSeeds", m_jJetRound_seed_size, m_jJetRound_max_r, jT_noise, 
-                                m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier,
-                                m_jJetRound_seed_min_ET_MeV) );
+                                m_jJetRound_seed_tower_noise_multiplier, 
+                                m_jJetRound_seed_min_ET_MeV,/*electron*/false) );
 
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJets", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
+    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundJets", m_jJetRound_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_min_ET_MeV, m_saveSeeds) );
   }
 
   if(m_makeRoundLargeRJets) {
-    if( JetAlg::m_SeedMap.find("jRoundLargeRSeeds") == JetAlg::m_SeedMap.end() )
-      CHECK( JetAlg::SeedGrid(jTs, "jRoundLargeRSeeds", m_dumpSeedsEtaPhi) );
-    
-    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetLargeRSeeds; m_jJet_LargeR_seed_size = " << m_jJetRound_LargeR_seed_size << ", m_jJetRound_LargeR_max_r = " << m_jJetRound_LargeR_max_r);
-    CHECK( JetAlg::SeedFinding(jTs, "jRoundLargeRSeeds", m_jJetRound_LargeR_seed_size, m_jJetRound_LargeR_max_r, jT_noise, m_jJetRound_seed_tower_noise_multiplier, m_jJetRound_seed_total_noise_multiplier, m_jJetRound_LargeR_seed_min_ET_MeV) );
-
     ATH_MSG_DEBUG("JFexAlg: BuildRoundLargeRJet");
-    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundLargeRSeeds", "jRoundLargeRJets", m_jJetRound_LargeR_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier, m_jJetRound_jet_total_noise_multiplier, m_jJetRound_LargeR_jet_min_ET_MeV, m_saveSeeds) );
+    CHECK( JetAlg::BuildRoundJet(jTs, "jRoundSeeds", "jRoundLargeRJets", m_jJetRound_LargeR_r, jT_noise, m_jJetRound_jet_tower_noise_multiplier,  m_jJetRound_LargeR_jet_min_ET_MeV,/*m_saveSeeds*/ false) );
+    CHECK( JetAlg::BuildRoundJet(jTs_PUsub, "jRoundSeedsPUsub", "jRoundLargeRJetsPUsub", m_jJetRound_LargeR_r, jT_noise, /*m_jJetRound_jet_tower_noise_multiplier*/ 0, m_jJetRound_LargeR_jet_min_ET_MeV, false) );
   }
   
   if(m_makeJetsFromMap) {
@@ -506,6 +497,9 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     CHECK( BuildJetsFromMap(jTs) );
   }
   
+  delete jTs_PUsub;
+  delete jTs_PUsubAux;
+
 
   return StatusCode::SUCCESS;
 }
@@ -542,14 +536,19 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
     if(fabs(eta) < 3.15 && gt_em->sampling() == 0){
       const xAOD::JGTower* gt_had = gTs->at(t+544);
+      if(std::abs(eta-gt_had->eta())>0.01)ATH_MSG_WARNING("Unmatched ETA: " << eta << " " << gt_had->eta());
+      if(std::abs(phi-gt_had->phi())>0.01)ATH_MSG_WARNING("Unmatched PHI: " << phi << " "<< gt_had->phi());
       totalEt = gt_em->et() + gt_had->et();
     }
     //if(t > 544) totalEt = 0;
     if(fabs(eta)>=3.15){
       //For the case where eta > 3.15, the sampling is always 2. Not sure that is quite what we want, but that is how the 
       //identifiers are configured for now... 
+      if(gTs->at(t)->et()>0 && gTs->at(t)->sampling()!=2)ATH_MSG_WARNING("ET: " << gTs->at(t)->et() << " sampling " << gTs->at(t)->sampling());
       totalEt=gTs->at(t)->et(); 
     }
+    if(fabs(eta)<3.15 && gt_em->sampling()!=0)continue;
+    //only build 1 layer for the calo towers to avoid double counting; 
     const float tEt = totalEt; 
 
     const std::vector<int> index(2, 0);
@@ -580,18 +579,20 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     const xAOD::JGTower* tower = gCaloTowers->at(t);
     float eta = tower->eta();
 
-    if(eta > -2.5 && eta < 0){
-      temp_a.push_back(tower);
+    std::string FPGA = GFEX_pFPGA(eta); 
+    if(FPGA=="A"){
       h_fpga_a->Fill(tower->et());
+      temp_a.push_back(tower);
     }
-    if(eta > 0 && eta < 2.5){
-      temp_b.push_back(tower);
+    if(FPGA=="B"){
       h_fpga_b->Fill(tower->et());
+      temp_b.push_back(tower);
     }
-    if(fabs(eta) >= 2.5){
-      temp_c.push_back(tower);
+    if(FPGA=="C"){
       h_fpga_c->Fill(tower->et());
+      temp_c.push_back(tower);
     }
+
   }
   const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
   const xAOD::JGTowerContainer* fpga_b = temp_b.asDataVector();
@@ -606,11 +607,17 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   xAOD::JGTowerContainer* pu_sub = new xAOD::JGTowerContainer();
   pu_sub->setStore(pu_subAux);
 
-  float rhoA = METAlg::Rho_avg_etaRings(fpga_a, 1, false);
-  float rhoB = METAlg::Rho_avg_etaRings(fpga_b, 2, false);
-  float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
+  float rhoA = METAlg::Rho_avg_etaRings(fpga_a, m_gFEX_Rho_useNegTowers);
+  float rhoB = METAlg::Rho_avg_etaRings(fpga_b, m_gFEX_Rho_useNegTowers);
+  float rhoC = METAlg::Rho_avg_etaRings(fpga_c, m_gFEX_Rho_useNegTowers);
   
-  float rho_barrel = METAlg::Rho_avg(gCaloTowers, false);
+  if(m_gFEX_OnlyPosRho){
+    if(rhoA<0) rhoA=0; 
+    if(rhoB<0) rhoB=0;
+    if(rhoC<0) rhoC=0; 
+  }
+
+  float rho_barrel = METAlg::Rho_avg_barrel(gCaloTowers, m_gFEX_Rho_useNegTowers);
 
   (*acc_rhoA)(*RhoCont) = rhoA; 
   (*acc_rhoB)(*RhoCont) = rhoB;
@@ -629,25 +636,17 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     const float dphi = tower->dphi();
     float Et_sub = tower->et();
 
-    if(eta < 0 && eta >= -2.5){
-      if(eta > -2.4) Et_sub -= rhoA;
-      else Et_sub -= 0.5*rhoA;
+    float Area = GTowerArea(eta); 
+    float rho = -999e6; float thresh = -999e6; 
+    std::string FPGA = GFEX_pFPGA(eta);
+    if(FPGA=="A"){rho = rhoA; thresh = thresh_a;}
+    else if(FPGA=="B"){rho = rhoB; thresh = thresh_b;}
+    else if(FPGA=="C"){rho = rhoC; thresh = thresh_c;}
+    else ATH_MSG_WARNING("No valid FPGA found"); 
 
-      if(Et_sub < thresh_a) Et_sub = 0;
-    }
-    if(eta > 0 && eta <= 2.5){
-      if(eta < 2.4) Et_sub -= rhoB;
-      else Et_sub -= 0.5*rhoB;
+    Et_sub -= Area*rho; 
+    if(Et_sub < thresh) Et_sub = 0; //Apply RMS requirement for MET 
 
-      if(Et_sub < thresh_b) Et_sub = 0;
-    }
-    if(fabs(eta) > 2.5){
-      if(fabs(eta) < 3.2) Et_sub -= rhoC;
-      else Et_sub -= 4*rhoC;
-
-      if(Et_sub < thresh_c) Et_sub = 0;
-    }
- 
     const std::vector<int> index(2,0);
     const int sampling = tower->sampling();
     xAOD::JGTower* new_tower = new xAOD::JGTower();
@@ -659,14 +658,14 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     new_tower->setSCIndex(index);
     new_tower->setTileIndex(index);
     new_tower->setSampling(sampling);
-  }
+  }//Loop over towers 
 
   //build gBlocks
   std::vector<TowerObject::Block> temp_gBlocks;
   std::vector<TowerObject::Block> temp_puSub_gBlocks;
 
-  CHECK(BuildBlocksFromTowers(temp_gBlocks, *gCaloTowers, 3, 3, m_useNegTowers));
-  CHECK(BuildBlocksFromTowers(temp_puSub_gBlocks, *pu_sub, 3, 3, m_useNegTowers));
+  CHECK(BuildBlocksFromTowers(temp_gBlocks, *gCaloTowers, 3, 3, m_gFEX_useNegTowers));
+  CHECK(BuildBlocksFromTowers(temp_puSub_gBlocks, *pu_sub, 3, 3, m_gFEX_useNegTowers));
 
   const std::vector<TowerObject::Block> gBlocks = temp_gBlocks;
   const std::vector<TowerObject::Block> puSub_gBlocks = temp_puSub_gBlocks;
@@ -699,46 +698,20 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   }  
 
   // jet algorithms
-  if(JetAlg::m_SeedMap.find("gSeeds") == JetAlg::m_SeedMap.end())
-     CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
-  CHECK(JetAlg::SeedFinding(gTs, "gSeeds", m_gJet_seed_size, m_gJet_max_r, gT_noise, m_gJet_seed_tower_noise_multiplier, m_gJet_seed_total_noise_multiplier, m_gJet_seed_min_ET_MeV));
-
-  // CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gJet_seed_size,m_gJet_max_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
-                                                                         // Careful to ensure the range set to be no tower double counted
-  //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   
-  CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV, rho_barrel));
-  if(m_buildgBlockJets) CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rho_barrel));
+  CHECK(evtStore()->record(RhoCont,"EventVariables"));
+  CHECK(evtStore()->record(RhoContAux,"EventVariablesAux."));
+
+  CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_tower_noise_multiplier,m_gJet_block_min_ET_MeV, m_gJet_jet_min_ET_MeV, rhoA, rhoB, rhoC, m_gFEX_useNegTowers));
+  if(m_buildgBlockJets) CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rhoA,rhoB, rhoC));
   //gFEX MET algorithms
   std::vector<float> noNoise; 
-  if(m_developerMET){
-    for(int i=0; i<=1; i++){
-      bool NegTowers=false;
-      if(i==1)NegTowers=true;
-      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gNoCutsNeg%d",NegTowers),noNoise, NegTowers) );//basic MET, no threshold, pass no noise thresholds, and use negative towers 
-      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gBaselineNeg%d",NegTowers),gT_noise, NegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
-    //No RMS 
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedian",NegTowers),0,1,NegTowers));//Median
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMean",NegTowers),0,0,NegTowers));//Mean
-      //Apply 3 sigma RMS 
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedianRMS",NegTowers), 1, 1,NegTowers));
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMeanRMS",NegTowers), 1, 0,NegTowers));
-
-      CHECK(METAlg::Softkiller_MET(pu_sub, Form("SKNeg%d",NegTowers), NegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-      CHECK(METAlg::JwoJ_MET(pu_sub, gBlocks,Form("JwoJNeg%d",NegTowers),m_pTcone_cut, false, false, NegTowers) ); //Jets without Jets
-      //CHECK(METAlg::Pufit_MET(gTs,Form("PUfitNeg%d",NegTowers), NegTowers) ); //L1 version of PUfit, using gTowers
-    }
-
-  }//developer met
-  else{
-    CHECK(METAlg::Baseline_MET(pu_sub, "gXERHO", noNoise, m_useNegTowers));
-    CHECK(METAlg::Baseline_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_pTcone_cut,false, false, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, /*m_useNegTowers*/ true));//by default, m_useNegTowers=false, but setting it = true here for consistency 
-    CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_useNegTowers) ); 
-
-
-  }//main definitions for simplicity
+  CHECK(METAlg::NoiseCut_MET(pu_sub, "gXERHO", noNoise, m_gFEX_useNegTowers));
+  CHECK(METAlg::NoiseCut_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_gFEX_useNegTowers));
+  CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_gFEX_pTcone_cut, /*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ false));//do not use negative towers, so if the subtracted ET is < 0 you remove the tower
+  CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
+  CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
+  CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
@@ -747,9 +720,6 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
   CHECK(evtStore()->record(gBs, "gBlocks"));
   CHECK(evtStore()->record(gBAux, "gBlocksAux."));
-
-  CHECK(evtStore()->record(RhoCont,"EventVariables"));
-  CHECK(evtStore()->record(RhoContAux,"EventVariablesAux."));
 
   delete h_fpga_a;
   delete h_fpga_b;

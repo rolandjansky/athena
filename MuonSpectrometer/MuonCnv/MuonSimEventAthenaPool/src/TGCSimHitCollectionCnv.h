@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMEVENTATHENAPOOL_TGCSIMHITCOLLECTIONCNV_H
@@ -12,9 +12,10 @@
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p2.h"
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p3.h"
 #include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p4.h"
+#include "MuonSimEventTPCnv/TGCSimHitCollectionCnv_p5.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::TGCSimHitCollection_p4  TGCSimHitCollection_PERS;
+typedef  Muon::TGCSimHitCollection_p5  TGCSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<TGCSimHitCollection, TGCSimHitCollection_PERS >  TGCSimHitCollectionCnvBase;
 
 /**
@@ -39,6 +40,7 @@ private:
     TGCSimHitCollectionCnv_p2    m_TPConverter_p2;
     TGCSimHitCollectionCnv_p3    m_TPConverter_p3;
     TGCSimHitCollectionCnv_p4    m_TPConverter_p4;
+    TGCSimHitCollectionCnv_p5    m_TPConverter_p5;
 };
 
 #endif

@@ -101,6 +101,7 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
            CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
            if(scell==nullptr)continue; 
 	   float scell_et = scell->et();
+	   if(isnan(scell_et))ATH_MSG_ERROR("Supercell ET is nan. Likely due to BCID correction or something else upstream");
 	   float time = scell->time(); 
 	   if(m_EmulateSC){
 	     if(scell_et<10e3 && fabs(time)>8) continue;

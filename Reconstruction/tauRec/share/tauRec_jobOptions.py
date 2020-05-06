@@ -13,6 +13,7 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 import AthenaCommon.SystemOfUnits as Units
 from tauRec.tauRecFlags import jobproperties as taujp
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 
 # use Tau Jet Vertex Association Tool
 # each Tau candidate gets its own primary vertex
@@ -22,6 +23,18 @@ _doTJVA = True
 # Pi0-finding algorithm
 _doPi0Clus = taujp.tauRecFlags.doPi0() #False by default
 _doPi0Clus = True 
+
+# Switch to upgrade configs
+if (CommonGeometryFlags.Run() == "RUN4"):
+    # if taujp.tauRecFlags.doUpgrade():
+    taujp.tauRecFlags.tauRecToolsCVMFSPath = "tauRecTools/00-03-00/"
+    taujp.tauRecFlags.tauRecToolsLCCalibFile = "TES_calib_nVtxCorr_upgrade.root"
+    taujp.tauRecFlags.tauRecToolsCombP4Weights = "CalibLoopResult_v04-04.root"
+    taujp.tauRecFlags.tauRecToolsMvaTESWeights = "MvaTES.ITk19.v20190430.weights.root"
+    taujp.tauRecFlags.tauRecJetBDTConfig = [ ["JetBDTScore1P.root",0,1], ["JetBDTScore3P.root",2,1000] ]
+    taujp.tauRecFlags.tauRecMVATrackClassificationConfig = [ ["TMVAClassification_BDT_l1.weights.root", -0.0168], ["TMVAClassification_BDT_l2.weights.root", -0.0386], ["TMVAClassification_BDT_l3.weights.root", -0.0916] ]
+    taujp.tauRecFlags.tauRecEleBDTConfig = [ ["EleBDT1PBar.root", 1, 1.37], ["EleBDT1PEnd1.root", 1, 1.37, 2.0], ["EleBDT1PEnd23.root", 1, 2.0, 4.0] ] # only changes maxAbsTrackEta for TauEleBDT_end23
+    taujp.tauRecFlags.tauRecWPDecoratorJetBDTConfig = ["FlatJetBDT1P.root", "FlatJetBDT3P.root"]
 
 # the TauCoreBuilder
 from tauRec.TauRecBuilder import TauRecCoreBuilder

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleSTgcClusterBuilderTool.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
@@ -215,15 +215,14 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
 
       unsigned int firstStrip = *(clusterStripNum.begin());
       unsigned int lastStrip  = *(--clusterStripNum.end());
+      ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
 
       unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
       unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
-
-      ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
       if ( diffFirst<=m_maxHoleSize + 1 || diffLast<=m_maxHoleSize + 1) {
         ATH_MSG_DEBUG(">> inserting a new strip");
-	      clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
-      	clusters[multilayer][gasGap].at(i).push_back(strip);
+        clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+        clusters[multilayer][gasGap].at(i).push_back(strip);
 
         ATH_MSG_DEBUG("size after inserting is: " << clustersStripNum[multilayer][gasGap].at(i).size());
         ATH_MSG_DEBUG("and the first and last strip are: " 

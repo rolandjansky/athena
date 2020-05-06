@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // generate the T/P converter entries
@@ -7,6 +7,7 @@
 
 #include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLink_p2.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLink_p3.h"
 
 #include "GeneratorObjectsTPCnv/GenParticle_p1.h"
 #include "GeneratorObjectsTPCnv/GenVertex_p1.h"

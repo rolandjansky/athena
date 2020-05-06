@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -10,11 +10,12 @@
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p1.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p2.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p3.h"
+#include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p4.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
-namespace Trk { class PRD_MultiTruthCollection_p3; }
+namespace Trk { class PRD_MultiTruthCollection_p4; }
 
-typedef Trk::PRD_MultiTruthCollection_p3 PRD_MultiTruthCollectionPERS;
+typedef Trk::PRD_MultiTruthCollection_p4 PRD_MultiTruthCollectionPERS;
 
 
 typedef T_AthenaPoolCustomCnv<PRD_MultiTruthCollection,PRD_MultiTruthCollectionPERS> PRD_MultiTruthCollectionCnvBase;
@@ -30,10 +31,12 @@ private:
   PRD_MultiTruthCollectionCnv_p1 m_converter_p1;
   PRD_MultiTruthCollectionCnv_p2 m_converter_p2;
   PRD_MultiTruthCollectionCnv_p3 m_converter_p3;
+  PRD_MultiTruthCollectionCnv_p4 m_converter_p4;
   static pool::Guid p0_guid;
   static pool::Guid p1_guid;
   static pool::Guid p2_guid;
   static pool::Guid p3_guid;
+  static pool::Guid p4_guid;
 };
 
 #endif/*CALOATHENAPOOL_CALOCELLLINKCONTAINERCNV_H*/

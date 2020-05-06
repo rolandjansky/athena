@@ -14,7 +14,9 @@ if conddb.dbdata == 'COMP200':
     btagrun1=True
 elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
-   # btagItk=(commonGeoFlags.Run()=="RUN4") # To be uncommented when FTAG training references are integrated in central database
+    if(commonGeoFlags.Run()=="RUN4"):
+       btagItk=True
+       BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
 
 metaIP3DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP3D',

@@ -50,10 +50,8 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
-    m_doDigiTruth(false),
     m_LCMode(false),
-    m_trackVertexAssociationTool(""),
-    m_vertexContainerName("PrimaryVertices"),
+    m_doDigiTruth(false),
     m_useAODReductionMomentList(false)
 {
   declareInterface<eflowObjectCreatorTool>(this);
@@ -62,24 +60,11 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("EOverPMode", m_eOverPMode);
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
-  declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
   declareProperty("UseAODReductionMomentList",m_useAODReductionMomentList);
   declareProperty("DoDigiHSTruth",m_doDigiTruth);
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
-
-  /* tool service */
-  IToolSvc* myToolSvc;
-  if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  if(! m_trackVertexAssociationTool.empty() ) {
-     ATH_MSG_VERBOSE("Intialized using ITrackVertexAssociationTool");
-     return m_trackVertexAssociationTool.retrieve();
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -97,15 +82,6 @@ StatusCode eflowObjectCreatorTool::execute(eflowCaloObject *energyFlowCaloObject
     createNeutralEflowObjects(energyFlowCaloObject);
   }
 
-  const xAOD::VertexContainer* vertexContainer = nullptr;
-  StatusCode vertexRetrieved =  evtStore()->retrieve(vertexContainer,m_vertexContainerName);
-  if ( vertexRetrieved.isFailure() || vertexContainer==nullptr) {
-    ATH_MSG_WARNING("Could not retrieve the VertexContainer from evtStore: " << m_vertexContainerName);
-  }
-  else{
-    addVertexLinksToChargedEflowObjects(vertexContainer);
-  }
-  
   return StatusCode::SUCCESS;
 
 }
@@ -178,22 +154,6 @@ StatusCode eflowObjectCreatorTool::setupPFOContainers() {
     m_neutralPFOContainer_nonModified->setStore(neutralPFOAuxContainer_nonModified);
   }
   return StatusCode::SUCCESS;
-}
-
-void eflowObjectCreatorTool::addVertexLinksToChargedEflowObjects(const xAOD::VertexContainer* theVertexContainer){
-
-  if (theVertexContainer){
-    //This is a loop on all xAOD::PFO with non-zero charge
-    for (auto theChargedPFO : *m_chargedPFOContainer){
-      const xAOD::TrackParticle* theTrack = theChargedPFO->track(0);
-      if (theTrack){
-	ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,*theVertexContainer);
-  	bool haveSetLink = theChargedPFO->setVertexLink(theVertexLink);
-	if (!haveSetLink) msg(MSG::WARNING) << " Could not set vertex link on charged PFO " << endmsg;
-      }//if valid pointer to xAOD::TrackParticle
-    }
-  }
-
 }
 
 void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFlowCaloObject, bool addClusters){

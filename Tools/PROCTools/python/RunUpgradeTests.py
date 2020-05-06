@@ -110,7 +110,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     
     if q == "reco_updated":
         geotag = "ATLAS-P2-ITK-22-00-00"
-        inputfile =  pwd+"/run_s3/myHITS.pool.root"
+        inputfile =  pwd+"/run_sim_updated/myHITS.pool.root"
 
         logging.info("Running patched "+q+" ("+geotag+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
@@ -146,7 +146,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     if q == "reco_updated":
         geotag = "ATLAS-P2-ITK-22-00-00"
         layoutoption = ""
-        inputfile = pwd+"/run_s3/myHITS.pool.root"
+        inputfile = pwd+"/run_sim_updated/myHITS.pool.root"
 
         logging.info("Running patched "+q+" ("+geotag+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
@@ -661,14 +661,19 @@ def main():
 ########### Define which q-tests to run
 
         qTestsToRun = {}
-        if RunSim:
+        if RunUpdated:
+            if RunSim:
+               qTestsToRun = {
+                'sim_updated':['EVNTtoHITS']
+               }
+            else:
+                qTestsToRun = {
+                    'sim_updated':['EVNTtoHITS'],
+                    'reco_updated':['HITtoRDO','RAWtoESD','ESDtoAOD']
+                }
+        elif RunSim:
             qTestsToRun = {
             's3547':['EVNTtoHITS']
-            }
-        elif RunUpdated:
-            qTestsToRun = {
-                'sim_updated':['EVNTtoHITS'],
-                'reco_updated':['HITtoRDO','RAWtoESD','ESDtoAOD']
             }
         else:
             qTestsToRun = {
@@ -729,19 +734,17 @@ def main():
 
 
         elif RunUpdated:
-
-             for qtest in qTestsToRun:
+            #sorting reverse-alphabetically to make sure 'sim' runs before 'reco' (better way to enforce this?)
+            for qtest in sorted(qTestsToRun, reverse=True):
                 q=str(qtest)
-
                 def mypatchedqtest():
                     if "s" in q:
                      RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
-                    RunPatchedQTest(q,mypwd,mysetup,extraArg,nosetup=ciMode)
+                    else:
+                     RunPatchedQTest(q,mypwd,mysetup,extraArg,nosetup=ciMode)
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
                 mythreads[q+"_patched"].start()
-
-             for thread in mythreads:
-                mythreads[thread].join()   
+                mythreads[q+"_patched"].join()
 
         elif RunPatchedOnly:
 
@@ -814,7 +817,7 @@ def main():
                 if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
 
-                if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"AOD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
 
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):

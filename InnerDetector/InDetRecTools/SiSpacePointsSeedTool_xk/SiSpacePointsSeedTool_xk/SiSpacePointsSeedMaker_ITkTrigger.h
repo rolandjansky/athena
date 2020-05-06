@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +77,10 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with two space points with or without vertex constraint
+      // Unused but needed for common interface with other SiSpacePointsSeedMaker
       ///////////////////////////////////////////////////////////////////
 
-      void find2Sp (const std::list<Trk::Vertex>&);
+      void find2Sp (const std::list<Trk::Vertex>&){};
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
@@ -129,7 +130,6 @@ namespace InDet {
       bool                        m_useassoTool                   ;
       bool                        m_checketa                      ;
       bool                        m_isvertex                      ;
-      bool                        m_dbm                           ;
       int                         m_outputlevel                   ;
       int                         m_nprint                        ;
       int                         m_state                         ;
@@ -138,30 +138,17 @@ namespace InDet {
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
       int                         m_iteration                     ;
-      int                         m_iteration0                    ;
-      int                         m_iminPPS                       ;
-      int                         m_imaxPPS                       ;
       int                         m_ndyncut                       ;
       int                         m_nCmSp                         ;
 
-      unsigned int                m_maxNumberVertices             ;
       float                       m_etamin, m_etamax              ;
-      float                       m_r1min, m_r1minv               ;
-      float                       m_r1max, m_r1maxv               ;
-      float                       m_r2min, m_r2minv               ;
-      float                       m_r2max, m_r2maxv               ;
-      float                       m_r3min                         ;
-      float                       m_r3max                         ;
-      float                       m_drmin, m_drminv               ;
-      float                       m_drmax                         ;
       float                       m_drminPPP                      ;
-      float                       m_drmaxPPP                      ; 
-      float                       m_rapcut                        ;
+      float                       m_drmaxPPP                      ;
+      float                       m_rmaxPPP                       ;
       float                       m_dzdrmin0                      ;
       float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
       float                       m_dzdrmax                       ;
-      float                       m_dzdrmaxPPS                    ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
       float                       m_zminU                         ;
@@ -176,8 +163,6 @@ namespace InDet {
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
       float                       m_diver                         ;
-      float                       m_diverpps                      ;
-      float                       m_diversss                      ;
       float                       m_divermax                      ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
@@ -188,13 +173,8 @@ namespace InDet {
       float                       m_ipt2K                         ;
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
-      float                       m_umax                          ;
-      float                       m_dzmaxPPP                      ;
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
-      float                       m_rapydityPPSmax                ;
-      float                       m_radiusPPSmin                  ;
-      float                       m_radiusPPSmax                  ;
 
       int rf_size                                                 ;
       int rfz_size                                                ;

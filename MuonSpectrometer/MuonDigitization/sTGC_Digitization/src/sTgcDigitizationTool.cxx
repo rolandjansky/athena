@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -664,7 +664,10 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         std::vector<MuonSimData::Deposit> deposits;
         deposits.push_back(deposit);
         MuonSimData simData(deposits, hit.particleEncoding());
-        simData.setPosition(hit.globalPosition());
+        // The sTGC SDO should be placed at the center of the gap, same as the digits.
+        // We use the position from the hit on the wire surface which is by construction in the center of the gap
+        // G_HITONSURFACE_WIRE projects the whole hit to the center of the gap
+        simData.setPosition(G_HITONSURFACE_WIRE);
         simData.setTime(globalHitTime);
 
         if(newChannelType == 0){ //Pad Digit

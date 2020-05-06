@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -25,11 +25,13 @@
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp3.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp3.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp4.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp4.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 //typedef to the latest top level persistent class
-typedef TrigInDetTrackTruthMap_tlp2  TrigInDetTrackTruthMap_PERS;
+typedef TrigInDetTrackTruthMap_tlp4  TrigInDetTrackTruthMap_PERS;
 
 typedef T_AthenaPoolCustomCnv<TrigInDetTrackTruthMap, TrigInDetTrackTruthMap_PERS > TrigInDetTrackTruthMapCnvBase; 
 
@@ -54,6 +56,7 @@ class TrigInDetTrackTruthMapCnv : public TrigInDetTrackTruthMapCnvBase
 
   TrigInDetTrackTruthMapCnv_tlp2 m_trigInDetTrackTruthMapCnv_tlp2;
   TrigInDetTrackTruthMapCnv_tlp3 m_trigInDetTrackTruthMapCnv_tlp3;
+  TrigInDetTrackTruthMapCnv_tlp4 m_trigInDetTrackTruthMapCnv_tlp4;
 
 
 };

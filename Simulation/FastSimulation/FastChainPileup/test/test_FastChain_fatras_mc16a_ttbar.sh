@@ -5,7 +5,6 @@
 # art-include: 21.3/Athena
 # art-output: *.root
 # art-output: config.txt
-# art-output: dcube-rdo-truth
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
@@ -25,7 +24,7 @@ FastChain_tf.py \
     --conditionsTag default:OFLCOND-MC16-SDR-16 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --preExec 'EVNTtoRDO:ToolSvc.NewMergeMcEventCollTool.OutputLevel=VERBOSE;' \
-    --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
+    --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.SplitSG_FCpileup.py' \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt");ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -38,15 +37,7 @@ FastChain_tf.py \
 rc=$?
 echo  "art-result: $rc EVNTtoRDO"
 
-inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_FastChain_fatras_mc16a_ttbar"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
-art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
-dcubeName="FastChain_fatras_mc16a_ttbar"
-dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
-dcubeRefRDO="${inputRefDir}/RDO_truth.root"
-
 rc2=-9999
-rc3=-9999
 if [ ${rc} -eq 0 ]
 then
     # Regression test
@@ -55,14 +46,5 @@ then
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
 
-
-    # Histogram comparison with DCube
-    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
-    rc3=$?
-    if [ -d "dcube" ]
-    then
-       mv "dcube" "dcube-rdo-truth"
-    fi
 fi
 echo  "art-result: ${rc2} regression"
-echo  "art-result: ${rc3} dcubeRDO"

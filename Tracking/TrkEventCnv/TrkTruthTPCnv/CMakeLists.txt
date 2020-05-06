@@ -51,6 +51,12 @@ atlas_add_test( TrackTruthCollectionCnv_p2_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )
 
+atlas_add_test( TrackTruthCollectionCnv_p3_test
+                SOURCES
+                test/TrackTruthCollectionCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )
+
 atlas_add_test( TruthTrajectoryCnv_p1_test
                 SOURCES
                 test/TruthTrajectoryCnv_p1_test.cxx
@@ -63,6 +69,12 @@ atlas_add_test( TruthTrajectoryCnv_p2_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )
 
+atlas_add_test( TruthTrajectoryCnv_p3_test
+                SOURCES
+                test/TruthTrajectoryCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )
+
 atlas_add_test( PRD_MultiTruthCollectionCnv_p2_test
                 SOURCES
                 test/PRD_MultiTruthCollectionCnv_p2_test.cxx
@@ -72,5 +84,11 @@ atlas_add_test( PRD_MultiTruthCollectionCnv_p2_test
 atlas_add_test( PRD_MultiTruthCollectionCnv_p3_test
                 SOURCES
                 test/PRD_MultiTruthCollectionCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )
+
+atlas_add_test( PRD_MultiTruthCollectionCnv_p4_test
+                SOURCES
+                test/PRD_MultiTruthCollectionCnv_p4_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData TestTools AthenaKernel TrkTruthTPCnv )

@@ -49,6 +49,9 @@ elif [[ $INPUT == "minbias" ]]; then
 elif [[ $INPUT == 'data' ]]; then
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._000435.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._001626.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._002546.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._005117.pool.root.1"]'
 
+elif [[ $INPUT == 'run3_l1calo' ]]; then
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_d1536_tid18795273_00/RDO.18795273._000063.pool.root.1"]'
+
 else 
   # Default - ttbar
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO.e4993_s3214_d1540_tid19539348_00/RDO.19539348._000084.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO.e4993_s3214_d1540_tid19539348_00/RDO.19539348._000041.pool.root.1"]'

@@ -184,11 +184,8 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection( const MM_RawDataCollect
       ATH_MSG_WARNING("Could not get the global strip position for MM");
       continue;
     }
-    double dist_drift, distRes_drift, charge_calib;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, dist_drift, distRes_drift, charge_calib));
-
-    const int time = rdo->time();
-    const int charge = charge_calib;
+    NSWCalib::CalibratedStrip calibStrip;
+    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
 
 //    const Trk::Surface& surf = detEl->surface(rdoId);
 //    const Amg::Vector3D* globalPos = surf.localToGlobal(localPos);
@@ -221,14 +218,16 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection( const MM_RawDataCollect
 // add strip width to error
     resolution = sqrt(resolution*resolution+errX*errX);
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    Amg::MatrixX* cov = new Amg::MatrixX(2,2);
     cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    (*cov)(0,0) = calibStrip.resTransDistDrift;  
+    (*cov)(1,1) = calibStrip.resLongDistDrift;
+    localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, time, charge, dist_drift));
+      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
     } else {
-      MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, time, charge, dist_drift);
+      MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
        MMprds.push_back(mpd);

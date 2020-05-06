@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python                                                                                                                                                                    
 m_year = 2017
 m_storingFolder = ""
@@ -21,6 +20,7 @@ m_userRun = 0
 m_dataType = "DESDM_MCP"
 m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
+m_userFilesPerJob = 0 #this means let panda distribute the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
 m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
@@ -522,15 +522,17 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     if ("NONE" in theOutput):
         sys.exit(" <acZmumu> ** ERROR ** no output available for the grid submission command. ** STOP execution **")
 
-    # warning: if one wants to limit the file per job just add to the options: --nFilesPerJob Nfiles
-    #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --site=ANALY_ECDF_SL7" %(infoFromAMI[runNumber]["nfiles"])
+    # warning: if one wants to limit the number of files per job just add to the options: --nFilesPerJob Nfiles
 
     theOptions = "NONE"
     if (runNumber>0):
-        theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+        theOptions = "--nfiles %d --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            theOptions = "--useShortLivedReplicas  --forceStaged"
+            theOptions = " --forceStaged" # "--useShortLivedReplicas"
+            
+    if (m_userFilesPerJob > 0 ):
+        theOptions = "%s --nFilesPerJob %d" % (theOptions, m_userFilesPerJob)
 
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 
@@ -583,10 +585,13 @@ def welcomeBanner ():
     print ("  ** max Run: %d"  %m_lastRun)
     print ("  ** physics type: %s" %m_physicsType)
     print ("  ** data type: %s"  %m_dataType)
+    print ("  ** set type: %s"  %m_reconmerge)
     if (m_userFiles == 0):
         print ("  ** use all available files ")
     if (m_userFiles > 0):
         print ("  ** user requested files: %d" %m_userFiles)
+    if (m_userFilesPerJob > 0):
+        print ("  ** user requested files per job: %d" %m_userFilesPerJob)
     print ("  ** AMI tag: %s" %m_amitag) 
     print "  ** script: %s" %m_scriptName
     if ("NONE" not in m_userDataSet):
@@ -613,9 +618,11 @@ def optParsing():
     p_userRun = m_userRun
     p_dataType = m_dataType 
     p_userFiles = m_userFiles
+    p_userFilesPerJob = m_userFilesPerJob
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
+    p_reconmerge = m_reconmerge
     p_scriptName = m_scriptName
     p_userDataSet = m_userDataSet
 
@@ -629,9 +636,11 @@ def optParsing():
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
-    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
+    parser.add_option("--nFilesPerJob", dest="p_userFilesPerJob", help="User defined number of files per job. Default %s = -> Panda decides" %(p_userFilesPerJob), default = p_userFilesPerJob)
+    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default: %s" %(p_userRun), default = p_userRun)
     parser.add_option("--physicsType", dest="p_physicsType", help="Physics type to use (physics_Main, Hardprobes...) Default %s" %(p_physicsType), default = p_physicsType)
-    parser.add_option("--script", dest="p_scriptName", help="Name of the python script to be executed. Default %s" %p_scriptName, default = p_scriptName)
+    parser.add_option("--script", dest="p_scriptName", help="Name of the python script to be executed. Default: %s" %p_scriptName, default = p_scriptName)
+    parser.add_option("--setType", dest="p_reconmerge", help="Set type: recon, merge, deriv. Default: %s" %p_reconmerge, default = p_reconmerge)
     parser.add_option("--userLabel", dest="p_userLabel", help="User defined label. Default %s" %(p_userLabel), default = p_userLabel)
 
     (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -684,11 +693,13 @@ if __name__ == '__main__':
         m_firstRun = m_userRun
         m_lastRun = m_userRun
     m_userFiles = int(config.p_userFiles)
+    m_userFilesPerJob = int(config.p_userFilesPerJob)
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
     m_scriptName = config.p_scriptName
     m_userDataSet = config.p_userDataSet
+    m_reconmerge = config.p_reconmerge
 
     welcomeBanner ()
     preliminaries ()

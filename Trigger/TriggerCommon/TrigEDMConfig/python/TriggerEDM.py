@@ -979,11 +979,22 @@ TriggerLvl1List=[
     # jFEX jets
     ( 'xAOD::JetRoIContainer#jRoundJets',                      'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIAuxContainer#jRoundJetsAux.',               'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundJetsPUsub',                      'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundJetsPUsubAux.',               'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIContainer#jRoundLargeRJets',                'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsAux.',         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundLargeRJetsPUsub',                'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsPUsubAux.',         'ESD AODFULL', 'L1'),
+    # jFEX electrons/taus
+    ('xAOD::EmTauRoIContainer#jTaus',                    'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#jTausAux.',             'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIContainer#jEles',                    'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#jElesAux.',             'ESD AODFULL', 'L1'),
     # gFEX jets
     ( 'xAOD::JetRoIContainer#gL1Jets',                         'ESD AODFULL', 'L1'),
     ( 'xAOD::JetRoIAuxContainer#gL1JetsAux.',                  'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#gBlockJets',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#gBlockJetsAux.',                  'ESD AODFULL', 'L1'),
     # gFEX MET
     ( 'xAOD::EnergySumRoI#gXEJWOJ_MET',                        'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#gXEJWOJ_METAux.',             'ESD AODFULL', 'L1'),

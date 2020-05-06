@@ -22,5 +22,16 @@ condSeq = AthSequencer("AthAlgSeq") #should be changed to AthCondSeq in master
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
-    condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixelITkClusterErrorData")
+    condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/ITkClusterError")
     PixelITkOfflineCalibCondAlg.InputSource = 2
+
+    from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.GlobalFlags import globalflags
+    CoolDataBaseFolder = '/PIXEL/ITkClusterError'
+    DetDescrVersion = globalflags.DetDescrVersion()
+    if(DetDescrVersion.startswith('ATLAS-P2-ITK-22')):
+        ctag = 'PixelITkError_v2'
+    else:
+        print "Undefined ITkClusterErrorData tag"
+    cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
+    conddb.addFolderSplitMC('PIXEL',cfoldertag,cfoldertag)

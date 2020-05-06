@@ -53,6 +53,12 @@ atlas_add_test( SiHitCollectionCnv_p3_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv InDetSimEvent TestTools StoreGateLib SGtests Identifier InDetSimEventTPCnv )
 
+atlas_add_test( SiHitCollectionCnv_p4_test
+                SOURCES
+                test/SiHitCollectionCnv_p4_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv InDetSimEvent TestTools StoreGateLib SGtests Identifier InDetSimEventTPCnv )
+
 atlas_add_test( TRT_HitCnv_p1_test
                 SOURCES
                 test/TRT_HitCnv_p1_test.cxx
@@ -71,9 +77,14 @@ atlas_add_test( TRT_HitCollectionCnv_p3_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv InDetSimEvent TestTools StoreGateLib SGtests Identifier InDetSimEventTPCnv )
 
-
 atlas_add_test( TRT_HitCollectionCnv_p4_test
                 SOURCES
                 test/TRT_HitCollectionCnv_p4_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv InDetSimEvent TestTools StoreGateLib SGtests Identifier InDetSimEventTPCnv )
+
+atlas_add_test( TRT_HitCollectionCnv_p5_test
+                SOURCES
+                test/TRT_HitCollectionCnv_p5_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib GaudiKernel GeneratorObjectsTPCnv InDetSimEvent TestTools StoreGateLib SGtests Identifier InDetSimEventTPCnv )

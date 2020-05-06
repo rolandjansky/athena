@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ InDet::SiSpacePointsSeedMaker_BeamGas::SiSpacePointsSeedMaker_BeamGas
   m_r3max     = 600.    ;
   m_drmin     = 10.     ;
   m_drmax     = 270.    ;    
-  m_rapcut    = 5.3     ;
+  m_etamax    = 5.3     ;
   m_zmin      = -5000.  ;
   m_zmax      = +5000.  ;
   m_dzver     = 5.      ;
@@ -105,7 +105,7 @@ InDet::SiSpacePointsSeedMaker_BeamGas::SiSpacePointsSeedMaker_BeamGas
   declareProperty("maxRadius3"            ,m_r3max                 );
   declareProperty("mindRadius"            ,m_drmin                 );
   declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("RapidityCut"           ,m_rapcut                );
+  declareProperty("etaMax"                ,m_etamax                );
   declareProperty("maxdZver"              ,m_dzver                 );
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
@@ -570,8 +570,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions( MsgStream& out
   out<<"| pTmin  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
-  out<<"| |rapidity|          <=  | " 
-     <<std::setw(12)<<std::setprecision(5)<<m_rapcut
+  out<<"| |eta|               <=  | "
+     <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 
@@ -759,8 +759,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::findNext ()
 void InDet::SiSpacePointsSeedMaker_BeamGas::buildFrameWork() 
 {
   m_ptmin     = fabs(m_ptmin)                  ;  if(m_ptmin < 300.) m_ptmin = 300.;
-  m_rapcut    = fabs(m_rapcut)                 ;
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut))); 
+  m_etamax    = fabs(m_etamax)                 ;
+  m_dzdrmax   = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin   =-m_dzdrmax                      ;
   m_COF       =  134*.05*9.                    ;
   m_ipt       = 1./fabs(.9*m_ptmin)            ;

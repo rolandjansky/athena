@@ -8,6 +8,7 @@
 # art-output: *.root
 # art-output: dcube-rdo-truth
 # art-output: dcube-id
+# art-html: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_newTracking_PseudoT_fullSim_fullDigi"
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"

@@ -98,15 +98,18 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_plotSeeds;
   bool m_saveSeeds;
 
-  float m_gJet_seed_size;
-  float m_gJet_max_r;
   float m_gJet_r;
-  float m_gJet_seed_tower_noise_multiplier;
-  float m_gJet_seed_total_noise_multiplier;
-  float m_gJet_seed_min_ET_MeV;
-  float m_gJet_jet_tower_noise_multiplier;
-  float m_gJet_jet_total_noise_multiplier;
+  float m_gJet_block_tower_noise_multiplier; 
+  float m_gJet_block_min_ET_MeV;
+  float m_gJet_tower_noise_multiplier;
   float m_gJet_jet_min_ET_MeV;
+  float m_gFEX_pTcone_cut;
+  bool  m_gFEX_OnlyPosRho; 
+  bool  m_gFEX_useNegTowers;
+  bool  m_gFEX_Rho_useNegTowers; 
+  //job options for gFEX MET algorithms                                          
+  bool m_useRMS;
+  bool m_useMedian;
 
   std::string m_noise_file;
   
@@ -115,16 +118,6 @@ class JGTowerReader: public ::AthAlgorithm {
   float  m_jXERHO_rho_up_threshold;
   float  m_jXERHO_min_noise_cut;
  
-  //job options for gFEX MET algorithms
-  bool m_useRMS;
-  bool m_useMedian;
-  bool m_useNegTowers;
-  bool m_developerMET; 
-  bool m_combine_rhoNoise;
-  bool m_combine_skNoise;
-  bool m_combine_jwojNoise;
-  float m_pTcone_cut;
-
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;
   const GTower_ID* m_gTowerId;

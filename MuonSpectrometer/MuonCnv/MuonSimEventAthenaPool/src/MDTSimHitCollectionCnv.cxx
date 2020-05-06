@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSimHitCollectionCnv.h"
@@ -28,7 +28,7 @@ MDTSimHitCollectionCnv::~MDTSimHitCollectionCnv() {
 MDTSimHitCollection_PERS*    MDTSimHitCollectionCnv::createPersistent (MDTSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "MDTSimHitCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    MDTSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
+    MDTSimHitCollection_PERS *pixdc_p= m_TPConverter_p4.createPersistent( transCont, log );
     return pixdc_p;
 }
 
@@ -38,9 +38,14 @@ MDTSimHitCollection* MDTSimHitCollectionCnv::createTransient() {
     static pool::Guid   p1_guid("EA781971-65C5-4B30-9D22-EEFB764BA0B3"); 
     static pool::Guid   p2_guid("92880B97-75BB-4C5D-8183-577338059FCC");
     static pool::Guid   p3_guid("0E9EEEE2-304F-44B8-B1DF-E75297183A02");
+    static pool::Guid   p4_guid("731776BB-202F-4A18-9D0E-7D6AAD835DAC");
     ATH_MSG_DEBUG("createTransient(): main converter");
-    MDTSimHitCollection* p_collection(0);
-    if( compareClassGuid(p3_guid) ) {
+    MDTSimHitCollection* p_collection(nullptr);
+    if( compareClassGuid(p4_guid) ) {
+      ATH_MSG_DEBUG("createTransient(): T/P version 4 detected");
+      std::auto_ptr< Muon::MDTSimHitCollection_p4 >   col_vect( this->poolReadObject< Muon::MDTSimHitCollection_p4 >() );
+      p_collection = m_TPConverter_p4.createTransient( col_vect.get(), log );
+    } else if( compareClassGuid(p3_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
       std::auto_ptr< Muon::MDTSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::MDTSimHitCollection_p3 >() );
       p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
