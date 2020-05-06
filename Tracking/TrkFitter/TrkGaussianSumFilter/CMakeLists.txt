@@ -61,7 +61,8 @@ atlas_add_executable( GSF_testFindMinimumIndex
 atlas_add_executable( GSF_testAlignedDynArray
 	test/testAlignedDynArray.cxx)
 
-
+atlas_add_executable( GSF_testMergeComponents
+	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx)
 
 atlas_add_test(ut_GSF_testFindMinimumIndex
 	SCRIPT GSF_testFindMinimumIndex)
