@@ -927,15 +927,15 @@ namespace top {
       }
     }
 
-    void muonDoMuonSmearing2stationHighPt(const bool& DoMuonSmearing2stationHighPt) {
+    void muonMuonDoSmearing2stationHighPt(const bool& MuonDoSmearing2stationHighPt) {
       if (!m_configFixed) {
-	m_muonDoMuonSmearing2stationHighPt = DoMuonSmearing2stationHighPt;
+	m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
       }
     }
 
-    void muonDoMuonExtraSmearingHighPt(const bool& DoMuonExtraSmearingHighPt) {
+    void muonMuonDoExtraSmearingHighPt(const bool& MuonDoExtraSmearingHighPt) {
       if (!m_configFixed) {
-	m_muonDoMuonExtraSmearingHighPt = DoMuonExtraSmearingHighPt;
+	m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
       }
     }
 
@@ -951,8 +951,8 @@ namespace top {
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
-    inline virtual bool muonDoMuonSmearing2stationHighPt() const {return m_muonDoMuonSmearing2stationHighPt;}
-    inline virtual bool muonDoMuonExtraSmearingHighPt() const {return m_muonDoMuonExtraSmearingHighPt;}
+    inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
+    inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2051,8 +2051,8 @@ namespace top {
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
-    bool m_muonDoMuonSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
-    bool m_muonDoMuonExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
