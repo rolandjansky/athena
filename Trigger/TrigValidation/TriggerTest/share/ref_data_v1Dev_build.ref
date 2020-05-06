@@ -68,8 +68,8 @@ TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkf
 TrigSignatureMoniMT                                 INFO -- #3989372080 Events         20         20         20         20         -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #3989372080 Features                             20         20         -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_costmonitor_CostMonDS_L1All #843341480
-TrigSignatureMoniMT                                 INFO -- #843341480 Events          20         20         20         20         -          -          -          20         
-TrigSignatureMoniMT                                 INFO -- #843341480 Features                              20         20         -          -          -          
+TrigSignatureMoniMT                                 INFO -- #843341480 Events          20         20         20         -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #843341480 Features                              20         -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e140_lhloose_L1EM24VHI #2512605388
 TrigSignatureMoniMT                                 INFO -- #2512605388 Events         20         20         0          0          0          0          -          0          
 TrigSignatureMoniMT                                 INFO -- #2512605388 Features                             0          0          0          0          -          
@@ -142,6 +142,9 @@ TrigSignatureMoniMT                                 INFO -- #385248610 Features 
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3 #3280865118
 TrigSignatureMoniMT                                 INFO -- #3280865118 Events         20         20         9          9          9          1          -          1          
 TrigSignatureMoniMT                                 INFO -- #3280865118 Features                             13         13         30         1          -          
+TrigSignatureMoniMT                                 INFO HLT_j0_perf_L1J12_EMPTY #1341875780
+TrigSignatureMoniMT                                 INFO -- #1341875780 Events         20         20         8          -          -          -          -          8          
+TrigSignatureMoniMT                                 INFO -- #1341875780 Features                             174        -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 #4034799151
 TrigSignatureMoniMT                                 INFO -- #4034799151 Events         20         20         2          -          -          -          -          2          
 TrigSignatureMoniMT                                 INFO -- #4034799151 Features                             34         -          -          -          -          
@@ -406,6 +409,9 @@ TrigSignatureMoniMT                                 INFO -- #1275052132 Features
 TrigSignatureMoniMT                                 INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM #2456480859
 TrigSignatureMoniMT                                 INFO -- #2456480859 Events         20         20         3          3          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #2456480859 Features                             4          3          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_timeburner_L1All #819160059
+TrigSignatureMoniMT                                 INFO -- #819160059 Events          20         20         0          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #819160059 Features                              0          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_xe100_mht_L1XE50 #532175988
 TrigSignatureMoniMT                                 INFO -- #532175988 Events          20         20         2          -          -          -          -          2          
 TrigSignatureMoniMT                                 INFO -- #532175988 Features                              2          -          -          -          -          

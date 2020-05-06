@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibTools/PatternNtupleMaker.h"
@@ -28,12 +28,6 @@ namespace MuonCalib {
     declareProperty("DelayFinish",m_delayFinish);
     declareProperty("FillTruth", m_fillTruth);
     declareProperty("DoRawTGC", m_doRawTgc=false);
-  }
-
-
-  PatternNtupleMaker::~PatternNtupleMaker() 
-  {
- //   if(m_ntMaker) delete m_ntMaker;
   }
 
   StatusCode PatternNtupleMaker::initialize() 
@@ -87,7 +81,6 @@ namespace MuonCalib {
 	ATH_MSG_INFO( "Invalid MuonCalibTruth pointer not filled ");
 	return false;
       }else{
-//	(*truth_it)->dump(std::cout) ;
 	
 	//Do not store the numerous photons/neutrons on ntuple.
 	if( ( (*truth_it)->PDGCode() == 22) || ( std::abs( (*truth_it)->PDGCode()) == 2112) )  continue ;

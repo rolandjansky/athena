@@ -8,6 +8,8 @@
 # art-output: rootcomp.root
 # art-output: *.log
 # art-output: *.ps
+# art-output: dcube
+# art-html: dcube
 
 NEVENTS=500
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q431"
@@ -27,3 +29,12 @@ echo "art-result: $? PhysVal"
 # compare the histograms
 rootcomp.py NTUP_PHYSVAL.root ${REF_DIR}/NTUP_PHYSVAL.root >> rootcomp.log 2>&1
 echo "art-result: $? rootcomp"
+
+# run dcube
+INPUT_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input"
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+    --plot --output dcube \
+    --config ${INPUT_DIR}/config.xml \
+    --reference ${REF_DIR}/NTUP_PHYSVAL.root \
+    NTUP_PHYSVAL.root
+echo "art-result: $? dcube"

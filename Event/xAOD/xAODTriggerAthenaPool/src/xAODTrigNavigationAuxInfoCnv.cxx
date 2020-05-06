@@ -12,6 +12,8 @@
 
 #ifndef XAOD_ANALYSIS
 #include "AthenaKernel/ITrigNavigationThinningSvc.h" //thinning only possible in full athena
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #endif
 
@@ -38,10 +40,16 @@ createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
   // see if the ThinningSvc implements an interface capable of slimming the navation 
   xAOD::TrigNavigationAuxInfo* result = new xAOD::TrigNavigationAuxInfo();
 #ifndef XAOD_ANALYSIS
-  ITrigNavigationThinningSvc* thinningSvc =
-    dynamic_cast<ITrigNavigationThinningSvc*>(IThinningSvc::instance());
+  const ITrigNavigationThinningSvc* thinningSvc = nullptr;
+  if (const SG::ThinningCache* cache = SG::getThinningCache()) {
+    thinningSvc = cache->trigNavigationThinningSvc();
+  }
+  if (!thinningSvc) {
+    thinningSvc = 
+      dynamic_cast<const ITrigNavigationThinningSvc*>(IThinningSvc::instance());
+  }
   if ( thinningSvc ) {
-    ATH_MSG_DEBUG("ThinningSvc is o type TrigNavigationThinningSvc, will request slimmed navigation from it");
+    ATH_MSG_DEBUG("Doing TrigNavigation slimming");
     xAOD::TrigNavigation wrapper;
     wrapper.setStore(result);
     std::vector< unsigned int > temp;
@@ -52,7 +60,7 @@ createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
      wrapper.setSerialized(temp);
      wrapper.setStore((const SG::IConstAuxStore*)nullptr);
   } else {
-    ATH_MSG_DEBUG("Default ThinningSvc, just copy");
+    ATH_MSG_DEBUG("No TrigNavigation slimming");
     *result = *trans;
   }
 #else

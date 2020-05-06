@@ -4,6 +4,8 @@ from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
+from .ThresholdType import ThrType
+
 log = logging.getLogger("Menu.L1.Base.TopoAlgos") 
 
 class TopoAlgo(object):
@@ -30,6 +32,9 @@ class TopoAlgo(object):
     def isMultiplicityAlg(self):
         return False
 
+    def setThresholds(self, thresholds):
+        # link to all thresholds in the menu need for configuration
+        self.menuThr = thresholds
 
     def addvariable(self, name, value, selection = -1):
         if name in self._availableVars:
@@ -52,12 +57,8 @@ class TopoAlgo(object):
         return confObj
 
     def getEnergyScaleEM(self):
-        emscale=2
-        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
-            if TriggerFlags.useRun1CaloEnergyScale :
-                emscale=1
-                log.info("Trigger flag useRun1CaloEnergyScale was set to true. Using EM energy scale %i", emscale)  
-        return emscale
+        tw = self.menuThr.typeWideThresholdConfig(ThrType["EM"])
+        return tw["emscale"]
     
 class Variable(object):
     def __init__(self, name, selection, value):

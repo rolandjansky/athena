@@ -270,17 +270,10 @@ public:
     return 0;
   }
   /// Not implemented for AthenaROOTAccess.
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,6)
   static void* collect(void* /*from*/, void* /*to*/)  {
     ::Fatal("DVCollectionProxy", "collect not implemented");
     return 0;
   }
-#else
-  static void* collect(void* /*env*/)  {
-    ::Fatal("DVCollectionProxy", "collect not implemented");
-    return 0;
-  }
-#endif
 };
 
 
@@ -313,11 +306,7 @@ DVCollectionProxy::DVCollectionProxy (const char* elttype,
   fNext.call      = DVCollectionFuncs::next;
   fFirst.call     = DVCollectionFuncs::first;
   fClear.call     = DVCollectionFuncs::clear;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,6)
   fCollect        = DVCollectionFuncs::collect;
-#else
-  fCollect.call   = DVCollectionFuncs::collect;
-#endif
   fCreateEnv.call = DVCollectionFuncs::create_env;
   fResize         = DVCollectionFuncs::resize;
   fConstruct      = DVCollectionFuncs::construct;

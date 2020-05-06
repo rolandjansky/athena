@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraUtils/MuonCalibSLPropagator.h"
@@ -50,7 +50,6 @@ namespace MuonCalib {
   
 
   MuonCalibTrack_E& MuonCalibTrack_E::operator=( const MuonCalibTrack_E& rhs ){
-//    std::cout << "Calling Track copy constructor" << std::endl;
     if(this!=&rhs){    
       clear();
       copy(rhs);
@@ -65,7 +64,6 @@ namespace MuonCalib {
       m_phi = track.phi();
       m_theta = track.theta() ;
       m_qOverP = track.qOverP();
-//      m_errinvP = track.m_errinvP;
       m_author = track.author();
       m_cov00 = track.cov00();
       m_cov01 = track.cov01();

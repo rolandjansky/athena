@@ -163,6 +163,8 @@ def setupMenu():
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
+        # ATR-20624
+        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=SingleJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [

@@ -1,9 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.ThresholdDef')
-
 from ..Base.Thresholds import Threshold, MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold, ThresholdValue
 
 class ThresholdDef:
@@ -11,7 +7,9 @@ class ThresholdDef:
     alreadyExecuted = False
 
     @staticmethod
-    def registerThresholds(tc):
+    def registerThresholds(tc, menuName):
+
+        isV6 = '_v6' in menuName
 
         if ThresholdDef.alreadyExecuted:
             raise RuntimeError("Calling ThresholdDef.registerThresholds twice")
@@ -228,7 +226,7 @@ class ThresholdDef:
 
         ## AFP
 
-        if '_v6' in TriggerFlags.triggerMenuSetup():
+        if isV6:
             NimThreshold('AFP_NSC', 'NIM', mapping=2)
             NimThreshold('AFP_FSC', 'NIM', mapping=3)
             NimThreshold('AFP_NSA', 'NIM', mapping=4)

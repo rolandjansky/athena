@@ -36,7 +36,7 @@ atlas_add_library( ISF_Geant4Event
                    LINK_LIBRARIES ${ROOT_LIBRARIES}
                    ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
                    ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ISF_Event
-                   SimHelpers GeoPrimitives MCTruth)
+                   ISF_InterfacesLib SimHelpers GeoPrimitives MCTruth)
 
 #atlas_add_test(SOURCES
 #               INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
@@ -44,4 +44,4 @@ atlas_add_library( ISF_Geant4Event
 #               LINK_LIBRARIES
 #              ${CLHEP_LIBRARIES} AtlasHepMCLib
 #               ${EIGEN_LIBRARIES} ISF_Event SimHelpers GeoPrimitives
-#               BarcodeEvent MCTruth)
+#               BarcodeEventLib MCTruth)

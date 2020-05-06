@@ -34,8 +34,6 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
     kwargs.setdefault( "LockMapCurrents", True )
   else:
     kwargs.setdefault( "UseDCS", True )
-    kwargs.setdefault( "UseNewBfieldCache", True )
-    # kwargs.setdefault( "UseNewBfieldCache", False )
     # kwargs.setdefault( "UseDCS", False )
     # kwargs.setdefault( "UseSoleCurrent", 12000 )
     # kwargs.setdefault( "UseToroCurrent", 20400 )

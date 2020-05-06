@@ -613,6 +613,11 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+
+#-------------------------------------------------------------
 # Print top sequence
 #-------------------------------------------------------------
 from AthenaCommon.AlgSequence import dumpSequence

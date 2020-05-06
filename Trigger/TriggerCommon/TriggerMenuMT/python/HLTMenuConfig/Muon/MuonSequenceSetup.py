@@ -122,7 +122,7 @@ def muCombAlgSequence(ConfigFlags):
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
     muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "")
-    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
+    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
     from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg

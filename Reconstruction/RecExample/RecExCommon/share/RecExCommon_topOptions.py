@@ -592,8 +592,20 @@ if globalflags.InputFormat.is_bytestream():
         pass
     pass
 
-### Writing of mu values to xAOD::EventInfo is done in the converter step;
-### It's no longer necessary to write it in the old EventInfo
+### write mu values into xAOD::EventInfo
+if rec.doESD() and rec.readRDO():
+    if globalflags.DataSource()=='geant4':
+        include_muwriter = hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" )
+    else:
+        include_muwriter = jobproperties.Beam.beamType()=="collisions" and not athenaCommonFlags.isOnline()
+
+    if include_muwriter:
+        try:
+            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+        except Exception:
+            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
+            pass
+        pass
 
 if rec.doMonitoring():
     try:

@@ -138,6 +138,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                             DoSeededDecoding = not forFullScan,
                                             RoIs             = RoIs)
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+  MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
 
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
   MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
@@ -336,20 +338,13 @@ def muonIDFastTrackingSequence( RoIs, name ):
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
 
-  global TrackParticlesName
-  global theFTF_name
 
-  #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
-      if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
-          TrackParticlesName = viewAlg.TrackParticlesName
-      if "TrigFastTrackFinder" in  viewAlg.name():
-          theFTF_name = viewAlg.getName()
 
   return muonIDFastTrackingSequence
 
-def muCombRecoSequence( RoIs ):
+def muCombRecoSequence( RoIs, name ):
 
   from AthenaCommon.CFElements import parOR
   muCombRecoSequence = parOR("l2muCombViewNode")
@@ -363,7 +358,7 @@ def muCombRecoSequence( RoIs ):
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon", theFTF_name)
+  muCombAlg = TrigmuCombMTConfig("Muon", name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName
   muCombAlg.TrackParticlesContainerName = TrackParticlesName
   muCombAlg.L2CombinedMuonContainerName = muNames.L2CBName
@@ -375,7 +370,6 @@ def muCombRecoSequence( RoIs ):
 
 
 def l2muisoRecoSequence( RoIs ):
-  global TrackParticlesName
 
   import AthenaCommon.CfgMgr as CfgMgr
   from AthenaCommon.CFElements import parOR
@@ -479,7 +473,6 @@ def muEFSARecoSequence( RoIs, name ):
 
 
 def muEFCBRecoSequence( RoIs, name ):
-  global TrackParticlesName
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
@@ -502,11 +495,9 @@ def muEFCBRecoSequence( RoIs, name ):
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
-     #TrackParticlesName = ""
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-        TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
 
   else:
@@ -704,11 +695,9 @@ def efmuisoRecoSequence( RoIs, Muons ):
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
-  #TrackParticlesName = ""
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
     if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-        TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
 
   #Precision Tracking

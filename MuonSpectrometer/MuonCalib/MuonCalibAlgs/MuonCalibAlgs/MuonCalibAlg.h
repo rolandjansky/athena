@@ -13,8 +13,9 @@
 #include "MuonPrdSelector/MuonIdCutTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-class ICscStripFitter;
+#include "CscClusterization/ICscStripFitter.h"
+#include "MuonCalibITools/IMuonCalibTool.h"
+#include "MuonCalibITools/IIdToFixedIdTool.h"
 
 class TileTBID;
 
@@ -29,8 +30,6 @@ namespace MuonCalib {
   class MuonCalibTruthCollection;
   class MuonCalibRawHitCollection;
   class MuonCalibRawTriggerHitCollection;
-  class IMuonCalibTool;
-  class IIdToFixedIdTool;
   class MuonCalibRawRpcHit;
 
   /**
@@ -49,7 +48,7 @@ namespace MuonCalib {
     /**
        Algorithm destructor (closing the ROOT file)
     */
-    ~MuonCalibAlg(); 
+    ~MuonCalibAlg()=default; 
 
     /**
        Algorithm initialize:

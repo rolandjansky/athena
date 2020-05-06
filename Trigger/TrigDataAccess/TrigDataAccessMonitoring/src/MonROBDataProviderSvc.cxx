@@ -414,11 +414,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_requestedROBsPerCall.value().lowEdge(), 
 					  m_histProp_requestedROBsPerCall.value().highEdge());
   if (m_hist_requestedROBsPerCall) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
      m_hist_requestedROBsPerCall->SetCanExtend(TH1::kAllAxes);
-#else     
-     m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
-#endif     
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endmsg;
     }
@@ -431,11 +427,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_receivedROBsPerCall.value().lowEdge(), 
 					  m_histProp_receivedROBsPerCall.value().highEdge());
   if (m_hist_receivedROBsPerCall) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
      m_hist_receivedROBsPerCall->SetCanExtend(TH1::kAllAxes);
-#else
-     m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
-#endif     
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endmsg;
     }
@@ -448,11 +440,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_timeROBretrieval.value().lowEdge(), 
 					  m_histProp_timeROBretrieval.value().highEdge());
   if (m_hist_timeROBretrieval) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
      m_hist_timeROBretrieval->SetCanExtend(TH1::kAllAxes);
-#else
-     m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
-#endif
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endmsg;
     }

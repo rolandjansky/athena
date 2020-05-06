@@ -49,7 +49,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
 
 void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p1* persObj,
-                                           MsgStream &/*msg*/ )
+                                           MsgStream &msg )
 {
   // NB This method assumes that there all GenEvents are stored in a
   // single McEventCollection, as running with split
@@ -57,6 +57,9 @@ void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
   unsigned short index{0};
   if (transObj->getEventPositionInCollection(SG::CurrentEventStore::store())!=0) {
     index = transObj->eventIndex();
+    if(transObj->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+      msg << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+    }
   }
   persObj->m_mcEvtIndex = index;
   persObj->m_barcode    = transObj->barcode();

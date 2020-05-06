@@ -18,9 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_ParSimServices
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel ISF_Interfaces TrkDetDescrInterfaces ISF_Event )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel ISF_InterfacesLib ISF_ParSimInterfacesLib TrkDetDescrInterfaces ISF_Event )
 
 # Install files from the package:
-atlas_install_headers( ISF_ParSimServices )
 atlas_install_python_modules( python/*.py )
 

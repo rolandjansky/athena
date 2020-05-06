@@ -15,7 +15,6 @@
 
 #include "DBDataModel/CollectionMetadata.h"
 
-#include "GoodRunsLists/TGRLCollection.h"
 #include "GoodRunsLists/TGoodRunsList.h"
 
 #include "TROOT.h"
@@ -31,11 +30,9 @@ LumiBlockMetaDataTool::LumiBlockMetaDataTool(const std::string& type, const std:
    m_nfiles(0),
    m_fileCurrentlyOpened(false),
    m_CurrentFileName("none"),
-   m_grlcollection(new Root::TGRLCollection()),
    m_GoodRunsListSelectorTool("GoodRunsListSelectorTool")
 {
    declareInterface<IMetaDataTool>(this);
-   declareInterface<ILumiBlockMetaDataTool>(this); 
 
    declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
    declareProperty("unfinishedLBCollName",m_unfinishedLBColl_name = "IncompleteLumiBlocks");
@@ -89,8 +86,6 @@ LumiBlockMetaDataTool::~LumiBlockMetaDataTool() {
   delete m_cacheOutputRangeAuxContainer; m_cacheOutputRangeAuxContainer = 0;
   delete m_cacheSuspectOutputRangeContainer; m_cacheSuspectOutputRangeContainer = 0;
   delete m_cacheSuspectOutputRangeAuxContainer; m_cacheSuspectOutputRangeAuxContainer = 0;
-
-  if (m_grlcollection!=0) { delete m_grlcollection; m_grlcollection=0; }
 }
 
 //___________________________________________________________________________
@@ -377,17 +372,3 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 
   return(StatusCode::SUCCESS);
 }
-
-const TString
-LumiBlockMetaDataTool::getGRLString( const TString& /*grlname*/ ) const
-{
-  /*
-  std::vector< Root::TGoodRunsList >::const_iterator itr = m_grlcollection->find( grlname );
-  if (itr!=m_grlcollection->end())
-    return m_converter->GetXMLString(*itr);
-
-  ATH_MSG_WARNING("getGRLString() : GoodRunsList with name <" << grlname << "> not found. Return empty string." );
-  */
-  return "";
-}
-
