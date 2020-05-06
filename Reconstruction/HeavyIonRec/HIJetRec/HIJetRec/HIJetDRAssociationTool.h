@@ -26,6 +26,9 @@
 #include <string>
 #include "JetRec/JetModifierBase.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 class HIJetDRAssociationTool : public JetModifierBase
 {
 
@@ -34,10 +37,11 @@ class HIJetDRAssociationTool : public JetModifierBase
 public:
 
   HIJetDRAssociationTool(const std::string& t);
- 
+
+  virtual StatusCode initialize() override;
+
   /// \brief Implementing abstract methods from base
   StatusCode modify(xAOD::JetContainer& jets) const;
-
 
   /// \brief Implementing abstract methods from base, not used
   int modifyJet(xAOD::Jet&) const {return 1;};
@@ -45,23 +49,20 @@ public:
 private:
 
   /// \brief name of IParticleContainer w/ particles to associate
-  std::string m_container_key;
+  SG::ReadHandleKey< xAOD::IParticleContainer > m_containerKey { this, "ContainerKey", "", "Name of IParticleContainer w/ particles to associate"};
 
   /// \brief Name of jet attribute providing link between jets and IParticles
-  std::string m_assoc_name;
+  Gaudi::Property< std::string > m_assocName { this, "AssociationName", "" , "Name of jet attribute providing link between jets and IParticles" };
 
   /// \brief DR cut defining association
-  float m_DR;
-
+  Gaudi::Property< float > m_DR { this, "DeltaR", 0.8, "DR cut defining association" };
   /// \brief Flag to enable kinematic requirements on associated IParticle
-  bool m_apply_filter;
-
+  Gaudi::Property< bool > m_applyFilter { this, "ApplyFilter",false, "Flag to enable kinematic requirements on associated IParticle" };
   /// \brief Minimum E requirement for associated IParticle, in addition to DR
-  float m_E_min;
-
+  Gaudi::Property< float > m_Emin { this, "FilterMinE", -999., "Minimum E requirement for associated IParticle, in addition to DR" };
   /// \brief Minimum pT requirement for associated IParticle, in addition to DR
-  float m_pT_min;
-    
+  Gaudi::Property< float > m_pTmin { this, "FilterMinPt", 0., "Minimum pT requirement for associated IParticle, in addition to DR" };
+
 };
 
 #endif

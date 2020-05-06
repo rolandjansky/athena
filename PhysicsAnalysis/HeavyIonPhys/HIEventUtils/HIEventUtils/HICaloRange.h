@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HICALORANGE_H
-#define HICALORANGE_H
+#ifndef HIEVENTUTILS_HICALORANGE_H
+#define HIEVENTUTILS_HICALORANGE_H
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
@@ -27,7 +27,7 @@ public:
   bool LayerInRange(float eta, int layer);
   inline float getRangeMin(int layer) const {return m_range.find(layer)->second.first;};
   inline float getRangeMax(int layer) const {return m_range.find(layer)->second.second;};
- 
+
 private:
   //private constructor for singleton
   HICaloRange();
@@ -39,7 +39,7 @@ private:
 
   //members
   typedef std::pair<float,float> range_t;
-  std::map<int, range_t > m_range; 
+  std::map<int, range_t > m_range;
   static HICaloRange s_range;
   static bool s_init;
 
