@@ -14,8 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
                           Event/xAOD/xAODEventInfo
-                          Tools/PathResolver
-                          External/AtlasROOT)
+                          Tools/PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
