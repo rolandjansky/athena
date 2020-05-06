@@ -1871,6 +1871,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (m_orDoTau) ATH_CHECK(m_orToolbox.tauJetORT.setProperty("EnableUserPriority", true));
     if (m_orDoPhoton) ATH_CHECK(m_orToolbox.phoJetORT.setProperty("EnableUserPriority", true));
 
+    if ( m_orPhotonFavoured ) {
+       ATH_CHECK(m_orToolbox.phoEleORT.setProperty("SwapContainerPrecedence", true));
+       ATH_CHECK(m_orToolbox.phoMuORT.setProperty("SwapContainerPrecedence", true));
+    }
+
     if (!m_orDoEleJet){
       // Disable the electron removal part of e-j overlap removal
       ATH_CHECK( m_orToolbox.eleJetORT.setProperty("OuterDR",-1.) );

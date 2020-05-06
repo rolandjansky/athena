@@ -679,6 +679,7 @@ namespace ST {
     bool   m_orRemoveCaloMuons;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
+    bool   m_orPhotonFavoured;
     double m_orBJetPtUpperThres;
     bool m_orLinkOverlapObjects;
 

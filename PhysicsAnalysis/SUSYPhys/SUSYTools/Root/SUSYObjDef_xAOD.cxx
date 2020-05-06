@@ -265,6 +265,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orRemoveCaloMuons(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
+    m_orPhotonFavoured(false),
     m_orBJetPtUpperThres(-999.),
     m_orLinkOverlapObjects(false),
     m_orDoFatjets(false),
@@ -429,6 +430,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORInputLabel", m_orInputLabel);
+  declareProperty( "ORPhotonFavoured", m_orPhotonFavoured);
   declareProperty( "ORBJetPtUpperThres", m_orBJetPtUpperThres);
   declareProperty( "ORLinkOverlapObjects", m_orLinkOverlapObjects);
 
@@ -1430,6 +1432,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
+  configFromFile(m_orPhotonFavoured, "OR.PhotonFavoured", rEnv, false);
   configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
   configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false);
   //
