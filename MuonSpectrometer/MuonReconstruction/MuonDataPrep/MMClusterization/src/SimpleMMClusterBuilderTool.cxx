@@ -17,8 +17,8 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
   m_mmIdHelper(nullptr)
 {
   declareInterface<IMMClusterBuilderTool>(this);
-  declareProperty("useErrorParametrization",m_useErrorParametrization=true);
-
+  declareProperty("useErrorParametrization", m_useErrorParametrization = true);
+  declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
 Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
@@ -86,22 +86,25 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     int strip = m_mmIdHelper->channel(id_prd);
     int gasGap  = m_mmIdHelper->gasGap(id_prd);
     int layer   = m_mmIdHelper->multilayer(id_prd);
-    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
-		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
-    for (unsigned int j=i+1; j<MMprds.size(); ++j){
+    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip
+		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z());
+    for (unsigned int j = i+1; j < MMprds.size(); ++j) {
       Identifier id_prdN = MMprds[j].identify();
       int stripN = m_mmIdHelper->channel(id_prdN);
       int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
       int layerN   = m_mmIdHelper->multilayer(id_prdN);
-      if( gasGapN==gasGap && layerN==layer ) {
-	ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-	if(abs(strip-stripN)<2) {
-	  jmerge = j;
-	  break;
-	}
+      if (gasGapN == gasGap && layerN == layer) {
+          ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j
+                          << " strip " << stripN
+                          << " gasGap " << gasGapN
+                          << " layer " << layerN);
+          if (std::abs(strip-stripN) <= m_maxHoleSize + 1) {
+          jmerge = j;
+          break;
+        }
       }
     }
- 
+
     unsigned int nmerge = 0;
     std::vector<Identifier> rdoList;
     std::vector<unsigned int> mergeIndices;
@@ -123,7 +126,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_mmIdHelper->channel(id_prdN);
-	if( abs(mergeStrips[k]-stripN) <= 1 ) {
+	if( std::abs(mergeStrips[k]-stripN) <= 1 ) {
 	  int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
 	  int layerN   = m_mmIdHelper->multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
