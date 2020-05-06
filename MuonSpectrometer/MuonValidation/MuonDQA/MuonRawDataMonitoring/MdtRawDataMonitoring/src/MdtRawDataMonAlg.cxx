@@ -552,21 +552,21 @@ void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollect
 
   if( adc>m_ADCCut ) {
     //barrel
-    if(fabs(mdt_tube_eta)>0. && fabs(mdt_tube_eta)<0.9) {
+    if(std::abs(mdt_tube_eta)>0. && std::abs(mdt_tube_eta)<0.9) {
       vects.mdt_tube_x_barrel.push_back(mdtgPos.x());
       vects.mdt_tube_y_barrel.push_back(mdtgPos.y());
       vects.mdt_tube_z_barrel.push_back(mdtgPos.z());
       vects.mdt_tube_perp_barrel.push_back(mdtgPos.perp());
     }   
     //OverLap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>0.9 && fabs(mdt_tube_eta)<1.2) {
+    if(std::abs(mdt_tube_eta)>0.9 && std::abs(mdt_tube_eta)<1.2) {
       vects.mdt_tube_x_ovl.push_back(mdtgPos.x());
       vects.mdt_tube_y_ovl.push_back(mdtgPos.y());
       vects.mdt_tube_z_ovl.push_back(mdtgPos.z());
       vects.mdt_tube_perp_ovl.push_back(mdtgPos.perp());
     }
     //EndCap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>1.2 && fabs(mdt_tube_eta)<2.7){
+    if(std::abs(mdt_tube_eta)>1.2 && std::abs(mdt_tube_eta)<2.7){
       vects.mdt_tube_x_endcap.push_back(mdtgPos.x());
       vects.mdt_tube_y_endcap.push_back(mdtgPos.y());
       vects.mdt_tube_z_endcap.push_back(mdtgPos.z());

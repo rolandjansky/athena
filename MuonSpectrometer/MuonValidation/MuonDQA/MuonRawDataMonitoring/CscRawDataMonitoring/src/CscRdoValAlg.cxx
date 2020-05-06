@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -15,9 +15,6 @@
 
 // Athena include(s)
 #include "CscRawDataMonitoring/CscRdoValAlg.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
-
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
 
@@ -100,19 +97,12 @@ CscRdoValAlg::~CscRdoValAlg() {
 // initialize ----------------------------------------------------------------
 //
 StatusCode CscRdoValAlg::initialize() {
-
-  ATH_MSG_DEBUG ( "CscRdoValAlg : in initialize()"  );
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_MSG_DEBUG ( " Found the CscIdHelper. "  );
-
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+  ATH_MSG_DEBUG ("CscRdoValAlg : in initialize()");
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
-
   ATH_CHECK(m_cscRdoKey.initialize());
-
-  ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -212,10 +202,6 @@ void  CscRdoValAlg::bookRdoHistograms(){
   float nyminEC = -17.; //
   float nymaxEC = 0.;  //
   ///******************** DO NOT MODIFY (end) ***********************************************///
-
-  //if (newEventsBlock){}
-  //if (newLumiBlock){}
-  //if (newRun) {
   
   // book histograms
   m_h1csc_rdo_maxdiffamp = new TH1F("h1csc_rdo_maxdiffamp", "Max Amplitude in ROD Cluster;ADC counts;;",500,0,5000);
@@ -408,8 +394,6 @@ void  CscRdoValAlg::bookRdoHistograms(){
 
   m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluswidth);           // expert
 
-  //}
-
 }
 
 //
@@ -421,10 +405,6 @@ StatusCode CscRdoValAlg::bookHistograms(){
   StatusCode sc = StatusCode::SUCCESS;
 
   bookRdoHistograms();
-
-  //if (newEventsBlock){}
-  //if (newLumiBlock){}
-  //if (newRun) {
 
   //declare a group of histograms
   MonGroup cscrdo_shift( this, m_cscRDOPath+"/Shift", run, ATTRIB_MANAGED );
@@ -538,21 +518,17 @@ StatusCode CscRdoValAlg::fillHistograms() {
         // Identify side(A/C), sector(1-16)/layer(1-4)
         stationId = m_cscRdoDecoderTool->stationIdentifier(raw);
         channelId = m_cscRdoDecoderTool->channelIdentifier(raw,0);
-        int stationName = m_muonIdHelperTool->cscIdHelper().stationName(channelId);
-        std::string stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(stationName);
+        int stationName = m_idHelperSvc->cscIdHelper().stationName(channelId);
+        std::string stationString = m_idHelperSvc->cscIdHelper().stationNameString(stationName);
         int chamberType = stationString == "CSS" ? 0 : 1;
-        int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(channelId);
-        int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(channelId);
-        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(channelId);
-        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
+        int stationEta  = m_idHelperSvc->cscIdHelper().stationEta(channelId);
+        int stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(channelId);
+        int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(channelId);
+        int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
 
         // determine the sector number
 
         int sectorNo  = stationEta * (2 * stationPhi - chamberType);
-
-        // check boundaries of sector/layer - redundancy
-        //if(!(sectorNo+16) < 33) sectorNo = 0;
-        //if(!(wireLayer < 5)) wireLayer = 0;
 
         // compute the indices to store cluster count
         int ns = sectorNo < 0 ? sectorNo*(-1) : sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
@@ -574,7 +550,6 @@ StatusCode CscRdoValAlg::fillHistograms() {
         int xfac = measuresPhi ? -1 : 1;        // -48 / +192
 
         // this way we get 4 time samples per strip
-        // no of strips = width
         ATH_MSG_DEBUG ( " Width of ROD cluster   : " << raw->width()  );
         uint16_t diff_max = 0, diff;
         std::vector<float> xVals ; /*, m_yVals;*/
@@ -594,14 +569,13 @@ StatusCode CscRdoValAlg::fillHistograms() {
 
           // identify this strip
           Identifier chID = m_cscRdoDecoderTool->channelIdentifier(raw, n);
-          int strip = m_muonIdHelperTool->cscIdHelper().strip(chID);
+          int strip = m_idHelperSvc->cscIdHelper().strip(chID);
           float stripId = strip * xfac;         // x-axis fill value
 
           m_h2csc_rdo_hitmap->Fill(stripId, secLayer);  // fill hitmap 
 
           // for every strip that has a hit, store the X,Y values
           xVals.push_back(stripId);
-          //m_yVals.push_back(secLayer);
 
           // extract the (four) time samples for this strip
           std::vector<uint16_t> samples;
@@ -740,78 +714,6 @@ StatusCode CscRdoValAlg::fillHistograms() {
 
   return sc;
 }
-
-//
-// procHistograms ----------------------------------------------------------------
-//
-StatusCode CscRdoValAlg::procHistograms() {
-  ATH_MSG_DEBUG ( "CscRdoValAlg : in procHistograms()"  );
-  StatusCode sc = StatusCode::SUCCESS;
-  /*if(isEndOfRun){
-    std::string m_cscGenPath = m_cscRDOPath.substr(0,m_cscRDOPath.find("CSC"));
-  //MonGroup m_cscrdo_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-  for(size_t j = 0; j < m_regHOviewEC.size(); j++ ) {
-  TH1 *m_h(0);
-  m_h = m_regHOviewEC[j];
-  if(m_h != NULL) {
-  bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
-  if(m_hist2d) {
-  std::string m_hname = m_h->GetName();
-  // Get Y-projection (sec+0.2*lay)
-  TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
-  // set bin labels
-  CscRdoBins::RdoBinLabels(m_hY,-1);
-  // register histogram with Overview/CSCEC
-  sc = m_cscrdo_oviewEC->regHist(m_hY);
-  if ( sc.isFailure() ) {
-  ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
-  return sc;
-  }
-  // Get X-projection (counts)
-  TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-  sc = m_cscrdo_oviewEC->regHist(m_hX);
-  if ( sc.isFailure() ) {
-  ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
-  return sc;
-  }
-  } // end if hist2d
-  } // end if m_h
-  } // end for
-
-  //MonGroup m_cscrdo_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-  for(size_t j = 0; j < m_regHOviewEA.size(); j++ ) {
-  TH1 *m_h(0);
-  m_h = m_regHOviewEA[j];
-  if(m_h != NULL) {
-  bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
-  if(m_hist2d) {
-  std::string m_hname = m_h->GetName();
-  // Get Y-projection (sec+0.2*lay)
-  TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
-  // set bin labels
-  CscRdoBins::RdoBinLabels(m_hY,1);
-  // register histogram with Overview/CSCEA
-  sc = m_cscrdo_oviewEA->regHist(m_hY);
-  if ( sc.isFailure() ) {
-  ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
-  return sc;
-  }
-  // Get X-projection (counts)
-  TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-  sc = m_cscrdo_oviewEA->regHist(m_hX);
-  if ( sc.isFailure() ) {
-  ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
-  return sc;
-  }
-  } // end if hist2d
-  } // end if m_h
-  } // end for
-
-  } // end isEndOfRun*/
-
-  return sc;
-}
-
 
 //
 // checkHists ----------------------------------------------------------------

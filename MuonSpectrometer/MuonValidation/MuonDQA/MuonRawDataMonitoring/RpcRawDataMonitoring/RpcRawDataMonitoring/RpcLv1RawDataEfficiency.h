@@ -15,40 +15,14 @@
 #ifndef RpcLv1RawDataEfficiency_H
 #define RpcLv1RawDataEfficiency_H
 
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutSet.h"
-#include "MuonGeoModel/MYSQL.h"
-
-#include "muonEvent/MuonContainer.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "AthenaBaseComps/AthAlgorithm.h"  
-
-#include "MuonRDO/RpcFiredChannel.h"
-#include "MuonRDO/RpcCoinMatrix.h"
-#include "MuonRDO/RpcPad.h"
-#include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
-
-#include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
-#include "MuonTrigCoinData/RpcCoinDataCollection.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include "xAODEventInfo/EventInfo.h"
-
 #include "StoreGate/ReadHandleKey.h"
 
 // STL includes
@@ -57,14 +31,12 @@
 #include <vector>
 #include <map>
 
-
 // ROOT includes
 #include <TH2I.h>
 #include <inttypes.h> 
 
 //================================================================================================================================
 template <class ConcreteAlgorithm> class AlgFactory;
-
 
 //================================================================================================================================
 class OfflineMuon {
@@ -169,14 +141,11 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
 
   StatusCode readRpcCoinDataContainer();
 
-  // virtual StatusCode GetHistograms();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms( );
 
  private:
-  // Retrieving information and data
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
