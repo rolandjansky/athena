@@ -11,6 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters )
 
-# Install files from the package:
-atlas_install_headers( ISF_ParSimInterfaces )
-
+atlas_add_library( ISF_ParSimInterfacesLib
+                   ISF_ParSimInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS ISF_ParSimInterfaces
+                   LINK_LIBRARIES GaudiKernel TrkParameters xAODTracking )

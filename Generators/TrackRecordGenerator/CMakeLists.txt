@@ -23,7 +23,7 @@ atlas_add_library( TrackRecordGeneratorLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GeneratorModulesLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel TrackRecordLib )
 
 atlas_add_component( TrackRecordGenerator
                      src/components/*.cxx

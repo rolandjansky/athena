@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_TrackingTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event TrkDetDescrInterfaces TrkGeometry TrkEventPrimitives TrkParameters TrkExInterfaces )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event ISF_TrackingInterfacesLib TrkDetDescrInterfaces TrkGeometry TrkEventPrimitives TrkParameters TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

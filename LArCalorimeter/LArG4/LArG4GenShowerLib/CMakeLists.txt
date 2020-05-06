@@ -32,8 +32,8 @@ atlas_add_library( LArG4GenShowerLibLib
                    PUBLIC_HEADERS LArG4GenShowerLib
                    PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel G4AtlasToolsLib
-                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GeneratorObjects LArG4Code LArG4ShowerLib )
+                   LINK_LIBRARIES AthenaBaseComps AthContainers AtlasHepMCLib GaudiKernel G4AtlasToolsLib LArG4Code
+                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GeneratorObjects GeoModelInterfaces LArG4ShowerLib )
 
 atlas_add_component( LArG4GenShowerLib
                      src/components/*.cxx

@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_Tools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AtlasDetDescr BarcodeInterfacesLib GeneratorObjects ISF_Event ISF_InterfacesLib TrackRecordLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
