@@ -156,7 +156,7 @@ def get_release_setup():
     project=os.environ['AtlasProject']
 
     # Search through the main nightly installation location
-    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'_AthDerivation_'+platform +'/[!latest_]*/'+project+'/'+release_head
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
 
     latest_nightly = ''
