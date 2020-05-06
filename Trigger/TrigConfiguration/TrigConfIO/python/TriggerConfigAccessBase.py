@@ -139,6 +139,7 @@ class ConfigDBLoader(ConfigLoader):
         failures = []
         config = None
         for q in self.query:
+            print q.format(**qdict)
             try:
                 cursor.execute( q.format(**qdict) )
             except DatabaseError as e:
@@ -212,7 +213,7 @@ class TriggerConfigAccess(object):
         print("Configuration size: %s" % len(self))
 
     def writeFile(self, filename = None):
-        if not filename:
+        if filename is None:
             filename = self.loader.getWriteFilename()
         with open(filename, 'w') as fh:
             json.dump(self.config(), fh, indent = 4, separators=(',', ': '))
