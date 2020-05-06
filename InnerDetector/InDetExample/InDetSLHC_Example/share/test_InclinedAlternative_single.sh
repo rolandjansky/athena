@@ -39,7 +39,7 @@ artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="InclinedDuals"
-###MW script="`basename \"$0\"`"
+
 
 # Set the input file
 if [ $particle == "muons" -a $energy == "1GeV" ]; then
