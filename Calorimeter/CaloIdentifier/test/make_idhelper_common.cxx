@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file  CaloIdentifier/test/make_idhelper_common.cxx
  * @author scott snyder
@@ -37,7 +36,8 @@ std::unique_ptr<T> make_helper (const IdDictParser& parser,
 {
   auto idhelper = std::make_unique<T>();
   idhelper->set_do_neighbours (do_neighbours);
-  assert (idhelper->initialize_from_dictionary (parser.m_idd) == 0);
+  int stat = idhelper->initialize_from_dictionary (parser.m_idd);
+  assert (stat == 0);
 
   assert (!idhelper->do_checks());
   if (do_checks) {
