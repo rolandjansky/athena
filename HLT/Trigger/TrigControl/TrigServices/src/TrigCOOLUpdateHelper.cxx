@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -231,6 +231,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   }
 
   auto mon_t = Monitored::Timer("TIME_CoolFolderUpdate");
+  Monitored::Group mon(m_monTool, mon_t);
 
   // Reset folder and make IOVDbSvc drop objects
   if (resetFolder(folderName, ctx.eventID().run_number(), true).isFailure()) {
