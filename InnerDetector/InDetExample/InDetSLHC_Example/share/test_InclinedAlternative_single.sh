@@ -11,8 +11,8 @@ echo "Input Parameters"
 particle=$1
 energy=$2
 geometry=$3
-echo 'particle type '$particle' energy '$energy' geometry '${geometry} 
-
+script=$4
+echo 'Particle type: '$particle', energy: '$energy', geometry: '${geometry}', script name: ',${script}
 
 
 
@@ -39,7 +39,7 @@ artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="InclinedDuals"
-script="`basename \"$0\"`"
+
 
 # Set the input file
 if [ $particle == "muons" -a $energy == "1GeV" ]; then

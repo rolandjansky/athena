@@ -12,10 +12,11 @@
 
 
 file=test_ITk_single_particle.sh
+script="`basename \"$0\"`"
 
 echo "Executing script ${file}"
 echo " "
-"$file" electrons 100GeV  ATLAS-P2-ITK-22-02-00
+"$file" electrons 100GeV  ATLAS-P2-ITK-22-02-00 ${script}
 
 
 
