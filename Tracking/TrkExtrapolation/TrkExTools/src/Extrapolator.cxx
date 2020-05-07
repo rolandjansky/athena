@@ -6,12 +6,11 @@
 // Extrapolator.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-// #include "GaudiKernel/EventContext.h"
 // Trk inlcude
 #include "TrkExTools/ObjContainer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkExToolsStringUtility.h"
 
 // for debugging could implement these methods to instrument input track parameters with
 // e.g. constructor and destructor monitoring
@@ -69,11 +68,10 @@ inline Trk::TrackParameters *cloneObj<Trk::TrackParameters>(const Trk::TrackPara
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-// #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 // for the comparison with a pointer
-#include <stdint.h>
+#include <cstdint>
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -98,11 +96,11 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   m_propagators(),
   m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
   m_navigator("Trk::Navigator/AtlasNavigator"),
-  m_updators(),
-  m_msupdators(),
-  m_elossupdators(),
+  m_updaters(),
+  m_msupdaters(),
+  m_elossupdaters(),
   m_subPropagators(Trk::NumberOfSignatures),
-  m_subUpdators(Trk::NumberOfSignatures),
+  m_subupdaters(Trk::NumberOfSignatures),
   m_propNames(),
   m_updatNames(),
   m_includeMaterialEffects(true),
@@ -174,9 +172,9 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   // material effects handling
   declareProperty("ApplyMaterialEffects", m_includeMaterialEffects);
   declareProperty("RequireMaterialDestinationHit", m_requireMaterialDestinationHit);
-  declareProperty("MaterialEffectsUpdators", m_updators);
-  declareProperty("MultipleScatteringUpdators", m_msupdators);
-  declareProperty("EnergyLossUpdators", m_elossupdators);
+  declareProperty("MaterialEffectsUpdators", m_updaters);
+  declareProperty("MultipleScatteringUpdators", m_msupdaters);
+  declareProperty("EnergyLossUpdators", m_elossupdaters);
   declareProperty("SubMEUpdators", m_updatNames);
   declareProperty("CacheLastMaterialLayer", m_cacheLastMatLayer);
   // general behavior navigation
@@ -225,14 +223,14 @@ Trk::Extrapolator::initialize() {
   if (m_propagators.empty()) {
     m_propagators.push_back("Trk::RungeKuttaPropagator/DefaultPropagator");
   }
-  if (m_updators.empty()) {
-    m_updators.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
+  if (m_updaters.empty()) {
+    m_updaters.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
   }
-  if (m_msupdators.empty()) {
-    m_msupdators.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
+  if (m_msupdaters.empty()) {
+    m_msupdaters.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
   }
-  if (m_elossupdators.empty()) {
-    m_elossupdators.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
+  if (m_elossupdaters.empty()) {
+    m_elossupdaters.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
   }
   if (!m_propagators.empty()) {
     ATH_CHECK( m_propagators.retrieve() ); 
@@ -254,47 +252,59 @@ Trk::Extrapolator::initialize() {
   ATH_CHECK( m_navigator.retrieve() );
  
   // Get the Material Updator
-  if (m_includeMaterialEffects && not m_updators.empty()) {
-    ATH_CHECK( m_updators.retrieve() );
-      for (auto& tool : m_updators) {
+  if (m_includeMaterialEffects && not m_updaters.empty()) {
+    ATH_CHECK( m_updaters.retrieve() );
+      for (auto& tool : m_updaters) {
         // @TODO tools, that are already used, should not be disabled. Those are currently disabled to silence the warning 
-        // issued by the tool usage detection, which is circumvented in case of the m_updators. 
+        // issued by the tool usage detection, which is circumvented in case of the m_updaters. 
         tool.disable();
       }    
   }
 
   // from the number of retrieved propagators set the configurationLevel
-  unsigned int validmeuts = m_updators.size();
-
+  unsigned int validmeuts = m_updaters.size();
+  std::vector<std::string> fullPropagatorNames(m_propagators.size());
+  std::vector<std::string> fullUpdatorNames(m_updaters.size());
+  auto extractNameFromTool = [] (const auto & toolHndl ){return toolHndl->name();};
+  std::transform(m_propagators.begin(), m_propagators.end(), fullPropagatorNames.begin(), extractNameFromTool );
+  std::transform(m_updaters.begin(), m_updaters.end(), fullUpdatorNames.begin(), extractNameFromTool );
   // -----------------------------------------------------------
   // Sanity check 1
-
   if (m_propNames.empty() && not m_propagators.empty()) {
     ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-propagators configured, doing it for you. ");
-    m_propNames.push_back(m_propagators[0]->name().substr(8, m_propagators[0]->name().size() - 8));
+    m_propNames.push_back(TrkExTools::getToolSuffix(fullPropagatorNames[0]));
+    if (TrkExTools::numberOfUniqueEntries(m_propNames) != TrkExTools::numberOfUniqueEntries(fullPropagatorNames)){
+      ATH_MSG_ERROR("Some configured propagators have same name but different owners");
+    }
+    if (const auto & errMsg=TrkExTools::possibleToolNameError(m_propNames); not errMsg.empty()){
+      ATH_MSG_ERROR(errMsg);
+    }
   }
 
-  if (m_updatNames.empty() && not m_updators.empty()) {
-    ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-materialupdators configured, doing it for you. ");
-    m_updatNames.push_back(m_updators[0]->name().substr(8, m_updators[0]->name().size() - 8));
+  if (m_updatNames.empty() && not m_updaters.empty()) {
+    ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-material updaters configured, doing it for you. ");
+    m_updatNames.push_back(TrkExTools::getToolSuffix(fullUpdatorNames[0]));
+    if (TrkExTools::numberOfUniqueEntries(m_updatNames) != TrkExTools::numberOfUniqueEntries(fullUpdatorNames)){
+      ATH_MSG_ERROR("Some configured material updaters have same name but different owners");
+    }
+    if (const auto & errMsg=TrkExTools::possibleToolNameError(m_updatNames); not errMsg.empty()){
+      ATH_MSG_ERROR(errMsg);
+    }
   }
+  
 
   // -----------------------------------------------------------
   // Sanity check 2
   // fill the number of propagator names and updator names up with first one
-  while (int(m_propNames.size()) < int(Trk::NumberOfSignatures)) {
-    m_propNames.push_back(m_propNames[0]);
-  }
-  while (int(m_updatNames.size()) < int(Trk::NumberOfSignatures)) {
-    m_updatNames.push_back(m_updatNames[0]);
-  }
+  m_propNames.resize(int(Trk::NumberOfSignatures), m_propNames[0]);
+  m_updatNames.resize(int(Trk::NumberOfSignatures), m_updatNames[0]);
+  
   if (validprop && validmeuts) {
     // Per definition: if configured not found, take the lowest one
     for (unsigned int isign = 0; int(isign) < int(Trk::NumberOfSignatures); ++isign) {
       unsigned int index = 0;
-
       for (unsigned int iProp = 0; iProp < m_propagators.size(); iProp++) {
-        std::string pname = m_propagators[iProp]->name().substr(8, m_propagators[iProp]->name().size() - 8);
+        std::string pname = TrkExTools::getToolSuffix(m_propagators[iProp]->name());
         if (m_propNames[isign] == pname) {
           index = iProp;
         }
@@ -303,20 +313,30 @@ Trk::Extrapolator::initialize() {
       m_subPropagators[isign] = (index < validprop) ? &(*m_propagators[index]) : &(*m_propagators[Trk::Global]);
 
       index = 0;
-      for (unsigned int iUp = 0; iUp < m_updators.size(); iUp++) {
-        std::string uname = m_updators[iUp]->name().substr(8, m_updators[iUp]->name().size() - 8);
+      for (unsigned int iUp = 0; iUp < m_updaters.size(); iUp++) {
+        std::string uname = TrkExTools::getToolSuffix(m_updaters[iUp]->name());
         if (m_updatNames[isign] == uname) {
           index = iUp;
         }
       }
-      ATH_MSG_DEBUG(" subMEUpdator:" << isign << " pointing to updator: " << m_updators[index]->name());
-      m_subUpdators[isign] = (index < validmeuts) ? &(*m_updators[index]) : &(*m_updators[Trk::Global]);
+      ATH_MSG_DEBUG(" subMEUpdator:" << isign << " pointing to updator: " << m_updaters[index]->name());
+      m_subupdaters[isign] = (index < validmeuts) ? &(*m_updaters[index]) : &(*m_updaters[Trk::Global]);
     }
   } else {
     ATH_MSG_FATAL("Configuration Problem of Extrapolator: "
                   << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! ");
   }
-
+  const auto nprop = fullPropagatorNames.size();
+  const auto nupdate = fullUpdatorNames.size();
+  const std::string propStr = std::to_string(nprop)+" propagator" + std::string((nprop == 1)? "":"s");
+  const std::string updStr = std::to_string(nupdate)+" updater" + std::string((nprop == 1)? "":"s");
+  std::string msgString{"\nThe extrapolator uses six propagators and material effects updaters:\n"};
+  msgString += propStr + " and "+updStr+" were given in the configuration,\n";
+  msgString += "the rest have been filled from defaults, as follows: \n";
+  for (int i(0);i != int(Trk::NumberOfSignatures);++i){
+    msgString += std::to_string(i)+") propagator: "+m_subPropagators[i]->name()+", updater: "+m_subupdaters[i]->name()+"\n";
+  }
+  ATH_MSG_INFO(msgString);
   ATH_CHECK( m_stepPropagator.retrieve() );
   ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
@@ -866,7 +886,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+          Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                     1. / currentqoverp), 1., dir, particle);
           ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
                         << nextPar->momentum().mag() - currPar->momentum().mag() << "," << eloss->deltaE());
@@ -881,13 +901,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
         double dInX0 = fabs(path) / propagVol->x0();
         Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
         double scatsigma =
-          sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+          sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                             particle));
         Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                    nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+        Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                   1. / currentqoverp), 1., dir, particle);
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1171,7 +1191,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+          Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                     1. / currentqoverp), 1., dir, particle);
           cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
           if (m_dumpCache) {
@@ -1188,13 +1208,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
         }
         Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
         double scatsigma =
-          sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+          sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                             particle));
         Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                    nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(1. / currentqoverp), 1.,
+        Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(1. / currentqoverp), 1.,
                                                                 dir, particle);
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1295,7 +1315,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                   }
                   cache.m_extrapolationCache->updateX0(dInX0);
                   double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                  EnergyLoss *eloss = m_elossupdators[0]->energyLoss(*lmat, fabs(
+                  EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(*lmat, fabs(
                                                                        1. / currentqoverp), 1. / costr, dir, particle);
                   cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(),
                                                     eloss->meanRad(), eloss->sigmaRad());
@@ -1309,12 +1329,12 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
               if (cache.m_matstates) {
                 double dInX0 = thick / lx0;
                 double scatsigma =
-                  sqrt(m_msupdators[0]->sigmaSquare(*lmat, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
+                  sqrt(m_msupdaters[0]->sigmaSquare(*lmat, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
                 Trk::ScatteringAngles *newsa =
                   new Trk::ScatteringAngles(0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
                 // energy loss
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                EnergyLoss *eloss = m_elossupdators[0]->energyLoss(*lmat, fabs(
+                EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(*lmat, fabs(
                                                                      1. / currentqoverp), 1. / costr, dir, particle);
 
                 // use curvilinear TPs to simplify retrieval by fitters
@@ -1434,7 +1454,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                                                                                                                 // @TODO
                                                                                                                 // check
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+                EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                      1. / currentqoverp), 1. / costr, dir, particle);
                 cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(),
                                                   eloss->meanRad(), eloss->sigmaRad());
@@ -1451,13 +1471,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                                                                                                               // @TODO
                                                                                                               // check
               double scatsigma =
-                sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+                sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                                   particle));
               Trk::ScatteringAngles *newsa =
                 new Trk::ScatteringAngles(0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
               // energy loss
               double currentqoverp = nextPar->parameters()[Trk::qOverP];
-              EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+              EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                    1. / currentqoverp), 1. / costr,
                                                                  dir, particle);
 
@@ -2002,7 +2022,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
           const Trk::Layer *lay = (*dIter)->layerRepresentation();
           if (lay && lay != cache.m_lastMaterialLayer) {
             // material update (from detached trackingvolume)
-            const IMaterialEffectsUpdator *currentUpdator = m_subUpdators[(*dIter)->geometrySignature()];
+            const IMaterialEffectsUpdator *currentUpdator = m_subupdaters[(*dIter)->geometrySignature()];
             if (currentUpdator) {
                nextPar = ManagedTrackParmPtr::recapture(
                                     nextPar,
@@ -2362,8 +2382,8 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &,
 void
 Trk::Extrapolator::validationAction() const {
   // record the updator validation information
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-    m_subUpdators[imueot]->validationAction();
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    m_subupdaters[imueot]->validationAction();
   }
   // record the navigator validation information
   m_navigator->validationAction();
@@ -2387,9 +2407,9 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    const Trk::BoundaryCheck& bcheck,
                                    Trk::ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode) const {
-  // set the model action of the material effects updators
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-    m_subUpdators[imueot]->modelAction();
+  // set the model action of the material effects updaters
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    m_subupdaters[imueot]->modelAction();
   }
 
   // reset the destination surface
@@ -2584,9 +2604,9 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
       }
       if (resultParameters){
         // destination reached : indicated through result parameters
-        // set the model action of the material effects updators
-        for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-          m_subUpdators[imueot]->modelAction();
+        // set the model action of the material effects updaters
+        for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+          m_subupdaters[imueot]->modelAction();
         }
         // return the parameters at destination
         ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");
@@ -3518,7 +3538,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(
   if (bParameters && bParameters->associatedSurface().materialLayer()) {
     ATH_MSG_VERBOSE(" [+] parameters on BoundarySurface with material.");
     if (m_includeMaterialEffects) {
-      const IMaterialEffectsUpdator *currentUpdator = m_subUpdators[tvol.geometrySignature()];
+      const IMaterialEffectsUpdator *currentUpdator = m_subupdaters[tvol.geometrySignature()];
       if (currentUpdator) {
          bParameters = ManagedTrackParmPtr::recapture(
                                     bParameters,
@@ -4401,7 +4421,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(Cache& cache,
       cache.m_extrapolationCache->updateX0(tInX0);
       double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
       std::unique_ptr<Trk::EnergyLoss> 
-         energyLoss( m_elossupdators[0]->energyLoss(*materialProperties,std::abs(1. / currentQoP),
+         energyLoss( m_elossupdaters[0]->energyLoss(*materialProperties,std::abs(1. / currentQoP),
                                                     pathCorrection, propDir,particle));
       cache.m_extrapolationCache->updateEloss(energyLoss->meanIoni(), energyLoss->sigmaIoni(),
                                         energyLoss->meanRad(), energyLoss->sigmaRad());
@@ -4415,11 +4435,11 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(Cache& cache,
     double tInX0 = pathCorrection * materialProperties->thicknessInX0();
     // get the q/p for the energyLoss object
     double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
-    Trk::EnergyLoss *energyLoss = m_elossupdators[0]->energyLoss(*materialProperties, fabs(
+    Trk::EnergyLoss *energyLoss = m_elossupdaters[0]->energyLoss(*materialProperties, fabs(
                                                   1. / currentQoP), pathCorrection, propDir, particle);
     // get the scattering angle
     double sigmaMS =
-      sqrt(m_msupdators[0]->sigmaSquare(*materialProperties, fabs(1. / currentQoP), pathCorrection, particle));
+      sqrt(m_msupdaters[0]->sigmaSquare(*materialProperties, fabs(1. / currentQoP), pathCorrection, particle));
     Trk::ScatteringAngles *scatAngles = new ScatteringAngles(0, 0, sigmaMS / sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
     Trk::MaterialEffectsOnTrack *meot = new Trk::MaterialEffectsOnTrack(tInX0, scatAngles, energyLoss,
                                                                         *lay.surfaceRepresentation().baseSurface());
@@ -5068,7 +5088,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
       double dInX0 = fabs(path) / cache.m_currentDense->x0();
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
-      Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+      Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                 1. / currentqoverp), 1., dir, particle);
       if (m_dumpCache) {
         dumpCache(cache," extrapolateToVolumeWithPathLimit");
@@ -5084,12 +5104,12 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
       double dInX0 = fabs(path) / cache.m_currentDense->x0();
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
       double scatsigma =
-        sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
+        sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
       Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                  nextPar->parameters()[Trk::theta]), scatsigma);
       // energy loss
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
-      Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+      Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                 1. / currentqoverp), 1., dir, particle);
       // compare energy loss
       ATH_MSG_DEBUG(" [M] Energy loss: STEP , EnergyLossUpdator:"

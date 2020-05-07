@@ -12,8 +12,7 @@
 // Gaudi/StoreGate
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "StoreGate/ReadCondHandleKey.h"
+//#include "StoreGate/ReadCondHandleKey.h"
 
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -821,19 +820,19 @@ VERBOSE : Method call sequence with values
     ToolHandleArray< IPropagator >              m_propagators;                   //!<  Array of Propagators
     ToolHandle< IPropagator >                   m_stepPropagator;                //!<  Array of Propagators
     ToolHandle< INavigator >                    m_navigator;                     //!<  Navigator for TrackingGeometry and magnetic fiels acces
-    ToolHandleArray< IMaterialEffectsUpdator >  m_updators;                      //!<  Array of Material Updators
-    ToolHandleArray< IMultipleScatteringUpdator >  m_msupdators;                 //!<  Array of MultipleScattering Updators
-    ToolHandleArray< IEnergyLossUpdator >       m_elossupdators;                 //!<  Array of EnergyLoss Updators
+    ToolHandleArray< IMaterialEffectsUpdator >  m_updaters;                      //!<  Array of Material updaters
+    ToolHandleArray< IMultipleScatteringUpdator >  m_msupdaters;                 //!<  Array of MultipleScattering updaters
+    ToolHandleArray< IEnergyLossUpdator >       m_elossupdaters;                 //!<  Array of EnergyLoss updaters
 
     // ---------------- For Extrapolation handling ------------ //
 
     std::vector<const IPropagator*>             m_subPropagators;                //!< Propagators to chose from (steered by signature)
-    std::vector<const IMaterialEffectsUpdator*> m_subUpdators;                   //!< Updators to chose from (steered by signature)
+    std::vector<const IMaterialEffectsUpdator*> m_subupdaters;                   //!< updaters to chose from (steered by signature)
 
     // ---------------- For Extrapolator configuration ------------ //
 
     std::vector<std::string>                    m_propNames;                    //!<  configuration of subPropagators
-    std::vector<std::string>                    m_updatNames;                   //!<  configuration of subUpdators
+    std::vector<std::string>                    m_updatNames;                   //!<  configuration of subupdaters
 
     // --------------- General steering & Navigation -------------- //
 
@@ -932,8 +931,8 @@ inline const IPropagator* Extrapolator::subPropagator(const Trk::TrackingVolume&
 
 inline const IMaterialEffectsUpdator* Extrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
 {
-  return (tvol.geometrySignature() < m_subUpdators.size()) ?
-    m_subUpdators[tvol.geometrySignature()] : nullptr;
+  return (tvol.geometrySignature() < m_subupdaters.size()) ?
+    m_subupdaters[tvol.geometrySignature()] : nullptr;
 }
 
 
@@ -966,9 +965,9 @@ inline const Trk::TrackParameters* Extrapolator::returnResult(Cache& cache,
                                                               const Trk::TrackParameters* result) const
 {
   (void) cache;
-  // call the model action on the material effect updators
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot){ 
-    m_subUpdators[imueot]->modelAction();
+  // call the model action on the material effect updaters
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot){ 
+    m_subupdaters[imueot]->modelAction();
   }
   // return the result
   return result;
