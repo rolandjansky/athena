@@ -5,20 +5,30 @@
 #ifndef ACTSGEOMETRY_IACTSMATERIALJSONWRITERTOOL_H
 #define ACTSGEOMETRY_IACTSMATERIALJSONWRITERTOOL_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IAlgTool.h"
 
-class DetectorMaterialMaps;
+#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
 
-class IActsMaterialJsonWriterTool : virtual public IInterface {
+namespace Acts {
+  class TrackingGeometry;
+}
+
+class IActsMaterialJsonWriterTool : virtual public IAlgTool {
 public:
-    
-  DeclareInterfaceID(IActsMaterialJsonWriterTool, 1, 0);
-    
-  void
-  virtual
-  write(const DetectorMaterialMaps& detMaterial) const = 0;
 
+  DeclareInterfaceID(IActsMaterialJsonWriterTool, 1, 0);
+
+  virtual
+  void
+  write(const Acts::JsonGeometryConverter::DetectorMaterialMaps& detMaterial) const = 0;
+
+  virtual
+  void
+  write(const Acts::TrackingGeometry& tGeometry) const = 0;
+  
 };
 
 
-#endif 
+#endif

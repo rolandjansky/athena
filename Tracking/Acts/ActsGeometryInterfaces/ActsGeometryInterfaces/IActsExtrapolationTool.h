@@ -15,7 +15,18 @@
 #include "Acts/EventData/TrackParameters.hpp"
 
 namespace Acts {
-  class TrackingGeometry;
+
+  class ISurfaceMaterial;
+  class IVolumeMaterial;
+
+  using SurfaceMaterialMap
+      = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
+
+  using VolumeMaterialMap
+      = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+
+  using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
+
 }
 
 class IActsTrackingGeometryTool;

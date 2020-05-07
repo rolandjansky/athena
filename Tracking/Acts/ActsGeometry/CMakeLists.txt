@@ -29,7 +29,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-find_package( Acts COMPONENTS Core)
+find_package( Acts COMPONENTS Core JsonPlugin)
 
 # Component(s) in the package:
 
@@ -47,6 +47,12 @@ atlas_add_library( ActsGeometryLib
                    ActsInteropLib
                    ActsGeometryInterfacesLib
                    ActsCore
+                   ActsJsonPlugin
+                   TrkGeometry
+                   PixelReadoutGeometry
+                   SCT_ReadoutGeometry
+                   TRT_ReadoutGeometry)
+
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
@@ -55,10 +61,11 @@ atlas_add_component( ActsGeometry
                      src/ActsExtrapolationTool.cxx
                      src/ActsMaterialMapping.cxx
                      src/ActsSurfaceMappingTool.cxx
+                     src/ActsVolumeMappingTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      src/ActsMaterialStepConverterTool.cxx
-                     #src/ActsMaterialJsonWriterTool.cxx
+                     src/ActsMaterialJsonWriterTool.cxx
                      src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
                      src/ActsAlignmentCondAlg.cxx
@@ -76,7 +83,8 @@ atlas_add_component( ActsGeometry
                      ActsInteropLib
                      ActsGeometryLib
                      ActsGeometryInterfacesLib
-                     ActsCore)
+                     ActsCore
+                     ActsJsonPlugin)
 
 # Install files from the package:
 atlas_install_headers( ActsGeometry )
