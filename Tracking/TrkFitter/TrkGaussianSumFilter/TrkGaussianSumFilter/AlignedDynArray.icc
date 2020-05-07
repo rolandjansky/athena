@@ -12,7 +12,7 @@
 
 namespace GSFUtils {
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n)
   : m_buffer(nullptr)
   , m_size(n)
@@ -22,7 +22,7 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n)
   std::uninitialized_default_construct(m_buffer,m_buffer+m_size);
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n, const T& value)
   : m_buffer(nullptr)
   , m_size(n)
@@ -32,7 +32,7 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n, const T& value)
   std::uninitialized_fill(m_buffer,m_buffer+m_size,value);
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
   : m_buffer(nullptr)
   , m_size(0)
@@ -45,7 +45,7 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
   other.m_size = 0;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>&
 AlignedDynArray<T, Alignment>::operator=(AlignedDynArray&& other)
 {
@@ -63,44 +63,44 @@ AlignedDynArray<T, Alignment>::operator=(AlignedDynArray&& other)
   return *this;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::~AlignedDynArray()
 {
   cleanup();
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::operator T*()
 {
   return m_buffer;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>::operator const T*() const
 {
   return m_buffer;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos)
 {
   return m_buffer[pos];
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline const T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos) const
 {
   return m_buffer[pos];
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline std::size_t
 AlignedDynArray<T, Alignment>::size() const
 {
   return m_size;
 }
 
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 inline void
 AlignedDynArray<T, Alignment>::cleanup()
 {

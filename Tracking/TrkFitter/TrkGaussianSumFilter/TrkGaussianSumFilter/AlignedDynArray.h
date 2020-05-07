@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <memory>
 namespace GSFUtils {
-template<typename T, int Alignment>
+template<typename T, size_t Alignment>
 /**
  * @bried A wrapper around std::aligned_alloc
  * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc

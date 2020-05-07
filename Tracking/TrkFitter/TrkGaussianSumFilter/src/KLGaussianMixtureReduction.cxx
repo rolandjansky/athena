@@ -5,7 +5,6 @@
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/vectorize.h"
-#include <algorithm>
 #include <limits>
 
 #if !defined(__GNUC__)
@@ -101,7 +100,8 @@ combine(GSFUtils::Component1D& updated,
 
 /**
  * Recalculate the distances given a merged input 
- * and return the index of the minimum pair
+ * and return the minimum index/distance wrt to this
+ * new component
  */
 std::pair<int32_t, float>
 recalculateDistances(const componentPtrRestrict componentsIn,
@@ -114,13 +114,12 @@ recalculateDistances(const componentPtrRestrict componentsIn,
   float* distances = static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
   const int32_t j = mini;
-  const int32_t indexConst = (j + 1) * j / 2;
-
+  const int32_t indexConst = (j-1) * j / 2;
   int32_t minIndex = 0;
   float minDistance = std::numeric_limits<float>::max();
 
+  //Element at the same raw of mini/j
   const Component1D componentJ = components[j];
-
   for (int32_t i = 0; i < j; ++i) {
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
@@ -135,7 +134,7 @@ recalculateDistances(const componentPtrRestrict componentsIn,
     }
   }
   for (int32_t i = j + 1; i < n; ++i) {
-    const int32_t index = (i + 1) * i / 2 + j;
+    const int32_t index = (i - 1) * i / 2 + j;
     const Component1D componentI = components[i];
     if (componentI.cov == 0) {
       distances[index] = std::numeric_limits<float>::max();
@@ -163,8 +162,8 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
   static_cast<const Component1D*>(__builtin_assume_aligned(componentsIn, alignment));
   float* distances = static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
-  for (int32_t i = 0; i < n; ++i) {
-    const int32_t indexConst = (i + 1) * i / 2;
+  for (int32_t i = 1; i < n; ++i) {
+    const int32_t indexConst = (i-1) * i / 2;
     const Component1D componentI = components[i];
     for (int32_t j = 0; j < i; ++j) {
       const Component1D componentJ = components[j];
@@ -178,19 +177,17 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
  */
 void
 resetDistances(floatPtrRestrict distancesIn,
-               const int32_t mini,
+               const int32_t minj,
                const int32_t n)
 {
-
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  const int32_t j = mini;
-  const int32_t indexConst = (j + 1) * j / 2;
+  const int32_t j = minj;
+  const int32_t indexConst = (j - 1) * j / 2;
   for (int32_t i = 0; i < j; ++i) {
     distances[indexConst + i] = std::numeric_limits<float>::max();
   }
-
-  for (int32_t i = j; i < n; ++i) {
-    const int32_t index = (i + 1) * i / 2 + j;
+  for (int32_t i = j+1; i < n; ++i) {
+    const int32_t index = (i-1)*i/2 + j;
     distances[index] = std::numeric_limits<float>::max();
   }
 }
@@ -209,12 +206,9 @@ namespace GSFUtils {
  *
  * We also provide a default "scalar" implementation
  *
- * FindMinimumSTL
  * One of the issues we have see in that gcc8.3 and clang8 (02/2020)
- * optimise differently the STL version. See also
+ * optimise differently:
  * https://its.cern.ch/jira/projects/ATLASRECTS/issues/ATLASRECTS-5244
- *
- * We also provide FindMinimumPair that returns the two smallest values
  *
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
@@ -226,31 +220,31 @@ namespace GSFUtils {
  *
  * _mm256_set1_epi32
  *  Broadcast 32-bit integer a to all elements of dst. This intrinsic may
- * generate the vpbroadcastd.
+ *   generate the vpbroadcastd.
  *
  *  _mm256_setr_epi32
  *  Set packed 32-bit integers in dst with the supplied values in reverse order.
  *
  *  _mm256_load_ps
  *  Load 256-bits (composed of 8 packed single-precision (32-bit) floating-point
- * elements) from memory into dst. mem_addr must be aligned on a 32-byte
- * boundary or a general-protection exception may be generated.
+ *  elements) from memory into dst. mem_addr must be aligned on a 32-byte
+ *   boundary or a general-protection exception may be generated.
  *
- *  _mm256_add_epi32
- *  Add packed 32-bit integers in a and b, and store the results in dst.
+ *   _mm256_add_epi32
+ *   Add packed 32-bit integers in a and b, and store the results in dst.
  *
  *   _mm256_cmp_ps
  *   Compare packed single-precision (32-bit) floating-point elements in a and b
- * based on the comparison operand specified by imm8, and store the results in
- * dst.
+ *    based on the comparison operand specified by imm8, and store the results in
+ *    dst.
  *
  *   _mm256_min_ps
  *   Compare packed single-precision (32-bit) floating-point elements in a and
- * b, and store packed minimum values in dst.
+ *    b, and store packed minimum values in dst.
  *
  *    _mm256_blendv_epi8
  *    Blend packed 8-bit integers from a and b using mask, and store the results
- * in dst.
+ *    in dst.
  */
 __attribute__((target("avx2"))) 
 std::pair<int32_t,float>
@@ -316,26 +310,26 @@ static const auto mm_blendv_epi8 = SSE2_mm_blendv_epi8;
  *  Broadcast 32-bit integer a to all elements of dst.
  *
  *  _mm_setr_epi32
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_setr_epi32&expand=431,452,426,4946,4946,4988&techs=SSE2
+ *  Set packed 32-bit integers in dst with the supplied values in reverse order.
  *
  *  _mm_load_ps
  *  Set packed 32-bit integers in dst with the supplied values in reverse order.
  *
- *  dst = _mm_add_epi32 (a,b)
+ *  _mm_add_epi32 (a,b)
  *  Add packed 32-bit integers in a and b, and store the results in dst.
  *
- *   dst = _mm_min_ps (a,b)
+ *   _mm_min_ps (a,b)
  *   Compare packed single-precision (32-bit) floating-point elements in a and
- * b, and store packed minimum values in dst.
+ *   b, and store packed minimum values in dst.
  *
- *   dst =  _mm_cmplt_ps ( a, b)
+ *    _mm_cmplt_ps ( a, b)
  *   Compare packed single-precision (32-bit) floating-point elements in a and b
- * for less-than, and store the results in dst.
+ *   for less-than, and store the results in dst.
  *
  *    _mm_castps_si128
  *    Cast vector of type __m128 to type __m128i. This intrinsic is only used
- * for compilation and does not generate any instructions, thus it has zero
- * latency.
+ *    for compilation and does not generate any instructions, thus it has zero
+ *    latency.
  */
 __attribute__((target("sse4.2,sse2"))) 
 std::pair<int32_t,float>
@@ -398,7 +392,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   float minDistance = array[0];
-  size_t minIndex = 0;
+  int32_t minIndex = 0;
   for (int i = 0; i < n; ++i) {
     const float value = array[i];
     if (value < minDistance) {
@@ -418,28 +412,28 @@ findMerges(componentPtrRestrict componentsIn,
            const int32_t inputSize,
            const int32_t reducedSize)
 {
-
   Component1D* components =
     static_cast<Component1D*>(__builtin_assume_aligned(componentsIn, alignment));
   //Based on the inputSize allocate enough space for the pairwise distances
   const int32_t n = inputSize;
-  const int32_t nn = (n + 1) * n/2;
-  const int32_t nn2 =
-    (nn & 7) == 0 ? nn
-                  : nn + (8 - (nn & 7)); // make sure it is a multiplet of 8
-
-  AlignedDynArray<float, alignment> distances(nn2, std::numeric_limits<float>::max());
-
+  const int32_t nn = n * (n-1)/2;
   // Create a trianular mapping for the pairwise distances
-  std::vector<triangularToIJ> convert(nn2, { -1, -1 });
-  for (int32_t i = 0; i < n; ++i) {
-    const int indexConst = (i + 1) * i / 2;
-    for (int32_t j = 0; j <= i; ++j) {
+  std::vector<triangularToIJ> convert;
+  convert.reserve(nn);
+  for (int32_t i = 1; i<n; ++i) {
+    const int indexConst = (i-1) * i / 2;
+    for (int32_t j = 0; j<i; ++j) {
       int32_t index = indexConst + j;
-      convert[index].I = i;
-      convert[index].J = j;
+      convert[index]={i,j};
     }
   }
+  //We need to work with multiple of 8, in principle this is a requirement
+  //of aligned_alloc (although not in POSIX ) i.e allocation should be multiple
+  //of the requested size.
+  const int32_t nn2 =
+    (nn & 7) == 0 ? nn
+                  : nn + (8 - (nn & 7)); 
+  AlignedDynArray<float, alignment> distances(nn2, std::numeric_limits<float>::max());
 
   // vector to be returned
   std::vector<std::pair<int32_t, int32_t>> merges;
@@ -462,11 +456,11 @@ findMerges(componentPtrRestrict componentsIn,
     }
     //always reset 
     foundNext=false;
-    const int32_t mini = convert[minIndex].I;
-    const int32_t minj = convert[minIndex].J;
+    const triangularToIJ conversion= convert[minIndex];
+    const int32_t mini = conversion.I;
+    const int32_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
-    // re-calculate distances wrt the new component at mini
     // re-calculate distances wrt the new component at mini
     std::pair<int32_t, float>  possibleNextMin =
       recalculateDistances(components, distances, mini, n);
@@ -482,7 +476,7 @@ findMerges(componentPtrRestrict componentsIn,
     merges.emplace_back(mini,minj);
     --numberOfComponentsLeft;
   } // end of merge while
- return merges;
+  return merges;
 }
 
 } // end namespace GSFUtils
