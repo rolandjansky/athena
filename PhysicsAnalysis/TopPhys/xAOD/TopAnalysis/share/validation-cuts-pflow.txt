@@ -98,12 +98,12 @@ PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
-UseMVALowPt False
-Use2stationMuonsHighPt True
+MuonUseMVALowPt False
+MuonUse2stationHighPt True
 MuonIsolation PflowTight_FixedRad
 MuonQualityLoose Medium
-UseMVALowPtLoose False
-Use2stationMuonsHighPtLoose True
+MuonUseMVALowPtLoose False
+MuonUse2stationHighPtLoose True
 MuonIsolationLoose None
 MuonDoExtraSmearingHighPt False
 MuonDoSmearing2stationHighPt True
