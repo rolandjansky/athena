@@ -63,8 +63,6 @@ public: // Non-static members
    /// The name of the incident that starts a new event sequence
    std::string  incidentName() const            { return m_incidentName.value(); }
   
-   bool         ignoringInputBoundary() const   { return m_ignoreInputFile.value(); }
-
    /// Is the service in active use? (true after the first range incident is handled)
    bool         inUse() const;
   
@@ -83,8 +81,6 @@ private: // data
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
    StringProperty             m_incidentName;
-   /// IgnoreInputFileBoundary, boolean whether to ignore the input file boundary requirement for file sequencing.
-   BooleanProperty            m_ignoreInputFile;
 
    std::map<std::string,std::string> m_fnToRangeId;
    std::map<std::string,std::string>::iterator m_finishedRange;
