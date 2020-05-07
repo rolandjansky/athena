@@ -66,7 +66,7 @@ StatusCode TauCellVariables::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
+StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
     ATH_MSG_DEBUG("execute"); 
 

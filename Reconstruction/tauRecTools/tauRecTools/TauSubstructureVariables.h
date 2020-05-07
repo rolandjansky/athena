@@ -26,9 +26,9 @@ class TauSubstructureVariables : public TauRecToolBase
 
         ~TauSubstructureVariables();
 
-        virtual StatusCode execute(xAOD::TauJet& pTau) override;
-        virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
+        StatusCode execute(xAOD::TauJet& pTau) const override;
+        StatusCode initialize() override;
+        StatusCode finalize() override;
 
     private:
         /** Maximal pile up correction in GeV for a tau candidate.

@@ -26,7 +26,7 @@ StatusCode TauAxisSetter::initialize()
 }
 
 /********************************************************************/
-StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
+StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const
 {
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());

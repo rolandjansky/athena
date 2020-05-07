@@ -28,11 +28,7 @@ class TauJetBDTEvaluator
   virtual ~TauJetBDTEvaluator() { }
     
   StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return static_cast<const TauJetBDTEvaluator*>(this)->execute(xTau);
-  }
-  StatusCode execute(xAOD::TauJet& xTau) const;
+  StatusCode execute(xAOD::TauJet& xTau) const override;
   StatusCode finalize() override;
   
  private:

@@ -27,9 +27,9 @@ public:
 
     virtual ~JetSeedBuilder();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
-    virtual StatusCode finalize() override;
+    StatusCode initialize() override;
+    StatusCode execute(xAOD::TauJet& pTau) const override;
+    StatusCode finalize() override;
 
 };
 

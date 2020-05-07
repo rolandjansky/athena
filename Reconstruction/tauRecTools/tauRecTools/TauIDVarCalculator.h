@@ -27,9 +27,9 @@ class TauIDVarCalculator: public TauRecToolBase
   
   virtual ~TauIDVarCalculator() {}
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet&) override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize() override;
+  StatusCode execute(xAOD::TauJet&) const override;
+  StatusCode finalize() override;
 
   static const float LOW_NUMBER;
   

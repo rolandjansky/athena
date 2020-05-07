@@ -32,13 +32,13 @@ public:
     ASG_TOOL_CLASS2(TauWPDecorator, TauRecToolBase, ITauToolBase)
     ~TauWPDecorator();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    StatusCode initialize() override;
+    StatusCode finalize() override;
+    StatusCode execute(xAOD::TauJet& pTau) const override;
 
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);
-    virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
+    virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) const;
 
 private:
     std::string m_file0P;

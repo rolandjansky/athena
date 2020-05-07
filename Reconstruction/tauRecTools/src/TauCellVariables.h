@@ -25,9 +25,9 @@ public:
     TauCellVariables(const std::string& name);
     ~TauCellVariables();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    StatusCode initialize() override;
+    StatusCode finalize() override;
+    StatusCode execute(xAOD::TauJet& pTau) const override;
 
 private:
     

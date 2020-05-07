@@ -29,11 +29,11 @@ public:
   //function where variables are computed and decorated
   StatusCode initialize() override;
         
-  StatusCode execute(xAOD::TauJet& xTau) override
+  StatusCode execute(xAOD::TauJet& xTau)
   {
     return static_cast<const CombinedP4FromRecoTaus*>(this)->execute(xTau);
   } 
-  StatusCode execute(xAOD::TauJet& xTau) const;
+  StatusCode execute(xAOD::TauJet& xTau) const override;
 
   bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
 

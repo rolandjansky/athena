@@ -9,6 +9,12 @@
 #include "TEnv.h"
 #include "THashList.h"
 
+#include <sys/types.h>
+#include <unistd.h>
+#include <string>
+#include <sstream>
+#include <cstdlib>
+
 //________________________________________
 std::string TauRecToolBase::find_file(const std::string& fname) const {
   std::string full_path;
@@ -138,8 +144,16 @@ StatusCode TauRecToolBase::eventInitialize(){
 }
 
 //________________________________________
-StatusCode TauRecToolBase::execute(xAOD::TauJet&){
+StatusCode TauRecToolBase::execute(xAOD::TauJet&) const {
   ATH_MSG_ERROR("function not implemented");
+
+  pid_t myPid = getpid();
+  std::string pstackCommand = "pstack ";
+  std::stringstream ss;
+  ss << myPid;
+  pstackCommand += ss.str();
+  system(pstackCommand.c_str());
+
   return StatusCode::FAILURE;
 }
 

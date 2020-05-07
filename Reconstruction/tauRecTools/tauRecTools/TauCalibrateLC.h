@@ -29,9 +29,9 @@ public:
   TauCalibrateLC(const std::string& name="TauCalibrateLC");
     ~TauCalibrateLC();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    StatusCode initialize() override;
+    StatusCode finalize() override;
+    StatusCode execute(xAOD::TauJet& pTau) const override;
 
 
 private:

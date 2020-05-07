@@ -22,7 +22,7 @@ class MvaTESVariableDecorator
   virtual ~MvaTESVariableDecorator();
     
   StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode execute(xAOD::TauJet& xTau) const override;
   StatusCode finalize() override;
 
  private:

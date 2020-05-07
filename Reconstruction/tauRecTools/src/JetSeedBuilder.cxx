@@ -58,7 +58,7 @@ StatusCode JetSeedBuilder::finalize() {
 // execute
 //-------------------------------------------------------------------------
 
-StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
+StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) const {
 
 	ATH_MSG_DEBUG("Starting execute");
 

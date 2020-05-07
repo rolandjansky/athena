@@ -112,7 +112,7 @@ StatusCode TauJetRNNEvaluator::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) {
+StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) const {
     // Output variable accessor
     const SG::AuxElement::Accessor<float> output(m_output_varname);
 
@@ -156,7 +156,7 @@ TauJetRNN *TauJetRNNEvaluator::get_rnn_3p() {
 }
 
 StatusCode TauJetRNNEvaluator::get_tracks(
-    const xAOD::TauJet &tau, std::vector<const xAOD::TauTrack *> &out) {
+    const xAOD::TauJet &tau, std::vector<const xAOD::TauTrack *> &out) const {
     auto tracks = tau.allTracks();
 
     // Sort by descending pt
@@ -175,7 +175,7 @@ StatusCode TauJetRNNEvaluator::get_tracks(
 }
 
 StatusCode TauJetRNNEvaluator::get_clusters(
-    const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) {
+    const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) const {
     std::vector<const xAOD::CaloCluster *> clusters;
 
     const xAOD::Jet *jet_seed = *tau.jetLink();
