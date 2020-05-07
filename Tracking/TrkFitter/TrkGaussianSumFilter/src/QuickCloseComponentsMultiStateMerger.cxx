@@ -13,52 +13,22 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "GaudiKernel/Chrono.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkParameters/TrackParameters.h"
 #include <cstdint>
 #include <limits>
+
 using namespace GSFUtils;
 
-Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
-                                                                                const std::string& name,
-                                                                                const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-{
-
-  declareInterface<IMultiComponentStateMerger>(this);
-}
-
-Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() = default;
-
-StatusCode
-Trk::QuickCloseComponentsMultiStateMerger::initialize()
-{
-  if (m_maximumNumberOfComponents <= 0) {
-    ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Initialisation of " << type() << " under instance " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::QuickCloseComponentsMultiStateMerger::finalize()
-{
-  ATH_MSG_INFO("Finalisation of " << type() << " under instance " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
 Trk::MultiComponentState
-Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState statesToMerge) const
+Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState&& statesToMerge,
+                                                 const unsigned int maximumNumberOfComponents)
 {
   // Assembler Cache
   MultiComponentStateAssembler::Cache cache;
-
-  if (statesToMerge.size() <= m_maximumNumberOfComponents) {
+  if (statesToMerge.size() <= maximumNumberOfComponents) {
     MultiComponentStateAssembler::addMultiState(cache, std::move(statesToMerge));
     return MultiComponentStateAssembler::assembledState(cache);
   }
@@ -78,7 +48,9 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState states
     // Sort to select the one with the largest weight
     std::sort(statesToMerge.begin(),
               statesToMerge.end(),
-              [](const ComponentParameters& x, const ComponentParameters& y) { return x.second > y.second; });
+              [](const ComponentParameters& x, const ComponentParameters& y) {
+                return x.second > y.second;
+              });
 
     Trk::ComponentParameters dummyCompParams(statesToMerge.begin()->first->clone(), 1.);
     Trk::MultiComponentState returnMultiState;
@@ -86,13 +58,14 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState states
     return returnMultiState;
   }
 
-  return mergeFullDistArray(cache, statesToMerge);
+  return mergeFullDistArray(cache, statesToMerge,maximumNumberOfComponents);
 }
 
 Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
   MultiComponentStateAssembler::Cache& cache,
-  Trk::MultiComponentState& statesToMerge) const
+  Trk::MultiComponentState& statesToMerge,
+  const unsigned int maximumNumberOfComponents)
 {
   const int32_t n = statesToMerge.size();
   AlignedDynArray<Component1D, alignment> components(n);
@@ -109,7 +82,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
 
   // Gather the merges
   const std::vector<std::pair<int32_t, int32_t>> merges =
-    findMerges(components, n, m_maximumNumberOfComponents);
+    findMerges(components, n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {

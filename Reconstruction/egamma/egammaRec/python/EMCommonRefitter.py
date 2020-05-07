@@ -5,7 +5,6 @@ from InDetRecExample import TrackingCommon as TrackingCommon
 
 print("EMCommonRefitter.py")
 
-
 def getGSFTrackFitter():
     egRotCreator = TrackingCommon.getInDetRotCreator(name='egRotCreator')
     TrackingCommon.createAndAddCondAlg(TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
@@ -23,14 +22,9 @@ def getGSFTrackFitter():
                                     TrackingGeometrySvc=AtlasTrackingGeometrySvc)
 
     # Set up the GSF
-    # component Reduction
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-    GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger(name='GsfComponentReduction',
-                                                                      MaximumNumberOfComponents=12)
-
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
     GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',
-                                                            MultiComponentStateMerger=GsfComponentReduction)
+                                                            MaximumNumberOfComponents=12)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
     GsfExtrapolator = Trk__GsfExtrapolator(name='GsfExtrapolator',
