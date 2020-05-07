@@ -52,10 +52,6 @@ namespace MagField {
         StatusCode updateCurrentFromParameters(Cache& cache) const;
         void       scaleField(Cache& cache, const MagField::AtlasFieldMap* fieldMap) const;
 
-        /// Temporary flag for switching between 'old' and 'new' magField usage
-        Gaudi::Property<bool> m_useNewBfieldCache {this, 
-                                                   "UseNewBfieldCache", true, "Temporary flag for switching between 'old' and 'new' magField usage. Default = true"};
-
         // threshold below which currents are considered zero
         Gaudi::Property<double> m_soleMinCurrent {this, 
                                                   "SoleMinCurrent", 1.0, "Minimum solenoid current (A) for which solenoid is considered ON"};
@@ -66,6 +62,10 @@ namespace MagField {
         Gaudi::Property<bool> m_useDCS {this, 
                                         "UseDCS", false, "Get magnet currents from DCS through ConditionsSvc"};
 
+      // flag to skip current rescale and use map currents as they are
+        Gaudi::Property<bool> m_lockMapCurrents {this, 
+                                                 "LockMapCurrents", false, "Skip current rescale and use map currents as they are"};
+        
         // COOL folder name containing current information
         // current input key
         SG::ReadCondHandleKey<CondAttrListCollection> m_currInputKey

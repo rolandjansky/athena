@@ -14,9 +14,8 @@
 #include "Pythia8/RHadrons.h"
 
 // HepMC for translation into format Pythia likes
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // G4 classes for translation into G4 format
 #include "G4ParticleDefinition.hh"

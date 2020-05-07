@@ -86,8 +86,8 @@ namespace MuonGM {
     void addCscReadoutElement (CscReadoutElement*, Identifier);//!< store the CscReadoutElement using as "key" the identifier
     void addsTgcReadoutElement (sTgcReadoutElement*, Identifier);//!< store the CscReadoutElement using as "key" the identifier
     void addMMReadoutElement (MMReadoutElement*, Identifier);//!< store the CscReadoutElement using as "key" the identifier
-    void addsTgcReadoutElement_withIdFields (sTgcReadoutElement*, int iStname, int iStEta, int iStPhi, int imL);//!< store the sTgcReadoutElement using as "key" the identifier
-    void addMMReadoutElement_withIdFields   (MMReadoutElement*,   int iStname, int iStEta, int iStPhi, int imL);//!< store the MMReadoutElement using as "key" the identifier
+    void addsTgcReadoutElement_withIdFields (sTgcReadoutElement*, int isSmall, int stEta, int stPhi, int ml);//!< store the sTgcReadoutElement using as "key" the identifier
+    void addMMReadoutElement_withIdFields   (MMReadoutElement*, int isSmall, int stEta, int stPhi, int ml);//!< store the MMReadoutElement using as "key" the identifier
 
     // storeTgcReadoutParams
     void storeTgcReadoutParams(std::unique_ptr<const TgcReadoutParams> x);
@@ -136,10 +136,10 @@ namespace MuonGM {
     const MdtReadoutElement* getMdtRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
     //!< access via extended identifier field (no unpacking)
 
-    const sTgcReadoutElement* getsTgcRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
+    const sTgcReadoutElement* getsTgcRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const;
     //!< access via extended identifier field (no unpacking)
 
-    const MMReadoutElement* getMMRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
+    const MMReadoutElement* getMMRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const;
     //!< access via extended identifier field (no unpacking)
 
     const RpcReadoutElement* getRpcRElement_fromIdFields(int i1, int i2, int i3, int i4, int i5, int i6) const;
@@ -217,6 +217,10 @@ namespace MuonGM {
     inline int cachingFlag() const;
     inline void setCacheFillingFlag(int value);
     inline int cacheFillingFlag() const;
+
+    inline void setNSWABLinesAsciiSideA(const std::string& str);
+    inline void setNSWABLinesAsciiSideC(const std::string& str);
+
 
     inline void setMinimalGeoFlag (int flag);
     inline int  MinimalGeoFlag () const;
@@ -298,19 +302,15 @@ namespace MuonGM {
       };    
     enum sTgcGMRanges
       {
-        NsTgStatType     = 1, /// don't wont to have different array coloumns for different names // using this field to distinguish large=0 and small=1
-        NsTgStatTypeOff  = 0, /// relevant only when couplig to identifiers 
         NsTgStatEta      = 6, /// 3 x 2 sides (-3,-2,-1 and 1,2,3) 
-        NsTgStEtaOffset  = 3, /// starting from 0-5 
+        NsTgStEtaOffset  = 3, /// needed offest to map (-3,-2,-1,1,2,3) to (0,1,2,3,4,5)
         NsTgStatPhi      = 16, // large and small sector together 
         NsTgChamberLayer = 2
       };    
     enum mmGMRanges
       {
-        NMMcStatType     = 1, /// don't wont to have different array coloumns for different names
-        NMMcStatTypeOff  = 0, /// relevant only when couplig to identifiers
         NMMcStatEta      = 4, /// 2 x 2 sides (-2,-1 and 1,2)
-        NMMcStEtaOffset  = 2, /// starting from 0-3
+        NMMcStEtaOffset  = 2, /// needed offest to map (-2,-1,1,2) to (0,1,2,3)
         NMMcStatPhi      = 16, // large and small sector together
         NMMcChamberLayer = 2
       };
@@ -403,6 +403,9 @@ namespace MuonGM {
     std::string m_geometryVersion;//generic name of the Layout
     std::string m_DBMuonVersion;  //name of the MuonVersion table-collection in Oracle
 
+    std::string m_NSWABLinesAsciiSideA;
+    std::string m_NSWABLinesAsciiSideC;
+
     // pointers to IdHelpers
     const MdtIdHelper* m_mdtIdHelper;
     const CscIdHelper* m_cscIdHelper;
@@ -417,8 +420,8 @@ namespace MuonGM {
     CscReadoutElement*   m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
     RpcReadoutElement*   m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
     TgcReadoutElement*   m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
-    sTgcReadoutElement*  m_stgArray[NsTgStatType][NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
-    MMReadoutElement*    m_mmcArray[NMMcStatType][NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
+    sTgcReadoutElement*  m_stgArray[NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
+    MMReadoutElement*    m_mmcArray[NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
     //
     const MdtReadoutElement *m_mdtArrayByHash[MdtRElMaxHash];
     const CscReadoutElement *m_cscArrayByHash[CscRElMaxHash];
@@ -576,6 +579,9 @@ namespace MuonGM {
   void MuonDetectorManager::setCachingFlag(int value){m_cachingFlag = value;}
   int  MuonDetectorManager::cacheFillingFlag() const {return m_cacheFillingFlag;}
   int  MuonDetectorManager::cachingFlag() const {return m_cachingFlag;}
+  void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) {m_NSWABLinesAsciiSideA = str;}
+  void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) {m_NSWABLinesAsciiSideC = str;}
+
     
 } // namespace MuonGM
 

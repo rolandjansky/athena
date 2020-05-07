@@ -100,11 +100,11 @@ def TrigInDetCondConfig( flags ):
   SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
   acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                            SiConditionsTool = sctSiliconConditionsTool,
-                                           UseMagFieldSvc = True,
+                                           UseMagFieldCache = True,
                                            UseMagFieldDcs = False))
   SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
   SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-  SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+  SCTLorentzAngleTool.UseMagFieldCache = True
   acc.addPublicTool(SCTLorentzAngleTool)
 
 
@@ -113,8 +113,6 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
   acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
-  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
-  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
 
 
   ###############
@@ -378,17 +376,17 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   return acc
 
 def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
-  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now 
+  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now
   There would certainly be additional algorithms
-  """  
+  """
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
   algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs, signatureName=signature )
 
-  reco.mergeReco( algAcc )  
+  reco.mergeReco( algAcc )
   return reco
 
-  
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -424,3 +422,4 @@ if __name__ == "__main__":
     acc.printConfig()
     acc.store( open("test.pkl", "wb") )
     print('All ok')
+

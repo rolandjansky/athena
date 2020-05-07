@@ -3,8 +3,6 @@
 */
 
 
-#if __cplusplus >= 201103L
-
 #include "pool.h"
 
 #include <thread>
@@ -53,4 +51,3 @@ void process(const WorkList& workList, const size_t nThreads)
   }
 }
 
-#endif

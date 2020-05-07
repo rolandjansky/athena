@@ -11,9 +11,9 @@
 // normal includes
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "TrkParticleBase/LinkToTrackParticleBase.h"

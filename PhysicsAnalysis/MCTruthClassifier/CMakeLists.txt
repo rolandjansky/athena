@@ -32,6 +32,7 @@ elseif( XAOD_ANALYSIS )
 elseif(GENERATIONBASE)
 	set(extra_deps 
 		GaudiKernel
+		Generators/AtlasHepMC
 		Generators/GeneratorObjects
 		PRIVATE
 		Control/AthenaKernel)
@@ -47,6 +48,7 @@ else()
 		Event/xAOD/xAODTracking  
 		Reconstruction/RecoTools/ParticlesInConeTools
 		Reconstruction/RecoTools/RecoToolInterfaces
+		Generators/AtlasHepMC
 		Generators/GeneratorObjects
 		PRIVATE
 		Tracking/TrkEvent/TrkEventPrimitives
@@ -65,10 +67,10 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
    Generators/TruthUtils
+   Generators/AtlasHepMC
    ${extra_deps} )
 
 # External dependencies:
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core RIO )
 
 # Libraries in the package:
@@ -76,8 +78,7 @@ if( HEPMC_FOUND )
 	atlas_add_library( MCTruthClassifierLib
 		MCTruthClassifier/*.h src/*.cxx Root/*.cxx
 		PUBLIC_HEADERS MCTruthClassifier
-		INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-		LINK_LIBRARIES ${HEPMC_LIBRARIES} AsgTools xAODTruth TruthUtils ${extra_libs} )
+		LINK_LIBRARIES AtlasHepMCLib AsgTools xAODTruth TruthUtils ${extra_libs} )
 else()
 	atlas_add_library( MCTruthClassifierLib
 		MCTruthClassifier/*.h src/*.cxx Root/*.cxx

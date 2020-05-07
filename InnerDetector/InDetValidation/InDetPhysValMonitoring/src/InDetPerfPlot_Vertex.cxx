@@ -15,14 +15,18 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "InDetPhysValMonitoringUtilities.h"
+#include "xAODEventInfo/EventInfo.h"
+
 
 using namespace IDPVM;
+
 
 InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::string& sDir) :
   InDetPlotBase(pParent, sDir),
   m_vx_x(nullptr), m_vx_y(nullptr), m_vx_z(nullptr),
   m_vx_err_x(nullptr), m_vx_err_y(nullptr), m_vx_err_z(nullptr),
-  m_vx_chi2_over_ndf(nullptr), m_vx_type(nullptr), m_vx_nTracks(nullptr),
+  m_vx_chi2_over_ndf(nullptr), m_vx_type(nullptr), 
+  m_vx_nTracks(nullptr),
   m_vx_track_weights(nullptr), m_vx_track_pt(nullptr),
   m_vx_track_eta(nullptr), m_vx_track_nSiHits(nullptr), m_vx_track_nSiHoles(nullptr),
   m_vx_track_d0(nullptr), m_vx_track_err_d0(nullptr), m_vx_track_z0(nullptr),
@@ -42,11 +46,12 @@ InDetPerfPlot_Vertex::initializePlots() {
 
   IDPVM_BOOK(m_vx_chi2_over_ndf);
   IDPVM_BOOK(m_vx_type);
-
+  
   IDPVM_BOOK(m_vx_nTracks);
   IDPVM_BOOK(m_vx_track_weights);
 
-  // Expert plots (iDetailLevel >= 100)
+
+
   if (m_iDetailLevel >= 100) {
     IDPVM_BOOK(m_vx_track_pt);
     IDPVM_BOOK(m_vx_track_eta);
@@ -74,6 +79,7 @@ InDetPerfPlot_Vertex::fill(const xAOD::Vertex& vertex) {
 
   // fill vertex quality and type
   fillHisto(m_vx_type, vertex.vertexType());
+
   float ndf = vertex.numberDoF();
   if (ndf != 0) {
     fillHisto(m_vx_chi2_over_ndf, vertex.chiSquared() / ndf);

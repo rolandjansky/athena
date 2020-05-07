@@ -56,7 +56,7 @@ namespace MuonCalib {
     float phi() const {return m_phi;}                 //!< returns trackparameter phi
     float theta() const {return m_theta;}             //!< returns trackparameter theta
     float qOverP() const {return m_qOverP;}           //!< returns trackparameter q/p
-    float p() const {return std::fabs(m_qOverP) > 1e-9 ? std::fabs(1./qOverP()) : 1e9;}           //!< returns momentum
+    float p() const {return std::abs(m_qOverP) > 1e-9 ? std::abs(1./qOverP()) : 1e9;}           //!< returns momentum
     float pt() const { return std::sin(theta())*p(); }           //!< returns pt
     float errInvP() const {return m_cov44;}           //!< returns the error**2 on trackparameter q/p
     int author() const {return m_author;}             //!< returns the author 

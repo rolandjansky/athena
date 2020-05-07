@@ -18,7 +18,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters
                           PRIVATE
-                          Tracking/TrkEvent/TrkPatternParameters )
+                          Tracking/TrkEvent/TrkPatternParameters 
+			  Control/CxxUtils
+			  )
 
 # External dependencies:
 find_package( Eigen )
@@ -28,6 +30,7 @@ atlas_add_library( TrkExUtils
                    src/*.cxx
                    PUBLIC_HEADERS TrkExUtils
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrUtils TrkGeometry TrkSurfaces TrkEventPrimitives TrkMaterialOnTrack TrkNeutralParameters TrkParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrUtils TrkGeometry 
+		   TrkSurfaces TrkEventPrimitives TrkMaterialOnTrack TrkNeutralParameters TrkParameters CxxUtils
                    PRIVATE_LINK_LIBRARIES TrkPatternParameters )
 

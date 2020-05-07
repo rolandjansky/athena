@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIClusterMaker.h
@@ -26,6 +26,12 @@
 //Ideally use forward class decl. for CaloClusterContainer
 //Cannot because this class is defined via typedef
 #include <xAODCaloEvent/CaloClusterContainer.h>
+#include "NavFourMom/INavigable4MomentumCollection.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+class CaloCellContainer;
 
 class HIClusterMaker : public AthAlgorithm
 {
@@ -40,13 +46,16 @@ public:
   virtual StatusCode finalize();
 
   //Simple helper to dump clusters for debugging
-  StatusCode DumpClusters(xAOD::CaloClusterContainer* clusColl);
+  StatusCode dumpClusters(xAOD::CaloClusterContainer* clusColl);
 private:
-
-  std::string m_tower_container_key; /// \brief Name of input CaloTowerContainer, e.g CmbTower
-  std::string m_cell_container_key;/// \brief Name of input CaloCellContainer, e.g. AllCalo
-  std::string m_output_key; /// \brief Name of output CaloClusterContainer, e.g. HIClusters
-  float m_E_min_moment; /// \brief For clusters w/ E less than this, set their eta/phi to tower eta/phi
+  /// \brief Name of input CaloTowerContainer, e.g CmbTower
+  SG::ReadHandleKey<INavigable4MomentumCollection>   m_towerContainerKey { this, "InputTowerKey"     , "CombinedTower"   , "InputTowerKey"};
+  /// \brief Name of input CaloCellContainer, e.g. AllCalo
+  SG::ReadHandleKey<CaloCellContainer>            m_cellContainerKey  { this, "CaloCellContainerKey"      , "AllCalo"         , "InputCellKey" };
+  /// \brief Name of output CaloClusterContainer, e.g. HIClusters
+  SG::WriteHandleKey<xAOD::CaloClusterContainer>  m_outputKey     { this, "OutputContainerKey"     , "PseudoJet"       , "Read version of output Container Key"};
+  /// \brief For clusters w/ E less than this, set their eta/phi to tower eta/phi
+  Gaudi::Property< float > m_EminMoment { this, "MinimumEnergyForMoments", 50., "> E, cluster given tower coordinates" };
 
 };
 #endif

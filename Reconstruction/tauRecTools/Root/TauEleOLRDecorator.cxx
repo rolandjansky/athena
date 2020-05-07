@@ -9,21 +9,17 @@
  * Modified: Lorenz Hauswald
  */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "TFile.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   TauRecToolBase(name),
   m_tEMLHTool(nullptr),
-  m_sEleOLRFilePath("eveto_cutvals.root"),
-  m_hCutValues(nullptr)
-{
-  declareProperty("EleOLRFile", m_sEleOLRFilePath);
+  m_hCutValues(nullptr){
+  declareProperty("EleOLRFile", m_sEleOLRFilePath = "");
 }
 
 TauEleOLRDecorator::~TauEleOLRDecorator(){
@@ -42,8 +38,8 @@ StatusCode TauEleOLRDecorator::initialize()
   ATH_CHECK (m_tEMLHTool->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2015.conf"));
   ATH_CHECK (m_tEMLHTool->initialize());
 
-  m_sEleOLRFilePath = find_file(m_sEleOLRFilePath);
-  TFile tmpFile(m_sEleOLRFilePath.c_str());
+  std::string fullPath = find_file(m_sEleOLRFilePath);
+  TFile tmpFile(fullPath.c_str());
   m_hCutValues = std::unique_ptr<TH2F>(static_cast<TH2F*>(tmpFile.Get("eveto_cutvals")));
   m_hCutValues->SetDirectory(0);
   tmpFile.Close();

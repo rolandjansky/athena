@@ -75,6 +75,21 @@ class validateExtraTrackCollections(InDetPhysValFlagsJobProperty) :
     allowedTypes = ['list']
     StoredValue  = []
 
+class doPhysValOutput(InDetPhysValFlagsJobProperty) :
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doExpertOutput(InDetPhysValFlagsJobProperty) :
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class setTruthStrategy(InDetPhysValFlagsJobProperty) :
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = 'HardScatter'
+
 from InDetRecExample.InDetJobProperties import Enabled
 
 ##-----------------------------------------------------------------------------
@@ -134,7 +149,10 @@ _list_InDetPhysValJobProperties = [
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
     doValidateTracksInJets,
-    validateExtraTrackCollections
+    validateExtraTrackCollections,
+    doPhysValOutput,
+    doExpertOutput,
+    setTruthStrategy
 ]
 
 for j in _list_InDetPhysValJobProperties:

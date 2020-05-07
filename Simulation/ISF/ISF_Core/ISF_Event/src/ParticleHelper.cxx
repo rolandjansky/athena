@@ -10,9 +10,9 @@
 #include "ISF_Event/ParticleHelper.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/Flow.h"
-#include "HepMC/SimpleVector.h" // HepMC::FourVector
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/SimpleVector.h" // HepMC::FourVector
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"

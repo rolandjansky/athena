@@ -22,8 +22,8 @@
 #include "McParticleKernel/IIOHepMcTool.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
-namespace HepMC { class IO_BaseClass; }
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/IO_BaseClass_fwd.h"
 
 class HepMcWriterTool : virtual public IIOHepMcTool,
 			        public AthAlgTool

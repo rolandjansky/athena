@@ -313,11 +313,6 @@ void MergeMcEventCollTool::printDetailsOfMergedMcEventCollection() const {
       const IndexKey key(makekey(signal_process_id,event_number,separator_hack));
       const PileUpBackgroundMap::const_iterator event(m_backgroundClassificationMap.find(key));
       ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<<", category="<<event->second<<", number of Vertices="<<(*outputEventItr)->vertices_size() );
-      //      HepMC::GenEvent& currentSignalEvent(**(outputEventItr));
-      //      currentSignalEvent.print();
-      //      ATH_MSG_INFO ( "Current signal_process_vertex: " );
-      //      if(0!=currentSignalEvent.signal_process_vertex()) currentSignalEvent.signal_process_vertex()->print();
-      //      else ATH_MSG_INFO ( "signal_process_vertex is NULL" );
       ++outputEventItr;
     }
     ATH_MSG_INFO ( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );

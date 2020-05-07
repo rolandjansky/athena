@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -134,14 +134,14 @@ def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type
     #
     from AthenaConfiguration.ComponentFactory import CompFactory
     jct = CompFactory.JetCalibrationTool(toolname,
-        JetCollection = jetcollection,
-        ConfigFile = configfile,
-        CalibArea = calibarea,
-        CalibSequence = calibseq,
-        IsData = (data_type == "data"),
-        RhoKey = rhoname,
-        PrimaryVerticesContainerName = pvname,
-	GSCDepth = gscdepth
+                                         JetCollection = jetcollection,
+                                         ConfigFile = configfile,
+                                         CalibArea = calibarea,
+                                         CalibSequence = calibseq,
+                                         IsData = (data_type == "data"),
+                                         RhoKey = rhoname,
+                                         PrimaryVerticesContainerName = pvname,
+                                         GSCDepth = gscdepth
     )
     return jct
 

@@ -32,9 +32,16 @@ atlas_add_dictionary( xAODTruthDict
    LINK_LIBRARIES xAODTruth
    EXTRA_FILES Root/dict/*.cxx )
 
+
+
 atlas_generate_cliddb( xAODTruth )
 
 # Test(s) in the package:
 atlas_add_test( ut_xaodtruth_particle_test
    SOURCES test/ut_xaodtruth_particle_test.cxx
    LINK_LIBRARIES xAODTruth )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_xaodtruth_helpers_test
+      SCRIPT test/ut_xaodtruth_helpers_test.py )
+endif()

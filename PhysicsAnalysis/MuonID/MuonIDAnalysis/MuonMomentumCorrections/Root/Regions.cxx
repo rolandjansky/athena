@@ -7,28 +7,27 @@
 #include <cstdlib>
 #include <cmath>
 #include "MuonMomentumCorrections/Regions.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include <TString.h> // for Form
 
+ANA_MSG_SOURCE(msgMMC, "MuonMomentumCorrections")
+
 void Regions::PrintRegions() const {
-	MsgStream log(Athena::getMessageSvc(), "Regions");
     if(m_doMacroRegions){
 	for(std::map<int, int>::const_iterator it = m_macroRegionIdxMap.begin();
 	    it!=m_macroRegionIdxMap.end(); ++it){
 	    int bReg = it->first, mReg = it->second;
-	    log<<MSG::INFO<<"Base region n "<<bReg<<": "
+	    msgMMC::ANA_MSG_INFO("Base region n "<<bReg<<": "
 		     <<"phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
-		     <<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]<<endmsg;
-	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_names[bReg]<<endmsg;
-	    log<<MSG::INFO<<"included in Macro region N "<<mReg<<" with innerEta="<<m_macroRegionInnerEta[mReg]<<endmsg;
-	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_macroRegionName[mReg]<<endmsg;
+		     <<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]);
+	    if(m_loadNames) msgMMC::ANA_MSG_INFO(", name="<<m_names[bReg]);
+	    msgMMC::ANA_MSG_INFO("included in Macro region N "<<mReg<<" with innerEta="<<m_macroRegionInnerEta[mReg]);
+	    if(m_loadNames) msgMMC::ANA_MSG_INFO(", name="<<m_macroRegionName[mReg]);
 	}
     } else {
 	for(int bReg=0; bReg<m_nb_regions; ++bReg){
-	    log<<MSG::INFO<<"Base region n "<<bReg<<": phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
-		<<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]<<endmsg;
-	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_names[bReg]<<endmsg;
+	    msgMMC::ANA_MSG_INFO("Base region n "<<bReg<<": phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
+		<<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]);
+	    if(m_loadNames) msgMMC::ANA_MSG_INFO(", name="<<m_names[bReg]);
 	}
     }
 }
@@ -122,8 +121,7 @@ int Regions::GetRegion(double eta, const double phi) const{
     }
 
     if(ret_k == -1){
-        MsgStream log(Athena::getMessageSvc(), "Regions");
-        log<<MSG::WARNING<<"GetRegion() - Region corresponding to Eta="<<eta<<", Phi="<<phi<<" NOT FOUND!"<<endmsg;
+        msgMMC::ANA_MSG_WARNING("GetRegion() - Region corresponding to Eta="<<eta<<", Phi="<<phi<<" NOT FOUND!");
         return -1;
     }
     if(m_doMacroRegions) return m_macroRegionIdxMap.find(ret_k)->second;
@@ -137,8 +135,7 @@ float Regions::GetRegionDeltaEta(const int r_i) const{ //Return Eta range of the
 	if(r_i >= 0 && r_i < m_nb_regions)
 	    return std::abs(m_eta_max[r_i] - m_eta_min[r_i]);	
     }
-    MsgStream log(Athena::getMessageSvc(), "Regions");
-    log<<MSG::WARNING<<"GetRegionDeltaEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
+    msgMMC::ANA_MSG_WARNING("GetRegionDeltaEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!");
     return -999.;
 }
 
@@ -151,30 +148,27 @@ float Regions::GetRegionInnerEta(const int r_i) const{//Return Eta closer to the
 	    else return m_eta_max[r_i];
 	}
     }
-    MsgStream log(Athena::getMessageSvc(), "Regions");
-    log<<MSG::WARNING<<"GetRegionInnerEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
+    msgMMC::ANA_MSG_WARNING("GetRegionInnerEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!");
     return -999.;
 }
 
 
 std::string Regions::GetRegionName(const int r_i) const{
-	MsgStream log(Athena::getMessageSvc(), "Regions");
     if(m_loadNames){
         if(m_doMacroRegions) {
             if(r_i>=0 && r_i < (int)m_macroRegionName.size()) return m_macroRegionName[r_i];
         } else {
             if(r_i>=0 && r_i < m_nb_regions) return m_names[r_i];
         }
-        log<<MSG::WARNING<<"GetRegionName() - Region Name corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
+        msgMMC::ANA_MSG_WARNING("GetRegionName() - Region Name corresponding to Region index="<<r_i<<" NOT FOUND!");
     }
-    log<<MSG::WARNING<<"GetRegionName() - Region Names not set!"<<endmsg;
+    msgMMC::ANA_MSG_WARNING("GetRegionName() - Region Names not set!");
     return "NAN";
 }
 
 std::string Regions::GetRegionName(const double eta, const double phi) const{  
     if(m_loadNames) return GetRegionName(GetRegion(eta, phi));
-    MsgStream log(Athena::getMessageSvc(), "Regions");
-    log<<MSG::WARNING<<"GetRegionName() - Region Names not set!"<<endmsg;
+    msgMMC::ANA_MSG_WARNING("GetRegionName() - Region Names not set!");
     return "NAN";
 }
 

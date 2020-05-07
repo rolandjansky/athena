@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -36,15 +36,15 @@ MuonCalib::MdtCalibHitBase* MdtCalibHit::hitBase(const MuonCalib::IIdToFixedIdTo
   hb->setLocalPos(m_localPosition);
   hb->setDriftTime(m_driftTime);
   if(m_sigma2DriftRadius>0)
-    hb->setDriftRadius(m_driftRadius,sqrt(m_sigma2DriftRadius));
+    hb->setDriftRadius(m_driftRadius,std::sqrt(m_sigma2DriftRadius));
   else
     hb->setDriftRadius(m_driftRadius,0.);
   if(m_sigma2DistanceToTrack>0)
-    hb->setDistanceToTrack(m_signedDistanceToTrack, sqrt(m_sigma2DistanceToTrack));
+    hb->setDistanceToTrack(m_signedDistanceToTrack, std::sqrt(m_sigma2DistanceToTrack));
   else
     hb->setDistanceToTrack(m_signedDistanceToTrack,0.);
   if(m_sigma2TimeFromTrackDistance>0)
-    hb->setTimeFromTrackDistance(m_timeFromTrackDistance, sqrt(m_sigma2TimeFromTrackDistance));
+    hb->setTimeFromTrackDistance(m_timeFromTrackDistance, std::sqrt(m_sigma2TimeFromTrackDistance));
   else
     hb->setTimeFromTrackDistance(m_timeFromTrackDistance,0.);
   hb->setSlewingTime(m_slewingTime);
@@ -67,7 +67,7 @@ MuonCalib::MdtCalibHitBase* MdtCalibHit::hitBase(const MuonCalib::IIdToFixedIdTo
   hb->setLocalPointOfClosestApproach(m_localPointOfClosestApproach);
   hb->setLocXtwin(m_xtwin);
   if(m_sigma2XTwin>0)
-    hb->setSigmaLocXtwin( sqrt(m_sigma2XTwin));
+    hb->setSigmaLocXtwin( std::sqrt(m_sigma2XTwin));
   else
     hb->setSigmaLocXtwin( 0.);
   /////////////////////////////////////////////////////////////////// 

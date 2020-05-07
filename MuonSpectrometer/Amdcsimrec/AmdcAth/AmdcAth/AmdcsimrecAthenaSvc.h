@@ -103,6 +103,7 @@ public:
 
 private:
 ///////////////////////////////////
+   void getAbsMax(double& currentMax, const double toCheck) const;
 
    bool m_IsUsable ; //!< Tell usuability state 
 
@@ -238,6 +239,10 @@ private:
     const AtlasDetectorID* p_AtlasDetectorID ; //!< Pointer On AtlasDetectorID
 
 };
+
+inline void AmdcsimrecAthenaSvc::getAbsMax(double& currentMax, const double toCheck) const {
+  if (std::abs(toCheck) > currentMax) currentMax = toCheck;
+}
 
 #endif
 

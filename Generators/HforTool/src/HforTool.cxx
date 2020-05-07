@@ -340,7 +340,7 @@ void HforTool::findHFQuarks() {
 	ATH_MSG_DEBUG("  b/c parton with a b/c quark/hadron parent") ;
 
       // find the decay vertex and children
-      HepMC::GenVertex * decayvtx = bcpart->end_vertex() ;
+      auto decayvtx = bcpart->end_vertex() ;
       bool hasbcquarkdaughter(false) ;
       if ( !hasbchadronparent && decayvtx ) {
 	ATH_MSG_DEBUG("  decay vtx: " << *decayvtx);
@@ -387,7 +387,7 @@ void HforTool::findHFQuarks() {
     // only in DEBUG mode
     if ( msgLvl(MSG::DEBUG) && finalstate_q.size() ) {
       ATH_MSG_DEBUG("print out vertex -5") ;
-      HepMC::GenVertex * vtx5(evt->barcode_to_vertex(-5)) ;
+      auto vtx5(evt->barcode_to_vertex(-5)) ;
       if (vtx5) {
 	for ( HepMC::GenVertex::particle_iterator pin =
 		vtx5->particles_begin(HepMC::parents) ;
@@ -430,7 +430,7 @@ void HforTool::findHFQuarksHerwig
     // second loop over the final state quarks
     for ( auto bcpart: ipdg.second) {
       ATH_MSG_DEBUG("final state b/c " << *bcpart);
-      HepMC::GenVertex * prodvtx(bcpart->production_vertex()) ;
+      auto prodvtx(bcpart->production_vertex()) ;
       bool isMPI(false) ;
       bool isGS(false) ;
       bool isME(false) ;
@@ -574,7 +574,7 @@ void HforTool::findHFQuarksPythia
 	  MEParton.insert(bcpart) ;
 	  // if there is a direct stat=3 ancestor with the same flavour,
 	  // then there is PDF parton too (eg, qc->q'Wc)
-	  HepMC::GenVertex * prodvtx(bcpart->production_vertex()) ;
+	  auto prodvtx(bcpart->production_vertex()) ;
 	  if ( prodvtx ) {
 	    HepMC::GenVertex::particle_iterator pin =
 	      prodvtx->particles_begin(HepMC::parents) ;
@@ -603,7 +603,7 @@ void HforTool::findHFQuarksPythia
       if ( bcpart->status() != 3 ) {
 	ATH_MSG_DEBUG("final state b/c " << *bcpart
 		      << ", m = " << bcpart->momentum().m() );
-	HepMC::GenVertex * prodvtx(bcpart->production_vertex()) ;
+	auto prodvtx(bcpart->production_vertex()) ;
 	bool isTopDecay(false) ;
 	bool isWDecay(false) ; // subset of top-decays, for hadronic top-decays
 	bool iscquarkfromb(false) ;

@@ -6,8 +6,14 @@
 
 TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_mvaBDT(nullptr)
-{
+  , m_mvaBDT(nullptr) {
+  declareProperty("weightsFile", m_weightsFile="");
+  declareProperty("minNTracks", m_minNTracks=0);
+  declareProperty("maxNTracks", m_maxNTracks=999);
+  declareProperty("minAbsTrackEta", m_minAbsTrackEta=-1);
+  declareProperty("maxAbsTrackEta", m_maxAbsTrackEta=-1);
+  declareProperty("outputVarName", m_outputVarName="BDTJetScore");
+  declareProperty("defaultValue", m_dummyValue=-1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored");
 }
 
 //________________________________________
@@ -44,7 +50,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
   if(nTracks<m_minNTracks) return StatusCode::SUCCESS;
   if(nTracks>m_maxNTracks) return StatusCode::SUCCESS;
 
-  if( !m_in_trigger ){
+  if( !inTrigger() ){
     float absTrackEta = acc_absTrackEta(xTau);
     if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
       return StatusCode::SUCCESS;

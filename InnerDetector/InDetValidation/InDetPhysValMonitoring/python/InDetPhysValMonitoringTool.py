@@ -57,6 +57,27 @@ def getInDetPhysValMonitoringTool(**kwargs) :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
+      
+      #adding the VeretxTruthMatchingTool
+      from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
+      kwargs=setDefaults(kwargs, 
+                        useVertexTruthMatchTool = True,
+         		VertexTruthMatchTool = toolFactory(InDetVertexTruthMatchTool) )
+      
+      #Options for Truth Strategy : Requires full pile-up truth containers for some
+      if InDetPhysValFlags.setTruthStrategy() == 'All' or InDetPhysValFlags.setTruthStrategy() == 'PileUp' :
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if IsInInputFile('xAOD::TruthPileupEventContainer','TruthPileupEvents') :
+            kwargs=setDefaults(kwargs,
+                               PileupSwitch = InDetPhysValFlags.setTruthStrategy())
+        else :
+            print ('WARNING Truth Strategy for InDetPhysValMonitoring set to %s but TruthPileupEvents are missing in the input; resetting to HardScatter only' % (InDetPhysValFlags.setTruthStrategy()))
+      elif InDetPhysValFlags.setTruthStrategy() != 'HardScatter' :
+        print ('WARNING Truth Strategy for for InDetPhysValMonitoring set to invalid option %s; valid flags are ["HardScatter", "All", "PileUp"]' %  (InDetPhysValFlags.setTruthStrategy()))
+         
+
+      
+
 
    else :
       # disable truth monitoring for data
@@ -69,6 +90,15 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
                          FillTrackInJetPlots        = False)
+
+   # Control the number of output histograms
+   if InDetPhysValFlags.doPhysValOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 100)
+
+   elif InDetPhysValFlags.doExpertOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 200)
 
    # hack to remove example physval monitor
    from RecExConfig.AutoConfiguration import IsInInputFile

@@ -26,10 +26,9 @@
 
 
 
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
+
 
 namespace Trk {
   class TrackingVolume;
@@ -161,8 +160,6 @@ private:
   ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
   const TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange) const;
 
-  //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
-  //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
 
 
 public:

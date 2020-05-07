@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def AtlasReadyFilterCfg(flags):
    result=ComponentAccumulator()
 
-   if flags.Common.isOnline or flags.Input.isMC or flags.Beam.Type != 'collisions':
+   if flags.Common.isOnline or flags.Input.isMC or flags.Beam.Type != 'collisions' or flags.DQ.disableAtlasReadyFilter:
       result.setPrivateTools(CompFactory.DQDummyFilterTool())
    else:
       from IOVDbSvc.IOVDbSvcConfig import addFolders

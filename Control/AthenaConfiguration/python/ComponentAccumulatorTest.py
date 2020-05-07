@@ -484,7 +484,7 @@ class TestSequencesMerging( unittest.TestCase ):
         ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
             "SCT_RDO_Container#SCT_RDOs",
             "InDetSimDataCollection#SCT_SDO_Map"	    
-	])
+        ])
         ca2.printConfig()
 
         print("after merge")

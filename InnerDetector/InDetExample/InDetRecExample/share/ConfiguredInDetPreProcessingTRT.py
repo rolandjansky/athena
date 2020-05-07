@@ -152,9 +152,10 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MaskMiddleHTBitArgon                 = False,
                                                                MaskLastHTBitArgon                   = False,
                                                                useDriftTimeHTCorrection        = True,
-                                                               useDriftTimeToTCorrection       = True,
-                                                               # LumiDataKey                     = 'LuminosityCondData' # @TODO undo out-commenting to re-enable mu-correction for TRT error scaling
-                                                               )
+                                                               useDriftTimeToTCorrection       = True)
+         if not usePhase:
+            from InDetRecExample import TrackingCommon
+            InDetTRT_DriftCircleTool.LumiDataKey = TrackingCommon.getLumiCondDataKeyForTRTMuScaling()
 
          from AthenaCommon.BeamFlags import jobproperties 
          if InDetFlags.InDet25nsec() and jobproperties.Beam.beamType()=="collisions": 

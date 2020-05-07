@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging  # loads logger
@@ -136,10 +136,10 @@ class HLTSimulationGetter(Configured):
                 from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
                 xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
-        # Schedule RoIBResult conversion from ByteStream
         if jobproperties.Global.InputFormat() == 'bytestream':
-            from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-            topSequence += RoIBResultByteStreamDecoderAlg()
+            # Decode ROIB::RoIBResult from ByteStream
+            from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+            L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=False)
 
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr

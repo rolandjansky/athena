@@ -1,0 +1,27 @@
+
+ ==> Test ctor with default init of elements 
+Size = 100
+Address of [0]%alignment = 0
+Value of 0th = 0
+Value of last = 0
+
+ ==> Test ctor with value init of elements
+Size = 100
+Address of [0]%alignment = 0
+Value of 0th = 0.1
+Value of last = 0.1
+
+ ==> Test move copy ctor
+Size = 100
+Size of moved from 0
+Address of [0]%alignment = 0
+Value of 0th = 0.1
+Value of last = 0.1
+
+ ==> Test move assignment
+Size before assignment = 50
+Size = 100
+Size of moved from 0
+Address of [0]%alignment = 0
+Value of 0th = 0.1
+Value of last = 0.1

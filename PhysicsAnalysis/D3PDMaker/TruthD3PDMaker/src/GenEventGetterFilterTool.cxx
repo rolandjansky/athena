@@ -12,7 +12,7 @@
 
 
 #include "GenEventGetterFilterTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 namespace D3PD {

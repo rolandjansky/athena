@@ -1,7 +1,7 @@
 ################################################################################
 # Package: DerivationFrameworkEGamma
 ################################################################################
-
+ 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkEGamma )
 
@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
                           PhysicsAnalysis/MCTruthClassifier 
+			  PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
 			  Calorimeter/CaloCalibHitRec )
 
 # External dependencies:
@@ -32,14 +33,14 @@ atlas_add_library( DerivationFrameworkEGammaLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkEGamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib 
+                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib EgammaAnalysisHelpersLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth )
 
 atlas_add_component( DerivationFrameworkEGamma
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools AthenaBaseComps PATCoreLib  EgammaAnalysisInterfacesLib xAODBase 
-		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkEGammaLib )
+		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib DerivationFrameworkEGammaLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

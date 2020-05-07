@@ -15,9 +15,7 @@
 
 #include "GeneratorModules/GenFilter.h"
 
-namespace HepMC{
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 class TTbarPlusHeavyFlavorFilter: public GenFilter {
 public:

@@ -59,12 +59,18 @@ def __decisionsFromHypo( hypo ):
     else: # regular hypos
         return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
 
+def __getSequenceChildrenIfIsSequence( s ):
+    if isSequence( s ):
+        return getSequenceChildren( s )
+    return []
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
     makers = [] # map with name, instance and encompasing recoSequence
-    for stepSeq in getSequenceChildren( steps ):
-        for recoSeq in getSequenceChildren( stepSeq ):
+    for stepSeq in __getSequenceChildrenIfIsSequence( steps ):
+        for recoSeq in __getSequenceChildrenIfIsSequence( stepSeq ):
+            if not isSequence( recoSeq ):
+                continue
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
@@ -190,8 +196,7 @@ def triggerSummaryCfg(flags, hypos):
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(OrderedDict.fromkeys(allChains.values()))
-    if len(allChains) > 0:
-        decisionSummaryAlg.FinalStepDecisions = dict(allChains)
+    decisionSummaryAlg.FinalStepDecisions = dict(allChains)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
@@ -341,8 +346,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
-    stmaker.PEBDecisionKeys = pebDecisionKeys
+    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -357,19 +361,18 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        #decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
         acc.addEventAlgo( decmaker )
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage", "StreamBSFileOutput")
-        StreamBSFileOutput.ItemList += [ "HLT::HLTResultMT#HLTResultMT" ]
-        StreamBSFileOutput.ExtraInputs = [
+        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
-        acc.addEventAlgo( StreamBSFileOutput )
-
+        acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc
@@ -437,30 +440,23 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     # configure views merging
     needMerging = [x for x in TriggerHLTListRun3 if len(x) >= 4 and x[3].startswith("inViews:")]
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
-    # group by the view collection name/(the view maker algorithm in practice)
-    from collections import defaultdict
-    groupedByView = defaultdict(list)
-    [ groupedByView[c[3]].append( c ) for c in needMerging ]
-
-    for view, colls in six.iteritems (groupedByView):
-        viewCollName = view.split(":")[1]
-        tool = HLTEDMCreator( "{}Merger".format( viewCollName ) )
-        for coll in colls:  # see the content in TrigEDMConfigRun3
-            collType, collName = coll[0].split("#")
-            collType = collType.split(":")[-1]
-            viewsColl = coll[3].split(":")[-1]
-            # Get existing property, or return empty list if not set.
-            attrView = getattr(tool, collType+"Views", [])
-            attrInView = getattr(tool, collType+"InViews", [])
-            attrName = getattr(tool, collType, [])
+    mergingTool = HLTEDMCreator( "ViewsMergingTool")
+    for coll in needMerging:
+        collType, collName = coll[0].split("#")
+        collType = collType.split(":")[-1]
+        possibleViews = coll[3].split(":")[-1].split(",")
+        for viewsColl in possibleViews:
+            attrView = getattr(mergingTool, collType+"Views", [])
+            attrInView = getattr(mergingTool, collType+"InViews", [])
+            attrName = getattr(mergingTool, collType, [])
             #
             attrView.append( viewsColl )
             attrInView.append( collName )
             attrName.append( collName )
             #
-            setattr(tool, collType+"Views", attrView )
-            setattr(tool, collType+"InViews", attrInView )
-            setattr(tool, collType, attrName )
+            setattr(mergingTool, collType+"Views", attrView )
+            setattr(mergingTool, collType+"InViews", attrInView )
+            setattr(mergingTool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
                 __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( str(coll) ) )
@@ -470,7 +466,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
                     if pr != producer[0]:
                         __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.getName() for p in producer ]) ) )
                         continue
-        alg.OutputTools += [ tool ]
+    alg.OutputTools += [mergingTool]
 
     tool = HLTEDMCreator( "GapFiller" )
     if len(edmSet) != 0:

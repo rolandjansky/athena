@@ -17,14 +17,14 @@
 #include "VP1Base/VP1Msg.h"
 
 #include "TrkTrack/Track.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TrkTrack/Track.h"
 #include "AthContainers/DataVector.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //____________________________________________________________________
 class TrackHandle_TruthTrack::Imp {
@@ -60,7 +60,7 @@ public:
     double absmom(mom.mag());
     if (absmom<=0)
       return 0;//Fixme: message!
-    Amg::Vector3D pos(v->point3d().x(),v->point3d().y(),v->point3d().z());
+    Amg::Vector3D pos(v->position().x(),v->position().y(),v->position().z());
     return new Trk::Perigee(0.,0.,mom.phi(), mom.theta(), charge/absmom, pos);
    }
 
@@ -75,7 +75,7 @@ public:
 //     double absmom(mom.mag());
 //     if (absmom<=0)
 //       return 0;//Fixme: message!
-    Amg::Vector3D pos(v->point3d().x(),v->point3d().y(),v->point3d().z());
+    Amg::Vector3D pos(v->position().x(),v->position().y(),v->position().z());
 
     Amg::Translation3D amgtranslation(pos.x(),pos.y(),pos.z());
     Amg::Transform3D* amgTransf = new Amg::Transform3D(amgtranslation * Amg::RotationMatrix3D::Identity());
@@ -268,10 +268,10 @@ bool TrackHandle_TruthTrack::hasVertexAtIR(const double& rmaxsq, const double& z
   if (!v)
     return false;
 
-  double x(v->point3d().x()), y(v->point3d().y());
+  double x(v->position().x()), y(v->position().y());
   if (x*x+y*y>rmaxsq)
     return false;
-  return fabs(v->point3d().z())<=zmax;
+  return fabs(v->position().z())<=zmax;
 }
 
 //____________________________________________________________________

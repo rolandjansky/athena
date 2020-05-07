@@ -11,7 +11,8 @@
 #include "StoreGate/WriteHandle.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"

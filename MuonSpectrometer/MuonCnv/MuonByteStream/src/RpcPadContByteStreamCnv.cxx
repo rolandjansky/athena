@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <map> 
+#include <string> 
 
 RpcPadContByteStreamCnv::RpcPadContByteStreamCnv(ISvcLocator* svcloc) :
     Converter(storageType(), classID(),svcloc),

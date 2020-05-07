@@ -19,9 +19,7 @@
 #include "McParticleEvent/TruthParticle.h"
 
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 namespace D3PD {
 
 /**

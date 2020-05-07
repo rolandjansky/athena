@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleUtils/RootDisplay.h"
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <TString.h> // for Form
 
 Display::Display(const char* name,
 		 double xll,double yll,
@@ -29,8 +30,6 @@ Display::Display(const char* name,
 
 Display::~Display() 
 { 
-  //clear(); 
-  //delete m_canvas;
 }
 
 
@@ -92,8 +91,6 @@ void Display::calculateCanvasSize(int &width, int& height)
 void Display::setTextBox(std::string /*text*/)
 {
   m_textBox->Clear();
-  //  TText *t0= m_textBox->AddText( "evt/pat/seg" );
-  //  TText *t1= m_textBox->AddText( text.c_str() );
  }
 
 void Display::calculateRange()
@@ -106,8 +103,7 @@ void Display::calculateRange()
 
   std::vector<TArc*>::const_iterator ait = m_arcs.begin();
   for( ; ait!=m_arcs.end();++ait){
-    double r = fabs( (*ait)->GetR1() );
-    //std::cout << " new arc (" << (*ait)->GetX1() << "," << (*ait)->GetY1() << "), r " << r << std::endl;
+    double r = std::abs( (*ait)->GetR1() );
     if(first) {
       xll = (*ait)->GetX1() - r;
       yll = (*ait)->GetY1() - r;
@@ -120,42 +116,18 @@ void Display::calculateRange()
       xrh = std::max( xrh, (*ait)->GetX1() + r );
       yrh = std::max( yrh, (*ait)->GetY1() + r );
     }
-    //    std::cout << " new range (" << xll << "," << yll << ")  (" << xrh << "," << yrh << ") " << std::endl;
   }
   double offset = 50.;
   m_xll = xll - offset;
   m_yll = yll - offset;
   m_xrh = xrh + offset;
   m_yrh = yrh + offset;
-  std::cout << " new range (" << m_xll << "," << m_yll << ")  (" << m_xrh << "," << m_yrh << ") " << std::endl;
 }
 
 
 void Display::draw()
 {
-//   int w,h;
-//   calculateRange();
-//   calculateCanvasSize(w,h);
-//   if(!m_canvas){ 
-//     m_canvas = new TCanvas(m_name.c_str(),m_name.c_str(),w,h); 
-//   }else{
-//     m_canvas->SetCanvasSize(w,h);
-//   }
-
-  //  std::cout << "Drawing event: " << m_lines.size() << " lines, " 
-  //	    << m_arcs.size() + m_boxes.size() << " hits " << std::endl;
-
-  //  m_canvas->Range(m_xll,m_yll,m_xrh,m_yrh);
-
-//   std::cout << "Canvas: " << std::endl;
-//   std::cout << "         " << m_yrh << std::endl;
-//   std::cout << h << std::endl;
-//   std::cout << "         " << m_yll << std::endl;
-//   std::cout << "               " << m_xll << "                    " << m_xrh << std::endl;
-//   std::cout << "                           " << w << std::endl;
-
   m_canvas->cd(); 
-  //  m_textBox->Draw("same"); 
   m_textBox->Draw();
   std::vector<TObject*>::const_iterator oit = m_geometry.begin();
   for( ; oit!=m_geometry.end();++oit){
@@ -167,7 +139,6 @@ void Display::draw()
   }
   std::vector<TArc*>::const_iterator ait = m_arcs.begin();
   for( ; ait!=m_arcs.end();++ait){
-    //    std::cout << "    " << (*ait)->GetX1() << " | " <<  (*ait)->GetY1() << std::endl;
     (*ait)->Draw("same");
   }
   std::vector<TBox*>::const_iterator bit = m_boxes.begin();
@@ -196,18 +167,15 @@ void ShapeCreator::applyProjection(const TVector3& pos, double& x1, double& x2){
     x1 = pos.y();
     x2 = pos.z();
   }else if(m_projection == 4){
-    x2 = sqrt( pos.y()*pos.y() + pos.x()*pos.x() );
+    x2 = std::hypot(pos.y(), pos.x());
     x1 = pos.z();
-  }
-  //  std::cout << "in projection x1,x2 = " << x1 << " " << x2 << std::endl;
-  
+  }  
 }
 
 
 void ShapeCreator::setProjection(int p)
 {
-  if(p != 0 && p != 1 && p != 2 && p != 3 && p != 4)
-    std::cout << "ERROR Wrong projection " << std::endl;
+  if(p != 0 && p != 1 && p != 2 && p != 3 && p != 4) throw std::runtime_error(Form("File: %s, Line: %d\nShapeCreator::setProjection() - ERROR Wrong projection", __FILE__, __LINE__));
   m_projection = p;
 }
 

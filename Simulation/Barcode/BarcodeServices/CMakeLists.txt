@@ -34,7 +34,7 @@ atlas_add_component( BarcodeServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel BarcodeServicesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel BarcodeEventLib BarcodeInterfacesLib BarcodeServicesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

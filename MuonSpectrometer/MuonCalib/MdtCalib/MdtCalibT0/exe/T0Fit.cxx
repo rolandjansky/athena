@@ -14,6 +14,7 @@
 #include "iostream"
 #include "string"
 #include "cstdlib"
+#include <TString.h> // for Form
 
 using namespace MuonCalib;
 
@@ -22,8 +23,7 @@ int main(int argc, char * argv[])
 //check command line arguments
 	if(argc!=3)
 		{
-		cerr<<"Usage: "<<argv[0]<<"<input file> <output file>!"<<endl;
-		std::exit(1);
+			throw std::runtime_error(Form("File: %s, Line: %d\nT0Fit::main() - Usage: %s <input file> <output file>!", __FILE__, __LINE__, argv[0]));
 		}	
 	
 	
@@ -34,10 +34,9 @@ int main(int argc, char * argv[])
 	T0MTSettings settings;
 	settings.AddFitfun()=true;
 	settings.DrawDebugGraphs()=true;
-	if (dir==NULL)
+	if (!dir)
 		{
-		cerr<<"Cannot find TDirectory 'MT_t0_fitter' in file '"<<argv[1]<<endl;
-		exit(1);
+			throw std::runtime_error(Form("File: %s, Line: %d\nT0Fit::main() - Cannot find TDirectory 'MT_t0_fitter' in file %s!", __FILE__, __LINE__, argv[1]));
 		}	
 //loop on all histograms
 		TIter nextkey(dir->GetListOfKeys());
@@ -52,7 +51,6 @@ int main(int argc, char * argv[])
 				if (hist==NULL) continue;
 				string hname=hist->GetName();
 				if (hname=="t_spec_Summary") continue;
-//				if((int)hname.find("t_spec")<0) continue;
 				hist->GetListOfFunctions()->Clear();
 				T0MTHistos fitter;
 				fitter.SetTSpec(n, hist, &settings);	

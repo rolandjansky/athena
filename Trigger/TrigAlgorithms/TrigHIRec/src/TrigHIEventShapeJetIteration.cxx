@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHIEventShapeJetIteration.h"
@@ -74,12 +74,12 @@ int TrigHIEventShapeJetIteration::execute() const
   {
     const xAOD::Jet* theJet=(*jItr);
     xAOD::IParticle::FourMom_t jet4mom=theJet->p4();
-    
+
     /*
     std::vector<const xAOD::IParticle*> assoc_clusters;
     //only use jet constituents
     if(m_exclude_constituents) assoc_clusters=theJet->getConstituents().asIParticleVector();
-    
+
     //use associations w/ name m_association_key
     else
     {
@@ -91,9 +91,9 @@ int TrigHIEventShapeJetIteration::execute() const
 	return StatusCode::FAILURE;
       }
     }
-    
+
     //Now loop over associated objects
-    ATH_MSG(DEBUG) << "Jet " 
+    ATH_MSG(DEBUG) << "Jet "
 		  << std::setw(10) << jet4mom.Pt()*1e-3
 		  << std::setw(10) << jet4mom.Eta()
 		  << std::setw(10) << jet4mom.Phi()
@@ -118,7 +118,7 @@ int TrigHIEventShapeJetIteration::execute() const
 
       if( jet4mom.DeltaR( cl->p4() ) > m_exclude_DR ) continue;
 
-      m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,cl); //,used_indices,used_eta_bins);
+      m_subtractor_tool->updateUsingCluster(output_shape,es_index,cl); //,used_indices,used_eta_bins);
     }
 
   }//end jet loop
@@ -131,14 +131,14 @@ int TrigHIEventShapeJetIteration::execute() const
 
   //if configured, define layer-depedent ET-weighted, eta-independent v2 and necessary event plane angles
   //loop again on bins and manually set flow part?
-  
+
 
   // xAOD::HIEventShapeContainer* output_flow_shape=new xAOD::HIEventShapeContainer;
   // xAOD::HIEventShapeAuxContainer *output_flow_shape_aux = new xAOD::HIEventShapeAuxContainer;
   // output_flow_shape->setStore( output_flow_shape_aux );
   // CHECK(evtStore()->record(output_flow_shape,m_output_event_flow_shape_key));
   // CHECK(evtStore()->record(output_flow_shape_aux,m_output_event_flow_shape_key + std::string("Aux.")));
-  
+
   // //FIX remove hard coded value
   // int N_CALO_LAYERS = 24;
   // output_flow_shape->reserve(N_CALO_LAYERS);
@@ -153,5 +153,3 @@ int TrigHIEventShapeJetIteration::execute() const
   //   //do averaging
 
   // }
-
-

@@ -22,8 +22,8 @@
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 
 // EDM include(s):
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace D3PD {
 

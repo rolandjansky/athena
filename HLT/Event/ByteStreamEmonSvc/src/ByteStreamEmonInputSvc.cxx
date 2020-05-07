@@ -20,8 +20,10 @@
 #include "TrigConfL1ItemsNamed.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
@@ -353,17 +355,30 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
    // Declare header primary
     Dh->setStatus(DataHeader::Input);
 
-    // Now add ref to EventInfo objects
-    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-    StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);
+    // Now add ref to xAOD::EventInfo objects
+    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<xAOD::EventInfo>::ID(), "EventInfo", "");
+    StatusCode ioc = m_sgSvc->recordAddress("EventInfo",iop);
     if (ioc.isSuccess()) {
-        const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
+        const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventInfo>::ID(), "EventInfo");
         if (ptmp !=0) {
-            DataHeaderElement DheEI(ptmp, nullptr, "ByteStreamEventInfo");
+            DataHeaderElement DheEI(ptmp, nullptr, "EventInfo");
             Dh->insert(DheEI);
         }
-        //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
+        //else ATH_MSG_ERROR("Failed to create xAOD::EventInfo proxy " << ptmp);
     }
+
+	// Now add ref to xAOD::EventAuxInfo objects
+    IOpaqueAddress* iopaux = new ByteStreamAddress(ClassID_traits<xAOD::EventAuxInfo>::ID(), "EventInfoAux.", "");
+    StatusCode iocaux = m_sgSvc->recordAddress("EventInfoAux.",iopaux);
+    if (iocaux.isSuccess()) {
+        const SG::DataProxy* ptmpaux = m_sgSvc->transientProxy(ClassID_traits<xAOD::EventAuxInfo>::ID(), "EventInfoAux.");
+        if (ptmpaux !=0) {
+            DataHeaderElement DheEIAux(ptmpaux, nullptr, "EventInfoAux.");
+            Dh->insert(DheEIAux);
+        }
+        //else ATH_MSG_ERROR("Failed to create xAOD::EventAuxInfo proxy " << ptmpaux);
+    }
+
     // Record new data header.Boolean flags will allow it's deletion in case
     // of skipped events.
     StatusCode rec_sg = m_sgSvc->record<DataHeader>(Dh, "ByteStreamDataHeader", true, false, true);
@@ -459,29 +474,31 @@ void ByteStreamEmonInputSvc::get_runparams()
         runParams.checkout();
 
         eformat::helper::DetectorMask mask(runParams.det_mask);
-        
-        ByteStreamMetadata* metadata = new ByteStreamMetadata( runParams.run_number,
-                                                               0,
-                                                               0,
-                                                               runParams.recording_enabled,
-                                                               runParams.trigger_type,
-                                                               mask.serialize().second,
-                                                               runParams.beam_type,
-                                                               runParams.beam_energy,
-                                                               {},
-                                                               {},
-                                                               runParams.T0_project_tag,
-                                                               0,
-                                                               {} );
-        m_inputMetaDataStore->clearStore().ignore();
 
-        if (m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure()) {
-            delete metadata;
-            metadata = nullptr;
-            ATH_MSG_WARNING(" Unable to record MetaData in InputMetaDataStore.");
-        } else {
-            ATH_MSG_INFO(" Recorded MetaData in InputMetaDataStore.");
+        auto metadatacont = std::make_unique<ByteStreamMetadataContainer>();
+        metadatacont->push_back(std::make_unique<ByteStreamMetadata>(
+                 runParams.run_number,
+                 0,
+                 0,
+                 runParams.recording_enabled,
+                 runParams.trigger_type,
+                 mask.serialize().second,
+                 runParams.beam_type,
+                 runParams.beam_energy,
+                 "",
+                 "",
+                 runParams.T0_project_tag,
+                 0,
+                 std::vector<std::string>()
+                 ));
+        // Record ByteStreamMetadataContainer in MetaData Store
+        if(m_inputMetaDataStore->record(std::move(metadatacont),"ByteStreamMetadata").isFailure()) {
+           ATH_MSG_WARNING("Unable to record MetaData in InputMetaDataStore");
         }
+        else {
+           ATH_MSG_DEBUG("Recorded MetaData in InputMetaDataStore");
+        }
+
     } catch(ers::Issue& ex) {
         ATH_MSG_ERROR("Cannot get run parameters:" << ex.what());
     }

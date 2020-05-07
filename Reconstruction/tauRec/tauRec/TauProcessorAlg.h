@@ -5,6 +5,7 @@
 #ifndef TAUREC_TAUPROCESSORALG_H
 #define TAUREC_TAUPROCESSORALG_H
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "tauRecTools/ITauToolBase.h"
@@ -20,13 +21,12 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
+#include "CaloInterface/ICaloCellMakerTool.h"
 
 /**
  * @brief       Main class for tau candidate processing.
  */
 
-class ICaloCellMakerTool;
 class CaloCell_ID;
 
 class TauProcessorAlg: public AthAlgorithm
@@ -47,31 +47,29 @@ class TauProcessorAlg: public AthAlgorithm
 
     private:
        
-	void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			       xAOD::TauTrackContainer* tauTrackCont);				 
+	void setEmptyTauTrack(xAOD::TauJet* &tauJet, xAOD::TauTrackContainer* tauTrackCont);				 
 
-	ToolHandleArray<ITauToolBase>  m_tools {this, "TauProcessorTools", {}, "Tools processing taus"};
+    Gaudi::Property<double> m_maxEta {this, "MaxEta", 2.5, "maximum eta for jet seed"};
+    Gaudi::Property<double> m_minPt {this, "MinPt", 10 * Gaudi::Units::GeV, "minimum pT for jet seed"};
 
-	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
-	double m_minPt;  //!< only build taus with pt_seed > m_minpt
-
-        const CaloCell_ID* m_cellID;
-	/** @brief tool handles */
-	ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
+    ToolHandleArray<ITauToolBase>  m_tools {this, "Tools", {}, "Tools processing taus"};
+	ToolHandle<ICaloCellMakerTool> m_cellMakerTool {this, "CellMakerTool", "", "Tool to sort the CaloCellContainer"};
 
 	SG::ReadHandleKey<xAOD::JetContainer> m_jetInputContainer{this,"Key_jetInputContainer","AntiKt4LCTopoJets","input jet key"};
-	SG::WriteHandleKey<xAOD::TauJetContainer> m_tauOutputContainer{this,"Key_tauOutputContainer","tmp_TauJets","output tau data key"};
+	
+    SG::WriteHandleKey<xAOD::TauJetContainer> m_tauOutputContainer{this,"Key_tauOutputContainer","tmp_TauJets","output tau data key"};
 	SG::WriteHandleKey<xAOD::TauTrackContainer> m_tauTrackOutputContainer{this,"Key_tauTrackOutputContainer","TauTracks","output tau tracks data key"};
 	SG::WriteHandleKey<xAOD::CaloClusterContainer> m_tauShotClusOutputContainer{this,"Key_tauShotClusOutputContainer", "TauShotClusters", "tau shot clusters out key"};
 	SG::WriteHandleKey<xAOD::PFOContainer> m_tauShotPFOOutputContainer{this,"Key_tauShotPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
 	SG::WriteHandleKey<CaloCellContainer> m_tauPi0CellOutputContainer{this,"Key_tauPi0CellOutputContainer","TauCommonPi0Cells","output calo cell key"};
-        /** ReadCondHandleKey for Pixel detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
-        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-        /** ReadCondHandleKey for SCT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
-        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-        /** ReadCondHandleKey for TRT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
-        SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
-	
+    
+    const CaloCell_ID* m_cellID;
+    
+    // These are needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks.
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
+
 };
 
 #endif // TAUREC_TAUPROCESSORALG_H

@@ -1,27 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIJetRec/HIClusterPseudoJetGetter.h"
 
 HIClusterPseudoJetGetter::HIClusterPseudoJetGetter(const std::string &name) : PseudoJetGetter(name)
 {
-  
+
 }
 
 /*
-int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const 
-{ 
+int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const
+{
   bool doGhosts=bool(m_ghostscale)&!m_negEnergyAsGhosts;
   ATH_MSG_DEBUG("Entering appendTo(PseudoJetVector)...");
 
-  if ( evtStore()->contains<xAOD::IParticleContainer>(m_incoll) ) 
+  if ( evtStore()->contains<xAOD::IParticleContainer>(m_incoll) )
   {
     ATH_MSG_DEBUG("Retrieving xAOD container " << m_incoll << ", ghost scale="
                   << m_ghostscale  <<  ", isGhost=" << doGhosts);
     const xAOD::IParticleContainer* ppars = 0;
     ppars = evtStore()->retrieve<const xAOD::IParticleContainer>(m_incoll);
-    if ( ppars != 0 ) 
+    if ( ppars != 0 )
     {
       //for now direct copy/paste of PseudoJetGetter::append method with local mods
       //explicitly using IParticle instead of templated version
@@ -32,12 +32,12 @@ int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* 
       else ATH_MSG_WARNING("Index-to-label map is not supplied.");
       if ( doGhosts ) labidx = -labidx;
       ATH_MSG_DEBUG( "Ghost scale =  " << m_ghostscale << "; idx = " << labidx );
-      
+
       /// Loop over input, buid CUI and PseudoJets
-      for ( auto iinp=inputs.begin(); iinp!=inputs.end(); ++iinp ) 
+      for ( auto iinp=inputs.begin(); iinp!=inputs.end(); ++iinp )
       {
 	auto ppar = *iinp; // IParticle pointer
-	if ( ppar == 0 || (m_skipNegativeEnergy && ppar->e() <= 0.0) ) 
+	if ( ppar == 0 || (m_skipNegativeEnergy && ppar->e() <= 0.0) )
 	{
 	  if ( ppar == 0 ) ATH_MSG_DEBUG("NUll object!");
 	  else ATH_MSG_VERBOSE("Skipping cluster with E = " << ppar->e());
@@ -47,7 +47,7 @@ int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* 
 	// Take momentum from IParticle.
 	fastjet::PseudoJet psj(ppar->p4());
 	// Form EM scale, use uncalibrated four-vector.
-	if ( m_emtopo ) 
+	if ( m_emtopo )
 	{
 	  const xAOD::CaloCluster* pclu = dynamic_cast<const xAOD::CaloCluster*>(ppar);
 	  if ( pclu == 0 ) {
@@ -76,14 +76,14 @@ int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* 
 				    << ", m: "   << ppar->m()   << "/" << ppar->p4().M()   << "/" << psj.m()
 				    << ", eta: " << ppar->eta() << "/" << ppar->p4().Eta() << "/" << psj.eta()
 				    );
-	if ( pli != 0 ) 
+	if ( pli != 0 )
 	{
 	  jet::IConstituentUserInfo* pcui = this->buildCUI(ppar, labidx, pli);
 	  psj.set_user_info(pcui);
 	  if ( show ) ATH_MSG_VERBOSE("User info particle: " << pcui->particle());
 	}
 	psjs.push_back(psj);
-      } // end loop over input 
+      } // end loop over input
       if ( nskip ) ATH_MSG_DEBUG("Skipped constituent count: " << nskip);
       ATH_MSG_DEBUG("After append, PseudoJet count is " << psjs.size());
       return 0;

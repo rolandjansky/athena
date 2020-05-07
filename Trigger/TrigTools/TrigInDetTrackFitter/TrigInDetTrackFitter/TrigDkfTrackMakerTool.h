@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
@@ -29,7 +28,6 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
   // standard Athena methods
   StatusCode initialize();
 
-  bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double) const;
 	bool createDkfTrack(const Trk::Track& track, std::vector<Trk::TrkBaseNode*>& vpTrkNodes, double DChi2) const;
 
     
@@ -38,10 +36,6 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
   
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash& waferHash) const;
-  const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
 };
 
 #endif 

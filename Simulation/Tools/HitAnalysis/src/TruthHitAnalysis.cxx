@@ -5,7 +5,7 @@
 #include "TruthHitAnalysis.h"
 
 // Section of includes for Truth tests
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

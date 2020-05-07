@@ -447,8 +447,8 @@ if opt.doL1Unpacking:
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if opt.decodePhaseIL1:
-            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
-            topSequence += L1TriggerResultMaker()
+            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
         else:
             l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
@@ -554,6 +554,7 @@ if opt.doWriteBS:
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 # ID Cache Creators
 ConfigFlags.lock()
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
@@ -603,6 +604,11 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-------------------------------------------------------------
 # Print top sequence

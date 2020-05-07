@@ -175,13 +175,9 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, s
 
   buffer.push_back( sz ); // size in bytes
   const size_t neededSize = std::ceil( double(sz)/sizeof(uint32_t) );
-  // ideally we could use the vector<uint32_t> right away
-  auto intTempBuffer  = std::make_unique<uint32_t[]>( neededSize );
-  intTempBuffer[ neededSize-1 ]  = 0; // empty last bytes
-  std::memcpy( intTempBuffer.get(), data, sz);
-
-  // copy to buffer
-  buffer.insert( buffer.end(), intTempBuffer.get(), intTempBuffer.get()+neededSize  );
+  const size_t existingSize = buffer.size();
+  buffer.resize(existingSize + neededSize);
+  std::memcpy(buffer.data() + existingSize, data, sz);
   return StatusCode::SUCCESS;
 }
 

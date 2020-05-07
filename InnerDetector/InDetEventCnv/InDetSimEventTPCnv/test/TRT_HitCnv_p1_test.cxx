@@ -18,8 +18,8 @@
 #include <iostream>
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 
 void compare (const HepMcParticleLink& p1,
               const HepMcParticleLink& p2)

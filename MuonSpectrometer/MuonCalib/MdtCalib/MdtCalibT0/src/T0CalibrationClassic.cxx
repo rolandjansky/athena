@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibT0/T0CalibrationClassic.h" 
@@ -28,7 +28,7 @@ namespace MuonCalib {
 
   inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par) { 
     Double_t &x(xx[0]);
-    return par[0]+(par[1]*(1+par[2]*exp(-(x-par[4])/par[3])))/((1+exp((-x+par[4])/par[6]))*(1+exp((x-par[5])/par[7])));
+    return par[0]+(par[1]*(1+par[2]*std::exp(-(x-par[4])/par[3])))/((1+std::exp((-x+par[4])/par[6]))*(1+std::exp((x-par[5])/par[7])));
   }
 
   T0CalibrationClassic::T0CalibrationClassic( std::string name, const T0ClassicSettings* settings ) : 
@@ -77,15 +77,6 @@ namespace MuonCalib {
       float distanceToRO = (*it)->distanceToReadout();
 
       bool ROside = distanceToRO<130000. ; // this means that there is no selection along the tube
-        // bool ROside = distanceToRO<1300. ;
-//        bool HVside = distanceToRO>2200. ;
-        // bool ChamberChop = distanceToRO>100.&&distanceToRO<600. ;
-        // bool ChamberChop = distanceToRO>600.&&distanceToRO<1100. ;
-        // bool ChamberChop = distanceToRO>1100.&&distanceToRO<1600. ;
-        // bool ChamberChop = distanceToRO>1900.&&distanceToRO<2400. ;
-        // bool ChamberChop = distanceToRO>2400.&&distanceToRO<2900. ;
-        // bool ChamberChop = distanceToRO>2900.&&distanceToRO<3400. ;
-
       if (ROside) {
 	MuonFixedId id=(*it)->identify();
       
@@ -93,9 +84,7 @@ namespace MuonCalib {
 	int nML=id.mdtMultilayer();
 	int nL=id.mdtTubeLayer();
 	int nT=id.mdtTube();
-	// std::cout<<"Accessing Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<" mezzanine="<<id.mdtMezzanine()<<std::endl; 
 	const MdtTubeFitContainer::SingleTubeCalib * stc=m_result->getCalib(nML-1,nL-1,nT-1);
-	//	double oldT0=0;
 	if(!stc) {
 	  std::cout<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<std::endl; 
 	  std::cout<<"container size "<<m_result->size()<<std::endl;
@@ -108,23 +97,11 @@ namespace MuonCalib {
 	T0ClassicHistos* histos = getHistos(id.getIdInt());
 
 	// fill histos
-	// std::cout<<"T0Classic: drifttime "<<(*it)->driftTime()<<" oldt0 "<<oldT0<<" tdc counts "<<(*it)->tdcCount()<<" propagation "<<(*it)->propagationTime()<<" slewing "<<(*it)->slewingTime()<<" flight "<<(*it)->timeOfFlight()<<std::endl;
-	//      float ttime=(((*it)->tdcCount())*(25./32.))-((*it)->propagationTime())-((*it)->slewingTime())-((*it)->timeOfFlight());
-
-
-	//Luca 11/6/2007 - Tolgo il tempo di volo per i cosmici
-	//	float ttime=(((*it)->tdcCount())*(25./32.))-((*it)->propagationTime())-((*it)->timeOfFlight());
-	
-       //M.I.  22/6/2007 - Tolgo il tempo di propagaz per i cosmici sett.5
-       //F.R. Always use the drift time, and not the tdc-count. It will be filled correctly bu the CalibNtupleAnalysysAlg
-	 	         //float ttime=((*it)->tdcCount())*(25./32.);
 	 	 
 	float ttime=((*it)->driftTime());
-	//      histos->time->Fill((*it)->tdcCount()+oldT0);
 	  
 	histos->time->Fill(ttime);
 	histos->adc->Fill((*it)->adcCount());
-	//histos.adc_vs_time->Fill((*it)->driftTime(),(*it)->adcCount);
 	// book an additional dummy set of histograms to fit the global T0
 	T0ClassicHistos* histosAll = getHistos(0);
 	histosAll->time->Fill(ttime);
@@ -159,9 +136,7 @@ namespace MuonCalib {
 	MdtTubeFitContainer::SingleTubeFit full;
 	MdtTubeFitContainer::SingleTubeCalib st;
 	int idtube=(*it)->id ;
-	  // if((*it)->id!=0 && (int)(idtube/100000000)!=9 && idtube!=1 && idtube!=2 ) {
 	if((*it)->id!=0 && (int)(idtube/100000000)!=9 ) {
-	    // doTimeFit(*it,full,st);
 	  doTimeFit(*it,full,st);
 	  doAdcFit(*it,full,st);
 	  MuonFixedId fId((*it)->id); 
@@ -176,11 +151,6 @@ namespace MuonCalib {
 	  if(!setInfo) 
 	    std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeFullInfo info "<<std::endl;
 
-	    // DA TOGLIERE !!!!
-	    //
-	    // int headid,lowrun,uprun;
-	    // int ok=m_db->getTubeHead(headid,lowrun,uprun); 
-	    // std::cout<<" headid,lowrun,uprun " << headid <<" "<<lowrun<<" "<<uprun <<std::endl;
 	}
       }
     }
@@ -198,9 +168,6 @@ namespace MuonCalib {
 
   void T0CalibrationClassic::doTimeFit(T0ClassicHistos *T0h, MdtTubeFitContainer::SingleTubeFit &fi, MdtTubeFitContainer::SingleTubeCalib &stc) {
     TMinuit *gMinuit = new TMinuit();
-    // THIS SETTINGS VARIABLE HAS TO BE IMPLEMENTED (as of March 7, 2007)  : 
-    // int fitMezz = m_settings->fitMezzanine();
-    // int fitMezz(123) ; 
     int fitMezz(1) ; 
 
     const int np=m_settings->numParams();
@@ -225,39 +192,12 @@ namespace MuonCalib {
 
     if (( fId.isValid() && fId.is_mdt()) || isMultilayer ) {
       std::cout<<" STARTING doTimeFit "<< std::endl;
-      TH1 * h(NULL) ; 
+      TH1* h = nullptr; 
 
-      //      if (!fitMezz || isMultilayer) {    //!fitMezz not implemented (see above)
       if ( isMultilayer) {
         std::cout<< " DEBUGGGG : " << T0h->id << std::endl ;
 	h=T0h->time;
       }
-
-// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
-//      if (fitMezz==123 && !isMultilayer) {                       // FIT Mixed 
-//	h=T0h->time;
-//        if (h->GetEntries()<m_settings->entries()) {
-//	  int hIdMezz = fId.mdtMezzanine() ;
-//	  ToString ts;
-//	  std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
-//	  TH1F * timeHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-//	  if(!timeHis) {
-//	    delete [] pfit ;
-//	    delete [] errfit ;
-//	    for(int i=0; i<np; i++) delete [] matrix[i];
-//	    delete [] matrix;
-//	    return;
-//	  }
-//
-//	  T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
-//	  h= histosMezz->time;
-//	  if (h->GetEntries()<m_settings->entries()) {
-//	    int nML=fId.mdtMultilayer();
-//	    T0ClassicHistos* histosML = getHistos(nML);
-//	    h= histosML->time;
-//	  }
-//       }
-//      } 
 
       if (fitMezz==1 && !isMultilayer) {                       // FIT MEZZANINE 
 	int hIdMezz = fId.mdtMezzanine() ;
@@ -281,13 +221,6 @@ namespace MuonCalib {
 	h= histosMezz->time;
       }
 
-// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
-//      if (fitMezz==2 && !isMultilayer) {                        // FIT MULTILAYER 
-//	 int nML=fId.mdtMultilayer();
-//	 T0ClassicHistos* histosML = getHistos(nML);
-//	 h= histosML->time;
-//    }
-      
       Stat_t entries=h->GetEntries();
       fi.statistics=(int)entries;
 
@@ -303,7 +236,6 @@ namespace MuonCalib {
       // CHECK whether the histogram has been already fitted 
       TF1 * FitFunction = h->GetFunction("TimeSpectrum");
       if(FitFunction){
-//	double chiquadro = FitFunction->GetChisquare();
 	for(int i=0; i<np; i++){
 	  pfit[i]   = FitFunction->GetParameter(i);
 	  errfit[i] = FitFunction->GetParError(i) ;
@@ -314,15 +246,12 @@ namespace MuonCalib {
 	TF1 *TimeSpectrum = new TF1("TimeSpectrum",
 				    "[0]+([1]*(1+[2]*exp(-(x-[4])/[3])))/((1+exp((-x+[4])/[6]))*(1+exp((x-[5])/[7]))) ",
 				    m_settings->minTime(),m_settings->maxTime()); 
-      // if ((int)entries > m_settings->entries())
-        // searchParams(h,&pfit[0],np);  
 	for(int i=0;i<np;i++) {
 	  pfit[i]=*(pdefault++);
 	  if(m_settings->printLevel() <= 2) 
 	    std::cout<<"T0CalibrationClassic::doTimeFit initial parameters"
 		     <<i<<"="<<pfit[i]<<std::endl;
         }
-        //	if ( !m_settings->initParamFlag() ) {
 	searchParams(h,&pfit[0],np);  
 	if(m_settings->printLevel() <= 2) {
 	  std::cout<<"T0CalibrationClassic::doTimeFit parameters after searchParams "<<std::endl;
@@ -359,7 +288,6 @@ namespace MuonCalib {
 	for(int i=0; i<np; i++){
 	  pfit[i]    = TimeSpectrum->GetParameter(i);
 	  errfit[i] = TimeSpectrum->GetParError(i) ;
-	  // std::cout << " cov(ii) = " << matrix[i][i] << std::endl ;
 	}
 	chi2     = TimeSpectrum->GetChisquare() ; // total chi2
 	ndof     = TimeSpectrum->GetNDF();        // number of degrees of freedom
@@ -380,13 +308,7 @@ namespace MuonCalib {
       
       // NOW we get rid of the covariance matrix 
       /******************************************************* 
-	int jj=0;
-	for (int i=0; i<8; i++) {
-	  for (int k=0; k<i+1; k++) {
-	    std::cout << " i k matrix[i][k] = "<<i<<" "<<k<<" "<< matrix[i][k] <<std::endl;
-	    fi.cov[jj++] = matrix[k][i] ; 
-	  } 
-	}
+
         *******************************************************/
         // NOW we  set the the first 8 values of fi.cov to errfit
       for (int i=0 ; i<np; i++) fi.cov[i]=errfit[i] ;
@@ -458,37 +380,6 @@ namespace MuonCalib {
       std::cout<<" STARTING doAdcFit "<< std::endl;
 
       TH1 * h = nullptr;
-
-// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
-//    if (!fitMezz) {
-//	h=T0h->adc;
-//      }
-//
-//    if (fitMezz==123) {                       // FIT Mixed
-//        h=T0h->adc;
-//        if (h->GetEntries()<m_settings->entries()) {
-//	  int hIdMezz = fId.mdtMezzanine() ;
-//	  ToString ts;
-//	  std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
-           // std::cout <<" DEBUGG FITTING MEZZANINE "<<fId.mdtTube()
-           //           <<" "<<fId.mdtTubeLayer()<<" "<<fId.mdtMultilayer()
-           //           <<" "<<fId.mdtMezzanine() <<std::endl;
-      //	TH1F * adcHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-      //	if(!adcHis) return;
-      //	T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
-      //	h= histosMezz->adc;
-      //	if (h->GetEntries()<m_settings->entries()) {
-      //	  int nML=fId.mdtMultilayer();
-
-	    // std::cout <<" DEBUGG FITTING MULTILAYER "<<fId.mdtTube()
-	    //           <<" "<<fId.mdtTubeLayer()<<" "<<nML
-	    //           <<" "<<fId.mdtMezzanine() <<std::endl;
-
-      //	  T0ClassicHistos* histosML = getHistos(nML);
-      //	  h= histosML->adc;
-      //	}
-      //      }     
-      //    }  //end if fitMezz=123
 
       if (fitMezz==1) {
 	int hIdMezz = fId.mdtMezzanine() ;
@@ -649,8 +540,8 @@ namespace MuonCalib {
       float cont1=hnew->GetBinContent(ix1);
       float cont2=hnew->GetBinContent(ix2);
       if (cont1>0. && cont2>0. ){
-      float A1=exp(-(a1-t0guess)/P3);
-      float A2=exp(-(a2-t0guess)/P3);
+      float A1=std::exp(-(a1-t0guess)/P3);
+      float A2=std::exp(-(a2-t0guess)/P3);
       // do not forget rebinning!
       P2 = (cont1/cont2-1.)/(A1-cont1/cont2*A2);
       P1 = cont1/(1+P2*A1);
@@ -672,14 +563,11 @@ namespace MuonCalib {
 
   T0ClassicHistos* T0CalibrationClassic::getHistos(unsigned int idtube) {
     ToString ts;
-    // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<std::endl;
     std::string HistoId;
     if((int)(idtube/100000000)==9){
-      // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" of tipe mezz(idtube)%(900000000), mezz "<<(idtube)%(900000000)<<std::endl;
       int mezz=(idtube)%(900000000);
       HistoId="time_mezz_"+ts(mezz);
     } else if(idtube==0){
-      // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" of tipe 0"<<std::endl;
       HistoId="time";
     } else if(idtube==1){
       HistoId="time_ML1";
@@ -698,7 +586,6 @@ namespace MuonCalib {
     } else if(idtube==23){
       HistoId="time_ML2_series3";
     } else {
-      //     std::string HistoId(std::string("time_") + ts(idtube));
       MuonFixedId fId(idtube); 
       int nML=fId.mdtMultilayer();
       int nL=fId.mdtTubeLayer();
@@ -709,13 +596,11 @@ namespace MuonCalib {
       int eta = fId.eta();
       int phi = fId.phi();
       HistoId="time_"+stationName+"_"+ts(eta)+"_"+ts(phi)+"_"+ts(tubeid);
-      // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" of tipe tube "<<HistoId<<std::endl;
     }
     T0ClassicHistos *ret = NULL; 
     TH1F *timeHis = (TH1F*) m_regiondir->Get(HistoId.c_str());
     // We will either find the pointer to an existing histogram or create a new one
     if(!timeHis) {   //book histo if it does not exist
-      // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" pointer not found, booking"<<std::endl;
       ret = bookHistos(idtube);
     } else {  // else loop over m_histos histograms to look for the set of histos of tube idtube 
       for(std::vector<T0ClassicHistos*>::iterator it =m_histos.begin(); it!=m_histos.end();++it) {

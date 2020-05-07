@@ -27,8 +27,8 @@
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetTruthEvent/TrigIDHitStats.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 #include <iostream>

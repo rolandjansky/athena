@@ -66,13 +66,7 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         
 def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", **kwargs):
     MuonSegmentMomentumFromField=CompFactory.MuonSegmentMomentumFromField
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    
     result = ComponentAccumulator()
-    acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("MagFieldSvc", magfieldsvc)
     
     navigator_ca = MuonNavigatorCfg(flags)
     navigator = navigator_ca.popPrivateTools()
@@ -84,9 +78,6 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     muon_prop = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("PropagatorTool", muon_prop)
-    
-    kwargs.setdefault("HasCSC",  flags.Detector.GeometryCSC)
-    kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC)
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
     result.setPrivateTools(muon_seg_mom_from_field)
@@ -314,13 +305,11 @@ def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
     result = ComponentAccumulator()
     
     acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
     result.merge(acc)
     
     kwargs.setdefault("Tolerance", 0.00001 )
     kwargs.setdefault("MaterialEffects", True  )
     kwargs.setdefault("IncludeBgradients", True  )
-    kwargs.setdefault("MagFieldSvc", magfieldsvc  )
     
     propagator = Trk__STEP_Propagator(name=name, **kwargs)
     result.setPrivateTools(propagator)

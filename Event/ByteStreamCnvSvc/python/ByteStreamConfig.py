@@ -106,6 +106,39 @@ def TrigBSReadCfg(inputFlags):
 
     return acc
 
+
+def ByteStreamWriteCfg( flags, typeNames=[] ):
+    acc = ComponentAccumulator()
+    outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
+    outputSvc.MaxFileMB = 15000
+    # event (beyond which it creates a new file)
+    outputSvc.MaxFileNE = 15000000
+    outputSvc.OutputDirectory = "./"
+    outputSvc.AppName = "Athena"
+    # release variable depends the way the env is configured
+    #FileTag = release
+    allRuns = set(flags.Input.RunNumber)
+    assert len(allRuns) == 1, "The input is from multiple runs, do not know which one to use {}".format(allRuns)
+    outputSvc.RunNumber = allRuns.pop()
+
+    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("OutBSCnvSvc")
+    # TODO for technical reasons a separate instance of the ByteStreamCnvSvc have to be created, once all the config (i.e. trigger) is moved to CA based the name needs to be left default
+    # to test such change the test_trig_data_v1Dev_writeBS_build.py can be used
+
+    bsCnvSvc.ByteStreamOutputSvcList = [ outputSvc.getName() ]
+    streamAlg = CompFactory.AthenaOutputStream( "BSOutputStreamAlg",
+                                                EvtConversionSvc = bsCnvSvc.getName(),
+                                                ItemList = typeNames )
+
+    acc.addService( outputSvc )
+    acc.addService( bsCnvSvc )
+    acc.addSequence( CompFactory.AthSequencer("AthOutSeq") )
+    acc.addEventAlgo( streamAlg, sequenceName="AthOutSeq", primary = True )
+
+    return acc
+
+
+
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags    
     from AthenaConfiguration.TestDefaults import defaultTestFiles

@@ -12,7 +12,6 @@
 #include <list>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -488,11 +487,6 @@ namespace Trk {
         double m_helixStep                                         ;  // max step whith helix model
         double m_straightStep                                      ;  // max step whith srtaight line model
         bool   m_usegradient                                       ;  // use magnetif field gradient
-        ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-        MagField::IMagFieldSvc*                m_fieldService      ;
-
-        // temporary flag to be able to avoid the use of the AtlasFieldCacheCondObj
-        Gaudi::Property<bool> m_useCondObj {this, "UseCondObj", true, "Use the conditions object to fetch the field cache"};
 
         // Read handle for conditions object to get the field cache
         SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
@@ -506,29 +500,15 @@ namespace Trk {
 
     inline void RungeKuttaPropagator::getField(Cache& cache,double* R,double* H) const {	 
 
-        // MT version uses cache, temporarily keep old version
-        if (cache.m_fieldCache.useNewBfieldCache()) {
-            if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H);
-            else                 cache.m_fieldCache.getField  (R, H);
-        }
-        else {
-            if(cache.m_solenoid) m_fieldService->getFieldZR(R, H);
-            else                 m_fieldService->getField  (R, H);
-        }
+        if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H);
+        else                 cache.m_fieldCache.getField  (R, H);
     
     }
 
     inline void RungeKuttaPropagator::getFieldGradient(Cache& cache,double* R,double* H,double* dH) const { 
 
-        // MT version uses cache, temporarily keep old version
-        if (cache.m_fieldCache.useNewBfieldCache()) {
-            if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H, dH);
-            else                 cache.m_fieldCache.getField  (R, H, dH);
-        }
-        else {
-            if(cache.m_solenoid) m_fieldService->getFieldZR(R, H, dH);
-            else                 m_fieldService->getField  (R, H, dH);
-        }
+        if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H, dH);
+        else                 cache.m_fieldCache.getField  (R, H, dH);
     
     }
 }

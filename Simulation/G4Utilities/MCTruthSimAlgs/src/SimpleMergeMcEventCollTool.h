@@ -14,10 +14,8 @@
 
 class McEventCollection;
 
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
 /** @class SimpleMergeMcEventCollTool
  *  @brief a PileUpTool to merge MC truth collection in the overlay store
  *

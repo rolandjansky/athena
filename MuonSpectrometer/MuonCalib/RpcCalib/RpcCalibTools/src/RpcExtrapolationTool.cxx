@@ -261,7 +261,4 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
   
   for(;it!=panels.end();++it) theResult.push_back((*it).second);
   
-  
-  //std::cout<<"end of extrapolation search for this track "<<theResult.size()<<std::endl;
-  
 }

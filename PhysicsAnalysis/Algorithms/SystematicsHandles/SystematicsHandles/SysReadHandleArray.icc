@@ -1,0 +1,113 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgTools/MessageCheck.h>
+#include <AsgTools/StatusCode.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> template<typename T2> SysReadHandleArray<T> ::
+  SysReadHandleArray (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner)
+    , m_propertyName (propertyName)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+  }
+
+
+
+  template<typename T> StatusCode SysReadHandleArray<T> ::
+  initialize ()
+  {
+    assert (m_isInitialized == false);
+    if (m_inputName.size() != m_affectingRegex.size())
+    {
+      ANA_MSG_ERROR ("array sizes for property " << m_propertyName << " and " << m_propertyName << "Regex do not match");
+      return StatusCode::FAILURE;
+    }
+    m_isInitialized = true;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T> std::size_t SysReadHandleArray<T> ::
+  size () const noexcept
+  {
+    assert (m_isInitialized);
+    return m_inputName.size();
+  }
+
+
+
+  template<typename T> const std::string& SysReadHandleArray<T> ::
+  getName (const CP::SystematicSet& sys,
+           std::size_t index) const
+  {
+    assert (m_isInitialized);
+    assert (index < size());
+    auto cache = m_inputNameCache.find (std::make_pair (sys, index));
+    if (cache == m_inputNameCache.end())
+    {
+      std::string newName = makeSystematicsName
+        (m_inputName[index], m_affectingRegex[index], sys);
+      ANA_MSG_DEBUG ("SysReadHandleArray: " << newName << " (" << sys.name() << ")");
+      m_inputNameCache.insert (std::make_pair (std::make_pair (sys, index), newName));
+      cache = m_inputNameCache.find (std::make_pair (sys, index));
+      assert (cache != m_inputNameCache.end());
+
+      // retrieving this here, just so it exists
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    return cache->second;
+  }
+
+
+
+  template<typename T> ::StatusCode SysReadHandleArray<T> ::
+  retrieve (const T*& object, const CP::SystematicSet& sys,
+            std::size_t index) const
+  {
+    assert (m_isInitialized);
+    assert (index < size());
+    const std::string& name = getName (sys, index);
+    assert (m_evtStore);
+    return m_evtStore->retrieve (object, name);
+  }
+
+
+
+  template<typename T> std::string SysReadHandleArray<T> ::
+  getInputAffecting () const
+  {
+    assert (m_isInitialized);
+    std::string result;
+    for (const std::string& regex : m_affectingRegex)
+    {
+      if (!regex.empty())
+      {
+        if (!result.empty())
+          result += "|";
+        result += regex;
+      }
+    }
+    return result;
+  }
+}

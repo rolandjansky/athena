@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,9 +13,9 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "iPatTrackFinder/FinderTolerances.h"
 #include "iPatUtility/VertexRegion.h"
+#include <TString.h> // for Form
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
@@ -24,7 +24,6 @@ FinderTolerances::FinderTolerances	(const std::string&	type,
 					 const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
 	m_incidentSvc		("IncidentSvc", name),
-	m_magFieldSvc		("MagField::AtlasFieldSvc/AtlasFieldSvc", name), 
 	m_manager		(nullptr),
 	m_halfField		(0.),
 	m_maxPhiSlope		(0.),
@@ -47,11 +46,7 @@ FinderTolerances::FinderTolerances	(const std::string&	type,
 	m_vertexZWidth		(0.)
 {
     declareInterface<IFinderConfiguration>(this);
-    declareProperty("MagFieldSvc",	m_magFieldSvc );
 }
-
-FinderTolerances::~FinderTolerances (void)
-{}
 
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
@@ -61,44 +56,16 @@ FinderTolerances::initialize()
     // print where you are
     ATH_MSG_INFO( "FinderTolerances::initialize()" );
 
-    if (m_incidentSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve service " << m_incidentSvc );
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_incidentSvc.retrieve());
     // register to the incident service:
     // 	BeginEvent needed to update field dependent tolerances
     m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
-    if (! m_magFieldSvc.empty())
-    {
-	if (m_magFieldSvc.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvc );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
-	}
-    }
-
     // retrieve the pixel GeoModel manager
-    if (StatusCode::SUCCESS != detStore()->retrieve(m_manager,m_pixelName))
-    {
-        ATH_MSG_FATAL( "Could not find the pixel Manager: " << m_pixelName << " !" );
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_manager,m_pixelName));
 
+    ATH_CHECK(m_fieldCondObjInputKey.initialize());
     return StatusCode::SUCCESS;
-}
-
-StatusCode
-FinderTolerances::finalize()
-{
-    ATH_MSG_DEBUG( "FinderTolerances::finalize()" );
-
-    return StatusCode::SUCCESS; 
 }
 
 /** handle for incident service */    
@@ -111,11 +78,21 @@ FinderTolerances::handle(const Incident& inc)
 	// this is used to obtain an approx pt for TrackCandidates in TrackFinder.
 	// A nominal 0.1Tesla is assumed if the soelenoid field is off
 	double fieldValue	= -0.1*Gaudi::Units::tesla*CLHEP::c_light;
-	if (m_magFieldSvc->solenoidOn())
+
+    /// magnetic field
+    MagField::AtlasFieldCache fieldCache;
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (!fieldCondObj) {
+      throw std::runtime_error(Form("File: %s, Line: %d\nUpdateBField::prepareSegments() - Failed to retrieve AtlasFieldCacheCondObj with key %s", __FILE__, __LINE__, (m_fieldCondObjInputKey.key()).c_str()));
+    }
+    fieldCondObj->getInitializedCache(fieldCache);
+
+	if (fieldCache.solenoidOn())
 	{
 	    Amg::Vector3D field;
 	    Amg::Vector3D position(0.,0.,0.);
-	    m_magFieldSvc->getField(&position,&field);
+	    fieldCache.getField(position.data(), field.data());
 	    fieldValue		= -field(2)*CLHEP::c_light;
 	}
 	m_halfField		= 0.5*fieldValue;

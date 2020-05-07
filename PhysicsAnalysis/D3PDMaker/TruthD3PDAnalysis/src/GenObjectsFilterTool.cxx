@@ -16,9 +16,9 @@
 #include "TruthHelper/IsGenInteracting.h"
 
 // EDM include(s):
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // Local include(s):

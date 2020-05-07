@@ -1,7 +1,5 @@
- ///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx 
@@ -466,7 +464,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
     if (M<66000 || M>116000) continue;
     
     //choose the Z candidate closest to the Z pole - if multiple exist
-    float dM = fabs(M-91187.);
+    float dM = std::abs(M-91187.);
     if (dM>dMmin) continue;
     dMmin = dM;
     mZ=M;
@@ -612,7 +610,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
       else ATH_MSG_DEBUG("Chain "<<L1trig <<" is passed: NO");
     }
     for (auto mu: m_vRecoMuons) {     
-      if (passesAcceptanceCuts(mu) && fabs(mu->eta())<2.4 ) {     
+      if (passesAcceptanceCuts(mu) && std::abs(mu->eta())<2.4 ) {     
         if (mu->author()==1) {
 	m_vRecoMuons_EffDen_CB.push_back(mu);
 	ATH_MSG_DEBUG("##### m_vRecoMuons_EffDen_CB  pt:"<< mu->pt()<<"   phi:"<<mu->phi()<<"   eta:"<< mu->eta());
@@ -846,7 +844,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
               if ((((*mufeat.cptr())[i]->author())==m_SelectedAuthor)&&  (deltaR((*mufeat.cptr())[i],m_vRecoMuons_EffDen.at(k))<0.1)  ) {
                 break_flag=true;
                 ATH_MSG_DEBUG("   $$$ match Reco_EffDen "<<muonItem<<"         pt: "<< m_vRecoMuons_EffDen.at(k)->pt()<< "   eta: "<<m_vRecoMuons_EffDen.at(k)->eta()<< "   phi: "<<m_vRecoMuons_EffDen.at(k)->phi()<< "   author: "<<  m_vRecoMuons_EffDen.at(k)->author());
-                ATH_MSG_DEBUG("   $$$ match EF MuidCo feature "<<muonItem<<"   pt: "<< (*mufeat.cptr())[i]->pt()<< "   eta: "<<(*mufeat.cptr())[i]->eta()<< "   phi: "<<(*mufeat.cptr())[i]->phi()<< "   author: "<<  (*mufeat.cptr())[i]->author() << "    rel_p "<< ( fabs(((*mufeat.cptr())[i]->pt()-m_vRecoMuons_EffDen.at(k)->pt())/(m_vRecoMuons_EffDen.at(k)->pt()))) );
+                ATH_MSG_DEBUG("   $$$ match EF MuidCo feature "<<muonItem<<"   pt: "<< (*mufeat.cptr())[i]->pt()<< "   eta: "<<(*mufeat.cptr())[i]->eta()<< "   phi: "<<(*mufeat.cptr())[i]->phi()<< "   author: "<<  (*mufeat.cptr())[i]->author() << "    rel_p "<< ( std::abs(((*mufeat.cptr())[i]->pt()-m_vRecoMuons_EffDen.at(k)->pt())/(m_vRecoMuons_EffDen.at(k)->pt()))) );
                 for (unsigned int j=0; j<m_selectMuonCategories.size(); j++) {
                   if (m_selectMuonCategories[j]==ALL) { 
                     m_TriggerMuonValidationPlots[j]->fillNumEff(*m_vRecoMuons_EffDen.at(k), muonItem);
@@ -1271,7 +1269,7 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
       if (m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory) {
 
 	if (type==xAOD::Muon::InnerDetectorTrackParticle) {
-	  if (m_fwdtracksName!="" && fabs((*truthLink)->eta())>2.5) m_muonIDForwardTrackValidationPlots[i]->fill(*truthLink, tp);
+	  if (m_fwdtracksName!="" && std::abs((*truthLink)->eta())>2.5) m_muonIDForwardTrackValidationPlots[i]->fill(*truthLink, tp);
 	  else if (m_tracksName!="") {
 	    m_muonIDTrackValidationPlots[i]->fill(*truthLink, tp);
 	    if (passesMuonTrackSel) m_muonIDSelectedTrackValidationPlots[i]->fill(*truthLink,tp);
@@ -1325,7 +1323,7 @@ void MuonPhysValMonitoringTool::L2SATriggerResolution(){
     ATH_MSG_DEBUG(":: TEST: listing all Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
   }
   for (unsigned int i=0; i<m_vRecoMuons.size(); i++){ 
-    if ((m_vRecoMuons.at(i)->author()!=1)||(fabs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
+    if ((m_vRecoMuons.at(i)->author()!=1)||(std::abs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
     ATH_MSG_DEBUG(":::: TEST: Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
     k_L2SAMu_MinDeltaR=-1;
     MinDeltaR=1000;
@@ -1367,7 +1365,7 @@ void MuonPhysValMonitoringTool::L2CBTriggerResolution(){
     ATH_MSG_DEBUG(":: TEST: listing all Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
   }
   for (unsigned int i=0; i<m_vRecoMuons.size(); i++){ 
-    if ((m_vRecoMuons.at(i)->author()!=1)||(fabs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
+    if ((m_vRecoMuons.at(i)->author()!=1)||(std::abs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
     ATH_MSG_DEBUG(":::: TEST: Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
     k_L2CBMu_MinDeltaR=-1;
     MinDeltaR=1000;
@@ -1424,7 +1422,7 @@ ATH_MSG_DEBUG(" m_vEFMuons.size()"<<m_vEFMuons.size());
     ATH_MSG_DEBUG(":: TEST: listing all Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
   }
   for (unsigned int i=0; i<m_vRecoMuons.size(); i++){ 
-    if ((m_vRecoMuons.at(i)->author()!=1)||(fabs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
+    if ((m_vRecoMuons.at(i)->author()!=1)||(std::abs(m_vRecoMuons.at(i)->eta())>2.4)) continue; 
     ATH_MSG_DEBUG(":::: TEST: Recomu pt="<<m_vRecoMuons.at(i)->pt()<<"  eta=" <<m_vRecoMuons.at(i)->eta()<<"  phi="<<m_vRecoMuons.at(i)->phi()<<"    auth="<<m_vRecoMuons.at(i)->author());
     for (unsigned int l=0; l<vAvailableAuthors.size(); l++){
       k_EFMu_MinDeltaR=-1;
@@ -1573,7 +1571,7 @@ MuonPhysValMonitoringTool::MUCATEGORY MuonPhysValMonitoringTool::getMuonSegmentT
     truthLink = truthMuSeg->auxdata<TruthLink>("truthParticleLink");
     if (truthLink.isValid()) {
       int theBarcode = (*truthLink)->barcode();
-      if (abs( (*truthLink)->pdgId() ) != 13) return REST;
+      if (std::abs( (*truthLink)->pdgId() ) != 13) return REST;
       	    
       for (const auto muTruthPart: *muonTruthContainer) {
       	if (muTruthPart->barcode() == theBarcode) {
@@ -1897,54 +1895,10 @@ void MuonPhysValMonitoringTool::modifyHistogram(TH1* hist)
   
 }
 
-// std::vector<const xAOD::TrackParticle*> MuonPhysValMonitoringTool::getMatchedTracks(const xAOD::TrackParticleContainer* Tracks)
-// {
-//   std::vector<const xAOD::TrackParticle*> matchedTracks;
-//   std::vector<const xAOD::TruthParticle*> truthParticles;
-
-//   for (const auto trk: *Tracks){
-//     // find if this is a duplicate / fake:
-    
-//     float prob = getMatchingProbability(*trk);
-//     if (prob<0.8) continue; //bad matching prob, probably a fake;
-    
-//     const xAOD::TruthParticle* truthMu = findTruthMuon(trk);
-//     if (!truthMu) continue;    
-//     //loop over accumulated matched tracks
-//     bool isDuplicate=false;
-//     for (unsigned int i=0; i<matchedTracks.size(); i++) {
-//       if (truthMu==truthParticles[i]) { //two tracks pointing to the same truth particle... resolve by truthMatchProbability
-// 	isDuplicate = true;
-// 	if (prob > getMatchingProbability(*matchedTracks[i])) {
-// 	  matchedTracks[i] = trk;
-// 	}
-//       }
-//     }
-//     if (!isDuplicate) {
-//       truthParticles.push_back(truthMu);
-//       matchedTracks.push_back(trk);
-//     }
-//   }
-//   truthParticles.clear();
-//   return matchedTracks;
-// }
-// const xAOD::TruthParticle* MuonPhysValMonitoringTool::findTruthMuon(const xAOD::TrackParticle* trk)
-// {
-//   if( !trk ) return nullptr;
-//   if( !trk->isAvailable<TruthLink>("truthParticleLink") ) return nullptr;  
-//   TruthLink truthLink = trk->auxdata<TruthLink>("truthParticleLink");
-//   if (!truthLink.isValid()) return nullptr;
-  
-//   int truthType = trk->auxdata< int >("truthType");
-//   if (truthType<5 || truthType>8) return nullptr; //not muon
-
-//   return (*truthLink);
-// }
-
 bool MuonPhysValMonitoringTool::passesAcceptanceCuts(const xAOD::IParticle* prt)
 {
   if( prt->pt() < 2000. ) return false;
-  if( fabs(prt->eta()) > 2.7 ) return false;
+  if( std::abs(prt->eta()) > 2.7 ) return false;
   return true;
 }
 

@@ -26,10 +26,7 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-    TauRecToolBase(name)
-    , m_clusterEtCut(500.)
-{
-    declareProperty("ClusterEtCut",                  m_clusterEtCut);
+    TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------

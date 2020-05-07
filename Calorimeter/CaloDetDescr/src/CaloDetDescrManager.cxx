@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,8 +27,8 @@
 #include <cmath>
 
 CaloDetDescrManager_Base::CaloDetDescrManager_Base():
-  m_cell_id(0),
-  m_calo_mgr(0)
+  m_cell_id(nullptr),
+  m_calo_mgr(nullptr)
 {
 }
 
@@ -54,10 +54,10 @@ void CaloDetDescrManager_Base::initialize ()
 
   // --- --- Temporary, for testing only --- ---
   for(unsigned int i=0; i<m_element_vec.size(); i++)
-    m_element_vec[i] = 0;
+    m_element_vec[i] = nullptr;
 
   for(unsigned int i=0; i<m_descr_vec.size(); i++)
-    m_descr_vec[i] = 0;
+    m_descr_vec[i] = nullptr;
   // --- --- Temporary, for testing only --- ---
 
   // cache offsets :
@@ -178,7 +178,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
   int sCal = (int) subCalo;
   if ( subCaloCellHash + m_subCalo_min[sCal] < m_element_vec.size() ) 
     return m_element_vec[subCaloCellHash + m_subCalo_min[sCal]] ;
-  else return 0 ;
+  else return nullptr ;
 }  
 
 const CaloDetDescrElement*
@@ -191,8 +191,8 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
 
   bool inCell=false;
   int niter=0;
-  const CaloDetDescrElement* elt=0 ;
-  const CaloDetDescrElement* elt_best=0 ;
+  const CaloDetDescrElement* elt=nullptr ;
+  const CaloDetDescrElement* elt_best=nullptr ;
 
   double eta2=eta;
   double phi2=phi;
@@ -203,7 +203,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
   while (!inCell && niter<3) {
 
     const CaloDetDescriptor* reg = get_descriptor(subCalo,sampling_or_module,barrel,eta2,phi2);
-    if (!reg) return 0;
+    if (!reg) return nullptr;
 
     if (reg->is_lar_fcal()) return get_element_FCAL(reg,eta,phi);
 
@@ -257,7 +257,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
                                       double eta, 
                                       double phi) const
 {
-  const CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=nullptr;
   
   // For LAr loop on regions :
 
@@ -269,7 +269,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
 
     bool inCell=false;
     int niter=0;
-    const CaloDetDescrElement* elt_best=0;
+    const CaloDetDescrElement* elt_best=nullptr;
 
     double eta2=eta;
     double phi2=phi;
@@ -351,7 +351,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
                                           double phi) const
 {
   //std::cout << " ----- in get_element_raw for eta,phi raw " << eta << " " << phi << std::endl;
-  const CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=nullptr;
   
   // For LAr loop on regions :
 
@@ -363,7 +363,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
 
     bool inCell=false;
     int niter=0;
-    const CaloDetDescrElement* elt_best=0 ;
+    const CaloDetDescrElement* elt_best=nullptr ;
 
     double eta2=eta;
     double phi2=phi;
@@ -444,7 +444,7 @@ CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
                                            double eta,
                                            double phi) const
 {
-  const CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=nullptr;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (eta < (descr->reg_min()-0.01) || eta > (descr->reg_max()+0.01) ) return elt;
@@ -480,7 +480,7 @@ CaloDetDescrManager_Base::get_element_FCAL_raw(const CaloDetDescriptor* descr,
                                                double eta,
                                                double phi) const
 {
-  const CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=nullptr;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (std::fabs(eta) < (descr->calo_eta_min()-0.01) || std::fabs(eta) > (descr->calo_eta_max()+0.01) ) return elt;
@@ -582,7 +582,7 @@ CaloDetDescrManager_Base::get_descriptor(const Identifier& regionId) const
   if(hash < m_descr_vec.size()) 
     return m_descr_vec[hash] ;
   else 
-    return 0;
+    return nullptr;
 }
 
 CaloDetDescriptor*
@@ -592,7 +592,7 @@ CaloDetDescrManager_Base::get_descriptor_nonconst(const Identifier& regionId)
   if(hash < m_descr_vec.size()) 
     return m_descr_vec[hash] ;
   else 
-    return 0;
+    return nullptr;
 }
 
 const CaloDetDescriptor*
@@ -602,14 +602,14 @@ CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
                                          double eta, 
                                          double phi) const
 {
-  const CaloDetDescriptor* desc0 = 0;
-  const CaloDetDescriptor* desc1 = 0;
-  const CaloDetDescriptor* desc2 = 0;
-  const CaloDetDescriptor* desc3 = 0;
+  const CaloDetDescriptor* desc0 = nullptr;
+  const CaloDetDescriptor* desc1 = nullptr;
+  const CaloDetDescriptor* desc2 = nullptr;
+  const CaloDetDescriptor* desc3 = nullptr;
 
-  if(subCalo == CaloCell_ID::TILE) return 0;
-  if(subCalo == CaloCell_ID::LARHEC && barrel == true) return 0;
-  if(subCalo == CaloCell_ID::LARFCAL && barrel == true) return 0;
+  if(subCalo == CaloCell_ID::TILE) return nullptr;
+  if(subCalo == CaloCell_ID::LARHEC && barrel) return nullptr;
+  if(subCalo == CaloCell_ID::LARFCAL && barrel) return nullptr;
    
   for (unsigned int i=0; i<m_descr_vec.size(); i++) 
   {
@@ -620,8 +620,8 @@ CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
       
       // for em differentiate barrel from endcap :
       if ((subCalo != CaloCell_ID::LAREM 
-	   || (barrel == false && reg->is_lar_em_endcap()) 
-	   || (barrel == true && reg->is_lar_em_barrel())
+	   || (!barrel && reg->is_lar_em_endcap()) 
+	   || (barrel && reg->is_lar_em_barrel())
 	   )
 	  && ((subCalo == CaloCell_ID::LAREM && reg->is_lar_em())
 	      || (subCalo == CaloCell_ID::LARHEC && reg->is_lar_hec())
@@ -673,7 +673,7 @@ CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
   else if(sampling_or_module == 1) return desc1;
   else if(sampling_or_module == 2) return desc2;
   else if(sampling_or_module == 3) return desc3;
-  else return 0;
+  else return nullptr;
 }
 
 const CaloDetDescriptor*
@@ -683,7 +683,7 @@ CaloDetDescrManager_Base::get_descriptor (CaloCell_ID::CaloSample sample,
   // note that this code does not work in the FCal as eta indices depend
   // on eta and phi
 
-  const CaloDetDescriptor* desc = 0;
+  const CaloDetDescriptor* desc = nullptr;
 
   if ( sample  == CaloCell_ID::TileBar0 ||
        sample  == CaloCell_ID::TileBar1 ||
@@ -720,7 +720,7 @@ CaloDetDescrManager_Base::get_descriptor_raw (CaloCell_ID::CaloSample sample,
 
   //std::cout << " in CaloDetDescrManager_Base::get_descriptor_raw " << std::endl;
 
-  const CaloDetDescriptor* desc = 0;
+  const CaloDetDescriptor* desc = nullptr;
 
   if ( sample  == CaloCell_ID::TileBar0 ||
        sample  == CaloCell_ID::TileBar1 ||
@@ -1587,105 +1587,72 @@ void CaloDetDescrManager_Base::decode_sample (CaloCell_ID::SUBCALO& subCalo,
 
 }
 
-
-CaloDetDescrManager* CaloDetDescrManager::s_instance = 0;
-
 const CaloDetDescrManager* CaloDetDescrManager::instance()
 {
-  if(s_instance==0)
-  {
-    // The following code can be removed once all usage of the singleton has 
-    // been removed and replaced by accessing this object via the transient 
-    // detector store. Use the instance that's in the transient detector 
-    // store if it exists. Otherwise create a new instance, register it in 
-    // the store and return that. First, locate the StoreGate instance that's 
-    // managing the transient detector store.
-    
-    StoreGateSvc* detStore = 0;
-    IMessageSvc*  msgSvc;
-    const CaloDetDescrManager* theMgr;
- 
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    StatusCode status = svcLoc->service( "MessageSvc", msgSvc);
-    
-    if(status.isSuccess()) 
-    {
-      MsgStream log(msgSvc, "CaloDetDescrManager");
-      status = svcLoc->service("DetectorStore",detStore);
+  // The following code can be removed once all usage  has
+  // been removed and replaced by accessing this object via the transient
+  // detector store. Use the instance that's in the transient detector
+  // store if it exists. Otherwise create a new instance, register it in
+  // the store and return that. First, locate the StoreGate instance that's
+  // managing the transient detector store.
+  StoreGateSvc* detStore = nullptr;
+  IMessageSvc* msgSvc;
+  const CaloDetDescrManager* theMgr =nullptr;
 
-      if(status.isSuccess()) 
-      {
-	// Test whether the instance already exists in the transient 
-	// detector store
-	if(detStore->contains<CaloDetDescrManager>("CaloMgr")) 
-	{
-	  // The instance already exists - retrieve it and save it locally.
-	  if (detStore->retrieve(theMgr).isSuccess()) {
-            s_instance = const_cast<CaloDetDescrManager*>(theMgr);
-          }
-	}
-      } 
-      else {
-	log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  StatusCode status = svcLoc->service("MessageSvc", msgSvc);
+  if (status.isSuccess()) {
+    MsgStream log(msgSvc, "CaloDetDescrManager");
+    status = svcLoc->service("DetectorStore", detStore);
+    if (status.isSuccess()) {
+      // Test whether the instance already exists in the transient
+      // detector store
+      if (detStore->contains<CaloDetDescrManager>("CaloMgr")) {
+        // The instance already exists - retrieve it and save it locally.
+        status = detStore->retrieve(theMgr);
       }
+    } else {
+      log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
     }
-    else
-    {
-      std::cerr << "CaloDetDescrManager: Could not locate the MessageSvc!!!\n";
-    }
+  } else {
+    std::cerr << "CaloDetDescrManager: Could not locate the MessageSvc!!!\n";
   }
-  return s_instance;
+  return theMgr;
 }
-
-
-CaloSuperCellDetDescrManager* CaloSuperCellDetDescrManager::s_instance = 0;
 
 const CaloSuperCellDetDescrManager* CaloSuperCellDetDescrManager::instance()
 {
-  if(s_instance==0)
-  {
-    // The following code can be removed once all usage of the singleton has 
-    // been removed and replaced by accessing this object via the transient 
-    // detector store. Use the instance that's in the transient detector 
-    // store if it exists. Otherwise create a new instance, register it in 
-    // the store and return that. First, locate the StoreGate instance that's 
-    // managing the transient detector store.
-    
-    StoreGateSvc* detStore = 0;
-    IMessageSvc*  msgSvc;
-    const CaloSuperCellDetDescrManager* theMgr;
- 
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    StatusCode status = svcLoc->service( "MessageSvc", msgSvc);
-    
-    if(status.isSuccess()) 
-    {
-      MsgStream log(msgSvc, "CaloSuperCellDetDescrManager");
-      status = svcLoc->service("DetectorStore",detStore);
+  // The following code can be removed once all usage has
+  // been removed and replaced by accessing this object via the transient
+  // detector store. Use the instance that's in the transient detector
+  // store if it exists. Otherwise create a new instance, register it in
+  // the store and return that. First, locate the StoreGate instance that's
+  // managing the transient detector store.
+  StoreGateSvc* detStore = nullptr;
+  IMessageSvc* msgSvc;
+  const CaloSuperCellDetDescrManager* theMgr = nullptr;
 
-      if(status.isSuccess()) 
-      {
-	// Test whether the instance already exists in the transient 
-	// detector store
-	if(detStore->contains<CaloSuperCellDetDescrManager>("CaloSuperCellMgr")) 
-	{
-	  // The instance already exists - retrieve it and save it locally.
-	  status = detStore->retrieve(theMgr);
-	  s_instance = const_cast<CaloSuperCellDetDescrManager*>(theMgr);
-	}
-      } 
-      else {
-	log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  StatusCode status = svcLoc->service("MessageSvc", msgSvc);
+  if (status.isSuccess()) {
+    MsgStream log(msgSvc, "CaloSuperCellDetDescrManager");
+    status = svcLoc->service("DetectorStore", detStore);
+
+    if (status.isSuccess()) {
+      // Test whether the instance already exists in the transient
+      // detector store
+      if (detStore->contains<CaloSuperCellDetDescrManager>("CaloSuperCellMgr")) {
+        // The instance already exists - retrieve it and save it locally.
+        status = detStore->retrieve(theMgr);
       }
+    } else {
+      log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
     }
-    else
-    {
-      std::cerr << "CaloSuperCellDetDescrManager: Could not locate the MessageSvc!!!\n";
-    }
+  } else {
+    std::cerr << "CaloSuperCellDetDescrManager: Could not locate the MessageSvc!!!\n";
   }
-  return s_instance;
+  return theMgr;
 }
-
 
 const CaloCell_ID* CaloDetDescrManager::getCaloCell_ID() const
 {

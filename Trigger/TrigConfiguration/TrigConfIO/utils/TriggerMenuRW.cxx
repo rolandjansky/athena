@@ -24,7 +24,7 @@ public:
    ~Config(){}
    Config(){}
 
-   std::vector<std::string> knownParameters { "file", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "help", "h", "d", "detail" };
+   std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "help", "h", "detail", "d" };
 
    // parameters
    // input
@@ -36,6 +36,7 @@ public:
    std::string  dbalias { "TRIGGERDBDEV2" };
 
    // output
+   bool         write { false }; // flag to enable writing
    std::string  base { "" };
 
    // other
@@ -59,14 +60,14 @@ void Config::usage() {
   cout << "TriggerMenuRW <options>\n";
   cout << "\n";
   cout << "[Input options]\n";
-  cout << "  --file                file1 [file2 [file3 ...]]     ... one or multiple json files\n";
+  cout << "  -f|--file             file1 [file2 [file3 ...]]     ... one or multiple json files\n";
   cout << "  --smk                 smk                           ... smk \n";
   cout << "  --l1psk               l1psk                         ... the L1 prescale key \n";
   cout << "  --hltpsk              hltpsk                        ... the HLT prescale key \n";
   cout << "  --bgsk                bgsk                          ... the bunchgroup key \n";
   cout << "  --db                  dbalias                       ... dbalias (default " << dbalias << ") \n";
   cout << "[Output options]\n";
-  cout << "  --write               [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
+  cout << "  -w|--write            [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "  -d|--detail                                         ... prints detailed job options\n";
@@ -102,6 +103,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
          // check the boolean parameters
          if(paramName == "h" || paramName == "help" ) { help = true; continue; }
          if(paramName == "d" || paramName == "detail" ) { detail = true; continue; }
+         if(paramName == "w" || paramName == "write" ) { write = true; }
          currentParameter = paramName;
          continue;
       }
@@ -109,7 +111,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
       // now treat the parameter values
 
       // inputs
-      if(currentParameter == "file") { 
+      if(currentParameter == "file" || currentParameter == "f") {
          inputFiles.push_back(currentWord);
          continue; 
       }
@@ -135,7 +137,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
       }
 
       // output
-      if(currentParameter == "write") { 
+      if(currentParameter == "write" || currentParameter == "w") {
          base = currentWord;
          continue; 
       }
@@ -153,8 +155,22 @@ Config::parseProgramOptions(int argc, char* argv[]) {
 
 }
 
+namespace {
+   bool
+   writeJsonFile(const TrigConf::DataStructure & ds, const std::string & kind, const Config & cfg) {
+      if( ! cfg.write )
+         return true;
 
-
+      std::string filename = kind;
+      if ( cfg.base != "" ) {
+         filename += "_" + cfg.base;
+      }
+      filename += ".json";
+      TrigConf::JsonFileLoader fileLoader;
+      fileLoader.saveFile(filename, ds);
+      return true;
+   }
+}
 
 int main(int argc, char** argv) {
 
@@ -187,25 +203,43 @@ int main(int argc, char** argv) {
             fileLoader.loadFile( fn, l1menu);
             cout << "Loaded L1 menu file " << fn << endl;
             l1menu.printMenu(cfg.detail);
+            writeJsonFile(l1menu, "L1Menu", cfg);
          } else if(filetype == "hltmenu" ) {
             TrigConf::HLTMenu hltmenu;
             fileLoader.loadFile( fn, hltmenu);
             cout << "Loaded HLT menu file " << fn << " with " << hltmenu.size() << " chains" << endl;
             hltmenu.printMenu(cfg.detail);
+            writeJsonFile(hltmenu, "HLTMenu", cfg);
          } else if(filetype == "l1prescale" ) {
             TrigConf::L1PrescalesSet l1pss;
             fileLoader.loadFile( fn, l1pss);
             cout << "Loaded L1 prescales set file " << fn << " with " << l1pss.size() << " prescales" << endl;
+            writeJsonFile(l1pss, "L1PrescalesSet", cfg);
          } else if(filetype == "hltprescale" ) {
             TrigConf::HLTPrescalesSet hltpss;
             fileLoader.loadFile( fn, hltpss);
             cout << "Loaded HLT prescales set file " << fn << " with " << hltpss.size() << " prescales" << endl;
             hltpss.printPrescaleSet(cfg.detail);
+            writeJsonFile(hltpss, "HLTPrescalesSet", cfg);
          } else if(filetype == "bunchgroupset" ) {
             TrigConf::L1BunchGroupSet bgs;
             fileLoader.loadFile( fn, bgs);
             cout << "Loaded L1 BunchGroup set file " << fn << " with " << bgs.sizeNonEmpty() << " non-empty bunchgroups" << endl;
             bgs.printSummary(cfg.detail);
+            writeJsonFile(bgs, "BunchGroupSet", cfg);
+         } else if(filetype == "joboptions" ) {
+            TrigConf::DataStructure jo;
+            fileLoader.loadFile( fn, jo);
+            cout << "Loaded job options with " << jo.getObject("properties").getKeys().size() << " entries " << endl;
+            if( cfg.detail ) {
+               for( const auto alg : jo.getObject("properties").data()) {
+                  std::cout << alg.first << std::endl;
+                  for( const auto prop : alg.second ) {
+                     std::cout << "      " << prop.first << " -> " << prop.second.data() << std::endl;
+                  }
+               }
+            }
+            writeJsonFile(jo, "HLTJobOptions", cfg);
          } else {
             cerr << "File " << fn << " not recognized as being an L1 or HLT menu or prescale set or bunchgroup set" << endl;
          }
@@ -226,6 +260,7 @@ int main(int argc, char** argv) {
       if (l1menu) {
          cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
          l1menu.printMenu(cfg.detail);
+         writeJsonFile(l1menu, "L1Menu", cfg);
       } else {
          cout << "Did not load an L1 menu" << endl;
       }
@@ -233,6 +268,7 @@ int main(int argc, char** argv) {
       dbloader.loadHLTMenu( cfg.smk, hltmenu );
       if (hltmenu) {
          cout << "Loaded HLT menu with " << hltmenu.size() << " chains" << endl;
+         writeJsonFile(hltmenu, "HLTMenu", cfg);
       } else {
          cout << "Did not load an HLT menu" << endl;
       }
@@ -252,6 +288,7 @@ int main(int argc, char** argv) {
                }
             }
          }
+         writeJsonFile(jo, "HLTJobOptions", cfg);
       } else {
          cout << "Did not load job options" << endl;
       }
@@ -266,6 +303,7 @@ int main(int argc, char** argv) {
       dbloader.loadL1Prescales( cfg.l1psk, l1pss );
       if (l1pss) {
          cout << "Loaded L1 prescales set with " << l1pss.size() << " prescales" <<  endl;
+         writeJsonFile(l1pss, "L1PrescalesSet", cfg);
       } else {
          cout << "Did not load an L1 prescales set" << endl;
       }
@@ -280,6 +318,7 @@ int main(int argc, char** argv) {
       dbloader.loadHLTPrescales( cfg.hltpsk, hltpss );
       if (hltpss) {
          cout << "Loaded HLT prescales set with " << hltpss.size() << " prescales" <<  endl;
+         writeJsonFile(hltpss, "HLTPrescalesSet", cfg);
       } else {
          cout << "Did not load an HLT prescales set" << endl;
       }
@@ -295,6 +334,7 @@ int main(int argc, char** argv) {
       if (bgs) {
          cout << "Loaded L1 bunchgroup set with " << bgs.size() << " bunchgroups" <<  endl;
          bgs.printSummary(cfg.detail);
+         writeJsonFile(bgs, "BunchGroupSet", cfg);
       } else {
          cout << "Did not load an L1 bunchgroups set" << endl;
       }

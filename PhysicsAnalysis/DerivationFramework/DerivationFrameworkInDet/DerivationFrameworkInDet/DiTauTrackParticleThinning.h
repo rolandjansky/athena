@@ -16,8 +16,11 @@
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInDet/TracksInCone.h"
+#include "xAODTau/DiTauJetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
@@ -35,13 +38,17 @@ namespace DerivationFramework {
       virtual StatusCode doThinning() const override;
 
     private:
-      mutable std::atomic<unsigned int> m_ntot, m_npass;
+      mutable std::atomic<unsigned int> m_ntot  {};
+      mutable std::atomic<unsigned int> m_npass {};
       StringProperty m_streamName
         { this, "StreamName", "", "Name of the stream being thinned" };
+      SG::ReadHandleKey<xAOD::DiTauJetContainer>          m_ditauKey
+        { this, "DiTauKey","",""};
       SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
         { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
-      std::string m_ditauSGKey, m_selectionString;
-      ExpressionParsing::ExpressionParser *m_parser;
+      Gaudi::Property<std::string>                        m_selectionString
+         { this, "SelectionString", "", ""};
+     std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
   }; 
 }
 

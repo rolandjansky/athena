@@ -33,9 +33,16 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 # Use new-style config of ByteStream reading and import here into old-style JO
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-CAtoGlobalWrapper(ByteStreamReadCfg,ConfigFlags)
+# --- COMMENTED OUT BECAUSE OF ATR-21307 ---
+# from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+# from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+# CAtoGlobalWrapper(ByteStreamReadCfg,ConfigFlags)
+
+# --- OLD-STYLE REPLACEMENT OF THE ABOVE BECAUSE OF ATR-21307 ---
+from ByteStreamCnvSvc import ReadByteStream # noqa F401
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+# --- END OF ATR-21307 WORKAROUND ---
 
 # Define the decoding sequence
 from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg

@@ -17,20 +17,6 @@
 
 #include <memory>
 
-namespace {
-  // define a local make_unique to use in gcc version < 4.9
-#if __cplusplus > 201103L
-  using std::make_unique;
-#else
-  // this version of make_unique is taken from Scott Meyers Effective Modern C++, item 21
-  template<typename T, typename... Ts>
-  std::unique_ptr<T> make_unique(Ts&&... params)
-  {
-    return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
-  }
-#endif
-}
-
 InDet::InDetSecVtxTrackSelectionTool::InDetSecVtxTrackSelectionTool(const std::string& name )
   : asg::AsgTool(name) 
   , m_acceptInfo( "InDetSecVtxTrackSelection" )
@@ -82,14 +68,14 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::initialize() {
   if ( m_minD0 >= 0 ) 
   {
     ATH_MSG_INFO( "  Maximum on d0: " << m_minD0 << " mm" );
-    m_trackCuts["D0"].push_back(make_unique<D0minCut>(this, m_minD0));
+    m_trackCuts["D0"].push_back(std::make_unique<D0minCut>(this, m_minD0));
   }
 
   if ( m_NPixel0TRT > 0 )
   {
     ATH_MSG_INFO( "  Minimum number of Pixel hit when TRT has zero hit: " << m_NPixel0TRT  );
 
-    auto minPixelHits = make_unique< FuncSummaryValueCut<3> >
+    auto minPixelHits = std::make_unique< FuncSummaryValueCut<3> >
     (  this, std::array<xAOD::SummaryType,3>
              (  
                { xAOD::numberOfTRTHits, xAOD::numberOfPixelHits, xAOD::numberOfPixelDeadSensors } 
@@ -109,7 +95,7 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::initialize() {
   {
     ATH_MSG_INFO( "  Minimum number of Pixel + SCT + TRT hits: " << m_minInDetHits  );
 
-    auto mintotHits = make_unique< FuncSummaryValueCut<4> >
+    auto mintotHits = std::make_unique< FuncSummaryValueCut<4> >
     (  this, std::array<xAOD::SummaryType,4>
              (
                { xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfPixelHits, 

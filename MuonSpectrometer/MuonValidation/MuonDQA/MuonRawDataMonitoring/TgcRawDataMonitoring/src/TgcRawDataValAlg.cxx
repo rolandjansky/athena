@@ -12,12 +12,8 @@
 // Subject: TGCLV1-->Offline Muon Data Quality/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-
-#include "Identifier/Identifier.h"
 
 // MuonRDO
 #include "MuonRDO/TgcRdo.h"
@@ -29,10 +25,8 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
  
 #include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <inttypes.h> 
-
 #include <sstream>
 #include <math.h>
 
@@ -47,29 +41,16 @@ TgcRawDataValAlg::TgcRawDataValAlg( const std::string & type, const std::string 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-TgcRawDataValAlg::~TgcRawDataValAlg(){
-  ATH_MSG_INFO( " deleting TgcRawDataValAlg "  );
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode
 TgcRawDataValAlg::initialize(){
-
   ATH_MSG_INFO( "in initializing TgcRawDataValAlg"  );
-
-  ATH_CHECK( ManagedMonitorToolBase::initialize() );
-  
-// MuonDetectorManager from the conditions store
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
   //histograms directory names
   m_generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
 
-  //tgcchamberId();
-  
-  
   //offset
   setOffset();
   //set minimum and maximum of channel difference

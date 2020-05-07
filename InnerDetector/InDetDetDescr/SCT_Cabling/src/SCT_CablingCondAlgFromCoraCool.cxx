@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -21,9 +21,6 @@
 //Athena includes
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-
-// Gaudi include
-#include "GaudiKernel/EventIDRange.h"
 
 //STL
 #include <algorithm>
@@ -362,33 +359,11 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
 
-  // Get the validitiy ranges
-  EventIDRange rangeRod;
-  if (not readHandleRod.range(rangeRod)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleRod.key());
-    return StatusCode::FAILURE;
-  }
-  EventIDRange rangeRodMur;
-  if (not readHandleRodMur.range(rangeRodMur)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleRodMur.key());
-    return StatusCode::FAILURE;
-  }
-  EventIDRange rangeMur;
-  if (not readHandleMur.range(rangeMur)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleMur.key());
-    return StatusCode::FAILURE;
-  }
-  EventIDRange rangeGeo;
-  if (not readHandleGeo.range(rangeGeo)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleGeo.key());
-    return StatusCode::FAILURE;
-  }
-  // Define validity of the output cond obbject and record it
-  EventIDRange rangeW{EventIDRange::intersect(rangeRod, rangeRodMur, rangeMur, rangeGeo)};
-  if(rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: "  << rangeW << " " << rangeRod << " " << rangeRodMur << " " << rangeMur << " " << rangeGeo);
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandleRod);
+  writeHandle.addDependency(readHandleRodMur);
+  writeHandle.addDependency(readHandleMur);
+  writeHandle.addDependency(readHandleGeo);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CablingData> writeCdo{std::make_unique<SCT_CablingData>()};
@@ -508,13 +483,13 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
     }
   }
 
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CablingData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   const int robLo{*(tempRobSet2.cbegin())};
   const int robHi{*(tempRobSet2.crbegin())};

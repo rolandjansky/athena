@@ -291,11 +291,7 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
     hist[SUBDET]->SetBins(montool->m_subDetNames.size(), 0, montool->m_subDetNames.size());
     hist[SDGROUP]->SetBins(montool->m_subDetGroupNames.size(), 0, montool->m_subDetGroupNames.size());
     hist[ALGO]->SetBins(1, 0, 1);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
     hist[ALGO]->SetCanExtend(TH1::kAllAxes);
-#else
-    hist[ALGO]->SetBit(TH1::kCanRebin);
-#endif
   }
   else if ( hist[SUBDET]->GetDimension()==2 ) {
 
@@ -309,11 +305,7 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
                           yBins, 0, yBins);
 
     hist[ALGO]->SetBins(1, 0, 1,yBins, 0, yBins);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
     hist[ALGO]->SetCanExtend(TH2::kAllAxes);
-#else
-    hist[ALGO]->SetBit(TH2::kCanRebin);
-#endif    
 
     // Set y-labels if given
     if ( yLabels ) {

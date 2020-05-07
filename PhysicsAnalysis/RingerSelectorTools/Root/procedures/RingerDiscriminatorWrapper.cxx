@@ -6,11 +6,7 @@
 #include "RingerSelectorTools/procedures/RingerDiscriminatorWrapper.h"
 
 namespace Ringer {
-#if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IDiscrWrapper::wrapName = "RingerDiscriminatorWrapper";
-#else
 constexpr const char* IDiscrWrapper::wrapName;
-#endif
 
 // =============================================================================
 void IDiscrWrapper::writeCol(const IDiscrWrapperCollection &discrWrapperCol,

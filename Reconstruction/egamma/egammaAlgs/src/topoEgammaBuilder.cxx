@@ -65,7 +65,13 @@ StatusCode topoEgammaBuilder::initialize()
   }
 
   if ( m_doElectrons && m_doPhotons ){
-    ATH_CHECK( m_ambiguityTool.retrieve() );
+    ATH_MSG_DEBUG("Retrieving ambiguity tool");
+    if (not m_ambiguityTool.isSet()) {
+      ATH_MSG_DEBUG("Ambiguity tool IS NOT set. Not using it");
+    }
+    else { 
+      ATH_CHECK( m_ambiguityTool.retrieve() );
+    }
   }
  
   // retrieve timing profile
@@ -129,10 +135,15 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
           const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
           //See if they have the same hottest cell
           if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
-            author = m_ambiguityTool->ambiguityResolve(elClus,
-                                                       photonRec->vertex(),
-                                                       electronRec->trackParticle(),
-                                                       type);
+            if (m_ambiguityTool.isSet()) {  // should be the default
+              author = m_ambiguityTool->ambiguityResolve(elClus,
+                                                        photonRec->vertex(),
+                                                        electronRec->trackParticle(),
+                                                        type);
+            }
+            else {  // in case the ambiguity tool is not set ambiguity is not resolved
+              author = xAOD::EgammaParameters::AuthorAmbiguous;
+            }
             break;
           }
         }
@@ -160,10 +171,15 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
           const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
           //See if they have the same hottest cell
           if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
-            author = m_ambiguityTool->ambiguityResolve(elClus,
-                                                       photonRec->vertex(),
-                                                       electronRec->trackParticle(),
-                                                       type);
+            if (m_ambiguityTool.isSet()) {  // should be the default
+              author = m_ambiguityTool->ambiguityResolve(elClus,
+                                                        photonRec->vertex(),
+                                                        electronRec->trackParticle(),
+                                                        type);
+            }
+            else {  // in case the ambiguity tool is not set ambiguity is not resolved
+              author = xAOD::EgammaParameters::AuthorAmbiguous;
+            }
             break;
           }
         }

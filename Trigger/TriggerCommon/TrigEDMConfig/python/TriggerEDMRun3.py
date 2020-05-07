@@ -14,7 +14,7 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
 
-import DataScoutingInfo
+from TrigEDMConfig import DataScoutingInfo
 
 def recordable( name ):
     """
@@ -127,13 +127,13 @@ TriggerHLTListRun3 = [
 
     # These are for precision photon and precision Electron Keeping same names as in Run2
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
-    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::ElectronAuxContainer#HLT_egamma_ElectronsAux.',     'BS ESD AODFULL', 'Egamma'),
     # enable when iso chains are present
     # ('xAOD::ElectronContainer#HLT_egamma_Iso_Electrons',            'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoElectronViews'),
     # ('xAOD::ElectronTrigAuxContainer#HLT_egamma_Iso_ElectronsAux.', 'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
-    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',         'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_PhotonsAux.',         'BS ESD AODFULL', 'Egamma'),
     # enable when iso chains are present
     # ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoPhotonViews'),
     # ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux.',     'BS ESD AODFULL', 'Egamma'),
@@ -251,7 +251,7 @@ TriggerHLTListRun3 = [
 
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjes',                        'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesAux.'+JetVars,         'BS ESD AODFULL', 'Jet'),
-
+   
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_nojcalib',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_nojcalibAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
 
@@ -303,6 +303,9 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrigMissingETContainer#HLT_MET_tc',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_tc_em',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tc_emAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     ('xAOD::TrigMissingETContainer#HLT_MET_trkmht',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_trkmhtAux.',                 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -368,6 +371,11 @@ TriggerHLTListRun3 = [
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias_FTF',                 'BS ESD AODFULL', 'MinBias', 'inViews:TrkView'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MinBias_FTFAux.',          'BS ESD AODFULL', 'MinBias'),
+
+
+    # Cosmic
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_FTF',                 'BS ESD AODFULL', 'Cosmic'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Cosmic_FTFAux.',             'BS ESD AODFULL', 'Cosmic'),
 
     # ID
     # Requested by TrigUpgradeTest/IDCalo.py

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
@@ -28,7 +28,6 @@ void InDet::SiTrajectoryElement_xk::setTools(const InDet::SiTools_xk* t)
   m_tools        = t                      ;
   m_prdToTrackMap= m_tools->PRDtoTrackMap();
   m_useassoTool  = m_tools->usePRDtoTrackAssociation() ;
-  m_fieldService = m_tools->magfield    ();
   m_updatorTool  = m_tools->updatorTool ();
   m_proptool     = m_tools->propTool    ();
   m_riotool      = m_tools->rioTool     ();
@@ -1153,9 +1152,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
   double f0[3],f[3];
 
-  // MT version uses cache, temporarily keep old version
-  if (m_fieldCache.useNewBfieldCache()) m_fieldCache.getFieldZR    (R,f0);
-  else                                  m_fieldService->getFieldZR (R,f0);
+  m_fieldCache.getFieldZR(R,f0);
 
 
   while(true) {
@@ -1181,11 +1178,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     if(!Helix) {
       double gP[3]={R[0]+A1*S4, R[1]+B1*S4, R[2]+C1*S4};
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-      // MT version uses cache, temporarily keep old version
-      if (m_fieldCache.useNewBfieldCache()) m_fieldCache.getFieldZR  (gP,f);
-      else                                  m_fieldService->getFieldZR(gP,f);
-////////////////////////////////////////////////////////////////////////////////////////////////////
+      m_fieldCache.getFieldZR(gP,f);
 
     }
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];}
@@ -1206,11 +1199,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     if(!Helix) {
       double gP[3]={R[0]+S*A4, R[1]+S*B4, R[2]+S*C4};
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-      // MT version uses cache, temporarily keep old version
-      if (m_fieldCache.useNewBfieldCache()) m_fieldCache.getFieldZR    (gP,f);
-      else                                  m_fieldService->getFieldZR (gP,f);
-////////////////////////////////////////////////////////////////////////////////////////////////////
+      m_fieldCache.getFieldZR(gP,f);
 
     }
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];} 
@@ -1419,7 +1408,6 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_cluster     = 0 ;
   m_clusterOld  = 0 ;
   m_clusterNoAdd= 0 ;
-  m_fieldService= 0 ;
   m_updatorTool = 0 ;
   m_proptool    = 0 ;
   m_riotool     = 0 ;

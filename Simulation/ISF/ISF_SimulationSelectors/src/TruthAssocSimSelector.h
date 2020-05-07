@@ -17,7 +17,7 @@
 #include "BaseSimulationSelector.h"
 
 // HepMC includes
-#include "HepMC/IteratorRange.h"
+#include "AtlasHepMC/IteratorRange.h"
 
 namespace ISF
 {

@@ -279,7 +279,7 @@ bool DataBin::addPoint(const DataPoint & point) {
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
     return true;
@@ -320,7 +320,7 @@ void DataBin::addPointAndResize(const DataPoint & point, const double & epsilon)
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
 // determine the bin boundaries //
@@ -386,7 +386,7 @@ void DataBin::setPoints(const std::vector<DataPoint> & points) {
             m_standard_deviations[k] = m_standard_deviations[k]/
                             			static_cast<double>(m_points.size());
         }
-        m_standard_deviations[k] = sqrt(m_standard_deviations[k]);
+        m_standard_deviations[k] = std::sqrt(m_standard_deviations[k]);
     }
 
     return;

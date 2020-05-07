@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,6 +26,15 @@
 #include "TrkToolInterfaces/IUpdator.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackStateValidationContainer.h"
+#include "CommissionEvent/ComTime.h"
+
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 class AtlasDetectorID;
 class PixelID;
@@ -68,25 +77,44 @@ namespace DerivationFramework {
       bool    m_addExtraEventInfo;
 
       // --- Configuration keys
-      std::string m_sgName;
-      std::string m_containerName;
-    
-      std::string m_pixelMapName;
-      std::string m_sctMapName;
-      std::string m_trtMapName;
-      
-      std::string m_pixelClustersName;
-      std::string m_sctClustersName;
-      std::string m_trtDCName;      
-      
-      std::string m_pixelMsosName;
-      std::string m_sctMsosName;
-      std::string m_trtMsosName;
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+        { this, "EventInfoKey", "EventInfo", "" };
+      Gaudi::Property<std::string> m_sgName
+         { this, "DecorationPrefix", "IDDET1_",""};
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_containerName
+         { this, "ContainerName", "InDetTrackParticles", "" };
+      SG::ReadHandleKey<ComTime> m_trtPhaseKey
+         { this,"TRTPhaseKey","TRT_Phase", ""};
+
+      SG::ReadHandleKey<std::vector<unsigned int> > m_pixelMapName
+         { this, "PixelMapName", "PixelClustersOffsets" , ""};
+      SG::ReadHandleKey<std::vector<unsigned int> >  m_sctMapName
+         { this, "SctMapName",   "SCT_ClustersOffsets" , ""};
+      SG::ReadHandleKey<std::vector<unsigned int> >  m_trtMapName
+         { this, "TrtMapName",   "TRT_DriftCirclesOffsets" , ""};
+
+      SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer > m_pixelClustersName
+         {this, "PixelClustersName", "PixelClusters" ,"" };
+      SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer > m_sctClustersName
+        {this, "SctClustersName", "SCT_Clusters" ,"" };
+      SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_trtDCName
+         {this, "TrtDriftCirclesName", "TRT_DriftCircles" ,"" };
+
+      SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap
+         { this,"PRDtoTrackMap","","option PRD-to-track association"};
+
+      SG::WriteHandleKey<xAOD::TrackStateValidationContainer> m_pixelMsosName
+         { this, "PixelMsosName", "PixelMSOSs", "" };
+      SG::WriteHandleKey<xAOD::TrackStateValidationContainer> m_sctMsosName
+         { this, "SctMsosName", "SCT_MSOSs", "" };
+      SG::WriteHandleKey<xAOD::TrackStateValidationContainer> m_trtMsosName
+         { this, "TrtMsosName",  "TRT_MSOSs", ""};
 
       // --- Read Cond Handle Key
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
+     
       // --- Services and tools
       const AtlasDetectorID* m_idHelper;
       const PixelID*         m_pixId; 
@@ -100,8 +128,22 @@ namespace DerivationFramework {
       ToolHandle<ITRT_CalDbTool>                m_trtcaldbTool;
 	  
       ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
-      ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
       // --- Private other members
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_trtPhaseDecorKey;
+      enum ETRTFloatDecor {kTRTdEdxDecor,
+                           kTRTusedHitsDecor,
+                           kTRTdEdx_noHT_divByLDecor,
+                           kTRTusedHits_noHT_divByLDecor,
+                           kNTRTFloatDecor};
+     std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackTRTFloatDecorKeys;
+     enum EPixFloatDecorKeys {kTrkIBLXDecor, kTrkIBLYDecor, kTrkIBLZDecor,
+                              kTrkBLXDecor,  kTrkBLYDecor,  kTrkBLZDecor,
+                              kTrkL1XDecor,  kTrkL1YDecor,  kTrkL1ZDecor,
+                              kTrkL2XDecor,  kTrkL2YDecor,  kTrkL2ZDecor,
+                              kNPixFloatDecor };
+     std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackPixFloatDecorKeys;
+
+
   }; 
 }
 

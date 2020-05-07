@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -91,7 +91,7 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
   y_loc = r_loc*sin(phi_loc);
 
   Amg::Vector3D globalDefCoords = xfDef*Amg::Vector3D(x_loc,y_loc,z_loc);
-  Amg::Vector3D globalAbsCoords = (posShift!=0 ?
+  Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
 				xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz) :
 				xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc));
 
@@ -214,7 +214,7 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
   y_loc = r_loc*sin(m_phi_raw);
 
   Amg::Vector3D globalNomCoords = xfNominal*Amg::Vector3D(x_loc,y_loc,z_loc);
-  Amg::Vector3D globalAbsCoords = (posShift!=0 ?
+  Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
 				xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz) :
 				xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc));
 
@@ -348,7 +348,7 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
   y_loc = r_loc*sin(m_phi_raw);
 
   Amg::Vector3D globalNomCoords = xfNominal*Amg::Vector3D(x_loc,y_loc,z_loc);
-  Amg::Vector3D globalAbsCoords = (posShift!=0 ?
+  Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
 				xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz) :
 				xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc));
 
@@ -484,7 +484,7 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
   const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransformAmg();
 
   Amg::Vector3D globalDefCoords = xfNominal*Amg::Vector3D(x_loc,y_loc,z_loc);
-  Amg::Vector3D globalAbsCoords = (posShift!=0 ?
+  Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
 				xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz) :
 				xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc));
 
@@ -630,7 +630,7 @@ MbtsDetectorElement::MbtsDetectorElement() :
   CaloDetDescrElement(IdentifierHash(),
 		      IdentifierHash(),
 		      IdentifierHash(),
-		      0)
+		      nullptr)
 {
 }
 

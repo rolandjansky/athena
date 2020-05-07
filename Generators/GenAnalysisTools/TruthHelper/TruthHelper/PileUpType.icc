@@ -10,11 +10,14 @@ template<class Selector>
 void PileUpType::signal_particles( std::vector<const HepMC::GenParticle*>& particleList,
                                    const Selector& select ) const
 {
-   HepMC::GenEvent::particle_const_iterator istart = this->signal_particle_begin();
-   HepMC::GenEvent::particle_const_iterator iend   = this->signal_particle_end();
+   unsigned int colSize = m_particleList->size();
+   if ( colSize > 0 ) { 
+   HepMC::GenEvent::particle_const_iterator istart = this->m_particleList->at(0)->particles_begin();
+   HepMC::GenEvent::particle_const_iterator iend   = this->m_particleList->at(0)->particles_end();
    for ( ; istart != iend; ++istart ) {
      if ( select(*istart) ) particleList.push_back ( *istart );
    }
+  }
 }
 
 template<class Selector>

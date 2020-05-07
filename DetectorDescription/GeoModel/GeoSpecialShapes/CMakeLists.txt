@@ -37,7 +37,7 @@ atlas_add_library( GeoSpecialShapes
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} AthenaKernel CxxUtils GeoModelUtilities GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} AthenaKernel CxxUtils GeoModelUtilities GaudiKernel RDBAccessSvcLib )
 
 atlas_add_dictionary( LArGeoCheckerDict
                       GeoSpecialShapes/LArGeoCheckerDict.h

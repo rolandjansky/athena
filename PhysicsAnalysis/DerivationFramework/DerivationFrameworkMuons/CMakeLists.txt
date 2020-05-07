@@ -19,11 +19,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
                           Reconstruction/MuonIdentification/ICaloTrkMuIdTools
-                          Reconstruction/MuonIdentification/CaloTrkMuIdTools
                           Tracking/TrkExtrapolation/TrkExInterfaces
+                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PRIVATE
                           Control/AthenaKernel
 			  Control/AthenaBaseComps
+                          PhysicsAnalysis/MCTruthClassifier 
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth )
@@ -39,17 +40,16 @@ atlas_add_library( DerivationFrameworkMuonsLib
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent
    xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib
-   TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools 
+   TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools
    TrkExInterfaces InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo
    xAODTracking xAODTruth MCTruthClassifierLib FourMomUtils)
 
 atlas_add_component( DerivationFrameworkMuons
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel ExpressionEvaluationLib RecoToolInterfaces TrigDecisionToolLib TrigMuonMatchingLib AthenaKernel xAODEventInfo xAODTracking xAODTruth DerivationFrameworkMuonsLib ICaloTrkMuIdTools TrkExInterfaces)
+   src/components/*.cxx
+   LINK_LIBRARIES GaudiKernel DerivationFrameworkMuonsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

@@ -19,6 +19,8 @@
 #include "MuonDigitContainer/RpcDigit.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class RpcIdHelper;
 
@@ -46,11 +48,9 @@ private:
   std::vector<Muon::RpcPrepDataCollection*> m_coll_vect;
   Muon::RpcPrepDataCollection* m_temp_coll;
 
-  std::string m_colKey;
-  std::string m_colKeyIn;
   typedef std::map<int, Muon::RpcPrepData*> pattern;
   std::map<Identifier,pattern> m_digits;
-  StatusCode retrieve_rpcClusterContainer() const;
+  // StatusCode retrieve_rpcClusterContainer() const;
   float m_timeSpread;
 
 protected:
@@ -62,7 +62,8 @@ protected:
       "Key of input MuonDetectorManager condition data"};    
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_colKeyIn {this, "InputCollectionName", "RPC_Measurements"};
+  SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_colKey {this, "CollectionName", "rpcClusters"};
 };
 
 #endif

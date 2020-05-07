@@ -34,11 +34,11 @@ public:
     virtual StatusCode finalize() override;
 
 private:
-    bool m_doVertexCorrection; //!< enable cell origin correction
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", false, "switch of vertex correction"}; 
     Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
-
-    //output particle calo extension collection
+    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, 
+      "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool for calculating track extrapolation"}; 
     SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
       "tauEVParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauEV Algorithm"};
 };

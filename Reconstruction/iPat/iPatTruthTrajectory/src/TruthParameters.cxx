@@ -67,9 +67,9 @@ TruthParameters::trackFromParticle(const HepMC::GenParticle& particle)
     if (! m_particleDataTable->particle(std::abs(pdgCode))) return;
 
     // fill intersection, qOverP
-    Amg::Vector3D position( particle.production_vertex()->point3d().x(),
-			    particle.production_vertex()->point3d().y(),
-			    particle.production_vertex()->point3d().z());
+    Amg::Vector3D position( particle.production_vertex()->position().x(),
+			    particle.production_vertex()->position().y(),
+			    particle.production_vertex()->position().z());
     m_qOverP			=  1./std::sqrt(particle.momentum().px()*particle.momentum().px() +
 						particle.momentum().py()*particle.momentum().py() +
 						particle.momentum().pz()*particle.momentum().pz());

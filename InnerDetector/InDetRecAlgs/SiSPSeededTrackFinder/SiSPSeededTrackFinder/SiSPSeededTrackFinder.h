@@ -96,7 +96,7 @@ namespace InDet {
     IntegerProperty m_maxNumberSeeds{this, "maxNumberSeeds", 3000000, "Max. number used seeds"};
     IntegerProperty m_maxPIXsp{this, "maxNumberPIXsp", 150000, "Max. number pixels space points"};
     IntegerProperty m_maxSCTsp{this, "maxNumberSCTsp", 500000, "Max. number sct    space points"};
-    IntegerProperty m_nfreeCut{this, "FreeClustersCut", 3, "Min number free clusters"};
+    IntegerProperty m_nfreeCut{this, "FreeClustersCut", 1, "Min number free clusters"};
     IntegerProperty m_histsize{this, "HistSize", 1400};
     IntegerProperty m_nvertex{this, "maxVertices", 4};
     DoubleProperty m_zcut{this, "Zcut", 350.};
@@ -131,7 +131,7 @@ namespace InDet {
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
     //@}
 
-    /// @name Magenetic fiedl propertis
+    /// @name Magnetic field properties
     //@{
     Trk::MagneticFieldProperties m_fieldprop;
     //@}
@@ -142,8 +142,8 @@ namespace InDet {
 
     mutable std::atomic_int m_neventsTotal{0}; //!< Number events
     mutable std::atomic_int m_neventsTotalV{0}; //!< Number events
-    mutable std::atomic_int m_problemsTotal{0}; //!< Numbe revents with number seeds > maxNumber
-    mutable std::atomic_int m_problemsTotalV{0}; //!< Numbe revents with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotal{0}; //!< Number events with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotalV{0}; //!< Number events with number seeds > maxNumber
     //@}
 
     ///////////////////////////////////////////////////////////////////

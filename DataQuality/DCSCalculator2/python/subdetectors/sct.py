@@ -59,8 +59,8 @@ def make_sct_mapping():
     
     return mapping
 
-hi_nibble = lambda x: (x & 0xF0) >> 4
-lo_nibble = lambda x: (x & 0x0F)
+def hi_nibble(x): return (x & 0xF0) >> 4
+def lo_nibble(x): return (x & 0x0F)
 
 # Documented at: (Visited 20/05/2010)
 # https://twiki.cern.ch/twiki/bin/view/Atlas/SctDCSSoftware#FSM_Channel_Status_Byte

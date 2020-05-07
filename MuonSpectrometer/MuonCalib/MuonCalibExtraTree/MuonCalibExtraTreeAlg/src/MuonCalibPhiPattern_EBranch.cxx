@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibPhiPattern_EBranch.h"
@@ -21,16 +21,12 @@ MuonCalibPhiPattern_EBranch::MuonCalibPhiPattern_EBranch(std::string branchName)
 bool  MuonCalibPhiPattern_EBranch::fillBranch(const MuonCalibTrack_E& pat) {
   // check if branches where initialized
   if( !m_branchesInit ) {
-    //std::cout << "MuonCalibPhiPattern_EBranch::fillBranch  ERROR <branches where not initialized>"
-    //	<<  std::endl;
     return false;    
   }
     
   // check if index out of range 
   if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
-      //std::cout << "MuonCalibPhiPattern_EBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //  <<  m_index << std::endl;
 	m_first = false;
     }
     return false;
@@ -50,8 +46,6 @@ bool  MuonCalibPhiPattern_EBranch::fillBranch(const MuonCalibTrack_E& pat) {
 bool  MuonCalibPhiPattern_EBranch::createBranch(TTree* tree) {
   // check if pointer is valid
   if( !tree ){
-    //std::cout << "MuonCalibPhiPattern_EBranch::createBranch  ERROR <got invalid tree pointer> " 
-    //	<< std::endl;
     return false;
   }
 

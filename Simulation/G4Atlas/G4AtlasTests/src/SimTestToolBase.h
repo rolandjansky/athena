@@ -16,9 +16,8 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-namespace HepMC {
-  class GenParticle;
-}
+
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 class TProfile;
 class TH1;

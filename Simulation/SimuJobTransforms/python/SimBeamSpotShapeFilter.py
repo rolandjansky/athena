@@ -173,9 +173,9 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         # get Signal Vertex
         sigVtx  = genEvent.signal_process_vertex()
 
-        deltaZ = initialPosZ - sigVtx.point3d().z()
-        deltaX = initialPosX + deltaZ * initialTiltXZ - sigVtx.point3d().x()
-        deltaY = initialPosY + deltaZ * initialTiltYZ - sigVtx.point3d().y()
+        deltaZ = initialPosZ - sigVtx.position().z()
+        deltaX = initialPosX + deltaZ * initialTiltXZ - sigVtx.position().x()
+        deltaY = initialPosY + deltaZ * initialTiltYZ - sigVtx.position().y()
         # Calculate prob of keeping this event
         weight =  self.calcScale( initialSigmaX, targetSigmaX, deltaX) \
                   * self.calcScale( initialSigmaY, targetSigmaY, deltaY) \

@@ -182,25 +182,25 @@ while [ $i -le $# ]; do
     elif [ "x${arg}" == "x-customgeom" ]; then
         FLAG_CUSTOMGEOMETRY=1
     ## Muon Layout
-    elif [ "x${arg:0:12}" == "x-muonLayout" ]; then
-            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.00.AsymNSW"
+    elif [ "x${arg:0:11}" == "x-muonLayout" ]; then
+        ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.02.NSW"
     elif [ "x${arg:0:12}" == "x-muonLayout=" ]; then
         MUONLAYOUT=${arg:12:$((${#arg}-12))}
         if [ "x$MUONLAYOUT" == "x" ]; then
-            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.00.AsymNSW"
+            ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.02.NSW"
         fi
     # Muon NSW AGDD custom file
-    elif [ "x${arg:0:9}" == "x-nswagdd" ]; then
-            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+    elif [ "x${arg:0:8}" == "x-nswagdd" ]; then
+        ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.07.xml"
     elif [ "x${arg:0:9}" == "x-nswagdd=" ]; then
         NSWAGDDFILE=${arg:9:$((${#arg}-9))}
         if [ "x$NSWAGDDFILE" == "x" ]; then
-            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+            ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.07.xml"
         fi
     ###
     # Muon NSW AGDD custom file
-    elif [ "x${arg:0:10}" == "x-muonagdd" ]; then
-            ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
+    elif [ "x${arg:0:9}" == "x-muonagdd" ]; then
+        ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
     elif [ "x${arg:0:10}" == "x-muonagdd=" ]; then
         MUONAGDDFILE=${arg:10:$((${#arg}-10))}
         if [ "x$MUONAGDDFILE" == "x" ]; then

@@ -63,7 +63,7 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
     }
 
     ATH_MSG_INFO ( "Initialize: useDCS, useSoleCurrent, useToroCurrent. " << (int)m_useDCS << ", "
-                   << m_useSoleCurrent << ", " << m_useToroCurrent);
+                   << m_useSoleCurrent << ", " << m_useToroCurrent << " LockMapCurrents " << (int)m_lockMapCurrents);
 
     
     return StatusCode::SUCCESS;
@@ -72,7 +72,7 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
 StatusCode
 MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
 
-    ATH_MSG_INFO ( "execute: entering");
+    ATH_MSG_DEBUG ( "execute: entering");
 
     // Check if output conditions object with field cache object is still valid, if not replace it
     // with new current scale factors
@@ -107,7 +107,10 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     const MagField::AtlasFieldMap* fieldMap =  mapCondObj->fieldMap();
 
     // calculate the scale factors
-    scaleField(cache, fieldMap);
+    if (!m_lockMapCurrents) {
+        scaleField(cache, fieldMap);
+    }
+    
 
     // save current scale factor in conditions object
     auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
@@ -115,8 +118,7 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     // initialize cond obj with current scale factors and the field svc (needed to setup cache)
     if (!fieldCondObj->initialize(cache.m_solScaleFactor, 
                                   cache.m_torScaleFactor, 
-                                  fieldMap, 
-                                  m_useNewBfieldCache)) {
+                                  fieldMap)) {
         ATH_MSG_ERROR("execute: Could not initialize conditions field object with solenoid/toroid currents "
                       << cache.m_solScaleFactor << "," << cache.m_torScaleFactor);
         return StatusCode::FAILURE;
@@ -133,7 +135,6 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_INFO ( "execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor "
                    << cache.m_solScaleFactor << "/" << cache.m_torScaleFactor );
     ATH_MSG_INFO ( "execute: solenoid zone id  " << fieldMap->solenoidZoneId());
-    ATH_MSG_INFO ( "execute: useNewBfieldCache " << m_useNewBfieldCache);
 
     return StatusCode::SUCCESS;
 }

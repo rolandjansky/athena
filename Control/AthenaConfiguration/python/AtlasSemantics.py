@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from past.builtins import basestring
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 import re
@@ -232,6 +233,18 @@ del _cfgs
 
 from GaudiConfig2._configurables import Configurable
 Configurable.getFullJobOptName= lambda self: "{}/{}".format(self.__cpp_type__,self.name)
+
+
+#GaudiConfig2._DictHelper misses the update method that sets is_dirty to true
+
+def _DictHelperUpdate(self,otherMap):
+    self.is_dirty=True
+    #Fixme: A proper implementation should invoke the value-semantics and key-semantics at this point
+    self.data.update(otherMap)
+    return
+
+GaudiConfig2.semantics._DictHelper.update=_DictHelperUpdate
+del _DictHelperUpdate
 
 
 #For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails

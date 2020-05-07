@@ -58,8 +58,6 @@ StatusCode CscCalibMonToolBase::initialize()
   ATH_MSG_INFO( "CscCalibMonToolBase : in initialize()"  );
 
   ATH_CHECK( m_idHelperSvc.retrieve() );
-  ATH_MSG_DEBUG( " Found the MuonIdHelperTool. "  );
-
   ATH_CHECK( m_readKey.initialize() );
 
   //m_generic_path_csccalibmonitoring = "Muon/MuonCalibrationMonitoring/CSC";
@@ -832,7 +830,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
     float diff = val - oldVal;
 
     bool isBad = false;
-    if( abs(diff) > procParameterInput->maxDiff)
+    if( std::abs(diff) > procParameterInput->maxDiff)
     {
       ATH_MSG_INFO( "CscCalibMonToolBase : Possible problem! " << parVals->parName()
                     << " measurement of " << val << " varies by " << diff
@@ -1024,7 +1022,7 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
         //copy data array directly to 2d histogram with all channels
         int modifiedStripNum = strip * (measuresPhi ? -1 : 1);
         histCollection->allChan2dHist->Fill(
-            modifiedStripNum, secLayer, abs(datum));
+            modifiedStripNum, secLayer, std::abs(datum));
       }
 
       int layIndex = getLayIndex(measuresPhi,stationEta,sector,layer);

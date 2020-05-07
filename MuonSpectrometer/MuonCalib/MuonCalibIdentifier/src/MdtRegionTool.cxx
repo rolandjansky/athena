@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibIdentifier/MdtRegionTool.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include <iostream>
@@ -24,8 +23,6 @@ bool MdtRegionTool::initialize( const MdtRegionSet& set, const MdtIdHelper* idHe
   // initialize index vector to correct size
   unsigned int nhashes = idHelper->module_hash_max();
   m_basicHashToRegionHash.resize(nhashes);
-
-  //std::cout << "New basicHashToRegionHash vector with size " <<  m_basicHashToRegionHash.size() << std::endl;
 
   // count the number of regions
   unsigned int nregion(0);
@@ -48,7 +45,6 @@ bool MdtRegionTool::initialize( const MdtRegionSet& set, const MdtIdHelper* idHe
       idHelper->get_hash( *rit, hash, &idCont );
       
       if( hash >= m_basicHashToRegionHash.size() ){
-	//std::cout << "ERROR hash out of range, skipping it " << std::endl;
 	continue;
       }
       
@@ -57,8 +53,6 @@ bool MdtRegionTool::initialize( const MdtRegionSet& set, const MdtIdHelper* idHe
 
     ++nregion;
   }
-  
-  //std::cout << "Initialization complete " << std::endl;
   return true;
 }
 

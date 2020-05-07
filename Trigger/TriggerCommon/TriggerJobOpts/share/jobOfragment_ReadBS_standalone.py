@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 if TriggerFlags.doCalo():
@@ -15,7 +17,6 @@ if globalflags.DataSource=='data':
     conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/SOR_Params')
 
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo",
-                                      "ROIB::RoIBResult",
                                       "HLT::HLTResult" ]
 
 # -------------------------------------------------------------

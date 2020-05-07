@@ -1,13 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging import logging
-
 from ..Base.Thresholds import LegacyThreshold, ZeroBiasThreshold, ThresholdValue
 from ..Base.Limits import CaloLimits as CL
-
-
-log = logging.getLogger('Menu.L1.Config.ThresholdDefLegacy')
 
 
 class ThresholdDefLegacy:
@@ -15,11 +9,11 @@ class ThresholdDefLegacy:
     alreadyExecuted = False
 
     @staticmethod
-    def registerThresholds(tc):
+    def registerThresholds(tc, menuName):
 
-        isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
-        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'run3_v1' in TriggerFlags.triggerMenuSetup()
-        isHI = '_HI' in TriggerFlags.triggerMenuSetup()
+        isV6 = '_v6' in menuName
+        isV8 = '_v8' in menuName or 'LS2_v1' == menuName or 'run3_v1' in menuName
+        isHI = '_HI' in menuName and 'HI_run3_v1' not in menuName
 
 
         if ThresholdDefLegacy.alreadyExecuted:
@@ -371,7 +365,7 @@ class ThresholdDefLegacy:
         for thrV in [30, 35, 40, 45, 50, 55, 60, 70, 80]:
             LegacyThreshold('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(CL.EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
-	 # Restricted range TE |eta|<4.9
+        # Restricted range TE |eta|<4.9
         etamax = 49
         for thrV in [3, 7, 500, 600, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
             LegacyThreshold('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(CL.EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)

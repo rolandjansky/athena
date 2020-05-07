@@ -13,6 +13,8 @@
 
 // std includes
 #include <string>
+#include <memory>
+
 // local includes
 #include "InDetPlotBase.h"
 #include "InDetBasicPlot.h"
@@ -30,6 +32,7 @@
 #include "TrkValHistUtils/IDHitPlots.h"
 #include "InDetPerfPlot_Hits.h"
 #include "InDetPerfPlot_Vertex.h"
+#include "InDetPerfPlot_VertexTruthMatching.h"
 #include "InDetPerfPlot_VerticesVsMu.h"
 
 #include "InDetPerfPlot_TrkInJet.h"
@@ -58,7 +61,7 @@ public:
   ///fill for things needing all truth - not just the ones from the reco tracks
   
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer& vertexContainer);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices);
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
 
@@ -81,19 +84,18 @@ private:
   InDetPerfPlot_FakeRate m_fakePlots;
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
-  InDetPerfPlot_Resolution* m_resolutionPlotSecd;
-  InDetPerfPlot_Hits m_hitsMatchedTracksPlots;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
-
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
+  InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
-  bool m_secondaryResolution;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
+  std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;
   bool m_doTrackInJetPlots;
-
-  InDetPerfPlot_TrkInJet *m_trkInJetPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;

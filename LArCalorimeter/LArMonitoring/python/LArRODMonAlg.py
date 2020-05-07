@@ -62,8 +62,8 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #from AthenaCommon.Constants import VERBOSE
     #larRODMonAlg.OutputLevel=VERBOSE
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg() :
         # adding BadChan masker private tool
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
         acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")

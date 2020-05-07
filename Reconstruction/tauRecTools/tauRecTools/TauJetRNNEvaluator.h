@@ -68,6 +68,8 @@ private:
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
+
+    bool m_incShowerSubtr;
 };
 
 

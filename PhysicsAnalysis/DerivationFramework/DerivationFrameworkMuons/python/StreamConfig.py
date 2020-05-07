@@ -44,24 +44,24 @@ class MuonsDxAODStreamConfigurer:
     MUON0OnlyItems += ['xAOD::TrigNavigation#*','xAOD::TrigNavigationAuxInfo#*'] ## be careful, they could go to smart slimming...
 
     ### samrt slimming containers
-    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles"]
-    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON2':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON3':[]}
+    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles","AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "BTagging_AntiKt4EMPFlow_201810",  "BTagging_AntiKt4EMPFlow_201903"]
+    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets','Electrons','MET_Reference_AntiKt4EMTopo','MET_Reference_AntiKt4EMPFlow'], 'MUON2':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], 'MUON3':['AntiKt4EMTopoJets','Electrons']}
 
     ### all varaible containers
 #     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
-    commonAllVarList = ["Muons", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles","MSOnlyExtrapolatedMuonTrackParticles"]
-    MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons'] # slow muons
-    MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
+    commonAllVarList = ["Muons", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles","MSOnlyExtrapolatedMuonTrackParticles"]
+    MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons',"InDetTrackParticles"] # slow muons
+    MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection', "InDetTrackParticles"]
     MUON2OnlyAllVar = ['PrimaryVertices']
-    MUON3OnlyAllVar = ['PrimaryVertices']
+    MUON3OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
     MUON4OnlyAllVar = ['PrimaryVertices']
 
 #     if globalflags.DataSource()=='geant4':
     if DerivationFrameworkIsMonteCarlo:
-        MUON1OnlyAllVar += ['AntiKt4TruthJets']
+        MUON1OnlyAllVar += ['AntiKt4TruthJets',"TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth"]
 
 #     useSmartSlimmingIfSupported(getMUON0TriggerContainers(), MUON0OnlyAllVar, MUON0OnlyItems)
-    allVarContainer = {'MUON0':MUON0OnlyAllVar, 'MUON1':MUON1OnlyAllVar, 'MUON2':[], 'MUON3':[]}
+    allVarContainer = {'MUON0':MUON0OnlyAllVar, 'MUON1':MUON1OnlyAllVar, 'MUON2':[], 'MUON3':MUON3OnlyAllVar}
     Items = {'MUON0':MUON0OnlyItems, 'MUON1':MUON1OnlyItems, 'MUON2':MUON2OnlyItems, 'MUON3':MUON3OnlyItems}
 
     ### keep trigger content
@@ -73,7 +73,13 @@ class MuonsDxAODStreamConfigurer:
     allVarContainer['MUON4'] = []
     UseTriggerContent['MUON4'] = False
 
-    checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers(), 'MUON3':getMUON0TriggerContainers()}
+    ### MUON6
+    Items['MUON6'] = []
+    smSlContainer['MUON6'] = []
+    allVarContainer['MUON6'] = []
+    UseTriggerContent['MUON6'] = True 
+
+    checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers()}
 
     ### Extra variables
     ### Eventshape for pileup subtraction in isolation
@@ -82,16 +88,20 @@ class MuonsDxAODStreamConfigurer:
                       'NeutralParticleFlowIsoCentralEventShape.DensitySigma.Density.DensityArea',
                       'NeutralParticleFlowIsoForwardEventShape.DensitySigma.Density.DensityArea']
 
-    extraVariables = {'MUON1':eventShapeVars, 'MUON2':eventShapeVars}
+    extraVariables = {'MUON1':eventShapeVars, 'MUON2':eventShapeVars, 'MUON3':eventShapeVars}
 
     ### For FSR check
     extraVariables['MUON1'].append('Photons.truthType.truthOrigin.topoetcone40')
     extraVariables['MUON1'].append('Electrons.truthType.truthOrigin.topoetcone40')
     extraVariables['MUON1'].append('InDetTrackParticles.deltaphi_0.deltatheta_0.sigmadeltaphi_0.sigmadeltatheta_0.deltaphi_1.deltatheta_1.sigmadeltaphi_1.sigmadeltatheta_1')
+    extraVariables['MUON3'].append('Photons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON3'].append('Electrons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON3'].append('InDetTrackParticles.deltaphi_0.deltatheta_0.sigmadeltaphi_0.sigmadeltatheta_0.deltaphi_1.deltatheta_1.sigmadeltaphi_1.sigmadeltatheta_1')
 
     ### PV slimming for size reduction
     pvExtra = 'PrimaryVertices.numberDoF.chiSquared.sumPt2.x.y.z'
     extraVariables['MUON1'].append(pvExtra)
+    extraVariables['MUON3'].append(pvExtra)
     extraVariables['MUON0'] = [pvExtra]
 
     ### get final lists
@@ -121,7 +131,7 @@ class MuonsDxAODStreamConfigurer:
         for i in self.Items:
             print (i,'=',self.Items[i])
         print ('Smart slimming:')
-        for i in self.smSlContainer and (not i in self.allVarContainer):
+        for i in self.smSlContainer and (i not in self.allVarContainer):
             print (i,'=',self.smSlContainer[i])
         print ('Keep all variables:')
         for i in self.allVarContainer:

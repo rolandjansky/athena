@@ -358,7 +358,6 @@ StatusCode ALFA_GloRec::Truth_info(){
 			  py = (**begGenItr).momentum().py();
 				pz = (**begGenItr).momentum().pz();
 				HepMC::GenVertex * l_prodvert = (**begGenItr).production_vertex();
-			  //HepMC::GenVertex * l_endvert =  (**begGenItr).end_vertex();
 				x = l_prodvert->position().x();
 				y = l_prodvert->position().y();
 				z = l_prodvert->position().z();

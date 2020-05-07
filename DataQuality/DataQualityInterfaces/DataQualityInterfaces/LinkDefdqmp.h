@@ -20,10 +20,6 @@
 #pragma link C++ class std::map<std::string, std::string>;
 #pragma link C++ class std::map<std::string, std::vector<float> > ;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#pragma link C++ class std::pair<std::string, std::string> ;
-#endif
-
 #pragma link C++ class std::vector<std::pair<std::string,float> > ;
 #pragma link C++ class std::vector<dqm_persistency::PParameter*> ;
 #pragma link C++ class dqm_persistency::PAlgorithm+ ;

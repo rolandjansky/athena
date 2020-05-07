@@ -15,15 +15,13 @@ namespace Trk {
 		class Track;
 }
 
-class TrigSiSpacePoint;
-
 static const InterfaceID IID_ITrigDkfTrackMakerTool("ITrigDkfTrackMakerTool",1,0);
 
 
   /** @class ITrigDkfTrackMakerTool
 
-      provides the abstract interface for the helper tool used by TrigInDetTrackFitter and 
-      TrigTRT_TrackExtensionTool to convert TrigSiSpacePoint vector into vector of Trk::TrkBaseNode
+      provides the abstract interface for the helper tool used by TrigInDetTrackFitter
+      to convert TrigSiSpacePoint vector into vector of Trk::TrkBaseNode
       objects and vector of associated Trk::TrkPlanarSurface objects.  
 
       @author D.Emeliyanov <http://consult.cern.ch/xwho>
@@ -37,7 +35,6 @@ static const InterfaceID IID_ITrigDkfTrackMakerTool("ITrigDkfTrackMakerTool",1,0
     static const InterfaceID& interfaceID ()   //!< the Tool's interface
       {  return IID_ITrigDkfTrackMakerTool; }  	
 
-    virtual bool createDkfTrack(std::vector<const TrigSiSpacePoint*>&, std::vector<Trk::TrkBaseNode*>&, double) const = 0;
     virtual bool createDkfTrack(const Trk::Track&, std::vector<Trk::TrkBaseNode*>&, double) const = 0;
   };
 

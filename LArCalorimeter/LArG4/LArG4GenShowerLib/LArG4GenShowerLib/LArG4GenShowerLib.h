@@ -22,9 +22,7 @@ namespace ShowerLib {
   class StepInfo;
   typedef std::list<StepInfo*> StepInfoList;
 }
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 
   /**

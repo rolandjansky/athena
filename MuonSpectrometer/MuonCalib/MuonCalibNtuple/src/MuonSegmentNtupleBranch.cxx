@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/MuonSegmentNtupleBranch.h"
@@ -25,16 +25,12 @@ namespace MuonCalib {
   bool MuonSegmentNtupleBranch::fillBranch(const MuonCalibSegment &seg) {
     // check if branches were initialized
     if( !m_branchesInit ) {
-      //std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <branches were not initialized>"
-      //	<<  std::endl;
       return false;
     }
 
     // check if segment index out of range (m_blockSize is size of segment data arrays) 
     if( m_index >= m_blockSize || m_index < 0 ) {
       if (m_first == true) {
- 	//std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <index out of range; seg not added to ntuple> "
-	//  << m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -51,49 +47,23 @@ namespace MuonCalib {
     
     double rotz = rotation(0,2);
     if( std::abs( rotz ) > 1. ) {
-//       std::cout << "NEW ERROR rotz " << rotation.xz() << std::endl;
       rotz = rotz > 0. ? 1. : -1.;
     }
 
-    theta = asin( -rotz );
+    theta = std::asin( -rotz );
 
     if (rotation(0,1)*rotation(0,1)+rotation(0,0)*rotation(0,0) > 0.0001) {
-     psi = atan2( rotation(1,2) , rotation(2,2) );
-     phi = atan2( rotation(0,1) , rotation(0,0) );
+     psi = std::atan2( rotation(1,2) , rotation(2,2) );
+     phi = std::atan2( rotation(0,1) , rotation(0,0) );
     } else {
      phi = 0.;
-     psi = atan2( rotation(1,0)/sin(theta) , rotation(1,1) );
-//     std::cout << " Approximate matrix " << std::endl;
+     psi = std::atan2( rotation(1,0)/std::sin(theta) , rotation(1,1) );
     } 
-
-    //Maybe this is old code for the translations 
-    // double sinPhi   = sin( phi   ), cosPhi   = cos( phi   );
-    // double sinTheta = sin( theta ), cosTheta = cos( theta );
-    // double sinPsi   = sin( psi   ), cosPsi   = cos( psi   );
-    
-    // double rxx = cosTheta * cosPhi;  
-    // double rxy = cosTheta * sinPhi;
-    // double rxz = -sinTheta;   
-      
-    // double ryx = sinPsi*sinTheta*cosPhi - cosPsi*sinPhi;
-    // double ryy = sinPsi*sinTheta*sinPhi + cosPsi*cosPhi;
-    // double ryz = cosTheta*sinPsi;
-      
-    // double rzx = cosPsi*sinTheta*cosPhi + sinPsi*sinPhi;
-    // double rzy = cosPsi*sinTheta*sinPhi - sinPsi*cosPhi;
-    // double rzz = cosTheta*cosPsi;
-    
-    // Amg::Vector3D colx( rxx ,ryx, rzx );
-    // Amg::Vector3D coly( rxy, ryy, rzy );
-    // Amg::Vector3D colz( rxz, ryz, rzz );
-    
-    // CLHEP::HepRotation rotation_test( colx, coly, colz );
     
     if( psi < 0 ) psi += 2*CLHEP::pi;
     if( phi < 0 ) phi += 2*CLHEP::pi;
 
     // copy values 
-    //    patIndex[m_index]   = patternIndex;
     m_author[m_index]     = seg.author();
     m_quality[m_index]    = seg.qualityFlag();
     m_chi2[m_index]       = seg.chi2();
@@ -131,8 +101,6 @@ namespace MuonCalib {
   bool MuonSegmentNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ) {
-      //   std::cout << "MuonSegmentNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-      //	<< std::endl;
       return false;
     }
 

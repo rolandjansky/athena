@@ -648,7 +648,7 @@ class JetToolManager:
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
-    jetrec.ShallowCopy = shallow
+###    jetrec.ShallowCopy = shallow
     self += jetrec
     self.jetrecs += [jetrec]
     self.jetcons += [output]

@@ -251,7 +251,7 @@ IsoCorMu = [
   ]
 
 IsoCorMuExtra = [
-  [ ],
+  [ isoPar.coreCone ],
   [ ],
   [ ]
   ]

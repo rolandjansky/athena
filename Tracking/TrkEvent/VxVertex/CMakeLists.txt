@@ -29,7 +29,7 @@ atlas_add_library( VxVertex
                    PUBLIC_HEADERS VxVertex
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters TrkTrackLink
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel TrkParameters )
 
 atlas_add_dictionary( VxVertexDict

@@ -10,6 +10,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Simulation/Barcode/BarcodeEvent )
 
-# Install files from the package:
-atlas_install_headers( BarcodeInterfaces )
+atlas_add_library( BarcodeInterfacesLib
+                   BarcodeInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS BarcodeInterfaces
+                   LINK_LIBRARIES BarcodeEventLib GaudiKernel )
 

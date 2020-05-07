@@ -92,7 +92,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320', '320eta490', '0eta240'],
+    'etaRange'     : ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'          : ['011jvt', '015jvt', '059jvt'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
@@ -154,6 +154,11 @@ JetChainParts_Default = {
     'hypoScenario' : 'simple',
     'smc'          : 'nosmc',
     }
+
+# ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
+bJetChainParts_Default = {
+    'etaRange' : '0eta290',
+}
 
 #==========================================================
 # HT chains
@@ -277,9 +282,9 @@ METChainParts = {
     'topo'         : AllowedTopos_xe,
     'trigType'     : ['xe'],   
     'extra'        : ['noL1'],
-    'calib'        : ['lcw',],    
+    'calib'        : ['lcw','em'],    
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht', 'pfsum'],
+    'EFrecoAlg'    : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],
@@ -341,7 +346,7 @@ ElectronChainParts = {
     'etaRange'       : [],
     'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight'],
     'isoInfo'        : [],
-    'trkInfo'        : ['idperf'],
+    'trkInfo'        : ['nod0', 'idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : ['noringer'],
@@ -759,8 +764,8 @@ def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
     reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-            if (token in chainpart):
-                theMatchingTokens += [token]
+        if (token in chainpart):
+            theMatchingTokens += [token]
     theToken = max(theMatchingTokens, key=len) # gets the longest string in t
     if len(theMatchingTokens)>0:
         if len(theMatchingTokens)>1:
@@ -781,6 +786,8 @@ def getSignatureInformation(signature):
         return [PhotonChainParts_Default, PhotonChainParts]
     if signature == "Jet":
         return [JetChainParts_Default, JetChainParts]
+    if signature == "Bjet":
+        return [bJetChainParts_Default, JetChainParts]
     if signature == "HT":
         return [HTChainParts_Default, HTChainParts]
     if signature == "Tau":

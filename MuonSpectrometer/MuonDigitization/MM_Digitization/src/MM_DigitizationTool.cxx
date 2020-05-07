@@ -60,7 +60,7 @@
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -91,7 +91,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   
   // Services
   m_storeGateService("StoreGateSvc", name),
-  m_magFieldSvc("AtlasFieldSvc",name) ,
   m_mergeSvc(nullptr),
   m_rndmSvc("AtRndmGenSvc", name ),
   m_rndmEngine(nullptr),
@@ -171,7 +170,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareInterface<IMuonDigitizationTool>(this);
   
   declareProperty("MCStore",             m_storeGateService);
-  declareProperty("MagFieldSvc",         m_magFieldSvc,        "Magnetic Field Service");
   declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
   
@@ -229,7 +227,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService    );
-	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
@@ -258,9 +255,6 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
-	// Magnetic field service
-	ATH_CHECK( m_magFieldSvc.retrieve() );
-
 	// Digit tools
 	ATH_CHECK( m_digitTool.retrieve() );
 
@@ -283,6 +277,8 @@ StatusCode MM_DigitizationTool::initialize() {
     ATH_CHECK(m_outputDigitCollectionKey.initialize());
     ATH_CHECK(m_outputSDO_CollectionKey.initialize());
     ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
+
+    ATH_CHECK(m_fieldCondObjInputKey.initialize());
 
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
@@ -490,8 +486,6 @@ StatusCode MM_DigitizationTool::mergeEvent(const EventContext& ctx) {
 
 	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
-	// Cleanup and record the Digit container in StoreGate
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 	ATH_CHECK( doDigitization(ctx) );
 
 	// reset the pointer (delete null pointer should be safe)
@@ -518,8 +512,6 @@ StatusCode MM_DigitizationTool::digitize(const EventContext& ctx) {
 StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
-
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 
 	//merging of the hit collection in getNextEvent method
 
@@ -552,21 +544,17 @@ StatusCode MM_DigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::recordDigitAndSdoContainers(const EventContext& ctx) {
+StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelperSvc->mmIdHelper().detectorElement_hash_max())));
   ATH_MSG_DEBUG ( "MmDigitContainer recorded in StoreGate." );
+
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
-  return StatusCode::SUCCESS;
-}
-
-/*******************************************************************************/
-StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
-
 
   MMSimHitCollection* inputSimHitColl=nullptr;
   
@@ -660,7 +648,9 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	  continue;
 	}
       }
-      
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
       // Read the information about the Micro Megas hit
       ATH_MSG_DEBUG ( "> hitID  "
 		      <<     hitID
@@ -677,7 +667,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      << " z "
 		      <<     globalHitPosition.z()
 		      << " mclink "
-		      <<     hit.particleLink()
+		      <<     particleLink
 		      << " station eta "
 		      <<     m_idHelperSvc->mmIdHelper().stationEta(layerID)
 		      << " station phi "
@@ -695,7 +685,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
                                      hit.kineticEnergy(),
                                      hit.globalDirection(),
                                      hit.depositEnergy(),
-                                     hit.trackNumber()
+                                     particleLink
                                      );
       
       inputSimHitColl->Insert(*copyHit);
@@ -775,7 +765,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       char side = m_idHelperSvc->mmIdHelper().stationEta(layerID) < 0 ? 'C' : 'A';
       MMDetectorHelper aHelper;
       MMDetectorDescription* mm = aHelper.Get_MMDetector( stName[2],
-							  abs(m_idHelperSvc->mmIdHelper().stationEta(layerID)),
+							  std::abs(m_idHelperSvc->mmIdHelper().stationEta(layerID)),
 							  m_idHelperSvc->mmIdHelper().stationPhi(layerID),
 							  m_idHelperSvc->mmIdHelper().multilayer(layerID),
 							  side
@@ -867,7 +857,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
       Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
       
-      if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
+      if( std::abs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
  
       //  moving the hit position to the center of the gap for the SDO position 
       double scaleSDO = -stripLayerPosition.z()/localDirection.z();
@@ -878,7 +868,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		    << " z " << hitAtCenterOfGasGap.z() << " gas gap "<< gasGap); 
 
       // Don't consider electron hits below m_energyThreshold
-      if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
+      if( hit.kineticEnergy() < m_energyThreshold && std::abs(hit.particleEncoding())==11) {
 	m_exitcode = 5;
 	if(m_writeOutputFile) m_ntuple->Fill();
 	continue;
@@ -904,23 +894,23 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector2D tmp (stripLayerPosition.x(), stripLayerPosition.y());
       
       if( stripNumber == -1 ){
-	ATH_MSG_WARNING("!!! Failed to obtain strip number "
-			<< m_idHelperSvc->mmIdHelper().print_to_string(layerID)
-			<<  "\n\t\t with pos "
-			<< positionOnSurface
-			<< " z "
-			<< stripLayerPosition.z()
-			<< " eKin: "
-			<< hit.kineticEnergy()
-			<< " eDep: "
-			<< hit.depositEnergy()
-			<< " unprojectedStrip: "
-			<< detectorReadoutElement->stripNumber(positionOnSurfaceUnprojected, layerID)
-			);
-	m_exitcode = 2;
-	if(m_writeOutputFile) m_ntuple->Fill();
-	ATH_MSG_DEBUG( "m_exitcode = 2 " );
-	continue;
+	      ATH_MSG_WARNING("!!! Failed to obtain strip number "
+			    << m_idHelperSvc->mmIdHelper().print_to_string(layerID)
+			    <<  "\n\t\t with pos "
+			    << positionOnSurface
+			    << " z "
+			    << stripLayerPosition.z()
+			    << " eKin: "
+			    << hit.kineticEnergy()
+			    << " eDep: "
+			    << hit.depositEnergy()
+			    << " unprojectedStrip: "
+			    << detectorReadoutElement->stripNumber(positionOnSurfaceUnprojected, layerID)
+        );
+	      m_exitcode = 2;
+	      if(m_writeOutputFile) m_ntuple->Fill();
+	      ATH_MSG_DEBUG( "m_exitcode = 2 " );
+	      continue;
       }
       
       // Re-definition Of ID
@@ -960,11 +950,20 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
         if(m_writeOutputFile) m_ntuple->Fill();
         continue;
       }
-      
+
+      MagField::AtlasFieldCache fieldCache;
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (!fieldCondObj) {
+        ATH_MSG_ERROR("doDigitization: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return StatusCode::FAILURE;
+      }
+      fieldCondObj->getInitializedCache(fieldCache);
+
       // Obtain Magnetic Field At Detector Surface
       Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
       Amg::Vector3D magneticField;
-      m_magFieldSvc->getField(&hitOnSurfaceGlobal, &magneticField);
+      fieldCache.getField(hitOnSurfaceGlobal.data(), magneticField.data());
       
       // B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
       Amg::Vector3D localMagneticField = surf.transform().inverse()*magneticField
@@ -978,18 +977,17 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       ////////////////////////////////////////////////////////////////////
       
-      
       ////////////////////////////////////////////////////////////////////
       //
       // Strip Response Simulation For This Hit
       //
-      
       const MM_DigitToolInput stripDigitInput( stripNumber,
 					       distToChannel,
 					       inAngle_XZ,
 					       inAngle_YZ,
 					       localMagneticField,
-					       detectorReadoutElement->numberOfStrips(layerID),
+					       detectorReadoutElement->numberOfMissingBottomStrips(layerID),
+					       detectorReadoutElement->numberOfStrips(layerID)-detectorReadoutElement->numberOfMissingTopStrips(layerID),
 					       m_idHelperSvc->mmIdHelper().gasGap(layerID),
 					       m_eventTime+m_globalHitTime
 					       );
@@ -1002,7 +1000,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // digitize input for strip response
       
-      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      MuonSimData::Deposit deposit(particleLink, MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
       
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
@@ -1010,7 +1008,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MuonSimData simData(deposits,0);
       simData.setPosition(hitAtCenterOfGasGapGlobal);
       simData.setTime(m_globalHitTime);
-      SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
       sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  sdoContainer->size());
       
@@ -1026,25 +1023,22 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
-      if (stripNumber!=1){ // Extra if statement from quick fix from deadstrip = #1
-	for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
-	  int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
-	  bool isValid;
-	  Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
-	  if (!isValid) {
-	    ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
-	  } else {
-	    Amg::Vector2D cr_strip_pos(0., 0.);
-	    if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
-	      ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
-			      << tmpStripID
-			      << "; associated positions will be set to 0.0."
-			      );
-	    }
-	  }
-	}
+      for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
+        int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
+        bool isValid;
+        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
+        if (!isValid) {
+          ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
+        } else {
+          Amg::Vector2D cr_strip_pos(0., 0.);
+          if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
+            ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
+      	        << tmpStripID
+      	        << "; associated positions will be set to 0.0."
+      	      );
+          }
+        }
       }
-      
       
       v_stripDigitOutput.push_back(stripDigitOutput);
       
@@ -1100,18 +1094,24 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     
     // Choose which of the above outputs is used for readout
     //
-    MM_DigitToolOutput * electronicsOutputForReadout(0);
-    if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = & electronicsPeakOutput;
-    else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = & electronicsThresholdOutput;
-    else ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
+    MM_DigitToolOutput* electronicsOutputForReadout=nullptr;
+    if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = &electronicsPeakOutput;
+    else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = &electronicsThresholdOutput;
+    else {
+        ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
+        return StatusCode::FAILURE;
+    }
     // but this should be impossible from initialization checks
     
     // Choose which of the above outputs is used for triggering
     //
-    MM_DigitToolOutput * electronicsOutputForTriggerPath(0);
-    if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = & electronicsPeakOutput;
-    else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = & electronicsThresholdOutput;
-    else ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
+    MM_DigitToolOutput* electronicsOutputForTriggerPath=nullptr;
+    if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = &electronicsPeakOutput;
+    else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = &electronicsThresholdOutput;
+    else {
+        ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
+        return StatusCode::FAILURE;
+    }
     // but this should be impossible from initialization checks
     
     
@@ -1221,7 +1221,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
     MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(moduleHash );
     if (digitContainer->end() ==  it_coll) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );

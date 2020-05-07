@@ -6,18 +6,22 @@
       GsfCombinedMaterialEffects.cxx  -  description
       ----------------------------------------------
 begin                : Friday 11th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+authors              : atkinson,Morley,Anastopoulos
 decription           : Implementation code for GsfCombinedMaterialEffects class
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkSurfaces/Surface.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/Surface.h"
+#include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkEventPrimitives/ParamDefs.h"
 
-#include "GaudiKernel/ToolHandle.h"
+namespace {
+const Trk::ParticleMasses s_particleMasses{};
+}
 
 Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(const std::string& type,
                                                             const std::string& name,
@@ -34,34 +38,17 @@ Trk::GsfCombinedMaterialEffects::initialize()
 {
   // Retrieve and configure multiple scattering effects for multi-state operation
   ATH_MSG_INFO("Configuring for multiple scattering");
+  ATH_CHECK(m_msUpdator.retrieve());
 
-  // Retrieve the multiple scattering effects
-  if (m_multipleScatterEffects.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve multiple scattering AlgTool: " << m_multipleScatterEffects.typeAndName()
-                                                                     << "... Exiting!");
-    return StatusCode::FAILURE;
-  }
-
-  // Retrieve and configure the energy loss effects for multi-state operation
+  // Retrieve and configure the std energy loss effects for multi-state operation
   ATH_MSG_INFO("Configuring for normal energy loss");
-
-  if (m_energyLossEffects.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve energy loss AlgTool: " << m_energyLossEffects.typeAndName() << "... Exiting!");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved energy loss AlgTool: " << m_energyLossEffects.typeAndName() << "... YAY!");
-  }
+  ATH_CHECK(m_EnergyLossUpdator.retrieve());
 
   // Retrieve and configure the Bethe-Heitler effects for energy loss
   ATH_MSG_INFO("Configuring for Bethe-Heitler energy loss");
-
-  if (m_betheHeitlerEffects.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve energy loss AlgTool: " << m_betheHeitlerEffects.typeAndName() << "... Exiting!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_betheHeitlerEffects.retrieve());
 
   ATH_MSG_INFO("Initialisation of " << name() << " was successful");
-
   return StatusCode::SUCCESS;
 }
 
@@ -73,12 +60,13 @@ Trk::GsfCombinedMaterialEffects::finalize()
 }
 
 void
-Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cache,
-                                         const Trk::ComponentParameters& componentParameters,
-                                         const Trk::MaterialProperties& materialProperties,
-                                         double pathLength,
-                                         Trk::PropDirection direction,
-                                         Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfCombinedMaterialEffects::compute(
+  IMultiStateMaterialEffects::Cache& cache,
+  const Trk::ComponentParameters& componentParameters,
+  const Trk::MaterialProperties& materialProperties,
+  double pathLength,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis) const
 {
 
   ATH_MSG_DEBUG("Computing combined material effects");
@@ -93,8 +81,12 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
-  m_multipleScatterEffects->compute(
-    cache_multipleScatter, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
+  this->scattering(cache_multipleScatter,
+                   componentParameters,
+                   materialProperties,
+                   pathLength,
+                   direction,
+                   particleHypothesis);
 
   // Protect if there are no new components
   if (cache_multipleScatter.weights.empty()) {
@@ -111,16 +103,10 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_energyLoss;
-
   if (particleHypothesis == electron) {
-
-    ATH_MSG_VERBOSE("Considering Bethe-Heitler energy loss effects");
     m_betheHeitlerEffects->compute(cache_energyLoss, componentParameters, materialProperties, pathLength, direction);
-
   } else if (particleHypothesis != nonInteracting) {
-    ATH_MSG_VERBOSE("Considering standard energy loss effects");
-
-    m_energyLossEffects->compute(
+    this->energyLoss(
       cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
   }
 
@@ -132,11 +118,9 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     newCov.setZero();
     cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
   }
-
   /* ========================================================================
      Combine the multiple scattering and energy loss components
      ======================================================================== */
-
   ATH_MSG_DEBUG("Combining the energy loss and multiple scattering components");
 
   // Iterators over the multiple scattering components
@@ -174,4 +158,97 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     } // end for loop over energy loss components
   }   // end for loop over multiple scattering components
   ATH_MSG_DEBUG("Successfully included combined material effects");
+}
+
+void
+Trk::GsfCombinedMaterialEffects::scattering(
+  IMultiStateMaterialEffects::Cache& cache,
+  const ComponentParameters& componentParameters,
+  const MaterialProperties& materialProperties,
+  double pathLength,
+  PropDirection /*direction*/,
+  ParticleHypothesis /*particleHypothesis*/) const
+{
+  // Reset the cache
+  cache.reset();
+  
+  // Request track parameters from component parameters
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
+  const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
+
+  if (!measuredTrackCov) {
+    ATH_MSG_DEBUG("No measurement associated with track parameters... returning original parameters");
+    return;
+  }
+
+  const Amg::Vector3D& globalMomentum = trackParameters->momentum();
+  double p = globalMomentum.mag();
+
+  double pathcorrection = 1.;
+  if (materialProperties.thickness() != 0)
+    pathcorrection = pathLength / materialProperties.thickness();
+
+  // Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
+  // and create a dummy materialProperties with the properties we are interested in
+  MaterialProperties mprop(materialProperties.thicknessInX0(), 1., 0., 0., 0., 0.);
+  const double angularVariation = m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
+
+  AmgSymMatrix(5) deltaCov;
+  deltaCov.setZero();
+  // double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
+  const double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
+  deltaCov(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
+  deltaCov(Trk::theta, Trk::theta) += angularVariation;
+  cache.weights.push_back(1.);
+  cache.deltaPs.push_back(0.);
+  cache.deltaCovariances.push_back(std::move(deltaCov));
+}
+
+void
+Trk::GsfCombinedMaterialEffects::energyLoss(
+  IMultiStateMaterialEffects::Cache& cache,
+  const ComponentParameters& componentParameters,
+  const MaterialProperties& materialProperties,
+  double pathLength,
+  PropDirection direction,
+  ParticleHypothesis particleHypothesis) const
+{
+  // Reset the cache
+  cache.reset();
+
+  // Request track parameters from component parameters
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
+  const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
+  if (!measuredCov) {
+    ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
+    return;
+  }
+  double pathcorrection = pathLength / materialProperties.thickness();
+  const Amg::Vector3D& globalMomentum = trackParameters->momentum();
+
+  EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(
+    materialProperties, globalMomentum.mag(), pathcorrection, direction, particleHypothesis, true);
+
+  // update for mean energy loss
+  const double deltaE = energyLoss ? energyLoss->deltaE() : 0;
+  const double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
+  delete energyLoss;
+
+  // Calculate the pathlength encountered by the track
+  const double p = globalMomentum.mag();
+  const double m = s_particleMasses.mass[particleHypothesis];
+  const double E = sqrt(p * p + m * m);
+  const double beta = p / E;
+
+  // Calculate energy loss values uncertainty
+  const double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
+
+  // Update diagonal and off-diagonal covariance matrix elements
+  AmgSymMatrix(5) deltaCov;
+  deltaCov.setZero();
+  deltaCov(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
+
+  cache.weights.push_back(1.);
+  cache.deltaPs.push_back(deltaE);
+  cache.deltaCovariances.push_back(std::move(deltaCov));
 }

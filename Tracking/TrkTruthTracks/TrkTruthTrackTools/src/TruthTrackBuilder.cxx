@@ -25,8 +25,8 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -140,9 +140,9 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     if ( m_minNdof > 0 &&  prdTraj.nDoF < m_minNdof) return 0;
     // get the startPosition : math library madness as usual
     Amg::Vector3D startPos = genPart->production_vertex() ?
-      Amg::Vector3D(genPart->production_vertex()->point3d().x(),
-                            genPart->production_vertex()->point3d().y(),
-		    genPart->production_vertex()->point3d().z()) : Amg::Vector3D(0.,0.,0.);
+      Amg::Vector3D(genPart->production_vertex()->position().x(),
+                            genPart->production_vertex()->position().y(),
+		    genPart->production_vertex()->position().z()) : Amg::Vector3D(0.,0.,0.);
     Amg::Vector3D startMom(genPart->momentum().x(),
                                  genPart->momentum().y(),
                                  genPart->momentum().z());

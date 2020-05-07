@@ -260,6 +260,9 @@ StreamRDO.ItemList += [ "PixelRDO_Container#PixelRDOs" ]
 StreamRDO.ItemList +=["2721#*"]
 StreamRDO.ItemList +=["2927#*"]
 StreamRDO.ItemList +=["2934#*"]
+StreamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+if not hasattr( topSequence, "LumiBlockMuWriter" ):
+    include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
 

@@ -19,6 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 RB_PATH_SCRIPTS=TrigMenuRulebook/scripts
+RB_PATH_PYTHON=TrigMenuRulebook/python
 
 totalPhysP1json=`ls *_PhysicsP1_pp_run3_v1_*.json | wc -l`
 
@@ -34,5 +35,8 @@ cp HLTMenu_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/HLTMenu.json
 cp HLTPrescalesSet_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/HLTPrescale.json
 cp L1Menu_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/L1Menu.json
 cp L1PrescalesSet_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/L1Prescale.json
+
+sed -i -e 's/allowNoOracleConnection\s*=\s*False/allowNoOracleConnection = True/g' ${RB_PATH_PYTHON}/runOptions.py
+sed -i -e 's/retryOracleConnection\s*=\s*True/retryOracleConnection = False/g' ${RB_PATH_PYTHON}/runOptions.py
 
 exit 0

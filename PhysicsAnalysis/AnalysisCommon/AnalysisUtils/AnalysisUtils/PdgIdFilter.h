@@ -20,8 +20,6 @@
 // STL includes
 #include <list>
 
-// HepMC / CLHEP includes
-
 // Gaudi includes
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"

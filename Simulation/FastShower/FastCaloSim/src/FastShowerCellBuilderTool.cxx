@@ -24,15 +24,9 @@
 #endif
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-//#include "TruthHelper/IsGenStable.h"
-//#include "TruthHelper/IsGenerator.h"
-//#include "TruthHelper/IsGenInteracting.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
-//#include "TruthHelper/IsGenSimulStable.h"
-//#include "FastCaloSim/FastCaloSimIsGenSimulStable.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+
 
 #include "PathResolver/PathResolver.h"
 #include "AthenaKernel/RNGWrapper.h"
@@ -41,10 +35,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 
-//#include "AtlfastAlgs/GlobalEventData.h"
-//#include "AtlfastUtils/TesIO.h"
-//#include "AtlfastUtils/HepMC_helper/IMCselector.h"
-//#include "AtlfastEvent/MCparticleCollection.h"
 
 //extrapolation
 #include "CaloDetDescr/CaloDepthTool.h"
@@ -54,7 +44,6 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-//#include "TruthHelper/PileUpType.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
@@ -1374,7 +1363,6 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
   // Process Muon info from Fatras
   //////////////////////////////
   if(abs(pdgid)==13) {
-    // std::pair<BarcodeEnergyDepositMap::iterator,BarcodeEnergyDepositMap::iterator> range=MuonEnergyMap->equal_range(part->barcode());
     p.fcal_tot=0;
     for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
       p.E_layer[i]=0;
@@ -2347,14 +2335,8 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
   SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollectionKey, ctx);
 
-  // initialize a pileup type helper object
-  //PileUpType pileupType( mcCollptr );
 
   ATH_MSG_DEBUG("Start getting particles");
-
-  // pileupType.signal_particles(particles, isStable);
-  //pileupType.signal_particles(particles, ifs);
-  //ZH 28.07.2014 Try using TruthUtils instead:
 
   if (mcCollptr->size() >0)
     {
@@ -2362,7 +2344,6 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       HepMC::GenEvent::particle_const_iterator iend   = mcCollptr->at(0)->particles_end();
       for ( ; istart!= iend; ++istart)
         {
-          //std::cout <<" ("<< FastCaloSimIsGenSimulStable(*istart)<<"/"<<(*istart)->barcode()<<","<<(*istart)->status()<<"/"<<ifs(*istart)<<") ";
           particles.push_back(*istart);
         }
       //std::cout <<std::endl;
@@ -2370,11 +2351,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
   particles = MC::filter_keep(particles, FastCaloSimIsGenSimulStable);
 
 
-  //sc = m_gentesIO->getMC(particles, &ifs, m_mcLocation );
-  //if ( sc.isFailure() ) {
-  //  log << MSG::ERROR << "getMC from "<<m_mcLocation<<" failed "<< endmsg;
-  //  return StatusCode::FAILURE;
-  //}
+
 
   const BarcodeEnergyDepositMap* MuonEnergyMap=0;
   if (!m_MuonEnergyInCaloContainerKey.key().empty()) {

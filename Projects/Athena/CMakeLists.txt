@@ -41,7 +41,7 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E101,E7,E9,W6 --ignore ATL238,ATL9,E701,E702,E704,E741 --enable-extensions ATL902"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
@@ -65,6 +65,12 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
    CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
+
+# Set up the runtime environment for NumPy.
+set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
+   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
+mark_as_advanced( NumPyEnvironment_DIR )
+find_package( NumPyEnvironment )
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 set( AthenaPoolUtilitiesTest_DIR
@@ -118,6 +124,9 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Temporary alias to limit number of processes (ATLINFR-3046)
+atlas_add_alias( flake8 \${AthenaExternals_DIR}/${CMAKE_INSTALL_BINDIR}/flake8 -j1 )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

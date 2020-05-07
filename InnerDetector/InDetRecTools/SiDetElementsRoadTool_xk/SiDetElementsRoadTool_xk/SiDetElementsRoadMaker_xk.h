@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -27,10 +26,10 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/CylinderBounds.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
 #include <atomic>
@@ -40,7 +39,6 @@
 #include <vector>
 
 class MsgStream;
-class IMagFieldAthenaSvc;
 
 namespace InDet{
   /**
@@ -106,7 +104,6 @@ namespace InDet{
 
     /// @name Service and tool handles
     //@{
-    ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
     PublicToolHandle<Trk::IPropagator> m_proptool{this, "PropagatorTool",
         "Trk::RungeKuttaPropagator/InDetPropagator", "Propagator tool"};
     //@}
@@ -116,6 +113,8 @@ namespace InDet{
     SG::ReadCondHandleKey<SiDetElementsLayerVectors_xk> m_layerVecKey{this, "LayerVecKey",
         "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
     //!< Created by SiDetElementsRoadCondAlg_xk.
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
+        "Name of the Magnetic Field conditions object key"}; // Necessary only for dumpConditions method
     //@}
 
     /// @name Properties

@@ -7,8 +7,10 @@ atlas_subdir( FilePeeker )
 
 # Possible extra dependencies:
 set( extra_dep )
+set( extra_libs )
 if( NOT SIMULATIONBASE )
   set( extra_dep Event/ByteStreamEventTPCnv )
+  set( extra_libs ByteStreamEventTPCnv )
 endif()
 
 
@@ -36,7 +38,7 @@ atlas_add_executable( PoolFilePeeker
                       src/PoolFilePeeker.cxx
                       src/FileMetaData.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES  ${ROOT_LIBRARIES})#  xAODEventInfo EventTPCnv EventTPCnvDict)
+                      LINK_LIBRARIES EventTPCnv IOVDbTPCnv ${extra_libs} ${ROOT_LIBRARIES})
 
 
 if( NOT SIMULATIONBASE )

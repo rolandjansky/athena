@@ -32,6 +32,7 @@
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
@@ -43,12 +44,7 @@ using Gaudi::Units::GeV;
 // Constructor
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
-TauRecToolBase(name),
-m_doVertexCorrection(false), //FF: don't do cell correction by default
-m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
-{
-    declareProperty("VertexCorrection", m_doVertexCorrection);
-    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
+TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -204,22 +200,20 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       return StatusCode::FAILURE;
     }
 
-    xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
+    // Loop through jets, get links to clusters
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
 
     std::bitset<200000> cellSeen;
 
-    for (; cItr != cItrE; ++cItr) {
-      
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-      
+    for (auto cluster : clusterList){
+
       CaloClusterCellLink::const_iterator pCellIter  = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator pCellIterE = cluster->getCellLinks()->end();
 
-      double cellPhi;
-      double cellEta;
-      double cellET;
       for (; pCellIter != pCellIterE; pCellIter++) {
+
+	double cellEta, cellPhi, cellET;
 
         pCell = *pCellIter;
 	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;

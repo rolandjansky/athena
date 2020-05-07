@@ -35,8 +35,10 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <array>
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // Forward declarations
@@ -114,46 +116,21 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
 
   ///// Not used in checkNoiseMaps /////
 
+  //Count number of events
+  int m_numberOfEvents{0}; // Used in bookHistograms, bookHistogramsRecurrent, fillHistograms
+
   int m_last_reset_lb{0}; // Used in fillHistograms
 
-  std::vector<Identifier> m_RDOsOnTracks; // Used in generalHistsandNoise, makeVectorOfTrackRDOIdentifiers
-
-  std::map<Identifier, float> m_occSumUnbiased; // Used in generalHistsandNoise, initializeNoiseMaps
-
-  std::map<Identifier, float> m_hitoccSumUnbiased{}; // Used in generalHistsandNoise, initializeNoiseMaps
+  std::array<std::unordered_set<Identifier>, SCT_Monitoring::N_WAFERS> m_RDOsOnTracks; // Used in generalHistsandNoise, makeVectorOfTrackRDOIdentifiers
 
   ///// Read in checkNoiseMaps /////
 
-  int m_current_lb{0}; // Used in fillHistograms, generalHistsandNoise, checkNoiseMaps
-  //Count number of events
-  int m_numberOfEvents{0}; // Used in bookHistograms, bookHistogramsRecurrent, fillHistograms, generalHistsandNoise, checkNoiseMaps
-  //Count number of events in the selected stream
-  int m_numberOfEventsTrigger{0}; // Used in generalHistsandNoise, checkNoiseMaps
   //Count number of events since last reset
   int m_numberOfEventsRecent{0}; // Used in fillHistograms, checkNoiseMaps
 
-  int m_events_lb{0}; // Used in fillHistograms, generalHistsandNoise, checkNoiseMaps
-  int m_eventsTrigger_lb{0}; // Used in fillHistograms, generalHistsandNoise, checkNoiseMaps
-
-  std::map<Identifier, float> m_occSumUnbiasedTrigger; // Used in generalHistsandNoise, checkNoiseMaps, initializeNoiseMaps
   std::map<Identifier, float> m_occSumUnbiasedRecent; // Used in generalHistsandNoise, checkNoiseMaps, initializeNoiseMaps, resetNoiseMapsRecent
 
-  std::map<Identifier, float> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL]; // Used in fillHistograms, generalHistsandNoise, checkNoiseMaps, initializeNoiseMaps
-  std::map<Identifier, float> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL]; // Used in fillHistograms, generalHistsandNoise, checkNoiseMaps, initializeNoiseMaps
-
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger{}; // Used in checkNoiseMaps, generalHistsandNoise, initializeNoiseMaps
   std::map<Identifier, float> m_hitoccSumUnbiasedRecent{}; // Used in checkNoiseMaps, initializeNoiseMaps, resetNoiseMapsRecent, generalHistsandNoise
-
-  std::map<Identifier, float> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in fillHistograms, initializeNoiseMaps, checkNoiseMaps
-  std::map<Identifier, float> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in fillHistograms, generalHistsandNoise, initializeNoiseMaps, checkNoiseMaps
-
-  ///// Updated in checkNoiseMaps /////
-
-  int m_occ_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL][SCT_Monitoring::NBINS_LBs+1]{}; // Used in fillHistograms, checkNoiseMaps
-  int m_occTrigger_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL][SCT_Monitoring::NBINS_LBs+1]{}; // Used in fillHistograms, checkNoiseMaps
-
-  int m_hitocc_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL][SCT_Monitoring::NBINS_LBs+1]{}; // Used in fillHistograms, checkNoiseMaps
-  int m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS_INC_GENERAL][SCT_Monitoring::NBINS_LBs+1]{}; // Used in fillHistograms, checkNoiseMaps
 
   /// ---------------------------------------
   //@name Histograms related members
@@ -186,8 +163,19 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
   std::vector<TH1F_LW*> m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHits, generalHistsandNoise
 
-  TProfile2D* m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{}; // Used in generalHistsandNoise, bookClusterSize
   TProfile_LW* m_tbinfracall{nullptr}; // Used in bookGeneralTrackTimeHistos, generalHistsandNoise
+
+  //---- results required no triggers
+  // NO with hits subtracted by SP
+  TProfile_LW* m_NO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
+  // HO with hits
+  TProfile_LW* m_HO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookNoiseDistributions, bookGeneralHitOccupancyMaps, generalHistsandNoise
+  
+  //---- results required trigger
+  // NO with hits subtracted by SP
+  TProfile_LW* m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
+  // HO with hits
+  TProfile_LW* m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralHitOccupancyMaps, bookNoiseDistributions, generalHistsandNoise
 
   ///// Not used in checkNoiseMaps and are reset at some point /////
 
@@ -200,30 +188,17 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   std::vector<TH2F_LW*> m_ptrackhitsHistoVector[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralTrackHitso, generalHistsandNoise, resetHitMapHists
   std::vector<TH2F_LW*> m_ptrackhitsHistoVectorRecent[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralTrackHitso, generalHistsandNoise, resetHitMapHists
 
+  /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
+  std::vector<TProfile2D*> m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHitOccupancyMaps, generalHistsandNoise, resetNoiseMapHists
+  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralNoiseOccupancyMaps, generalHistsandNoise, resetNoiseMapHists
+
   ///// Updated in checkNoiseMaps /////
 
   /// Vector of pointers to histogram of SCT modules hits; 1 histo per layer and side
   std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralNoiseOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
-  std::vector<TProfile2D*> m_pnoiseoccupancymapHistoVectorTrigger[SCT_Monitoring::N_REGIONS]; // Used in bookGeneralNoiseOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
 
-  //---- results required no triggers
-  // NO with hits subtracted by SP
-  TProfile_LW* m_NO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, checkNoiseMaps, bookNoiseDistributions
-  
-  //---- results required trigger
-  // NO with hits subtracted by SP
-  TProfile_LW* m_NOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralNoiseOccupancyMaps, checkNoiseMaps, bookNoiseDistributions
-
-  std::vector<TProfile2D*> m_phitoccupancymapHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHitOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
   std::vector<TProfile2D*> m_phitoccupancymapHistoVectorRecent[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHitOccupancyMaps, checkNoiseMaps, resetNoiseMapHists
 
-  //---- results required no triggers
-  // HO with hits subtracted by SP
-  TProfile_LW* m_HO_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in checkNoiseMaps, bookNoiseDistributions, bookGeneralHitOccupancyMaps
-
-  //---- results required trigger
-  // HO with hits
-  TProfile_LW* m_HOTrigger_vsLB[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Used in bookGeneralHitOccupancyMaps, checkNoiseMaps, bookNoiseDistributions
   //@}
 
   //@name Histograms related methods
@@ -244,7 +219,7 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   StatusCode makeVectorOfTrackRDOIdentifiers();
   StatusCode resetNoiseMapsRecent();
   StatusCode resetHitMapHists();
-  StatusCode generalHistsandNoise();
+  StatusCode generalHistsandNoise(const EventContext& ctx);
 
   // Used in fillHistograms and procHistograms
   StatusCode checkNoiseMaps(); // Do checking of noise maps

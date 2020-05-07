@@ -106,7 +106,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   for ( ParticlesMap_t::iterator p = partToEndVtx.begin(); 
 	p != endItr; 
 	++p ) {
-    HepMC::GenVertex* decayVtx = transObj->barcode_to_vertex( p->second );
+    auto decayVtx = transObj->barcode_to_vertex( p->second );
     if ( decayVtx ) {
       decayVtx->add_particle_in( p->first );
     } else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //MuonCalibEventBase
@@ -34,7 +34,6 @@ StatusCode NtupleResidualTool::initialize()
 	m_chi2=new TH1F("chi2", "chi^{2}", 100, 0, 50);
 	m_nhits=new TH1F("nhits", "nhits", 20, -0.5, 19.5);
 	m_fitter=new QuasianalyticLineReconstruction(1.0);
-//	m_fitter.setRoadWidth(2);
 	m_fitter->switchOnRefit();
 	return StatusCode::SUCCESS;
 	}
@@ -46,17 +45,11 @@ StatusCode  NtupleResidualTool::handleEvent(const MuonCalibEvent &/*event*/, int
 	for(unsigned int i=position; i<segments.size(); i++)
 		{
 		m_fitter->fit(*(segments[i]));
-//		if(segments[i]->hitsOnTrack()<4) continue;
 		//loop on hits
 		for(std::vector<const MdtCalibHitBase*>::const_iterator it = m_fitter->trackHits().begin(); it!=m_fitter->trackHits().end(); it++)
-//		for(MuonCalibSegment::MdtHitCit it=segments[i]->mdtHOTBegin(); it!=segments[i]->mdtHOTEnd(); it++)
 			{
-//			double rsign(1.0);
-//			if((*it)->signedDistanceToTrack() < 0)
-//				rsign=-1.0;
-//			double track_residual((*it)->signedDistanceToTrack() - (*it)->driftRadius() * rsign);
-			double track_residual(std::fabs((*it)->signedDistanceToTrack()) - (*it)->driftRadius());
-			m_residual_distribution -> Fill(static_cast<Axis_t>(fabs((*it)->signedDistanceToTrack())), static_cast<Axis_t>(track_residual));
+			double track_residual(std::abs((*it)->signedDistanceToTrack()) - (*it)->driftRadius());
+			m_residual_distribution -> Fill(static_cast<Axis_t>(std::abs((*it)->signedDistanceToTrack())), static_cast<Axis_t>(track_residual));
 			m_r_spec->Fill( static_cast<Axis_t>((*it)->driftRadius()));
 			}
 		m_chi2->Fill(segments[i]->chi2());

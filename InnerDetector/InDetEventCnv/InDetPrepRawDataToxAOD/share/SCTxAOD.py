@@ -116,7 +116,7 @@ if not InDetFlags.disableTracking():
                                                                StoreSCT   = True,
                                                                StorePixel = False,
                                                                IsSimulation = isSctDxAODSimulation,
-                                                               TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool(),
+                                                               PRDtoTrackMap= "",
                                                                OutputLevel = INFO)
     ToolSvc += DFTSOS
     augmentationTools+=[DFTSOS]
@@ -137,9 +137,14 @@ if dumpBytestreamErrors:
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
+    from InDetRecExample import TrackingCommon
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool 
     unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'SCTxAOD_unassociatedHitsGetter',
                                                                                   TrackCollection = "Tracks",
+                                                                                  AssociationTool = TrackingCommon.getPRDtoTrackMapTool(),
+                                                                                  # @TODO consider ganged pixel and TRT outliers when searching for unassociated PRDs (enabled by props below) ?
+                                                                                  # AssociationTool = "",
+                                                                                  # PRDtoTrackMap = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                                                   PixelClusters = "PixelClusters",
                                                                                   SCTClusterContainer = "SCT_Clusters",
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
