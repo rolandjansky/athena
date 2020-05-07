@@ -312,11 +312,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
                 // subset with sparse data
 	      if ((*subsetIt).second[j].shapeSize() > 0) {
                     // store the channel number in bit map
-                    if (j < chansOffset || (j - chansOffset) > 31) {
-                        log << MSG::ERROR 
-                            << "LArShapeSubsetCnv_p2::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endmsg;
-                    }
+                    assert (j >= chansOffset && (j - chansOffset) <= 31);
                     chansSet |= (1 << (j - chansOffset));
                 }
                 else {
