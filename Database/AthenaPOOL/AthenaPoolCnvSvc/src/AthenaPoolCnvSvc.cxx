@@ -1141,6 +1141,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
 	m_outputStreamingTool(this)
 {
+   declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
 }
 //______________________________________________________________________________
