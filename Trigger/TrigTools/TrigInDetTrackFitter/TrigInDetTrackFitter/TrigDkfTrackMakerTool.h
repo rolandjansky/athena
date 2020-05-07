@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIGDKFTRACKMAKERTOOL_H__
@@ -32,8 +32,6 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
 
     
  private:
-  const PixelID* m_pixelId;
-  const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
   
 };
