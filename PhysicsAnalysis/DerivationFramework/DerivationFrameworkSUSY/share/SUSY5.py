@@ -38,6 +38,10 @@ SeqSUSY5 = CfgMgr.AthSequencer("SeqSUSY5")
 DerivationFrameworkJob += SeqSUSY5
 applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY5)
 
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
+
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
