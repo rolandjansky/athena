@@ -111,16 +111,16 @@ namespace top {
     registerParameter("MuonQualityLoose",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
-    registerParameter("UseMVALowPt",
+    registerParameter("MuonUseMVALowPt",
 		      "Turn on MVA for low-pT muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
 		      "False");
-    registerParameter("Use2stationMuonsHighPt",
+    registerParameter("MuonUse2stationHighPt",
 		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 - Default: True (only for HighPt)",
 		      "True");
-    registerParameter("UseMVALowPtLoose",
+    registerParameter("MuonUseMVALowPtLoose",
 		      "Turn on MVA for low-pT muons (only for LowPt WP) for Loose tree. Optimized to improve efficiency and hadron rejection. - Default: False",
 		      "False");
-    registerParameter("Use2stationMuonsHighPtLoose",
+    registerParameter("MuonUse2stationHighPtLoose",
 		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 for Loose tree - Default: True (only for HighPt)",
 		      "True");
     registerParameter("MuonIsolation",
@@ -140,7 +140,7 @@ namespace top {
     registerParameter("SoftMuonQuality",
                       "Soft Muon quality cut for object selection. Options are Loose, Medium, Tight (default), LowPt",
                       "Tight");
-    registerParameter("UseMVALowPtSoftMuon",
+    registerParameter("SoftMuonUseMVALowPt",
 		      "Turn on MVA for low-pT soft muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
 		      "False");
     registerParameter("SoftMuonDRJet",
