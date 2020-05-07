@@ -13,7 +13,6 @@
 #define ASG_DATA_HANDLES_READ_HANDLE_ICC
 
 
-#include "AsgDataHandles/exceptions.h"
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
 #include "xAODRootAccessInterfaces/TVirtualEvent.h"
 #include <stdexcept>
