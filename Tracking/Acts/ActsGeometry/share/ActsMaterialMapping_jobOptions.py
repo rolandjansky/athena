@@ -47,7 +47,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 # Read material step file
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile_test.root"]
+ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
 
 
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -88,21 +88,21 @@ trkGeomTool.OutputLevel = INFO;
 # exCellWriterSvc.FilePath = "excells_charged_mapping.root"
 # ServiceMgr += exCellWriterSvc
 mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
-mTrackWriterSvc.OutputLevel = DEBUG
+mTrackWriterSvc.OutputLevel = INFO
 mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
 # mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
 mMaterialStepConverterTool = CfgMgr.ActsMaterialStepConverterTool("ActsMaterialStepConverterTool")
-mMaterialStepConverterTool.OutputLevel = VERBOSE
+mMaterialStepConverterTool.OutputLevel = INFO
 
 mActsSurfaceMappingTool = CfgMgr.ActsSurfaceMappingTool("ActsSurfaceMappingTool")
-mActsSurfaceMappingTool.OutputLevel = VERBOSE
+mActsSurfaceMappingTool.OutputLevel = INFO
 mActsSurfaceMappingTool.TrackingGeometryTool = trkGeomTool
 
-# mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
-# mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
-# mActsMaterialJsonWriterTool.MaterialOutputFile = "material-maps.json"
+mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
+mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
+mActsMaterialJsonWriterTool.FilePath = "material-maps.json"
 
 from ActsGeometry import ActsGeometryConf
 
@@ -110,7 +110,7 @@ from ActsGeometry import ActsGeometryConf
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
-                                                 OutputLevel=VERBOSE)
+                                                 OutputLevel=INFO)
 ## END OF CONDITIONS SETUP
 
 # Set up algorithm sequence
@@ -124,8 +124,8 @@ if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
 if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
     ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 
-# from GaudiAlg.GaudiAlgConf import EventCounter
-# job += EventCounter(Frequency=1000)
+from GaudiAlg.GaudiAlgConf import EventCounter
+job += EventCounter(Frequency=1000)
 
 # Set up material mapping algorithm
 from ActsGeometry.ActsGeometryConf import ActsMaterialMapping
@@ -134,5 +134,6 @@ alg = ActsMaterialMapping()
 alg.Cardinality = 0#nThreads
 alg.MaterialStepConverterTool = mMaterialStepConverterTool
 alg.SurfaceMappingTool = mActsSurfaceMappingTool
-alg.OutputLevel = VERBOSE
+alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
+alg.OutputLevel = INFO
 job += alg

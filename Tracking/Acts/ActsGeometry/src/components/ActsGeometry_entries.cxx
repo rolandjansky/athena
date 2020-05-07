@@ -10,6 +10,7 @@
 
 #include "ActsGeometry/ActsMaterialMapping.h"
 #include "ActsGeometry/ActsSurfaceMappingTool.h"
+#include "ActsGeometry/ActsVolumeMappingTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
 //#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
@@ -22,7 +23,7 @@
 #include "ActsGeometry/ActsPropStepRootWriterSvc.h"
 #include "ActsGeometry/ActsCaloTrackingVolumeBuilder.h"
 #include "ActsGeometry/ActsMaterialStepConverterTool.h"
-// #include "ActsGeometry/ActsMaterialJsonWriterTool.h"
+#include "ActsGeometry/ActsMaterialJsonWriterTool.h"
 
 #include "ActsGeometry/MaterialStepToActsMaterialTrack.h"
 
@@ -34,11 +35,12 @@ DECLARE_COMPONENT( ActsExtrapolationTool )
 
 DECLARE_COMPONENT( ActsMaterialMapping )
 DECLARE_COMPONENT( ActsSurfaceMappingTool )
+DECLARE_COMPONENT( ActsVolumeMappingTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
 //DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 DECLARE_COMPONENT( ActsMaterialStepConverterTool )
-//DECLARE_COMPONENT( ActsMaterialJsonWriterTool )
+DECLARE_COMPONENT( ActsMaterialJsonWriterTool )
 
 //DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )

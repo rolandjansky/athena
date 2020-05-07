@@ -87,12 +87,16 @@ trkGeomTool.OutputLevel = INFO;
 # alg.TrackingGeometryTool = trkGeomTool
 # job += alg
 
+mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
+mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
+mActsMaterialJsonWriterTool.FilePath = "geometry-maps.json"
 
 from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometry
 alg = ActsWriteTrackingGeometry(OutputLevel = VERBOSE)
 alg.TrackingGeometryTool = trkGeomTool
 alg.ObjWriterTool.OutputDirectory = "obj"
 alg.ObjWriterTool.SubDetectors = ["Pixel", "SCT"]
+alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
 
 job += alg
 

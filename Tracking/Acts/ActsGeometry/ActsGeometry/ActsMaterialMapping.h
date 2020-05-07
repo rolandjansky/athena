@@ -61,7 +61,7 @@ private:
   ToolHandle<IActsMaterialStepConverterTool>      m_materialStepConverterTool{this, "MaterialStepConverterTool", "ActsMaterialStepConverterTool"};
   SG::ReadHandleKey<Trk::MaterialStepCollection>  m_inputMaterialStepCollection;
   ToolHandle<IActsSurfaceMappingTool>             m_surfaceMappingTool{this, "SurfaceMappingTool", "ActsSurfaceMappingTool"};
-  // ToolHandle<IActsMaterialJsonWriterTool>         m_materialJsonWriterTool{this, "MaterialJsonWriterTool", "ActsMaterialJsonWriterTool"};
+  ToolHandle<IActsMaterialJsonWriterTool>         m_materialJsonWriterTool{this, "MaterialJsonWriterTool", "ActsMaterialJsonWriterTool"};
 
   Acts::MagneticFieldContext                      m_mctx;
   Acts::GeometryContext                           m_gctx;

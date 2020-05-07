@@ -4,37 +4,50 @@
 
 #include "ActsGeometry/ActsMaterialJsonWriterTool.h"
 
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
-
 #include <fstream>
 #include <ios>
 #include <iostream>
 #include <stdexcept>
 
-ActsMaterialJsonWriterTool:: ActsMaterialJsonWriterTool(const std::string &type, const std::string &name,
+ActsMaterialJsonWriterTool::ActsMaterialJsonWriterTool(const std::string &type, const std::string &name,
                                 const IInterface *parent)
-  : base_class(type, name, parent),
-    m_fileName("MaterialOutputFile",name)
+  : base_class(type, name, parent)
+{
+}
+
+ActsMaterialJsonWriterTool::~ActsMaterialJsonWriterTool()
+{
 }
 
 StatusCode
 ActsMaterialJsonWriterTool::initialize()
 {
-
+  std::cout << "initialize()" << std::endl;
   ATH_MSG_INFO("Starting Material writer");
 
   return StatusCode::SUCCESS;
 }
 
-
 void
-ActsMaterialJsonWriterTool::write(const DetectorMaterialMaps& detMaterial)
+ActsMaterialJsonWriterTool::write(const Acts::JsonGeometryConverter::DetectorMaterialMaps& detMaterial) const
 {
   Acts::JsonGeometryConverter::Config cfg;
   // Evoke the converter
   Acts::JsonGeometryConverter jmConverter(cfg);
   auto jout = jmConverter.materialMapsToJson(detMaterial);
   // And write the file
-  std::ofstream ofj(m_fileName);
+  std::ofstream ofj(m_filePath);
+  ofj << std::setw(4) << jout << std::endl;
+}
+
+void
+ActsMaterialJsonWriterTool::write(const Acts::TrackingGeometry& tGeometry) const
+{
+  Acts::JsonGeometryConverter::Config cfg;
+  // Evoke the converter
+  Acts::JsonGeometryConverter jmConverter(cfg);
+  auto jout = jmConverter.trackingGeometryToJson(tGeometry);
+  // And write the file
+  std::ofstream ofj(m_filePath);
   ofj << std::setw(4) << jout << std::endl;
 }

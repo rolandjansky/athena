@@ -53,7 +53,7 @@ ActsSurfaceMappingTool::initialize()
   m_mapper = std::make_shared<Acts::SurfaceMaterialMapper>(
       smmConfig,
       std::move(propagator),
-      Acts::getDefaultLogger("SurfaceMaterialMapper", Acts::Logging::VERBOSE));
+      Acts::getDefaultLogger("SurfaceMaterialMapper", Acts::Logging::INFO));
 
   m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().any();
 
