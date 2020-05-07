@@ -888,9 +888,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -906,9 +903,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
@@ -924,9 +918,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"primaryTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "primaryTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() == nullptr ) = " << ( mu.primaryTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.primaryTrackParticleLink() = " << mu.primaryTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
@@ -2232,9 +2223,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -2252,9 +2240,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
@@ -2271,9 +2256,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"primaryTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "primaryTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() == nullptr ) = " << ( mu.primaryTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.primaryTrackParticleLink() = " << mu.primaryTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
@@ -2872,9 +2854,6 @@ namespace CP {
     // Set pt ID:
     ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -2888,9 +2867,6 @@ namespace CP {
 
     ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-#ifndef XAOD_STANDALONE
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
-#endif
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
 
