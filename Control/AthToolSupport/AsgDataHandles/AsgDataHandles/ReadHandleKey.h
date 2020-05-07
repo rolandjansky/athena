@@ -20,8 +20,6 @@
 #else
 
 #include "AsgDataHandles/VarHandleKey.h"
-#include "AsgDataHandles/exceptions.h"
-#include "AsgDataHandles/common.h"
 
 
 namespace SG {

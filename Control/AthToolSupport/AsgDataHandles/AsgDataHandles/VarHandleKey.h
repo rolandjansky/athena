@@ -19,7 +19,6 @@
 #include <StoreGate/VarHandleKey.h>
 #else
 
-#include "AsgDataHandles/common.h"
 #include <AsgMessaging/StatusCode.h>
 #include <string>
 
