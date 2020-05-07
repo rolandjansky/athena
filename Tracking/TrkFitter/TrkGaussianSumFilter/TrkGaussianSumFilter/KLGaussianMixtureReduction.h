@@ -23,7 +23,7 @@ namespace GSFUtils {
 /**
  * Alignment used  for SIMD
  */
-constexpr int32_t alignment =32;
+constexpr size_t alignment =32;
 
 /**
  * The main pupropse of the utilities here
@@ -53,32 +53,51 @@ struct Component1D{
 };
 
 /**
- *   For pairwise distance comparisons assuming 0..... N  (N+1 elements)
- *   the pairwise distance matrix  can be represented in a triangular array:
- *
- *   [ (0,0)...............
- *   [ (1,0), (1,1)........
- *   [ (2,0), (2,1), (2,2)
+ *   For pairwise distance comparisons assuming 0..... N-1 (N total elements )
+ *   The pairwise distance matrix  can be represented in a triangular array:
+ *   [ (1,0)
+ *   [ (2,0), (2,1),
+ *   [ (3,0), (3,1), (3,2)
+ *   [ (4,0), (4,1), (4,2) , (4,3)
  *   [.......................
  *   [.............................
- *   [...................................(N,N)]
+ *   [(N-1,0),(N-1,1),(N-1,2),(N-1,3).......(N-1,N-2)]
  *
- *   Stored as
- *   [(0,0),(1,0),(1,1),(2,0),(2,1),(2,2)...... (N,N)]
- *   with size N*(N+1)/2
+ *   With size 
+ *   1+2+3+ .... (N-1) = N*(N-1)/2
  *
- *   In the following methods:
- *   componentsIn has size N+1 [0......N]
- *   distancesIn  has size N*(N+1)/2
+ *   The lexicographical storage allocation function is
+ *   Loc(i,j) = i*(i-1)/2 + j 
+ *   e.g
+ *   (1,0) --> 1 *(1-1)/2 + 0 --> 0 
+ *   (2,0) --> 2 *(2-1)/2 + 0 --> 1
+ *   (2,1) --> 2 *(2-1)/2 + 1 --> 2
+ *   (3,0) --> 3 * (3-1)/2 +0 --> 3
+ *   Leading to  
+ *   [(1,0),(2,0),(2,1),(3,0),(3,1),(3,2)...... (N-1,N-2)]
+ * 
  *
- *   We also want to map the position in the distance array to the (i,j) of
- *   the elements
- *   0--> (0,0)
- *   1--> (1,0)
- *   2--> (1,1)
- *   3--> (2,0)
- *   e.g the lexicographical storage allocation function is
- *   Loc( i, j) = i*(i+1)/2 + j 
+ *   The N-1 Rows  map to value K of the 1st element in the pair.
+ *   K=1,2,3,...N-1  and each one has size K. 
+ *   Each Row starts at array positions K*(K-1)/2
+ *   e.g 
+ *   The row for element 1 starts at array position 0.
+ *   The row for element 2 starts at array position 1.
+ *   The row for element N-1  starts at array positon (N-1)*(N-2)/2
+ *   
+ *   The N-1 Columns map to the value K of the second  element in the pair 
+ *   0,1,2 ... N-2
+ *   The array position follow (i-1)*i/2+K;
+ *   where i : K+1 .... N-1 [for(i=K+1;i<N;++i)
+ *   e.g 
+ *   0 appears as 2nd element in the pair at array positions 
+ *   [0,1,3,6...]
+ *   1 appears as 2nd element in the pair at array positions
+ *   [2,4,7...] 
+ *   2 appears as 2nd element in the pair at array positions
+ *   [5,8,12....] 
+ *   N-2 appears as 2nd element once at position [N(N-1)/2-1]
+ *
  */
 struct triangularToIJ{
   int32_t I=-1;
