@@ -815,7 +815,6 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     result.setPrivateTools(tool)
     return result
 
-# From MuGirlTagTool.py
 def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
 #    if TriggerFlags.MuonSlice.doTrigMuonConfig:
 #       kwargs.setdefault("VertexContainer", "")
@@ -823,9 +822,80 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
     layersegmentfindertool = result.popPrivateTools()
     kwargs.setdefault("MuonLayerSegmentFinderTool", layersegmentfindertool)
     result.addPublicTool(layersegmentfindertool)
-    #FIXME complete this
+
+    acc = MuonLayerAmbiguitySolverToolCfg(flags)
+    muon_layer_ambiguity_solver = acc.popPrivateTools()
+    kwargs.setdefault("MuonLayerAmbiguitySolverTool", muon_layer_ambiguity_solver)
+    acc.addPublicTool(muon_layer_ambiguity_solver)
+    result.merge(acc)
+
+    muon_layer_segment_matching = CompFactory.Muon.MuonLayerSegmentMatchingTool(name="MuonLayerSegmentMatchingTool")
+    kwargs.setdefault("MuonLayerSegmentMatchingTool", muon_layer_segment_matching)
+    result.addPublicTool(muon_layer_segment_matching)
+
+    acc = MuonCandidateTrackBuilderToolCfg(flags)
+    muon_candidate_track_builder = acc.popPrivateTools()
+    kwargs.setdefault("MuonCandidateTrackBuilderTool", muon_candidate_track_builder)
+    acc.addPublicTool(muon_candidate_track_builder)
+    result.merge(acc)
+
+    acc = MuonCombinedTrackSummaryToolCfg(flags)
+    kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
+    result.merge(acc)
+
     tool = CompFactory.MuonCombined.MuonInsideOutRecoTool(name, **kwargs)
     result.setPrivateTools(tool)
+    return result
+
+def MuonCandidateTrackBuilderToolCfg(flags, name="MuonCandidateTrackBuilderTool", **kwargs):
+    from MuonConfig.MuonTrackBuildingConfig import MooTrackBuilderCfg
+    result = MooTrackBuilderCfg(flags)
+    kwargs.setdefault("MuonSegmentTrackBuilder", result.getPrimary())
+
+    acc = CombinedMuonTrackBuilderCfg(flags)
+    combined_muon_track_builder = acc.getPrimary()
+    acc.addPublicTool(combined_muon_track_builder)
+    kwargs.setdefault("MuonTrackBuilder", combined_muon_track_builder)
+    result.merge(acc)
+
+    muoncandidatetrackbuilder=CompFactory.Muon.MuonCandidateTrackBuilderTool(name, **kwargs)
+
+    result.setPrivateTools(muoncandidatetrackbuilder)
+
+    return result
+
+def MuonSegmentSelectionToolCfg(flags, name="MuonSegmentSelectionTool", **kwargs):
+    # Won't explicitly configure MuonIdHelperTool, MuonEDMPrinterTool, MuonSegmentHitSummaryTool
+    if flags.Input.isMC is False:
+      kwargs.setdefault("GoodADCFractionCut",  0.5 )
+      kwargs.setdefault("MinADCPerSegmentCut", 100 )
+    result = ComponentAccumulator()
+    result.setPrivateTools(CompFactory.Muon.MuonSegmentSelectionTool(name, **kwargs))
+    return result
+
+def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", **kwargs):
+    # Won't explicitly configure MuonEDMPrinterTool
+    result = MuonSegmentSelectionToolCfg(flags)
+    segment_selection_tool = result.popPrivateTools()
+    kwargs.setdefault("MuonSegmentSelectionTool",segment_selection_tool)
+    result.addPublicTool(segment_selection_tool)
+
+    from MuonConfig.MuonTrackBuildingConfig import MuonSegmentMatchingToolCfg
+    acc = MuonSegmentMatchingToolCfg(flags)
+    muon_segment_matching = acc.popPrivateTools()
+    kwargs.setdefault("MuonSegmentMatchingTool", muon_segment_matching)
+    acc.addPublicTool(muon_segment_matching)
+    result.merge(acc)
+
+    from MuonConfig.MuonTrackBuildingConfig import MooTrackBuilderCfg
+    acc = MooTrackBuilderCfg(flags)
+    muon_segment_track_builder = acc.popPrivateTools()
+    kwargs.setdefault("MuonSegmentTrackBuilder", muon_segment_track_builder)
+    acc.addPublicTool(muon_segment_track_builder)
+    result.merge(acc)
+
+    result.setPrivateTools(CompFactory.Muon.MuonLayerAmbiguitySolverTool(name, **kwargs))
+    
     return result
 
 def MdtDriftCircleOnTrackCreatorStauCfg(flags, name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
@@ -879,7 +949,7 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs ):
 
     muoncandidatetrackbuilder=CompFactory.Muon.MuonCandidateTrackBuilderTool(name="MuonStauCandidateTrackBuilderTool", MuonTrackBuilder=trackbuilder)
 
-    acc = MuonInsideOutRecoToolCfg(flags, name="", MuonCandidateTrackBuilderTool=muoncandidatetrackbuilder)
+    acc = MuonInsideOutRecoToolCfg(flags, MuonCandidateTrackBuilderTool=muoncandidatetrackbuilder)
     kwargs.setdefault("MuonInsideOutRecoTool", acc.popPrivateTools() )
     result.merge(acc)
     acc = MuonAmbiProcessorCfg(flags)

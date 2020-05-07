@@ -43,17 +43,64 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
 def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
     from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
 
-    result = MuonCaloTagToolCfg(flags)
-    kwargs.setdefault("MuonSegmentTagTool", result.getPrimary() )
+    result = MuonSegmentTagToolCfg(flags)
+    muon_segment_tag_tool = result.getPrimary()
+    kwargs.setdefault("MuonSegmentTagTool", muon_segment_tag_tool)
+    result.addPublicTool(muon_segment_tag_tool)
     alg = CompFactory.MuonSegmentTagAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
+  
+def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
+    #TODO: defaults in cxx
+    kwargs.setdefault("AssumeLocalErrors", True )
+    kwargs.setdefault("PhiCut", 30. )
+    kwargs.setdefault("GlobalPhiCut", 1.)
+    kwargs.setdefault("ThetaCut", 5. )
+    kwargs.setdefault("GlobalThetaCut", 0.5 )
+    kwargs.setdefault("ThetaAngleCut", 5. )
+    kwargs.setdefault("DoDistanceCut", True )
+    kwargs.setdefault("CombinedPullCut", 3.0 )
+    tool = CompFactory.MuTagMatchingTool(name,**kwargs)
+    result = ComponentAccumulator()
+    result.addPublicTool(tool, primary=True)
+    return result
+
+def MuTagAmbiguitySolverToolCfg(flags, name='MuTagAmbiguitySolverTool', **kwargs ):
+    #TODO: defaults in cxx
+    kwargs.setdefault("RejectOuterEndcap",True)
+    kwargs.setdefault("RejectMatchPhi",True)
+    tool =  CompFactory.MuTagAmbiguitySolverTool(name,**kwargs)
+    result = ComponentAccumulator()
+    result.addPublicTool(tool, primary=True)
+    return result
+
+  
+def MuonSegmentTagToolCfg(flags, name="MuonSegmentTagTool", **kwargs ):
+    result = ComponentAccumulator()
+    from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
+    acc = ParticleCaloExtensionToolCfg(flags)
+    kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary())
+    result.merge(acc)
+
+    acc = MuTagMatchingToolCfg(flags)
+    kwargs.setdefault("MuTagMatchingTool", acc.getPrimary())
+    result.merge(acc)
+
+    acc = MuTagAmbiguitySolverToolCfg(flags)
+    kwargs.setdefault("MuTagAmbiguitySolverTool", acc.getPrimary())
+    result.merge(acc)
+
+    result.setPrivateTools(CompFactory.MuonCombined.MuonSegmentTagTool(name,**kwargs))
+
+    return result
+
 
 def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     from MuonCombinedRecToolsConfig import MuonInsideOutRecoToolCfg
 
     tools = []
-    result = MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool")
+    result = MuonInsideOutRecoToolCfg(flags)
     insideoutrecotool = result.getPrimary()
     tools.append( insideoutrecotool )
     result.addPublicTool( insideoutrecotool )

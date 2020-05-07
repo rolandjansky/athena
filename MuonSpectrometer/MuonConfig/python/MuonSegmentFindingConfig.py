@@ -557,14 +557,14 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     result.merge(acc)
 
     acc  = MuonAmbiProcessorCfg(flags, name='MuonAmbiProcessor')
-    ambi = acc.getPrimary()      
+    ambi = acc.popPrivateTools()      
     acc.addPublicTool(ambi)
     result.merge(acc)
     kwargs.setdefault("SegmentAmbiguityTool", ambi)
 
     # FIXME - remaining tools
-    acc.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))
-    return acc
+    result.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))
+    return result
     
 def MuonClusterSegmentFinderCfg(flags, **kwargs):
     #declareProperty("MuonClusterizationTool", m_clusterTool);
