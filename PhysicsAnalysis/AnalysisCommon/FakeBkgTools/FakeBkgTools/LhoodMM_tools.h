@@ -65,6 +65,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   StatusCode mergeSubJobs();
 
+  bool perfectFit() { return m_perfectFit;}
  protected:
   /// This indicates which type of efficiencies/fake factor need to be filled
   virtual FakeBkgTools::Client clientForDB() override final;
@@ -76,7 +77,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
   
   LhoodMMFitInfo m_global_fitInfo;
   bool m_prevSave;
-  
+  bool m_perfectFit;
+
   const LhoodMMFitInfo *m_current_fitInfo;
 
  #ifndef __CLING__
