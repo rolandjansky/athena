@@ -5,10 +5,6 @@
 #include <string>
 #include "FakeBkgTools/FakeBkgInternals.h"
 
-//namespace CP {
-//  class LhoodMM_tools;
-//}
-
 class TDirectory;
 class TTree;
 

@@ -880,7 +880,8 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   }
 
   ATH_MSG_VERBOSE("In nfakes, npar = " << npar);
-  TMinuit_LHMM* lhoodFit = new TMinuit_LHMM(npar);
+
+  std::unique_ptr<TMinuit_LHMM> lhoodFit(new TMinuit_LHMM(npar));
   lhoodFit->SetPrintLevel(m_printLevel);
   lhoodFit->SetFCN(fcn_minnlep_maxnlep);
 
@@ -1117,10 +1118,10 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
     // check that MINOS succeeded. If not, fix it...
 
     if ( *poserr < 1.e-5) {
-      *poserr = fixPosErr(nfake_fit, lhoodFit);
+      *poserr = fixPosErr(nfake_fit, lhoodFit.get());
     } 
     if (*negerr > -1.e-5 ) {
-      *negerr = fixNegErr(nfake_fit, lhoodFit);
+      *negerr = fixNegErr(nfake_fit, lhoodFit.get());
     }
     //resort to parabolic errors if all else fails
     if (*negerr > -1.e-5) {
@@ -1137,8 +1138,6 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
     
   }
   
-  delete lhoodFit;
-
   return nfake_fit; 
 
 }
@@ -1673,8 +1672,9 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   
   m_prevSave = true;
   
-  TTree *t = new TTree("LhoodMM_progress", "Stores current info from LhoodMM_toos");
-  TTree *t_nlep = new TTree("LhoodMM_progress_nlep", "Stores minimum and maximum lepton multiplicities");
+  std::unique_ptr<TTree> t(new TTree("LhoodMM_progress", "Stores current info from LhoodMM_toos"));
+  
+  std::unique_ptr<TTree> t_nlep(new TTree("LhoodMM_progress_nlep", "Stores minimum and maximum lepton multiplicities"));
   
   auto fitInfoBranch = t->Branch("glb_fitInfo", &m_global_fitInfo);
   ATH_MSG_VERBOSE("Branch split level is " << fitInfoBranch->GetSplitLevel() );
@@ -1698,7 +1698,7 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
 
   m_alreadyMerged = true;
   std::string filename = PathResolverFindDataFile(m_progressFileName);
-  TFile* fin = new TFile(filename.c_str());
+  std::unique_ptr<TFile> fin( new TFile(filename.c_str()));
   if (fin == nullptr) {
     ATH_MSG_ERROR("Unable to open merged input file " << filename );
     return StatusCode::FAILURE;
@@ -1752,15 +1752,13 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   ATH_MSG_VERBOSE("About to add LhoodMMFitInfos");
 
  // prepare to merge any histograms
-  /*  fin->cd((prefix + "histos_1d").c_str());
-  TIter nextkey(gDirectory->GetListOfKeys());
-  vector<float*> h1_val_addrs, h2_valx_addrs, h2_valy_addrs;
-  */
 
-  std::map<TH1*, std::vector< LhoodMMFitInfo > > *tmp_fitInfo_1dhisto_map =  new std::map<TH1*, std::vector< LhoodMMFitInfo > >;
-  t->SetBranchAddress("fitInfo_1dhisto_map", &tmp_fitInfo_1dhisto_map);
-  std::map<TH2*, std::vector< LhoodMMFitInfo > > *tmp_fitInfo_2dhisto_map =  new std::map<TH2*, std::vector< LhoodMMFitInfo > >;
-  t->SetBranchAddress("fitInfo_2dhisto_map", &tmp_fitInfo_2dhisto_map);
+  std::unique_ptr<std::map<TH1*, std::vector< LhoodMMFitInfo > > > tmp_fitInfo_1dhisto_map(new std::map<TH1*, std::vector< LhoodMMFitInfo > >);
+  auto *tmp_fitInfo_1dhisto_map_ptr =  tmp_fitInfo_1dhisto_map.get(); 
+  t->SetBranchAddress("fitInfo_1dhisto_map", &tmp_fitInfo_1dhisto_map_ptr);
+  std::unique_ptr<std::map<TH2*, std::vector< LhoodMMFitInfo > > > tmp_fitInfo_2dhisto_map(new std::map<TH2*, std::vector< LhoodMMFitInfo > >);
+  auto *tmp_fitInfo_2dhisto_map_ptr =  tmp_fitInfo_2dhisto_map.get(); 
+  t->SetBranchAddress("fitInfo_2dhisto_map", &tmp_fitInfo_2dhisto_map_ptr);
 
   nentries = (Int_t)t->GetEntries();
   for (Int_t ievt = 0; ievt < nentries; ievt++) {
@@ -1809,9 +1807,6 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   for (int ilep = 0; ilep < m_maxnlep_loose; ilep++) {
     ATH_MSG_VERBOSE("Merged  event count is " << m_global_fitInfo.eventCount[ilep]);
   }
-
-  delete t;
-  delete t_nlep;
 
   return StatusCode::SUCCESS;
 }
