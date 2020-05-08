@@ -65,7 +65,7 @@ scaleD4     = 0.0 # scale for pileup term in D4
 scaleC10    = 0.0 # scale for pileup term in C10
 scaleD4sp   = 0.0 # scale for pileup term in D4 special
 scaleC10sp  = 0.0 # scale for pileup term in C10 special
-scaleElec   = 0.0 # scale for electronic noise 
+scaleElec   = 0.0 # scale for electronic noise
 
 for o, a in opts:
     if o in ("-i","--infile"):
@@ -273,7 +273,7 @@ if len(txtFile):
       if not len(fields)          :
           continue
       if fields[0].startswith("#"):
-          continue 
+          continue
 
       if fields[0][:1].isalpha():
           print (fields)
@@ -387,7 +387,7 @@ if run>=0 and len(iovList)>0:
   for iov in iovList:
     until    = iov[1]
     untilRun = until[0]
-    if untilRun<run: 
+    if untilRun<run:
       start+=1
     elif untilRun==run:
       untilLumi = until[1]
@@ -413,7 +413,7 @@ if (ncell>0 and nval>2):
       iov = (since, until)
       iovList = [ iov ]
   else:
-    if (len(iovList)>1): 
+    if (len(iovList)>1):
       print ("Updating only last IOV")
       iovList = iovList[len(iovList)-1:]
 
@@ -427,15 +427,15 @@ if not tile:
 
 #=== loop over all iovs
 for iov in iovList:
-  
+
   since    = iov[0]
   sinceRun = since[0]
   sinceLum = since[1]
-  
+
   until    = iov[1]
   untilRun = until[0]
   untilLum = until[1]
-  
+
   print ("IOV in input DB [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum))
 
   blobR = reader.getCells(chan,(sinceRun,sinceLum))
@@ -484,7 +484,7 @@ for iov in iovList:
   try:
     for cell in range(ncell):
       exist0 = (cell<mcell)
-      if tile: 
+      if tile:
         (modName,cellName)=hashMgr.getNames(cell)
         fullName="%s %6s" % (modName,cellName)
       for gain in range(ngain):
