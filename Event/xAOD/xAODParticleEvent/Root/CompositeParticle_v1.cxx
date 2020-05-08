@@ -751,19 +751,19 @@ namespace xAOD {
   NUM_PARTS(nJets,Jet)
   NUM_PARTS(nTruthParts,TruthParticle)
 
-#define NUM_TRUTHPARTS( FUNCNAME, PDGID )                                                   \
-  std::size_t CompositeParticle_v1::FUNCNAME() const {                                      \
-    std::size_t n(0);                                                                       \
-    std::size_t nParts = this->nParts();                                                    \
-    for ( std::size_t i=0; i<nParts; ++i ) {                                                \
-      const xAOD::IParticle* part = this->part(i);                                          \
-      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); } \
-      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                        \
+#define NUM_TRUTHPARTS( FUNCNAME, PDGID )                                                        \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
+    std::size_t n(0);                                                                            \
+    std::size_t nParts = this->nParts();                                                         \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                     \
+      const xAOD::IParticle* part = this->part(i);                                               \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); }      \
+      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
       const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
-      if (!truthParticle) {throw std::runtime_error("Zero pointer to xAOD::TruthParticle");}\
-      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                            \
-    }                                                                                       \
-    return n;                                                                               \
+      if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
+      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                                 \
+    }                                                                                            \
+    return n;                                                                                    \
   }
 
   NUM_TRUTHPARTS(nTruthPhotons,PDG::pidType::gamma)
@@ -1042,19 +1042,19 @@ namespace xAOD {
   NUM_OTHERPARTS(nOtherJets,Jet)
   NUM_OTHERPARTS(nOtherTruthParts,TruthParticle)
 
-#define NUM_OTHERTRUTHPARTS( FUNCNAME, PDGID )                                              \
-  std::size_t CompositeParticle_v1::FUNCNAME() const {                                      \
-    std::size_t n(0);                                                                       \
-    std::size_t nParts = this->nOtherParts();                                               \
-    for ( std::size_t i=0; i<nParts; ++i ) {                                                \
-      const xAOD::IParticle* part = this->otherPart(i);                                     \
-      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); } \
-      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                        \
+#define NUM_OTHERTRUTHPARTS( FUNCNAME, PDGID )                                                   \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
+    std::size_t n(0);                                                                            \
+    std::size_t nParts = this->nOtherParts();                                                    \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                     \
+      const xAOD::IParticle* part = this->otherPart(i);                                          \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); }      \
+      if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
       const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
-      if (!truthParticle) {throw std::runtime_error("Zero pointer to xAOD::TruthParticle");}\
-      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                            \
-    }                                                                                       \
-    return n;                                                                               \
+      if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
+      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                                 \
+    }                                                                                            \
+    return n;                                                                                    \
   }
 
   NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,PDG::pidType::gamma)
