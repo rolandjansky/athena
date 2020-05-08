@@ -41,7 +41,8 @@ namespace TrigConf {
        * @return true if loading was successfull
        */
       bool loadL1Menu ( unsigned int smk,
-                        boost::property_tree::ptree & l1menu ) const;
+                        boost::property_tree::ptree & l1menu,
+                        const std::string & outFileName = "") const;
 
       /**
        * @brief Load HLT menu content from the Trigger DB into two ptrees for a given SuperMasterKey (SMK)
@@ -50,26 +51,31 @@ namespace TrigConf {
        * @return true if loading was successfull
        */
       bool loadHLTMenu ( unsigned int smk,
-                         boost::property_tree::ptree & hltmenu ) const;
+                         boost::property_tree::ptree & hltmenu,
+                         const std::string & outFileName = "") const;
 
       /**
        * @brief Load content from the Trigger DB into an L1Menu for a given SuperMasterKey (SMK)
        * @param smk [in] the SMK that should be loaded
        * @param l1menu [out] the loaded L1 menu
+       * @param outFileName [in] if set, an outputfile with the raw data blob is written
        * @return true if loading was successfull
        */
       bool loadL1Menu ( unsigned int smk,
-                        L1Menu & l1menu ) const;
+                        L1Menu & l1menu,
+                        const std::string & outFileName = "") const;
 
       /**
        * @brief Load content from the Trigger DB into an HLTMenu for a given SuperMasterKey (SMK)
        * @param smk [in] the SMK that should be loaded
        * @param hltmenu [out] the loaded HLT menu
+       * @param outFileName [in] if set, an outputfile with the raw data blob is written
        * @return true if loading was successfull
        */
       bool loadHLTMenu ( unsigned int smk,
-                         HLTMenu & hltmenu ) const;
-
+                         HLTMenu & hltmenu,
+                         const std::string & outFileName = "") const;
+      
    };
 
 }
