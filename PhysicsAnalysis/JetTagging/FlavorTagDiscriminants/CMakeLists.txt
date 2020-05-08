@@ -14,6 +14,7 @@ atlas_subdir( FlavorTagDiscriminants )
 
 # we use lwtnn in here a bit
 find_package( lwtnn )
+find_package( ROOT )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -51,7 +52,6 @@ atlas_add_library( FlavorTagDiscriminants
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
     src/components/FlavorTagDiscriminants_entries.cxx
-    src/components/FlavorTagDiscriminants_load.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} FlavorTagDiscriminants
     )
