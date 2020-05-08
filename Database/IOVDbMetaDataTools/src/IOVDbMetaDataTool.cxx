@@ -670,23 +670,24 @@ IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
             coll->addNewStop (newRange.stop());
         }
         else {
-          // Add in channels
-          unsigned int nchans = coll->size();
-          for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
-            // FIXME: O(N^2)!
-            CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
-            coll->add(chan, newRange);
-            ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection " << chan);
-          }
+            // Add in channels
+            unsigned int nchans = coll->size();
+            for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
+                // FIXME: O(N^2)!
+                CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
+                coll->add(chan, newRange);
+                ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection chan " << chan);
+            }
+            // must reset the collection range AFTER the channels, because the collection range will be
+            // 'narrowed' to that of the channels
+            coll->resetMinRange();
         }
-        // must reset the collection range AFTER the channels, because the collection range will be
-        // 'narrowed' to that of the channels
-        coll->resetMinRange();
         if (msgLvl(MSG::DEBUG)) {
-	  std::ostringstream stream;
-	  coll->dump(stream);
-	  ATH_MSG_DEBUG(stream.str());
-	}
+            ATH_MSG_DEBUG("overrideIOV: after  overriding the IOV of collection");
+            std::ostringstream stream;
+            coll->dump(stream);
+            ATH_MSG_DEBUG(stream.str());
+        }
     }
     else ATH_MSG_DEBUG("overrideIOV: IOV is not run/event ");
 
