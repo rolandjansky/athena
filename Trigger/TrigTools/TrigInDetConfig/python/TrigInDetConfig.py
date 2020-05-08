@@ -303,7 +303,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.addEventAlgo(InDetPixelClusterization)
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False, withTdaqTool=False))
 
 
   #
