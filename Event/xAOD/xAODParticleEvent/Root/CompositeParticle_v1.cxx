@@ -766,14 +766,10 @@ namespace xAOD {
     return n;                                                                               \
   }
 
-  // NUM_TRUTHPARTS(nTruthPhotons,PDG::pidType::gamma)
-  // NUM_TRUTHPARTS(nTruthElectrons,PDG::pidType::e_minus)
-  // NUM_TRUTHPARTS(nTruthMuons,PDG::pidType::mu_minus)
-  // NUM_TRUTHPARTS(nTruthTaus,PDG::pidType::tau_minus)
-  NUM_TRUTHPARTS(nTruthPhotons,22)
-  NUM_TRUTHPARTS(nTruthElectrons,11)
-  NUM_TRUTHPARTS(nTruthMuons,13)
-  NUM_TRUTHPARTS(nTruthTaus,15)
+  NUM_TRUTHPARTS(nTruthPhotons,PDG::pidType::gamma)
+  NUM_TRUTHPARTS(nTruthElectrons,PDG::pidType::e_minus)
+  NUM_TRUTHPARTS(nTruthMuons,PDG::pidType::mu_minus)
+  NUM_TRUTHPARTS(nTruthTaus,PDG::pidType::tau_minus)
 
   std::size_t CompositeParticle_v1::nTruthLeptons() const {
     return this->nTruthElectrons() + this->nTruthMuons() + this->nTruthTaus();
@@ -1061,14 +1057,10 @@ namespace xAOD {
     return n;                                                                               \
   }
 
-  // NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,PDG::pidType::gamma)
-  // NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,PDG::pidType::e_minus)
-  // NUM_OTHERTRUTHPARTS(nOtherTruthMuons,PDG::pidType::mu_minus)
-  // NUM_OTHERTRUTHPARTS(nOtherTruthTaus,PDG::pidType::tau_minus)
-  NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,22)
-  NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,11)
-  NUM_OTHERTRUTHPARTS(nOtherTruthMuons,13)
-  NUM_OTHERTRUTHPARTS(nOtherTruthTaus,15)
+  NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,PDG::pidType::gamma)
+  NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,PDG::pidType::e_minus)
+  NUM_OTHERTRUTHPARTS(nOtherTruthMuons,PDG::pidType::mu_minus)
+  NUM_OTHERTRUTHPARTS(nOtherTruthTaus,PDG::pidType::tau_minus)
 
   std::size_t CompositeParticle_v1::nOtherTruthLeptons() const {
     return this->nOtherTruthElectrons() + this->nOtherTruthMuons() + this->nOtherTruthTaus();
