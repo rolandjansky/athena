@@ -292,6 +292,7 @@ class ConfiguredNewTrackingCuts :
      
         # --- seeding 
         self.__maxdImpactSSSSeeds      = [20.0 * Units.mm]
+        self.__radMax                  = 1100. * Units.mm 
                                        
         # --- min pt cut for brem      
         self.__minPTBrem               = [1000.0 * Units.mm]

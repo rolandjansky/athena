@@ -206,9 +206,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
     }
   }
 
-
-  if(r_rmax < 1100.) r_rmax = 1100.; 
-
   // Build framework
   //
   buildFrameWork();
@@ -237,6 +234,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::finalize()
 
 void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration) 
 {
+
   m_trigger = false;
   if(!m_pixel && !m_sct) return; 
 
@@ -751,37 +749,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dumpEvent( MsgStream& out ) const
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  /*
-  if(m_outputlevel==0) return out; 
-
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-
-  out<<"|  Azimuthal  |    n   | z[ 0] | z[ 1] | z[ 2] | z[ 3] | z[4]  |";
-  out<<" z[ 5] | z[ 6] | z[ 7] | z[ 8] | z[ 9] | z[10] |"
-     <<std::endl;
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-  
-  float sF1 = pi2/float(m_fNmax+1);
-  
-  
-  for(int f=0; f<=m_fNmax; ++f) {
-    out<<"|  "
-       <<std::setw(10)<<std::setprecision(4)<<sF1*float(f)<<" | "
-       <<std::setw(6)<<rf_map[f]<<" |";
-    for(int z=0; z!=11; ++z) {
-      out<<std::setw(6)<<rfz_map[(f*11+z)]<<" |";
-    }
-    out<<std::endl;
-  } 
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-  out<<std::endl;
-  */
+ 
   return out;
 }
 
@@ -1214,6 +1182,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork()
   m_zbeam[1] = float(sint*cosp)               ;
   m_zbeam[2] = float(sint*sinp)               ;
   m_zbeam[3] = float(cost)                    ;
+  
+  l_seeds.clear();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1695,7 +1665,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     sort(&m_Tn[ 0],Nt   );
     sort(&m_Tn[Nt],Nb-Nt);
 
-    covr0      *= 2.;
+    covr0      *= 0.5;
     covz0      *= 2.;
 
     m_nOneSeeds  = 0; m_mapOneSeeds .clear();
