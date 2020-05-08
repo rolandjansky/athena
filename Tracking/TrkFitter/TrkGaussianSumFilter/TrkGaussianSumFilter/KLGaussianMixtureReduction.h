@@ -111,6 +111,15 @@ typedef float* ATH_RESTRICT floatPtrRestrict;
 typedef Component1D* ATH_RESTRICT componentPtrRestrict;
 
 /**
+ * Merge the componentsIn and return 
+ * which componets got merged
+ */
+std::vector<std::pair<int32_t, int32_t>>
+findMerges(componentPtrRestrict componentsIn, 
+           const int32_t inputSize, 
+           const int32_t reducedSize);
+
+/**
  * For finding the index of the minumum pairwise distance
  * we opt for SIMD and function multiversioning
  */
@@ -119,7 +128,10 @@ typedef Component1D* ATH_RESTRICT componentPtrRestrict;
 __attribute__((target("avx2")))
 std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
-__attribute__((target("sse4.2,sse2"))) 
+__attribute__((target("sse4.1"))) 
+std::pair<int32_t,float> 
+findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
+__attribute__((target("sse2"))) 
 std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 #endif //x86_64 specific targets
@@ -127,15 +139,6 @@ __attribute__((target("default")))
 #endif// function multiversioning
 std::pair<int32_t,float> 
 findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
-
-/**
- * Merge the componentsIn and return 
- * which componets got merged
- */
-std::vector<std::pair<int32_t, int32_t>>
-findMerges(componentPtrRestrict componentsIn, 
-           const int32_t inputSize, 
-           const int32_t reducedSize);
 
 } // namespace KLGaussianMixtureReduction
 
