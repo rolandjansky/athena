@@ -298,17 +298,6 @@ TODO update list of processes!
 
 -----
 
-# Generating events with PowhegControl
-
-If you are using a reasonably new release, both
-`Generators/PowhegControl` and `External/Powheg` will already be
-included. If you want to use a different version of either of these
-packages than the one in your release, or if you want to run in a
-release for which these packages are not already present, you will need
-to check out the packages as detailed
-[here](powheg_for_atlas#Using_a_specific_tag_or_the_trun)
-
-
 ## Athena jobOptions using PowhegControl
 
 The POWHEG-BOX executables need to receive a runcard which specifies
@@ -506,26 +495,30 @@ production run, but if the `--outputTXTFile` option of `Generate_tf.py`
 is used then the LHE files will also be saved into whatever container
 name is specified by this option.
 
-## Using a specific tag (or the trunk) of PowhegControl
+## Using a particular version of PowhegControl
 
-To use a specific tag of PowhegControl, you will need to check out the
-code from SVN and compile it. The following example (in a **clean**
-directory) will check
-
-TODO update above to Git!
+Besides using a version of PowhegControl that is already in a release (i.e. something you set up with `asetup`), you can also check out any particular version you like. The most common use case of this is testing a version that is still being developed and hasn't been added to a release yet, e.g. when the interface of a new process is being added. To get any version from the Powheg experts' fork of Athena, use the following in a clean directory:
 
 ```bash
-asetup 19.2.5.30,here # or whichever athena version you prefer
-cmt co -r PowhegControl-00-03-00 Generators/PowhegControl # or use HEAD as the version to get the trunk
-setupWorkArea.py
-cd WorkArea/cmt
-cmt br "cmt config; make"
+setupATLAS
+lsetup git
+kinit
+git clone https://:@gitlab.cern.ch:8443/atlas-physics/pmg/mcexperts/powheg-experts/athena.git
+cd athena
+git checkout <THE BRANCH OR COMMIT YOU WANT TO USE>
+cd ..
+echo "+ Generators/PowhegControl" > package_filters.txt
+echo "- .*" >> package_filters.txt
+cd build/
+asetup AthGeneration,21.6,latest,here # or whichever release you want to use
+cmake -DATLAS_PACKAGE_FILTER_FILE=../package_filters.txt ../athena/Projects/WorkDir
+cmake --build ./
+source */setup.sh
+cd ..
+mkdir run
+cd run
+# and run your event generation here
 ```
-
-TODO update above to Git/Release 21!
-
-If you need a specific version of External/Powheg (unlikely) then you
-can check that out too.
 
 ## Re-using integration files
 
