@@ -2,8 +2,8 @@ TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH
 TrigSignatureMoniMT                                INFO -- #3136730292 Events         2          2          2          2          2          -          -          2
 TrigSignatureMoniMT                                INFO -- #3136730292 Features                             6          149        7          -          -
 TrigSignatureMoniMT                                INFO HLT_2e17_lhvloose_L12EM3 #1767768251
-TrigSignatureMoniMT                                INFO -- #1767768251 Events         20         20         1          1          1          0          -          0
-TrigSignatureMoniMT                                INFO -- #1767768251 Features                             2          15         3          0          -
+TrigSignatureMoniMT                                INFO -- #1767768251 Events         20         20         0          0          0          0          -          0
+TrigSignatureMoniMT                                INFO -- #1767768251 Features                             0          0          0          0          -
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3 #2613484113
 TrigSignatureMoniMT                                INFO -- #2613484113 Events         20         20         20         20         20         -          -          20
 TrigSignatureMoniMT                                INFO -- #2613484113 Features                             171        1848       390        -          -
