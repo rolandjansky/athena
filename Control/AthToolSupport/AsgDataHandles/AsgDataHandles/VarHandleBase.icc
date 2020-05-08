@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file AsgDataHandles/VarHandleBase.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author scott snyder <snyder@bnl.gov> (for original)
+ * @brief Property holding a SG store/key/clid from which a WriteHandle is made.
+ */
+
+
+namespace SG {
+
+
+// /**
+//  * @brief Return the key string of the underlying @c DataObjID.
+//  *
+//  * Compared to @c key(), this will be prefixed with the store name.
+//  */
+// inline
+// const std::string& VarHandleBase::objKey() const
+// {
+//   return m_key->objKey();
+// }
+
+
+// /**
+//  * @brief Return the key as a @c DataObjID.
+//  */
+// inline
+// const DataObjID& VarHandleBase::fullKey() const
+// {
+//   return m_key->fullKey();
+// }
+
+
+} // namespace SG

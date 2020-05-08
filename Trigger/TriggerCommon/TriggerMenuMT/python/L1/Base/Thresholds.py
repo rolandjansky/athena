@@ -60,6 +60,9 @@ class MenuThresholdsCollection( object ):
         return set([thr.name for thr in self if thr.ttype == ttype])
 
 
+    def typeWideThresholdConfig(self, ttype):
+        return getTypeWideThresholdConfig(ttype)
+
     def json(self):
         confObj = odict()
         for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO, ThrType.MULTTOPO ]):
@@ -75,7 +78,7 @@ class MenuThresholdsCollection( object ):
                 raise RuntimeError("Run 3 threshold %s is of unsupported type %s" % (thr.name, thr.ttype.name))
         # add extra information to each type of threshold (e.g. isolation definition, min pt for objects, etc.)
         for ttype in ThrType.Run3Types():
-            confObj[ttype.name].update( getTypeWideThresholdConfig(ttype) )
+            confObj[ttype.name].update( self.typeWideThresholdConfig(ttype) )
         return confObj
 
 
@@ -91,7 +94,7 @@ class MenuThresholdsCollection( object ):
             if thr.ttype.name in confObj:
                 confObj[thr.ttype.name]["thresholds"][thr.name] = thr.json()
         for ttype in ThrType.LegacyTypes():
-            confObj[ttype.name].update( getTypeWideThresholdConfig(ttype) )
+            confObj[ttype.name].update( self.typeWideThresholdConfig(ttype) )
         return confObj
 
 
@@ -112,7 +115,7 @@ class Threshold( object ):
         self.mapping         = int(mapping)
         self.run             = int(run)
         self.thresholdValues = []
-
+        
         if Threshold.l1configForRegistration:
             Threshold.l1configForRegistration.registerThreshold(self)
 

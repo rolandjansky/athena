@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,7 @@ TrigL2CaloRingerHypoToolMT::TrigL2CaloRingerHypoToolMT( const std::string& type,
                                                         const std::string& name, 
                                                         const IInterface* parent ) 
 
-  : AthAlgTool( type, name, parent ),
+  : base_class( type, name, parent ),
     m_selectorTool(),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
     m_decisionId( HLT::Identifier::fromToolName( name ) )
@@ -64,7 +64,7 @@ StatusCode TrigL2CaloRingerHypoToolMT::finalize()  {
 TrigL2CaloRingerHypoToolMT::~TrigL2CaloRingerHypoToolMT() {}
 
 
-bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRingerRings* ringerShape) const {
+bool TrigL2CaloRingerHypoToolMT::decide( const RingerInfo & decision) const {
   
  
   auto etMon      =  Monitored::Scalar("Et",-100);
@@ -81,14 +81,12 @@ bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRingerRin
 
   total_time.start();
 
- 
-
   if(m_acceptAll){
     ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
     return true;
   }
 
-
+  auto ringerShape = decision.ringerShape;
   const xAOD::TrigEMCluster *emCluster = 0;
   if(ringerShape){
     emCluster = ringerShape->emCluster();
@@ -105,18 +103,19 @@ bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRingerRin
   float et      = emCluster->et() / Gaudi::Units::GeV;
   float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
   
-  etaMon =  emCluster->eta();
-  etMon  = emCluster->et();
-  phiMon = emCluster->phi();
-
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
+  // make sure that monitoring histogram will plotting only the events of chain.
   ///Et threshold
   if(et < m_emEtCut/Gaudi::Units::GeV){
     ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
     return false;
   }
 
+  etaMon = emCluster->eta();
+  etMon  = emCluster->et();
+  phiMon = emCluster->phi();
+  
   const std::vector<float> rings = ringerShape->rings();
   std::vector<float> refRings(rings.size());
   refRings.assign(rings.begin(), rings.end());
@@ -137,13 +136,15 @@ bool TrigL2CaloRingerHypoToolMT::decideOnSingleObject( const xAOD::TrigRingerRin
 }
 
 
-StatusCode TrigL2CaloRingerHypoToolMT::decide(  std::vector<RingerInfo>& input )  const {
+StatusCode TrigL2CaloRingerHypoToolMT::decide( std::vector<RingerInfo>& input )  const {
 
     for ( auto i: input ) {
-        auto objDecision = decideOnSingleObject( i.ringerShape );
+      if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
+        auto objDecision = decide( i );
         if ( objDecision == true ) {
           addDecisionID( m_decisionId.numeric(), i.decision );
         }
+      }
     }
     return StatusCode::SUCCESS;
 }

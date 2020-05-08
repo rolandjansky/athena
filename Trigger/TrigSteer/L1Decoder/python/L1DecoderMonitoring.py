@@ -33,5 +33,5 @@ def PrescalingMonitoring():
     tool.HistPath="HLTFramework/L1Decoder"
     tool.defineHistogram('LB,HLTPSK', path='EXPERT', type='TH2I', opt='kAddBinsDynamically',
                          title='HLT prescale key used in LB;Lumiblock;HLTPSK',
-                         xbins=10, xmin=0, xmax=10, ybins=1, ymin=0, ymax=1)
+                         xbins=100, xmin=0, xmax=100, ybins=5, ymin=0, ymax=5)
     return tool

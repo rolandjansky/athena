@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_FatrasServices
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AtlasDetDescr GaudiKernel ISF_Interfaces TrkTrack ISF_Event )
+                     LINK_LIBRARIES AthenaBaseComps AtlasDetDescr GaudiKernel ISF_InterfacesLib TrkTrack ISF_Event )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

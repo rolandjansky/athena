@@ -12,11 +12,9 @@ AtlasFieldCacheCondObj::~AtlasFieldCacheCondObj() {}
 bool
 AtlasFieldCacheCondObj::initialize(double solFieldScale,
                                    double torFieldScale,
-                                   const MagField::AtlasFieldMap* fieldMap,
-                                   bool useNewBfieldCache)
+                                   const MagField::AtlasFieldMap* fieldMap)
 {
     // temporary flag
-    m_useNewBfieldCache = useNewBfieldCache;
     m_solFieldScale = solFieldScale;
     m_torFieldScale = torFieldScale;
     m_fieldMap      = fieldMap;

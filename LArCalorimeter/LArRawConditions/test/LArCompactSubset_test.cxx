@@ -32,7 +32,7 @@ LAr2DWaveBase makeWave (int offs)
 }
 
 
-void checkWave (size_t feb, size_t ch, LArCompactSubsetChannelProxy p)
+void checkWave (size_t feb, size_t ch, const LArCompactSubsetChannelProxy& p)
 {
   int offs = feb*1000 + 100*ch;
   LAr2DWaveBase w =  makeWave (offs);
@@ -85,7 +85,7 @@ void checkFeb (LArCompactSubsetFebPair p)
 }
 
 
-void checkFeb (const LArCompactSubsetConstFebPair p)
+void checkFeb (const LArCompactSubsetConstFebPair& p)
 {
   assert ((p.first % 1000) == 0);
   size_t feb = p.first / 1000;

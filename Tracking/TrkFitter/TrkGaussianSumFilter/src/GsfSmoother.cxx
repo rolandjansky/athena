@@ -12,17 +12,21 @@ decription           : Implementation code for the class GsfSmoother
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GsfSmoother.h"
+
 #include "GaudiKernel/ToolHandle.h"
+
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkSurfaces/Surface.h"
+
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
+#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 
 Trk::GsfSmoother::GsfSmoother(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent)
@@ -35,9 +39,6 @@ Trk::GsfSmoother::GsfSmoother(const std::string& type, const std::string& name, 
 StatusCode
 Trk::GsfSmoother::initialize()
 {
-
-  ATH_CHECK(m_merger.retrieve());
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
@@ -391,7 +392,8 @@ Trk::GsfSmoother::combine(const Trk::MultiComponentState& forwardsMultiState,
   }
 
   // Component reduction on the combined state
-  Trk::MultiComponentState mergedState = m_merger->merge(std::move(*combinedMultiState));
+   Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
+    std::move(*combinedMultiState), m_maximumNumberOfComponents);
 
   // Before return the weights of the states need to be renormalised to one.
   MultiComponentStateHelpers::renormaliseState(mergedState);

@@ -38,7 +38,8 @@ namespace TrigConf {
        * @param jobOptions [out] the loaded job options
        */
       bool loadJobOptions ( unsigned int smk,
-                            boost::property_tree::ptree & jobOptions ) const;
+                            boost::property_tree::ptree & jobOptions,
+                            const std::string & outFileName = "") const;
 
       /**
        * @brief Load content from the Trigger DB into an L1Menu and an HLTMenu for a given SuperMasterKey (SMK)
@@ -46,9 +47,8 @@ namespace TrigConf {
        * @param jobOptions [out] the loaded job options
        */
       bool loadJobOptions ( unsigned int smk,
-                            DataStructure & jobOptions ) const;
-
-
+                            DataStructure & jobOptions,
+                            const std::string & outFileName = "") const;
    };
 
 }

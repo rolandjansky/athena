@@ -15,7 +15,6 @@ decription           : Class description for convolution of GSF material mixture
 #define TrkGsfMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -70,17 +69,18 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
+
+  Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
+                                                             "MaximumNumberOfComponents",
+                                                             12,
+                                                             "Maximum number of components" };
+ 
+ 
   ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,
                                                            "MaterialEffectsUpdator",
                                                            "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
                                                            "" };
-
-  ToolHandle<IMultiComponentStateMerger> m_stateMerger{
-    this,
-    "MultiComponentStateMerger",
-    "Trk::QuickCloseComponentsMultiStateMerger/MaterialConvolutionMerger",
-    ""
-  };
+  
 };
 
 } // end Trk namespace

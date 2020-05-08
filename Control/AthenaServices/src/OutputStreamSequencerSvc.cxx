@@ -23,7 +23,6 @@ OutputStreamSequencerSvc::OutputStreamSequencerSvc(const std::string& name, ISvc
 {
    // declare properties
    declareProperty("SequenceIncidentName", m_incidentName = "");
-   declareProperty("IgnoreInputFileBoundary", m_ignoreInputFile = false);
 }
 //__________________________________________________________________________
 OutputStreamSequencerSvc::~OutputStreamSequencerSvc() {
@@ -101,7 +100,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
       // When processing events sequentially (threads<2) write metadata on the NextRange incident
       // but ignore the first incident because it only starts the first sequence
       ATH_MSG_DEBUG("MetaData transition");
-      if (!m_metaDataSvc->transitionMetaDataFile( ignoringInputBoundary() ).isSuccess()) {
+      if (!m_metaDataSvc->transitionMetaDataFile().isSuccess()) {
          ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
       }
    }
@@ -118,7 +117,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
       n << "_" << std::setw(4) << std::setfill('0') << m_fileSequenceNumber;
       m_currentRangeID = n.str();
       ATH_MSG_DEBUG("Default next event range filename extension: " << m_currentRangeID);
-   } 
+   }
 }
 
 //__________________________________________________________________________

@@ -871,15 +871,7 @@ Int_t TConvertingBranchElement::GetEntry(Long64_t entry, Int_t getall)
   TBranchRef* bref = fTree->GetBranchRef();
   if (bref) {
     bref->SetParent(this, fBranchID);
-#if !defined(ROOT_FULL_VERSION) 
     bref->SetRequestedEntry(entry);
-#else
-# if ROOT_FULL_VERSION_CODE >= ROOT_FULL_VERSION(5,28,0,'e')
-    bref->SetRequestedEntry(entry);
-# else
-    bref->SetReadEntry(entry);
-# endif
-#endif
   }
 
   Int_t nbytes = 0;
@@ -1104,12 +1096,10 @@ void TConvertingBranchElement::ReadLeavesMemberBranchCountConverting(TBuffer& b)
    // ReadSequence doesn't work here, since it gets structure offsets
    // from TConfiguration, and those haven't been adjusted to take
    // into account the use of the temporary conversion objects.
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
    // FIXME!
    std::abort();
-#else
-   info->ReadBuffer (b, (char**)&fObject, fID);
-#endif
+   //doesn't work
+   //info->ReadBuffer (b, (char**)&fObject, fID);
 }
 
 

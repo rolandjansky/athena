@@ -7,10 +7,14 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "HIMonitoring/HIMonitoringPhotonsTool.h"
+
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+
+#include "LWHists/TH1D_LW.h"
 #include "LWHists/TH2D_LW.h"
 
 HIMonitoringPhotonsTool::
@@ -18,9 +22,16 @@ HIMonitoringPhotonsTool::
                          const IInterface* parent) : ManagedMonitorToolBase(type, name, parent) {
   m_FCalEt = 0;
 
-  m_FCalEt_nbins = 50;
-  m_FCalEt_low = -50;
-  m_FCalEt_high = 200;
+  //From Dominik Derendarz - manual cherry-picking of 345b289e
+  declareProperty( "FCalEt_nbins", m_FCalEt_nbins=95);
+  declareProperty( "lowFCalEt", m_FCalEt_low=-0.15);
+  declareProperty( "highFCalEt", m_FCalEt_high=0.8);
+  declareProperty( "FCalEt_peripheral", m_FCalEt_peripheral=20);
+  declareProperty( "FCalEt_central", m_FCalEt_central=50);
+  //In master, before the cherry picking, was:
+  //m_FCalEt_nbins = 50;
+  //m_FCalEt_low = -50;
+  //m_FCalEt_high = 200;
 
   m_PhotonPt_nbins = 50;
   m_PhotonPt_low = 0;
@@ -194,7 +205,9 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms() {
     m_h_photon_fcal_etcone30_ptCut->Fill(m_FCalEt, etcone30);
     m_h_photon_fcal_etcone40_ptCut->Fill(m_FCalEt, etcone40);
 
-    if (m_FCalEt < 20) {
+    //In master, before the cherry picking, was:
+    //if (m_FCalEt < 20) {
+    if (m_FCalEt < m_FCalEt_peripheral) {
       m_h_photon_pt_etcone40_fcal0->Fill(pt, etcone40);
 
       m_h_photon_etcone20_ptCut_fcal0->Fill(etcone20);
@@ -205,7 +218,8 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms() {
       if (loose_MC15) m_h_photon_etcone30_ptCut_fcal0_loose->Fill(etcone30);
       if (tight_MC15) m_h_photon_etcone30_ptCut_fcal0_tight->Fill(etcone30);
     }
-    if (m_FCalEt > 20 && m_FCalEt < 50) {
+    //if (m_FCalEt > 20 && m_FCalEt < 50) {
+    if (m_FCalEt > m_FCalEt_peripheral && m_FCalEt < m_FCalEt_central) {
       m_h_photon_pt_etcone40_fcal1->Fill(pt, etcone40);
 
       m_h_photon_etcone20_ptCut_fcal1->Fill(etcone20);
@@ -216,7 +230,8 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms() {
       if (loose_MC15) m_h_photon_etcone30_ptCut_fcal1_loose->Fill(etcone30);
       if (tight_MC15) m_h_photon_etcone30_ptCut_fcal1_tight->Fill(etcone30);
     }
-    if (m_FCalEt > 50) {
+    //if (m_FCalEt > 50) {
+    if (m_FCalEt > m_FCalEt_central) {
       m_h_photon_pt_etcone40_fcal2->Fill(pt, etcone40);
 
       m_h_photon_etcone20_ptCut_fcal2->Fill(etcone20);

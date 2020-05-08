@@ -14,18 +14,17 @@
 #ifndef MdtRawDataValAlg_H
 #define MdtRawDataValAlg_H
 
-//Core Include
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/ToolHandle.h" 
 
-//Helper Includes
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MDTMonGroupStruct.h"
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
 #include "MdtRawDataMonitoring/MDTChamber.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "EventInfo/EventInfo.h"
@@ -36,13 +35,11 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
-//standard library includes
+
 #include <fstream> 
 #include <cstdlib>
 #include <iostream>
 
-class Identifier;
-class IdentifierHash;
 class MuonDQAHistList;
 
 namespace Muon {
@@ -117,8 +114,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   MDTMonGroupStruct* m_mg;
   MDTNoisyTubes* m_masked_tubes;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
 
   // MuonDetectorManager from the conditions store
@@ -129,13 +125,11 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   virtual StatusCode  bookMDTHistograms( MDTChamber* chamber, Identifier digcoll_id );//book chamber by chamber histos
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* );//fill chamber by chamber histos
   virtual StatusCode  bookMDTSummaryHistograms( bool newLumiBlock, bool newRun);//Those over barrel/encap layer etc.
-  //virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, std::set<std::string>, bool &isNoiseBurstCandidate);
   virtual StatusCode  bookMDTOverviewHistograms( bool newLumiBlock, bool newRun);
   virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms);//, const Muon::MdtPrepDataContainer* mdt_container );
 
-  //MDTRawDataUtils_cxx
   bool AinB( int A, std::vector<int> & B );
   virtual StatusCode  binMdtGlobal( TH2* &, char ecap );
   virtual StatusCode  binMdtRegional( TH2* &, std::string &xAxis);
@@ -181,12 +175,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   uint32_t m_time;
   uint32_t m_firstTime;
   int m_numberOfEvents;
-  //int m_time;
-  //
-
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
-  /*   StatusCode analyseSegments_effCalc(); */
 
   std::string returnString(int i){
     std::stringstream ss;
@@ -213,7 +203,6 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   bool m_doMdtESD ; 
 
-  //bool m_booked;
   // to book or not bookMDTTDCplots -->   /Chambers/tmp/ directory
   bool m_doChamberHists;
   bool m_isOnline;
@@ -236,24 +225,11 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   //Define configurable adccut and TGC/RPC keys
   float m_ADCCut;
   float m_ADCCut_Bkgrd;
-//  float m_TDCCut_Bkgrd;
   float m_curTime;
-//  int m_TGCKey;
-//  int m_RPCKey;
-
-  
-  //nobody looks at these histograms --> remove for now, to improve memory consumption
-  //TH1* mdtevents_RPCtrig; // Total number of MDT digits RPCtrig
-  //TH1* mdtevents_TGCtrig; // Total number of MDT digits TGCtrig
-  //TH1* mdthitsvseventnum;
-  //TH1* mdthitsvseventnumcut;
-  //TH1* overalltdccut_RPCtrig; // all chambers tdc superimposed with adc cut
-  //TH1* overalltdccut_TGCtrig; // all chambers tdc superimposed with adc cut
     
   //From Old BS
   TH2* m_overalltdcadcLumi; // all chambers tdc vs adc superimposed
   TH2* m_overalltdcadcPRLumi[4]; // all chambers tdc vs adc superimposed
-  //  TH1* overalltdc; // all chambers tdc superimposed
   TH1* m_overalltdccutLumi; // all chambers tdc superimposed with adc cut
   TH1* m_overalltdccut_segm_Lumi; // all chambers tdc superimposed with adc cut
   TH1* m_overalladc_segm_Lumi; // all chambers adc on segm
@@ -277,10 +253,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH1* m_overalladcPR_HighOcc[4]; // all chambers tdc superimposed with adc cut per region
 
   TH2* m_overall_mdt_DRvsDT;
-  //  TH2* overall_mdt_DRvsDRerr;
   TH2* m_overall_mdt_DRvsSegD;
   TH2* m_overallPR_mdt_DRvsDT[4];
-  //  TH2* overallPR_mdt_DRvsDRerr[4];
   TH2* m_overallPR_mdt_DRvsSegD[4];
   TH2* m_MdtNHitsvsRpcNHits;  
   
@@ -317,19 +291,13 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   ///////////For t0 calculations//////////
   TH1* m_mdttdccut_sector[4][4][16]; ////  [endcap/barrel A/C][layer][sector]
-  //These can be left to the post-processing
-/*   TH1* mdttdccut_t0[4]; //Just four plot */
-/*   TH1* mdttdccut_tmax[4]; //Just four plot */
-/*   TH1* mdttdccut_tdrift[4]; //Just four plot */
 
   //Chamber by Chamber Plots
-  //  std::map< IdentifierHash, MDTChamber* >* m_hist_map;
   std::vector< MDTChamber* >* m_hist_hash_list;
   void clear_hist_map(bool reallocate=true);
   
   std::string getChamberName(const Muon::MdtPrepData*);
   std::string getChamberName(Identifier);
-  //  std::string getChamberName(IdentifierHash);
   StatusCode getChamber(IdentifierHash id, MDTChamber* &chamber);
  
   //Control for which histograms to add
@@ -362,9 +330,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   bool m_do_mdt_DRvsSegD;
   bool m_do_mdttubenoise; 
   bool m_do_mdttdctube; 
-  //
 
-  // NEW
   float  m_nb_hits;        //minimum number of hits in segment
   float  m_road_width;     //road width for pattern recognition
   float  m_chi2_cut;       //track chi2 cut;

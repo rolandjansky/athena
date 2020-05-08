@@ -13,6 +13,7 @@
 // JetCalibTools includes
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "PathResolver/PathResolver.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 // Constructors
 ////////////////
@@ -69,6 +70,7 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
+  ATH_CHECK( m_rdhkEvtInfo.initialize() );
   if(m_rhkPV.empty()) {
     // No PV key: -- check if it is required
     if(m_doResidual) {
@@ -430,9 +432,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     }
 
     // If we are applying the reisdual, then store mu
-    if (m_doResidual)
-      jetEventInfo.setMu( eventObj->averageInteractionsPerCrossing() );
-    
+    if (m_doResidual) {
+      SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
+      if(!eventInfoDecor.isPresent()) {
+	ATH_MSG_ERROR("EventInfo decoration not available!");
+	return StatusCode::FAILURE;
+      }
+      jetEventInfo.setMu( eventInfoDecor(0) );
+    }
+
     // If this is GSC, we need EventInfo to determine the PV to use
     // This is support for groups where PV0 is not the vertex of interest (H->gamgam, etc)
     if (m_doGSC)

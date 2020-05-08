@@ -35,7 +35,7 @@ atlas_add_library( MCTruthBaseLib
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel GaudiKernel StoreGateLib SGtests G4AtlasToolsLib
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps
-                   G4AtlasInterfaces MCTruth SimHelpers ISF_Interfaces
+                   G4AtlasInterfaces MCTruth SimHelpers ISF_InterfacesLib
                    AtlasDetDescr ISF_Geant4Event
                  )
 
@@ -47,7 +47,7 @@ atlas_add_component( MCTruthBase
                      AtlasHepMCLib AthenaKernel GaudiKernel
                      AthenaBaseComps StoreGateLib SGtests
                      G4AtlasInterfaces G4AtlasToolsLib MCTruth
-                     SimHelpers ISF_Interfaces
+                     SimHelpers ISF_InterfacesLib
                      AtlasDetDescr MCTruthBaseLib
                      ISF_Geant4Event )
 

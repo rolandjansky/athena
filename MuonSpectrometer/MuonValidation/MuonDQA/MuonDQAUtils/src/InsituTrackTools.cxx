@@ -27,7 +27,7 @@ namespace Muon {
     if (isCloseTrack(track1, track2)==true) return false;
 
     /// Invariant mass cut
-    if (std::fabs(getInvariantMass(track1, track2)-91187.6)>m_MaximalMassDifferenceToZBoson) return false;
+    if (std::abs(getInvariantMass(track1, track2)-91187.6)>m_MaximalMassDifferenceToZBoson) return false;
 
     if ((isIsolatedTrack(track1)==true) && (isIsolatedTrack(track2)==true)) return true;
     return false;
@@ -86,8 +86,8 @@ namespace Muon {
 
   double InsituTrackTools::getDistance(const INavigable4Momentum *track1, const INavigable4Momentum *track2)
   {
-    double dphi = std::fabs(track1->phi()-track2->phi());
-    if (dphi>M_PI)	dphi = std::fabs(dphi-2.0*M_PI);
+    double dphi = std::abs(track1->phi()-track2->phi());
+    if (dphi>M_PI)	dphi = std::abs(dphi-2.0*M_PI);
     return std::sqrt(std::pow(track1->eta()-track2->eta(),2)+std::pow(dphi,2));
   }
 

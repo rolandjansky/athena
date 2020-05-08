@@ -28,12 +28,6 @@
 #include "TProfile.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
 //----------------------------------------------------------------------------------
 DQTDetSynchMonAlg::DQTDetSynchMonAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator )

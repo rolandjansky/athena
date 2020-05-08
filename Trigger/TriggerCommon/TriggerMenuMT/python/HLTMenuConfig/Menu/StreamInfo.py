@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
@@ -42,12 +42,8 @@ _all_streams = [
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
-    StreamInfo('UPC', 'physics', True, True),
-    StreamInfo('UCC', 'physics', True, True),
-    StreamInfo('PC', 'physics', True, True),
-    StreamInfo('CC', 'physics', True, True),
-    StreamInfo('PCPEB', 'calibration', False, False),
-    StreamInfo('CCPEB', 'calibration', False, False),
+    # Special stream to be used only for special chains rejecting all events like timeburner
+    StreamInfo('DISCARD', 'unknown', False, False)
 ]
 
 

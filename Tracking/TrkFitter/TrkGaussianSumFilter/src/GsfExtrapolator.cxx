@@ -11,25 +11,28 @@ email                : amorley@cern.ch
 decription           : Implementation code for GsfExtrapolator class
 *********************************************************************************/
 
-#include <utility>
-
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
+
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 #include "TrkExUtils/MaterialUpdateMode.h"
+
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
+
 #include "TrkParameters/TrackParameters.h"
+
 #include "TrkSurfaces/Surface.h"
+
 #include "TrkTrack/TrackStateOnSurface.h"
 
-#include "TrkGeometry/MagneticFieldProperties.h"
+#include <utility>
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);

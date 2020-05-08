@@ -115,7 +115,6 @@ struct dict {
 
 
 #ifdef G__DICTIONARY   // ROOT6 dictionary compilation
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 // MN:  pull in the Ringer enums and variables for ROOT6 on dictionary library loading
 #include "TInterpreter.h"
 namespace Ringer {
@@ -127,7 +126,6 @@ namespace Ringer {
      }
    } declareHeader;
 }
-#endif
 #endif
 
 #endif // RINGERSELECTORTOOLS_RINGERSELECTORTOOLSDICT_H

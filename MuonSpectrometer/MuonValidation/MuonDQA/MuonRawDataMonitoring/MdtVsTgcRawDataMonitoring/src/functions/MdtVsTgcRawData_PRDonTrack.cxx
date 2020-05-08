@@ -202,16 +202,16 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
 	   const Muon::MuonClusterOnTrack * rio = mc_list[iROT];
 	   //const Trk::RIO_OnTrack* rio = crot->rioOnTrack(iROT);
 	   Identifier id = rio->identify();
-	   int stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+	   int stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
            // 41=T1F 42=T1E 43=T2F 44=T2E 45=T3F 46=T3E 47=T4F 48=T4E
-           if(m_muonIdHelperTool->tgcIdHelper().isStrip(id)){
+           if(m_idHelperSvc->tgcIdHelper().isStrip(id)){
              if((jMDT==2)&&((stationName==41)||(stationName==42)))nTGCStrips[0]++;// TGC
              if((jMDT==2)&&((stationName==43)||(stationName==44)))nTGCStrips[1]++;// TGC
              if((jMDT==2)&&((stationName==45)||(stationName==46)))nTGCStrips[2]++;// TGC
              if((jMDT==0)&&((stationName==47)||(stationName==48)))nTGCStrips[3]++;// TGC
            }
 
-	   ATH_MSG_DEBUG( " check if TGC strip: "<<m_muonIdHelperTool->tgcIdHelper().isStrip(id)<<" StationName: "<<stationName );
+	   ATH_MSG_DEBUG( " check if TGC strip: "<<m_idHelperSvc->tgcIdHelper().isStrip(id)<<" StationName: "<<stationName );
 	  }
 	}
       }
@@ -257,11 +257,11 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
         Identifier tgcid=(*prepitc)->identify();
         int tgcAC=(tre->sideA()==false);//isNotAside a:0, c:1
         int tgcFE=(tre->forward()==false);//isNotForward f:0, e:1
-        int tgcWS=(m_muonIdHelperTool->tgcIdHelper().isStrip(tgcid));//isStrip w=0, s=1
-        int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid);
+        int tgcWS=(m_idHelperSvc->tgcIdHelper().isStrip(tgcid));//isStrip w=0, s=1
+        int stationName = m_idHelperSvc->tgcIdHelper().stationName(tgcid);
         int stationEta  = std::abs(tre->getStationEta());
         int stationPhi  = tre->getStationPhi();
-        int gasGap      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid);
+        int gasGap      = m_idHelperSvc->tgcIdHelper().gasGap(tgcid);
         
         // Cut hits except those from same side EIFI & Midstation
         if(tgcAC!=i) continue;

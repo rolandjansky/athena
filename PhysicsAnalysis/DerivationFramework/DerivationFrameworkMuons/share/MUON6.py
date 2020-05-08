@@ -77,24 +77,13 @@ MUON6ThinningTools = []
 
 # keep tracks with |z0sintheta| < 3
 thinning_expression_z0 = "( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-MUON6ThinningToolZ0 = DerivationFramework__TrackParticleThinning(name                    = "MUON6ThinningToolZ0",
-                                                                 ThinningService         = MUON6ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = thinning_expression_z0,
-                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                 ApplyAnd                = True)
-ToolSvc += MUON6ThinningToolZ0
-MUON6ThinningTools.append(MUON6ThinningToolZ0)
-
 # keep tracks around muons
-thinning_expression_around = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON6ThinningToolAround = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON6ThinningToolAround",
-                                                                         ThinningService         = MUON6ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = MUON6Stream.Name,
                                                                          MuonKey                 = "Muons",
-                                                                         SelectionString         = thinning_expression_around,
+                                                                         SelectionString         = thinning_expression_z0,
                                                                          ConeSize                = 0.4,
-                                                                         ApplyAnd                = True,
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON6ThinningToolAround
 MUON6ThinningTools.append(MUON6ThinningToolAround)
@@ -103,17 +92,16 @@ MUON6ThinningTools.append(MUON6ThinningToolAround)
 thinning_expression_augment = 'MUON6DIMU_trkStatus>0'
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON6ThinningToolAugment = DerivationFramework__TrackParticleThinning(name                    = "MUON6ThinningToolAugment",
-                                                                      ThinningService         = MUON6ThinningHelper.ThinningSvc(),
+                                                                      StreamName              = MUON6Stream.Name,
                                                                       SelectionString         = thinning_expression_augment,
-                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                      ApplyAnd                = False)
+                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON6ThinningToolAugment
 MUON6ThinningTools.append(MUON6ThinningToolAugment)
 
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON6ThinningToolTopo = DerivationFramework__CaloClusterThinning(name                    = "MUON6ThinningToolTopo",
-                                                                 ThinningService         = MUON6ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = MUON6Stream.Name,
                                                                  SGKey                   = "Muons",
                                                                  SelectionString         = "Muons.pt>4*GeV",
                                                                  TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -124,11 +112,10 @@ MUON6ThinningTools.append(MUON6ThinningToolTopo)
 ### also for forward tracks
 thinning_expression_forward = "Muons.muonType==4"
 MUON6ThinningToolForward = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON6ThinningToolForward",
-                                                                          ThinningService        = MUON6ThinningHelper.ThinningSvc(),
+                                                                          StreamName             = MUON6Stream.Name,
                                                                           MuonKey                = "Muons",
                                                                           SelectionString        = thinning_expression_forward,
                                                                           ConeSize               = 0.5,
-                                                                          ApplyAnd               = False,
                                                                           InDetTrackParticlesKey = "InDetForwardTrackParticles")
 ToolSvc += MUON6ThinningToolForward
 MUON6ThinningTools.append(MUON6ThinningToolForward)
@@ -141,7 +128,7 @@ if DerivationFrameworkIsMonteCarlo:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   MUON6TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON6TruthThinningTool",
-                                                       ThinningService              = MUON6ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = MUON6Stream.Name,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteCHadrons                = False,

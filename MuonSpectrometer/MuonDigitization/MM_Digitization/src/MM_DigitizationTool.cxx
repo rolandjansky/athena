@@ -648,7 +648,9 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 	  continue;
 	}
       }
-      
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
       // Read the information about the Micro Megas hit
       ATH_MSG_DEBUG ( "> hitID  "
 		      <<     hitID
@@ -665,7 +667,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      << " z "
 		      <<     globalHitPosition.z()
 		      << " mclink "
-		      <<     hit.particleLink()
+		      <<     particleLink
 		      << " station eta "
 		      <<     m_idHelperSvc->mmIdHelper().stationEta(layerID)
 		      << " station phi "
@@ -683,7 +685,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
                                      hit.kineticEnergy(),
                                      hit.globalDirection(),
                                      hit.depositEnergy(),
-                                     hit.trackNumber()
+                                     particleLink
                                      );
       
       inputSimHitColl->Insert(*copyHit);
@@ -998,7 +1000,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // digitize input for strip response
       
-      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      MuonSimData::Deposit deposit(particleLink, MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
       
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;

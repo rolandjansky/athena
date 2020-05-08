@@ -161,6 +161,16 @@ if DQMonFlags.doMuonSegmentMon():
     except Exception:
         treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon CSC segment monitoring")
 
+#------------- ---------#
+# Muon track monitoring #
+#------------- ---------#
+if DQMonFlags.doMuonTrackMon():
+    if MuonESDMon:
+        try:
+            from MuonTrackMonitoring.MuonTrackMonitorAlgorithm import MuonTrackConfig
+            topSequence += MuonTrackConfig(DQMonFlags,isOld=True)
+        except Exception:
+            treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
 
 #-------------------------#
 # Muon physics monitoring #

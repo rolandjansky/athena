@@ -290,18 +290,10 @@ namespace xAOD {
       }
 
       /// Not implemented for xAOD
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 5, 34, 6 )
       static void* collect( void* /*from*/, void* /*to*/ )  {
          ::Fatal( "xAOD::TDVCollectionProxy", "collect not implemented" );
          return 0;
       }
-#else
-      static void* collect( void* /*env*/ )  {
-         ::Fatal( "xAOD::TDVCollectionProxy", "collect not implemented" );
-         return 0;
-      }
-#endif
-
    }; // class TDVCollectionFuncs
 
    /// Constructor.
@@ -326,11 +318,7 @@ namespace xAOD {
       fNext.call      = TDVCollectionFuncs::next;
       fFirst.call     = TDVCollectionFuncs::first;
       fClear.call     = TDVCollectionFuncs::clear;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,6)
       fCollect        = TDVCollectionFuncs::collect;
-#else
-      fCollect.call   = TDVCollectionFuncs::collect;
-#endif
       fCreateEnv.call = TDVCollectionFuncs::create_env;
       fResize         = TDVCollectionFuncs::resize;
       fConstruct      = TDVCollectionFuncs::construct;
@@ -340,12 +328,7 @@ namespace xAOD {
       // Make sure that TGenCollectionProxy knows that it's not
       // fully set up yet:
       if( fValue ) {
-#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
          delete fValue.exchange( 0 );
-#else
-         delete fValue;
-         fValue = 0;
-#endif // ROOT_VERSION
       }
       if( fVal ) {
          delete fVal;
@@ -375,12 +358,7 @@ namespace xAOD {
       // on the same page...
       if( ! fInitialized ) {
          if( fValue ) {
-#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
             delete fValue.exchange( 0 );
-#else
-            delete fValue;
-            fValue = 0;
-#endif // ROOT_VERSION
          }
          if( fVal ) {
             delete fVal;
@@ -479,12 +457,7 @@ namespace xAOD {
 
       // Need to override what that set up for fValue and fVal.
       if( fValue ) {
-#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
          delete fValue.exchange( 0 );
-#else
-         delete fValue;
-         fValue = 0;
-#endif // ROOT_VERSION
       }
       if( fVal )   delete fVal;
       fValue = new TGenCollectionProxy::Value( eltname.c_str(), false );
@@ -496,10 +469,6 @@ namespace xAOD {
 
       // Remember that the initialisation succeeded:
       fInitialized = kTRUE;
-#if ROOT_VERSION_CODE <= ROOT_VERSION( 6, 2, 5 )
-      fProperties |= kIsInitialized;
-#endif // ROOT_VERSION
-
       return this;
    }
 

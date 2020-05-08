@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -27,7 +27,6 @@ bool HitCounter :: Initialize(const NtupleStationId &id)
 		return false;
 		}
 	m_per_chamber=0;
-//	std::cout<<"NMultilayers = "<<id.NMultilayers()<<std::endl;
 	for(int i=0; i<id.NMultilayers(); i++)
 		{
 		m_per_ml[i]=0;
@@ -35,8 +34,6 @@ bool HitCounter :: Initialize(const NtupleStationId &id)
 		if(id.NLayers(i)==4) m_mezz_width[i]=6;
 		TubeId tid;
 		tid.ml=i;
-//		std::cout<<"NLayers = "<<id.NLayers(i)<<std::endl;
-//		std::cout<<"NTubes = "<<id.NTubes(i)<<std::endl;
 		for(tid.ly=0; tid.ly<id.NLayers(i); tid.ly++)
 			for(tid.tb=0; tid.tb<id.NTubes(i); tid.tb++)
 				{
@@ -55,7 +52,6 @@ bool HitCounter :: Initialize(const NtupleStationId &id)
 	m_name = id.regionId();	
 	m_is_initialized=true;
 	m_wd = gDirectory->mkdir(m_name.c_str(), m_name.c_str());
-//	m_wd->Write();	
 	m_wd->cd();
 	m_hits_per_segments = new TH1F("hits_per_segments", "", 433, -0.5, 432.5);
 	return true;
@@ -72,22 +68,15 @@ void HitCounter :: ProcessSegment(const MuonCalibSegment & segment)
 		TubeId tid;
 		if (!(m_id==(*it)->identify())) continue;
 		NtupleStationId id((*it)->identify());
-//		std::cout<<id.regionId()<<std::endl;
 		tid.ml = (*it)->identify().mdtMultilayer()-1;
-//		std::cout<<"tid.ml="<<tid.ml<<std::endl;
 		tid.ly = (*it)->identify().mdtTubeLayer()-1;
-//		std::cout<<"tid.ly="<<tid.ly<<std::endl;
 		tid.tb = (*it)->identify().mdtTube()-1;
-//		std::cout<<"tid.tb="<<tid.tb<<std::endl;
 		m_per_tube[tid]=m_per_tube[tid]+1;
 		MezzId mid;
 		mid.ml=tid.ml;
-//		std::cout<<m_mezz_width[tid.ml]<<std::endl;
 		mid.mezz=tid.tb/m_mezz_width[tid.ml];
-//		std::cout<<"mid.mezz="<<mid.mezz<<std::endl;
 		m_per_mezz[mid]=m_per_mezz[mid]+1;
 		m_per_ml[tid.ml]=m_per_ml[tid.ml]+1;
-//		std::cout<<"."<<std::endl;
 		}
 	}
 
@@ -116,7 +105,6 @@ const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 		tubes->Fill(index, it->second);
 		index++;
 		int fix_index = it->first.tb + 72*(it->first.ly) + 288*(it->first.ml);
-//		std::cout<<it->first.tb<<" "<<it->first.ly<<" "<<it->first.ml<<std::endl;
 		tubes_index->SetBinContent(fix_index + 1, it->second);
 		}
 	tubes->SetEntries(m_per_chamber);
@@ -201,7 +189,6 @@ std::map<HitCounter::TubeId, HitCounter::DQInfo> HitCounter :: InitialDQ(int noi
 			}
 		}
 	mean_nhits=n/mean_nhits;
-//	std::cout<<mean_nhits<<std::endl;
 	std::map<TubeId, DQInfo> ret;
 	for(std::map<TubeId, int> :: const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
 		{
@@ -210,8 +197,6 @@ std::map<HitCounter::TubeId, HitCounter::DQInfo> HitCounter :: InitialDQ(int noi
 		if(it->second > n * noisy_tube_factor * mean_nhits)
 			{
 			 ret[it->first].SetNoisy();
-//			 std::cout<<mean_nhits<<" "<<it->second<<std::endl;
-//			std::cout<<it->first.ml<<" "<<it->first.ly<<" "<<it->first.tb<<std::endl;
 			}
 		}
 	return ret;

@@ -27,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RpcCalibToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS RpcCalibTools
-                   LINK_LIBRARIES AthenaBaseComps AthLinks GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES AthenaBaseComps AthLinks GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces StoreGateLib SGtests MuonIdHelpersLib TrackRecordLib
                    PRIVATE_LINK_LIBRARIES MuonPrepRawData TrkMeasurementBase TrkRIO_OnTrack )
 
 atlas_add_component( RpcCalibTools
