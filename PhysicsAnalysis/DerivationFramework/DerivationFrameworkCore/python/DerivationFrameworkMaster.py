@@ -59,10 +59,10 @@ if inputFileSummary is not None:
 if not globalflags.InputFormat=="bytestream":
     # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
     from RecExConfig.ObjKeyStore import objKeyStore
-    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
-                                  OutputLevel = 2 )
-    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+#    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+#                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
+#                                  OutputLevel = 2 )
+#    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
