@@ -142,6 +142,30 @@ namespace top {
     m_histograms.insert(make_pair(hname, h));
   }
 
+  void PlotManager::addHist(const std::string& hname, const std::string& title,
+                            int xbins, double* xbinArray,
+                            int ybins, double ystart, double yend) const {
+    TH2D* h = nullptr;
+
+    if (!m_wk) {
+      m_plotDir->cd();
+      h = new TH2D(hname.c_str(), title.c_str(),
+                   xbins, xbinArray,
+                   ybins, ystart, yend);
+    } else {
+      std::string pathname = m_name + "/" + hname;
+      h = new TH2D(pathname.c_str(), title.c_str(),
+                   xbins, xbinArray,
+                   ybins, ystart, yend);
+      m_wk->addOutput(h);
+    }
+
+    checkDuplicate(hname);
+
+    h->Sumw2();
+    m_histograms.insert(make_pair(hname, h));
+  }
+
   TH1* PlotManager::hist(const std::string& name) const {
     if (m_histograms.find(name) == m_histograms.end()) {
       throw std::runtime_error("PlotManager::hist: Histogram " + name + " does not exist.");

@@ -410,6 +410,17 @@ TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903 =  ["AntiKtVR30Rmax4Rmi
                                                              + "VariableRMinRadius."
                                                              ]
 
+TOPQExtraVariables_BTagging_SecVtx_AntiKtVR30Rmax4Rmin02TrackJets_201903 = [
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtx."
+    + "track_links."
+    + "chi2."
+    + "NDF.",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtx."
+    + "chiSquared."
+    + "numberDoF."
+    + "vertexType."
+]
+
 # Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
 TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track_201810."
                                                            + "IP3D_pb."
@@ -423,6 +434,29 @@ TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903 =  ["BTagging_Anti
                                                                   + "IP3D_pu."
                                                                   + "SV1_pb."
                                                                   + "SV1_pu."
+                                                                  + "SV1_vertices."
+                                                                  + "SV1_badTracksIP."
+                                                                  + "SV1_energyTrkInJet."
+                                                                  + "SV1_L3d."
+                                                                  + "SV1_Lxy."
+                                                                  + "SV1_N2Tpair."
+                                                                  + "SV1_NGTinSvx."
+                                                                  + "SV1_deltaR."
+                                                                  + "SV1_dstToMatLay."
+                                                                  + "SV1_efracsvx."
+                                                                  + "SV1_masssvx."
+                                                                  + "SV1_significance3d."
+                                                                  + "SV1_normdist."
+                                                                  + "SV1_TrackParticleLinks."
+                                                                  + "JetVertexCharge_discriminant."
+                                                                  + "JetFitter_JFvertices."
+                                                                  + "JetFitter_fittedCov."
+                                                                  + "JetFitter_fittedPosition."
+                                                                  + "JetFitter_tracksAtPVlinks."
+                                                                  + "JetFitter_mass."
+                                                                  + "JetFitter_massUncorr."
+                                                                  + "JetFitter_nSingleTracks."
+                                                                  + "JetFitter_significance3d."
                                                                   ]
 
 # Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
@@ -517,6 +551,10 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "WidthPhi."
                                                                + "ZCut23."
                                                                ]
+TOPQExtraVariables_AntiKt10LCTopoJets = ["AntiKt10LCTopoJets."
+                                         + "GhostVR30Rmax4Rmin02TrackJet_BTagging201810."
+                                         + "GhostVR30Rmax4Rmin02TrackJet_BTagging201903"
+]
 
 # Full list: DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
 TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."

@@ -29,10 +29,7 @@ class GRLSelectorAlg: public EL::AnaAlgorithm {
 
  private: 
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
-  EL::FilterReporterParams m_filterParams {this};
-  int m_passed = 0;
-  int m_total = 0;
-
+  EL::FilterReporterParams m_filterParams {this, "Good Runs Lists selection"};
 }; 
 
 #endif //> !GOODRUNSLISTS_GRLSELECTORALG_H

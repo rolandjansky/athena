@@ -153,8 +153,12 @@ namespace CP {
             }
             //Elimnate the TF1_
             getNextProperty(ObjName);
-            if (!m_uncertVar) m_uncertVar = GetMuonVariableToUse(getNextProperty(ObjName));
-            if (!m_polySelVar) m_polySelVar = GetMuonVariableToUse(getNextProperty(ObjName));
+            if (!m_uncertVar) {m_uncertVar = GetMuonVariableToUse(getNextProperty(ObjName));}
+            /// Otherwise we need to get rid of the string
+            else {getNextProperty(ObjName);}        
+            if (!m_polySelVar) {m_polySelVar = GetMuonVariableToUse(getNextProperty(ObjName));}
+            else {getNextProperty(ObjName);}
+           
             std::string LowRange_str = getNextProperty(ObjName);
             std::string HighRange_str = getNextProperty(ObjName);
             if (!LowRange_str.empty()) {

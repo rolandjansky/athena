@@ -161,11 +161,11 @@ namespace H5Utils {
     WriterXd& operator=(WriterXd&) = delete;
     ~WriterXd();
     void fillWhileIncrementing(
-      std::vector<size_t>& indices = WriterXd::NONE);
+      std::vector<size_t>& indices = WriterXd::s_NONE);
     void flush();
     size_t index() const;
   private:
-    static std::vector<size_t> NONE;
+    static std::vector<size_t> s_NONE;
     hsize_t buffer_size() const;
     H5::CompType m_type;
     std::vector<hsize_t> m_max_length;

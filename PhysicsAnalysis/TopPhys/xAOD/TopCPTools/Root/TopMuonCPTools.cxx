@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopCPTools/TopMuonCPTools.h"
 
@@ -38,6 +38,7 @@ namespace top {
 
     declareProperty("SoftMuonSelectionTool", m_softmuonSelectionTool);
     declareProperty("SoftMuonEfficiencyCorrectionsTool", m_softmuonEfficiencyCorrectionsTool);
+
   }
 
   StatusCode MuonCPTools::initialize() {
@@ -63,23 +64,6 @@ namespace top {
   }
 
   StatusCode MuonCPTools::setupCalibration() {
-    ///-- Calibration and smearing --///
-    using IMuCalibSmearTool = CP::IMuonCalibrationAndSmearingTool;
-    ATH_MSG_INFO("Setting up MuonCalibrationPeriodTool for 2015+2016 and 2017 data");
-    const std::string mu_calib_period_name = "CP::MuonCalibrationPeriodTool";
-    if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_period_name)) {
-      m_muonCalibrationPeriodTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_period_name);
-    } else {
-      IMuCalibSmearTool* muonCalibrationPeriodTool = new CP::MuonCalibrationPeriodTool(mu_calib_period_name);
-
-      // Initialise the tool
-      top::check(muonCalibrationPeriodTool->initialize(),
-                 "Failed to initialize " + mu_calib_period_name);
-
-      m_muonCalibrationPeriodTool = muonCalibrationPeriodTool;
-    }
-
-
     ///-- Selection --///
     m_muonSelectionTool = setupMuonSelectionTool("CP::MuonSelectionTool",
                                                  m_config->muonQuality(),
@@ -91,14 +75,16 @@ namespace top {
     m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
                                                               "Loose",
                                                               2.5);
-
+    ///-- Calibration and smearing --///  ---> now passing the flags (true/false) to CalibAndSmearingTool
+    m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationPeriodTool", 
+								      m_config->muondoExtraSmearing(),
+								      m_config->muondo2StationsHighPt());
     //now the soft muon part
     if (m_config->useSoftMuons()) {
       m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
                                                        m_config->softmuonQuality(),
                                                        m_config->softmuonEtacut());
     }
-
 
     return StatusCode::SUCCESS;
   }
@@ -176,10 +162,7 @@ namespace top {
     // If we don't want isolation then we don't need the tool
     if (m_config->muonIsolationSF() != "None") {
       // Add iso as a suffix (see above for consistency between tools :) )
-      // Add LowPt_ as prefix only if the muon quality is LowPt
-      std::string muon_isolation = m_config->muonIsolationSF();
-      muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") + muon_isolation + "Iso";
-
+      std::string muon_isolation = m_config->muonIsolationSF() + "Iso";
       m_muonEfficiencyCorrectionsToolIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
@@ -188,10 +171,7 @@ namespace top {
     // Do we have isolation on our loose muons? If not no need for the tool...
     if (m_config->muonIsolationSFLoose() != "None") {
       // Add iso as a suffix (see above for consistency between tools :) )
-      // Add LowPt_ as prefix only if the muon quality is LowPt
-      // Note: now loose isolation
-      std::string muon_isolation = m_config->muonIsolationSFLoose();
-      muon_isolation = (m_config->muonQuality() == "LowPt" ? "LowPt_" : "") + muon_isolation + "Iso";
+      std::string muon_isolation = m_config->muonIsolationSFLoose() + "Iso";
       m_muonEfficiencyCorrectionsToolLooseIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
                         muon_isolation);
@@ -279,6 +259,25 @@ namespace top {
       tool = new CP::MuonEfficiencyScaleFactors(name);
       top::check(asg::setProperty(tool, "WorkingPoint", WP),
                  "Failed to set WP for " + name + " tool");
+      top::check(tool->initialize(),
+                 "Failed to set initialize " + name);
+    }
+    return tool;
+  }
+
+
+  CP::IMuonCalibrationAndSmearingTool*
+  MuonCPTools::setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearing, const bool& do2StationsHighPt) {
+    CP::IMuonCalibrationAndSmearingTool* tool = nullptr;
+    if (asg::ToolStore::contains<CP::IMuonCalibrationAndSmearingTool>(name)) {
+      tool = asg::ToolStore::get<CP::IMuonCalibrationAndSmearingTool>(name);
+    } else {
+      tool = new CP::MuonCalibrationPeriodTool(name);
+
+      top::check(asg::setProperty(tool, "doExtraSmearing", doExtraSmearing),
+                 "Failed to set doExtraSmearing for " + name + " tool");
+      top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
+                 "Failed to set do2StationsHighPt for " + name + " tool");
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

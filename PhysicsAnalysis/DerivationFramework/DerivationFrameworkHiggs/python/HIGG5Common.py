@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # commont content for Hbb DAODs
@@ -149,6 +148,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                "TauJets",
                                "MET_Reference_AntiKt4EMTopo",
                                "MET_Reference_AntiKt4EMPFlow",
+                               "AntiKt4EMTopoJets",
+                               "AntiKt4EMPFlowJets",
                                getJetEMTopoName()]
     if BTaggingFlags.Do2019Retraining:
         common_smart_collections+=["AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903"]

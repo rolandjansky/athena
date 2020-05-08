@@ -8,6 +8,7 @@
 #define TRIGGER_ANALYSIS_ALGORITHMS__TRIG_EVENT_SELECTION_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/FilterReporterParams.h>
 #include <AsgTools/ToolHandle.h> 
 #include <AthContainers/AuxElement.h>
 #include <TrigDecisionInterface/ITrigDecisionTool.h>
@@ -37,12 +38,8 @@ namespace CP
     /// \brief the accessors for \ref m_selectionDecoration and \ref m_trigList combination
     std::vector<SG::AuxElement::Decorator<bool>> m_selectionAccessors;
 
-    /// \brief counter for passed events
-    long long m_passed = 0;
-
-    /// \brief counter for total events
-    long long m_total = 0;
-
+    /// \brief the filter reporter parameters
+    EL::FilterReporterParams m_filterParams {this, "trigger event selection"};
   };
 }
 

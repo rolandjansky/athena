@@ -40,11 +40,9 @@ namespace top {
      * @param key The string key used to identify this variable.
      * @param value On success, the setting for the given key (output).
      *
-     * @return Indicates success (i.e. the value was not empty).
-     *
      * Note: an attempt to retrieve a key with a non-boolean values raises an exception.
      */
-    bool retrieve(std::string const& key, bool& value) const;
+    void retrieve(std::string const& key, bool& value) const;
 
     /**
      * @brief Have the configuration settings been read from a file?

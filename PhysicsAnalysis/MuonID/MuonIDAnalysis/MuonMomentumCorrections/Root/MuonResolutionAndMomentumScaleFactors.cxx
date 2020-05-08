@@ -1,33 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 30.08.2012, AUTHOR: OLIVER KORTNER
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#include "MuonMomentumCorrections/MuonResolutionAndMomentumScaleFactors.h"
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATIONS OF CONSTRUCTORS AND METHODS DEFINED IN THE CLASS ::
-//::              MuonResolutionAndMomentumScaleFactors               ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <TString.h> // for Form
 
-// HiggsZZ4lUtils //
-#include "MuonMomentumCorrections/MuonResolutionAndMomentumScaleFactors.h"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace Analysis;
 
 //******************************************************************************
@@ -43,12 +24,9 @@ MuonResolutionAndMomentumScaleFactors::MuonResolutionAndMomentumScaleFactors(
 // OPEN INPUT FILE //
 /////////////////////
 
-    ifstream infile(data_filename.c_str());
+    std::ifstream infile(data_filename.c_str());
     if (infile.fail()) {
-        cerr << "Class MuonResolutionAndMomentumScaleFactors, constructor: "
-             << "ERROR!\n"
-             << "Could not open file " << data_filename << ".\n";
-        exit(1);
+        throw std::runtime_error(Form("File: %s, Line: %d\nMuonResolutionAndMomentumScaleFactors::MuonResolutionAndMomentumScaleFactors() - Could not open file %s.", __FILE__, __LINE__, data_filename.c_str()));
     }
 
 ///////////////////

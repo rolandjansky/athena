@@ -15,7 +15,7 @@
 
 */
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TForwardElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"

@@ -68,12 +68,20 @@ triggers = jetTriggers + electronTriggers + muonTriggers
 
 photonTrigger = "HLT_g140_loose"
 
+# We have to turn off the trigger navigation thinning for 2018 data.
+# First, figure out whether we're in 2018 data. Thanks to Eirik for this code
+isData18 = False
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary is not None:
+    if (inputFileSummary['tag_info']['project_name']=='data18_13TeV'): 
+        isData18 = True
+
 #
 #  Trigger Nav thinning
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
-if globalflags.DataSource() is not "geant4":
+if (globalflags.DataSource() is not "geant4") and (not isData18):
     EXOT8ThinningHelper.TriggerChains = ''
 
     EXOT8ThinningHelper.TriggerChains += "|".join(electronTriggers)
@@ -482,11 +490,21 @@ addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=exot8Seq, o
 
 # Create variable-R trackjets and dress ungroomed large-R jets with ghost VR-trkjet
 
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+largeRJetAlgs = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
     ]
 
+largeRJetCollections = []
+for alg in largeRJetAlgs:
+  largeRJetCollections.append(alg+"Jets")
+
+# Add truth labeling to groomed large-R jet collections
+if DerivationFrameworkIsMonteCarlo:
+  for alg in largeRJetAlgs:
+    addJetTruthLabel(jetalg=alg,sequence=exot8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+
+# Associate VR track jets
 addVRJets(exot8Seq, largeRColls = largeRJetCollections)
 addVRJets(exot8Seq, largeRColls = largeRJetCollections, do_ghost=True)
 addVRJets(exot8Seq, largeRColls = largeRJetCollections, training='201903') #new trackjet training!

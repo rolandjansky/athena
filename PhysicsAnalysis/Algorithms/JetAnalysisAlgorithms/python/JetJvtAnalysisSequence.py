@@ -5,7 +5,6 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
-                                preselection = '',
                                 disableFJvt = False,
                                 globalSF = True,
                                 runSelection = True,
@@ -32,15 +31,14 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Define a list of cuts to apply later on and the
     # number of bits in the corresponding TAccept
-    cutlist = []
-    cutlength = []
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
         from JetAnalysisSequence import jvtSysts, fjvtSysts
 
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
-        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorInputDecorationRegex = jvtSysts
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
@@ -48,11 +46,11 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
         seq.append( alg,
                     affectingSystematics = jvtSysts,
                     inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' } )
+                                      'eventInfo' : 'eventInfo' },
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
         if not disableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-            alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
             alg.scaleFactorInputDecorationRegex = fjvtSysts
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
@@ -60,30 +58,29 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
             seq.append( alg,
                         affectingSystematics = fjvtSysts,
                         inputPropName = { 'jets' : 'particles',
-                                          'eventInfo' : 'eventInfo' } )
+                                          'eventInfo' : 'eventInfo' },
+                        metaConfig = {'selectionDecorNames' : ['fjvt_selection'] if runSelection else [],
+                                      'selectionDecorCount' : [1] if runSelection else [] },
+                        dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"] + ['no_fjvt'])} )
 
     if runSelection:
-        cutlist.append('jvt_selection')
-        cutlength.append(1)
-
-        if not disableFJvt:
-            cutlist.append('fjvt_selection')
-            cutlength.append(1)
+        seq.addMetaConfigDefault ("selectionDecorNames", ['jvt_selection'])
+        seq.addMetaConfigDefault ("selectionDecorCount", [1])
 
         # Set up an algorithm used to create jet JVT selection cutflow:
         if enableCutflow:
             alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )
             alg.histPattern = 'jet_cflow_jvt_%SYS%'
-            alg.selection = cutlist
-            alg.selectionNCuts = cutlength
-            seq.append( alg, inputPropName = { 'jets' : 'input' })
+            seq.append( alg, inputPropName = { 'jets' : 'input' },
+                        dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
+                                     'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]})
 
         # Set up an algorithm that makes a view container using the selections
         # performed previously:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetJvtViewFromSelectionAlg' )
-        alg.selection = cutlist
         seq.append( alg, inputPropName = { 'jets' : 'input' },
-                    outputPropName = { 'jets' : 'output' } )
+                    outputPropName = { 'jets' : 'output' },
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:]} )
 
     # Return the sequence:
     return seq

@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
+#include "PUResidual3DCorrection.h"
 
 JetPileupCorrection::JetPileupCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("JetPileupCorrection::JetPileupCorrection"),
@@ -37,7 +38,6 @@ JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config,
 JetPileupCorrection::~JetPileupCorrection() {
 
   if(m_residualOffsetCorr) delete m_residualOffsetCorr;
-
 }
 
 
@@ -58,6 +58,8 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   m_doSequentialResidual = m_config->GetValue("DoSequentialResidual",false); // first mu and then NPV/NJet corrections
   bool useNjet           = m_config->GetValue("OffsetCorrection.UseNjet", false);
 
+  m_do3Dcorrection       = m_config->GetValue("Do3DCorrection", false);
+  
   if(m_doSequentialResidual) ATH_MSG_DEBUG("The pileup residual calibrations will be applied sequentially.");
   else                       ATH_MSG_DEBUG("The pileup residual calibrations will be applied simultaneously (default).");
   if(m_doMuOnly)             ATH_MSG_INFO("Only the pileup mu-based calibration will be applied.");
@@ -91,6 +93,12 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
     return StatusCode::FAILURE;
   }
 
+  if(m_do3Dcorrection && (m_doSequentialResidual || m_doMuOnly || m_doNPVOnly || m_doNJetOnly ) ){
+    ATH_MSG_FATAL("3D correction incompatible with any other PU correction. Please turn off any PU residual options.");
+    return StatusCode::FAILURE;
+
+  }
+  
   m_jetStartScale = m_config->GetValue("PileupStartingScale","JetConstitScaleMomentum");
   ATH_MSG_INFO("JetPileupCorrection: Starting scale: " << m_jetStartScale);
   if ( m_jetStartScale == "DO_NOT_USE" ) {
@@ -102,7 +110,16 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   if ( m_useFull4vectorArea ) ATH_MSG_INFO("  Full 4-vector jet area correction is activated."); 
   //ATH_MSG_INFO(" \n");
 
-  if ( m_doResidual ) { 
+  if(m_do3Dcorrection){
+    m_residual3DCorr.reset( new PUCorrection::PU3DCorrectionHelper() ) ;
+    m_residual3DCorr->loadParameters(m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
+    m_residual3DCorr->m_rhoEnergyScale = m_config->GetValue("PU3DCorrection.rhoEnergyScale", 0.001);
+    m_residual3DCorr->m_pTEnergyScale = m_config->GetValue("PU3DCorrection.pTEnergyScale", 0.001);
+    ATH_MSG_INFO("Pile-up 3D correction. Configured with :");
+    ATH_MSG_INFO("  calib constants file="<< m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
+    ATH_MSG_INFO("  rho scale ="<<m_residual3DCorr->m_rhoEnergyScale );
+    ATH_MSG_INFO("  pT scale ="<<m_residual3DCorr->m_pTEnergyScale);    
+  }else if ( m_doResidual ) { 
     std::string suffix = "_Residual";
     m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
     m_residualOffsetCorr->msg().setLevel( this->msg().level() );
@@ -144,7 +161,17 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
   const double rho = jetEventInfo.rho();
   ATH_MSG_VERBOSE("    Rho = " << rho);
 
-  if(m_useFull4vectorArea) {
+  
+  if(m_do3Dcorrection){
+    int NPV = jetEventInfo.NPV();
+    float mu  = jetEventInfo.mu();
+    
+    double pt_calib= m_residual3DCorr->correctedPt(pT_det,  eta_det, jetareaP4.Pt(), rho, mu, NPV ) ;
+    double scaleF = pt_calib < 0 ? 0.01*m_GeV/pT_det : pt_calib/pT_det;
+    xAOD::JetFourMom_t calibP4 = jetStartP4 * scaleF;
+    jet.setJetP4( calibP4 );
+    
+  } else if(m_useFull4vectorArea) {
     ATH_MSG_VERBOSE("  Applying area-subtraction calibration to jet " << jet.index() << " with pT = " << 0.001*jet.pt() << " GeV");
     //subtract rho * the jet area from the jet
     xAOD::JetFourMom_t calibP4 = jetStartP4 - rho*jetareaP4;
@@ -250,9 +277,8 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
 	}
 	calibP4 = jetStartP4*area_SF;
       }
-    } else
-      calibP4 = jetStartP4*area_SF;
-
+    } else calibP4 = jetStartP4*area_SF;
+    
     //Attribute to track if a jet has received the origin correction
     jet.setAttribute<int>("OriginCorrected",m_doOrigin);
     //Attribute to track if a jet has received the pileup subtraction (always true if this code was run)

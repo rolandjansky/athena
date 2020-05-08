@@ -10,23 +10,10 @@
    @date   February 2020
 **/
 
-#include "AsgElectronPhotonCorrectionConfigHelper.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
-#include "xAODEventShape/EventShape.h"
-
-// EDM includes
-#include "xAODEgamma/EgammaEnums.h"
-#include "TEnv.h"
-
-//Root includes
-#include "TF1.h"
-#include "TGraph.h"
-#include "TFile.h"
-
-//allow advanced math for the TF1
-#include "TMath.h"
-
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "TEnv.h"
 
 // ===========================================================================
 // Standard Constructor
@@ -35,12 +22,9 @@ ElectronPhotonVariableCorrectionTool::ElectronPhotonVariableCorrectionTool(const
     AsgTool(myname)
 {
     //declare the needed properties
-    declareProperty("ConfigFile",m_configFile="","The configuration file to use");
+    declareProperty("ConfigFile",m_configFile="", "The configuration file to use");
 }
 
-// ===========================================================================
-// Initialize
-// ===========================================================================
 StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 {
     // Locate configuration file, abort if not found
@@ -61,223 +45,173 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    // retrieve properties from configuration file, using TEnv class
+    // Retreive properties from configuration file, using TEnv class
     TEnv env(configFile.c_str());
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
-    //retrieve variable to correct
-    if (env.Lookup("Variable"))
+    // retrieve different object type conf files
+    if (env.Lookup("ElectronConfigs"))
     {
-        m_correctionVariable = env.GetValue("Variable","");
+        m_electronConfFiles = AsgConfigHelper::HelperString("ElectronConfigs",env);
     }
-    else
+    if (env.Lookup("ConvertedPhotonConfigs"))
     {
-        ATH_MSG_ERROR("Correction variable is empty or not in configuration file.");
+        m_convertedPhotonConfFiles = AsgConfigHelper::HelperString("ConvertedPhotonConfigs",env);
+    }
+    if (env.Lookup("UnconvertedPhotonConfigs"))
+    {
+        m_unconvertedPhotonConfFiles = AsgConfigHelper::HelperString("UnconvertedPhotonConfigs",env);
+    }
+
+    // check if any conf files were received
+    if (m_electronConfFiles.size() + m_convertedPhotonConfFiles.size() + m_unconvertedPhotonConfFiles.size() < 1)
+    {
+        ANA_MSG_ERROR("You did not provide any config files for the ElectronPhotonVariableCorrectionBase to the ElectronPhotonVariableCorrectionTool.");
         return StatusCode::FAILURE;
     }
 
-    // initialize the variable aux element accessors
-    // variable to be corrected
-    m_variableToCorrect = std::make_unique<SG::AuxElement::Accessor<float>>(m_correctionVariable);
-    // save original value under different name
-    m_originalVariable = std::make_unique<SG::AuxElement::Accessor<float>>(m_correctionVariable + "_original");
+    // initialize the ElectronPhotonVariableCorrectionTools
+    ANA_CHECK(initializeCorrectionTools());
 
-    // Get the function used to correct the variable
-    if (env.Lookup("Function"))
-    {
-        m_correctionFunctionString = env.GetValue("Function","failure");
-        // initialize the actual correction function TF1
-        m_correctionFunctionTF1 = std::make_unique<TF1>(TF1("m_correctionFunctionTF1",m_correctionFunctionString.c_str()));
-    }
-    else
-    {
-        ATH_MSG_ERROR("Correction function is empty or not in configuration file.");
-        return StatusCode::FAILURE;
-    }
+    ANA_MSG_INFO("Initialized tool " << name());
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
 
-    // Get the number of parameters used in the correction function
-    if (env.Lookup("nFunctionParameters"))
-    {
-        m_numberOfFunctionParameters = env.GetValue("nFunctionParameters",-1);
-    }
-    else
-    {
-        ATH_MSG_ERROR("You did not specify the number of parameters in the correction function.");
-        return StatusCode::FAILURE;
-    }
-
-    // resize all vectors used for getting parameters to m_numberOfFunctionParameters
-    m_ParameterTypeVector.resize(m_numberOfFunctionParameters);
-    m_binValues.resize(m_numberOfFunctionParameters);
-    m_graphCopies.resize(m_numberOfFunctionParameters);
-
-    // Save the type of all parameters in the correction function (assuming m_numberOfFunctionParameters parameters)
-    for (int parameter_itr = 0; parameter_itr < m_numberOfFunctionParameters; parameter_itr++)
-    {
-        // if the parameter #parameter_itr is in the conf file, save its type
-        TString parameterType = TString::Format("Parameter%dType",parameter_itr);
-        if (env.Lookup(parameterType))
-        {
-            // convert string to ParameterType, fail if non-existing type
-            ElectronPhotonVariableCorrectionTool::parameterType type = stringToParameterType(env.GetValue(parameterType.Data(),""));
-            if( type == ElectronPhotonVariableCorrectionTool::parameterType::Failure )
-            {
-                ATH_MSG_ERROR("Parameter " << parameter_itr << " read-in failed, not an allowed parameter type.");
-                return StatusCode::FAILURE;
-            }
-            // save type, get according type information and save it
-            m_ParameterTypeVector.at(parameter_itr) = type;
-            ATH_CHECK(getParameterInformationFromConf(env, parameter_itr, type));
-        }
-        // else fail
-        else
-        {
-            ATH_MSG_ERROR("Did not find Parameter" << parameter_itr << ", although you specified there were " << m_numberOfFunctionParameters << " parameters for the correction function.");
-            return StatusCode::FAILURE;
-        }
-    } // end loop over all function parameters
-
-    // ceck if this conf is only for correcting (un)converted photons
-    std::string convertedPhotonFlag = env.GetValue("ConvertedPhotonsOnly","NO");
-    std::string unconvertedPhotonFlag = env.GetValue("UnconvertedPhotonsOnly","NO");
-    if (convertedPhotonFlag.compare("YES") == 0)
-    {
-        //will only deal with converted photons
-        m_convertedPhotonsOnly = true;
-    }
-    if (unconvertedPhotonFlag.compare("YES") == 0)
-    {
-        //will only deal with unconverted photons
-        m_unconvertedPhotonsOnly = true;
-    }
-    if (m_convertedPhotonsOnly && m_unconvertedPhotonsOnly)
-    {
-        ATH_MSG_ERROR("You stated this conf file is only for unconverted and only for converted photons, which is contradictory. If you want to use it for both, don't specify any of these flags.");
-        return StatusCode::FAILURE;
-    }
+const StatusCode ElectronPhotonVariableCorrectionTool::initializeCorrectionTools()
+{
+    //find all the config files using path resolver
+    ANA_CHECK(findAllConfigFiles(m_convertedPhotonConfFiles));
+    ANA_CHECK(findAllConfigFiles(m_unconvertedPhotonConfFiles));
+    ANA_CHECK(findAllConfigFiles(m_electronConfFiles));
+    //initialize all tools
+    ANA_CHECK(initializeTools("unconvertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
+    ANA_CHECK(initializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
+    ANA_CHECK(initializeTools("electrons", m_electronConfFiles, m_electronTools));
+    // check if ApplyTo Flag matches with the tool holder
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons));
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons));
+    ANA_CHECK(applyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons));
 
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
- 
-// ===========================================================================
-// Application of correction
-// ===========================================================================
-const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Photon& photon ) const
+
+const StatusCode ElectronPhotonVariableCorrectionTool::findAllConfigFiles( std::vector<std::string>& confFiles )
 {
-    // check if we should only deal with converted / unconverted photons
-    if (passedCorrectPhotonType(photon) != StatusCode::SUCCESS)
+    //loop over conf file vector, find conf file using path resolver
+    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
     {
-        return CP::CorrectionCode::Error;
+        std::string tmp_confFile = confFiles.at(confFile_itr);
+        confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
+        if (confFiles.at(confFile_itr) == "")
+        {
+            ATH_MSG_ERROR("Could not locate configuration file " << tmp_confFile);
+            return StatusCode::FAILURE;
+        }
     }
-    
-    // From the object, get the variable value according to the variable from the conf file
-    // if variable not found, fail
-    float original_variable = 0.;
-    if( m_variableToCorrect->isAvailable(photon) )
-    {
-        original_variable = (*m_variableToCorrect)(photon);
-        //Save the original value to the photon under different name
-        (*m_originalVariable)(photon) = original_variable;
-    }
-    else
-    {
-        ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
-        return CP::CorrectionCode::Error;
-    }
-    
-    //declare objects needed to retrieve photon properties
-    std::vector<float> properties; //safe value of function parameter i at place i
-    properties.resize(m_numberOfFunctionParameters);
-    float absEta; //safe absolute value of eta of event
-    float pt; //safe pt of event
-
-    //Get all the properties from the photon and fill them to properties, eta, pt
-    if (getKinematicProperties(photon, pt, absEta) != StatusCode::SUCCESS)
-    {
-        ATH_MSG_ERROR("Could not retrieve kinematic properties of this photon object.");
-        return CP::CorrectionCode::Error;
-    }
-    if (getCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
-    {
-        ATH_MSG_ERROR("Could not get the correction parameters for this photon object.");
-        return CP::CorrectionCode::Error;
-    }
-    
-    // Apply the correction, write to the corrected AuxElement
-    correct((*m_variableToCorrect)(photon),original_variable, properties).ignore(); // ignore as will always return SUCCESS
-
-    // everything worked out, so
-    return CP::CorrectionCode::Ok;
-}
-
-const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Electron& electron ) const
-{   
-    if (m_convertedPhotonsOnly || m_unconvertedPhotonsOnly)
-    {
-        ATH_MSG_ERROR("You want to correct electrons, but set either ConvertedPhotonsOnly or UnconvertedPhotonsOnly to \"YES\". Are you using the correct conf file?");
-        return CP::CorrectionCode::Error;
-    }
-
-    // From the object, get the variable value according to the variable from the conf file
-    // if variable not found, fail
-    float original_variable = 0.;
-    if (m_variableToCorrect->isAvailable(electron))
-    {
-        original_variable = (*m_variableToCorrect)(electron);
-        //Save the original value to the photon under different name
-        (*m_originalVariable)(electron) = original_variable;
-    }
-    else
-    {
-        ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
-        return CP::CorrectionCode::Error;
-    }
-    
-    //declare objects needed to retrieve electron properties
-    std::vector<float> properties; //safe value of function parameter i at place i
-    properties.resize(m_numberOfFunctionParameters);
-    float absEta; //safe absolute value of eta of event
-    float pt; //safe pt of event
-
-    //Get all the properties from the electron and fill them to properties, eta, pt
-    if (getKinematicProperties(electron, pt, absEta) != StatusCode::SUCCESS)
-    {
-        ATH_MSG_ERROR("Could not retrieve kinematic properties of this electron object.");
-        return CP::CorrectionCode::Error;
-    }
-    if (getCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
-    {
-        ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
-        return CP::CorrectionCode::Error;
-    }
-    
-    // Apply the correction, write to the corrected AuxElement
-    correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
-
-    // everything worked out, so
-    return CP::CorrectionCode::Ok;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const
-{   
-    // set the parameters of the correction function
-    for (unsigned int parameter_itr = 0; parameter_itr < properties.size(); parameter_itr++)
-    {
-        m_correctionFunctionTF1->SetParameter(parameter_itr,properties.at(parameter_itr));
-    }
-
-    // Calculate corrected value
-    return_corrected_variable = m_correctionFunctionTF1->Eval(original_variable);
-
-    // everything worked out, so
+    //everything worked out, so
     return StatusCode::SUCCESS;
 }
 
-// ===========================================================================
-// Corrected Copies
-// ===========================================================================
+const StatusCode ElectronPhotonVariableCorrectionTool::initializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder )
+{
+    // adapt size of toolHolder
+    toolHolder.resize(confFiles.size());
+    // for each conf file, initialize one tool
+    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
+    {
+        // name: supertool name + type name + variable name
+        std::string variable = ""; //get the name of the variable to be corrected
+        ANA_CHECK(getCorrectionVariableName(variable, confFiles.at(confFile_itr)));
+        TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
+        ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
+        toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionBase>(toolname.Data());
+        ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
+        ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
+    }
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionTool::applyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionBase>>& toolHolder, ElectronPhotonVariableCorrectionBase::EGammaObjects toolHolderType )
+{
+    // loop over conf file holder
+    for (unsigned int tool_itr = 0; tool_itr < toolHolder.size(); tool_itr++)
+    {
+        // get ApplyTo flag
+        ElectronPhotonVariableCorrectionBase::EGammaObjects confFileType = toolHolder.at(tool_itr)->isAppliedTo();
+        // skip all further tests if should be applied to all objects
+        if ((confFileType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects)) continue;
+        // continue if ApplyTo flag matches toolholder
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons && toolHolder.at(tool_itr)->applyToConvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
+        // if this point is reached, something is wrong, so
+        ATH_MSG_ERROR("In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the container type from the conf file.");
+        return StatusCode::FAILURE;
+    }
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+/* ========================================
+ * Apply correction
+ * ======================================== */
+
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( xAOD::Photon& photon ) const
+{
+    bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
+
+    // check if need to run over converted or unconverted photons
+    if (isConvertedPhoton)
+    {
+        // correct variables on the converted photon
+        for (unsigned int convertedPhotonTool_itr = 0; convertedPhotonTool_itr < m_convertedPhotonTools.size(); convertedPhotonTool_itr++)
+        {
+            if ((m_convertedPhotonTools.at(convertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
+            {
+                ATH_MSG_ERROR("Could not apply correction to converted photon object.");
+                return CP::CorrectionCode::Error;
+            }
+        }
+    }
+    else
+    {
+        // correct variables on the converted photon
+        for (unsigned int unconvertedPhotonTool_itr = 0; unconvertedPhotonTool_itr < m_unconvertedPhotonTools.size(); unconvertedPhotonTool_itr++)
+        {
+            if ((m_unconvertedPhotonTools.at(unconvertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
+            {
+                ATH_MSG_ERROR("Could not apply correction to unconverted photon object.");
+                return CP::CorrectionCode::Error;
+            }
+        }
+    }
+    
+    // everything worked out, so
+    return CP::CorrectionCode::Ok;
+}
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( xAOD::Electron& electron ) const
+{
+    // correct variables on the electron
+    for (unsigned int electronTool_itr = 0; electronTool_itr < m_electronTools.size(); electronTool_itr++)
+    {
+        if ((m_electronTools.at(electronTool_itr)->applyCorrection(electron)) != CP::CorrectionCode::Ok)
+        {
+            ATH_MSG_ERROR("Could not apply correction to electron object.");
+            return CP::CorrectionCode::Error;
+        }
+    }
+    // everything worked out, so
+    return CP::CorrectionCode::Ok;
+}
+
+/* ========================================
+ * Corrected Copy
+ * ======================================== */
+
 const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const
 {
     out_photon = new xAOD::Photon(in_photon);
@@ -290,383 +224,27 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
     return applyCorrection(*out_electron);
 }
 
-// ===========================================================================
-// Helper Functions
-// ===========================================================================
+/* ========================================
+ * Helper functions
+ * ======================================== */
 
-const StatusCode ElectronPhotonVariableCorrectionTool::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
+const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
-    // just reteriving eta and pt is probably less expensive then checking if I need it and
-    // then retrieve it only if I actually need it
+    // Retreive properties from configuration file, using TEnv class
+    TEnv env(confFile.c_str());
+    // Send warning if duplicates found in conf file
+    env.IgnoreDuplicates(false);
 
-    // protection against bad clusters
-    const xAOD::CaloCluster* cluster  = egamma_object.caloCluster();
-    if ( cluster == nullptr )
+    // retrieve variable name
+    if (env.Lookup("Variable"))
     {
-        ATH_MSG_ERROR("EGamma object calorimeter cluster is NULL: Cluster " << cluster);
-        return StatusCode::FAILURE;
+        variableName = env.GetValue("Variable", "");
     }
-
-    // Fill variables
-    // eta position in second sampling
-    absEta   = fabsf(cluster->etaBE(2));
-    // transverse energy in calorimeter (using eta position in second sampling)
-    const double energy =  cluster->e();
-    double et = 0.;
-    if (absEta<999.) {
-      const double cosheta = cosh(absEta);
-      et = (cosheta != 0.) ? energy/cosheta : 0.;
-    }
-    pt = et;
-
-    // everything went fine, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::parameterType& type)
-{
-    // don't want to write the same code multiple times, so set flags when to retrieve eta/pt bins
-    bool getEtaBins = false;
-    bool getPtBins = false;
-    // form strings according to which parameter to retrieve
-    TString filePathKey = TString::Format("Parameter%dFile",parameter_number);
-    TString graphNameKey = TString::Format("Parameter%dGraphName",parameter_number);
-    TString binValues = TString::Format("Parameter%dValues",parameter_number);
-    // helpers
-    TString filePath = "";
-    TString graphName = "";
-
-    // according to the parameter type, retrieve the information from conf
-    if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph || type == ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph)
-    {
-        // check if necessary information is in conf, else fail
-        if (env.Lookup(filePathKey))
-        {
-            //get the path to the root file where the graph is saved
-            filePath = PathResolverFindCalibFile(env.GetValue(filePathKey.Data(),""));
-            // fail if file not found
-            if (filePath == "")
-            {
-                ATH_MSG_ERROR("Could not locate Parameter" << parameter_number << " TGraph file.");
-                return StatusCode::FAILURE;
-            }
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " file path.");
-            return StatusCode::FAILURE;
-        }
-        // check if necessary information is in conf, else fail
-        if (env.Lookup(graphNameKey))
-        {
-            //get the name of the TGraph
-            graphName = env.GetValue(graphNameKey.Data(),"");
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " graph name.");
-            return StatusCode::FAILURE;
-        }
-        // open file, if it works, try to find graph, get graph, store a copy, else warning + fail
-        std::unique_ptr<TFile> file (new TFile(filePath.Data(),"READ"));
-        // check if file is open - if open, get graph, if not, fail
-        if (file->IsOpen())
-        {
-            // if graph exists, get it, else fail
-            if (file->Get(graphName))
-            {
-                std::unique_ptr<TGraph> graph ((TGraph*)file->Get(graphName.Data()));
-                m_graphCopies.at(parameter_number) = (TGraph*)graph->Clone(); //Or use copy constructor?
-                file->Close();
-            }
-            else
-            {
-                ATH_MSG_ERROR("Could not find TGraph " << graphName << " in file " << filePath);
-                return StatusCode::FAILURE;
-            }
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not open Parameter" << parameter_number << " TGraph file " << filePath.Data());
-            return StatusCode::FAILURE;
-        }
-    }
-    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned )
-    {
-        //get eta binning later
-        getEtaBins = true;
-    }
-    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtBinned )
-    {
-        //get pt binning later
-        getPtBins = true;
-    }
-    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned )
-    {
-        //get eta and pt binning later
-        getEtaBins = true;
-        getPtBins = true;
-    }
-    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EventDensity )
-    {
-        // nothing has to be retrieved, no additional parameters for EventDensity currently
-        return StatusCode::SUCCESS;
-    }
-
-    // if needed and not already retrieved, get eta binning
-    if (getEtaBins && !m_retrievedEtaBinning)
-    {
-        // check if necessary information is in conf, else fail
-        if (env.Lookup("EtaBins"))
-        {
-            //get the eta binning (global!)
-            m_etaBins = AsgConfigHelper::HelperFloat("EtaBins",env);
-            //force that the low bin edges are given by the conf file, starting with 0
-            if (m_etaBins.at(0) != 0.)
-            {
-                ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
-                return StatusCode::FAILURE;
-            }
-            // don't want to retrieve the same thing twice from conf
-            m_retrievedEtaBinning = true;
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not retrieve eta binning.");
-            return StatusCode::FAILURE;
-        }
-    }
-    // if needed and not already retrieved, get pt binning
-    if (getPtBins && !m_retrievedPtBinning)
-    {
-        // check if necessary information is in conf, else fail
-        if (env.Lookup("PtBins"))
-        {
-            //get the pt binning (global!)
-            m_ptBins = AsgConfigHelper::HelperFloat("PtBins",env);
-            //force that the low bin edges are given by the conf file, starting with 0
-            if (m_ptBins.at(0) != 0.)
-            {
-                ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
-                return StatusCode::FAILURE;
-            }
-            // don't want to retrieve the same thing twice from conf
-            m_retrievedPtBinning = true;
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not retrieve pt binning.");
-            return StatusCode::FAILURE;
-        }
-    }
-    // if needed, get binned correction values
-    if ( getEtaBins || getPtBins)
-    {
-        // check if necessary information is in conf, else fail
-        if (env.Lookup(binValues))
-        {
-            //get the binned values of the eta/pt dependent parameter
-            m_binValues.at(parameter_number) = AsgConfigHelper::HelperFloat(binValues.Data(),env);
-        }
-        else
-        {
-            ATH_MSG_ERROR("Could not retrieve binned values.");
-            return StatusCode::FAILURE;
-        }
-    }
-
-    // everything went fine, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const
-{
-    // according to the parameter type, get the actual parameter going to the correction function
-    // for this, loop over the parameter type vector
-    for (unsigned int parameter_itr = 0; parameter_itr < m_ParameterTypeVector.size(); parameter_itr++)
-    {
-        ElectronPhotonVariableCorrectionTool::parameterType type = m_ParameterTypeVector.at(parameter_itr);
-        if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph)
-        {
-            // evaluate TGraph at abs(eta)
-            properties.at(parameter_itr) = m_graphCopies.at(parameter_itr)->Eval(absEta);
-        }
-        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph)
-        {
-            // evaluate TGraph at pt
-            properties.at(parameter_itr) = m_graphCopies.at(parameter_itr)->Eval(pt);
-        }
-        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned)
-        {
-            // get value of correct eta bin
-            ATH_CHECK(get1DBinnedParameter(properties.at(parameter_itr),absEta,m_etaBins,parameter_itr));
-        }
-        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtBinned)
-        {
-            // get value of correct pt bin
-            ATH_CHECK(get1DBinnedParameter(properties.at(parameter_itr),pt,m_ptBins,parameter_itr));
-        }
-        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned)
-        {
-            // get value of correct eta x pt bin
-            ATH_CHECK(get2DBinnedParameter(properties.at(parameter_itr),absEta,pt,parameter_itr));
-        }
-        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EventDensity)
-        {
-            // get event density
-            ATH_CHECK(getDensity(properties.at(parameter_itr), "TopoClusterIsoCentralEventShape"));
-        }
-    }
-
-    // everything went fine, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const
-{
-    ANA_MSG_VERBOSE("Get 1DBinnedParameters...");
-    ANA_MSG_VERBOSE("EvalPoint: " << evalPoint);
-    // check in which bin the evalPoint is
-    // if the evalPoint is < 0, something is very wrong
-    if (evalPoint < binning.at(0))
-    {
-        ATH_MSG_ERROR("Abs(Eta) or pT of object is smaller than 0.");
-        return StatusCode::FAILURE;
-    }
-    // loop over bin boundaries
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int bin_itr = 0; bin_itr < binning.size()-1; bin_itr++)
-    {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (evalPoint > binning.at(bin_itr) && evalPoint < binning.at(bin_itr + 1))
-        {
-            // we found the according bin, so return the according value
-            return_parameter_value = m_binValues.at(parameter_number).at(bin_itr);
-            return StatusCode::SUCCESS;
-        }
-    }
-    //if this point is ever reached, the evaluation point is larger then the largest lowest bin edge
-    //if that's the case, return the value for the last bin
-    //the -1 is because the parameter numbering in a vector starts at 0
-    return_parameter_value = m_binValues.at(parameter_number).at(m_binValues.size()-1);
-
-    // everything went fine, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const
-{
-    //need to find eta bin, and need to find pt bin
-    //from this, calculate which parameter of the list is needed to be returned.
-    int etaBin = -1;
-    int ptBin = -1;
-
-    // get eta bin
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int etaBin_itr = 0; etaBin_itr < m_etaBins.size()-1; etaBin_itr++)
-    {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (etaEvalPoint > m_etaBins.at(etaBin_itr) && etaEvalPoint < m_etaBins.at(etaBin_itr))
-        {
-            // we found the according bin, so set to the according value
-            etaBin = etaBin_itr;
-        }
-    }
-    //if etaBin was not set yet, it's larger then the largest lower bin edge
-    //thus, need to set it to the last bin
-    if (etaBin == -1)
-    {
-        //need to correct for vector numbering starting at 0
-        etaBin = m_etaBins.size()-1;
-    }
-
-    // get pt bin
-    //run only up to binning.size()-1, as running to binning.size() will get a seg fault for the boundary check
-    for (unsigned int ptBin_itr = 0; ptBin_itr < m_ptBins.size()-1; ptBin_itr++)
-    {
-        // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (ptEvalPoint > m_ptBins.at(ptBin_itr) && ptEvalPoint < m_ptBins.at(ptBin_itr))
-        {
-            // we found the according bin, so set to the according value
-            ptBin = ptBin_itr;
-        }
-    }
-    //if ptBin was not set yet, it's larger then the largest lower bin edge
-    //thus, need to set it to the last bin
-    if (ptBin == -1)
-    {
-        //need to correct for vector numbering starting at 0
-        ptBin = m_ptBins.size()-1;
-    }
-
-    // return the value corresponding to the pt x eta bin found
-    /* Note: Assuming that the values are binned in pt x eta in the conf file:
-     *           eta bin 0 | eta bin 1 | eta bin 2 | eta bin 3 | eta bin 4 | etc.
-     * pt bin 0      0           1           2           3           4
-     * pt bin 1      5           6           7           8           9
-     * pt bin 2     10          11          12          13          14
-     * pt bin 3     15          16          17          18          19
-     * pt bin 4     20          21          22          23          24
-     * etc.
-     * the correct parameter is saved in the vector at 4*ptBinNumber + etaBinNumber
-     * */
-    return_parameter_value = m_binValues.at(parameter_number).at(m_etaBins.size() * ptBin + etaBin);
-
-    // everything went fine, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::getDensity(float& value, const std::string& eventShapeContainer) const
-{
-    // retrieve the event shape container
-    const xAOD::EventShape* evtShape = nullptr;
-    if(evtStore()->retrieve(evtShape, eventShapeContainer).isFailure()){
-        ATH_MSG_ERROR("Cannot retrieve density container " << eventShapeContainer);
-        return StatusCode::FAILURE;
-    }
-    // get the density from the container
-    value = evtShape->getDensity(xAOD::EventShape::Density);
-    return StatusCode::SUCCESS;
-}
-
-ElectronPhotonVariableCorrectionTool::parameterType ElectronPhotonVariableCorrectionTool::stringToParameterType( const std::string& input ) const
-{
-    // return parameter type according to string given in conf file
-    if( input == "EtaDependentTGraph") return ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph;
-    else if( input == "PtDependentTGraph") return ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph;
-    else if( input == "EtaBinned") return ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned;
-    else if( input == "PtBinned") return ElectronPhotonVariableCorrectionTool::parameterType::PtBinned;
-    else if( input == "EtaTimesPtBinned") return ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned;
-    else if( input == "EventDensity") return ElectronPhotonVariableCorrectionTool::parameterType::EventDensity;
     else
     {
-        // if not a proper type, return failure type - check and fail on this!
-        ATH_MSG_ERROR(input.c_str() << " is not an allowed parameter type.");
-        return ElectronPhotonVariableCorrectionTool::parameterType::Failure;
+        ATH_MSG_ERROR("In conf file " << confFile << ": Correction variable is empty or not in configuration file.");
+        return StatusCode::FAILURE;
     }
-}
-
-const StatusCode ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(const xAOD::Photon& photon) const
-{
-    //check if the passed photon type is the same as the requested photon type, if only one photon type was requested
-    if (m_convertedPhotonsOnly != m_unconvertedPhotonsOnly)
-    {
-        bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
-        bool isUnconvertedPhoton = !isConvertedPhoton;
-        //check if the correct photon was passed to the tool (unconverted/converted)
-        //if the photon is not ((converted and converted requested) or (unconverted and unconverted requested)) fail
-        if (!((isConvertedPhoton && m_convertedPhotonsOnly) || (isUnconvertedPhoton && m_unconvertedPhotonsOnly)))
-        {
-            if (m_convertedPhotonsOnly)
-            {
-                ATH_MSG_ERROR("You requested to only correct converted photons, but passed an unconverted one.");
-            }
-            else
-            {
-                ATH_MSG_ERROR("You requested to only correct unconverted photons, but passed a converted one.");
-            }
-            return StatusCode::FAILURE;
-        }
-    }
+    //everything worked out, so
     return StatusCode::SUCCESS;
 }

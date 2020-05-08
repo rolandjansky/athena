@@ -309,6 +309,9 @@ namespace top {
         top::check(
           decorateHSJets(),
           "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
+        if (m_isMC && m_config->jetResponseMatchingDeltaR() > 0) {
+          top::check(decorateMatchedTruth(), "Failed to decorate matched jet");
+        }
       }
 
       // Decorate the DL1 variable
@@ -604,6 +607,7 @@ namespace top {
 
     top::check(decorateDL1(true), "Failed to decorate track jets with DL1 b-tagging discriminant");
 
+
     ///-- Just make a shallow copy to keep these in line with everything else --///
 
     const xAOD::JetContainer* xaod(nullptr);
@@ -769,6 +773,52 @@ namespace top {
 
     return StatusCode::SUCCESS;
   }
+  
+  StatusCode JetObjectCollectionMaker::decorateMatchedTruth() {
+    static const SG::AuxElement::Decorator<float> matchedPt("AnalysisTop_MatchedTruthJetPt");
+    // retrieve small-R jets collection
+    const xAOD::JetContainer* jets(nullptr);
+
+    top::check(evtStore()->retrieve(jets,
+                                    m_config->sgKeyJets()),
+               "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
+
+    const xAOD::JetContainer* truthJets = nullptr;
+    top::check(asg::AsgTool::evtStore()->retrieve(truthJets, m_config->sgKeyTruthJets()), "Failed to retrieve the truth jets");
+
+    const xAOD::Jet* matchedTruthJet = nullptr;
+    double deltaR(9999);
+    
+    for (const auto& jet : *jets) {
+      // loop over truth jets
+      for (const auto& iTruthJet : *truthJets) {
+        TLorentzVector truthJetTLV;
+        truthJetTLV.SetPtEtaPhiE(iTruthJet->pt(),iTruthJet->eta(),iTruthJet->phi(),iTruthJet->e());
+
+        // do the matching
+        if(!matchedTruthJet) {
+          matchedTruthJet = iTruthJet;
+        } else {
+          const double newdR = jet->p4().DeltaR(iTruthJet->p4());
+          if(newdR < deltaR) {
+            deltaR = newdR;
+            matchedTruthJet = iTruthJet;
+          }
+        }
+      }
+      if (deltaR > m_config->jetResponseMatchingDeltaR()) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      if (!matchedTruthJet) {
+        matchedPt(*jet) = -9999;
+        continue;
+      }
+      matchedPt(*jet) = matchedTruthJet->pt(); 
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode JetObjectCollectionMaker::decorateDL1(bool trackJets) {
     // initialise decorators
@@ -856,42 +906,4 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                systMap& map_two,
-                                                const std::string& syst_two_name) {
-    std::vector<std::string> directions = {
-      "__1up", "__1down"
-    };
-    for (const std::string& d : directions) {
-      std::string tree_name = name + d;
-      map_one.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_one_name + d)));
-      map_two.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_two_name + d)));
-
-      m_specifiedSystematics.push_back(tree_name);
-      m_specifiedSystematicsLargeR.push_back(tree_name);
-    }  // loop through up and down
-
-    m_specifiedSystematics.sort();
-    m_specifiedSystematics.unique();
-
-    m_specifiedSystematicsLargeR.sort();
-    m_specifiedSystematicsLargeR.unique();
-  }
-
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                std::list<CP::SystematicSet>& jet_specified) {
-    map_one.insert(std::make_pair(CP::SystematicSet(name),
-                                  CP::SystematicSet(syst_one_name)));
-
-    jet_specified.push_back(name);
-
-    jet_specified.sort();
-    jet_specified.unique();
-  }
 }  // namespace top

@@ -608,6 +608,16 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
                             BJetLabel=bJetLabel)
     sequence += algOR
 
+    from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonJetDrTool
+    MuonJetDrTool = DerivationFramework__MuonJetDrTool( name = "MuonJetDrTool")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += MuonJetDrTool
+    DFCommonMuonJetTools = []
+    DFCommonMuonJetTools.append(MuonJetDrTool)
+    sequence += CfgMgr.DerivationFramework__CommonAugmentation("DFCommonMuonsKernel2",
+                                                                             AugmentationTools = DFCommonMuonJetTools
+                                                                            )
+
 def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg

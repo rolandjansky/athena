@@ -18,17 +18,15 @@ namespace top {
 
   ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronCollectionName", "Name of the Electron container");
-    registerParameter("FwdElectronCollectionName",
-                      "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
+    registerParameter("FwdElectronCollectionName", "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
     registerParameter("MuonCollectionName", "Name of the Muon container");
     registerParameter("PhotonCollectionName", "Name of the Photon container");
     registerParameter("JetCollectionName", "Name of the Jet container");
     registerParameter("LargeJetCollectionName", "Name of the large-R Jet container");
-    registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet");
+    registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet", "None");
     registerParameter("TrackJetCollectionName", "Name of the track Jet container", "None");
     registerParameter("TauCollectionName", "Name of the Tau container");
-    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.",
-                      "None");
+    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.", "None");
 
     registerParameter("TruthCollectionName", "Name of the Truth container");
     registerParameter("TruthElectronCollectionName", "Name of the Truth Electron container", "TruthElectrons");
@@ -114,13 +112,15 @@ namespace top {
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
     registerParameter("MuonIsolation",
-                      "Isolation to use : FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, None",
-                      "FCTight_FixedRad");
+                      "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, None",
+		      "PflowTight_FixedRad");
     registerParameter("MuonIsolationLoose",
-                      "Isolation to use : Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FCTight, FCLoose, FCTightTrackOnly, PromptLepton, None",
-                      "None");
+                      "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, None",
+		      "None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("do2StationsHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: false", "false");
+    registerParameter("doExtraSmearing", "True/False, To be used by analyses willing to check their sensitivity to momentum resolution effects at large muon momenta. - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
 
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
@@ -166,9 +166,6 @@ namespace top {
                                                          "   \"410470,410472,345873,345874,345875\" (for the listed DSIDs, histograms with the processed DSID will be used, while the flat 50+/-50% fraction will be used for the other DSIDs)."
                                                          " Default: None (i.e. no specific pattern is looked for in the name of the provided histograms).",
                       "None");
-    registerParameter("LargeRSmallRCorrelations",
-                      "Do large-small R jet correlation systematics - True or False (default)",
-                      "False");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
                       "Simple");
@@ -327,6 +324,10 @@ namespace top {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
+    registerParameter("FilterPartonLevelBranches",
+                      "Comma separated list of names of the parton-level branches that will be removed from the output", " ");
+    registerParameter("FilterParticleLevelBranches",
+                      "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
@@ -355,8 +356,9 @@ namespace top {
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
     registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
-
-    registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
+    registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
+    
+    registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
                       "Perform overlap removal at particle level? True (default), False, or any combination (comma separated) of MuonJet, ElectronJet, JetPhoton",
                       "True");
@@ -618,7 +620,93 @@ namespace top {
       }
 
       // remove (multiple) spaces hanging around relevant information
-      boost::algorithm::trim_all(newstring);
+      // if a pair of "" appears, the spaces in "" won't be touched
+      bool hasquote = (newstring.find("\"",0) != std::string::npos);
+      if (!hasquote) boost::algorithm::trim_all(newstring);
+      else { 
+        //split the string into segments, separated by pairs of quotes
+        //e.g. the string "abc \"def\" ghi"
+        //     becomes a vector of 3 strings: "abc", "\"def\"", "ghi"
+        std::vector<std::string> segments;
+        std::vector<bool> segments_isquote;
+        std::size_t strsize = newstring.size();
+        std::size_t tmppos = 0;
+        bool leftquote = true;
+        while (tmppos <= strsize-1) {
+          // find the position of the 1st quote after newstring[tmppos]
+          std::size_t tmppos2 = newstring.find_first_of("\"",tmppos);
+          
+	  // when the quote found has \ ahead of it, jump over and update tmppos2
+	  std::size_t tmppos3 = newstring.find_first_of("\\\"",tmppos);
+          while (tmppos2 == tmppos3+1) {
+	    tmppos3 = newstring.find_first_of("\\\"",tmppos2+1);
+            tmppos2 = newstring.find_first_of("\"",tmppos2+1);
+          }
+
+          // when no more quote found, save the segment from the last rightquote to the end, then quit the loop
+          if (tmppos2 == std::string::npos) {
+            segments.push_back(newstring.substr(tmppos,strsize-tmppos));
+            segments_isquote.push_back(false);
+            break;
+          }
+
+          // check it's a left quote or right quote
+          if (leftquote) {
+            segments.push_back(newstring.substr(tmppos,tmppos2-tmppos));
+            segments_isquote.push_back(false);
+
+            // update the position indicator and leftquote flag
+            tmppos = tmppos2+1;
+            leftquote = false;
+          } else {
+            segments.push_back(newstring.substr(tmppos-1,tmppos2-(tmppos-1)+1)); // have to include the two quotes, which is why +/-1 adjustment is introduced
+            segments_isquote.push_back(true);
+
+            // update the position indicator and leftquote flag
+            tmppos = tmppos2+1;
+            leftquote = true;
+          }
+        }
+
+        // sanity check: if leftquote = false after the loop, it means a left quote is found but not its associated rightquote
+        // in this case, crash the code
+        if (!leftquote) {
+          std::string message = "Problematic configuration line\n";
+          message.append(newstring.c_str());
+          throw std::invalid_argument(message);
+        }
+
+        //run the original trim_all for each segment that is NOT a quote
+        for (uint i = 0; i < segments.size(); i++) {
+          std::string seg = segments.at(i);
+          if (seg.size() == 0) continue;
+          if (segments_isquote.at(i)) continue;
+          boost::algorithm::trim_all(seg);
+
+          // if the segment has a space in the end and it's not the last segment, add the space back
+          if (i+1 != segments.size()) {
+            if (segments.at(i).at(segments.at(i).size()-1) == ' ') {
+              seg += " ";
+            }
+          }
+          // if the segment has a space in the head and it's not the first segment, add the space back
+          if (i != 0) {
+            if (segments.at(i).at(0) == ' ') {
+              seg = " " + seg;
+            }
+          }
+
+          // update the segment
+          segments.at(i) = seg;
+        }
+
+        // combine the segments back to newstring
+        newstring = "";
+        for (uint i = 0; i < segments.size(); i++) {
+          newstring += segments.at(i);
+        }
+      }
+
       if (newstring.empty()) continue;
 
       // handle start of a (sub)selection (implies end of key-value section)
@@ -748,26 +836,24 @@ namespace top {
     return m_selections;
   }
 
-  bool ConfigurationSettings::retrieve(std::string const& key, bool& value) const {
+  void ConfigurationSettings::retrieve(std::string const& key, bool& value) const {
     using boost::trim;
     using boost::equals;
     using boost::iequals;
     auto stringValue = ConfigurationSettings::get()->value(key);
     trim(stringValue);
-    if (equals(stringValue, "")) {
-      return false;
-    }
+
     if (iequals(stringValue, "false") or iequals(stringValue, "0") or iequals(stringValue, "n") or iequals(stringValue,
                                                                                                            "no") or
         iequals(stringValue, "off")) {
       value = false;
-      return true;
+      return;
     }
     if (iequals(stringValue, "true") or iequals(stringValue, "1") or iequals(stringValue, "y") or iequals(stringValue,
                                                                                                           "yes") or
         iequals(stringValue, "on")) {
       value = true;
-      return true;
+      return;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
   }

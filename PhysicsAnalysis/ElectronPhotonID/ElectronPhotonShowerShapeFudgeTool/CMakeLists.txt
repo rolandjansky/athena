@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
    PRIVATE
    Tools/PathResolver
    ${extra_dep} )
@@ -33,7 +34,7 @@ atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfacesLib
-   xAODEventShape
+   xAODEventShape EgammaAnalysisHelpersLib xAODRootAccess
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -55,20 +56,25 @@ atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
 
-atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
-   util/testElectronPhotonVariableCorrectionTool.cxx
+atlas_add_executable( Test_ElectronPhotonVariableCorrectionBase
+   util/testElectronPhotonVariableCorrectionBase.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools ElectronPhotonShowerShapeFudgeToolLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib)
 
 atlas_add_executable( Test_IsoCorrection
    util/testIsoCorrection.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools IsolationCorrectionsLib ElectronPhotonShowerShapeFudgeToolLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} IsolationCorrectionsLib ElectronPhotonShowerShapeFudgeToolLib)
+
+atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
+   util/testElectronPhotonVariableCorrectionTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib)
 
 atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool_DictionaryToolHandle
    util/testElectronPhotonVariableCorrectionTool_DictionaryToolHandle.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools ElectronPhotonShowerShapeFudgeToolLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib)
 
 # Install files from the package:
 atlas_install_data( data/*.conf data/*.root )

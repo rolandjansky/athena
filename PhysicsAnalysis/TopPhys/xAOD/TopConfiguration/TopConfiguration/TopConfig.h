@@ -122,6 +122,22 @@ namespace top {
         m_filterBranches = value;
       }
     }
+    
+    // List of PartonLevel branches to be removed
+    inline std::vector<std::string> filterPartonLevelBranches() const {return m_filterPartonLevelBranches;}
+    inline void setFilterPartonLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterPartonLevelBranches = value;
+      }
+    }
+    
+    // List of ParticleLevel branches to be removed
+    inline std::vector<std::string> filterParticleLevelBranches() const {return m_filterParticleLevelBranches;}
+    inline void setFilterParticleLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterParticleLevelBranches = value;
+      }
+    }
 
     // Generators name
     inline std::string getGenerators() const {return m_generators;}
@@ -347,12 +363,19 @@ namespace top {
     inline bool isTopPartonHistoryRegisteredInNtuple() const {return m_isTopPartonHistoryRegisteredInNtuple;}
     inline void setTopPartonHistoryRegisteredInNtuple()
     {m_isTopPartonHistoryRegisteredInNtuple = true;}
+    
+    inline bool doTopPartonLevel() const {return m_doTopPartonLevel;}
+    inline void setTopPartonLevel(bool in) {
+      if (!m_configFixed) {
+        m_doTopPartonLevel = in;
+      }
+    }
 
     // TopParticleLevel
     inline bool doTopParticleLevel() const {return m_doTopParticleLevel;}
-    inline void setTopParticleLevel() {
+    inline void setTopParticleLevel(bool in) {
       if (!m_configFixed) {
-        m_doTopParticleLevel = true;
+        m_doTopParticleLevel = in;
       }
     }
 
@@ -502,6 +525,9 @@ namespace top {
         m_sgKeyMissingEtLoose = s;
       }
     }
+
+    inline float jetResponseMatchingDeltaR() const {return m_jetResponseMatchingDeltaR;}
+    inline void setJetResponseMatchingDeltaR(const float value) {m_jetResponseMatchingDeltaR = value;}
 
     inline const std::string& sgKeyEventInfo()  const {return m_sgKeyEventInfo;}
     inline const std::string& sgKeyPrimaryVertices() const {return m_sgKeyPrimaryVertices;}
@@ -877,6 +903,18 @@ namespace top {
       }
     }
 
+    void muondo2StationsHighPt(const bool& do2StationsHighPt) {
+      if (!m_configFixed) {
+	m_do2StationsHighPt = do2StationsHighPt;
+      }
+    }
+
+    void muondoExtraSmearing(const bool& doExtraSmearing) {
+      if (!m_configFixed) {
+	m_doExtraSmearing = doExtraSmearing;
+      }
+    }
+
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
@@ -885,6 +923,8 @@ namespace top {
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+    inline virtual bool muondo2StationsHighPt() const {return m_do2StationsHighPt;}
+    inline virtual bool muondoExtraSmearing() const {return m_doExtraSmearing;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1123,7 +1163,6 @@ namespace top {
     virtual void jetUncertainties_QGFracFile(const std::string& s);
     virtual void jetUncertainties_QGHistPatterns(const std::string& s);
     inline bool doMultipleJES() const {return m_doMultipleJES;}
-    inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
     inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
@@ -1788,7 +1827,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
-    std::vector<std::string> m_filterBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
@@ -1863,6 +1902,7 @@ namespace top {
     // Top Parton History
     bool m_doTopPartonHistory;
     bool m_isTopPartonHistoryRegisteredInNtuple;
+    bool m_doTopPartonLevel;
 
     // Top Particle Level
     bool m_doTopParticleLevel;
@@ -1922,6 +1962,8 @@ namespace top {
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
 
+    float m_jetResponseMatchingDeltaR;
+
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     bool m_dumpBtagSystsInSystTrees;
 
@@ -1971,6 +2013,8 @@ namespace top {
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
+    bool m_do2StationsHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_doExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
@@ -1992,7 +2036,6 @@ namespace top {
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
                                                                 // more flexibility
     bool m_doMultipleJES;
-    bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
     std::string m_jetJERSmearingModel; // Full or Simple
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_jetStoreTruthLabels; // True or False

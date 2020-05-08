@@ -41,6 +41,10 @@ def setup(TOPQname, stream):
         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903Aux"          : "xAOD::JetAuxContainer"     ,
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"        : "xAOD::BTaggingContainer"   ,
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"     : "xAOD::BTaggingAuxContainer",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtx"     : "xAOD::BTagVertexContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtxAux"  : "xAOD::BTagVertexAuxContainer",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtx"    : "xAOD::VertexContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtxAux" : "xAOD::VertexAuxContainer",
     }
 
     # list of existing containers with a smart list is available here :
@@ -146,7 +150,9 @@ def setup(TOPQname, stream):
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
         # see TOPDERIV-93
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_SecVtx_AntiKtVR30Rmax4Rmin02TrackJets_201903
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoJets
         # Xbb tagger extra variables
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
@@ -157,6 +163,8 @@ def setup(TOPQname, stream):
         # see TOPDERIV-93
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_SecVtx_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoJets
         # add these trigger variables to both data and MC
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet

@@ -25,10 +25,8 @@ fileName = buildFileName( derivationFlags.WriteDAOD_JETM10Stream )
 JETM10Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM10Stream.AcceptAlgs(['JETM10Kernel'])
 
-# contentManager.thinningHelper.AppendToStream( JETM10Stream )
-contentManager = METTriggerDerivationContentManager("JETM10", JETM10Stream, trackThreshold=1)
-for tool in contentManager.thinningTools:
-  ToolSvc += tool
+content_manager = METTriggerDerivationContentManager.make_loose_manager(
+        "JETM10", JETM10Stream)
 
 #======================================================================================================================
 # CREATE PRIVATE SEQUENCE
@@ -39,10 +37,5 @@ DerivationFrameworkJob += jetm10Seq
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm10Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM10Kernel',
-                                                          SkimmingTools = [JETM10SkimmingTool],
-                                                          ThinningTools = contentManager.thinningTools)
-contentManager.slimmingHelper.AllVariables.append("HLT_xAOD__MuonContainer_MuonEFInfo")
-contentManager.slimmingHelper.AllVariables.append("CaloCalTopoClusters")
-contentManager.slimmingHelper.AppendContentToStream(JETM10Stream)
+jetm10Seq += content_manager.make_kernel(JETM10SkimmingTool)
+content_manager.slimming_helper.AppendContentToStream(JETM10Stream)

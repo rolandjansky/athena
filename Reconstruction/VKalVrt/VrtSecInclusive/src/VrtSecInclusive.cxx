@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -53,7 +53,7 @@ namespace VKalVrtAthena {
     
     // Services
     m_pixelCondSummarySvc          ( "PixelConditionsSummarySvc", "VrtSecInclusive" ),
-    m_sctCondSummarySvc            ( "SCT_ConditionsSummarySvc", "VrtSecInclusive" ),
+    m_sctCondSummarySvc            ( "InDetSCT_ConditionsSummarySvc", "VrtSecInclusive" ),
     
     m_checkPatternStrategy         ( "Classical" ),
     
@@ -144,6 +144,9 @@ namespace VKalVrtAthena {
     if( detStore()->retrieve(m_atlasId, "AtlasID").isFailure() ) return StatusCode::SUCCESS;
     if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) return StatusCode::SUCCESS;
     if( detStore()->retrieve(m_sctId,   "SCT_ID") .isFailure() ) return StatusCode::SUCCESS;
+
+    ATH_CHECK( m_pixelCondSummarySvc.retrieve() );
+    ATH_CHECK( m_sctCondSummarySvc.retrieve() );
     
     ATH_CHECK( m_extrapolator.retrieve() );
     

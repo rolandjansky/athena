@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #********************************************************************
 # PHYSLITE.py 
 # reductionConf flag PHYSLITE in Reco_tf.py   
@@ -49,6 +50,8 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
   # Extra classifiers for the Higgs group
   import DerivationFrameworkHiggs.TruthCategories
+  # Set appropriate truth jet collection for tau truth matching
+  ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
   # Add sumOfWeights metadata for LHE3 multiweights =======
   from DerivationFrameworkCore.LHE3WeightMetadata import *
   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
@@ -171,11 +174,12 @@ ToolSvc += PHYSLITEMuonTPThinningTool
 thinningTools.append(PHYSLITEMuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3) && (AnalysisTauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
                                                                          ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
                                                                          ContainerName   = "AnalysisTauJets",
-                                                                         SelectionString = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)")
+                                                                         SelectionString = tau_thinning_expression)
 ToolSvc += PHYSLITETauJetsThinningTool
 thinningTools.append(PHYSLITETauJetsThinningTool)
 
@@ -185,7 +189,7 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
                                                                           TauKey                 = "AnalysisTauJets",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                          SelectionString        = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)",
+                                                                          SelectionString        = tau_thinning_expression,
                                                                           ApplyAnd               = False,
                                                                           DoTauTracksThinning    = True,
                                                                           TauTracksKey           = "TauTracks")
@@ -212,6 +216,10 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
+
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
@@ -251,9 +259,9 @@ if DerivationFrameworkIsMonteCarlo:
 
 #in your c++ code, create a ToolHandle<IPileupReweightingTool>
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
-from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles,getMCMuFiles
+from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles
 ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
-                                            ConfigFiles=getMCMuFiles(),
+                                            ConfigFiles=[],
                                             UnrepresentedDataAction=2,
                                             LumiCalcFiles=getLumiCalcFiles())
 SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)

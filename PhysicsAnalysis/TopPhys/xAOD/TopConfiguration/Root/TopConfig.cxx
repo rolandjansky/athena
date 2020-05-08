@@ -117,6 +117,7 @@ namespace top {
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
+    m_doTopPartonLevel(true),
 
     m_doTopParticleLevel(false),
     m_doParticleLevelOverlapRemovalMuJet(true),
@@ -172,6 +173,8 @@ namespace top {
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
 
+    m_jetResponseMatchingDeltaR(-1),
+
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     m_dumpBtagSystsInSystTrees(false),
 
@@ -214,6 +217,8 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_do2StationsHighPt(false),
+    m_doExtraSmearing(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -793,11 +798,17 @@ namespace top {
 
       // Save the Top Parton History
       if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
-
+      
+      // Perform parton-level selection and save particle level objects
+      bool topPartonLevel=true;
+      settings->retrieve("TopPartonLevel",topPartonLevel);
+      this->setTopPartonLevel(topPartonLevel);
+      
       // Perform particle-level selection and save particle level objects
-      if (settings->value("TopParticleLevel") == "True") {
-        this->setTopParticleLevel();
-      }
+      bool topParticleLevel=true;
+      settings->retrieve("TopParticleLevel",topParticleLevel);
+      this->setTopParticleLevel(topParticleLevel);
+
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {
         // Value True -> Do all ORs
@@ -868,9 +879,31 @@ namespace top {
       tokenize(settings->value("FilterBranches"), branches, ",");
 
       if (branches.size() == 0) {
-        ATH_MSG_WARNING("You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring");
+        ATH_MSG_WARNING("You provided \"FilterBranches\" option but you did not provide any meaningful values. Ignoring");
       }
       this->setFilterBranches(branches);
+    }
+    
+    // Get list of PartonLevel branches to be filtered
+    if (settings->value("FilterPartonLevelBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterPartonLevelBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterPartonLevelBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterPartonLevelBranches(branches);
+    }
+    
+    // Get list of ParticleLevel branches to be filtered
+    if (settings->value("FilterParticleLevelBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterParticleLevelBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterParticleLevelBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterParticleLevelBranches(branches);
     }
 
     // Force recomputation of CP variables?
@@ -1103,6 +1136,16 @@ namespace top {
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
+    bool do2StationsHighPt = false;
+    settings->retrieve("do2StationsHighPt", do2StationsHighPt);
+    if (settings->value("MuonQuality") != "HighPt" && do2StationsHighPt) {
+      ATH_MSG_WARNING("Could not set do2StationsHighPt True without using the HighPt muon WP. do2StationsHighPt is now setted to the default value (False)");
+      do2StationsHighPt = false;
+    }
+    this->muondo2StationsHighPt(do2StationsHighPt);
+    bool doExtraSmearing = false;
+    settings->retrieve("doExtraSmearing", doExtraSmearing);
+    this->muondoExtraSmearing( doExtraSmearing );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
@@ -1148,7 +1191,6 @@ namespace top {
     this->doJVTinMET((settings->value("JVTinMETCalculation") == "True" ? true : false));
     this->saveFailJVTJets((settings->value("SaveFailJVTJets") == "True" ? true : false));
     this->setJVTWP(settings->value("JVTWP"));
-    this->m_largeRSmallRCorrelations = settings->value("LargeRSmallRCorrelations") == "True" ? true : false;
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));

@@ -182,6 +182,7 @@ namespace DerivationFramework {
     recordPropertyVL("useIsoTrackTypes"     , {});
     recordPropertyB("IsoUseOptimizedAlgo"   ,  true);
     recordPropertyS("IsoTvaWorkingPoint"    , "Nominal");
+    recordPropertyVS("IsoIncludes"          , {});
 
     
     // muon isolation properties (muons of B candidate)
@@ -198,6 +199,7 @@ namespace DerivationFramework {
     recordPropertyVI("MuIsoDoTrkImpLogChi2Cut", {});
     recordPropertyVL("useMuIsoTrackTypes"     , {});
     recordPropertyS("MuIsoTvaWorkingPoint"    , "Nominal");
+    recordPropertyVS("MuIsoIncludes"          , {});
 
     // closest track properties
     recordPropertyVS("CloseTrackCategoryName"  , {});
@@ -215,6 +217,7 @@ namespace DerivationFramework {
     recordPropertyVD("CloseTrackMaxLogChi2"    , {});
     recordPropertyVD("NCloseTrackMaxLogChi2"   , {});
     recordPropertyS("CloseTrackTvaWorkingPoint", "Nominal");
+    recordPropertyVS("CloseTrackIncludes"      , {});
 
     // debug track types for isolation and closest track tools
     recordPropertyI("DebugTrackTypes", 0);

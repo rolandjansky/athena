@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "AsgMessaging/MessageCheck.h"
@@ -9,6 +9,7 @@
 
 #include "TopEventSelectionTools/ExamplePlots.h"
 #include "TopEventSelectionTools/JetFlavorPlots.h"
+#include "TopEventSelectionTools/JetResponsePlots.h"
 #include "TopEventSelectionTools/JetFtagEffPlots.h"
 #include "TopEventSelectionTools/FakesMMConfigs.h"
 #include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
@@ -127,6 +128,7 @@ namespace top {
     else if (toolname == "PRINT") return new top::PrintEventSelector;
     else if (toolname == "EXAMPLEPLOTS") return new top::ExamplePlots(name, outputFile, wk, config);
     else if (toolname == "JETFLAVORPLOTS") return new top::JetFlavorPlots(name, outputFile, param, config, wk);
+    else if (toolname == "JETRESPONSEPLOTS") return new top::JetResponsePlots(name, outputFile, param, config, wk);
     else if (toolname == "JETFTAGEFFPLOTS") return new top::JetFtagEffPlots(name, outputFile, param, config, wk);
     else if (toolname == "GRL") return new top::GRLSelector();
     else if (toolname == "GTRIGDEC") return new top::GlobalTrigDecisionSelector();

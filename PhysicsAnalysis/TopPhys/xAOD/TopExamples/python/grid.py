@@ -541,7 +541,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
                     continue
                 dsid = sample.split('.')[1]
                 dsid = int(dsid)
-                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp','amcatnlopythia8']
+                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp','amcatnlopythia8', 'herwigpp713', 'sherpa228']
                 #print hasShower,"   ",sample
                 if not tdp.hasID(dsid) or not hasShower:
                     noShowerDatasets += [dsid]

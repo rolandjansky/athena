@@ -460,56 +460,61 @@ namespace top {
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
     top::check(xaodEvent.readFrom(inputFile), "Cannot load inputFile");
     xaodEvent.getEntry(0);
-
+    
+    bool gotDSID=false;
+    unsigned int mcChannelNumber = ((unsigned int) -1);
+    
+    std::string productionRelease="?", amiTag="?", AODFixVersion="?", AODCalibVersion="?", dataType="?", geometryVersion="?", conditionsTag="?",
+                  beamType="?", simFlavour="?";
+    float beamEnergy = 0, mcProcID = -1;
+    
     // Magical metadata tool to access FileMetaData object
     asg::AsgMetadataTool ATMetaData("OurNewMetaDataObject");
+    bool readFMD=false;
 
     // Check it exists, and if it does we will work with it
-    if (!ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-      ATH_MSG_ERROR("There is no FileMetaData in the input file.");
-      config->setAmiTag("?");
-      return false;
+    if (ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
+      
+      ATH_MSG_INFO("Trying to read FileMetaData");
+
+      // Create pointer for FileMetaData which we will load
+      const xAOD::FileMetaData* FMD = 0;
+      top::check(ATMetaData.inputMetaStore()->retrieve(FMD,
+                                                       "FileMetaData"),
+                 "Failed to retrieve metadata from AsgMetadataTool");
+      // Let's get all the info we can...
+      // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
+      /// Release that was used to make the file [string]
+      FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
+      /// AMI tag used to process the file the last time [string]
+      FMD->value(xAOD::FileMetaData::amiTag, amiTag);
+      /// Version of AODFix that was used on the file last [string]
+      FMD->value(xAOD::FileMetaData::AODFixVersion, AODFixVersion);
+      /// Version of AODCalib that was used on the file last [string]
+      FMD->value(xAOD::FileMetaData::AODCalibVersion, AODCalibVersion);
+      /// Data type that's in the file [string]
+      FMD->value(xAOD::FileMetaData::dataType, dataType);
+      /// Geometry version [string]
+      FMD->value(xAOD::FileMetaData::geometryVersion, geometryVersion);
+      /// Conditions version used for simulation/reconstruction [string]
+      FMD->value(xAOD::FileMetaData::conditionsTag, conditionsTag);
+      /// Beam energy [float]
+      FMD->value(xAOD::FileMetaData::beamEnergy, beamEnergy);
+      /// Beam type [string]
+      FMD->value(xAOD::FileMetaData::beamType, beamType);
+      /// Same as mc_channel_number [float]
+      gotDSID = FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+      mcChannelNumber = mcProcID;
+      /// Fast or Full sim [string]
+      FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
+      /// It is also possible to access any other info in metadata with
+      /// FMD->value("SomeMetaInfo", someObject);
+      readFMD=true;
     }
-
-    // Create pointer for FileMetaData which we will load
-    const xAOD::FileMetaData* FMD = 0;
-    top::check(ATMetaData.inputMetaStore()->retrieve(FMD,
-                                                     "FileMetaData"),
-               "Failed to retrieve metadata from AsgMetadataTool");
-    // Let's get all the info we can...
-    // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
-    std::string productionRelease, amiTag, AODFixVersion, AODCalibVersion, dataType, geometryVersion, conditionsTag,
-                beamType, simFlavour;
-    float beamEnergy = 0, mcProcID = -1;
-    /// Release that was used to make the file [string]
-    FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
-    /// AMI tag used to process the file the last time [string]
-    FMD->value(xAOD::FileMetaData::amiTag, amiTag);
-    /// Version of AODFix that was used on the file last [string]
-    FMD->value(xAOD::FileMetaData::AODFixVersion, AODFixVersion);
-    /// Version of AODCalib that was used on the file last [string]
-    FMD->value(xAOD::FileMetaData::AODCalibVersion, AODCalibVersion);
-    /// Data type that's in the file [string]
-    FMD->value(xAOD::FileMetaData::dataType, dataType);
-    /// Geometry version [string]
-    FMD->value(xAOD::FileMetaData::geometryVersion, geometryVersion);
-    /// Conditions version used for simulation/reconstruction [string]
-    FMD->value(xAOD::FileMetaData::conditionsTag, conditionsTag);
-    /// Beam energy [float]
-    FMD->value(xAOD::FileMetaData::beamEnergy, beamEnergy);
-    /// Beam type [string]
-    FMD->value(xAOD::FileMetaData::beamType, beamType);
-    /// Same as mc_channel_number [float]
-    const bool gotDSID = FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
-    unsigned int mcChannelNumber = mcProcID;
-    /// Fast or Full sim [string]
-    FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
-    /// It is also possible to access any other info in metadata with
-    /// FMD->value("SomeMetaInfo", someObject);
-
-    // in case FileMetaData is bugged and does not have DSID properly stored
-    // happens for example for files with 0 events in CollectionTree after skimming
-    if (!gotDSID || mcChannelNumber == ((unsigned int) -1)) {
+    if (!readFMD || !gotDSID || mcChannelNumber == ((unsigned int) -1)){  // in case FileMetaData is bugged and does not have DSID properly stored happens for example for files with 0 events in CollectionTree after skimming
+      
+      ATH_MSG_INFO("FileMetaData not found or not readable, trying to read TruthMetaData");
+      
       bool gotTruthMetaData = true;
       const xAOD::TruthMetaDataContainer *truthMetadata =  nullptr;
       if (ATMetaData.inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {
@@ -526,7 +531,10 @@ namespace top {
         gotTruthMetaData = false;
       }
       if (!gotTruthMetaData)
-        ATH_MSG_WARNING("We cannot retrieve TruthMetaData to determine DSID");
+      {
+        ATH_MSG_ERROR("We cannot retrieve even TruthMetaData to determine DSID");
+        return false;
+      }
     }
 
     /// Print out this information as a cross-check

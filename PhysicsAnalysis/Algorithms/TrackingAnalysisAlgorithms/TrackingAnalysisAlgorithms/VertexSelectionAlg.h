@@ -7,6 +7,7 @@
 
 // Framework include(s):
 #include "AnaAlgorithm/AnaAlgorithm.h"
+#include "AnaAlgorithm/FilterReporterParams.h"
 
 // System include(s):
 #include <string>
@@ -36,6 +37,9 @@ namespace CP {
       /// Function executing the algorithm
       virtual StatusCode execute() override;
 
+      /// Function finalize the algorithm
+      virtual StatusCode finalize() override;
+
       /// @}
 
    private:
@@ -48,6 +52,8 @@ namespace CP {
       unsigned m_minVertices;
       /// Number of track particles required per vertex
       unsigned m_minTracks;
+
+     EL::FilterReporterParams m_filterParams {this, "vertex selection"};
 
       /// @}
 

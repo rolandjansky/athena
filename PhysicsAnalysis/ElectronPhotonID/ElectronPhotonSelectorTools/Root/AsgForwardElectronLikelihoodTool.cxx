@@ -12,7 +12,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
 
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TForwardElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
 

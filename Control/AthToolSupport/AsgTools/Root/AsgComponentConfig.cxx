@@ -12,12 +12,22 @@
 
 #include <AsgTools/AsgComponentConfig.h>
 
+#include <regex>
+
+#ifdef XAOD_STANDALONE
+
 #include <AsgTools/AsgComponent.h>
 #include <AsgTools/AsgTool.h>
 #include <AsgTools/AnaToolHandle.h>
 #include <TInterpreter.h>
 #include <boost/format.hpp>
-#include <regex>
+
+#else
+
+#include <GaudiKernel/IJobOptionsSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
+
+#endif
 
 //
 // method implementations
@@ -25,6 +35,109 @@
 
 namespace asg
 {
+  AsgComponentConfig ::
+  AsgComponentConfig (const std::string& val_typeAndName)
+  {
+    setTypeAndName (val_typeAndName);
+  }
+
+
+
+  const std::string& AsgComponentConfig ::
+  type () const noexcept
+  {
+    return m_type;
+  }
+
+
+
+  void AsgComponentConfig ::
+  setType (const std::string& val_type)
+  {
+    m_type = val_type;
+  }
+
+
+
+  const std::string& AsgComponentConfig ::
+  name () const noexcept
+  {
+    return m_name;
+  }
+
+
+
+  void AsgComponentConfig ::
+  setName (const std::string& val_name)
+  {
+    m_name = val_name;
+  }
+
+
+
+  void AsgComponentConfig ::
+  setTypeAndName (const std::string& val_typeAndName)
+  {
+    const auto split = val_typeAndName.find ('/');
+    if (split == std::string::npos)
+    {
+      setType (val_typeAndName);
+      setName (val_typeAndName);
+    } else
+    {
+      setType (val_typeAndName.substr (0,split));
+      setName (val_typeAndName.substr (split+1));
+    }
+  }
+
+
+
+  void AsgComponentConfig ::
+  setPropertyFromString (const std::string& name,
+                         const std::string& value)
+  {
+    m_propertyValues[name] = value;
+  }
+
+
+
+  StatusCode AsgComponentConfig ::
+  createPrivateTool (const std::string& name,
+                     const std::string& toolType)
+  {
+    m_privateTools[name] = toolType;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AsgComponentConfig ::
+  checkTypeName (bool nestedNames) const
+  {
+    using namespace msgComponentConfig;
+
+    std::regex typeExpr ("[A-Za-z_][A-Za-z0-9_]*(::[A-Za-z_][A-Za-z0-9_]*)*");
+    if (!std::regex_match (m_type, typeExpr))
+    {
+      ANA_MSG_ERROR ("type \"" << m_type << "\" does not match format expression");
+      return StatusCode::FAILURE;
+    }
+    std::regex nameExpr;
+    if (nestedNames)
+      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*");
+    else
+      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*");
+    if (!std::regex_match (m_name, nameExpr))
+    {
+      ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+#ifdef XAOD_STANDALONE
   namespace
   {
     /// \brief count the number of separators in a tool name
@@ -192,116 +305,27 @@ namespace asg
 
 
 
-  AsgComponentConfig ::
-  AsgComponentConfig (const std::string& val_typeAndName)
-  {
-    setTypeAndName (val_typeAndName);
-  }
-
-
-
-  const std::string& AsgComponentConfig ::
-  type () const noexcept
-  {
-    return m_type;
-  }
-
-
-
-  void AsgComponentConfig ::
-  setType (const std::string& val_type)
-  {
-    m_type = val_type;
-  }
-
-
-
-  const std::string& AsgComponentConfig ::
-  name () const noexcept
-  {
-    return m_name;
-  }
-
-
-
-  void AsgComponentConfig ::
-  setName (const std::string& val_name)
-  {
-    m_name = val_name;
-  }
-
-
-
-  void AsgComponentConfig ::
-  setTypeAndName (const std::string& val_typeAndName)
-  {
-    const auto split = val_typeAndName.find ('/');
-    if (split == std::string::npos)
-    {
-      setType (val_typeAndName);
-      setName (val_typeAndName);
-    } else
-    {
-      setType (val_typeAndName.substr (0,split));
-      setName (val_typeAndName.substr (split+1));
-    }
-  }
-
-
-
-  void AsgComponentConfig ::
-  setPropertyFromString (const std::string& name,
-                         const std::string& value)
-  {
-    m_propertyValues[name] = value;
-  }
-
-
-
-  StatusCode AsgComponentConfig ::
-  createPrivateTool (const std::string& name,
-                     const std::string& toolType)
-  {
-    m_privateTools[name] = toolType;
-    return StatusCode::SUCCESS;
-  }
-
-
-
   template<> StatusCode AsgComponentConfig ::
   makeComponentExpert<AsgComponent> (std::unique_ptr<AsgComponent>& component,
                                      const std::string& newCommand,
-                                     bool nestedNames) const
+                                     bool nestedNames, std::string prefix) const
   {
     using namespace msgComponentConfig;
 
-    std::regex typeExpr ("[A-Za-z_][A-Za-z0-9_]*(::[A-Za-z_][A-Za-z0-9_]*)*");
-    if (!std::regex_match (m_type, typeExpr))
-    {
-      ANA_MSG_ERROR ("type \"" << m_type << "\" does not match format expression");
-      return StatusCode::FAILURE;
-    }
-    std::regex nameExpr;
-    if (nestedNames)
-      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*");
-    else
-      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*");
-    if (!std::regex_match (m_name, nameExpr))
-    {
-      ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
-      return StatusCode::FAILURE;
-    }
+    ANA_CHECK (checkTypeName (nestedNames));
+
+    std::string name = prefix + m_name;
 
     ComponentMap componentMap;
 
-    if (!createComponent (component, m_type, m_name, newCommand).isSuccess())
+    if (!createComponent (component, m_type, name, newCommand).isSuccess())
       return StatusCode::FAILURE;
     componentMap.m_components.insert (std::make_pair ("", component.get()));
 
     for (auto& toolInfo : m_privateTools)
     {
       std::shared_ptr<asg::AsgTool> tool;
-      if (!createTool (toolInfo.second, m_name + "." + toolInfo.first, tool).isSuccess())
+      if (!createTool (toolInfo.second, name + "." + toolInfo.first, tool).isSuccess())
         return StatusCode::FAILURE;
       componentMap.m_cleanup.push_front (tool);
       componentMap.m_components.insert (std::make_pair (toolInfo.first, tool.get()));
@@ -321,4 +345,46 @@ namespace asg
     ANA_MSG_DEBUG ("Created component of type " << m_type);
     return StatusCode::SUCCESS;
   }
+
+
+
+#else
+
+
+
+  StatusCode AsgComponentConfig ::
+  configureComponentExpert (const std::string& prefix,
+                            bool nestedNames) const
+  {
+    using namespace msgComponentConfig;
+
+    ANA_CHECK (checkTypeName (nestedNames));
+
+    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AsgComponentConfig");
+    ANA_CHECK (joSvc.retrieve());
+
+    for (const auto& tool : m_privateTools)
+    {
+      std::string toolPath = prefix + m_name + "." + tool.first;
+      const auto split = toolPath.rfind ('.');
+      std::string toolName = toolPath.substr (split+1);
+      std::string parentName = toolPath.substr (0, split);
+      StringProperty athenaProperty (toolName, tool.second + "/" + toolName);
+      ANA_CHECK (joSvc->addPropertyToCatalogue (parentName, std::move (athenaProperty)));
+    }
+
+    for (const auto& property : m_propertyValues)
+    {
+      std::string propertyPath = prefix + m_name + "." + property.first;
+      const auto split = propertyPath.rfind ('.');
+      std::string propertyName = propertyPath.substr (split+1);
+      std::string componentName = propertyPath.substr (0, split);
+      StringProperty athenaProperty (propertyName, property.second);
+      ANA_CHECK (joSvc->addPropertyToCatalogue (componentName, std::move (athenaProperty)));
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+#endif
 }

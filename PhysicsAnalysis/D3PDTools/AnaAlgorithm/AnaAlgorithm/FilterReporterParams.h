@@ -12,7 +12,13 @@
 #include <AnaAlgorithm/Global.h>
 
 #include <AsgMessaging/AsgMessagingForward.h>
+#include <atomic>
 #include <functional>
+
+#ifndef XAOD_STANDALONE
+#include <AthenaKernel/ICutFlowSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
+#endif
 
 class StatusCode;
 
@@ -61,7 +67,7 @@ namespace EL
     ///   out of memory I
   public:
     template<typename T>
-    explicit FilterReporterParams (T *owner);
+    explicit FilterReporterParams (T *owner, std::string val_filterDescription);
 
 
     /// \brief do anything we need to do in initialize
@@ -71,6 +77,15 @@ namespace EL
     ///   configuration/initialization errors
   public:
     StatusCode initialize ();
+
+
+    /// \brief do anything we need to do in finalize
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   reporting errors
+  public:
+    StatusCode finalize ();
 
 
 
@@ -92,6 +107,31 @@ namespace EL
     /// \brief whether the handle was initialized
   private:
     bool m_isInitialized {false};
+
+    /// \brief the count of passed and total events
+    ///
+    /// While we currently don't run in multi-threaded mode, this is
+    /// atomic in case we ever use it with reentrant algorithms.
+  private:
+    mutable std::atomic<unsigned> m_passed {0}, m_total {0};
+
+    /// \brief description what this filter does
+  private:
+    std::string m_filterDescription;
+
+
+#ifndef XAOD_STANDALONE
+
+    /// \brief the \ref CutIdentifier for this filter algorithm
+  private:
+    CutIdentifier m_cutID;
+
+    /// \brief the handle to the service holding tables of cut-flows
+    /// for filtering algs.
+  private:
+    ServiceHandle<ICutFlowSvc> m_cutFlowSvc;
+
+#endif
   };
 
 
@@ -101,10 +141,23 @@ namespace EL
   //
 
   template<typename T> FilterReporterParams ::
-  FilterReporterParams (T *owner)
+  FilterReporterParams (T *owner, std::string val_filterDescription)
     : AsgMessagingForward (owner)
     , m_setFilterPassed ([owner] (bool val_setFilterPassed) {owner->setFilterPassed (val_setFilterPassed);})
-  {}
+    , m_filterDescription (std::move (val_filterDescription))
+#ifndef XAOD_STANDALONE
+    , m_cutFlowSvc ("CutFlowSvc/CutFlowSvc", owner->name())
+#endif
+  {
+    owner->declareProperty("FilterDescription", m_filterDescription,
+                           "describe to the cutflowsvc what this filter does.");
+
+#ifndef XAOD_STANDALONE
+    owner->declareProperty("CutFlowSvc", m_cutFlowSvc,
+                           "handle to the ICutFlowSvc instance this filtering algorithm"
+                           " will use for building the flow of cuts.");
+#endif
+  }
 }
 
 #endif

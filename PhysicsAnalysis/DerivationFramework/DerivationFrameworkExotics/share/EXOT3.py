@@ -377,7 +377,9 @@ BTaggingFlags.CalibrationChannelAliases += [
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
-addVRJets(exot3Seq)
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]
+addVRJets(exot3Seq, largeRColls = largeRJetCollections)
+addVRJets(exot3Seq, largeRColls = largeRJetCollections, training='201903') #new trackjet training!
 
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -443,6 +445,8 @@ EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"
 # Containers to be smart slimmed, see https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
+EXOT3SlimmingHelper.SmartCollections += ["BTagging_AntiKtVR30Rmax4Rmin02Track_201903", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
 EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
@@ -474,8 +478,7 @@ EXOT3SlimmingHelper.AppendToDictionary = {
 }
 
 # Add all variabless for VR track-jets
-EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
+EXOT3SlimmingHelper.AllVariables  += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
         ]
 
 # Save certain b-tagging variables for VR track-jet

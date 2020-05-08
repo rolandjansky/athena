@@ -43,6 +43,11 @@ atlas_add_library( EventLoopTestLib
 
 target_compile_definitions (EventLoopTestLib PUBLIC USE_CMAKE)
 
+atlas_add_dictionary( EventLoopTestDict
+   EventLoopTest/EventLoopTestDict.h
+   EventLoopTest/selection.xml
+   LINK_LIBRARIES EventLoopTestLib )
+
 # Test(s) in the package:
 function( _add_gtest cxx_name )
    set (EXTRA_ARGS PROPERTIES )

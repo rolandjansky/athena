@@ -18,6 +18,7 @@
 //::: EDM includes
 #include <xAODTracking/TrackParticlexAODHelpers.h>
 
+namespace  MMCTest {
 class TrackInfo {
   private:
     std::string m_Type;
@@ -39,5 +40,5 @@ class TrackInfo {
     int GetCharge() { return m_Charge; }
     void SetCalibPt(float calib_pt, std::string syst) { m_CalibPt[syst] = calib_pt * Gaudi::Units::perThousand; }
 };
-
+}
 #endif

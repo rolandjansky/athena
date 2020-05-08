@@ -855,6 +855,7 @@ namespace ST {
   }; // Class SUSYObjDef_xAOD
 
   // decorators
+  const static SG::AuxElement::Decorator<unsigned> dec_isEM("isEM");
   const static SG::AuxElement::Decorator<char> dec_baseline("baseline");
   const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");

@@ -456,17 +456,16 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1K
 
 
 #====================================================================
-# JetTagNonPromptLepton decorations
+# LeptonTaggers decorations
 #====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
-JetTagConfig.ConfigureAntiKt4PV0TrackJets(HIGG8D1Seq, 'HIGG8D1')
+LepTagConfig.ConfigureAntiKt4PV0TrackJets(HIGG8D1Seq, 'HIGG8D1')
 
 # Add BDT decoration algs
-HIGG8D1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
-HIGG8D1Seq += JetTagConfig.GetDecoratePromptTauAlgs()
+HIGG8D1Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
+HIGG8D1Seq += LepTagConfig.GetDecoratePromptTauAlgs()
 HIGG8D1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs() 
 
 DerivationFrameworkJob += HIGG8D1Seq
@@ -479,24 +478,26 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG8D1SlimmingHelper = SlimmingHelper("HIGG8D1SlimmingHelper")
 
 ## Smart Slimming
-HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
-                                          "Muons",
-                                          "TauJets",
-                                          "TauMVATESJets",
-                                          #"MET_Reference_AntiKt4LCTopo",
-                                          #"AntiKt4LCTopoJets",
-                                          #"BTagging_AntiKt4LCTopo",
-                                          "MET_Reference_AntiKt4EMTopo",
-                                          "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo_201810",
-                                          "BTagging_AntiKt4EMPFlow_201810",
-                                          "BTagging_AntiKt4EMPFlow_201903",
+HIGG8D1SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
                                           "AntiKt4EMPFlowJets_BTagging201810",
                                           "AntiKt4EMPFlowJets_BTagging201903",
+                                          "AntiKt4EMTopoJets",
                                           "AntiKt4EMTopoJets_BTagging201810",
+                                          "AntiKt4TruthDressedWZJets",
+                                          "AntiKt4TruthJets",
+                                          "AntiKt4TruthWZJets",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "Electrons",
                                           "InDetTrackParticles",
+                                          "MET_Reference_AntiKt4EMTopo",
+                                          "Muons",
                                           "PrimaryVertices",
-                                          "AntiKt4EMPFlowJets"]
+                                          "TauJets",
+                                          "TauMVATESJets"]
+
+				
 # Adding PFlow b-jets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
@@ -506,14 +507,16 @@ HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"]
 
 HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink.scatteringCurvatureSignificance.scatteringNeighbourSignificance",
                                         "Electrons.author.charge",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
-                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+                                        "AntiKt4EMTopoJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+                                        "AntiKt4EMPFlowJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+                                        "AntiKt4TruthDressedWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
+                                        "AntiKt4TruthJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
+                                        "AntiKt4TruthWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
                                         #"AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                         "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "PrimaryVertices.x.y"                                        
-                                        ]
+                                        "PrimaryVertices.x.y"]
 
 #Adding Egamma details
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
@@ -521,8 +524,8 @@ HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 if StoreAdditionalAmbiguityContent:
 		HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
 
-HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
-HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
+HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptTauVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD() 
 
 ExtraContentTaus=[
@@ -539,7 +542,7 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
-				"jetLink.seedTrackWidthPt500.seedTrackWidthPt1000."
+        "jetLink.seedTrackWidthPt500.seedTrackWidthPt1000."
 				#"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."

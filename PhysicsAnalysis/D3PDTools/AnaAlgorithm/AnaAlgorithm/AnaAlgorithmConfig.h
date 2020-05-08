@@ -19,6 +19,8 @@
 
 namespace EL
 {
+  struct AlgorithmWorkerData;
+
   /// \brief an object that can create a \ref AnaAlgorithm
 
   class AnaAlgorithmConfig : public asg::AsgComponentConfig
@@ -78,7 +80,7 @@ namespace EL
     void setIsPublicTool (bool val_isPublicTool) noexcept;
 
 
-    /// \brief make an algorithm with the given configuration
+    /// \brief make an algorithm from this configuration
     ///
     /// Note that generally users won't call this function.  The
     /// typical workflow is to fully configure this object and then
@@ -97,7 +99,8 @@ namespace EL
     ///   algorithm creation/initialization errors
   public:
     ::StatusCode
-    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
+    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
+                   const AlgorithmWorkerData& workerData) const;
 
 
 

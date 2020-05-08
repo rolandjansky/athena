@@ -11,6 +11,7 @@
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysFilterReporterParams.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODBase/IParticleContainer.h>
@@ -37,10 +38,9 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
   private:
     SysListHandle m_systematicsList{this};
 
-    /// \brief the event info we run on
+    /// \brief the filter reporter
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
-      this, "eventInfo", "EventInfo", "the event info object to run on"};
+    SysFilterReporterParams m_filterParams {this, "object flag selection"};
 
     /// \brief the particle collection we run on
   private:
@@ -54,19 +54,6 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
     /// \brief the preselection we apply to our input
   private:
     SelectionReadHandle m_veto{this, "veto", "", "selection upon which events are vetoed"};
-
-    /// \brief the decoration for writing the scale factor
-  private:
-    SysDecorationHandle<char> m_eventDecisionOutputDecoration {
-      this, "eventDecisionOutputDecoration", "", "the decoration for the event decision"};
-
-    /// \brief counter for passed events
-  private:
-    long long m_passed = 0;
-
-    /// \brief counter for total events
-  private:
-    long long m_total = 0;
 };
 
 } // namespace CP

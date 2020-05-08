@@ -192,17 +192,21 @@ int main(int argc, char** argv) {
     }
 
     std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
-
     if (!top::readMetaData(testFile.get(), topConfig)) {
       ATH_MSG_ERROR("Unable to access FileMetaData and/or TruthMetaData in this file : " << usethisfile
           << "\nPlease report this message.");
     }
 
 
-    bool const isMC = (useAodMetaData ?
-                       topConfig->aodMetaData().isSimulation() :
-                       top::isFileSimulation(testFile.get(), topConfig->sgKeyEventInfo())
-                       );
+    const bool isOverlay = useAodMetaData ? topConfig->aodMetaData().IsEventOverlayInputSim() : false;
+    bool isMC(true);
+    if (!isOverlay) {
+      isMC = (useAodMetaData ?
+              topConfig->aodMetaData().isSimulation() :
+              top::isFileSimulation(testFile.get(), topConfig->sgKeyEventInfo())
+              );
+    }
+
     topConfig->setIsMC(isMC);
 
     const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());
@@ -215,27 +219,26 @@ int main(int argc, char** argv) {
     // first we need to read some metadata before we read the config
     if (isMC) {
       // check number of MC generator weights -- we need this before start initializing PMGTruthWeightTool later
-      topConfig->setMCweightsVectorSize(top::MCweightsSize(testFile.get(), topConfig->sgKeyEventInfo()));
+      if (atLeastOneFileIsValid) topConfig->setMCweightsVectorSize(top::MCweightsSize(testFile.get(), topConfig->sgKeyEventInfo()));
       ///-- Are we using a truth derivation (no reco information)? --///
       ///-- Let's find out in the first event, this could be done better --///
       bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
       topConfig->setIsTruthDxAOD(isTruthDxAOD);
 
-      if (!isTruthDxAOD) {
-        unsigned int DSID {0};
-        if (!useAodMetaData) {
-          if (atLeastOneFileIsValid) {
-            DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
-            topConfig->setDSID(DSID);
-          } else {
-            ATH_MSG_ERROR("We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample.");
-            return 1;
-          }
+      unsigned int DSID {0};
+      if (!useAodMetaData) {
+        if (atLeastOneFileIsValid) {
+          DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
+          topConfig->setDSID(DSID);
         } else {
-          DSID = topConfig->getDSID();
+          ATH_MSG_ERROR("We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample.");
+          return 1;
         }
+      } else {
+        DSID = topConfig->getDSID();
       }
     }
+
 
 
     // Pass the settings file to the TopConfig
@@ -449,11 +452,13 @@ int main(int argc, char** argv) {
   outputFile->cd();
   TTree* sumWeights = new TTree("sumWeights", "");
   float totalEventsWeighted = 0;
+  double totalEventsWeighted_temp = 0; 
   std::vector<float> totalEventsWeighted_LHE3;
   std::vector<double> totalEventsWeighted_LHE3_temp;// having doubles is necessary in case of re-calculation of the sum
                                                     // of weights on the fly
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
+  bool recalculateNominalWeightSum = false;
   int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
   std::string generators = topConfig->getGenerators();
@@ -531,8 +536,13 @@ int main(int argc, char** argv) {
     // <tom.neep@cern.ch> (4/4/16): Not there in DAOD_TRUTH1?
     // If we can't get them and we are running on TRUTH then carry on,
     // but anything else is bad!
-    if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
-      top::check(topConfig->isTruthDxAOD(), "Failed to retrieve cut book keepers");
+    if(topConfig->isTruthDxAOD())
+    {
+      ATH_MSG_INFO("Bookkeepers are not read for TRUTH derivations");   
+    }
+    else if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
+      ATH_MSG_ERROR("Failed to retrieve cut book keepers");
+      return 1;
     } else {
       if (topConfig->isMC()) {
         // try to retrieve CutBookKeepers for LHE3Weights first
@@ -603,10 +613,12 @@ int main(int argc, char** argv) {
         msg(MSG::Level::INFO) << std::endl;
       } else {
         ATH_MSG_INFO("No sum of LHE3 weights could be found in meta-data. Will try to recompute these sums.\n"
-            "This only works on un-skimmed derivations, and the names of these weights will be unknown.");
+            "This only works on un-skimmed derivations, and the names of these weights may be unknown (but we'll try to read them from the PMG tool");
         recalc_LHE3 = true;
       }
     }
+    
+    if (topConfig->isTruthDxAOD()) recalculateNominalWeightSum=true;
 
     if (topConfig->printCDIpathWarning()) {
       ATH_MSG_WARNING(
@@ -660,7 +672,7 @@ int main(int argc, char** argv) {
                                               "Failed to execute PDF SF");
 
         eventSaver->saveTruthEvent();
-        ++eventSavedTruth;
+        if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
 
         // Upgrade analysis - only for truth DAODs when asking to do upgrade studies
         if (topConfig->isTruthDxAOD() && topConfig->HLLHC()) {
@@ -707,31 +719,59 @@ int main(int argc, char** argv) {
       }
       // on the first event, set the size of the vector of sum of LHE3 weights in case it needs to be calculated on the
       // fly
-      if (topConfig->isMC() && topConfig->doMCGeneratorWeights()) {
+
+      if (topConfig->isMC()) {
         const xAOD::EventInfo* ei(nullptr);
         top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
                    "Failed to retrieve LHE3 weights from EventInfo");
-        unsigned int weightsSize = ei->mcEventWeights().size();
-        if (recalc_LHE3) {
-          if (totalYieldSoFar == 0) {
-            totalEventsWeighted_LHE3_temp.resize(weightsSize);
-            for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
-              totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
+        
+        if(recalculateNominalWeightSum)
+        {
+          if (totalYieldSoFar == 0) ATH_MSG_INFO("Trying to recalculate nominal weights sum for TRUTH derivation");
+          const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
+          totalEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
+          totalEvents++;
+        }
+        
+        if(topConfig->doMCGeneratorWeights())
+        {
+          unsigned int weightsSize = ei->mcEventWeights().size();
+          if (recalc_LHE3) {
+            if (totalYieldSoFar == 0) {
+              totalEventsWeighted_LHE3_temp.resize(weightsSize);
+              for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
+                totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
+              }
+              names_LHE3.resize(weightsSize);
+              
+              ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+              if (m_pmg_weightTool.retrieve()) {
+                const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+                if(weight_names.size() != weightsSize)
+                {
+                  ATH_MSG_INFO("In top-xaod, while calculating mc weights sums on the fly, names from PMG tools have different size wrt weight vector, we'll not retrieve weight names");
+                  std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
+                }
+                else{
+                  for(unsigned int i_wgt=0; i_wgt<weight_names.size(); i_wgt++) names_LHE3[i_wgt]=weight_names[i_wgt];
+                }
+              }
+              else{
+                std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
+              }
+            } else {
+              for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
+                totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +
+                                                           ei->mcEventWeights().at(i_LHE3);
+              }
             }
-            names_LHE3.resize(weightsSize);
-            std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
-          } else {
-            for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
-              totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +
-                                                         ei->mcEventWeights().at(i_LHE3);
-            }
+          } else if (weightsSize != names_LHE3.size()) {// don't recalc sum of weights, but cross-check the size of the
+                                                        // vectors
+            ATH_MSG_ERROR("Strange size inconsistency in the AllExecutedEvents* "
+                "sum of weights  bookkeepers from the meta-data and the vector of "
+                "LHE3 weights in the EventInfo container.");
+            return 1;
           }
-        } else if (weightsSize != names_LHE3.size()) {// don't recalc sum of weights, but cross-check the size of the
-                                                      // vectors
-          ATH_MSG_ERROR("Strange size inconsistency in the AllExecutedEvents* "
-              "sum of weights  bookkeepers from the meta-data and the vector of "
-              "LHE3 weights in the EventInfo container.");
-          return 1;
         }
       }
       ///-- End of Truth events -- start of reconstruction level events --///
@@ -996,6 +1036,10 @@ int main(int argc, char** argv) {
   // each file's processing instead ... but why would you do that?!
   if (recalc_LHE3) {// in case the sum of LHE3 weight has been re-calculated with double (but we need floats in the end)
     for (double d:totalEventsWeighted_LHE3_temp) totalEventsWeighted_LHE3.push_back(d);
+  }
+  if(recalculateNominalWeightSum)
+  {
+    totalEventsWeighted=totalEventsWeighted_temp;
   }
   sumWeights->Fill();
   outputFile->cd();

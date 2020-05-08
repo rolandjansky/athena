@@ -31,7 +31,7 @@ namespace EL
   /// {
   ///   ...
   ///   static constexpr bool DEFAULT_DECISION = false;
-  ///   EL::FilterReporter filterGuard (m_filterHandle, DEFAULT_DECISION);
+  ///   EL::FilterReporter filterGuard (m_filterParams, DEFAULT_DECISION);
   ///   ...
   ///   filterGuard.setPassed ();
   ///   return StatusCode::SUCCESS;
@@ -50,7 +50,7 @@ namespace EL
     /// \par Failures
     ///   out of memory I
   public:
-    FilterReporter (FilterReporterParams& val_handle,
+    FilterReporter (FilterReporterParams& val_params,
                     bool val_passedDefault);
 
     /// \brief standard re-entrant constructor
@@ -59,7 +59,7 @@ namespace EL
     /// \par Failures
     ///   out of memory I
   public:
-    FilterReporter (const FilterReporterParams& val_handle,
+    FilterReporter (const FilterReporterParams& val_params,
                     bool val_passedDefault,
                     const EventContext& val_eventContext);
 
@@ -85,7 +85,7 @@ namespace EL
 
     /// \brief the \ref FilterReporterParams object
   private:
-    const FilterReporterParams& m_handle;
+    const FilterReporterParams& m_params;
 
     /// \brief the value of passed we will set
   private:
