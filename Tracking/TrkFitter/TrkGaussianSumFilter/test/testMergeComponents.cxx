@@ -1,10 +1,10 @@
-#include <array>
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
+#include <array>
 #include <iostream>
 
 using namespace GSFUtils;
