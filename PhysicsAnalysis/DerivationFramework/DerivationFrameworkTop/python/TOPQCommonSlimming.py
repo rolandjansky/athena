@@ -20,6 +20,7 @@ from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 def setup(TOPQname, stream):
     DFisMC = (globalflags.DataSource()=='geant4')
@@ -108,6 +109,7 @@ def setup(TOPQname, stream):
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+    TOPQSlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
     # additional variables for clusters
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_egammaClusters;
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CaloCalTopoClusters;
