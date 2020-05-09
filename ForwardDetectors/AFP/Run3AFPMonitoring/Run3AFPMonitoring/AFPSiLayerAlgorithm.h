@@ -15,19 +15,19 @@
 
 class AFPSiLayerAlgorithm : public AthMonitorAlgorithm {
 public:
-    AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    virtual ~AFPSiLayerAlgorithm();
-    virtual StatusCode initialize() override;
-    virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
+	AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
+	virtual ~AFPSiLayerAlgorithm();
+	virtual StatusCode initialize() override;
+	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
-    std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
-    std::map<std::string,int> m_TrackGroup; 
-    SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
+	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
+	std::map<std::string,int> m_TrackGroup; 
+	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
 
 protected:
-    std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};
-    std::vector<std::string> m_stationnames = { "farAside", "nearAside" , "nearCside" , "farCside"};
+	std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};
+	std::vector<std::string> m_stationnames = { "farAside", "nearAside" , "nearCside" , "farCside"};
 
 };
 #endif
