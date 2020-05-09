@@ -261,7 +261,8 @@ StreamRDO.ItemList +=["2721#*"]
 StreamRDO.ItemList +=["2927#*"]
 StreamRDO.ItemList +=["2934#*"]
 StreamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
-if not hasattr( topSequence, "LumiBlockMuWriter" ):
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr( condSeq, "LumiBlockMuWriter" ):
     include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
