@@ -59,7 +59,7 @@ if 'fastZFinder' in dir() and fastZFinder==True:
   print zfinder
 
 else:
-  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_Instance
+  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
   FTF.doZFinder = False
 
   if 'mlExtensions' in dir() and mlExtensions==True:
