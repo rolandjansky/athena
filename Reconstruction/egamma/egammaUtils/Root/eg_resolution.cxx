@@ -91,14 +91,14 @@ eg_resolution::eg_resolution(const std::string& configuration)
 eg_resolution::~eg_resolution(){
 }
 
-//============================================================================
-// inputs are particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon, 3=true unconv photon)
-//            energy in MeV
-//            eta
-//            resolution_type (0=gaussian core fit, 1=sigmaeff 80%, 2=sigma eff 90%)
-//
-// returned value is sigmaE/E
-//
+/*
+ * inputs are 
+ * particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon, 3=true unconv photon)
+ * energy in MeV
+ * eta
+ * resolution_type (0=gaussian core fit, 1=sigmaeff 80%, 2=sigma eff 90%)
+ * returned value is sigmaE/E
+*/
 double eg_resolution::getResolution(int particle_type, double energy, double eta, int resolution_type) const
 {
 
@@ -112,9 +112,8 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
      throw std::runtime_error("resolution type must be 0, 1, 2");
    }
 
-   const float aeta = fabs(eta);  // TODO: move to std
+   const float aeta = fabs(eta);
    int ibinEta = m_etaBins->GetSize() - 2;
-   // TODO: use TAxis bin search
    for (int i = 1; i < m_etaBins->GetSize(); ++i) {
      if (aeta < m_etaBins->GetAt(i)) {
          ibinEta = i - 1;
@@ -131,26 +130,27 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
    const double rsampling = m_hSampling[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rnoise    = m_hNoise[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rconst    = m_hConst[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
-
    const double sigma2 = rsampling*rsampling/energyGeV + rnoise*rnoise/energyGeV/energyGeV + rconst*rconst;
    return sqrt(sigma2);
 }
 
 
-// TODO: not tested
 double eg_resolution::getResolution(const xAOD::Egamma& particle, int resolution_type) const
 {
   int particle_type = -1;
-  if (dynamic_cast<const xAOD::Electron*>(&particle)) { particle_type = 0; }
-  else if (const xAOD::Photon* ph = dynamic_cast<const xAOD::Photon*>(&particle)) {
+  if (particle.type() == xAOD::Type::Electron) {
+    particle_type = 0;
+  } else if (particle.type() == xAOD::Type::Photon) {
+    const xAOD::Photon* ph = static_cast<const xAOD::Photon*> (&particle);
     const xAOD::Vertex* phVertex = ph->vertex();
     if (phVertex) {
       const Amg::Vector3D& pos = phVertex->position();
       const double Rconv = static_cast<float>(hypot(pos.x(), pos.y()));
       if (Rconv > 0 and Rconv < 800) { particle_type = 2; }
       else { particle_type = 1; }
+    } else {
+      particle_type = 1;
     }
-    else { particle_type = 1; }
   }
   assert (particle_type != 1);
 
