@@ -11,8 +11,6 @@
 
 // Local includes:
 #include "RingerSelectorTools/tools/IRedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/mutable.h"
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
 
 namespace Ringer {
 /**
@@ -35,11 +33,7 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
 
     /// Returns MsgSteam with its current level
     void setMsgStream(MsgStream *msg) const {
-#if RINGER_USE_NEW_CPP_FEATURES
       m_msg = msg;
-#else
-      const_cast<RedirectMsgStream*>(this)->m_msg = msg;
-#endif
     }
     /// Check if message level is enabled
     bool msgLvl(MSG::Level level) const {
@@ -90,7 +84,7 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
     /// Properties:
     /// @{
     /// The re-directed message stream from AsgSelector
-    ATH_RINGER_MUTABLE MsgStream *m_msg;
+    mutable MsgStream *m_msg;
     /// @}
 
 #if !defined(RINGER_STANDALONE)

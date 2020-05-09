@@ -8,7 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // Local include(s):
 #include "GenEventGetterTool.h"

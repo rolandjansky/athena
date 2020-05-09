@@ -1,9 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-from TRT_G4_SD.TRT_G4_SDConf import TRTSensitiveDetectorTool 
+TRTSensitiveDetectorTool =CompFactory.TRTSensitiveDetectorTool 
 
 def TRTSensitiveDetectorCfg(ConfigFlags, name="TRTSensitiveDetector", **kwargs):
 

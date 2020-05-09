@@ -466,7 +466,7 @@ void MuonStation::fillCache()
   }
 }
 
-void MuonStation::setBline(BLinePar * bline) 
+void MuonStation::setBline(const BLinePar * bline) 
 {
   m_hasBLines = true;
   std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();

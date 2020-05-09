@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/test/ThinningCache_test.cxx
@@ -12,10 +12,31 @@
 
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/ITrigNavigationThinningSvc.h"
 #include "TestTools/expect_exception.h"
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+
+
+class TestTrigNavigationThinningSvc : public ITrigNavigationThinningSvc
+{
+public:
+  virtual
+  StatusCode doSlimming (const EventContext& /*ctx*/,
+                         std::vector<uint32_t>& /*slimmed_and_serialized*/) const override
+  {
+    return StatusCode::SUCCESS;
+  }
+  virtual unsigned long addRef() override { return 0; }
+  virtual unsigned long release() override { return 0; }
+  virtual StatusCode queryInterface( const InterfaceID& , void** ) override
+  {
+    return StatusCode::FAILURE;
+  }
+
+};
+
 
 
 void test1()
@@ -82,8 +103,14 @@ void test1()
   assert (ba->index (3) == SG::ThinningDecisionBase::RemovedIdx);
   assert (ba->index (4) == 3);
 
+  assert (cache.trigNavigationThinningSvc() == nullptr);
+  TestTrigNavigationThinningSvc tt;
+  cache.setTrigNavigationThinningSvc (&tt);
+  assert (cache.trigNavigationThinningSvc() == &tt);
+
   cache.clear();
   assert (cache.empty());
+  assert (cache.trigNavigationThinningSvc() == nullptr);
 }
 
 

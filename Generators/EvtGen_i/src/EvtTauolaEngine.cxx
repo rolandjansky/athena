@@ -32,9 +32,9 @@
 #include "Tauola/TauolaHepMCParticle.h"
 #include "Tauola/TauolaParticle.h"
 
-#include "HepMC/GenVertex.h"
-#include "HepMC/SimpleVector.h"
-#include "HepMC/Units.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
+#include "AtlasHepMC/Units.h"
 
 #include <iostream>
 #include <sstream>

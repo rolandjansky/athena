@@ -70,11 +70,11 @@ class BasicConfigurableWorkingsTestCase( unittest.TestCase ):
     # not-allowed conversions
       self.assertRaises( ValueError, setattr, HelloWorld, 'MyInt',  1. )
       self.assertRaises( ValueError, setattr, HelloWorld, 'MyInt', '1' )
-      self.assertRaises( ValueError, setattr, HelloWorld, 'MyInt', [1] )
+      self.assertRaises( TypeError, setattr, HelloWorld, 'MyInt', [1] )
 
       self.assertRaises( ValueError, setattr, HelloWorld, 'MyDouble', '1' )
       self.assertRaises( ValueError, setattr, HelloWorld, 'MyDouble', '1.' )
-      self.assertRaises( ValueError, setattr, HelloWorld, 'MyDouble', [1.] )
+      self.assertRaises( TypeError, setattr, HelloWorld, 'MyDouble', [1.] )
 
    def test3NonTransfers( self ):
       """Verify that temporary configurables leave nothing in the catalogue"""

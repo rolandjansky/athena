@@ -99,7 +99,7 @@ namespace JiveXML {
           //Reject particles that fail the pt cut
           if ( particle->momentum().perp() < m_MinPtCut) continue ; 
           //Reject particles that fail the minimum end-vertex cut
-          if (particle->end_vertex()->point3d().perp() < m_MinRhoCut ) continue ;
+          if (particle->end_vertex()->position().perp() < m_MinRhoCut ) continue ;
         }
 
         //Get basic parameters (eta, phi, pt, ...)
@@ -114,9 +114,9 @@ namespace JiveXML {
         HepMC::GenVertex* vertex =  particle->production_vertex();
         if (vertex) {
           rhoVertex.push_back(DataType( vertex->point3d().r()*Gaudi::Units::mm/Gaudi::Units::cm ));
-          float vtxPhi = vertex->point3d().phi();
+          float vtxPhi = vertex->position().phi();
           phiVertex.push_back(DataType( (vtxPhi<0)? vtxPhi+=2*M_PI : vtxPhi ));
-          zVertex.push_back(DataType( vertex->point3d().z()*Gaudi::Units::mm/Gaudi::Units::cm )); 
+          zVertex.push_back(DataType( vertex->position().z()*Gaudi::Units::mm/Gaudi::Units::cm )); 
         } else {
           rhoVertex.push_back(DataType( 0. ));
           phiVertex.push_back(DataType( 0. ));
@@ -126,9 +126,9 @@ namespace JiveXML {
         vertex =  particle->end_vertex();
         if ( vertex ) {
          rhoEndVertex.push_back(DataType(vertex->point3d().r()*Gaudi::Units::mm/Gaudi::Units::cm));
-         float vtxPhi = vertex->point3d().phi();
+         float vtxPhi = vertex->position().phi();
          phiEndVertex.push_back(DataType( (vtxPhi<0)? vtxPhi+=2*M_PI : vtxPhi ));
-         zEndVertex.push_back(DataType(vertex->point3d().z()*Gaudi::Units::mm/Gaudi::Units::cm)); 
+         zEndVertex.push_back(DataType(vertex->position().z()*Gaudi::Units::mm/Gaudi::Units::cm)); 
         } else {
          rhoEndVertex.push_back(DataType( 0. ));
          phiEndVertex.push_back(DataType( 0. ));

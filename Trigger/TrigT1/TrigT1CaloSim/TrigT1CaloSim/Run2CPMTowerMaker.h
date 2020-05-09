@@ -13,16 +13,17 @@
 
 // STL
 #include <string>
-#include <vector>
 
 // Athena/Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
 #include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 #include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
 
@@ -54,7 +55,6 @@ class Run2CPMTowerMaker : public AthAlgorithm
 {
   typedef xAOD::CPMTowerContainer     CPMTCollection;
   typedef xAOD::CPMTowerAuxContainer  CPMTAuxCollection;
-  typedef xAOD::TriggerTowerContainer TTCollection;
  public:
 
   //-------------------------
@@ -80,10 +80,10 @@ class Run2CPMTowerMaker : public AthAlgorithm
 
    ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
 
-  /** location of TriggerTowers in TES */
-  std::string m_triggerTowerLocation;
   /** locations within the TES to store collections of JEs*/
-  std::string   m_cpmTowerLocation ;
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerKey{this, "TriggerTowerLocation", TrigT1CaloDefs::xAODTriggerTowerLocation};
+  SG::WriteHandleKey<CPMTCollection>             m_cpmTowerKey{this, "CPMTowerLocation", TrigT1CaloDefs::CPMTowerLocation};
+
 
 };
 

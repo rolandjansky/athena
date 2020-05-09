@@ -32,7 +32,7 @@ atlas_add_library( LArGeoTBECLib
                    PUBLIC_HEADERS LArGeoTBEC
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoSpecialShapes GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoRAL )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoSpecialShapes GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoRAL RDBAccessSvcLib )
 
 atlas_add_component( LArGeoTBEC
                      src/components/*.cxx

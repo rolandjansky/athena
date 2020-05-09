@@ -24,7 +24,7 @@ class L1MuonMonMT : public TrigMuonMonitorAlgorithm{
 
 
  private:
-  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey;
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Level 1 muon container"};
   
 
 };

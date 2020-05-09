@@ -14,7 +14,7 @@
 
 #include "Identifier/Identifier.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"

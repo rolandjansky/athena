@@ -50,7 +50,7 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
 
     // This ROI was created in a View, it cannot currently be written out.
     // Make a copy in the full-event context, which can be recorded.
-    roisWriteHandle->push_back( new TrigRoiDescriptor( roiReadHandle->at(0) ) );
+    roisWriteHandle->push_back( new TrigRoiDescriptor( *(roiReadHandle->at(0)) ) );
     const ElementLink<TrigRoiDescriptorCollection> newRoiEL = ElementLink<TrigRoiDescriptorCollection>(*roisWriteHandle, roisWriteHandle->size() - 1, ctx);
 
     outputDecision->setObjectLink(roiString(), newRoiEL);

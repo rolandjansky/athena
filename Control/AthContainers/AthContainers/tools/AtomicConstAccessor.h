@@ -65,11 +65,8 @@ public:
                  "Bad type for AtomicConstAccessor");
   static_assert (sizeof(T) == sizeof(std::atomic<T>),
                  "Bad type for AtomicConstAccessor");
-#if __cplusplus >= 201700
   static_assert (std::atomic<T>::is_always_lock_free,
                  "Bad type for AtomicConstAccessor");
-#endif
-
 
   /**
    * @brief Constructor.

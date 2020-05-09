@@ -9,6 +9,8 @@
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
@@ -29,6 +31,7 @@ namespace CP {
       virtual StatusCode execute();
 
    private:
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
       /// muon container
       std::string m_inputKey,m_outputKey;
 

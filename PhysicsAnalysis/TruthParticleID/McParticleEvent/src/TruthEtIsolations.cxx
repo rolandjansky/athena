@@ -15,11 +15,11 @@
 #include <iomanip>
 #include <stdexcept>
 
-// HepMC / CLHEP includes
+// CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // McParticleEvent includes

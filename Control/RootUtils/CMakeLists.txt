@@ -29,7 +29,7 @@ atlas_add_library( RootUtils
                    PUBLIC_HEADERS RootUtils
                    INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES}
+                   LINK_LIBRARIES CxxUtils ${Boost_LIBRARIES}
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYROOT} TestTools )
 
 add_dependencies( RootUtils RootUtilsDictGen )

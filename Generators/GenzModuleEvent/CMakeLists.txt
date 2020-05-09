@@ -5,13 +5,14 @@
 # Declare the package name:
 atlas_subdir( GenzModuleEvent )
 
-# External dependencies:
-find_package( HepMC )
+# The dependencies of the package:
+atlas_depends_on_subdirs(
+   PUBLIC
+   Generators/AtlasHepMC)
 
 # Component(s) in the package:
 atlas_add_library( GenzModuleEvent
                    src/*.cxx
                    PUBLIC_HEADERS GenzModuleEvent
-                   INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${HEPMC_LIBRARIES} )
+                   LINK_LIBRARIES AtlasHepMCLib )
 

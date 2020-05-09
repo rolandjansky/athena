@@ -92,6 +92,55 @@ CMAdata::CMAdata(const RPCdata* rpc_data,const IRPCcablingSvc* cabling,
     }
 }
 
+#ifdef LVL1_STANDALONE
+CMAdata::CMAdata(const RPCdata* rpc_data) : BaseObject(Data,"CMApatterns"), m_debug(0) 
+#else
+CMAdata::CMAdata(const RPCdata* rpc_data,const RpcCablingCondData* readCdo, unsigned long int debug) : 
+    BaseObject(Data,"CMApatterns"),m_debug(debug)
+#endif
+{
+    m_eta_cma_patterns.clear();
+    m_phi_cma_patterns.clear();
+
+    RPCdata::digitList eta = rpc_data->eta_digits_list();
+    RPCdata::digitList::const_iterator digi = eta.begin();
+
+    while(digi != eta.end())
+    {
+	const int sector       = (*digi)->decoding().logic_sector();
+        const ViewType type    = (*digi)->decoding().view();
+	const int station      = (*digi)->decoding().lvl1_station();
+        const int cabling_code = (*digi)->decoding().cabling_code();
+
+	const CMAparameters::CMAlist list = readCdo->give_CMAs(sector,type,station,cabling_code);
+        CMAparameters::CMAlist::const_iterator cma = list.begin();
+        while(cma != list.end())
+	{
+            create_patterns(*cma,*digi);
+	    ++cma;
+	}
+	++digi;
+    }     
+
+    RPCdata::digitList phi = rpc_data->phi_digits_list();
+    digi = phi.begin();
+    while(digi != phi.end())
+    {
+	const int sector       = (*digi)->decoding().logic_sector();
+        const ViewType type    = (*digi)->decoding().view();
+	const int station      = (*digi)->decoding().lvl1_station();
+        const int cabling_code = (*digi)->decoding().cabling_code();
+
+	const CMAparameters::CMAlist list = readCdo->give_CMAs(sector,type,station,cabling_code);
+        CMAparameters::CMAlist::const_iterator cma = list.begin();
+        while(cma != list.end())
+	{
+            create_patterns(*cma,*digi);
+	    ++cma;
+	}
+	++digi;
+    }
+}
 
 
 CMAdata::CMAdata(const CMAdata& cma_patterns) : 

@@ -20,7 +20,6 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ISvcLocator.h"

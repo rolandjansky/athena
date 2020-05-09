@@ -36,9 +36,8 @@ class DCSC_Variable_TRT_HV(DCSC_Variable):
         iovs_eca = offset_channelids(iovs_eca, BAR_MAX_ID)
         iovs_ecc = offset_channelids(iovs_ecc, BAR_MAX_ID + ECA_MAX_ID)
         
-        cool_default_sort = lambda i: (i.channel, i.since)
-        
-        return sorted(iovs_bar + iovs_eca + iovs_ecc, key=cool_default_sort)
+        return sorted(iovs_bar + iovs_eca + iovs_ecc,
+                      key = lambda i: (i.channel, i.since))
         
 class TRT(DCSC_Subdetector):
 

@@ -7,7 +7,7 @@
 // Digitization algorithm for the CSC hits
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 #include "StoreGate/StoreGate.h"
@@ -113,7 +113,7 @@ StatusCode CscDigitizationTool::initialize() {
 }
 
 // Inherited from PileUpTools
-StatusCode CscDigitizationTool::prepareEvent(unsigned int /*nInputEvents*/) {
+StatusCode CscDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int /*nInputEvents*/) {
 
   if (0 == m_thpcCSC)
     m_thpcCSC = new TimedHitCollection<CSCSimHit>();
@@ -124,25 +124,25 @@ StatusCode CscDigitizationTool::prepareEvent(unsigned int /*nInputEvents*/) {
 }
 ///////////////////////////////
 
-StatusCode CscDigitizationTool::processAllSubEvents() {
+StatusCode CscDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "in processAllSubEvents()" );
 
   //create and record CscDigitContainer in SG
-  SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey);
+  SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey, ctx);
   ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_muonIdHelperTool->cscIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("recorded CscDigitContainer with name "<<cscDigits.key());
 
   if (m_isPileUp) return StatusCode::SUCCESS;
 
   // create and record the SDO container in StoreGate
-  SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey);
+  SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey, ctx);
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method
 
   if (0 == m_thpcCSC ) {
-    StatusCode sc = getNextEvent();
+    StatusCode sc = getNextEvent(ctx);
     if (StatusCode::FAILURE == sc) {
       ATH_MSG_INFO ( "There are no CSC hits in this event" );
       return sc; // there are no hits in this event
@@ -150,8 +150,8 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper);
+  rngWrapper->setSeed( name(), ctx );
+  return CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), rngWrapper->getEngine(ctx));
 
 }
 
@@ -178,8 +178,6 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
       TimedHitPtr<CSCSimHit> phit(*i++);
       const CSCSimHit& hit(*phit);
 
-      //      const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
-      //      const HepMC::GenParticle* genPart = McLink.cptr(); // some times empty pointer returned
 
       ATH_MSG_DEBUG(hit.print());
 
@@ -518,7 +516,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
 
 
 // Get next event and extract collection of hit collections:
-StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-PileUp Event...
+StatusCode CscDigitizationTool::getNextEvent(const EventContext& ctx) // This is applicable to non-PileUp Event...
 {
 
   //  get the container(s)
@@ -526,7 +524,7 @@ StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-Pile
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<CSCSimHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<CSCSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get CSCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -618,22 +616,22 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //////////////////////////
-StatusCode CscDigitizationTool::mergeEvent() {
+StatusCode CscDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "in mergeEvent()" );
 
   //create and record CscDigitContainer in SG
-  SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey);
+  SG::WriteHandle<CscDigitContainer> cscDigits(m_cscDigitContainerKey, ctx);
   ATH_CHECK(cscDigits.record(std::make_unique<CscDigitContainer>(m_muonIdHelperTool->cscIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("recorded CscDigitContainer with name "<<cscDigits.key());
 
   // create and record the SDO container in StoreGate
-  SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey);
+  SG::WriteHandle<CscSimDataCollection> cscSimData(m_cscSimDataCollectionWriteHandleKey, ctx);
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  ATH_CHECK(CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), *rngWrapper));
+  rngWrapper->setSeed( name(), ctx );
+  ATH_CHECK(CoreDigitization(cscDigits.ptr(),cscSimData.ptr(), rngWrapper->getEngine(ctx)));
 
   // remove cloned one in processBunchXing......
   std::list<CSCSimHitCollection*>::iterator cscHitColl = m_cscHitCollList.begin();

@@ -7,6 +7,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "AsgTools/ToolHandleArray.h"
 
@@ -28,6 +30,7 @@ namespace Trig{
             StatusCode execute();
             StatusCode finalize();
         private:
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
             // Properties:
             std::string m_outputStream;
             std::string m_inputContainerName;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTSiPropertiesCondAlg.h"
@@ -7,8 +7,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <cmath>
 #include <memory>
@@ -65,12 +63,8 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeTemp;
-  if (not readHandleTemp.range(rangeTemp)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
+  writeHandle.addDependency(readHandleTemp);
+  ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << readHandleTemp.getRange());
 
   // Read Cond Handle (HV)
   SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV, ctx};
@@ -79,19 +73,8 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeHV;
-  if (not readHandleHV.range(rangeHV)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
-
-  // Combined the validity ranges of temp and HV (timestamp IOV)
-  EventIDRange rangeW{EventIDRange::intersect(rangeTemp, rangeHV)};
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(readHandleHV);
+  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
@@ -100,11 +83,7 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeDetEle; // Run-LB IOV
-  if (not sctDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(sctDetEle);
   
   // Construct the output Cond Object and fill it in
   std::unique_ptr<InDet::SiliconPropertiesVector> writeCdo{std::make_unique<InDet::SiliconPropertiesVector>()};
@@ -141,13 +120,13 @@ StatusCode SCTSiPropertiesCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

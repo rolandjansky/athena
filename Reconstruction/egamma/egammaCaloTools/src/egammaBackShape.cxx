@@ -124,7 +124,7 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
   // 3X3
   StatusCode sc =
-      calc.fill(&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
+      calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
   if (sc.isFailure()) {
     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
   }
@@ -132,28 +132,28 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
   if (m_ExecOtherVariables) {
     // 3X5
-    sc = calc.fill(&cell_container, eta, phi, 3. * deta, 5. * dphi, sam);
+    sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 5. * dphi, sam);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }
     info.e335 = calc.em();
 
     // 5X5
-    sc = calc.fill(&cell_container, eta, phi, 5. * deta, 5. * dphi, sam);
+    sc = calc.fill(cmgr,&cell_container, eta, phi, 5. * deta, 5. * dphi, sam);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }
     info.e355 = calc.em();
 
     // 3X7
-    sc = calc.fill(&cell_container, eta, phi, 3. * deta, 7. * dphi, sam);
+    sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 7. * dphi, sam);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }
     info.e337 = calc.em();
 
     // 7x7
-    sc = calc.fill(&cell_container, eta, phi, 7. * deta, 7. * dphi, sam);
+    sc = calc.fill(cmgr,&cell_container, eta, phi, 7. * deta, 7. * dphi, sam);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }

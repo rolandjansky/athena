@@ -1,36 +1,45 @@
-/*
+/* -*- mode:c++ -*-
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+
+template<class T> std::tuple<double,double> MuonMatchingTool :: trigPosForMatch(const T *trig) const { 
+  return std::forward_as_tuple(trig->eta(), trig->phi()); 
+}
+
+template<class T> std::tuple<double,double> MuonMatchingTool :: offlinePosForMatch(const xAOD::Muon *mu) const { 
+  return std::forward_as_tuple(mu->eta(), mu->phi());
+}
+
 
 template<class T>
 StatusCode MuonMatchingTool :: match(const xAOD::Muon* mu, std::string trig, double reqdR, bool &pass) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
   
-  double muPt = mu->pt()*Gaudi::Units::GeV;
+  const auto [offlEta, offlPhi] = offlinePosForMatch<T>(mu);
 
-  if(m_ToyDecision){
-    double prob = FermiFunction(muPt,20, 5);
-    pass = m_rndm->Rndm()<prob;
-  }
-  else {
-    std::vector< TrigCompositeUtils::LinkInfo<T> > featureCont = m_trigDec->features<T>( trig, TrigDefs::includeFailedDecisions );
-    for(const TrigCompositeUtils::LinkInfo<T>& featureLinkInfo : featureCont){
-      ATH_CHECK( featureLinkInfo.isValid() );
-      const ElementLink<T> link = featureLinkInfo.link;
-      double trigEta = (*link)->eta();
-      double trigPhi = (*link)->phi();
-      
-      double dR = xAOD::P4Helpers::deltaR(*link, mu, false);
-      ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR);
-      if( dR<reqdR ){
-	reqdR = dR;
-	pass = ( featureLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE );
-	ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR <<  " isPassed=" << pass);
-      }
+  std::vector< TrigCompositeUtils::LinkInfo<T> > featureCont = m_trigDec->features<T>( trig, TrigDefs::includeFailedDecisions );
+  for(const TrigCompositeUtils::LinkInfo<T>& featureLinkInfo : featureCont){
+    ATH_CHECK( featureLinkInfo.isValid() );
+    const ElementLink<T> link = featureLinkInfo.link;
+
+    const auto [trigEta, trigPhi] = trigPosForMatch(*link);
+    double deta = offlEta - trigEta;
+    double dphi = xAOD::P4Helpers::deltaPhi(offlPhi, trigPhi);
+    double dR = sqrt(deta*deta + dphi*dphi);
+
+    ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR);
+    if( dR<reqdR ){
+      reqdR = dR;
+      pass = ( featureLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE );
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << (*link)->pt() << " dR=" << dR <<  " isPassed=" << pass);
     }
   }
+
 
   return StatusCode::SUCCESS;
 
 }
+
+

@@ -60,12 +60,13 @@ atlas_depends_on_subdirs(
    Tracking/TrkFitter/TrkFitterInterfaces
    graphics/VP1/VP1HEPVis
    graphics/VP1/VP1Systems/VP1GuideLineSystems
-   graphics/VP1/VP1Systems/VP1PRDSystems )
+   graphics/VP1/VP1Systems/VP1PRDSystems 
+   Generators/AtlasHepMC
+   )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( HepMC )
 find_package( Qt5 COMPONENTS Core Gui Widgets  )
 find_package( GeoModelCore )
 
@@ -79,13 +80,13 @@ set( CMAKE_AUTOMOC TRUE )
 atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1TrackSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   ${HEPMC_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives Identifier xAODTracking
    GaudiKernel GeneratorObjects TrkDetDescrInterfaces TrkSurfaces
    TrkEventPrimitives TrkParameters VP1Base VP1Utils StoreGateLib SGtests
    MuonIdHelpersLib MuonRecHelperToolsLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES}
-   ${HEPMC_LIBRARIES} AthContainers AtlasDetDescr EventPrimitives
+   AtlasHepMCLib AthContainers AtlasDetDescr EventPrimitives
    ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData
    InDetRIO_OnTrack InDetSimEvent MuonReadoutGeometry MuonChamberT0s
    MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonSimEvent Particle

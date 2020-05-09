@@ -97,6 +97,9 @@ def arg_eval(s):
 def check_args(parser, args):
    """Consistency check of command line arguments"""
 
+   if not args.jobOptions and not args.use_database:
+      parser.error("No job options file specified")
+
    # Due to missing per-worker dirs this is not supported (ATR-19462)
    if args.perfmon and args.oh_monitoring and args.nprocs>1:
       parser.error("--perfmon cannot be used with --oh-monitoring and --nprocs > 1")
@@ -298,7 +301,7 @@ def main():
 
    ## Global options
    g = parser.add_argument_group('Options')
-   g.add_argument('jobOptions', help='job options (or JSON) file')
+   g.add_argument('jobOptions', nargs='?', help='job options (or JSON) file')
    g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
    g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')

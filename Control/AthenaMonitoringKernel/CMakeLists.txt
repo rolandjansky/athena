@@ -31,13 +31,13 @@ atlas_add_library(
     PUBLIC_HEADERS AthenaMonitoringKernel
     PRIVATE_INCLUDE_DIRS nlohmann_json
     LINK_LIBRARIES AthenaBaseComps
-    PRIVATE_LINK_LIBRARIES nlohmann_json
+    PRIVATE_LINK_LIBRARIES nlohmann_json::nlohmann_json
 )
 
 atlas_add_component(
     AthenaMonitoringKernel
     src/components/*.cxx
-    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib nlohmann_json 
+    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
 )
 
 # Install files from the package:
@@ -55,7 +55,7 @@ foreach ( test_file ${CXX_TEST_FILES} )
     atlas_add_test( ${name}
         SOURCES ${test_file}
         INCLUDE_DIRS ${_extra_includes}
-        LINK_LIBRARIES TestTools AthenaMonitoringKernelLib nlohmann_json
+        LINK_LIBRARIES TestTools AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
         ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
         POST_EXEC_SCRIPT nopost.sh
         PROPERTIES TIMEOUT 300

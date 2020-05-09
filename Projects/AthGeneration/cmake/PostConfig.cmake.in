@@ -5,26 +5,15 @@
 #
 
 # Find Gaudi:
-find_package( Gaudi REQUIRED )
+if( AthGeneration_FIND_QUIETLY )
+   find_package( Gaudi REQUIRED QUIET )
+else()
+   find_package( Gaudi REQUIRED )
+endif()
 
 # Set up the compilation option(s) for AthGeneration.
-add_definitions( -DGENERATIONBASE )
 set( GENERATIONBASE TRUE CACHE BOOL
     "Flag specifying that this is a generation release build" )
-
-# Load all the files from the externals/ subdirectory:
-get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )
-file( GLOB _externals "${_thisdir}/externals/*.cmake" )
-unset( _thisdir )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   if( NOT AthGeneration_FIND_QUIETLY )
-      message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   endif()
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
+if( GENERATIONBASE )
+   add_definitions( -DGENERATIONBASE )
+endif()

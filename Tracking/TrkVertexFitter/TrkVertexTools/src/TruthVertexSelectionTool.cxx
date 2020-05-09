@@ -5,7 +5,7 @@
 #include "TrkVertexTools/TruthVertexSelectionTool.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include <vector> 
 

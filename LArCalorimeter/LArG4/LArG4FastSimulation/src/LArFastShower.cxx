@@ -8,8 +8,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "LArG4Code/EnergySpot.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
 
 #include <stdexcept>
 

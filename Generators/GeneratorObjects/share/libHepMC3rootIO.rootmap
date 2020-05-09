@@ -1,0 +1,3 @@
+# Dummy rootmap file installed by GeneratorObjects to suppress loading
+# the rootmap file from hepmc3 due to clashing dictionary entries
+# for HepMC types.

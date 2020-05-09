@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibFitters/DCSLFitter.h"
@@ -157,7 +157,7 @@ namespace MuonCalib {
     // calculate shift
     //
     double d = -( getZ( pos )-Zc)*sinus+( getY( pos )-Yc)*cosin;
-    double theta = acos(cosin);
+    double theta = std::acos(cosin);
     if(m_debug) {
       std::cout << "____________INITIAL VALUES________________" << count << std::endl;
       std::cout << "Theta " << theta << " d " << d << std::endl;
@@ -193,15 +193,15 @@ namespace MuonCalib {
       theta += Bt/Att;
       if ( theta < 0.0   ) theta += M_PI;
       if ( theta >= M_PI ) theta -= M_PI;
-      cosin = cos(theta);
-      sinus = sqrt(1-cosin*cosin);
+      cosin = std::cos(theta);
+      sinus = std::sqrt(1-cosin*cosin);
       d = R/S;
       if(m_debug) std::cout << "R " << R << " Ry " << Ry << " Rz " << Rz << std::endl;
       if(m_debug) std::cout << "Att " << Att << " Add " << Add << " Bt " << Bt << " Bd " << Bd << std::endl;
       if(m_debug) std::cout << "dTheta " << Bt/Att << " dD " << Bd/Add << std::endl;
-      if(fabs(Bt/Att) < 0.001 && fabs(Bd/Add) < 0.001){
-	Stt = sqrt(1/Att);
-	Sd = sqrt(1/Add);
+      if(std::abs(Bt/Att) < 0.001 && std::abs(Bd/Add) < 0.001){
+	Stt = std::sqrt(1/Att);
+	Sd = std::sqrt(1/Add);
 	if(m_debug) std::cout << "Fit converged after " << count << " iterations " << std::endl;
 
 	if(m_debug) std::cout << "Theta " << theta << "d " << d << std::endl;
@@ -227,8 +227,8 @@ namespace MuonCalib {
     for(int i=0;i<N;++i){
       yl[i] = cosin*y[i] - sinus*z[i] - d;
       double dth = -(sinus*y[i] + cosin*z[i])*Stt;
-      dyl[i] = sqrt( dth*dth + Sd*Sd );
-      res[i] = fabs(yl[i]) - r[i];
+      dyl[i] = std::hypot(dth, Sd);
+      res[i] = std::abs(yl[i]) - r[i];
       if(m_debug) std::cout << " r_track " << yl[i] << " dr " << dyl[i]
 			    << " r_rt " << r[i] << " res " << res[i]
 			    << " pull " << res[i]*res[i]*w[i] << std::endl;

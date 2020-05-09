@@ -21,6 +21,7 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 # art-output: PHYSVAL_WEB
+# art-html: PHYSVAL_WEB
 
 unset ATHENA_NPROC_NUM
 
@@ -28,9 +29,9 @@ export NAME="mc_ntup_physval_grid"
 export JOB_LOG="athena.log"
 export TEST="TrigAnalysisTest"
 export NEVT=100
-export DS='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v7_chain/AOD.pool.root'
+export DS='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_master/AOD.pool.root'
 
-Reco_tf.py --inputAODFile=${DS}  --preExec "all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" --skipEvents="0" --maxEvents=${NEVT} --valid="True"  --jobNumber="1" --validationFlags doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet --outputNTUP_PHYSVALFile="NTUP_PHYSVAL.pool.root" > output.log 
+Reco_tf.py --inputAODFile=${DS}  --skipEvents="0" --maxEvents=${NEVT} --valid="True"  --jobNumber="1" --validationFlags doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet --outputNTUP_PHYSVALFile="NTUP_PHYSVAL.pool.root" > output.log 
 
 echo "art-result: $? PhysVal"
 

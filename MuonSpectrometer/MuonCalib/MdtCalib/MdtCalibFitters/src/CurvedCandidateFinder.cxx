@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9,22 +9,11 @@
 //           07.08.2008 by O. Kortner, bug fig in the pattern recognition.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS CurvedCandidateFinder ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibFitters/CurvedCandidateFinder.h"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -68,10 +57,8 @@ const std::vector<CurvedLine> & CurvedCandidateFinder::getCandidates(
 /////////////////////////////////////////
 
     if (m_hits.size()<3) {
-        cerr << endl
-                << "Class CurvedCandidateFinder, method getCandidates: "
-                << "WARNING!\n"
-                << "Not enough hits to determine a parabola!\n";
+        MsgStream log(Athena::getMessageSvc(), "CurvedCandidateFinder");
+        log<< MSG::WARNING << "Class CurvedCandidateFinder, method getCandidates: Not enough hits to determine a parabola!"<<endmsg;
     }
 
 ///////////////
@@ -80,7 +67,7 @@ const std::vector<CurvedLine> & CurvedCandidateFinder::getCandidates(
 
     const MdtCalibHitBase *hit[3]; // three hits defining the candidate line
     double min_z, max_z, dist(0.0); // auxialiary variables to define the points
-    vector<Amg::Vector3D> points(3); // points defining the curved candidate line
+    std::vector<Amg::Vector3D> points(3); // points defining the curved candidate line
     int sign[3]; // auxiliary sign array
 	Amg::Vector3D null(0.0, 0.0, 0.0); // auxiliary 0 vector
 	Amg::Vector3D xhat(1.0, 0.0, 0.0); // auxiliary unit vector
@@ -147,10 +134,6 @@ const std::vector<CurvedLine> & CurvedCandidateFinder::getCandidates(
 // get a candidate //
         unsigned int nb_hits(0);
         for (unsigned int l=0; l<3; l++) {
-//             points[l] = Amg::Vector3D(hit[l]->localPosition().x(),
-//                             hit[l]->localPosition().y()+
-//                                                 sign[l]*hit[l]->driftRadius(),
-//                             hit[l]->localPosition().z());
 			points[l] = hit[l]->localPosition()+
 						sign[l]*hit[l]->driftRadius()*shift_vec;
         }
@@ -172,9 +155,9 @@ const std::vector<CurvedLine> & CurvedCandidateFinder::getCandidates(
         for (unsigned int k=0; k<m_hits.size(); k++) {
             MTStraightLine w(Amg::Vector3D(0.0, m_hits[k]->localPosition().y(),
 						m_hits[k]->localPosition().z()), xhat, null, null);
-            double d(fabs((cand_line.getTangent(m_hits[k]->localPosition().z()
+            double d(std::abs((cand_line.getTangent(m_hits[k]->localPosition().z()
                                                     )).signDistFrom(w)));
-            if (fabs(m_hits[k]->driftRadius()-d)<road_width) {
+            if (std::abs(m_hits[k]->driftRadius()-d)<road_width) {
                 nb_hits++;
             }
         }

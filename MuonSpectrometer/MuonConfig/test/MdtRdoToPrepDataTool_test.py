@@ -44,7 +44,7 @@ def testCfg (configFlags):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
-    Muon__MdtRdoToPrepDataTool = CompFactory.Muon__MdtRdoToPrepDataTool
+    Muon__MdtRdoToPrepDataTool = CompFactory.Muon.MdtRdoToPrepDataTool
     result.addPublicTool (Muon__MdtRdoToPrepDataTool ('Muon__MdtRdoToPrepDataTool', OutputLevel = 1))
     
     result.addEventAlgo (TestAlg ('TestAlg'))

@@ -152,7 +152,7 @@ public:
     const Amg::Vector3D tubeFrame_localROPos(Identifier id) const;
 
     // defining B-line parameters 
-    /*inline*/ void setBLinePar(BLinePar*  bLine);
+    /*inline*/ void setBLinePar(const BLinePar*  bLine);
     inline void clearBLinePar(); 
     inline const BLinePar* getBLinePar() const {return m_BLinePar;} 
 
@@ -255,10 +255,19 @@ private:
     std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_deformTransf;   // one per tube
     std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_backupDeformTransf;   // one per tube
 
-    BLinePar* m_BLinePar;
+    const BLinePar* m_BLinePar;
     CxxUtils::CachedValue<Amg::Vector3D>            m_elemNormal;        // one
     std::vector<CxxUtils::CachedUniquePtr<Trk::SaggedLineSurface> > m_tubeSurfaces;   // one per tube
     std::vector<CxxUtils::CachedUniquePtr<Trk::CylinderBounds> > m_tubeBounds;   // one per step in tube-length
+
+    /// Flag whether any elements have been inserted
+    /// into the corresponding vectors.
+    /// Used to speed up the clear-cache operations for the case where
+    /// the vectors are empty.
+    mutable std::atomic<bool> m_haveTubeSurfaces = false;
+    mutable std::atomic<bool> m_haveTubeGeo = false;
+    mutable std::atomic<bool> m_haveTubeBounds = false;
+    mutable std::atomic<bool> m_haveDeformTransf = false;
     
     // the single surface information representing the DetElement
     CxxUtils::CachedUniquePtr<Trk::Surface>       m_associatedSurface;

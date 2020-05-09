@@ -39,16 +39,15 @@ public:
 
  
 private:
-
-    StatusCode loadDataPsHv           (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadDataPsLv           (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadDataHv             (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadDataLv             (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadDataDroppedChambers(EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadMcDroppedChambers  (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadMcDeadElements     (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadMcDeadTubes        (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadMcNoisyChannels    (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    typedef SG::WriteCondHandle<MdtCondDbData> writeHandle_t;
+    StatusCode loadDataPsHv           (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataPsLv           (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataHv             (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataLv             (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDroppedChambers    (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx, bool isMC) const;
+    StatusCode loadMcDeadElements     (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcDeadTubes        (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcNoisyChannels    (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
     
     bool m_isOnline{false};
     bool m_isData{false};  

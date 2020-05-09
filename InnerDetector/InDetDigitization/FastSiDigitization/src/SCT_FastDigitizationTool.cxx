@@ -36,7 +36,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // CLHEP
 #include "CLHEP/Random/RandomEngine.h"
@@ -150,7 +150,7 @@ StatusCode SCT_FastDigitizationTool::initialize()
   return StatusCode::SUCCESS ;
 }
 
-StatusCode SCT_FastDigitizationTool::prepareEvent(unsigned int)
+StatusCode SCT_FastDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int)
 {
 
   m_siHitCollList.clear();
@@ -235,7 +235,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_FastDigitizationTool::processAllSubEvents() {
+StatusCode SCT_FastDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   CHECK(this->createOutputContainers());
 
@@ -278,9 +278,9 @@ StatusCode SCT_FastDigitizationTool::processAllSubEvents() {
   m_thpcsi = &thpcsi;
 
   // Process the Hits
-  CHECK(this->digitize());
+  CHECK(this->digitize(ctx));
 
-  CHECK(this->createAndStoreRIOs());
+  CHECK(this->createAndStoreRIOs(ctx));
   ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
 
   return StatusCode::SUCCESS;
@@ -288,13 +288,13 @@ StatusCode SCT_FastDigitizationTool::processAllSubEvents() {
 
 
 
-StatusCode SCT_FastDigitizationTool::mergeEvent()
+StatusCode SCT_FastDigitizationTool::mergeEvent(const EventContext& ctx)
 {
   CHECK(this->createOutputContainers());
 
   if (m_thpcsi != 0)
     {
-      CHECK(this->digitize());
+      CHECK(this->digitize(ctx));
     }
 
   //-----------------------------------------------------------------------
@@ -310,17 +310,17 @@ StatusCode SCT_FastDigitizationTool::mergeEvent()
   m_siHitCollList.clear();
   //-----------------------------------------------------------------------
 
-  CHECK(this->createAndStoreRIOs());
+  CHECK(this->createAndStoreRIOs(ctx));
   ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode SCT_FastDigitizationTool::digitize()
+StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
 {
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -958,10 +958,10 @@ StatusCode SCT_FastDigitizationTool::digitize()
 }
 
 
-StatusCode SCT_FastDigitizationTool::createAndStoreRIOs()
+StatusCode SCT_FastDigitizationTool::createAndStoreRIOs(const EventContext& ctx)
 {
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");

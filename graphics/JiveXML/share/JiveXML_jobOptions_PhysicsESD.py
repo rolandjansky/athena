@@ -31,9 +31,6 @@ jp.Rec.doMonitoring.set_Value_and_Lock(False)
 jp.Rec.doAOD.set_Value_and_Lock(False)
 jp.Rec.doWriteAOD.set_Value_and_Lock(False)
 
-#### not necessary anymore  
-#rec.abortOnUncheckedStatusCode.set_Value_and_Lock(False)
-
 #### job options to retrieve spacepoints from ESDs
 #### not done by default ! From Thijs Cornellisen
 from InDetRecExample.InDetJobProperties import InDetFlags

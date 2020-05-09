@@ -38,7 +38,7 @@ class BLinePar : public MuonAlignmentPar {
 		     float& tr,
 		     float& eg,
 		     float& ep,
-		     float& en);
+		     float& en) const;
   float bz() const {return m_bz;}
   float bp() const {return m_bp;}
   float bn() const {return m_bn;}

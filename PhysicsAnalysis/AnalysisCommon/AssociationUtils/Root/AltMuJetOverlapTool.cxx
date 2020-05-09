@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 // System includes
 #include <typeinfo>
 #include <limits>
@@ -53,18 +54,16 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode AltMuJetOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty())
-      m_bJetHelper = make_unique<BJetHelper> (m_bJetLabel);
+      m_bJetHelper = std::make_unique<BJetHelper> (m_bJetLabel);
 
     // Initialize the inner cone dR matcher
     m_dRMatchCone1 =
-      make_unique<DeltaRMatcher> (m_innerDR, m_useRapidity);
+      std::make_unique<DeltaRMatcher> (m_innerDR, m_useRapidity);
     // Initialize the sliding dR matcher
     m_dRMatchCone2 =
-      make_unique<SlidingDeltaRMatcher>
+      std::make_unique<SlidingDeltaRMatcher>
         (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
 
     return StatusCode::SUCCESS;
@@ -137,7 +136,7 @@ namespace ORUtils
         }
       }
     }
-    
+
     return StatusCode::SUCCESS;
   }
 

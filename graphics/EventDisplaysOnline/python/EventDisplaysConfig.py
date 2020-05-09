@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 def GetRunType():
   """Get the run type by reading the run-type setting in the partition from IS """
@@ -25,7 +26,7 @@ def GetRunType():
     runparams = ISObject(IPCPartition(partition), 'RunParams.RunParams','RunParams')
     runparams.checkout()
     runType = runparams.run_type
-  except UserWarning, err:
+  except UserWarning as err:
     mlog.error(err)
     #Set the default runtype
     runType="collisions"
@@ -69,7 +70,7 @@ def GetBFields():
     #And calculate the flags
     solenoidOn=((solenoidCurrent.value > 1000.) and (solenoidInvalid.value == 0))
     toroidOn=((toroidCurrent.value > 1000.) and (toroidInvalid.value == 0))
-  except UserWarning, err:
+  except UserWarning as err:
     mlog.error(err)
     #Should always be able to access initial parititon
     mlog.fatal("Failed to read magnetic field configuration from IS, aborting")
@@ -85,6 +86,6 @@ def GetBFields():
 
 if __name__ == "__main__":
   runType=GetRunType()
-  print "RunType: %s"%runType
+  print ("RunType: %s"%runType)
   bFields = GetBFields()
-  print "BFields (Sol,Tor):",bFields   
+  print ("BFields (Sol,Tor):",bFields)

@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef ASSOCIATIONUTILS_OVERLAPTOOLDR_H
 #define ASSOCIATIONUTILS_OVERLAPTOOLDR_H
 

@@ -61,9 +61,6 @@ TriggerFlags.AODEDMSet="AODSLIM"
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
-
 include("TriggerTest/TriggerTestCommon.py")
 
 #-------------------------------------------------------------

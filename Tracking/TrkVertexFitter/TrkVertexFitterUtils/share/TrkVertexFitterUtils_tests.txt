@@ -1,4 +1,4 @@
-ApplicationMgr.ExtSvc={"MagField::AtlasFieldSvc/AtlasFieldSvc"};
+ApplicationMgr.ExtSvc={"MagField::AtlasFieldSvc/AtlasFieldSvc", "StoreGateSvc/ConditionStore"};
 AtlasFieldSvc.UseDCS=false;
 AtlasFieldSvc.UseMapsFromCool=false;
 

@@ -93,7 +93,22 @@ std::vector<float> BDTHelper::getInputVariables(const std::map<TString, float> &
   return values;
 }
 
+std::vector<float> BDTHelper::getInputVariables(const std::map<TString, float*> &availableVariables) const {  
+  std::vector<float> values;
 
+  // sort the input variables by the order in varList (from BDT)
+  for (const TString& name : m_inputVariableNames) {
+    std::map<TString, float*>::const_iterator itr = availableVariables.find(name);
+    if(itr==availableVariables.end()) {
+      ATH_MSG_ERROR(name << " not available");
+    }
+    else {
+      values.push_back(*itr->second);
+    }
+  }
+
+  return values;
+}
 
 std::vector<float> BDTHelper::getInputVariables(const xAOD::TauJet& tau) const {
   std::vector<float> values;
@@ -130,7 +145,19 @@ float BDTHelper::getGradBoostMVA(const std::map<TString, float> &availableVariab
   return score;
 }
 
+float BDTHelper::getResponse(const std::map<TString, float*> &availableVariables) const {
+  std::vector<float> values = getInputVariables(availableVariables);
 
+  float score = -999;
+  if (values.size() < m_inputVariableNames.size()) {
+    ATH_MSG_ERROR("There are missing variables when calculating the BDT score, will return -999");
+  }
+  else {  
+    score = m_BDT->GetResponse(values);
+  }
+
+  return score;
+}
 
 float BDTHelper::getGradBoostMVA(const xAOD::TauJet& tau) const {
   std::vector<float> values = getInputVariables(tau);

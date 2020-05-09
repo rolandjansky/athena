@@ -79,8 +79,8 @@ class MuFastSteering : public HLT::FexAlgo,
 
   /** findMuonSignature(), includes reconstract algorithms **/
   /** this function can be called from both execute() and hltExecute() **/
-  StatusCode findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roi, 
-			       const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
+  StatusCode findMuonSignature(const std::vector<const TrigRoiDescriptor*>&	roi,
+			       const std::vector<const LVL1::RecMuonRoI*>& 	muonRoIs,
                                DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
@@ -225,6 +225,10 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< double > m_rWidth_TGC_Failed { this, "R_WIDTH_TGC_FAILED", 200, "" };
 
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0, "" };
+
+  Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
+  Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
+  Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
 
   //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);

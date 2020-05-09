@@ -23,7 +23,6 @@ description          : This is a helper class to collect components of a
 #define MultiComponentStateAssembler_H
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include <memory>
 #include <vector>
 
 namespace Trk {
@@ -70,12 +69,12 @@ addInvalidComponentWeight(Cache& cache, const double);
 /** Method to return the cached state object -
  * it performs a reweighting before returning the object based on the
  * valid and invaid weights */
-std::unique_ptr<MultiComponentState>
+MultiComponentState
 assembledState(Cache& cache);
 
 /** Method to return the cached state object -
  * it performs a reweighting based on the input parameter  */
-std::unique_ptr<MultiComponentState>
+MultiComponentState
 assembledState(Cache& cache, const double);
 
 /** Method to Check component entries before full assembly */
@@ -83,7 +82,7 @@ bool
 prepareStateForAssembly(Cache& cache);
 
 /** Method to assemble state with correct weightings */
-std::unique_ptr<MultiComponentState>
+MultiComponentState
 doStateAssembly(Cache& cache, const double);
 
 /** Method to check the validity of of the cached state */

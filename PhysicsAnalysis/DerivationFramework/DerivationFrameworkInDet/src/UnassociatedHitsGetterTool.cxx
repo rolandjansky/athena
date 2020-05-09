@@ -1,39 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace DerivationFramework {
 
 UnassociatedHitsGetterTool::UnassociatedHitsGetterTool(const std::string& type,
 						       const std::string& name,
 						       const IInterface* parent) : 
-  AthAlgTool(type, name, parent),
-  m_storeGate(0),
-  m_assoTool("Trk::PRD_AssociationTool"),
-  m_firstTime (true),
-  m_disabled (false)
+  AthAlgTool(type, name, parent)
 {
   declareInterface<IUnassociatedHitsGetterTool>(this);
-  declareProperty("PRDAssociationTool", m_assoTool);
-  declareProperty("TrackCollection", m_trackCollection = "Tracks");
-  declareProperty("PixelClusters", m_pixelClusterContainer = "PixelClusters");
-  declareProperty("SCTClusterContainer", m_SCTClusterContainer = "SCT_Clusters");
-  declareProperty("TRTDriftCircleContainer", m_TRTDriftCircleContainer = "TRT_DriftCircles");
 }
 
 UnassociatedHitsGetterTool::~UnassociatedHitsGetterTool(){
@@ -44,85 +33,67 @@ StatusCode UnassociatedHitsGetterTool::initialize(){
 
   CHECK(AthAlgTool::initialize());
   
-  // Retrieve a pointer to StoreGate
-  CHECK( service("StoreGateSvc", m_storeGate) );
-  
   // retrieve PRD association tool
-  CHECK( m_assoTool.retrieve() );
-
+  ATH_CHECK( m_prdToTrackMapKey.initialize(!m_prdToTrackMapKey.key().empty()));
+  ATH_CHECK( m_assoTool.retrieve(DisableTool{!m_prdToTrackMapKey.key().empty()} ) );
+  ATH_CHECK( m_trackCollection.initialize());
+  ATH_CHECK( m_pixelClusterContainer.initialize( !m_pixelClusterContainer.key().empty()) );
+  ATH_CHECK( m_SCTClusterContainer.initialize( !m_SCTClusterContainer.key().empty()) );
   // Read Cond Handle Key
-  CHECK( m_SCTDetEleCollKey.initialize() );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize(!m_SCTClusterContainer.key().empty()) );
+
+  ATH_CHECK( m_TRTDriftCircleContainer.initialize( !m_TRTDriftCircleContainer.key().empty()) );
 
   return StatusCode::SUCCESS;
 }
   
 const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissing*/) const {
-    
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // If we fail to find something we need in SG on the first call,
   // issue a warning and don't try again (this can happen if we're
   // reading an AOD).  But consider it an ERROR if it happens
   // after the first call.
-  
-  if (m_disabled){
-    return 0;
-  }
-  
-  MSG::Level level = MSG::ERROR;
-  if (m_firstTime) {
-    level = MSG::WARNING;
-    m_firstTime = false;
-  }
-  
-  // retrieve track collection
-  const TrackCollection* trackCollection;
-  StatusCode sc = m_storeGate->retrieve(trackCollection, m_trackCollection);  
-  if(sc.isFailure() || !trackCollection) {
-    m_disabled = true;
-    REPORT_MESSAGE (level) << "Track collection " << m_trackCollection << " not found in StoreGate";
-    return 0;
-  }
-  
-  // retrieve pixel clusters
-  const InDet::PixelClusterContainer *pixelClusters;
-  sc = m_storeGate->retrieve(pixelClusters, m_pixelClusterContainer);
-  if(sc.isFailure() || !pixelClusters) {
-    m_disabled = true;
-    REPORT_MESSAGE (level) << "Pixel cluster container '" << m_pixelClusterContainer << "' not found in StoreGate";
-    return 0;
-  }
-  
-  // retrieve SCT clusters
-  const InDet::SCT_ClusterContainer *SCTClusters;
-  sc = m_storeGate->retrieve(SCTClusters, m_SCTClusterContainer);
-  if(sc.isFailure() || !SCTClusters) {
-    m_disabled = true;
-    REPORT_MESSAGE (level) << "SCT cluster container '" << m_SCTClusterContainer << "' not found in StoreGate";
-    return 0;
-  }
 
-  // retrieve TRT drift circles
-  const InDet::TRT_DriftCircleContainer *TRTDriftCircles;
-  sc = m_storeGate->retrieve(TRTDriftCircles, m_TRTDriftCircleContainer);
-  if(sc.isFailure() || !TRTDriftCircles) {
-    m_disabled = true;
-    REPORT_MESSAGE (level) << "TRT drift circle container '" << m_TRTDriftCircleContainer << "' not found in StoreGate";
+  // retrieve track collection
+  SG::ReadHandle<TrackCollection> trackCollection(m_trackCollection,ctx);
+  if(!trackCollection.isValid()) {
+    ATH_MSG_FATAL("Track collection " << m_trackCollection.key() << " not found in StoreGate");
     return 0;
   }
 
   // Get empty state for PRD association tool.
-  Trk::IPRD_AssociationTool::Maps prdmaps;
-
+  const Trk::PRDtoTrackMap *prd_to_track_map;
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map_cleanup;
+  if (!m_prdToTrackMapKey.key().empty()) {
+     SG::ReadHandle<Trk::PRDtoTrackMap> prd_to_track_map_handle(m_prdToTrackMapKey,ctx);
+     if (!prd_to_track_map_handle.isValid()) {
+        ATH_MSG_ERROR(  "Failed to get PRDs to track map " << m_prdToTrackMapKey.key());
+        return 0;
+     }
+     prd_to_track_map=prd_to_track_map_handle.cptr();
+  }
+  else {
+     prd_to_track_map_cleanup = m_assoTool->createPRDtoTrackMap();
   // Loop over tracks and add PRDs to the PRD association tool
-  for (const Trk::Track* track : *trackCollection) {
-    StatusCode sc = m_assoTool->addPRDs(prdmaps, *track);
-    if(sc.isFailure()){
-      REPORT_MESSAGE (MSG::ERROR) << "Could not add PRDs to track";
-      return 0;
-    }
+     for (const Trk::Track* track : *trackCollection) {
+        StatusCode sc = m_assoTool->addPRDs(*prd_to_track_map_cleanup, *track);
+        if(sc.isFailure()){
+           ATH_MSG_FATAL(  "Could not add PRDs to track");
+           return 0;
+        }
+     }
+     prd_to_track_map = prd_to_track_map_cleanup.get();
   }
 
-  MinBiasPRDAssociation *PRDAssociation = new MinBiasPRDAssociation();
-
+  std::unique_ptr<MinBiasPRDAssociation> PRDAssociation(std::make_unique<MinBiasPRDAssociation>());
+  if (!m_pixelClusterContainer.key().empty()) {
+  // retrieve pixel clusters
+  SG::ReadHandle<InDet::PixelClusterContainer> pixelClusters(m_pixelClusterContainer,ctx);
+  if(!pixelClusters.isValid()) {
+    ATH_MSG_FATAL("Pixel cluster container '" << m_pixelClusterContainer.key() << "' not found in StoreGate");
+    return 0;
+  }
   // Loop on pixel clusters
   InDet::PixelClusterContainer::const_iterator pixCollItr = pixelClusters->begin();
   InDet::PixelClusterContainer::const_iterator pixCollEnd = pixelClusters->end();
@@ -133,7 +104,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; pixItr!=pixEnd; pixItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(prdmaps, *(*pixItr))) continue;
+      if(prd_to_track_map->isUsed(*(*pixItr))) continue;
 
       // count number of unassociated pixel hits
       PRDAssociation->nPixelUA++;
@@ -157,7 +128,15 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
       if(det->isBlayer()) PRDAssociation->nBlayerUA++;
     }
   }
+  }
 
+  // retrieve SCT clusters
+  if (!m_SCTClusterContainer.key().empty()) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> SCTClusters(m_SCTClusterContainer,ctx);
+  if(!SCTClusters.isValid()) {
+    ATH_MSG_FATAL("SCT cluster container '" << m_SCTClusterContainer.key() << "' not found in StoreGate");
+    return 0;
+  }
   // Loop on SCT clusters
   InDet::SCT_ClusterContainer::const_iterator sctCollItr = SCTClusters->begin();
   InDet::SCT_ClusterContainer::const_iterator sctCollEnd = SCTClusters->end();
@@ -168,7 +147,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; sctItr!=sctEnd; sctItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(prdmaps, *(*sctItr))) continue;
+      if(prd_to_track_map->isUsed(*(*sctItr))) continue;
 
       // count number of unassociated SCT hits
       PRDAssociation->nSCTUA++;
@@ -189,7 +168,15 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
       }
     }
   }
+  }
 
+  // retrieve TRT drift circles
+  if (!m_TRTDriftCircleContainer.key().empty()) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> TRTDriftCircles(m_TRTDriftCircleContainer,ctx);
+  if(!TRTDriftCircles.isValid()) {
+    ATH_MSG_FATAL("TRT drift circle container '" << m_TRTDriftCircleContainer << "' not found in StoreGate");
+    return 0;
+  }
   // Loop on TRT clusters
   InDet::TRT_DriftCircleContainer::const_iterator trtCollItr = TRTDriftCircles->begin();
   InDet::TRT_DriftCircleContainer::const_iterator trtCollEnd = TRTDriftCircles->end();
@@ -200,7 +187,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
     for(; trtItr!=trtEnd; trtItr++){
 
       // ask the association tool if the hit was associated
-      if(m_assoTool->isUsed(prdmaps, *(*trtItr))) continue;
+      if(prd_to_track_map->isUsed(*(*trtItr))) continue;
 
       // count number of unassociated TRT hits
       PRDAssociation->nTRTUA++;
@@ -223,8 +210,9 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
       }
     }
   }
+  }
 
-  return PRDAssociation;
+  return PRDAssociation.release();
 }
 
 void UnassociatedHitsGetterTool::releaseObject (const MinBiasPRDAssociation* p) const {

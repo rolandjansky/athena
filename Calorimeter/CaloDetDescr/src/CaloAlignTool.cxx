@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloAlignTool.h"
@@ -32,6 +32,7 @@
 
 #include "CaloConditions/CaloCellPositionShift.h"
 
+
 CaloAlignTool::CaloAlignTool(const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent) :
@@ -58,7 +59,7 @@ StatusCode CaloAlignTool::initialize()
     return status;
   }
 
-  const IGeoModelSvc *geoModel=0;
+  const IGeoModelSvc *geoModel=nullptr;
   status = service("GeoModelSvc", geoModel);
   if(status.isFailure()) {
     log << MSG::ERROR << "Could not locate GeoModelSvc" << endmsg;
@@ -66,7 +67,7 @@ StatusCode CaloAlignTool::initialize()
   }
 
   const IGeoModelTool* larTool = geoModel->getTool("LArDetectorToolNV");
-  if(larTool!=0) {
+  if(larTool!=nullptr) {
     // Register callback function on the folder /LAR/Align
     status = detStore()->regFcn(&IGeoModelTool::align,
 				larTool,
@@ -117,9 +118,9 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   // This should go away with the new scheme for dealing with alignments.
   CaloDetDescrManager* caloMgr = const_cast<CaloDetDescrManager*>(caloMgr_const);
 
-  const CaloRec::CaloCellPositionShift* posShift = 0;
+  const CaloRec::CaloCellPositionShift* posShift = nullptr;
   status = detStore()->retrieve(posShift,"LArCellPositionShift");
-  if(status.isFailure() || posShift==0)
+  if(status.isFailure() || posShift==nullptr)
     log << MSG::WARNING << "Unable to retrieve CaloCellPositionShift. No sagging corrections for Calo" << endmsg;
   else 
     log << MSG::DEBUG << "Successfully retrieved CaloCellPositionShift from the DetectorStore" << endmsg;
@@ -144,7 +145,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   // ****************************************************************
 
   // --- Retrieve Emec Detector Manager
-  const EMBDetectorManager* embManager = 0;
+  const EMBDetectorManager* embManager = nullptr;
   status = detStore()->retrieve(embManager);
   if(status.isFailure())
   {
@@ -190,7 +191,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 
       EMBDescriptor* embDescr = dynamic_cast<EMBDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
-      if(embDescr==0)
+      if(embDescr==nullptr)
       {
 	log << MSG::WARNING << "0 pointer to EMBDescriptor " << regId.getString() 
 	    << ". No alignments for this region" << endmsg;
@@ -222,7 +223,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	  // Retrieve DD element
 	  EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 
-	  if(embElement==0)
+	  if(embElement==nullptr)
 	  {
 	    log << MSG::DEBUG << "0 pointer to EMBDetectorElement " << chanId.getString()
 		<< ". No alignments for this element" << endmsg;
@@ -274,7 +275,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   // ****************************************************************
 
   // --- Retrieve Emec Detector Manager
-  const EMECDetectorManager* emecManager = 0;
+  const EMECDetectorManager* emecManager = nullptr;
   status = detStore()->retrieve(emecManager);
   if(status.isFailure())
   {
@@ -343,7 +344,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 
       EMECDescriptor* emecDescr = dynamic_cast<EMECDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
-      if(emecDescr==0)
+      if(emecDescr==nullptr)
       {
 	log << MSG::WARNING << "0 pointer to EMECDescriptor " << regId.getString() 
 	    << ". No alignments for this region" << endmsg;
@@ -371,7 +372,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	  // Retrieve DD element
 	  EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 
-	  if(emecElement==0)
+	  if(emecElement==nullptr)
 	  {
 	    log << MSG::DEBUG << "0 pointer to EMECDetectorElement " << chanId.getString()
 		<< ". No alignments for this element" << endmsg;
@@ -424,7 +425,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   // ****************************************************************
 
   // --- Retrieve Hec Detector Manager
-  const HECDetectorManager* hecManager = 0;
+  const HECDetectorManager* hecManager = nullptr;
   status = detStore()->retrieve(hecManager);
   if(status.isFailure())
   {
@@ -451,7 +452,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
       
       HECDescriptor* hecDescr = dynamic_cast<HECDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
-      if(hecDescr==0)
+      if(hecDescr==nullptr)
       {
 	log << MSG::WARNING << "0 pointer to HECDescriptor " << regId.getString() 
 	    << ". No alignments for this region" << endmsg;
@@ -483,7 +484,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	    // Retrieve DD element
 	    HECDetectorElement* hecElement = dynamic_cast<HECDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 	    
-	    if(hecElement==0)
+	    if(hecElement==nullptr)
 	    {
 	      log << MSG::DEBUG << "0 pointer to HECDetectorElement " << chanId.getString()
 		  << ". No alignments for this element" << endmsg;
@@ -536,7 +537,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   // ****************************************************************
 
   // --- Retrieve Fcal Detector Manager
-  const FCALDetectorManager* fcalManager = 0;
+  const FCALDetectorManager* fcalManager = nullptr;
   status = detStore()->retrieve(fcalManager);
   if(status.isFailure())
   {
@@ -565,7 +566,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 
       FCALDescriptor* fcalDescr = dynamic_cast<FCALDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
-      if(fcalDescr==0)
+      if(fcalDescr==nullptr)
       {
 	log << MSG::WARNING << "0 pointer to FCALDescriptor " << regId.getString() 
 	    << ". No alignments for this region" << endmsg;
@@ -591,7 +592,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	// Retrieve DD element
 	FCALDetectorElement* fcalElement = dynamic_cast<FCALDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 	
-	if(fcalElement==0)
+	if(fcalElement==nullptr)
 	{
 	  log << MSG::DEBUG << "0 pointer to FCALDetectorElement " << chanId.getString()
 	      << ". No alignments for this element" << endmsg;

@@ -37,7 +37,7 @@ def bJetStep1Sequence():
     InputMakerAlg.Views = "FullScanBjetView"
     InputMakerAlg.InViewRoIs = "FullScanRoI"
     InputMakerAlg.ViewFallThrough = True
-
+    InputMakerAlg.mergeUsingFeature = True
 
     outputJetName = "HLT_GSCJet"
     outputRoIName = "HLT_GSCJet_RoIs"

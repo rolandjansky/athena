@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNERRORBASE_ALIGNMENTTRANSLATIONDEVIATION_H
@@ -13,7 +13,7 @@ namespace MuonAlign {
 
       AlignmentTranslationDeviation(Amg::Vector3D u, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits);
 
-      virtual ~AlignmentTranslationDeviation();
+      virtual ~AlignmentTranslationDeviation()=default;
 
       /**
        * The number of free parameters

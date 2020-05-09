@@ -7,6 +7,9 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
@@ -58,7 +61,7 @@ MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {},
-                                                           Mu2PtMin = 4*Units.GeV,
+                                                           Mu2PtMin = 2.5*Units.GeV,
                                                            Mu2AbsEtaMax = 9999.,
                                                            Mu2Types = [],
                                                            Mu2Trigs = [],
@@ -68,7 +71,7 @@ MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = False,
                                                            InvariantMassLow = 60*Units.GeV,
                                                            InvariantMassHigh = -1,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1a
                                                            )
 
@@ -81,7 +84,7 @@ printfunc (MUON1AugmentTool1a)
 
 ### Jpsi for tag-probe
 andTriggers1b = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
-orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid','HLT_mu4_bJpsi_TrkPEB','HLT_mu6_bJpsi_TrkPEB','HLT_mu10_bJpsi_TrkPEB','HLT_mu14_bJpsi_TrkPEB','HLT_mu20_bJpsi_TrkPEB']
+orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf',"HLT_mu6_bJpsi_lowpt_TrkPEB", 'HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid','HLT_mu4_bJpsi_TrkPEB','HLT_mu6_bJpsi_TrkPEB','HLT_mu10_bJpsi_TrkPEB','HLT_mu14_bJpsi_TrkPEB','HLT_mu20_bJpsi_TrkPEB','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid','HLT_mu6_mu2noL1_msonly_bJpsimumu_noid_PEB']
 
 brPrefix1b = 'MUON1b'
 MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1b",
@@ -103,7 +106,7 @@ MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = False,
                                                            InvariantMassLow = 2.0*Units.GeV,
                                                            InvariantMassHigh = 4.8*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1b
                                                           )
 
@@ -138,7 +141,7 @@ MUON1AugmentTool1c = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = True,
                                                            InvariantMassLow = 2.0*Units.GeV,
                                                            InvariantMassHigh = 4.8*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1c
                                                            )
 
@@ -161,7 +164,7 @@ MUON1AugmentTool1d = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {}, #ptcone20<10 GeV, etcone40<20 GeV
-                                                           Mu2PtMin = 5.*Units.GeV,
+                                                           Mu2PtMin = 2.*Units.GeV,
                                                            Mu2AbsEtaMax = 999.,
                                                            Mu2Types = [0],
                                                            Mu2Trigs = [],
@@ -171,7 +174,7 @@ MUON1AugmentTool1d = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
                                                            OppositeCharge = True,
                                                            InvariantMassLow = 7.0*Units.GeV,
                                                            InvariantMassHigh = 13.*Units.GeV,
-                                                           IDTrackThinningConeSize = 0.5,
+                                                           IDTrackThinningConeSize = 0.4,
                                                            BranchPrefix = brPrefix1d
                                                            )
 
@@ -210,34 +213,44 @@ ToolSvc += MUON1SkimmingTool1
 #====================================================================
 MUON1ThinningTools = []
 
-# keep tracks marked in augmentation
-thinning_expression1 = '||'.join(thinningORs)
+thinning_expression = "( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-MUON1ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON1ThinningTool1",
-                                                                StreamName              = streamName,
-                                                                SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += MUON1ThinningTool1
-MUON1ThinningTools.append(MUON1ThinningTool1)
+MUON1TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "MUON1TPThinningTool",
+                                                                  ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                  SelectionString         = thinning_expression,
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                  ApplyAnd                = True)
+ToolSvc += MUON1TPThinningTool
+MUON1ThinningTools.append(MUON1TPThinningTool)
 
 # keep tracks around muons
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON1ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON1ThinningTool2",
-                                                                    StreamName              = MUON1Stream.Name,
+                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
-                                                                    ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
+                                                                    ConeSize                = 0.4,
+                                                                    ApplyAnd                = True,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON1ThinningTool2
 MUON1ThinningTools.append(MUON1ThinningTool2)
 
+# keep tracks marked in augmentation
+thinning_expression1 = '||'.join(thinningORs)
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+MUON1ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON1ThinningTool1",
+                                                                ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                SelectionString         = thinning_expression1,
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                ApplyAnd                = False)
+ToolSvc += MUON1ThinningTool1
+MUON1ThinningTools.append(MUON1ThinningTool1)
 
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
-                                                              StreamName              = MUON1Stream.Name,
+                                                              ThinningService         = MUON1ThinningHelper.ThinningSvc(),
                                                               SGKey                   = "Muons",
                                                               SelectionString         = "Muons.pt>4*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -249,7 +262,7 @@ MUON1ThinningTools.append(MUON1ThinningTool4)
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON1ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON1ThinningTool2f",
-                                                                    StreamName              = MUON1Stream.Name,
+                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression3,
                                                                     ConeSize                = 0.5,
@@ -259,22 +272,9 @@ ToolSvc += MUON1ThinningTool2f
 MUON1ThinningTools.append(MUON1ThinningTool2f)
 
 ### cell thinning
-from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
-thinCaloCellsForDF (inputClusterKeys = ["MuonClusterCollection"],
-                    streamName = MUON1Stream.Name,
-                    outputCellKey = "DFMUONCellContainer")
-
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-
-    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUONSeq,"MUON1")
-        MUONSeq += JetTagConfig.GetDecoratePromptLeptonAlgs()
-    DerivationFrameworkJob += MUONSeq
+from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
+theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
+                                       outputCellKey="DFMUONCellContainer")
 
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
@@ -284,7 +284,7 @@ for t in MUON1AugmentTools:
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
   name                       = "MUON1Thin_vtxTrk",
-  StreamName                 = streamName,
+  ThinningService            = MUON1ThinningHelper.ThinningSvc(),
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["MUON1JpsiCandidates"],
   PassFlags                  = ["passed_Jpsi"] )
@@ -292,88 +292,90 @@ MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += MUON1Thin_vtxTrk
 MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 
-#Custom isolation configurations for testing new recommendations
-from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
-from AthenaCommon import CfgMgr
+if DerivationFrameworkIsMonteCarlo:
 
-trackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint='Loose')
-ToolSvc+=trackvertexassotool
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  MUON1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON1TruthThinningTool",
+                                                       ThinningService              = MUON1ThinningHelper.ThinningSvc(),
+                                                       WritePartons                 = False,
+                                                       WriteHadrons                 = False,
+                                                       WriteCHadrons                = False,
+                                                       WriteBHadrons                = True,
+                                                       WriteGeant                   = False,
+                                                       WriteTauHad                  = False,
+                                                       PartonPtThresh               = -1.0,
+                                                       WriteBSM                     = True,
+                                                       WriteBosons                  = True,
+                                                       WriteBosonProducts           = False,
+                                                       WriteBSMProducts             = True,
+                                                       WriteTopAndDecays            = False,
+                                                       WriteEverything              = False,
+                                                       WriteAllLeptons              = True,
+                                                       WriteLeptonsNotFromHadrons   = False,
+                                                       WriteStatus3                 = False,
+                                                       WriteFirstN                  = -1,
+                                                       PreserveAncestors            = False,
+                                                       PreserveParentsSiblingsChildren = True,
+                                                       PreserveGeneratorDescendants = False,
+                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+  ToolSvc += MUON1TruthThinningTool
+  MUON1ThinningTools.append(MUON1TruthThinningTool)
 
-from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
-TrackIsolationLoose500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolLoose500')
-TrackIsolationLoose500.TrackSelectionTool.minPt         = 500
-TrackIsolationLoose500.TrackSelectionTool.CutLevel      = "Loose"
-TrackIsolationLoose500.TrackSelectionTool.maxZ0SinTheta = 3.
-TrackIsolationLoose500.UseTTVAtool = False
-ToolSvc += TrackIsolationLoose500
-TrackIsolationTight1000 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight1000')
-TrackIsolationTight1000.TrackSelectionTool.minPt         = 1000
-TrackIsolationTight1000.TrackSelectionTool.CutLevel      = "Loose"
-TrackIsolationTight1000.UseTTVAtool = True
-TrackIsolationTight1000.TrackVertexAssociationTool = trackvertexassotool
-ToolSvc += TrackIsolationTight1000
-TrackIsolationTight500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight500')
-TrackIsolationTight500.TrackSelectionTool.minPt         = 500
-TrackIsolationTight500.TrackSelectionTool.CutLevel      = "Loose"
-TrackIsolationTight500.UseTTVAtool = True
-TrackIsolationTight500.TrackVertexAssociationTool = trackvertexassotool
-ToolSvc += TrackIsolationTight500
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+  MUON1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MUON1MuonTruthClassifierFallback",MCTruthClassifierTool = MCTruthClassifier, ContainerKey="Muons")
+  ToolSvc += MUON1MuonTruthClassifierFallback
+  MUON1AugmentTools.append(MUON1MuonTruthClassifierFallback)
 
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
-ptconeList = [[isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20]]
-
-isoBuilderLoose500 = IsolationBuilder(
-    name                   = "IsolationBuilderLoose500",
-    CaloCellIsolationTool  = None,
-    CaloTopoIsolationTool  = None,
-    PFlowIsolationTool     = None,
-    TrackIsolationTool     = TrackIsolationLoose500, 
-    EgIsoTypes             = [[]],
-    MuIsoTypes             = ptconeList,
-    CustomConfigurationNameMu = "LooseTTVA_pt500",
-    IsAODFix = True,
-    LeakageTool = None,
-    OutputLevel            = 3)
-DerivationFrameworkJob += isoBuilderLoose500
-isoBuilderTight1000 = IsolationBuilder(
-    name                   = "IsolationBuilderTight1000",
-    CaloCellIsolationTool  = None,
-    CaloTopoIsolationTool  = None,
-    PFlowIsolationTool     = None,
-    TrackIsolationTool     = TrackIsolationTight1000, 
-    EgIsoTypes             = [[]],
-    MuIsoTypes             = ptconeList,
-    CustomConfigurationNameMu = "TightTTVA_pt1000",
-    IsAODFix = True,
-    LeakageTool = None,
-    OutputLevel            = 3)
-DerivationFrameworkJob += isoBuilderTight1000
-isoBuilderTight500 = IsolationBuilder(
-    name                   = "IsolationBuilderTight500",
-    CaloCellIsolationTool  = None,
-    CaloTopoIsolationTool  = None,
-    PFlowIsolationTool     = None,
-    TrackIsolationTool     = TrackIsolationTight500, 
-    EgIsoTypes             = [[]],
-    MuIsoTypes             = ptconeList,
-    CustomConfigurationNameMu = "TightTTVA_pt500",
-    IsAODFix = True,
-    LeakageTool = None,
-    OutputLevel            = 3)
-DerivationFrameworkJob += isoBuilderTight500
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthIsolationTool
+  MUON1MuonTruthIsolationTool = DerivationFramework__MuonTruthIsolationTool( name = "MUON1MuonTruthIsolationTool",ContainerKey="Muons")
+  ToolSvc += MUON1MuonTruthIsolationTool
+  MUON1AugmentTools.append(MUON1MuonTruthIsolationTool)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
+MUON1Seq = CfgMgr.AthSequencer("MUON1Sequence")
+DerivationFrameworkJob += MUON1Seq
+MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
                                                                        AugmentationTools = MUON1AugmentTools,
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
+
+#====================================================================
+#       Decorate the vertices with the sum pt of their tracks
+#====================================================================
+alg_name = "MUONVertexDecorationAlg"
+if not hasattr(DerivationFrameworkJob, alg_name ): 
+    from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import VertexDecoratorAlg
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+   
+    the_alg = VertexDecoratorAlg(alg_name)
+    InDetTool = InDet__InDetTrackSelectionTool("TrackSelectionTool_VertexDecoration")
+    InDetTool.minPt = 400
+    InDetTool.CutLevel = "Loose"
+    ToolSvc+= InDetTool
+    the_alg.TrackSelectionTool = InDetTool
+    DerivationFrameworkJob += the_alg
+
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON1Seq,"MUON1")
+    MUON1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+    MUON1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
+
+from DerivationFrameworkMuons import ConstituentPileupIso
+ConstituentPileupIso.ConstituentPileupIso(MUON1Seq)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=MUON1Seq)
+
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -388,3 +390,4 @@ conf.Items['MUON1']+=["CaloCellContainer#DFMUONCellContainer"]
 conf.Items['MUON1']+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
 conf.extraVariables['MUON1'] += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 conf.Config(MUON1Stream, 'MUON1')
+

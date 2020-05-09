@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //MuonCalibEventBase
@@ -86,7 +86,7 @@ StatusCode  NtupleResidualVsTimeTool::handleEvent(const MuonCalibEvent &event, i
 			sel[j]=1;
 			m_fitter->fit(*seg, sel);
 			MdtCalibHitBase *hit(seg->mdtHOT()[j]);
-			m_last_residual_distribution->Fill(std::fabs(hit->signedDistanceToTrack()) , hit->trackResidual());
+			m_last_residual_distribution->Fill(std::abs(hit->signedDistanceToTrack()) , hit->trackResidual());
 			}
 		}
 	return StatusCode::SUCCESS;

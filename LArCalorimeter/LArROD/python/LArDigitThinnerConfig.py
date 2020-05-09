@@ -3,7 +3,7 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArROD.LArRODConf import LArDigitThinner
+from AthenaConfiguration.ComponentFactory import CompFactory
 from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 
@@ -29,5 +29,5 @@ def LArDigitThinnerCfg(flags, **kwargs):
         kwargs.setdefault("EnergyCut_HEC", 5000)
         kwargs.setdefault("EnergyCut_FCAL", 20000)
 
-    acc.addEventAlgo(LArDigitThinner(**kwargs))
+    acc.addEventAlgo(CompFactory.LArDigitThinner(**kwargs))
     return acc

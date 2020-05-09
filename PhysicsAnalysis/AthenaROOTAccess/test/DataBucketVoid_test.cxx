@@ -74,7 +74,6 @@ void test1()
 
 int main()
 {
-  gInterpreter->EnableAutoLoading();
   test1();
   return 0;
 }

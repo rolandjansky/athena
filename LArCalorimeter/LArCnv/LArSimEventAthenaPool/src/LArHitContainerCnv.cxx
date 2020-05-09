@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSimEventTPCnv/LArHitContainerCnv_p1.h"
@@ -27,11 +27,11 @@ LArHitContainer* LArHitContainerCnv::createTransient() {
     static const pool::Guid   p0_guid("32703AED-CAA5-45ED-B804-8556900CA6B5");
 
     if( this->compareClassGuid(p2_guid)) {
-        std::auto_ptr< LArHitContainer_p2 >   col_vect( this->poolReadObject< LArHitContainer_p2 >() );
+        std::unique_ptr< LArHitContainer_p2 >   col_vect( this->poolReadObject< LArHitContainer_p2 >() );
         trans_cont = converter_p2.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< LArHitContainer_p1 >   col_vect( this->poolReadObject< LArHitContainer_p1 >() );
+        std::unique_ptr< LArHitContainer_p1 >   col_vect( this->poolReadObject< LArHitContainer_p1 >() );
         trans_cont = converter_p1.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p0_guid)) {

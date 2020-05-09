@@ -180,7 +180,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   double y_var = 0.0;
   if(m_electronMode) {
      const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-     y_var = std::fabs(acc_absEta(pTau));
+     y_var = std::abs(acc_absEta(pTau));
   } else {
      y_var = mu;
   }
@@ -207,13 +207,13 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
     double myCut = myHist->Interpolate(pt, y_var);
     
     // Find upper and lower cuts
-    if(myCut <= score && ((!gotLow) || fabs(myCut-score) < fabs(cuts[0]-score))) {
+    if(myCut <= score && ((!gotLow) || std::abs(myCut-score) < std::abs(cuts[0]-score))) {
       gotLow = true;
       effs[0] = histArray->at(i).first;
       cuts[0] = myCut;
     }
       
-    else if(myCut > score && ((!gotHigh) || fabs(myCut-score) < fabs(cuts[1]-score))) {
+    else if(myCut > score && ((!gotHigh) || std::abs(myCut-score) < std::abs(cuts[1]-score))) {
       gotHigh = true;
       effs[1] = histArray->at(i).first;
       cuts[1] = myCut;

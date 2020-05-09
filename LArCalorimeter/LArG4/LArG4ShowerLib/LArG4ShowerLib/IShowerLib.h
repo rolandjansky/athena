@@ -18,9 +18,7 @@ class G4Track;
 class TFile;
 class TTree;
 
-namespace HepMC {
-    class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 // Namespace for the ShowerLib related classes
 namespace ShowerLib {

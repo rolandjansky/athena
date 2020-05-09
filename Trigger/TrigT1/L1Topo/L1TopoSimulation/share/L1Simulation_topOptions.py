@@ -28,8 +28,7 @@ if rec.Production():
 
 include ( "RecExCond/RecExCommon_flags.py" )
    
-svcMgr.StatusCodeSvc.AbortOnError=True
-logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")    
+logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")
 
 
 ###################

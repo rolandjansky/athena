@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -456,27 +456,27 @@ inline void CalibRtDbOperations::fullInfoInitData( const RtFullInfo * full_info,
   updateData["N_SEGS"].data<int>()=full_info->numSeg();
   updateData.extend<float>("AVER_ANGLE");
   updateData["AVER_ANGLE"].data<float>()=full_info->meanAng();
-  if(std::fabs(full_info->meanAng()) > 9.9999) {
+  if(std::abs(full_info->meanAng()) > 9.9999) {
     updateData["AVER_ANGLE"].data<float>() = ((full_info->meanAng() < 0)? -1 : 1) * 9.9999;
   }
   updateData.extend<float>("DELTA_AVER_ANGLE");
   updateData["DELTA_AVER_ANGLE"].data<float>()=full_info->rmsAng();
-  if(std::fabs(full_info->rmsAng()) > 9.9999) {
+  if(std::abs(full_info->rmsAng()) > 9.9999) {
     updateData["DELTA_AVER_ANGLE"].data<float>() = ((full_info->rmsAng() < 0)? -1 : 1) * 9.9999;
   }
   updateData.extend<float>("AVER_SPREAD");
   updateData["AVER_SPREAD"].data<float>()=full_info->meanPos();
-  if(std::fabs(full_info->meanPos()) > 9.9999) {
+  if(std::abs(full_info->meanPos()) > 9.9999) {
     updateData["AVER_SPREAD"].data<float>() = ((full_info->meanPos() < 0)? -1 : 1) * 9.9999;
   }
   updateData.extend<float>("DELTA_AVER_SPREAD");
   updateData["DELTA_AVER_SPREAD"].data<float>()=full_info->rmsPos();
-  if(std::fabs(full_info->rmsPos()) > 9.9999) {
+  if(std::abs(full_info->rmsPos()) > 9.9999) {
     updateData["DELTA_AVER_SPREAD"].data<float>() = ((full_info->rmsPos() < 0)? -1 : 1) * 9.9999;
   }
   updateData.extend<float>("CONVERGENCE");
   updateData["CONVERGENCE"].data<float>()=full_info->convEst();
-  if(std::fabs(full_info->convEst()) > 999.999) {
+  if(std::abs(full_info->convEst()) > 999.999) {
     updateData["CONVERGENCE"].data<float>() = ((full_info->convEst() < 0)? -1 : 1) * 999.999;
   }
   if(for_insert) {

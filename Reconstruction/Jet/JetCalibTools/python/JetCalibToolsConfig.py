@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -13,8 +13,6 @@
 
 from AthenaCommon import Logging
 jetcaliblog = Logging.logging.getLogger('JetCalibToolsConfig')
-
-from JetCalibTools import JetCalibToolsConf
 
 all = ['getJetCalibTool']
 
@@ -85,7 +83,7 @@ hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow", "TrigAntiKt4EMT
 # an AlgSequence...
 def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = "", pvname = "PrimaryVertices", gscdepth = "auto"):
     # In principle we could autoconfigure
-    if not data_type in ['data','mc','afii']:
+    if data_type not in ['data','mc','afii']:
         jetcaliblog.error("JetCalibConfig accepts data_type values: 'data', 'mc', 'afii'")
         raise ValueError("Unsupported data_type provided: '{0}".format(data_type))
 
@@ -105,7 +103,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
         # Might need to specialise if we decide MC trigger jets should also have in situ.
         if _calibseq.endswith("Insitu"):
             if data_type == 'data':
-                if not jetcollection in hasInSitu:
+                if jetcollection not in hasInSitu:
                     raise ValueError("In situ calibration does not exist for {0}, context {1}".format(jetcollection,context))
             else:
                 raise ValueError("In situ calibration requested for MC on {0}, context {1}".format(jetcollection,context))
@@ -134,15 +132,16 @@ def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type
     calibseqshort = ''.join([ step[0] for step in calibseq.split('_') ])
     toolname = "jetcalib_{0}_{1}".format(jetcollection,calibseqshort)
     #
-    jct = JetCalibToolsConf.JetCalibrationTool(toolname,
-        JetCollection = jetcollection,
-        ConfigFile = configfile,
-        CalibArea = calibarea,
-        CalibSequence = calibseq,
-        IsData = (data_type == "data"),
-        RhoKey = rhoname,
-        PrimaryVerticesContainerName = pvname,
-	GSCDepth = gscdepth
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    jct = CompFactory.JetCalibrationTool(toolname,
+                                         JetCollection = jetcollection,
+                                         ConfigFile = configfile,
+                                         CalibArea = calibarea,
+                                         CalibSequence = calibseq,
+                                         IsData = (data_type == "data"),
+                                         RhoKey = rhoname,
+                                         PrimaryVerticesContainerName = pvname,
+                                         GSCDepth = gscdepth
     )
     return jct
 

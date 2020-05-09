@@ -12,7 +12,7 @@ from JetTagTools.InDetTrackSelectorConfig import InDetTrackSelectorCfg
 from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 
 # import the IPTag configurable
-Analysis__IPTag=CompFactory.Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis.IPTag
 
 def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.

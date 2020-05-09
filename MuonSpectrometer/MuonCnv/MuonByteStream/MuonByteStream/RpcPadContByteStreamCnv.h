@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCPADCONTBYTESTREAMCNV_H
 #define MUONBYTESTREAM_RPCPADCONTBYTESTREAMCNV_H
 
-#include <stdint.h>
-#include <map>
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -18,15 +16,8 @@
 
 class DataObject;
 class StatusCode;
-class IAddressCreator;
 class IByteStreamEventAccess;
 class StoreGateSvc; 
-class MsgStream; 
-
-// namespace Muon {
-// class IRPC_RDOtoByteStreamTool; 
-// }
-#include <string>
 
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
@@ -50,18 +41,8 @@ class RpcPadContByteStreamCnv: public Converter {
   static const CLID& classID();
 
 private: 
-
    ToolHandle<BYTESTREAMTOOL> m_tool ; 
-   //const IRPCcablingSvc* m_cabling;
-   //RPC_Hid2RESrcID* m_hid2re  ; 
-
    ServiceHandle<IByteStreamEventAccess>    m_byteStreamEventAccess; 
-   //RpcPadContainer* m_container ; 
-
-   //RpcROD_Decoder* m_decoder;
-
-   //bool m_SLbuilt;
-   
    ServiceHandle<StoreGateSvc>              m_storeGate;
 };
 #endif

@@ -8,6 +8,7 @@ include("TriggerJobOpts/runHLT_standalone.py")
 
 from TrigUpgradeTest.TestUtils import makeChain
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 chainName = "HLT_mb_sptrk_L1RD0_FILLED"
 
@@ -15,8 +16,7 @@ chainName = "HLT_mb_sptrk_L1RD0_FILLED"
 from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
-idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias', rois=mapThresholdToL1RoICollection('FS'))
-
+idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias', rois=mapThresholdToL1RoICollection('FSNOSEED'))
 
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool
 SpCount=TrigCountSpacePointsMT()
@@ -55,8 +55,7 @@ def generateTrackCountHypo(chainDict):
         # will set here cuts
         return hypo
 
-############### build menu 
-
+############### build menu
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
 from DecisionHandling.DecisionHandlingConf  import InputMakerForRoI
@@ -75,8 +74,7 @@ stepTrkCount = ChainStep( "stepTrkCount",
                                           Hypo=TrackCountHypo,
                                           HypoToolGen=generateTrackCountHypo )] )
 
-
-makeChain(chainName, ["FS"], ChainSteps=[stepSPCount, stepTrkCount])
+makeChain(chainName, ["FSNOSEED"], ChainSteps=[stepSPCount, stepTrkCount])
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -85,4 +83,3 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
-

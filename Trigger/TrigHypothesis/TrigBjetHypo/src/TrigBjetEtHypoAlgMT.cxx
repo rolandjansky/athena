@@ -5,6 +5,7 @@
 #include "GaudiKernel/Property.h"
 #include "TrigBjetEtHypoAlgMT.h"
 #include "AthViews/ViewHelper.h"
+#include "CxxUtils/phihelper.h"
 
 TrigBjetEtHypoAlgMT::TrigBjetEtHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
@@ -93,33 +94,55 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
 
   ATH_MSG_DEBUG("Creating Output Decisions and Linking Stuff to it");
   std::vector< TrigCompositeUtils::Decision* > newDecisions;
-  /*
+  
   for ( const TrigCompositeUtils::Decision* inputDecision : *prevDecisionContainer ) {
     
-    int index = 0;
-    if ( index < 0 ) continue;
+    // Retrieve jet link stored in the navigation upstream and check if the b-jet code is selecting it
+    // If so, create an output decision and attach the new jet to the output decision
+    // If not, do not create the output decision and go to the next input decision
+    ATH_MSG_DEBUG( "Retrieving input jet from the upstream code!" );
+    std::vector< TrigCompositeUtils::LinkInfo< xAOD::JetContainer > > inputJetELInfo = TrigCompositeUtils::findLinks< xAOD::JetContainer >( inputDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType );
+    ATH_MSG_DEBUG( "Found a jet Link vector of size: " << inputJetELInfo.size() );
+    ATH_CHECK( inputJetELInfo.size() == 1 );
+    ATH_CHECK( inputJetELInfo.at(0).isValid() );
+
+    const xAOD::Jet *inputJet = *(inputJetELInfo.at(0).link);
+    ATH_MSG_DEBUG( "   -- pt=" <<  inputJet->p4().Et() <<
+		   " eta=" << inputJet->eta() <<
+		   " phi=" << inputJet->phi() );
+
+    // Do geometrical matching to check if the jet is amidst the selected ones (b-jet applies ID acceptance requirements)
+    int Jetindex = -1;
+    double minDr = 9999.;
+    
+    for ( unsigned int jeti(0); jeti < jetELs.size(); jeti++ ) {
+      const ElementLink< xAOD::JetContainer >& jetLink = jetELs.at( jeti );
+
+      double deltaEta = std::abs( inputJet->eta() - (*jetLink)->eta() );
+      double deltaPhi = CxxUtils::wrapToPi( inputJet->phi() - (*jetLink)->phi() );
+      double dR = sqrt( pow(deltaEta,2) + pow(deltaPhi,2) );
+
+      if ( dR < minDr && dR < 0.1 ) {
+	minDr = dR;
+	Jetindex = jeti;
+      }
+    }
+
+    if ( Jetindex < 0 ) {
+      ATH_MSG_DEBUG( "No jet matching! The jet was not selected by the b-jet code due to ID acceptance cut." );
+      continue;
+    } else {
+      ATH_MSG_DEBUG( "The jet has been selected by the b-jet code (ID acceptance)!" );
+      ATH_MSG_DEBUG( "Output decision will be created." );
+    }
+    // ==========================
+
     TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
                                                                              inputDecision,
                                                                              "", context );
 
-    // Adding Links 
-    CHECK( attachLinksToDecision( context,*toAdd,index ) ); 
-    newDecisions.push_back( toAdd );    
-  }
-  */
-  
-  // Create output decisions
-  for ( unsigned int index(0); index < jetELs.size(); index++ ) {
-
-    // Find correct previous decision
-    const TrigCompositeUtils::Decision *previousDecision = prevDecisionContainer->at(0);
-
-    // Create new decisions
-    TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
-									     previousDecision,
-									     "", context );
-
-    // find index of PV 
+    // Retrieve now the primary vertex to be attached to the decision.
+    // This is only one, but the container has size > 1!
     int PVindex = -1;
 
     for ( unsigned int pvi(0); pvi < vertexELs.size(); pvi++ ) {
@@ -130,17 +153,19 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     }
 
     if ( PVindex == -1 ) {
-      ATH_MSG_DEBUG( "Primary Vertex could not be found!" );
-      ATH_MSG_DEBUG( "Using dummy vertex!" );
+      ATH_MSG_DEBUG( "Primary Vertex could not be found! Using dummy vertex!" );
       PVindex = 0;
     }
+    // ========================== 
 
     // Adding Links 
-    CHECK( attachLinksToDecision( context,*toAdd,index,PVindex ) );
-    newDecisions.push_back( toAdd );
+    CHECK( attachLinksToDecision( context,*toAdd,Jetindex,PVindex ) ); 
+    newDecisions.push_back( toAdd );    
   }
 
-
+  ATH_MSG_DEBUG( "Received " << prevDecisionContainer->size()  << " input decisions from upstream!" );
+  ATH_MSG_DEBUG( "Created " << newDecisions.size() << " output decisions!" );
+  
   // ==========================================================================================================================
   //    ** Prepare input to Hypo Tools
   // ========================================================================================================================== 

@@ -208,6 +208,9 @@ StatusCode DQTDetSynchMonTool::initialize() {
   ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
   ATH_CHECK( m_TileDigitsContainerKey.initialize() );
   ATH_CHECK( m_RpcPadContainerKey.initialize() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
   return DataQualityFatherMonTool::initialize();
 }
 
@@ -1154,7 +1157,24 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    Amg::Vector3D gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
    //REL18 Trk::GlobalPosition gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
    //REL19 
-   m_field->getField(&gP1,&f);
+//   m_field->getField(&gP1,&f);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+   MagField::AtlasFieldCache    fieldCache;
+
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+   if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("DQTDetSynchMonAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return StatusCode::FAILURE;
+   }
+
+   fieldCondObj->getInitializedCache (fieldCache);
+
+   // MT version uses cache, temporarily keep old version
+   if (fieldCache.useNewBfieldCache()) fieldCache.getField  (gP1.data(),f.data());
+   else                                m_field->getField    (&gP1,&f);
+
    //REL18 m_field->getMagneticFieldKiloGauss(gP1,f);
    float solenoid_bz = f[2];
    //REL19: field is in kilotesla (!)
@@ -1167,7 +1187,12 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    Amg::Vector3D  gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
    //REL18 Trk::GlobalPosition gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
    //REL19 
-   m_field->getField(&gP2,&f);
+
+   // MT version uses cache, temporarily keep old version
+   if (fieldCache.useNewBfieldCache()) fieldCache.getField (gP2.data(),f.data());
+   else                                m_field->getField   (&gP2,&f);
+
+
    //REL18 m_field->getMagneticFieldKiloGauss(gP2,f);
    float toroid_bx = f[0];
    //REL19: field is in kilotesla (!)
@@ -1274,6 +1299,5 @@ float DQTDetSynchMonTool::findfrac(std::multiset<uint32_t>& mset, uint16_t ctpid
   else
     frac = 1.0; //set frac = 1 if totalCounter counts zero
 
-  //std::cout << "Returning frac: " << nonctpIdCounter << "/" << totalCounter << "=" << frac << std::endl;
   return frac;
 }

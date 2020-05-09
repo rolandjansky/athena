@@ -4,7 +4,7 @@
 
 #include "TruthTestTool.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 

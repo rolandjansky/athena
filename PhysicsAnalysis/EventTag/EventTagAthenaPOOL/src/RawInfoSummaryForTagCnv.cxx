@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,8 +21,7 @@ TRANS*  RawInfoSummaryForTagCnv::createTransient()
    mlog << MSG::DEBUG << "createTransient()" << endmsg;
 
    if( compareClassGuid( p1_guid ) ) {
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<  RawInfoSummaryForTag_p1 > pobj( poolReadObject< RawInfoSummaryForTag_p1  >() );
+      std::unique_ptr<  RawInfoSummaryForTag_p1 > pobj( poolReadObject< RawInfoSummaryForTag_p1  >() );
       return m_TPConverter.createTransient( pobj.get(), mlog );
     }
     else

@@ -787,7 +787,6 @@ void iFatras::McMaterialEffectsUpdator::radiate(const ISF::ISFParticle* parent, 
   double path = 0.;
   double p = 1./ fabs(parm[Trk::qOverP]);
 
-  //std::cout <<"radiating from gen,barcode" <<parent->generation()<<","<<parent->barcode()<<", p="<<p <<",at position "<< pos << std::endl;
 
   while ( path < pathLim && p>m_minimumMomentum ) {
 
@@ -1606,7 +1605,6 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
       delete nMom;
     }
 
-    //std::cout <<"brem photon created:position,mom,gen,barcode:"<< vertex<<","<<gammaE<<","<<bremPhoton->generation()<<","<<bremPhoton->barcode()<< std::endl;
 
     // layer update : don't push into particle stack untill destiny resolved
     Trk::PathLimit pLim = m_samplingTool->sampleProcess(bremPhoton->momentum().mag(),0.,Trk::photon);

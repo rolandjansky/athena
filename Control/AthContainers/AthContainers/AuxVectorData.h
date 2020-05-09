@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxVectorData.h 793052 2017-01-19 15:05:28Z ssnyder $
@@ -24,7 +24,6 @@
 #include "AthLinks/DataLink.h"
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
-#   include "AthenaKernel/IThinningSvc.h"
 #endif // not XAOD_STANDALONE
 #include <vector>
 #include <utility>
@@ -901,30 +900,6 @@ private:
 
 
 } // namespace SG
-
-
-#ifndef XAOD_STANDALONE
-
-
-/**
- * @brief Propagate thinning.  Called after applying thinning to @c in.
- * @param in The object that was thinned.
- * @param svc The thinning service (for convenience).
- * @param filter Lists the elements to be kept.
- * @param op How to merge results: AND or OR.
- *
- * This will be called whenever a request is made to thin a @c DataVector.
- *
- * Otherwise, we pass the thinning request on to the aux store, provided
- * that it exists and is in the event store.
- */
-StatusCode thinningHook (const SG::AuxVectorData* in,
-                         IThinningSvc* svc,
-                         const IThinningSvc::Filter_t& filter,
-                         const IThinningSvc::Operator::Type op );
-                         
-
-#endif
 
 
 #include "AthContainers/AuxVectorData.icc"

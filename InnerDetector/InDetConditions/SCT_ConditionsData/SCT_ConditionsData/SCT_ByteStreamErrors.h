@@ -12,6 +12,7 @@
 #define SCT_ByteStreamErrors_h
 
 #include <vector>
+#include <array>
 
 // http://stackoverflow.com/questions/21456262/enum-to-string-in-c11
 #ifndef SCT_ERRORTYPELIST
@@ -64,16 +65,16 @@
 
 namespace SCT_ByteStreamErrors {
   // Define enumerators
-  enum errorTypes {
+  enum ErrorType {
     SCT_ERRORTYPELIST(SCT_DO_ENUM)
   };
   // Define strings of enumerator
-  static const std::vector<std::string> errorTypesDescription = {
+  static const std::vector<std::string> ErrorTypeDescription = {
     SCT_ERRORTYPELIST(SCT_DO_DESCRIPTION)
   };
 
   // Define bad errors to be used in reconstruction and monitoring
-  static const std::vector<errorTypes> BadErrors = {
+  static const std::vector<ErrorType> BadErrors = {
     TimeOutError,
     BCIDError,
     LVL1IDError,
@@ -84,8 +85,9 @@ namespace SCT_ByteStreamErrors {
     MissingLinkHeaderError,
     MaskedROD
   };
+
   // Define bad errors in FE-link level to be used in monitoring
-  static const std::vector<errorTypes> LinkLevelBadErrors = {
+  static const std::vector<ErrorType> LinkLevelBadErrors = {
     TimeOutError,
     BCIDError,
     LVL1IDError,
@@ -93,14 +95,14 @@ namespace SCT_ByteStreamErrors {
     MaskedLink
   };
   // Define bad errors in ROD level to be used in monitoring
-  static const std::vector<errorTypes> RodLevelBadErrors = {
+  static const std::vector<ErrorType> RodLevelBadErrors = {
     TruncatedROD,
     ROBFragmentError,
     MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
     MaskedROD
   };
   // Define errors in FE-link level to be used in monitoring (assigned by SCT_RodDecoder::addSingleError)
-  static const std::vector<errorTypes> LinkLevelErrors = {
+  static const std::vector<ErrorType> LinkLevelErrors = {
     ByteStreamParseError,
     TimeOutError,
     BCIDError,
@@ -131,13 +133,24 @@ namespace SCT_ByteStreamErrors {
     ABCDError_Error7
   };
   // Define errors in ROD level to be used in monitoring (assigned by SCT_RodDecoder::addRODError)
-  static const std::vector<errorTypes> RodLevelErrors = {
+  static const std::vector<ErrorType> RodLevelErrors = {
     RODClockError,
     TruncatedROD,
     ROBFragmentError,
     MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
     MaskedROD
   };
+  template<ErrorType et>
+  static constexpr uint64_t maskUpTo() { return  ( uint64_t(1) << et ) - 1; }
+  static constexpr uint64_t ABCDErrorMask() { return maskUpTo<ABCDError_Error4>() & ~(maskUpTo<ABCDError_Chip0>()); }
+  static constexpr uint64_t TempMaskedChipsMask() { return maskUpTo<TempMaskedChip5>() & ~(maskUpTo<TempMaskedChip0>()); }
+  inline ErrorType TempMaskedChipToBit(int chip){ return std::array<ErrorType, 6>{{
+	  TempMaskedChip0,
+	  TempMaskedChip1,
+	  TempMaskedChip2,
+	  TempMaskedChip3,
+	  TempMaskedChip4,
+	  TempMaskedChip5}}[chip]; }
 
   // Ensure that the enums are available from ROOT
   struct ROOT6_NamespaceAutoloadHook{};

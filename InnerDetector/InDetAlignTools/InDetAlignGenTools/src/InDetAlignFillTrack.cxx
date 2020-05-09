@@ -45,8 +45,8 @@
 
 #include "InDetAlignGenTools/InDetAlignFillTrack.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include <string>
 

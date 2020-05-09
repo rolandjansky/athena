@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -464,7 +464,7 @@ class CaloDetDescrManager
 {
 public:
   /** @brief for backwards compatibility, provides access to the Calo DD manager 
-      which is actually kept in DS
+      which is actually kept in DS. 
    */
   static const CaloDetDescrManager* instance();
 
@@ -475,11 +475,6 @@ public:
    */
   void set_helper (const CaloCell_ID* idHelper);
   void set_helper (const CaloIdManager* idHelper);
-
-private:
-  /** @brief static pointer - for backwards compatibility
-   */
-  static CaloDetDescrManager* s_instance;
 
 };
 
@@ -505,11 +500,6 @@ public:
   void set_helper (const CaloCell_SuperCell_ID* idHelper);
   void set_helper (const CaloIdManager* idHelper);
 
-private:
-  /** @brief static pointer 
-   */
-  static CaloSuperCellDetDescrManager* s_instance;
-
 };
 
 
@@ -521,7 +511,7 @@ CaloDetDescrManager_Base::get_element (IdentifierHash caloCellHash) const
 {
   if ( caloCellHash < m_element_vec.size() ) 
     return m_element_vec[caloCellHash] ;
-  else return 0 ;
+  else return nullptr ;
 }
                        
 inline CaloDetDescrElement*			
@@ -529,7 +519,7 @@ CaloDetDescrManager_Base::get_element_nonconst (IdentifierHash caloCellHash)
 {
   if ( caloCellHash < m_element_vec.size() ) 
     return m_element_vec[caloCellHash] ;
-  else return 0 ;
+  else return nullptr ;
 }
                        
 

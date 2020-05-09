@@ -13,12 +13,7 @@
 
 /********************************************************************/
 TauAxisSetter::TauAxisSetter(const std::string& name) :
-TauRecToolBase(name),
-m_clusterCone(0.2),
-m_doVertexCorrection(true)
-{
-    declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("VertexCorrection", m_doVertexCorrection = true);
+TauRecToolBase(name) {
 }
 
 /********************************************************************/

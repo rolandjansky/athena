@@ -296,6 +296,9 @@ StatusCode MdtRawDataMonAlg::initialize()
     chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuterLumi[chamber->GetBarrelEndcapEnum()]));
     chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (m_mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()])
 					  ,dynamic_cast<TH2F*> (m_mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
+
+    m_tubesperchamber_map[hardware_name] = GetTubeMax(*itr, hardware_name); // total number of tubes in chamber
+
   }
   
   ATH_MSG_DEBUG(" end of initialize " );
@@ -479,12 +482,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
       
       
       int nHighOccChambers = 0;
-      std::map<std::string,float>::iterator iterstat;
-      std::map<std::string,float> tubesperchamber_map;
-      for( iterstat = evnt_hitsperchamber_map.begin(); iterstat != evnt_hitsperchamber_map.end(); ++iterstat ) {
-          std::map<std::string,float>::iterator iter_tubesperchamber = tubesperchamber_map.find(hardware_name);
+      for(const auto iterstat: evnt_hitsperchamber_map) {
+          const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
+          if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
+            ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
+            continue;
+          }
           float nTubes = iter_tubesperchamber->second;
-          float hits = iterstat->second;
+          float hits = iterstat.second;
           float occ = hits/nTubes;
           if ( occ > 0.1 ) nHighOccChambers++;
       }

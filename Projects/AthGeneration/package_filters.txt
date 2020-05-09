@@ -1,6 +1,10 @@
 #
 # Package filtering rules for the AthGeneration project build.
 #
+
+# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
+- Generators/Rivet_i
+
 + AsgExternal/Asg_Test
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
@@ -127,6 +131,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
@@ -159,7 +164,6 @@
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
-+ PhysicsAnalysis/POOLRootAccess
 #+ Projects/AthGeneration
 #+ Projects/AthGeneration/.*
 #+ Reconstruction/eflowRec

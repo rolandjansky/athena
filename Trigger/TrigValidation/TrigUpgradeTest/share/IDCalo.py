@@ -46,14 +46,15 @@ if TriggerFlags.doID:
 
   #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-  #TODO need to change the name of the output vertex collection to something recordable
-  vtxAlgs = makeVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
+  # TODO need to change the name of the output vertex collection to something recordable
+  # what is this actually testing ? why do we have FS tracks with egamma and aprimary vertex ???
+  vtxAlgs = makeVertices( "bjet", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
   allViewAlgorithms += vtxAlgs
 
 
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   #Adding precision tracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
 
   allViewAlgorithms += PTAlgs
 

@@ -72,17 +72,12 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
         if (isGrandParentHiggs) {
           ++nHiggsParent;
           if (!((*pitr)->end_vertex())) continue;
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          HepMC::GenVertex::particle_iterator thisChild = firstChild;
-          findAncestor(firstChild, endChild, m_PDGParent, n_okPDGHVChildren);
+          findAncestor((*pitr)->end_vertex(), m_PDGParent, n_okPDGHVChildren);
         } // end of higgs grandparent loop
 
         if (isGrandParentV) {
           ++nVParent;
-          HepMC::GenVertex::particle_iterator firstChildStart = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChildStart = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          findAncestor(firstChildStart, endChildStart, m_PDGAssoc, n_okPDGAssocVChild);
+          findAncestor((*pitr)->end_vertex(), m_PDGAssoc, n_okPDGAssocVChild);
         } // end of v grandparent loop
 
       } // end good parent loop
@@ -105,16 +100,16 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
 }
 
 
-void VHtoVVDiLepFilter::findAncestor(const HepMC::GenVertex::particle_iterator& firstAncestor,
-                                     const HepMC::GenVertex::particle_iterator& endAncestor,
+void VHtoVVDiLepFilter::findAncestor(const HepMC::GenVertex* searchvertex,
                                      int targetPDGID, int& n_okPDGChild) {
   std::vector<int> foundCodes;
-  HepMC::GenVertex::particle_iterator thisAncestor = firstAncestor;
+  if (!searchvertex) return;
+  const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
+  const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
+  HepMC::GenVertex::particles_out_const_iterator thisAncestor = firstAncestor;
   for (; thisAncestor != endAncestor; ++thisAncestor) {
     if (abs((*thisAncestor)->pdg_id()) == targetPDGID) { // same particle as parent
-      HepMC::GenVertex::particle_iterator firstChild = (*thisAncestor)->end_vertex()->particles_begin(HepMC::children);
-      HepMC::GenVertex::particle_iterator endChild = (*thisAncestor)->end_vertex()->particles_end(HepMC::children);
-      findAncestor(firstChild, endChild, targetPDGID, n_okPDGChild);
+      findAncestor((*thisAncestor)->end_vertex(), targetPDGID, n_okPDGChild);
     } else {
       for (size_t i = 0; i < m_PDGChildren.size(); ++i) {
         int testPdgID = (*thisAncestor)->pdg_id();

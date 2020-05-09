@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTestBLayerTool_H
@@ -106,7 +106,7 @@ namespace InDet {
 
     bool isActive(const Trk::TrackParameters* trackpar) const ;
     bool getPixelLayerParameters(const Trk::TrackParameters* trackpar,
-                                 std::vector<const Trk::TrackParameters*>& blayerParam,
+                                 std::vector<std::unique_ptr<const Trk::TrackParameters> >& blayerParam,
                                  int layer) const;
     double getFracGood(const Trk::TrackParameters* trackpar, double phiRegionSize, double etaRegionSize) const;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
@@ -24,7 +24,7 @@ template< class ROBF >
 RoIBResultByteStreamCnv< ROBF >::RoIBResultByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
     AthMessaging( msgSvc(), "RoIBResultByteStreamCnv" ),
-    m_tool( "RoIBResultByteStreamTool" ),
+    m_tool( "RoIBResultByteStreamTool/ToolSvc.RoIBResultBSEncoderTool" ),
     m_ByteStreamCnvSvc( "ByteStreamCnvSvc", "RoIBResultByteStreamCnv" ),
     m_robDataProviderSvc( "ROBDataProviderSvc", "RoIBResultByteStreamCnv" ) {
 
@@ -89,29 +89,10 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
  * for conversion.
  */
 template< class ROBF >
-StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* /*pAddr*/, DataObject*& pObj ) {
-  ATH_MSG_DEBUG("createObj() called");
-
-  // This method is deprecated in AthenaMT
-  if (m_isMT) {
-    ATH_MSG_ERROR("Misconfiguration! The method " << __PRETTY_FUNCTION__ << " is deprecated in multi-threaded "
-                  << "mode. Please schedule RoIBResultByteStreamDecoderAlg to read RoIBResult from ByteStream.");
-    return StatusCode::FAILURE;
-  }
-
-  ROIB::RoIBResult* result = new ROIB::RoIBResult;
-
-  IROBDataProviderSvc::VROBFRAG vrobf;
-  m_robDataProviderSvc->getROBData(m_tool->configuredROBIds(), vrobf, "RoIBResultByteStreamCnv");
-
-  // Convert to Object
-  ATH_CHECK( m_tool->convert( vrobf, *result ) );
-
-  ATH_MSG_DEBUG("Conversion done");
-
-  pObj = SG::asStorable( result ) ;
-  return StatusCode::SUCCESS;
-
+StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* /*pAddr*/, DataObject*& /*pObj*/ ) {
+  ATH_MSG_ERROR("Misconfiguration! Decoding ROIB::RoIBResult from ByteStream using a Converter is deprecated. "
+                << "Use the L1TriggerByteStreamDecoderAlg configured with RoIBResultByteStreamTool instead.");
+  return StatusCode::FAILURE;
 }
 
 /**
@@ -123,20 +104,39 @@ template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
   ATH_MSG_DEBUG("createRep() called");
 
-  RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();
-
+  // Create a ByteStreamAddress for RoIBResult
   ROIB::RoIBResult* result;
-
   if( ! SG::fromStorable( pObj, result ) ) {
-    ATH_MSG_ERROR("Cannot cast to RoIBResult");
+    ATH_MSG_ERROR("Failed to convert DataObject to RoIBResult");
     return StatusCode::FAILURE;
   }
+  ByteStreamAddress* bsAddr = new ByteStreamAddress( classID(), pObj->registry()->name(), "" );
+  pAddr = static_cast<IOpaqueAddress*>(bsAddr);
 
-  ByteStreamAddress* addr = new ByteStreamAddress( classID(), pObj->registry()->name(), "" );
+  // Retrieve the raw event pointer
+  RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();
+  if (!re) {
+    ATH_MSG_ERROR("Failed to obtain a pointer to RawEventWrite");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_VERBOSE("Obtained RawEventWrite pointer = " << re);
 
-  pAddr = addr;
+  // Use the IL1TriggerByteStreamTool interface of the tool to convert RoIBResult to ByteStream.
+  // NOTE: the pObj passed as input to this function is actually not passed to the tool. Instead,
+  // the tool retrieves the RoIBResult from event store using a ReadHandle which ensures correct
+  // data dependencies and integration with other uses of the same interface.
+  std::vector<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment*> vrobf;
+  ATH_CHECK(m_tool->convertToBS(vrobf, Gaudi::Hive::currentContext())); // TODO: find a way to avoid ThreadLocalContext
+  ATH_MSG_DEBUG("Created " << vrobf.size() << " ROB Fragments");
+  for (OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment* rob : vrobf) {
+    // Set LVL1 Trigger Type from the full event
+    rob->rod_lvl1_type(re->lvl1_trigger_type());
+    // Add the ROBFragment to the full event
+    re->append(rob);
+    ATH_MSG_DEBUG("Added ROB fragment " << MSG::hex << rob->source_id() << MSG::dec << " to the output raw event");
+  }
 
-  return m_tool->convert( result, re );
+  return StatusCode::SUCCESS;
 
 }
 

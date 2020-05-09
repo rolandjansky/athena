@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 //
 //  NSWHitsTree.c
 //  
@@ -8,6 +9,7 @@
 //
 
 #define NSWHitsTree_cxx
+
 #include "NSWHitsTree.h"
 
 #include <TH1.h>
@@ -19,9 +21,6 @@
 #include <map>
 #include <vector>
 #include <iostream>
-
-using namespace std;
-
 
 void NSWHitsTree::Loop()
 {

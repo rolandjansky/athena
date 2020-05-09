@@ -420,7 +420,6 @@ TestDriver::read()
 
 int main()
 {
-  gInterpreter->EnableAutoLoading();
   TClass::GetClass("map<string,string>");
 
    (void)remove("test_collection.root");

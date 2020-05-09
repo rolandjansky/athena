@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.icc 718910 2016-01-20 22:30:05Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.icc
  * @author scott snyder <snyder@bnl.gov>

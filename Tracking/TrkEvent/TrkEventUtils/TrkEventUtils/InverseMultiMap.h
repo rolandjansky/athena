@@ -13,8 +13,6 @@
 
 #include <map>
 
-//namespace HepMC { class GenParticle; }
-
 namespace Trk {
   /**
    * @class InverseMultiMap

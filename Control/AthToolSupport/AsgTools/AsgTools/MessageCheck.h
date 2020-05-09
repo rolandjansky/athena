@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FILE_AsgTools_MessageCheck_h
@@ -12,6 +12,5 @@
 // #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
 #include <AsgMessaging/MessageCheck.h>
-#include <xAODRootAccess/tools/TReturnCode.h>
 
 #endif

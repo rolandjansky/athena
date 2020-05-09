@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from builtins import str
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
-   from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMaker
    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-   m = HLTResultMTMaker(name)
+   m = CompFactory.HLTResultMTMaker(name)
 
    # ROBs/SubDets which are enabled but not necessarily part of the ROS-ROB map
    from libpyeformat_helper import SourceIdentifier,SubDetector
@@ -48,8 +48,12 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    return m
 
 def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
-   from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+   from AthenaCommon.Configurable import Configurable
+   Configurable.configurableRun3Behavior += 1
 
+   from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
+
+   TriggerEDMSerialiserTool = CompFactory.TriggerEDMSerialiserTool  
    # Configuration helper methods
    def addCollection(self, typeNameAux, moduleIds):
       self.CollectionsToSerialize[typeNameAux] = moduleIds
@@ -63,9 +67,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
 
    def addCollectionListToMainResult(self, typeNameAuxList):
       self.addCollectionListToResults(typeNameAuxList,moduleIds=[getFullHLTResultID()])
-
    # Add the helper methods to the TriggerEDMSerialiserTool python class
-   from .TrigOutputHandlingConf import TriggerEDMSerialiserTool
    TriggerEDMSerialiserTool.addCollection = addCollection
    TriggerEDMSerialiserTool.addCollectionToMainResult = addCollectionToMainResult
    TriggerEDMSerialiserTool.addCollectionListToResults = addCollectionListToResults
@@ -74,6 +76,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
    from collections import OrderedDict
+   import GaudiConfig2.semantics
    class OD(OrderedDict):
       """Purpose of this class is to present map (ordered by insertion order) interface on python side, 
       whereas the property to look like vector of such strings
@@ -85,15 +88,36 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
       def __str__(self):
          return self.__repr__()
 
-   serialiser.CollectionsToSerialize = OD()
+   class TrigSerializerSemantics(GaudiConfig2.semantics.PropertySemantics):
+      __handled_types__ = ( "SerializerObjs", )
+    
+      def __init__(self,cpp_type,name=None):
+         super(TrigSerializerSemantics, self).__init__(cpp_type,name)
 
-   from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
+      def store(self,value):
+         return OD(value)
+
+      def default(self,value):
+         return OD()
+    
+      def merge(self,a,b):
+         a.update(b)
+         return a
+
+      def load (self,value):
+         return value
+
+   TriggerEDMSerialiserTool._descriptors["CollectionsToSerialize"].semantics=TrigSerializerSemantics(cpp_type="SerializerObjs")
+   TriggerEDMSerialiserTool._descriptors["CollectionsToSerialize"].semantics.name="CollectionsToSerialize"
+
+   #serialiser.CollectionsToSerialize = OD()
+
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
-   tpTool = TrigSerTPTool()
+   tpTool = CompFactory.TrigSerTPTool()
    tpTool.TPMap = tpMap()
    serialiser.TPTool = tpTool
 
-   from TrigEDMConfig.TriggerEDMRun3 import TruncationThresholds as truncThresholds
+   from TrigEDMConfig.DataScoutingInfo import TruncationThresholds as truncThresholds
    serialiser.TruncationThresholds = truncThresholds
 
    # Configure monitoring histograms
@@ -112,22 +136,20 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
                                       title='Size of the largest collection;Size [kB];Num of truncated results',
                                       xbins=200, xmin=0, xmax=5000)
 
+   Configurable.configurableRun3Behavior -= 1
    return serialiser
 
 def StreamTagMakerToolCfg(name="StreamTagMakerTool"):
-   from .TrigOutputHandlingConf import StreamTagMakerTool
 
-   stmaker = StreamTagMakerTool(name)
+   stmaker = CompFactory.StreamTagMakerTool(name)
    # Extra configuration may come here
 
    return stmaker
 
 
 def TriggerBitsMakerToolCfg(name="TriggerBitsMakerTool"):
-   from .TrigOutputHandlingConf import TriggerBitsMakerTool
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-   bitsmaker = TriggerBitsMakerTool(name)
+   bitsmaker = CompFactory.TriggerBitsMakerTool(name)
    # Extra configuration may come here
 
    return bitsmaker

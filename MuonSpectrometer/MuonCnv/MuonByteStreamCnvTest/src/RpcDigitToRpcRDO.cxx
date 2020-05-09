@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "TrigT1RPClogic/ShowData.h"
 
 #include "StoreGate/StoreGateSvc.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "MuonDigitContainer/RpcDigitCollection.h"
 #include "MuonDigitContainer/RpcDigit.h"
@@ -20,10 +17,14 @@
 
 #include <algorithm>
 #include <cmath>
-
-using namespace std;
+#include "GaudiKernel/PhysicalConstants.h"
 
 static double time_correction(double, double, double);
+
+namespace {
+  static constexpr unsigned int const& rpcRawHitWordLength = 7;
+  static constexpr double const& inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
+}
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -41,15 +42,16 @@ StatusCode RpcDigitToRpcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_MuonMgr) );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_MuonMgr));
 
-  ATH_CHECK( m_cabling.retrieve()) ;
-  // determine the cabling type
+  ATH_CHECK(m_cabling.retrieve()) ;
   if (m_cabling->rpcCabSvcType() == "simLike_MapsFromFiles" || m_cabling->rpcCabSvcType() == "dataLike") m_cablingType="MuonRPC_Cabling";
   else if (m_cabling->rpcCabSvcType() == "simulationLike") m_cablingType="RPCcablingSim";
   else if (m_cabling->rpcCabSvcType() == "simulationLikeInitialization" ) m_cablingType="RPCcabling";
   else ATH_MSG_WARNING( "Unknown cabling type: rpcCabSvcType()="<< m_cabling->rpcCabSvcType() );
+
+  ATH_CHECK(m_readKey.initialize());
 
   // Fill Tag Info
   if (fillTagInfo() != StatusCode::SUCCESS) {
@@ -83,11 +85,14 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
 
   RPCsimuData data;         // instantiate the container for the RPC digits
 
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey, ctx};
+  const RpcCablingCondData* readCdo{*readHandle};
+
   // fill the data with RPC simulated digits
-  if (fill_RPCdata(data, ctx).isFailure()) {
+  if (fill_RPCdata(data, ctx, readCdo).isFailure()) {
     ATH_MSG_ERROR( "Fail to produce RPC data for byte stream simulation "  );
   }
-  ATH_MSG_DEBUG( "RPC data loaded from G3:" << endl
+  ATH_MSG_DEBUG( "RPC data loaded from G3:" << std::endl
                  << ShowData<RPCsimuData>(data,"",m_data_detail)  );
 
 
@@ -103,10 +108,9 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_detailed_algo)? m_cma_debug : m_fast_debug;                //
                                                                         //
-  //  CMAdata patterns(&data,m_cabling,type,debug);                     //
-  CMAdata patterns(&data,&*m_cabling,debug);                              //
+  CMAdata patterns(&data,&*m_cabling,debug);                            //
                                                                         //
-  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << endl   //
+  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl   //
                  << ShowData<CMAdata>(patterns,"",m_data_detail)  );
   ////////////////////////////////////////////////////////////////////////
 
@@ -127,33 +131,34 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
 
   // ********************** create the RPC RDO's  *****************************
 
-  std::unique_ptr<RpcByteStreamDecoder> padDecoder = std::make_unique<RpcByteStreamDecoder>(&bytestream,
-                                                                                            &*m_cabling,
-                                                                                            m_muonIdHelperTool.get(),
-                                                                                            &msg());
-  if (padDecoder->decodeByteStream().isFailure()) {
-    ATH_MSG_ERROR( "Fail to decode RPC byte stream"  );
+  std::vector<RpcPad*> rpcpads;
+  ATH_MSG_DEBUG( "Start decoding");
+  PAD_Readout padReadout = bytestream.pad_readout();
+  // Iterate on the readout PADS and decode them
+  for (auto& padro : padReadout) {
+    RpcPad* newpad = decodePad(padro.second, readCdo);
+    // Push back the decoded pad in the vector
+    rpcpads.push_back(newpad);
   }
+  ATH_MSG_DEBUG("Total number of pads in this event is " << rpcpads.size());
 
-  ATH_MSG_DEBUG( "Total number of pads in this event is " << padDecoder->getPads()->size()  );
-
-  for (const RpcPad* pad : *(padDecoder->getPads())) {
+  for (const auto& pad : rpcpads) {
     const int elementHash1 = pad->identifyHash();
     if (padContainer->addCollection(pad, elementHash1).isFailure()) {
       ATH_MSG_ERROR( "Unable to record RPC Pad in IDC"   );
     }
   }
-
+  rpcpads.clear();
   return StatusCode::SUCCESS;
 }
 
-StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx) const {
+StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData* /*readCdo*/) const {
 
   std::string space = "                          ";
 
   ATH_MSG_DEBUG( "in execute(): fill RPC data"  );
 
-  IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+  IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 
   SG::ReadHandle<RpcDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
@@ -168,22 +173,20 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
 
     IdentifierHash moduleHash = rpcCollection->identifierHash();
     Identifier moduleId;
-
-    //if (m_digit_position->initialize(moduleId))
-    if (!m_muonIdHelperTool->rpcIdHelper().get_id(moduleHash, moduleId, &rpcContext)) {
+    if (!m_idHelperSvc->rpcIdHelper().get_id(moduleHash, moduleId, &rpcContext)) {
       for (const RpcDigit* rpcDigit : *rpcCollection) {
-        if (rpcDigit->is_valid(m_muonIdHelperTool->rpcIdHelper())) {
+        if (rpcDigit->is_valid(m_idHelperSvc->rpcIdHelper())) {
           Identifier channelId = rpcDigit->identify();
-          int stationType         = m_muonIdHelperTool->rpcIdHelper().stationName(channelId);
-          std::string StationName = m_muonIdHelperTool->rpcIdHelper().stationNameString(stationType);
-          int StationEta          = m_muonIdHelperTool->rpcIdHelper().stationEta(channelId);
-          int StationPhi          = m_muonIdHelperTool->rpcIdHelper().stationPhi(channelId);
-          int DoubletR            = m_muonIdHelperTool->rpcIdHelper().doubletR(channelId);
-          int DoubletZ            = m_muonIdHelperTool->rpcIdHelper().doubletZ(channelId);
-          int DoubletP            = m_muonIdHelperTool->rpcIdHelper().doubletPhi(channelId);
-          int GasGap              = m_muonIdHelperTool->rpcIdHelper().gasGap(channelId);
-          int MeasuresPhi         = m_muonIdHelperTool->rpcIdHelper().measuresPhi(channelId);
-          int Strip               = m_muonIdHelperTool->rpcIdHelper().strip(channelId);
+          int stationType         = m_idHelperSvc->rpcIdHelper().stationName(channelId);
+          std::string StationName = m_idHelperSvc->rpcIdHelper().stationNameString(stationType);
+          int StationEta          = m_idHelperSvc->rpcIdHelper().stationEta(channelId);
+          int StationPhi          = m_idHelperSvc->rpcIdHelper().stationPhi(channelId);
+          int DoubletR            = m_idHelperSvc->rpcIdHelper().doubletR(channelId);
+          int DoubletZ            = m_idHelperSvc->rpcIdHelper().doubletZ(channelId);
+          int DoubletP            = m_idHelperSvc->rpcIdHelper().doubletPhi(channelId);
+          int GasGap              = m_idHelperSvc->rpcIdHelper().gasGap(channelId);
+          int MeasuresPhi         = m_idHelperSvc->rpcIdHelper().measuresPhi(channelId);
+          int Strip               = m_idHelperSvc->rpcIdHelper().strip(channelId);
 
           ATH_MSG_DEBUG( "RPC Digit Type, Eta, Phi, dbR, dbZ, dbP, gg, mPhi, Strip "<<stationType<<" "<<StationEta<<" "<<StationPhi<<" "<<DoubletR<<" "<<DoubletZ<<" "<<DoubletP<<" "<<GasGap<<" "<<MeasuresPhi<<" "<<Strip );
           const MuonGM::RpcReadoutElement* descriptor =
@@ -215,7 +218,6 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
 
             int param[3] = {0,0,0};
 
-            //std::cout<<" digit with strip_code (new) = "<<strip_code_new<<" is filling TrigT1SimuData"<<std::endl;
             ATH_MSG_DEBUG( "Digit with strip_code = "<<strip_code_cab<<" passed to RDO/LVL1 Simulation (RPCsimuDigit)" );
             RPCsimuDigit digit(0,strip_code_cab,param,xyz);
             data << digit;
@@ -223,7 +225,6 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
           }
         }
       }
-      //      string id = moduleId;
     }
   }
 
@@ -232,8 +233,7 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
 
 double time_correction(double x, double y, double z)
 {
-  double speed_of_light = 299.792458;     // mm/ns
-  return sqrt(x*x+y*y+z*z)/speed_of_light;
+  return std::sqrt(x*x+y*y+z*z)*inverseSpeedOfLight;
 }
 
 
@@ -255,3 +255,134 @@ StatusCode RpcDigitToRpcRDO::fillTagInfo() const
 
   return StatusCode::SUCCESS;
 }
+
+// Decode a pad and return a pointer to a RpcPad RDO
+RpcPad* RpcDigitToRpcRDO::decodePad(PADreadout& pad, const RpcCablingCondData* readCdo) const
+{
+
+  ATH_MSG_DEBUG( "Decoding a new RpcPad" );
+
+  // Identifier elements
+  int name = 0;
+  int eta = 0;
+  int phi = 0;
+  int doublet_r = 0;
+  int doublet_z = 0;
+  int doublet_phi = 0;
+  int gas_gap = 0;
+  int measures_phi = 0;
+  int strip = 0;
+
+  PadReadOut* readout = pad.give_pad_readout();
+
+  // Retrieve PAD sector and PAD ID
+  int sector = pad.sector();
+  int pad_id = pad.PAD();
+  // Compute side and logic sector
+  int side = (sector < 32) ? 0:1;
+  int logic_sector = sector%32;
+  // Compute the key to retrieve the offline id from the map (as from LVL1 sim.)
+  int key = side*10000+logic_sector*100+pad_id;
+
+  ATH_MSG_DEBUG( "Pad: Side " << side << " Sector logic" << logic_sector << " Id " << pad_id );
+
+  // Retrieve the identifier elements from the map
+  const RpcCablingCondData::RDOmap& pad_map = readCdo->give_RDOs();
+  RDOindex index = (*pad_map.find(key)).second;
+
+  index.offline_indexes(name, eta, phi, doublet_r, doublet_z, doublet_phi, gas_gap, measures_phi, strip);
+
+  // Build the pad offline identifier
+  bool check = true;
+  bool valid = false;
+  Identifier id = m_idHelperSvc->rpcIdHelper().padID(name, eta, phi, doublet_r, 
+      doublet_z, doublet_phi, check, &valid);
+
+  ATH_MSG_DEBUG( "Invalid pad offline indices " );
+  ATH_MSG_DEBUG( "Name : "    << name  );
+  ATH_MSG_DEBUG( "Eta "       << eta << "   Phi "   << phi );
+  ATH_MSG_DEBUG( "Doublet r " << doublet_r << "  Doublet_z " << doublet_z << "  Doublet_phi " << doublet_phi );
+  ATH_MSG_DEBUG( "Gas gap "   << gas_gap   << "   Measures_phi " << measures_phi << "  Strip " << strip );
+
+  // Retrieve Pad status and error code from Pad header and footer
+  PadReadOutStructure pad_header = readout->getHeader();
+  PadReadOutStructure pad_footer = readout->getFooter();
+  // Check the data format
+  assert(pad_header.isHeader());
+  assert(pad_footer.isFooter());
+
+  unsigned int hashId = index.hash();
+  unsigned int onlineId  = pad_id;
+  unsigned int status = 0;
+  unsigned int errorCode = pad_footer.errorCode();
+
+  // Construct the new Pad
+  RpcPad* rpc_pad = new RpcPad(id, hashId, onlineId, status, errorCode, sector);
+
+  // Iterate on the matrices and decode them
+  for (int i=0 ; i < readout->numberOfCMROFragments() ; ++i)
+  {
+    MatrixReadOut* matrix  = pad.matrices_readout(i);
+    RpcCoinMatrix* coinMatrix = decodeMatrix(matrix, id);
+    // Add the matrix to the pad
+    rpc_pad->push_back(coinMatrix);
+  }
+
+  ATH_MSG_DEBUG( "Number of matrices in Pad : " << rpc_pad->size() );
+
+  return rpc_pad;
+}
+
+// Function decoding a coincidence matrix
+RpcCoinMatrix* RpcDigitToRpcRDO::decodeMatrix(MatrixReadOut* matrix, Identifier& id) const
+{
+
+  ATH_MSG_DEBUG( "Decoding a new RpcCoinMatrix" );
+
+  // Matrix Header and SubHeader      
+  MatrixReadOutStructure matrix_header    = matrix->getHeader();
+  MatrixReadOutStructure matrix_subheader = matrix->getSubHeader();
+  MatrixReadOutStructure matrix_footer    = matrix->getFooter();
+  // Check the data structure
+  assert(matrix_header.isHeader());
+  assert(matrix_subheader.isSubHeader());
+  assert(matrix_footer.isFooter());
+
+  // Create the coincidence matrix 
+  RpcCoinMatrix* coinMatrix = new RpcCoinMatrix(id, 
+      matrix_header.cmid(), 
+      matrix_footer.crc(), 
+      matrix_header.fel1id(), 
+      matrix_subheader.febcid());   
+
+  // Iterate on fired channels and decode them
+  MatrixReadOutStructure cm_hit;
+  for (int j=0; j < matrix->numberOfBodyWords() ; ++j)
+  {
+    cm_hit = matrix->getCMAHit(j);
+    assert(cm_hit.isBody());
+    RpcFiredChannel* firedChannel=0;
+
+    if (cm_hit.ijk() < rpcRawHitWordLength)
+    {
+      firedChannel = new RpcFiredChannel(cm_hit.bcid(),
+          cm_hit.time(),
+          cm_hit.ijk(),
+          cm_hit.channel());
+    }
+    else if (cm_hit.ijk() == rpcRawHitWordLength)
+    {
+      firedChannel = new RpcFiredChannel(cm_hit.bcid(),
+          cm_hit.time(),
+          cm_hit.ijk(),
+          cm_hit.threshold(),
+          cm_hit.overlap());
+    }
+
+    coinMatrix->push_back(firedChannel);
+  }
+
+  ATH_MSG_DEBUG( "Number of Fired Channels in Matrix : " << coinMatrix->size());
+  return coinMatrix;
+}
+

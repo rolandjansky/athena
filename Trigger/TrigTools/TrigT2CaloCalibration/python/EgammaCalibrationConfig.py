@@ -1,12 +1,15 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# flake8: noqa
+# ... because this file is hopeless ...
+
 #############################
 # EgammaLWCalibration
 #############################
-from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaLWCalibration
+from AthenaConfiguration.ComponentFactory import CompFactory
 from CaloClusterCorrection.CaloSwLongWeights_v5 import *
 
-class EgammaLWCalibrationBarrelConfig(EgammaLWCalibration):
+class EgammaLWCalibrationBarrelConfig(CompFactory.EgammaLWCalibration):
     __slots__=[]
     def __init__(self,name="EgammaLWCalibrationBarrel"):
       super(EgammaLWCalibrationBarrelConfig,self).__init__(name)
@@ -20,7 +23,7 @@ class EgammaLWCalibrationBarrelConfig(EgammaLWCalibration):
       self.degree=3
       #self.region = CALOCORR_COMBINED2
 
-class EgammaLWCalibrationEndcapConfig(EgammaLWCalibration):
+class EgammaLWCalibrationEndcapConfig(CompFactory.EgammaLWCalibration):
     __slots__=[]
     def __init__(self,name="EgammaLWCalibrationEndcap"):
       super(EgammaLWCalibrationEndcapConfig,self).__init__(name)
@@ -36,11 +39,10 @@ class EgammaLWCalibrationEndcapConfig(EgammaLWCalibration):
 #############################
 # EgammaHitsCalibration
 #############################
-from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaHitsCalibration
 from CaloClusterCorrection.CaloSwCalibHitsCalibration_v9 import *
 from CaloClusterCorrection.CaloSwCalibHitsCalibration_v9leakdata import *
 
-class EgammaHitsCalibrationBarrelConfig(EgammaHitsCalibration):
+class EgammaHitsCalibrationBarrelConfig(CompFactory.EgammaHitsCalibration):
     __slots__=[]
     def __init__(self,name="EgammaHitsCalibrationBarrel"):
       super(EgammaHitsCalibrationBarrelConfig,self).__init__(name)
@@ -54,7 +56,7 @@ class EgammaHitsCalibrationBarrelConfig(EgammaHitsCalibration):
       self.preserve_offset=False
       self.OutputLevel=0
 
-class EgammaHitsCalibrationEndcapConfig(EgammaHitsCalibration):
+class EgammaHitsCalibrationEndcapConfig(CompFactory.EgammaHitsCalibration):
     __slots__=[]
     def __init__(self,name="EgammaHitsCalibrationEndcap"):
       super(EgammaHitsCalibrationEndcapConfig,self).__init__(name)
@@ -72,10 +74,9 @@ class EgammaHitsCalibrationEndcapConfig(EgammaHitsCalibration):
 #############################
 # EgammaGapCalibration
 #############################
-from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaGapCalibration
 from CaloClusterCorrection.CaloSwGap_v4 import *
 
-class EgammaGapCalibrationConfig(EgammaGapCalibration):
+class EgammaGapCalibrationConfig(CompFactory.EgammaGapCalibration):
     __slots__=[]
     def __init__(self,name="EgammaGapCalibration"):
       super(EgammaGapCalibrationConfig,self).__init__(name)
@@ -89,10 +90,9 @@ class EgammaGapCalibrationConfig(EgammaGapCalibration):
 #############################
 # EgammaSshapeCalibration
 #############################
-from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaSshapeCalibration
 from CaloClusterCorrection.CaloSwEtaoff_v4_1 import *
 
-class EgammaSshapeCalibrationBarrelConfig(EgammaSshapeCalibration):
+class EgammaSshapeCalibrationBarrelConfig(CompFactory.EgammaSshapeCalibration):
     __slots__=[]
     def __init__(self,name="EgammaSshapeCalibrationBarrel"):
         super(EgammaSshapeCalibrationBarrelConfig,self).__init__(name)
@@ -102,7 +102,7 @@ class EgammaSshapeCalibrationBarrelConfig(EgammaSshapeCalibration):
         self.energy_degree=3
         self.rangeBarrel=True
     
-class EgammaSshapeCalibrationEndcapConfig(EgammaSshapeCalibration):
+class EgammaSshapeCalibrationEndcapConfig(CompFactory.EgammaSshapeCalibration):
     __slots__=[]
     def __init__(self,name="EgammaSshapeCalibrationEndcap"):
         super(EgammaSshapeCalibrationEndcapConfig,self).__init__(name)
@@ -116,10 +116,9 @@ class EgammaSshapeCalibrationEndcapConfig(EgammaSshapeCalibration):
 #############################
 # EgammaTransitionRegions
 #############################
-from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaTransitionRegions
 from CaloClusterCorrection.CaloSwTransitionRegionsCorr_v5_1 import *
 
-class EgammaTransitionRegionsConfig(EgammaTransitionRegions):
+class EgammaTransitionRegionsConfig(CompFactory.EgammaTransitionRegions):
     __slots__=[]
     def __init__(self,name="EgammaTransitionRegionsConfig"):
       super(EgammaTransitionRegionsConfig,self).__init__(name)

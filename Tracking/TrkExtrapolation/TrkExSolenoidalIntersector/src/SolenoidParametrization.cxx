@@ -11,27 +11,23 @@
 
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
 #include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
-
+#include "GaudiKernel/MsgStream.h"
 namespace {
     class RestoreIOSFlags 
     {
     public:
       RestoreIOSFlags (std::ostream &os) 
         : m_os(&os), 
-          //m_flags(m_os->flags()),
           m_precision(m_os->precision())
       {}
       ~RestoreIOSFlags() {
-        //m_os->flags(m_flags);
         m_os->precision(m_precision);
       }
     private:
       std::ostream *m_os;
-      //std::ios_base::fmtflags m_flags;
       std::streamsize  m_precision;
     };
 }
@@ -90,21 +86,6 @@ SolenoidParametrization::Parameters::Parameters (const SolenoidParametrization& 
 }
 
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
-// note: both constructors are private
-// SolenoidParametrization::SolenoidParametrization(void)
-// {
-//    // field component not defined without a m_magFieldSvc
-//    // get central field value in units required for fast tracking
-//    m_centralField    	= fieldComponent(0.,0.,0.);
-//
-//    // note field = B*c 
-//    RestoreIOSFlags restore(std::cout);
-//    std::cout << " SolenoidParametrization: centralField "
-//              << std::setw(6) << std::setprecision(3) << m_centralField/s_lightSpeed /Gaudi::Units::tesla
-//              << "T" << std::endl;
-//}
 
 SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFieldSvc)
   : m_magFieldSvc	    (magFieldSvc),
@@ -119,177 +100,115 @@ SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFiel
     if (!m_magFieldSvc)
        throw std::logic_error("fieldComponent not defined without magnetic field service.");
     m_centralField    	= fieldComponent(0.,0.,0.);
-    RestoreIOSFlags restore(std::cout);
-    std::cout << " SolenoidParametrization: centralField "
-              << std::setw(6) << std::setprecision(3) << m_centralField/s_lightSpeed /Gaudi::Units::tesla
-	      << "T";
-
     // now parametrise field - if requested
-    //if (magFieldSvc)
     {
-	std::cout << "  - please be patient while the solenoid is parametrised !! ";
-	parametrizeSolenoid();
+      parametrizeSolenoid();
     }
-    std::cout << std::endl;
 }
 
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
-SolenoidParametrization::parametrizeSolenoid(void)
-{
-    // set parametrisation granularity (up to cotTheta = 7.)
-    // get value of cubic term for approx: Bz = Bcentral*(1 - term * z^3)
-    // 'fit' to average over cotTheta lines
-    double	smallOffset	= 0.0000000000001; // avoid FPE
-    double zAtAxis 	= s_binZeroZ;	// + smallOffset ? 
-    
-    for (int binZ = 0; binZ < s_maxBinZ; ++binZ)
-    { 
-        double cotTheta	= smallOffset; 
-	for (int binTheta = 0; binTheta < s_maxBinTheta - 1; ++binTheta)
-	{
-	    double 	r      	= 0.;
-	    double 	z      	= zAtAxis;
-	    int 	n      	= 200;
-	    double	dr;
-	    if (cotTheta < s_zOuter/s_rOuter)
-	    {
-		dr = s_rOuter/double(n);
-	    }
-	    else
-	    {
-		dr = s_zOuter/(cotTheta*double(n));
-	    }
+SolenoidParametrization::parametrizeSolenoid(void){
+  // set parametrisation granularity (up to cotTheta = 7.)
+  // get value of cubic term for approx: Bz = Bcentral*(1 - term * z^3)
+  // 'fit' to average over cotTheta lines
+  double	smallOffset	= 0.0000000000001; // avoid FPE
+  double zAtAxis 	= s_binZeroZ;	// + smallOffset ? 
+  //
+  for (int binZ = 0; binZ < s_maxBinZ; ++binZ){ 
+    double cotTheta	= smallOffset; 
+    for (int binTheta = 0; binTheta < s_maxBinTheta - 1; ++binTheta){
+      double 	r      	= 0.;
+      double 	z      	= zAtAxis;
+      int 	n      	= 200;
+      double	dr;
+      if (cotTheta < s_zOuter/s_rOuter){
+        dr = s_rOuter/double(n);
+      } else {
+        dr = s_zOuter/(cotTheta*double(n));
+      }
+      Amg::VectorX difference(n);
+      Amg::MatrixX derivative	= Amg::MatrixX::Zero(n,s_numberParameters);
+      for (int k = 0; k < n; ++k){
+        r 			+= dr;
+        z 			+= dr*cotTheta;
+        double	w		= (n - k)*(n - k);
+        double	zLocal		= z - zAtAxis;
+        if (r > s_rInner || z > s_zInner){
+            derivative(k,3)	= w;
+            derivative(k,4)	= w*zLocal*zLocal;
+            derivative(k,5)	= w*zLocal*zLocal*zLocal;
+        } else {
+            derivative(k,0)	= w;
+            derivative(k,1)	= w*zLocal*zLocal;
+            derivative(k,2)	= w*zLocal*zLocal*zLocal;
+        }
+        difference(k)		= w*(fieldComponent(r,z,cotTheta) - m_centralField);
+      }
+      // solve for parametrization coefficients
+      Amg::VectorX solution	= derivative.colPivHouseholderQr().solve(difference);
+      BinParameters parms (zAtAxis, cotTheta);
+      int			key    		= fieldKey(parms);
+      assert (m_parameters[key] == 0.);
+      m_parameters[key++]		= m_centralField + solution(0);
+      m_parameters[key++]		= solution(1);
+      m_parameters[key++]		= solution(2);
+      m_parameters[key++]		= m_centralField + solution(3);
+      m_parameters[key++]		= solution(4);
+      m_parameters[key++]		= solution(5);
+      // duplicate last z-bin for contiguous neighbour lookup
+      if (binZ == s_maxBinZ - 1){
+        assert (m_parameters[key] == 0.);
+        m_parameters[key++]    	= m_centralField + solution(0);
+        m_parameters[key++]    	= solution(1);
+        m_parameters[key++]    	= solution(2);
+        m_parameters[key++]    	= m_centralField + solution(3);
+        m_parameters[key++]    	= solution(4);
+        m_parameters[key++]    	= solution(5);
+        key	-= s_numberParameters;
+      }
 
-	    Amg::VectorX difference(n);
-	    Amg::MatrixX derivative	= Amg::MatrixX::Zero(n,s_numberParameters);
-	    for (int k = 0; k < n; ++k)
-	    {
-		r 			+= dr;
-		z 			+= dr*cotTheta;
-		double	w		= (n - k)*(n - k);
-		double	zLocal		= z - zAtAxis;
-		if (r > s_rInner || z > s_zInner)
-		{
-		    // derivative(k,0)	= 0.;
-		    // derivative(k,1)	= 0.;
-		    // derivative(k,2)	= 0.;
-		    derivative(k,3)	= w;
-		    derivative(k,4)	= w*zLocal*zLocal;
-		    derivative(k,5)	= w*zLocal*zLocal*zLocal;
-		}
-		else
-		{
-		    derivative(k,0)	= w;
-		    derivative(k,1)	= w*zLocal*zLocal;
-		    derivative(k,2)	= w*zLocal*zLocal*zLocal;
-		    // derivative(k,3)	= 0.; 
-		    // derivative(k,4)	= 0.;
-		    // derivative(k,5)	= 0.;
-		}
-		difference(k)		= w*(fieldComponent(r,z,cotTheta) - m_centralField);
-	    }
-
-	    // solve for parametrization coefficients
-	    Amg::VectorX solution	= derivative.colPivHouseholderQr().solve(difference);
-            BinParameters parms (zAtAxis, cotTheta);
-	    
-	    int			key    		= fieldKey(parms);
-	    assert (m_parameters[key] == 0.);
-	    m_parameters[key++]		= m_centralField + solution(0);
-	    m_parameters[key++]		= solution(1);
-	    m_parameters[key++]		= solution(2);
-	    m_parameters[key++]		= m_centralField + solution(3);
-	    m_parameters[key++]		= solution(4);
-	    m_parameters[key++]		= solution(5);
-
-	    // duplicate last z-bin for contiguous neighbour lookup
-	    if (binZ == s_maxBinZ - 1)
-	    {
-		assert (m_parameters[key] == 0.);
-		m_parameters[key++]    	= m_centralField + solution(0);
-		m_parameters[key++]    	= solution(1);
-		m_parameters[key++]    	= solution(2);
-		m_parameters[key++]    	= m_centralField + solution(3);
-		m_parameters[key++]    	= solution(4);
-		m_parameters[key++]    	= solution(5);
-		key	-= s_numberParameters;
-	    }
-
-	    // duplicate next to previous z-bin for contiguous neighbour lookup
-	    if (binZ > 0)
-	    {
-		key	-= 2*s_numberParameters*s_maxBinTheta;
-		assert (m_parameters[key] == 0.);
-		m_parameters[key++]    	= m_centralField + solution(0);
-		m_parameters[key++]    	= solution(1);
-		m_parameters[key++]    	= solution(2);
-		m_parameters[key++]    	= m_centralField + solution(3);
-		m_parameters[key++]    	= solution(4);
-		m_parameters[key++]    	= solution(5);
-	    }
-
-	    // some debug print
-//  	    key	 -= 6;
-//  	    if (   key <  s_numberParameters*s_maxBinTheta
-//  		|| key >= s_numberParameters*s_maxBinTheta*(s_maxBinZ - 2))
-//  	    {
-//  		double	z_max;
-//  		if (cotTheta < s_zInner/s_rInner)
-//  		{
-//  		    z_max = s_rInner*cotTheta + zAtAxis;
-//  		}
-//  		else
-//  		{
-//  		    z_max = s_zInner;
-//  		}
-//  		cout << std::setiosflags(std::ios::fixed) << key
-//  		     << "   cotTheta " 	<< std::setw(7)  << std::setprecision(2)  << cotTheta
-//  		     << "   inner terms:  z0 "<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key]/m_centralField
-//  		     << "   z^2 "<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key+1]*z_max*z_max/m_centralField
-//  		     << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key+2]*z_max*z_max*z_max/m_centralField
-//  		     << "   outer terms:  z0 "<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key+3]/m_centralField
-//  		     << "   z^2 "<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key+4]*z_max*z_max/m_centralField
-//  		     << "   z^3 "	<< std::setw(6) << std::setprecision(3)
-//  		     << m_parameters[key+5]*z_max*z_max*z_max/m_centralField
-//  		     << std::resetiosflags(std::ios::fixed) << endl;
-//  	    }
-	    cotTheta	+= 1./s_binInvSizeTheta;
-	}
-	zAtAxis 	+= 1./s_binInvSizeZ;
+      // duplicate next to previous z-bin for contiguous neighbour lookup
+      if (binZ > 0){
+        key	-= 2*s_numberParameters*s_maxBinTheta;
+        assert (m_parameters[key] == 0.);
+        m_parameters[key++]    	= m_centralField + solution(0);
+        m_parameters[key++]    	= solution(1);
+        m_parameters[key++]    	= solution(2);
+        m_parameters[key++]    	= m_centralField + solution(3);
+        m_parameters[key++]    	= solution(4);
+        m_parameters[key++]    	= solution(5);
+      }
+      cotTheta	+= 1./s_binInvSizeTheta;
     }
-
-    // duplicate end theta-bins for contiguous neighbour lookup
-    zAtAxis 	= s_binZeroZ;	// + smallOffset ?? 
-    for (int binZ = 0; binZ < s_maxBinZ; ++binZ)
-    { 
-	double cotTheta	= double(s_maxBinTheta)/s_binInvSizeTheta;
-        BinParameters parms (zAtAxis, cotTheta);
-	int	key    	= fieldKey(parms);
-	for (int k = 0; k < 2*s_numberParameters; ++k)
-	{
-	    assert (m_parameters[key+2*s_numberParameters] == 0.);
-	    m_parameters[key+2*s_numberParameters] = m_parameters[key];
-	    ++key;
-	}
-	zAtAxis 	+= 1./s_binInvSizeZ;
+    zAtAxis 	+= 1./s_binInvSizeZ;
+  }
+  //
+  // duplicate end theta-bins for contiguous neighbour lookup
+  zAtAxis 	= s_binZeroZ;	// + smallOffset ?? 
+  for (int binZ = 0; binZ < s_maxBinZ; ++binZ){ 
+    double cotTheta	= double(s_maxBinTheta)/s_binInvSizeTheta;
+    BinParameters parms (zAtAxis, cotTheta);
+    int	key    	= fieldKey(parms);
+    for (int k = 0; k < 2*s_numberParameters; ++k){
+      assert (m_parameters[key+2*s_numberParameters] == 0.);
+      m_parameters[key+2*s_numberParameters] = m_parameters[key];
+      ++key;
     }
+    zAtAxis 	+= 1./s_binInvSizeZ;
+  }
 }
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 void
-SolenoidParametrization::printFieldIntegrals (void) const
+SolenoidParametrization::printFieldIntegrals (MsgStream& msg) const
 {
     // integrate along lines of const eta from origin to r = 1m or |z| = 2.65m
     // direction normalised st transverse component = 1 (equiv to a fixed pt)
-    std::cout << std::setiosflags(std::ios::fixed)
+    msg << __func__<<"\n"
+        << std::setiosflags(std::ios::fixed)
 	      << "   eta    rEnd   mean(Bz) max(dBz/dR)     mean(Bt) max(dBt/dR)      "
 	      << "min(Bt) max(Bt)  reverse-bend(z)  integrals: Bt.dR   Bl.dR"
 	      << "     asymm: x        y        z"
@@ -297,7 +216,7 @@ SolenoidParametrization::printFieldIntegrals (void) const
 	      << "             m          T         T/m            T         T/m      "
 	      << "      T       T                m               T.m     T.m"
 	      << "            T        T        T"
-	      << std::endl;
+	      << "/n";
     
     double maxR 	= 1000.*Gaudi::Units::mm;
     double maxZ		= 2650.*Gaudi::Units::mm;
@@ -308,8 +227,8 @@ SolenoidParametrization::printFieldIntegrals (void) const
     for (int i = 0; i != 31; ++i)
     {
 	double phi		=  0.;
-	double cotTheta		=  sinh(eta);
-	Amg::Vector3D direction(cos(phi),sin(phi),cotTheta);
+	double cotTheta		=  std::sinh(eta);
+	Amg::Vector3D direction(std::cos(phi),std::sin(phi),cotTheta);
 	double rEnd		=  maxR;
 	if (std::abs(cotTheta) > maxZ/maxR) rEnd =  maxZ/direction.z();
 	double step		=  rEnd/static_cast<double>(numSteps);	// radial step in mm
@@ -343,11 +262,11 @@ SolenoidParametrization::printFieldIntegrals (void) const
 	    if (BT < minBT) minBT = BT;
 	    if (j > 0)
 	    {
-		if (BT*prevBT < 0.) reverseZ = position.z() - step*direction.z();
-		double grad = std::abs(BT - prevBT);
-		if (grad > maxGradBT) maxGradBT = grad;
-		grad = std::abs(BZ - prevBZ);
-		if (grad > maxGradBZ) maxGradBZ = grad;
+        if (BT*prevBT < 0.) reverseZ = position.z() - step*direction.z();
+        double grad = std::abs(BT - prevBT);
+        if (grad > maxGradBT) maxGradBT = grad;
+        grad = std::abs(BZ - prevBZ);
+        if (grad > maxGradBZ) maxGradBZ = grad;
 	    }
 	    prevBT		=  BT;
 	    prevBZ		=  BZ;
@@ -362,7 +281,7 @@ SolenoidParametrization::printFieldIntegrals (void) const
 	double integralBL	= meanBL*rEnd; 
 	double integralBT	= meanBT*rEnd;
 	
-	std::cout << std::setw(6)	<< std::setprecision(2) << eta
+	msg << std::setw(6)	<< std::setprecision(2) << eta
 		  << std::setw(8)	<< std::setprecision(3) << rEnd /Gaudi::Units::meter
 		  << std::setw(11)	<< std::setprecision(4) << meanBZ /Gaudi::Units::tesla
 		  << std::setw(12)	<< std::setprecision(3) << maxGradBZ /Gaudi::Units::tesla
@@ -372,14 +291,14 @@ SolenoidParametrization::printFieldIntegrals (void) const
 		  << std::setw(8)	<< std::setprecision(4) << maxBT /Gaudi::Units::tesla;
 	if (reverseZ > 0.)
 	{
-	    std::cout << std::setw(17)	<< std::setprecision(2) << reverseZ /Gaudi::Units::meter
+	    msg << std::setw(17)	<< std::setprecision(2) << reverseZ /Gaudi::Units::meter
 		      << std::setw(18)	<< std::setprecision(4) << integralBT /(Gaudi::Units::tesla*Gaudi::Units::meter)
 		      << std::setw(8)	<< std::setprecision(4) << integralBL /(Gaudi::Units::tesla*Gaudi::Units::meter)
 		      << "    ";
 	}
 	else
 	{
-	    std::cout << std::setw(35)	<< std::setprecision(4) << integralBT /(Gaudi::Units::tesla*Gaudi::Units::meter)
+	    msg << std::setw(35)	<< std::setprecision(4) << integralBT /(Gaudi::Units::tesla*Gaudi::Units::meter)
 		      << std::setw(8)	<< std::setprecision(4) << integralBL /(Gaudi::Units::tesla*Gaudi::Units::meter)
 		      << "    ";
 	}
@@ -395,24 +314,24 @@ SolenoidParametrization::printFieldIntegrals (void) const
 	    // look up field along eta-line
 	    for (int j = 0; j != numSteps; ++j)
 	    {
-		position		+= 0.5*step*direction;
-		Amg::Vector3D field;
-		m_magFieldSvc->getField(&position,&field);
-		Amg::Vector3D vCrossB	=  direction.cross(field);
-		position		+= 0.5*step*direction;
-		double BT		=  vCrossB.x()*direction.y() - vCrossB.y()*direction.x();
-		asymm			+= BT;
+        position		+= 0.5*step*direction;
+        Amg::Vector3D field;
+        m_magFieldSvc->getField(&position,&field);
+        Amg::Vector3D vCrossB	=  direction.cross(field);
+        position		+= 0.5*step*direction;
+        double BT		=  vCrossB.x()*direction.y() - vCrossB.y()*direction.x();
+        asymm			+= BT;
 	    }
 	    asymm	= asymm/static_cast<double>(numSteps) - meanBT;
-	    std::cout << std::setw(9)	<< std::setprecision(4) << asymm /Gaudi::Units::tesla;
+	    msg << std::setw(9)	<< std::setprecision(4) << asymm /Gaudi::Units::tesla;
 	}
-	std::cout << std::endl;
+	msg<<"/n";
 	eta	+= 0.1;
     }
 }
 
 void
-SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin) const
+SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin, MsgStream & msg) const
 {
     double cotTheta	= 1./std::tan(2.*std::atan(1./std::exp(eta)));
     BinParameters parms (z_origin, cotTheta);
@@ -426,7 +345,8 @@ SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin)
     {
 	z_max = s_zInner;
     }
-    std::cout << std::setiosflags(std::ios::fixed)
+    msg <<__func__<<"\n"
+        << std::setiosflags(std::ios::fixed)
 	      << "SolenoidParametrization:  line with eta "  << std::setw(6) << std::setprecision(2) << eta
 	      << "   from (r,z)  0.0,"         << std::setw(6) << std::setprecision(1) << z_origin
 	      << "   inner terms:  z0 "<< std::setw(6) << std::setprecision(2)
@@ -441,11 +361,11 @@ SolenoidParametrization::printParametersForEtaLine (double eta, double z_origin)
 	      << m_parameters[key+4]*z_max*z_max/m_centralField
 	      << "   z^3 "	<< std::setw(6) << std::setprecision(3)
 	      << m_parameters[key+5]*z_max*z_max*z_max/m_centralField
-	      << std::resetiosflags(std::ios::fixed) << std::endl;
+	      << std::resetiosflags(std::ios::fixed) << "\n";
 }
         
 void
-SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin) const
+SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin, MsgStream & msg) const
 {
     double 	cotTheta 	= 1./std::tan(2.*std::atan(1./std::exp(std::abs(eta))));
     double 	z		= zOrigin;
@@ -498,7 +418,8 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin) co
 	z 	+= dr*cotTheta;
     } 
 
-    std::cout << std::setiosflags(std::ios::fixed)
+    msg <<__func__<<"\n"
+        << std::setiosflags(std::ios::fixed)
 	      << "SolenoidParametrization:  line with eta "  	<< std::setw(6) << std::setprecision(2) << eta
 	      << "   from (r,z)  0.0, "  	<< std::setw(6) << std::setprecision(1) << zOrigin
 	      << "   rms diff inner/outer "	<< std::setw(6) << std::setprecision(3)
@@ -510,7 +431,7 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin) co
 	      << "   with B true/calc " << std::setw(6) << std::setprecision(3)
 	      << worstBTrue/s_lightSpeed /Gaudi::Units::tesla
 	      << "  " << std::setw(6) << std::setprecision(3) << worstBCalc/s_lightSpeed /Gaudi::Units::tesla
-	      << std::resetiosflags(std::ios::fixed) << std::endl;
+	      << std::resetiosflags(std::ios::fixed) << "\n";
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -29,6 +29,8 @@
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkFitterInterfaces/IDynamicNoiseAdjustor.h"
 #include "TrkDetDescrInterfaces/IAlignableSurfaceProvider.h"
+#include <sstream>
+#include <iomanip>
 
 // InterfaceID
 // const InterfaceID& Trk::KalmanSmoother::interfaceID() { 
@@ -92,33 +94,36 @@ StatusCode Trk::KalmanSmoother::finalize()
 {
     delete m_utility;
     if (msgLvl(MSG::INFO)) {
-        ATH_MSG_INFO (" Fitter statistics for " << name() );
+        
         int iw=9;
-
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << "  track fits by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
-        std::vector<std::string> statusNames(0);
-
-        statusNames.push_back("  Number of smoother iterations   :");
-        statusNames.push_back("  Number of successful iterations :");
-        statusNames.push_back("  fits using straight track model :");
-        statusNames.push_back("  Number of calls with bad input  :");
-        statusNames.push_back("  Number of update failures       :");
-        statusNames.push_back("  Number of fail. getting fit qual:");
-        statusNames.push_back("  Number of missing covariances   :");
-        statusNames.push_back("  Number of extrapolation failures:");
-        statusNames.push_back("  extrapol fail with low momentum :");
-        statusNames.push_back("  failed state combinations       :");
-        statusNames.push_back("  fits w/ weakly constrained forw.:");
-        statusNames.push_back("  forw pars outside surface bounds:");
-        for (unsigned int i=0; i<statusNames.size(); i++) {
-            std::cout << (statusNames[i]) << std::setiosflags(std::ios::dec) << std::setw(iw)
-                    << (m_fitStatistics[i])[iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                    << (m_fitStatistics[i])[iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                    << (m_fitStatistics[i])[iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                    << (m_fitStatistics[i])[iEndcap] << std::endl;
+        std::stringstream ss;
+        ss << "-------------------------------------------------------------------------------" << std::endl;
+        ss << "  track fits by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
+        std::vector<std::string> statusNames{
+         "  Number of smoother iterations   :",
+         "  Number of successful iterations :",
+         "  fits using straight track model :",
+         "  Number of calls with bad input  :",
+         "  Number of update failures       :",
+         "  Number of fail. getting fit qual:",
+         "  Number of missing covariances   :",
+         "  Number of extrapolation failures:",
+         "  extrapol fail with low momentum :",
+         "  failed state combinations       :",
+         "  fits w/ weakly constrained forw.:",
+         "  forw pars outside surface bounds:",
+        };
+        size_t idx{0};
+        for (const auto & thisName: statusNames) {
+            ss << thisName << std::setiosflags(std::ios::dec) << std::setw(iw)
+                    << (m_fitStatistics[idx])[iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
+                    << (m_fitStatistics[idx])[iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
+                    << (m_fitStatistics[idx])[iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
+                    << (m_fitStatistics[idx])[iEndcap] << "\n";
+            idx++;
         }
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
+        ss << "-------------------------------------------------------------------------------\n";
+        ATH_MSG_INFO (" Fitter statistics for " << name() <<"\n"<<ss.str());
     }
     ATH_MSG_INFO ("finalize() successful in " << name());
     return StatusCode::SUCCESS;

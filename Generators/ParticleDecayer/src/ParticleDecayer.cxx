@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // SUMMARY: This code implements a "particle decayer" to allow us to augment the standard 
@@ -113,7 +113,7 @@ StatusCode ParticleDecayer::changeMass( HepMC::GenParticle* genpart, double newM
    double pz = p*cos(theta);
    //Fill the four-momentum
    const CLHEP::HepLorentzVector updatedLV(px,py,pz,e);
-   genpart->set_momentum(updatedLV);
+   genpart->set_momentum(HepMC::FourVector(updatedLV.x(),updatedLV.y(),updatedLV.z(),updatedLV.e()));
    genpart->set_generated_mass(newMass);
    return StatusCode::SUCCESS;
 }
@@ -217,7 +217,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    //Create a HepMC vertex at the decay position of the particle 
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- set the decay vertex");
    HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
-   end_vtx->set_position(posLV);
+   end_vtx->set_position(HepMC::FourVector(posLV.x(),posLV.y(),posLV.z(),posLV.t()));
    end_vtx->add_particle_in(genpart);
    event->add_vertex(end_vtx);
    return StatusCode::SUCCESS;
@@ -401,10 +401,10 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
            addParticle( genpart->end_vertex(), m_particlePDGID, HepMC::FourVector(v1.x(),v1.y(),v1.z(),0.0), 2);
            
            //lifetime handling of the dark photons
-           HepMC::GenVertex::particles_out_const_iterator pIt    = genpart->end_vertex()->particles_out_const_begin();
-           HepMC::GenVertex::particles_out_const_iterator pItEnd = genpart->end_vertex()->particles_out_const_end();
            std::vector<HepMC::GenVertex*> dp_end_vertices;
            int polarizationSwitch = 1;
+           HepMC::GenVertex::particles_out_const_iterator pIt    = genpart->end_vertex()->particles_out_const_begin();
+           HepMC::GenVertex::particles_out_const_iterator pItEnd = genpart->end_vertex()->particles_out_const_end();
            for ( ; pIt != pItEnd; ++pIt )
               {
                  //Add decay position to the event
@@ -521,7 +521,7 @@ StatusCode ParticleDecayer::DFTwoBodyDecay( HepMC::GenParticle* genpart, int Pol
    
    //Add the daughters to the pool file
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- Add the daughters to the pool file");
-   HepMC::GenVertex* end_vtx = genpart->end_vertex();
+   auto end_vtx = genpart->end_vertex();
    auto v0=daughterLVs.at(0).vect();
    addParticle(end_vtx,  ModeOfDecay, HepMC::FourVector(v0.x(),v0.y(),v0.z(),0.0),    1);
    auto v1=daughterLVs.at(1).vect();

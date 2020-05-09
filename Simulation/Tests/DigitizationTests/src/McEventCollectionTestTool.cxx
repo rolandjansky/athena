@@ -6,7 +6,6 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 //#include <boost/io/ios_state.hpp>
 #include "GeneratorObjects/McEventCollection.h"
-//#include "HepMC/GenParticle.h"
 #include <TH2D.h>
 #include <TProfile.h>
 #include "AthenaKernel/errorcheck.h"

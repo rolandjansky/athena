@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Run a RAWMerge job and test key metadata in the output
 #
@@ -29,7 +29,7 @@ class RAWMergetest(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         while p.poll() is None:
             line = p.stdout.readline()
-            sys.stdout.write(line)
+            sys.stdout.write(line.decode())
         # Hoover up remaining buffered output lines
         for line in p.stdout:
             sys.stdout.write(line)
@@ -43,4 +43,7 @@ class RAWMergetest(unittest.TestCase):
             self.assertEqual(md['files']['output'][0]['subFiles'][0]['name'], 'merged.DRAW_ZEE._0001.data')            
 
 if __name__ == '__main__':
+    if not os.path.isdir('test_RAWMerge'):
+        os.mkdir ('test_RAWMerge')
+    os.chdir ('test_RAWMerge')
     unittest.main()

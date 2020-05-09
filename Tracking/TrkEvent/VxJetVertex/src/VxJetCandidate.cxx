@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -34,24 +34,24 @@ namespace Trk {
 
 VxJetCandidate::VxJetCandidate() : 
   VxCandidate(),
-  m_primaryVertex(0),
-  m_debugInfo(0),
-  m_clusteringTable(0) { }
+  m_primaryVertex(nullptr),
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) { }
 
 VxJetCandidate::VxJetCandidate(const Trk::RecVertex& recVertex,
                                const std::vector<Trk::VxTrackAtVertex*>& vxTrackAtVertex):
   VxCandidate(recVertex,vxTrackAtVertex),
-  m_primaryVertex(0),
-  m_debugInfo(0),
-  m_clusteringTable(0) { }
+  m_primaryVertex(nullptr),
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) { }
 
 
 VxJetCandidate::VxJetCandidate(const std::vector<std::pair<const Trk::TrackParticleBase*,
                                const Trk::TrackParticleBaseCollection*> > & vectorOfTrackParticles):
   VxCandidate(),
-  m_primaryVertex(0),
-  m_debugInfo(0),
-  m_clusteringTable(0) {
+  m_primaryVertex(nullptr),
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) {
 
     std::vector<std::pair<const Trk::TrackParticleBase*,const Trk::TrackParticleBaseCollection*> >::const_iterator 
       vTPBegin=vectorOfTrackParticles.begin();
@@ -83,9 +83,9 @@ VxJetCandidate::VxJetCandidate(const std::vector<std::pair<const Trk::TrackParti
 
 VxJetCandidate::VxJetCandidate(const std::vector<const Trk::TrackParticleBase*> & vectorOfTrackParticles):
   VxCandidate(),
-  m_primaryVertex(0),
-  m_debugInfo(0),
-  m_clusteringTable(0) {
+  m_primaryVertex(nullptr),
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) {
 
     std::vector<const Trk::TrackParticleBase*>::const_iterator vTPBegin=vectorOfTrackParticles.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator vTPEnd=vectorOfTrackParticles.end();
@@ -115,8 +115,8 @@ VxJetCandidate::VxJetCandidate(const std::vector<const Trk::TrackParticleBase*> 
 VxJetCandidate::VxJetCandidate(const std::vector<std::pair<const Track*,const TrackCollection*> > & vectorOfTracks):
   VxCandidate(),
   m_primaryVertex(nullptr),
-  m_debugInfo(0),
-  m_clusteringTable(0) {
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) {
 
     std::vector<std::pair<const Trk::Track*,const TrackCollection*> >::const_iterator 
       vTBegin=vectorOfTracks.begin();
@@ -153,9 +153,9 @@ VxJetCandidate::VxJetCandidate(const std::vector<std::pair<const Track*,const Tr
 
 VxJetCandidate::VxJetCandidate(const std::vector<const Track*> & vectorOfTracks):
   VxCandidate(),
-  m_primaryVertex(0),
-  m_debugInfo(0),
-  m_clusteringTable(0) {
+  m_primaryVertex(nullptr),
+  m_debugInfo(nullptr),
+  m_clusteringTable(nullptr) {
 
     std::vector<const Trk::Track*>::const_iterator vTBegin=vectorOfTracks.begin();
     std::vector<const Trk::Track*>::const_iterator vTEnd=vectorOfTracks.end();
@@ -226,7 +226,7 @@ void VxJetCandidate::setTrackParticlesOrigin(const Trk::TrackParticleBaseCollect
 
 
 VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
-  VxCandidate()
+  VxCandidate(rhs)
 {
 
   m_recVertex = rhs.m_recVertex;
@@ -250,9 +250,9 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
     this->m_vxTrackAtVertex.push_back(newVxTrackPointer);
   }
 
-  m_primaryVertex=(rhs.m_primaryVertex!=0) ? new VxVertexOnJetAxis(*rhs.m_primaryVertex) : 0;
+  m_primaryVertex=(rhs.m_primaryVertex!=nullptr) ? new VxVertexOnJetAxis(*rhs.m_primaryVertex) : nullptr;
 
-  if (rhs.m_primaryVertex!=0) {
+  if (rhs.m_primaryVertex!=nullptr) {
     const std::vector<VxTrackAtVertex*> & primaryVectorTracks=rhs.m_primaryVertex->getTracksAtVertex();
 
     const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksBegin=primaryVectorTracks.begin();
@@ -263,7 +263,7 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
     for (std::vector<VxTrackAtVertex*>::const_iterator  primaryVectorIter=primaryVectorTracksBegin;
          primaryVectorIter!=primaryVectorTracksEnd;++primaryVectorIter) {
       VxTrackAtVertex* newTrackPointer=oldToNewPointer[*primaryVectorIter];
-      if (newTrackPointer!=0) {
+      if (newTrackPointer!=nullptr) {
         primaryVectorNew.push_back(newTrackPointer);
       } else {
         std::cout << "************************************ ---------------------------- ********************************" << std::endl;
@@ -301,7 +301,7 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
       for (std::vector<VxTrackAtVertex*>::const_iterator  TrackVectorIter=TracksBegin;
            TrackVectorIter!=TracksEnd;++TrackVectorIter) {
         VxTrackAtVertex* newTrackPointer=oldToNewPointer[*TrackVectorIter];
-        if (newTrackPointer!=0) {
+        if (newTrackPointer!=nullptr) {
           vertexVectorNew.push_back(newTrackPointer);
         } else {
           std::cout << "************************************ ---------------------------- **********************(((((***********" << std::endl;
@@ -319,15 +319,15 @@ VxJetCandidate::VxJetCandidate(const VxJetCandidate& rhs):
     }
   }
 
-  if (rhs.m_debugInfo!=0) {
+  if (rhs.m_debugInfo!=nullptr) {
     m_debugInfo=new VxJetFitterDebugInfo(*rhs.m_debugInfo);
   } else {
-    m_debugInfo=0;
+    m_debugInfo=nullptr;
   }
 
   //    if (rhs.m_clusteringTable!=0) {
   //      std::cout << "Warning: during copy of VxJetCandidate the clusteringTable is not copied over" << std::endl;
-  m_clusteringTable=0;//new VxClusteringTable(*rhs.m_clusteringTable);
+  m_clusteringTable=nullptr;//new VxClusteringTable(*rhs.m_clusteringTable);
   //    } else {
   //      m_clusteringTable=0;
   //    }
@@ -386,9 +386,9 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
       this->m_vxTrackAtVertex.push_back(newVxTrackPointer);
     }
 
-    m_primaryVertex=(rhs.m_primaryVertex!=0) ? new VxVertexOnJetAxis(*rhs.m_primaryVertex) : 0;
+    m_primaryVertex=(rhs.m_primaryVertex!=nullptr) ? new VxVertexOnJetAxis(*rhs.m_primaryVertex) : nullptr;
 
-    if (rhs.m_primaryVertex!=0) {
+    if (rhs.m_primaryVertex!=nullptr) {
       const std::vector<VxTrackAtVertex*> & primaryVectorTracks=rhs.m_primaryVertex->getTracksAtVertex();
 
       const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksBegin=primaryVectorTracks.begin();
@@ -399,7 +399,7 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
       for (std::vector<VxTrackAtVertex*>::const_iterator  primaryVectorIter=primaryVectorTracksBegin;
            primaryVectorIter!=primaryVectorTracksEnd;++primaryVectorIter) {
         VxTrackAtVertex* newTrackPointer=oldToNewPointer[*primaryVectorIter];
-        if (newTrackPointer!=0) {
+        if (newTrackPointer!=nullptr) {
           primaryVectorNew.push_back(newTrackPointer);
         } else {
           std::cout << "************************************ ---------------------------- ********************************" << std::endl;
@@ -437,7 +437,7 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
         for (std::vector<VxTrackAtVertex*>::const_iterator  TrackVectorIter=TracksBegin;
              TrackVectorIter!=TracksEnd;++TrackVectorIter) {
           VxTrackAtVertex* newTrackPointer=oldToNewPointer[*TrackVectorIter];
-          if (newTrackPointer!=0) {
+          if (newTrackPointer!=nullptr) {
             vertexVectorNew.push_back(newTrackPointer);
           } else {
             std::cout << "************************************ ---------------------------- **********************(((((***********" << std::endl;
@@ -455,15 +455,15 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
       }
     }
 
-    if (rhs.m_debugInfo!=0) {
+    if (rhs.m_debugInfo!=nullptr) {
       m_debugInfo=new VxJetFitterDebugInfo(*rhs.m_debugInfo);
     } else {
-      m_debugInfo=0;
+      m_debugInfo=nullptr;
     }
 
     //    if (rhs.m_clusteringTable!=0) {
     //      std::cout << "Warning: during copy of VxJetCandidate the clusteringTable is not copied over" << std::endl;
-    m_clusteringTable=0;//new VxClusteringTable(*rhs.m_clusteringTable);
+    m_clusteringTable=nullptr;//new VxClusteringTable(*rhs.m_clusteringTable);
     //    } else {
     //      m_clusteringTable=0;
     //    }
@@ -474,9 +474,9 @@ VxJetCandidate& VxJetCandidate::operator= (const VxJetCandidate& rhs)
 VxJetCandidate::~VxJetCandidate()
 {
 
-  if (m_primaryVertex!=0) {
+  if (m_primaryVertex!=nullptr) {
     delete m_primaryVertex;
-    m_primaryVertex=0;
+    m_primaryVertex=nullptr;
   }
 
 
@@ -496,14 +496,14 @@ VxJetCandidate::~VxJetCandidate()
     }
   }
 
-  if (m_debugInfo!=0) {
+  if (m_debugInfo!=nullptr) {
     delete m_debugInfo;
-    m_debugInfo=0;
+    m_debugInfo=nullptr;
   }
 
-  if (m_clusteringTable!=0) {
+  if (m_clusteringTable!=nullptr) {
     delete m_clusteringTable;
-    m_clusteringTable=0;
+    m_clusteringTable=nullptr;
   }
 
 }
@@ -548,7 +548,8 @@ VxVertexOnJetAxis* VxJetCandidate::getPrimaryVertex(void) {//non-const overload
 }
 
 void VxJetCandidate::setPrimaryVertex(const VxVertexOnJetAxis* newPrimary) {
-  if (m_primaryVertex!=0) delete m_primaryVertex;
+  if (m_primaryVertex!=nullptr) { delete m_primaryVertex;
+}
   m_primaryVertex=new VxVertexOnJetAxis(*newPrimary);
 }
 

@@ -31,6 +31,11 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <list>
 #include <vector>
@@ -92,7 +97,8 @@ namespace InDet{
       /** Main method of seed production                               */
       ///////////////////////////////////////////////////////////////////
 
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const Trk::TrackParameters&,
+      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const EventContext& ctx,
+                                                                                    const Trk::TrackParameters&,
                                                                                     ITRT_SeededSpacePointFinder::IEventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
@@ -196,6 +202,11 @@ namespace InDet{
       SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
          {this,"PRDtoTrackMap",""};
 
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Read handle for conditions object to get the field cache
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                            "Name of the Magnetic Field conditions object key"};
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */
       ///////////////////////////////////////////////////////////////////
@@ -212,7 +223,7 @@ namespace InDet{
       /** Form possible space point combinations within allowed radial and pseudorapidity ranges */
 
       // // // // // // // // // // // // // // // // //
-      void production2Spb (const Trk::TrackParameters&,
+      void production2Spb (const EventContext& ctx, const Trk::TrackParameters&,
                            int,
                            std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
                            InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const;

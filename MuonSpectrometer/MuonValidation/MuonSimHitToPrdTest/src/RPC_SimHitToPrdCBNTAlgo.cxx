@@ -469,9 +469,9 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 // the following lines give troubles  - protect them 
 	if ((**p).production_vertex())
 	  {
-	    xv = (**p).production_vertex()->point3d().x();
-	    yv = (**p).production_vertex()->point3d().y();
-	    zv = (**p).production_vertex()->point3d().z();
+	    xv = (**p).production_vertex()->position().x();
+	    yv = (**p).production_vertex()->position().y();
+	    zv = (**p).production_vertex()->position().z();
 	    tv = (**p).production_vertex()->position().t();
 	  }
  	float xd = (**p).momentum().px();

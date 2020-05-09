@@ -1,34 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 11.04.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATIONS OF THE METHODS DEFINED IN THE CLASS ::
-//::                 RtResolutionFromPoints              ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibData/RtResolutionFromPoints.h"
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/ChebyshevPolynomial.h"
 #include "MuonCalibMath/PolygonBase.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -68,10 +49,10 @@ RtResolutionChebyshev RtResolutionFromPoints::getRtResolutionChebyshev(
 ///////////////
   MsgStream log(Athena::getMessageSvc(), "RtResolutionChebyshev");
 
-  vector<double> res_param(order+3);  // input parameters of RtChebyshev
+  std::vector<double> res_param(order+3);  // input parameters of RtChebyshev
   BaseFunctionFitter fitter(order+1); // Chebyshev fitter
   ChebyshevPolynomial chebyshev;      // Chebyshev polynomial
-  vector<SamplePoint> my_points(sample_points); // copy of the sample to add reduced times
+  std::vector<SamplePoint> my_points(sample_points); // copy of the sample to add reduced times
 
 ///////////////////////////////////////////////////////////////////
 // GET THE MINIMUM AND MAXIMUM TIMES AND CALCULATE REDUCED TIMES //
@@ -108,7 +89,7 @@ RtResolutionChebyshev RtResolutionFromPoints::getRtResolutionChebyshev(
 //:: METHOD getRtResolutionLookUp ::
 //::::::::::::::::::::::::::::::::::
 RtResolutionLookUp RtResolutionFromPoints::getRtResolutionLookUp(
-				const vector<SamplePoint> &sample_points) {
+				const std::vector<SamplePoint> &sample_points) {
 
 ///////////////
 // VARIABLES //
@@ -116,7 +97,7 @@ RtResolutionLookUp RtResolutionFromPoints::getRtResolutionLookUp(
   RtResolutionChebyshev res(getRtResolutionChebyshev(sample_points, 8));  // auxiliary resolution-t
   unsigned int nb_points(100); // number of (r, t) points
   double bin_width((res.tUpper()-res.tLower())/static_cast<double>(nb_points)); // step size
-  vector<double> res_param(nb_points+2); // r-t parameters
+  std::vector<double> res_param(nb_points+2); // r-t parameters
 
 ///////////////////////////////////////////////////////////////////
 // CREATE AN RtRelationLookUp OBJECT WITH THE CORRECT PARAMETERS //

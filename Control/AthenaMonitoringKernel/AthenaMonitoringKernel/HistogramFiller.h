@@ -15,6 +15,13 @@
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
 namespace Monitored {
+
+  // Forward declare generic histogram filler (see HistogramFillerUtils.h)
+  namespace detail {
+    template<typename H, typename W, typename C, typename ...Vs>
+    unsigned fill(H* hist, W weight, C cut, const Vs&... v);
+  }
+
   /**
    * @brief Base class for all histogram fillers
    */
@@ -49,10 +56,12 @@ namespace Monitored {
      * @brief Virtual destructor
      */
     virtual ~HistogramFiller() {}
+
     /**
      * @brief Method that actually fills the ROOT object
+     * @return number of fills performed
      */
-    virtual unsigned fill() = 0;
+    virtual unsigned fill() const = 0;
 
 
     /**
@@ -92,12 +101,12 @@ namespace Monitored {
     
   protected:
     template <class H>
-    H* histogram() {
+    H* histogram() const {
       return static_cast<H*>(m_histogramProvider->histogram());
     }
 
     // convenience function to provide a function that interprets the cutmask
-    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() {
+    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() const {
       std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
       if ( m_monCutMask != nullptr ) {
@@ -114,6 +123,31 @@ namespace Monitored {
         }
       }
       return std::make_pair(maskSize, cutMaskValue);
+    }
+
+    /**
+     * Fill histogram from IMonitoredVariable.
+     *
+     * Supports arbitrary dimensions and double/string representation.
+     *
+     * @tparam H        histogram type (TH1, TH2, ...)
+     * @param  weight   weight accessor (use detail::noWeight if not needed)
+     * @param  cut      cut mask accessor (use detail::noCut if not needed)
+     * @param  m1,m...  IMonitoredVariable list to fill from
+     */
+    template<class H, typename W, typename C, typename M, typename ...Ms>
+    unsigned fill(W weight, C cut, const M& m1, const Ms&... m) const {
+      // Template magic: Recursively convert all M to std::vector
+      if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
+        if (not m1.hasStringRepresentation())
+          return fill<H>(weight, cut, m..., m1.getVectorRepresentation());
+        else
+          return fill<H>(weight, cut, m..., m1.getStringVectorRepresentation());
+      } else {
+        // All IMonitoreVariables have been converted to vector<double/string>
+        std::scoped_lock lock(*m_mutex);
+        return detail::fill(this->histogram<H>(), weight, cut, m1, m...);
+      }
     }
 
     std::shared_ptr<std::mutex> m_mutex;

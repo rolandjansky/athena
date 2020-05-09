@@ -163,17 +163,15 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
  public:
 
   RpcLv1RawDataEfficiency ( const std::string & type, const std::string & name, const IInterface* parent );
-  virtual ~RpcLv1RawDataEfficiency();
+  virtual ~RpcLv1RawDataEfficiency()=default;
 
   StatusCode initialize(); 
-  StatusCode finalize();   
 
   StatusCode readRpcCoinDataContainer();
 
   // virtual StatusCode GetHistograms();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms( );
-  virtual StatusCode procHistograms();  
 
  private:
   // Retrieving information and data

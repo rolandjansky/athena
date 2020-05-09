@@ -426,23 +426,7 @@ if InDetFlags.doStandardPlots():
     
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceBtag ]
 
-    # selected Good IPatRec tracks
-    if InDetFlags.doiPatRec():
-      InDetStandardPerformanceGoodIPatRec = InDetStandardPerformance (name               = "InDetStandardPerformanceGoodIPatRec",
-                                                                      tracksName         = "ConvertedIPatTracks",
-                                                                      tracksTruthName    = "ConvertedIPatTracksTruth",
-                                                                      SummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                                      HoleSearch         = InDetHoleSearchTool,
-                                                                      useTrackSelection  = True,
-                                                                      TrackSelectorTool  = InDetTrackSelectorToolGood,
-                                                                      HistDirectoryName  = "SelectedGoodIPatTracks",
-                                                                      TruthToTrackTool   = TruthToTrackTool,
-                                                                      DoTruth            = InDetFlags.doTruth())
     
-      if (InDetFlags.doPrintConfigurables()):
-        print(  InDetStandardPerformanceGoodIPatRec )
-    
-      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGoodIPatRec ]
 
 
 

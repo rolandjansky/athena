@@ -17,13 +17,13 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/AFP/AFP_RecoEv/AFP_LocRecoEv
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
 			  Event/xAOD/xAODForward
 			  PRIVATE
 			  Control/AthLinks)
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
@@ -34,8 +34,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( AFP_LocReco
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo AFP_DigiEv AFP_Geometry AFP_LocRecoEv GaudiKernel GeneratorObjects xAODForward AthLinks)
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo AFP_DigiEv AFP_Geometry AFP_LocRecoEv GaudiKernel GeneratorObjects xAODForward AthLinks)
 
 # Install files from the package:
 atlas_install_headers( AFP_LocReco )

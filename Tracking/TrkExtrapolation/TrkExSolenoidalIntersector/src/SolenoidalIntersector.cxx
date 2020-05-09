@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,30 +57,12 @@ SolenoidalIntersector::initialize()
 {
     // print name and package version
     ATH_MSG_INFO( "SolenoidalIntersector::initialize() - package version " << PACKAGE_VERSION );
-
     if (! m_magFieldSvc.empty())
     {
-	if (m_magFieldSvc.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvc );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
-	}
+	    ATH_CHECK(m_magFieldSvc.retrieve());
     }
 
-    if (m_rungeKuttaIntersector.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_rungeKuttaIntersector );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_rungeKuttaIntersector );
-    }
-
+    ATH_CHECK(m_rungeKuttaIntersector.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -324,12 +306,10 @@ SolenoidalIntersector::isValid (Amg::Vector3D startPosition, Amg::Vector3D endPo
 	&& endPosition.perp()		< solenoidParametrization->maximumR()
 	&& getSolenoidParametrization()->validOrigin(startPosition))
     {
-	// ATH_MSG_INFO("  choose solenoidal");
 	
 	return true;
     }
     
-    // ATH_MSG_INFO("  choose rungeKutta");
 	
     return false;
 }
@@ -342,21 +322,18 @@ SolenoidalIntersector::validationAction() const
       getSolenoidParametrization();
 
     // validate parametrization
-    if (solenoidParametrization)
-    {
-	for (int ieta = 0; ieta != 27; ++ieta)
-	{
-	    double eta	= 0.05 + 0.1*static_cast<double>(ieta);
-	    solenoidParametrization->printParametersForEtaLine(+eta,0.);
-	    solenoidParametrization->printParametersForEtaLine(-eta,0.);
-	}
-	for (int ieta = 0; ieta != 27; ++ieta)
-	{
-	    double eta	= 0.05 + 0.1*static_cast<double>(ieta);
-	    solenoidParametrization->printResidualForEtaLine(+eta,0.);
-	    solenoidParametrization->printResidualForEtaLine(-eta,0.);
-	}
-	solenoidParametrization->printFieldIntegrals();
+    if (solenoidParametrization){
+      for (int ieta = 0; ieta != 27; ++ieta){
+          double eta	= 0.05 + 0.1*static_cast<double>(ieta);
+          solenoidParametrization->printParametersForEtaLine(+eta,0., msg());
+          solenoidParametrization->printParametersForEtaLine(-eta,0., msg());
+      }
+      for (int ieta = 0; ieta != 27; ++ieta){
+          double eta	= 0.05 + 0.1*static_cast<double>(ieta);
+          solenoidParametrization->printResidualForEtaLine(+eta,0., msg());
+          solenoidParametrization->printResidualForEtaLine(-eta,0., msg());
+      }
+      solenoidParametrization->printFieldIntegrals(msg());
     }
 }
 
@@ -371,9 +348,6 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
 {
     Amg::Vector3D& pos = isect.position();
     Amg::Vector3D& dir = isect.direction();
-
-    // ATH_MSG_INFO(" extrapolateToR  endR " << endR << " from " << pos.z()
-    // 		 << "   r " << sqrt(radius2) << "  cotTheta " << com.m_cotTheta);
     
     double	fieldComponent	= com.m_solPar.fieldComponent(pos.z(), com.m_solParams);
     double	curvature	= fieldComponent*com.m_qOverPt;
@@ -416,8 +390,7 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
 	if (std::abs(arcLength) > m_surfaceTolerance)
 	{
 	    double sinDPhi	= 0.5*arcLength*curvature;
-	    double cosDPhi	= 1. - 0.5*sinDPhi*sinDPhi *
-				  (1.0+0.25*sinDPhi*sinDPhi);
+	    double cosDPhi	= 1. - 0.5*sinDPhi*sinDPhi * (1.0+0.25*sinDPhi*sinDPhi);
 	    double temp		= cosPhi;
 	    cosPhi 		= temp*cosDPhi - sinPhi*sinDPhi;
 	    sinPhi 		= temp*sinDPhi + sinPhi*cosDPhi;
@@ -435,7 +408,7 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
     {
         extrapolateToZ(isect, com, pos.z() + deltaZ);
         radius2 = pos.perp2();
-	if (std::abs(endR - sqrt(radius2)) > m_surfaceTolerance)
+	if (std::abs(endR - std::sqrt(radius2)) > m_surfaceTolerance)
 	{
             deltaZ	= linearArcLength(isect, com, radius2, endR) * com.m_cotTheta;
 	    extrapolateToZ(isect, com, pos.z() + deltaZ);
@@ -461,8 +434,6 @@ SolenoidalIntersector::extrapolateToZ(TrackSurfaceIntersection& isect,
                                 pos.z(),
                                 endZ,
                                 com.m_solParams);
-    // ATH_MSG_INFO(" extrapolateToZ  firstIntegral, secondIntegral " << 1.E6*firstIntegral
-    // 		 << ", " << 1.E6*secondIntegral);
     double 	DFiMax 		= 0.1;
     double	cosPhi		= dir.x()*com.m_oneOverSinTheta;
     double	sinPhi		= dir.y()*com.m_oneOverSinTheta;
