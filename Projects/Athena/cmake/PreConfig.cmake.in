@@ -3,10 +3,10 @@
 # Pre-config script to propagate variables to downstream projects
 #
 
-set( ATLAS_FLAKE8 "@ATLAS_FLAKE8@"
+# Set up the project's flake8 usage.
+set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
    CACHE STRING "Default flake8 command" )
-
-set( ATLAS_PYTHON_CHECKER "@ATLAS_PYTHON_CHECKER@"
+set( ATLAS_PYTHON_CHECKER @ATLAS_PYTHON_CHECKER@
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Figure out whether to use QUIET in the following calls.
