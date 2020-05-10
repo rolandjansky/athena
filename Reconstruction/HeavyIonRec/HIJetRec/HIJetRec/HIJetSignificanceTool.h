@@ -17,7 +17,6 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "JetInterface/IJetDecorator.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/WriteDecorHandleKey.h"
 
 #include "AsgTools/ToolHandle.h"
 
