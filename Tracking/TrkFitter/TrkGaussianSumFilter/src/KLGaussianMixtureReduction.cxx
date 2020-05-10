@@ -16,24 +16,20 @@
 #endif
 #endif
 
+//This enables -ftree-vectorize in gcc (we compile with O2)
 ATH_ENABLE_VECTORIZATION;
 namespace{
-/* 
+/**
  * Component Merging helper methods 
  */
-
 using namespace GSFUtils;
 
 /**
  * Based on
- * https://arxiv.org/pdf/2001.00727.pdf
- * equation (10) 
+ * https://www.sciencedirect.com/science/article/pii/089812218990103X 
+ * equation (16) 
  * but not accounting for weights
- * i.e 
- * (covI- covJ) (invCovJ - invCovI ) + (mean1-mean2) (invcov+invcov) (mean1-mean2)
- * or directly from 10
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)  
- *
  */  
 [[maybe_unused]]
 float
@@ -49,6 +45,7 @@ symmetricKL(const Component1D& componentI,
 /**
  * https://arxiv.org/pdf/2001.00727.pdf
  * equation (10) 
+ * Same as above but accounting for weights
  */ 
 [[maybe_unused]]
 float
@@ -94,15 +91,12 @@ combine(GSFUtils::Component1D& updated,
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
 
-  //qoveP and qoverp cov is normally a small number
-  //invCov is a large one and weight <1  
+  //large numbers to enter the multiplications/sums
+  //make distance large 
   removed.mean = 1e10;
   removed.cov = 1e10;
   removed.invCov = 1e10;
   removed.weight = 1;
-
-  //this should be (eps-0) * (1e10 - eps)
-
 }
 
 /**
@@ -122,13 +116,14 @@ recalculateDistances(const componentPtrRestrict componentsIn,
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
-  // Element at the same raw of mini/j
+  //Rows
   const Component1D componentJ = components[j];
   for (int32_t i = 0; i < j; ++i) {
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
     distances[index] = symmetricKL(componentI, componentJ);
   }
+  //Columns
   for (int32_t i = j + 1; i < n; ++i) {
     const int32_t index = (i - 1) * i / 2 + j;
     const Component1D componentI = components[i];
@@ -148,7 +143,6 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
   const Component1D* components =
   static_cast<const Component1D*>(__builtin_assume_aligned(componentsIn, alignment));
   float* distances = static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
-
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i-1) * i / 2;
     const Component1D componentI = components[i];
@@ -170,9 +164,11 @@ resetDistances(floatPtrRestrict distancesIn,
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
   const int32_t j = minj;
   const int32_t indexConst = (j - 1) * j / 2;
+  //Rows
   for (int32_t i = 0; i < j; ++i) {
     distances[indexConst + i] = std::numeric_limits<float>::max();
   }
+  //Columns
   for (int32_t i = j+1; i < n; ++i) {
     const int32_t index = (i-1)*i/2 + j;
     distances[index] = std::numeric_limits<float>::max();
@@ -241,23 +237,15 @@ findMerges(componentPtrRestrict componentsIn,
   } // end of merge while
   return merges;
 }
-
-
-
 /*
  * findMinimumIndex
  *
  * For FindMinimumIndex at x86_64 we have
- * AVX2 and SSE versions
+ * AVX2,SSE4.1,SSE2  versions
  * These assume that the number of elements is a multiple
  * of 8 and are to be used for sizeable inputs.
  *
  * We also provide a default "scalar" implementation
- *
- * One of the issues we have see in that gcc8.3 and clang8 (02/2020)
- * optimise differently:
- * https://its.cern.ch/jira/projects/ATLASRECTS/issues/ATLASRECTS-5244
- *
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
@@ -313,9 +301,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     minindices = _mm256_blendv_epi8(minindices, indicesIn, lt);
     minvalues = _mm256_min_ps(values, minvalues);
   }
-  /*
-   * Do the final calculation scalar way
-   */
+  //Do the final calculation scalar way
   alignas(alignment) float distances[8];
   alignas(alignment) int32_t indices[8];
   _mm256_store_ps(distances, minvalues);
@@ -363,8 +349,7 @@ std::pair<int32_t,float>
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  /* Assuming SSE do 2 vectors of 4 elements in a time
-   * one might want to revisit for AVX2 */
+  //Do 2 vectors of 4 elements , so 8 at time
   const __m128i increment = _mm_set1_epi32(8);
   __m128i indices1 = _mm_setr_epi32(0, 1, 2, 3);
   __m128i indices2 = _mm_setr_epi32(4, 5, 6, 7);
@@ -388,9 +373,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     minindices2 = _mm_blendv_epi8(minindices2, indices2, lt2);
     minvalues2 = _mm_min_ps(values2, minvalues2);
   }
-  /*
-   * Do the final calculation scalar way
-   */
+  //Do the final calculation scalar way
   alignas(alignment) float distances[8];
   alignas(alignment) int32_t indices[8];
   _mm_store_ps(distances, minvalues1);
@@ -426,8 +409,7 @@ std::pair<int32_t,float>
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  /* Assuming SSE do 2 vectors of 4 elements in a time
-   * one might want to revisit for AVX2 */
+  //Do 2 vectors of 4 elements, so 8 at a time
   const __m128i increment = _mm_set1_epi32(8);
   __m128i indices1 = _mm_setr_epi32(0, 1, 2, 3);
   __m128i indices2 = _mm_setr_epi32(4, 5, 6, 7);
@@ -451,9 +433,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     minindices2 = SSE2_mm_blendv_epi8(minindices2, indices2, lt2);
     minvalues2 = _mm_min_ps(values2, minvalues2);
   }
-  /*
-   * Do the final calculation scalar way
-   */
+  //Do the final calculation scalar way
   alignas(alignment) float distances[8];
   alignas(alignment) int32_t indices[8];
   _mm_store_ps(distances, minvalues1);
