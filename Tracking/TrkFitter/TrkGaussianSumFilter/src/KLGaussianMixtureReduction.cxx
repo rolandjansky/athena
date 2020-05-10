@@ -6,7 +6,6 @@
 #include "CxxUtils/features.h"
 #include "CxxUtils/vectorize.h"
 #include <limits>
-
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -30,6 +29,11 @@ using namespace GSFUtils;
  * https://arxiv.org/pdf/2001.00727.pdf
  * equation (10) 
  * but not accounting for weights
+ * i.e 
+ * (covI- covJ) (invCovJ - invCovI ) + (mean1-mean2) (invcov+invcov) (mean1-mean2)
+ * or directly from 10
+ * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)  
+ *
  */  
 [[maybe_unused]]
 float
@@ -37,10 +41,9 @@ symmetricKL(const Component1D& componentI,
             const Component1D& componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
-  const double covDifference = componentI.cov - componentJ.cov;
-  const double invertCovDiff = componentI.invCov - componentJ.invCov;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
-  return covDifference * invertCovDiff +
+  return componentI.invCov * componentJ.cov +
+         componentJ.invCov * componentI.cov +
          meanDifference * inverCovSum * meanDifference;
 }
 /**
@@ -53,11 +56,10 @@ weightedSymmetricKL(const Component1D& componentI,
                     const Component1D& componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
-  const double covDifference = componentI.cov - componentJ.cov;
-  const double invertCovDiff = componentI.invCov - componentJ.invCov;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
   const double weightMul = componentI.weight * componentJ.weight;
-  const double symmetricDis = covDifference * invertCovDiff +
+  const double symmetricDis = componentI.invCov * componentJ.cov +
+                              componentJ.invCov * componentI.cov +
                               meanDifference * inverCovSum * meanDifference;
   return weightMul * symmetricDis;
 }
@@ -92,11 +94,15 @@ combine(GSFUtils::Component1D& updated,
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
 
-  //Large numbers so distance wrt to is is large
+  //qoveP and qoverp cov is normally a small number
+  //invCov is a large one and weight <1  
   removed.mean = 1e10;
   removed.cov = 1e10;
   removed.invCov = 1e10;
-  removed.weight = 1.;
+  removed.weight = 1;
+
+  //this should be (eps-0) * (1e10 - eps)
+
 }
 
 /**
