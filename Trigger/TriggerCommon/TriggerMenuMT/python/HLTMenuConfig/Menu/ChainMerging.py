@@ -12,8 +12,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
 
     strategy = chainDict["mergingStrategy"]
     offset = chainDict["mergingOffset"]
-    log.info(chainDict['chainName'])
-    log.info("Combine by using %s merging", strategy)
+    log.info("%s: Combine by using %s merging", chainDict['chainName'], strategy)
 
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
@@ -86,26 +85,19 @@ def serial_zip(allSteps, chainName):
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
-            log.info('Put step: ' + str(step))
+            log.info('Put step: ' + str(step.name))
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
-                    seqName = chainName + 'EmptySeq' + str(chain_index) + '_' + str(step_index+1)
+                    seqName = str(step.name)  +  '_leg' + str(chain_index) + '_EmptySeqStep' + str(step_index+1)
                     emptySeq = EmptyMenuSequence(seqName)
-                    stepList[step_index2] = ChainStep('Step' + str(step_index+1) + "_" + seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)
-
-            # first create a list of chain steps where each step is an empty sequence
-            #seqName = chainName + 'EmptySeq' + str(chain_index) + '_'
-            #emptySeqList = [EmptyMenuSequence(seqName + str(_x)) for _x in range(n_chains)]
-            #stepList = [ChainStep('Step_' + seqName, Sequences=[seq], chainDicts=step.chainDicts) for seq in emptySeqList]
-            # now overwrite one of these steps from the step in the current sub-chain
-            #stepList[chain_index] = step
+                    stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)            
             
             newsteps.append(stepList)
     log.debug('After serial_zip')
     for s in newsteps:
-        log.debug( s )
+        log.debug( ', '.join(map(str, [step.name for step in s]) ) )
     return newsteps
 
 def mergeSerial(chainDefList):
