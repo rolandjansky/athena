@@ -152,7 +152,6 @@ function runathena {
 
      mkdir -p athena-$1
      cd  athena-$1
-     cp ../*.py .
 
      pwd
      echo "ARGS: $ARGS"
