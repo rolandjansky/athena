@@ -8,5 +8,5 @@ from LumiBlockComps.LumiBlockCompsConf import LumiBlockMuWriter
 muWriter = LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey=condalg.LuminosityOutputKey)
 
 from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-topSequence += muWriter
+condSeq = AthSequencer("AthCondSeq")
+condSeq += muWriter
