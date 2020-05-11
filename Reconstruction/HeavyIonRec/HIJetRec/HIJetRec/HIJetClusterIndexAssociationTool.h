@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetClusterAssociationTool.h
 
-#ifndef __HIJETREC_HIJETCLUSTERINDEXASSOCIATIONTOOL_H__
-#define __HIJETREC_HIJETCLUSTERINDEXASSOCIATIONTOOL_H__
+#ifndef HIJETREC_HIJETCLUSTERINDEXASSOCIATIONTOOL_H
+#define HIJETREC_HIJETCLUSTERINDEXASSOCIATIONTOOL_H
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,8 @@ public:
 
   virtual StatusCode initialize() override;
 
-  StatusCode modify(xAOD::JetContainer& jets) const;
-  int modifyJet(xAOD::Jet&) const {return 1;};
+  virtual StatusCode modify(xAOD::JetContainer& jets) const override;
+  virtual int modifyJet(xAOD::Jet&) const override {return 1;};
 
 private:
 
