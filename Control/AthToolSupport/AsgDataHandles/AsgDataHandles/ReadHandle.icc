@@ -141,15 +141,16 @@ ReadHandle<T>::ptr()
 // }
 
 
-// /**
-//  * @brief Can the handle be successfully dereferenced?
-//  */
-// template <class T>
-// inline
-// bool ReadHandle<T>::isValid()
-// {
-//   return 0 != this->typeless_dataPointer(true); 
-// }
+/**
+ * @brief Can the handle be successfully dereferenced?
+ */
+template <class T>
+inline
+bool ReadHandle<T>::isValid()
+{
+  const T *result = nullptr;
+  return xAOD::TActiveEvent::event()->retrieve (result, key(), true);
+}
 
 
 /**
