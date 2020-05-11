@@ -20,7 +20,7 @@ template<typename T, size_t Alignment>
  * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc
  *
  * Provides
- * - Additional RAII functionality 
+ * - Additional RAII functionality
  * - Default initialization of elements
  * - Initialization with copies of elements with value value.
  */

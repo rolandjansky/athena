@@ -52,13 +52,13 @@ struct Cache
 void
 reset(Cache& cache);
 
-/** Method to add a single set of Trk::ComponentParameters to the cached Trk::MultiComponentState
- * object under construction */
+/** Method to add a single set of Trk::ComponentParameters to the cached
+ * Trk::MultiComponentState object under construction */
 bool
 addComponent(Cache& cache, ComponentParameters&&);
 
-/** Method to add a new Trk::MultiComponentState to the cached Trk::MultiComponentState o
- * bject under construction */
+/** Method to add a new Trk::MultiComponentState to the cached
+ * Trk::MultiComponentState o bject under construction */
 bool
 addMultiState(Cache& cache, Trk::MultiComponentState&&);
 

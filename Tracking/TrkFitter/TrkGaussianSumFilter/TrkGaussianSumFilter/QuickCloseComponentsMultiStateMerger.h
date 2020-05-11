@@ -22,9 +22,8 @@ decription           : Class for merging components of a multi-state based on
 namespace Trk {
 class IMultiComponentStateCombiner;
 class TrackStateOnSurface;
-namespace QuickCloseComponentsMultiStateMerger
-{
-  /** Method for merging components - ownership of objects is passed */
+namespace QuickCloseComponentsMultiStateMerger {
+/** Method for merging components - ownership of objects is passed */
 MultiComponentState
 merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
 

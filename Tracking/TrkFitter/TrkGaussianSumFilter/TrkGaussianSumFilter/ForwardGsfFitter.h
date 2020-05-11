@@ -9,7 +9,8 @@ begin                : Wednesday 9th March 2005
 author               : atkinson
 email                : Tom.Atkinson@cern.ch
 decription           : Class definition for the forward GSF fitter
-********************************************************************************** */
+**********************************************************************************
+*/
 
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
@@ -52,33 +53,37 @@ public:
       - Configure the extrapolator
       - Configure the measurement updator
       - Configure the RIO_OnTrack creator */
-  virtual StatusCode configureTools(const ToolHandle<Trk::IMultiStateExtrapolator>&,
-                                    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
-                                    const ToolHandle<Trk::IRIO_OnTrackCreator>&) override final;
+  virtual StatusCode configureTools(
+    const ToolHandle<Trk::IMultiStateExtrapolator>&,
+    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
+    const ToolHandle<Trk::IRIO_OnTrackCreator>&) override final;
 
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
     const PrepRawDataSet&,
     const TrackParameters&,
-    const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+    const ParticleHypothesis particleHypothesis =
+      nonInteracting) const override final;
 
   /** Forward GSF fit using MeasurementSet */
   virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const MeasurementSet&,
     const TrackParameters&,
-    const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+    const ParticleHypothesis particleHypothesis =
+      nonInteracting) const override final;
 
   /** The interface will later be extended so that the initial
    * state can be additionally a MultiComponentState object! */
 
 private:
   /** Progress one step along the fit */
-  bool stepForwardFit(ForwardTrajectory*,
-                      const PrepRawData*,
-                      const MeasurementBase*,
-                      const Surface&,
-                      MultiComponentState&,
-                      const ParticleHypothesis particleHypothesis = nonInteracting) const;
+  bool stepForwardFit(
+    ForwardTrajectory*,
+    const PrepRawData*,
+    const MeasurementBase*,
+    const Surface&,
+    MultiComponentState&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 private:
   /**These are passed via the configure tools so not retrieved from this tool*/

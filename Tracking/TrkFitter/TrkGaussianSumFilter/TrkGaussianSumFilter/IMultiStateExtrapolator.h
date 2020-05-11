@@ -9,7 +9,8 @@ begin                : Tuesday 25th January 2005
 author               : atkinson,Morley,Anastopoulos
 decription           : Extrapolation of a MultiComponentState to a destination
                        surface
-================================================================================= */
+=================================================================================
+*/
 
 #ifndef TrkIMultiStateExtrapolator_H
 #define TrkIMultiStateExtrapolator_H
@@ -22,8 +23,8 @@ decription           : Extrapolation of a MultiComponentState to a destination
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 
-#include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IAlgTool.h"
 
 #include <memory>
 #include <vector>
@@ -36,7 +37,9 @@ class Track;
 class TrackingVolume;
 class TrackStateOnSurface;
 
-static const InterfaceID IID_IMultiStateExtrapolator("IMultiStateExtrapolator", 1, 0);
+static const InterfaceID IID_IMultiStateExtrapolator("IMultiStateExtrapolator",
+                                                     1,
+                                                     0);
 
 class IMultiStateExtrapolator : virtual public IAlgTool
 {
@@ -45,11 +48,14 @@ public:
   virtual ~IMultiStateExtrapolator() = default;
 
   /** AlgTool interface method */
-  static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
+  static const InterfaceID& interfaceID()
+  {
+    return IID_IMultiStateExtrapolator;
+  };
 
   /** Configured AlgTool extrapolation method (1) */
   virtual MultiComponentState extrapolate(
-    const EventContext&  ctx,
+    const EventContext& ctx,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -58,20 +64,20 @@ public:
 
   /** Configured AlgTool extrapolation without material effects method (2) */
   virtual MultiComponentState extrapolateDirectly(
-    const EventContext&  ctx,
+    const EventContext& ctx,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
-    const EventContext&  ctx,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = nonInteracting) const = 0;
+  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>>
+  extrapolateM(const EventContext& ctx,
+               const MultiComponentState&,
+               const Surface&,
+               PropDirection dir = anyDirection,
+               const BoundaryCheck& bcheck = true,
+               ParticleHypothesis particle = nonInteracting) const = 0;
 };
 
 } // end trk namespace
