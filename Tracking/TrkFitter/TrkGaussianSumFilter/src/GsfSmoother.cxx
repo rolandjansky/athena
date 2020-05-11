@@ -218,8 +218,13 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
      next measurement surface. For the smoother the direction of propagation
      is opposite to the direction of momentum */
 
-    Trk::MultiComponentState extrapolatedState = m_extrapolator->extrapolate(
-      updatedState, measurement->associatedSurface(), Trk::oppositeMomentum, false, particleHypothesis);
+    Trk::MultiComponentState extrapolatedState =
+      m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                  updatedState,
+                                  measurement->associatedSurface(),
+                                  Trk::oppositeMomentum,
+                                  false,
+                                  particleHypothesis);
 
     if (extrapolatedState.empty()) {
       ATH_MSG_DEBUG("Extrapolation to measurement surface failed... rejecting track!");
@@ -422,8 +427,12 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   Trk::MultiComponentState extrapolatedState{};
   // Extrapolate to the Calo
   if (currentSurface) {
-    extrapolatedState = m_extrapolator->extrapolateDirectly(
-      *currentMultiComponentState, ccot->associatedSurface(), Trk::alongMomentum, false, Trk::nonInteracting);
+    extrapolatedState = m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+                                                            *currentMultiComponentState,
+                                                            ccot->associatedSurface(),
+                                                            Trk::alongMomentum,
+                                                            false,
+                                                            Trk::nonInteracting);
   }
 
   // Extrapolation Failed continue
@@ -445,8 +454,12 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
     ccot->clone(), MultiComponentStateHelpers::clone(updatedState).release(), fitQuality.release());
 
   // Extrapolate back to the surface nearest the origin
-  extrapolatedState = m_extrapolator->extrapolateDirectly(
-    updatedState, *currentSurface, Trk::oppositeMomentum, false, Trk::nonInteracting);
+  extrapolatedState = m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+                                                          updatedState,
+                                                          *currentSurface,
+                                                          Trk::oppositeMomentum,
+                                                          false,
+                                                          Trk::nonInteracting);
 
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation from CCOT to 1st measurement failed .. now not being taken in account");

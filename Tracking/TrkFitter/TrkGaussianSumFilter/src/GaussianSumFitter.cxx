@@ -706,7 +706,12 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
   }
   // Extrapolate to perigee, taking material effects considerations into account
   Trk::MultiComponentState stateExtrapolatedToPerigee =
-    m_extrapolator->extrapolate(*multiComponentState, perigeeSurface, m_directionToPerigee, false, particleHypothesis);
+    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                *multiComponentState,
+                                perigeeSurface,
+                                m_directionToPerigee,
+                                false,
+                                particleHypothesis);
 
   if (stateExtrapolatedToPerigee.empty()) {
     ATH_MSG_DEBUG("Track could not be extrapolated to perigee... returning 0");
