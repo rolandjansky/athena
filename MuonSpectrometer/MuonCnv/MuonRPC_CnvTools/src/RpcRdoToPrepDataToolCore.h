@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLCORE_H
@@ -7,28 +7,24 @@
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonCondData/RpcCondDbData.h"
-
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPadContainer.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 #include <set>
 
 #define maxOfflineHash 600 // actually 593
-
-//class IROBDataProviderSvc;
-
 
 namespace MuonGM
 {
@@ -36,19 +32,9 @@ namespace MuonGM
 }
 
 class IRPCcablingSvc;
-class RpcPadIdHash;
-class IdentifierHash;
-class RpcPad;
-class RpcPadContainer;
-class RpcCondDbData;
 
 namespace Muon {
 
-
-class IRPC_RDO_Decoder;
-    
-    
-    
 /////////////////////////////////////////////////////////////////////////////
 
 class RpcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool {
@@ -61,7 +47,6 @@ public:
 
   // setup/teardown functions, similar like those for Algorithm/Service
   StatusCode initialize();
-  StatusCode finalize();
 
   // decoding method 
   StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
@@ -89,12 +74,6 @@ protected:
                                    unsigned short& overlap,
                                    bool& toSkip);
 
-
-  //double m_factor;
-
-  // configurable options
-  //int   m_rpcOffset;                    //!< Identifier hash offset
-  //int   m_print_prepData;               //!< if 1 write a summary at the collections found
   float m_etaphi_coincidenceTime;       //!< time for phi*eta coincidence 
   float m_overlap_timeTolerance;        //!< tolerance of the timing calibration 
   bool  m_processingData;               //!< data or MC 
@@ -108,13 +87,9 @@ protected:
   // end of configurable options 
 
   /// Muon Detector Descriptor
-  const MuonGM::MuonDetectorManager * m_muonMgr;
+  const MuonGM::MuonDetectorManager* m_muonMgr;
   
-  /// RPC identifier helper
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  // RpcPadIdHash helper 
-  //RpcPadIdHash* m_padHashIdHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
   /// RpcPrepData containers
   Muon::RpcPrepDataContainer* m_rpcPrepDataContainer;
@@ -128,11 +103,11 @@ protected:
   /// RPC cabling Svc
   const IRPCcablingSvc *m_rpcCabling;
 
-//   // Rob Data Provider handle 
-//   ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+  // Rob Data Provider handle 
   ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
 
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
  
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
