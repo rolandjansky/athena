@@ -20,11 +20,10 @@ def generateChainConfigs( chainDict ):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )
         Electron = ElectronChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Electron]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
@@ -32,7 +31,6 @@ def generateChainConfigs( chainDict ):
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
 

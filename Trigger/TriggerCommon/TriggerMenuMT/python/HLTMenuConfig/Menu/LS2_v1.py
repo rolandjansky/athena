@@ -34,10 +34,9 @@ def setupMenu():
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ART-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),        
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
-        # Test chain for di-muon with full-scan, not yet working due to problem with FS seeding
-        #ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
         #ATR-20049
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
@@ -46,8 +45,10 @@ def setupMenu():
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
+        # commented because it is conflict with dimuon noL1 serial chain
+      #  ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+        
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
@@ -72,6 +73,7 @@ def setupMenu():
        # ATR-20650
         ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
+
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [

@@ -6,8 +6,6 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
-
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
@@ -102,31 +100,22 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
     def getFastCalo(self, doRinger=True):
         if doRinger:
-            stepName       = "Step1_FastCaloRinger_electron"
+            stepName       = "FastCaloRinger_electron"
             fastCaloCfg    = electronFastCaloRingerCfg
         else:
-            stepName       = "Step1_FastCalo_electron"
+            stepName       = "FastCalo_electron"
             fastCaloCfg = electronFastCaloCfg
-        log.debug("Configuring step " + stepName)
-        fastCalo = RecoFragmentsPool.retrieve(fastCaloCfg , None )
-        return ChainStep(stepName, [fastCalo], [self.mult], [self.dict])
+        return self.getStep(1,stepName,[ fastCaloCfg])
 
     def getFastElectron(self):
-        stepName = "Step2_fast_electron"
-        log.debug("Configuring step " + stepName)
-        electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        return ChainStep(stepName, [electronReco], [self.mult], [self.dict])
-
+        stepName = "fast_electron"
+        return self.getStep(2,stepName,[ fastElectronSequenceCfg])
 
     def getPrecisionCaloElectron(self):
-        stepName = "Step3_precisionCalo_electron"
-        log.debug("Configuring step " + stepName)
-        precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-        return ChainStep(stepName, [precisionReco], [self.mult], [self.dict])
-
+        stepName = "precisionCalo_electron"
+        return self.getStep(3,stepName,[ precisionCaloSequenceCfg])
 
     def getPrecisionElectron(self):
-        stepName = "Step4_precision_electron"
-        log.debug("Configuring step " + stepName)
-        precisionElectron = RecoFragmentsPool.retrieve( precisionElectronSequenceCfg, None )
-        return ChainStep(stepName, [precisionElectron], [self.mult], [self.dict])
+        stepName = "precision_electron"
+        return self.getStep(4,stepName,[ precisionElectronSequenceCfg])
+
