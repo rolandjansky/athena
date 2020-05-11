@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibStl/DeleteObject.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <algorithm>
 #include <iostream>
@@ -240,7 +242,8 @@ namespace MuonCalib {
 
   void MuonCalibSegment::refineMdtSelection(const std::vector<unsigned int> &new_selection) {
     if(new_selection.size() != m_mdtHitsOnTrack.size()) {
-      std::cerr<<" MuonCalibSegment::refineMdtSelection: Wrong size of vector!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibSegment");
+      log<<MSG::WARNING<<"MuonCalibSegment::refineMdtSelection: Wrong size of vector!"<<endmsg;
       return;
     }
 //copy old hit vector

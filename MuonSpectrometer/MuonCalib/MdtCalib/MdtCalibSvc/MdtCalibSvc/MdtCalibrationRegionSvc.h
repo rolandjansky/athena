@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MDTCALIBRATIONREGIONSVC_H
@@ -35,7 +35,7 @@ public:
   MdtCalibrationRegionSvc(const std::string &name,ISvcLocator *sl);
 
   /** destructor */
-  virtual ~MdtCalibrationRegionSvc();
+  virtual ~MdtCalibrationRegionSvc()=default;
 
   /** IInterface implementation  */
   static const InterfaceID &interfaceID() {
@@ -48,9 +48,6 @@ public:
 
   /** initialization */
   virtual StatusCode initialize(void);
-
-  /** finalization */
-  virtual StatusCode finalize(void);  
 
   // Currently 3 types of mappings are defined: "OneRt", "OnePerChamber", and "OnePerMultilayer" 
   // and this method can be used to switch between one and the other.  

@@ -2,30 +2,25 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//c - c++
-#include "iostream"
+#include "MuonCalibEventBase/MuonCalibSegment.h"
+#include "MuonCalibEventBase/MdtCalibHitBase.h"
+#include "MuonCalibStandAloneTools/HitCounter.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//root
+#include "iostream"
 #include "TDirectory.h"
 #include "TH1.h"
 
-//MuonCalibEventBase
-#include "MuonCalibEventBase/MuonCalibSegment.h"
-#include "MuonCalibEventBase/MdtCalibHitBase.h"
-
-//this
-#include "MuonCalibStandAloneTools/HitCounter.h"
-
 namespace MuonCalib {
 
-bool HitCounter :: Initialize(const NtupleStationId &id)
-	{
+bool HitCounter::Initialize(const NtupleStationId &id) {
 	m_id=id;
-	if(id.NMultilayers() == -1)
-		{
-		std::cerr<<"HitCounter :: Initialize:Geometry for idenifier not initialized!"<<std::endl;
+	if(id.NMultilayers() == -1) {
+		MsgStream log(Athena::getMessageSvc(),"HitCounter");
+		log<<MSG::WARNING<<"HitCounter::Initialize:Geometry for idenifier not initialized!"<<endmsg;
 		return false;
-		}
+	}
 	m_per_chamber=0;
 	for(int i=0; i<id.NMultilayers(); i++)
 		{
@@ -58,10 +53,10 @@ bool HitCounter :: Initialize(const NtupleStationId &id)
 	}
 
 
-void HitCounter :: ProcessSegment(const MuonCalibSegment & segment)
+void HitCounter::ProcessSegment(const MuonCalibSegment & segment)
 	{
 	m_hits_per_segments->Fill(static_cast<Axis_t>(segment.hitsOnTrack()));
-	MuonCalibSegment :: MdtHitCit it(segment.mdtHOTBegin());
+	MuonCalibSegment::MdtHitCit it(segment.mdtHOTBegin());
 	for(; it!=segment.mdtHOTEnd(); it++)
 		{
 		m_per_chamber++;
@@ -80,7 +75,7 @@ void HitCounter :: ProcessSegment(const MuonCalibSegment & segment)
 		}
 	}
 
-const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
+const std::string & HitCounter::FittingBy(int min_hits, double bad_fit_rate)
 	{
 	m_wd->cd();
 //try per tube
@@ -91,7 +86,7 @@ const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 	for (int i=1; i<=576; i++)
 		tubes_index->SetBinContent(i, -1.0);
 	m_fit_by_int = -1;
-	for(std::map<TubeId, int> :: const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
+	for(std::map<TubeId, int>::const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
 		{
 		if(it->second>0)
 			{
@@ -117,7 +112,7 @@ const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 	n_bad=0; n_total=0;
 	index=0.0;
 	TH1F *mezzanaines = new TH1F("Mezzanine", "Mezzanine", m_per_mezz.size(), -0.5, m_per_mezz.size() - 0.5);
-	for(std::map<MezzId, int> :: const_iterator it=m_per_mezz.begin(); it!=m_per_mezz.end(); it++)
+	for(std::map<MezzId, int>::const_iterator it=m_per_mezz.begin(); it!=m_per_mezz.end(); it++)
 		{
 		if(it->second > 0)
 			{
@@ -141,7 +136,7 @@ const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 	n_bad=0; n_total=0;
 	index=0.0;
 	TH1F *mls = new TH1F("Multilayers", "Mulitlayers", m_per_ml.size(), -0.5, m_per_ml.size() - 0.5);
-	for(std::map<int, int> :: const_iterator it=m_per_ml.begin(); it!=m_per_ml.end(); it++)
+	for(std::map<int, int>::const_iterator it=m_per_ml.begin(); it!=m_per_ml.end(); it++)
 		{
 		if(it->second > 0)
 			{
@@ -176,11 +171,11 @@ const std::string & HitCounter :: FittingBy(int min_hits, double bad_fit_rate)
 	return m_fit_by;
 	}
 
-std::map<HitCounter::TubeId, HitCounter::DQInfo> HitCounter :: InitialDQ(int noisy_tube_factor) const
+std::map<HitCounter::TubeId, HitCounter::DQInfo> HitCounter::InitialDQ(int noisy_tube_factor) const
 	{
 	double mean_nhits(0.0);
 	double n(0.0);
-	for(std::map<TubeId, int> :: const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
+	for(std::map<TubeId, int>::const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
 		{
 		if(it->second>0)
 			{
@@ -190,7 +185,7 @@ std::map<HitCounter::TubeId, HitCounter::DQInfo> HitCounter :: InitialDQ(int noi
 		}
 	mean_nhits=n/mean_nhits;
 	std::map<TubeId, DQInfo> ret;
-	for(std::map<TubeId, int> :: const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
+	for(std::map<TubeId, int>::const_iterator it=m_per_tube.begin(); it!=m_per_tube.end(); it++)
 		{
 		if(it->second == 0) 
 			ret[it->first].SetDead();

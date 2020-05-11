@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,13 +66,10 @@ namespace MuonCalib {
   MdtCalibTool(const std::string&,const std::string&,const IInterface*);
 
   /**Virtual destructor*/
-  virtual ~MdtCalibTool(){};
+  virtual ~MdtCalibTool()=default;
 
   /** AlgTool initailize method.*/
   StatusCode initialize();
-
-  /** AlgTool finalize method */
-  StatusCode finalize();  
 
   /** Interface method: handle MuonCalibPatternCollection */
   //  virtual bool handle( const MuonCalibPatternCollection* patterns );
