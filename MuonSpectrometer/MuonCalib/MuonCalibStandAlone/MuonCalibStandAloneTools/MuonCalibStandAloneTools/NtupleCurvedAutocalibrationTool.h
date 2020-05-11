@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NtupleCurvedAutocalibrationTool_H
@@ -31,11 +31,7 @@ class NtupleCurvedAutocalibrationTool : public AthAlgTool, virtual public Ntuple
 		NtupleCurvedAutocalibrationTool(const std::string& t, const std::string& n, const IInterface* p);
 	/** Tool initialization */
 		StatusCode initialize();
-	/** Tool finalization */
-		inline StatusCode finalize()
-			{
-			return StatusCode::SUCCESS;
-			}
+
 	/** analyze segments */
 		StatusCode analyseSegments(const std::vector<MuonCalibSegment *> & segemnts);
 	/** set calibratino region */

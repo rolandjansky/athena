@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "CalibNtupleAnalysisAlg/CalibNtupleAnalysisAlg2.h"
 #include "CalibNtupleAnalysisAlg/BarrelSecondCoordinatePreparationTool.h"
 #include "CalibNtupleAnalysisAlg/BFieldCorrectionUpdateTool.h"
@@ -9,21 +13,15 @@
 #include "CalibNtupleAnalysisAlg/SegmentRecalibration.h"
 #include "CalibNtupleAnalysisAlg/SegmentRefitter.h"
 #include "CalibNtupleAnalysisAlg/InitialDqFilter.h"
-//#include "CalibNtupleAnalysisAlg/RpcTimingCorr.h"
 #include "CalibNtupleAnalysisAlg/ApplyRawTimes.h"
 #include "CalibNtupleAnalysisAlg/GoodRunListFilter.h"
 #include "CalibNtupleAnalysisAlg/MuonCalibGeometryDumper.h"
-
 
 using namespace MuonCalib;
 
 DECLARE_COMPONENT( CalibNtupleAnalysisAlg2 )
 DECLARE_COMPONENT( WriteMdtGeometry )
 DECLARE_COMPONENT( MuonCalibGeometryDumper )
-
-
-
-
 DECLARE_COMPONENT( BarrelSecondCoordinatePreparationTool )
 DECLARE_COMPONENT( BFieldCorrectionUpdateTool )
 DECLARE_COMPONENT( UpdateBField )
@@ -33,7 +31,5 @@ DECLARE_COMPONENT( SegmentRawdataSelector )
 DECLARE_COMPONENT( SegmentRecalibration )
 DECLARE_COMPONENT( InitialDqFilter )
 DECLARE_COMPONENT( SegmentRefitter )
-//DECLARE_COMPONENT( RpcTimingCorr )
 DECLARE_COMPONENT( ApplyRawTimes )
 DECLARE_COMPONENT( GoodRunListFilter )
-

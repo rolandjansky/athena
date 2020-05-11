@@ -32,7 +32,6 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
   SegmentRawdataSelector(const std::string &t, const std::string &n, const IInterface *p);
   inline ~SegmentRawdataSelector()=default;
 //=========================public member functions==============================
-  //initialize and finalize
   StatusCode initialize();
 
   //load event

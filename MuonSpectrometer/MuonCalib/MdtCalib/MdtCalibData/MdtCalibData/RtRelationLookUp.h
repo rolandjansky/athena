@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_RTRELATIONLOOKUP_H
 #define MUONCALIB_RTRELATIONLOOKUP_H
 
 #include "MdtCalibData/IRtRelation.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 #include <climits>
 
@@ -22,15 +25,17 @@ namespace MuonCalib{
   public:
     explicit RtRelationLookUp( const ParVec &vec ) : IRtRelation(vec) {
       if( vec.size() < 4 ){
-	m_t_min=9e9;
-	m_bin_size=1.0; //will be always out of range
-	std::cout << "RtRelationLookUp ERROR <to few parameters> " << std::endl;
-      }else{
-	m_t_min = par(0);
-	m_bin_size = par(1);
-	if (m_bin_size==0) {
-	  std::cout << "RtRelationLookUp ERROR <bin size=0> " << std::endl;
-	}
+        m_t_min=9e9;
+        m_bin_size=1.0; //will be always out of range
+        MsgStream log(Athena::getMessageSvc(),"RtRelationLookUp");
+        log<<MSG::WARNING<<"<to few parameters>"<<endmsg;
+      } else {
+        m_t_min = par(0);
+        m_bin_size = par(1);
+        if (m_bin_size==0) {
+          MsgStream log(Athena::getMessageSvc(),"RtRelationLookUp");
+          log<<MSG::WARNING<<"<bin size=0>"<<endmsg;
+        }
       }
     }
     

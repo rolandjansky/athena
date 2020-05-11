@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,10 +56,6 @@ StatusCode MdtCalibInputSvc::initialize() {
   ATH_CHECK( m_reg_sel_svc.retrieve() );
   ATH_CHECK( m_calib_input_tool.retrieve() );
   ATH_CHECK( read_calib_input() );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MdtCalibInputSvc::finalize(void) {
   return StatusCode::SUCCESS;
 }
 

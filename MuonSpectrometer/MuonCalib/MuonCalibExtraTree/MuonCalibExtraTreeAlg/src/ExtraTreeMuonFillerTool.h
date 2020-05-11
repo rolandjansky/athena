@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_ExtraTreeMuonFillerTool_h
@@ -12,11 +12,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
-// namespace xAOD {
-// class Muon;
-// class TrackParticle;
-// }
-
 namespace Trk {
 class IPropagator;
 }
@@ -27,7 +22,6 @@ class ExtraTreeMuonFillerTool: public ExtraTreeTrackFillerTool {
   public:
     ExtraTreeMuonFillerTool(const std::string &type, const std::string &name, const IInterface *parent);
     StatusCode initialize();
-    StatusCode finalize();	
     StatusCode writeTracks(unsigned int &index);
 		
   private:

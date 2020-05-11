@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib__GoodRunListFilter_h
@@ -22,13 +22,9 @@ class GoodRunListFilter: public AthAlgTool, virtual public CalibSegmentPreparati
   public:
 //=========================constructor==========================================
     GoodRunListFilter(const std::string &t, const std::string &n, const IInterface *p);
-    inline ~GoodRunListFilter() {}
+    ~GoodRunListFilter()=default;
 //=========================public member functions==============================
-    //initialize and finalize
     StatusCode initialize(void);
-    inline StatusCode finalize(void) {
-      return StatusCode :: SUCCESS;
-    }
     //load event
     void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments);
   private:
