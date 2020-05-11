@@ -34,7 +34,6 @@
 
 using CLHEP::micrometer;
 
-constexpr double tolerance{0.001}; 
 
 namespace InDet {
   
