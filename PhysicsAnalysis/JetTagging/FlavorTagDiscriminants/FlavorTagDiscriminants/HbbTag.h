@@ -9,6 +9,8 @@ namespace lwt {
   class LightweightGraph;
 }
 
+#include "FlavorTagDiscriminants/HbbTagConfig.h"
+
 #include "xAODJet/JetContainer.h"
 
 #include <functional>
@@ -16,13 +18,6 @@ namespace lwt {
 #include <map>
 
 namespace FlavorTagDiscriminants {
-
-  struct HbbTagConfig
-  {
-    std::string input_file_path;
-    std::string subjet_link_name;
-    double min_subjet_pt = 7e3;
-  };
 
   class HbbTag
   {
