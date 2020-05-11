@@ -336,7 +336,7 @@ Trk::Extrapolator::initialize() {
   for (int i(0);i != int(Trk::NumberOfSignatures);++i){
     msgString += std::to_string(i)+") propagator: "+m_subPropagators[i]->name()+", updater: "+m_subupdaters[i]->name()+"\n";
   }
-  ATH_MSG_INFO(msgString);
+  ATH_MSG_VERBOSE(msgString);
   ATH_CHECK( m_stepPropagator.retrieve() );
   ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;

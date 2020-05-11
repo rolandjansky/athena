@@ -483,8 +483,7 @@ class TestSequencesMerging( unittest.TestCase ):
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
             "SCT_RDO_Container#SCT_RDOs",
-            "InDetSimDataCollection#SCT_SDO_Map"	    
-        ])
+            "InDetSimDataCollection#SCT_SDO_Map"])
         ca2.printConfig()
 
         print("after merge")

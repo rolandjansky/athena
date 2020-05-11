@@ -431,6 +431,8 @@ if opt.doL1Sim:
     topSequence += Lvl1SimulationSequence()
 
 
+
+
 # ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
 # ---------------------------------------------------------------
@@ -536,7 +538,6 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
 # Use parts of NewJO
 #-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Output flags
@@ -558,6 +559,7 @@ ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 ConfigFlags.Input.isMC = False
 # ID Cache Creators
 ConfigFlags.lock()
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
 
 
@@ -587,7 +589,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, destinationSeq=AlgSequence("AthMasterSeq"), decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
