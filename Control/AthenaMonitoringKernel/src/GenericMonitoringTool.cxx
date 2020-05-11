@@ -113,13 +113,13 @@ namespace Monitored {
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredVariables) const {
 
   // stage 1: get candidate fillers (assume generally we get only a few variables)
-  std::vector<const HistogramFiller*> candidates;
+  std::vector<std::shared_ptr<HistogramFiller>> candidates;
   for (const auto& monValue : monitoredVariables) {
     const auto& match = m_fillerMap.find(monValue.get().name());
     if (match != m_fillerMap.end()) {
       candidates.reserve(candidates.size() + match->second.size());
       for (const auto& i : match->second) {
-        candidates.push_back(i.get());
+        candidates.push_back(i);
       }
     }
   }
@@ -190,11 +190,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
                     << "\n  Asked to fill from mon. vars: " << monitoredVariables);
       continue;
     }
-    HistogramFiller* fillerCopy(filler->clone());
-    fillerCopy->setMonitoredVariables(std::move(variables));
-    fillerCopy->setMonitoredWeight(weight);
-    fillerCopy->setMonitoredCutMask(cutmask);
-    result.emplace_back(fillerCopy);
+    filler->setMonitoredVariables(std::move(variables));
+    filler->setMonitoredWeight(weight);
+    filler->setMonitoredCutMask(cutmask);
+    result.emplace_back(filler);
   }
 
   return result;

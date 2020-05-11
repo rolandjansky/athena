@@ -65,22 +65,22 @@ namespace Monitored {
     template <typename... T>
     Group(const ToolHandle<GenericMonitoringTool>& tool, T&&... monitoredGroup) 
       : m_tool(tool),
-        m_autoFill(true),
-        m_monitoredGroup{monitoredGroup...},
-        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
+      m_autoFill(true),
+      m_monitoredGroup{monitoredGroup...}
+    { }
 
      Group(const ToolHandle<GenericMonitoringTool>& tool, const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredGroup)
       : m_tool(tool),
-        m_autoFill(true),
-        m_monitoredGroup(monitoredGroup),
-        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
+      m_autoFill(true),
+      m_monitoredGroup(monitoredGroup)
+      { }
 
      Group(const ToolHandle<GenericMonitoringTool>& tool, std::vector<std::reference_wrapper<IMonitoredVariable>>&& monitoredGroup)
       : m_tool(tool),
-        m_autoFill(true),
-        m_monitoredGroup(std::move(monitoredGroup)),
-        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
-
+      m_autoFill(true),
+      m_monitoredGroup(std::move(monitoredGroup))
+	{ }
+    
     virtual ~Group() {
       if (m_autoFill) {
         fill();
@@ -98,9 +98,11 @@ namespace Monitored {
      * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_fill
      **/
     virtual void fill() {
+      if ( m_tool.empty() ) return;
       setAutoFill(false);
-
-      for (auto filler : m_histogramsFillers) {
+      std::lock_guard lock( m_tool->fillMutex() );
+      auto histogramsFillers = m_tool->getHistogramsFillers(m_monitoredGroup);
+      for (auto filler : histogramsFillers) {
         filler->fill();
       }
     }
@@ -118,7 +120,6 @@ namespace Monitored {
     ToolHandle<GenericMonitoringTool> m_tool;
     bool m_autoFill;
     const std::vector<std::reference_wrapper<IMonitoredVariable>> m_monitoredGroup;
-    const std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_histogramsFillers;
   };
 
   template <typename... T>

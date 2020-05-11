@@ -34,7 +34,6 @@ namespace Monitored {
         log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
             << cutMaskValuePair.first << " " << valuesVector.size() << endmsg;
       }
-      std::scoped_lock lock(*m_mutex);
 
       for (unsigned i = 0; i < std::size(valuesVector); ++i) {
         if (cutMaskAccessor(i)) {

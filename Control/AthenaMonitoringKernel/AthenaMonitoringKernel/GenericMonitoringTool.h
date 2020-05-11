@@ -100,6 +100,7 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
+  std::mutex& fillMutex() { return m_fillMutex; }
 private:
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
@@ -108,6 +109,7 @@ private:
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
   std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
+  std::mutex m_fillMutex;
 };
 
 /**

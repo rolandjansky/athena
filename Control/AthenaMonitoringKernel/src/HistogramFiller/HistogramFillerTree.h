@@ -50,7 +50,6 @@ namespace Monitored {
       }
 
       auto cutMaskAccessor = cutMaskValuePair.second;
-      std::scoped_lock<std::mutex> lock(*(this->m_mutex));
 
       auto tree = this->histogram<TTree>();
       if (tree->GetListOfBranches()->GetEntries() == 0) {
