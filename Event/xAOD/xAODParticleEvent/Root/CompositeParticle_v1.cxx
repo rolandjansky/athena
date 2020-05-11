@@ -8,7 +8,7 @@
 #include <math.h>       /* remainder and M_PI */
 
 // Event Kernel include
-#include "EventKernel/PdtPdg.h" // for PDG pidType
+#include "TruthUtils/PIDHelpers.h" // for MC::PID::isElectron(...) and others
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -751,7 +751,7 @@ namespace xAOD {
   NUM_PARTS(nJets,Jet)
   NUM_PARTS(nTruthParts,TruthParticle)
 
-#define NUM_TRUTHPARTS( FUNCNAME, PDGID )                                                        \
+#define NUM_TRUTHPARTS( FUNCNAME, PIDMETHOD )                                                    \
   std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
     std::size_t n(0);                                                                            \
     std::size_t nParts = this->nParts();                                                         \
@@ -761,15 +761,15 @@ namespace xAOD {
       if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
       const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
       if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
-      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                                 \
+      if ( PIDMETHOD(truthParticle->pdgId()) ) { n += 1; }                                       \
     }                                                                                            \
     return n;                                                                                    \
   }
 
-  NUM_TRUTHPARTS(nTruthPhotons,PDG::pidType::gamma)
-  NUM_TRUTHPARTS(nTruthElectrons,PDG::pidType::e_minus)
-  NUM_TRUTHPARTS(nTruthMuons,PDG::pidType::mu_minus)
-  NUM_TRUTHPARTS(nTruthTaus,PDG::pidType::tau_minus)
+  NUM_TRUTHPARTS(nTruthPhotons,MC::PID::isPhoton)
+  NUM_TRUTHPARTS(nTruthElectrons,MC::PID::isElectron)
+  NUM_TRUTHPARTS(nTruthMuons,MC::PID::isMuon)
+  NUM_TRUTHPARTS(nTruthTaus,MC::PID::isTau)
 
   std::size_t CompositeParticle_v1::nTruthLeptons() const {
     return this->nTruthElectrons() + this->nTruthMuons() + this->nTruthTaus();
@@ -1042,7 +1042,7 @@ namespace xAOD {
   NUM_OTHERPARTS(nOtherJets,Jet)
   NUM_OTHERPARTS(nOtherTruthParts,TruthParticle)
 
-#define NUM_OTHERTRUTHPARTS( FUNCNAME, PDGID )                                                   \
+#define NUM_OTHERTRUTHPARTS( FUNCNAME, PIDMETHOD )                                               \
   std::size_t CompositeParticle_v1::FUNCNAME() const {                                           \
     std::size_t n(0);                                                                            \
     std::size_t nParts = this->nOtherParts();                                                    \
@@ -1052,15 +1052,15 @@ namespace xAOD {
       if ( part->type() != xAOD::Type::TruthParticle ) { continue; }                             \
       const xAOD::TruthParticle* truthParticle = dynamic_cast<const xAOD::TruthParticle*>(part); \
       if (!truthParticle) { throw std::runtime_error("Zero pointer to xAOD::TruthParticle"); }   \
-      if ( truthParticle->absPdgId() == abs(PDGID) ) { n += 1; }                                 \
+      if ( PIDMETHOD(truthParticle->pdgId()) ) { n += 1; }                                       \
     }                                                                                            \
     return n;                                                                                    \
   }
 
-  NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,PDG::pidType::gamma)
-  NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,PDG::pidType::e_minus)
-  NUM_OTHERTRUTHPARTS(nOtherTruthMuons,PDG::pidType::mu_minus)
-  NUM_OTHERTRUTHPARTS(nOtherTruthTaus,PDG::pidType::tau_minus)
+  NUM_OTHERTRUTHPARTS(nOtherTruthPhotons,MC::PID::isPhoton)
+  NUM_OTHERTRUTHPARTS(nOtherTruthElectrons,MC::PID::isElectron)
+  NUM_OTHERTRUTHPARTS(nOtherTruthMuons,MC::PID::isMuon)
+  NUM_OTHERTRUTHPARTS(nOtherTruthTaus,MC::PID::isTau)
 
   std::size_t CompositeParticle_v1::nOtherTruthLeptons() const {
     return this->nOtherTruthElectrons() + this->nOtherTruthMuons() + this->nOtherTruthTaus();

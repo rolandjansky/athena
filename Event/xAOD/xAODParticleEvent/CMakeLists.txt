@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/AthLinks
-   Event/EventKernel
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEgamma
@@ -19,14 +18,15 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMissingET
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
-   Event/xAOD/xAODTruth )
+   Event/xAOD/xAODTruth
+   Generators/TruthUtils )
 
 # Component(s) in the package:
 atlas_add_library( xAODParticleEvent
    xAODParticleEvent/*.h xAODParticleEvent/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODParticleEvent
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODEgamma xAODJet EventKernel
-   xAODMissingET xAODMuon xAODTau xAODTruth )
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODEgamma xAODJet
+   xAODMissingET xAODMuon xAODTau xAODTruth TruthUtils )
 
 atlas_add_dictionary( xAODParticleEventDict
    xAODParticleEvent/xAODParticleEventDict.h
