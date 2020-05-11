@@ -42,10 +42,10 @@ def printProperties(msg, c, nestLevel = 0):
 
 
         if isinstance(propval,GaudiHandles.PublicToolHandleArray):
-            ths = [th.name for th in propval]
+            ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-            ths = [th.name for th in propval]
+            ths = [th.getName() for th in propval]
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
             propstr = "Handle( {0} )".format(propval.typeAndName)
@@ -642,7 +642,7 @@ class ComponentAccumulator(object):
         jos=app.getService("JobOptionsSvc")
 
         def addCompToJos(comp,namePrefix=""):
-            name=namePrefix+comp.name
+            name=namePrefix+comp.getName()
             for k, v in comp._properties.items():
                 #Handle special cases of properties:
                 #1.PrivateToolHandles
