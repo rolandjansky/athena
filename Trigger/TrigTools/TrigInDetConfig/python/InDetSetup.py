@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -39,7 +39,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from InDetRecExample.InDetKeys import InDetKeys
 
   from AthenaCommon.AppMgr import ToolSvc
-  from TrigInDetConfig import InDetCacheNames
+  from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
   from AthenaCommon.GlobalFlags import globalflags
 
   #Only add raw data decoders if we're running over raw data
