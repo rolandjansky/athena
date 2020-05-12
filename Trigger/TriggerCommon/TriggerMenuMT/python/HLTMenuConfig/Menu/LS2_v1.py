@@ -155,7 +155,7 @@ def setupMenu():
         ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_pf_nojcalib_L1J20', groups=SingleJetGroup),
-#        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
