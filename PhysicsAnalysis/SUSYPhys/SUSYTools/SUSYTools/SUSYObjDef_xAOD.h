@@ -706,6 +706,7 @@ namespace ST {
     CP::SystematicSet m_currentSyst;
 
     std::string m_EG_corrModel;
+    std::string m_EG_corrFNList;
     bool m_applyJVTCut;
 
     std::string m_bTaggingCalibrationFilePath;

@@ -191,7 +191,7 @@ class TestSUSYTools(unittest.TestCase):
 
     #Working points
     EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
-    EL_ISO_WP = ['FCHighPtCaloOnly','Gradient','FCLoose','FCTight']
+    EL_ISO_WP = ['FCHighPtCaloOnly','FCLoose','FCTight']
     MU_ID_WP  = ['1']
     MU_ISO_WP = ['FCLoose']
     PH_ID_WP  = ['Loose','Tight']
@@ -202,7 +202,7 @@ class TestSUSYTools(unittest.TestCase):
     #default settings
     defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
                      'el_id'      : 'TightLLH',
-                     'el_iso'     : 'Gradient',
+                     'el_iso'     : 'FCLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
                      'mu_iso'     : 'FCLoose',

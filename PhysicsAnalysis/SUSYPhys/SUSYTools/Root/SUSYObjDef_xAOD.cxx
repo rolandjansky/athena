@@ -283,6 +283,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_currentSyst(),
     m_EG_corrModel(""),
+    m_EG_corrFNList(""),
     m_applyJVTCut(true),
     //
     // set toolhandles empty by default
@@ -586,7 +587,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //Btagging MCtoMC SFs
   declareProperty( "ShowerType",    m_showerType = 0 );
   //Egamma NP correlation model
-  declareProperty( "ElEffNPcorrModel", m_EG_corrModel );
+  declareProperty( "EleEffNPcorrModel", m_EG_corrModel );
+  //Egamma correction file list override
+  declareProperty( "EleEffCorrFNList", m_EG_corrFNList );
 
   //For electron trigger SF tools
   declareProperty( "ElectronTriggerSFStringSingle",      m_electronTriggerSFStringSingle);
@@ -713,6 +716,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_mu_iso_support.push_back("FCTightTrackOnly");
   m_mu_iso_support.push_back("FCTight");
   m_mu_iso_support.push_back("FCLoose");
+  m_mu_iso_support.push_back("PLVTight");
+  m_mu_iso_support.push_back("PLVLoose");
 
   // Construct electron fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_el_iso_fallback = {
@@ -720,15 +725,15 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     { "Gradient"         , "Gradient"         },
     { "FCLoose"          , "FCLoose"          },
     { "FCTight"          , "FCTight"          },
-    { "PLVTight"         , "FCTight"          }
+    { "PLVTight"         , "FCTight"          },
+    { "PLVLoose"         , "FCLoose"          }
   };
 
   // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
   m_mu_iso_fallback = {
     { "FCTightTrackOnly" , "FCTightTrackOnly" },
     { "FCLoose"          , "FCLoose"          },
-    { "FCTight"          , "FCTight"          },
-    { "PLVTight"         , "FCTight"          }
+    { "FCTight"          , "FCTight"          }
   };
 
 }
@@ -1236,6 +1241,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
+  configFromFile(m_EG_corrFNList, "Ele.EffCorrFNList", rEnv, "None");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
   configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
@@ -1476,6 +1482,12 @@ const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, cons
   assert(delim.length() == 1);
   std::vector<std::string> retval;
   retval.reserve(std::count(s.begin(), s.end(), delim[0]) + 1);
+  // if only 1 
+  if (s.find(delim)==std::string::npos) {
+     retval.emplace_back(s);
+     return retval;
+  }
+  // if need to split
   size_t last = 0;
   size_t next = 0;
   bool gothere=false;

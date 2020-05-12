@@ -218,7 +218,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  if (!m_eleIso_WP.empty() && m_eleIso_WP=="PLVTight") ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
+  if (!m_eleIso_WP.empty() && m_eleIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_eleIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_eleIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
 
