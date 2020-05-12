@@ -1371,6 +1371,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } 
 
     toolName = "BTagSel_" + jetcollBTag + m_BtagTagger + m_BtagWP;
+
     m_btagSelTool.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
     ATH_CHECK( m_btagSelTool.setProperty("OperatingPoint", m_BtagWP  ) );
@@ -1410,7 +1411,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         return StatusCode::FAILURE;
     }
 
-    toolName = "BTagSel_" + trkjetcoll + m_BtagWP_trkJet;
+    toolName = "BTagSel_" + trkjetcoll + m_BtagTagger_trkJet + m_BtagWP_trkJet;
     
     m_btagSelTool_trkJet.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );

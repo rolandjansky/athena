@@ -1718,7 +1718,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     }
   }
   if (m_BtagMinPt < 20e3 || m_BtagMinPt_trkJet < 10e3) {
-     ATH_MSG_WARNING("You btagging MinPt settings are inconsistent! EM(Topo|PFlow)Jets: not calibrated below 20 GeV (Btag.MinPt = " << m_BtagMinPt/1000. << " GeV set), VRTrackJets: not calibrated below 10 GeV (BtagTrkJet.MinPt = " << m_BtagMinPt_trkJet/1000. << " GeV set).");
+     ATH_MSG_WARNING("You btagging MinPt settings are inconsistent! EM(Topo|PFlow)Jets: not calibrated below 20 GeV (Btag.MinPt: " << m_BtagMinPt/1000. << " GeV set), VRTrackJets: not calibrated below 10 GeV (BtagTrkJet.MinPt: " << m_BtagMinPt_trkJet/1000. << " GeV set).");
   }
 
   //Taus
