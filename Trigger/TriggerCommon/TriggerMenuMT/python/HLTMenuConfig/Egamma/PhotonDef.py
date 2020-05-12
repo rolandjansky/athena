@@ -97,6 +97,3 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getPrecisionPhoton(self):
         stepName = "PhotonPrecision"
         return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
-
-        
-                
