@@ -26,7 +26,7 @@ folder = TileCalibTools.getTilePrefix(ofl=False)+"STATUS/ADC"
 
 #=== no tag for online folder
 folderTag = ""
-    
+
 #=== create bad channel manager
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
