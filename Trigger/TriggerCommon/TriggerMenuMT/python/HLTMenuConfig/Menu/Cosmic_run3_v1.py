@@ -39,15 +39,6 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
-        ChainProp(name='HLT_noalg_cosmiccalo_L1EM3_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:MinBias']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_31ETA49_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1EM7_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
 
         ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
         ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
