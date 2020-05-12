@@ -50,9 +50,9 @@
 #+ Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
-+ External/AtlasPyFwdBwdPorts
+#+ External/AtlasPyFwdBwdPorts
 #+ ForwardDetectors/ZDC/ZdcAnalysis
-+ ForwardDetectors/ZDC/ZdcNtuple
+#+ ForwardDetectors/ZDC/ZdcNtuple
 + Generators/TruthUtils
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -61,7 +61,7 @@
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 #+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
-+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
+#+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 #+ PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
 #+ PhysicsAnalysis/AnalysisCommon/IsolationSelection
@@ -73,9 +73,9 @@
 #+ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
-+ PhysicsAnalysis/BPhys/BPhysTools
+#+ PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
-+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
+#+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 #+ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
@@ -92,7 +92,7 @@
 #+ PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
-+ Reconstruction/Jet/BoostedJetTaggers
+#+ Reconstruction/Jet/BoostedJetTaggers
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
@@ -117,7 +117,7 @@
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 #+ Trigger/TrigAnalysis/TrigDecisionTool
-+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
+#+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 #+ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 #+ Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
@@ -132,6 +132,6 @@
 #+ Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
 #+ Trigger/TrigValidation/TrigAnalysisTest
-+ Trigger/TriggerSimulation/TrigBtagEmulationTool
+#+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 - .*
