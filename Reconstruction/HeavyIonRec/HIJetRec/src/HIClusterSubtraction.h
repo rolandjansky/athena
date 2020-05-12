@@ -40,8 +40,10 @@ class HIClusterSubtraction : virtual public asg::AsgTool,
   ASG_TOOL_CLASS(HIClusterSubtraction,IJetExecuteTool)
 public:
   HIClusterSubtraction(std::string name);
-  virtual StatusCode initialize();
+
   virtual ~HIClusterSubtraction() {};
+
+	virtual StatusCode initialize();
 
   virtual int execute() const;
 
