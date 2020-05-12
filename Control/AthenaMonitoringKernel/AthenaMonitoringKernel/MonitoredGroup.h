@@ -100,11 +100,7 @@ namespace Monitored {
     virtual void fill() {
       if ( m_tool.empty() ) return;
       setAutoFill(false);
-      std::lock_guard lock( m_tool->fillMutex() );
-      auto histogramsFillers = m_tool->getHistogramsFillers(m_monitoredGroup);
-      for (auto filler : histogramsFillers) {
-        filler->fill();
-      }
+      m_tool->invokeFillers(m_monitoredGroup);
     }
 
     /**
@@ -125,9 +121,7 @@ namespace Monitored {
   template <typename... T>
   void fill(const ToolHandle<GenericMonitoringTool>& tool, T&&... variables) {
     if (!tool.empty()) {
-      for (auto filler : tool->getHistogramsFillers({std::forward<T>(variables)...})) {
-        filler->fill();
-      }
+      tool->invokeFillers({std::forward<T>(variables)...});
     }
   }
 
