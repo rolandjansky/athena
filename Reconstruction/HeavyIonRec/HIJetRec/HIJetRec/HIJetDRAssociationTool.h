@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetDRAssociationTool.h
 
-#ifndef __HIJETREC_HIJETDRASSOCIATIONTOOL_H__
-#define __HIJETREC_HIJETDRASSOCIATIONTOOL_H__
+#ifndef HIJETREC_HIJETDRASSOCIATIONTOOL_H
+#define HIJETREC_HIJETDRASSOCIATIONTOOL_H
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// \class HIJetDRAssociationTool
@@ -41,10 +41,10 @@ public:
   virtual StatusCode initialize() override;
 
   /// \brief Implementing abstract methods from base
-  StatusCode modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const override;
 
   /// \brief Implementing abstract methods from base, not used
-  int modifyJet(xAOD::Jet&) const {return 1;};
+  virtual int modifyJet(xAOD::Jet&) const override {return 1;};
 
 private:
 
