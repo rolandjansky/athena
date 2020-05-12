@@ -68,7 +68,11 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
       lastLink = &(trtHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
       unsigned short index{0};
-      if (lastLink->getEventPositionInCollection(SG::CurrentEventStore::store())!=0) {
+      const HepMcParticleLink::index_type position =
+        HepMcParticleLink::getEventPositionInCollection(lastLink->eventIndex(),
+                                                        lastLink->getEventCollection(),
+                                                        SG::CurrentEventStore::store()).at(0);
+      if (position!=0) {
         index = lastLink->eventIndex();
         if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
           log << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;

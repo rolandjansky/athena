@@ -55,7 +55,11 @@ void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
   // single McEventCollection, as running with split
   // McEventCollections is not supported in 21.0.
   unsigned short index{0};
-  if (transObj->getEventPositionInCollection(SG::CurrentEventStore::store())!=0) {
+  const HepMcParticleLink::index_type position =
+    HepMcParticleLink::getEventPositionInCollection(transObj->eventIndex(),
+                                                    transObj->getEventCollection(),
+                                                    SG::CurrentEventStore::store()).at(0);
+  if (position!=0) {
     index = transObj->eventIndex();
     if(transObj->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
       msg << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
