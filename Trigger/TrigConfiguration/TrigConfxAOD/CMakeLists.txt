@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTrigger
+   Trigger/TrigConfiguration/TrigConfData
    Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigConfiguration/TrigConfInterfaces
    Trigger/TrigConfiguration/TrigConfL1Data
@@ -39,7 +40,7 @@ atlas_add_library( TrigConfxAODLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfxAOD
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel
+      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel TrigConfData
       TrigConfxAODLib )
 endif()
 
