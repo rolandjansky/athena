@@ -49,13 +49,17 @@ namespace FlavorTagDiscriminants {
     m_n_subjets(0),
     m_min_subjet_pt(config.min_subjet_pt)
   {
+    namespace fs = boost::filesystem;
     // setup NN
-    std::string nn_path = PathResolverFindCalibFile(config.input_file_path);
-    if (nn_path.size() == 0) {
-      throw std::runtime_error(
-        "no file found at '" + config.input_file_path + "'");
+    fs::path nn_path = config.input_file_path;
+    if (!fs::exists(nn_path)) {
+      nn_path = PathResolverFindCalibFile(nn_path.string());
+      if (nn_path.empty()) {
+        throw std::runtime_error(
+          "no file found at '" + config.input_file_path.string() + "'");
+      }
     }
-    std::ifstream input_stream(nn_path);
+    std::ifstream input_stream(nn_path.string());
     lwt::GraphConfig graph_cfg = lwt::parse_json_graph(input_stream);
     m_graph.reset(new lwt::LightweightGraph(graph_cfg));
 

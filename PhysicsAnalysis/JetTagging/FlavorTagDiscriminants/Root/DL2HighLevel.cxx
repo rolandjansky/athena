@@ -165,4 +165,9 @@ namespace FlavorTagDiscriminants {
     m_dl2->decorate(jet);
   }
 
+  DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const
+  {
+    return m_dl2->getDataDependencyNames();
+  }
+
 }
