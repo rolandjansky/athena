@@ -135,8 +135,15 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       # --- now load the framework for the clustering
       #InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name                 = "InDetClusterMakerTool")
       #acc.addPublicTool(InDetClusterMakerTool)
-      accbuf = InDetClusterMakerToolCfg(flags, **kwargs)
+      accbuf = InDetClusterMakerToolCfg(flags)
       InDetClusterMakerTool = accbuf.getPrimary()
+      acc.merge(accbuf)
+
+      # PixelClusteringToolBase uses PixelConditionsSummaryTool
+      from InDetConfig.InDetRecToolConfig import InDetPixelConditionsSummaryToolCfg
+      accbuf = InDetPixelConditionsSummaryToolCfg(flags)
+      conditionssummarytool = accbuf.popPrivateTools()
+      # FIXME? Currently not assigning 
       acc.merge(accbuf)
 
       InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name                    = "InDetMergedPixelsTool", 
