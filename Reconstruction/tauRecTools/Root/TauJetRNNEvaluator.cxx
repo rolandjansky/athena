@@ -176,7 +176,6 @@ StatusCode TauJetRNNEvaluator::get_tracks(
 
 StatusCode TauJetRNNEvaluator::get_clusters(
     const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) {
-    std::vector<const xAOD::CaloCluster *> clusters;
 
     const xAOD::Jet *jet_seed = *tau.jetLink();
     if (!jet_seed) {
@@ -184,15 +183,15 @@ StatusCode TauJetRNNEvaluator::get_clusters(
         return StatusCode::FAILURE;
     }
 
-    std::vector<const xAOD::CaloCluster*> clusterList;
-    ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr));
+    std::vector<const xAOD::CaloCluster*> clusters;
+    ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusters, m_incShowerSubtr));
 
     // remove clusters that do not meet dR requirement
-    auto cItr = clusterList.begin();
-    while( cItr != clusterList.end() ){
+    auto cItr = clusters.begin();
+    while( cItr != clusters.end() ){
       const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
       if (lc_p4.DeltaR((*cItr)->p4()) > m_max_cluster_dr) {
-	clusterList.erase(cItr);
+        clusters.erase(cItr);
       }
       else ++cItr;
     }
