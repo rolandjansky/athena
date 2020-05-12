@@ -160,7 +160,7 @@ def tauCaloMVASequence(ConfigFlags):
 def tauIdTrackSequence( RoIs , name):
     import AthenaCommon.CfgMgr as CfgMgr
 
-    tauIdTrackSequence = parOR(name)
+    tauIdTrackSequence = seqAND(name)
 
     signName = "Tau"
 
