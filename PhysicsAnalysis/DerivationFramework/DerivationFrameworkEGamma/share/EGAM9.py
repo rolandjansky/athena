@@ -153,7 +153,7 @@ if globalflags.DataSource()=='geant4':
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     EGAM9TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM9TruthThinningTool",
-                                                                       ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                       StreamName              = streamName,
                                                                        ParticleSelectionString = truth_expression,
                                                                        PreserveDescendants     = False,
                                                                        PreserveGeneratorDescendants     = True,
@@ -175,14 +175,13 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepElectronTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
         EGAM9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM9ElectronTPThinningTool",
-                                                                                        ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         GSFTrackParticlesKey    = "GSFTrackParticles",        
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         SelectionString         = "Electrons.pt > 0*GeV",
                                                                                         BestMatchOnly = True,
-                                                                                        ConeSize = 0.3,
-                                                                                        ApplyAnd = False)
+                                                                                        ConeSize = 0.3)
         ToolSvc += EGAM9ElectronTPThinningTool
         print EGAM9ElectronTPThinningTool
         thinningTools.append(EGAM9ElectronTPThinningTool)
@@ -191,14 +190,13 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepPhotonTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
         EGAM9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM9PhotonTPThinningTool",
-                                                                                      ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                                      StreamName              = streamName,
                                                                                       SGKey                   = "Photons",
                                                                                       GSFTrackParticlesKey    = "GSFTrackParticles",        
                                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                       SelectionString         = "Photons.pt > 0*GeV",
                                                                                       BestMatchOnly = True,
-                                                                                      ConeSize = 0.3,
-                                                                                      ApplyAnd = False)
+                                                                                      ConeSize = 0.3)
         
         ToolSvc += EGAM9PhotonTPThinningTool
         print EGAM9PhotonTPThinningTool
@@ -208,7 +206,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM9TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM9TPThinningTool",
-                                                                          ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM9TPThinningTool
@@ -248,16 +246,6 @@ replaceAODReducedJets(reducedJetList,egam9Seq,"EGAM9")
 
 
 
-#============ Create Derivation EGAM9 cell collection ==================
-
-# Keep only calo cells associated with the egammaClusters collection
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
-                                       outputCellKey="DFEGAMCellContainer")
-
-#========================================================================
-
-
 #====================================================================
 # SET UP STREAM SELECTION
 #====================================================================
@@ -266,6 +254,17 @@ theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
 EGAM9Stream.AcceptAlgs(["EGAM9Kernel"])
+
+
+#============ Thin cells for EGAM9 ==================
+
+# Keep only calo cells associated with the egammaClusters collection
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys=["egammaClusters"],
+                    streamName = EGAM9Stream.Name,
+                    outputCellKey = "DFEGAMCellContainer")
+
+#========================================================================
 
 
 #====================================================================
