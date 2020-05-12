@@ -564,7 +564,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
 
   //Truth
-  declareProperty( "Truth.useTRUTH3", m_useTRUTH3 ); // true if using TRUTH3 type containers
+  declareProperty( "Truth.UseTruthThree", m_useTRUTH3 ); // true if using TRUTH3 type containers
 
   //--- Tools configuration
   //PRW
@@ -1440,7 +1440,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
   //
-  configFromFile(m_useTRUTH3, "Truth.useTRUTH3", rEnv, true);
+  configFromFile(m_useTRUTH3, "Truth.UseTruthThree", rEnv, true);
   ///
   configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
   configFromFile(m_trigMatchingPrefix, "Trigger.MatchingPrefix", rEnv, "", true);
