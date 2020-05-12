@@ -109,6 +109,8 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     return result
 
 def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
+
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
     if flags.InDet.usePixelDCS:
@@ -116,6 +118,10 @@ def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummar
         kwargs.setdefault( "IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ] )
     
     result = ComponentAccumulator()
+    result.merge(PixelDCSCondStateAlgCfg(flags))
+    result.merge(PixelDCSCondStatusAlgCfg(flags))
+    result.merge(PixelTDAQCondAlgCfg(flags))
+
     result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
     return result
 
@@ -321,6 +327,10 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
                                            offline_folders=config_folder_prefix+"MUR",
                                            className='CondAttrListVec',
                                            splitMC=True))
+  acc = SCT_CablingToolCfg(flags)
+  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
+  result.merge(acc)
+
   result.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(name, **kwargs))
   return result
 
@@ -336,19 +346,22 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
                                            detDb="SCT",
                                            online_folders=cond_kwargs["NoiseFolder"],
                                            offline_folders=cond_kwargs["NoiseFolder"],
-                                           className='CondAttrListVec',
+                                           className='CondAttrListCollection',
                                            splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
                                            detDb="SCT",
                                            online_folders=cond_kwargs["GainFolder"],
                                            offline_folders=cond_kwargs["GainFolder"],
-                                           className='CondAttrListVec',
+                                           className='CondAttrListCollection',
                                            splitMC=True))
 
   result.addCondAlgo(CompFactory.SCT_ReadCalibDataCondAlg(
                                         name = cond_kwargs["ReadCalibDataCondAlgName"],
                                         ReadKeyGain = cond_kwargs["GainFolder"],
                                         ReadKeyNoise = cond_kwargs["NoiseFolder"]))
+  acc = SCT_CablingToolCfg(flags)
+  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
+  result.merge(acc)
 
   result.setPrivateTools(CompFactory.SCT_ReadCalibDataTool(name,**kwargs))
   return result
@@ -398,14 +411,23 @@ def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs
   result.setPrivateTools(tool)
   return result
 
+def SCT_CablingToolCfg(flags):
+    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+    result = SCT_CablingCondAlgCfg(flags)
+
+    tool = CompFactory.SCT_CablingTool()
+    result.setPrivateTools(tool)
+    return result
+
 def SCT_TdaqEnabledToolCfg(flags):
   # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
-  result = SCT_TdaqEnabledCondAlg(flags)
-  tool = CompFactory.SCT_CablingTool()
+  result = SCT_TdaqEnabledCondAlgCfg(flags)
+
+  tool = CompFactory.SCT_TdaqEnabledTool()
   result.setPrivateTools(tool)
   return result
 
-def SCT_TdaqEnabledCondAlg(flags):
+def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
   if flags.Input.isMC:
     print("Warning: should not setup SCT_TdaqEnabledCond for MC")
     return
@@ -415,9 +437,12 @@ def SCT_TdaqEnabledCondAlg(flags):
   folder = '/TDAQ/Resources/ATLAS/SCT/Robins' if (flags.IOVDb.DatabaseInstance == "CONDBR2") else '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
 
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
+  
+  acc = SCT_CablingToolCfg(flags)
+  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTool() )
+  result.merge(acc)
 
-  # Think there's no need to configure the SCT_CablingTool - the default is fine. 
-  result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg() )
+  result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )
   return result
 
 def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs):
