@@ -141,6 +141,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRWCombinedmode(false),
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
+    m_autoconfigPRWRtags(""),
     m_mcCampaign(""),
     m_mcChannel(-99),
     m_prwDataSF(-99.),
@@ -571,6 +572,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "AutoconfigurePRWToolCombinedmode", m_autoconfigPRWCombinedmode );
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
+  declareProperty( "AutoconfigurePRWToolRtags", m_autoconfigPRWRtags );
   declareProperty( "mcCampaign",           m_mcCampaign );
   declareProperty( "mcChannel",            m_mcChannel );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
@@ -896,19 +898,52 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     std::string simType = (isAtlfast() ? "AFII" : "FS");
     const xAOD::FileMetaData* fmd = 0;
 
+    // configure PRW rtag options from m_autoconfigPRWRtags string
+    // e.g. "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265"
+    std::map<std::string,std::vector<std::string>> PRWRtags = {};
+    std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc16ans.mc16dns.mc16ens";
+    bool standard_like = true;
+    for ( auto campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
+       std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
+       std::vector<std::string> irtags = split( campaign_rtags.substr(campaign_rtags.find(":")+1), "_" );       // remaining fields = rtags, split by "_"
+       PRWRtags[icampaign] = irtags;
+       ATH_MSG_DEBUG( "PRW autoconfigure considering rtags " <<  campaign_rtags.substr(campaign_rtags.find("_")+1) << " for campaign " << icampaign );
+    }
+    for ( auto x : PRWRtags ) {
+       if ( allcampaigns.find(x.first)==string::npos ) {
+          ATH_MSG_ERROR("m_autoconfigPRWRtags contains invalid campaign: " << x.first << " (" << m_autoconfigPRWRtags << ")");
+          ATH_MSG_ERROR("use any of " << allcampaigns);
+          return StatusCode::FAILURE;
+       }
+    }
+
     // let's use MetaData to extract sample information
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      if ( amiTag.find("r9364")!=string::npos || amiTag.find("r11285")!=string::npos || amiTag.find("r11505")!=string::npos) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
-      else if ( amiTag.find("r10201")!=string::npos || amiTag.find("r11279")!=string::npos || amiTag.find("r11506")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r10724")!=string::npos || amiTag.find("r11249")!=string::npos || amiTag.find("r11507")!=string::npos ) mcCampaignMD = "mc16e";
-      else {
-      	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
-	      return StatusCode::FAILURE;
+      bool found = false;
+      while ( mcCampaignMD.empty() ) {
+         for ( auto campaign_rtags : PRWRtags ) {                                 // consider all campaigns
+            for ( auto rtag: campaign_rtags.second ) {                            // consider all rtags
+               if (found) continue;
+               if (amiTag.find(rtag)!=string::npos) {                             // find matching tag
+                  mcCampaignMD = campaign_rtags.first.substr(0,5);                // save campaign
+                  standard_like = (campaign_rtags.first.find("ns")?true:false);   // track non-standard r-tags
+                  found = true;                                                   // break if found
+               }
+            }
+         }
+         // in case not found
+         if (!found) {
+         	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample.");
+	         return StatusCode::FAILURE;
+         }
+         //
+         ATH_MSG_INFO( "Setting up autoconfigurePileupRWTool for mc campaign " << mcCampaignMD << " (from amiTag " << amiTag << ") (standard-like = " << (standard_like?"true":"false") << ")." );
+         if ( (!standard_like) && (!RPVLLmode) )
+            ATH_MSG_WARNING("Non-standard r-tag found (" << amiTag.data() << "), but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
       }
-    } else  {
+    } else {
 #ifndef XAOD_STANDALONE
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number.");
       return StatusCode::FAILURE;
@@ -1001,8 +1036,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     TFile testF(prwConfigFile.data(),"read");
     if (testF.IsZombie()) {
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
-      if ( amiTag.find("r11")!=std::string::npos && !RPVLLmode ) 
-         ATH_MSG_WARNING("Running with r11xxx r-tag, but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
+      if ( (!standard_like) && (!RPVLLmode) )
+         ATH_MSG_WARNING("Running with non-standard r-tag (" << amiTag.data() << "), but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
       return StatusCode::FAILURE;
     }
 
@@ -1450,6 +1485,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_autoconfigPRWCombinedmode, "PRW.autoconfigPRWCombinedmode", rEnv, false);
   configFromFile(m_autoconfigPRWRPVmode, "PRW.autoconfigPRWRPVmode", rEnv, false);
   configFromFile(m_autoconfigPRWHFFilter, "PRW.autoconfigPRWHFFilter", rEnv, "None");
+  configFromFile(m_autoconfigPRWRtags, "PRW.autoconfigPRWRtags", rEnv, "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265");
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 

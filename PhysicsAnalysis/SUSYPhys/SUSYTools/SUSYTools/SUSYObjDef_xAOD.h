@@ -526,6 +526,7 @@ namespace ST {
     bool m_autoconfigPRWCombinedmode;
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;
+    std::string m_autoconfigPRWRtags;
     std::string m_mcCampaign;
     int m_mcChannel;
 
