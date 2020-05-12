@@ -148,6 +148,8 @@ namespace ST {
       if (!isData())this->IsTruthBJet(*jet);
     }
     if (recordSG) {
+      std::string auxname = copyaux->name();
+      if (auxname.compare("UNKNOWN")==0) copyaux->setName(std::string("STCalib" + jetkey_tmp + m_currentSyst.name() + "AuxCopy").c_str());
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
     }
