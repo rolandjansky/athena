@@ -71,8 +71,8 @@ TrigSignatureMoniMT                                INFO HLT_e140_lhloose_nod0_L1
 TrigSignatureMoniMT                                INFO -- #2532156734 Events         6          6          0          0          0          0          -          -          0
 TrigSignatureMoniMT                                INFO -- #2532156734 Features                             0          0          0          0          -          -
 TrigSignatureMoniMT                                INFO HLT_e17_lhloose_mu14_L1EM15VH_MU10 #899946230
-TrigSignatureMoniMT                                INFO -- #899946230 Events          3          3          3          2          2          2          -          -          2
-TrigSignatureMoniMT                                INFO -- #899946230 Features                              3          46         4          2          -          -
+TrigSignatureMoniMT                                INFO -- #899946230 Events          3          3          2          2          2          2          -          -          2
+TrigSignatureMoniMT                                INFO -- #899946230 Features                              2          46         4          2          -          -
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI #1703681121
 TrigSignatureMoniMT                                INFO -- #1703681121 Events         6          6          6          6          6          -          -          -          6
 TrigSignatureMoniMT                                INFO -- #1703681121 Features                             7          134        7          -          -          -
