@@ -78,4 +78,9 @@ def AthenaMonitoringCfg(flags):
         from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
         result.merge(TauMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doAFPMon:
+        info('Set up AFP monitoring')
+        from Run3AFPMonitoring.Run3AFPExampleMonitorAlgorithm import Run3AFPExampleMonitoringConfig
+        result.merge(Run3AFPExampleMonitoringConfig(flags))
+        
     return result
