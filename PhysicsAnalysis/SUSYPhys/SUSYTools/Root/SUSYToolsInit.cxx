@@ -70,6 +70,8 @@ using namespace ST;
 #include "AssociationUtils/IOverlapRemovalTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
+
 
 #define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )                \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
@@ -255,6 +257,18 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_TopTaggerTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_TopTaggerTool.retrieve() );
   } else if (m_TopTaggerTool.isUserConfigured()) ATH_CHECK(m_TopTaggerTool.retrieve());
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise JetTruthLabelingTool: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR#AnalysisBase_21_2_114_and_newer
+  if (!m_jetTruthLabelingTool.isUserConfigured()) {
+    m_jetTruthLabelingTool.setTypeAndName("JetTruthLabelingTool/JetTruthLabelingTool");
+    ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthLabelName", "R10TruthLabel_R21Consolidated") );
+    ATH_CHECK( m_jetTruthLabelingTool.setProperty("UseTRUTH3", m_useTRUTH3) );                 // Set this to false only if you have the FULL !TruthParticles container in your input file
+    //ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthParticleContainerName", "") );
+    ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthBosonContainerName", "TruthBoson") );  // Set this if you are using a TRUTH3 style truth boson container
+    ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthTopQuarkContainerName", "TruthTop") ); // Set this if you are using a TRUTH3 style truth top quark container
+    ATH_CHECK( m_jetTruthLabelingTool.retrieve() );
+  } else if (m_jetTruthLabelingTool.isUserConfigured()) ATH_CHECK(m_jetTruthLabelingTool.retrieve());
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
@@ -1357,6 +1371,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } 
 
     toolName = "BTagSel_" + jetcollBTag + m_BtagTagger + m_BtagWP;
+
     m_btagSelTool.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
     ATH_CHECK( m_btagSelTool.setProperty("OperatingPoint", m_BtagWP  ) );
@@ -1396,7 +1411,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         return StatusCode::FAILURE;
     }
 
-    toolName = "BTagSel_" + trkjetcoll + m_BtagWP_trkJet;
+    toolName = "BTagSel_" + trkjetcoll + m_BtagTagger_trkJet + m_BtagWP_trkJet;
     
     m_btagSelTool_trkJet.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );
@@ -1855,6 +1870,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK(m_orToolbox.muJetORT.setProperty("EnableUserPriority", true));
     if (m_orDoTau) ATH_CHECK(m_orToolbox.tauJetORT.setProperty("EnableUserPriority", true));
     if (m_orDoPhoton) ATH_CHECK(m_orToolbox.phoJetORT.setProperty("EnableUserPriority", true));
+
+    if ( m_orPhotonFavoured ) {
+       ATH_CHECK(m_orToolbox.phoEleORT.setProperty("SwapContainerPrecedence", true));
+       ATH_CHECK(m_orToolbox.phoMuORT.setProperty("SwapContainerPrecedence", true));
+    }
 
     if (!m_orDoEleJet){
       // Disable the electron removal part of e-j overlap removal

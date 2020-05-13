@@ -70,7 +70,7 @@
 #include "AssociationUtils/IOverlapRemovalTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
-
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // For reading metadata
 #include "xAODMetaData/FileMetaData.h"
@@ -141,6 +141,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRWCombinedmode(false),
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
+    m_autoconfigPRWRtags(""),
     m_mcCampaign(""),
     m_mcChannel(-99),
     m_prwDataSF(-99.),
@@ -264,6 +265,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orRemoveCaloMuons(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
+    m_orPhotonFavoured(false),
     m_orBJetPtUpperThres(-999.),
     m_orLinkOverlapObjects(false),
     m_orDoFatjets(false),
@@ -276,6 +278,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
     m_useSigLepForIsoCloseByOR(false),
     m_IsoCloseByORpassLabel(""),
+
+    m_useTRUTH3(true),
 
     m_metJetSelection(""),
     m_fatJets(""),
@@ -301,6 +305,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
     m_TopTaggerTool(""),
+    m_jetTruthLabelingTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -425,6 +430,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORInputLabel", m_orInputLabel);
+  declareProperty( "ORPhotonFavoured", m_orPhotonFavoured);
   declareProperty( "ORBJetPtUpperThres", m_orBJetPtUpperThres);
   declareProperty( "ORLinkOverlapObjects", m_orLinkOverlapObjects);
 
@@ -557,6 +563,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "UseSigLepForIsoCloseByOR", m_useSigLepForIsoCloseByOR );
   declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
 
+  //Truth
+  declareProperty( "UseTRUTH3", m_useTRUTH3 ); // true if using TRUTH3 type containers
+
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
@@ -565,6 +574,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "AutoconfigurePRWToolCombinedmode", m_autoconfigPRWCombinedmode );
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
+  declareProperty( "AutoconfigurePRWToolRtags", m_autoconfigPRWRtags );
   declareProperty( "mcCampaign",           m_mcCampaign );
   declareProperty( "mcChannel",            m_mcChannel );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
@@ -609,6 +619,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_WTaggerTool.declarePropertyFor( this, "WTaggerTool", "The SmoothedWZTaggerTool" );
   m_ZTaggerTool.declarePropertyFor( this, "ZTaggerTool", "The SmoothedWZTaggerTool" );
   m_TopTaggerTool.declarePropertyFor( this, "TopTaggerTool", "The DNNTopTaggerTool" );
+  m_jetTruthLabelingTool.declarePropertyFor( this, "JetTruthLabelingTool", "The JetTruthLabelingTool" );
   //
   m_muonSelectionTool.declarePropertyFor( this, "MuonSelectionTool", "The MuonSelectionTool for signal muons" );
   m_muonSelectionHighPtTool.declarePropertyFor( this, "MuonSelectionHighPtTool", "The MuonSelectionTool for signal muons (HighPt WP)" );
@@ -889,19 +900,52 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     std::string simType = (isAtlfast() ? "AFII" : "FS");
     const xAOD::FileMetaData* fmd = 0;
 
+    // configure PRW rtag options from m_autoconfigPRWRtags string
+    // e.g. "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265"
+    std::map<std::string,std::vector<std::string>> PRWRtags = {};
+    std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc16ans.mc16dns.mc16ens";
+    bool standard_like = true;
+    for ( auto campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
+       std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
+       std::vector<std::string> irtags = split( campaign_rtags.substr(campaign_rtags.find(":")+1), "_" );       // remaining fields = rtags, split by "_"
+       PRWRtags[icampaign] = irtags;
+       ATH_MSG_DEBUG( "PRW autoconfigure considering rtags " <<  campaign_rtags.substr(campaign_rtags.find("_")+1) << " for campaign " << icampaign );
+    }
+    for ( auto x : PRWRtags ) {
+       if ( allcampaigns.find(x.first)==string::npos ) {
+          ATH_MSG_ERROR("m_autoconfigPRWRtags contains invalid campaign: " << x.first << " (" << m_autoconfigPRWRtags << ")");
+          ATH_MSG_ERROR("use any of " << allcampaigns);
+          return StatusCode::FAILURE;
+       }
+    }
+
     // let's use MetaData to extract sample information
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      if ( amiTag.find("r9364")!=string::npos || amiTag.find("r11285")!=string::npos || amiTag.find("r11505")!=string::npos) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
-      else if ( amiTag.find("r10201")!=string::npos || amiTag.find("r11279")!=string::npos || amiTag.find("r11506")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r10724")!=string::npos || amiTag.find("r11249")!=string::npos || amiTag.find("r11507")!=string::npos ) mcCampaignMD = "mc16e";
-      else {
-      	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
-	      return StatusCode::FAILURE;
+      bool found = false;
+      while ( mcCampaignMD.empty() ) {
+         for ( auto campaign_rtags : PRWRtags ) {                                 // consider all campaigns
+            for ( auto rtag: campaign_rtags.second ) {                            // consider all rtags
+               if (found) continue;
+               if (amiTag.find(rtag)!=string::npos) {                             // find matching tag
+                  mcCampaignMD = campaign_rtags.first.substr(0,5);                // save campaign
+                  standard_like = (campaign_rtags.first.find("ns")?true:false);   // track non-standard r-tags
+                  found = true;                                                   // break if found
+               }
+            }
+         }
+         // in case not found
+         if (!found) {
+         	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample.");
+	         return StatusCode::FAILURE;
+         }
+         //
+         ATH_MSG_INFO( "Setting up autoconfigurePileupRWTool for mc campaign " << mcCampaignMD << " (from amiTag " << amiTag << ") (standard-like = " << (standard_like?"true":"false") << ")." );
+         if ( (!standard_like) && (!RPVLLmode) )
+            ATH_MSG_WARNING("Non-standard r-tag found (" << amiTag.data() << "), but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
       }
-    } else  {
+    } else {
 #ifndef XAOD_STANDALONE
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number.");
       return StatusCode::FAILURE;
@@ -994,8 +1038,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     TFile testF(prwConfigFile.data(),"read");
     if (testF.IsZombie()) {
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
-      if ( amiTag.find("r11")!=std::string::npos && !RPVLLmode ) 
-         ATH_MSG_WARNING("Running with r11xxx r-tag, but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
+      if ( (!standard_like) && (!RPVLLmode) )
+         ATH_MSG_WARNING("Running with non-standard r-tag (" << amiTag.data() << "), but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
       return StatusCode::FAILURE;
     }
 
@@ -1388,12 +1432,15 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
+  configFromFile(m_orPhotonFavoured, "OR.PhotonFavoured", rEnv, false);
   configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
   configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false);
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
+  //
+  configFromFile(m_useTRUTH3, "Truth.UseTRUTH3", rEnv, true);
   ///
   configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
   configFromFile(m_trigMatchingPrefix, "Trigger.MatchingPrefix", rEnv, "", true);
@@ -1441,6 +1488,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_autoconfigPRWCombinedmode, "PRW.autoconfigPRWCombinedmode", rEnv, false);
   configFromFile(m_autoconfigPRWRPVmode, "PRW.autoconfigPRWRPVmode", rEnv, false);
   configFromFile(m_autoconfigPRWHFFilter, "PRW.autoconfigPRWHFFilter", rEnv, "None");
+  configFromFile(m_autoconfigPRWRtags, "PRW.autoconfigPRWRtags", rEnv, "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265");
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 
@@ -1673,7 +1721,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     }
   }
   if (m_BtagMinPt < 20e3 || m_BtagMinPt_trkJet < 10e3) {
-     ATH_MSG_WARNING("You btagging MinPt settings are inconsistent! EM(Topo|PFlow)Jets: not calibrated below 20 GeV (Btag.MinPt = " << m_BtagMinPt/1000. << " GeV set), VRTrackJets: not calibrated below 10 GeV (BtagTrkJet.MinPt = " << m_BtagMinPt_trkJet/1000. << " GeV set).");
+     ATH_MSG_WARNING("You btagging MinPt settings are inconsistent! EM(Topo|PFlow)Jets: not calibrated below 20 GeV (Btag.MinPt: " << m_BtagMinPt/1000. << " GeV set), VRTrackJets: not calibrated below 10 GeV (BtagTrkJet.MinPt: " << m_BtagMinPt_trkJet/1000. << " GeV set).");
   }
 
   //Taus

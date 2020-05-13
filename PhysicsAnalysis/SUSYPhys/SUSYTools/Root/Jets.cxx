@@ -49,6 +49,9 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_bjet_loose("bjet_loose");
 
   const static SG::AuxElement::Decorator<double> dec_btag_weight("btag_weight");
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pb("btag_dl1pb"); // added for dl1 components
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pc("btag_dl1pc");
+  const static SG::AuxElement::Decorator<double> dec_btag_dl1pu("btag_dl1pu");
 
   const static SG::AuxElement::Decorator<float> dec_VRradius("VRradius");
   const static SG::AuxElement::ConstAccessor<float> acc_VRradius("VRradius");
@@ -308,6 +311,8 @@ namespace ST {
       else{
         dec_selected(*jet) = 0;
       }
+      // Truth Labeling (MC only)
+      m_jetTruthLabelingTool->modifyJet(*jet);
     }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
@@ -663,6 +668,16 @@ namespace ST {
     dec_btag_weight(input) = weight;
     ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
 
+    if (m_btagSelTool->name().find("DL1")!=std::string::npos) {
+       double dl1_pb(-10), dl1_pc(-10), dl1_pu(-10);
+       input.btagging()->pb(m_BtagTagger, dl1_pb);
+       input.btagging()->pc(m_BtagTagger, dl1_pc);
+       input.btagging()->pu(m_BtagTagger, dl1_pu);
+       dec_btag_dl1pb(input) = dl1_pb;
+       dec_btag_dl1pc(input) = dl1_pc;
+       dec_btag_dl1pu(input) = dl1_pu;
+    }
+
     return isbjet;
   }
 
@@ -677,6 +692,16 @@ namespace ST {
     }
     dec_btag_weight(input) = weight;
     ATH_MSG_VERBOSE( "b-tag weight (track jets)?: " << weight );
+
+    if (m_btagSelTool_trkJet->name().find("DL1")!=std::string::npos) {
+       double dl1_pb(-10), dl1_pc(-10), dl1_pu(-10);
+       input.btagging()->pb(m_BtagTagger_trkJet, dl1_pb);
+       input.btagging()->pc(m_BtagTagger_trkJet, dl1_pc);
+       input.btagging()->pu(m_BtagTagger_trkJet, dl1_pu);
+       dec_btag_dl1pb(input) = dl1_pb;
+       dec_btag_dl1pc(input) = dl1_pc;
+       dec_btag_dl1pu(input) = dl1_pu;
+    }
 
     return isbjet;
   }
