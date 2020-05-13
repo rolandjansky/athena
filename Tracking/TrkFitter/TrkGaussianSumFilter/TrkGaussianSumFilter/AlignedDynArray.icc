@@ -19,7 +19,7 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n)
 {
   const size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(Alignment, bufferSize));
-  std::uninitialized_default_construct(m_buffer,m_buffer+m_size);
+  std::uninitialized_default_construct(m_buffer, m_buffer + m_size);
 }
 
 template<typename T, size_t Alignment>
@@ -29,7 +29,7 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n, const T& value)
 {
   const size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(Alignment, bufferSize));
-  std::uninitialized_fill(m_buffer,m_buffer+m_size,value);
+  std::uninitialized_fill(m_buffer, m_buffer + m_size, value);
 }
 
 template<typename T, size_t Alignment>
@@ -88,7 +88,8 @@ inline T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos)
 }
 
 template<typename T, size_t Alignment>
-inline const T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos) const
+inline const T& AlignedDynArray<T, Alignment>::operator[](
+  const std::size_t pos) const
 {
   return m_buffer[pos];
 }
@@ -113,4 +114,3 @@ AlignedDynArray<T, Alignment>::cleanup()
 }
 
 } // namespace GSFUtils
-

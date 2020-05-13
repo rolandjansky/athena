@@ -29,7 +29,6 @@ class GsfBetheHeitlerEffects
 {
 
 private:
-  
   /** Helper class for construction and evaluation of polynomial */
   class Polynomial
   {
@@ -37,7 +36,8 @@ private:
     // Default constructor
     Polynomial() = default;
 
-    /** Constructor from a vector of coefficients (in decreasing order of powers of x */
+    /** Constructor from a vector of coefficients (in decreasing order of powers
+     * of x */
     Polynomial(const std::vector<double>& coefficients)
       : m_coefficients(coefficients){};
 
@@ -47,15 +47,16 @@ private:
       double sum(0.);
       std::vector<double>::const_iterator coefficient = m_coefficients.begin();
 
-      for (; coefficient != m_coefficients.end(); ++coefficient)
+      for (; coefficient != m_coefficients.end(); ++coefficient) {
         sum = t * sum + (*coefficient);
+      }
 
       return sum;
     }
+
   private:
     std::vector<double> m_coefficients;
   };
-
 
   struct ComponentValues
   {
@@ -77,9 +78,10 @@ private:
     double variance;
   };
 
-
 public:
-  GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);
+  GsfBetheHeitlerEffects(const std::string&,
+                         const std::string&,
+                         const IInterface*);
 
   virtual ~GsfBetheHeitlerEffects() = default;
 
@@ -94,7 +96,8 @@ public:
                        const MaterialProperties&,
                        double,
                        PropDirection direction = anyDirection,
-                       ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+                       ParticleHypothesis particleHypothesis =
+                         nonInteracting) const override final;
 
 private:
   typedef std::vector<ComponentValues> MixtureParameters;
@@ -121,13 +124,22 @@ private:
   double correctedFirstVariance(const double, const MixtureParameters&) const;
 
   // Logistic function - needed for transformation of weight and mean
-  inline double logisticFunction(const double x) const { return (double)1. / (1. + exp(-x)); }
+  inline double logisticFunction(const double x) const
+  {
+    return (double)1. / (1. + exp(-x));
+  }
 
   // First moment of the Bethe-Heitler distribution
-  inline double betheHeitlerMean(const double r) const { return (double)exp(-r); }
+  inline double betheHeitlerMean(const double r) const
+  {
+    return (double)exp(-r);
+  }
 
   // Second moment of the Bethe-Heitler distribution
-  inline double betheHeitlerVariance(const double r) const { return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r); }
+  inline double betheHeitlerVariance(const double r) const
+  {
+    return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r);
+  }
 
 private:
   std::string m_parameterisationFileName;

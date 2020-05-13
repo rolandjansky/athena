@@ -3,10 +3,11 @@
  */
 
 inline void
-Trk::GsfExtrapolator::setRecallInformation(Cache& cache,
-                                           const Trk::Surface& recallSurface,
-                                           const Trk::Layer& recallLayer,
-                                           const Trk::TrackingVolume& recallTrackingVolume) const
+Trk::GsfExtrapolator::setRecallInformation(
+  Cache& cache,
+  const Trk::Surface& recallSurface,
+  const Trk::Layer& recallLayer,
+  const Trk::TrackingVolume& recallTrackingVolume) const
 {
   cache.m_recall = true;
   cache.m_recallSurface = &recallSurface;
@@ -24,8 +25,9 @@ Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 }
 
 inline void
-Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache,
-                                          const Trk::MultiComponentState* garbage) const
+Trk::GsfExtrapolator::throwIntoGarbageBin(
+  Cache& cache,
+  const Trk::MultiComponentState* garbage) const
 {
   if (garbage) {
     std::unique_ptr<const Trk::MultiComponentState> sink(garbage);
@@ -34,7 +36,9 @@ Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache,
 }
 
 inline void
-Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache, const Trk::TrackParameters* garbage) const
+Trk::GsfExtrapolator::throwIntoGarbageBin(
+  Cache& cache,
+  const Trk::TrackParameters* garbage) const
 {
   if (garbage) {
     std::unique_ptr<const Trk::TrackParameters> sink(garbage);
@@ -52,6 +56,3 @@ Trk::GsfExtrapolator::emptyGarbageBins(Cache& cache) const
   cache.m_tpGarbageBin.clear();
   cache.m_matstates.reset(nullptr);
 }
-
-
-

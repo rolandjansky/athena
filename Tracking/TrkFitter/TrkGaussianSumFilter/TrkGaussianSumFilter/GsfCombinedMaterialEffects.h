@@ -8,8 +8,8 @@
 begin                : Friday 11th January 2005
 author               : atkinson
 email                : Tom.Atkinson@cern.ch
-decription           : Class definition for consideration of multiple scatter and
-                       energy loss effects from material simultaneously.
+decription           : Class definition for consideration of multiple scatter
+and energy loss effects from material simultaneously.
 *********************************************************************************/
 
 #ifndef TrkGsfCombinedMaterialEffects_H
@@ -17,9 +17,9 @@ decription           : Class definition for consideration of multiple scatter an
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 namespace Trk {
 class GsfCombinedMaterialEffects
@@ -28,7 +28,9 @@ class GsfCombinedMaterialEffects
 {
 public:
   /** Constructor with AlgTool parameters*/
-  GsfCombinedMaterialEffects(const std::string&, const std::string&, const IInterface*);
+  GsfCombinedMaterialEffects(const std::string&,
+                             const std::string&,
+                             const IInterface*);
 
   /** Virtual destructor */
   virtual ~GsfCombinedMaterialEffects() override;
@@ -39,16 +41,15 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override;
 
-  virtual void compute(IMultiStateMaterialEffects::Cache&,
-                       const ComponentParameters&,
-                       const MaterialProperties&,
-                       double,
-                       PropDirection = anyDirection,
-                       ParticleHypothesis = nonInteracting) const override final; 
+  virtual void compute(
+    IMultiStateMaterialEffects::Cache&,
+    const ComponentParameters&,
+    const MaterialProperties&,
+    double,
+    PropDirection = anyDirection,
+    ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  
- 
   void scattering(IMultiStateMaterialEffects::Cache&,
                   const ComponentParameters&,
                   const MaterialProperties&,

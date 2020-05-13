@@ -9,7 +9,8 @@ created              : Thursday 8th January 2009
 authors              : amorley,christos
 email                : Anthony.Morley@cern.ch
 decription           : Abstract interface for the forward GSF fitter
-********************************************************************************** */
+**********************************************************************************
+*/
 
 #ifndef TrkIForwardGsfFitter_H
 #define TrkIForwardGsfFitter_H
@@ -36,7 +37,10 @@ class IForwardGsfFitter : virtual public IAlgTool
 
 public:
   /** AlgTool interface method */
-  static const InterfaceID& interfaceID() { return InterfaceID_ForwardGsfFitter; };
+  static const InterfaceID& interfaceID()
+  {
+    return InterfaceID_ForwardGsfFitter;
+  };
 
   /** Virtual destructor */
   virtual ~IForwardGsfFitter() = default;
@@ -45,9 +49,10 @@ public:
       - Configure the extrapolator
       - Configure the measurement updator
       - Configure the RIO_OnTrack creator */
-  virtual StatusCode configureTools(const ToolHandle<Trk::IMultiStateExtrapolator>&,
-                                    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
-                                    const ToolHandle<Trk::IRIO_OnTrackCreator>&) = 0;
+  virtual StatusCode configureTools(
+    const ToolHandle<Trk::IMultiStateExtrapolator>&,
+    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
+    const ToolHandle<Trk::IRIO_OnTrackCreator>&) = 0;
 
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
@@ -61,8 +66,8 @@ public:
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  /** The interface will later be extended so that the initial state can be additionally a
-   * MultiComponentState object!
+  /** The interface will later be extended so that the initial state can be
+   * additionally a MultiComponentState object!
    */
 };
 
