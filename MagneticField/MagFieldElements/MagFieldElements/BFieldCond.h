@@ -14,7 +14,7 @@
 #ifndef BFIELDCOND_H
 #define BFIELDCOND_H
 
-#include <Eigen/Dense>
+#include "EventPrimitives/EventPrimitives.h"
 #include <cmath>
 
 class BFieldCond
