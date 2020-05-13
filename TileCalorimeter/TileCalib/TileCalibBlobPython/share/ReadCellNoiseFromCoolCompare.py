@@ -360,7 +360,7 @@ for cell in range(cellmin,cellmax):
           else:
               dp12=100
       else:
-          dp12=dv12*100/v2
+          dp12=dv12*100./v2
 
       if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
          if doubl:

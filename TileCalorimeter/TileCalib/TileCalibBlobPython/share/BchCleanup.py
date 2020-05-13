@@ -308,8 +308,8 @@ if __name__ == "__main__":
           if calibDrawerPrev is None:
               identical = False
           else:
-            sizelo = calibDrawerPrev.getObjSizeByte()/4
-            sizehi = calibDrawer.getObjSizeByte()/4
+            sizelo = calibDrawerPrev.getObjSizeByte()//4
+            sizehi = calibDrawer.getObjSizeByte()//4
             if (sizelo != sizehi):
               log.error("Object sizes are different for ROS %s (%s %s) drawer %s", ros, sizelo, sizehi, modName)
 
