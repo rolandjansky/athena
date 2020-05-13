@@ -941,6 +941,29 @@ BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
   return uncertainties;
 }
 
+std::map<std::string, std::map<std::string, double>>
+  BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label){
+  // Calling EigenVectorRecomposition method in CDI and retrieve recomposition map
+  std::map<std::string, std::map<std::string, double>> dummy;
+  if (! m_initialised) {
+    ATH_MSG_ERROR("BTaggingEfficiencyTool has not been initialised");
+    return dummy;
+  }
+  if(label.compare("B") != 0 &&
+     label.compare("C") != 0 &&
+     label.compare("T") != 0 &&
+     label.compare("Light") != 0){
+    ATH_MSG_ERROR("Flavour label is illegal! Label need to be B,C,T or Light.");
+    return dummy;
+  }
+  CalibrationStatus status = m_CDI->runEigenVectorRecomposition(m_jetAuthor, label, m_OP);
+  if (status != Analysis::kSuccess){
+    ATH_MSG_ERROR("Failure running EigenVectorRecomposition Method.");
+    return dummy;
+  }
+  return m_CDI->getEigenVectorRecompositionCoefficientMap();
+}
+
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this
 // method - it indicates which systematic shifts are to be applied for all future calls
 SystematicCode BTaggingEfficiencyTool::applySystematicVariation( const SystematicSet & systConfig) {

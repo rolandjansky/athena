@@ -87,6 +87,10 @@ namespace Analysis
     /** matrix to remove unecessary rows and columns from covariance */
     TMatrixD    getJacobianReductionMatrix() const;
 
+    /** Eigenvector recomposition method.*/
+    bool EigenVectorRecomposition(const std::string label,
+				  std::map<std::string, std::map<std::string, double>> &coefficientMap) const;
+
   private:
     /** container object containing the basic information */
     const CalibrationDataHistogramContainer* m_cnt;

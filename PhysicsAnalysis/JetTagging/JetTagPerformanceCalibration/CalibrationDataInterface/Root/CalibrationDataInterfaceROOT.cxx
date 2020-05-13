@@ -2157,6 +2157,56 @@ Analysis::CalibrationDataInterfaceROOT::getShiftedScaleFactors (const std::strin
   shifted->Add(hunc, sigmas);
   return shifted;
 }
+//====================== run EigenVectorRecomposition method ===========================
+Analysis::CalibrationStatus
+Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::string& author,
+								     const std::string& label,
+								     const std::string& OP,
+								     unsigned int mapIndex){
+  // Todo: What is mapindex?
+  // Todo: Check the way xAODBTaggingTool initialize CDI. Check if that is the as how we are initialize CDI. 
+  Analysis::CalibrationStatus status = Analysis::kSuccess;
+  if(!m_runEigenVectorMethod) {
+    status = Analysis::kError;
+    cerr << "runEigenVectorRecomposition: Recomposition need to be ran with CalibrationDataInterfaceRoot initialized in eigenvector mode" << endl;
+    return Analysis::kError;
+  }
+  
+  unsigned int indexSF;
+  if (! retrieveCalibrationIndex (label, OP, author, true, indexSF, mapIndex)) {
+    cerr << "runEigenVectorRecomposition: unable to find SF calibration for object "
+	 << fullName(author, OP, label, true) << endl;
+    return Analysis::kError;
+  }
+
+  CalibrationDataContainer* container = m_objects[indexSF];
+  if (! container) {
+    cerr << "runEigenVectorRecomposition: error retrieving container!" << endl;
+    return Analysis::kError;
+  }
+
+  // Retrieve eigenvariation
+  const CalibrationDataEigenVariations* eigenVariation=m_eigenVariationsMap[container];
+  if (! eigenVariation) {
+    cerr << "runEigenVectorRecomposition: Could not retrieve eigenvector variation, while it should have been there." << endl;
+    return Analysis::kError;
+  }
+  // Doing eigenvector recomposition
+  std::map<std::string, std::map<std::string, double>> coefficientMap;
+  if(!eigenVariation->EigenVectorRecomposition(label, coefficientMap))
+    return Analysis::kError;
+
+  m_coefficientMap = coefficientMap;
+  return status;
+}
+
+std::map<std::string, std::map<std::string, double>>
+Analysis::CalibrationDataInterfaceROOT::getEigenVectorRecompositionCoefficientMap(){
+  if(m_coefficientMap.empty())
+    cerr << "getCoefficientMap: Call runEigenVectorRecomposition() before retrieving coefficient map! " <<endl;
+  return m_coefficientMap;
+}
+
 
 //====================== put some utility functions here ===================================
 

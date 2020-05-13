@@ -18,6 +18,7 @@
 #include "PATInterfaces/SystematicSet.h"
 
 #include <vector>
+#include <map>
 
 class IBTaggingEigenVectorRecompositionTool : virtual public CP::ISystematicsTool {
 
@@ -30,8 +31,11 @@ class IBTaggingEigenVectorRecompositionTool : virtual public CP::ISystematicsToo
 
   virtual CP::CorrectionCode printListOfCoefficients() const = 0;
 
-  virtual std::vector<std::string> getListOfOriginalNuisanceParameters() const = 0;
-  virtual std::vector<float> getCoefficients(const std::string & ev_name) const = 0;
+  virtual std::vector<std::string> getListOfOriginalNuisanceParameters(const std::string& label) const = 0;
+  
+  virtual std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string& label, const std::vector<int> eigenIdxList = std::vector<int>()) const = 0;
+
+  virtual std::vector<double> getCoefficients(const std::string & label, const int& evIdx) const = 0;
 
 };
 

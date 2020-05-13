@@ -196,6 +196,13 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
   std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const;
   /// @}
 
+  /**
+   * Run EigenvectorRecomposition method and get the coefficient map
+   */
+
+  std::map<std::string, std::map<std::string, double>> getEigenRecompositionCoefficientMap(const std::string &label);
+  /// @}
+
 private:
 
   struct SystInfo {
@@ -344,6 +351,8 @@ private:
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
 
+  // Coefficient map calculated by EigenVectorRecomposition.
+  std::map<std::string, std::map<std::string, double>> m_coefficientMap;
 
   //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
   std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;

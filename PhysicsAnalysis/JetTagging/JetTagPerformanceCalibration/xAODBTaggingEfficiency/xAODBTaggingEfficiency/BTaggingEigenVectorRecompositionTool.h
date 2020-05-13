@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
@@ -47,8 +48,9 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
    */
   CP::CorrectionCode printListOfCoefficients() const;
 
-  std::vector<std::string> getListOfOriginalNuisanceParameters() const;
-  std::vector<float> getCoefficients(const std::string & ev_name) const;
+  std::vector<std::string> getListOfOriginalNuisanceParameters(const std::string& label) const;
+  std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string & label, const std::vector<int> eigenIdxList = std::vector<int>()) const;
+  std::vector<double> getCoefficients(const std::string & label, const int& evIdx) const;
 
 
   StatusCode initialize();
@@ -59,9 +61,19 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   bool isAffectedBySystematic( const CP::SystematicVariation & systematic ) const;
 
 
-
-
  private:
+
+  bool m_initialised;
+
+  std::map<std::string, std::map<std::string, double>> m_coefficientMapB;
+  std::map<std::string, std::map<std::string, double>> m_coefficientMapC;
+  std::map<std::string, std::map<std::string, double>> m_coefficientMapT;
+  std::map<std::string, std::map<std::string, double>> m_coefficientMapLight;
+
+  std::vector<std::string> m_NPnameListB;
+  std::vector<std::string> m_NPnameListC;
+  std::vector<std::string> m_NPnameListT;
+  std::vector<std::string> m_NPnameListLight;
 
   ToolHandle<IBTaggingEfficiencyTool> m_btageffTool;
 

@@ -23,6 +23,7 @@
 #include "TDecompSVD.h"
 #include "TMatrixDSymEigen.h"
 #include "TROOT.h"
+#include "TFile.h"
 
 using Analysis::CalibrationDataEigenVariations;
 using Analysis::CalibrationDataInterface::split;
@@ -1039,4 +1040,156 @@ CalibrationDataEigenVariations::isExtrapolationVariation(unsigned int nameIndex)
   // uncertainty.
 
   return (m_namedExtrapolation == int(nameIndex));
+}
+
+//________________________________________________________________________________
+bool
+CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label, 
+							 std::map<std::string, std::map<std::string, double>> &coefficientMap) const
+{
+  // Output EigenVectorRecomposition information, 
+
+  if (! m_initialized) const_cast<CalibrationDataEigenVariations*>(this)->initialize();
+
+  std::vector<TH1*> originSF_hvec;
+  std::vector<TH1*> eigenSF_hvec;
+
+  // Retrieving information for calculation
+  std::vector<string>fullUncList = m_cnt->listUncertainties();
+  std::vector<string> uncList;
+  for (unsigned int t = 0; t < fullUncList.size(); ++t) {
+    // entries that should never be included
+    if (fullUncList[t] == "comment" || fullUncList[t] == "result" ||
+	fullUncList[t] == "combined" || fullUncList[t] == "statistics" ||
+        fullUncList[t] == "systematics" || fullUncList[t] == "MCreference" ||
+        fullUncList[t] == "MChadronisation" || fullUncList[t] == "extrapolation" ||
+        fullUncList[t] == "ReducedSets" || fullUncList[t] == "excluded_set") continue;
+    // entries that can be excluded if desired
+    if (m_namedIndices.find(fullUncList[t]) != m_namedIndices.end()) continue;
+    
+    TH1* hunc = dynamic_cast<TH1*>(m_cnt->GetValue(fullUncList[t].c_str()));
+
+    Int_t nx = hunc->GetNbinsX();
+    Int_t ny = hunc->GetNbinsY();
+    Int_t nz = hunc->GetNbinsZ();
+    Int_t bin = 0;
+    bool retain = false; // Retain the histogram?
+
+    // discard empty histograms
+    // Read all bins without underflow&overflow
+    for(Int_t binx = 1; binx <= nx; binx++)
+      for(Int_t biny = 1; biny <= ny; biny++)
+	for(Int_t binz = 1; binz <= nz; binz++){
+	  bin = hunc->GetBin(binx, biny, binz);  
+	  if (fabs(hunc->GetBinContent(bin)) > 1E-20){
+	    retain = true;
+	    break;
+	  }
+	}// end hist bin for-loop
+    if (!retain){
+      std::cout<<"Eigenvector Recomposition: Empty uncertainty "<<fullUncList.at(t)<<" is discarded."<<std::endl;
+      continue; // discard the vector
+    }
+
+    uncList.push_back(fullUncList.at(t));
+    originSF_hvec.push_back(hunc);
+  }
+
+  TH1* nom = dynamic_cast<TH1*>(m_cnt->GetValue("result")); // Nominal SF hist
+  int dim = nom->GetDimension();
+  Int_t nx = nom->GetNbinsX();
+  Int_t ny = nom->GetNbinsY();
+  Int_t nz = nom->GetNbinsZ();
+  Int_t nbins = nx;
+  if(dim > 1) nbins *= ny;
+  if(dim > 2) nbins *= nz;
+  TMatrixD matSF(uncList.size(), nbins);
+  //TH1* histSF = new TH1("SFMatrix", "SFMatrix",nbins,0,nbins,uncList.size(),0,uncList.size());
+  Int_t col = 0; // mark the column number
+  // Fill the Delta SF Matrix
+  for(unsigned int i = 0; i < uncList.size(); i++){
+    col = 0;
+    // Loop all bins except underflow&overflow bin
+    for(int binz = 1; binz <= nz; binz++)
+      for(int biny = 1; biny <= ny; biny++)
+	for(int binx = 1; binx <= nx; binx++){
+ 	  Int_t bin = originSF_hvec.at(i)->GetBin(binx, biny, binz);
+	  TMatrixDRow(matSF,i)[col] = originSF_hvec[i]->GetBinContent(bin);
+	  //Int_t binh = histSF->GetBin(col+1,i+1,1);
+	  //histSF->SetBinContent(binh, originSF_hvec[i]->GetBinContent(bin));
+	  col++;
+	}
+    //histSF->GetYaxis()->SetBinLabel(i+1,uncList.at(i));
+  }
+
+  // get eigen vectors of scale factors. Note that this is not the original eigen-vector.
+  int nEigen = getNumberOfEigenVariations();
+  TH1* up = 0;
+  TH1* down = 0;
+  for (int i = 0; i < nEigen; i++){
+    if (!getEigenvectorVariation(i, up, down)){
+       std::cerr<<"EigenVectorRecomposition: Error on retrieving eigenvector "<<i<<std::endl;
+      return false;
+    }
+    //Need uncertainty value so subtract central calibration here.
+    up->Add(nom, -1);
+    eigenSF_hvec.push_back(up);
+  }
+  TMatrixD matEigen(nEigen, nbins);
+  //TH2D* histEigen = new TH2D("EigenMatrix", "EigenMatrix",nbins,0,nbins,uncList.size(),0,uncList.size());
+  // Fill the Eigen Matrix
+  for(int i = 0; i < nEigen; i++){
+    col = 0;
+    // Read 300 bins without underflow&overflow
+    for(int binz = 1; binz <= nz; binz++)
+      for(int biny = 1; biny <= ny; biny++)
+	for(int binx = 1; binx <= nx; binx++){
+	  Int_t bin = eigenSF_hvec.at(i)->GetBin(binx, biny, binz);
+	  TMatrixDRow(matEigen,i)[col] = eigenSF_hvec[i]->GetBinContent(bin);
+	  //Int_t binh = histEigen->GetBin(col+1,i+1,1);
+	  //histEigen->SetBinContent(binh, originSF_hvec[i]->GetBinContent(bin));
+	  col++;
+	}
+  }
+
+  // Sanity check:
+  TMatrixD O = matEigen;
+  TMatrixD T = matEigen;
+  T = T.T();
+  TMatrixD OT = O*T;
+  TMatrixD matEigenInvert = T*OT.Invert();
+  //(O*matEigenInvert).DrawClone("colz"); // This should give us an identity matrix
+
+  TMatrixD matCoeff = matSF*matEigenInvert;
+  int nRows = matCoeff.GetNrows();
+  int nCols = matCoeff.GetNcols();
+  std::map<std::string, double> temp_map;
+  for (int col = 0; col < nCols; col++){
+    temp_map.clear();
+    for(int row = 0; row < nRows; row++){
+      temp_map[uncList[row]] = TMatrixDRow(matCoeff, row)[col];
+    }
+    coefficientMap["Eigen_"+label+"_"+std::to_string(col)] = temp_map;
+  }
+
+  //for (std::map<std::string, std::map<std::string, double>>::iterator out=coefficientMap.begin();
+  //   out!=coefficientMap.end(); ++out){
+  //std::cout<<"____________________________________________"<<std::endl;
+  //std::cout<<out->first<<std::endl;
+  //for (std::map<std::string, double>::iterator in=out->second.begin();
+  //	 in!=out->second.end(); ++in){
+  //  std::cout<<in->first<<" "<<in->second<<std::endl;
+  //}
+  //}
+
+  //TFile *MyFile = new TFile("mat_45Eigen.root","RECREATE");
+  //histEigen->Write("histEigen");
+  //matEigen.Write("matEigen");
+  //matEigenInvert.Write("matEigenInvert");
+  ////histSF->Write("histSF");
+  //matSF.Write("matSF");
+  //MyFile->WriteObject(&uncList, "listSF");
+  //MyFile->Close();
+  
+  return true;
 }
