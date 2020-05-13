@@ -1,27 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CNVTOOLS_MDTCSMCONTRAWEVENTTOOL_H
 #define MUONMDT_CNVTOOLS_MDTCSMCONTRAWEVENTTOOL_H
 
-#include <stdint.h>
-#include <map>
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "MDT_Hid2RESrcID.h"
-
 #include "ByteStreamData/RawEvent.h" 
-
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
-
 #include "MuonMDT_CnvTools/IMDT_RDOtoByteStreamTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MdtCsmContainer; 
-class MsgStream;
 
 #include <string>
+#include <map>
 
 namespace Muon {
 /** An AlgTool class to provide conversion from LArRawChannelContainer
@@ -48,16 +44,7 @@ public:
 
   /** constructor
   */
-   MdtCsmContByteStreamTool( const std::string& type, const std::string& name,
-        const IInterface* parent ) ;
-
-  /** destructor 
-  */ 
-  //virtual ~MdtCsmContByteStreamTool() ;
-
-  /** AlgTool InterfaceID
-  */
-  //  static const InterfaceID& interfaceID( ) ;
+   MdtCsmContByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent ) ;
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
@@ -68,8 +55,7 @@ private:
 
   MDT_Hid2RESrcID* m_hid2re; 
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   FullEventAssembler<MDT_Hid2RESrcID> m_fea ;    
 

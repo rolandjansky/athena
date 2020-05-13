@@ -1,20 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCsmContByteStreamTool.h"
-#include "MdtROD_Encoder.h"
 
+#include "MdtROD_Encoder.h"
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmContainer.h"
-
-#include "GaudiKernel/MsgStream.h"
-
-//#include "StoreGate/tools/ClassID_traits.h"
-#include "AthenaKernel/CLASS_DEF.h"
 #include "ByteStreamData/RawEvent.h" 
-
-#include <map> 
 
 // default constructor
 Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
@@ -26,22 +19,14 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
   declareInterface< Muon::IMDT_RDOtoByteStreamTool  >( this );
 }
 
-// destructor 
- 
-//Muon::MdtCsmContByteStreamTool::~MdtCsmContByteStreamTool() {
-//delete m_hid2re;
-//}
-  
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   m_hid2re = new MDT_Hid2RESrcID ();
-  StatusCode status = m_hid2re->set(m_muonIdHelperTool.get());
+  StatusCode status = m_hid2re->set(&m_idHelperSvc->mdtIdHelper());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -56,7 +41,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 						   MsgStream& log ) {
   
   m_fea.clear();
-  StatusCode status = m_fea.idMap().set(m_muonIdHelperTool.get());
+  StatusCode status = m_fea.idMap().set(&m_idHelperSvc->mdtIdHelper());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
@@ -86,7 +71,6 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   
   for (; it!=it_end;++it) { 
     theROD  = m_fea.getRodData( (*it).first ); 
-    //((*it).second).set( m_hid2re, m_muonIdHelperTool.get() ) ; 
     ((*it).second).fillROD( *theROD ) ; 
   } 
   

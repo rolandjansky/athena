@@ -1,56 +1,35 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPRDSelectionTool.h"
 
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
-
-// #include "TrkToolInterfaces/IResidualPullCalculator.h"
-// #include "TrkEventPrimitives/ResidualPull.h"
 
 namespace Muon {
 
  MuonPRDSelectionTool::MuonPRDSelectionTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
-    m_recoValidationTool("", this), // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
-    // m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),    
+    m_recoValidationTool("", this),
     m_distanceToTubeCut(1000.),
     m_secondCoordinateCut(1500.)
   {
     declareInterface<IMuonPRDSelectionTool>(this);
-
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MdtDriftCircleOnTrackCreator",m_mdtCreator);
     declareProperty("MuonClusterOnTrackCreator",m_clusterCreator);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
-    
-  }
-
- MuonPRDSelectionTool::~MuonPRDSelectionTool() { }
-
-  StatusCode MuonPRDSelectionTool::finalize() {
-    return StatusCode::SUCCESS;
   }
 
   StatusCode MuonPRDSelectionTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
-    // ATH_CHECK(m_pullCalculator.retrieve());
-
     return StatusCode::SUCCESS;
   }
-
-
 
   bool MuonPRDSelectionTool::calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonLayerPrepRawData& layerPrepRawData, MuonLayerROTs& layerROTs ) const {
 
@@ -118,7 +97,7 @@ namespace Muon {
     const Trk::Surface& surface = mdt.detectorElement()->surface(id);
     Amg::Vector2D localPosition;
     if( !surface.globalToLocal(intersect,direction,localPosition) ){
-      ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelper->toString(id) );
+      ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
       return 0;
     }
 	    
@@ -126,10 +105,10 @@ namespace Muon {
     if( !m_recoValidationTool.empty() ) m_recoValidationTool->add(intersection,mdt,localPosition.x(),err_precision );
     
     // bound checks
-    double tubeHalfLen = 0.5*detEl->getActiveTubeLength( m_idHelper->mdtIdHelper().tubeLayer(id),m_idHelper->mdtIdHelper().tube(id) );
+    double tubeHalfLen = 0.5*detEl->getActiveTubeLength( m_idHelperSvc->mdtIdHelper().tubeLayer(id),m_idHelperSvc->mdtIdHelper().tube(id) );
     double distanceAlongTube = localPosition[Trk::locZ];
 
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelper->toString(id) << " distance to wire " << localPosition[Trk::locR] 
+    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelperSvc->toString(id) << " distance to wire " << localPosition[Trk::locR] 
                                                  << " error " << err_precision << " along tube (%) " << distanceAlongTube/tubeHalfLen;
 
     if( std::abs(distanceAlongTube) > tubeHalfLen + m_secondCoordinateCut ) {
@@ -152,7 +131,7 @@ namespace Muon {
 
     // calibrate hit
     const MdtDriftCircleOnTrack* mdtROT = m_mdtCreator->createRIO_OnTrack( mdt, intersect,  &direction ); 
-    if( !mdtROT ) ATH_MSG_VERBOSE(" Failed to calibrate " << m_idHelper->toString(id));
+    if( !mdtROT ) ATH_MSG_VERBOSE(" Failed to calibrate " << m_idHelperSvc->toString(id));
     return mdtROT;    
   }
 
@@ -172,11 +151,11 @@ namespace Muon {
     // get local position
     Amg::Vector2D localPosition;
     if( !surf.globalToLocal(intersect,direction,localPosition) ){
-      ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelper->toString(id) );
+      ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
       return 0;
     }
 
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelper->toString(id) << " local position " << localPosition[Trk::loc1] << " " << localPosition[Trk::loc2];
+    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelperSvc->toString(id) << " local position " << localPosition[Trk::loc1] << " " << localPosition[Trk::loc2];
 
     if( !surf.insideBounds(localPosition, m_distanceToTubeCut, m_secondCoordinateCut) ) {
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside bounds, dropping " << endmsg;
@@ -211,16 +190,12 @@ namespace Muon {
       const Amg::Vector3D& planeposition = tubePos;
 	    
       // always project on plane with normal in radial direction
-      Amg::Vector3D planenormal = !m_idHelper->isEndcap(id) ? amdbToGlobal.linear()*Amg::Vector3D(0.,0.,1.) : amdbToGlobal.linear()*Amg::Vector3D(0.,1.,0.);
+      Amg::Vector3D planenormal = !m_idHelperSvc->isEndcap(id) ? amdbToGlobal.linear()*Amg::Vector3D(0.,0.,1.) : amdbToGlobal.linear()*Amg::Vector3D(0.,1.,0.);
 	    
       double denom = direction.dot(planenormal);
       double u = (planenormal.dot(planeposition - position))/denom;
       Amg::Vector3D  piOnPlane = ( position + u * direction);
       return piOnPlane;
-      //Amg::Vector3D lpiOnPlane = amdbToGlobal.inverse()*piOnPlane;
-      //Amg::Vector3D ltubePos   = amdbToGlobal.inverse()*tubePos;
-	    
-      //return amdbToGlobal*lpiOnPlane;//Amg::Vector3D( lpiOnPlane.x(), ltubePos.y(), ltubePos.z() );
     }
     Trk::Intersection intersection = mdt.detectorElement()->surface(mdt.identify()).straightLineIntersection(position,direction,false,false);
     return intersection.position;
