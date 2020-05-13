@@ -106,8 +106,8 @@ TrigSignatureMoniMT                                 INFO HLT_e5_etcut_L1EM3 #324
 TrigSignatureMoniMT                                 INFO -- #324908483 Events          20         20         13         13         13         -          -          -          13         
 TrigSignatureMoniMT                                 INFO -- #324908483 Features                              41         141        47         -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e5_lhloose_noringer_L1EM3 #1053337356
-TrigSignatureMoniMT                                 INFO -- #1053337356 Events         20         20         10         10         10         0          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #1053337356 Features                             15         48         29         0          -          -          
+TrigSignatureMoniMT                                 INFO -- #1053337356 Events         20         20         10         10         10         1          -          -          1          
+TrigSignatureMoniMT                                 INFO -- #1053337356 Features                             15         48         29         1          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e5_lhmedium_noringer_L1EM3 #176627878
 TrigSignatureMoniMT                                 INFO -- #176627878 Events          20         20         9          9          9          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #176627878 Features                              13         49         28         0          -          -          
@@ -473,13 +473,13 @@ TrigSignatureMoniMT                                 INFO -- #2742079961 Events  
 TrigSignatureMoniMT                                 INFO -- #2742079961 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1EM3_EMPTY #2458124284
 TrigSignatureMoniMT                                 INFO -- #2458124284 Events         20         20         -          -          -          -          -          -          15         
-TrigSignatureMoniMT                                 INFO -- #2458124284 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #2458124284 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1EM7_EMPTY #299938202
 TrigSignatureMoniMT                                 INFO -- #299938202 Events          20         20         -          -          -          -          -          -          9          
-TrigSignatureMoniMT                                 INFO -- #299938202 Features                              -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #299938202 Features                              -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1J12_EMPTY #3144024902
 TrigSignatureMoniMT                                 INFO -- #3144024902 Events         20         20         -          -          -          -          -          -          8          
-TrigSignatureMoniMT                                 INFO -- #3144024902 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #3144024902 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY #3840098930
 TrigSignatureMoniMT                                 INFO -- #3840098930 Events         20         20         -          -          -          -          -          -          8          
 TrigSignatureMoniMT                                 INFO -- #3840098930 Features                             -          -          -          -          -          -          
@@ -488,16 +488,16 @@ TrigSignatureMoniMT                                 INFO -- #4143623058 Events  
 TrigSignatureMoniMT                                 INFO -- #4143623058 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1J30_EMPTY #2991490897
 TrigSignatureMoniMT                                 INFO -- #2991490897 Events         20         20         -          -          -          -          -          -          4          
-TrigSignatureMoniMT                                 INFO -- #2991490897 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #2991490897 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY #2214697960
 TrigSignatureMoniMT                                 INFO -- #2214697960 Events         20         20         -          -          -          -          -          -          4          
-TrigSignatureMoniMT                                 INFO -- #2214697960 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #2214697960 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1RD1_BGRP10 #48519027
 TrigSignatureMoniMT                                 INFO -- #48519027 Events           20         20         -          -          -          -          -          -          20         
-TrigSignatureMoniMT                                 INFO -- #48519027 Features                               -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #48519027 Features                               -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1RD1_EMPTY #3925252528
 TrigSignatureMoniMT                                 INFO -- #3925252528 Events         20         20         -          -          -          -          -          -          20         
-TrigSignatureMoniMT                                 INFO -- #3925252528 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #3925252528 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_sct_noise_SCTPEB_L1RD0_EMPTY #3024203296
 TrigSignatureMoniMT                                 INFO -- #3024203296 Events         20         20         20         -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #3024203296 Features                             20         -          -          -          -          -          
