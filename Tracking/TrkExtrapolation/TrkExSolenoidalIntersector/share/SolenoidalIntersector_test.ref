@@ -1,16 +1,16 @@
 SolenoidalIntersector_test
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/SolenoidalIntersector_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/SolenoidalIntersector_test.txt
+Initializing Gaudi ApplicationMgr using job opts /data/goetz/ws/MagneticFieldSvc/build/../source/athena/Tracking/TrkExtrapolation/TrkExSolenoidalIntersector/share/SolenoidalIntersector_test.txt
+JobOptionsSvc        INFO # =======> /data/goetz/ws/MagneticFieldSvc/build/../source/athena/Tracking/TrkExtrapolation/TrkExSolenoidalIntersector/share/SolenoidalIntersector_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
 JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
 JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from ../share/SolenoidalIntersector_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /data/goetz/ws/MagneticFieldSvc/build/../source/athena/Tracking/TrkExtrapolation/TrkExSolenoidalIntersector/share/SolenoidalIntersector_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun Feb  3 21:41:27 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on atdesy14 on Mon May 11 11:36:57 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AtlasFieldSvc        INFO initialize() ...
@@ -19,19 +19,22 @@ AtlasFieldSvc        INFO Added listener to BeginRun incident
 AtlasFieldSvc        INFO initialize() successful
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ToolSvc.Trk::So...   INFO SolenoidalIntersector::initialize() - package version TrkExSolenoidalIntersector-00-00-00
-ToolSvc.Trk::So...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
+ClassIDSvc           INFO  getRegistryEntries: read 1896 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 AtlasFieldSvc        INFO handling incidents ...
 AtlasFieldSvc        INFO importCurrents() ...
 AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
-AtlasFieldSvc        INFO reading the map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Initialized the field map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc        INFO Solenoid zone id 7000
 AtlasFieldSvc        INFO Currents imported and map initialized
 AtlasFieldSvc        INFO BeginRun incident handled
 AtlasFieldSvc        INFO incidents handled successfully
+ClassIDSvc           INFO  getRegistryEntries: read 2161 CLIDRegistry entries for module ALL
+ToolSvc.Trk::So...   INFO SolenoidalIntersector::initialize() - package version TrkExSolenoidalIntersector-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 163 CLIDRegistry entries for module ALL
 test_plane
 test_line
 test_cylinder
