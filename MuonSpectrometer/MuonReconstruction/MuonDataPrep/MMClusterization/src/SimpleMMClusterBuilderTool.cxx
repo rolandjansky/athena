@@ -126,7 +126,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_mmIdHelper->channel(id_prdN);
-	if( std::abs(mergeStrips[k]-stripN) <= 1 ) {
+	if( std::abs(mergeStrips[k]-stripN) <= m_maxHoleSize +1 ) {
 	  int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
 	  int layerN   = m_mmIdHelper->multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
@@ -139,7 +139,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-      mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
+      mergeStripsTime.push_back(MMprds[j].time());
       mergeStripsCharge.push_back(MMprds[j].charge());
 	    nmergeStrips++;
 	  }
