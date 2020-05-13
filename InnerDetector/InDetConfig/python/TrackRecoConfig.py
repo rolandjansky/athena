@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 ##------------------------------------------------------------------------------
-def InDetBCM_ZeroSuppressionCfg(flags, **kwargs):
+def BCM_ZeroSuppressionCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("BcmContainerName", "BCM_RDOs")
     algo = CompFactory.BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
@@ -12,12 +12,12 @@ def InDetBCM_ZeroSuppressionCfg(flags, **kwargs):
     return acc
 
 ##------------------------------------------------------------------------------
-def InDetPixelClusterizationCfg(flags, **kwargs) :
+def PixelClusterizationCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
-    sub_acc = InDetMergedPixelsToolCfg(flags, **kwargs)
+    sub_acc = MergedPixelsToolCfg(flags, **kwargs)
     merged_pixels_tool = sub_acc.getPrimary()
     acc.merge(sub_acc)
-    sub_acc = InDetPixelGangedAmbiguitiesFinderCfg(flags)
+    sub_acc = PixelGangedAmbiguitiesFinderCfg(flags)
     ambi_finder=sub_acc.getPrimary()
     acc.merge(sub_acc)
     acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name                    = "InDetPixelClusterization",
@@ -27,17 +27,17 @@ def InDetPixelClusterizationCfg(flags, **kwargs) :
                                                     ClustersName            = "PixelClusters" ))
     return acc
 ##------------------------------------------------------------------------------
-def InDetPixelClusterizationPUCfg(flags, **kwargs) :
+def PixelClusterizationPUCfg(flags, **kwargs) :
     kwargs.setdefault("name", "InDetPixelClusterizationPU")
     kwargs.setdefault("DataObjectName", "Pixel_PU_RDOs")
     kwargs.setdefault("ClustersName", "PixelPUClusters")
     kwargs.setdefault("AmbiguitiesMap", "PixelClusterAmbiguitiesMapPU")
-    return InDetPixelClusterizationCfg(flags, **kwargs)
+    return PixelClusterizationCfg(flags, **kwargs)
 
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
-def InDet_SCTClusterizationCfg(flags, **kwargs) :
+def SCTClusterizationCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
@@ -45,7 +45,7 @@ def InDet_SCTClusterizationCfg(flags, **kwargs) :
     InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
 
     #### Clustering tool ######
-    accbuf = InDetClusterMakerToolCfg(flags, **kwargs)
+    accbuf = ClusterMakerToolCfg(flags)
     InDetClusterMakerTool = accbuf.getPrimary()
     acc.merge(accbuf)
     InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool(    name              = "InDetSCT_ClusteringTool",
@@ -70,14 +70,14 @@ def InDet_SCTClusterizationCfg(flags, **kwargs) :
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
-def InDet_SCTClusterizationPUCfg(flags, **kwargs) :
+def SCTClusterizationPUCfg(flags, **kwargs) :
     kwargs.setdefault("name", "InDetSCT_ClusterizationPU")
     kwargs.setdefault("DataObjectName", "SCT_PU_RDOs" )   #flags.InDetKeys.SCT_PU_RDOs
     kwargs.setdefault("ClustersName", "SCT_PU_Clusters") #flags.InDetKeys.SCT_PU_Clusters
-    return InDet_SCTClusterizationCfg(flags, **kwargs)
+    return SCTClusterizationCfg(flags, **kwargs)
 
 ##------------------------------------------------------------------------------
-def InDetPixelGangedAmbiguitiesFinderCfg(flags) :
+def PixelGangedAmbiguitiesFinderCfg(flags) :
     acc = ComponentAccumulator()
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
@@ -85,7 +85,7 @@ def InDetPixelGangedAmbiguitiesFinderCfg(flags) :
 
 
 ##------------------------------------------------------------------------------
-def InDetMergedPixelsToolCfg(flags, **kwargs) :
+def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       clusterSplitProbTool = None
       clusterSplitterTool  = None
@@ -135,7 +135,7 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       # --- now load the framework for the clustering
       #InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name                 = "InDetClusterMakerTool")
       #acc.addPublicTool(InDetClusterMakerTool)
-      accbuf = InDetClusterMakerToolCfg(flags)
+      accbuf = ClusterMakerToolCfg(flags)
       InDetClusterMakerTool = accbuf.getPrimary()
       acc.merge(accbuf)
 
@@ -159,12 +159,19 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       acc.addPublicTool(InDetMergedPixelsTool, primary=True)
       return acc
 ##------------------------------------------------------------------------------
-def InDetClusterMakerToolCfg(flags, **kwargs) :
-    acc = ComponentAccumulator()
-    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = "InDetClusterMakerTool")
+def ClusterMakerToolCfg(flags, **kwargs) :
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg
 
-    SCTLorentzAngleTool = CompFactory.SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool.UseMagFieldCache = True
+    acc = ComponentAccumulator()
+    # This directly needs the following Conditions data:
+    # PixelModuleData & PixelChargeCalibCondData
+    acc.merge( PixelChargeCalibCondAlgCfg(flags))
+    acc.merge( PixelConfigCondAlgCfg(flags))
+
+    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = "InDetClusterMakerTool", **kwargs)
+
+    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    
     acc.addPublicTool(SCTLorentzAngleTool)
     acc.addPublicTool(InDetClusterMakerTool, primary=True)
     return acc
