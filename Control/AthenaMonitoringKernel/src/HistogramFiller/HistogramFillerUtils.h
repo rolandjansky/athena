@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "AthenaMonitoringKernel/IMonitoredVariable.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 
@@ -128,68 +129,41 @@ namespace Monitored {
 
 
     /**
-     * Return value that can be digested by TH1::Fill
-     * (We only support double and string)
-     */
-    template<typename T>
-    constexpr auto toFill(const T& value) {
-      if constexpr(std::is_same_v<double,T>) return value;
-      else return value.c_str();
-    }
-
-    /**
-     * Perform generic histogram fill with weight
-     */
-    template<typename H, typename ...Ts>
-    void doFill(H* hist, double weight, const Ts&... v) {
-      hist->Fill(toFill(v)..., weight);
-    }
-
-    /**
-     * Perform TProfile fill with weight
-     */
-    template<typename X, typename Y>
-    void doFill(TProfile* hist, [[maybe_unused]] double weight, const X& x, const Y& y) {
-      // TProfile does not support string as y-value. It would never be called that way
-      // but is required to make the pack expansion compile in HistogramFiller::fill
-      if constexpr(std::is_same_v<std::string,Y>) return;
-      else hist->Fill(toFill(x), y, weight);
-    }
-
-    /**
-     * Generic histogram filling helper
+     * Perform (arbitrary dimension) histogram fill with weight
      *
-     * Works for any dimension and double/string-valued entries.
-     * If weight and/or cut are not needed use a lambda expression (instead of std::function)
-     * as this will allow the compiler to produce more optimal code.
-     *
-     * @param hist    histogram to fill
-     * @param weight  weight accessor
-     * @param cut     cut mask accessor
-     * @param v...    vectors used for filling (one for each dimension)
-     * @return  number of fills performed
+     * @param hist     histogram to fill
+     * @param weight   weight accessor
+     * @param i        IMonitoredVariable entry to fill
+     * @param m1,m...  IMonitoredVariable list to fill from
      */
-    template<typename H, typename W, typename C, typename ...Vs>
-    unsigned fill(H* hist, W weight, C cut, const Vs&... v) {
+    template<typename H, typename W, typename M, typename ...Ms>
+    void doFill(H* hist, W weight, size_t i, const M& m1, const Ms&... m) {
 
-      // For >=2D: If one variable has a single entry, do repeated fills with that value
-      auto get = [](const auto& v, size_t i) { return v.size()==1 ? v[0] : v[i]; };
-
-      unsigned fills = 0;
-      for ( size_t i = 0; i < std::max({v.size()...}); ++i ) {
-        if ( cut(i) ) {
-          fills++;
-          // In case re-binning occurs need to take the OH lock for online (no-op offline)
-          if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<Vs...>{},
-                                                   toFill(get(v,i))...)) ){
-            oh_scoped_lock_histogram lock;
-            doFill(hist, weight(i), get(v,i)...);
-          }
-          else doFill(hist, weight(i), get(v,i)...);
+      // Template magic: Recursively convert all M to double or string
+      if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
+        // For >=2D: If one variable has a single entry, do repeated fills with that value
+        const size_t j = m1.size()==1 ? 0 : i;
+        if (not m1.hasStringRepresentation())
+          doFill(hist, weight, i, m..., m1.get(j));
+        else
+          doFill(hist, weight, i, m..., m1.getString(j).c_str());
+      } else {
+        // In case re-binning occurs need to take the OH lock for online (no-op offline)
+        if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<M, Ms...>{},
+                                                 m1, m...)) ){
+          oh_scoped_lock_histogram lock;
+          hist->Fill(m1, m..., weight(i));
         }
+        else hist->Fill(m1, m..., weight(i));
       }
-      return fills;
     }
+
+    // TProfile does not support string as y-value.
+    // (this terminates the above pack expansion)
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const double&, const char* const&) {}
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const char* const&, const char* const&) {}
   }
 }
 
