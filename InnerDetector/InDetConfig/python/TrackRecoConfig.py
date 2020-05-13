@@ -140,8 +140,8 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       acc.merge(accbuf)
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from InDetConfig.InDetRecToolConfig import InDetPixelConditionsSummaryToolCfg
-      accbuf = InDetPixelConditionsSummaryToolCfg(flags)
+      from InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
+      accbuf = PixelConditionsSummaryToolCfg(flags)
       conditionssummarytool = accbuf.popPrivateTools()
       # FIXME? Currently not assigning 
       acc.merge(accbuf)

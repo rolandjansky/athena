@@ -32,7 +32,7 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
 
   if ('PixelSummaryTool' not in kwargs):
     if flags.Detector.PixelOn:
-      tmpAcc = InDetPixelConditionsSummaryToolCfg(flags)
+      tmpAcc = PixelConditionsSummaryToolCfg(flags)
       kwargs.setdefault("PixelSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
     else:
@@ -108,8 +108,9 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     result.addPublicTool(extrapolator, primary=True)
     return result
 
-def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
+def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
+    #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
 
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
@@ -118,6 +119,7 @@ def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummar
         kwargs.setdefault( "IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ] )
     
     result = ComponentAccumulator()
+    result.merge(PixelConfigCondAlgCfg(flags))
     result.merge(PixelDCSCondStateAlgCfg(flags))
     result.merge(PixelDCSCondStatusAlgCfg(flags))
     result.merge(PixelTDAQCondAlgCfg(flags))
@@ -449,7 +451,7 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   the_name = makeName( name, kwargs)
   result = ComponentAccumulator()
   if 'PixelSummaryTool' not in kwargs :
-      tmpAcc = InDetPixelConditionsSummaryToolCfg(flags)
+      tmpAcc = PixelConditionsSummaryToolCfg(flags)
       kwargs.setdefault( "PixelSummaryTool", tmpAcc.getPrimary())
       result.merge(tmpAcc)
 
