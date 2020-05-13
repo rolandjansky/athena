@@ -125,7 +125,7 @@
 + Trigger/TrigConfiguration/TrigConfHLTUtils
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
-+ Trigger/TrigConfiguration/TrigConfxAOD
+#+ Trigger/TrigConfiguration/TrigConfxAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 #+ Trigger/TrigEvent/TrigRoiConversion
