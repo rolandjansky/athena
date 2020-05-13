@@ -49,8 +49,16 @@ class PixelDesignBuilder:  public AthService, virtual public IPixelDesignSvc,  p
   
   InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, int moduleIndex);
   InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, std::string moduleType);
+  InDetDD::PixelDiodeMatrix* buildMatrix( double phiPitch, double etaPitch,
+					  double etaPitchLong, double etaPitchEnd,
+					  double phiPitchLong, double phiPitchEnd,
+					  int nEtaLong, int nEtaEnd,
+					  int nPhiLong, int nPhiEnd,
+					  int circuitsPhi, int circuitsEta,
+					  int diodeRowPerCirc, int diodeColPerCirc);
+  // older interface, calls the more general one above:
   InDetDD::PixelDiodeMatrix* buildMatrix( double phiPitch, double etaPitch, 
-					  double etaPitchLong, double etaPitchLongEnd,
+					  double etaPitchLong, double etaPitchEnd,
 					  int circuitsPhi, int circuitsEta,
 					  int diodeRowPerCirc, int diodeColPerCirc);
   

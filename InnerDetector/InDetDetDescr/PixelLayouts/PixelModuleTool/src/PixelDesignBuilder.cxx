@@ -263,6 +263,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 						     fullMatrix,
 						     electrons,
 						     readoutSide);
+  fullMatrix->unref(); // ownership of fullMatrix was transfered to design
 
   msg(MSG::DEBUG)<<"readout geo - design : "<<design->width()<<" "<<design->length()<<" "<<design->thickness()<<"    "<<design->rows()<<" "<<design->columns()<<endmsg;
 
@@ -307,140 +308,239 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 }
 
 
-// Copied  from GeoPixelSiCrystal::makeMatrix release 17.3.1
+// Originally copied  from GeoPixelSiCrystal::makeMatrix release 17.3.1
 // FIXME avoid duplication!
 PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double etaPitch,
-						     double etaPitchLong, double etaPitchLongEnd,
+						     double etaPitchLong, double etaPitchEnd,
 						     int circuitsPhi, int circuitsEta,
 						     int diodeRowPerCirc, int diodeColPerCirc)
 {
-  // There are several different cases. Not all are used at the time of wrtiting the code but I
-  // have tried to consider all possible cases for completeness.
-  //
-  // end cell : middle cells : between chip
-  // --------------------------------------
-  // long:normal:long (standard ATLAS case)
-  // normal:normal:normal
-  // normal:normal:long (> 2 chips)
-  // normal:normal:long (2 chips)
-  // end:normal:long    (not likely)
-  // end:normal:normal  (not likely)
-  // end:normal:end  (if single chip)
+    double phiPitchLong = phiPitch;
+    double phiPitchEnd = phiPitch;
+    int nPhiLong = 0;
+    int nPhiEnd = 0;
+    int nEtaLong = etaPitch == etaPitchLong ? 0 : 1;
+    int nEtaEnd = etaPitch == etaPitchEnd ? 0 : 1;
 
-  PixelDiodeMatrix * fullMatrix = nullptr;
+    return buildMatrix( phiPitch, etaPitch,
+			phiPitchLong, phiPitchEnd,
+			etaPitchLong, etaPitchEnd,
+			nPhiLong, nPhiEnd,
+			nEtaLong, nEtaEnd,
+			circuitsPhi, circuitsEta,
+			diodeRowPerCirc, diodeColPerCirc);
+}
 
-  if (etaPitchLongEnd == etaPitchLong && etaPitchLong != etaPitch) {
-    // long:normal:long (standard ATLAS case)
-    //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+// Re-written and overloaded here to be more general purpose
+// FIXME PixelDiodeMatrix inherits from RCBase, which uses ref() and unref()
+// for lifetime management (count starts at 0, so we need to call ref() one
+// time before calling unref()); modern C++ should use std::shared_ptr for this
+PixelDiodeMatrix* PixelDesignBuilder::buildMatrix(  double phiPitch, double etaPitch,
+			                            double phiPitchLong, double phiPitchEnd,
+			                            double etaPitchLong, double etaPitchEnd,
+			                            int nPhiLong, int nPhiEnd,
+			                            int nEtaLong, int nEtaEnd,
+			                            int circuitsPhi, int circuitsEta,
+			                            int diodeRowPerCirc, int diodeColPerCirc)
+{
+  // checking for unlogical values
+  if (circuitsPhi < 1 or circuitsEta < 1) {
+    msg(MSG::WARNING) << "Number of circuits is 0" << endreq;
+    return nullptr;
+  }
+  if (diodeRowPerCirc < 1 or diodeColPerCirc < 1) {
+    msg(MSG::WARNING) << "Number of diodes per circuit is 0" << endreq;
+    return nullptr;
+  }
+  if (nPhiLong < 0 or nPhiEnd < 0 or nEtaLong < 0 or nEtaEnd < 0) {
+    msg(MSG::WARNING) << "Number of long/end cells per circuit is below 0" << endreq;
+    return nullptr;
+  }
 
-    PixelDiodeMatrix * singleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							    bigCell,
-							    normalCell,
-							    diodeColPerCirc-2,
-							    bigCell);
+  // checking and correcting inconsistent values
+  if (nPhiLong == 0 and (phiPitchLong == 0.0 or phiPitchLong == phiPitch)) {
+    msg(MSG::WARNING) << "nPhiLong is set to 0, but phiPitchLong is neither 0 nor phiPitch! Setting nPhiLong to 1" << endreq;
+    nPhiLong = 1;
+  }
+  if (nPhiEnd == 0 and (phiPitchEnd == 0.0 or phiPitchEnd == phiPitch)) {
+    msg(MSG::WARNING) << "nPhiEnd is set to 0, but phiPitchEnd is neither 0 nor phiPitch! Setting nPhiEnd to 1" << endreq;
+    nPhiEnd = 1;
+  }
+  if (nEtaLong == 0 and (etaPitchLong == 0.0 or etaPitchLong == etaPitch)) {
+    msg(MSG::WARNING) << "nEtaLong is set to 0, but etaPitchLong is neither 0 nor etaPitch! Setting nEtaLong to 1" << endreq;
+    nEtaLong = 1;
+  }
+  if (nEtaEnd == 0 and (etaPitchEnd == 0.0 or etaPitchEnd == etaPitch)) {
+    msg(MSG::WARNING) << "nEtaEnd is set to 0, but etaPitchEnd is neither 0 nor etaPitch! Setting nEtaEnd to 1" << endreq;
+    nEtaEnd = 1;
+  }
 
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							nullptr, singleChipRow, circuitsEta, nullptr);
+  /*
+   The naming of internal PixelDiodeMatrix cell objects here follows the
+   convention of cell_XX, where X is N for normal, L for long or E for end.
+   The first index denotes the phi direction, the second eta.
+  */
 
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
-  } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
+  // creation of individual pixels
+  PixelDiodeMatrix * cell_NN = nullptr;
+  PixelDiodeMatrix * cell_NL = nullptr;
+  PixelDiodeMatrix * cell_NE = nullptr;
+  PixelDiodeMatrix * cell_LN = nullptr;
+  PixelDiodeMatrix * cell_LL = nullptr;
+  PixelDiodeMatrix * cell_LE = nullptr;
+  PixelDiodeMatrix * cell_EN = nullptr;
+  PixelDiodeMatrix * cell_EL = nullptr;
+  PixelDiodeMatrix * cell_EE = nullptr;
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							nullptr, normalCell, circuitsEta*diodeColPerCirc, nullptr);
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
-  } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
+  // only filling long/end pixels if needed
+  cell_NN = new PixelDiodeMatrix(phiPitch, etaPitch);
+  if (nEtaLong > 0) {cell_NL = new PixelDiodeMatrix(phiPitch, etaPitchLong);}
+  if (nEtaEnd > 0)  {cell_NE = new PixelDiodeMatrix(phiPitch, etaPitchEnd);}
 
-    // normal:normal:long: > 2 chips
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+  if (nPhiLong > 0) {
+    cell_LN = new PixelDiodeMatrix(phiPitchLong, etaPitch);
+    if (nEtaLong > 0) {cell_LL = new PixelDiodeMatrix(phiPitchLong, etaPitchLong);}
+    if (nEtaEnd > 0)  {cell_LE = new PixelDiodeMatrix(phiPitchLong, etaPitchEnd);}
+  }
+  if (nPhiEnd > 0) {
+    cell_EN = new PixelDiodeMatrix(phiPitchEnd, etaPitch);
+    if (nEtaLong > 0) {cell_EL = new PixelDiodeMatrix(phiPitchEnd, etaPitchLong);}
+    if (nEtaEnd > 0)  {cell_EE = new PixelDiodeMatrix(phiPitchEnd, etaPitchEnd);}
+  }
 
-    PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 nullptr,
-								 normalCell,
-								 diodeColPerCirc-1,
-								 bigCell);
-    PixelDiodeMatrix * middleSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								  bigCell,
-								  normalCell,
-								  diodeColPerCirc-2,
-								  bigCell);
-    PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell,
-								 normalCell,
-								 diodeColPerCirc-1,
-								 nullptr);
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							lowerSingleChipRow, middleSingleChipRow, circuitsEta-2, upperSingleChipRow);
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
-  } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
-    // normal:normal:long: 2 chips (current SLHC case)
+  // creation of long/end cell blocks (in case there are more then one long/end per cicuit)
+  if (nPhiLong > 1) {
+    if (cell_LN) {cell_LN = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_LN, nPhiLong, nullptr);}
+    if (cell_LL) {cell_LL = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_LL, nPhiLong, nullptr);}
+    if (cell_LE) {cell_LE = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_LE, nPhiLong, nullptr);}
+  }
+  if (nPhiEnd > 1) {
+    if (cell_EN) {cell_EN = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_EN, nPhiEnd, nullptr);}
+    if (cell_EL) {cell_EL = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_EL, nPhiEnd, nullptr);}
+    if (cell_EE) {cell_EE = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, nullptr, cell_EE, nPhiEnd, nullptr);}
+  }
+  if (nEtaLong > 1) {
+    if (cell_NL) {cell_NL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_NL, nEtaLong, nullptr);}
+    if (cell_LL) {cell_LL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_LL, nEtaLong, nullptr);}
+    if (cell_EL) {cell_EL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_EL, nEtaLong, nullptr);}
+  }
+  if (nEtaEnd > 1) {
+    if (cell_NE) {cell_NE = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_NE, nEtaEnd, nullptr);}
+    if (cell_LE) {cell_LE = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_LE, nEtaEnd, nullptr);}
+    if (cell_EE) {cell_EE = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, nullptr, cell_EE, nEtaEnd, nullptr);}
+  }
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+  /*
+   The naming of internal PixelDiodeMatrix cell objects here follows the
+   convention of row_XY, where X is for phi N, L or E as before.
+   Y is for eta:
+   - L for a lower chip
+   - M for a middle chip
+   - U for an upper chip
+   The first index denotes the phi direction, the second eta.
+   If just one index is given, it is phi and eta is a full row.
+  */
 
-    PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 nullptr,
-								 normalCell,
-								 diodeColPerCirc-1,
-								 bigCell);
-    PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell,
-								 normalCell,
-								 diodeColPerCirc-1,
-								 nullptr);
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							lowerSingleChipRow, upperSingleChipRow, 1, nullptr);
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
-  } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
-    // end:normal:end  (for single chip)
-    // end:normal:normal  (not likely)
+  // putting together the single chip rows (eta direction)
+  PixelDiodeMatrix * fullChipRow_N = nullptr;
+  PixelDiodeMatrix * fullChipRow_L = nullptr;
+  PixelDiodeMatrix * fullChipRow_E = nullptr;
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd);
-
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							    bigCell,
-							    normalCell,
-							    circuitsEta*diodeColPerCirc-2,
-							    bigCell);
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
+  if (circuitsEta == 1) {
+    // special case of just one circuit in eta direction (no long cells, just end)
+    fullChipRow_N = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_NE, cell_NN, diodeColPerCirc - 2*nEtaEnd, cell_NE);
+    if (cell_LN) {fullChipRow_L = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_LE, cell_LN, diodeColPerCirc - 2*nEtaEnd, cell_LE);}
+    if (cell_EN) {fullChipRow_E = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_EE, cell_EN, diodeColPerCirc - 2*nEtaEnd, cell_EE);}
   } else {
-    // end:normal:long    (not likely)
+    // rows of individual chips
+    PixelDiodeMatrix * singleChipRow_NL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_NE, cell_NN, diodeColPerCirc -nEtaEnd  -nEtaLong, cell_NL);
+    PixelDiodeMatrix * singleChipRow_NM = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_NL, cell_NN, diodeColPerCirc -nEtaLong -nEtaLong, cell_NL);
+    PixelDiodeMatrix * singleChipRow_NU = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_NL, cell_NN, diodeColPerCirc -nEtaLong -nEtaEnd,  cell_NE);
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
-    PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd);
+    PixelDiodeMatrix * singleChipRow_LL = nullptr;
+    PixelDiodeMatrix * singleChipRow_LM = nullptr;
+    PixelDiodeMatrix * singleChipRow_LU = nullptr;
+    if (cell_LN) {
+      singleChipRow_LL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_LE, cell_LN, diodeColPerCirc -nEtaEnd  -nEtaLong, cell_LL);
+      singleChipRow_LM = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_LL, cell_LN, diodeColPerCirc -nEtaLong -nEtaLong, cell_LL);
+      singleChipRow_LU = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_LL, cell_LN, diodeColPerCirc -nEtaLong -nEtaEnd,  cell_LE);
+    }
 
-    PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 endCell,
-								 normalCell,
-								 diodeColPerCirc-2,
-								 bigCell);
-    PixelDiodeMatrix * middleSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								  bigCell,
-								  normalCell,
-								  diodeColPerCirc-2,
-								  bigCell);
-    PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell,
-								 normalCell,
-								 diodeColPerCirc-2,
-								 endCell);
-    PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							lowerSingleChipRow, middleSingleChipRow, circuitsEta-2, upperSingleChipRow);
-    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
+    PixelDiodeMatrix * singleChipRow_EL = nullptr;
+    PixelDiodeMatrix * singleChipRow_EM = nullptr;
+    PixelDiodeMatrix * singleChipRow_EU = nullptr;
+    if (cell_EN) {
+      singleChipRow_EL = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_EE, cell_EN, diodeColPerCirc -nEtaEnd  -nEtaLong, cell_EL);
+      singleChipRow_EM = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_EL, cell_EN, diodeColPerCirc -nEtaLong -nEtaLong, cell_EL);
+      singleChipRow_EU = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, cell_EL, cell_EN, diodeColPerCirc -nEtaLong -nEtaEnd,  cell_EE);
+    }
+
+    // putting together the single chip rows
+    if (circuitsEta == 2) {
+      // special case of no middle chips in eta (just lower and upper)
+      fullChipRow_N = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_NL, singleChipRow_NU, 1, nullptr);
+      if (cell_LN) {fullChipRow_L = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_LL, singleChipRow_LU, 1, nullptr);}
+      if (cell_EN) {fullChipRow_E = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_EL, singleChipRow_EU, 1, nullptr);}
+    } else {
+      fullChipRow_N = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_NL, singleChipRow_NM, circuitsEta-2, singleChipRow_NU);
+      if (cell_LN) {fullChipRow_L = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_LL, singleChipRow_LM, circuitsEta-2, singleChipRow_LU);}
+      if (cell_EN) {fullChipRow_E = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir, singleChipRow_EL, singleChipRow_EM, circuitsEta-2, singleChipRow_EU);}
+    }
+
+    // unref calls to avoid memory leaks
+    if (singleChipRow_NL) {singleChipRow_NL->ref(); singleChipRow_NL->unref();}
+    if (singleChipRow_NM) {singleChipRow_NM->ref(); singleChipRow_NM->unref();}
+    if (singleChipRow_NU) {singleChipRow_NU->ref(); singleChipRow_NU->unref();}
+    if (singleChipRow_LL) {singleChipRow_LL->ref(); singleChipRow_LL->unref();}
+    if (singleChipRow_LM) {singleChipRow_LM->ref(); singleChipRow_LM->unref();}
+    if (singleChipRow_LU) {singleChipRow_LU->ref(); singleChipRow_LU->unref();}
+    if (singleChipRow_EL) {singleChipRow_EL->ref(); singleChipRow_EL->unref();}
+    if (singleChipRow_EM) {singleChipRow_EM->ref(); singleChipRow_EM->unref();}
+    if (singleChipRow_EU) {singleChipRow_EU->ref(); singleChipRow_EU->unref();}
+  }
+
+  // combining the full eta rows to the full Matrix
+  PixelDiodeMatrix * fullMatrix = nullptr;
+  if (circuitsPhi == 1) {
+    // special case of just one circuit in eta direction (no long cells, just end)
+    fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, fullChipRow_E, fullChipRow_N, diodeRowPerCirc - 2*nPhiEnd, fullChipRow_E);
+  } else {
+    // columns of individual chips
+    PixelDiodeMatrix * singleChipCol_L = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, fullChipRow_E, fullChipRow_N, diodeRowPerCirc -nPhiEnd  -nPhiLong, fullChipRow_L);
+    PixelDiodeMatrix * singleChipCol_M = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, fullChipRow_L, fullChipRow_N, diodeRowPerCirc -nPhiLong -nPhiLong, fullChipRow_L);
+    PixelDiodeMatrix * singleChipCol_U = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, fullChipRow_L, fullChipRow_N, diodeRowPerCirc -nPhiLong -nPhiEnd,  fullChipRow_E);
+
+    // putting together the single chip rows
+    if (circuitsPhi == 2) {
+      // special case of no middle chips in phi (just lower and upper)
+      fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, singleChipCol_L, singleChipCol_U, 1, nullptr);
+    } else {
+      fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir, singleChipCol_L, singleChipCol_M, circuitsPhi-2, singleChipCol_U);
+    }
+
+    // ref and unref calls to avoid memory leaks
+    if(singleChipCol_L) {singleChipCol_L->ref(); singleChipCol_L->unref();}
+    if(singleChipCol_M) {singleChipCol_M->ref(); singleChipCol_M->unref();}
+    if(singleChipCol_U) {singleChipCol_U->ref(); singleChipCol_U->unref();}
 
   }
+
+  // ref and unref calls to avoid memory leaks
+  if (cell_NN) {cell_NN->ref(); cell_NN->unref();}
+  if (cell_NL) {cell_NL->ref(); cell_NL->unref();}
+  if (cell_NE) {cell_NE->ref(); cell_NE->unref();}
+  if (cell_LN) {cell_LN->ref(); cell_LN->unref();}
+  if (cell_LL) {cell_LL->ref(); cell_LL->unref();}
+  if (cell_LE) {cell_LE->ref(); cell_LE->unref();}
+  if (cell_EN) {cell_EN->ref(); cell_EN->unref();}
+  if (cell_EL) {cell_EL->ref(); cell_EL->unref();}
+  if (cell_EE) {cell_EE->ref(); cell_EE->unref();}
+  if (fullChipRow_N) {fullChipRow_N->ref(); fullChipRow_N->unref();}
+  if (fullChipRow_L) {fullChipRow_L->ref(); fullChipRow_L->unref();}
+  if (fullChipRow_E) {fullChipRow_E->ref(); fullChipRow_E->unref();}
+  // no unref for fullMatrix, since ownership is transfered by returning the pointer
+  if (fullMatrix) {fullMatrix->ref();}
 
   return fullMatrix;
 }
