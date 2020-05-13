@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
@@ -34,7 +34,6 @@ namespace MuonCalib {
   {}
   
   MuonCalibEvent::~MuonCalibEvent() {
-    //std::cout << "MuonCalibEvent::destructor " << std::endl;
     std::for_each( patternBegin(), patternEnd(), DeleteObject() ) ;
     m_patternVec.clear();
     delete m_triggerTimeInfo; 

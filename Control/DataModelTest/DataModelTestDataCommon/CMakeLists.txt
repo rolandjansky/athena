@@ -32,12 +32,12 @@ atlas_add_library( DataModelTestDataCommonLib
                    PUBLIC_HEADERS DataModelTestDataCommon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthContainers AthenaKernel xAODCore xAODTrigger EventInfo GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps AthenaPoolUtilities RegistrationServicesLib )
 
 atlas_add_component( DataModelTestDataCommon
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib AthenaKernel xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataCommonLib PersistentDataModel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib AthenaKernel xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataCommonLib PersistentDataModel RegistrationServicesLib )
 
 atlas_add_dictionary( DataModelTestDataCommonDict
                       DataModelTestDataCommon/DataModelTestDataCommonDict.h

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -19,11 +19,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkParameters/TrackParameters.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk
 {
@@ -172,8 +174,8 @@ namespace Trk
     /** Data members to store the results */
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
-    ServiceHandle < MagField::IMagFieldSvc > m_magFieldSvc;
-
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey
+       {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   };
 }
 #endif

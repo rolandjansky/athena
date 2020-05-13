@@ -18,7 +18,7 @@ sys.argv.pop(0)
 pointInTime = -1
 if len(sys.argv)>0:
     pointInTime = sys.argv.pop(0)
-    
+
 #=== get a logger
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("int_readDb")
@@ -43,7 +43,7 @@ for ros in range(1,5):
         #=== check if data is avialable and continue if not
         if not cd:
             continue
-        
+
         for pmt in range(48):
             for gain in range(6):
                 outStr = "ros/mod/pmt/gain = %i/%2i/%2i/%i : " % (ros,mod,pmt,gain)

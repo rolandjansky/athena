@@ -17,13 +17,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
-
 TrigROBDataProviderSvc_RTT::TrigROBDataProviderSvc_RTT(const std::string& name, ISvcLocator* svcloc)
   : TrigROBDataProviderSvc(name,svcloc),
     m_enablePrefetchingAtAlgoLevel(true),
@@ -566,7 +559,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerAlgo.value().lowEdge(), 
 						 m_histProp_missingRequestedROBsPerAlgo.value().highEdge());
   if (m_hist_missingRequestedROBsPerAlgo) {
-    CAN_REBIN(m_hist_missingRequestedROBsPerAlgo);
+    m_hist_missingRequestedROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgo->GetName(), m_hist_missingRequestedROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo->GetName() << endmsg;
     }
@@ -579,7 +572,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestPerAlgo.value().lowEdge(), 
 						 m_histProp_missingRequestPerAlgo.value().highEdge());
   if (m_hist_missingRequestPerAlgo) {
-    CAN_REBIN(m_hist_missingRequestPerAlgo);
+    m_hist_missingRequestPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgo->GetName(), m_hist_missingRequestPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo->GetName() << endmsg;
     }
@@ -606,7 +599,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerAlgoButCached.value().lowEdge(), 
 						 m_histProp_missingRequestedROBsPerAlgoButCached.value().highEdge());
   if (m_hist_missingRequestedROBsPerAlgoButCached) {
-    CAN_REBIN(m_hist_missingRequestedROBsPerAlgoButCached);
+    m_hist_missingRequestedROBsPerAlgoButCached->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgoButCached->GetName(), m_hist_missingRequestedROBsPerAlgoButCached).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached->GetName() << endmsg;
     }
@@ -619,7 +612,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestPerAlgoButCached.value().lowEdge(), 
 						 m_histProp_missingRequestPerAlgoButCached.value().highEdge());
   if (m_hist_missingRequestPerAlgoButCached) {
-    CAN_REBIN(m_hist_missingRequestPerAlgoButCached);
+    m_hist_missingRequestPerAlgoButCached->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgoButCached->GetName(), m_hist_missingRequestPerAlgoButCached).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached->GetName() << endmsg;
     }
@@ -645,7 +638,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_requestPerAlgo.value().lowEdge(), 
 						 m_histProp_requestPerAlgo.value().highEdge());
   if (m_hist_requestPerAlgo) {
-    CAN_REBIN(m_hist_requestPerAlgo);
+    m_hist_requestPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_requestPerAlgo->GetName(), m_hist_requestPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestPerAlgo->GetName() << endmsg;
     }
@@ -658,7 +651,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_callerPerEvent.value().lowEdge(), 
 						 m_histProp_callerPerEvent.value().highEdge());
   if (m_hist_callerPerEvent) {
-    CAN_REBIN(m_hist_callerPerEvent);
+    m_hist_callerPerEvent->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_callerPerEvent->GetName(), m_hist_callerPerEvent).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_callerPerEvent->GetName() << endmsg;
     }
@@ -671,7 +664,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 					  m_histProp_requestedROBsPerAlgo.value().lowEdge(), 
 					  m_histProp_requestedROBsPerAlgo.value().highEdge());
   if (m_hist_requestedROBsPerAlgo) {
-     CAN_REBIN(m_hist_requestedROBsPerAlgo);
+     m_hist_requestedROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerAlgo->GetName(), m_hist_requestedROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerAlgo->GetName() << endmsg;
     }
@@ -680,7 +673,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
   //
   m_hist_requestedROBsPerCallPerAlgo = new TH2F ("RequestedROBsPerCallPerAlgo","RequestedROBsPerCallPerAlgo;", 1, 0., 1., 100, 0., 2000.);
  if (m_hist_requestedROBsPerCallPerAlgo) {
-    CAN_REBIN(m_hist_requestedROBsPerCallPerAlgo);
+    m_hist_requestedROBsPerCallPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCallPerAlgo->GetName(), m_hist_requestedROBsPerCallPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCallPerAlgo->GetName() << endmsg;
     }
@@ -693,7 +686,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_nocachedRequestPerAlgo.value().lowEdge(), 
 						 m_histProp_nocachedRequestPerAlgo.value().highEdge());
   if (m_hist_nocachedRequestPerAlgo) {
-     CAN_REBIN(m_hist_nocachedRequestPerAlgo);
+     m_hist_nocachedRequestPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_nocachedRequestPerAlgo->GetName(), m_hist_nocachedRequestPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestPerAlgo->GetName() << endmsg;
     }
@@ -706,7 +699,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 					  m_histProp_nocachedRequestedROBsPerAlgo.value().lowEdge(), 
 					  m_histProp_nocachedRequestedROBsPerAlgo.value().highEdge());
   if (m_hist_nocachedRequestedROBsPerAlgo) {
-     CAN_REBIN(m_hist_nocachedRequestedROBsPerAlgo);
+     m_hist_nocachedRequestedROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_nocachedRequestedROBsPerAlgo->GetName(), m_hist_nocachedRequestedROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_nocachedRequestedROBsPerAlgo->GetName() << endmsg;
     }
@@ -720,7 +713,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerAlgo_pref.value().lowEdge(), 
 						 m_histProp_missingRequestedROBsPerAlgo_pref.value().highEdge());
   if (m_hist_missingRequestedROBsPerAlgo_pref) {
-     CAN_REBIN(m_hist_missingRequestedROBsPerAlgo_pref);
+     m_hist_missingRequestedROBsPerAlgo_pref->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgo_pref->GetName(), m_hist_missingRequestedROBsPerAlgo_pref).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgo_pref->GetName() << endmsg;
     }
@@ -733,7 +726,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestPerAlgo_pref.value().lowEdge(), 
 						 m_histProp_missingRequestPerAlgo_pref.value().highEdge());
   if (m_hist_missingRequestPerAlgo_pref) {
-     CAN_REBIN(m_hist_missingRequestPerAlgo_pref);
+     m_hist_missingRequestPerAlgo_pref->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgo_pref->GetName(), m_hist_missingRequestPerAlgo_pref).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgo_pref->GetName() << endmsg;
     }
@@ -758,7 +751,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestedROBsPerAlgoButCached_pref.value().lowEdge(), 
 						 m_histProp_missingRequestedROBsPerAlgoButCached_pref.value().highEdge());
   if (m_hist_missingRequestedROBsPerAlgoButCached_pref) {
-     CAN_REBIN(m_hist_missingRequestedROBsPerAlgoButCached_pref);
+     m_hist_missingRequestedROBsPerAlgoButCached_pref->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestedROBsPerAlgoButCached_pref->GetName(), m_hist_missingRequestedROBsPerAlgoButCached_pref).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestedROBsPerAlgoButCached_pref->GetName() << endmsg;
     }
@@ -771,7 +764,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 						 m_histProp_missingRequestPerAlgoButCached_pref.value().lowEdge(), 
 						 m_histProp_missingRequestPerAlgoButCached_pref.value().highEdge());
   if (m_hist_missingRequestPerAlgoButCached_pref) {
-     CAN_REBIN(m_hist_missingRequestPerAlgoButCached_pref);
+     m_hist_missingRequestPerAlgoButCached_pref->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_missingRequestPerAlgoButCached_pref->GetName(), m_hist_missingRequestPerAlgoButCached_pref).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_missingRequestPerAlgoButCached_pref->GetName() << endmsg;
     }
@@ -798,7 +791,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 					  m_histProp_declaredROBsPerAlgo.value().lowEdge(), 
 					  m_histProp_declaredROBsPerAlgo.value().highEdge());
   if (m_hist_declaredROBsPerAlgo) {
-     CAN_REBIN(m_hist_declaredROBsPerAlgo);
+     m_hist_declaredROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_declaredROBsPerAlgo->GetName(), m_hist_declaredROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_declaredROBsPerAlgo->GetName() << endmsg;
     }
@@ -811,7 +804,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 					  m_histProp_prefetchedROBsPerAlgo.value().lowEdge(), 
 					  m_histProp_prefetchedROBsPerAlgo.value().highEdge());
   if (m_hist_prefetchedROBsPerAlgo) {
-     CAN_REBIN(m_hist_prefetchedROBsPerAlgo);
+     m_hist_prefetchedROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_prefetchedROBsPerAlgo->GetName(), m_hist_prefetchedROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_prefetchedROBsPerAlgo->GetName() << endmsg;
     }

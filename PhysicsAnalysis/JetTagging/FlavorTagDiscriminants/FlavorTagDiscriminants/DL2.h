@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_H
@@ -8,6 +8,7 @@
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -72,7 +73,7 @@ namespace FlavorTagDiscriminants {
                                  const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
-    typedef std::function<NamedVar(const Jet&)> VarFromJet;
+    typedef std::function<NamedVar(const Jet&)> VarFromBTag;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
@@ -172,6 +173,10 @@ namespace FlavorTagDiscriminants {
         std::map<std::string, std::string> out_remap = {},
         OutputType = OutputType::DOUBLE);
     void decorate(const xAOD::Jet& jet) const;
+
+    // functions to report data depdedencies
+    DL2DataDependencyNames getDataDependencyNames() const;
+
   private:
     struct TrackSequenceBuilder {
       TrackSequenceBuilder(SortOrder, TrackSelection, FlipTagConfig);
@@ -185,23 +190,30 @@ namespace FlavorTagDiscriminants {
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
-    std::vector<internal::VarFromJet> m_varsFromJet;
+    std::vector<internal::VarFromBTag> m_varsFromBTag;
     std::vector<TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, OutNode> m_decorators;
+
+    DL2DataDependencyNames m_dataDependencyNames;
+
   };
+
 
   //
   // Filler functions
   namespace internal {
     // factory functions to produce callable objects that build inputs
     namespace get {
-      VarFromJet varFromJet(const std::string& name,
+      VarFromBTag varFromBTag(const std::string& name,
                             EDMType,
                             const std::string& defaultflag);
       TrackSortVar trackSortVar(SortOrder);
-      TrackFilter trackFilter(TrackSelection);
-      SeqFromTracks seqFromTracks(const DL2TrackInputConfig&);
-      TrackSequenceFilter flipFilter(FlipTagConfig);
+      std::pair<TrackFilter,std::set<std::string>> trackFilter(
+        TrackSelection);
+      std::pair<SeqFromTracks,std::set<std::string>> seqFromTracks(
+        const DL2TrackInputConfig&);
+      std::pair<TrackSequenceFilter,std::set<std::string>> flipFilter(
+        FlipTagConfig);
     }
   }
 }

@@ -9,11 +9,12 @@
 
 JetMonitoringAlg::JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this)
+,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this), m_failureOnMissingContainer(true)
 {
 
     declareProperty("JetContainerName",m_jetContainerKey);
     declareProperty("FillerTools", m_jetFillerTools);
+    declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
 }
 
 
@@ -42,8 +43,13 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
   // retrieve the jet container
   SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerKey, ctx);    
   if (! jets.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
-    return StatusCode::FAILURE;
+    if (m_failureOnMissingContainer){
+      ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_WARNING("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+      return StatusCode::SUCCESS;
+    }
   }
 
   // call each histograming tool on the container

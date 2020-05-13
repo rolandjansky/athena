@@ -42,7 +42,7 @@ FTAG2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FT
                           expression = 'count( (Muons.pt > 18*GeV) && (0 == Muons.muonType || 1 == Muons.muonType || 4 == Muons.muonType) ) + count(( Electrons.pt > 18*GeV) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))) >= 2 ')
 
 ToolSvc += FTAG2StringSkimmingTool
-print FTAG2StringSkimmingTool
+printfunc (FTAG2StringSkimmingTool)
 
 FTAG2Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG2SkimKernel",
                                                          SkimmingTools = [FTAG2StringSkimmingTool],
@@ -65,7 +65,7 @@ if globalflags.DataSource()!='data':
 #make IPE tool for BTagTrackAugmenter
 FTAG2IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG2IPETool")
 ToolSvc += FTAG2IPETool
-print FTAG2IPETool
+printfunc (FTAG2IPETool)
 
 #augment jets with track info
 FTAG2Seq += CfgMgr.BTagVertexAugmenter()
@@ -76,7 +76,7 @@ FTAG2Seq += CfgMgr.BTagVertexAugmenter()
 #        DecorationPrefix = "FTAG2",
 #        ContainerName = "InDetTrackParticles")
 #ToolSvc += FTAG2TrackToVertexWrapper
-#print FTAG2TrackToVertexWrapper
+#printfunc (FTAG2TrackToVertexWrapper)
 
 #====================================================================
 # Basic Jet Collections

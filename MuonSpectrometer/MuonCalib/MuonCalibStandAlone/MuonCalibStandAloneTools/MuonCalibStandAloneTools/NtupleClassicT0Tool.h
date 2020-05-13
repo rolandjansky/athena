@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _NtupleClassicT0Tool_H
@@ -31,11 +31,7 @@ class NtupleClassicT0Tool: public AthAlgTool, virtual public NtupleCalibrationTo
 		NtupleClassicT0Tool(const std::string& t, const std::string& n, const IInterface* p);
 	/** tool initialization */
 		StatusCode initialize();
-	/** tool finalization */
-		inline StatusCode finalize()
-			{
-			return StatusCode::SUCCESS;
-			}
+
 	/**analyse event - fill hits into specra*/
 		StatusCode handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
 	/** analyze segments */

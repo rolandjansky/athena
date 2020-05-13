@@ -60,8 +60,8 @@ private:
    std::string m_ioSvcName;
 
    /// list of service names
-   Gaudi::Property<std::vector<std::string>> m_ioSvcNameList;
-
+   Gaudi::Property<std::vector<std::string>> m_ioSvcNameList{ this, "ByteStreamOutputSvcList", {}, "", "Set<T>"};
+   
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
 

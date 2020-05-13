@@ -651,17 +651,12 @@ def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
 @makePublicTool
 def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     the_name = makeName( name, kwargs)
-    if 'MultiComponentStateMerger' not in kwargs :
-        kwargs=setDefaults(kwargs, MultiComponentStateMerger = getInDetGsfComponentReduction())
+    if 'MaximumNumberOfComponents' not in kwargs :
+        kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
     return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
 
-@makePublicTool
-def getInDetGsfComponentReduction(name='InDetGsfComponentReduction', **kwargs) :
-    the_name = makeName( name, kwargs)
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-    return Trk__QuickCloseComponentsMultiStateMerger (name = the_name, **setDefaults(kwargs, MaximumNumberOfComponents = 12))
 
 @makePublicTool
 def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
@@ -1339,3 +1334,17 @@ def getInDetCosmicScoringTool_TRT(NewTrackingCuts, name='InDetCosmicExtenScoring
                                           **setDefaults(kwargs,
                                                         minTRTHits  = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                         SummaryTool = getInDetTrackSummaryToolNoHoleSearch()))
+
+def getSolenoidParametrizationCondAlg(name='SolenoidParametrizationCondAlg',**kwargs) :
+    the_name=makeName(name,kwargs)
+    # @TODO require that the magnetid field is setup.
+    from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidParametrizationCondAlg
+    return Trk__SolenoidParametrizationCondAlg(the_name, **setDefaults(kwargs,
+                                                                       AtlasFieldCacheCondObj = 'fieldCondObj',
+                                                                       WriteKey               = 'SolenoidParametrization' ))
+
+def getSolenoidalIntersector(name="SolenoidalIntersector", **kwargs) :
+    the_name=makeName(name,kwargs)
+    createAndAddCondAlg(getSolenoidParametrizationCondAlg, "SolenoidParametrizationCondAlg")
+    from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidalIntersector
+    return Trk__SolenoidalIntersector(the_name, **setDefaults(kwargs, SolenoidParameterizationKey = 'SolenoidParametrization'))

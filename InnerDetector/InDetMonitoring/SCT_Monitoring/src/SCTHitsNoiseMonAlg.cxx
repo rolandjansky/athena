@@ -116,71 +116,8 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
   };
 
   const EventIDBase& pEvent{ctx.eventID()};
-  int lumi_block{static_cast<int>(pEvent.lumi_block())};
-
-  //postprocessing hists are filled with dummy 
-  int test = 2; 
-  int test2 = 1;
-  int test3 = 1;
-  
-  //General
+  const int lumi_block{static_cast<int>(pEvent.lumi_block())};
     
-  auto NO_NO_vsLBAccGeneral{Monitored::Scalar<int>("NO_NO_vsLB", test3)};
-  auto LB_NO_vsLBAccGeneral{Monitored::Scalar<int>("LB_NO_vsLB", test)};
-  fill("SCTHitsNoiseMonitorGeneral",LB_NO_vsLBAccGeneral,NO_NO_vsLBAccGeneral);
-       
-  auto NO_NOTrigger_vsLBAccGeneral{Monitored::Scalar<int>("NO_NOTrigger_vsLB", test3)};
-  auto LB_NOTrigger_vsLBAccGeneral{Monitored::Scalar<int>("LB_NOTrigger_vsLB", test)};
-  fill("SCTHitsNoiseMonitorGeneral",LB_NOTrigger_vsLBAccGeneral,NO_NOTrigger_vsLBAccGeneral);
-  
-  auto HO_HO_vsLBAccGeneral{Monitored::Scalar<int>("HO_HO_vsLB", test3)};
-  auto LB_HO_vsLBAccGeneral{Monitored::Scalar<int>("LB_HO_vsLB", test)};
-  fill("SCTHitsNoiseMonitorGeneral",LB_HO_vsLBAccGeneral,HO_HO_vsLBAccGeneral);
-       
-  auto HO_HOTrigger_vsLBAccGeneral{Monitored::Scalar<int>("HO_HOTrigger_vsLB", test3)};
-  auto LB_HOTrigger_vsLBAccGeneral{Monitored::Scalar<int>("LB_HOTrigger_vsLB", test)};
-  fill("SCTHitsNoiseMonitorGeneral",LB_HOTrigger_vsLBAccGeneral,HO_HOTrigger_vsLBAccGeneral);
-    
-  for (unsigned int isub = 0; isub<N_REGIONS; ++isub){
-      
-    auto HO_HO_vsLBAcc{Monitored::Scalar<int>("HO_HO_vsLB", test3)};
-    auto LB_HO_vsLBAcc{Monitored::Scalar<int>("LB_HO_vsLB", test)};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(isub),LB_HO_vsLBAcc,HO_HO_vsLBAcc);
-
-    auto HO_HOTrigger_vsLBAcc{Monitored::Scalar<int>("HO_HOTrigger_vsLB", test3)};
-    auto LB_HOTrigger_vsLBAcc{Monitored::Scalar<int>("LB_HOTrigger_vsLB", test)};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(isub),LB_HOTrigger_vsLBAcc,HO_HOTrigger_vsLBAcc);
-    
-
-    auto NO_NO_vsLBAcc{Monitored::Scalar<int>("NO_NO_vsLB", test3)};
-    auto LB_NO_vsLBAcc{Monitored::Scalar<int>("LB_NO_vsLB", test)};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(isub),LB_NO_vsLBAcc,NO_NO_vsLBAcc);
-       
-    auto NO_NOTrigger_vsLBAcc{Monitored::Scalar<int>("NO_NOTrigger_vsLB", test3)};
-    auto LB_NOTrigger_vsLBAcc{Monitored::Scalar<int>("LB_NOTrigger_vsLB", test)};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(isub),LB_NOTrigger_vsLBAcc,NO_NOTrigger_vsLBAcc);
-    
-       
-    for (unsigned int i{0}; i < limits[isub]; ++i) {
-
-      LayerSideFormatter layerSide{i, isub};
-      const string streamhitmapR{"hitoccupancymap" + abbreviations[isub] + "_" + layerSide.name()};
-      auto EtahitoccupancymapAcc{Monitored::Scalar<int>("eta_" + streamhitmapR, test)};    
-      auto PhihitoccupancymapAcc{Monitored::Scalar<int>("phi_" + streamhitmapR, test2)};
-      auto OcchitoccupancymapAcc{Monitored::Scalar<int>("occ_" + streamhitmapR, test3)};
-      fill("SCTHitsNoiseMonitor_" + std::to_string(isub),EtahitoccupancymapAcc,PhihitoccupancymapAcc,OcchitoccupancymapAcc);
-           
-           
-      const string noiseOccupancy{"noiseoccupancymaptrigger" + abbreviations[isub] + "_" + layerSide.name()};
-      auto EtanoiseoccupancymapAcc{Monitored::Scalar<int>("eta_" + noiseOccupancy, test)};    
-      auto PhinoiseoccupancymapAcc{Monitored::Scalar<int>("phi_" + noiseOccupancy, test2)};
-      auto OccnoiseoccupancymapAcc{Monitored::Scalar<int>("occ_" + noiseOccupancy, test3)};
-      fill("SCTHitsNoiseMonitor_" + std::to_string(isub),EtanoiseoccupancymapAcc,PhinoiseoccupancymapAcc,OccnoiseoccupancymapAcc);
-            
-    } 
-        
-  }
-  
   SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_dataObjectName, ctx};
   if (not rdoContainer.isValid()) {
     ATH_MSG_WARNING("SCT_RDO_Container not valid");
@@ -208,6 +145,11 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     m_eventsTrigger_lb++;
   }
 
+  std::vector<float> occ(N_WAFERS, 0.);
+  std::vector<float> hitOcc(N_WAFERS, 0.);
+
+  int local_tothits{0};
+
   vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
   vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
   vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
@@ -221,21 +163,20 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
   vector<int> vLumiBlock[N_REGIONS];
   vector<int> vNumberOfHitsFromAllRDOs[N_REGIONS];
   vector<int> vNumberOfHitsFromSPs[N_REGIONS];
-  vector<int> vLumiBlockTrigger[N_REGIONS];
-  vector<int> vNumberOfHitsFromAllRDOsTrigger[N_REGIONS];
-  vector<int> vNumberOfHitsFromSPsTrigger[N_REGIONS];
+  vector<bool> vIsSelectedTriggerHits[N_REGIONS];
   for (unsigned int jReg{0}; jReg<N_REGIONS; jReg++) {
-    vLumiBlock[jReg].reserve(N_WAFERS);
-    vNumberOfHitsFromAllRDOs[jReg].reserve(N_WAFERS);
-    vNumberOfHitsFromSPs[jReg].reserve(N_WAFERS);
-    vLumiBlockTrigger[jReg].reserve(N_WAFERS);
-    vNumberOfHitsFromAllRDOsTrigger[jReg].reserve(N_WAFERS);
-    vNumberOfHitsFromSPsTrigger[jReg].reserve(N_WAFERS);
+    unsigned int size{0};
+    if (jReg==ENDCAP_C_INDEX or jReg==ENDCAP_A_INDEX) size = N_SIDES * N_MOD_ENDCAPS;
+    else if (jReg==BARREL_INDEX) size = N_SIDES * N_MOD_BARREL;
+    vLumiBlock[jReg].reserve(size);
+    vNumberOfHitsFromAllRDOs[jReg].reserve(size);
+    vNumberOfHitsFromSPs[jReg].reserve(size);
+    vIsSelectedTriggerHits[jReg].reserve(size);
   }
 
   vector<int> vEtaOnTrack;
   vector<int> vPhiOnTrack;
-  vector<float> vBec0p5OnTrack;
+  vector<float> vSystemIndexOnTrack;
   vector<bool> vDTbinOnTrack;
 
   vector<int> vEta;
@@ -287,6 +228,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     for (const SCT_RDORawData* rdo: *rdoCollection) {
       const int numberOfStrips{rdo->getGroupSize()};
       (*hitsInLayer[systemIndex])[thisElement] += numberOfStrips;
+      local_tothits += numberOfStrips;
       
       if (doThisSubsystem[systemIndex]) {
         const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
@@ -303,7 +245,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
             vEtaOnTrack.push_back(thisEta);
             vPhiOnTrack.push_back(thisPhi);
             vDTbinOnTrack.push_back((tbin == 2) or (tbin == 3));
-            vBec0p5OnTrack.push_back(barrel_ec+0.5);
+            vSystemIndexOnTrack.push_back(systemIndex);
           }
         }
         vEta.push_back(thisEta);
@@ -339,55 +281,38 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     fill("SCTHitsNoiseMonitor_" + std::to_string(systemIndex), etahitsmapAcc, phihitsmapAcc, numberOfStripsAcc);
 
     if (numberOfHitsFromAllRDOs > 0) {
-      /*
-      int diff{numberOfHitsFromAllRDOs - numberOfHitsFromSPs};
-      int num{diff};
       int den{N_STRIPS - numberOfHitsFromSPs};
-      float sumocc{0.};
-      if (diff < 0) {
+      int num{numberOfHitsFromAllRDOs - numberOfHitsFromSPs};
+      if (num < 0) {
         num = 0;
-        m_skipEvents++;
         ATH_MSG_WARNING("Too many reconstructed space points for number of real hits");
       }
       if (den > 0) {
-        sumocc = num / static_cast<float> (den);
+        occ[wafer_hash] = static_cast<float>(num) / static_cast<float>(den) * 1.E5;
       }
-      */ // Will be used later
     
-      // hit occupancy
-          
-      //      float sumhitocc{static_cast<float> (numberOfHitsFromAllRDOs) / static_cast<float> (N_STRIPS)}; // Will be used later
+      hitOcc[wafer_hash] = static_cast<float>(numberOfHitsFromAllRDOs) / static_cast<float>(N_STRIPS) * 1.E5;
 
       vLumiBlock[systemIndex].push_back(lumi_block);
       vNumberOfHitsFromAllRDOs[systemIndex].push_back(numberOfHitsFromAllRDOs);
       vNumberOfHitsFromSPs[systemIndex].push_back(numberOfHitsFromSPs);
-        
-      if (isSelectedTrigger) {
-        vLumiBlockTrigger[systemIndex].push_back(lumi_block);
-        vNumberOfHitsFromAllRDOsTrigger[systemIndex].push_back(numberOfHitsFromAllRDOs);
-        vNumberOfHitsFromSPsTrigger[systemIndex].push_back(numberOfHitsFromSPs);
-      }
+      vIsSelectedTriggerHits[systemIndex].push_back(isSelectedTrigger);
       // end of hit occupancy
     }
   }// End of Loop on RDO container
 
-  auto Bec_TBinFracAllAcc{Monitored::Collection("Bec_TBinFracAll", vBec0p5OnTrack)};
+  auto Bec_TBinFracAllAcc{Monitored::Collection("Bec_TBinFracAll", vSystemIndexOnTrack)};
   auto TBin_TBinFracAllAcc{Monitored::Collection("TBin_TBinFracAll", vDTbinOnTrack)};
   fill("SCTHitsNoiseMonitorGeneral", Bec_TBinFracAllAcc, TBin_TBinFracAllAcc);
 
   for (unsigned int jReg{0}; jReg<N_REGIONS; jReg++) {
-    auto lbHits_vsLBAcc{Monitored::Collection("lbh_Hits_vsLB", vLumiBlock[jReg])};
-    auto numhitsHallHits_vsLBAcc{Monitored::Collection("numhitsh_HallHits_vsLB", vNumberOfHitsFromAllRDOs[jReg])};
-    auto numberOfHitsFromSPsHSPHits_vsLBAcc{Monitored::Collection("numberOfHitsFromSPsh_HSPHits_vsLB", vNumberOfHitsFromSPs[jReg])};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHits_vsLBAcc, numberOfHitsFromSPsHSPHits_vsLBAcc, numhitsHallHits_vsLBAcc);
-
-    auto lbHitsTrigger_vsLBAcc{Monitored::Collection("lbh_HitsTrigger_vsLB", vLumiBlockTrigger[jReg])};
-    auto numhitsHallHitsTrigger_vsLBAcc{Monitored::Collection("numhitsh_HallHitsTrigger_vsLB", vNumberOfHitsFromAllRDOsTrigger[jReg])};
-    auto numberOfHitsFromSPsHSPHitsTrigger_vsLBAcc{Monitored::Collection("numberOfHitsFromSPsh_HSPHitsTrigger_vsLB", vNumberOfHitsFromSPsTrigger[jReg])};
-    fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHitsTrigger_vsLBAcc, numberOfHitsFromSPsHSPHitsTrigger_vsLBAcc, numhitsHallHitsTrigger_vsLBAcc);
+    auto lbHitsAcc{Monitored::Collection("LBHits", vLumiBlock[jReg])};
+    auto numberOfHitsFromAllRDOsAcc{Monitored::Collection("numberOfHitsFromAllRDOs", vNumberOfHitsFromAllRDOs[jReg])};
+    auto numberOfHitsFromSPsAcc{Monitored::Collection("numberOfHitsFromSPs", vNumberOfHitsFromSPs[jReg])};
+    auto isSelectedTriggerHitsAcc{Monitored::Collection("isSelectedTriggerHits", vIsSelectedTriggerHits[jReg])};
+    fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), lbHitsAcc, numberOfHitsFromAllRDOsAcc, numberOfHitsFromSPsAcc, isSelectedTriggerHitsAcc);
   }
 
-  // if (m_environment!=AthMonitorAlgorithm::Environment_t::online) { // Uncomment this line to turn off cluster hists in online
   // Fill Cluster size histogram
   SG::ReadHandle<InDet::SCT_ClusterContainer> clusterContainer{m_clusContainerKey, ctx};
   if (not clusterContainer.isValid()) {
@@ -402,7 +327,94 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
   }
   auto cluSizeAcc{Monitored::Collection("clu_size", vGroupSize)};
   fill("SCTHitsNoiseMonitorGeneral", cluSizeAcc);
-  // } // Uncomment this line as well to turn off cluster hists in online
+  auto hitsAcc{Monitored::Scalar<int>("sct_hits", local_tothits)};
+  fill("SCTHitsNoiseMonitorGeneral", hitsAcc);
+
+  // Fill hit occupancy and noise occupancy plots
+  std::vector<int> vLB[N_REGIONS_INC_GENERAL];
+  std::vector<float> vNO[N_REGIONS_INC_GENERAL];
+  std::vector<float> vHO[N_REGIONS_INC_GENERAL];
+  std::vector<bool> vIsSelectedTrigger[N_REGIONS_INC_GENERAL];
+  std::vector<std::vector<float>> vNO2D[N_REGIONS];
+  std::vector<std::vector<float>> vHO2D[N_REGIONS];
+  std::vector<std::vector<int>> vEtaNOHO[N_REGIONS];
+  std::vector<std::vector<int>> vPhiNOHO[N_REGIONS];
+  std::vector<std::vector<bool>> vIsSelectedTriggerNOHO[N_REGIONS];
+  for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
+    unsigned int size{N_WAFERS};
+    if (jReg==ENDCAP_C_INDEX or jReg==ENDCAP_A_INDEX) size = N_SIDES * N_MOD_ENDCAPS;
+    else if (jReg==BARREL_INDEX) size = N_SIDES * N_MOD_BARREL;
+    vLB[jReg].reserve(size);
+    vNO[jReg].reserve(size);
+    vHO[jReg].reserve(size);
+    vIsSelectedTrigger[jReg].reserve(size);
+
+    if (jReg<GENERAL_INDEX) {
+      vNO2D[jReg].resize(limits[jReg], {});
+      vHO2D[jReg].resize(limits[jReg], {});
+      vEtaNOHO[jReg].resize(limits[jReg], {});
+      vPhiNOHO[jReg].resize(limits[jReg], {});
+      vIsSelectedTriggerNOHO[jReg].resize(limits[jReg], {});
+      for (unsigned int element{0}; element< limits[jReg]; ++element) {
+        const int nWafers{getNumModules(jReg, element)*N_SIDES};
+        vNO2D[jReg][element].reserve(nWafers);
+        vHO2D[jReg][element].reserve(nWafers);
+        vEtaNOHO[jReg][element].reserve(nWafers);
+        vPhiNOHO[jReg][element].reserve(nWafers);
+        vIsSelectedTriggerNOHO[jReg][element].reserve(nWafers);
+      }
+    }
+  }  
+
+  for (unsigned int iHash{0}; iHash<N_WAFERS; iHash++) {
+    const IdentifierHash wafer_hash{iHash};
+    if (not m_ConfigurationTool->isGood(wafer_hash)) continue;
+
+    const Identifier wafer_id{m_pSCTHelper->wafer_id(wafer_hash)};
+    const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+    const unsigned int systemIndex{bec2Index(barrel_ec)};
+    vLB[systemIndex].push_back(lumi_block);
+    vNO[systemIndex].push_back(occ[iHash]);
+    vHO[systemIndex].push_back(hitOcc[iHash]);
+    vIsSelectedTrigger[systemIndex].push_back(isSelectedTrigger);
+    vLB[GENERAL_INDEX].push_back(lumi_block);
+    vNO[GENERAL_INDEX].push_back(occ[iHash]);
+    vHO[GENERAL_INDEX].push_back(hitOcc[iHash]);
+    vIsSelectedTrigger[GENERAL_INDEX].push_back(isSelectedTrigger);
+    if (doThisSubsystem[systemIndex]) {
+      const int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
+      vNO2D[systemIndex][element].push_back(occ[iHash]);
+      vHO2D[systemIndex][element].push_back(hitOcc[iHash]);
+      vEtaNOHO[systemIndex][element].push_back(m_pSCTHelper->eta_module(wafer_id));
+      vPhiNOHO[systemIndex][element].push_back(m_pSCTHelper->phi_module(wafer_id));
+      vIsSelectedTriggerNOHO[systemIndex][element].push_back(isSelectedTrigger);
+    }
+  }
+
+  for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
+    std::string monitor;
+    if (jReg==GENERAL_INDEX) monitor = "SCTHitsNoiseMonitorGeneral";
+    else monitor = "SCTHitsNoiseMonitor_" + std::to_string(jReg);
+
+    auto LBAcc{Monitored::Collection("LB", vLB[jReg])};
+    auto noAcc{Monitored::Collection("NO", vNO[jReg])};
+    auto hoAcc{Monitored::Collection("HO", vHO[jReg])};
+    auto IsSelectedTriggerAcc{Monitored::Collection("IsSelectedTrigger", vIsSelectedTrigger[jReg])};
+    fill(monitor, LBAcc, noAcc, hoAcc, IsSelectedTriggerAcc);
+  }
+
+  for (unsigned int jReg{0}; jReg<N_REGIONS; ++jReg){
+    for (unsigned int element{0}; element < limits[jReg]; ++element) {
+      LayerSideFormatter layerSide{element, jReg};
+      const string occMap{"occupancymap" + abbreviations[jReg] + "_" + layerSide.name()};
+      auto etaEacc{Monitored::Collection("eta_" + occMap, vEtaNOHO[jReg][element])};
+      auto phiAcc{Monitored::Collection("phi_" + occMap, vPhiNOHO[jReg][element])};
+      auto hoAcc{Monitored::Collection("HO_" + occMap, vHO2D[jReg][element])};
+      auto noAcc{Monitored::Collection("NO_" + occMap, vNO2D[jReg][element])};
+      auto isSelectedTriggerAcc{Monitored::Collection("IsSelectedTrigger_"+occMap, vIsSelectedTriggerNOHO[jReg][element])};
+      fill("SCTHitsNoiseMonitor_" + std::to_string(jReg), etaEacc, phiAcc, hoAcc, noAcc, isSelectedTriggerAcc);
+    }
+  }
   
   return StatusCode::SUCCESS;
 }

@@ -6,7 +6,7 @@
   Header file for class TRT_SeededSpacePointFinder_ATL
   (c) ATLAS Detector software
   Class for Si seed candidates generation using space point information
-  Version 1.0: 04/15/2006 
+  Version 1.0: 04/15/2006
   Authors: Thomas Koffas
   email  : Thomas.Koffas@cern.ch
 ********************************************************************************/
@@ -21,21 +21,19 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrkSpacePoint/SpacePointContainer.h" 
-#include "TrkSpacePoint/SpacePointOverlapCollection.h" 
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
 #include "TrkEventUtils/EventDataBase.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <list>
 #include <vector>
@@ -58,22 +56,22 @@ namespace InDet{
 namespace InDet{
 
   /**
-  @class TRT_SeededSpacePointFinder_ATL 
-  
+  @class TRT_SeededSpacePointFinder_ATL
+
   InDet::TRT_SeededSpacePointFinderATL is a tool which produces Si track
   seeds using pairs of space points in the last 3 layers of the SCT.
-  @author Thomas.Koffas@cern.ch     
+  @author Thomas.Koffas@cern.ch
   */
 
-  class TRT_SeededSpacePointFinder_ATL : 
+  class TRT_SeededSpacePointFinder_ATL :
     virtual public ITRT_SeededSpacePointFinder, public AthAlgTool
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       /** Standard tool methods                                        */
       ///////////////////////////////////////////////////////////////////
@@ -92,7 +90,7 @@ namespace InDet{
       std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newRegion
 	(const std::vector<IdentifierHash>&,
          const std::vector<IdentifierHash>&) const;
-      
+
       ///////////////////////////////////////////////////////////////////
       /** Main method of seed production                               */
       ///////////////////////////////////////////////////////////////////
@@ -104,9 +102,9 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       /** Iterator through seed collection.Not used in this implementation */
       ///////////////////////////////////////////////////////////////////
-      
+
       const SiSpacePointsSeed* next(ITRT_SeededSpacePointFinder::IEventData &event_data) const;
-      
+
       ///////////////////////////////////////////////////////////////////
       /** Print internal tool parameters and status                    */
       ///////////////////////////////////////////////////////////////////
@@ -115,15 +113,12 @@ namespace InDet{
       std::ostream& dump          (std::ostream& out) const;
 
     protected:
-      
+
       ///////////////////////////////////////////////////////////////////
       /** Protected data and methods                                   */
       ///////////////////////////////////////////////////////////////////
-      
-      std::string                            m_fieldmode             ;  /** Magnetic field mode  */
-      ServiceHandle<MagField::IMagFieldSvc>    m_fieldServiceHandle             ;  /** Magnetic field tool name  */
 
-      MagField::IMagFieldSvc*                m_fieldService;
+      std::string                            m_fieldmode             ;  /** Magnetic field mode  */
 
       Trk::MagneticFieldProperties           m_fieldprop             ;  /** Magnetic field properties  */
 
@@ -134,7 +129,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       /** Seed selection criteria                                      */
       ///////////////////////////////////////////////////////////////////
-     
+
       double                         m_ptmin                         ;  /** Minimum pT cut   */
       double                         m_r_rmin                        ;  /** Minimum SCT radius to be searched  */
       double                         m_r_rmax                        ;  /** Maximum STC radius to be searched  */
@@ -196,17 +191,16 @@ namespace InDet{
       /** Space points containers                                      */
       ///////////////////////////////////////////////////////////////////
 
-      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixname {this,"SpacePointsPixelName","PixelSpacePoints","RHK to retrieve Pixel SpacePointContainer"}            ;  
-      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}           ;         
-      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsOverlapName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ; 
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixname {this,"SpacePointsPixelName","PixelSpacePoints","RHK to retrieve Pixel SpacePointContainer"}            ;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}           ;
+      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsOverlapName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ;
       SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
          {this,"PRDtoTrackMap",""};
 
- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // Read handle for conditions object to get the field cache
-      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
-                                                                            "Name of the Magnetic Field conditions object key"};
- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj",
+        "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */
       ///////////////////////////////////////////////////////////////////
@@ -247,13 +241,13 @@ namespace InDet{
 
       // place to keep scalar values needed for cuts, common to all seeds
       // updated only once per production2Sp call instead or each cutTPb
-      struct invar_bypass_struct { 
+      struct invar_bypass_struct {
 	  double min_theta, max_theta, min_phi, max_phi, invp_min, invp_max,
 	  invp_min2, invp_max2;
       };
-      
+
       /** Cut on chi2 based on TRT segment qOverP, theta and phi track parameters */
- 
+
       // // // // // // // // // // // // // // // // //
       bool cutTPb(const invar_bypass_struct &invar_bypass, const std::vector<bypass_struct> &prod_bypass,long, long, double) const;
       // // // // // // // // // // // // // // // // //
@@ -269,8 +263,7 @@ namespace InDet{
     {
       return 0;
     }
-  
+
 } // end of name space
 
 #endif // TRT_SeededSpacePointFinder_ATL_H
-

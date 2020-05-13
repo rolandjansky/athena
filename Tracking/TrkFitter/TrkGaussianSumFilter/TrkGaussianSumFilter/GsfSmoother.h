@@ -19,9 +19,6 @@ decription           : Class definition for the GSF smoother
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -71,12 +68,11 @@ private:
 
 private:
   bool m_combineWithFitter;
-  ToolHandle<IMultiComponentStateMerger> m_merger{
-    this,
-    "ComponentMerger",
-    "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",
-    ""
-  };
+
+  Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
+                                                             "MaximumNumberOfComponents",
+                                                             12,
+                                                             "Maximum number of components" };
   /*
    * Special Tool Handles set by the configureTools
    */

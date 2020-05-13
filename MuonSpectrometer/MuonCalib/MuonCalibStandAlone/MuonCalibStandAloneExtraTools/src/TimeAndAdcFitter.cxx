@@ -156,8 +156,8 @@ void  TimeAndAdcFitter::searchParams(TH1 *h, double *p, int /*nParams*/) {
     float cont1=hnew->GetBinContent(ix1);
     float cont2=hnew->GetBinContent(ix2);
     if (cont1>0. && cont2>0. ){
-      float A1=exp(-(a1-t0guess)/P3);
-      float A2=exp(-(a2-t0guess)/P3);
+      float A1=std::exp(-(a1-t0guess)/P3);
+      float A2=std::exp(-(a2-t0guess)/P3);
       // do not forget rebinning!
       P2 = (cont1/cont2-1.)/(A1-cont1/cont2*A2);
       P1 = cont1/(1+P2*A1);

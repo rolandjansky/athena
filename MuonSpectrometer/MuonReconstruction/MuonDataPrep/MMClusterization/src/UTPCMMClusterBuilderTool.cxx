@@ -212,7 +212,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(const std::vector<Muon:
     sc = findAlphaMax(h_hough,houghPeaks);
     if(sc.isFailure()) return sc;
     ATH_MSG_DEBUG("Found HoughPeaks");
-    
     sc = selectTrack(mmPrd, xpos, flag, houghPeaks, idx_selected);
     if(sc.isFailure()) return sc;
     return StatusCode::SUCCESS;   

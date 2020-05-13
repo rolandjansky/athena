@@ -10,6 +10,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/AtlasHepMC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( HepMC_Interfaces )
+atlas_add_library( HepMC_InterfacesLib
+                   HepMC_Interfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS HepMC_Interfaces
+                   LINK_LIBRARIES AtlasHepMCLib GaudiKernel )
 

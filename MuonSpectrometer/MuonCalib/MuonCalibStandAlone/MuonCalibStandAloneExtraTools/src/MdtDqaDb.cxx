@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibStandAloneExtraTools/MdtDqaDb.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <map>
 #include <string.h>
 #include <vector>
-
 
 MdtDqaDb::MdtDqaDb(std::string chamName) : m_numNoisyMezz(-1), m_numNoisyTube(-1) {
   Clear();
@@ -67,26 +67,7 @@ void MdtDqaDb::Print(std::ofstream *outputFile) {
   *outputFile  << std::endl ;
 }
 
-void MdtDqaDb::Print() {    
-  //  std::cout  << "  ==================================================== " << std::endl ;
-  //  std::cout  << "  MdtDqaDb output: ---- Chamber name : " << m_chamberName << std::endl ;
-  //  std::cout  << " timeFlag : " << getTimeFlag() << std::endl ;
-  //  std::cout  << " deadFlag : " << getDeadFlag() << std::endl ;
-  //  std::cout << " chi2 per dof ML1 : " << m_chi2ndofML1 << std::endl ;
-  //  std::cout << " chi2 per dof ML2 : " << m_chi2ndofML2 << std::endl ;
-  //  std::cout << " t0 ML1 (ns)  " << m_t0ML1 << "    +/-    " << m_t0errML1 << std::endl ;
-  //  std::cout << " t0 ML2 (ns)  " << m_t0ML2 << "    +/-    " << m_t0errML2 << std::endl ;
-  //  std::cout  << " tdrift ML1 (ns)  " << m_tdriftML1 << "    +/-    " << m_tdrifterrML1 << std::endl ;
-  //  std::cout  << " tdrift ML2 (ns)  " << m_tdriftML2 << "    +/-    " << m_tdrifterrML2 << std::endl ;
-  
-  //  std::cout << " Number of Dead ML : " << m_numDeadML << "  ---- list of dead/inefficient Multilayers : " << std::endl ;
-  //  for ( int n=0 ; n< m_numDeadML ; n++ ) std::cout << m_listDeadML[n] << std::endl ;
-  //  std::cout << " Number of Dead Mezzanine : " << m_numDeadMezz << "  ---- list of dead/inefficient Mezzanine : " << std::endl ;
-  //  for ( int n=0 ; n< m_numDeadMezz ; n++ ) std::cout << m_listDeadMezz[n] << std::endl ;
-  //  std::cout << " Number of Dead Tubes : " << m_numDeadTube << "  ---- list of dead/inefficient Tubes : " << std::endl ;
-  //  for ( int n=0 ; n< m_numDeadTube ; n++ ) std::cout << m_listDeadTube[n] << std::endl ;
-  
-  //  std::cout << std::endl ;
+void MdtDqaDb::Print() {
 }
 
 void MdtDqaDb::SetChamberName(std::string chamName) {

@@ -8,7 +8,7 @@
 // Framework include(s):
 #include <AsgTools/AsgMetadataTool.h>
 #include <AsgTools/AnaToolHandle.h>
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 
 // EDM include(s):

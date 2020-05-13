@@ -77,6 +77,9 @@ public: // Non-static members
    /// ready for output
    virtual StatusCode prepareOutput() override;
 
+   /// version of prepareOutput() for parallel streams
+   virtual StatusCode prepareOutput(const std::string& outputName);
+  
    virtual StatusCode shmProxy(const std::string& filename) override;
 
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
@@ -98,7 +101,7 @@ public: // Non-static members
    virtual void handle(const Incident& incident) override;
 
    /// Transition output metadata file - fire MeteDataStop incident to transition OutputStream
-   StatusCode transitionMetaDataFile(bool ignoreInputFile = false);
+   StatusCode transitionMetaDataFile();
 
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;

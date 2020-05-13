@@ -562,7 +562,7 @@ HLT::ErrorCode TrigSubDetListWriter::fillPEBInfo(PartialEventBuildingInfo& pebIn
 
   // reserve space of ROB vector, limits to be determined
   //allROBs.reserve(120);
-  // ROB ID 0x520010, need special ROB for tile calibration
+  // ROB ID 0x520020, need special ROB for tile calibration
   //allROBs.insert(allROBs.end(),m_extrarobs.begin(),m_extrarobs.end());
 
   // including L1 Calo ROBs

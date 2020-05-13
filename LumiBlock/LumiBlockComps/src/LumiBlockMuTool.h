@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 #include <string>
 
@@ -44,11 +45,20 @@ class LumiBlockMuTool: public extends<AthAlgTool, ILumiBlockMuTool> {
   virtual StatusCode initialize() override;
 
  private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+  SG::ReadHandleKey<xAOD::EventInfo>       m_eventInfoKey{this
+      ,"EventInfoKey"
+      ,"EventInfo"
+      ,"RHK for EventInfo"};
 
+  SG::ReadDecorHandleKey<xAOD::EventInfo>  m_rdhkActMu {this
+      ,"ActIntPerXKey"
+      ,"EventInfo.ActIntPerXDecor"
+      ,"Decoration for Actual Interaction Per Crossing"};
 
-  // Take MC mu from lumi block number instead of EventInfo?
-  bool m_MCLumiBlockHack;  // Default is FALSE
+  SG::ReadDecorHandleKey<xAOD::EventInfo>  m_rdhkAveMu {this
+      ,"AveIntPerXKey"
+      ,"EventInfo.AveIntPerXDecor"
+      ,"Decoration for Average Interaction Per Crossing"};
 };
 
 

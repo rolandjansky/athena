@@ -43,12 +43,12 @@ FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence")
 offlineElec = "(Electrons.pt > 24*GeV) && (Electrons.Medium || Electrons.DFCommonElectronsLHMedium)"
 offlineMuon = "(Muons.pt > 24*GeV) && (Muons.DFCommonGoodMuon) && (0 == Muons.muonType)"
 offlineExpression = "( (count("+offlineElec+") >= 1) ||  (count("+offlineMuon+") >= 1) )"
-print 'FTAG4: offline skimming expression : \n', offlineExpression
+printfunc ('FTAG4: offline skimming expression : \n', offlineExpression)
 
 FTAG4StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG4StringSkimmingTool",
                                                                       expression = offlineExpression)
 ToolSvc += FTAG4StringSkimmingTool
-print FTAG4StringSkimmingTool
+printfunc (FTAG4StringSkimmingTool)
 
 # triggers used for skimming:
 # single lepton triggers: we want to include lowest un-prescaled
@@ -64,7 +64,7 @@ triggersSkim = triggers_e + triggers_mu
 FTAG4TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG4TriggerSkimmingTool",
                                                                     TriggerListOR = triggersSkim)
 ToolSvc += FTAG4TriggerSkimmingTool
-print FTAG4TriggerSkimmingTool
+printfunc (FTAG4TriggerSkimmingTool)
 
 FTAG4Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG4SkimKernel",
                                                          SkimmingTools = [FTAG4StringSkimmingTool,FTAG4TriggerSkimmingTool])

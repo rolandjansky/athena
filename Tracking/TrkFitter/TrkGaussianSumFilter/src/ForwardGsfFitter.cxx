@@ -267,7 +267,12 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // Extrapolate multi-component state to the next measurement surface
   // =================================================================
   Trk::MultiComponentState extrapolatedState =
-    m_extrapolator->extrapolate(updatedState, surface, Trk::alongMomentum, false, particleHypothesis);
+    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                updatedState,
+                                surface,
+                                Trk::alongMomentum,
+                                false,
+                                particleHypothesis);
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation failed... returning false");
     return false;

@@ -151,7 +151,7 @@ if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 # TODO: need to do it better
-DetFlags.makeRIO.all_setOff()
+# DetFlags.makeRIO.all_setOff() # needed for MT TRT conditions
 DetFlags.pileup.all_setOff()
 # DetFlags.readRDOBS.all_setOff() ## Needed for BS converters
 DetFlags.readRDOPool.all_setOff()

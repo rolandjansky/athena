@@ -10,17 +10,19 @@
 #define TRKEXSOLENOIDALINTERSECTOR_SOLENOIDALINTERSECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
 #include "CxxUtils/checker_macros.h"
 #include <mutex>
 #include <cmath>
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk
 {
@@ -53,9 +55,7 @@ public:
       Constants (const SolenoidParametrization& solpar,
                  const TrackSurfaceIntersection& trackTrackSurfaceIntersection,
                  const double qOverP);
-      virtual std::unique_ptr<IIntersectionCache> clone() const override
-      { return std::make_unique<Constants> (*this); }
-
+      virtual std::unique_ptr<IIntersectionCache> clone() const override { return std::unique_ptr<IIntersectionCache>(new Constants(*this)); }
       double m_sinTheta;
       double m_oneOverSinTheta;
       double m_cotTheta;
@@ -115,9 +115,17 @@ public:
 
     /** tabulate parametrization details */
     virtual void		validationAction() const override;
-    
+
 private:
-    const SolenoidParametrization*              getSolenoidParametrization() const;
+
+    void throwMissingCondData() const;
+    const SolenoidParametrization*              getSolenoidParametrization() const {
+       SG::ReadCondHandle<SolenoidParametrization> handle(m_solenoidParametrizationKey);
+       if (!handle.isValid()) {
+          throwMissingCondData();
+       }
+       return handle.cptr();
+    }
 
     double					circularArcLength(double, double, double, double, double,
 								    double, double&, double&) const;
@@ -142,7 +150,8 @@ private:
                     const double qOverP,
                     Constants*& com) const;
 
-    ServiceHandle<MagField::IMagFieldSvc>	m_magFieldSvc;
+    SG::ReadCondHandleKey<SolenoidParametrization> m_solenoidParametrizationKey
+       { this, "SolenoidParameterizationKey", "SolenoidParametrization",""};
     ToolHandle<IIntersector>			m_rungeKuttaIntersector;
 
     double					m_deltaPhiTolerance;
@@ -152,12 +161,6 @@ private:
     mutable std::atomic<unsigned long long>	m_countExtrapolations;
     mutable std::atomic<unsigned long long>	m_countRKSwitches;
 
-    mutable std::mutex m_mutex;
-    mutable Gaudi::Hive::ContextSpecificPtr<const SolenoidParametrization> m_lastSolenoidParametrization ATLAS_THREAD_SAFE;
-    // List of active solenoid parametrizations.  Second element of the pair
-    // is a use count.
-    typedef std::list<std::pair<SolenoidParametrization, int> > Parmlist_t;
-    mutable Parmlist_t m_solenoidParametrizations ATLAS_THREAD_SAFE;
 };
 
 

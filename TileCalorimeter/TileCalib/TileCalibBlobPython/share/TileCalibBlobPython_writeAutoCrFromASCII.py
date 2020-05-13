@@ -23,7 +23,7 @@ log.setLevel(logging.DEBUG)
 #________________________________________________________________________
 def fillAutoCr(filePed, tag, since,
                until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
-    
+
     #=== construct folder path
     folder = TileCalibTools.getTilePrefix(True,True)+"NOISE/AUTOCR"
 
@@ -36,10 +36,10 @@ def fillAutoCr(filePed, tag, since,
         default.push_back(0.)
     defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(default)
-    defVec.push_back(default)    
-    
+    defVec.push_back(default)
+
     #=====================================================
-    #=== fill 
+    #=== fill
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),"Giulio's file for LBC test n.0, 2009-02-27")
@@ -70,7 +70,7 @@ def fillAutoCr(filePed, tag, since,
                     calibDrawer.init(defVec,48,1)
                 #=== fill in realistic values
                 for adc in range(2):
-                    line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)            
+                    line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)
                     for i in range(6):
                         value = float(values[adc*6+i])
                         calibDrawer.setData(chn,adc,i,value)

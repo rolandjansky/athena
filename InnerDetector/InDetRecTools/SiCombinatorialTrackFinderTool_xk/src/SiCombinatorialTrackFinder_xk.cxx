@@ -677,7 +677,9 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
     const InDetDD::SiDetectorElement* de = (*c)->detectorElement();
 
-    for (++(cn=c); cn!=ce; ++cn) {
+    cn = c;
+    ++cn;
+    for (; cn!=ce; ++cn) {
       if (de == (*cn)->detectorElement()) return false;
     }
 

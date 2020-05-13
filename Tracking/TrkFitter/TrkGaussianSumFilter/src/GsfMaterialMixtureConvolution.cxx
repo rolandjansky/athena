@@ -15,7 +15,7 @@ decription           : Implementation code for GSF material mixture convolution
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-
+#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 
@@ -42,11 +42,6 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve the state merge
-  if (m_stateMerger.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the multi-component state merger... Exiting");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -109,7 +104,8 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     }
   }
 
-  Trk::MultiComponentState mergedState = m_stateMerger->merge(std::move(cache.multiComponentState));
+  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
+    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return  {};
@@ -165,7 +161,8 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
   }
 
-  Trk::MultiComponentState mergedState = m_stateMerger->merge(std::move(cache.multiComponentState));
+  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
+    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};
@@ -224,7 +221,8 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     }
   }
 
-  Trk::MultiComponentState mergedState = m_stateMerger->merge(std::move(cache.multiComponentState));
+  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
+    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};
@@ -308,7 +306,8 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
 
   } // end loop over components
 
-  Trk::MultiComponentState mergedState = m_stateMerger->merge(std::move(cache.multiComponentState));
+  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
+    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};

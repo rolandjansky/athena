@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.01.2008, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_BarrelSecondCoordinatePreparationToolH
 #define MuonCalib_BarrelSecondCoordinatePreparationToolH
@@ -50,7 +46,7 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
     const std::string &n, const IInterface *p); 
 
 // Destructor //
-  ~BarrelSecondCoordinatePreparationTool(void); 
+  ~BarrelSecondCoordinatePreparationTool()=default; 
 
 // Methods //
 // methods required by the base classes //

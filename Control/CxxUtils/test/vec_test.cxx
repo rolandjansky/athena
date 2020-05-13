@@ -155,8 +155,10 @@ void test_int NO_SANITIZE_UNDEFINED (const VEC& v1)
   TEST(&, _);
   TEST(%, _);
   if (!std::is_signed_v<T>) {
+    // cppcheck-suppress compareBoolExpressionWithInt  // false positive
     TEST(<<, MOD);
   }
+  // cppcheck-suppress compareBoolExpressionWithInt  // false positive
   TEST(>>, MOD);
 
 #undef TEST

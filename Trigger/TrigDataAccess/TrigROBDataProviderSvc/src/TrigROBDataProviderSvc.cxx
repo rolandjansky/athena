@@ -32,12 +32,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
 // Constructor.
 TrigROBDataProviderSvc::TrigROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc)
   :ROBDataProviderSvc(name,svcloc),
@@ -1281,7 +1275,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_requestedROBsPerCall.value().lowEdge(), 
 					  m_histProp_requestedROBsPerCall.value().highEdge());
   if (m_hist_requestedROBsPerCall) {
-    CAN_REBIN(m_hist_requestedROBsPerCall);
+    m_hist_requestedROBsPerCall->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endmsg;
     }
@@ -1294,7 +1288,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_receivedROBsPerCall.value().lowEdge(), 
 					  m_histProp_receivedROBsPerCall.value().highEdge());
   if (m_hist_receivedROBsPerCall) {
-    CAN_REBIN(m_hist_receivedROBsPerCall);
+    m_hist_receivedROBsPerCall->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endmsg;
     }
@@ -1307,7 +1301,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_timeROBretrieval.value().lowEdge(), 
 					  m_histProp_timeROBretrieval.value().highEdge());
   if (m_hist_timeROBretrieval) {
-    CAN_REBIN(m_hist_timeROBretrieval);
+    m_hist_timeROBretrieval->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endmsg;
     }
@@ -1320,7 +1314,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_retrievedROBsPerAlgo.value().lowEdge(), 
 					  m_histProp_retrievedROBsPerAlgo.value().highEdge());
   if (m_hist_retrievedROBsPerAlgo) {
-    CAN_REBIN(m_hist_retrievedROBsPerAlgo);
+    m_hist_retrievedROBsPerAlgo->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_retrievedROBsPerAlgo->GetName(), m_hist_retrievedROBsPerAlgo).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_retrievedROBsPerAlgo->GetName() << endmsg;
     }
@@ -1343,7 +1337,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
       n_tmp_bin++;
     }
 
-    CAN_REBIN(m_hist_ROSRequest);
+    m_hist_ROSRequest->SetCanExtend(TH1::kAllAxes);
     if( rootHistSvc->regHist(path + m_hist_ROSRequest->GetName(), m_hist_ROSRequest).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_ROSRequest->GetName() << endmsg;
     }
