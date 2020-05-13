@@ -26,7 +26,7 @@ folder = TileCalibTools.getTilePrefix(True,True)+"STATUS/ADC"
 
 #=== specify folder and tag
 folderTag = TileCalibUtils.getFullTag(folder, "COM-04")
-    
+
 #=== create bad channel manager
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
@@ -40,35 +40,35 @@ mgr.initialize(db, folder, folderTag, (0,0))
 
 #=== ADC problems
 mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.GeneralMaskAdc)
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.AdcDead)                    
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.StuckBit)                   
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.DataCorruption)             
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.VeryLargeHfNoise)           
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoData)                     
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.WrongDspConfig)             
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.AdcDead)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.StuckBit)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.DataCorruption)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.VeryLargeHfNoise)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoData)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.WrongDspConfig)
 #--- impact on data quality
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.LargeHfNoise)               
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.CorrelatedNoise)            
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.LargeLfNoise)               
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoCis)                      
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadCis)                     
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.LargeHfNoise)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.CorrelatedNoise)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.LargeLfNoise)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoCis)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadCis)
 
 #=== Channel problems
 #--- serious problems
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.GeneralMaskChannel)         
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoPmt)                      
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoHV)                       
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.WrongHV)                    
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.GeneralMaskChannel)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoPmt)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoHV)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.WrongHV)
 #--- impact on data quality
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoLaser)                    
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadLaser)                   
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoCesium)                   
-mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadCesium)                  
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoLaser)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadLaser)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.NoCesium)
+mgr.addAdcProblem(0, 1, 0, 0, TileBchPrbs.BadCesium)
 
 #=== Define TileBchStatus.isNoisy()
-# mgr.addAdcProblem(0, 1, 1, 0, TileBchPrbs.LargeHfNoise)               
+# mgr.addAdcProblem(0, 1, 1, 0, TileBchPrbs.LargeHfNoise)
 # mgr.addAdcProblem(0, 1, 1, 0, TileBchPrbs.CorrelatedNoise)
-# mgr.addAdcProblem(0, 1, 1, 0, TileBchPrbs.LargeLfNoise)               
+# mgr.addAdcProblem(0, 1, 1, 0, TileBchPrbs.LargeLfNoise)
 
 #=== Tuples of empty channels
 emptyChannelLongBarrel =     (30, 31, 43)

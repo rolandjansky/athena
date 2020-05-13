@@ -3,9 +3,7 @@
 */
 
 #include "MuonCalibExtraNtuple/NTReader_E.h"
-
 #include "CLHEP/Geometry/Point3D.h"
-
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibMUCTPI.h"
@@ -16,15 +14,11 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibEvent_E.h"
 #include "MuonCalibExtraNtuple/NTReaderBase_E.h"
-
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibEventBase/MuonCalibEvent.h"
-
 #include "MuonCalibEventBase/MuonCalibTruthCollection.h"
 
 #include <iostream>
-
-// cout's have been commented out.  Should switch to proper Athena messaging...
 
 namespace MuonCalib {
 
@@ -65,57 +59,41 @@ namespace MuonCalib {
 
     m_evente->setMuonCalibEventInfo(info);
 
-    //    if (m_debug) {
-    //      std::cout << "  evente.eventInfo().eventNumber() = " <<  m_evente->eventInfo().eventNumber()  << std::endl;
-    //      std::cout << "  evente.numberOfPatterns = " << pat_nPatterns << std::endl;
-    //      std::cout << "  evente.numberOfTracks = " << trk_nTracks << std::endl;
-    //    }
     for( int i_trig = 0 ; i_trig < ctp_nTriggerInfo ; ++ i_trig ){
       m_evente->addCtp( getCtpTbpHit(i_trig) );
-      //      if (m_debug) std::cout << " CTP trigger bit Added" << std::endl;
     }
     if(muctpi_nHits>99) {
-      //     std::cout << " WARNING muctpi_nHits TOO BIG " << muctpi_nHits << std::endl;
      muctpi_nHits = 99;
     }  
     for( int i_muctpi = 0 ; i_muctpi < muctpi_nHits ; ++ i_muctpi ){
       m_evente->addMUCTPI( getMUCTPIHit(i_muctpi) );
-      //      if (m_debug) std::cout << " MUCTPI object Added" << std::endl;
     }
 
     if(rpcSl_nLogics > 0){
       for( int i_rpcsl = 0 ; i_rpcsl < rpcSl_nLogics ; ++ i_rpcsl ){
 	m_evente->addRpcSL( getRpcSLHit(i_rpcsl) );
-	//	if (m_debug) std::cout << " RpcSL object Added" << std::endl;
       }
     }
 
     for( int i_rpcco = 0 ; i_rpcco < rawRpcCoin_nRpcCoin ; ++ i_rpcco ){
       m_evente->addRpcCoin( getRpcCoinHit(i_rpcco) );
-      //      if (m_debug) std::cout << " RpcCoin object Added" << std::endl;
     }
 
     for( int i_calo = 0 ; i_calo < calo_nHits ; ++ i_calo ){
       m_evente->addL1Calo( getL1CaloHit(i_calo) );
-      //      if (m_debug) std::cout << " L1Calo Added" << std::endl;
     }
 
     for( int i_mbts = 0 ; i_mbts < mbts_nHits ; ++ i_mbts ){
       m_evente->addMBTS( getMBTSHit(i_mbts) );
-      //      if (m_debug) std::cout << " MBTS Added" << std::endl;
     }
 
     for( int i_pat = 0 ; i_pat < pat_nPatterns ; ++ i_pat ){
       m_evente->addPattern( getPhiPattern(i_pat) );
-      //      if (m_debug) std::cout << "Pattern Added" << std::endl;
     }
     buildSegmentOnTrackMap();
     for( int i_trk = 0 ; i_trk < trk_nTracks ; ++ i_trk ){
       m_evente->addTrack( getTrack(i_trk) );
-      //      if (m_debug) std::cout << "Track Added" << std::endl;
     }
-
-    //    if (m_debug) std::cout << "NTReader_E::end of getEvent" << std::endl;
     
     return *m_evente;
   }  //end NTReader_E::getEvent
@@ -213,8 +191,6 @@ namespace MuonCalib {
   } 
 
   MuonCalibTrack_E* NTReader_E::getPhiPattern( int i_pat ){
-    //    std::cout << "making a new MuonCalibTrack_E, looping over " << phi_nPhiHits
-    //	      << " phiHits, assigning them to its righteous pattern" << std::endl;
 
     double r0  = NTReader::pat_r0[i_pat];
     double phi = NTReader::pat_phi[i_pat];
@@ -229,24 +205,15 @@ namespace MuonCalib {
                                                       -999.,-999.,-999.,  
                                                       -999.,-999.,  
                                                       -999., 0.,0);   
-    //    std::cout << "scanning hits ... " << std::endl ;
     for( int i_phi = 0 ; i_phi < phi_nPhiHits ; ++i_phi ){
-      //      std::cout << i_phi << " " ;
       if( phi_phiPatIndex[i_phi] == i_pat ) {
-	//	if(m_debug) std::cout << " added the hit to pattern " << i_pat << "(index = " << phi_phiPatIndex[i_phi] << ")" << std::endl;
 	pattern->addHit( getPhiHit(i_phi) ) ;
       }
-    }
-    //     const MuonCalibTrack_E* cPattern = new MuonCalibTrack_E( *pattern );
- 
+    } 
     return pattern;  
   }
 
   MuonCalibTrack_E* NTReader_E::getTrack( int i_trk ){
-
-    //    if (m_debug) { std::cout << "making a new MuonCalibTrack_E, looping over " << trkHit_nHits
-    //			     << " Hits, assigning them to its righteous track" << std::endl;
-    //    }
     MuonCalibTrack_E* track = new MuonCalibTrack_E(  trk_x0[i_trk], trk_y0[i_trk], trk_z0[i_trk], 
 						     trk_phi[i_trk], trk_theta[i_trk], trk_qOverP[i_trk],trk_author[i_trk], 
 						     trk_cov00[i_trk],trk_cov01[i_trk],trk_cov02[i_trk],trk_cov03[i_trk],trk_cov04[i_trk],
@@ -255,22 +222,16 @@ namespace MuonCalib {
 						     trk_cov33[i_trk],trk_cov34[i_trk],
 						     trk_cov44[i_trk],
 						     trk_chi2[i_trk],trk_ndof[i_trk]);   
-    //    if (m_debug) std::cout << "track author ... " << trk_author[i_trk] << " itrk " << i_trk << std::endl ;
     for( int i_trkHit = 0 ; i_trkHit < trkHit_nHits ; ++i_trkHit ){
       if( trkHit_trackIndex[i_trkHit] == i_trk ) {
-	//	if(m_debug) std::cout << " added the hit to track " << i_trk << "(index = " << trkHit_trackIndex[i_trkHit] << ")" << std::endl;
 	track->addHit( getTrackHit(i_trkHit) ) ;
       }
     }
     for( int i_trkHole = 0 ; i_trkHole < trkHole_nHoles ; ++i_trkHole ){
-      if (m_debug) std::cout << i_trkHole << " " ;
       if( trkHole_trackIndex[i_trkHole] == i_trk ) {
-	//	if(m_debug) std::cout << " added the hole to track " << i_trk << "(index = " << trkHole_trackIndex[i_trkHole] << ")" << std::endl;
 	track->addHole( getTrackHole(i_trkHole) ) ;
       }
     }
-    //const MuonCalibTrack_E* cTrack = new MuonCalibTrack_E( *track );
-
     std::map<int, std::list<int> >::const_iterator it=m_smap.find(i_trk);
     if(it!=m_smap.end()) {
       for (std::list<int> :: const_iterator it2=it->second.begin(); it2!=it->second.end(); it2++) {

@@ -2,4 +2,7 @@
 <lcgdict>
    <namespace name="Trig" />
    <class name="Trig::IMatchingTool" />
+   <class name="Trig::IIParticleRetrievalTool" />
+   <class name="Trig::IParticleRetrievalTool" />
+   <class name="Trig::MatchFromCompositeTool" />
 </lcgdict>

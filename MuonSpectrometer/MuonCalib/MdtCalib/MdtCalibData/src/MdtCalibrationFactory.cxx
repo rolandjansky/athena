@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibData/MdtCalibrationFactory.h"  
@@ -10,85 +10,80 @@
 #include "MdtCalibData/MdtWireSagCorFunc0.h"
 #include "MdtCalibData/RtRelationLookUp.h"
 #include "MdtCalibData/RtResolutionLookUp.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
 namespace MuonCalib{
 
-IMdtBackgroundCorFunc *MdtCalibrationFactory::createBackgroundCorFunc( std::string name, 
-					      const CalibFunc::ParVec& pars) {
+IMdtBackgroundCorFunc *MdtCalibrationFactory::createBackgroundCorFunc(std::string name, const CalibFunc::ParVec& pars) {
   if( name == "MdtBackgroundCorFunc0" ) {
     return new MdtBackgroundCorFunc0(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createBackgroundCorFunc: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createBackgroundCorFunc: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
 
-IMdtBFieldCorFunc *MdtCalibrationFactory::createBFieldCorFunc( std::string name, 
-				      const CalibFunc::ParVec& pars) {
+IMdtBFieldCorFunc *MdtCalibrationFactory::createBFieldCorFunc( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "MdtBFieldCorFunc0" ) {
     return new MdtBFieldCorFunc0(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createBFieldCorFunc: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createBFieldCorFunc: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
   
-IMdtSlewCorFunc *MdtCalibrationFactory::createMdtSlewCorFunc( std::string name, 
-				       const CalibFunc::ParVec& pars) {
+IMdtSlewCorFunc *MdtCalibrationFactory::createMdtSlewCorFunc( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "MdtSlewCorFunc0" ) {
     return new MdtSlewCorFunc0(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createMdtSlewCorFunc: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createMdtSlewCorFunc: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
  
-IMdtTempCorFunc *MdtCalibrationFactory::createMdtTempCorFunc( std::string name, 
-				       const CalibFunc::ParVec& pars) {
+IMdtTempCorFunc *MdtCalibrationFactory::createMdtTempCorFunc( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "MdtTempCorFunc0" ) {
     return new MdtTempCorFunc0(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createMdtTempCorFunc: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createMdtTempCorFunc: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
 
-IMdtWireSagCorFunc* MdtCalibrationFactory::createMdtWireSagCorFunc( std::string name, 
-				  const CalibFunc::ParVec& pars) {
+IMdtWireSagCorFunc* MdtCalibrationFactory::createMdtWireSagCorFunc( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "MdtWireSagCorFunc0" ) {
     return new MdtWireSagCorFunc0(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createMdtWireSagCorFunc: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createMdtWireSagCorFunc: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
   
-IRtRelation* MdtCalibrationFactory::createRtRelation( std::string name, 
-				   const CalibFunc::ParVec& pars) {
+IRtRelation* MdtCalibrationFactory::createRtRelation( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "RtRelationLookUp" ) {
     return new RtRelationLookUp(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createRtRelation: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createRtRelation: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
 
-IRtResolution* MdtCalibrationFactory::createRtResolution( std::string name, 
-				     const CalibFunc::ParVec& pars) {
+IRtResolution* MdtCalibrationFactory::createRtResolution( std::string name, const CalibFunc::ParVec& pars) {
   if( name == "RtResolutionLookUp" ) {
     return new RtResolutionLookUp(pars);
   }else{
-    std::cout << "MdtCalibrationFactory::createRtResolution: <wrong name> " 
-	      << name << std::endl;
-    return 0;
+    MsgStream log(Athena::getMessageSvc(),"MdtCalibrationFactory");
+    log<<MSG::WARNING<<"createRtResolution: <wrong name>"<< name<<endmsg;
+    return nullptr;
   }
 }
 

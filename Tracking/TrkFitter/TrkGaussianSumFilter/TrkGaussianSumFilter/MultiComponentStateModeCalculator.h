@@ -8,7 +8,8 @@
 begin                : Thursday 6th July 2006
 author               : atkinson
 email                : Tom.Atkinson@cern.ch
-description          : Class to calculate the mode (q/p) of a gaussian mixtureArray
+description          : Class to calculate the mode (q/p) of a gaussian
+mixtureArray
 ***********************************************************************************/
 
 #ifndef Trk_MultiComponentStateModeCalculator_H
@@ -45,11 +46,14 @@ struct Component
 std::array<double, 10>
 calculateMode(const MultiComponentState&);
 
-//!<  method to extract the weight, mean and sigma values from the multi-component state
+//!<  method to extract the weight, mean and sigma values from the
+//!<  multi-component state
 void
-fillMixture(const MultiComponentState&, std::array<std::vector<Component>, 5>& mixture);
+fillMixture(const MultiComponentState&,
+            std::array<std::vector<Component>, 5>& mixture);
 
-//!<  method to find the mode using the Newton-Raphson method based on a starting guess
+//!<  method to find the mode using the Newton-Raphson method based on a
+//!<  starting guess
 double
 findMode(double, int, const std::array<std::vector<Component>, 5>& mixture);
 
@@ -61,16 +65,20 @@ pdf(double, int, const std::array<std::vector<Component>, 5>& mixture);
 double
 d1pdf(double, int, const std::array<std::vector<Component>, 5>& mixture);
 
-//!<  method to determine the second order derivative of the pdf at a given value
+//!<  method to determine the second order derivative of the pdf at a given
+//!<  value
 double
 d2pdf(double, int, const std::array<std::vector<Component>, 5>& mixture);
 
-//!<  method to determine the value of the a gaussian distribution at a given value
+//!<  method to determine the value of the a gaussian distribution at a given
+//!<  value
 double
 gaus(double x, double mean, double sigma);
 
 double
-findModeGlobal(double, int, const std::array<std::vector<Component>, 5>& mixture);
+findModeGlobal(double,
+               int,
+               const std::array<std::vector<Component>, 5>& mixture);
 
 double
 width(int i, const std::array<std::vector<Component>, 5>& mixture);

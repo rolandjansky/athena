@@ -132,6 +132,16 @@ myMonGroup.defineHistogram(varname = "maskedLinksBin;Masked Links",
                            xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
                            xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
 
+# Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "flaggedWafersIndices, nFlaggedWafers;FlaggedWafers",
+                           type = "TProfile",
+                           title = "Number of flagged wafers for SCT,ECA,B,ECC",
+                           path = "GENERAL/errors",
+                           xbins = sctMon.N_REGIONS_INC_GENERAL,
+                           xmin = -0.5,
+                           xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
+                           xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
+
 # Filled in fillByteStreamErrors
 coverageTitles = [
     "", # All (not used)

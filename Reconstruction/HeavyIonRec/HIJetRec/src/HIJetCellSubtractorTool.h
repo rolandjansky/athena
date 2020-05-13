@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetCellSubtractorTool.h
@@ -17,7 +17,7 @@
 /// Class used by HIClusterSubtraction and HIJetConstituentSubtractionTool
 /// to provide kinematics of a cluster after subtraction given an event shape.
 /// This version of the tool navigates back to the cells.
-/// 
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -38,12 +38,11 @@ class HIJetCellSubtractorTool : public HIJetSubtractorToolBase
   /// First argument is reference to four vector that is updated to reflect
   /// the subtracted kinematics of the IParticle passed in the second arg
   /// Method expects cl_in to be a cluster
-  virtual void Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const override;
 
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const override;
+  virtual void subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const override;
+  virtual void subtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const override;
+  virtual void updateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const override;
 
-
-  virtual void SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const override;
 private:
   void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg) const;
 

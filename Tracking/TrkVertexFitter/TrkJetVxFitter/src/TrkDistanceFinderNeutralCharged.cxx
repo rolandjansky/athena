@@ -1,7 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+// to get AmgMatrix plugin:
+#include "GeoPrimitives/GeoPrimitives.h"
+
+#include "MagFieldElements/AtlasFieldCache.h"
 #include "TrkJetVxFitter/TrkDistanceFinderNeutralCharged.h"
 #include "TrkParameters/TrackParameters.h"
 #include <TMath.h>
@@ -18,8 +22,7 @@ namespace Trk {
 TrkDistanceFinderNeutralCharged::TrkDistanceFinderNeutralCharged(const std::string& t, const std::string& n, const IInterface*  p) : 
   AthAlgTool(t,n,p),
   m_precision(1e-8),
-  m_maxloopnumber(20),
-  m_magFieldSvc("AtlasFieldSvc", n)
+  m_maxloopnumber(20)
 {
   declareProperty("Precision",m_precision);
   declareProperty("MaxLoops",m_maxloopnumber);
@@ -31,12 +34,6 @@ TrkDistanceFinderNeutralCharged::TrkDistanceFinderNeutralCharged(const std::stri
 StatusCode TrkDistanceFinderNeutralCharged::initialize() 
   { 
     StatusCode s = AthAlgTool::initialize();
-    s = m_magFieldSvc.retrieve();
-    if (s.isFailure())
-    {
-      ATH_MSG_FATAL("Could not find magnetic field service.");
-      return StatusCode::FAILURE;
-    }
     ATH_MSG_INFO("Initialize successful");
     return StatusCode::SUCCESS;
   }
@@ -53,7 +50,8 @@ TrkDistanceFinderNeutralCharged::~TrkDistanceFinderNeutralCharged() { }
 std::pair<Amg::Vector3D,double>  
 TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& neutraltrk,
                                                      const Trk::Perigee& chargedtrk,
-						     double & distanceOnAxis) const {
+                                                     double & distanceOnAxis,
+                                                     MagField::AtlasFieldCache &fieldCache) const {
 
   double b_phi0=chargedtrk.parameters()[Trk::phi0];
   double b_cosphi0=cos(b_phi0);
@@ -66,7 +64,7 @@ TrkDistanceFinderNeutralCharged::getPointAndDistance(const Trk::NeutralTrack& ne
     chargedtrk.parameters()[Trk::z0];
 
   Amg::Vector3D magnFieldVect;
-  m_magFieldSvc->getField(&chargedtrk.associatedSurface().center(),&magnFieldVect);
+  fieldCache.getField(chargedtrk.associatedSurface().center().data(),magnFieldVect.data());
 
   //Magnetic field at (x0,y0,z0)
   double Bz=magnFieldVect.z()*299.792;//B field in Gev/mm

@@ -33,7 +33,6 @@ class SegmentOnTrackSelector: public AthAlgTool, virtual public ISegmentOnTrackS
   SegmentOnTrackSelector(const std::string &type,const std::string &name,const IInterface* parent);	
   //tool interface functions
   StatusCode initialize();
-  StatusCode finalize();
 		
   //call once at begining of event	
   StatusCode beginEvent();

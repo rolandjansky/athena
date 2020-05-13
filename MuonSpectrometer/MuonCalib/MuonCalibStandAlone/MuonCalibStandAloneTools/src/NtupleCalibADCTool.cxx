@@ -414,10 +414,6 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 			 m_MDT_SiHitAdc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
 			      	} 
 		   								}
-		// counter++;
-	//	 						}
-		// if(counter>1) cout<<"Error, some tube was record over two times !!"<<endl;
-
   										} //end raw Mdthit loop
 
 

@@ -6,7 +6,6 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-from AthenaCommon.Constants import DEBUG
 from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags_Run3, monitoring_electron_Run3, monitoring_photon_Run3, monitoringTP_electron_Run3, monitoringTP_Jpsiee_Run3
 #from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
@@ -53,10 +52,9 @@ class TrigEgammaMonAlgBuilder:
 
   
   # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation', 'debugLevel', 'detailedHistograms','basePath']
+  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath']
   emulation = False
   derivation = False
-  debugLevel = DEBUG
   detailedHistograms = False
   basePath = 'HLT/EgammaMon'
 
@@ -183,7 +181,6 @@ class TrigEgammaMonAlgBuilder:
 
     acc = self.helper.resobj
     EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
-    EgammaMatchTool.OutputLevel=2
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
     cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
@@ -257,7 +254,6 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
       self.zeeMonAlg.DetailedHistograms=self.detailHistograms
-      self.zeeMonAlg.OutputLevel=self.debugLevel
 
 
     if self.activate_jpsiee:
@@ -283,7 +279,6 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.TagTriggerList=self.tagItems
       self.jpsieeMonAlg.TriggerList=self.tpList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
-      self.jpsieeMonAlg.OutputLevel=self.debugLevel
 
 
     if self.activate_electron:
@@ -301,7 +296,6 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
-      self.elMonAlg.OutputLevel=self.debugLevel
 
     if self.activate_photon:
 
@@ -315,7 +309,6 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
       self.phMonAlg.TriggerList=self.tpList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
-      self.phMonAlg.OutputLevel=self.debugLevel
 
 
 

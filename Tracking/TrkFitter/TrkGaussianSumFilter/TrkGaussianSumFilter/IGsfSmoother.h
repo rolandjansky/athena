@@ -9,7 +9,8 @@ created              : Thursday 8th January 2009
 author               : amorley
 email                : Anthony.Morley@cern.ch
 decription           : Abstract interface for the GSF smoother
-********************************************************************************** */
+**********************************************************************************
+*/
 
 #ifndef TrkIGsfSmoother_H
 #define TrkIGsfSmoother_H
@@ -42,13 +43,15 @@ public:
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools(const ToolHandle<IMultiStateExtrapolator>&,
-                                    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
+  virtual StatusCode configureTools(
+    const ToolHandle<IMultiStateExtrapolator>&,
+    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
 
   /** Gsf smoother method */
-  virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
-                                  const ParticleHypothesis particleHypothesis = nonInteracting,
-                                  const CaloCluster_OnTrack* ccot = nullptr) const = 0;
+  virtual SmoothedTrajectory* fit(
+    const ForwardTrajectory&,
+    const ParticleHypothesis particleHypothesis = nonInteracting,
+    const CaloCluster_OnTrack* ccot = nullptr) const = 0;
 };
 
 } // end Trk namespace

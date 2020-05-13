@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -143,7 +143,6 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<N
   }
   if(m_skip_double_events) {
     while(static_cast<int>(event->eventInfo().eventNumber()) == m_prev_event_nr) {
-      //			std::cout<<"Double ...."<< m_prev_event_nr <<std::endl;
       m_first++;
       if(m_last>0 && m_last<=m_first) {
 	ATH_MSG_INFO( "Enough events read!" );

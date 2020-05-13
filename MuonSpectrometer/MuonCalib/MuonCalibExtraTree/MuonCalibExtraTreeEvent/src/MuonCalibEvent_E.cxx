@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibEvent_E.h"
@@ -16,9 +16,7 @@
 
 namespace MuonCalib {
   
-  MuonCalibEvent_E::~MuonCalibEvent_E() {
-    //std::cout << " Calling ~MuonCalibEvent_E() " << std::endl;
-    
+  MuonCalibEvent_E::~MuonCalibEvent_E() {    
     std::for_each( beginPhiPat(), endPhiPat(), DeleteObject() ) ;
     m_phiPats.clear();
     std::for_each( beginTrack(), endTrack(), DeleteObject() ) ;
@@ -38,17 +36,13 @@ namespace MuonCalib {
     m_rpcco.clear();
     std::for_each( beginRawRpcTrig(), endRawRpcTrig(), DeleteObject() ) ;
     m_rpctr.clear();
-
-    //std::cout << " end of Calling ~MuonCalibEvent_E() " << std::endl;
   }
 
   MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent& event) : MuonCalibEvent(event), m_phiPats(0), m_tracks(0), m_ctp(0), m_mctpi(0), m_rpcsl(0), m_rpcco(0), m_rpctr(0), m_mbts(0), m_l1calo(0) {
-    //    std::cout << " Calling MuonCalibEvent_E(const MuonCalibEvent& event) " << std::endl;
   }
   
   
   MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent_E& event) : MuonCalibEvent(event) {
-    //std::cout << " Calling MuonCalibEvent_E(const MuonCalibEvent_E& event) " << std::endl;
     PhiPatVec::const_iterator phi = event.beginPhiPat();
     PhiPatVec::const_iterator phi_end = event.endPhiPat();
     for(; phi!=phi_end; ++phi){

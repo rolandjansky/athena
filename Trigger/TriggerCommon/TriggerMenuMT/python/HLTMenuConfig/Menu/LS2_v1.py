@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsTo
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MinBiasGroup
 #BphysicsGroup (re-add to the preceding line when putting bphys back in)
 
 
@@ -34,10 +34,8 @@ def setupMenu():
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ART-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
-
-        # Test chain for di-muon with full-scan, not yet working due to problem with FS seeding
-        #ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),        
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
 
         #ATR-20049
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
@@ -46,8 +44,10 @@ def setupMenu():
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
+        # commented because it is conflict with dimuon noL1 serial chain
+        # ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+        
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
@@ -72,6 +72,7 @@ def setupMenu():
        # ATR-20650
         ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
+
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -153,7 +154,7 @@ def setupMenu():
         ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_pf_nojcalib_L1J20', groups=SingleJetGroup),
-#        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
@@ -163,6 +164,8 @@ def setupMenu():
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
+        # ATR-20624
+        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=SingleJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -208,6 +211,15 @@ def setupMenu():
         # ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
+        # groups need to be properly assigned here later
+
+        # Test chain that is using parallel merging with different number of steps
+        ChainProp(name='HLT_e3_etcut1step_mu26_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        # Primary e-mu chains
+        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  stream=[PhysicsStream], groups=MultiElectronGroup),
+        # Test photon-muon chain (isolation is there to have different number of steps)
+        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=MultiElectronGroup),
    ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []
@@ -218,11 +230,10 @@ def setupMenu():
     ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
-        ChainProp(name='HLT_sct_noise_SCTPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['SCTNoise'], groups=['RATE:SCTCalibration','BW:Detector']),
+        ChainProp(name='HLT_tilecalib_laser_TilePEB_L1CALREQ2', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['RATE:TileCalibration','BW:Detector'])
     ]
 
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
-        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
     ]

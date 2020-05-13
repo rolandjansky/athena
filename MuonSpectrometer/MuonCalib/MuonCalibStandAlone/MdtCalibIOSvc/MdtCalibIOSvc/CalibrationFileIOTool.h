@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibrationFileIOTool_H
@@ -22,11 +22,6 @@ class CalibrationFileIOTool : public AthAlgTool, virtual public CalibrationIOToo
   CalibrationFileIOTool(const std::string &t, const std::string &n, const IInterface *p);
   /** initialisation */
   inline StatusCode initialize() {
-    return StatusCode::SUCCESS;
-  }
-  /** finalisation */
-  inline StatusCode finalize() {
-    ATH_MSG_INFO("CalibrationFileIOTool Finalize");
     return StatusCode::SUCCESS;
   }
   /** write out t0 */

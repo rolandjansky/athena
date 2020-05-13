@@ -156,14 +156,7 @@ namespace InDet {
                        const InDetDD::SiDetectorElement* element,
                        const PixelID& pixelID) const;
     
-    // Check if cluster has to be split                     
-    StatusCode checkClusterSplitting(PixelCluster* cluster,
-                                     std::vector<InDet::PixelCluster*>& splitClusters,
-                                     const InDetDD::SiDetectorElement* element,
-                                     const Trk::RectangleBounds* mybounds,
-                                     const PixelID& pixelID,
-                                     const int& groupSize,
-                                     int& clusterNumber) const;
+    
                        
     // Checks if RDOs would be merged. This is based on a 4 cell connected component finding. 
     PixelClusterCollection* clusterizeFast(const InDetRawDataCollection<PixelRDORawData> &collection,

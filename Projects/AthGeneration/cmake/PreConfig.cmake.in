@@ -1,0 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# Pre-config script to propagate variables to downstream projects
+#
+
+# Set up the project's flake8 usage.
+set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER @ATLAS_PYTHON_CHECKER@
+   CACHE STRING "Python checker command to run during Python module compilation" )

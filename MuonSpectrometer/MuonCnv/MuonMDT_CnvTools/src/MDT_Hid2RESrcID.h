@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __MDT_HID2RESRCID__
@@ -12,7 +12,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "Identifier/Identifier.h"
 
@@ -38,7 +38,7 @@ public:
 
   /** intialize the cabling service
    */
-  StatusCode set(const Muon::MuonIdHelperTool* muonIdHelperTool); 
+  StatusCode set(const MdtIdHelper* mdtId); 
 
   /** TMP method for sector 13 data */
   void setSpecialROBNumber(int specialROBNumber) {m_specialROBNumber=specialROBNumber;}
@@ -60,7 +60,7 @@ public:
 
  private: 
 
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+  const MdtIdHelper* m_mdtIdHelper;
 
   int m_specialROBNumber;
 

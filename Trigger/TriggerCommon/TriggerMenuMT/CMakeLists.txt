@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PRIVATE
 find_package( six )
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6,E101 --enable-extension=ATL900,ATL901,ATL902
    ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/scripts
    POST_EXEC_SCRIPT nopost.sh )
 
@@ -108,7 +108,7 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
-			                  )
+			      POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
 
 atlas_install_scripts( scripts/generateMenuMT.py )

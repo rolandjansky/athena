@@ -15,11 +15,10 @@ class L1MenuAccess(TriggerConfigAccess):
         super(L1MenuAccess,self).__init__( ConfigType.L1MENU, mainkey = "items",
                                            filename = filename, dbalias = dbalias, dbkey = smkey)
         self.loader.setQuery([
-            "SELECT L1TM_DATA FROM {schema}.L1_MENU WHERE L1TM_ID={dbkey}", # for new db schema
-            "SELECT L1MT.L1MT_MENU FROM {schema}.L1_MASTER_TABLE L1MT where L1MT.L1MT_ID={dbkey}"  # for current db schema
+            "SELECT L1MT.L1TM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MENU L1MT WHERE L1MT.L1TM_ID=SMT.SMT_L1_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT L1MT.L1MT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MASTER_TABLE L1MT WHERE L1MT.L1MT_ID=SMT.SMT_L1_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
-
 
     def itemNames(self):
         return self._config["items"].keys()
@@ -182,8 +181,10 @@ class BunchGroupSetAccess(TriggerConfigAccess):
     the methods are self-explanatory for people with knowledge of the configuration
     """
     def __init__(self, filename = None, dbalias = None, bgskey = None ):
-        loader = self._getLoader( configType = ConfigType.L1PS, filename = filename, dbalias = dbalias, dbkey = bgskey )
-        super(BunchGroupSetAccess,self).__init__(loader, mainkey = "bunchgroups")
-
-
+        super(BunchGroupSetAccess,self).__init__( ConfigType.BGS, mainkey = "bunchGroups",
+                                                  filename = filename, dbalias = dbalias, dbkey = bgskey )
+        self.loader.setQuery([
+            "SELECT L1BGS_DATA FROM {schema}.L1_BUNCH_GROUP_SET WHERE L1BGS_ID={dbkey}" # for current and new db schema
+        ])
+        self.load()
 

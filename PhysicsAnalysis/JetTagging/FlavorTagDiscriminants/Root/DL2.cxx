@@ -7,6 +7,15 @@
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
+namespace {
+    // This is a workaround because a lot of our builds still don't
+    // support C++17. It's meant to look just as ugly as it is.
+  template <typename T>
+  void set_merge_gcc6p2(std::set<T>& target, const std::set<T>& src) {
+    target.insert(src.begin(), src.end());
+  }
+}
+
 
 namespace FlavorTagDiscriminants {
 
@@ -35,9 +44,15 @@ namespace FlavorTagDiscriminants {
                                  lwt::rep::all));
     }
     for (const auto& input: inputs) {
-      auto filler = get::varFromJet(input.name, input.type,
-                                        input.default_flag);
-      m_varsFromJet.push_back(filler);
+      auto filler = get::varFromBTag(input.name, input.type,
+                                     input.default_flag);
+      if (input.type != EDMType::CUSTOM_GETTER) {
+        m_dataDependencyNames.bTagInputs.insert(input.name);
+      }
+      if (input.default_flag.size() > 0) {
+        m_dataDependencyNames.bTagInputs.insert(input.default_flag);
+      }
+      m_varsFromBTag.push_back(filler);
     }
 
     // set up sequence inputs
@@ -45,12 +60,28 @@ namespace FlavorTagDiscriminants {
       TrackSequenceBuilder track_getter(track_cfg.order,
                                         track_cfg.selection,
                                         flipConfig);
+      // add the tracking data dependencies
+      auto track_data_deps = get::trackFilter(track_cfg.selection).second;
+
+      // FIXME: change this back to use std::map::merge when we
+      // support C++17 everywhere
+      set_merge_gcc6p2(track_data_deps, get::flipFilter(flipConfig).second);
+
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        track_getter.sequencesFromTracks.push_back(
-          get::seqFromTracks(input_cfg));
+        // FIXME: change this back to
+        //
+        // auto [seqGetter, deps] = get::seqFromTracks(input_cfg);
+        //
+        // when we support C++17
+        auto seqGetter_deps = get::seqFromTracks(input_cfg);
+        track_getter.sequencesFromTracks.push_back(seqGetter_deps.first);
+        // FIXME: change this back to use std::map::merge when we
+        // support C++17 everywhere
+        set_merge_gcc6p2(track_data_deps,seqGetter_deps.second);
       }
       m_trackSequenceBuilders.push_back(track_getter);
+      m_dataDependencyNames.trackInputs = track_data_deps;
     }
 
     // set up outputs
@@ -67,6 +98,7 @@ namespace FlavorTagDiscriminants {
           name = replacement_itr->second;
           out_remap.erase(replacement_itr);
         }
+        m_dataDependencyNames.bTagOutputs.insert(name);
 
         // for the spring 2019 retraining campaign we're stuck with
         // doubles. Hopefully at some point we can move to using
@@ -96,10 +128,11 @@ namespace FlavorTagDiscriminants {
       throw std::logic_error("found unused output remapping(s): " + outputs);
     }
   }
+
   void DL2::decorate(const xAOD::Jet& jet) const {
     using namespace internal;
     std::vector<NamedVar> vvec;
-    for (const auto& getter: m_varsFromJet) {
+    for (const auto& getter: m_varsFromBTag) {
       vvec.push_back(getter(jet));
     }
     std::map<std::string, std::map<std::string, double> > nodes;
@@ -134,11 +167,15 @@ namespace FlavorTagDiscriminants {
     }
   }
 
+  DL2DataDependencyNames DL2::getDataDependencyNames() const {
+    return m_dataDependencyNames;
+  }
+
   DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
                                                   TrackSelection selection,
                                                   FlipTagConfig flipcfg):
     tracksFromJet(order, selection),
-    flipFilter(internal::get::flipFilter(flipcfg))
+    flipFilter(internal::get::flipFilter(flipcfg).first)
   {
   }
 
@@ -152,7 +189,7 @@ namespace FlavorTagDiscriminants {
     TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection):
       m_trackAssociator("BTagTrackToJetAssociator"),
       m_trackSortVar(get::trackSortVar(order)),
-      m_trackFilter(get::trackFilter(selection))
+      m_trackFilter(get::trackFilter(selection).first)
     {
     }
     Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
@@ -184,7 +221,7 @@ namespace FlavorTagDiscriminants {
     namespace get {
       // factory for functions that get variables out of the b-tagging
       // object
-      VarFromJet varFromJet(const std::string& name, EDMType type,
+      VarFromBTag varFromBTag(const std::string& name, EDMType type,
                             const std::string& default_flag) {
         if(default_flag.size() == 0 || name==default_flag)
         {
@@ -238,20 +275,31 @@ namespace FlavorTagDiscriminants {
 
       // factory for functions that return true for tracks we want to
       // use, false for those we don't want
-      TrackFilter trackFilter(TrackSelection selection) {
+      std::pair<TrackFilter,std::set<std::string>> trackFilter(
+        TrackSelection selection) {
+
         typedef xAOD::TrackParticle Tp;
         typedef SG::AuxElement AE;
         BTagTrackAugmenter aug;
-        AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
-        AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
-        AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
-        AE::ConstAccessor<unsigned char> pix_dead("numberOfPixelDeadSensors");
-        AE::ConstAccessor<unsigned char> sct_hits("numberOfSCTHits");
-        AE::ConstAccessor<unsigned char> sct_holes("numberOfSCTHoles");
-        AE::ConstAccessor<unsigned char> sct_shared("numberOfSCTSharedHits");
-        AE::ConstAccessor<unsigned char> sct_dead("numberOfSCTDeadSensors");
+        auto data_deps = aug.getTrackIpDataDependencyNames();
+
+        // make sure we record accessors as data dependencies
+        auto addAccessor = [&data_deps](const std::string& n) {
+                             AE::ConstAccessor<unsigned char> a(n);
+                             data_deps.insert(n);
+                             return a;
+                           };
+        auto pix_hits = addAccessor("numberOfPixelHits");
+        auto pix_holes = addAccessor("numberOfPixelHoles");
+        auto pix_shared = addAccessor("numberOfPixelSharedHits");
+        auto pix_dead = addAccessor("numberOfPixelDeadSensors");
+        auto sct_hits = addAccessor("numberOfSCTHits");
+        auto sct_holes = addAccessor("numberOfSCTHoles");
+        auto sct_shared = addAccessor("numberOfSCTSharedHits");
+        auto sct_dead = addAccessor("numberOfSCTDeadSensors");
+
         switch (selection) {
-        case TrackSelection::ALL: return [](const Tp*) {return true;};
+        case TrackSelection::ALL: return {[](const Tp*) {return true;}, {} };
           // the following numbers come from Nicole, Dec 2018:
           // pt > 1 GeV
           // abs(d0) < 1 mm
@@ -260,21 +308,23 @@ namespace FlavorTagDiscriminants {
           // <= 2 si holes
           // <= 1 pix holes
         case TrackSelection::IP3D_2018:
-          return [=](const Tp* tp) {
-                   // from the track selector tool
-                   if (std::abs(tp->eta()) > 2.5) return false;
-                   double n_module_shared = (
-                     pix_shared(*tp) + sct_shared(*tp) / 2);
-                   if (n_module_shared > 1) return false;
-                   if (tp->pt() <= 1e3) return false;
-                   if (std::abs(aug.d0(*tp)) >= 1.0) return false;
-                   if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
-                   if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp)
-                       + sct_dead(*tp) < 7) return false;
-                   if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
-                   if (pix_holes(*tp) > 1) return false;
-                   return true;
-                 };
+          return {
+            [=](const Tp* tp) {
+              // from the track selector tool
+              if (std::abs(tp->eta()) > 2.5) return false;
+              double n_module_shared = (
+                pix_shared(*tp) + sct_shared(*tp) / 2);
+              if (n_module_shared > 1) return false;
+              if (tp->pt() <= 1e3) return false;
+              if (std::abs(aug.d0(*tp)) >= 1.0) return false;
+              if (std::abs(aug.z0SinTheta(*tp)) >= 1.5) return false;
+              if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp)
+                  + sct_dead(*tp) < 7) return false;
+              if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
+              if (pix_holes(*tp) > 1) return false;
+              return true;
+            }, data_deps
+          };
         default:
           throw std::logic_error("unknown track selection function");
         }
@@ -282,11 +332,20 @@ namespace FlavorTagDiscriminants {
 
       // factory for functions that build std::vector objects from
       // track sequences
-      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg) {
+      std::pair<SeqFromTracks,std::set<std::string>> seqFromTracks(
+        const DL2TrackInputConfig& cfg)
+      {
         switch (cfg.type) {
-        case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
-        case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
+        case EDMType::FLOAT: return {
+            SequenceGetter<float>(cfg.name), {cfg.name}
+          };
+        case EDMType::UCHAR: return {
+            SequenceGetter<unsigned char>(cfg.name), {cfg.name}
+          };
+        case EDMType::CUSTOM_GETTER: return {
+            customNamedSeqGetter(cfg.name),
+            BTagTrackAugmenter().getTrackIpDataDependencyNames()
+          };
         default: {
           throw std::logic_error("Unknown EDM type");
         }
@@ -313,20 +372,27 @@ namespace FlavorTagDiscriminants {
       }
 
       // factory function
-      TrackSequenceFilter flipFilter(FlipTagConfig cfg) {
+      std::pair<TrackSequenceFilter,std::set<std::string>> flipFilter(
+        FlipTagConfig cfg)
+      {
         namespace ph = std::placeholders;  // for _1, _2, _3
         BTagTrackAugmenter aug;
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
           // flips order and removes tracks with negative IP
-          return std::bind(&negativeIpOnly, aug, ph::_1, ph::_2);
+          return {
+            std::bind(&negativeIpOnly, aug, ph::_1, ph::_2),
+            aug.getTrackIpDataDependencyNames()
+          };
         case FlipTagConfig::FLIP_SIGN:
           // Just flips the order
-          return [](const Tracks& tr, const xAOD::Jet& ) {
-                   return Tracks(tr.crbegin(), tr.crend());
-                 };
+          return {
+            [](const Tracks& tr, const xAOD::Jet& ) {
+              return Tracks(tr.crbegin(), tr.crend());},
+            {}
+          };
         case FlipTagConfig::STANDARD:
-          return [](const Tracks& tr, const xAOD::Jet& ) { return tr; };
+          return {[](const Tracks& tr, const xAOD::Jet& ) { return tr; }, {}};
         default: {
           throw std::logic_error("Unknown flip config");
         }

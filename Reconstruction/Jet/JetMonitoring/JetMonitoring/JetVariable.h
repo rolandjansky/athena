@@ -168,6 +168,39 @@ namespace JetVar {
     virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
   };
   
+  struct EM3FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
+      if( status ) return (samplingFrac[3]+samplingFrac[7])/constitScaleEnergy;
+      else return 0.;
+    } 
+  };
+
+  struct Tile0FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
+      if( status ) return (samplingFrac[12]+samplingFrac[18])/constitScaleEnergy;
+      else return 0.;
+    } 
+  };
 
 }
 

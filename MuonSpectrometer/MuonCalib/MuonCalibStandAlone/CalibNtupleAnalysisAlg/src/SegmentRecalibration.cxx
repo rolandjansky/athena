@@ -96,7 +96,6 @@ void SegmentRecalibration::prepareSegments(const MuonCalibEvent *&event, std::ma
       if(m_time_slwing_numswitch==2) {
 	hit->setSlewingTime(p_ts_corr_func->correction( hit->driftTime(), hit->adcCount()));
 	hit->setDriftTime(hit->driftTime() - hit->slewingTime());
-	//				std::cout<<hit->slewingTime()<<std::endl;
       }
       if(m_rt_scaling_numswitch>0 && hit->TemperatureTime() != MdtCalibHitBase::kNoValue) {
 	hit->setDriftTime(hit->driftTime() + hit->TemperatureTime());

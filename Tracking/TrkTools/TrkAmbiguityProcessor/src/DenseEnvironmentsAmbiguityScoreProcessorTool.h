@@ -25,7 +25,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <functional>
 #include <ostream>
 
 
@@ -215,7 +214,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dumpStatType(
    for (unsigned region_i=0; region_i<kNStatRegions; ++region_i) {
       out << std::setw(iw) << m_counter[type][region_i].value();
    }
-   out << std::endl;
+   out << "\n";
 }
 
 #endif // TrackAmbiguityProcessorTool_H

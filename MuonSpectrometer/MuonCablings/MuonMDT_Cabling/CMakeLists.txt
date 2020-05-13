@@ -27,8 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonMDT_CablingLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonMDT_Cabling
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier EventInfo MuonCablingData MuonCondInterface MuonCondSvcLib )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib MuonCondInterface MuonCablingData AthenaPoolUtilities
+                   PRIVATE_LINK_LIBRARIES  Identifier EventInfo MuonCondSvcLib PathResolver EventInfoMgtLib )
 
 atlas_add_component( MuonMDT_Cabling
                      src/components/*.cxx

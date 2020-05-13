@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////////
-// TgcPrepDataReplicationTool.cxx, (c) ATLAS Detector software
-////////////////////////////////////////////////////////////////////////////////
 
 #include "TgcPrepDataReplicationToolAllBCto3BC.h"
 
@@ -25,26 +21,11 @@ Muon::TgcPrepDataReplicationToolAllBCto3BC::TgcPrepDataReplicationToolAllBCto3BC
   declareProperty("AllBCKey", m_AllBCKey);
 }  
 
-
-//================ Destructor ==================================================
-Muon::TgcPrepDataReplicationToolAllBCto3BC::~TgcPrepDataReplicationToolAllBCto3BC()
-{}
-
-//================ Finalization ================================================
-StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::finalize()
-{
-  
-  return AthAlgTool::finalize();
-}
-
-
 //================ Initialization ==============================================
 StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  if(sc.isFailure()) return sc;
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
   for(int ibc = 0; ibc < BC_ALL; ibc++) {
     std::ostringstream location;
@@ -79,7 +60,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
   // convert
   auto tgc3BCHandles = m_3BCKeys.makeHandles();
   for (int ibc = 0; ibc < BC_ALL; ibc++){
-      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()) );
+      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()) );
   }
 
   Muon::TgcPrepDataContainer::const_iterator tgcAllItr   = tgcAll->begin();
@@ -101,11 +82,11 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
         hasBC[BC_NEXT] = TgcPrepData::BCBIT_NEXT;
 
       Identifier channelId = (*tgcAllColItr)->identify();
-      Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId);
+      Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelId);
       std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections;
       for (int ibc = 0; ibc < BC_ALL; ibc++) {
         collections[ibc] = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-                            (elementId, tgc3BCHandles[ibc].ptr(), m_muonIdHelperTool->tgcIdHelper(), msg());
+                            (elementId, tgc3BCHandles[ibc].ptr(), m_idHelperSvc->tgcIdHelper(), msg());
      
         if (!hasBC[ibc]) continue;
         Muon::TgcPrepData* newPrepData = makeTgcPrepData(tgcAllColItr, hasBC[ibc]);

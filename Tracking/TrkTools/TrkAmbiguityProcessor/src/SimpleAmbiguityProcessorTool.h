@@ -296,7 +296,7 @@ namespace Trk {
          assert( eta_bin_i < m_stat.m_counter[stat_i].size() );
          out << std::setiosflags(std::ios::dec) << std::setw(iw) << m_stat.m_counter[stat_i][eta_bin_i];
       }
-      out << std::endl;
+      out << "\n";
    }
 
 } //end ns

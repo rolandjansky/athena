@@ -64,12 +64,6 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
   std::string m_larActHitCnt;
   std::string m_larDMHitCnt;
 
-  bool m_store_Tot;
-  bool m_store_Vis;
-  bool m_store_Em;
-  bool m_store_NonEm;
-  bool m_storeUnknown;
-
   bool m_doTile;
   
   std::string m_caloCell_Tot;

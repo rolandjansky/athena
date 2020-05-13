@@ -5,6 +5,8 @@
 // Local include(s):
 #include <MuonMomentumCorrections/MuonCalibrationPeriodTool.h>
 
+#include "AsgDataHandles/ReadHandle.h"
+
 namespace CP {
 
    unsigned int MuonCalibrationPeriodTool::getPeriod() const {

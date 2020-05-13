@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HIEVENTSHAPEINDEX_H
-#define HIEVENTSHAPEINDEX_H
+#ifndef HIEVENTUTILS_HIEVENTSHAPEINDEX_H
+#define HIEVENTUTILS_HIEVENTSHAPEINDEX_H
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
@@ -19,11 +19,11 @@ public:
   enum BinningScheme{ TOWER, COMPACT};
   HIEventShapeIndex();
   ~HIEventShapeIndex();
-  
+
   //initialize indexing given object or scheme
   //returns total number of bins
 
-  unsigned int setBinning(const TH2* h2, bool asMask); 
+  unsigned int setBinning(const TH2* h2, bool asMask);
   unsigned int setBinning(const xAOD::HIEventShapeContainer* shape);
   unsigned int setBinning(BinningScheme scheme);
 
@@ -48,7 +48,7 @@ private:
 
     range_index_t(float emin, float emax, unsigned int ii) : eta_min(emin), eta_max(emax),index(ii) {};
     range_index_t()=default;
-    bool operator() (float eta) const 
+    bool operator() (float eta) const
     {
       if (eta > this->eta_min && eta < this->eta_max) return true;
       if(eta==this->eta_min) return true;
@@ -67,7 +67,7 @@ private:
 
   inline float roundToTenth(float d) const {return std::floor(d)+std::floor((d-std::floor(d))*10.0+0.5)/10.0;};
 
-  
+
 
 };
 

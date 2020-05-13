@@ -27,20 +27,21 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         self._defaultDuration = kwargs.pop('defaultDuration', None)
         super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
 
-    def __new__( cls, name=None, *args, **kwargs ):
-        if not Configurable.configurableRun3Behavior:
-            if name is None: name = cls.__name__
+    if not isRun3Cfg():
+        def __new__( cls, name=None, *args, **kwargs ):
+            if not Configurable.configurableRun3Behavior:
+                if name is None: name = cls.__name__
 
-        # GenericMonitoringTool is always private. To avoid the user having
-        # to ensure a unique instance name, always create a new instance.
-        b = Configurable.configurableRun3Behavior
-        Configurable.configurableRun3Behavior = 1
-        try:
-            conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
-        finally:
-            Configurable.configurableRun3Behavior = b
+            # GenericMonitoringTool is always private. To avoid the user having
+            # to ensure a unique instance name, always create a new instance.
+            b = Configurable.configurableRun3Behavior
+            Configurable.configurableRun3Behavior = 1
+            try:
+                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
+            finally:
+                Configurable.configurableRun3Behavior = b
 
-        return conf
+            return conf
 
     @property
     def convention(self):

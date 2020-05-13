@@ -6,7 +6,6 @@
 #include "TrackScoringTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -16,8 +15,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
-#include <map>
-#include <ext/functional>
 #include <iterator>
 #include "TString.h"
 
@@ -26,7 +23,7 @@
 #include "InDetIdentifier/PixelID.h"
 
 //TODO: to be improved
-bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack( const Trk::Track *track) const {
 	  if (!track )return true;
 	
 	  bool error=false;
@@ -36,7 +33,7 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track
 	      if (param && param->covariance() && param->covariance()->determinant() < 0) {
 	        ATH_MSG_DEBUG( " negative determinant for track param " << counter << " "
 	                       << *(param)  << " cov=" << *(param->covariance())
-	                       << std::endl
+	                       << "\n"
 	                       << " det=" << param->covariance()->determinant() );
 	        error=true;
 	      }
@@ -163,7 +160,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
 {
   if (msgLvl(MSG::INFO)) {
      MsgStream &out=msg(MSG::INFO);
-     out << " -- statistics " << std::endl;
+     out << " -- statistics \n";
      std::lock_guard<std::mutex> lock( m_statMutex );
      m_stat.dump(out, m_tryBremFit);
      out << endmsg;
@@ -172,23 +169,32 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
 
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
+   auto parseFileName=[](const std::string & fullname){
+    auto dotPosition = fullname.rfind(".");
+    auto slashPosition = fullname.rfind("/");
+    auto stringLength = dotPosition - slashPosition;
+    return fullname.substr(slashPosition, stringLength);
+   };
    // @TODO restore ios
    std::streamsize ss = std::cout.precision();
    int iw=9;
-   out << "------------------------------------------------------------------------------------" << std::endl;
-   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << std::endl;
+   out << "Output from ";
+   out << parseFileName(__FILE__);
+   out << "::";
+   out << __func__;
+   out << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
+   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << "\n";
    if (m_globalCounter[kNInvalidTracks]>0) {
-      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << std::endl;
+      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << "\n";
    }
    if (m_globalCounter[kNTracksWithoutParam]>0) {
-      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << std::endl;
+      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << "\n";
    }
-   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of candidates at input   :",    kNcandidates,iw);
-   //   dumpStatType(out, "  - candidates rejected score 0   :",    kNcandScoreZero,iw);
-   //   dumpStatType(out, "  - candidates rejected as double :",    kNcandDouble,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  candidates with good score      :",    kNscoreOk,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  + recovered after brem refit    :", kNscoreZeroBremRefit,iw);
@@ -198,28 +204,28 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &ou
       dumpStatType(out, "  + m refit                       :", kNscoreZeroBremRefitFailed,iw);
       dumpStatType(out, "  + rejected brem refit score 0   :", kNscoreZeroBremRefitScoreZero,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  number of normal fits           :" ,   kNfits,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  + 2nd brem fit for failed fit   :", kNrecoveryBremFits,iw);
       dumpStatType(out, "  normal brem fits for electrons  :", kNbremFits,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  sum of succesful fits           :",    kNgoodFits,iw);
    dumpStatType(out, "  sum of failed fits              :",    kNfailedFits,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of subtracks created     :",    kNsubTrack,iw);
    dumpStatType(out, "  Number of candidates excluded   :",    kNnoSubTrack,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of tracks accepted       :",    kNaccepted,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  including number of brem fits   :", kNacceptedBrem,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
        << "    definition: ( 0.0 < Barrel < " << (*m_etabounds)[iBarrel-1] << " < Transition < " << (*m_etabounds)[iTransi-1]
-       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
   }
 

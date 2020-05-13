@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_ApplyRawTimes_H
 #define MuonCalib_ApplyRawTimes_H
-
 
 //Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -22,13 +21,9 @@ class ApplyRawTimes : public AthAlgTool, virtual public CalibSegmentPreparationT
  public:
 //=========================constructor==========================================
   ApplyRawTimes(const std::string &t, const std::string &n, const IInterface *p);
-  inline ~ApplyRawTimes() {}
+  inline ~ApplyRawTimes()=default;
 //=========================public member functions==============================
-  //initialize and finalize
   StatusCode initialize(void);
-  inline StatusCode finalize(void) {
-    return StatusCode :: SUCCESS;
-  }
   //load event
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:

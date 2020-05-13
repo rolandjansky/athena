@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ namespace DerivationFramework {
 	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange)
 	    Warning("addBranches()","Current object has no valid fudge factors due to out-of-range");
 	else
-	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
+	    Warning("addBranches()","Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode);
       }
 
       // compute the output of the selector

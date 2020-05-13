@@ -66,16 +66,12 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&
         if(skipSegm)continue;
         
         // Get position variables
-        //const Trk::GlobalPosition segm1Pos = segm1->globalPosition();
         const Amg::Vector3D segm1Pos = segm1->globalPosition();
         
-	// float segm1Rho = abs(segm1Pos.perp());
         float segm1PosPhi = segm1Pos.phi();
         float segm1PosZ   = segm1Pos.z();
         if(segm1PosPhi<0)segm1PosPhi+=2*M_PI;
-        //Trk::GlobalDirection segm1PosZunit(segm1Pos/abs(segm1PosZ));
-        //Trk::GlobalDirection segm1Dir = segm1->globalDirection();
-        Amg::Vector3D segm1PosZunit(segm1Pos/abs(segm1PosZ));
+        Amg::Vector3D segm1PosZunit(segm1Pos/std::abs(segm1PosZ));
         Amg::Vector3D segm1Dir = segm1->globalDirection();
         
 	float segm1DirThe = segm1Dir.theta();
@@ -109,30 +105,27 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&
             //////////////////////////////////////////////////////
             // Position Cut
             // Fill position variables
-           // const Trk::GlobalPosition segm2Pos = segm2->globalPosition();
             const Amg::Vector3D segm2Pos = segm2->globalPosition();
            
-	    float segm2PosRho = abs(segm2Pos.perp());
+	    float segm2PosRho = std::abs(segm2Pos.perp());
             float segm2PosPhi = segm2Pos.phi();
             float segm2PosThe = segm2Pos.theta();
             float segm2PosZ   = segm2Pos.z();
             if(segm2PosThe>M_PI/2) segm2PosThe=M_PI-segm2PosThe;
             if(segm2PosPhi<0)segm2PosPhi+=2*M_PI;
-            //Trk::GlobalDirection segm2PosZunit(segm2Pos/abs(segm2PosZ));
-            Amg::Vector3D segm2PosZunit(segm2Pos/abs(segm2PosZ));
+            Amg::Vector3D segm2PosZunit(segm2Pos/std::abs(segm2PosZ));
             
             // Apply preliminary phi cut between segm1 and segm2 positions
             float dPhi_Segm1_Segm2 = segm1PosPhi-segm2PosPhi;
             if(dPhi_Segm1_Segm2<-M_PI)dPhi_Segm1_Segm2+=2*M_PI;
             if(dPhi_Segm1_Segm2> M_PI)dPhi_Segm1_Segm2-=2*M_PI;
-            if(abs(dPhi_Segm1_Segm2)>dPhiCutSegmentMatching)continue;
+            if(std::abs(dPhi_Segm1_Segm2)>dPhiCutSegmentMatching)continue;
             
             // Extrapolate segm1 position to segm2's Z position
-            float dZ = abs(segm2PosZ)-abs(segm1PosZ);
-            //Trk::GlobalPosition extrPos(segm1Pos+(segm1PosZunit*dZ));
+            float dZ = std::abs(segm2PosZ)-std::abs(segm1PosZ);
             Amg::Vector3D extrPos(segm1Pos+(segm1PosZunit*dZ));
             
-	    float extrPosRho = abs(extrPos.perp());
+	    float extrPosRho = std::abs(extrPos.perp());
             float extrPosThe = extrPos.theta();
             float extrPosPhi = extrPos.phi();
             if(extrPosThe>M_PI/2) extrPosThe=M_PI-extrPosThe;
@@ -151,8 +144,8 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&
             if(m_mdt_segmmatchsag[i][jMDT1][jMDT2][3]) m_mdt_segmmatchsag[i][jMDT1][jMDT2][3]->Fill(dThe_Extr_Segm2);
             
             // Cut segments (segm2) which are outside difference cuts
-            if(abs(dPhi_Extr_Segm2)>dPhiCutSegmentMatching)continue;
-            if(abs(dRho_Extr_Segm2)>dRhoCutSegmentMatching)continue;
+            if(std::abs(dPhi_Extr_Segm2)>dPhiCutSegmentMatching)continue;
+            if(std::abs(dRho_Extr_Segm2)>dRhoCutSegmentMatching)continue;
             
             //////////////////////////////////////////////////////
             // Direction Cut

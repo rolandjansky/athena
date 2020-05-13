@@ -3,6 +3,9 @@
 */
 
 #include "MdtCalibFitters/DCSLFitter.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include "cmath"
 
 namespace MuonCalib {
@@ -23,8 +26,10 @@ namespace MuonCalib {
 
   bool DCSLFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
   {
-    if(m_debug) std::cout << "New seg: " << std::endl; //<< seg;
-
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"New seg: "<<endmsg;
+    }
 
     int N = seg.mdtHitsOnTrack();
 
@@ -41,8 +46,9 @@ namespace MuonCalib {
 	if(selection[i] == 0) ++used;
       }
       if(used < 2){
-	std::cout << "TO FEW HITS SELECTED" << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::WARNING<<"TO FEW HITS SELECTED"<<endmsg;
+        return false;
       }
     }
 
@@ -72,11 +78,13 @@ namespace MuonCalib {
 	  w[ii] = 0.;
 	if(r[ii]<0){
 	  r[ii] = 0.;
-	  std::cout << "DCSLFitter ERROR: <Negative r> " << r[ii] << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+    log<<MSG::WARNING<<"<Negative r> " << r[ii]<<endmsg;
 	}
-	if(m_debug)
-	  std::cout << "DC:  (" << y[ii] << "," << z[ii] << ")  R = " << r[ii]
-		    << " W " << w[ii] << std::endl;
+	if(m_debug) {
+    MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+    log<<MSG::DEBUG<<"DC:  (" << y[ii] << "," << z[ii] << ")  R = " << r[ii] << " W " << w[ii]<<endmsg;
+  }
 
 	if(selection[ii]){
 	  ++hit;++ii;
@@ -91,12 +99,13 @@ namespace MuonCalib {
     Zc = Sz/S;
     Yc = Sy/S;
   
-    if(m_debug)
-      std::cout << "Yc " << Yc << " Zc " << Zc << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"Yc " << Yc << " Zc " << Zc<<endmsg;
+    }
     //
     //    shift hits
     //
-    //std::cout << "Shifted d " << d << std::endl;
     Sy = 0;
     Sz = 0;
     double Szz(0),Syy(0),Szy(0),Syyzz(0);
@@ -121,9 +130,10 @@ namespace MuonCalib {
       Syyzz += (y[i]-z[i])*(y[i]+z[i])*w[i];
     }
 
-    if(m_debug)
-      std::cout << " Szz " << Szz << " Syy " << Syy 
-		<< " Szy " << Szy << " Syyzz " << Syyzz << std::endl; 
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<" Szz " << Szz << " Syy " << Syy << " Szy " << Szy << " Syyzz " << Syyzz<<endmsg;
+    }
   
     int count(0);
     double R(0),Ry(0),Rz(0);
@@ -137,19 +147,23 @@ namespace MuonCalib {
     double cosin = getZ( dir )/dir.mag();
     double sinus = getY( dir )/dir.mag();
 
-    if(m_debug) 
-      std::cout << "cos " << cosin << " sin " << sinus << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"cos " << cosin << " sin " << sinus<<endmsg;
+    }
 
     // make sure 0 <= theta < PI
     if ( sinus < 0.0 ) {
       if(m_debug) {
-	std::cout << "sinus < 0.0 " << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<"sinus=" << sinus<<endmsg;
       }     
       sinus = -sinus;
       cosin = -cosin;
     } else if ( sinus == 0.0 && cosin < 0.0 ) {
       if(m_debug) {
-	std::cout << "sinus == 0.0 && cosin < 0.0" << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<"sinus == 0.0 && cosin < 0.0"<<endmsg;
       }     
       cosin = -cosin;
     }
@@ -159,12 +173,16 @@ namespace MuonCalib {
     double d = -( getZ( pos )-Zc)*sinus+( getY( pos )-Yc)*cosin;
     double theta = std::acos(cosin);
     if(m_debug) {
-      std::cout << "____________INITIAL VALUES________________" << count << std::endl;
-      std::cout << "Theta " << theta << " d " << d << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"____________INITIAL VALUES________________" << count<<endmsg;
+      log<<MSG::DEBUG<<"Theta " << theta << " d " << d << count<<endmsg;
     }
 
     while(count<100){
-      if(m_debug) std::cout << "____________NEW ITERATION________________" << count << std::endl;
+      if(m_debug) {
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<"____________NEW ITERATION________________" << count<<endmsg;
+      }
       R=0;Ry=0;Rz=0;
       for(int i=0;i<N;++i){
 	if(selection[i]) continue;
@@ -174,21 +192,27 @@ namespace MuonCalib {
 	  R  -= rw[i];
 	  Ry -= ryw[i];
 	  Rz -= rzw[i];
-	  if(m_debug) std::cout << " < - > " << dist - d << " r " << r[i];
+	  if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<" < - > " << dist - d << " r " << r[i]<<endmsg;
+    }
 	}else{
 	  R  += rw[i];
 	  Ry += ryw[i];
 	  Rz += rzw[i];
-	  if(m_debug) std::cout << " < + > " << dist - d << " r " << r[i];
+	  if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<" < + > " << dist - d << " r " << r[i]<<endmsg;
+    }
 	}
       }
-      if(m_debug) std::cout << std::endl;
       Att = Syy + cosin*(2*sinus*Szy - cosin*Syyzz);
       Bt = -Szy + cosin*(sinus*Syyzz + 2*cosin*Szy + Rz) + sinus*Ry;
       Bd = -S*d + R;
       if(Att==0){
-	std::cerr << "===> Error NewtonSLDCFitter ZERO Determinant" << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::WARNING<<"NewtonSLDCFitter ZERO Determinant"<<endmsg;
+        return false;
       }
       theta += Bt/Att;
       if ( theta < 0.0   ) theta += M_PI;
@@ -196,32 +220,42 @@ namespace MuonCalib {
       cosin = std::cos(theta);
       sinus = std::sqrt(1-cosin*cosin);
       d = R/S;
-      if(m_debug) std::cout << "R " << R << " Ry " << Ry << " Rz " << Rz << std::endl;
-      if(m_debug) std::cout << "Att " << Att << " Add " << Add << " Bt " << Bt << " Bd " << Bd << std::endl;
-      if(m_debug) std::cout << "dTheta " << Bt/Att << " dD " << Bd/Add << std::endl;
+      if(m_debug) {
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<"R " << R << " Ry " << Ry << " Rz " << Rz<<endmsg;
+        log<<MSG::DEBUG<<"Att " << Att << " Add " << Add << " Bt " << Bt << " Bd " << Bd<<endmsg;
+        log<<MSG::DEBUG<<"dTheta " << Bt/Att << " dD " << Bd/Add<<endmsg;
+      }
       if(std::abs(Bt/Att) < 0.001 && std::abs(Bd/Add) < 0.001){
 	Stt = std::sqrt(1/Att);
 	Sd = std::sqrt(1/Add);
-	if(m_debug) std::cout << "Fit converged after " << count << " iterations " << std::endl;
 
-	if(m_debug) std::cout << "Theta " << theta << "d " << d << std::endl;
-	if(m_debug) std::cout << "Errors: theta " << Stt << " d " << Sd << std::endl;
+	if(m_debug) {
+    MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+    log<<MSG::DEBUG<<"Fit converged after " << count << " iterations "<<endmsg;
+    log<<MSG::DEBUG<<"Theta " << theta << "d " << d<<endmsg;
+    log<<MSG::DEBUG<<"Errors: theta " << Stt << " d " << Sd<<endmsg;
+  }
 
-//        error_dy0 = Sd;
-//        error_dtheta = Stt;
         seg.setErrors(Sd,Stt);
 
 	break;
       }
       ++count;
     }
-    if(m_debug) std::cout << "Calculating chi2" << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"Calculating chi2"<<endmsg;
+    }
 
     std::vector< double > yl(N);
     std::vector< double > dyl(N);
     std::vector< double > res(N);
     double chi2(0);
-    if(m_debug) std::cout << "contributions to chi2: " << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"contributions to chi2: "<<endmsg;
+    }
 
     // calculate predicted hit positions from track parameters
     for(int i=0;i<N;++i){
@@ -229,32 +263,40 @@ namespace MuonCalib {
       double dth = -(sinus*y[i] + cosin*z[i])*Stt;
       dyl[i] = std::hypot(dth, Sd);
       res[i] = std::abs(yl[i]) - r[i];
-      if(m_debug) std::cout << " r_track " << yl[i] << " dr " << dyl[i]
-			    << " r_rt " << r[i] << " res " << res[i]
-			    << " pull " << res[i]*res[i]*w[i] << std::endl;
+      if(m_debug) {
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<" r_track " << yl[i] << " dr " << dyl[i]<< " r_rt " << r[i] << " res " << res[i]<< " pull " << res[i]*res[i]*w[i]<<endmsg;
+        }
       //skip hits that are not used in fit
       if(selection[i]) continue;
 
       chi2 += res[i]*res[i]*w[i];
 
     }
-  
-    // std::cout << " Chi2 = " << chi2 << " chi2 per dof " << chi2/(N-2) << std::endl;
 
-    if(m_debug) std::cout << "Fit complete: Chi2 tof " << chi2/(N-2)
-			  << " " << !(chi2/(N-2) > 5) << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"Fit complete: Chi2 tof " << chi2/(N-2)<< " " << !(chi2/(N-2) > 5)<<endmsg;
+      }
     if(chi2/(N-2) > 5) {
       if(m_debug) {
-	std::cout << "_______NOT GOOD " << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+        log<<MSG::DEBUG<<"_______NOT GOOD "<<endmsg;
       }
     }
 
-    if(m_debug) std::cout << "Transforming back to real world" << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"Transforming back to real world"<<endmsg;
+    }
 
     Amg::Vector3D ndir = getVec( dir.x() , sinus, cosin );
     Amg::Vector3D npos = getVec( pos.x() , Yc + cosin*d, Zc - sinus*d );
 
-    if(m_debug) std::cout << "New line: position " << npos << " direction " << ndir << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"New line: position " << npos << " direction " << ndir<<endmsg;
+    }
 
     seg.set( chi2/(N-2), npos, ndir );
 
@@ -269,7 +311,10 @@ namespace MuonCalib {
       ++it;++i;
     }
 
-    if(m_debug) std::cout << "fit done" << std::endl;
+    if(m_debug) {
+      MsgStream log(Athena::getMessageSvc(),"DCSLFitter");
+      log<<MSG::DEBUG<<"fit done"<<endmsg;
+    }
  //tracking failed if position and directins are not real numbers
     return (std::isfinite(ndir.y()) && std::isfinite(ndir.z()) && std::isfinite(npos.y()) && std::isfinite(npos.z()));
   }

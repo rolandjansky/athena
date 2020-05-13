@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "FlavorTagDiscriminants/VRJetOverlapDecorator.h"
 
@@ -39,12 +39,18 @@ namespace {
         const TLorentzVector j2p4 = j2->p4();
         const double j2_radius = getRadius(j2p4, cfg);
         const double min_radius = std::min(j1_radius, j2_radius);
-        const double dR = j1p4.DeltaR(j2p4) / min_radius;
-        min_dr.at(iii).absolute = std::min(dR, min_dr.at(iii).absolute);
-        min_dr.at(jjj).absolute = std::min(dR, min_dr.at(jjj).absolute);
+        const double dR = j1p4.DeltaR(j2p4);
         const double rel_dR = dR / min_radius;
-        min_dr.at(iii).relative = std::min(rel_dR, min_dr.at(iii).relative);
-        min_dr.at(jjj).relative = std::min(rel_dR, min_dr.at(jjj).relative);
+        // check both jets, if the relative dR is less than whatever
+        // we have recorded, save this relative dR and absolute dR
+        for (const size_t idx: {iii,jjj}) {
+          if (rel_dR < min_dr.at(idx).relative) {
+            VRJetDR vrstruct;
+            vrstruct.relative = rel_dR;
+            vrstruct.absolute = dR;
+            min_dr.at(idx) = vrstruct;
+          }
+        }
       }
     }
     return min_dr;
