@@ -16,12 +16,20 @@
 #endif
 #endif
 
-// This enables -ftree-vectorize in gcc (we compile with O2)
-ATH_ENABLE_VECTORIZATION;
-namespace {
 /**
- * Component Merging helper methods
+ * @file  KLGaussianMixtureReduction.cxx
+ * @author Anthony Morley , Christos Anastopoulos
+ * @date 26th November 2019
+ *
+ * Implementation of KLGaussianMixtureReduction
+ *
  */
+ 
+
+/// This enables -ftree-vectorize in gcc (we compile with O2)
+ATH_ENABLE_VECTORIZATION;
+
+namespace {
 using namespace GSFUtils;
 
 /**
@@ -58,7 +66,7 @@ weightedSymmetricKL(const Component1D& componentI,
   return weightMul * symmetricDis;
 }
 
-/*
+/**
  * Moment-preserving merge of two 1D components
  * for example see
  * Runnalls, Andrew R.(2007)
@@ -151,7 +159,7 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
   }
 }
 
-/*
+/**
  * Reset the distances wrt to a mini index
  */
 void
@@ -176,7 +184,7 @@ resetDistances(floatPtrRestrict distancesIn,
 }
 namespace GSFUtils {
 
-/*
+/**
  * Merge the componentsIn and return
  * which componets got merged
  */
@@ -234,7 +242,7 @@ findMerges(componentPtrRestrict componentsIn,
   } // end of merge while
   return merges;
 }
-/*
+/**
  * findMinimumIndex
  *
  * For FindMinimumIndex at x86_64 we have
@@ -248,7 +256,6 @@ findMerges(componentPtrRestrict componentsIn,
 #if defined(__x86_64__)
 #include <immintrin.h>
 /*
- *
  * AVX2 intrinsics used :
  *
  * _mm256_set1_epi32
@@ -315,7 +322,6 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 }
 /*
  * SSE intrinsics used
- *
  * _mm_set1_epi32
  * Broadcast 32-bit integer a to all elements of dst.
  *
@@ -447,7 +453,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
   return { minIndex, minDistance };
 }
 #endif // end of x86_64 versions
-/* Always fall back to a simple default version with no intrinsics */
+//Always fall back to a simple default version with no intrinsics
 __attribute__((target("default")))
 #endif // HAVE_FUNCTION_MULTIVERSIONING
 std::pair<int32_t, float>

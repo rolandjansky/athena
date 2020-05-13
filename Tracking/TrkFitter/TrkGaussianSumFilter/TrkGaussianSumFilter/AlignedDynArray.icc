@@ -2,13 +2,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-  AlignedDynArray.icc  -  description
-  -------------------------------------------------
- begin                : 26th November 2019
- author               : amorley, Christos
- decription           : Dynamic array fullfilling alignment requirements
- *********************************************************************************/
+/**
+ * @file AlignedDynArray.icc
+ * @date   26th November 2019
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  AlignedDynArray implementation
+ */
+
 
 namespace GSFUtils {
 
