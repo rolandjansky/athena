@@ -27,7 +27,8 @@ PartialEventBuildingIdentifiers = [
     'BeamSpotPEB',
     'LArPEB',
     'RPCPEBSecondaryReadout',
-    'SCTPEB'
+    'SCTPEB',
+    'TilePEB'
 ]
 
 
