@@ -117,6 +117,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
       msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -145,17 +146,15 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   double phiPitch = getDouble("FrontEndChip", readoutIndex, "pitchPhi");
   double etaPitch = getDouble("FrontEndChip",  readoutIndex, "pitchEta");
 
-  double phiPitchLong, phiPitchEnd, etaPitchLong, etaPitchEnd;
-  try {phiPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchPhiLong");} catch (const std::runtime_error&) {phiPitchLong = phiPitch;}
-  try {phiPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchPhiEnd");}  catch (const std::runtime_error&) {phiPitchEnd  = phiPitch;}
-  try {etaPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchEtaLong");} catch (const std::runtime_error&) {etaPitchLong = etaPitch;}
-  try {etaPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchEtaEnd");}  catch (const std::runtime_error&) {etaPitchEnd  = etaPitch;}
+  double phiPitchLong = getLongOrEndPitch(readoutIndex, "pitchPhiLong");
+  double phiPitchEnd  = getLongOrEndPitch(readoutIndex, "pitchPhiEnd");
+  double etaPitchLong = getLongOrEndPitch(readoutIndex, "pitchEtaLong");
+  double etaPitchEnd  = getLongOrEndPitch(readoutIndex, "pitchEtaEnd");
 
-  int nPhiLong, nPhiEnd, nEtaLong, nEtaEnd;
-  try {nPhiLong = getInt("FrontEndChip", readoutIndex, "nPhiLongPerSide");} catch (const std::runtime_error&) {nPhiLong = (phiPitchLong == phiPitch ? 0 : 1);}
-  try {nPhiEnd  = getInt("FrontEndChip", readoutIndex, "nPhiEndPerSide");}  catch (const std::runtime_error&) {nPhiEnd  = (phiPitchEnd  == phiPitch ? 0 : 1);}
-  try {nEtaLong = getInt("FrontEndChip", readoutIndex, "nEtaLongPerSide");} catch (const std::runtime_error&) {nEtaLong = (etaPitchLong == etaPitch ? 0 : 1);}
-  try {nEtaEnd  = getInt("FrontEndChip", readoutIndex, "nEtaEndPerSide");}  catch (const std::runtime_error&) {nEtaEnd  = (etaPitchEnd  == etaPitch ? 0 : 1);}
+  int nPhiLong = getNLongOrEndPixels(readoutIndex, "nPhiLongPerSide");
+  int nPhiEnd  = getNLongOrEndPixels(readoutIndex, "nPhiEndPerSide");
+  int nEtaLong = getNLongOrEndPixels(readoutIndex, "nEtaLongPerSide");
+  int nEtaEnd  = getNLongOrEndPixels(readoutIndex, "nEtaEndPerSide");
 
   int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows");
   int colsPerChip = getInt( "FrontEndChip",  readoutIndex,"columns");
@@ -514,4 +513,26 @@ PixelDiodeMatrix* PixelDesignBuilder::buildMatrix(  double phiPitch, double etaP
   if (fullMatrix) {fullMatrix->ref();}
 
   return fullMatrix;
+}
+
+int PixelDesignBuilder::getNLongOrEndPixels(int parentIndex, const char* childTag) const
+{
+  if(getSchemaVersion() >= 5) {
+    return getInt("FrontEndChip", parentIndex, childTag, 0);
+  }
+  msg(MSG::DEBUG) << "XML: FrontEndChip/" << childTag
+      << " not defined in old schema (" << getSchemaVersion() << ")"
+      << " returning 0 ..." << endreq;
+  return 0;
+}
+
+double PixelDesignBuilder::getLongOrEndPitch(int parentIndex, const char* childTag) const
+{
+  if(getSchemaVersion() >= 5) {
+    return getDouble("FrontEndChip", parentIndex, childTag, 0);
+  }
+  msg(MSG::DEBUG) << "XML: FrontEndChip/" << childTag
+      << " not defined in old schema (" << getSchemaVersion() << ")"
+      << " returning 0.0 ..." << endreq;
+  return 0.0;
 }
