@@ -9,7 +9,6 @@ atlas_subdir( Sherpa_i )
 atlas_depends_on_subdirs(
    PUBLIC
    GaudiKernel
-   Generators/EvgenProdTools	
    Generators/GeneratorModules
    Generators/TruthUtils
    PRIVATE
