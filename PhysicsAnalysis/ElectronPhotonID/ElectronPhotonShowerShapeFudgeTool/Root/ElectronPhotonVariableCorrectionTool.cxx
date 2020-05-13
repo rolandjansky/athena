@@ -86,8 +86,8 @@ const StatusCode ElectronPhotonVariableCorrectionTool::initializeCorrectionTools
     ANA_CHECK(findAllConfigFiles(m_unconvertedPhotonConfFiles));
     ANA_CHECK(findAllConfigFiles(m_electronConfFiles));
     //initialize all tools
-    ANA_CHECK(initializeTools("unconvertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
-    ANA_CHECK(initializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
+    ANA_CHECK(initializeTools("convertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
+    ANA_CHECK(initializeTools("unconvertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
     ANA_CHECK(initializeTools("electrons", m_electronConfFiles, m_electronTools));
     // check if ApplyTo Flag matches with the tool holder
     ANA_CHECK(applyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons));

@@ -173,7 +173,7 @@ An **example configuration file** containing examples for all possible flags can
 - `ElectronPhotonVariableCorrectionBase_ExampleIsoCorrectionConf.conf` for the isolation correction,
 - `ElectronPhotonVariableCorrectionBase_ExampleConf.conf` general example showing what the tool can do and how all different possible parameters can be handled.
 
-The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`.
+The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/3b/36/DAOD_HIGG1D2.20317301._000001.pool.root.1`.
 
 #### The tool configuration file
 
