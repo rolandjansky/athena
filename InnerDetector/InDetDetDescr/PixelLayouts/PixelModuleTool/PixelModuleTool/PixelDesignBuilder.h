@@ -70,6 +70,10 @@ class PixelDesignBuilder:  public AthService, virtual public IPixelDesignSvc,  p
   InDetDD::PixelModuleDesign* build(  const PixelGeoBuilderBasics* basics, int moduleIndex);
  
   const GeoDetModulePixelMap * m_moduleMap;
+
+  // get-functions for XML fields that are version dependent
+  int getNLongOrEndPixels(int parentIndex, const char* childTag) const;
+  double getLongOrEndPitch(int parentIndex, const char* childTag) const;
 };
 
 inline const InterfaceID & PixelDesignBuilder::interfaceID(){
