@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MagneticField/MagFieldInterfaces
                           MagneticField/MagFieldConditions
 			  Control/CxxUtils
+			  Event/EventPrimitives
                           PRIVATE
                           MagneticField/MagFieldElements
                           Control/StoreGate
@@ -20,15 +21,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( MagFieldElements
                    src/*.cxx
                    PUBLIC_HEADERS MagFieldElements
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}  ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel CxxUtils)
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+		   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel CxxUtils EventPrimitives)
 
 # Install files from the package:
 atlas_install_headers( MagFieldElements )
