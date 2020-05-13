@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from InDetConfig.TrackRecoConfig 	import InDetBCM_ZeroSuppressionCfg, InDetPixelClusterizationCfg, \
-                                   InDetPixelClusterizationPUCfg, InDet_SCTClusterizationCfg, \
-                                   InDet_SCTClusterizationPUCfg
+from InDetConfig.TrackRecoConfig 	import BCM_ZeroSuppressionCfg, PixelClusterizationCfg, \
+                                   PixelClusterizationPUCfg, SCTClusterizationCfg, \
+                                   SCTClusterizationPUCfg
 
 #arg_TrackingCuts             = 'TrackingCuts'
 #arg_TrackCollectionKeys      = 'tracks'
@@ -24,21 +24,21 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
 
     #redoPatternRecoAndTracking = kwargs.pop('redoPatternRecoAndTracking')
     # @TODO propagate suffix and/or prefix ?
-    top_acc.merge(InDetBCM_ZeroSuppressionCfg(flags))
+    top_acc.merge( BCM_ZeroSuppressionCfg(flags))
    
     # Pixel clusterization
     ## @TODO is this correct flag to be used here to turn on pixel clusterization
     if flags.Detector.GeometryPixel:
-        top_acc.merge(InDetPixelClusterizationCfg(flags, **kwargs) )
+        top_acc.merge( PixelClusterizationCfg(flags, **kwargs) )
         if flags.InDet.doSplitReco :
-            top_acc.merge(InDetPixelClusterizationPUCfg(flags, **kwargs) )
+            top_acc.merge( PixelClusterizationPUCfg(flags, **kwargs) )
 
     # SCT clusterization
     ## @TODO is this correct flag to be used here to turn on SCT clusterization
     if flags.Detector.GeometrySCT:
-        top_acc.merge( InDet_SCTClusterizationCfg(flags, **kwargs) )
+        top_acc.merge( SCTClusterizationCfg(flags, **kwargs) )
         if flags.InDet.doSplitReco :
-            top_acc.merge( InDet_SCTClusterizationPUCfg(flags, **kwargs) )
+            top_acc.merge( SCTClusterizationPUCfg(flags, **kwargs) )
 
     # from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     # top_acc.merge( PixelConditionsSummaryCfg(flags))
