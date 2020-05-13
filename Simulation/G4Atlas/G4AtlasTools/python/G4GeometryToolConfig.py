@@ -16,10 +16,8 @@ from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","G4AtlasDetectorConstructionTool",)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
-from past.builtins import xrange
 
 #ToDo - finish migrating this (dnoel)
-#Todo - just return component accumulator
 #to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
 #from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
 
