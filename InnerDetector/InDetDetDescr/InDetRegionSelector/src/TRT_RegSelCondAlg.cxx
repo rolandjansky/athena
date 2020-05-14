@@ -79,6 +79,18 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
 
   ATH_MSG_DEBUG( "Creating region selector table" );
 
+  SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  if (lutCondData.isValid()) {
+    /// inpractice, this should never be called, although in serial athena,                                                                          
+    /// because the implementation of the conditions behaviour is flawed in                                                                         
+    /// the framework, this routine will be called every event (!) regardless                                                                       
+    /// of whether it should be called or not so we need this check to                                                                               
+    /// prevent unecessary code execution on out our side                                                                                            
+    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid." );
+    return StatusCode::SUCCESS;
+  }
+
+
   StatusCode sc;
   // Retrieve manager
   const InDetDD::TRT_DetectorManager* manager;
@@ -232,7 +244,10 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
   IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
   try { 
-    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
+    /// leave this commented here since this is where it should really be,
+    /// but we had to move it up in the code to handle the flawed conditions 
+    /// handling in the serial athena use case
+    //    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

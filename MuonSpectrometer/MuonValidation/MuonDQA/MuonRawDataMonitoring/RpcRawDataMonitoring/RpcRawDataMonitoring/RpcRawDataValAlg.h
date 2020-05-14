@@ -14,40 +14,26 @@
 #ifndef RpcRawDataValAlg_H
 #define RpcRawDataValAlg_H
 
-#include <sstream>
-#include <string.h>
-#include <vector>
-#include <map>
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include <string>
+#include <vector>
+#include <map>
 #include <TH2F.h>
 #include <TH2I.h>
 #include <TH1I.h>
-#include <inttypes.h> 
+#include <inttypes.h>
 
-#include <sstream>
+class IRPCcablingSvc;
  
 template <class ConcreteAlgorithm> class AlgFactory;
 
@@ -72,9 +58,6 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   
   // Private function to add the clusters to the ntuple
   StatusCode addClusters(std::string clusterContainerName);  
-  
-  //ServiceHandle<IRPCConditionsSvc> m_pSummarySvc;
-  
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};  
   SG::ReadHandleKey<Muon::RpcCoinDataContainer> m_key_trig{this,"RPCTriggerContainer","RPC_triggerHits","RPC trigger hits"};
@@ -93,7 +76,6 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   void bookRPCLayerPhivsEtaHistograms(std::string, std::string, int, int, int, int, int, int);
   void bookRPCLayerPhivsEtaSectorHistograms(std::string, std::string, int, int, int, int, int, int);
  
-  /* void bookRPCSummaryHistograms( int, std::vector<std::string>::const_iterator &m_iter ) ; */
   void bookRPCSummaryHistograms( int, const std::string & m_quantity ) ;
   
   MuonDQAHistMap m_stationHists;
@@ -109,8 +91,6 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::vector<std::string>    m_layervslayer_name_list       ;
   std::vector<std::string>    m_layerPhivsEta_name_list      ;
   std::vector<std::string>    m_layerPhivsEtaSector_name_list;
-  // std::vector<std::string> cm_time_list                   ;
-  // std::vector<int>         ch16_index_list                ;
   int                         m_StationNameViewIndex[100][2] ;
   float                       m_StationNameSectorSize[100]   ;
   float                       m_StationPivotSectorSize[100]  ;
@@ -125,8 +105,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   const IRPCcablingSvc* m_cabling;
    

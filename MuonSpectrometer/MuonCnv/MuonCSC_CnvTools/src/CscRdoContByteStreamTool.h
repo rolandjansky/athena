@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOCONTRAWEVENTTOOL_H
@@ -9,18 +9,15 @@
 
 #include "MuonCSC_CnvTools/ICSC_RDOtoByteStreamTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "CSC_Hid2RESrcID.h"
 
 #include "ByteStreamData/RawEvent.h" 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include <string>
 
-class Identifier;
 class CSCcablingSvc;
-class CscRawDataCollection;
-
 
 namespace Muon {
   /*
@@ -37,19 +34,11 @@ namespace Muon {
     
     /** constructor
      */
-    CscRdoContByteStreamTool (const std::string& type, const std::string& name,
-                              const IInterface* parent);
-    
-    /** destructor 
-     */ 
-    virtual ~CscRdoContByteStreamTool();
-    
-    /** AlgTool InterfaceID
-     */
-    //    static const InterfaceID& interfaceID( ) ;
-    
+    CscRdoContByteStreamTool (const std::string& type, const std::string& name, const IInterface* parent);
+
+    virtual ~CscRdoContByteStreamTool()=default;
+
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
     
     /** to read the cosmic data */ 
     bool isCosmic () const { return m_isCosmic; }
@@ -58,13 +47,10 @@ namespace Muon {
     bool isOldCosmic () const { return m_isOldCosmic; }
     
     StatusCode convert(const CONTAINER* cont, RawEventWrite* re, MsgStream& log);
-    //StatusCode convert(const RawEvent* re, CONTAINER* cont, MsgStream& log);
     
   private: 
-    
     CSC_Hid2RESrcID m_hid2re;
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     // event assembler
     FullEventAssembler<CSC_Hid2RESrcID> m_fea;    

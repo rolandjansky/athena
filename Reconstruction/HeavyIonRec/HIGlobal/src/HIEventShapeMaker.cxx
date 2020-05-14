@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <HIGlobal/HIEventShapeMaker.h>
@@ -8,68 +8,75 @@
 #include <xAODHIEvent/HIEventShapeAuxContainer.h>
 
 #include <GaudiKernel/ServiceHandle.h>
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
-
-HIEventShapeMaker::HIEventShapeMaker(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
-											  m_HIEventShapeFillerTool(this),
-											  m_summary_tool(this)
+HIEventShapeMaker::HIEventShapeMaker(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)//,
 {
-  declareProperty("InputTowerKey"         ,m_tower_container_key="CombinedTower"            );
-  declareProperty("InputCellKey"          ,m_cell_container_key ="AllCalo"                  );
-  declareProperty("UseCaloCell"           ,m_use_calo_cell      = false                     );
-  declareProperty("OutputContainerKey"    ,m_output_key         ="HIEventShapeContainer"    );
-  declareProperty("HIEventShapeFillerTool",m_HIEventShapeFillerTool                         );
-  declareProperty("OrderOfFlowHarmonics"  ,m_NumOrders          =7                          );
-  declareProperty("SummaryTool"           ,m_summary_tool                                   );
-  declareProperty("SummaryContainerKey"   ,m_summary_key=""                                 );
 }
-
 
 
 StatusCode HIEventShapeMaker::initialize()
 {
-  ATH_MSG_DEBUG("Inside HIEventShapeMaker::initialize()");
+  ATH_MSG_INFO("Inside HIEventShapeMaker::initialize()");
+
+	//First we initialize keys - after initialization they are frozen
+  ATH_CHECK( m_towerContainerKey.initialize(!m_useCaloCell) );
+  ATH_CHECK( m_cellContainerKey.initialize(m_useCaloCell) );
+  ATH_CHECK( m_outputKey.initialize(!m_summaryOnly) );
+  ATH_CHECK( m_readExistingKey.initialize(m_summaryOnly) );
+  ATH_CHECK( m_summaryKey.initialize(!m_summaryKey.key().empty()) );
 
   //Create the HIEventShapeFillerTool
-  //m_HIEventShapeFillerTool.setTypeAndName("HIEventShapeFillerTool/EvtShapeModifierTool");//Now this is done in the job-options
-  CHECK(m_HIEventShapeFillerTool.retrieve());
-  m_HIEventShapeFillerTool->SetContainerName(m_output_key);
-  //should be configured so that tool and alg never have different # orders
-  //print warning if this is the case
-  CHECK(m_HIEventShapeFillerTool->SetNumOrders(m_NumOrders));
-  if(m_summary_key.compare("")!=0) CHECK(m_summary_tool->initialize());
+  if(!m_summaryOnly)
+  {
+    ATH_CHECK(m_HIEventShapeFillerTool.retrieve());
+    m_HIEventShapeFillerTool->setContainerName(m_outputKey.key());
+    //should be configured so that tool and alg never have different # orders
+    //print warning if this is the case
+    ATH_CHECK(m_HIEventShapeFillerTool->setNumOrders(m_numOrders));
+  }
+  if( m_summaryKey.key().compare("") != 0 ) ATH_CHECK(m_summaryTool->initialize());
 
   return StatusCode::SUCCESS;
 }
 
-
-
 StatusCode HIEventShapeMaker::execute()
 {
-  ATH_MSG_DEBUG("Inside HIEventShapeMaker::execute()");
+  ATH_MSG_INFO("Inside HIEventShapeMaker::execute()");
 
-  //Create HIEventShape Collection and ask tool to initialize it
-  xAOD::HIEventShapeContainer* evtShape=new xAOD::HIEventShapeContainer; 
-  xAOD::HIEventShapeAuxContainer *evtShapeAux = new xAOD::HIEventShapeAuxContainer; 
-  evtShape->setStore( evtShapeAux ); 
-  ATH_MSG_DEBUG("Making HIEventShapeContainer with key " << m_output_key);
-
-  CHECK(evtStore()->record(evtShape,m_output_key));
-  CHECK(evtStore()->record(evtShapeAux,m_output_key+std::string("Aux.")));
-  CHECK(m_HIEventShapeFillerTool->InitializeCollection(evtShape));
-
-  ATH_MSG_DEBUG("Calling filler tool with m_use_calo_cell= " << m_use_calo_cell);
-  if(m_use_calo_cell) CHECK(m_HIEventShapeFillerTool->FillCollectionFromCells (m_cell_container_key ));
-  else CHECK(m_HIEventShapeFillerTool->FillCollectionFromTowers(m_tower_container_key));
-
-  if(m_summary_key.compare("")!=0)
+  const xAOD::HIEventShapeContainer* evtShape_const=nullptr;
+  if( m_summaryOnly ){
+     SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_readExistingKey );
+     if (!readHandleEvtShape.isValid()) {
+        ATH_MSG_FATAL( "Could not find HI event shape! (" << m_readExistingKey.key() << ")." );
+        return(StatusCode::FAILURE);
+     }
+     evtShape_const = readHandleEvtShape.cptr();
+  }
+  else
   {
-    xAOD::HIEventShapeContainer* es_summary=new xAOD::HIEventShapeContainer; 
-    xAOD::HIEventShapeAuxContainer *es_summary_aux = new xAOD::HIEventShapeAuxContainer; 
-    es_summary->setStore( es_summary_aux ); 
-    CHECK(evtStore()->record(es_summary,m_summary_key));
-    CHECK(evtStore()->record(es_summary_aux,m_summary_key+std::string("Aux.")));
-    CHECK(m_summary_tool->summarize(evtShape,es_summary));
+    ATH_MSG_INFO("Making HIEventShapeContainer with key " << m_outputKey.key());
+    SG::WriteHandle<xAOD::HIEventShapeContainer> writeHandleEvtShape ( m_outputKey );
+    ATH_CHECK( writeHandleEvtShape.record ( std::make_unique<xAOD::HIEventShapeContainer>(),
+                                            std::make_unique<xAOD::HIEventShapeAuxContainer>()));
+    ATH_CHECK(m_HIEventShapeFillerTool->initializeCollection(writeHandleEvtShape.ptr()));
+    evtShape_const=writeHandleEvtShape.cptr();
+
+    ATH_MSG_INFO("Calling filler tool with m_useCaloCell= " << m_useCaloCell);
+    if(m_useCaloCell) ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromCells ( m_cellContainerKey ));
+    else ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromTowers( m_towerContainerKey ));
+  }
+
+  //PrintHIEventShapeContainer( evtShape_const );
+
+  if(!m_summaryKey.key().empty())
+  {
+    SG::WriteHandle<xAOD::HIEventShapeContainer> write_handle_esSummary ( m_summaryKey );
+    ATH_CHECK( write_handle_esSummary.record ( std::make_unique<xAOD::HIEventShapeContainer> (),
+                                               std::make_unique<xAOD::HIEventShapeAuxContainer>()));
+    if(m_summaryOnly) ATH_CHECK(m_summaryTool->summarize(evtShape_const,write_handle_esSummary.ptr()));
+    else ATH_CHECK(m_summaryTool->summarize(evtShape_const,write_handle_esSummary.ptr()));
   }
   return StatusCode::SUCCESS;
 }
@@ -111,5 +118,3 @@ void HIEventShapeMaker::PrintHIEventShapeContainer(const xAOD::HIEventShapeConta
    for(int i=0;i<40;i++){std::cout<<"#";};
    std::cout<<std::endl;
 }
-
-

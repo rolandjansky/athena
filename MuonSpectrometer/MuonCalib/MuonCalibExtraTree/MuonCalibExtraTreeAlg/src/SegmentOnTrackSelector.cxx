@@ -39,10 +39,6 @@ StatusCode SegmentOnTrackSelector::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SegmentOnTrackSelector::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 StatusCode SegmentOnTrackSelector::beginEvent() {
   const MuonCalibPatternCollection *patterns;
   if(!evtStore()->retrieve(patterns, m_pattern_location).isSuccess()) {

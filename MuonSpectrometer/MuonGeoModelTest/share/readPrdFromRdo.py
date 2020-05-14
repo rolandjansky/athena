@@ -85,5 +85,7 @@ include ("MuonRdoToPrepData/MuonRdoToMuonPrepData_jobOptions.py")
 #from MuonRdoToPrepData.MuonRdoToPrepDataGenConf import MdtRdoToMdtPrepData
 #MdtRdoToMdtPrepData = MdtRdoToMdtPrepData()
 MdtRdoToMdtPrepData.CalibratePrepData = False
+from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
 
 topSequence += MuonGMTestOnPrd

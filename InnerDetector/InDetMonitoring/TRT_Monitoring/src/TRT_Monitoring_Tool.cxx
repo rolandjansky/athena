@@ -34,13 +34,6 @@
 #include "LWHists/TH1D_LW.h"
 #include "LWHists/LWHist1D.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
-
 #include <sstream>
 #include <iomanip>
 #include <memory>
@@ -773,9 +766,9 @@ StatusCode TRT_Monitoring_Tool::bookTRTRDOs(bool newLumiBlock, bool newRun) {
 				for (int iside = 0; iside < 2; iside++) {
 					const std::string regionTag = " (" + be_id[ibe] + side_id[iside] + ")";
 					m_hChipBSErrorsVsLB[ibe][iside] = bookTProfile(rdoShiftSmryRebinned, "hChipBSErrorsVsLB_" + be_id[ibe] + side_id[iside], "Chip Bytestream Errors vs LB" + regionTag, maxLumiBlock + 1, -0.5, maxLumiBlock + 0.5, 0, 150.0, "Luminosity Block", "Fraction of Chips with Errors", scode);
-					CAN_REBIN(m_hChipBSErrorsVsLB[ibe][iside]);
+					m_hChipBSErrorsVsLB[ibe][iside]->SetCanExtend(TH1::kAllAxes);
 					m_hRobBSErrorsVsLB[ibe][iside] = bookTProfile(rdoShiftSmryRebinned, "hRobBSErrorsVsLB_" + be_id[ibe] + side_id[iside], "Rob Bytestream Errors vs LB" + regionTag, maxLumiBlock + 1, -0.5, maxLumiBlock + 0.5, 0, 150.0, "Luminosity Block", "Fraction of RODs with Errors", scode);
-					CAN_REBIN(m_hRobBSErrorsVsLB[ibe][iside]);
+					m_hRobBSErrorsVsLB[ibe][iside]->SetCanExtend(TH1::kAllAxes);
 				}
 			}
 
@@ -1033,11 +1026,11 @@ StatusCode TRT_Monitoring_Tool::bookTRTShiftTracks(bool newLumiBlock, bool newRu
 				m_hNumSwLLWoT_B = bookTH1F_LW(trackShiftTH1, "hNumSwLLWoT", "Number of Straws with Hits on Track in Time Window" + regionTag, 150, 0, 150, "Number of LL Hits per Track", "Norm. Entries", scode);
 				m_hAvgTroTDetPhi_B = bookTProfile_LW(trackShift, "hAvgTroTDetPhi", "Avg. Trailing Edge on Track vs #phi (2D) for Xenon" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);
 				m_hNTrksperLB_B = bookTProfile(trackShiftRebinned, "hNTrksperLB", "Avg. Number of Reconstructed Tracks per Event" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Number of Tracks", scode);
-				CAN_REBIN(m_hNTrksperLB_B);
+				m_hNTrksperLB_B->SetCanExtend(TH1::kAllAxes);
 				m_hNHitsperLB_B = bookTProfile(trackShiftRebinned, "hNHitsperLB", "Avg. Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-				CAN_REBIN(m_hNHitsperLB_B);
+				m_hNHitsperLB_B->SetCanExtend(TH1::kAllAxes);
 				m_hNHLHitsperLB_B = bookTProfile(trackShiftRebinned, "hNHLHitsperLB", "Avg. HL Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-				CAN_REBIN(m_hNHLHitsperLB_B);
+				m_hNHLHitsperLB_B->SetCanExtend(TH1::kAllAxes);
 				m_hHLhitOnTrack_B = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack", "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
 				m_hHtoLRatioOnTrack_B = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack", "HL/LL Ratio per Reconstructed Track for All" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode);
 				m_hHitWonTMap_B = bookTH1F_LW(trackShiftTH1, "hHitWonTMap", "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[0], 0, s_Straw_max[0], "Straw Number", "Norm. Entries", scode);
@@ -1074,11 +1067,11 @@ StatusCode TRT_Monitoring_Tool::bookTRTShiftTracks(bool newLumiBlock, bool newRu
 					m_hNumSwLLWoT_E[iside] = bookTH1F_LW(trackShiftTH1, "hNumSwLLWoT_" + side_id[iside], "Number of Straws with Hits on Track in Time Window" + regionTag, 150, 0, 150, "Number of LL Hits per Track", "Norm. Entries", scode);
 					m_hAvgTroTDetPhi_E[iside] = bookTProfile_LW(trackShift, "hAvgTroTDetPhi_" + side_id[iside], "Avg. Trailing Edge on Track vs #phi (2D) for Xenon" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);
 					m_hNTrksperLB_E[iside] = bookTProfile(trackShiftRebinned, "hNTrksperLB_" + side_id[iside], "Avg. Number of Reconstructed Tracks per Event" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Number of Tracks", scode);
-					CAN_REBIN(m_hNTrksperLB_E[iside]);
+					m_hNTrksperLB_E[iside]->SetCanExtend(TH1::kAllAxes);
 					m_hNHitsperLB_E[iside] = bookTProfile(trackShiftRebinned, "hNHitsperLB_" + side_id[iside], "Avg. Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-					CAN_REBIN(m_hNHitsperLB_E[iside]);
+					m_hNHitsperLB_E[iside]->SetCanExtend(TH1::kAllAxes);
 					m_hNHLHitsperLB_E[iside] = bookTProfile(trackShiftRebinned, "hNHLHitsperLB_" + side_id[iside], "Avg. HL Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-					CAN_REBIN(m_hNHLHitsperLB_E[iside]);
+					m_hNHLHitsperLB_E[iside]->SetCanExtend(TH1::kAllAxes);
 					m_hHLhitOnTrack_E[iside] = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack_" + side_id[iside], "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
 					m_hHtoLRatioOnTrack_E[iside] = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_" + side_id[iside], "HL/LL Ratio per Reconstructed Track for All" + regionTag, 50, 0, 1.0, "HL/LL Ratio", "Norm. Entries", scode);
 					m_hHitWonTMap_E[iside] = bookTH1F_LW(trackShiftTH1, "hHitWonTMap_" + side_id[iside], "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[1], 0, s_Straw_max[1], "Straw Number", "Norm. Entries", scode);

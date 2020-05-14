@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibT0/T0CalibrationMT.h" 
@@ -8,14 +8,14 @@
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MdtCalibT0/HistogramId.h"
-
 #include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MdtCalibT0/T0MTSettings.h"
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MdtCalibT0/ADCMTHistos.h"
-
 #include "MuonCalibStl/ToString.h"
 #include "MuonCalibStl/DeleteObject.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <algorithm>
 #include <iostream>
@@ -29,8 +29,6 @@
 #include "TFile.h"
 
 namespace MuonCalib {
-
-
 
 T0CalibrationMT::T0CalibrationMT( std::string name, const T0MTSettings* settings , const std::vector<int> &sort_by, const std::vector<int> &adc_sort_by)  :
   IMdtCalibration(name), m_settings(settings), m_converged(false), m_name(name),m_currentItnum(0), m_sort_by(sort_by), m_adc_sort_by(adc_sort_by), m_delete_settings(false)
@@ -83,13 +81,9 @@ bool  T0CalibrationMT::handleSegment( MuonCalibSegment& seg )
       double oldT0=0;
       if(stc)
        oldT0 = stc->t0;
-      else
-       {
-       std::cout<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<std::endl; 
-//       std::cout<<"container size "<<m_result->size()<<std::endl;
-//      std::cout<<"container nML "<<m_result->numMultilayers()<<std::endl;
-//       std::cout<<"container nL "<<m_result->numLayers()<<std::endl;
-//       std::cout<<"container nT "<<m_result->numTubes()<<std::endl;
+      else {
+      	MsgStream log(Athena::getMessageSvc(), "T0CalibrationMT");
+		log<<MSG::WARNING<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<endmsg;
        }
 
       // get histos
@@ -125,8 +119,7 @@ bool  T0CalibrationMT::analyse()
 		}
 			
 			
-	for(std::map<int, MdtTubeFitContainer::SingleTubeFit>::iterator it=full.begin(); it!=full.end(); it++)
-		{
+	for(std::map<int, MdtTubeFitContainer::SingleTubeFit>::iterator it=full.begin(); it!=full.end(); it++) {
 		if(it->first == 0) continue;
 		MuonFixedId fId(it->first);
 		NtupleStationId sid(fId);
@@ -138,14 +131,18 @@ bool  T0CalibrationMT::analyse()
 		int nL=fId.mdtTubeLayer();
 		int nT=fId.mdtTube();
 		bool setInfo=m_result[sid]->setCalib(nML-1,nL-1,nT-1,stc);
-		if(!setInfo) 
-			std::cout<<"T0CalibrationMT::PROBLEM! could not set SingleTubeCalib info "<<std::endl;
+		if(!setInfo) {
+			MsgStream log(Athena::getMessageSvc(), "T0CalibrationMT");
+			log<<MSG::WARNING<<"T0CalibrationMT::PROBLEM! could not set SingleTubeCalib info"<<endmsg;
+		}
 		fi.n_hits=m_nhits_per_tube[fId.getIdInt()];
 		fi.n_hits_above_adc_cut=m_nhits_per_tube[fId.getIdInt()];
 		setInfo=m_result[sid]->setFit(nML-1,nL-1,nT-1,fi);
-		if(!setInfo) 
-			std::cout<<"T0CalibrationMT::PROBLEM! could not set SingleTubeFit info "<<std::endl;		
+		if(!setInfo) {
+			MsgStream log(Athena::getMessageSvc(), "T0CalibrationMT");
+			log<<MSG::WARNING<<"T0CalibrationMT::PROBLEM! could not set SingleTubeFit info"<<endmsg;
 		}
+	}
 	
 	m_currentItnum++;
 	p_file->Write();
@@ -154,8 +151,10 @@ bool  T0CalibrationMT::analyse()
  
 bool  T0CalibrationMT::analyse_tdc(const int & nr, std::map<int, MdtTubeFitContainer::SingleTubeFit> & full, std::map<int, MdtTubeFitContainer::SingleTubeCalib> & st, std::map<int, std::string> & fit_by_map)
 	{
-	if(m_settings->VerboseLevel() > 1)
-		std::cout << "T0CalibrationMT::analyse iteration "<<m_currentItnum << std::endl;
+	if(m_settings->VerboseLevel() > 1) {
+		MsgStream log(Athena::getMessageSvc(), "T0CalibrationMT");
+		log<<MSG::VERBOSE<<"T0CalibrationMT::analyse iteration "<<m_currentItnum<<endmsg;
+	}
 	std::string fit_by("UNKNOWN");
 	switch(m_sort_by[nr])
 		{
@@ -225,7 +224,6 @@ void  T0CalibrationMT::doTimeFit(T0MTHistos * T0h, const std::set<MuonFixedId> &
 			double rel_t0(0.0);
 			if(m_settings->T0Settings()->CorrectRelT0s())
 				rel_t0 = m_rel_tube_t0s[stId].GetRelativeOffset(*it, theGroup);
-			std::cout<<"HHhhHH "<<fit_by<<" "<<rel_t0<<std::endl;
 			MdtTubeFitContainer::SingleTubeFit &fi(fim[it->getIdInt()]);
 			MdtTubeFitContainer::SingleTubeCalib &stc(stcm[it->getIdInt()]);
 	//store parameters	

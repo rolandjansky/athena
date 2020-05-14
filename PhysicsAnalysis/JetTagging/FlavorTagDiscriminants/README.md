@@ -6,6 +6,17 @@ transform the raw outputs from vertex finding into flavor tagging
 outputs. It is meant as "stand-alone" code: it should be usable in
 both Athena and AnalysisBase.
 
+This code is meant to run in all actively developed ATLAS projects. This means that the following features should _not_ be used:
+
+   - Read / Write Handles: These are not supported in 21.2, and thus
+     won't work in analysis code. Revisit in mid 2021.
+
+   - Any C++ features beyond C++11: Upgrade physics will use
+     [LCG_88][lcg88] for the foreseeable future. This release ships
+     with GCC 6.2, which predates C++17. Revisit in 2024.
+
+[lcg88]: http://lcginfo.cern.ch/release/88/
+
 Package Overview
 ----------------
 

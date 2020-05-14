@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -181,7 +181,7 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
   // We must call this BEFORE having added the new link, check
   if (outputDecision->hasObjectLink(viewString())) {
     ATH_MSG_ERROR("Called linkViewToParent on a Decision object which already has been given a '" 
-      << viewString << "' link. Call this fn BEFORE linking the new View.");
+      << viewString() << "' link. Call this fn BEFORE linking the new View.");
     return StatusCode::FAILURE;
   }
   std::vector<LinkInfo<ViewContainer>> parentViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);

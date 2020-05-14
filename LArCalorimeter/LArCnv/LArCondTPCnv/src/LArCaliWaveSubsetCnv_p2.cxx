@@ -255,9 +255,7 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
 				
         if (subsetIt->second[j].size() > 0) { // channel exists
                     
-          if (j < chansOffset || (j - chansOffset) > 31) // store the channel number in bit map
-            log << MSG::ERROR << "LArCWSubsetCnv_p2::tTP - incorrect ch. ind: j, chansOffset: " << j << " " << chansOffset << endmsg;
-                    
+          assert (j >= chansOffset && (j - chansOffset) <= 31);
           chansSet |= (1 << (j - chansOffset)); //store the channel number in the bit map
 					
 //					std::cout<<"1";	

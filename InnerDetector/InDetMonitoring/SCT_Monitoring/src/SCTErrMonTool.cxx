@@ -203,6 +203,7 @@ SCTErrMonTool::bookHistograms() {
   if (m_useDCS) ATH_CHECK(m_dcsTool.retrieve());
   else m_dcsTool.disable();
   ATH_CHECK(m_pSummaryTool.retrieve());
+  ATH_CHECK(m_flaggedTool.retrieve());
   m_initialize = true;
   return StatusCode::SUCCESS;
 }
@@ -317,6 +318,23 @@ SCTErrMonTool::fillHistograms() {
   m_NumberOfEventsVsLB->Fill(m_current_lb);
 
   ATH_CHECK(fillByteStreamErrors());
+
+  // Check wafers with many fired strips (event dependent) using SCT_FlaggedConditionTool.
+  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers;
+  nFlaggedWafers.fill(0);
+  const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
+  for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {
+    const IdentifierHash hash{iHash};
+    if (not m_flaggedTool->isGood(hash)) {
+      const Identifier wafer_id{m_pSCTHelper->wafer_id(hash)};
+      const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+      nFlaggedWafers[barrel_ec]++;
+      nFlaggedWafers[GENERAL_INDEX]++;
+    }
+  }
+  for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
+    m_flaggedWafers->Fill(reg, nFlaggedWafers[reg]);
+  }
 
   if (sctflag) {
     return StatusCode::SUCCESS;
@@ -811,7 +829,7 @@ StatusCode
 SCTErrMonTool::bookErrHistosGen() {
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup MaskErrs{this, "SCT/GENERAL/errors", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
-    m_MaskedAllLinks = new TH1I("Masked Links", "Number of Masked Links for SCT,ECA,B,ECC", 4, -0.5, 3.5); // should reorder to C,B,A,total ?
+    m_MaskedAllLinks = new TH1I("Masked Links", "Number of Masked Links for SCT,ECA,B,ECC", N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
     m_MaskedAllLinks->GetXaxis()->SetBinLabel(1, "EndCapC");
     m_MaskedAllLinks->GetXaxis()->SetBinLabel(2, "Barrel");
     m_MaskedAllLinks->GetXaxis()->SetBinLabel(3, "EndCapA");
@@ -819,6 +837,14 @@ SCTErrMonTool::bookErrHistosGen() {
     if (MaskErrs.regHist(m_MaskedAllLinks).isFailure()) {
       ATH_MSG_WARNING("Couldn't book MaskedLinks");
     }
+    m_flaggedWafers = new TProfile("FlaggedWafers", "Number of flagged wafers for SCT,ECA,B,ECC", N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
+    m_flaggedWafers->GetXaxis()->SetBinLabel(1, "EndCapC");
+    m_flaggedWafers->GetXaxis()->SetBinLabel(2, "Barrel");
+    m_flaggedWafers->GetXaxis()->SetBinLabel(3, "EndCapA");
+    m_flaggedWafers->GetXaxis()->SetBinLabel(4, "All");
+    if (MaskErrs.regHist(m_flaggedWafers).isFailure()) {
+      ATH_MSG_WARNING("Couldn't book FlaggedWafers");
+    }    
   }
   return StatusCode::SUCCESS;
 }
@@ -969,8 +995,11 @@ SCTErrMonTool::bookConfMapsGen() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::fillCondDBMaps() {
-  int Flagged[N_REGIONS_INC_GENERAL] = { // Not updated. Always zero.
-    0, 0, 0, 0
+  double Flagged[N_REGIONS_INC_GENERAL] = {
+    m_flaggedWafers->GetBinContent(1),
+    m_flaggedWafers->GetBinContent(2),
+    m_flaggedWafers->GetBinContent(3),
+    m_flaggedWafers->GetBinContent(4)
   };
   int MOut[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
@@ -1097,7 +1126,7 @@ SCTErrMonTool::fillCondDBMaps() {
 
   if (m_makeConfHisto) {
     m_ConfOutModules->Fill(0., static_cast<double>(MOut[GENERAL_INDEX]));
-    m_ConfNew->Fill(0., static_cast<double>(Flagged[GENERAL_INDEX]));
+    m_ConfNew->Fill(0., Flagged[GENERAL_INDEX]);
     m_ConfNew->Fill(1., static_cast<double>(MaskedAllLinks[GENERAL_INDEX]));
     m_ConfNew->Fill(2., static_cast<double>(ModErr[GENERAL_INDEX]));
     m_ConfNew->Fill(3., static_cast<double>(InEffModules[GENERAL_INDEX]));
@@ -1105,7 +1134,7 @@ SCTErrMonTool::fillCondDBMaps() {
     if (m_environment == AthenaMonManager::online) {
       for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
         m_ConfOnline[reg]->Fill(0., static_cast<double>(MOut[reg]));
-        m_ConfOnline[reg]->Fill(1., static_cast<double>(Flagged[reg]));
+        m_ConfOnline[reg]->Fill(1., Flagged[reg]);
         m_ConfOnline[reg]->Fill(2., static_cast<double>(MaskedAllLinks[reg]));
         m_ConfOnline[reg]->Fill(3., static_cast<double>(ModErr[reg]));
       }

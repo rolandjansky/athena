@@ -108,7 +108,7 @@ def TrigBSReadCfg(inputFlags):
 
 
 def ByteStreamWriteCfg( flags, typeNames=[] ):
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator("AthOutSeq")
     outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
     outputSvc.MaxFileMB = 15000
     # event (beyond which it creates a new file)
@@ -121,20 +121,17 @@ def ByteStreamWriteCfg( flags, typeNames=[] ):
     assert len(allRuns) == 1, "The input is from multiple runs, do not know which one to use {}".format(allRuns)
     outputSvc.RunNumber = allRuns.pop()
 
-    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("OutBSCnvSvc")
-    # TODO for technical reasons a separate instance of the ByteStreamCnvSvc have to be created, once all the config (i.e. trigger) is moved to CA based the name needs to be left default
-    # to test such change the test_trig_data_v1Dev_writeBS_build.py can be used
+    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("ByteStreamCnvSvc")
 
     bsCnvSvc.ByteStreamOutputSvcList = [ outputSvc.getName() ]
     streamAlg = CompFactory.AthenaOutputStream( "BSOutputStreamAlg",
                                                 EvtConversionSvc = bsCnvSvc.getName(),
+                                                OutputFile = "ByteStreamEventStorageOutputSvc",
                                                 ItemList = typeNames )
 
     acc.addService( outputSvc )
     acc.addService( bsCnvSvc )
-    acc.addSequence( CompFactory.AthSequencer("AthOutSeq") )
-    acc.addEventAlgo( streamAlg, sequenceName="AthOutSeq", primary = True )
-
+    acc.addEventAlgo( streamAlg, primary = True )
     return acc
 
 

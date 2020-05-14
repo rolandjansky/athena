@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/MdtCalibHitNtupleBranch.h"
@@ -20,22 +20,13 @@ namespace MuonCalib {
   bool MdtCalibHitNtupleBranch::fillBranch(const MdtCalibHitBase &hit, const int segmentIndex) {
     // check if branches where initialized
     if( !m_branchesInit ) {
-      //std::cout << "MdtCalibHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
-	//		<<  std::endl;
       return false;    
     }
 
     // check if index is out of range 
     if( m_index >= m_blockSize || m_index < 0 ){
-//       //std::cout << "MdtCalibHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-// 		<<  index << std::endl;
       return false;
     }
-
-//    //std::cout << "************************************************************************************" << std::endl;
-//    //std::cout << "index = " << m_index << " with segment " << segmentIndex << std::endl;
-//    hit.dump(//std::cout) ;
-//    //std::cout << "************************************************************************************" << std::endl;
 
     // copy values 
     m_segIndex[m_index]          = segmentIndex;
@@ -84,8 +75,6 @@ namespace MuonCalib {
   bool MdtCalibHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
-      //std::cout << "MdtCalibHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-	//		<< std::endl;
       return false;
     }
 

@@ -8,10 +8,11 @@ project( AthGeneration VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
+                               --ignore ATL238,ATL9,E701,E702,E704,E741
+                               --enable-extensions ATL902
    CACHE STRING "Default flake8 command" )
-
-set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Find the ATLAS CMake code:
@@ -77,9 +78,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
-   ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:

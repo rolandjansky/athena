@@ -59,10 +59,9 @@ atlas_add_library( TrigL2MuonSALib
                      src/*.cxx
                      PUBLIC_HEADERS TrigL2MuonSA
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib AthenaInterprocess StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities RPC_CondCablingLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib AthenaInterprocess StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities RPC_CondCablingLib MuonCnvToolInterfacesLib MuonRPC_CablingLib TrigMuonBackExtrapolatorLib )
 
 atlas_add_component( TrigL2MuonSA
-                     src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES TrigL2MuonSALib )
 

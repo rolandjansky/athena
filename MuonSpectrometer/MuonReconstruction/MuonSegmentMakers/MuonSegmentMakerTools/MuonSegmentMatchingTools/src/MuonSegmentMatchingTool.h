@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTMATCHINGTOOL_H
@@ -10,19 +10,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
+
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentPairMatchingTool.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+
 #include <atomic>
-
-class Identifier;
-
-namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonSegmentInOverlapResolvingTool;
-  class IMuonSegmentPairMatchingTool;
-}
 
 namespace Muon {
   
@@ -42,7 +38,7 @@ namespace Muon {
     MuonSegmentMatchingTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentMatchingTool ();
+    virtual ~MuonSegmentMatchingTool()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
@@ -86,14 +82,15 @@ namespace Muon {
     /** @brief match an endcap middle or outer segment with an inner segment using a simple analytic extrapolation model */
     bool endcapExtrapolationMatch( const MuonSegment& seg1, const MuonSegment& seg2, bool useTightCuts ) const;
 
-    ToolHandle<Muon::MuonIdHelperTool>                   m_idHelperTool;         //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>                 m_printer;              //!< EDM printer tool
     ToolHandle<Muon::IMuonSegmentInOverlapResolvingTool> m_overlapResolvingTool; //!< matching tool to handle the overlaps
     ToolHandle<Muon::IMuonSegmentPairMatchingTool>       m_pairMatchingTool;     //!< matching tool to handle the pairs of segments
-    ServiceHandle<MagField::IMagFieldSvc>                m_magFieldSvc; 
+
+    Gaudi::Property<bool> m_toroidOn { this, "ToroidOn", true, "Status of toroidal B-Field" };
 
     mutable std::atomic_uint m_straightLineMatches;
     mutable std::atomic_uint m_straightLineMatchesGood;

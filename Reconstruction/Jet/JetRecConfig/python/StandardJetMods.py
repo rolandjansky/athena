@@ -89,11 +89,11 @@ jetmoddict.update(jetmomentmods)
 from ParticleJetTools import ParticleJetToolsConfig
 particlejetmods = {
     # Easy cases, no special config or prereqs, just default tool config
-    "PartonTruthLabel": JetModifier("Analysis__JetPartonTruthLabel","partontruthlabel",
+    "PartonTruthLabel": JetModifier("Analysis::JetPartonTruthLabel","partontruthlabel",
                                     prereqs=["ghost:TruthLabelPartons"]),
 
     # More complex cases here
-    "TruthPartonDR":    JetModifier("Analysis__JetConeLabeling","truthpartondr",
+    "TruthPartonDR":    JetModifier("Analysis::JetConeLabeling","truthpartondr",
                                     helperfn=ParticleJetToolsConfig.getJetConeLabeling),
     "JetDeltaRLabel":   JetModifier("ParticleJetDeltaRLabelTool","jetdrlabeler_jetptmin",
                                     helperfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,

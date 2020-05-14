@@ -16,7 +16,7 @@ pointInTime = (999999999,0)
 #=== get a logger
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("ps_readDb")
-    
+
 #=== open the database
 db = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
 

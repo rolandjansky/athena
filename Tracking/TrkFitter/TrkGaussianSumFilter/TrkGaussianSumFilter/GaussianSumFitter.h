@@ -10,7 +10,8 @@ author               : amorley, atkinson
 email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
 decription           : Class for fitting according to the Gaussian Sum Filter
                        formalisation.
-********************************************************************************** */
+**********************************************************************************
+*/
 
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
@@ -62,68 +63,88 @@ public:
 
   virtual Track* fit(const Track&,
                      const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+                     const ParticleHypothesis particleHypothesis =
+                       nonInteracting) const override final;
 
   /** Fit a collection of 'PrepRawData' objects using the Gaussian Sum Filter
-      - This requires that an trackParameters object be supplied also as an initial guess */
+      - This requires that an trackParameters object be supplied also as an
+     initial guess */
   virtual Track* fit(const PrepRawDataSet&,
                      const TrackParameters&,
                      const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+                     const ParticleHypothesis particleHypothesis =
+                       nonInteracting) const override final;
 
   /** Fit a collection of 'RIO_OnTrack' objects using the Gaussian Sum Filter
-      - This requires that an trackParameters object be supplied also as an initial guess */
+      - This requires that an trackParameters object be supplied also as an
+     initial guess */
   virtual Track* fit(const MeasurementSet&,
                      const TrackParameters&,
                      const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+                     const ParticleHypothesis particleHypothesis =
+                       nonInteracting) const override final;
 
   /** Refit a track adding a PrepRawDataSet - Not done! */
-  virtual Track* fit(const Track&,
-                     const PrepRawDataSet&,
-                     const RunOutlierRemoval runOutlier = false,
-                     const ParticleHypothesis matEffects = nonInteracting) const override final;
+  virtual Track* fit(
+    const Track&,
+    const PrepRawDataSet&,
+    const RunOutlierRemoval runOutlier = false,
+    const ParticleHypothesis matEffects = nonInteracting) const override final;
 
   /** Refit a track adding a RIO_OnTrack set
-      - This has no form of outlier rejection and will use all hits on orginal track...
-        i.e. very basic impleneation at the moment*/
-  virtual Track* fit(const Track&,
-                     const MeasurementSet&,
-                     const RunOutlierRemoval runOutlier = false,
-                     const ParticleHypothesis matEffects = nonInteracting) const override final;
+      - This has no form of outlier rejection and will use all hits on orginal
+     track... i.e. very basic impleneation at the moment*/
+  virtual Track* fit(
+    const Track&,
+    const MeasurementSet&,
+    const RunOutlierRemoval runOutlier = false,
+    const ParticleHypothesis matEffects = nonInteracting) const override final;
 
   /** Combine two tracks by refitting - Not done! */
-  virtual Track* fit(const Track&,
-                     const Track&,
-                     const RunOutlierRemoval runOutlier = false,
-                     const ParticleHypothesis matEffects = nonInteracting) const override final;
+  virtual Track* fit(
+    const Track&,
+    const Track&,
+    const RunOutlierRemoval runOutlier = false,
+    const ParticleHypothesis matEffects = nonInteracting) const override final;
 
 private:
   /** Produces a perigee from a smoothed trajectory */
-  const MultiComponentStateOnSurface* makePerigee(const SmoothedTrajectory*,
-                                                  const ParticleHypothesis particleHypothesis = nonInteracting) const;
+  const MultiComponentStateOnSurface* makePerigee(
+    const SmoothedTrajectory*,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   //* Calculate the fit quality */
   const Trk::FitQuality* buildFitQuality(const Trk::SmoothedTrajectory&) const;
 
 private:
-  ToolHandle<IMultiStateExtrapolator> m_extrapolator{ this,
-                                                      "ToolForExtrapolation",
-                                                      "Trk::GsfExtrapolator/GsfExtrapolator",
-                                                      "" };
-  ToolHandle<IMultiStateMeasurementUpdator> m_updator{ this,
-                                                       "MeasurementUpdatorType",
-                                                       "Trk::GsfMeasurementUpdator/GsfMeasurementUpdator",
-                                                       "" };
-  ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator{ this,
-                                                       "ToolForROTCreation",
-                                                       "Trk::RioOnTrackCreator/RIO_OnTrackCreator",
-                                                       "" };
-  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter{ this,
-                                                    "ForwardGsfFitter",
-                                                    "Trk::ForwardGsfFitter/ForwardGsfFitter",
-                                                    "" };
-  ToolHandle<IGsfSmoother> m_gsfSmoother{ this, "GsfSmoother", "Trk::GsfSmoother/GsfSmoother", "" };
+  ToolHandle<IMultiStateExtrapolator> m_extrapolator{
+    this,
+    "ToolForExtrapolation",
+    "Trk::GsfExtrapolator/GsfExtrapolator",
+    ""
+  };
+  ToolHandle<IMultiStateMeasurementUpdator> m_updator{
+    this,
+    "MeasurementUpdatorType",
+    "Trk::GsfMeasurementUpdator/GsfMeasurementUpdator",
+    ""
+  };
+  ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator{
+    this,
+    "ToolForROTCreation",
+    "Trk::RioOnTrackCreator/RIO_OnTrackCreator",
+    ""
+  };
+  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter{
+    this,
+    "ForwardGsfFitter",
+    "Trk::ForwardGsfFitter/ForwardGsfFitter",
+    ""
+  };
+  ToolHandle<IGsfSmoother> m_gsfSmoother{ this,
+                                          "GsfSmoother",
+                                          "Trk::GsfSmoother/GsfSmoother",
+                                          "" };
 
   bool m_reintegrateOutliers;
   bool m_makePerigee;
@@ -136,12 +157,14 @@ private:
   TrackFitInputPreparator* m_inputPreparator;
 
   // GSF Fit Statistics
-  mutable std::atomic<int> m_FitPRD;             // Number of Fit PrepRawData Calls
-  mutable std::atomic<int> m_FitMeasurementBase; // Number of Fit MeasurementBase Calls
-  mutable std::atomic<int> m_ForwardFailure;     // Number of Foward Fit Failures
-  mutable std::atomic<int> m_SmootherFailure;    // Number of Smoother Failures
-  mutable std::atomic<int> m_PerigeeFailure;     // Number of MakePerigee Failures
-  mutable std::atomic<int> m_fitQualityFailure;  // Number of Tracks that fail fit Quailty test
+  mutable std::atomic<int> m_FitPRD; // Number of Fit PrepRawData Calls
+  mutable std::atomic<int>
+    m_FitMeasurementBase; // Number of Fit MeasurementBase Calls
+  mutable std::atomic<int> m_ForwardFailure;  // Number of Foward Fit Failures
+  mutable std::atomic<int> m_SmootherFailure; // Number of Smoother Failures
+  mutable std::atomic<int> m_PerigeeFailure;  // Number of MakePerigee Failures
+  mutable std::atomic<int>
+    m_fitQualityFailure; // Number of Tracks that fail fit Quailty test
 };
 
 } // end Trk namespace

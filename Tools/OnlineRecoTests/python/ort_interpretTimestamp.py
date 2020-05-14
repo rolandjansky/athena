@@ -83,8 +83,8 @@ if __name__ == "__main__":
     updateTimestamp = int(sys.argv[3])
 
   ## interpret timestamp
-  doInstall,pacmankey = interpretNewTimestamp(newtimestampfile, \
-					      prvtimestampfile)
+  doInstall,pacmankey = interpretNewTimestamp(newtimestampfile,
+                                              prvtimestampfile)
   if doInstall:
     print("Install new nightly kit ? %s" % str(doInstall))
     print(pacmankey)

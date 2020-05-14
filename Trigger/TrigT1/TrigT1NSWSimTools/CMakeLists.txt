@@ -41,21 +41,14 @@ atlas_add_library( TrigT1NSWSimToolsLib
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} AtlasHepMCLib 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegSelLUT PathResolver)
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegSelLUT PathResolver
+                     PRIVATE_LINK_LIBRARIES TrackRecordLib MuonRegionSelectorLib )
 
 
 # Component(s) in the package:
 atlas_add_component( TrigT1NSWSimTools
-                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} AtlasHepMCLib 
-                     SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  RegSelLUT PathResolver)
-
-
-
-
+                     LINK_LIBRARIES TrigT1NSWSimToolsLib )
 
 
 # Install files from the package:

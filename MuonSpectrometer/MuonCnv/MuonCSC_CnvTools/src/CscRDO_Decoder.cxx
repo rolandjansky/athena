@@ -14,39 +14,18 @@ Muon::CscRDO_Decoder::CscRDO_Decoder
 {  
 }
 
-StatusCode Muon::CscRDO_Decoder::initialize()
-{
-  
-  ATH_MSG_DEBUG ( "CscRDO_Decoder::initialize"); 
-  
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  // get the cabling service
-  if ( m_cabling.retrieve().isFailure() )  {
-    ATH_MSG_ERROR ( " Cannot get CablingSvc " );
-    return StatusCode::FAILURE;
-  }
-  // get cscCalibTool
-  if (m_cscCalibTool.retrieve().isFailure()){
-    ATH_MSG_ERROR ( "Can't get handle on CSC calibration tools" );
-    return StatusCode::FAILURE;
-  } 
-
-  
-  
+StatusCode Muon::CscRDO_Decoder::initialize() {
+  ATH_MSG_DEBUG ("CscRDO_Decoder::initialize"); 
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_cabling.retrieve());
+  ATH_CHECK(m_cscCalibTool.retrieve());
   ATH_MSG_DEBUG (" Parameters are from CscCalibTool ") ;
-
   m_samplingTime = m_cscCalibTool->getSamplingTime();
   m_signalWidth  = m_cscCalibTool->getSignalWidth();
   m_timeOffset   = m_cscCalibTool->getTimeOffset();
-
   ATH_MSG_DEBUG (" Initialization is done!");
-  
-  /** initialize CSC Id Helper :: it is needed now! */
-  m_rodReadOut.set(m_muonIdHelperTool.get());
+  m_rodReadOut.set(&m_idHelperSvc->cscIdHelper());
   m_rodReadOut.setChamberBitVaue(1);
-
-  
   return StatusCode::SUCCESS;
 }
 

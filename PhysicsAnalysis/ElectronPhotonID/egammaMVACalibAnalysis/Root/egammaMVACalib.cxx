@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -104,6 +104,7 @@ egammaMVACalib::egammaMVACalib(int particle,
 
   if (particle < 0 || particle >= static_cast<int>(NEGAMMATYPES))
   {
+    // cppcheck-suppress shiftNegative // false positive
     ATH_MSG_FATAL("Invalid argument for particle "<< particle);
     throw std::runtime_error("Invalid argument for particle");
   }
@@ -112,6 +113,7 @@ egammaMVACalib::egammaMVACalib(int particle,
 
   if (calibrationType < 0 || calibrationType >= static_cast<int>(NCalibrationTypes))
   {
+    // cppcheck-suppress shiftNegative // false positive
     ATH_MSG_FATAL("Invalid argument for calibrationType "<< calibrationType);
     throw std::runtime_error("Invalid argument for calibrationType");
   }

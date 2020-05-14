@@ -40,14 +40,12 @@ SolenoidalIntersector::SolenoidalIntersector (const std::string&	type,
 					      const std::string&	name, 
 					      const IInterface*		parent)
     :	base_class			(type, name, parent),
-	m_magFieldSvc			("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
 	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
 	m_deltaPhiTolerance		(0.01),	// upper limit for small angle approx
 	m_surfaceTolerance		(2.0*Gaudi::Units::micrometer),
 	m_countExtrapolations		(0),
 	m_countRKSwitches		(0)
 {
-    declareProperty("MagFieldSvc",		m_magFieldSvc );
     declareProperty("RungeKuttaIntersector",	m_rungeKuttaIntersector);
     declareProperty("SurfaceTolerance",		m_surfaceTolerance);
 }
@@ -57,11 +55,7 @@ SolenoidalIntersector::initialize()
 {
     // print name and package version
     ATH_MSG_INFO( "SolenoidalIntersector::initialize() - package version " << PACKAGE_VERSION );
-    if (! m_magFieldSvc.empty())
-    {
-	    ATH_CHECK(m_magFieldSvc.retrieve());
-    }
-
+    ATH_CHECK( m_solenoidParametrizationKey.initialize() );
     ATH_CHECK(m_rungeKuttaIntersector.retrieve());
     return StatusCode::SUCCESS;
 }
@@ -73,55 +67,6 @@ SolenoidalIntersector::finalize()
 		  << m_countRKSwitches << " switches to RK integration");
 
     return StatusCode::SUCCESS;
-}
-
-
-const SolenoidParametrization*
-SolenoidalIntersector::getSolenoidParametrization() const
-{
-  double current = m_magFieldSvc->solenoidCurrent();
-
-  // Check to see if the last one we used is ok.
-  const SolenoidParametrization* lastpar = m_lastSolenoidParametrization.get();
-  if (lastpar && lastpar->currentMatches (current)) {
-    return lastpar;
-  }
-
-  std::lock_guard<std::mutex> lock (m_mutex);
-
-  // Search for a new one, and release the reference count on the old one.
-  const SolenoidParametrization* thispar = nullptr;
-  Parmlist_t::iterator todel = m_solenoidParametrizations.end();
-  for (Parmlist_t::iterator it = m_solenoidParametrizations.begin();
-       it != m_solenoidParametrizations.end() && (lastpar || !thispar);
-       ++it)
-  {
-    if (&it->first == lastpar) {
-      lastpar = nullptr;
-      if (--it->second <= 0) {
-        todel = it;
-      }
-    }
-    else if (!thispar && it->first.currentMatches (current)) {
-      thispar = &it->first;
-      ++it->second;
-    }
-  }
-
-  if (todel != m_solenoidParametrizations.end()) {
-    m_solenoidParametrizations.erase (todel);
-  }
-
-  if (!thispar) {
-    // Didn't find one; make a new one.
-    m_solenoidParametrizations.emplace_back (&*m_magFieldSvc, 1);
-    thispar = &m_solenoidParametrizations.back().first;
-  }
-
-  // Remember which one we used last.
-  m_lastSolenoidParametrization.set (thispar);
-
-  return thispar;
 }
 
 
@@ -295,7 +240,8 @@ SolenoidalIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
 
 /**IIntersector interface method to check validity of parametrization within extrapolation range */
 bool
-SolenoidalIntersector::isValid (Amg::Vector3D startPosition, Amg::Vector3D endPosition) const
+SolenoidalIntersector::isValid (Amg::Vector3D startPosition,
+                                Amg::Vector3D endPosition) const
 {
     const SolenoidParametrization* solenoidParametrization =
       getSolenoidParametrization();
@@ -508,5 +454,10 @@ SolenoidalIntersector::newIntersection (const TrackSurfaceIntersection& isect,
   return newIsect;
 }
 
+void SolenoidalIntersector::throwMissingCondData() const {
+   std::stringstream msg;
+   msg << "Invalid read handle for SolenoidParametrization  " << m_solenoidParametrizationKey.key();
+   throw std::logic_error(msg.str());
+}
 
 } // end of namespace

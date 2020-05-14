@@ -1,7 +1,5 @@
 <!-- $Id: selection.xml 742367 2016-04-23 09:53:26Z krasznaa $ -->
 <lcgdict>
-  <class name="IBTaggingEfficiencyTool" />
-  <class name="IBTaggingSelectionTool" />
   <class name="BTaggingEfficiencyTool" />
   <class name="BTaggingSelectionTool" />
 </lcgdict>

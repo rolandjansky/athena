@@ -18,7 +18,7 @@ def fastCaloSequence(doRinger):
     from TrigT2CaloCommon.CaloDef import fastCaloEVCreator
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
 
-    # reco sequence
+    # reco sequence always build the rings
     from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
     (fastCaloInViewSequence, sequenceOut) = fastCaloRecoSequence(InViewRoIs, doRinger=doRinger)
 
@@ -27,21 +27,34 @@ def fastCaloSequence(doRinger):
     return (fastCaloSequence, fastCaloViewsMaker, sequenceOut)
 
 
-def fastCaloMenuSequence(name, doRinger=True):
+def fastCaloMenuSequence(name, doRinger):
     """ Creates L2 Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
+    The doRinger flag is to use or not the Ringer hypo
     """
-    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, doRinger)
+    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, {'doRinger' : doRinger})
+    # check if use Ringer and are electron because there aren't ringer for photons yet
+    if doRinger:
+      # Ringer hypo
+      from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigL2CaloRingerHypoAlgMT
+      theFastCaloHypo = TrigL2CaloRingerHypoAlgMT( name + "L2CaloRingerHypo")
+      theFastCaloHypo.ClustersKey = sequenceOut
+      CaloMenuDefs.L2CaloClusters = sequenceOut
 
-    # hypo    
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo")
-    theFastCaloHypo.CaloClusters = sequenceOut
-    CaloMenuDefs.L2CaloClusters = sequenceOut
+      from TrigMultiVarHypo.TrigL2CaloRingerHypoTool import TrigL2CaloRingerHypoToolFromDict
+      return MenuSequence( Sequence    = sequence,
+                           Maker       = fastCaloViewsMaker,
+                           Hypo        = theFastCaloHypo,
+                           HypoToolGen = TrigL2CaloRingerHypoToolFromDict )
+    else:
+      # hypo
+      from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
+      theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo")
+      theFastCaloHypo.CaloClusters = sequenceOut
+      CaloMenuDefs.L2CaloClusters = sequenceOut
 
- 
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
-    return MenuSequence( Sequence    = sequence,
-                         Maker       = fastCaloViewsMaker, 
-                         Hypo        = theFastCaloHypo,
-                         HypoToolGen = TrigL2CaloHypoToolFromDict )
+      from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
+      return MenuSequence( Sequence    = sequence,
+                           Maker       = fastCaloViewsMaker,
+                           Hypo        = theFastCaloHypo,
+                           HypoToolGen = TrigL2CaloHypoToolFromDict )

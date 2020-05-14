@@ -235,7 +235,7 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
   log << MSG::VERBOSE << "Retrieval of CaloCell container succeeded at " << m_caloLocation << endmsg;
 
   if( m_tileID ) {
-    double pi = 4*atan(1.);  
+    double pi = 4*std::atan(1.);  
     double cellEnergyThreshold = 100. ;
     double eCellcut = 200.;
     double etowercut = 500.;
@@ -471,7 +471,7 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
   log << MSG::VERBOSE << "Retrieval of MBTS container succeeded at " << m_mbtsLocation << endmsg;
          
   if( m_tileID ) {  
-    double pi = 4*atan(1.); 
+    double pi = 4*std::atan(1.); 
     double energy[32],time[32];
     int module[32];
          

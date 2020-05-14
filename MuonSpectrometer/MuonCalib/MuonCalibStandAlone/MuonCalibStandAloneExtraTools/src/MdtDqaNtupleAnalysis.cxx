@@ -359,7 +359,6 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 	     MDTName chamb_mult(stn,ieta+1,side,isec+1);
 	     
 	     histoType="B_ChamberHitMultiplicity";
-	     //	     if(m_verbose) cout<<" histoType "<<histoType<<endl;
 	     hmulti = (TH1F*) m_histoManager->GetMdtHisto(histoType,chamb_mult);
 	     if(hmulti) hmulti->Fill(multiAdcCut);
 	     

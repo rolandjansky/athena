@@ -27,44 +27,57 @@ namespace Trk {
 class MaterialProperties;
 class Layer;
 
-static const InterfaceID IID_IMultiStateMaterialEffectsUpdator("IMultiStateMaterialEffectsUpdator", 1, 0);
+static const InterfaceID IID_IMultiStateMaterialEffectsUpdator(
+  "IMultiStateMaterialEffectsUpdator",
+  1,
+  0);
 
 class IMultiStateMaterialEffectsUpdator : virtual public IAlgTool
 {
 
 public:
   /** AlgTool interface method */
-  static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffectsUpdator; };
+  static const InterfaceID& interfaceID()
+  {
+    return IID_IMultiStateMaterialEffectsUpdator;
+  };
 
   /** Virtual destructor */
   virtual ~IMultiStateMaterialEffectsUpdator() = default;
 
-  /** Method for updating the state with material effects provided by the layer object */
-  virtual Trk::MultiComponentState updateState(const ComponentParameters&,
-                                               const Layer&,
-                                               PropDirection direction = alongMomentum,
-                                               ParticleHypothesis = nonInteracting) const = 0;
+  /** Method for updating the state with material effects provided by the layer
+   * object */
+  virtual Trk::MultiComponentState updateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = alongMomentum,
+    ParticleHypothesis = nonInteracting) const = 0;
 
-  /** Method for updating the state with material effects provided by a material properties object
-   * and a pathlength */
-  virtual Trk::MultiComponentState updateState(const ComponentParameters&,
-                                               const MaterialProperties&,
-                                               double,
-                                               PropDirection = alongMomentum,
-                                               ParticleHypothesis = nonInteracting) const = 0;
+  /** Method for updating the state with material effects provided by a material
+   * properties object and a pathlength */
+  virtual Trk::MultiComponentState updateState(
+    const ComponentParameters&,
+    const MaterialProperties&,
+    double,
+    PropDirection = alongMomentum,
+    ParticleHypothesis = nonInteracting) const = 0;
 
-  /** Method for the state with material effects provided by the layer object prior to propagation
+  /** Method for the state with material effects provided by the layer object
+   * prior to propagation
    */
-  virtual Trk::MultiComponentState preUpdateState(const ComponentParameters&,
-                                                  const Layer&,
-                                                  PropDirection direction = anyDirection,
-                                                  ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual Trk::MultiComponentState preUpdateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  /**  Method for the state with material effects provided by the layer object after propagation */
-  virtual Trk::MultiComponentState postUpdateState(const ComponentParameters&,
-                                                   const Layer&,
-                                                   PropDirection direction = anyDirection,
-                                                   ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  /**  Method for the state with material effects provided by the layer object
+   * after propagation */
+  virtual Trk::MultiComponentState postUpdateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace

@@ -5,7 +5,7 @@
 # ReadCellNoiseFromCoolCompare.py
 # based on ReadCellNoiseFromCool.py and ReadFromCoolCompare.py
 # Yuri Smirnov 2015-03-19
-# 
+#
 
 from __future__ import print_function
 
@@ -37,7 +37,7 @@ def usage():
     print ("-w, --wide      wide format - print all values per cell in one line")
     print ("-b, --brief     print only numbers without character names")
     print ("-d, --double    print values with double precision")
-    
+
 letters = "hs:t:f:r:l:s2:t2:f2:r2:l2:m:m2:n:c:g:i:z:wbd"
 keywords = ["help","schema=","tag=","folder=","run=","lumi=","schema2=","tag2=","folder2=","run2=","lumi2=","maxdiff=","maxdiffpercent=","channel=","cell=","gain=","index=","zero=","wide","brief","double"]
 
@@ -48,7 +48,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run    = 2147483647
 run2   = 0      # will be set to "run" if not on command line
 lumi   = 0
@@ -130,7 +130,7 @@ if tag2=="none":
     tag2=tag
 if schema2=="none":
     schema2=schema
-        
+
 tile=(chan==48)
 
 import cppyy
@@ -172,7 +172,7 @@ elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     else:
         schema='COOLOFL_TILE/CONDBR2'
         folderPath='/TILE/OFL02/NOISE/CELL'
-elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200 
+elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200
     schema='COOLONL_CALO/OFLP200'
     folderPath='/CALO/Noise/CellNoise'
     if tag=='UPD4':
@@ -214,57 +214,57 @@ elif folderPath.startswith('/CALO'):
 elif folderPath.startswith('/LAR'):
     folderTag = 'LARNoiseOflCellNoise-'+tag
 
-#=== Read from COOL server 2:                                                                                                                                                  
+#=== Read from COOL server 2:
 
-if schema2=='ONL': # shortcut for COOLONL_CALO/COMP200                                                                                                                          
+if schema2=='ONL': # shortcut for COOLONL_CALO/COMP200
     schema2='COOLONL_CALO/COMP200'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='UPD1-00' # change default to latest RUN1 tag                                                                                                          
-elif schema2=='ONL2': # shortcut for COOLONL_CALO/CONDBR2                                                                                                                       
+        tag2='UPD1-00' # change default to latest RUN1 tag
+elif schema2=='ONL2': # shortcut for COOLONL_CALO/CONDBR2
     schema2='COOLONL_CALO/CONDBR2'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='RUN2-UPD1-00' # change default to latest RUN2 tag                                                                                                     
-elif schema2=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200                                                                                                 
+        tag2='RUN2-UPD1-00' # change default to latest RUN2 tag
+elif schema2=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200
     if chan!=48:
         schema2='COOLOFL_LAR/COMP200'
         folderPath2='/LAR/NoiseOfl/CellNoise'
         if tag2=='UPD4':
-            tag2='UPD4-02' # change default to latest RUN1 tag                                                                                                      
+            tag2='UPD4-02' # change default to latest RUN1 tag
     else:
         schema2='COOLOFL_TILE/COMP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
         if tag2=='UPD4':
-            tag2='UPD4-10' # change default to latest RUN1 tag                                                                                                      
-elif schema2=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2                                                                                                
+            tag2='UPD4-10' # change default to latest RUN1 tag
+elif schema2=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     if chan!=48:
         schema2='COOLOFL_LAR/CONDBR2'
         folderPath2='/LAR/NoiseOfl/CellNoise'
     else:
         schema2='COOLOFL_TILE/CONDBR2'
         folderPath2='/TILE/OFL02/NOISE/CELL'
-elif schema2=='ONLMC': # shortcut for COOLONL_CALO/OFLP200                                                                                                                      
+elif schema2=='ONLMC': # shortcut for COOLONL_CALO/OFLP200
     schema2='COOLONL_CALO/OFLP200'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='IOVDEP-10' # change default to tag used in DC14                                                                                                       
-elif schema2=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200                                                                                                                      
+        tag2='IOVDEP-10' # change default to tag used in DC14
+elif schema2=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200
     schema2='COOLOFL_CALO/OFLP200'
     folderPath2='/CALO/Ofl/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='IOVDEP-10' # change default to tag used in DC14                                                                                                       
-elif schema2=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200                                                                                                  
+        tag2='IOVDEP-10' # change default to tag used in DC14
+elif schema2=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
     if chan!=48:
         schema2='COOLOFL_LAR/OFLP200'
         folderPath2='/LAR/NoiseOfl/CellNoise'
         if tag2=='UPD4':
-            tag2='IOVDEP-00' # change default to tag used in DC14                                                                                                   
+            tag2='IOVDEP-00' # change default to tag used in DC14
     else:
         schema2='COOLOFL_TILE/OFLP200'
         folderPath2='/TILE/OFL02/NOISE/CELL'
         if tag2=='UPD4':
-            tag2='IOVDEP-02' # change default to tag used in DC14                                                                                                   
+            tag2='IOVDEP-02' # change default to tag used in DC14
 
 db2 = CaloCondTools.openDbConn(schema2, "READONLY")
 
@@ -342,7 +342,7 @@ else:
   dm="\t"
 for cell in range(cellmin,cellmax):
   if tile and len(name1[0]):
-    name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
+    name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
   for gain in range(gainmin,gainmax):
     msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
     l0=len(msg)

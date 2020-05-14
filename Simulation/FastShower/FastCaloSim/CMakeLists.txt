@@ -81,8 +81,8 @@ atlas_add_library( FastCaloSimLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils FastCaloSimAthenaPool PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} CaloEvent CaloIdentifier CaloInterfaceLib AthenaBaseComps AthenaKernel FastCaloSimAthenaPool FastSimulationEventLib Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr DetDescrCondToolsLib GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
 
 atlas_add_component( FastCaloSim
                      src/components/*.cxx
@@ -97,7 +97,7 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( FastShowerCellBuilderTool_test
   SCRIPT test/FastShowerCellBuilderTool_test.sh
   PROPERTIES TIMEOUT 600
-  LOG_IGNORE_PATTERN "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file|AtlasTracking.* INFO|CaloTra.* INFO|TrackingGeometrySvc|INFO finalize|INFO Disconnecting from|INFO.*10-bit|Py:Athena +INFO" )
+  LOG_IGNORE_PATTERN "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file|AtlasTracking.* INFO|CaloTra.* INFO|TrackingGeometrySvc|INFO finalize|INFO Disconnecting from|INFO.*10-bit|Py:Athena +INFO|AtlasField|IOVDbFolder" )
 
 
 atlas_add_test( AddNoiseCellBuilderToolConfigTest_test

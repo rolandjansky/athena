@@ -440,7 +440,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
          throw GaudiException("Cannot finalize helper tool", name(), StatusCode::FAILURE);
       }
    }
-   if( m_metaDataSvc->prepareOutput().isFailure() ) {
+   if( m_metaDataSvc->prepareOutput(outputFN).isFailure() ) {
       throw GaudiException("Failed on MetaDataSvc prepareOutput", name(), StatusCode::FAILURE);
    }
    // Always force a final commit in stop - mainly applies to AthenaPool
@@ -539,7 +539,7 @@ StatusCode AthenaOutputStream::write() {
    bool failed = false;
    EventContext::ContextID_t slot = Gaudi::Hive::currentContext().slot();
    IAthenaOutputStreamTool* streamer = &*m_streamer;
-   std::string outputFN = m_outSeqSvc->buildSequenceFileName(m_outputName);
+   std::string outputFN;
 
    std::unique_lock<mutex_t>  lock(m_mutex);
 
@@ -561,8 +561,10 @@ StatusCode AthenaOutputStream::write() {
          }
          m_streamerMap[ outputFN ].reset( streamer );
       }
+   } else {
+      outputFN = m_outSeqSvc->buildSequenceFileName(m_outputName);
    }
-
+   
    // Clear any previously existing item list
    clearSelection();
    collectAllObjects();

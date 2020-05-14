@@ -488,9 +488,6 @@ namespace Trk {
         double m_straightStep                                      ;  // max step whith srtaight line model
         bool   m_usegradient                                       ;  // use magnetif field gradient
 
-        // temporary flag to be able to avoid the use of the AtlasFieldCacheCondObj
-        Gaudi::Property<bool> m_useCondObj {this, "UseCondObj", true, "Use the conditions object to fetch the field cache"};
-
         // Read handle for conditions object to get the field cache
         SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
         void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;      

@@ -1,16 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MuonCalibDbOperations/CalibHeadOperations.h"
 #include "MuonCalibDbOperations/CalibDbConnection.h"
-
-//coral
 #include "RelationalAccess/IRelationalService.h"
-//#include "RelationalAccess/IConnection.h"
-//#include "RelationalAccess/IConnectionService.h"
-//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -24,8 +18,9 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralKernel/Context.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//c - c+++
 #include "iostream"
 
 namespace MuonCalib {
@@ -42,14 +37,16 @@ int CalibHeadOperations::GetLatestHeadId() const {
     query->addToOutputList("max(HEAD_ID)", "max_head_id");
     coral::ICursor& cursor = query->execute();
     if(!cursor.next()) {
-      std::cerr<<"Query for head_id failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+      log<<MSG::WARNING<<"Query for head_id failed!"<<endmsg;
       return -1;
     }
     const coral::AttributeList & al= cursor.currentRow();
     return static_cast<int>(al["max_head_id"].data<double>());
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     return -1;
   }
 }
@@ -59,7 +56,8 @@ bool CalibHeadOperations::GetHeadInfo(int &head_id, int & lowrun, int &uprun, in
     head_id=GetLatestHeadId();
   }
   if(head_id<0)	{
-    std::cerr<<"CalibHeadOperations::GetHeadInfo: Cannot get latest head id"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+    log<<MSG::WARNING<<"CalibHeadOperations::GetHeadInfo: Cannot get latest head id"<<endmsg;
     return -1;
   }
   try {
@@ -77,7 +75,8 @@ bool CalibHeadOperations::GetHeadInfo(int &head_id, int & lowrun, int &uprun, in
     query->setCondition( condition, conditionData );
     coral::ICursor& cursor = query->execute();
     if(!cursor.next()) {
-      std::cerr<<"No information about head_id="<<head_id<<" found!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+      log<<MSG::WARNING<<"No information about head_id="<<head_id<<" found!"<<endmsg;
       return false;
     }
     const coral::AttributeList & al= cursor.currentRow();
@@ -88,7 +87,8 @@ bool CalibHeadOperations::GetHeadInfo(int &head_id, int & lowrun, int &uprun, in
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     return false;
   }	
 	
@@ -99,7 +99,7 @@ CalibDbConnection * CalibHeadOperations::GetDataConnection(int head_id, bool wri
     head_id = GetLatestHeadId();
 		}
   if (head_id<0)
-    return NULL;
+    return nullptr;
   try {
     m_meta_connection->OpenTransaction();
     coral::IQuery * query=m_meta_connection->GetQuery();
@@ -118,13 +118,15 @@ CalibDbConnection * CalibHeadOperations::GetDataConnection(int head_id, bool wri
     query->setCondition( condition, conditionData );
     coral::ICursor& cursor = query->execute();
     if(!cursor.next()) {
-      std::cerr<<"No information about head_id="<<head_id<<" found!"<<std::endl;
-      return NULL;
+      MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+      log<<MSG::WARNING<<"No information about head_id="<<head_id<<" found!"<<endmsg;
+      return nullptr;
     }
     const coral::AttributeList & al= cursor.currentRow();
     if(write && !al["ACTIVE"].data<bool>()) {
-      std::cerr<<"Can only write to the active schema"<<std::endl;
-      return NULL;
+      MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+      log<<MSG::WARNING<<"Can only write to the active schema"<<endmsg;
+      return nullptr;
     }
     if(al["ARCHIVED"].data<bool>()) {
       return new CalibDbConnection(al["ARCHIVE_CONNECTION_STRING"].data<std::string>(), al["SCHEMA"].data<std::string>());
@@ -142,8 +144,9 @@ CalibDbConnection * CalibHeadOperations::GetDataConnection(int head_id, bool wri
     return ret;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
-    return NULL;
+    MsgStream log(Athena::getMessageSvc(),"CalibHeadOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
+    return nullptr;
   }	
 }
 	

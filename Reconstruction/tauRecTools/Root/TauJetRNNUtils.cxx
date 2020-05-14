@@ -2,11 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 #include "tauRecTools/TauJetRNNUtils.h"
 
-using Gaudi::Units::GeV;
+#define GeV 1000
 
 namespace TauJetRNNUtils {
 

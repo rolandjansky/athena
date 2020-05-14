@@ -935,204 +935,204 @@
   <y title="Number of Entries"/>
 </h>
 
-<h id="resHelpereta_d0" type="TH2F" title="residual vs #eta for d_{0}">
+<h id="resHelper_eta_d0" type="TH2F" title="residual vs #eta for d_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{d_{0}} - truth_{d_{0}} [mm]" n="3000" lo="-&D0RES;" hi="&D0RES;"/>
 </h>
 
-<h id="resHelpereta_z0" type="TH2F" title="residual vs #eta for z_{0}">
+<h id="resHelper_eta_z0" type="TH2F" title="residual vs #eta for z_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{z_{0}} - truth_{z_{0}} [mm]" n="2000" lo="-&Z0RES;" hi="&Z0RES;"/>
 </h>
 
-<h id="resHelpereta_qoverp" type="TH2F" title="residual vs #eta for qoverp">
+<h id="resHelper_eta_qoverp" type="TH2F" title="residual vs #eta for qoverp">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{qoverp} - truth_{qoverp} [MeV^{-1}]" n="2000" lo="-2.5e-5" hi="2.5e-5"/>
 </h>
 
-<h id="resHelpereta_ptqopt" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
+<h id="resHelper_eta_ptqopt" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{p_{T} #times q/p_{T}} - truth_{p_{T} #times q/p_{T}}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
 </h>
 
-<h id="resHelpereta_theta" type="TH2F" title="residual vs #eta for #theta">
+<h id="resHelper_eta_theta" type="TH2F" title="residual vs #eta for #theta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{#theta} - truth_{#theta} [rads]" n="1000" lo="-&THETARES;" hi="&THETARES;"/>
 </h>
 
-<h id="resHelpereta_phi" type="TH2F" title="residual vs #eta for #phi">
+<h id="resHelper_eta_phi" type="TH2F" title="residual vs #eta for #phi">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{#phi} - truth_{#phi} [rads]" n="1000" lo="-&PHIRES;" hi="&PHIRES;"/>
 </h>
 
-<h id="resHelpereta_pt" type="TH2F" title="residual vs #eta for pt">
+<h id="resHelper_eta_pt" type="TH2F" title="residual vs #eta for pt">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{pt} - truth_{pt} [GeV]" n="1000" lo="-100.0" hi="100.0"/>
 </h>
 
-<h id="resHelpereta_z0sin" type="TH2F" title="residual vs #eta for z0 #times sin">
+<h id="resHelper_eta_z0sin" type="TH2F" title="residual vs #eta for z0 #times sin">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="reco_{z0 #times sin} - truth_{z0 #times sin} [mm]" n="1000" lo="-&Z0SINRES;" hi="&Z0SINRES;"/>
 </h>
 
 
-<h id="resHelperpt_d0" type="TH2F" title="residual vs p_{T} for d_{0}">
+<h id="resHelper_pt_d0" type="TH2F" title="residual vs p_{T} for d_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{d_{0}} - truth_{d_{0}} [mm]" n="1000" lo="-&D0RES;" hi="&D0RES;"/>
 </h>
 
-<h id="resHelperpt_z0" type="TH2F" title="residual vs p_{T} for z_{0}">
+<h id="resHelper_pt_z0" type="TH2F" title="residual vs p_{T} for z_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{z_{0}} - truth_{z_{0}} [mm]" n="2000" lo="-&Z0RES;" hi="&Z0RES;"/>
 </h>
 
-<h id="resHelperpt_qoverp" type="TH2F" title="residual vs pT for qoverp">
+<h id="resHelper_pt_qoverp" type="TH2F" title="residual vs pT for qoverp">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{qoverp} - truth_{qoverp} [MeV^{-1}]" n="2000" lo="-2.5e-5" hi="2.5e-5"/>
 </h>
 
-<h id="resHelperpt_ptqopt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
+<h id="resHelper_pt_ptqopt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
 </h>
 
-<h id="resHelperpt_theta" type="TH2F" title="residual vs p_{T} for #theta">
+<h id="resHelper_pt_theta" type="TH2F" title="residual vs p_{T} for #theta">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{#theta} - truth_{#theta} [rads]" n="1000" lo="-&THETARES;" hi="&THETARES;"/>
 </h>
 
-<h id="resHelperpt_phi" type="TH2F" title="residual vs p_{T} for #phi">
+<h id="resHelper_pt_phi" type="TH2F" title="residual vs p_{T} for #phi">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{#phi} - truth_{#phi} [rads]" n="1000" lo="-&PHIRES;" hi="&PHIRES;"/>
 </h>
 
-<h id="resHelperpt_pt" type="TH2F" title="residual vs pT for pt">
+<h id="resHelper_pt_pt" type="TH2F" title="residual vs pT for pt">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{pt} - truth_{pt} [GeV]" n="1000" lo="-100.0" hi="100.0"/>
 </h>
 
-<h id="resHelperpt_z0sin" type="TH2F" title="residual vs p_{T} for z_{0} #times sin">
+<h id="resHelper_pt_z0sin" type="TH2F" title="residual vs p_{T} for z_{0} #times sin">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{z_{0} #times sin} - truth_{z_{0} #times sin} [mm]" n="1000" lo="-&Z0SINRES;" hi="&Z0SINRES;"/>
 </h>
     
 
-<h id="pullHelpereta_d0" type="TH2F" title="pull vs #eta for d_{0}">
+<h id="pullHelper_eta_d0" type="TH2F" title="pull vs #eta for d_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{d_{0}} - truth_{d_{0}}) / #sigma(d_{0})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_z0" type="TH2F" title="pull vs #eta for z_{0}">
+<h id="pullHelper_eta_z0" type="TH2F" title="pull vs #eta for z_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{z_{0}} - truth_{z_{0}}) / #sigma(z_{0})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_qoverp" type="TH2F" title="pull vs #eta for qoverp">
+<h id="pullHelper_eta_qoverp" type="TH2F" title="pull vs #eta for qoverp">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{qoverp} - truth_{qoverp}) / #sigma(qoverp)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_ptqopt" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
+<h id="pullHelper_eta_ptqopt" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{q/p_{T}} - truth_{q/p_{T}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_theta" type="TH2F" title="pull vs #eta for #theta">
+<h id="pullHelper_eta_theta" type="TH2F" title="pull vs #eta for #theta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{#theta} - truth_{#theta}) / #sigma(#theta)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_phi" type="TH2F" title="pull vs #eta for #phi">
+<h id="pullHelper_eta_phi" type="TH2F" title="pull vs #eta for #phi">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{#phi} - truth_{#phi}) / #sigma(#phi)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_pt" type="TH2F" title="pull vs #eta for pt">
+<h id="pullHelper_eta_pt" type="TH2F" title="pull vs #eta for pt">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{pt} - truth_{pt}) / #sigma(pt)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelpereta_z0sin" type="TH2F" title="pull vs #eta for z_{0} #times sin">
+<h id="pullHelper_eta_z0sin" type="TH2F" title="pull vs #eta for z_{0} #times sin">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="(reco_{z_{0} #times sin} - truth_{z_{0} #times sin}) / #sigma(z_{0} #times sin)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_d0" type="TH2F" title="pull  vs p_{T} for d_{0}">
+<h id="pullHelper_pt_d0" type="TH2F" title="pull  vs p_{T} for d_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{d_{0}} - truth_{d_{0}}) / #sigma(d_{0})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_z0" type="TH2F" title="pull  vs p_{T} for z_{0}">
+<h id="pullHelper_pt_z0" type="TH2F" title="pull  vs p_{T} for z_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{z_{0}} - truth_{z_{0}}) / #sigma(z_{0})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_qoverp" type="TH2F" title="pull  vs pT for qoverp">
+<h id="pullHelper_pt_qoverp" type="TH2F" title="pull  vs pT for qoverp">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{qoverp} - truth_{qoverp}) / #sigma(qoverp)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_ptqopt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
+<h id="pullHelper_pt_ptqopt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_theta" type="TH2F" title="pull vs p_{T} for #theta">
+<h id="pullHelper_pt_theta" type="TH2F" title="pull vs p_{T} for #theta">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{#theta} - truth_{#theta}) / #sigma(#theta)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_phi" type="TH2F" title="pull vs p_{T} for #phi">
+<h id="pullHelper_pt_phi" type="TH2F" title="pull vs p_{T} for #phi">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{#phi} - truth_{#phi}) / #sigma(#phi)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_pt" type="TH2F" title="pull vs pT for pt">
+<h id="pullHelper_pt_pt" type="TH2F" title="pull vs pT for pt">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{pt} - truth_{pt}) / #sigma(pt)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="pullHelperpt_z0sin" type="TH2F" title="pull vs p_{T} for z_{0} #times sin">
+<h id="pullHelper_pt_z0sin" type="TH2F" title="pull vs p_{T} for z_{0} #times sin">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="(reco_{z_{0} #times sin} - truth_{z_{0} #times sin}) / #sigma(z_{0} #times sin)" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
-<h id="reswidth_vs_eta_d0" type="TH1F" title="resolution vs #eta for d_{0}">
+<h id="resolution_vs_eta_d0" type="TH1F" title="resolution vs #eta for d_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for d_{0}"/>
 </h>
 
-<h id="reswidth_vs_eta_z0" type="TH1F" title="resolution vs #eta for z_{0}">
+<h id="resolution_vs_eta_z0" type="TH1F" title="resolution vs #eta for z_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for z_{0}"/>
 </h>
 
-<h id="reswidth_vs_eta_qoverp" type="TH1F" title="resolution vs #eta for qoverp">
+<h id="resolution_vs_eta_qoverp" type="TH1F" title="resolution vs #eta for qoverp">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="qoverp resolution"/>
 </h>
 
-<h id="reswidth_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+<h id="resolution_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="reswidth_vs_eta_pt" type="TH1F" title="resolution vs #eta for pt">
+<h id="resolution_vs_eta_pt" type="TH1F" title="resolution vs #eta for pt">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="pt resolution"/>
 </h>
 
-<h id="reswidth_vs_eta_theta" type="TH1F" title="resolution vs #eta for #theta">
+<h id="resolution_vs_eta_theta" type="TH1F" title="resolution vs #eta for #theta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for #theta"/>
 </h>
 
-<h id="reswidth_vs_eta_phi" type="TH1F" title="resolution vs #eta for #phi">
+<h id="resolution_vs_eta_phi" type="TH1F" title="resolution vs #eta for #phi">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for #phi"/>
 </h>
 
-<h id="reswidth_vs_eta_z0sin" type="TH1F" title="resolution vs #eta for z_{0} #times sin">
+<h id="resolution_vs_eta_z0sin" type="TH1F" title="resolution vs #eta for z_{0} #times sin">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for z_{0} #times sin"/>
 </h>
@@ -1179,42 +1179,42 @@
   <y title="mean of resolution for z_{0} #times sin"/>
 </h>
 
-<h id="reswidth_vs_pt_d0" type="TH1F" title="resolution vs p_{T} for d_{0}">
+<h id="resolution_vs_pt_d0" type="TH1F" title="resolution vs p_{T} for d_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for d_{0}"/>
 </h>
 
-<h id="reswidth_vs_pt_z0" type="TH1F" title="resolution vs p_{T} for z_{0}">
+<h id="resolution_vs_pt_z0" type="TH1F" title="resolution vs p_{T} for z_{0}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for z0"/>
 </h>
 
-<h id="reswidth_vs_pt_qoverp" type="TH1F" title="resolution vs pT for qoverp">
+<h id="resolution_vs_pt_qoverp" type="TH1F" title="resolution vs pT for qoverp">
   <x title="p_{T}" n="100" lo="0." hi="100"/>
   <y title="qoverp resolution"/>
 </h>
 
-<h id="reswidth_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+<h id="resolution_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="reswidth_vs_pt_pt" type="TH1F" title="resolution vs pT for pt">
+<h id="resolution_vs_pt_pt" type="TH1F" title="resolution vs pT for pt">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="pt resolution"/>
 </h>
 
-<h id="reswidth_vs_pt_theta" type="TH1F" title="resolution vs p_{T} for #theta">
+<h id="resolution_vs_pt_theta" type="TH1F" title="resolution vs p_{T} for #theta">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for #theta"/>
 </h>
 
-<h id="reswidth_vs_pt_phi" type="TH1F" title="resolution vs p_{T} for #phi">
+<h id="resolution_vs_pt_phi" type="TH1F" title="resolution vs p_{T} for #phi">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for #phi"/>
 </h>
 
-<h id="reswidth_vs_pt_z0sin" type="TH1F" title="resolution vs p_{T} for z_{0} #times sin">
+<h id="resolution_vs_pt_z0sin" type="TH1F" title="resolution vs p_{T} for z_{0} #times sin">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for z_{0} #times sin"/>
 </h>

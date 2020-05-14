@@ -3,26 +3,30 @@
 */
 
 #include "MdtCalibFitters/LocalSegmentResolver.h"
-
 #include "MuonCalibEventBase/MdtCalibHitBase.h"
-
 #include "MdtCalibFitters/LocalToPrecision.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
 namespace MuonCalib {
 
-  LocalSegmentResolver::LocalSegmentResolver() : m_printLevel(0) {}
+  LocalSegmentResolver::LocalSegmentResolver() : m_printLevel(1) {}
 
   bool LocalSegmentResolver::resolve(MuonCalibSegment* seg) const{
     if( !seg ){
-      if( m_printLevel >= 0 )
-	std::cout << "LocalSegmentResolver::resolve  ERROR <got null pointer> " << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::resolve: <got nullptr>"<<endmsg;
+      }
       return false;
     }
     if( seg->mdtHitsOnTrack() < 2 ) {
-      if( m_printLevel >= 1 )
-	std::cout << "LocalSegmentResolver::resolve  ERROR <to few hits, cannot resolve direction> " << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::resolve: <to few hits, cannot resolve direction>"<<endmsg;
+      }
       return false;
     }
 
@@ -62,18 +66,20 @@ namespace MuonCalib {
 
     LineVec list_of_lines;
     
-    if( m_printLevel >= 3 ){
-      std::cout << "      calculating Lines (" << x1 << "," << y1 << ")  " << r1 
-		<< "       (" << x2 << "," << y2 << ")  " << r2 << std::endl;
-      std::cout << "      general dir " << (hpos2-hpos1).unit() 
-		<< " calculated : " << Amg::Vector3D( std::cos(Alpha0), std::sin(Alpha0), 0. ) << std::endl;
+    if( m_printLevel >= 1 ){
+      MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+      log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: calculating Lines (" << x1 << "," << y1 << ")  " << r1 << "       (" << x2 << "," << y2 << ")  " << r2<<endmsg;
+      log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: general dir " << (hpos2-hpos1).unit()<< " calculated : " << Amg::Vector3D( std::cos(Alpha0), std::sin(Alpha0), 0. ) <<endmsg;
     }
 
     // Case of 0 drift distances, only 1 line
     if ( r1 == 0. && r2 == 0.) {
       Amg::Vector3D  pos = hpos1;
       Amg::Vector3D dir( std::cos(Alpha0) ,std::sin(Alpha0), 0 );
-      if( m_printLevel >= 5 ) std::cout << " line pos " << pos << " dir " << dir << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos << " dir " << dir <<endmsg;
+      }
       list_of_lines.push_back( std::make_pair(pos, dir) );
       return list_of_lines;
     }
@@ -88,8 +94,10 @@ namespace MuonCalib {
     Amg::Vector3D  pos1( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. ) ;
     Amg::Vector3D dir1( std::cos(line_phi), std::sin(line_phi), 0. );
 
-    if( m_printLevel >= 5 )  
-      std::cout << " line pos " << pos1 << " dir " << dir1 << std::endl;
+    if( m_printLevel >= 1 ) {
+      MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+      log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos1 << " dir " << dir1 <<endmsg;
+    }
 
     list_of_lines.push_back( std::make_pair(pos1, dir1) );
     
@@ -98,8 +106,10 @@ namespace MuonCalib {
     Amg::Vector3D  pos2( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
     Amg::Vector3D dir2( std::cos(line_phi), std::sin(line_phi), 0. );
 			  
-    if( m_printLevel >= 5 ) 
-      std::cout << " line pos " << pos2 << " dir " << dir2 << std::endl;
+    if( m_printLevel >= 1 ) {
+      MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+      log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos2 << " dir " << dir2 <<endmsg;
+    }
 
     list_of_lines.push_back( std::make_pair(pos2, dir2) );
 
@@ -111,17 +121,20 @@ namespace MuonCalib {
     double	Alpha2	=	std::asin(DeltaR/DistanceOfCenters);
 
     if ( r1 < r2 ) {
-      if( m_printLevel >= 5 )
-	std::cout << "   r1 < r2 " << std::endl;
-
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: r1 < r2" <<endmsg;
+      }
 
       line_phi	=	Alpha0 + Alpha2;
 
       Amg::Vector3D  pos3( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
       Amg::Vector3D dir3( std::cos(line_phi),std::sin(line_phi), 0. );
 
-      if( m_printLevel >= 5 )
-	std::cout << " line pos " << pos3 << " dir " << dir3 << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos3 << " dir " << dir3<<endmsg;
+      }
 
       list_of_lines.push_back( std::make_pair(pos3, dir3) );
 
@@ -130,22 +143,28 @@ namespace MuonCalib {
       Amg::Vector3D  pos4( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. );
       Amg::Vector3D dir4( std::cos(line_phi),std::sin(line_phi), 0. );
 
-      if( m_printLevel >= 5 )
-	std::cout << " line pos " << pos4 << " dir " << dir4 << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos4 << " dir " << dir4<<endmsg;
+      }
 
       list_of_lines.push_back( std::make_pair(pos4, dir4) );
 
     } else {
-      if( m_printLevel >= 5 )
-	std::cout << "   r1 > r2 " << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: r1 > r2" <<endmsg;
+      }
 
       line_phi	=	Alpha0 + Alpha2;
 
       Amg::Vector3D  pos3( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. );
       Amg::Vector3D dir3( std::cos(line_phi),std::sin(line_phi), 0. );
 
-      if( m_printLevel >= 5 )
-	std::cout << " line pos " << pos3 << " dir " << dir3 << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos3 << " dir " << dir3<<endmsg;
+      }
 
       list_of_lines.push_back( std::make_pair(pos3, dir3) );
 
@@ -154,8 +173,10 @@ namespace MuonCalib {
       Amg::Vector3D  pos4( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
       Amg::Vector3D dir4( std::cos(line_phi),std::sin(line_phi), 0. );
 
-      if( m_printLevel >= 5 )
-	std::cout << " line pos " << pos4 << " dir " << dir4 << std::endl;
+      if( m_printLevel >= 1 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"LocalSegmentResolver::getLines: line pos " << pos4 << " dir " << dir4<<endmsg;
+      }
 
       list_of_lines.push_back( std::make_pair(pos4, dir4) );
     }
@@ -188,10 +209,10 @@ namespace MuonCalib {
       // rotate position on track into track frame
       Amg::Vector3D avePosTrk = rotationAroundZ*lit->first;
     
-      if( m_printLevel >= 5 ){
-	Amg::Vector3D lTrkDir = rotationAroundZ*lit->second;
-	std::cout << "   angle " << alpha*57.32 << " trk dir in trk frame " << lTrkDir 
-		  << " pos " << avePosTrk << std::endl;
+      if( m_printLevel >= 1 ) {
+        Amg::Vector3D lTrkDir = rotationAroundZ*lit->second;
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::VERBOSE<<"   angle " << alpha*57.32 << " trk dir in trk frame " << lTrkDir << " pos " << avePosTrk<<endmsg;
       }
       // loop over local hits
       LocalSegmentResolver::HitVec::const_iterator it = hits.begin();
@@ -208,27 +229,32 @@ namespace MuonCalib {
 	// calculate residual and pull
 	double res  = r - std::abs( sposAve.y() );
 
-	if( m_printLevel >= 5 )
-	  std::cout << " r " << r << " r_trk " << std::abs( sposAve.y() ) << " residual " << res << std::endl;
+	if( m_printLevel >= 1 ) {
+    MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+    log<<MSG::VERBOSE<<" r " << r << " r_trk " << std::abs( sposAve.y() ) << " residual " << res<<endmsg;
+  }
       
 	ressum += res*res;
       }  
 
-      if( m_printLevel >= 3 )
-	std::cout << "     line " << lit-localTracks.begin() << " residual sum " << ressum << std::endl;
+      if( m_printLevel >= 3 ) {
+        MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+        log<<MSG::INFO<<"     line " << lit-localTracks.begin() << " residual sum " << ressum<<endmsg;
+      }
       if( ressum < ressummin ) {
 	ressummin = ressum;
 	resnum    = lit-localTracks.begin();
       }
     }
 
-    if( m_printLevel >= 3 ){
-      std::cout << "        Done selected line: ressum " <<  ressummin << " ## " << resnum << std::endl;
-      std::cout << "        Position " << localTracks[resnum].first 
-		<< "   direction " << localTracks[resnum].second << std::endl;
+    if( m_printLevel >= 3 ) {
+      MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+      log<<MSG::INFO<<"        Done selected line: ressum " <<  ressummin << " ## " << resnum<<endmsg;
+      log<<MSG::INFO<<"        Position " << localTracks[resnum].first << "   direction " << localTracks[resnum].second<<endmsg;
     }
     if( resnum >= localTracks.size() ) {
-      std::cout << " ERROR wrong line index " << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"LocalSegmentResolver");
+      log<<MSG::WARNING<<"wrong line index"<<endmsg;
       return -1;
     }
     

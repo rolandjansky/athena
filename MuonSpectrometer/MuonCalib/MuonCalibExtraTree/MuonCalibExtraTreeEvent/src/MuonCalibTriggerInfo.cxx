@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
@@ -49,7 +51,8 @@ namespace MuonCalib{
   
   void MuonCalibTriggerTypeHelper::addEntry( MuonCalibTriggerType type, int bit, std::string name ){
     if( !validType(type) ){
-      std::cout << "MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTriggerTypeHelper");
+      log<<MSG::WARNING<<"MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type"<<endmsg;
       return;
     }
     std::vector<int> bits;
@@ -59,7 +62,8 @@ namespace MuonCalib{
 
   void MuonCalibTriggerTypeHelper::addEntry( MuonCalibTriggerType type, std::vector<int>& bits, std::string name ){
     if( !validType(type) ){
-      std::cout << "MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTriggerTypeHelper");
+      log<<MSG::WARNING<<"MuonCalibTriggerTypeHelper::addEntry -> invalid trigger type"<<endmsg;
       return;
     }
     m_typeToBitAndStringMapping[type] = std::make_pair(bits,name);
@@ -106,16 +110,16 @@ namespace MuonCalib{
 
   void MuonCalibTriggerTypeHelper::dumpMapping() {
     initMap();
-    std::cout << "MuonCalibTriggerTypeHelper::dumpMapping, map size " << m_typeToBitAndStringMapping.size() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"MuonCalibTriggerTypeHelper");
+    log<<MSG::INFO<<"MuonCalibTriggerTypeHelper::dumpMapping, map size " << m_typeToBitAndStringMapping.size()<<endmsg;
     std::vector< std::pair< std::vector<int>,std::string> >::const_iterator it = m_typeToBitAndStringMapping.begin(); 
     std::vector< std::pair< std::vector<int>,std::string> >::const_iterator it_end = m_typeToBitAndStringMapping.end();
     int index = 0;
     for( ;it!=it_end; ++it ){
-      std::cout << "index " << index++ << "  type " << it->second << " nbits " << it->first.size() << " bits " << std::endl;
+      log<<MSG::INFO<<"index " << index++ << "  type " << it->second << " nbits " << it->first.size() << " bits "<<endmsg;
       for( unsigned int i=0;i<it->first.size();++i ){
-	std::cout << "    " << it->first[i];
+        log<<MSG::INFO<<"    " << it->first[i]<<endmsg;
       }
-      std::cout << std::endl;
     }
   }
 

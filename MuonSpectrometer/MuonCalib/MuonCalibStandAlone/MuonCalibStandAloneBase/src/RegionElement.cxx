@@ -1,20 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MuonCalibStandAloneBase/RegionElement.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "MuonCalibIdentifier/MuonFixedId.h"
 
-//c - c++
 #include "sstream"
 #include <cstdlib>
 
-//MuonCalibIdentifier
-#include "MuonCalibIdentifier/MuonFixedId.h"
-
 namespace MuonCalib {	
 	
-bool RegionElement :: Initialize(std::string & region)
+bool RegionElement::Initialize(std::string & region)
 	{
 	m_region = region;
 	std::string inner_region(region, 1, region.size()-2);
@@ -60,12 +58,12 @@ bool RegionElement :: Initialize(std::string & region)
 	return true;
 	}
 
-void RegionElement :: Print(std::ostream & os) const
+void RegionElement::Print(std::ostream & os) const
 	{
 	os<<m_region;
 	}
 
-bool RegionElement :: Result(const MuonFixedId & id) const
+bool RegionElement::Result(const MuonFixedId & id) const
 	{
 //check for station
 	if(m_stations.size()!=0 && m_stations.find(id.stationName())==m_stations.end())
@@ -106,13 +104,13 @@ bool RegionElement :: Result(const MuonFixedId & id) const
 	return true;
 	}
 
-bool RegionElement :: process_station_name(std::string & substr)
+bool RegionElement::process_station_name(std::string & substr)
 	{
-	if(substr.size() > 3)
-		{
-		std::cerr<<"Syntax Error '"<<substr<<"'"<<std::endl;
+	if(substr.size() > 3) {
+		MsgStream log(Athena::getMessageSvc(),"RegionElement");
+		log<<MSG::WARNING<<"Syntax Error '"<<substr<<"'"<<endmsg;
 		return false;
-		}
+	}
 	std::string name_template("???");
 	for(unsigned int i=0; i<substr.size(); i++)
 		{
@@ -140,7 +138,7 @@ bool RegionElement :: process_station_name(std::string & substr)
 	return true;
 	}
 
-bool RegionElement :: process_int_range(std::string &substr, std::vector<int> &target_start, std::vector<int> &target_end)
+bool RegionElement::process_int_range(std::string &substr, std::vector<int> &target_start, std::vector<int> &target_end)
 	{
 //check for - in substring
 	std::string begin_range[2];
@@ -170,16 +168,17 @@ bool RegionElement :: process_int_range(std::string &substr, std::vector<int> &t
 					begin_number=false;
 					break;
 					}
-				if(n_substrings>0)
-					{
-					std::cerr<<"Surplus '-' in "<<substr<<std::endl;
+				if(n_substrings>0) {
+					MsgStream log(Athena::getMessageSvc(),"RegionElement");
+					log<<MSG::WARNING<<"Surplus '-' in "<<substr<<endmsg;
 					return false;
-					}
+				}
 				begin_number=true;	
 				n_substrings=1;
 				break;
 			default:
-				std::cerr<<"Syntax error in "<<substr<<std::endl;
+				MsgStream log(Athena::getMessageSvc(),"RegionElement");
+				log<<MSG::WARNING<<"Syntax error in "<<substr<<endmsg;
 				return false;
 			}
 		}

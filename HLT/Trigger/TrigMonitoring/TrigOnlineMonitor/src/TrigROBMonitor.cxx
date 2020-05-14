@@ -21,12 +21,6 @@
 #include <TH2F.h>
 #include <TProfile.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 
 TrigROBMonitor::TrigROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -277,7 +271,7 @@ StatusCode TrigROBMonitor::start() {
 					    m_histProp_failedChecksumForROB.value().lowEdge(),
 					    m_histProp_failedChecksumForROB.value().highEdge());
     if (m_hist_failedChecksumForROB) {
-      CAN_REBIN(m_hist_failedChecksumForROB);
+      m_hist_failedChecksumForROB->SetCanExtend(TH1::kAllAxes);
       if( rootHistSvc->regHist(path + m_hist_failedChecksumForROB->GetName(), m_hist_failedChecksumForROB).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_failedChecksumForROB->GetName() );
       }
@@ -367,7 +361,7 @@ StatusCode TrigROBMonitor::start() {
 					  m_histProp_totalDataVolumeROB.value().lowEdge(),
 					  m_histProp_totalDataVolumeROB.value().highEdge());
     if (m_hist_totalDataVolumeROB) {
-      CAN_REBIN(m_hist_totalDataVolumeROB);
+      m_hist_totalDataVolumeROB->SetCanExtend(TH1::kAllAxes);
       if( rootHistSvc->regHist(path + m_hist_totalDataVolumeROB->GetName(), m_hist_totalDataVolumeROB).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_totalDataVolumeROB->GetName() );
       }

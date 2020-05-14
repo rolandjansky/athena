@@ -35,8 +35,8 @@ namespace TrigConf {
        * @param hltpss [out] the loaded HLTPrescalesSet
        */
       bool loadHLTPrescales ( unsigned int hltpsk,
-                             HLTPrescalesSet & hltpss ) const;
-
+                              HLTPrescalesSet & hltpss,
+                              const std::string & outFileName = "") const;
 
    };
 

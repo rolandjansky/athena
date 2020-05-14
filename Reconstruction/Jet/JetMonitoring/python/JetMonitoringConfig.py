@@ -165,10 +165,12 @@ class ToolSpec(ConfigDict):
         klass = getattr(CompFactory,conf.pop('klass')) # remove 'klass'
         conf.pop('name')
         conf.pop('topLevelDir',None)
+        conf.pop('bottomLevelDir',None)
         conf.pop('defineHistoFunc',None) # not used here.
         for k, v in six.iteritems (conf):
             if isinstance(v,ToolSpec):
                 v.topLevelDir = self.topLevelDir
+                v.bottomLevelDir = self.bottomLevelDir
                 conf[k] = v.toTool()
             if isinstance(v,list):
                 if v == []: continue
@@ -177,6 +179,7 @@ class ToolSpec(ConfigDict):
                     toolInstances = []
                     for toolSpec in v:
                       toolSpec.topLevelDir=self.topLevelDir
+                      toolSpec.bottomLevelDir=self.bottomLevelDir
                       toolInstances.append( toolSpec.toTool() )
                     conf[k] = toolInstances
         return klass(**conf)
@@ -214,6 +217,7 @@ class VarSpec(ToolSpec):
     def toTool(self):
         from AthenaConfiguration.ComponentFactory import CompFactory
         self.pop('topLevelDir', None)
+        self.pop('bottomLevelDir', None)
         return CompFactory.JetHistoVarTool(self.Name, **self)
 
     def vname(self):
@@ -344,7 +348,8 @@ class HistoSpec(ToolSpec):
         hargs.update( **self.hargs) # overwrite by user-given args if any
         
         # we create one group for each histoFiller : self.groupName() are unique within a JetMonitoringAlg
-        group = monhelper.addGroup(parentAlg, self.groupName(), self.topLevelDir+parentAlg.JetContainerName)
+        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
+        group = monhelper.addGroup(parentAlg, self.groupName(), self.topLevelDir+bottomLevelDir)
 
         # define the variables used by this tool
         #  we encode as 'varx,vary;alias' as requested ny standard monitoring config, see
@@ -420,12 +425,14 @@ class SelectSpec(ToolSpec):
         selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
         if hasattr(self,'Selector'):
             self.Selector.topLevelDir = self.topLevelDir
+            self.Selector.bottomLevelDir = self.bottomLevelDir
             selTool.Selector = self.Selector.toTool()
         if hasattr(self, 'SortVariable'):
             selTool.SortVariable = retrieveVarToolConf(self.SortVariable)
         suffix = '_'+self.name
         for i,tconf in enumerate(self.FillerTools):
             tconf.topLevelDir = self.topLevelDir
+            tconf.bottomLevelDir = self.bottomLevelDir
             tconf = tconf.clone(newname=tconf.name+suffix)
             self.FillerTools[i] = tconf # re-assign the modified conf so it's consistently re-used elsewhere 
             selTool.FillerTools += [ tconf.toTool() ] # assign a configured tool to the JetHistoSelectSort instance
@@ -460,6 +467,8 @@ class JetMonAlgSpec(ConfigDict):
         self.name = name
         args.setdefault('FillerTools',[])
         args.setdefault('topLevelDir', 'Jets/')
+        args.setdefault('bottomLevelDir', '')
+        args.setdefault('failureOnMissingContainer', True)
         ConfigDict.__init__(self, defaultPath=defaultPath, TriggerChain=TriggerChain, **args)
         tmpL = self.FillerTools
         self.FillerTools = []
@@ -474,11 +483,13 @@ class JetMonAlgSpec(ConfigDict):
         alg = monhelper.addAlgorithm(CompFactory.JetMonitoringAlg, self.name)
         alg.TriggerChain = self.TriggerChain
         alg.JetContainerName = self.JetContainerName
+        alg.FailureOnMissingContainer = self.failureOnMissingContainer
         
         path = self.defaultPath
         tools = []
         for tconf in self.FillerTools:
             tconf.topLevelDir = self.topLevelDir
+            tconf.bottomLevelDir = self.bottomLevelDir
             tools.append( tconf.toTool( ))
             tconf.defineHisto(alg, monhelper, path)
         alg.FillerTools = tools

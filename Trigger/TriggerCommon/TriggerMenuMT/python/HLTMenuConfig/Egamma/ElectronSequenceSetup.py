@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-import AthenaCommon.CfgMgr as CfgMgr
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
@@ -20,14 +19,13 @@ def fastElectronSequence(ConfigFlags):
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    viewAlgs = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
+    viewAlgs, ViewVerify = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
-    viewAlgs.append(ViewVerify)
+    ViewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
     
     TrackParticlesName = ""
     for viewAlg in viewAlgs:

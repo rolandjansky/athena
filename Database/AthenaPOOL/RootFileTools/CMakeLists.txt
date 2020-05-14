@@ -1,29 +1,18 @@
-################################################################################
-# Package: RootFileTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( RootFileTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Database/PersistentDataModel )
-
 # External dependencies:
-find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )
+find_package( ROOT COMPONENTS RIO Core Tree )
 
 # Component(s) in the package:
 atlas_add_executable( mergePOOL
-                      src/merge.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps PersistentDataModel )
-atlas_add_executable( compressionTool
-                      src/compressionTool.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   src/merge.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel )
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_add_executable( compressionTool
+   src/compressionTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} )
