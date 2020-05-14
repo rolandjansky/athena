@@ -61,11 +61,6 @@ if __name__ == "__main__":
 
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True
-
-    ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.GeoModel.Align.Dynamic    = False
-    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
     ConfigFlags.InDet.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
