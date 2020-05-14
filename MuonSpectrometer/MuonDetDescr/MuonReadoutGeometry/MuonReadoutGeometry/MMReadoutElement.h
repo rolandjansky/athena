@@ -118,6 +118,7 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double); //input: translations, rotations
+    void setDelta(MuonDetectorManager* mgr);
     void setBLinePar(BLinePar* bLine);
     inline void clearBLinePar();
     inline const BLinePar* getBLinePar() const { return m_BLinePar;}
@@ -145,7 +146,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     BLinePar* m_BLinePar;
     
