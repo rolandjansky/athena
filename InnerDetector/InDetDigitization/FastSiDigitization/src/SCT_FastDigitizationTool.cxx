@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
@@ -80,7 +80,6 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_DiffusionShiftY_endcap(15),
   m_sctMinimalPathCut(90.)
 {
-  declareInterface<ISCT_FastDigitizationTool>(this);
   declareProperty("InputObjectName"               , m_inputObjectName,          "Input Object name" );
   declareProperty("MergeSvc"                      , m_mergeSvc,                 "Merge service" );
   declareProperty("RndmSvc"                       , m_rndmSvc,                  "Random Number Service used in SCT & Pixel digitization" );
