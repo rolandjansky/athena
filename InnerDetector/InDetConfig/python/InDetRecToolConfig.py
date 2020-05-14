@@ -181,15 +181,6 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       if (flags.InDet.doPrintConfigurables):
           print (SCT_MonitorConditionsTool)
 
-# FIXME: can this be deleted? tool is not used, other consumers of implicitly setup condAlg are not setup here (other consumer only LinkMaskingTool?)
-#  if flags.InDet.doSCTModuleVeto:
-#      from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
-#      sct_ModuleVetoToolSetup = SCT_ModuleVetoToolSetup()
-#      sct_ModuleVetoToolSetup.setup()
-#      InDetSCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
-#      if (flags.InDet.doPrintConfigurables):
-#          print (InDetSCT_ModuleVetoTool)
-
   # Load bytestream errors tool (use default instance without "InDet")
   SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})
   SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
@@ -206,17 +197,16 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       result.merge(SCT_DCSCondAcc)
       if (flags.InDet.doPrintConfigurables):
           print (SCT_DCSConditionsTool)
-
+  if withFlaggedCondTool:
+    ConditionsTools.append(SCT_FlaggedConditionTool)
   if not flags.Input.isMC :
       print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
       
       # Configure summary tool
       ConditionsTools +=  [SCT_ConfigurationConditionsTool,]
-      if withFlaggedCondTool:
-        ConditionsTools.append(SCT_FlaggedConditionTool)
+
       ConditionsTools+= [SCT_ByteStreamErrorsTool,
                          SCT_ReadCalibDataTool]
-
 
       if kwargs.pop("withTdaqTool", True):
         SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
@@ -236,8 +226,6 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       ConditionsTools= [ SCT_ConfigurationConditionsTool,
                          SCT_MonitorConditionsTool,
                          SCT_ReadCalibDataTool]
-      if withFlaggedCondTool:
-        ConditionsTools.append(SCT_FlaggedConditionTool)
 
   if flags.InDet.doSCTModuleVeto:
       ConditionsTools += [ SCT_MonitorConditionsTool ]
