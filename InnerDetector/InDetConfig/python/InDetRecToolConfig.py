@@ -196,22 +196,22 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   result.merge(SCT_BSToolAcc)
   if (flags.InDet.doPrintConfigurables):
       print (SCT_ByteStreamErrorsTool)
-
+  
+  ConditionsTools = []
   if flags.InDet.useSctDCS:
       from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
       SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
       SCT_DCSConditionsTool = SCT_DCSCondAcc.popPrivateTools()
+      ConditionsTools += [ SCT_DCSConditionsTool ]
       result.merge(SCT_DCSCondAcc)
       if (flags.InDet.doPrintConfigurables):
           print (SCT_DCSConditionsTool)
-
-
 
   if not flags.Input.isMC :
       print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
       
       # Configure summary tool
-      ConditionsTools =  [SCT_ConfigurationConditionsTool,]
+      ConditionsTools +=  [SCT_ConfigurationConditionsTool,]
       if withFlaggedCondTool:
         ConditionsTools.append(SCT_FlaggedConditionTool)
       ConditionsTools+= [SCT_ByteStreamErrorsTool,
@@ -227,23 +227,17 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       if not flags.Common.isOnline:
           ConditionsTools += [ SCT_MonitorConditionsTool ]
 
-      if flags.InDet.useSctDCS:
-          ConditionsTools += [ SCT_DCSConditionsTool ]
-     
   # switch conditions off for SLHC usage
   elif flags.InDet.doSLHC:
       ConditionsTools= []
     
   else :
+      # Not SLHC and is MC
       ConditionsTools= [ SCT_ConfigurationConditionsTool,
                          SCT_MonitorConditionsTool,
                          SCT_ReadCalibDataTool]
       if withFlaggedCondTool:
         ConditionsTools.append(SCT_FlaggedConditionTool)
-
-      if flags.InDet.useSctDCS:
-        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
-        ConditionsTools += [ SCT_DCSConditionsTool ]
 
   if flags.InDet.doSCTModuleVeto:
       ConditionsTools += [ SCT_MonitorConditionsTool ]
@@ -429,7 +423,6 @@ def SCT_CablingToolCfg(flags):
 def SCT_TdaqEnabledToolCfg(flags):
   # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
   result = SCT_TdaqEnabledCondAlgCfg(flags)
-
   tool = CompFactory.SCT_TdaqEnabledTool()
   result.setPrivateTools(tool)
   return result
