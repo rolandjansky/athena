@@ -38,7 +38,6 @@
 #include <sstream>
 #include <iostream>
 #include <istream>
-#include <boost/lexical_cast.hpp>
 
 using std::string;
 /////////////////////////////////////////////////////////////////////////////
