@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_TUBEDATAFROMFILE_H
@@ -7,6 +7,8 @@
 
 #include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <vector>
 #include <iostream>
@@ -24,7 +26,7 @@ namespace MuonCalib {
     typedef std::vector<MdtTubeFitContainer*>   TubeData;
   public:
     TubeDataFromFile() : m_regions(0) {}
-    ~TubeDataFromFile();
+    ~TubeDataFromFile()=default;
     
     /** return number of regions */
     unsigned int nRegions() const { return m_regions; }
@@ -32,9 +34,9 @@ namespace MuonCalib {
     /** retrieve MdtTubeFitContainer for a give regionId */
     MdtTubeFitContainer* getTubes( unsigned int regionId ) const { 
       if( regionId >= (unsigned int)m_regions ){
-	std::cout << "TubeDataFromFile::getTubes ERROR <regionId out of range> "
-		  << regionId << " size " << m_regions << std::endl;
-	return 0;
+        MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+        log<<MSG::WARNING<<"TubeDataFromFile::getTubes: <regionId out of range> "<< regionId << " size " << m_regions<<endmsg;
+        return 0;
       }
       return m_tubeData[regionId];
     }
@@ -45,13 +47,14 @@ namespace MuonCalib {
     /** TubeDataFromFile takes ownership of the MdtTubeFitContainer */
     bool addTubes( int regionId, MdtTubeFitContainer* tubes ){
       if( regionId < 0 || regionId >= (int)m_regions ){
-	std::cout << "TubeDataFromFile::addTubes ERROR <regionId out of range> "
-		  << regionId << " size " << m_regions << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+        log<<MSG::WARNING<<"TubeDataFromFile::addTubes: <regionId out of range> "<< regionId << " size " << m_regions<<endmsg;
+        return false;
       }
       if( m_tubeData[regionId] != 0 ){
-	std::cout << "TubeDataFromFile::addTubes ERROR <tubes already set> " << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+        log<<MSG::WARNING<<"TubeDataFromFile::addTubes: <tubes already set>"<<endmsg;
+        return false;
       }
 
       m_tubeData[regionId] = tubes;

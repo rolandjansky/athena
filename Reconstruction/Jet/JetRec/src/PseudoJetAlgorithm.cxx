@@ -13,7 +13,7 @@ using std::string;
 
 PseudoJetAlgorithm::PseudoJetAlgorithm(const std::string& name, 
                            ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm( name, pSvcLocator ),m_pjg(this) {
+  : ::AthReentrantAlgorithm( name, pSvcLocator ),m_pjg(this) {
   declareProperty( "PJGetter", m_pjg);
 }
 
@@ -40,7 +40,7 @@ StatusCode PseudoJetAlgorithm::finalize() {
 
 //**********************************************************************
 
-StatusCode PseudoJetAlgorithm::execute() {
+StatusCode PseudoJetAlgorithm::execute(const EventContext& /*ctx*/) const {
   ATH_MSG_VERBOSE("Executing " << name() << "...");
 
   ATH_CHECK( m_pjg->createAndRecord() );

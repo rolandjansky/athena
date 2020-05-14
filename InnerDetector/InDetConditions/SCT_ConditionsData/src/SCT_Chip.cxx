@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_Chip.h"
@@ -30,10 +30,10 @@ bool SCT_Chip::initializeMaskFromInts(uint32_t mask0, uint32_t mask1, uint32_t m
   uint32_t subWords[nSubwords]={mask0,mask1,mask2,mask3};
   // Put the integers into 32 bit bitsets
   std::bitset<lenSubword> subBinary;
-  for(unsigned int i{0}; i!=nSubwords; ++i) {
+  for (unsigned int i{0}; i!=nSubwords; ++i) {
     subBinary = subWords[i];
     // Put the four bitsets together in one 128 bit bitset (private member data)
-    for(unsigned int j{0}; j!=lenSubword; ++j) {
+    for (unsigned int j{0}; j!=lenSubword; ++j) {
       m_mask[i*lenSubword+j]=subBinary[j];
     }
   }
@@ -78,8 +78,7 @@ unsigned int SCT_Chip::numberOfMaskedChannels() const {
 
 // Add masked channels to the bad strip vector
 void SCT_Chip::appendBadStripsToVector(std::vector<int> & maskedChannelVector) const{  
-  for(unsigned int thisChann(0);thisChann != nBitsMask; ++thisChann){
+  for (unsigned int thisChann(0);thisChann != nBitsMask; ++thisChann){
     if (channelIsMasked(thisChann)) maskedChannelVector.push_back(thisChann);
   }
 }
-

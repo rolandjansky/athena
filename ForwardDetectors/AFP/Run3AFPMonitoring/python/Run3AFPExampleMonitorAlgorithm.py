@@ -48,9 +48,14 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('timeOverThreshold', type='TH1F', title='1D Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
     array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1};clusterX;clusterY', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
+
+    array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/Track/')
+    array.defineHistogram('trackX,trackY', title='Track posistion position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+
+
+
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
-    arrayOneList.defineHistogram('trackX,trackY', title='Track posistion position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)   
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()

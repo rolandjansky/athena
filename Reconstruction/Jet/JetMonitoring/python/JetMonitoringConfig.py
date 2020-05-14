@@ -468,6 +468,7 @@ class JetMonAlgSpec(ConfigDict):
         args.setdefault('FillerTools',[])
         args.setdefault('topLevelDir', 'Jets/')
         args.setdefault('bottomLevelDir', '')
+        args.setdefault('failureOnMissingContainer', True)
         ConfigDict.__init__(self, defaultPath=defaultPath, TriggerChain=TriggerChain, **args)
         tmpL = self.FillerTools
         self.FillerTools = []
@@ -482,6 +483,7 @@ class JetMonAlgSpec(ConfigDict):
         alg = monhelper.addAlgorithm(CompFactory.JetMonitoringAlg, self.name)
         alg.TriggerChain = self.TriggerChain
         alg.JetContainerName = self.JetContainerName
+        alg.FailureOnMissingContainer = self.failureOnMissingContainer
         
         path = self.defaultPath
         tools = []

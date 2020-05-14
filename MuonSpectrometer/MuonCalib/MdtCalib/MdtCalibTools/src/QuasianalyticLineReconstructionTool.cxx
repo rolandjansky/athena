@@ -42,9 +42,8 @@ QuasianalyticLineReconstructionTool::QuasianalyticLineReconstructionTool(
 //:::::::::::::::::::::::
 
 StatusCode QuasianalyticLineReconstructionTool::initialize() {
-
-	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "initialize     " << endmsg;
+    ATH_CHECK(AthAlgTool::initialize());
+	ATH_MSG_INFO("initialize     ");
 
 // create an instance of QuasianalyticLineReconstruction //
 	m_implementation = new QuasianalyticLineReconstruction(m_road_width);
@@ -68,12 +67,8 @@ StatusCode QuasianalyticLineReconstructionTool::initialize() {
 //:::::::::::::::::::::
 
 StatusCode QuasianalyticLineReconstructionTool::finalize() {
-
-	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "finalize     " << endmsg;
-
+	ATH_MSG_INFO("finalize     ");
 	delete m_implementation;
-
+	ATH_CHECK(AthAlgTool::finalize());
 	return StatusCode::SUCCESS;
-
 }

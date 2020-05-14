@@ -121,8 +121,8 @@ class StructuredChainNames(MenuVerification):
         sig_type_pattern = re.compile(
             r"\d*[egj]?({})\d+s?".format(signature_types))
         def items_in_order(part):
-            indices = map(self._signature_type_order.index,
-                          sig_type_pattern.findall(part))
+            indices = [self._signature_type_order.index(x) for x in 
+                       sig_type_pattern.findall(part)]
             return indices == sorted(indices)
 
         def are_signatures_in_order(name_parts):

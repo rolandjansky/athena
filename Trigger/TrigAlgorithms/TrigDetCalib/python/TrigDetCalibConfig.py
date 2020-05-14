@@ -152,7 +152,7 @@ class TileSubDetListWriter(TrigSubDetListWriter):
     time = TrigTimeHistToolConfig('TileSubDetListWriter_Time')
     self.SubdetId= ['Tile','TDAQ_CTP']
     self.MaxRoIsPerEvent = 1
-    self.extraROBs = [ 5373968 ]
+    self.extraROBs = [ 5373984 ] # 0x520020
     self.AthenaMonTools = [ time ]
 
     #self.MonitoringHistoPath = '/EXPERT/TileSubDetListWriter/'

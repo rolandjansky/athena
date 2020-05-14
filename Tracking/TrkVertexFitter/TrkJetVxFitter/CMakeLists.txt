@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagneticField/MagFieldConditions
+                          MagneticField/MagFieldElements
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrackLink
                           PRIVATE
@@ -31,11 +32,11 @@ atlas_add_library( TrkJetVxFitterLib
                    PUBLIC_HEADERS TrkJetVxFitter
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldInterfaces TrkParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldConditions MagFieldElements TrkParameters
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrkNeutralParameters TrkTrack VxJetVertex VxVertex TrkVertexFitterInterfaces )
 
 atlas_add_component( TrkJetVxFitter
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldInterfaces TrkParameters TrkNeutralParameters TrkTrack VxJetVertex VxVertex TrkVertexFitterInterfaces TrkJetVxFitterLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel MagFieldConditions MagFieldElements TrkParameters TrkNeutralParameters TrkTrack VxJetVertex VxVertex TrkVertexFitterInterfaces TrkJetVxFitterLib )
 

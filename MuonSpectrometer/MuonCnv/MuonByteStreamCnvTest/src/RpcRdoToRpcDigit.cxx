@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcRdoToRpcDigit.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 RpcRdoToRpcDigit::RpcRdoToRpcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
@@ -13,7 +12,7 @@ RpcRdoToRpcDigit::RpcRdoToRpcDigit(const std::string& name,
 
 StatusCode RpcRdoToRpcDigit::initialize()
 {
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   // get RPC cabling
   ATH_CHECK(m_rpcCablingServerSvc.retrieve());
@@ -40,7 +39,7 @@ StatusCode RpcRdoToRpcDigit::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " RPC RDOs." );
 
   SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey, ctx);
-  ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_muonIdHelperTool->rpcIdHelper().module_hash_max())));
+  ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_idHelperSvc->rpcIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding RPC RDO into RPC Digit"  );
 
   RpcDigitCollection * collection = nullptr;
@@ -60,7 +59,7 @@ StatusCode RpcRdoToRpcDigit::execute(const EventContext& ctx) const
 StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContainer *rpcContainer, RpcDigitCollection*& collection ) const
 {
 
-  const IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+  const IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 
   ATH_MSG_DEBUG( " Number of CMs in this Pad "
                  << rdoColl->size()  );
@@ -70,12 +69,12 @@ StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContaine
   uint16_t padId     = rdoColl->onlineId();
   uint16_t sectorId  = rdoColl->sector();
 
-  const int stationName = m_muonIdHelperTool->rpcIdHelper().stationName(padOfflineId);
-  const int stationEta  = m_muonIdHelperTool->rpcIdHelper().stationEta(padOfflineId);
-  const int stationPhi  = m_muonIdHelperTool->rpcIdHelper().stationPhi(padOfflineId);
-  const int doubletR    = m_muonIdHelperTool->rpcIdHelper().doubletR(padOfflineId);
+  const int stationName = m_idHelperSvc->rpcIdHelper().stationName(padOfflineId);
+  const int stationEta  = m_idHelperSvc->rpcIdHelper().stationEta(padOfflineId);
+  const int stationPhi  = m_idHelperSvc->rpcIdHelper().stationPhi(padOfflineId);
+  const int doubletR    = m_idHelperSvc->rpcIdHelper().doubletR(padOfflineId);
 
-  Identifier elementId = m_muonIdHelperTool->rpcIdHelper().elementID(stationName, stationEta,
+  Identifier elementId = m_idHelperSvc->rpcIdHelper().elementID(stationName, stationEta,
                                                 stationPhi, doubletR);
 
   // For each pad, loop on the coincidence matrices
@@ -97,10 +96,10 @@ StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContaine
       // Loop on the digits corresponding to the fired channel
       for (RpcDigit *newDigit : *digitVec) {
         collection = nullptr;
-        elementId = m_muonIdHelperTool->rpcIdHelper().elementID(newDigit->identify());
+        elementId = m_idHelperSvc->rpcIdHelper().elementID(newDigit->identify());
 
         IdentifierHash coll_hash;
-        if (m_muonIdHelperTool->rpcIdHelper().get_hash(elementId, coll_hash, &rpcContext)) {
+        if (m_idHelperSvc->rpcIdHelper().get_hash(elementId, coll_hash, &rpcContext)) {
           ATH_MSG_WARNING( "Unable to get RPC digit collection hash id "
                            << "context begin_index = " << rpcContext.begin_index()
                            << " context end_index  = " << rpcContext.end_index()

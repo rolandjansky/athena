@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from JetRecConfig import JetRecConfig
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -28,7 +29,7 @@ def JetRecTestCfg(jetdefs,configFlags,args):
     components = ComponentAccumulator()
     for ca in jetcas:
         components.merge(ca)
-    components.printConfig(args.verboseAccumulators,summariseProps=True)
+    components.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
 
     return components
 
@@ -174,11 +175,6 @@ if __name__=="__main__":
     # Add the components from our jet reconstruction job
     cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
 
-    # # build eventinfo attribute list
-    # from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
-    # EventInfoTagBuilder = EventInfoTagBuilder(AttributeList="SimpleTag")
-    # cfg.addEventAlgo(EventInfoTagBuilder,"AthAlgSeq")
-    
     # Write what we produced to AOD
     # First define the output list
     outputlist = ["EventInfo#*"]

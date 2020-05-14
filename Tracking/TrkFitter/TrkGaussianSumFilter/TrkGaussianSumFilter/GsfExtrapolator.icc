@@ -1,0 +1,58 @@
+/*
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+
+inline void
+Trk::GsfExtrapolator::setRecallInformation(
+  Cache& cache,
+  const Trk::Surface& recallSurface,
+  const Trk::Layer& recallLayer,
+  const Trk::TrackingVolume& recallTrackingVolume) const
+{
+  cache.m_recall = true;
+  cache.m_recallSurface = &recallSurface;
+  cache.m_recallLayer = &recallLayer;
+  cache.m_recallTrackingVolume = &recallTrackingVolume;
+}
+
+inline void
+Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
+{
+  cache.m_recall = false;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
+}
+
+inline void
+Trk::GsfExtrapolator::throwIntoGarbageBin(
+  Cache& cache,
+  const Trk::MultiComponentState* garbage) const
+{
+  if (garbage) {
+    std::unique_ptr<const Trk::MultiComponentState> sink(garbage);
+    cache.m_mcsGarbageBin.push_back(std::move(sink));
+  }
+}
+
+inline void
+Trk::GsfExtrapolator::throwIntoGarbageBin(
+  Cache& cache,
+  const Trk::TrackParameters* garbage) const
+{
+  if (garbage) {
+    std::unique_ptr<const Trk::TrackParameters> sink(garbage);
+    cache.m_tpGarbageBin.push_back(std::move(sink));
+  }
+}
+
+inline void
+Trk::GsfExtrapolator::emptyGarbageBins(Cache& cache) const
+{
+  // Reset the boundary information
+  StateAtBoundarySurface freshState;
+  cache.m_stateAtBoundarySurface = freshState;
+  cache.m_mcsGarbageBin.clear();
+  cache.m_tpGarbageBin.clear();
+  cache.m_matstates.reset(nullptr);
+}

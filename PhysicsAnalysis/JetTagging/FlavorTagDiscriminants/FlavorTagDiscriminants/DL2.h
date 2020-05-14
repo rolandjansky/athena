@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_H
@@ -9,6 +9,7 @@
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
+#include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -35,6 +36,26 @@ namespace FlavorTagDiscriminants {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
   enum class OutputType {FLOAT, DOUBLE};
+
+  // classes to deal with typedefs
+  //
+  template <typename T>
+  struct EDMTypeEnum;
+  template <> struct EDMTypeEnum<float> {
+    const static EDMType type = EDMType::FLOAT;
+  };
+  template <> struct EDMTypeEnum<double> {
+    const static EDMType type = EDMType::DOUBLE;
+  };
+  template<typename T>
+  struct OutputTypeEnum;
+  template<> struct OutputTypeEnum<float> {
+    const static OutputType type = OutputType::FLOAT;
+  };
+  template<> struct OutputTypeEnum<double> {
+    const static OutputType type = OutputType::DOUBLE;
+  };
+
 
   // Structures to define DL2 input.
   //

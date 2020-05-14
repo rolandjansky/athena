@@ -686,7 +686,7 @@ namespace MuonCalib {
 		  double zpos_local = 	 (*deposits_it).second.zpos() ;
 		  const Amg::Vector3D locpos3d = Amg::Vector3D(0.,ypos_local, zpos_local);
 		  const Amg::Vector3D globalPos = (detEl->transform())*locpos3d;
-		  double phipos = atan2(globalPos.y(),globalPos.x());
+		  double phipos = std::atan2(globalPos.y(),globalPos.x());
 		  // use cscTime for phi, since time is no longer set for new SDO format!!
 		  cscTruth->setTime( phipos ) ;
 		  MCtruthCollection->addTruth( cscTruth );

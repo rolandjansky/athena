@@ -45,7 +45,7 @@ def fillTimingTc(fileTclas, tag, since,
     for mod in range(20):
         flt = tclasWriter.zeroBlob(ros,mod)
     flt = tclasWriter.getDrawer(0, 0)
-    flt.init(defTclas,1,0)        
+    flt.init(defTclas,1,0)
     #=== loop over whole detector
     for ros in range(1,5):
         for mod in range(64):
@@ -98,7 +98,7 @@ def fillTimingTd(fileTdlas, tag, since,
     for mod in range(20):
         flt = tdlasWriter.zeroBlob(ros,mod)
     flt = tdlasWriter.getDrawer(0, 0)
-    flt.init(defTdlas,1,0)    
+    flt.init(defTdlas,1,0)
     #=== loop over whole detector
     for ros in range(1,5):
         for mod in range(64):

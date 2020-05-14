@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtraTreeMuonFillerTool.h"
-// #include "xAODMuon/MuonContainer.h"
-// #include "xAODMuon/Muon.h"
-// #include "xAODTracking/TrackParticle.h"
-// #include "Particle/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/Track.h"
 #include <string>
@@ -53,11 +49,7 @@ StatusCode ExtraTreeMuonFillerTool::initialize() {
   }
   return StatusCode::SUCCESS;	
 }  // end ExtraTreeMuonFillerTool::initialize
-  
-StatusCode ExtraTreeMuonFillerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-	
+
 StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
   const xAOD::MuonContainer *muonContainer;
   if(evtStore()->retrieve(muonContainer, m_muonContainer).isSuccess()) {

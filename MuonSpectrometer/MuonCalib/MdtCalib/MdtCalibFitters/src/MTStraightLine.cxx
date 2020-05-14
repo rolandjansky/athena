@@ -3,6 +3,9 @@
 */
 
 #include "MdtCalibFitters/MTStraightLine.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include "cmath"
 #include <iostream>
 
@@ -156,8 +159,8 @@ double MTStraightLine::a_x1_error(void) const {
 double MTStraightLine::b_x1(void) const {
 
 	if (m_direction.z() == 0.0) {
-		std::cerr << "Class MTStraightLine, method b_x1: WARNING!\n"
-			  << "b_x1 not uniquely defined." << std::endl;
+		MsgStream log(Athena::getMessageSvc(),"MTStraightLine");
+        log<<MSG::WARNING<<"Class MTStraightLine, method b_x1: b_x1 not uniquely defined."<<endmsg;
 		return m_position.x();
 	}
 	return (m_position.x()-m_position.z()*a_x1());
@@ -219,8 +222,8 @@ double MTStraightLine::a_x2_error(void) const {
 double MTStraightLine::b_x2(void) const {
 
 	if (m_direction.z() == 0.0) {
-		std::cerr << "Class MTStraightLine, method b_x2: WARNING!\n"
-			  << "b_x2 not uniquely defined." << std::endl;
+		MsgStream log(Athena::getMessageSvc(),"MTStraightLine");
+        log<<MSG::WARNING<<"Class MTStraightLine, method b_x2: b_x2 not uniquely defined."<<endmsg;
 		return m_position.x();
 	}
 	return (m_position.y()-m_position.z()*a_x2());

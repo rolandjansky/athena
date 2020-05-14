@@ -718,8 +718,10 @@ class Chain(object):
             if len(step.chainDicts) > 0:
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
                 log.info('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
+                log.info("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
+                assert len(step.sequences)==len(step.chainDicts), "createHypoTools only makes sense if number of sequences == number of chain dicts"
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
-                    log.info('    onePartChainDict:')
+                    log.info('    seq: %s, onePartChainDict:', seq.name)
                     log.info('    ' + str(onePartChainDict))
                     seq.createHypoTools( onePartChainDict )              
 

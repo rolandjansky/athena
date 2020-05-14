@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_TOT_DEDX_H
@@ -10,8 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h" //MJ
 #include "GaudiKernel/IToolSvc.h"  //MJ
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-//#include "AthenaKernel/IIOVDbSvc.h"
-//#include "AthenaKernel/IIOVSvc.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 #include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
@@ -66,7 +65,10 @@ public:
   enum EToTEstimatorType {kToTLargerIsland,kToTHighOccupancy,kToTHighOccupancySmart};
 
 private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
+      , "AveIntPerXKey"
+      , "EventInfo.AveIntPerXDecor"
+      , "Decoration for Average Interaction Per Crossing"};
   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;

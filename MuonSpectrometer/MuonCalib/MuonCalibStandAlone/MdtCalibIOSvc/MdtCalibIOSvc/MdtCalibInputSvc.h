@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MdtCalibInputSvc_H
@@ -46,9 +46,8 @@ class MdtCalibInputSvc: public AthService {
   /** just some crazy athena function */	
   virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown);
   /** service initalizer - reads files */
-  virtual StatusCode initialize(void);
-  /** service finalize function - does nothing */
-  virtual StatusCode finalize(void);
+  virtual StatusCode initialize();
+
   /** Get t0 container for Station */
   const MuonCalib::MdtStationT0Container* GetT0(const MuonCalib::NtupleStationId &id) const;
   /** Get rt relation container */

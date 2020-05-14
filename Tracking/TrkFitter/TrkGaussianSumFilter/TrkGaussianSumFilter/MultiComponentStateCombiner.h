@@ -23,18 +23,25 @@ namespace MultiComponentStateCombiner {
 
 /** Calculate combined state of many components */
 std::unique_ptr<Trk::TrackParameters>
-combine(const MultiComponentState&, const bool useMode = false, const double fractionPDFused = 1.0);
+combine(const MultiComponentState&,
+        const bool useMode = false,
+        const double fractionPDFused = 1.0);
 
 /** Combined/merge a component to another one */
 void
-combineWithWeight(Trk::ComponentParameters& mergeTo, const Trk::ComponentParameters& addThis);
+combineWithWeight(Trk::ComponentParameters& mergeTo,
+                  const Trk::ComponentParameters& addThis);
 
 /** Calculate combined state and weight of many components */
 std::unique_ptr<Trk::ComponentParameters>
-combineWithWeight(const MultiComponentState&, const bool useMode = false, const double fractionPDFused = 1.0);
+combineWithWeight(const MultiComponentState&,
+                  const bool useMode = false,
+                  const double fractionPDFused = 1.0);
 
 std::unique_ptr<Trk::ComponentParameters>
-compute(const MultiComponentState*, const bool useMode = false, const double fractionPDFused = 1.0);
+compute(const MultiComponentState*,
+        const bool useMode = false,
+        const double fractionPDFused = 1.0);
 }
 } // end Trk namespace
 

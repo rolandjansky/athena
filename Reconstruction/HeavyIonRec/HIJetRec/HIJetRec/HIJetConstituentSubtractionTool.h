@@ -4,8 +4,8 @@
 
 // HIJetConstituentSubtractionTool.h
 
-#ifndef __HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H__
-#define __HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H__
+#ifndef HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H
+#define HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -51,10 +51,10 @@ public:
   virtual StatusCode initialize() override;
 
   /// \brief Implementing abstract methods from base
-  StatusCode modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const override;
 
   /// \brief Implementing abstract methods from base, not used
-  int modifyJet(xAOD::Jet&) const {return 1;};
+  virtual int modifyJet(xAOD::Jet&) const override {return 1;};
 
 private:
 
