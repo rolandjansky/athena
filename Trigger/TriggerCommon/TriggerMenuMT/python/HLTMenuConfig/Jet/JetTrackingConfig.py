@@ -39,16 +39,12 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         trackcollectionmap[trkopt] = trkcolls
 
     # Jet track selection
-    jettrackselloose = getTrackSelTool(trkopt)
+    jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
     jettracksname = jettrackselloose.OutputContainer
     jettvassoc = getTrackVertexAssocTool(trkopt)
 
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
     trackcollectionmap[trkopt]["TVA"] = tvaname
-
-    #from JetRec import JetRecConf
-    #jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
-
 
     jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
