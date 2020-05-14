@@ -189,7 +189,7 @@ void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapp
       continue;
     }
     
-    std::lock_guard guard(m_fillMutex);
+    std::scoped_lock guard(m_fillMutex);
     filler->setMonitoredVariables(std::move(variables));
     filler->setMonitoredWeight(weight);
     filler->setMonitoredCutMask(cutmask);

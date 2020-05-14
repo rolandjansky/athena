@@ -93,6 +93,8 @@ public:
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
 
+  /// feed the fillers
+  void invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;  
   
   /// Book histograms
   StatusCode book();
@@ -102,13 +104,8 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
-  std::mutex& fillMutex() { return m_fillMutex; }
 private:
 
-  friend class Monitored::Group;
-
-  /// feed the fillers
-  void invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;  
   
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
