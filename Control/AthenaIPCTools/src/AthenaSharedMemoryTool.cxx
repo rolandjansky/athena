@@ -165,7 +165,7 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
          m_isClient = true;
          m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
          m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize + num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
-      } catch (boost::interprocess::interprocess_exception e) {
+      } catch (boost::interprocess::interprocess_exception& e) {
          usleep(100000);
       }
    }
