@@ -89,8 +89,8 @@ def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       clusterSplitProbTool = None
       clusterSplitterTool  = None
-
-      if flags.InDet.doPixelClusterSplitting :
+      # FIXME - should we just not set InDet.doPixelClusterSplitting if flags.InDet.doTIDE_Ambi?
+      if flags.InDet.doPixelClusterSplitting and not flags.InDet.doTIDE_Ambi: 
          # --- Neutral Network version
          if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
             useBeamConstraint = flags.InDet.useBeamConstraint
@@ -132,30 +132,30 @@ def MergedPixelsToolCfg(flags, **kwargs) :
             # new splitter tool & remember splitter tool    
             clusterSplitterTool=CompFactory.InDet.TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
       
+      if clusterSplitProbTool is not None: kwargs.setdefault("SplitProbTool", clusterSplitProbTool )
+      if clusterSplitterTool is not None: kwargs.setdefault("ClusterSplitter", clusterSplitterTool )
       # --- now load the framework for the clustering
       #InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name                 = "InDetClusterMakerTool")
       #acc.addPublicTool(InDetClusterMakerTool)
       accbuf = ClusterMakerToolCfg(flags)
       InDetClusterMakerTool = accbuf.getPrimary()
+      kwargs.setdefault("globalPosAlg", InDetClusterMakerTool )
       acc.merge(accbuf)
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
       from InDetConfig.InDetRecToolConfig import PixelConditionsSummaryToolCfg
       accbuf = PixelConditionsSummaryToolCfg(flags)
       conditionssummarytool = accbuf.popPrivateTools()
-      # FIXME? Currently not assigning 
+      kwargs.setdefault("PixelConditionsSummaryTool", conditionssummarytool ) 
       acc.merge(accbuf)
 
-      InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name                    = "InDetMergedPixelsTool", 
-                                                        globalPosAlg            = InDetClusterMakerTool,
-                                                        MinimalSplitSize        = 0,
-                                                        MaximalSplitSize        = 49,
-                                                        MinimalSplitProbability = 0,
-                                                        DoIBLSplitting = True)
-      # assign the tools if there are any                                                
-      if not flags.InDet.doTIDE_Ambi and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-      if not flags.InDet.doTIDE_Ambi and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
+      kwargs.setdefault("MinimalSplitSize", 0 )
+      kwargs.setdefault("MaximalSplitSize", 49 )
+      kwargs.setdefault("MinimalSplitProbability", 0 )
+      kwargs.setdefault("DoIBLSplitting", True )
 
+      InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "InDetMergedPixelsTool", **kwargs)
+     
       acc.addPublicTool(InDetMergedPixelsTool, primary=True)
       return acc
 ##------------------------------------------------------------------------------
