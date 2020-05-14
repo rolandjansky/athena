@@ -19,6 +19,14 @@ OfflineJetCollections = [
   'AntiKt4EMPFlowJets',
 ]
 
+# L1 monitoring
+L1JetCollections = ['LVL1JetRoIs']
+Chain2L1JetCollDict = {
+  'L1_J15'  : 'LVL1JetRoIs',
+  'L1_J20'  : 'LVL1JetRoIs',
+  'L1_J100' : 'LVL1JetRoIs',
+}
+
 # AthenaMT
 JetCollections['MT']    = [
   'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R
@@ -72,6 +80,16 @@ def TrigJetMonConfig(inputFlags):
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
 
+  # Loop over L1 jet collectoins
+  for jetcoll in L1JetCollections:
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf.toAlg(helper)
+
+  # Loop over L1 jet chains
+  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+    l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
+    l1chainconf.toAlg(helper)
+
   # Loop over offline jet collections
   for jetcoll in OfflineJetCollections:
     offlineMonitorConf = jetMonitoringConfig(inputFlags,jetcoll,AthenaMT)
@@ -97,12 +115,15 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
   # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
   path = 'NoTriggerSelection' if isOnline else 'standardHistos/'
 
+  TopLevelDir  = 'HLT/JetMon/'
+  TopLevelDir += 'Online/' if isOnline else 'Offline/'
+
   # Remap online Run 2 jet collections
   from TrigJetMonitoring import JetCollRemapping
   jetcollFolder = jetcoll
   if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
     jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
-  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir="HLT/JetMon/", bottomLevelDir=jetcollFolder)
+  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
 
   # Now start filling the histo spec list    
   Conf.appendHistos(
@@ -196,7 +217,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
 
    # Declare a configuration dictionnary for a JetContainer
    isOnline = True if 'HLT' in jetcoll else False
-   conf = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
+   conf     = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
    if isOnline:
      if 'AntiKt4' in jetcoll:
        for hist in ExtraSmallROnlineHists: conf.appendHistos(hist)
@@ -212,6 +233,12 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
 
    return conf
+
+def l1JetMonitoringConfig(inputFlags,jetcoll,chain=''):
+  from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
+  name = jetcoll if chain=='' else jetcoll+'_'+chain
+  conf = L1JetMonAlg(name,jetcoll,chain)
+  return conf
 
 def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
@@ -239,8 +266,9 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
        JetContainerName = jetcoll,
        TriggerChain = chain,
        defaultPath = chain,
-       topLevelDir="HLT/JetMon/",
+       topLevelDir="HLT/JetMon/Online/",
        bottomLevelDir=jetcollFolder,
+       failureOnMissingContainer=True,
        )
    trigConf.appendHistos(
            "pt",
@@ -328,6 +356,16 @@ if __name__=='__main__':
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
+
+  # Loop over L1 jet collectoins
+  for jetcoll in L1JetCollections:
+    l1jetconf = l1JetMonitoringConfig(ConfigFlags,jetcoll)
+    l1jetconf.toAlg(helper)
+
+  # Loop over L1 jet chains
+  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+    l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
+    l1chainconf.toAlg(helper)
 
   # Loop over offline jet collections
   for jetcoll in OfflineJetCollections:
