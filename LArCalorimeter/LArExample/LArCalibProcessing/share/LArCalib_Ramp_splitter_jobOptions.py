@@ -322,7 +322,7 @@ if not 'FullFileName' in dir():
 else :   
    theByteStreamInputSvc.FullFileName=FullFileName
    
-theByteStreamInputSvc.MaxBadEvents=0
+scvMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #

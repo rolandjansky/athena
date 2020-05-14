@@ -17,7 +17,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 
 if not athenaCommonFlags.isOnline() and not rec.readTAG():
     try:
-        #svcMgr.ByteStreamInputSvc.ProcessBadEvent=True
         svcMgr.EventSelector.ProcessBadEvent=True
     except Exception:
         treatException ("could not set svcMgr.EventSelector.ProcessBadEvent=True")

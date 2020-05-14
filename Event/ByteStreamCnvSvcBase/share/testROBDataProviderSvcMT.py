@@ -9,7 +9,6 @@ svcMgr.ByteStreamInputSvc.FullFileName = [ "/cvmfs/atlas-nightlies.cern.ch/repo/
 #svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" ]
 #svcMgr.ByteStreamInputSvc.FullFileName += [ "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" ]
 #svcMgr.EventSelector.InputCollections = [ "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" ]
-#svcMgr.ByteStreamInputSvc.MaxBadEvents = 1
 #svcMgr.ByteStreamInputSvc.ValidateEvent = False
 
 #from AthenaCommon.AppMgr import theApp
