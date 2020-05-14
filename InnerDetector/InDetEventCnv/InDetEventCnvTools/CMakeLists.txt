@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetEventCnvTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AtlasDetDescr IdDictDetDescr Identifier GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps AtlasDetDescr IdDictDetDescr Identifier GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack TrkEventCnvToolsLib )
 
 # Install files from the package:
 atlas_install_headers( InDetEventCnvTools )
