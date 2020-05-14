@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      QuickCloseComponentsMultiStateMerger.cxx  -  description
-      ---------------------------------------------------
-begin                : Wednesday 3rd September 2008
-author               : amorley
-email                : Anthony.Morley@cern.ch
-decription           : Implementation code for
-QuickCloseComponentsMultiStateMerger class
-*********************************************************************************/
+/**
+ * @file   QuickCloseComponentsMultiStateMerger.cxx
+ * @date   Wednesday 3rd September 2008
+ * @author Anthony Morley, Christos Anastopoulos
+ *
+ * Implementation of QuickCloseComponentsMultiStateMerger
+ */
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
