@@ -29,6 +29,7 @@ class TGCConnectionPPToSL;
 class TGCRPhiCoincidenceMap;
 class TGCEIFICoincidenceMap;
 class TGCTileMuCoincidenceMap;
+class TGCNSWCoincidenceMap;
 
 class TGCDatabaseManager
 {
@@ -50,6 +51,7 @@ class TGCDatabaseManager
   TGCRPhiCoincidenceMap* getRPhiCoincidenceMap(int sideId, int octantId) const;
   TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   TGCTileMuCoincidenceMap* getTileMuCoincidenceMap() const;
+  std::shared_ptr<TGCNSWCoincidenceMap> getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const;
 
   TGCConnectionInPP* getConnectionInPP(TGCPatchPanel* patchPanel) const;
   void addConnectionInPP(const TGCPatchPanel* patchPanel, const TGCConnectionInPP* connectionInPP);
@@ -71,9 +73,12 @@ class TGCDatabaseManager
   void setMessageLevel(const MSG::Level lvl) const;
 
  private:
+  enum {NumberOfModuleInBW=9};
+
   TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
   TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   TGCTileMuCoincidenceMap* m_mapTileMu;
+  std::shared_ptr<TGCNSWCoincidenceMap> m_mapNSW[NumberOfSide][NumberOfOctant][NumberOfModuleInBW];
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
 
@@ -106,6 +111,12 @@ inline
 TGCTileMuCoincidenceMap* TGCDatabaseManager::getTileMuCoincidenceMap() const
 {
   return m_mapTileMu;
+}
+
+inline 
+std::shared_ptr<TGCNSWCoincidenceMap> TGCDatabaseManager::getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const
+{
+  return m_mapNSW[sideId][octantId][moduleId];
 }
 
 inline 

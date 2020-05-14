@@ -22,6 +22,7 @@ class TGCEvent;
 class TGCDatabaseManager;
 class TGCSector;
 class TGCTMDB;
+class TGCNSW;
 
 class TGCElectronicsSystem {
 public:
@@ -40,6 +41,7 @@ public:
     return m_sector[side][oct][mod];
   };
   TGCTMDB* getTMDB() const {return m_tmdb;}
+  std::shared_ptr<TGCNSW>  getNSW() const {return m_nsw;}
 
   TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
@@ -56,6 +58,8 @@ private:
   TGCDatabaseManager* m_DB;
   TGCSector* m_sector[NumberOfSide][NumberOfOctant][NumberOfModule];
   TGCTMDB*   m_tmdb;
+  std::shared_ptr<TGCNSW>   m_nsw;
+
   TGCArguments* m_tgcArgs;
 };
 

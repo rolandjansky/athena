@@ -22,6 +22,7 @@
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCTMDBOut.h"
+#include "TrigT1TGC/TGCNSW.h"
 
 // Athena/Gaudi
 #include "StoreGate/StoreGate.h"
@@ -41,6 +42,10 @@
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonRDO/TgcRdoContainer.h"
+
+
+#include "MuonRDO/NSW_TrigRawData.h"
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
@@ -94,6 +99,8 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
+    m_tgcArgs.set_USE_NSW( m_USENSW.value() && m_tgcArgs.USE_INNER() );
+
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
 
@@ -109,6 +116,7 @@ namespace LVL1TGCTrigger {
     // read and write handle key
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
+    ATH_CHECK(m_keyNSWTrigOut.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
 
@@ -162,6 +170,11 @@ namespace LVL1TGCTrigger {
       const TGCTriggerData* readCdo{*readHandle};
       doTileMu = readCdo->isActive(TGCTriggerData::CW_TILE);
     }
+
+
+    // NSW data
+    bool doNSW = m_tgcArgs.USE_NSW();
+
     
     // TgcRdo
     m_tgcrdo.clear();
@@ -212,7 +225,15 @@ namespace LVL1TGCTrigger {
           return sc;
         }
       }
-      
+
+      // Use NSW trigger output 
+      if(doNSW && bc==m_CurrentBunchTag){
+	sc = fillNSW();
+       if (sc.isFailure()) {
+          ATH_MSG_WARNING("Couldn't retrieve NSW trigger output");
+          return sc;
+        }
+      }
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){
         m_bctagInProcess =bc;
         sc=processOneBunch(tgc_container, muctpiinput, muctpiinputPhase1);
@@ -1362,6 +1383,40 @@ namespace LVL1TGCTrigger {
     return sc;
   }
 
+
+
+  //----------------------------------- 
+  //NSW input
+  //----------------------------------
+  StatusCode LVL1TGCTrigger::fillNSW(){
+    ATH_MSG_DEBUG("fillNSW");
+    StatusCode sc = StatusCode::SUCCESS;
+    std::shared_ptr<TGCNSW> nsw = m_system->getNSW();
+    nsw->eraseOutput();
+
+    //The following part will be available when NSW Trigger Output is available.
+
+    /*
+    SG::ReadHandle<Muon::NSW_TrigRawDataContainer> readNSW_TrigRawDataContainer(m_keyNSWTrigOut);
+    if(!readNSW_TrigRawDataContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve NSW TrigRawData Container.");
+      return StatusCode::FAILURE;
+    }
+    const Muon::NSW_TrigRawDataContainer* nsw_TrigRawDataContainer = readNSW_TrigRawDataContainer.cptr();
+    for(const Muon::NSW_TrigRawData* nsw_sector : *nsw_TrigRawDataContainer){
+      for(const Muon::NSW_TrigRawDataSegment* nsw_trk : *nsw_sector){
+	nsw->setOutput(nsw_sector->sideId(),        // side
+		       //nsw_sector->sectorId(), // Sector number in NSW
+		       //nsw_trk->rIndex(),      // R-index
+		       //nsw_trk->phiIndex(),    // Phi-index
+		       //nsw_trk->deltaTheta() // Delta theta index
+	              );
+      }
+    } 
+    */
+  
+    return sc; 
+  }
 
 } //end of namespace bracket
 
