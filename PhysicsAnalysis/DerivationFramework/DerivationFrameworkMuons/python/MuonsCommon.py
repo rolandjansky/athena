@@ -1,12 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # MuonsCommon.py 
 # Schedules all tools needed for muon object selection and writes
 # results into SG. These may then be accessed along the train   
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from __future__ import print_function
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 from DerivationFrameworkMuons import DFCommonMuonsConfig
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon import CfgMgr 
 DFCommonMuonsTrtCutOff = DFCommonMuonsConfig.TrtCutOff
 
 #====================================================================
@@ -27,9 +31,9 @@ DFCommonMuonsSelector.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelector.TurnOffMomCorr = True
 
-if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
+if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelector
-print DFCommonMuonsSelector
+print (DFCommonMuonsSelector)
 
 DFCommonMuonToolWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapper",
                                                                         AsgSelectionTool = DFCommonMuonsSelector,
@@ -37,7 +41,7 @@ DFCommonMuonToolWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "
                                                                         StoreGateEntryName = "DFCommonGoodMuon",
                                                                         ContainerName = "Muons")
 ToolSvc += DFCommonMuonToolWrapper
-print DFCommonMuonToolWrapper
+print (DFCommonMuonToolWrapper)
 DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapper)
 
 ### Preselection
@@ -47,9 +51,9 @@ DFCommonMuonsSelectorPreselection.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 DFCommonMuonsSelectorPreselection.TurnOffMomCorr = True
 
-if DFCommonMuonsTrtCutOff != None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
+if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelectorPreselection.TrtCutOff = DFCommonMuonsTrtCutOff
 ToolSvc += DFCommonMuonsSelectorPreselection
-print DFCommonMuonsSelectorPreselection
+print (DFCommonMuonsSelectorPreselection)
 
 DFCommonMuonToolWrapperPreselection = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperPreselection",
                                                                         AsgSelectionTool = DFCommonMuonsSelectorPreselection,
@@ -57,24 +61,23 @@ DFCommonMuonToolWrapperPreselection = DerivationFramework__AsgSelectionToolWrapp
                                                                         StoreGateEntryName = "DFCommonMuonsPreselection",
                                                                         ContainerName = "Muons")
 ToolSvc += DFCommonMuonToolWrapperPreselection
-print DFCommonMuonToolWrapperPreselection
+print (DFCommonMuonToolWrapperPreselection)
 DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperPreselection)
 
 ### Decoration of the muon objects with the ID track covariances
 #from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonIDCovMatrixDecorator
 #DFCommonMuonIDCovMatrixDecorator = DerivationFramework__MuonIDCovMatrixDecorator( name = "DFCommonMuonIDCovMatrixDecorator")
 #ToolSvc += DFCommonMuonIDCovMatrixDecorator
-#print DFCommonMuonIDCovMatrixDecorator
+#print (DFCommonMuonIDCovMatrixDecorator)
 #DFCommonMuonToolWrapperTools.append(DFCommonMuonIDCovMatrixDecorator)
 
 #############
 #  Add tools
 #############
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFCommonMuonsKernel",
                                                                          AugmentationTools = DFCommonMuonToolWrapperTools
                                                                         )
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+#import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+#if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+#  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()

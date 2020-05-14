@@ -48,7 +48,21 @@ class MinBiasChainConfig(ChainConfigurationBase):
         SPInputMakerAlg.RoITool = ViewCreatorInitialROITool()
         SPInputMakerAlg.InViewRoIs = "InputRoI"
         SPInputMakerAlg.Views = "SPView"
-        idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=SPInputMakerAlg.InViewRoIs)
+        idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=SPInputMakerAlg.InViewRoIs, viewVerifier='SPViewDataVerifier' )
+        verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
+                                 ( 'SCT_ID' , 'DetectorStore+SCT_ID' ),
+                                 ( 'PixelID' , 'DetectorStore+PixelID' )]
+
+        # Make sure required objects are still available at whole-event level
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+        topSequence.SGInputLoader.Load += [( 'SCT_ID' , 'DetectorStore+SCT_ID' ),
+                                           ( 'PixelID' , 'DetectorStore+PixelID' )]
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
+          verifier.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+
         SpList = idAlgs[:-2]
 
         SpCount=TrigCountSpacePointsMT()
@@ -88,26 +102,30 @@ class MinBiasChainConfig(ChainConfigurationBase):
         TrkInputMakerAlg.ViewNodeName = "TrkCountHypoAlgMTNode"
 
         # prepare algorithms to run in views, first, inform scheduler that input data is available in parent view (has to be done by hand)
-        import AthenaCommon.CfgMgr as CfgMgr
-        ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("TrkrecoSeqDataVerifier")
-        ViewVerifyTrk.DataObjects = [ ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                     ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
-                                     ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
-                                     ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                     ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),
-                                     ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )
-        ]
-        if globalflags.InputFormat.is_bytestream():
-          ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                        ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+        idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
+        verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
+                                 ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
+                                 ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),
+                                 ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )]
 
-        idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs)
+        if globalflags.InputFormat.is_bytestream():
+          verifier.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                   ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+
+          # Make sure required objects are still available at whole-event level
+          from AthenaCommon.AlgSequence import AlgSequence
+          topSequence = AlgSequence()
+          topSequence.SGInputLoader.Load += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                             ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+
         TrkList = idAlgs[-2:] # FTF and Track to xAOD::TrackParticle conversion alg
         TrackCountHypo=TrackCountHypoAlgMT()
         TrackCountHypo.trackCountKey=recordable("HLT_TrackCount")
         TrackCountHypo.tracksKey=recordable("HLT_IDTrack_MinBias_FTF")
 
-        TrkrecoSeq = parOR("TrkrecoSeq", [ ViewVerifyTrk ] + TrkList)
+        TrkrecoSeq = parOR("TrkrecoSeq", [verifier]+TrkList)
         TrkSequence = seqAND("TrkSequence", [TrkInputMakerAlg, TrkrecoSeq])
         TrkInputMakerAlg.ViewNodeName = TrkrecoSeq.name()
 

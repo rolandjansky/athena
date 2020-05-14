@@ -263,6 +263,18 @@ if DQMonFlags.doMonitoring():
       if isinstance(_, AthenaMonManager):
          toolset.update(_.AthenaMonTools)
 
+         # in MT the initialization can be in random order ... force all managers to have common setup
+         _.FileKey             = DQMonFlags.monManFileKey()
+         _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+         _.DataType            = DQMonFlags.monManDataType()
+         _.Environment         = DQMonFlags.monManEnvironment()
+         _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
+         _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
+         _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
+         _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
+         _.Run                 = DQMonFlags.monManRun()
+         _.LumiBlock           = DQMonFlags.monManLumiBlock()
+
    for tool in toolset:
       # stop lumi access if we're in MC or enableLumiAccess == False
       if 'EnableLumi' in dir(tool):

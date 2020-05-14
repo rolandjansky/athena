@@ -29,10 +29,10 @@ class RpcCablingCondData{
   typedef std::map <int,RDOindex,std::less < int > > RDOmap;
   typedef std::vector<const RDOindex*> OfflineOnlineHashMap;
   typedef std::map <Identifier,const RDOindex*,std::less < Identifier > > OfflineOnlineMap;
-  typedef Identifier ID;
   typedef std::vector < RPC_CondCabling::SectorLogicSetup > STvec;
   typedef std::map <IdentifierHash, std::set<IdentifierHash> > PRD_RDO_Map;
   typedef std::map <IdentifierHash, std::set<uint32_t> > PRD_ROB_Map;
+  typedef std::map <uint32_t, std::set<IdentifierHash> > ROB_RDO_Map;
 
   RpcCablingCondData()=default;
   virtual ~RpcCablingCondData()=default;
@@ -81,8 +81,9 @@ class RpcCablingCondData{
                                              int stationEta, int doubletR, int doubletZ, int cabStat) const;
 
   StatusCode giveRDO_fromPRD(const IdentifierHash prdHashId, std::vector<IdentifierHash>& rdoHashVec) const;
+  StatusCode giveRDO_fromPRD(const std::vector<IdentifierHash>& prdHashVec, std::vector<IdentifierHash>& rdoHashVec) const;
+  StatusCode giveRDO_fromROB(const std::vector<uint32_t>& robIdVec, std::vector<IdentifierHash>& rdoHashVec) const;
   StatusCode giveROB_fromPRD(const IdentifierHash prdHashId, std::vector<uint32_t>& robIdVec) const;
-
 
   virtual bool give_Pad_Parameters( unsigned short int logic_sector,
                                     unsigned short int PADId,
@@ -154,11 +155,13 @@ bool give_HighPt_borders_id(unsigned short int SubsystemId,
 
 Identifier strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper* rpcId) const;
 
+bool giveOfflineId(const unsigned short int side, const unsigned short int sector, const unsigned short int padId, Identifier& id) const;
+
   // migrate from RpcPadIDHash
   // reverse conversion 
-  ID identifier(int i) const;
+  Identifier identifier(int i) const;
 
-  int operator() (const ID& id) const ;
+  int operator() (const Identifier& id) const ;
   int max() const; 
   int offset() const ;
   std::vector<IdentifierHash> rod2hash(uint16_t subsystem, uint16_t rod) const;
@@ -188,23 +191,24 @@ Identifier strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper
   std::vector<std::string> m_vecphiInfo;
 
   // migrate from RpcPadIDHash
-  std::vector<ID> m_int2id;
+  std::vector<Identifier> m_int2id;
   std::vector<IdentifierHash> m_rod2hash[2][16];
-  std::map<Identifier,int>  m_lookup;
+  std::map<Identifier,int> m_lookup;
 
-  std::vector<uint32_t>   m_fullListOfRobIds;
+  std::vector<uint32_t> m_fullListOfRobIds;
   int m_SectorMap[64]; 
   // array; for each sectorlogic type returns the SectorLogicSetup
   STvec m_SectorType;
   PRD_RDO_Map m_PRD_RDO_map;
   PRD_ROB_Map m_PRD_ROB_map;
+  ROB_RDO_Map m_ROB_RDO_map;
 
   int m_MaxType;
 
   // list of RPCPadParameters
   RPCPadParameters  m_RPCPadParameters_array[64][8];
 
-
+  Identifier m_offline_id[2][32][10];
 
 };
 

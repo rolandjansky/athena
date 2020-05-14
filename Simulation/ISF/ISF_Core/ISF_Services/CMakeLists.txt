@@ -47,8 +47,8 @@ find_package( GMock )
 atlas_add_component( ISF_Services
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_Interfaces TileSimEvent PmbCxxUtils TruthUtils )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}  ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel BarcodeInterfacesLib CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SubDetectorEnvelopesLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_HepMC_Interfaces ISF_InterfacesLib TileSimEvent PmbCxxUtils TruthUtils )
 
 # Tests in the package:
 atlas_add_test( InputConverter_test
@@ -62,10 +62,12 @@ atlas_add_test( InputConverter_test
                 ${GMOCK_INCLUDE_DIRS}
                 LINK_LIBRARIES
                 ISF_Event
-                ISF_Interfaces
+                ISF_HepMC_Interfaces
+                ISF_InterfacesLib
                 ${GEANT4_LIBRARIES}
                 ${HEPPDT_LIBRARIES}
                 AthenaBaseComps
+                BarcodeInterfacesLib
                 GeneratorObjects
                 MCTruth
                 ${GTEST_LIBRARIES}
@@ -85,7 +87,7 @@ atlas_add_test( TruthSvc_test
                   ${GMOCK_INCLUDE_DIRS}
                   ${ROOT_INCLUDE_DIRS}
                   ${GEANT4_INCLUDE_DIRS}
-                  ${HEPMC_INCLUDE_DIRS}
+                  
                   ${CLHEP_INCLUDE_DIRS}
                   ${HEPPDT_INCLUDE_DIRS}
                 LINK_LIBRARIES
@@ -97,6 +99,7 @@ atlas_add_test( TruthSvc_test
                   ${CLHEP_LIBRARIES}
                   ${HEPPDT_LIBRARIES}
                   GaudiKernel
+                  BarcodeInterfacesLib
                   CaloIdentifier
                   CaloSimEvent
                   AthenaBaseComps
@@ -104,7 +107,8 @@ atlas_add_test( TruthSvc_test
                   InDetSimEvent
                   MuonSimEvent
                   ISF_Event
-                  ISF_Interfaces
+                  ISF_HepMC_Interfaces
+                  ISF_InterfacesLib
                   PmbCxxUtils
                   MCTruth
                   TruthUtils

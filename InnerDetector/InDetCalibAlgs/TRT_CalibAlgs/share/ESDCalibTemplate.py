@@ -132,8 +132,6 @@ DetFlags.Print()
 # --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.preProcessing      = False
-InDetFlags.doiPatRec          = False
-InDetFlags.doxKalman          = False
 InDetFlags.doNewTracking      = False
 InDetFlags.doLowPt            = False
 InDetFlags.doBackTracking     = False

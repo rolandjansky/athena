@@ -2,28 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- MM Readout Element properties
- -----------------------------------------
-***************************************************************************/
-
 #ifndef MUONGEOMODEL_MMREADOUTELEMENT_H
-# define MUONGEOMODEL_MMREADOUTELEMENT_H
+#define MUONGEOMODEL_MMREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include <cmath>
 
-class StoreGateSvc;
-
 class BLinePar;
-
-namespace Trk{
-  class RectangleBounds;
-  class PlaneSurface;
-}
-
 
 namespace MuonGM {
   /**
@@ -58,7 +45,7 @@ namespace MuonGM {
 	If the strip number is outside the range of valid strips, the function will return false */
     virtual bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const override;
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
-    
+
     double stripLength( const Identifier& id) const;
 
     /** number of layers in phi/eta projection */
@@ -67,6 +54,10 @@ namespace MuonGM {
     /** number of strips per layer */
     virtual int numberOfStrips( const Identifier& layerId )   const override;
     virtual int numberOfStrips( int , bool measuresPhi ) const override;
+
+    /** Number of missing bottom and top strips (not read out) */
+    int numberOfMissingTopStrips( const Identifier& layerId )   const;
+    int numberOfMissingBottomStrips( const Identifier& layerId )   const;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
@@ -127,6 +118,7 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double); //input: translations, rotations
+    void setDelta(MuonDetectorManager* mgr);
     void setBLinePar(BLinePar* bLine);
     inline void clearBLinePar();
     inline const BLinePar* getBLinePar() const { return m_BLinePar;}
@@ -154,7 +146,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     BLinePar* m_BLinePar;
     
@@ -250,6 +242,20 @@ namespace MuonGM {
   inline int MMReadoutElement::numberOfStrips( int lay, bool /*measPhi*/ ) const {
     if (lay>-1 && lay<(int)m_nStrips.size()) return m_nStrips[lay]; 
     else return -1;
+  }
+
+  inline int MMReadoutElement::numberOfMissingTopStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedTopEta : design->nMissedTopStereo;
+    return nStrips;
+  }
+
+  inline int MMReadoutElement::numberOfMissingBottomStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedBottomEta : design->nMissedBottomStereo;
+    return nStrips;
   }
 
   inline bool MMReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,51 +8,23 @@
 ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONGMCHECKCORNERS_H
-# define MUONGEOMODEL_MUONGMCHECKCORNERS_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+#define MUONGEOMODEL_MUONGMCHECKCORNERS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
-class StoreGateSvc;
-class ActiveStoreSvc;
 
 using namespace MuonGM;
 
-//namespace MuonGM
-// {
-//     class MuonReadoutElement;
-//     class MuonDetectorManager;
-// }
-
- 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 class MuonGMCheckCorners: public AthAlgorithm
 {
  public:
     
   MuonGMCheckCorners(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MuonGMCheckCorners();
+  ~MuonGMCheckCorners()=default;
     
   StatusCode	initialize();
-  StatusCode 	execute();
-  StatusCode 	finalize();
+  StatusCode 	execute(){return StatusCode::SUCCESS;}
 
  private:
 
@@ -82,8 +54,6 @@ class MuonGMCheckCorners: public AthAlgorithm
   // Pointers to the event
   StoreGateSvc*      	        p_EventStore;
   ActiveStoreSvc*      	        p_ActiveStore;
- 
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   void checkreadoutcscgeo();
   void checkreadoutrpcgeo();

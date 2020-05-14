@@ -33,9 +33,9 @@ class HIJetDiscriminatorTool : public JetModifierBase
   ASG_TOOL_CLASS0(HIJetDiscriminatorTool)
 
 public:
-    
+
   HIJetDiscriminatorTool(const std::string& t);
-  
+
   /// \brief Implementing abstract methods from base
   StatusCode modify(xAOD::JetContainer& jets) const;
 
@@ -45,11 +45,12 @@ public:
 protected:
 
   /// \brief minimum cut applied to MaxOverMean moment
-  float m_MaxOverMean_cut;
+  Gaudi::Property< float > m_MaxOverMeanCut { this, "MaxOverMeanCut", 4., "Minimum cut applied to MaxOverMean moment" };
 
   /// \brief minimum cut applied to MaxConstituentET moment
-  float m_ET_min_cut;
-    
+  Gaudi::Property< float > m_ETminCut { this, "MinimumETMaxCut", 3000., "Minimum cut applied to MaxConstituentET moment" };
+
+
 };
 
 #endif

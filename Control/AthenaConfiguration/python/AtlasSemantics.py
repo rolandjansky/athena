@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from past.builtins import basestring
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 import re
@@ -80,8 +81,8 @@ class ToolHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
 
     def merge(self,a,b):
         #Deal with 'None'
-        if a is None: return b
-        if b is None: return a
+        if a is None or a=='': return b
+        if b is None or b=='': return a
         return a.merge(b)
 
 class PublicHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
@@ -179,7 +180,7 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         for bTool in b:
             try:
                 #If a tool with that name exists in a, we'll merge it
-                a.__getitem__(bTool.name).merge(bTool)
+                a.__getitem__(bTool.getName()).merge(bTool)
             except IndexError:
                 #Tool does not exists in a, append it
                 a.append(bTool)

@@ -29,10 +29,6 @@ GoodRunsListSelectorTool.BlackRunsListVec = [ 'blacklist1.xml' ]
 from GoodRunsListsUser.GoodRunsListsUserConf import DummyDumperAlg
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
-#LumiBlockMetaDataTool.storeXMLFiles = False # default is True
-#LumiBlockMetaDataTool.applyDQCuts = False # default is True
-#LumiBlockMetaDataTool.OutputLevel = DEBUG
 
 # add LumiCalcSvc and configure
 from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc

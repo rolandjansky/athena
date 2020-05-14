@@ -87,8 +87,8 @@
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
 #+ PhysicsAnalysis/MCTruthClassifier
-#+ PhysicsAnalysis/MuonID/MuonIDAnalysis/.* # depends on StoreGate/ReadHandleKey.h
-#+ PhysicsAnalysis/MuonID/MuonSelectorTools # depends on StoreGate/ReadHandleKey.h
++ PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
++ PhysicsAnalysis/MuonID/MuonSelectorTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 #+ PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*

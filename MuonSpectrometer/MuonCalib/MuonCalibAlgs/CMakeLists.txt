@@ -35,26 +35,26 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileEvent
                           TileCalorimeter/TileIdentifier
                           Tracking/TrkEvent/TrkEventPrimitives
-                          Trigger/TrigT1/TrigT1Result )
+                          Trigger/TrigT1/TrigT1Result 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( MuonCalibAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonCalibAlgs
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests MuonIdHelpersLib CscClusterizationLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonRDO MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonRDO MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result )
 
 atlas_add_component( MuonCalibAlgs
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO CscClusterizationLib MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result MuonCalibAlgsLib )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO CscClusterizationLib MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result MuonCalibAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

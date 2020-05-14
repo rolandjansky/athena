@@ -1,23 +1,22 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMMDTRDODECODER_H
 #define MUONBYTESTREAMMDTRDODECODER_H
 
+#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonRDO/MdtAmtHit.h"
 #include "MuonDigitContainer/MdtDigit.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
-
-#include <inttypes.h>
+#include <string>
 #include <vector>
-
 
 namespace Muon {
   // Decoder class for conversion from MDT RDOs to MDT digits
@@ -28,11 +27,9 @@ namespace Muon {
     
   public:
     
-    MdtRDO_Decoder( const std::string& type, const std::string& name,
-        const IInterface* parent ) ;
+    MdtRDO_Decoder( const std::string& type, const std::string& name, const IInterface* parent ) ;
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();    
     
     MdtDigit * getDigit(const MdtAmtHit * amtHit, uint16_t& subdetId, 
 			uint16_t& mrodId, uint16_t& csmId) const;
@@ -41,9 +38,7 @@ namespace Muon {
 			      uint16_t& mrodId, uint16_t& csmId, int& tdc, int& width) const;
     
   private:
-    
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
     
   };
@@ -80,7 +75,7 @@ inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_
     
   if (!cab) return NULL;
   
-  Identifier chanId = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
+  Identifier chanId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
 					       multiLayer, tubeLayer, tube);
   
   int tdcCounts = coarse*32+fine;
@@ -123,7 +118,7 @@ inline Identifier Muon::MdtRDO_Decoder::getOfflineData(const MdtAmtHit* amtHit, 
     
   }
   
-  Identifier chanId = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
+  Identifier chanId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
 					       multiLayer, tubeLayer, tube);
   
   tdcCounts = coarse*32+fine;

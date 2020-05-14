@@ -18,7 +18,7 @@
 
 // Forward declaration
 class McEventCollection;
-namespace HepMC { class GenVertex; }
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 static const InterfaceID IID_IMcVtxFilterTool("IMcVtxFilterTool", 1, 0);
 

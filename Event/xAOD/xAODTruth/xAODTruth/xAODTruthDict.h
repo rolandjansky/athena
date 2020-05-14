@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTruthDict.h 670153 2015-05-27 11:42:29Z tbisanz $
@@ -27,6 +27,18 @@
 #include "xAODTruth/versions/TruthPileupEventAuxContainer_v1.h"
 #include "xAODTruth/versions/TruthMetaDataContainer_v1.h"
 #include "xAODTruth/versions/TruthMetaDataAuxContainer_v1.h"
+
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
+#include "xAODTruth/TruthVertexAuxContainer.h"
+#include "xAODTruth/TruthEventBaseContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEventAuxContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthPileupEventAuxContainer.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
+#include "xAODTruth/TruthMetaDataAuxContainer.h"
 #include "xAODTruth/xAODTruthHelpers.h"
 
 namespace {

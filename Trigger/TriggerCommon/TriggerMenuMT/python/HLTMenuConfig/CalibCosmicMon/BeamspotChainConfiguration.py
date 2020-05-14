@@ -31,9 +31,18 @@ def allTE_trkfast():
         inputMakerAlg.Views = "beamspotViewRoIs"
 
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
-        viewAlgs = makeInDetAlgs(whichSignature='FS', rois=inputMakerAlg.InViewRoIs)
+        viewAlgs, viewVerify = makeInDetAlgs(whichSignature='FS', rois=inputMakerAlg.InViewRoIs)
         from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
         T2VertexBeamSpot_activeAllTE.TrackCollections = ["TrigFastTrackFinder_Tracks_FS"]
+
+        viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotInputRoIs' ),
+                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+        # Make sure the event info is still available at whole-event level
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
         beamspotSequence = seqAND("beamspotSequence",viewAlgs+[T2VertexBeamSpot_activeAllTE()])
         inputMakerAlg.ViewNodeName = beamspotSequence.name()
 

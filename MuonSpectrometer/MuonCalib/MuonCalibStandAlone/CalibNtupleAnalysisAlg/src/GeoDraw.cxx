@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleAnalysisAlg/GeoDraw.h"
@@ -7,6 +7,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "MdtStationGeometryRow.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -44,9 +46,9 @@ void GeoDraw::Load(const char *filename) {
   mdt_tubes->SetBranchAddress("pos_y", &pos_y);
   mdt_tubes->SetBranchAddress("pos_z", &pos_z);
   TNamed *ATLASVersion = dynamic_cast<TNamed *>(inf.Get("ATLASVersion"));
-  if (ATLASVersion)
-    std::cout<<"Reading geometry "<<ATLASVersion->GetTitle()<<std::endl;
-  std::cout<<"Loading "<<mdt_tubes->GetEntries()<<" tubes"<<std::endl;
+  MsgStream log(Athena::getMessageSvc(),"GeoDraw");
+  if (ATLASVersion) log<<MSG::INFO<<"Reading geometry "<<ATLASVersion->GetTitle()<<endmsg;
+  log<<MSG::INFO<<"Loading "<<mdt_tubes->GetEntries()<<" tubes"<<endmsg;
   for(int i=0; i<mdt_tubes->GetEntries(); i++) {
     mdt_tubes->GetEntry(i);
     s_data->tube_positions[id].setX(pos_x);
@@ -59,7 +61,7 @@ void GeoDraw::Load(const char *filename) {
   MdtStationGeometryRow row;
   row.SetBranchAddress(mdt_station);
   mdt_station->SetBranchAddress("id", &id);
-  std::cout<<"Loading "<<mdt_station->GetEntries()<<" stations"<<std::endl;
+  log<<MSG::INFO<<"Loading "<<mdt_station->GetEntries()<<" stations"<<endmsg;
   for(int i=0; i<mdt_station->GetEntries(); i++) {
     mdt_station->GetEntry(i);
     s_data->local_to_global[id] = row.GetTransform();
@@ -71,7 +73,8 @@ void GeoDraw::Load(const char *filename) {
 double GeoDraw::PosX(unsigned int tube_id) {
   std::map<unsigned int, HepGeom::Point3D<double> >::const_iterator it(s_data->tube_positions.find(tube_id));
   if(it==s_data->tube_positions.end()) {
-    std::cout<<"Tube not found"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"GeoDraw");
+    log<<MSG::WARNING<<"Tube not found"<<endmsg;
     return 9e9;
   }
   return it->second.x();
@@ -80,7 +83,8 @@ double GeoDraw::PosX(unsigned int tube_id) {
 double GeoDraw::PosY(unsigned int tube_id) {
   std::map<unsigned int, HepGeom::Point3D<double> >::const_iterator it(s_data->tube_positions.find(tube_id));
   if(it==s_data->tube_positions.end()) {
-    std::cout<<"Tube not found"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"GeoDraw");
+    log<<MSG::WARNING<<"Tube not found"<<endmsg;
     return 9e9;
   }
   return it->second.y();
@@ -89,7 +93,8 @@ double GeoDraw::PosY(unsigned int tube_id) {
 double GeoDraw::PosZ(unsigned int tube_id) {
   std::map<unsigned int, HepGeom::Point3D<double> >::const_iterator it(s_data->tube_positions.find(tube_id));
   if(it==s_data->tube_positions.end()) {
-    std::cout<<"Tube not found"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"GeoDraw");
+    log<<MSG::WARNING<<"Tube not found"<<endmsg;
     return 9e9;
   }
   return it->second.z();

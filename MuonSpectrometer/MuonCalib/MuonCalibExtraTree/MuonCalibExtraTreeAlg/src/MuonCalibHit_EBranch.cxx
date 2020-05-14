@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibHit_EBranch.h"
@@ -54,8 +54,6 @@ bool  MuonCalibHit_EBranch::fillBranch(const MuonCalibHit_E &hit, double driftti
 bool MuonCalibHit_EBranch::createBranch(TTree* tree) {
   // check if pointer is valid
   if( !tree ){
-    //std::cout << "MuonCalibHit_EBranch::createBranch  ERROR <got invalid tree pointer> " 
-    //	<< std::endl;
     return false;
   }
   

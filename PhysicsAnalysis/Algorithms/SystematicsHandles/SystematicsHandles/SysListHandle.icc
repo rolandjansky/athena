@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <cassert>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> SysListHandle ::
+  SysListHandle (T *owner, const std::string& propertyName,
+                     const std::string& propertyDescription)
+    : AsgMessagingForward (owner)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_systematicsListName,
+                            propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+  }
+
+
+
+  inline bool SysListHandle ::
+  isInitialized () const noexcept
+  {
+    return m_isInitialized;
+  }
+}

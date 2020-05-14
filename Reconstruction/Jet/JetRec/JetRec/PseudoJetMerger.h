@@ -46,7 +46,7 @@ protected:  // data
 
   // Job options.
 
-  Gaudi::Property<std::vector<std::string> >  m_inputPJC =  {this, "InputPJContainer", { } , "alg type : AntiKt, Kt, CA..."};
+  SG::ReadHandleKeyArray<PseudoJetContainer> m_inputPJC =  {this, "InputPJContainers", { } , "Set of input pseudojets to merge"};
 
   /// Output collection name.
   SG::WriteHandleKey<PseudoJetContainer> m_outcoll = {this, "OutputContainer", "", "Merged output container name" };      

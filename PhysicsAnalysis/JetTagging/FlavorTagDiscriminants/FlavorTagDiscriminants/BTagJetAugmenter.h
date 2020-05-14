@@ -6,6 +6,7 @@
 #define BTAG_JET_AUGMENTER_HH
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // ATLAS things
 #include "xAODJet/Jet.h"
@@ -73,23 +74,23 @@ private:
 
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;
-  AE::ConstAccessor<double> m_ip2d_pu;
-  AE::ConstAccessor<double> m_ip2d_pc;
-  AE::ConstAccessor<double> m_ip2d_pb;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pu;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pc;
+  AE::ConstAccessor<ftagfloat_t> m_ip2d_pb;
   AE::Decorator<char> m_ip2d_isDefaults;
-  AE::Decorator<double> m_ip2d_cu;
-  AE::Decorator<double> m_ip2d_bu;
-  AE::Decorator<double> m_ip2d_bc;
+  AE::Decorator<ftagfloat_t> m_ip2d_cu;
+  AE::Decorator<ftagfloat_t> m_ip2d_bu;
+  AE::Decorator<ftagfloat_t> m_ip2d_bc;
 
   AE::ConstAccessor<std::vector<float> > m_ip3d_weightBOfTracks;
   AE::Decorator<int> m_ip3d_nTrks;
-  AE::ConstAccessor<double> m_ip3d_pu;
-  AE::ConstAccessor<double> m_ip3d_pc;
-  AE::ConstAccessor<double> m_ip3d_pb;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pu;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pc;
+  AE::ConstAccessor<ftagfloat_t> m_ip3d_pb;
   AE::Decorator<char> m_ip3d_isDefaults;
-  AE::Decorator<double> m_ip3d_cu;
-  AE::Decorator<double> m_ip3d_bu;
-  AE::Decorator<double> m_ip3d_bc;
+  AE::Decorator<ftagfloat_t> m_ip3d_cu;
+  AE::Decorator<ftagfloat_t> m_ip3d_bu;
+  AE::Decorator<ftagfloat_t> m_ip3d_bc;
 
   AE::ConstAccessor<float> m_jf_deltaEta;
   AE::ConstAccessor<float> m_jf_deltaPhi;

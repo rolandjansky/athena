@@ -158,10 +158,12 @@ StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloC
   return StatusCode::FAILURE;
 }
 
+#ifndef XAOD_ANALYSIS
 StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
+#endif
 
 StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
 					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 

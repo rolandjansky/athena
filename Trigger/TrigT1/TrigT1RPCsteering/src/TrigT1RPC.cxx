@@ -5,7 +5,7 @@
 #include "TrigT1RPCsteering/TrigT1RPC.h"
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
@@ -65,7 +65,7 @@ StatusCode TrigT1RPC::execute() {
 
     ATH_MSG_DEBUG ("in execute()");
 
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* readCdo{*readHandle};
     
     RPCsimuData data;         // instanciate the container for the RPC digits

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDIGITTOTGCRDO_H
@@ -7,16 +7,14 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 
+#include "StoreGate/DataHandle.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdo.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class ITGCcablingSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TGCcablingInterface/ITGCcablingSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -48,8 +46,7 @@ protected:
   SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{this,"OutputObjectName","TGCRDO","WriteHandleKey for Output TgcRdoContainer"};
   SG::ReadHandleKey<TgcDigitContainer> m_digitContainerKey{this,"InputObjectName","TGC_DIGITS","ReadHandleKey for Input TgcDigitContainer"};
   const ITGCcablingSvc * m_cabling{};
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   std::string  m_cablingType;
 

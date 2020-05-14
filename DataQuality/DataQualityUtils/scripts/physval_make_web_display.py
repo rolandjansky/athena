@@ -303,7 +303,7 @@ if __name__=="__main__":
                       help='Start from this subdirectory of the file')
     parser.add_option('--histlistfile',
                       help='text file with a list of regexes/histogram names')
-    parser.add_option('--scaleref', type=float, default=1,
+    parser.add_option('--scaleref', type="float", default=1,
                       help='Scale references by this value')
     parser.add_option('--Kolmogorov', default=False, action='store_true',
                       help='Run Kolmogorov test instead of Chi2 test')
@@ -313,9 +313,9 @@ if __name__=="__main__":
                       help='Draw 2D histograms with ratio plots')
     parser.add_option('--jsRoot',action='store_true', default=False,
                       help="make interactive jsRoot displays")
-    parser.add_option('--ratiorange', default=None, type=float,
+    parser.add_option('--ratiorange', default=None, type="float",
                       help='set range for ratio plots (as delta to 1.0)')
-    parser.add_option('--refmangle', default=None, type=str,
+    parser.add_option('--refmangle', default=None, type="string",
                       help='provide a Python module to translate histogram names between test and reference files. Module should provide\na function mangle(testhistoname, reflabel)')
 
     options, args = parser.parse_args()

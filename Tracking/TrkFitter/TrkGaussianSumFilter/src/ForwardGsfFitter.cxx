@@ -9,7 +9,8 @@ begin                : Wednesday 9th March 2005
 author               : amorley, atkinson
 email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
 decription           : Implementation code for ForwardGsfFitter class
-********************************************************************************** */
+**********************************************************************************
+*/
 
 #include "TrkGaussianSumFilter/ForwardGsfFitter.h"
 
@@ -27,7 +28,9 @@ decription           : Implementation code for ForwardGsfFitter class
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::string& name, const IInterface* parent)
+Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type,
+                                        const std::string& name,
+                                        const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_cutChiSquaredPerNumberDOF(50.)
   , m_overideMaterialEffects(4)
@@ -37,7 +40,8 @@ Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::stri
 
   declareInterface<IForwardGsfFitter>(this);
   declareProperty("StateChi2PerNDOFCut", m_cutChiSquaredPerNumberDOF);
-  declareProperty("OverideForwardsMaterialEffects", m_overideMaterialEffectsSwitch);
+  declareProperty("OverideForwardsMaterialEffects",
+                  m_overideMaterialEffectsSwitch);
   declareProperty("MaterialEffectsInForwardFitter", m_overideMaterialEffects);
 }
 
@@ -45,12 +49,15 @@ StatusCode
 Trk::ForwardGsfFitter::initialize()
 {
 
-  ATH_MSG_DEBUG("A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF << " will be applied");
+  ATH_MSG_DEBUG("A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF
+                                         << " will be applied");
 
   Trk::ParticleSwitcher particleSwitcher;
-  m_overideParticleHypothesis = particleSwitcher.particle[m_overideMaterialEffects];
+  m_overideParticleHypothesis =
+    particleSwitcher.particle[m_overideMaterialEffects];
   if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by jobOptions... New "
+    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
+                 "jobOptions... New "
                  "Trk::ParticleHypothesis: "
                  << m_overideMaterialEffects);
   }
@@ -68,9 +75,10 @@ Trk::ForwardGsfFitter::finalize()
 }
 
 StatusCode
-Trk::ForwardGsfFitter::configureTools(const ToolHandle<IMultiStateExtrapolator>& extrapolator,
-                                      const ToolHandle<IMultiStateMeasurementUpdator>& measurementUpdator,
-                                      const ToolHandle<IRIO_OnTrackCreator>& rioOnTrackCreator)
+Trk::ForwardGsfFitter::configureTools(
+  const ToolHandle<IMultiStateExtrapolator>& extrapolator,
+  const ToolHandle<IMultiStateMeasurementUpdator>& measurementUpdator,
+  const ToolHandle<IRIO_OnTrackCreator>& rioOnTrackCreator)
 {
   m_extrapolator = extrapolator;
   m_updator = measurementUpdator;
@@ -85,9 +93,10 @@ Trk::ForwardGsfFitter::configureTools(const ToolHandle<IMultiStateExtrapolator>&
    =============================================================================================================*/
 
 std::unique_ptr<Trk::ForwardTrajectory>
-Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
-                              const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
-                              const Trk::ParticleHypothesis particleHypothesis) const
+Trk::ForwardGsfFitter::fitPRD(
+  const Trk::PrepRawDataSet& inputPrepRawDataSet,
+  const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
+  const Trk::ParticleHypothesis particleHypothesis) const
 {
 
   // Check that the updator is instansiated
@@ -102,7 +111,8 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
   }
 
   if (!m_rioOnTrackCreator) {
-    ATH_MSG_ERROR("The RIO_OnTrackCreator is not configured for use with the PrepRawData set... Exiting!");
+    ATH_MSG_ERROR("The RIO_OnTrackCreator is not configured for use with the "
+                  "PrepRawData set... Exiting!");
     return nullptr;
   }
 
@@ -120,8 +130,8 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
     configuredParticleHypothesis = particleHypothesis;
   }
 
-  // Extract PrepRawDataSet into new local object and check that the PrepRawData is associated with
-  // a detector element
+  // Extract PrepRawDataSet into new local object and check that the PrepRawData
+  // is associated with a detector element
   Trk::PrepRawDataSet prepRawDataSet;
   Trk::PrepRawDataSet::const_iterator prepRawData = inputPrepRawDataSet.begin();
 
@@ -137,29 +147,38 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
   // Create new trajectory
   auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
 
-  // Prepare the multi-component state. For starting guess this has single component, weight 1
+  // Prepare the multi-component state. For starting guess this has single
+  // component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
 
   Trk::ComponentParameters componentParametersNearOrigin(
-    estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(
-      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], nullptr /*no errors*/),
+    estimatedTrackParametersNearOrigin.associatedSurface()
+      .createTrackParameters(par[Trk::loc1],
+                             par[Trk::loc2],
+                             par[Trk::phi],
+                             par[Trk::theta],
+                             par[Trk::qOverP],
+                             nullptr /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
-  multiComponentStateNearOrigin.push_back(std::move(componentParametersNearOrigin));
+  multiComponentStateNearOrigin.push_back(
+    std::move(componentParametersNearOrigin));
 
   // Loop over all PrepRawData measurements
   prepRawData = prepRawDataSet.begin();
 
   for (; prepRawData != prepRawDataSet.end(); ++prepRawData) {
 
-    // Every valid step the ForwardTrajectory object passed to the stepForwardFit method is updated
-    bool stepIsValid = stepForwardFit(forwardTrajectory.get(),
-                                      *prepRawData,
-                                      nullptr,
-                                      (*prepRawData)->detectorElement()->surface((*prepRawData)->identify()),
-                                      multiComponentStateNearOrigin,
-                                      configuredParticleHypothesis);
+    // Every valid step the ForwardTrajectory object passed to the
+    // stepForwardFit method is updated
+    bool stepIsValid = stepForwardFit(
+      forwardTrajectory.get(),
+      *prepRawData,
+      nullptr,
+      (*prepRawData)->detectorElement()->surface((*prepRawData)->identify()),
+      multiComponentStateNearOrigin,
+      configuredParticleHypothesis);
 
     if (!stepIsValid) {
       ATH_MSG_DEBUG("Fitter step is not valid... Exiting!");
@@ -175,9 +194,10 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
  */
 
 std::unique_ptr<Trk::ForwardTrajectory>
-Trk::ForwardGsfFitter::fitMeasurements(const Trk::MeasurementSet& inputMeasurementSet,
-                                       const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
-                                       const Trk::ParticleHypothesis particleHypothesis) const
+Trk::ForwardGsfFitter::fitMeasurements(
+  const Trk::MeasurementSet& inputMeasurementSet,
+  const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
+  const Trk::ParticleHypothesis particleHypothesis) const
 {
   // Check that the updator is instansiated
   if (!m_updator) {
@@ -207,18 +227,25 @@ Trk::ForwardGsfFitter::fitMeasurements(const Trk::MeasurementSet& inputMeasureme
   // This memory should be freed by the fitter / smoother master method
   auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
 
-  // Prepare the multi-component state. For starting guess this has single component, weight 1
+  // Prepare the multi-component state. For starting guess this has single
+  // component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
 
   AmgSymMatrix(5)* covariance = nullptr;
 
   Trk::ComponentParameters componentParametersNearOrigin(
-    estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(
-      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covariance /*no errors*/),
+    estimatedTrackParametersNearOrigin.associatedSurface()
+      .createTrackParameters(par[Trk::loc1],
+                             par[Trk::loc2],
+                             par[Trk::phi],
+                             par[Trk::theta],
+                             par[Trk::qOverP],
+                             covariance /*no errors*/),
     1.);
 
   Trk::MultiComponentState multiComponentStateNearOrigin{};
-  multiComponentStateNearOrigin.push_back(std::move(componentParametersNearOrigin));
+  multiComponentStateNearOrigin.push_back(
+    std::move(componentParametersNearOrigin));
 
   // Loop over all MeasurementBase objects in set
   Trk::MeasurementSet::const_iterator measurement = inputMeasurementSet.begin();
@@ -245,16 +272,18 @@ Trk::ForwardGsfFitter::fitMeasurements(const Trk::MeasurementSet& inputMeasureme
  */
 
 bool
-Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
-                                      const Trk::PrepRawData* originalPrepRawData,
-                                      const Trk::MeasurementBase* originalMeasurement,
-                                      const Trk::Surface& surface,
-                                      Trk::MultiComponentState& updatedState,
-                                      const Trk::ParticleHypothesis particleHypothesis) const
+Trk::ForwardGsfFitter::stepForwardFit(
+  ForwardTrajectory* forwardTrajectory,
+  const Trk::PrepRawData* originalPrepRawData,
+  const Trk::MeasurementBase* originalMeasurement,
+  const Trk::Surface& surface,
+  Trk::MultiComponentState& updatedState,
+  const Trk::ParticleHypothesis particleHypothesis) const
 {
   // Protect against undefined Measurement or PrepRawData
   if (!originalPrepRawData && !originalMeasurement) {
-    ATH_MSG_WARNING("No measurement information passed to StepForwardFit... Exiting!");
+    ATH_MSG_WARNING(
+      "No measurement information passed to StepForwardFit... Exiting!");
     return false;
   }
 
@@ -267,7 +296,12 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // Extrapolate multi-component state to the next measurement surface
   // =================================================================
   Trk::MultiComponentState extrapolatedState =
-    m_extrapolator->extrapolate(updatedState, surface, Trk::alongMomentum, false, particleHypothesis);
+    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                updatedState,
+                                surface,
+                                Trk::alongMomentum,
+                                false,
+                                particleHypothesis);
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation failed... returning false");
     return false;
@@ -286,48 +320,60 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
       ATH_MSG_WARNING("State combination failed... exiting");
       return false;
     }
-    // Create a new MeasurementBase object from PrepRawData using new calibration
-    measurement.reset(m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState));
+    // Create a new MeasurementBase object from PrepRawData using new
+    // calibration
+    measurement.reset(
+      m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState));
     combinedState.reset();
   }
   // ==========================
   // Perform measurement update
   // ==========================
   if (!measurement) {
-    ATH_MSG_WARNING("Cannot use MeasurementBase for measurement update, it is not defined... Exiting!");
+    ATH_MSG_WARNING("Cannot use MeasurementBase for measurement update, it is "
+                    "not defined... Exiting!");
     return false;
   }
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState =
-    m_updator->update(std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))), *measurement, fitQuality);
+  updatedState = m_updator->update(
+    std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))),
+    *measurement,
+    fitQuality);
   if (updatedState.empty()) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
   }
- // Bail if the fit quality is not defined:
+  // Bail if the fit quality is not defined:
   if (!fitQuality) {
-    ATH_MSG_DEBUG("Failed to make fit quality... rejecting forwards trajectory");
+    ATH_MSG_DEBUG(
+      "Failed to make fit quality... rejecting forwards trajectory");
     return false;
   }
   // Reject hits with excessive Chi2
-  else if (fitQuality->chiSquared() > m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF()) {
-    ATH_MSG_DEBUG("Update with new measurement caused track to fail Chi Squared test, removing the object");
+  if (fitQuality->chiSquared() >
+      m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF()) {
+    ATH_MSG_DEBUG("Update with new measurement caused track to fail Chi "
+                  "Squared test, removing the object");
     fitQuality = std::make_unique<FitQuality>(1, 1);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set(TrackStateOnSurface::Outlier);
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
-      new MultiComponentStateOnSurface(measurement.release(),
-                                       MultiComponentStateHelpers::clone(extrapolatedState).release(),
-                                       fitQuality.release(),
-                                       nullptr,
-                                       type);
+      new MultiComponentStateOnSurface(
+        measurement.release(),
+        MultiComponentStateHelpers::clone(extrapolatedState).release(),
+        fitQuality.release(),
+        nullptr,
+        type);
 
     forwardTrajectory->push_back(multiComponentStateOnSurface);
     // Clean up objects associated with removed measurement
     updatedState = std::move(extrapolatedState);
   } else {
-    const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface = new MultiComponentStateOnSurface(
-      measurement.release(), MultiComponentStateHelpers::clone(extrapolatedState).release(), fitQuality.release());
+    const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
+      new MultiComponentStateOnSurface(
+        measurement.release(),
+        MultiComponentStateHelpers::clone(extrapolatedState).release(),
+        fitQuality.release());
     forwardTrajectory->push_back(multiComponentStateOnSurface);
   }
   return true;

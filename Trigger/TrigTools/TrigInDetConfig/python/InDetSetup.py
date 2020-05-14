@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -17,16 +17,18 @@ if 'InDetTrigFlags' not in dir():
    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
    InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
    InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
-   InDetTrigFlags.doiPatRec = False
    InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
    InDetTrigFlags.doPixelClusterSplitting = False
    InDetTrigFlags.doPrintConfigurables = False
 
 
 
+def makeInDetAlgsNoView( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
 
+  viewAlgs, viewVerify = makeInDetAlgs( whichSignature, separateTrackParticleCreator, rois, doFTF, None )
+  return viewAlgs
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier' ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
   if signature != "" and separateTrackParticleCreator == "":
@@ -34,14 +36,48 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   #Global keys/names for Trigger collections 
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
+  from InDetRecExample.InDetKeys import InDetKeys
+  from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
+  from AthenaCommon.GlobalFlags import globalflags
 
   viewAlgs = []
-  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-  from InDetRecExample.InDetKeys import InDetKeys
 
+  ViewDataVerifier = None
+  if viewVerifier:
+    import AthenaCommon.CfgMgr as CfgMgr
+    ViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( viewVerifier + signature )
+    ViewDataVerifier.DataObjects = [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
+                                    ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
+                                    ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
+                                    ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
+                                    ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
+                                    ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    viewAlgs.append( ViewDataVerifier )
+
+    # Make sure required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+    # Load RDOs if we aren't loading bytestream
+    if not globalflags.InputFormat.is_bytestream():
+      ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+      topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+
+    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "Cond/StatusHT" ):
+      ViewDataVerifier.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
+      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
+
+  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
-  from TrigInDetConfig import InDetCacheNames
-  from AthenaCommon.GlobalFlags import globalflags
 
   #Only add raw data decoders if we're running over raw data
   if globalflags.InputFormat.is_bytestream():
@@ -281,6 +317,5 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       viewAlgs.append(theTrackParticleCreatorAlg)
 
 
+  return viewAlgs, ViewDataVerifier
 
-
-  return viewAlgs

@@ -12,9 +12,6 @@
 // Subject: TGCLV1-->Offline Muon Data Quality/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/DataHandle.h"
-
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdoIdHash.h"
@@ -163,58 +160,17 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
 
 } 
 
-
-///////////////////////////////////////////////////////////////////////////
-// TgcLv1RawDataValAlg Destructor
-///////////////////////////////////////////////////////////////////////////
-TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
-  ATH_MSG_DEBUG( " deleting TgcLv1RawDataValAlg "  );
-}
-
-
 ///////////////////////////////////////////////////////////////////////////
 // TgcLv1RawDataValAlg initialize
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::initialize(){
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO( "in TgcLv1RawDataValAlg initialize"  );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  
-  /*
-    if ( m_checkCabling ) {
-    // get Cabling Server Service
-    const ITGCcablingServerSvc* TgcCabGet = 0;
-    sc = service("TGCcablingServerSvc", TgcCabGet);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
-    return StatusCode::FAILURE;
-    }
-    // get Cabling Service
-    sc = TgcCabGet->giveCabling(m_cabling);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endmsg;
-    return StatusCode::FAILURE; 
-    }
-    
-    // check whether TGCcabling is compatible with 1/12 sector or not
-    int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
-    m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
-    if (maxRodId ==12) {
-    m_log << MSG::INFO << "TGCcabling12Svc OK" << endmsg ;
-    } else {
-    m_log << MSG::WARNING << "TGCcablingSvc(octant segmentation) OK" << endmsg ;
-    }
-
-    }
-  */
-  
   // Set number of Muon Algorithms to use, 1:muid, 2:muid&staco
   m_nMuonAlgorithms=1;
   if(m_environment==AthenaMonManager::online) m_nMuonAlgorithms=1;
-  
-  ManagedMonitorToolBase::initialize().ignore();// Ignore the checking code
-
   ATH_CHECK(m_coinCollectionLocation.initialize());
   ATH_CHECK(m_coinCollectionLocationPrevious.initialize());
   ATH_CHECK(m_coinCollectionLocationNext.initialize());
@@ -225,7 +181,7 @@ TgcLv1RawDataValAlg::initialize(){
   ATH_CHECK(m_L1esumRoIName.initialize());
   ATH_CHECK(m_eventInfo.initialize());
   ATH_CHECK(m_trigOpInfo.initialize(m_useExpressStream));
-  
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 

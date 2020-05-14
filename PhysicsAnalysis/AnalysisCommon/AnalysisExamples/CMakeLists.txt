@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Generators/GenAnalysisTools/TruthHelper
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           PhysicsAnalysis/AnalysisCommon/AnalysisTools
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           PhysicsAnalysis/AnalysisCommon/CompositeParticleEvent
@@ -44,7 +45,6 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
@@ -52,8 +52,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( AnalysisExamples
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel Navigation SGTools StoreGateLib SGtests NavFourMom xAODEventInfo xAODTracking GaudiKernel TruthHelper GeneratorObjects AthAnalysisToolsLib AnalysisUtilsLib ParticleEvent AnalysisTriggerEvent JetTagEvent JetTagInfo MuonIDEvent McParticleEvent McParticleKernel JetEvent muonEvent Particle ParticleTruth RecoToolInterfaces egammaEvent VxVertex TrkVKalVrtFitterLib TrigDecisionToolLib TrigInDetEvent TrigParticle TrigSteeringEvent )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib CaloEvent AthenaBaseComps AthenaKernel Navigation SGTools StoreGateLib SGtests NavFourMom xAODEventInfo xAODTracking GaudiKernel TruthHelper GeneratorObjects AthAnalysisToolsLib AnalysisUtilsLib ParticleEvent AnalysisTriggerEvent JetTagEvent JetTagInfo MuonIDEvent McParticleEvent McParticleKernel JetEvent muonEvent Particle ParticleTruth RecoToolInterfaces egammaEvent VxVertex TrkVKalVrtFitterLib TrigDecisionToolLib TrigInDetEvent TrigParticle TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

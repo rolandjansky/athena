@@ -22,8 +22,8 @@
 #include "StoreGate/ReadHandle.h"
 
 #include "HepPDT/ParticleData.hh"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "IdDictDetDescr/IdDictManager.h"

@@ -13,7 +13,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimEvent/SiHitCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 namespace Trk {

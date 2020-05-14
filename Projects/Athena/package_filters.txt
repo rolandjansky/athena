@@ -29,6 +29,7 @@
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
+- PhysicsAnalysis/Algorithms/.*
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
@@ -68,5 +69,13 @@
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
 
-# MdtCalibDbAsciiTool might be removed from athena, disable compilation
+# some MDT calibration tools which might be removed from athena, disable compilation
 - MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbAsciiTool
+- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibTools
+- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibValidation
+- MuonSpectrometer/MuonCalib/MuonCalibAlgs
+- MuonSpectrometer/MuonCalib/MuonCalibDbScripts
+- MuonSpectrometer/MuonCalib/MuonCalibJobTransforms
+- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/CalibNtupleAnalysisAlg
+- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneExtraTools
+- MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneTools

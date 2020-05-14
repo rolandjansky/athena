@@ -311,12 +311,9 @@ namespace MuonGM {
        
         else if (detType==MuonChannelDesign::DetType::MM) { //its a MM eta layer | for MM the strips indices start from 0 to reflect the electronics channels numbering
             
-             if( st < 0 ) return false;
-             if( st > totalStrips ) return false;
+             if( st < nMissedBottomEta ) return false;
+             if( st > totalStrips-nMissedTopEta ) return false;
             
-            if(st<nMissedBottomEta || st>=(totalStrips-nMissedTopEta) || st == 1023 || st == 1024 || st == 2047 || st == 2048 || st == 3071 || st == 3072 || st == 4095 || st == 4096) return false;
-           
-           
             else{
                     pos[0] = firstPos + inputPitch*(st-nMissedBottomEta);
                     pos[1] = 0;
@@ -333,10 +330,9 @@ namespace MuonGM {
       }
       else if (sAngle!=0. && detType==MuonChannelDesign::DetType::MM) { //its a MM stereo layer
         
-          if( st < 0 ) return false;
-          if( st > totalStrips ) return false;
+          if( st < nMissedBottomStereo ) return false;
+          if( st > totalStrips-nMissedTopStereo ) return false;
           
-          if(st<nMissedBottomStereo || st>=(totalStrips-nMissedTopStereo) || st == 1023 || st == 1024 || st == 2047 || st == 2048 || st == 3071 || st == 3072 || st == 4095 || st == 4096) return false;
           else{
                 pos[0] = firstPos + inputPitch*(st-nMissedBottomStereo);
                 pos[1] = 0;

@@ -8,7 +8,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "ForwardTracker/ConfigData.h"
 

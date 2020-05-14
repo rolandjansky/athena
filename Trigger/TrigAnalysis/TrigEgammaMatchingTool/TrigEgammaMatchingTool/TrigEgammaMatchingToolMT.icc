@@ -1,0 +1,203 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+using namespace TrigCompositeUtils;
+
+
+// L2Calo, L2Electron, L2Photon, EFCalo, Electron and Photon trigger passed access
+template<class T>
+inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::Decision *dec, const std::string trigger, const std::string key) const
+{
+
+  if( !dec ) return false;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
+  if( !initRoi.link.isValid() ) 
+    return false;
+
+  auto vec =  tdt()->features< T >(trigger,TrigDefs::Physics ,key);
+
+  for( auto &featLinkInfo : vec )
+  {                                                       
+    auto roi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(featLinkInfo.source, "initialRoI");
+    if( ! roi.isValid()) continue;                                                              
+    if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
+    {
+      return true;
+    }
+  }
+  return false;                      
+}
+
+
+// L1Calo trigger passed access
+template<>
+inline bool TrigEgammaMatchingToolMT::ancestorPassed<TrigRoiDescriptorCollection>( const TrigCompositeUtils::Decision *dec, 
+                                                                                   const std::string trigger, const std::string /*key*/) const
+{
+  if( !dec ) return false;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
+  if( !initRoi.link.isValid() ) 
+    return false;
+
+  auto vec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::Physics,"",
+                                                           TrigDefs::allFeaturesOfType,"initialRoI");       
+ 
+  for( auto &featLinkInfo : vec )
+  {                                                       
+    if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord()) 
+    {
+      return true;
+    }
+  }
+  return false;                      
+}
+
+
+
+
+template<class T>
+inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, const TrigCompositeUtils::Decision *&dec, std::string trigger, std::string key ) const
+{
+  double deltaR=0.;        
+  auto vec =  tdt()->features<T>(trigger,TrigDefs::includeFailedDecisions ,key);      
+  for( auto &featLinkInfo : vec ){                                             
+    if(! featLinkInfo.isValid() ) continue;
+    const auto *feat = *(featLinkInfo.link);                   
+    if(!feat) continue;
+    deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());                                
+    if(deltaR < (float)m_dR){            
+      dec = featLinkInfo.source;                                                
+      return true;                                                                            
+    }                                                                                         
+  }
+  return false;
+}
+
+
+template<class T>
+inline std::vector<LinkInfo<T>> TrigEgammaMatchingToolMT::getFeatures( const TrigCompositeUtils::Decision *dec , std::string trigger, std::string key)
+const 
+{
+  std::vector<LinkInfo<T>> vec;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( !initRoi.link.isValid() ) return vec;
+
+  auto vec_dec = tdt()->features<T>(trigger, TrigDefs::includeFailedDecisions, key);
+  for ( auto& featLinkInfo : vec_dec ){
+    if( !featLinkInfo.isValid() ) continue;
+    auto roi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(featLinkInfo.source, "initialRoI");
+    if( ! roi.isValid()) continue;                                                              
+    if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord() )
+      vec.push_back( featLinkInfo );
+  }
+  return vec;
+}
+
+
+inline const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getL1Feature( const TrigCompositeUtils::Decision *dec ) const
+{
+  if( !dec )  return nullptr;
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( !initRoi.link.isValid() ) return nullptr;
+
+  SG::ReadHandle<xAOD::EmTauRoIContainer> l1_cont( m_emTauRoIKey, Gaudi::Hive::currentContext());
+  if( !l1_cont.isValid() ) return nullptr;
+
+  for( const auto *l1 : *l1_cont ){
+    if ( l1->roiType() != xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
+    if((*initRoi.link)->roiWord()==l1->roiWord()){
+      return l1;
+    }
+  }
+  return nullptr;
+} 
+
+
+// L1Calo
+template<>
+inline LinkInfo<TrigRoiDescriptorCollection> TrigEgammaMatchingToolMT::getFeature<TrigRoiDescriptorCollection>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                std::string trigger)
+const
+{
+  auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
+  if( initRoi.link.isValid() ){
+    auto vec_dec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",
+                                                                 TrigDefs::allFeaturesOfType,"initialRoI");       
+    for( auto &featLinkInfo: vec_dec ){               
+      if( !featLinkInfo.isValid() ) continue;      
+      if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord() )  return featLinkInfo; 
+    }                                                               
+  }
+  return LinkInfo<TrigRoiDescriptorCollection>();
+}
+
+
+// L2Calo
+template<>
+inline LinkInfo<xAOD::TrigEMClusterContainer> TrigEgammaMatchingToolMT::getFeature<xAOD::TrigEMClusterContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                  std::string trigger)
+const
+{
+  std::vector<LinkInfo<xAOD::TrigEMClusterContainer>> vec = getFeatures<xAOD::TrigEMClusterContainer>(dec, trigger, key("L2Calo") );
+  return !vec.empty() ? vec.front() : LinkInfo<xAOD::TrigEMClusterContainer>();
+}
+
+
+// L2Electron
+template<>
+inline std::vector<LinkInfo<xAOD::TrigElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigElectronContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                              std::string trigger)
+const
+{
+  return getFeatures<xAOD::TrigElectronContainer>(dec, trigger, key("L2Electron") );
+}
+
+
+// L2Photon
+template<>
+inline std::vector<LinkInfo<xAOD::TrigPhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigPhotonContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                          std::string trigger)
+const
+{
+  return getFeatures<xAOD::TrigPhotonContainer>(dec, trigger, key("L2Photon") );
+}
+
+
+// EFCalo
+template<>
+inline std::vector<LinkInfo<xAOD::CaloClusterContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::CaloClusterContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                            std::string trigger)
+const
+{
+  return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("EFCalo") );
+}
+
+
+// Electron
+template<>
+inline std::vector<LinkInfo<xAOD::ElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::ElectronContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                      std::string trigger)
+const
+{
+  return getFeatures<xAOD::ElectronContainer>(dec, trigger, key("Electron") );
+}
+
+
+// Photon
+template<>
+inline std::vector<LinkInfo<xAOD::PhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::PhotonContainer>( const TrigCompositeUtils::Decision *dec , 
+                                                                                                                  std::string trigger)
+const
+{
+  return getFeatures<xAOD::PhotonContainer>(dec, trigger, key("Photon") );
+}
+
+
+
+
+
+
+
+

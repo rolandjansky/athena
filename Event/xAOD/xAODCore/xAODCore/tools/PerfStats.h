@@ -67,17 +67,10 @@ namespace xAOD {
                                   ::Double_t start );
 
 #ifndef __CINT__
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
-      /// Function called in general when a file unzipping operation happens
-      virtual void FileUnzipEvent( ::TFile *file, ::Long64_t pos,
-                                   ::Double_t start, ::Int_t complen,
-                                   ::Int_t objlen );
-#else
       /// Function called in general when a file unzipping operation happens
       virtual void UnzipEvent( ::TObject *tree, ::Long64_t pos,
                                ::Double_t start, ::Int_t complen,
                                ::Int_t objlen );
-#endif // ROOT_VERSION
 #endif // not __CINT__
 
       /// PROOF specific function, not implemented here
@@ -92,9 +85,6 @@ namespace xAOD {
       virtual void SetNumEvents( ::Long64_t num );
       /// Function used by PROOF to set the number of processed events correctly
       virtual ::Long64_t GetNumEvents() const;
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 14, 0 )
-      // new methods (ROOT 6.14) - need forwarding to the original TPerfStats
 
       /// Print the TTree basket read caching statistics
       virtual void PrintBasketInfo(Option_t *option = "") const;
@@ -118,7 +108,6 @@ namespace xAOD {
       /// Update the fBranchIndexCache collection to match the current TTree given
       /// the ordered list of branch names.
       virtual void UpdateBranchIndices(TObjArray *branches);
-#endif
 
       /// @}
 

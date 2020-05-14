@@ -107,7 +107,6 @@ class PhiEtaNameConverter {
 inline  int eta_atlas2loc(int eta){
   int eta2= eta+7;
   if(eta<0) eta2=eta+8;
-  //cout<<" atlas2loc "<<eta<<" "<<eta2<<endl;
   return eta2;
 }
 
@@ -115,7 +114,6 @@ inline  int eta_loc2atlas(int eta){
   int eta2;
   if(eta<=7) eta2=eta-8;
   if(eta>=8) eta2=eta-7;
-  //cout<<" loc2atlas "<<eta<<" "<<eta2<<endl;
   return eta2;
 }
 

@@ -63,6 +63,14 @@ namespace TrigConf {
 
 
       /**
+       * @brief Save content of DataStructure (underlying ptree) to a file
+       * @param filename [in] Name of the json file
+       * @param data [in]
+       */
+      bool saveFile( const std::string & filename,
+                     const DataStructure & data ) const;
+
+      /**
        * @brief Checks the trigger level of a given json file
        * @param filename [in] Name of the json file
        */

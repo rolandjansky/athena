@@ -188,7 +188,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   result.merge(SCT_BSToolAcc)
   if (flags.InDet.doPrintConfigurables):
       print (SCT_ByteStreamErrorsTool)
-  
+
   if flags.InDet.useSctDCS:
       from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
       SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
@@ -196,22 +196,25 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       result.merge(SCT_DCSCondAcc)
       if (flags.InDet.doPrintConfigurables):
           print (SCT_DCSConditionsTool)
-  
+
+
+
   if not flags.Input.isMC :
       print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
-      TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags)
-      SCT_TdaqEnabledTool = TdaqToolAcc.popPrivateTools()
-      result.merge(TdaqToolAcc)
-      if (flags.InDet.doPrintConfigurables):
-          print (SCT_TdaqEnabledTool)
       
       # Configure summary tool
       ConditionsTools =  [SCT_ConfigurationConditionsTool,]
       if withFlaggedCondTool:
         ConditionsTools.append(SCT_FlaggedConditionTool)
       ConditionsTools+= [SCT_ByteStreamErrorsTool,
-                         SCT_ReadCalibDataTool,
-                         SCT_TdaqEnabledTool]
+                         SCT_ReadCalibDataTool]
+
+
+      if kwargs.pop("withTdaqTool", True):
+        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
+        ConditionsTools += [ SCT_TdaqEnabledTool ]
+        if (flags.InDet.doPrintConfigurables):
+          print (SCT_TdaqEnabledTool)
 
       if not flags.Common.isOnline:
           ConditionsTools += [ SCT_MonitorConditionsTool ]
@@ -225,11 +228,14 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
     
   else :
       ConditionsTools= [ SCT_ConfigurationConditionsTool,
-                         SCT_FlaggedConditionTool,
                          SCT_MonitorConditionsTool,
                          SCT_ReadCalibDataTool]
+      if withFlaggedCondTool:
+        ConditionsTools.append(SCT_FlaggedConditionTool)
+
       if flags.InDet.useSctDCS:
-          ConditionsTools += [ SCT_DCSConditionsTool ]
+        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
+        ConditionsTools += [ SCT_DCSConditionsTool ]
 
   if flags.InDet.doSCTModuleVeto:
       ConditionsTools += [ SCT_MonitorConditionsTool ]
@@ -400,7 +406,7 @@ def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs
 def SCT_TdaqEnabledToolCfg(flags):
   # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
   result = SCT_TdaqEnabledCondAlg(flags)
-  tool = CompFactory.SCT_CablingTool()
+  tool = CompFactory.SCT_TdaqEnabledTool()
   result.setPrivateTools(tool)
   return result
 
@@ -415,7 +421,7 @@ def SCT_TdaqEnabledCondAlg(flags):
 
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
 
-  # Think there's no need to configure the SCT_CablingTool - the default is fine. 
+  # Think there's no need to configure the SCT_TdaqEnabledCondAlg - the default is fine. 
   result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg() )
   return result
 

@@ -21,9 +21,7 @@ def LBMetadataConfig ():
     if not 'LumiBlockMetaDataTool' in mdtools:
         # add LumiBlockMetaDataTool to ToolSvc and configure
         from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-        ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool",
-                                          calcLumi = True,
-                                          storeXMLFiles = False)
+        ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
 
         # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
         ServiceMgr.MetaDataSvc.MetaDataTools += [ToolSvc.LumiBlockMetaDataTool]

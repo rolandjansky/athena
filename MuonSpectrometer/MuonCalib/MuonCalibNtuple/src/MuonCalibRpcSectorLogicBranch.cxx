@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/MuonCalibRpcSectorLogicBranch.h"
-
 #include "MuonCalibNtuple/NtupleBranchCreator.h"
-
 #include "TTree.h"
-
 #include <iostream>
 
 namespace MuonCalib {
@@ -19,18 +16,12 @@ namespace MuonCalib {
   bool MuonCalibRpcSectorLogicBranch::fillBranch(const RpcSectorLogicContainer &slContainer) {
     // check if branches were initialized
     if( !m_branchesInit ){
-      //std::cout << "MuonCalibRpcSectorLogicBranch::fillBranch "
-      //	<< " ERROR <branches were not initialized>"
-      //	<<  std::endl;
       return false;    
     }
 
     // check if m_index not out of range 
     if( m_index >= m_blockSize || m_index < 0 ){
       if (m_first == true) {
-	//std::cout << "MuonCalibRpcSectorLogicBranch::fillBranch  " 
-	//<< " ERROR <index out of range; entry not added to ntuple> "
-	//  <<  m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -82,8 +73,6 @@ namespace MuonCalib {
   bool MuonCalibRpcSectorLogicBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
-      //std::cout << "MuonPatternNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
-      //<< std::endl;
       return false;
     }
 
@@ -105,21 +94,6 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "_errorCode", &m_errorCode, array_size + "/I" );
     branchCreator.createBranch( tree, "_crc",       &m_crc,       array_size + "/I" );
     branchCreator.createBranch( tree, "_hasMoreThan2TriggerCand", &m_hasMoreThan2TriggerCand, array_size + "/I" );
-
-    /**
-    // second branch for vector properties
-    std::string index_name2 = "nLogicsTimes";
-
-    // create a branch for every data member
-    branchCreator.createBranch( tree, index_name2, &m_index2, "/I");
-
-    // all entries of same size, the number of hits in the event
-    std::string array_size2( std::string("[") + m_branchName + index_name2 + std::string("]") );
-
-    branchCreator.createBranch( tree, "slIndex",       &m_slIndex,      array_size2 + "/I" );          
-    branchCreator.createBranch( tree, "triggerRates",  &m_triggerRates, array_size2 + "/F" );
-    branchCreator.createBranch( tree, "counters",      &m_counters,     array_size2 + "/I" );
-    */
 
     // third branch for RpcSLTriggerHit properties
     std::string index_name3 = "nTriggerHits";

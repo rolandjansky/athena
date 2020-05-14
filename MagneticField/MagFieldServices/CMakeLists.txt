@@ -16,7 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           GaudiKernel
-                          Tools/PathResolver )
+                          Tools/PathResolver
+			  Event/EventInfo
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,7 +30,8 @@ atlas_add_component( MagFieldServices
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
 		     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} MagFieldElements MagFieldConditions CxxUtils 
-		     AthenaBaseComps MagFieldInterfaces StoreGateLib SGtests AthenaPoolUtilities GaudiKernel PathResolver )
+		     AthenaBaseComps MagFieldInterfaces StoreGateLib SGtests AthenaPoolUtilities GaudiKernel PathResolver
+		     EventInfo )
 
 # Install files from the package:
 atlas_install_headers( MagFieldServices )

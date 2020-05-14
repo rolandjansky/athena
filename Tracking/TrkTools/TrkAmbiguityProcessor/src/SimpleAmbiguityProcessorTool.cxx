@@ -144,23 +144,35 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 
   if (msgLvl(MSG::INFO)) {
      MsgStream &out=msg(MSG::INFO);
-     out << " -- statistics:" << std::endl;
+     out << " -- statistics:" << "\n";
      dumpStat(out);
      out << endmsg;
   }
 }
 
 void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
-    std::lock_guard<std::mutex> lock( m_statMutex );
-    std::streamsize ss = out.precision();
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
-    out <<             "  Number of events processed      :   "<< m_Nevents << std::endl;
-    out <<             "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM---" << std::endl;
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+   std::lock_guard<std::mutex> lock( m_statMutex );
+    auto parseFileName=[](const std::string & fullname){
+      auto dotPosition = fullname.rfind(".");
+      auto slashPosition = fullname.rfind("/");
+      auto stringLength = dotPosition - slashPosition;
+    return fullname.substr(slashPosition, stringLength);
+   };
+   // @TODO restore ios
+    std::streamsize ss = std::cout.precision();
+    out << "Output from ";
+    out << parseFileName(__FILE__);
+    out << "::";
+    out << __func__;
+    out << "\n";
+    out <<             "---------------------------------------------------------------------------------" << "\n";
+    out <<             "  Number of events processed      :   "<< m_Nevents << "\n";
+    out <<             "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM---" << "\n";
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of candidates at input   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandidates);
     dumpRegions(out,   "  - candidates rejected score 0   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandScoreZero);
     dumpRegions(out,   "  - candidates rejected as double :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandDouble);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  candidates with good score      :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreOk);
     if (m_tryBremFit) {
        dumpRegions(out,"  + recovered after brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefit);
@@ -169,28 +181,28 @@ void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
     if (m_tryBremFit) {
        dumpRegions(out,"  + rejected failed brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefitFailed);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  number of normal fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfits);
     if (m_tryBremFit) {
        dumpRegions(out,"  + 2nd brem fit for failed fit   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNrecoveryBremFits);
        dumpRegions(out,"  normal brem fits for electrons  :", Trk::SimpleAmbiguityProcessorTool::Counter::kNbremFits);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  sum of succesful fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNgoodFits);
     dumpRegions(out,   "  sum of failed fits              :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfailedFits);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of subtracks created     :", Trk::SimpleAmbiguityProcessorTool::Counter::kNsubTrack);
     dumpRegions(out,   "  Number of candidates excluded   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNnoSubTrack);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of tracks accepted       :", Trk::SimpleAmbiguityProcessorTool::Counter::kNaccepted);
     if (m_tryBremFit) {
        dumpRegions(out,"  including number of brem fits   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNacceptedBrem);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
         <<             "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
-        <<             " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
-    out <<             "-------------------------------------------------------------------------------" << std::endl;
+        <<             " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << "\n";
+    out <<             "-------------------------------------------------------------------------------" << "\n";
     out.precision (ss);
 }
 

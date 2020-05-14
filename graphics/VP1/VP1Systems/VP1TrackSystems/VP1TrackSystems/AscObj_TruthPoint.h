@@ -20,7 +20,8 @@
 
 #include "VP1TrackSystems/AssociatedObjectHandleBase.h"
 
-namespace HepMC { class GenVertex; class GenParticle; }
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
 class SimHitHandleBase;
 
 class AscObj_TruthPoint : public AssociatedObjectHandleBase {

@@ -2,6 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MuonCalibStandAloneExtraTools/MDTDeadElementsAnalysis.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <cmath>
 #include <fstream>  
 #include <sstream>
@@ -13,7 +17,6 @@
 #include <TKey.h> 
 #include <TCanvas.h>
 #include <TStyle.h>
-#include "MuonCalibStandAloneExtraTools/MDTDeadElementsAnalysis.h"
 
 class ToString {
 public:
@@ -34,8 +37,6 @@ MDTDeadElementsAnalysis::MDTDeadElementsAnalysis() :
   drawPlots=false;
   writeResultsToAsciFile=false;
 }
-
-MDTDeadElementsAnalysis::~MDTDeadElementsAnalysis() { }
 
 // ==============================================================================
 //
@@ -1218,6 +1219,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval_strategy5(TH1F* idh1, int first
     float cont = idh1->GetBinContent(ib);
     distr_of_entries->Fill(cont);
 }
+  MsgStream log(Athena::getMessageSvc(),"MDTDeadElementsAnalysis");
   TF1 *f1 = new TF1("f1", "gaus", 1, 1000);
   distr_of_entries->Fit("f1", "RLQ0");
   double mean = f1->GetParameter(2);
@@ -1228,7 +1230,7 @@ void MDTDeadElementsAnalysis::getHolesInInterval_strategy5(TH1F* idh1, int first
       for(int ib2=firsttube; ib2<=lasttube;ib2++){
         float cont2 = idh1->GetBinContent(ib2);
         if(cont2==float(ib-1)) {
-          std::cout<<"bin "<<ib2<<"is dead or inefficient"<<std::endl;
+          log<<MSG::WARNING<<"bin "<<ib2<<"is dead or inefficient"<<endmsg;
         }
       }
     }

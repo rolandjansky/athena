@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrdSelector/MuonIdCutTool.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
@@ -64,14 +61,10 @@ MuonIdCutTool::MuonIdCutTool(const std::string& t,const std::string& n,const IIn
   //cut the whole technology
 
 }
-  
-MuonIdCutTool::~MuonIdCutTool() {
-  
-}
 
 StatusCode MuonIdCutTool::initialize() {
   ATH_CHECK( m_idToFixedIdTool.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   
   if (!m_cutStationName && !m_cutStationRegion && !m_cutEta && !m_cutPhi && !m_cutEE){
     ATH_MSG_WARNING( "MuonIdCutTool invoked with no cuts performed"   );
@@ -115,15 +108,6 @@ StatusCode MuonIdCutTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode MuonIdCutTool::finalize()
-{
-  ATH_MSG_DEBUG( "Finalize Called"  );
-  return StatusCode::SUCCESS;
-}
-
-
-
 bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are passed
   
   //some checks to see if the tool is configured in a state that makes sense 
@@ -149,27 +133,27 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
   enum class IdEnum { MDT, CSC, RPC, TGC } idEnum;
   auto pIdHelper = [&]() -> const MuonIdHelper& {
     switch (idEnum) {
-      case IdEnum::MDT: { return m_muonIdHelperTool->mdtIdHelper(); }
-      case IdEnum::CSC: { return m_muonIdHelperTool->cscIdHelper(); }
-      case IdEnum::RPC: { return m_muonIdHelperTool->rpcIdHelper(); }
-      default:          { return m_muonIdHelperTool->tgcIdHelper(); }
+      case IdEnum::MDT: { return m_idHelperSvc->mdtIdHelper(); }
+      case IdEnum::CSC: { return m_idHelperSvc->cscIdHelper(); }
+      case IdEnum::RPC: { return m_idHelperSvc->rpcIdHelper(); }
+      default:          { return m_idHelperSvc->tgcIdHelper(); }
     }
   };
 
   //determine technology
-  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+  if (m_idHelperSvc->isMdt(ID)){
     idEnum = IdEnum::MDT;
     ATH_MSG_DEBUG( "ID is an MDT"   );
   }
-  else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
+  else if (m_idHelperSvc->isCsc(ID)){
     idEnum = IdEnum::CSC;
     ATH_MSG_DEBUG( "ID is an CSC"   );
   } 
-  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+  else if (m_idHelperSvc->isRpc(ID)){
     idEnum = IdEnum::RPC;
     ATH_MSG_DEBUG( "ID is an RPC"   );
   } 
-  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+  else if (m_idHelperSvc->isTgc(ID)){
     idEnum = IdEnum::TGC;
     ATH_MSG_DEBUG( "ID is a TGC"   );
   } 
@@ -202,16 +186,16 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
   //Routine for cutting on Station Region
 
   if (m_cutStationRegion){ 
-    if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+    if (m_idHelperSvc->isMdt(ID)){
       cutList = m_mdtRegionList;
     }
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
+    else if (m_idHelperSvc->isCsc(ID)){
       cutList = m_cscRegionList;
     } 
-    else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+    else if (m_idHelperSvc->isRpc(ID)){
       cutList = m_rpcRegionList;
     } 
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+    else if (m_idHelperSvc->isTgc(ID)){
       cutList = m_tgcRegionList;
     } 
     else{
@@ -236,16 +220,16 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     
   
   if (m_cutStationName){ 
-    if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+    if (m_idHelperSvc->isMdt(ID)){
       cutList = m_mdtStationNameList;
     }
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
+    else if (m_idHelperSvc->isCsc(ID)){
       cutList = m_cscStationNameList;
     } 
-    else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+    else if (m_idHelperSvc->isRpc(ID)){
       cutList = m_rpcStationNameList;
     } 
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+    else if (m_idHelperSvc->isTgc(ID)){
       cutList = m_tgcStationNameList;
     } 
     else{
@@ -264,25 +248,25 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
 	
 	else {  //proceed with more specific cuts
 
-	  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
-	    ATH_MSG_DEBUG( "MDT multilayer " <<m_muonIdHelperTool->mdtIdHelper().multilayer(ID)
+	  if (m_idHelperSvc->isMdt(ID)){
+	    ATH_MSG_DEBUG( "MDT multilayer " <<m_idHelperSvc->mdtIdHelper().multilayer(ID)
                            <<  " compared with " << m_mdtMultilayerList[i]   );
-	    if(m_mdtMultilayerList[i] == m_muonIdHelperTool->mdtIdHelper().multilayer(ID))
+	    if(m_mdtMultilayerList[i] == m_idHelperSvc->mdtIdHelper().multilayer(ID))
 	      return true;
 	  }
 
 
-	  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
-	    ATH_MSG_DEBUG( "RPC doublet R " <<m_muonIdHelperTool->rpcIdHelper().doubletR(ID)
+	  else if (m_idHelperSvc->isRpc(ID)){
+	    ATH_MSG_DEBUG( "RPC doublet R " <<m_idHelperSvc->rpcIdHelper().doubletR(ID)
                            <<  " compared with " << m_rpcDoubletRList[i]   );
-	    if( m_rpcDoubletRList[i] == m_muonIdHelperTool->rpcIdHelper().doubletR(ID) ){
+	    if( m_rpcDoubletRList[i] == m_idHelperSvc->rpcIdHelper().doubletR(ID) ){
 	      if (m_rpcGasGapList.size() == 0){
 		return true;
 	      }
 	      else {
-		ATH_MSG_DEBUG( "RPC gasgap " <<m_muonIdHelperTool->rpcIdHelper().gasGap(ID)
+		ATH_MSG_DEBUG( "RPC gasgap " <<m_idHelperSvc->rpcIdHelper().gasGap(ID)
                                <<  " compared with " << m_rpcGasGapList[i]   );
-		if (m_rpcGasGapList[i] == m_muonIdHelperTool->rpcIdHelper().gasGap(ID))
+		if (m_rpcGasGapList[i] == m_idHelperSvc->rpcIdHelper().gasGap(ID))
 		  return true;
 	      }
 	          
@@ -290,10 +274,10 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
 	  }
 	  
 	      
-	  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
-	    ATH_MSG_DEBUG( "TGC gasgap " <<m_muonIdHelperTool->tgcIdHelper().gasGap(ID)
+	  else if (m_idHelperSvc->isTgc(ID)){
+	    ATH_MSG_DEBUG( "TGC gasgap " <<m_idHelperSvc->tgcIdHelper().gasGap(ID)
                            <<  " compared with " << m_tgcGasGapList[i]   );
-	    if (m_tgcGasGapList[i] == m_muonIdHelperTool->tgcIdHelper().gasGap(ID))
+	    if (m_tgcGasGapList[i] == m_idHelperSvc->tgcIdHelper().gasGap(ID))
 	      return true;
 	  }
 	      
@@ -326,7 +310,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     ATH_MSG_DEBUG( "Phi Sector is " << sector  );
     
     //Is it tgc?
-    if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+    if (m_idHelperSvc->isTgc(ID)){
       //If no cuts specified, don't cut anything
       if (m_tgcEtaList.size()==0 && m_tgcEndPhiList.size()==0 && m_tgcForPhiList.size()==0)
 	return false;
@@ -341,7 +325,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     
     
     //mdt?
-    else if(m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+    else if(m_idHelperSvc->isMdt(ID)){
       //If no cuts specified, don't cut anything
       if (m_mdtSectorList.size()==0 && m_mdtEndEtaList.size()==0 && m_mdtBarEtaList.size()==0)
 	return false;
@@ -353,7 +337,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     }
     
     //rpc?
-    else if(m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+    else if(m_idHelperSvc->isRpc(ID)){
       //If no cuts specified, don't cut anything
       if (m_rpcSectorList.size()==0 && m_rpcEtaList.size()==0)
 	return false;
@@ -362,7 +346,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     }
     
     //csc?
-    else if(m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
+    else if(m_idHelperSvc->isCsc(ID)){
       //If no cuts specified, don't cut anything
       if (m_cscSectorList.size()==0 && m_cscEtaList.size()==0)
 	return false;

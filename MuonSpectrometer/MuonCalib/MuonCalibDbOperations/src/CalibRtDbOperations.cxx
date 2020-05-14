@@ -2,27 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MuonCalibDbOperations/CalibRtDbOperations.h"
 #include "MuonCalibDbOperations/CalibDbConnection.h"
 #include "MuonCalibDbOperations/IConditionsStorage.h"
-
-
-//MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
-
-//MdtCalibData
 #include "MdtCalibData/RtFullInfo.h"
-
-//MuonCalibMath
 #include "MuonCalibMath/SamplePoint.h"
-
-//coral
 #include "RelationalAccess/IRelationalService.h"
-//#include "RelationalAccess/IConnection.h"
-//#include "RelationalAccess/IConnectionService.h"
-//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -38,31 +25,29 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralKernel/Context.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//c - c++
 #include "sstream"
 #include "string"
 #include "cmath"
 
-
 namespace MuonCalib {
 
 CalibRtDbOperations::CalibRtDbOperations(CalibDbConnection & db_conn) : m_db_conn(db_conn), m_rt_id(-1), m_rt_map_t_id(-1), m_head_id(-1), m_region_id(-1), m_n_points(0) {
-  m_query=NULL;
+  m_query=nullptr;
 }
-
-CalibRtDbOperations::~CalibRtDbOperations() {}
 	
-bool CalibRtDbOperations ::LoadRt(const NtupleStationId & id, int head_id, bool validated, const std::string & /*site_name*/, std::vector<SamplePoint> & points, RtFullInfo * full_info) {
+bool CalibRtDbOperations::LoadRt(const NtupleStationId & id, int head_id, bool validated, const std::string & /*site_name*/, std::vector<SamplePoint> & points, RtFullInfo * full_info) {
   m_head_id=head_id;
   m_region_id=id.FixedId();
-  std::cout<<"CalibRtDbOperations ::LoadRt: "<<head_id<<" "<<id.FixedId()<<std::endl;
   try {
     points.clear();
     m_db_conn.OpenTransaction();
     m_rt_id=-1;
     if(!getRtId(validated, full_info)) {
-      std::cerr<<"Header query failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+      log<<MSG::WARNING<<"Header query failed!"<<endmsg;
       m_db_conn.Rollback();
       return false;
     }
@@ -77,7 +62,8 @@ bool CalibRtDbOperations ::LoadRt(const NtupleStationId & id, int head_id, bool 
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     return false;
   }
 }
@@ -88,16 +74,18 @@ bool CalibRtDbOperations::WriteUpdateRt(const NtupleStationId & id, int head_id,
   m_region_id=id.FixedId();
   try {
     m_db_conn.OpenTransaction();
-    if(!getRtId((validflag>1), NULL)) {
+    if(!getRtId((validflag>1), nullptr)) {
       m_db_conn.Rollback();
-      std::cerr<<"Questing RT header failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+      log<<MSG::WARNING<<"Questing RT header failed!"<<endmsg;
       return false;
     }
     if(m_rt_id>=0) {
       if(!updateFullInfo(full_info, validflag, static_cast<int>(points.size()))) {
-	std::cout<<"Failed update header"<<std::endl;
-	m_db_conn.Rollback();
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+        log<<MSG::WARNING<<"Failed update header"<<endmsg;
+        m_db_conn.Rollback();
+        return false;
       }
       if(!updateRTSable(points)) {
 	m_db_conn.Rollback();
@@ -105,11 +93,11 @@ bool CalibRtDbOperations::WriteUpdateRt(const NtupleStationId & id, int head_id,
       }
 			
     } else {
-      std::cout<<"fill"<<std::endl;
       if(!insertFullInfo(full_info, validflag, static_cast<int>(points.size()))) {
-	std::cout<<"Failed update header"<<std::endl;
-	m_db_conn.Rollback();
-	return false;				
+        MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+        log<<MSG::WARNING<<"Failed update header"<<endmsg;
+        m_db_conn.Rollback();
+        return false;				
       }
       if(!insertRTSable(points)) {
 	m_db_conn.Rollback();
@@ -117,12 +105,12 @@ bool CalibRtDbOperations::WriteUpdateRt(const NtupleStationId & id, int head_id,
       }
 				
     }
-    std::cout<<"filled"<<std::endl;
     m_db_conn.Commit();
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     m_db_conn.Rollback();
     return false;
   }
@@ -131,7 +119,8 @@ bool CalibRtDbOperations::WriteUpdateRt(const NtupleStationId & id, int head_id,
 
 bool CalibRtDbOperations::SetValidflag(int validflag, bool commit) {
   if(m_rt_id<0) {
-    std::cerr<<"No current rt!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"No current rt!"<<endmsg;
     return false;
   }
   try {
@@ -149,10 +138,10 @@ bool CalibRtDbOperations::SetValidflag(int validflag, bool commit) {
     updateData.extend<int>("rid");
     updateData["rid"].data<int>()=m_region_id;
 		
-    std::cout<<m_head_id<<" "<<m_region_id<<" "<<m_rt_id<<std::endl;
     int n_rows=editor.updateRows( updateAction, updateCondition, updateData );
     if(n_rows!=1)	{
-      std::cerr<<"Invalid number of rows updated in MDT_RT! "<<n_rows<<" instead of 1"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+      log<<MSG::WARNING<<"Invalid number of rows updated in MDT_RT! "<<n_rows<<" instead of 1"<<endmsg;
       m_db_conn.Rollback();
       return false;
     }
@@ -161,7 +150,8 @@ bool CalibRtDbOperations::SetValidflag(int validflag, bool commit) {
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     m_db_conn.Rollback();
     return false;
   }
@@ -194,7 +184,8 @@ bool  CalibRtDbOperations::ReadForConditions(std::string /*site_name*/, int head
       int rt_id=static_cast<int>(al["REGION_ID"].data<float>());
       if(last_region_id>0 && rt_id!=last_region_id) {
 	if(!storage.StoreRtChamber(last_region_id, points)) {
-	  std::cerr<<"Storage_failed"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Storage_failed"<<endmsg;
 	  return false;
 	}
 	points.clear();
@@ -205,21 +196,22 @@ bool  CalibRtDbOperations::ReadForConditions(std::string /*site_name*/, int head
     }
     if(last_region_id>0) {
       if(!storage.StoreRtChamber(last_region_id, points)) {
-	std::cerr<<"Storage_failed"<<std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+        log<<MSG::WARNING<<"Storage_failed"<<endmsg;
+        return false;
       }
     }		
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     m_db_conn.Rollback();
     return false;
   }	
 }
 
 bool CalibRtDbOperations::getRtId(bool validated,  RtFullInfo * full_info) {
-  std::cout<<"CalibRtDbOperations::getRtId"<<std::endl;
 //select MDT_RT, ... from MDT_RT where head_id=:hid and site_name=:sn and region_id=:rid and [and validflag>0| and validflag=0]
   m_query=m_db_conn.GetQuery();
   m_query->addToTableList("MDT_RT");
@@ -269,7 +261,8 @@ bool CalibRtDbOperations::getRtId(bool validated,  RtFullInfo * full_info) {
     }
   }
   if(n_rows>1) {
-    std::cerr<<"Fount "<<n_rows<<" in MDT_RT instead of 0 or 1"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Found "<<n_rows<<" in MDT_RT instead of 0 or 1"<<endmsg;
     return false;
   }
   m_db_conn.DestroyQuery(m_query);
@@ -277,8 +270,6 @@ bool CalibRtDbOperations::getRtId(bool validated,  RtFullInfo * full_info) {
 }
 
 inline bool CalibRtDbOperations ::readRTS(std::vector<SamplePoint> &points) {
-  std::cout<<"CalibRtDbOperations ::readRTS"<<std::endl;
-  std::cout<<"m_n_points="<<m_n_points<<std::endl;
   m_query=m_db_conn.GetQuery();
   m_query->addToTableList("MDT_RT_MAP");
   coral::AttributeList conditionData;	
@@ -296,17 +287,16 @@ inline bool CalibRtDbOperations ::readRTS(std::vector<SamplePoint> &points) {
   m_query->addToOutputList("MDT_RT_MAP.S", "S");
   m_query->addToOrderList("MDT_RT_MAP.POINT_NR");
   m_query->setRowCacheSize(100);
-  std::cout<<"m_n_points="<<m_n_points<<std::endl;
   coral::ICursor& cursor = m_query->execute();
   points.clear();
   points.resize(m_n_points);
-  std::cout<<"m_n_points="<<m_n_points<<std::endl;
   int count(0);
   while (cursor.next())	{
     const coral::AttributeList & al= cursor.currentRow();
     int pt_nr(static_cast<int>(al["POINT_NR"].data<short>()));
     if(pt_nr>=m_n_points) {
-      std::cerr<<"Illegal point number "<<pt_nr<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+      log<<MSG::WARNING<<"Illegal point number "<<pt_nr<<endmsg;
       return false;
     }
     SamplePoint point(al["T"].data<float>(), al["R"].data<float>(), al["S"].data<float>());
@@ -314,7 +304,8 @@ inline bool CalibRtDbOperations ::readRTS(std::vector<SamplePoint> &points) {
     count++;
   }
   if (count!=m_n_points) {
-    std::cerr<<m_n_points<<" points expected, "<<count<<" found!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<m_n_points<<" points expected, "<<count<<" found!"<<endmsg;
     return false;
   }
   m_db_conn.DestroyQuery(m_query);	
@@ -322,7 +313,6 @@ inline bool CalibRtDbOperations ::readRTS(std::vector<SamplePoint> &points) {
 }
 
 inline bool CalibRtDbOperations ::updateFullInfo(const RtFullInfo * full_info, const int & validflag, const int & n_points) {
-  std::cout<<"CalibRtDbOperations::updateFullInfo"<<std::endl;
   coral::ITableDataEditor & editor=m_db_conn.GetTableEditor("MDT_RT");
   std::string updateAction = "N_SEGS = :N_SEGS, AVER_ANGLE = :AVER_ANGLE, DELTA_AVER_ANGLE = :DELTA_AVER_ANGLE, AVER_SPREAD = :AVER_SPREAD, DELTA_AVER_SPREAD = :DELTA_AVER_SPREAD, CONVERGENCE = :CONVERGENCE, VALIDFLAG=:VALIDFLAG, BINS=:BINS, ALGO_FLAG=:ALGO_FLAG";
   std::string updateCondition = "HEAD_ID=:hid and REGION_ID=:rid and CALIBFLAG=:rtid";
@@ -335,7 +325,8 @@ inline bool CalibRtDbOperations ::updateFullInfo(const RtFullInfo * full_info, c
   updateData.extend<int>("rid");
   updateData["rid"].data<int>()=m_region_id;
   if(editor.updateRows( updateAction, updateCondition, updateData )!=1)	{
-    std::cerr<<"Invalid number of rows updated in MDT_RT!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Invalid number of rows updated in MDT_RT!"<<endmsg;
     return false;
   }
   return true;
@@ -357,7 +348,8 @@ inline bool CalibRtDbOperations ::updateRTSable(const std::vector<SamplePoint> &
     deleteData[3].data<int>() = static_cast<int>(points.size());
     long rowsDeleted = editor.deleteRows( deleteCondition, deleteData );
     if(rowsDeleted != m_n_points - static_cast<int>(points.size())) {
-      std::cerr<<rowsDeleted<<" Points removed instead of "<< m_n_points - static_cast<int>(points.size())<<"! Rolling back!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+      log<<MSG::WARNING<<rowsDeleted<<" Points removed instead of "<< m_n_points - static_cast<int>(points.size())<<"! Rolling back!"<<endmsg;
       return false;
     }
   }
@@ -375,8 +367,9 @@ inline bool CalibRtDbOperations ::updateRTSable(const std::vector<SamplePoint> &
       std::string updateAction = "R=:R, T=:T, S=:S";
       std::string updateCondition = "CALIBFLAG=:CALIBFLAG and POINT_NR=:POINT_NR and HEAD_ID=:HEAD_ID and REGION_ID=:REGION_ID";
       if(editor.updateRows( updateAction, updateCondition,  table_data)!=1) {
-	std::cerr<<"Wrong number of points updated!"<<std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+        log<<MSG::WARNING<<"Wrong number of points updated!"<<endmsg;
+        return false;
       }
     } else {
       editor.insertRow(table_data);
@@ -386,7 +379,6 @@ inline bool CalibRtDbOperations ::updateRTSable(const std::vector<SamplePoint> &
 }
 
 inline bool CalibRtDbOperations ::insertFullInfo(const RtFullInfo * full_info, const int & validflag, const int & n_points) {
-  std::cout<<"CalibRtDbOperations::insertFullInfo"<<std::endl;
   coral::ITableDataEditor & editor=m_db_conn.GetTableEditor("MDT_RT");
   coral::AttributeList rowBuffer;
   fullInfoInitData(full_info, validflag, rowBuffer, n_points,true);
@@ -416,7 +408,6 @@ inline bool  CalibRtDbOperations ::insertRTSable(const std::vector<SamplePoint> 
 }
 
 inline void CalibRtDbOperations::fullInfoInitData( const RtFullInfo * full_info, const int & validflag, coral::AttributeList  &updateData, const int & n_bins, const bool & for_insert) {
-  std::cout<<"CalibRtDbOperations::fullInfoInitData"<<std::endl;
   if(for_insert) {
     updateData.extend<int>("REGION_ID");
     updateData["REGION_ID"].data<int>()=m_region_id;
@@ -443,11 +434,13 @@ inline void CalibRtDbOperations::fullInfoInitData( const RtFullInfo * full_info,
   } else if (full_info->implementation()=="Validation")	{
     m_prev_algs+="Val";
   } else {
-    std::cout<<"Unknown implementation '"<<full_info->implementation()<<"'!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"Unknown implementation '"<<full_info->implementation()<<"'!"<<endmsg;
     m_prev_algs+="UU";
   }
   if(m_prev_algs.size()>25) {
-    std::cout<<"m_prev_algs exceeds size: "<<m_prev_algs<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibRtDbOperations");
+    log<<MSG::WARNING<<"m_prev_algs exceeds size: "<<m_prev_algs<<endmsg;
     m_prev_algs="..";
   }
   updateData.extend<std::string>("ALGO_FLAG");

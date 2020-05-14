@@ -41,7 +41,7 @@ EventCounterAlg::EventCounterAlg( const std::string& name,
   //
   // Property declaration
   //
-  declareProperty( "BookkeepOtherMCEventWeights", m_trackOtherMCWeights=false,
+  declareProperty( "BookkeepOtherMCEventWeights", m_trackOtherMCWeights=true,
                    "If true, the non-nominal MC event weights will be bookkept as well" );
 }
 

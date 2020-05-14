@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
  
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 #include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 
 // Class for setting up PRD cache containers
@@ -19,7 +19,7 @@ class MuonPRDCacheCreator : public AthReentrantAlgorithm {
   /// Constructor
   MuonPRDCacheCreator(const std::string &name,ISvcLocator *pSvcLocator);
   /// Destructor
-  virtual ~MuonPRDCacheCreator()  ;
+  virtual ~MuonPRDCacheCreator()=default;
 
   /// Initialize the algorithm
   virtual StatusCode initialize () override;
@@ -43,9 +43,7 @@ protected:
   SG::WriteHandleKey<RpcCoinDataCollection_Cache>       m_RpcCoinCacheKey;
   SG::WriteHandleKey<TgcCoinDataCollection_Cache>       m_TgcCoinCacheKey;
 
-
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;

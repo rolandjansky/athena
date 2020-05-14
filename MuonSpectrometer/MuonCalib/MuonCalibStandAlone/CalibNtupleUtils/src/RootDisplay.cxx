@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <TString.h> // for Form
 
 Display::Display(const char* name,
 		 double xll,double yll,
@@ -90,8 +91,6 @@ void Display::calculateCanvasSize(int &width, int& height)
 void Display::setTextBox(std::string /*text*/)
 {
   m_textBox->Clear();
-  //  TText *t0= m_textBox->AddText( "evt/pat/seg" );
-  //  TText *t1= m_textBox->AddText( text.c_str() );
  }
 
 void Display::calculateRange()
@@ -123,7 +122,6 @@ void Display::calculateRange()
   m_yll = yll - offset;
   m_xrh = xrh + offset;
   m_yrh = yrh + offset;
-  std::cout << " new range (" << m_xll << "," << m_yll << ")  (" << m_xrh << "," << m_yrh << ") " << std::endl;
 }
 
 
@@ -177,8 +175,7 @@ void ShapeCreator::applyProjection(const TVector3& pos, double& x1, double& x2){
 
 void ShapeCreator::setProjection(int p)
 {
-  if(p != 0 && p != 1 && p != 2 && p != 3 && p != 4)
-    std::cout << "ERROR Wrong projection " << std::endl;
+  if(p != 0 && p != 1 && p != 2 && p != 3 && p != 4) throw std::runtime_error(Form("File: %s, Line: %d\nShapeCreator::setProjection() - ERROR Wrong projection", __FILE__, __LINE__));
   m_projection = p;
 }
 

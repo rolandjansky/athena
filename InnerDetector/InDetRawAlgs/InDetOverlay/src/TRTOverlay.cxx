@@ -5,7 +5,7 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetOverlay/TRTOverlay.h"

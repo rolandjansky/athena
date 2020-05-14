@@ -208,18 +208,13 @@ namespace MuonCalib{
 
       // store previous moore track so we can add the back extrapolated ones if any
       if( author == 0 ){
-// 	std::cout << " new moore track " << extendedTrack->dump() << std::endl;
 	previousMooreTrack = extendedTrack;
       }else if ( (author == 1 || author == 2 ) && previousMooreTrack ){
-// 	std::cout << "   adding track " << extendedTrack->dump() << std::endl;
 	previousMooreTrack->addAssociatedTrack(extendedTrack);
 	extendedTrack->addAssociatedTrack(previousMooreTrack);
       } else if (author == 10 &&(*track_it)->nrHits()==0) {
-// 	std::cout << " new muidSA track " << extendedTrack->dump() << std::endl;
 // Associate MuidSA/MooreExtrapolate to IP to author 0 if no hits on track
         TrackVec& trackVec0 = m_extendedTracks[0];
-//        std::cout << " author 10 track " << std::endl; 
-        bool foundAssociatedMooreTrack = false;
         double dotprodmax = -1.;
         if(trackVec0.size()>0) {
           int trackcount10 = trackVec.size();
@@ -229,10 +224,8 @@ namespace MuonCalib{
           const MuonCalibExtendedTrack* associatedMooreTrack = 0;
           for( ;it0!=it0_end; ++it0 ) {
             trackcount0++;
-//            std::cout << " trackcount0 " << trackcount0 << " trackcount10 " << trackcount10 << std::endl; 
             if(trackcount10>trackcount0) continue; 
             double dotprod =  extendedTrack->direction().dot((*it0)->direction());
-//            std::cout << " author 10 and 0 dot product " << dotprod << std::endl; 
             if(extendedTrack->isAssociated(*it0)) continue; 
             if((*it0)->isAssociated(extendedTrack)) continue; 
             if(dotprod>dotprodmax) {
@@ -244,32 +237,12 @@ namespace MuonCalib{
 	  if(dotprodmax>0.8 && associatedMooreTrack) {
             extendedTrack->addAssociatedTrack(associatedMooreTrack);
             associatedMooreTrack->addAssociatedTrack(extendedTrack);
-            foundAssociatedMooreTrack = true;
-          } else /*if (associatedMooreTrack)*/ {
-//            extendedTrack->addAssociatedTrack(associatedMooreTrack);
-//            associatedMooreTrack->addAssociatedTrack(extendedTrack);
-            foundAssociatedMooreTrack = false;
           }
         }
-        if(foundAssociatedMooreTrack) {
-//           if(dotprodmax<0.8) std::cout << " Lousy match Moore tracks size " << trackVec0.size() << std::endl;
-//           std::cout << " author 10 track associated to Moore Track " << dotprodmax << std::endl; 
-        }  
-//        if(!foundAssociatedMooreTrack) std::cout << " author 10 track NOT associated to Moore Track " << std::endl; 
       }
       
       trackVec.push_back(extendedTrack);
     }
-
-//     // only print if there is some activity in the muon system
-//     if( !m_extendedTracks.empty() && 
-// 	( (m_extendedTracks.size() > 1) ||
-// 	  m_extendedTracks.size() == 1 && !m_extendedTracks.count(1000) ) ){
-//       std::cout << " Created Extended tracks, authors: " << m_extendedTracks.size() << std::endl;
-//       AuthorTrackVecIt it = m_extendedTracks.begin();
-//       AuthorTrackVecIt it_end = m_extendedTracks.end();
-//       for( ;it!=it_end; ++it ) std::cout << "  author " << std::setw(6) << it->first << " ntracks " << it->second.size() << std::endl;
-//     }
   }
 
   void EventHandler::createExtendedTruthTracks() {
@@ -669,18 +642,6 @@ namespace MuonCalib{
 
        }
     } 
-//    MuonCalibEvent_E::TrackVec::const_iterator track_it = m_event->beginTrack();
-//    MuonCalibEvent_E::TrackVec::const_iterator track_it_end = m_event->endTrack();
-//    for ( ; track_it!=track_it_end; track_it++) {
-//      // reference to current track
-//      const MuonCalibTrack_E& track = **track_it;
-//      int author = track.author();
-//      TrackVec& trackVec = m_extendedTracks[author];
-//      // create new extended track and add it to TrackVec
-//      MuonCalibExtendedTrack* extendedTrack = new MuonCalibExtendedTrack(track,0,0);
-//      trackVec.push_back(extendedTrack);
-//    }
-
   }
 
   void EventHandler::createExtendedSegments() {
@@ -699,7 +660,6 @@ namespace MuonCalib{
 	
 	// get author 
 	int author = seg.author();
-	//if( !m_extendedSegments.count(author) ) std::cout << " new author " << author << std::endl;
 	SegmentVec& segVec = m_extendedSegments[author];
 
 	// create new extended segment
@@ -869,24 +829,6 @@ namespace MuonCalib{
 
     return nnotOnTrack+10*noppositeSign+100*nsameSign;
 
-
-//    unsigned int nhits = nsameSign + noppositeSign + nnotOnTrack;
-//    double matchFraction = (double)nsameSign/(double)nhits;
-
-    // match if all hits have same sign
-//    if( nhits == nsameSign ) return true;
-    
-
-    // allow one opposite sign hit if the number of hits on the segment is larger than four */
-//    if( nhits > 4 && matchFraction > 0.7 && nhits == noppositeSign + nsameSign ) return true;
-
-    // allow one opposite sign hit if the number of hits on the segment is larger than four */
-//    if( nhits > 4 && matchFraction > 0.85 ) return true;
-
-//    if( nsameSign > 3 ){
-//      std::cout << " segment with large overlap but no match: nhits " << nhits << " nsame " << nsameSign << " nopp " << noppositeSign << std::endl;
-//    }
-//    return false;
   }
 
   void EventHandler::linkTracks( int referenceIndex ) {
@@ -896,8 +838,6 @@ namespace MuonCalib{
     if( pos == m_extendedTracks.end() ) return;
     
     TrackVec& refTracks = pos->second;
-
-//    std::cout << " linking tracks, reference " << referenceIndex << " number of tracks " << refTracks.size() << std::endl;
 
     // loop over reference tracks and associate other authors
     TrkIt rit = refTracks.begin();
@@ -913,8 +853,6 @@ namespace MuonCalib{
 	if( ait->first == referenceIndex ) continue;
 
 	TrackVec& tracks = ait->second;
-
-	//std::cout << " comparing to " << ait->first << " number of tracks " << tracks.size() << std::endl;
 	
 	match( **rit, tracks );
 	
@@ -935,7 +873,6 @@ namespace MuonCalib{
       if( reference.isAssociated(*it) ) continue;
 
       MuonCalibExtendedTrackOverlap overlap = reference.calculateHitOverlap(**it);
-//      std::cout << " match overlap " << overlap.sharedPrecisionHits() << std::endl;
       if(  overlap.sharedPrecisionHits() > 0 ){
 	if( overlap.sharedPrecisionHits() > bestOverlap.sharedPrecisionHits() ) {
 	  bestMatch = *it;
@@ -945,11 +882,6 @@ namespace MuonCalib{
     }
     
     if( bestMatch ){
-      
-//       std::cout << " found best overlap: precicion " << bestOverlap.sharedPrecisionHits()
-// 		<< " Trigger: eta " << bestOverlap.sharedEtaTriggerHits()
-// 		<< " phi " << bestOverlap.sharedPhiHits() << std::endl;
-
       reference.addAssociatedTrack(bestMatch);
       bestMatch->addAssociatedTrack(&reference);
     }

@@ -21,16 +21,16 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           MuonSpectrometer/MuonSimData
                           Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( Eigen )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( MuonPrepRawDataToxAOD
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps GeoPrimitives Identifier EventPrimitives xAODTracking MuonIdHelpersLib MuonRDO MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData TrkEventPrimitives TrkToolInterfaces )
+                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps GeoPrimitives Identifier EventPrimitives xAODTracking MuonIdHelpersLib MuonRDO MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData TrkEventPrimitives TrkToolInterfaces )
 

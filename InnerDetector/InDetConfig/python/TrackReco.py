@@ -2,28 +2,25 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.UnifyProperties import unifySet,_propsToUnify
-_propsToUnify['THistSvc.Output'] = unifySet
 
 ##------------------------------------------------------------------------------
 def InDetBCM_ZeroSuppressionCfg(flags, **kwargs):
-    from BCM_ZeroSuppression.BCM_ZeroSuppressionConf import BCM_ZeroSuppression
     acc = ComponentAccumulator()
     kwargs.setdefault("BcmContainerName", "BCM_RDOs")
-    algo = BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
+    algo = CompFactory.BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
     acc.addEventAlgo(algo, primary = True)
     return acc
 
 ##------------------------------------------------------------------------------
 def InDetPixelClusterizationCfg(flags, **kwargs) :
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-    sub_acc,merged_pixels_tool = InDetMergedPixelsToolCfg(flags, **kwargs)
+    sub_acc = InDetMergedPixelsToolCfg(flags, **kwargs)
+    merged_pixels_tool = sub_acc.getPrimary()
     acc.merge(sub_acc)
-    sub_acc,ambi_finder = InDetPixelGangedAmbiguitiesFinderCfg(flags)
+    sub_acc = InDetPixelGangedAmbiguitiesFinderCfg(flags)
+    ambi_finder=sub_acc.getPrimary()
     acc.merge(sub_acc)
-    acc.addEventAlgo( InDet__PixelClusterization(   name                    = "InDetPixelClusterization",
+    acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name                    = "InDetPixelClusterization",
                                                     clusteringTool          = merged_pixels_tool,
                                                     gangedAmbiguitiesFinder = ambi_finder,
                                                     DataObjectName          = "PixelRDOs",
@@ -41,22 +38,17 @@ def InDetPixelClusterizationPUCfg(flags, **kwargs) :
 ##------------------------------------------------------------------------------
 
 def InDet_SCTClusterizationCfg(flags, **kwargs) :
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    #####################
-    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetup.setup()
 
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-    InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+    # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
+    from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
+    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
 
     #### Clustering tool ######
-    accbuf, InDetClusterMakerTool = InDetClusterMakerToolCfg(flags, **kwargs)
+    accbuf = InDetClusterMakerToolCfg(flags, **kwargs)
+    InDetClusterMakerTool = accbuf.getPrimary()
     acc.merge(accbuf)
-    from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
-    InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(    name              = "InDetSCT_ClusteringTool",
+    InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool(    name              = "InDetSCT_ClusteringTool",
                                                             globalPosAlg     = InDetClusterMakerTool,
                                                             conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
@@ -65,8 +57,7 @@ def InDet_SCTClusterizationCfg(flags, **kwargs) :
        else: 
           InDetSCT_ClusteringTool.timeBins = "X1X" 
 
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
-    acc.addEventAlgo( InDet__SCT_Clusterization(    name                    = "InDetSCT_Clusterization",
+    acc.addEventAlgo( CompFactory.InDet.SCT_Clusterization(    name                    = "InDetSCT_Clusterization",
                                                     clusteringTool          = InDetSCT_ClusteringTool,
                                                     DataObjectName          = 'SCT_RDOs', ##InDetKeys.SCT_RDOs(),
                                                     ClustersName            = 'SCT_Clusters', ##InDetKeys.SCT_Clusters(),
@@ -87,17 +78,14 @@ def InDet_SCTClusterizationPUCfg(flags, **kwargs) :
 
 ##------------------------------------------------------------------------------
 def InDetPixelGangedAmbiguitiesFinderCfg(flags) :
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
-    InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
-    acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder )
-    return acc,InDetPixelGangedAmbiguitiesFinder
+    InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
+    acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
+    return acc
 
 
 ##------------------------------------------------------------------------------
 def InDetMergedPixelsToolCfg(flags, **kwargs) :
-      from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
       acc = ComponentAccumulator()
       clusterSplitProbTool = None
       clusterSplitterTool  = None
@@ -107,20 +95,19 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
          if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
             useBeamConstraint = flags.InDet.useBeamConstraint
 
-            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
+ 
             # --- new NN prob tool
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
-            NnClusterizationFactory = InDet__NnClusterizationFactory(   name                         = "NnClusterizationFactory",
-                                                                        PixelLorentzAngleTool        = PixelLorentzAngleToolCfg( flags ),
+            NnClusterizationFactory = CompFactory.InDet.NnClusterizationFactory(   name                         = "NnClusterizationFactory",
+                                                                        PixelLorentzAngleTool        = PixelLorentzAngleTool( flags ),
                                                                         useToT                       = flags.InDet.doNNToTCalibration,
                                                                         NnCollectionReadKey          = "PixelClusterNN",
                                                                         NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
-
             MultiplicityContent = [1 , 1 , 1]
             if flags.InDet.doSLHC:
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitProbTool as PixelClusterSplitProbTool
+                PixelClusterSplitProbTool=CompFactory.InDet.TruthPixelClusterSplitProbTool
             else:
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool as PixelClusterSplitProbTool
+                PixelClusterSplitProbTool=CompFactory.InDet.NnPixelClusterSplitProbTool
             NnPixelClusterSplitProbTool=PixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
                                                                            PriorMultiplicityContent = MultiplicityContent,
                                                                            NnClusterizationFactory  = NnClusterizationFactory,
@@ -129,9 +116,9 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
             clusterSplitProbTool = NnPixelClusterSplitProbTool
             # --- new NN splitter
             if flags.InDet.doSLHC :
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitter as PixelClusterSplitter
+                PixelClusterSplitter=CompFactory.InDet.TruthPixelClusterSplitter
             else:
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter as PixelClusterSplitter
+                PixelClusterSplitter=CompFactory.InDet.NnPixelClusterSplitter
             NnPixelClusterSplitter=PixelClusterSplitter(    name                                = "NnPixelClusterSplitter",
                                                             NnClusterizationFactory             = NnClusterizationFactory,
                                                             ThresholdSplittingIntoTwoClusters   = 0.5, ##InDet.pixelClusterSplitProb1, ###0.5, # temp.
@@ -142,22 +129,17 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
             clusterSplitterTool = NnPixelClusterSplitter
          # --- Neutral Network version ?
          elif flags.InDet.pixelClusterSplittingType == 'AnalogClus':      
-            # new splitter tool
-            from SiClusterizationTool.SiClusterizationToolConf import InDet__TotPixelClusterSplitter
-            TotPixelClusterSplitter=InDet__TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
-            # remember splitter tool    
-            clusterSplitterTool = TotPixelClusterSplitter
+            # new splitter tool & remember splitter tool    
+            clusterSplitterTool=CompFactory.InDet.TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
       
-
       # --- now load the framework for the clustering
-      #from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-      #InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool")
+      #InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name                 = "InDetClusterMakerTool")
       #acc.addPublicTool(InDetClusterMakerTool)
-      accbuf, InDetClusterMakerTool = InDetClusterMakerToolCfg(flags, **kwargs)
+      accbuf = InDetClusterMakerToolCfg(flags, **kwargs)
+      InDetClusterMakerTool = accbuf.getPrimary()
       acc.merge(accbuf)
 
-      from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-      InDetMergedPixelsTool = InDet__MergedPixelsTool(  name                    = "InDetMergedPixelsTool", 
+      InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name                    = "InDetMergedPixelsTool", 
                                                         globalPosAlg            = InDetClusterMakerTool,
                                                         MinimalSplitSize        = 0,
                                                         MaximalSplitSize        = 49,
@@ -167,21 +149,16 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       if not flags.InDet.doTIDE_Ambi and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
       if not flags.InDet.doTIDE_Ambi and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
 
-      sub_acc = ComponentAccumulator()      
-      acc.addPublicTool(InDetMergedPixelsTool)
-      acc.merge(sub_acc)
-      return acc,InDetMergedPixelsTool
+      acc.addPublicTool(InDetMergedPixelsTool, primary=True)
+      return acc
 ##------------------------------------------------------------------------------
 def InDetClusterMakerToolCfg(flags, **kwargs) :
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-    InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool")
-    SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
+    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = "InDetClusterMakerTool")
 
-    SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
+    SCTLorentzAngleTool = CompFactory.SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldCache = True
     acc.addPublicTool(SCTLorentzAngleTool)
-    acc.addPublicTool(InDetClusterMakerTool)
-    return acc,InDetClusterMakerTool
+    acc.addPublicTool(InDetClusterMakerTool, primary=True)
+    return acc
 

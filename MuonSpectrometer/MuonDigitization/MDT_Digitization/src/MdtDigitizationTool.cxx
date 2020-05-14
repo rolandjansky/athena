@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 
 //Random Numbers
 #include "AthenaKernel/RNGWrapper.h"
@@ -503,8 +503,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
   if(m_DoQballCharge == true ) {
     // chargeCalculator returns the value of electric charge for Qball particle.
     // particleGamma returns the value of gamma for Qball particle.
-    qgamma=particleGamma(hit);
-    qcharge=chargeCalculator(hit); 
+    qgamma=particleGamma(hit, phit.eventId());
+    qcharge=chargeCalculator(hit, phit.eventId()); 
     
     MdtDigiToolInput digiInput1(fabs(driftRadius),distRO,0.,0.,qcharge,qgamma); 
     digiInput = digiInput1;
@@ -903,7 +903,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
 
       //Create the Deposit for MuonSimData
-      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag), MuonMCData((float)driftRadius,localZPos));
 
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;

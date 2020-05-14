@@ -66,20 +66,20 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx src/CaloGeometryFromCaloDDM.cxx src/CaloGeometryLookup.cxx src/CaloGeometry.cxx
+                   Root/*.cxx src/lib/CaloGeometryFromCaloDDM.cxx src/lib/CaloGeometryLookup.cxx src/lib/CaloGeometry.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
                    PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib CaloGeoHelpers AthenaBaseComps AthenaKernel Identifier GaudiKernel ISF_Interfaces TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests TileConditionsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib CaloGeoHelpers AthenaBaseComps AthenaKernel Identifier GaudiKernel ISF_InterfacesLib TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests TileConditionsLib
                    PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GEANT4_LIBRARIES} CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack )
 
 atlas_add_component( ISF_FastCaloSimParametrization
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEANT4_LIBRARIES} CaloDetDescrLib CaloGeoHelpers AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel ISF_Interfaces TrkEventPrimitives TrkParameters TrkExInterfaces CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileConditionsLib TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack ISF_FastCaloSimParametrizationLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GEANT4_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEANT4_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloInterfaceLib AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel ISF_InterfacesLib TrkEventPrimitives TrkParameters TrkExInterfaces CaloEvent CaloIdentifier AthenaPoolUtilities GeoAdaptors EventInfo NavFourMom GeneratorObjects LArSimEvent ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces TileConditionsLib TileDetDescr TileSimEvent TrkGeometry TrkSurfaces TrkMaterialOnTrack ISF_FastCaloSimParametrizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

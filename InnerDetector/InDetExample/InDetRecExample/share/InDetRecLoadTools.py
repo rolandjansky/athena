@@ -339,8 +339,7 @@ if InDetFlags.doPattern():
     # Igors propagator needed by Igors tools
     #
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-    InDetPatternPropagator = Propagator(name = 'InDetPatternPropagator',
-                                        UseCondObj = False)
+    InDetPatternPropagator = Propagator(name = 'InDetPatternPropagator')
     ToolSvc += InDetPatternPropagator
     if (InDetFlags.doPrintConfigurables()):
       printfunc (     InDetPatternPropagator)

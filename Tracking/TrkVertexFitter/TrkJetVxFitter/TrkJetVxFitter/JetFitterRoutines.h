@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,6 +36,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk {
 
@@ -263,6 +266,9 @@ namespace Trk {
      * after checking new positions are inside the ID
      */
     void copyRecoPositionsToLinearizationPositions(VxJetCandidate & myJetCandidate) const;
+
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey
+       {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
  
     ToolHandle<JetFitterInitializationHelper> m_initializationHelper;
     ToolHandle<JetFitterHelper> m_helper;

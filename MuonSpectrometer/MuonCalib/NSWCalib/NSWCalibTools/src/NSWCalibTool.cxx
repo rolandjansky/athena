@@ -15,12 +15,10 @@ namespace {
 Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 				  const std::string& n, 
 				  const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  AthAlgTool(t,n,p)
 {
   declareInterface<INSWCalibTool>(this);
 
-  declareProperty("MagFieldSvc",   m_magFieldSvc, "Magnetic Field Service");
   declareProperty("DriftVelocity", m_vDrift = 0.047, "Drift Velocity");
   declareProperty("TimeResolution", m_timeRes = 25., "Time Resolution");
   declareProperty("longDiff",m_longDiff=0.019); //mm/mm
@@ -34,16 +32,14 @@ StatusCode Muon::NSWCalibTool::initialize()
 {
 
   ATH_MSG_DEBUG("In initialize()");
-  ATH_CHECK(m_magFieldSvc.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
-
   if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
-    ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
+    ATH_MSG_ERROR("MM or STGC not part of initialized detector layout");
     return StatusCode::FAILURE;
   }
-   m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
-   m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
-
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
+  m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
+  m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
   return StatusCode::SUCCESS;
 
 }
@@ -58,8 +54,17 @@ StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, con
   calibStrip.identifier = mmRawData->identify();
 
   /// magnetic field
+  MagField::AtlasFieldCache fieldCache;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (!fieldCondObj) {
+    ATH_MSG_ERROR("doDigitization: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return StatusCode::FAILURE;
+  }
+  fieldCondObj->getInitializedCache(fieldCache);
+
   Amg::Vector3D magneticField;
-  m_magFieldSvc->getField(&globalPos,&magneticField);
+  fieldCache.getField(globalPos.data(), magneticField.data());
 
   /// get the component parallel to to the eta strips (same used in digitization)
   double phi    = globalPos.phi();

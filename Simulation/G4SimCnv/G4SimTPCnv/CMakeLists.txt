@@ -25,7 +25,7 @@ atlas_add_tpcnv_library( G4SimTPCnv
                          INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                          DEFINITIONS ${CLHEP_DEFINITIONS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib AthenaKernel )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolServicesLib AthenaKernel TrackRecordLib )
 
 atlas_add_dictionary( G4SimTPCnvDict
                       G4SimTPCnv/G4SimTPCnvDict.h
