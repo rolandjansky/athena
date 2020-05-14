@@ -40,37 +40,22 @@ genSeq.Sherpa_i.Parameters += [
     "SCALE_VARIATIONS=0.25,0.25 0.25,1. 1.,0.25 1.,1. 1.,4. 4.,1. 4.,4.",
     ]
 
-## Load particle masses/widths from parameter dictionary located in EvgenProdTools/python/offline_dict.py 
-from EvgenProdTools.offline_dict import parameters
-for k,v in parameters.items():
-    if k == 'particles':
-        for key,value in v.items():
-            if int(key) in range(6,26):
-## This includes now the top quark, the leptons and the bosons
-                genSeq.Sherpa_i.Parameters += [ 
-                    'MASS['+key+']='+ value['mass'],
-                    'WIDTH['+key+']='+ value['width'],
-                ]
+## Particle masses/widths
+genSeq.Sherpa_i.Parameters += [
+    "MASS[6]=172.5",
+    "WIDTH[6]=1.32",
+    "MASS[15]=1.777",
+    "WIDTH[15]=2.26735e-12",
+    "MASS[23]=91.1876",
+    "WIDTH[23]=2.4952",
+    "MASS[24]=80.399",
+    "WIDTH[24]=2.085",
+    ]
 
 ## Switch to EW_SCHEME=0 to be able to set PDG value of thetaW
 genSeq.Sherpa_i.Parameters += [
     "EW_SCHEME=0",
-    ]
-
-## Set EW parameters also via parameter dictionary
-for k,v in parameters.items():
-    if k == 'EW_parameters':
-        for key,value in v.items():
-            if key[0] == 'SIN2THETAW':
-                genSeq.Sherpa_i.Parameters += [
-                    str(key[0])+'='+str(value),
-                ]
-
-## Add Lund hadronisation model switches from arXiv:1905.09127
-genSeq.Sherpa_i.Parameters += [
-    "PARJ(21)=0.36",
-    "PARJ(41)=0.3",
-    "PARJ(42)=0.6",
+    "SIN2THETAW=0.23113",
     ]
 
 ## set/add partial widths for H, W, Z to PDG values
