@@ -4,17 +4,20 @@
 
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
+#include "xAODMetaData/FileMetaData.h"
 
 // Local include(s):
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
 #include "TauAnalysisTools/TauSmearingRun1Tool.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace TauAnalysisTools
 {
 
 TauSmearingTool::TauSmearingTool( const std::string& sName )
-  : asg::AsgTool( sName )
+  : asg::AsgMetadataTool( sName )
   , m_tCommonSmearingTool(sName+"_CommonSmearingTool", this)
   , m_sInputFilePath("")
 {
@@ -25,6 +28,7 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
   declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
+  declareProperty( "isAFII",	                   m_sAFII	                   = false );
 
   // deprecated property
   declareProperty( "IsData",              m_bIsData = false );
@@ -58,7 +62,10 @@ StatusCode TauSmearingTool::initialize()
       if (m_sRecommendationTag == "mc16-prerec" || m_sRecommendationTag == "2018-summer")
         m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc16-prerec.root";
       else if (m_sRecommendationTag == "2019-summer")
-        m_sInputFilePath = sDirectory+"TES_TrueHadTau_2019-summer.root";
+      {
+	if (m_sAFII) m_sInputFilePath = sDirectory+"TES_TrueHadTau_2019-summer_AFII.root";
+        else m_sInputFilePath = sDirectory+"TES_TrueHadTau_2019-summer.root";
+      }
     }
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCommonSmearingTool, TauAnalysisTools::CommonSmearingTool));
     ATH_CHECK(m_tCommonSmearingTool.setProperty("InputFilePath", m_sInputFilePath));
@@ -147,6 +154,27 @@ StatusCode TauSmearingTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  return StatusCode::SUCCESS;
+}
+
+// auto detection of simulation flavour, used to cross check configuration of tool
+//______________________________________________________________________________
+StatusCode TauSmearingTool::beginInputFile()
+{
+  if (m_sRecommendationTag == "2019-summer")
+  {
+    std::string simType("");
+    if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData"))
+    {
+      const xAOD::FileMetaData* fmd = 0;
+      ATH_CHECK( inputMetaStore()->retrieve( fmd, "FileMetaData" ) );
+      bool result = fmd->value( xAOD::FileMetaData::simFlavour , simType );
+      // if no result -> no simFlavor metadata, so must be data
+      if(result) boost::to_upper(simType);
+    }
+    if (simType.find("ATLFASTII")!=std::string::npos && !m_sAFII) ATH_MSG_WARNING("Input file is fast simulation but you are _not_ using AFII corrections and uncertainties, you should set \"isAFII\" to \"true\"");
+    else if (simType.find("FULLG4")!=std::string::npos && m_sAFII) ATH_MSG_WARNING("Input file is full simulation but you are using AFII corrections and uncertainties, you should set \"isAFII\" to \"false\"");
+  }
   return StatusCode::SUCCESS;
 }
 
