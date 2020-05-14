@@ -165,6 +165,14 @@ In order to check whether the passed object in e.g. `applyCorrection` is intende
 
 The tool will then check if the passed object is compatible with the `ApplyTo` flag provided, and will fail with a `CP::CorrectionCode::Error` if the object type is not as expected.
 
+If there are **discrete parameter values which should be left uncorrected**, you can use the flag `UncorrectedDiscontinuities`. You should pass all values which should not be corrected to it as a list, like this:
+
+```bash
+UncorrectedDiscontinuities: 0.0; 1.0
+```
+
+Note that this will work fine for integer-like floats! It will probably fail for longer floats because of the internal floating point precision of C++ (i.e. the code checks equality using `==`, and does not check if the difference between the variable value and the values which should be skipped is smaller than some epsilon). If you need this to work for all floats, contact the maintainers and we'll see what we can do.
+
 An **example configuration file** containing examples for all possible flags can be found in `./data/ElectronPhotonVariableCorrectionBase_ExampleConf.conf`. The complete list of example configuration files is (all in `./data/`):
 
 - `ElectronPhotonVariableCorrectionBase_ExampleConvertedPhotonConf.conf` for converted photons,
