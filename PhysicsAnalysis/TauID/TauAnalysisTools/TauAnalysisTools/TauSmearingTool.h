@@ -18,7 +18,7 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -29,7 +29,7 @@ namespace TauAnalysisTools
 {
 
 class TauSmearingTool
-  : public asg::AsgTool
+  : public asg::AsgMetadataTool
   , public virtual ITauSmearingTool
 {
   /// Create a proper constructor for Athena
@@ -43,6 +43,8 @@ public:
 
   /// Function initialising the tool
   virtual StatusCode initialize();
+  
+  virtual StatusCode beginInputFile();
   
   /// Apply the correction on a modifyable object
   virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau );
@@ -66,6 +68,7 @@ private:
   std::string m_sInputFilePath;
   std::string m_sRecommendationTag;
   bool m_bIsData;
+  bool m_sAFII;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
 
