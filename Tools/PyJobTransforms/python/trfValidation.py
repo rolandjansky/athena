@@ -484,7 +484,10 @@ class athenaLogFileReport(logFileReport):
                 if '<signal handler called>' in line:
                     _functionLine = linecounter+1
                 if _functionLine and linecounter is _functionLine:
-                    _currentFunction = line
+                    if ' in ' in line:
+                        _currentFunction = 'Current Function: ' + line.split(' in ')[1].split()[0]
+                    else:
+                        _currentFunction = 'Current Function: ' + line.split()[1]
             else:
                 # Can this be done - we want to push the line back into the generator to be
                 # reparsed in the normal way (might need to make the generator a class with the
@@ -496,7 +499,7 @@ class athenaLogFileReport(logFileReport):
         _run = 'Run: unknown' if not _run else _run
         _event = 'Evt: unknown' if not _event else _event
         _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
-        _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
+        _currentFunction = 'Current Function: unknown' if not _currentFunction else _currentFunction
         coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
 
         ## look up for lines before core dump for "abnormal" and "last normal" line(s)
