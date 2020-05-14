@@ -312,7 +312,7 @@ class athenaLogFileReport(logFileReport):
                     # But we can check for certain other interesting things, like core dumps
                     if 'Core dump from CoreDumpSvc' in line > -1:
                         msg.warning('Detected CoreDumpSvc report - activating core dump svc grabber')
-                        self.coreDumpSvcParser(myGen, line, lineCounter)
+                        self.coreDumpSvcParser(log, myGen, line, lineCounter)
                         continue
                     # Add the G4 exceptipon parsers
                     if 'G4Exception-START' in line > -1:
@@ -442,13 +442,20 @@ class athenaLogFileReport(logFileReport):
         return {'level': firstName, 'nLevel': firstLevel, 'firstError': firstError}
 
     ## @brief Attempt to suck a core dump report from the current logfile
-    # @note: Current implementation just eats lines until a 'normal' line is seen.
+    # This function scans log in two different directions:
+    # 1.downwards; to exctracting information after CoreDrmpSvc and 2.upwards; to find abnormal lines
+    # @note: Current downwards scan just eats lines until a 'normal' line is seen.
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
-    def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        _abnoramlLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
+    def coreDumpSvcParser(self, log, lineGenerator, firstline, firstLineCount):
+        _abnormalLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
         _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
+        seenAbnormalLine = []
+        abnormalLineReport = {}
+        lastNormalLinesReport = {}
+        detailsReport = {}
+
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
             if m == None:
@@ -492,10 +499,53 @@ class athenaLogFileReport(logFileReport):
         _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
         coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
 
+        ## look up for lines before core dump for "abnormal" and "last normal" line(s)
+
+        #  make a list of last e.g. 50 lines before core dump
+        #  An inner line generator is required to give access to the upper lines
+        linesList = []
+        innerLineGen = trfUtils.lineByLine(log)
+        for line, linecounter in innerLineGen:
+            if linecounter in range(firstLineCount-50, firstLineCount-1):
+                linesList.append([linecounter,line])
+            elif linecounter == firstLineCount:
+                break
+
+        for linecounter,line in reversed(linesList):
+            if re.findall(r'|'.join(_abnormalLinesList), line):
+                _seenLine = False
+                for dic in seenAbnormalLine:
+                    #count repetition or partly similarities e.g. first 20 char at abnormal lines
+                    if dic['message'] == line or dic['message'][0:15] == line[0:15]:
+                        dic['count'] += 1
+                        _seenLine = True
+                        break
+                    else:
+                        _seenLine = False
+                if _seenLine is False :
+                    seenAbnormalLine.append({'message': line, 'firstLine': linecounter, 'count':1})
+            else:
+                if line != '':
+                    lastNormalLinesReport = {'message':line, 'firstLine':linecounter,'count':1}
+                    break
+                else:
+                    continue
+
+        # write the list of abnormal lines into a dictionary to report
+        # each abnormal lines' details are labaled by numbers, starting from 0
+        # e.g. first abnormal lines' keys are :{'meesage0','firstLine0','count0'}
+        for a in range(len(seenAbnormalLine)):
+            abnormalLineReport.update({'message{0}'.format(a):seenAbnormalLine[a]['message'],'firstLine{0}'.format(a):seenAbnormalLine[a]['firstLine'],'count{0}'.format(a):seenAbnormalLine[a]['count']})
+        detailsReport = {'abnormalLine(s) befor CoreDump': abnormalLineReport, 'lastNormalLine before CoreDump': lastNormalLinesReport}
+
+        # concatenate briefly first seen abnormal line to the core dump message
+        if len(seenAbnormalLine) > 0:
+            coreDumpReport += '; Abnormal line(s) seen just before core dump: ' + seenAbnormalLine[0]['message'][0:30] + '...[truncated] ' + '(see the jobReport)'
+
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
         self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
+        self._errorDetails['FATAL'].append({'moreDetails': detailsReport, 'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
 
     def g494ExceptionParser(self, lineGenerator, firstline, firstLineCount):
         g4Report = firstline
