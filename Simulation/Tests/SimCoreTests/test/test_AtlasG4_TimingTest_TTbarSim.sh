@@ -30,6 +30,6 @@ echo  "art-result: $? simulation"
 ArtPackage=$1
 ArtJobName=$2
 # TODO Need to run DCube on timing histograms
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"
