@@ -539,7 +539,7 @@ class athenaLogFileReport(logFileReport):
         # e.g. first abnormal lines' keys are :{'meesage0','firstLine0','count0'}
         for a in range(len(seenAbnormalLine)):
             abnormalLineReport.update({'message{0}'.format(a):seenAbnormalLine[a]['message'],'firstLine{0}'.format(a):seenAbnormalLine[a]['firstLine'],'count{0}'.format(a):seenAbnormalLine[a]['count']})
-        detailsReport = {'abnormalLine(s) befor CoreDump': abnormalLineReport, 'lastNormalLine before CoreDump': lastNormalLinesReport}
+        detailsReport = {'abnormalLine(s) before CoreDump': abnormalLineReport, 'lastNormalLine before CoreDump': lastNormalLinesReport}
 
         # concatenate briefly first seen abnormal line to the core dump message
         if len(seenAbnormalLine) > 0:
