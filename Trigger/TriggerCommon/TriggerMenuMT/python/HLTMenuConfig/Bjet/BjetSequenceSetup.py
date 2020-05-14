@@ -6,7 +6,7 @@ from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, InViewReco
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -100,12 +100,14 @@ def bJetStep2Sequence():
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-    
+
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
     acc_flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
     inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)
+    #inViewReco = InViewReco("bJetBtagSequence")
+    #inViewReco = InViewReco("bJetBtagSequence", viewMaker= conf2toConfigurable(InputMakerAlg))
     inViewReco.addRecoAlg(secondStageAlgs)
     inViewReco.mergeReco(acc_flavourTaggingAlgs)
     acc_flavourTaggingAlgs.wasMerged()

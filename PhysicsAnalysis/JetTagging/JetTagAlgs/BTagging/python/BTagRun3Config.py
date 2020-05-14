@@ -245,7 +245,7 @@ def BTagCfg(inputFlags,**kwargs):
 def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, TimeStamp):
     result = ComponentAccumulator()
 
-    from AthenaCommon.AlgSequence import AthSequencer
+    AthSequencer=CompFactory.AthSequencer
 
     BTagCollection = 'BTagging_'+JetCollection
     sequenceName = BTagCollection + "_HLTaggers"
@@ -253,8 +253,7 @@ def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, 
             BTagCollection += '_' + TimeStamp
             sequenceName += '_' + TimeStamp
 
-    HLBTagSeq = AthSequencer(sequenceName)
-    HLBTagSeq.Sequential = True
+    HLBTagSeq = AthSequencer(sequenceName, Sequential = True)
     result.addSequence(HLBTagSeq)
 
     result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, sequenceName, BTagCollection = BTagCollection, Associator = Associator, **kwargs) )
