@@ -263,6 +263,28 @@ class athenaLogFileReport(logFileReport):
         self._dbbytes = 0
         self._dbtime  = 0.0
 
+    ## Generally, a knowledge file consists of non-standard logging error/abnormal lines
+    #  which are left out during log scan whereas they could help diagnosis job failures.
+    def knowledgeFileHandler(self, knowledgefile):
+        # load abnormal/error line(s) from the knowledge file(s)
+        _linesList = []
+        fullName = trfUtils.findFile(os.environ['DATAPATH'], knowledgefile)
+        if not fullName:
+            msg.warning('Knowledge file {0} could not be found in DATAPATH'.format(knowledgefile))
+        try:
+            with open(fullName) as knowledgeFileHandle:
+                msg.debug('Opened knowledge file {0} from here: {1}'.format(knowledgefile, fullName))
+
+                for line in knowledgeFileHandle:
+                    if line.startswith('#') or line == '' or line =='\n':
+                        continue
+                    line = line.rstrip('\n')
+                    _linesList.append(line)
+        except (IOError, OSError) as xxx_todo_changeme:
+            (errno, errMsg) = xxx_todo_changeme.args
+            msg.warning('Failed to open knowledge file {0}: {1} ({2})'.format(fullName, errMsg, errno))
+        return _linesList
+
     def scanLogFile(self, resetReport=False):
         if resetReport:
             self.resetReport()
@@ -424,6 +446,7 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
+        _abnoramlLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
         _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
         for line, linecounter in lineGenerator:
