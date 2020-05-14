@@ -10,7 +10,7 @@ Herwig7Config = Hw72ConfigLHEF(genSeq, runArgs)
 # handle compressed LHE files passed via runArgs.inputGeneratorFile
 import glob
 from AthenaCommon import Logging
-athMsgLog = Logging.logging.getLogger('Herwig7_i/Herwig7_LHEF.py')
+athMsgLog = Logging.logging.getLogger('Herwig7_i/Herwig72_LHEF.py')
 if ".tar.gz" in runArgs.inputGeneratorFile or ".tgz" in runArgs.inputGeneratorFile:
   athMsgLog.info("inputGeneratorFile '{}' is compressed - will look for uncompressed LHE file".format(runArgs.inputGeneratorFile))
   lhe_files = glob.glob("*._*.ev*ts")
