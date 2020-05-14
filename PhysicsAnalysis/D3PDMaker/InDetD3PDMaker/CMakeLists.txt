@@ -59,7 +59,7 @@ atlas_add_component( InDetD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}  ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AtlasHepMCLib ${HEPPDT_LIBRARIES}  GaudiKernel CommissionEvent AthContainers AthenaKernel StoreGateLib AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODEventInfo xAODTracking InDetBeamSpotServiceLib SCT_ConditionsToolsLib TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetSimEvent D3PDMakerUtils MCTruthClassifierLib ParticleTruth ITrackToVertex muonEvent Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtilsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AtlasHepMCLib ${HEPPDT_LIBRARIES}  GaudiKernel CommissionEvent AthContainers AthenaKernel StoreGateLib AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODEventInfo xAODTracking InDetBeamSpotServiceLib SCT_ConditionsToolsLib TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetSimEvent D3PDMakerUtils MCTruthClassifierLib ParticleTruth ITrackToVertex muonEvent Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtilsLib TRT_DriftFunctionToolLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
