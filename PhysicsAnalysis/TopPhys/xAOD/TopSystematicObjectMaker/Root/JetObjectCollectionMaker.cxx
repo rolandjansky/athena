@@ -206,6 +206,8 @@ namespace top {
     }
     ///-- Large-R JES systematics --///
     std::string largeR(m_config->largeRJetUncertainties_NPModel() + "_");
+    if(largeR=="CategoryReduction_Tau21WTA_") largeR="CategoryReduction_"; // We need to adjust the name for this configuration in order to keep correlations with small-R jets
+    
     CP::SystematicSet largeRsysts;
     if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
       if ((m_config->largeRJESJMSConfig() == "CombMass") || (m_config->largeRJESJMSConfig() == "TCCMass")) { //TA mass

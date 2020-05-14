@@ -1059,6 +1059,12 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
+    
+    inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
+      if (!m_configFixed) {
+        m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
+      }
+    }
 
     inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {
       if (!m_configFixed) {
@@ -1069,6 +1075,7 @@ namespace top {
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
     inline virtual void trackJetPtcut(const float pt) {
@@ -2085,6 +2092,7 @@ namespace top {
     float m_largeRJetPtcut; // large R jet object selection pT cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
     std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210

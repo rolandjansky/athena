@@ -199,6 +199,9 @@ namespace top {
     registerParameter("LargeRJetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
                       "CategoryReduction");
+    registerParameter("LargeRJetUncertaintiesConfigDir",
+                      "Path to directory containing large-R jet uncertainties config",
+                      "rel21/Summer2019");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
                       "CombMass");

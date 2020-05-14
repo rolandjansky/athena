@@ -420,14 +420,12 @@ namespace top {
     // names = "UJ_2016/Moriond2017/UJ2016_CaloMass_strong.config"     // strong,medium,weak
     // names = "UJ_2016/Moriond2017/UJ2016_CombinedMass_strong.config" // strong,medium,weak
 
-    std::string conference("");
     std::string configDir("");
     std::string largeRJESJMS_config = m_config->largeRJetUncertainties_NPModel();
     std::string calibArea = "None"; // Take the default JetUncertainties CalibArea tag
     std::string MC_type = "MC16";
 
-    conference = "Summer2019";
-    configDir = "rel21";
+    configDir = m_config->largeRJetUncertaintiesConfigDir();
 
     //This has zero impact on the JES uncertainties, but controls how the JER uncertainties (currently only for small-R
     // jets) are applied
@@ -436,8 +434,7 @@ namespace top {
     m_jetUncertaintiesToolLargeR
       = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
                                   jetCalibrationNameLargeR, MC_type, JERisMC,
-                                  configDir + "/" + conference
-                                  + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
+                                  configDir + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
 
     return StatusCode::SUCCESS;
   }
