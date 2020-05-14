@@ -7,6 +7,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialR
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
+import AthenaCommon.CfgMgr as CfgMgr
 
 def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
@@ -136,6 +137,21 @@ def tauCaloSequence(ConfigFlags):
     tauCaloViewsMaker.ViewNodeName       = RecoSequenceName
     (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence( InViewRoIs, RecoSequenceName)
 
+    tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
+    tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+                                     ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
+                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
+                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    tauCaloInViewSequence += tauCaloRecoVDV
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
+                                       ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
+      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
+
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
 
@@ -154,11 +170,25 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVAViewsMaker.ViewNodeName       = RecoSequenceName
     (tauCaloMVAInViewSequence, sequenceOut) = tauCaloMVARecoSequence(InViewRoIs, RecoSequenceName)
 
+    tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
+    tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+                                     ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
+                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
+                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    tauCaloMVAInViewSequence += tauCaloMVARecoVDV
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
+                                       ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
+      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
+
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
 
 def tauIdTrackSequence( RoIs , name):
-    import AthenaCommon.CfgMgr as CfgMgr
 
     tauIdTrackSequence = seqAND(name)
 
@@ -166,9 +196,6 @@ def tauIdTrackSequence( RoIs , name):
 
     if ("Iso" in name) or ("TrackTwo" in name) or ("EF" in name):
       signName = 'TauIso'
-
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs = makeInDetAlgs(whichSignature=signName,separateTrackParticleCreator="_"+signName,rois = RoIs)
 
     tauViewDataVerifierName = ""
     if "FTFId" in name:
@@ -182,14 +209,32 @@ def tauIdTrackSequence( RoIs , name):
     elif "EF" in name:
       tauViewDataVerifierName = "tauViewDataVerifierEF"
 
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier(tauViewDataVerifierName)
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    viewAlgs, ViewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator = "_" + signName, rois = RoIs, viewVerifier = tauViewDataVerifierName )
 
     if "FTFIso" in name:
-       ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]
+       ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' )]
     else:
-       ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]       
-       
-    viewAlgs.append(ViewVerify)
+       ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
+
+    ViewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
+                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),
+                               ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                       ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
+      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+      ViewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     for viewAlg in viewAlgs:
        tauIdTrackSequence += viewAlg
@@ -256,20 +301,30 @@ def tauIdTrackSequence( RoIs , name):
     return tauIdTrackSequence, sequenceOut
 
 def tauCoreTrackSequence( RoIs, name ):
-    import AthenaCommon.CfgMgr as CfgMgr
 
     tauCoreTrackSequence = seqAND(name)
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
+    viewAlgs, ViewVerify = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierCoreFTF")
-    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA')]
-    viewAlgs.append(ViewVerify)
+    ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
+                               ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #For some reason not picked up properly
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
+      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+      ViewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 

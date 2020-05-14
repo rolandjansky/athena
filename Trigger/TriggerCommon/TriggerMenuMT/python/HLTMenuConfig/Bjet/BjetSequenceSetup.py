@@ -51,7 +51,14 @@ def bJetStep1Sequence():
     jetSelector.OutputJets = recordable( outputJetName )
     jetSelector.OutputRoi = outputRoIName
 
-    bJetEtSequence = seqAND( "bJetEtSequence",[jetSelector] )
+    #BEN
+    import AthenaCommon.CfgMgr as CfgMgr
+    bJetEtVDV = CfgMgr.AthViews__ViewDataVerifier( "bJetEtVDV" )
+    bJetEtVDV.DataObjects = [( 'xAOD::VertexContainer' , 'StoreGateSvc+HLT_EFHistoPrmVtx' ),
+                             ( 'xAOD::JetContainer' , 'StoreGateSvc+HLT_AntiKt4EMTopoJets_subjesgscIS_ftf' )]
+    #END BEN
+
+    bJetEtSequence = seqAND( "bJetEtSequence", [bJetEtVDV, jetSelector] )
     InputMakerAlg.ViewNodeName = "bJetEtSequence"
 
     # Sequence
