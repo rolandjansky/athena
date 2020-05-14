@@ -21,6 +21,7 @@ class TGCArguments
     void set_TILE_MU(bool v);
     void set_USE_CONDDB(bool v);
     void set_useRun3Config(bool v);
+    void set_USE_NSW(bool v);
 
     MSG::Level MSGLEVEL() const;
     bool SHPT_ORED() const;
@@ -29,6 +30,8 @@ class TGCArguments
     bool TILE_MU() const;
     bool USE_CONDDB() const;
     bool useRun3Config() const;
+    bool USE_NSW() const;
+
 
   private:
     MSG::Level m_MSGLEVEL;
@@ -38,6 +41,10 @@ class TGCArguments
     bool m_TILE_MU;
     bool m_USE_CONDDB;
     bool m_useRun3Config;
+  bool m_USE_NSW;
+
+
+
 };
   
 } // namespace LVL1TGCTrigger

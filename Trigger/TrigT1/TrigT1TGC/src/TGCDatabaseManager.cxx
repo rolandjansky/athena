@@ -7,6 +7,7 @@
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
+#include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 #include "TrigT1TGC/TGCConnectionASDToPP.hh"
 #include "TrigT1TGC/TGCConnectionInPP.hh"
 #include "TrigT1TGC/TGCPatchPanel.hh"
@@ -127,12 +128,19 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   std::string ver_BW   = ver;
   std::string ver_EIFI = ver;
   std::string ver_TILE = ver;
+  std::string ver_NSW   = ver;
 
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-  if (vers.size() == 3) {
+  if (vers.size() == 3) { // for Run2
     ver_BW   = "v" + vers[2];
     ver_EIFI = "v" + vers[1];
     ver_TILE = "v" + vers[0];
+  }
+  else if(vers.size() == 4 && tgcArgs()->useRun3Config()) { // for Run3
+    ver_BW   = "v" + vers[3];
+    ver_EIFI = "v" + vers[2];
+    ver_TILE = "v" + vers[1];
+    ver_NSW  = "v" + vers[0];
   }
 
   // RPhi Coincidence Map
@@ -151,6 +159,17 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   // Tile-Mu coincidence Map
   m_mapTileMu = new TGCTileMuCoincidenceMap(tgcArgs(), readCondKey, ver_TILE);
 
+  if(tgcArgs()->useRun3Config() && tgcArgs()->USE_NSW()){
+  for (int side=0; side<NumberOfSide; side +=1) {
+    for (int oct=0; oct<NumberOfOctant; oct++) {
+      for(int mod=0; mod<NumberOfModuleInBW; mod++){
+	// NSW Coincidence Map
+	m_mapNSW[side][oct][mod].reset(new TGCNSWCoincidenceMap(tgcArgs(),ver_NSW,side,oct,mod));
+      }
+    }
+  }
+
+  }  
 }
 
 void TGCDatabaseManager::deleteConnectionPPToSL()
