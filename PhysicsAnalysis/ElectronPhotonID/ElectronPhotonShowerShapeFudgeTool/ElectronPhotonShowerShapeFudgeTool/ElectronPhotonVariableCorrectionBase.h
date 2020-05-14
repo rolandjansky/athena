@@ -135,6 +135,8 @@ private:
     std::string m_configFile;
     //! @brief The name of the variable to correct
     std::string m_correctionVariable;
+    //! @brief Values of discontinuities in the variable which should not be corrected
+    std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
     std::string m_correctionFunctionString;
     //! @brief The actual TF1 correction function
@@ -180,6 +182,11 @@ private:
      * @param photon The photon which was passed to the tool to be corrected
      */
     bool passedCorrectPhotonType(const xAOD::Photon& photon) const;
+
+    /** @brief Check if the value passed is equal to one of the values passed via the UncorrectedDiscontinuites flag and should thus not be corrected
+     * @param value The value which should be checked
+     */
+    bool isEqualToUncorrectedDiscontinuity(const float& value) const;
 
     /** @brief Get the relevant information for a correction function parameter from the given conf file
      * @param env The given TEnv, which is used to read out the current conf file

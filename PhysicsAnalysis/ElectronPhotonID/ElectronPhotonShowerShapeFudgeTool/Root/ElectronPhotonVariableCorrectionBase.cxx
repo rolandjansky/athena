@@ -158,6 +158,18 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
         return StatusCode::FAILURE;
     }
 
+    // check if there are any (discrete) values which should be left uncorrected
+    if (env.Lookup("UncorrectedDiscontinuities"))
+    {
+        m_uncorrectedDiscontinuities = AsgConfigHelper::HelperFloat("UncorrectedDiscontinuities", env);
+        // if flag is given, but no values, fail
+        if (m_uncorrectedDiscontinuities.size() < 1)
+        {
+            ATH_MSG_ERROR("Did not find any discontinuities to not correct, despite finding the flag UncorrectedDiscontinuities.");
+            return StatusCode::FAILURE;
+        }
+    }
+
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
@@ -182,6 +194,11 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         original_variable = (*m_variableToCorrect)(photon);
         //Save the original value to the photon under different name
         (*m_originalVariable)(photon) = original_variable;
+        // check if tool should skip correcting this variable, as it's from some discontinuity
+        if (isEqualToUncorrectedDiscontinuity(original_variable))
+        {
+            return CP::CorrectionCode::Ok;
+        }
     }
     else
     {
@@ -230,6 +247,11 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         original_variable = (*m_variableToCorrect)(electron);
         //Save the original value to the photon under different name
         (*m_originalVariable)(electron) = original_variable;
+        // check if tool should skip correcting this variable, as it's from some discontinuity
+        if (isEqualToUncorrectedDiscontinuity(original_variable))
+        {
+            return CP::CorrectionCode::Ok;
+        }
     }
     else
     {
@@ -295,6 +317,27 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::correctedCopy( co
 // ===========================================================================
 // Helper Functions
 // ===========================================================================
+
+bool ElectronPhotonVariableCorrectionBase::isEqualToUncorrectedDiscontinuity(const float& value) const
+{
+    // if no values set, return false as there is nothing to check
+    if (m_uncorrectedDiscontinuities.size() < 1)
+    {
+        return false;
+    }
+
+    // check all discontinuities which where passed
+    for (unsigned int value_itr = 0; value_itr < m_uncorrectedDiscontinuities.size(); value_itr++)
+    {
+        if (value == m_uncorrectedDiscontinuities.at(value_itr))
+        {
+            // if the value is equal to one of the discontinuities, no need to check further
+            return true;
+        }
+    }
+    // if we eer get here, the value was never equal to a discontinuity
+    return false;
+}
 
 const StatusCode ElectronPhotonVariableCorrectionBase::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
 {
