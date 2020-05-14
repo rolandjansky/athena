@@ -14,6 +14,7 @@ atlas_subdir( Pythia8_i )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
+			  Generators/EvgenProdTools
                           Generators/GeneratorModules
                           PRIVATE
                           GaudiKernel
