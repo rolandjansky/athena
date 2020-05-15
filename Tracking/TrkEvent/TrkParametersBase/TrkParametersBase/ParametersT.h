@@ -116,7 +116,7 @@ namespace Trk
     virtual const AmgVector(DIM)& parameters() const override final {return m_parameters;}
       
     /** Access method for the covariance matrix - 0 if no covariance matrix is given */
-    virtual const AmgSymMatrix(DIM)* covariance() const override final {return m_covariance;}
+    virtual const AmgSymMatrix(DIM)* covariance() const override final {return m_covariance.get();}
     
     /** Access to the Surface method */
     virtual const S& associatedSurface() const override final {return *m_surface;}    
@@ -163,12 +163,12 @@ namespace Trk
                  const Amg::Vector3D& mom,
                  AmgSymMatrix(DIM)* covariance = 0);
     
-    AmgVector(DIM)              m_parameters;       //!< contains the n parameters
-    AmgSymMatrix(DIM)*          m_covariance;       //!< contains the n x n covariance matrix
-    Amg::Vector3D               m_position;         //!< point on track
-    Amg::Vector3D               m_momentum;         //!< momentum at this point on track
-    SurfaceUniquePtrT<const S>  m_surface;          //!< surface template
-    T                           m_chargeDef;        //!< charge definition for this track
+    AmgVector(DIM)                      m_parameters;       //!< contains the n parameters
+    std::unique_ptr<AmgSymMatrix(DIM)>  m_covariance;       //!< contains the n x n covariance matrix
+    Amg::Vector3D                       m_position;         //!< point on track
+    Amg::Vector3D                       m_momentum;         //!< momentum at this point on track
+    SurfaceUniquePtrT<const S>          m_surface;          //!< surface template
+    T                                   m_chargeDef;        //!< charge definition for this track
 
     /** DESIGN TO BE REVISITED */
   protected:
