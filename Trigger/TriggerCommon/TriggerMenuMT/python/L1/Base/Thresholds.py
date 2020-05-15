@@ -245,6 +245,7 @@ class LegacyThreshold( Threshold ):
                     ("etamax", thrV.etamax),
                     ("phimin", thrV.phimax),
                     ("phimax", thrV.phimin),
+                    ("window", thrV.window),
                     ("priority", thrV.priority)
                 ]) )
         elif self.ttype == ThrType.TE:

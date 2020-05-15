@@ -276,6 +276,7 @@ class MultiplicityAlgo(TopoAlgo):
     def json(self):
         from collections import OrderedDict as odict
         confObj = odict()
+        confObj["type"] = self.classtype
         confObj["threshold"] = self.threshold
         confObj["input"] = self.input
         confObj["output"] = self.outputs
@@ -284,7 +285,7 @@ class MultiplicityAlgo(TopoAlgo):
 
 
 class EMMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "EMMultiplicity" ):
         super(EMMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                  algoId=algoId, 
                                                  threshold = threshold, 
@@ -295,7 +296,7 @@ class EMMultiplicityAlgo(MultiplicityAlgo):
 
 
 class TauMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "TauMultiplicity" ):
         super(TauMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
@@ -303,7 +304,7 @@ class TauMultiplicityAlgo(MultiplicityAlgo):
                                                   nbits=nbits)
 
 class JetMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "JetMultiplicity" ):
         super(JetMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
@@ -311,7 +312,7 @@ class JetMultiplicityAlgo(MultiplicityAlgo):
                                                   nbits=nbits)
 
 class XEMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, classtype, name, algoId, threshold, nbits):
+    def __init__(self, name, algoId, threshold, nbits, classtype = "EnergyThreshold"):
         super(XEMultiplicityAlgo, self).__init__( classtype = classtype, name=name, 
                                                   algoId = algoId, 
                                                   threshold = threshold, 

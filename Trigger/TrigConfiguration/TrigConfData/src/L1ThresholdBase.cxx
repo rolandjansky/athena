@@ -66,6 +66,11 @@ TrigConf::L1Threshold::thrValueCounts(int eta) const {
    return thrValue(eta);
 }
 
+const TrigConf::ValueWithEtaDependence<unsigned int> &
+TrigConf::L1Threshold::thrValues() const {
+   return m_etaDepThrValue;
+}
+
 
 
 TrigConf::IsolationLegacy::IsolationLegacy( const boost::property_tree::ptree & pt ) {

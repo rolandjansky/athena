@@ -131,6 +131,9 @@ namespace TrigConf {
 
       virtual unsigned int thrValueCounts(int eta = 0) const;
 
+      /** access to the list of ThresholdValues */
+      const ValueWithEtaDependence<unsigned int> & thrValues() const;
+
    protected:
 
       /** Update the internal data after modification of the data object */

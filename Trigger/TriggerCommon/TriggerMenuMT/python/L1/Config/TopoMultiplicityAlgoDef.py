@@ -20,9 +20,8 @@ class TopoMultiplicityAlgoDef(object):
         ]
 
         for em in emThresholds:
-            alg = EMMultiplicityAlgo( classtype = "ThresholdMult",
-                                      name = "Mult_%s" % em, 
-                                      algoId = currentAlgoId, 
+            alg = EMMultiplicityAlgo( name = "Mult_%s" % em,
+                                      algoId = currentAlgoId,
                                       threshold = em,
                                       nbits = 3)
             tm.registerTopoAlgo(alg)
@@ -31,9 +30,8 @@ class TopoMultiplicityAlgoDef(object):
         tauThresholds = [ "eTAU12", "eTAU12IM", "eTAU20", "eTAU20IM", "eTAU25IM", "eTAU40", "eTAU60", "eTAU100" ]
 
         for tau in tauThresholds:
-            alg = TauMultiplicityAlgo( classtype = "ThresholdMult",
-                                       name = "Mult_%s" % tau, 
-                                       algoId = currentAlgoId, 
+            alg = TauMultiplicityAlgo( name = "Mult_%s" % tau,
+                                       algoId = currentAlgoId,
                                        threshold = tau,
                                        nbits = 3)
             tm.registerTopoAlgo(alg)
@@ -42,9 +40,8 @@ class TopoMultiplicityAlgoDef(object):
                          "jJ35.0ETA23", "jJ40.0ETA25", "jJ40", "jJ50", "jJ85", "jJ100", "jJ15.31ETA49", "jJ20.31ETA49", "jJ75.31ETA49" ]
 
         for jJet in jJThresholds:
-            alg = JetMultiplicityAlgo( classtype = "ThresholdMult",
-                                       name = "Mult_%s" % jJet, 
-                                       algoId = currentAlgoId, 
+            alg = JetMultiplicityAlgo( name = "Mult_%s" % jJet,
+                                       algoId = currentAlgoId,
                                        threshold = jJet,
                                        nbits = 3)
             tm.registerTopoAlgo(alg)
@@ -53,9 +50,8 @@ class TopoMultiplicityAlgoDef(object):
         gXEThresholds = [ "gXERHO20", "gXERHO30", "gXERHO35", "gXERHO40", "gXERHO45", "gXERHO50", "gXEPUFIT20", "gXEPUFIT50", "gXE50" ]
 
         for gXE in gXEThresholds:
-            alg = XEMultiplicityAlgo( classtype = "ThresholdMult",
-                                      name = "Mult_%s" % gXE, 
-                                      algoId = currentAlgoId, 
+            alg = XEMultiplicityAlgo( name = "Mult_%s" % gXE,
+                                      algoId = currentAlgoId,
                                       threshold = gXE,
                                       nbits = 1)
             tm.registerTopoAlgo(alg)
@@ -64,9 +60,8 @@ class TopoMultiplicityAlgoDef(object):
         jXEThresholds = [ "jXE50" ]
 
         for jXE in jXEThresholds:
-            alg = XEMultiplicityAlgo( classtype = "ThresholdMult",
-                                      name = "Mult_%s" % jXE, 
-                                      algoId = currentAlgoId, 
+            alg = XEMultiplicityAlgo( name = "Mult_%s" % jXE,
+                                      algoId = currentAlgoId,
                                       threshold = jXE,
                                       nbits = 1)
             tm.registerTopoAlgo(alg)
