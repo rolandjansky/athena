@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,60 +15,26 @@
 #ifndef MdtVsTgcRawDataValAlg_H
 #define MdtVsTgcRawDataValAlg_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-
-//#include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
-#include "MuonSegment/MuonSegment.h"
-#include "TrkSegment/SegmentCollection.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "muonEvent/MuonContainer.h"
-
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonTrigCoinData/TgcCoinDataCollection.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-#include "MuonDQAUtils/TGCDQAUtils.h"
-#include "MuonDQAUtils/MuonDQAFitFunc.h"
-//use new mdt segment container
 #include "xAODMuon/MuonSegmentContainer.h"
-
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
 
 #include "SegmTrack.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include <sstream>
-#include <string.h>
+#include <string>
 #include <vector>
-#include <map>
-#include <fstream>
 
-
-class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
-/////////////////////////////////////////////////////////////////////////////
-
 
 class MdtVsTgcRawDataValAlg: public ManagedMonitorToolBase {
 public:
@@ -76,7 +42,6 @@ public:
   MdtVsTgcRawDataValAlg ( const std::string & type, const std::string & name, const IInterface* parent );
   virtual ~MdtVsTgcRawDataValAlg();
   StatusCode initialize(); 
-  //StatusCode finalize();
 
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
@@ -101,15 +66,10 @@ public:
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
-      "Key of input MuonDetectorManager condition data"};    
-
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  
-  //  const ITGCcablingSvc* m_cabling;
+      "Key of input MuonDetectorManager condition data"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   //Declare Properties  
-  
   bool m_checkCabling;
   bool m_tgclv1file;
 

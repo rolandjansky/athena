@@ -20,7 +20,8 @@ class SortByLargerSimpleComponentWeight
 {
 public:
   SortByLargerSimpleComponentWeight() = default;
-  bool operator()(const Trk::ComponentParameters& firstComponent, const Trk::ComponentParameters& secondComponent) const
+  bool operator()(const Trk::ComponentParameters& firstComponent,
+                  const Trk::ComponentParameters& secondComponent) const
   {
     return firstComponent.second > secondComponent.second;
   }
@@ -133,7 +134,7 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache)
     return {};
   }
   if (cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
-    double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
+    const double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
     return doStateAssembly(cache, totalWeight);
   }
   return doStateAssembly(cache, cache.validWeightSum);
@@ -154,14 +155,17 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
   if (!isStateValid(cache)) {
     return {};
   }
+  const size_t cacheSize=cache.multiComponentState.size();
+
   if (cache.validWeightSum <= 0.) {
     if (!cache.multiComponentState.empty()) {
-      double fixedWeights = 1. / (double)cache.multiComponentState.size();
+      const double fixedWeights = 1. /static_cast<double>(cacheSize);
       for (auto& component : cache.multiComponentState) {
         component.second = fixedWeights;
       }
     }
-    Trk::MultiComponentState assembledState{};
+    Trk::MultiComponentState assembledState;
+    assembledState.reserve(cacheSize);
     for (auto& component : cache.multiComponentState) {
       assembledState.emplace_back(component.first.release(), component.second);
     }
@@ -169,9 +173,9 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
     reset(cache);
     return assembledState;
   }
-
-  Trk::MultiComponentState assembledState{};
-  double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
+  Trk::MultiComponentState assembledState;
+  assembledState.reserve(cacheSize);
+  const double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
   for (auto& component : cache.multiComponentState) {
     assembledState.emplace_back(component.first.release(), component.second * scalingFactor);
   }

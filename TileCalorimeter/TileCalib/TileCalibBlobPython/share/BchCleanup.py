@@ -29,7 +29,7 @@ def usage():
     print ("")
 
 def showAdcProblems(mgr,ros,mod):
-    modName = TileCalibUtils.getDrawerString(ros,mod)        
+    modName = TileCalibUtils.getDrawerString(ros,mod)
     for chn in range(TileCalibUtils.max_chan()):
         for adc in range(TileCalibUtils.max_gain()):
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     usage()
     sys.exit(2)
 
-  # defaults 
+  # defaults
   instance='OFLP200'
   folderPath =  "/TILE/OFL02/STATUS/ADC"
   tag = "OFLCOND-MC16-SDR-28"
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     #elif o in ("-s","--schema"):
     #    schema = a
     #elif o in ("-r","--run"):
-    #    run = int(a) 
+    #    run = int(a)
     #elif o in ("-l","--lumi"):
     #    lumi = int(a)
     elif o in ("-h","--help"):
@@ -199,7 +199,7 @@ if __name__ == "__main__":
   for ros in range(rosmin,rosmax):
     for mod in range(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
 
-      modName = TileCalibUtils.getDrawerString(ros,mod)        
+      modName = TileCalibUtils.getDrawerString(ros,mod)
       log.info(40*'='+" ros %d, drawer %s", ros, modName)
 
       dbobjs = blobReader.getDBobjsWithinRange(ros, mod)
@@ -271,7 +271,7 @@ if __name__ == "__main__":
                 continue
 
             else:
-                # non-identical blobs: write previous blob with new saved validity range...  
+                # non-identical blobs: write previous blob with new saved validity range...
                 log.info("types: %s  %s", type(blob), type(calibDrawerPrev))
                 #writeMergedIOV(outFolder, outtagFull, ros, mod, calibDrawerPrev, mergedSince, mergedUntil)
                 writeMergedIOV(ros, mod, mergedSince, mergedUntil)
@@ -350,7 +350,7 @@ if __name__ == "__main__":
                     chnhi = calibDrawer.getData(chn,   2, ind)
                     diff = adclo - adchi + chnlo - chnhi
 
-                    if not (status==statusPrev): 
+                    if not (status==statusPrev):
                       identical = False
                       log.info("chn=%i adc=%i ind=%i - vlo=%i, vhi=%i, diffs=%i %i", chn, adc, ind, adclo+chnlo, adchi+chnhi, adclo-adchi, chnlo-chnhi)
                       #break
@@ -361,7 +361,7 @@ if __name__ == "__main__":
             mergedUntil = objuntil
           else:
             showAdcProblems(mgr,ros,mod)
-            # non-identical blobs: write previous blob with new saved validity range...  
+            # non-identical blobs: write previous blob with new saved validity range...
             log.info("types: %s  %s", type(blob), type(calibDrawerPrev))
             writeMergedIOV(ros, mod, mergedSince, mergedUntil)
             #writeMergedIOV(outFolder,outtagFull,ros,mod,calibDrawerPrev,mergedSince,mergedUntil)

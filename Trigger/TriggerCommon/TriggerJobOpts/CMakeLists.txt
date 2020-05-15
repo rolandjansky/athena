@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/*.py )
 atlas_install_joboptions( share/*.py )
 
 atlas_add_test( TriggerConfigFlagsTest

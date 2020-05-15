@@ -3,5 +3,4 @@
 */
 
 #include "LumiBlockComps/ILumiCalcSvc.h"
-#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"

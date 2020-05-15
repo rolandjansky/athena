@@ -40,7 +40,7 @@ atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloEvent CaloGeoHelpers CaloIdentifier
    AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent xAODCore GaudiKernel
-   CaloDetDescrLib StoreGateLib
+   CaloDetDescrLib StoreGateLib CaloInterfaceLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils
    SGTools IdDictParser Identifier )
 

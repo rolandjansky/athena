@@ -4,11 +4,11 @@
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19
-# Andrey Kamenshchikov <akamensh@cern.ch>, 23-10-2013 
+# Andrey Kamenshchikov <akamensh@cern.ch>, 23-10-2013
 # Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 ################################################################
 """
-Python helper module for managing COOL DB connections and TileCalibBlobs. 
+Python helper module for managing COOL DB connections and TileCalibBlobs.
 """
 
 from __future__ import print_function
@@ -58,11 +58,11 @@ log = getLogger("TileCalibTools")
 MINRUN      = 0
 MINLBK      = 0
 MAXRUN      = cool.Int32Max
-MAXLBK      = cool.UInt32Max 
-UNIX2COOL   = 1000000000 
+MAXLBK      = cool.UInt32Max
+UNIX2COOL   = 1000000000
 UNIXTMAX    = cool.Int32Max
 # empty Tile channel for storing laser partition variation. DO NOT CHANGE.
-LASPARTCHAN = 43 
+LASPARTCHAN = 43
 
 #
 #______________________________________________________________________
@@ -188,7 +188,7 @@ def openDb(db, instance, mode="READONLY",schema="COOLONL_TILE",sqlfn="tileSqlite
     VALIDSCHEMAS = ["COOLONL_TILE","COOLOFL_TILE"]
     if schema not in VALIDSCHEMAS:
         raise Exception( "Schema not valid: %s, valid schemas are: %s" % (schema,VALIDSCHEMAS) )
-    
+
     #=== construct connection string
     connStr = ""
     if db=='SQLITE':
@@ -272,7 +272,7 @@ def openDbConn(connStr, mode="READONLY"):
         return None
 
 
-    
+
 #
 #______________________________________________________________________
 def coolTimeFromRunLumi(runNum, lbkNum):
@@ -294,13 +294,13 @@ def decodeTimeString(timeString):
 def getCoolValidityKey(pointInTime, isSince=True):
     """
     The interpretation of pointInTime depends on their type:
-    - tuple(int,int) : run and lbk number 
+    - tuple(int,int) : run and lbk number
     - integer        : Values are interpreted as unix time stamps
     - string         : time stamp of format 'yyyy-mm-dd hh:mm:ss'
     """
 
     validityKey = None
-    
+
     #=== string: convert to unix time and treat as latter
     if isinstance(pointInTime, str):
         pointInTime = decodeTimeString(pointInTime)
@@ -403,12 +403,12 @@ def copyFolder(dbr, dbw, folder, tagr, tagw, chanNum, pointInTime1, pointInTime2
 
     folderR = dbr.getFolder(folder)
     folderW = dbw.getFolder(folder)
-    
+
     chansel = cool.ChannelSelection(chanNum)
 
     iov1 = getCoolValidityKey(pointInTime1,False)
     iov2 = getCoolValidityKey(pointInTime2,False)
-    
+
     if tagr=='':
         multiVersion = False
         objs = folderR.browseObjects(iov1,iov2,chansel)
@@ -431,7 +431,7 @@ def copyFolder(dbr, dbw, folder, tagr, tagw, chanNum, pointInTime1, pointInTime2
 
 #======================================================================
 #===
-#=== TileBlobWriter 
+#=== TileBlobWriter
 #===
 #======================================================================
 
@@ -495,21 +495,21 @@ class TileBlobWriter(TileCalibLogger):
         #=== initialize channel dictionaries
         self.__chanDictRecord = {} # <int, cool.Record    >
         self.__chanDictDrawer = {} # <int, TileCalibDrawer>
-        
+
         #=== create default vectors based on calibDrawerType
         self.__calibDrawerType = calibDrawerType
         if   calibDrawerType=='Flt':
             cppyy.makeClass('std::vector<float>')
             self.__defVec = cppyy.gbl.std.vector('std::vector<float>')()
-        elif calibDrawerType=='Bch' or calibDrawerType=='Int':                    
+        elif calibDrawerType=='Bch' or calibDrawerType=='Int':
             cppyy.makeClass('std::vector<unsigned int>')
             self.__defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         else:
             raise Exception("Unknown calibDrawerType: %s" % calibDrawerType)
-        
+
 
     #____________________________________________________________________
-    def register(self, since=(MINRUN,MINLBK), until=(MAXRUN,MAXLBK), tag=""):
+    def register(self, since=(MINRUN,MINLBK), until=(MAXRUN,MAXLBK), tag="", option=0):
         """
         Registers the folder in the database.
         - since: lower limit of IOV
@@ -517,7 +517,7 @@ class TileBlobWriter(TileCalibLogger):
         - tag  : The cool folder tag to write to
 
         The interpretation of the 'since' and 'until' inputs depends on their type:
-        - tuple(int,int) : run and lbk number 
+        - tuple(int,int) : run and lbk number
         - integer        : Values are interpreted as unix time stamps
                            If since<0, current time is assumed
                            If until<0, infinity is assumed
@@ -545,7 +545,7 @@ class TileBlobWriter(TileCalibLogger):
             raise Exception("Until(%i) <= Since(%i)" % (untilCool,sinceCool))
 
         #=== build IOV string
-        iovString = ""       
+        iovString = ""
         if isinstance(since, tuple):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
@@ -563,16 +563,21 @@ class TileBlobWriter(TileCalibLogger):
 
         #=== print info
         comment=self.getComment()
-        noComment = (comment is None) or (comment == "None") or (comment.startswith("None") and comment.endswith("None"))
+        onlyComment = (option<0)
+        noComment = (comment is None) or (comment == "None") or (comment.startswith("None") and comment.endswith("None")) or (option>0)
         self.log().info( "Registering folder %s with tag \"%s\"", self.__folder.fullPath(),folderTag)
         self.log().info( "... with IOV          : %s" , iovString                          )
         if noComment:
-            self.log().info( "... WITHOUT comment field" )
+            if (option<=0):
+                self.log().info( "... WITHOUT comment field" )
         else:
             self.log().info( "... with comment field: \"%s\"", self.getComment()                  )
 
         #=== register all channels by increasing channel number
-        chanList = sorted(self.__chanDictRecord.keys())
+        if onlyComment:
+            chanList = [1000]
+        else:
+            chanList = sorted(self.__chanDictRecord.keys())
         cnt=0
         for chanNum in chanList:
             if chanNum==1000 and noComment:
@@ -585,6 +590,8 @@ class TileBlobWriter(TileCalibLogger):
             cnt+=1
         if noComment:
             self.log().info( "... %d cool channels have been written in total", cnt )
+        elif onlyComment:
+            self.log().info( "... 1 cool channel with comment field has been written" )
         else:
             self.log().info( "... %d cool channels have been written in total (including comment field)", cnt )
 
@@ -608,7 +615,7 @@ class TileBlobWriter(TileCalibLogger):
                 TileCalibDrawerCmt.getInstance(blob,author,comment)
         except Exception as e:
             self.log().critical( e )
-        
+
     #____________________________________________________________________
     def getComment(self, split=False):
         """
@@ -662,7 +669,7 @@ class TileBlobWriter(TileCalibLogger):
             #=== clone if requested
             if calibDrawerTemplate:
                 calibDrawer.clone(calibDrawerTemplate)
-            
+
             #=== put updated calibDrawer in dictionary and return
             self.__chanDictDrawer[chanNum] = calibDrawer
             return calibDrawer
@@ -693,7 +700,7 @@ class TileBlobWriter(TileCalibLogger):
 
 #======================================================================
 #===
-#=== TileBlobReader 
+#=== TileBlobReader
 #===
 #======================================================================
 
@@ -709,7 +716,7 @@ class TileBlobReader(TileCalibLogger):
     def __init__(self, db, folder, tag=""):
         """
         Input:
-        - db    : db should be an open database connection 
+        - db    : db should be an open database connection
         - folder: full folder path
         - tag   : The folder tag, e.g. \"000-00\"
         """
@@ -756,7 +763,7 @@ class TileBlobReader(TileCalibLogger):
                 return cmt.getFullComment()
         except Exception:
             return "<no comment found>"
-        
+
     #____________________________________________________________________
     def getDefault(self, ros, drawer):
         """
@@ -783,7 +790,7 @@ class TileBlobReader(TileCalibLogger):
            drawer1 = 12 + OffsetEBA[drawer]
         elif ros==4:
            OffsetEBC = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E-1: EBC07; Outer MBTS: EBC08
-                         0, 0, 0, 0, 7, 6, 6, 7, # // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15; 
+                         0, 0, 0, 0, 7, 6, 6, 7, # // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15;
                          7, 5, 6, 7, 0, 0, 0, 2, #// D-4: EBC17, EBC20; Special D-40 EBC18; Special D-4: EBC19; Outer MBTS: EBC24
                          3, 0, 0, 3, 4, 0, 3, 4, #// Merged E-1:  EBC25, EBC28, EBC31; E-4': EBC29, EBC32
                          0, 4, 3, 0, 4, 3, 1, 1, #// E-4': EBC34, EBC37; Merged E-1: EBC35, EBC38; Inner MBTS + special C-10: EBC39, EBC40
@@ -816,7 +823,7 @@ class TileBlobReader(TileCalibLogger):
                 self.log().debug("Fetching from DB: %s", obj)
                 blob = obj.payload()[0]
                 self.log().debug("blob size: %d", blob.size())
-                #=== default policy 
+                #=== default policy
                 if not useDefault and blob.size()==0:
                     return 0
                 while blob.size()==0:
@@ -833,7 +840,7 @@ class TileBlobReader(TileCalibLogger):
             #=== get blob
             blob = obj.payload()[0]
             self.log().debug("blob size: %d", blob.size())
-                
+
             #=== create calibDrawer depending on type
             calibDrawer = TileCalibDrawerCmt.getInstance(blob)
             typeName =    TileCalibType.getClassName(calibDrawer.getObjType())
@@ -878,7 +885,7 @@ class TileBlobReader(TileCalibLogger):
                 self.log().debug("Fetching from DB: %s", obj)
                 blob = obj.payload()[0]
                 self.log().debug("blob size: %d", blob.size())
-                #=== default policy 
+                #=== default policy
                 while blob.size()==0:
                     #=== no default at all?
                     if ros==0 and drawer==0:
@@ -893,7 +900,7 @@ class TileBlobReader(TileCalibLogger):
             #=== get blob
             blob = obj.payload()[0]
             self.log().debug("blob size: %d", blob.size())
-                
+
             #=== create calibDrawer depending on type
             calibDrawer = TileCalibDrawerCmt.getInstance(blob)
             typeName =    TileCalibType.getClassName(calibDrawer.getObjType())
@@ -944,6 +951,25 @@ class TileBlobReader(TileCalibLogger):
         return objs
 
     #____________________________________________________________________
+    def getIOVsWithinRange(self, ros, drawer, point1inTime=(0,0), point2inTime=(2147483647,4294967295), printError=True):
+        """
+        Returns list of IOVS for the given ROS and drawer, within given validity range -- default: [0-Infty)
+        """
+        iovs=[]
+        dbobjs = self.getDBobjsWithinRange(ros,drawer,point1inTime, point2inTime, printError)
+        if (dbobjs is None):
+            log.warning( "Warning: can not read IOVs for ros %d drawer %d from input DB file", ros,drawer )
+        else:
+            while dbobjs.goToNext():
+                obj = dbobjs.currentRef()
+                objsince = obj.since()
+                sinceRun = objsince >> 32
+                sinceLum = objsince & 0xFFFFFFFF
+                since    = (sinceRun, sinceLum)
+                iovs.append(since)
+        return iovs
+
+    #____________________________________________________________________
     def getBlobsWithinRange(self, ros, drawer, point1inTime=(0,0), point2inTime=(2147483647,4294967295)):
         """
         Returns all blob objects for the given ROS and drawer, within given validity range -- default: [0-Infty)
@@ -971,7 +997,7 @@ class TileBlobReader(TileCalibLogger):
             print ("[%d,%d)-[%d,%d) - %s" % ((sinceCool>>32),(sinceCool&0xFFFFFFFF),(untilCool>>32),(untilCool&0xFFFFFFFF),blob))
             self.log().debug("blob size: %d", blob.size())
 
-            #=== default policy 
+            #=== default policy
             while blob.size()==0:
                 #=== no default at all?
                 if ros==0 and drawer==0:
@@ -1031,7 +1057,7 @@ class TileBlobReader(TileCalibLogger):
 class TileASCIIParser(TileCalibLogger):
     """
     This is a class capable of parsing TileCal conditions data stored in
-    ASCII files. Both the single and multi-line formats are supported. 
+    ASCII files. Both the single and multi-line formats are supported.
     """
 
     #____________________________________________________________________
@@ -1041,7 +1067,7 @@ class TileASCIIParser(TileCalibLogger):
         - fileName          : input file name
         - isSingleLineFormat: if False, multi line format is assumed
         """
-        
+
         TileCalibLogger.__init__(self,"TileASCIIParser")
         self.__dataDict = {}
         try:
@@ -1049,7 +1075,7 @@ class TileASCIIParser(TileCalibLogger):
         except Exception as e:
             self.log().error( "TileCalibASCIIParser::ERROR: Problem opening input file:" )
             self.log().error( e )
-            return 
+            return
 
         for line in lines:
             fields = line.strip().split()
@@ -1057,13 +1083,13 @@ class TileASCIIParser(TileCalibLogger):
             if not len(fields)          :
                 continue
             if fields[0].startswith("#"):
-                continue 
+                continue
 
             #=== read in fields
             type = fields[0]
             frag = fields[1]
             chan = fields[2]
-            data = fields[3:] 
+            data = fields[3:]
             if not isSingleLineFormat:
                 raise Exception("Multiline format not implemented yet")
 
@@ -1107,40 +1133,40 @@ class TileASCIIParser(TileCalibLogger):
     def getDict(self):
         import copy
         return copy.deepcopy(self.__dataDict)
-    
+
     #____________________________________________________________________
     def PMT2channel(self,ros,drawer,pmt):
         "Reorder the PMTs (SV: how to get that from region.py???)"
-        "This takes ros [1-4], drawer [0-63], pmt [1-48]"     
+        "This takes ros [1-4], drawer [0-63], pmt [1-48]"
 
-        PMT2chan_Special={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9, 
-                      11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17, 19:18, 20:19, 
-                      21:20,22:21,23:22,24:23,27:24,26:25,25:26,31:27,32:28,28:29, 
-                      33:30,29:31,30:32,36:33,35:34,34:35,44:36,38:37,37:38,43:39,42:40, 
+        PMT2chan_Special={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,
+                      11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17, 19:18, 20:19,
+                      21:20,22:21,23:22,24:23,27:24,26:25,25:26,31:27,32:28,28:29,
+                      33:30,29:31,30:32,36:33,35:34,34:35,44:36,38:37,37:38,43:39,42:40,
                       41:41,45:42,39:43,40:44,48:45,47:46,46:47}
-  
+
 
         PMT2chan_LB={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,
                      11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17,19:18,20:19,
                      21:20,22:21,23:22,24:23,27:24,26:25,25:26,30:27,29:28,28:29,
                      33:30,32:31,31:32,36:33,35:34,34:35,39:36,38:37,37:38,42:39,41:40,
                      40:41,45:42,44:43,43:44,48:45,47:46,46:47}
-        
-        
+
+
         PMT2chan_EB={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,
                      11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17,19:18,20:19,
                      21:20,22:21,23:22,24:23,25:24,26:25,27:26,28:27,31:28,32:29,
                      33:30,29:31,30:32,35:33,36:34,34:35,44:36,38:37,37:38,43:39,42:40,
                      41:41,39:42,40:43,45:44,46:45,47:46,48:47}
 
-        if ros <= 2: 
+        if ros <= 2:
             chan = PMT2chan_LB[pmt]
         elif (ros == 3 and drawer == 14) or (ros == 4 and drawer == 17):
             chan = PMT2chan_Special[pmt]
         else:
             chan = PMT2chan_EB[pmt]
-    
-        return chan    
+
+        return chan
 
 #======================================================================
 #===
@@ -1165,7 +1191,7 @@ class TileASCIIParser2(TileCalibLogger):
         - calibId           : like Ped, Las, ... or (r,l) or (run,lumi) but can be empty string as well
         - readGain          : if False, no gain field in input file
         """
-        
+
         TileCalibLogger.__init__(self,"TileASCIIParser2")
         self.__dataDict = {}
         self.__manyIOVs = (calibId=="(run,lumi)" or calibId=="(r,l)" )
@@ -1178,7 +1204,7 @@ class TileASCIIParser2(TileCalibLogger):
         except Exception as e:
             self.log().error( "TileCalibASCIIParser2::ERROR: Problem opening input file:" )
             self.log().error( e )
-            return 
+            return
 
         self.log().info("Parsing file %s",fileName)
         if len(calibId)>0:
@@ -1190,7 +1216,7 @@ class TileASCIIParser2(TileCalibLogger):
             if not len(fields)          :
                 continue
             if fields[0].startswith("#"):
-                continue 
+                continue
 
             #=== read in fields
             if len(calibId)>0:
@@ -1219,7 +1245,7 @@ class TileASCIIParser2(TileCalibLogger):
                 else:
                     data = fields[2:]
 
-            #=== decode fragment 
+            #=== decode fragment
             if frag.startswith('0x') or frag.startswith('-0x'):
                 frg = int(frag,16)
                 ros = frg>>8
@@ -1227,10 +1253,10 @@ class TileASCIIParser2(TileCalibLogger):
                     mod = (-frg)&255
                 else:
                     mod = frg&255
-            elif (frag.startswith("AUX") or 
-                  frag.startswith("LBA") or 
-                  frag.startswith("LBC") or 
-                  frag.startswith("EBA") or 
+            elif (frag.startswith("AUX") or
+                  frag.startswith("LBA") or
+                  frag.startswith("LBC") or
+                  frag.startswith("EBA") or
                   frag.startswith("EBC") or
                   frag.startswith("ALL") or
                   frag.startswith("XXX") ):
@@ -1243,7 +1269,7 @@ class TileASCIIParser2(TileCalibLogger):
 
             chn = int(chan)
             adc = int(gain)
-            
+
             #=== fill dictionary
             if ros<0:
                rosmin=0
@@ -1287,7 +1313,7 @@ class TileASCIIParser2(TileCalibLogger):
             for ros in range(rosmin,rosmax):
                for mod in range(modmin,modmax):
                   for chn in range(chnmin,chnmax):
-                     if allchannels or self.channel2PMT(ros,mod,chn)>0: 
+                     if allchannels or self.channel2PMT(ros,mod,chn)>0:
                         for adc in range (adcmin,adcmax):
                            dictKey = (ros,mod,chn,adc)
                            if self.__manyIOVs:
@@ -1314,17 +1340,17 @@ class TileASCIIParser2(TileCalibLogger):
     def getDict(self):
         import copy
         return copy.deepcopy(self.__dataDict)
-        
+
     #____________________________________________________________________
     def channel2PMT(self,ros,drawer,chan):
         "Convert channel numbet to PMT number, negative for disconnected channels"
-        "This takes ros [1-4], drawer [0-63], chan [0-47]"     
+        "This takes ros [1-4], drawer [0-63], chan [0-47]"
 
         chan2PMT_LB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
                       13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
                       27, 26, 25, 30, 29, 28,-33,-32, 31, 36, 35, 34,
                       39, 38, 37, 42, 41, 40, 45,-44, 43, 48, 47, 46 ]
-        
+
         chan2PMT_EB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
                       13, 14, 15, 16, 17, 18,-19,-20, 21, 22, 23, 24,
                      -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
@@ -1335,13 +1361,13 @@ class TileASCIIParser2(TileCalibLogger):
                      -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
                       44, 38, 37, 43, 42, 41,-45,-39,-40,-48,-47,-46 ]
 
-        if ros <= 2: 
+        if ros <= 2:
             pmt = chan2PMT_LB[chan]
         elif (ros == 3 and drawer == 14) or (ros == 4 and drawer == 17):
             pmt = chan2PMT_Sp[chan]
         else:
             pmt = chan2PMT_EB[chan]
-    
+
         return pmt
 
 #======================================================================
@@ -1364,7 +1390,7 @@ class TileASCIIParser3(TileCalibLogger):
         - fileName          : input file name
         - calibId           : like Trip, ...
         """
-        
+
         TileCalibLogger.__init__(self,"TileASCIIParser3")
         self.__dataDict = {}
         try:
@@ -1372,7 +1398,7 @@ class TileASCIIParser3(TileCalibLogger):
         except Exception as e:
             self.log().error( "TileCalibASCIIParser3::ERROR: Problem opening input file:" )
             self.log().error( e )
-            return 
+            return
 
         for line in lines:
             fields = line.strip().split()
@@ -1380,18 +1406,18 @@ class TileASCIIParser3(TileCalibLogger):
             if not len(fields)          :
                 continue
             if fields[0].startswith("#"):
-                continue 
+                continue
 
             #=== read in fields
             type = fields[0]
             frag = fields[1]
-            data = fields[2:] 
+            data = fields[2:]
 
             #=== check for correct calibId
             if type != calibId:
                 raise Exception("%s is not calibId=%s" % (type, calibId))
 
-            #=== decode fragment 
+            #=== decode fragment
             if not (frag.startswith('0x') or frag.startswith('-0x')):
                 raise Exception("Misformated fragment %s" % frag)
 
@@ -1401,7 +1427,7 @@ class TileASCIIParser3(TileCalibLogger):
                 mod = (-frg)&255
             else:
                 mod = frg&255
-            
+
             #=== fill dictionary
             dictKey = (ros, mod)
             self.__dataDict[dictKey] = data

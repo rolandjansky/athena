@@ -108,10 +108,10 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_detailed_algo)? m_cma_debug : m_fast_debug;                //
                                                                         //
-  CMAdata patterns(&data,&*m_cabling,debug);                            //
+  CMAdata patterns(&data,&*m_cabling,debug);                                //
                                                                         //
-  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl   //
-                 << ShowData<CMAdata>(patterns,"",m_data_detail)  );
+  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl    //
+                 << ShowData<CMAdata>(patterns,"",m_data_detail)  );    //
   ////////////////////////////////////////////////////////////////////////
 
 

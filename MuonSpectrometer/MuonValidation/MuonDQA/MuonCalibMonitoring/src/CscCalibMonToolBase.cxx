@@ -58,8 +58,6 @@ StatusCode CscCalibMonToolBase::initialize()
   ATH_MSG_INFO( "CscCalibMonToolBase : in initialize()"  );
 
   ATH_CHECK( m_idHelperSvc.retrieve() );
-  ATH_MSG_DEBUG( " Found the MuonIdHelperTool. "  );
-
   ATH_CHECK( m_readKey.initialize() );
 
   //m_generic_path_csccalibmonitoring = "Muon/MuonCalibrationMonitoring/CSC";

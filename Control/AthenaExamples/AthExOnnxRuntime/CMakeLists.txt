@@ -21,8 +21,6 @@ atlas_add_component( AthExOnnxRuntime
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/OnnxRuntimeConfig.py 
-                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up tests for the package.
 atlas_add_test( AthExOnnxRuntimeJob_serial

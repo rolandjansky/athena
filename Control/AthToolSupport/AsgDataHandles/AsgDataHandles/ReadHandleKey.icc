@@ -1,0 +1,60 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+/**
+ * @file AsgDataHandles/ReadHandleKey.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author scott snyder <snyder@bnl.gov> (for original version)
+ * @brief Property holding a SG store/key/clid from which a ReadHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+ReadHandleKey<T>::ReadHandleKey (const std::string& key)
+  : VarHandleKey (key)
+  // : VarHandleKey (ClassID_traits<T>::ID(), key,
+  //                 Gaudi::DataHandle::Reader,
+  //                 storeName)
+{
+}
+
+
+// /**
+//  * @brief Auto-declaring Property constructor.
+//  * @param owner Owning component.
+//  * @param name Name of the Property.
+//  * @param key  Default StoreGate key for the object.
+//  * @param doc Documentation string.
+//  *
+//  * Will associate the named Property with this RHK via declareProperty.
+//  *
+//  * The provided key may actually start with the name of the store,
+//  * separated by a "+":  "MyStore+Obj".  If no "+" is present
+//  * the store named by @c storeName is used.
+//  */
+template <class T>
+template <class OWNER, class K>
+inline
+ReadHandleKey<T>::ReadHandleKey( OWNER* owner,
+                                 const std::string& name,
+                                 const K& key /* ={}*/,
+                                 const std::string& doc /*= ""*/)
+  : ReadHandleKey<T>( key )
+{
+  owner->declareProperty(name, *this, doc);
+}
+
+
+} // namespace SG

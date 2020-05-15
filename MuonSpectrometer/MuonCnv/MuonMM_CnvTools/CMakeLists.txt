@@ -28,13 +28,16 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
 
+atlas_add_library( MuonMM_CnvToolsLib
+                   MuonMM_CnvTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonMM_CnvTools
+                   LINK_LIBRARIES GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( MuonMM_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MMClusterizationLib NSWCalibToolsLib )
-
-# Install files from the package:
-atlas_install_headers( MuonMM_CnvTools )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MMClusterizationLib NSWCalibToolsLib MuonCnvToolInterfacesLib MuonMM_CnvToolsLib )
 

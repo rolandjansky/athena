@@ -145,6 +145,8 @@ def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
     if not TriggerFlags.run2Config == '2016':
         kwargs.setdefault("MaxIterations", 15)
     kwargs.setdefault("MaterialAllocator", "TMEF_MaterialAllocator")
+    from InDetRecExample import TrackingCommon
+    kwargs.setdefault("SolenoidalIntersector",TrackingCommon.getSolenoidalIntersector())
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
 

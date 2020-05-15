@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IAFP_RAW2DIGITOOL_H
@@ -11,25 +11,16 @@
 /// 
 /// @brief  Header file for interface IAFP_Raw2DigiTool 
 
-
-
 #include "GaudiKernel/IAlgTool.h"
 
-// Forward declarations
-
-static const InterfaceID IID_IAFP_Raw2DigiTool ("IAFP_Raw2DigiTool", 1, 0);
-
-
 /// Interface for AFP tool that translates RawData to xAOD::AFPSiHits.
-class IAFP_Raw2DigiTool : virtual public ::IAlgTool {
+class IAFP_Raw2DigiTool : virtual public IAlgTool {
 public:
-  static const InterfaceID &interfaceID();
-
+  // Declaration of the interface ID (interface id, major version, minor version)
+  DeclareInterfaceID(IAFP_Raw2DigiTool, 1, 0);
+  
   /// Empty destructor
   virtual ~IAFP_Raw2DigiTool() {}
-
-  /// Tool initialisation
-  virtual StatusCode initialize() = 0;
 
   /// @brief Translates RawData to xAOD::AFPSiHit and saves it to StoreGate
   ///
@@ -37,12 +28,16 @@ public:
   /// hits in form of xAOD::AFPSiHitContainer. It should read input raw data from StoreGate and save output also to StoreGate.
   virtual StatusCode recoSiHits() = 0;
 
-  virtual StatusCode finalize() = 0;
+  /// @brief Translates RawData to xAOD::AFPToFHit and saves it to StoreGate
+  ///
+  /// This is the method that should be called in order to obtain AFP
+  /// hits in form of xAOD::AFPToFHitContainer. It should read input
+  /// raw data from StoreGate and save output also to StoreGate.
+  virtual StatusCode recoToFHits() = 0;
+
+  /// Call all reconstruction steps
+  virtual StatusCode recoAll() = 0;
 };
 
-inline const InterfaceID& IAFP_Raw2DigiTool::interfaceID() 
-{ 
-  return IID_IAFP_Raw2DigiTool;
-}
 
 #endif 

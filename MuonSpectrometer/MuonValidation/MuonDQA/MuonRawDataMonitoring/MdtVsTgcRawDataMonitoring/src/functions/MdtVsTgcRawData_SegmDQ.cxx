@@ -79,8 +79,8 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(std::vector<const Muon::MuonSegment*> 
 	    continue;
 	  }
           Identifier id = rio->identify();
-          stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
-          int isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+          stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
+          int isStrip = m_idHelperSvc->tgcIdHelper().isStrip(id);
           
           if((stationName==41)||(stationName==42))nTgcMeas[isStrip]++;// TGC
           if((stationName==43)||(stationName==44))nTgcMeas[isStrip]++;// TGC
@@ -129,7 +129,7 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(std::vector<const Muon::MuonSegment*> 
         }
 
         // Cut Segments with too great a difference between position and direction vectors
-        if(abs(dPhi_Pos_Dir)>dPhiCutPosDir[jMDT]||abs(dThe_Pos_Dir)>dTheCutPosDir[jMDT]){
+        if(std::abs(dPhi_Pos_Dir)>dPhiCutPosDir[jMDT]||std::abs(dThe_Pos_Dir)>dTheCutPosDir[jMDT]){
           segmDisqual = true;
         }
           

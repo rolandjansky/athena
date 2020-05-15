@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PackedArray_test.cxx,v 1.2 2008-12-12 04:26:20 ssnyder Exp $
@@ -68,6 +68,7 @@ void testit (PackedArray& arr)
   }
   compare (arr, v);
 
+  // cppcheck-suppress invalidContainerReference // false positive
   assert (carr.front() == (cv.front() & bitmask));
   assert (arr.front() == (v.front() & bitmask));
   x = std::rand();

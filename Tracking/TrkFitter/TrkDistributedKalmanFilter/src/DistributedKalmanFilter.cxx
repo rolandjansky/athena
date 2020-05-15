@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -63,8 +63,7 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,const
   AthAlgTool(t,n,p),
   m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
   m_extrapolator("Trk::Extrapolator/Extrapolator"),
-  m_idHelper(nullptr),
-  m_MagFieldSvc("AtlasFieldSvc",this->name())
+  m_idHelper(nullptr)
 {
   // AlgTool stuff
   declareInterface<ITrackFitter>( this );
@@ -72,7 +71,6 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,const
   m_pvpSurfaces=new std::vector<TrkPlanarSurface*>;
   m_pvpTrackStates=new std::vector<TrkTrackState*>;
 
-  declareProperty( "AthenaFieldService", m_MagFieldSvc, "AlasFieldService");
   declareProperty( "ExtrapolatorTool", m_extrapolator, "Extrapolator" );
   declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
   // ME temporary fix
@@ -94,8 +92,7 @@ StatusCode Trk::DistributedKalmanFilter::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  ATH_CHECK( m_MagFieldSvc.retrieve());
-  
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   ATH_CHECK(m_ROTcreator.retrieve());
   
   ATH_CHECK(m_extrapolator.retrieve());
@@ -170,9 +167,11 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
   return fit(prepRDColl,*minPar,runOutlier,matEffects);
 }
 
-double Trk::DistributedKalmanFilter::integrate(double Rk[5], 
+// @TODO remove ? unused :
+double Trk::DistributedKalmanFilter::integrate(double Rk[5],
                                                TrkPlanarSurface* pSB,
-                                               TrkPlanarSurface* pSE, double* Rf) const
+                                               TrkPlanarSurface* pSE, double* Rf,
+                                               MagField::AtlasFieldCache &fieldCache) const
 {
   const double C=0.02999975;
   const int nStepMax=5;
@@ -200,7 +199,7 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
     }
   for(i=0;i<4;i++) D[i]=pSE->getPar(i);
 
-  getMagneticField(gP,gB);
+  getMagneticField(gP,gB,fieldCache);
  
   c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
   b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
@@ -240,7 +239,7 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
 	{
 	  gV[i]=V[i];gP[i]=P[i];
 	}
-      getMagneticField(gP,gB);
+      getMagneticField(gP,gB, fieldCache);
       nStep--;
     }
   pSE->transformPointToLocal(P,lP);
@@ -253,12 +252,14 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
   return path;
 }
 
-
+// @TODO remove ? unused:
 void Trk::DistributedKalmanFilter::numericalJacobian(TrkTrackState* pTS, 
                                                      TrkPlanarSurface*,// pSB,
                                                      TrkPlanarSurface*,// pSE,
-                                                     double A[5][5]) const
+                                                     double A[5][5],
+                                                     MagField::AtlasFieldCache &fieldCache) const
 {
+  (void) fieldCache;
   const double eps=0.005;
   
   double R0[5],delta,Ri[5],Rf[5],J[5][5],Rs[5];
@@ -266,7 +267,7 @@ void Trk::DistributedKalmanFilter::numericalJacobian(TrkTrackState* pTS,
   //not sure what Rs/Rf should be intialised to - at the moment it is not set at all so setting to zero to solve coverity bugs 14380/14381...
   for(i=0;i<5;i++) {R0[i]=pTS->getTrackState(i);Rs[i]=0;Rf[i]=0;}
   
-  //s0=integrate(R0,pSB,pSE,Rs);
+  //s0=integrate(R0,pSB,pSE,Rs, fieldCache);
   
   for(i=0;i<5;i++)
   {
@@ -274,7 +275,7 @@ void Trk::DistributedKalmanFilter::numericalJacobian(TrkTrackState* pTS,
     for(j=0;j<5;j++) Ri[j]=R0[j];
     Ri[i]+=delta;
       
-    //s1=integrate(Ri,pSB,pSE,Rf);
+    //s1=integrate(Ri,pSB,pSE,Rf, fieldCache);
       
     // dsdp[i]=(s1-s0)/delta;
     for(j=0;j<5;j++)
@@ -298,7 +299,8 @@ void Trk::DistributedKalmanFilter::numericalJacobian(TrkTrackState* pTS,
 
 Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState* pTS, 
                                                               Trk::TrkPlanarSurface* pSB,
-                                                              Trk::TrkPlanarSurface* pSE) const
+                                                              Trk::TrkPlanarSurface* pSE,
+                                                              MagField::AtlasFieldCache &fieldCache) const
 {
   const double C=0.02999975;
   const double minStep=30.0;
@@ -325,7 +327,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     int nStep,nStepMax;
     double sl,ds,path=0.0;
 
-    //numericalJacobian(pTS,pSB,pSE,J);
+    //numericalJacobian(pTS,pSB,pSE,J, fieldCache);
     double sint,cost,sinf,cosf;
     sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
     sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
@@ -364,7 +366,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
-    getMagneticField(gP,gB);
+    getMagneticField(gP,gB, fieldCache);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -419,7 +421,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
     
-    getMagneticField(P,gB);
+    getMagneticField(P,gB,fieldCache);
   
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -758,7 +760,7 @@ void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) const
   for(i=0;i<5;i++) for(j=0;j<5;j++) a[i][j]=b[i][j];
 }
 
-bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState) const
+bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState, MagField::AtlasFieldCache &fieldCache) const
 {
   std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),pnEnd(m_pvpNodes->end());
   bool OK=true;
@@ -769,7 +771,7 @@ bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitSt
   for(;pnIt!=pnEnd;++pnIt)
   {
     pSE=(*pnIt)->getSurface();
-    Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
+    Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE, fieldCache);
       pSB=pSE;
       if(pNS!=NULL)
 	{
@@ -921,15 +923,6 @@ Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState*
 			 pTS->getTrackState(3),
 			 pTS->getTrackState(4),perSurf,pM);
   return pMP;
-}
-
-void Trk::DistributedKalmanFilter::getMagneticField(double gP[3], double* pB) const 
-{ 
-
-  pB[0]=0.0;pB[1]=0.0;pB[2]=0.0;
-  double field[3];
-  m_MagFieldSvc->getField(gP,field);//field is returned in kT
-  for(int i=0;i<3;i++) pB[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
 }
 
 // fit a set of PrepRawData objects
@@ -1151,13 +1144,24 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
     }
   msg(MSG::VERBOSE) << " Number of nodes/surfaces created: "<< m_pvpNodes->size()<<"/"<<m_pvpSurfaces->size()<<endmsg;
 
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey};
+  if (!readHandle.isValid()) {
+     std::stringstream msg;
+     msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+     throw std::runtime_error(msg.str());
+  }
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
   // 3. Sort vector of filtering nodes according to their distances from the perigee point
 
   //  m_sortFilteringNodes(pInitState);
 
   // 4. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
-
-  if(runForwardKalmanFilter(pInitState))
+ 
+  if(runForwardKalmanFilter(pInitState, fieldCache))
   {
     runSmoother();
     if(runOutlier)
@@ -1173,7 +1177,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
       if((nOutl!=0)&&(!badTrack))
 	{
 	  deleteTrackStates();
-	  runForwardKalmanFilter(pInitState);
+	  runForwardKalmanFilter(pInitState,fieldCache);
 	  runSmoother();
 	  nOutl=findOutliers(outlCut);
 	  msg(MSG::VERBOSE) << nOutl <<" new outliers found "<<endmsg;
@@ -1183,7 +1187,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
       {
 	calculateLRsolution();
 	deleteTrackStates();
-	runForwardKalmanFilter(pInitState);
+	runForwardKalmanFilter(pInitState,fieldCache);
 	runSmoother();
       }
   

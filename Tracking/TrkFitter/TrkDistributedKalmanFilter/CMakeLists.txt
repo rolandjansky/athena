@@ -9,7 +9,8 @@ atlas_subdir( TrkDistributedKalmanFilter )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagneticField/MagFieldConditions
+                          MagneticField/MagFieldElements
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkFitter/TrkFitterUtils
@@ -31,12 +32,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrkDistributedKalmanFilterLib
                    src/*.cxx
                    PUBLIC_HEADERS TrkDistributedKalmanFilter
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldInterfaces TrkEventPrimitives TrkFitterInterfaces TrkFitterUtils StoreGateLib SGtests
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldElements MagFieldConditions TrkEventPrimitives TrkFitterInterfaces TrkFitterUtils StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr TrkDetElementBase TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkExInterfaces TrkToolInterfaces )
 
 atlas_add_component( TrkDistributedKalmanFilter
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldInterfaces TrkEventPrimitives TrkFitterInterfaces TrkFitterUtils StoreGateLib SGtests AtlasDetDescr TrkDetElementBase TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkExInterfaces TrkToolInterfaces TrkDistributedKalmanFilterLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldElements MagFieldConditions TrkEventPrimitives TrkFitterInterfaces TrkFitterUtils StoreGateLib SGtests AtlasDetDescr TrkDetElementBase TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkExInterfaces TrkToolInterfaces TrkDistributedKalmanFilterLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

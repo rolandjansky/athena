@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------
 # Static classes to configure photon chain container names

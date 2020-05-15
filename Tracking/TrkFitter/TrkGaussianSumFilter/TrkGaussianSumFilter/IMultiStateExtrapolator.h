@@ -23,8 +23,11 @@ decription           : Extrapolation of a MultiComponentState to a destination
 #include "TrkSurfaces/BoundaryCheck.h"
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+
 #include <memory>
 #include <vector>
+
 namespace Trk {
 
 class IPropagator;
@@ -44,27 +47,9 @@ public:
   /** AlgTool interface method */
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
 
-  /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual MultiComponentState extrapolate(
-    const IPropagator&,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
-
-  /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
-   */
-  virtual MultiComponentState extrapolateDirectly(
-    const IPropagator&,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
-
   /** Configured AlgTool extrapolation method (1) */
   virtual MultiComponentState extrapolate(
+    const EventContext&  ctx,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -73,6 +58,7 @@ public:
 
   /** Configured AlgTool extrapolation without material effects method (2) */
   virtual MultiComponentState extrapolateDirectly(
+    const EventContext&  ctx,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -80,6 +66,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
+    const EventContext&  ctx,
     const MultiComponentState&,
     const Surface&,
     PropDirection dir = anyDirection,

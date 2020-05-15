@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 ////////////////////////////////////////////////////////////////
 //                                                            //
@@ -40,13 +39,10 @@
 
 #include "VP1TrackSystems/TrackCollHandle_TrkTrack.h"
 #include "VP1TrackSystems/TrackCollHandle_TrkSegment.h"
-// #include "VP1TrackSystems/TrackCollHandle_FatrasTruthTracks.h"
 #include "VP1TrackSystems/TrackCollHandle_TruthTracks.h"
 #include "VP1TrackSystems/TrackCollHandle_SimulationTracks.h"
 #include "VP1TrackSystems/TrackCollHandle_TrackParticle.h"
 #include "VP1TrackSystems/TrackCollHandle_xAODTrackParticle.h"
-// #include "VP1TrackSystems/TrackCollHandle_Muon.h"
-// #include "VP1TrackSystems/TrackCollHandle_Egamma.h"
 #include "VP1TrackSystems/TrackHandle_TrkTrack.h"
 #include "VP1TrackSystems/TrackCollHandle_RefittedTracks.h"
 
@@ -73,8 +69,6 @@
 #include <Inventor/SoPath.h>
 #include <Inventor/nodes/SoFont.h>
 
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/GlobalMomentum.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include <sstream>
 
@@ -100,13 +94,6 @@
 #include "VP1Utils/VP1ToolAccessHelper.h"
 #include "VP1Utils/VP1AvailableToolsHelper.h"
 ////////////////////////////////////////////////////////
-
-
-// FOR DEBUG
-//#include "MuonIdHelpers/MdtIdHelper.h"
-//#include "MuonIdHelpers/MuonIdHelper.h"
-
-
 
 //____________________________________________________________________
 class VP1TrackSystem::Imp {

@@ -15,6 +15,9 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
 #include "GaudiKernel/MsgStream.h"
+
+#include "MagFieldElements/AtlasFieldCache.h"
+
 namespace {
     class RestoreIOSFlags 
     {
@@ -87,19 +90,14 @@ SolenoidParametrization::Parameters::Parameters (const SolenoidParametrization& 
 
 
 
-SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFieldSvc)
-  : m_magFieldSvc	    (magFieldSvc),
+   SolenoidParametrization::SolenoidParametrization(const AtlasFieldCacheCondObj &field_cond_obj)
+  : m_fieldCondObj	    (&field_cond_obj),
     m_parameters            ()
 {
-    // allow 0.1% fluctuation in current.
-    double current = magFieldSvc->solenoidCurrent();
-    m_currentMax	 = 1.001*current;
-    m_currentMin	 = 0.999*current;
 
-  // get central field value in units required for fast tracking (i.e. field = B*c)
-    if (!m_magFieldSvc)
-       throw std::logic_error("fieldComponent not defined without magnetic field service.");
-    m_centralField    	= fieldComponent(0.,0.,0.);
+    MagField::AtlasFieldCache fieldCache;
+    m_fieldCondObj->getInitializedCache (fieldCache);
+    m_centralField    	= fieldComponent(0.,0.,0., fieldCache);
     // now parametrise field - if requested
     {
       parametrizeSolenoid();
@@ -115,7 +113,9 @@ SolenoidParametrization::parametrizeSolenoid(void){
   // 'fit' to average over cotTheta lines
   double	smallOffset	= 0.0000000000001; // avoid FPE
   double zAtAxis 	= s_binZeroZ;	// + smallOffset ? 
-  //
+  MagField::AtlasFieldCache fieldCache;
+  m_fieldCondObj->getInitializedCache (fieldCache);
+  
   for (int binZ = 0; binZ < s_maxBinZ; ++binZ){ 
     double cotTheta	= smallOffset; 
     for (int binTheta = 0; binTheta < s_maxBinTheta - 1; ++binTheta){
@@ -144,7 +144,7 @@ SolenoidParametrization::parametrizeSolenoid(void){
             derivative(k,1)	= w*zLocal*zLocal;
             derivative(k,2)	= w*zLocal*zLocal*zLocal;
         }
-        difference(k)		= w*(fieldComponent(r,z,cotTheta) - m_centralField);
+        difference(k)		= w*(fieldComponent(r,z,cotTheta, fieldCache) - m_centralField);
       }
       // solve for parametrization coefficients
       Amg::VectorX solution	= derivative.colPivHouseholderQr().solve(difference);
@@ -222,6 +222,9 @@ SolenoidParametrization::printFieldIntegrals (MsgStream& msg) const
     double maxZ		= 2650.*Gaudi::Units::mm;
     int numSteps	= 1000;
 
+    MagField::AtlasFieldCache fieldCache;
+    m_fieldCondObj->getInitializedCache (fieldCache);
+
     // step through eta-range
     double eta	= 0.;
     for (int i = 0; i != 31; ++i)
@@ -249,7 +252,7 @@ SolenoidParametrization::printFieldIntegrals (MsgStream& msg) const
 	{
 	    position			+= 0.5*step*direction;
 	    Amg::Vector3D field;
-	    m_magFieldSvc->getField(&position,&field);
+	    fieldCache.getField(position.data(),field.data());
 	    Amg::Vector3D vCrossB	=  direction.cross(field);
 	    position			+= 0.5*step*direction;
 	    double BZ			=  field.z();
@@ -316,7 +319,7 @@ SolenoidParametrization::printFieldIntegrals (MsgStream& msg) const
 	    {
         position		+= 0.5*step*direction;
         Amg::Vector3D field;
-        m_magFieldSvc->getField(&position,&field);
+        fieldCache.getField(position.data(),field.data());
         Amg::Vector3D vCrossB	=  direction.cross(field);
         position		+= 0.5*step*direction;
         double BT		=  vCrossB.x()*direction.y() - vCrossB.y()*direction.x();
@@ -389,9 +392,11 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin, Ms
     double 	worstDiff     	= -1.;
     double 	worstR		= 0.;
     double 	worstZ		= 0.;
+    MagField::AtlasFieldCache fieldCache;
+    m_fieldCondObj->getInitializedCache (fieldCache);
     for (int k = 0; k < n; ++k)
     {
-	double	b 	= fieldComponent(r,z,cotTheta);
+       double	b 	= fieldComponent(r,z,cotTheta,fieldCache);
         Parameters parms (*this, r, z, cotTheta);
 	double	diff 	= (fieldComponent(z, parms) - b)/s_lightSpeed;
 	
@@ -435,11 +440,6 @@ SolenoidParametrization::printResidualForEtaLine (double eta, double zOrigin, Ms
 }
 
 
-bool SolenoidParametrization::currentMatches (double current) const
-{
-  // allow 0.1% fluctuation
-  return current >= m_currentMin && current < m_currentMax;
-}
 
 
 } // end of namespace

@@ -94,6 +94,13 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   // the area definiton is used only for the jet backgroud estimator. It is not important for the ConstituentSubtractor when subtracting the whole event - this is not true when subtracting the individual jets
   AreaDefinition area_def(active_area_explicit_ghosts,GhostedAreaSpec(m_maxEta,fastjet::active_area_explicit_ghosts));
 
+  std::vector<int> seed (2);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  std::hash<std::string> h;
+  seed[0] = ctx.eventID().run_number() + ctx.eventID().event_number();
+  seed[1] = h(name());
+  area_def.ghost_spec().set_random_status (seed);
+
 
   // create what we need for the background estimation
   //----------------------------------------------------------

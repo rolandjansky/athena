@@ -144,7 +144,7 @@ connStr2=schema2+'/'+instance2
 if sqlfn == 'none':
     db = TileCalibTools.openDbConn(connStr, 'READONLY')
 else:
-    db = TileCalibTools.openDb('SQLITE', instance, 'READONLY',schema,sqlfn)        
+    db = TileCalibTools.openDb('SQLITE', instance, 'READONLY',schema,sqlfn)
 if sqlfn2 == 'none':
     db2 = TileCalibTools.openDbConn(connStr2, 'READONLY')
 else:
@@ -261,7 +261,7 @@ answ='n'
 #=== get value for a gived channel
 for ros in range(0,5):
     for mod in range(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
-        modName = TileCalibUtils.getDrawerString(ros,mod)        
+        modName = TileCalibUtils.getDrawerString(ros,mod)
         #log.info("ros %d, drawer %s at run %d" % (ros, modName, run))
         flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
         flt2 = blobReader2.getDrawer(ros, mod,(run2,lumi2), False, False)
@@ -298,14 +298,14 @@ for ros in range(0,5):
                             if ot==30: # integers
                                 f.write('%s chann %2d adc %d ind %d val1 %d val2 %d  diff %d \n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12))
                             elif ot==20: # bad channels
-                                f.write('%s chann %2d adc %d ind %d val1 %s val2 %s  diff %f \n' % (modName,chn,adc,ind,hex(int(v[ind])),hex(int(v2[ind])),dv12))                             
+                                f.write('%s chann %2d adc %d ind %d val1 %s val2 %s  diff %f \n' % (modName,chn,adc,ind,hex(int(v[ind])),hex(int(v2[ind])),dv12))
                             else:       # floats
                                 f.write('%s chann %2d adc %d ind %d val1 %.4f val2 %.4f  diff %.4f %.2f%%\n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12,dv12percent))
                                 if writedif and adc==0 and ind==0:
                                     fd.write("%s ch %2d %.4f\n" % (modName,chn,dv12))
-                                
+
 #                        f.write(s + "\n")
-                    
+
 #=== close DB and output file
 db.closeDatabase()
 db2.closeDatabase()

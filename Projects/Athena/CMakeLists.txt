@@ -41,10 +41,11 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E101,E7,E9,W6 --ignore ATL238,ATL9,E701,E702,E704,E741 --enable-extensions ATL902"
+set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
+                               --ignore ATL238,ATL9,E701,E702,E704,E741
+                               --enable-extensions ATL902
    CACHE STRING "Default flake8 command" )
-
-set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Find the ATLAS CMake code:
@@ -65,6 +66,12 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
    CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
+
+# Set up the runtime environment for NumPy.
+set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
+   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
+mark_as_advanced( NumPyEnvironment_DIR )
+find_package( NumPyEnvironment )
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 set( AthenaPoolUtilitiesTest_DIR

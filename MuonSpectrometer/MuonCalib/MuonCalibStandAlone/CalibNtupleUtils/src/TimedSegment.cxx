@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleUtils/TimedSegment.h"
@@ -27,9 +27,7 @@ namespace MuonCalib {
       MuonCalibSegment::MdtHitCit mdt_it     = segment->mdtCloseHitsBegin();
       MuonCalibSegment::MdtHitCit mdt_it_end = segment->mdtCloseHitsEnd();
       for( ; mdt_it!=mdt_it_end;++mdt_it){
-	std::cout << "copy pntr to CalibHitBase " <<  *mdt_it << std::endl;
 	m_tHitVec.push_back( new TimedMdtCalibHit(**mdt_it) );
-	std::cout << "new hit has adress " << m_tHitVec.back();
       }
       
     }
@@ -49,7 +47,6 @@ namespace MuonCalib {
     : m_segment(0) ,  m_segment_original(0) 
     , m_time(tseg.time()) ,  m_sigma_time(tseg.sigmaTime()){
       
-	std::cout << "calling cpy-constr timedsegment "<< std::endl ;      
       m_segment = new MuonCalibSegment( *tseg.segment() );
       m_segment_original = new MuonCalibSegment( *tseg.originalSegment() );
 
@@ -62,7 +59,6 @@ namespace MuonCalib {
 	setSigmaTimeHit(i, tseg.sigmaTimeHit(i) );      
 	++i;
       }    
-      std::cout << "done" <<std::endl;
     }
 
   TimedSegment& TimedSegment::operator=( const TimedSegment& rhs ){

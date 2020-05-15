@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
 #include "MuonCalibDbOperations/CalibDbConnection.h"
 
-//coral
 #include "RelationalAccess/IRelationalService.h"
-//#include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/IConnectionService.h"
-//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
@@ -21,19 +18,15 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IAuthenticationCredentials.h"
 #include "RelationalAccess/SchemaException.h"
-//#include "CoralBase/AttributeList.h"
-//#include "CoralBase/Attribute.h"
-//#include "CoralBase/AttributeSpecification.h"
 #include "CoralKernel/Context.h"
-
-//
-//MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/RegionSelectorBase.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-// c- c++
 #include <stdexcept>
 #include "iostream"
+#include <TString.h> // for Form
 
 namespace MuonCalib{
 
@@ -41,7 +34,7 @@ namespace MuonCalib{
 // Constructor //
 /////////////////
 
-CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const std::string& WorkingSchema): m_connection_string(ConnectionString), m_working_schema(WorkingSchema), m_comp_loaded(false), m_context( &coral::Context::instance() ), m_session(NULL), m_transaction(false) {
+CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const std::string& WorkingSchema): m_connection_string(ConnectionString), m_working_schema(WorkingSchema), m_comp_loaded(false), m_context( &coral::Context::instance() ), m_session(nullptr), m_transaction(false) {
   coral::IHandle<coral::IConnectionService> lookSvcH = m_context->query<coral::IConnectionService>();
   if (!lookSvcH.isValid()) {
     m_context->loadComponent( "CORAL/Services/ConnectionService" );
@@ -53,7 +46,7 @@ CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const 
   m_context->loadComponent( "CORAL/Services/XMLAuthenticationService" );
   m_context->loadComponent( "CORAL/Services/RelationalService" );
   m_comp_loaded=true;
-  m_session=NULL;
+  m_session=nullptr;
 }
 
 
@@ -70,7 +63,7 @@ CalibDbConnection::~CalibDbConnection() {
 
 bool CalibDbConnection::OpenConnection() {
   if(!m_comp_loaded) { return false; }
-  if (m_session!=NULL) { return true; }
+  if (m_session) { return true; }
   
   try {
     // Load CORAL connection service
@@ -79,16 +72,18 @@ bool CalibDbConnection::OpenConnection() {
     lookSvcH = m_context->query<coral::IConnectionService>();
     
     if (!lookSvcH.isValid()) {
-      throw std::runtime_error( "Could not locate the connection service" );
+      throw std::runtime_error(Form("File: %s, Line: %d\nCalibDbConnection::OpenConnection() - Could not locate the connection service!", __FILE__, __LINE__));
     }
     // connection to CORAL
-    std::cout <<"INFO CalibDbConnection::OpenConnection: "<<m_connection_string<<" Schema: "<<m_working_schema<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibDbConnection");
+    log<<MSG::INFO<<"CalibDbConnection::OpenConnection: "<<m_connection_string<<" Schema: "<<m_working_schema<<endmsg;
     m_session = lookSvcH->connect( m_connection_string, coral::Update );
     return true;
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
-    m_session=NULL;
+    MsgStream log(Athena::getMessageSvc(),"CalibDbConnection");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
+    m_session=nullptr;
     return false;
   }		
 }
@@ -134,9 +129,10 @@ coral::ITableDataEditor& CalibDbConnection::GetTableEditor(const std::string & t
 // GetQuery //
 //////////////
 coral::IQuery* CalibDbConnection::GetQuery() {
-  if(m_session==NULL) {
-    std::cerr<<"No Session open!"<<std::endl;
-    return NULL;
+  if(!m_session) {
+    MsgStream log(Athena::getMessageSvc(),"CalibDbConnection");
+    log<<MSG::WARNING<<"No Session open!"<<endmsg;
+    return nullptr;
   }
   coral::ISchema& workingSchema = m_session->schema(  m_working_schema );
   coral::IQuery* query = workingSchema.newQuery();
@@ -159,12 +155,12 @@ void CalibDbConnection::DestroyQuery(coral::IQuery *query) {
 coral::IRelationalDomain& CalibDbConnection::domain( const std::string& connectionString ) {
   coral::IHandle<coral::IRelationalService> relationalService= m_context->query<coral::IRelationalService>();
   if ( !relationalService.isValid() ) {
-    throw std::runtime_error( "Could not locate the relational service" );
+    throw std::runtime_error(Form("File: %s, Line: %d\nCalibDbConnection::domain() - Could not locate the relational service!", __FILE__, __LINE__));
   }
 
   coral::IHandle<coral::IAuthenticationService> authenticationService= m_context->query<coral::IAuthenticationService>();
   if ( !authenticationService.isValid() ) {
-    throw std::runtime_error( "Could not locate the authentication service" );
+    throw std::runtime_error(Form("File: %s, Line: %d\nCalibDbConnection::domain() - Could not locate the authentication service!", __FILE__, __LINE__));
   }
   if(m_username=="") {
     const coral::IAuthenticationCredentials& credentials = authenticationService->credentials( connectionString );

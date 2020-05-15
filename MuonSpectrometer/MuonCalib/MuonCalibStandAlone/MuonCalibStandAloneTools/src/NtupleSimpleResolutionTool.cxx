@@ -774,20 +774,16 @@ double NtupleSimpleResolutionTool::t_from_r(const double & r,
 double NtupleSimpleResolutionTool::ttt(double *x, double *par) {
 	double y;
 
-	y=0.025+x[0]*(par[4]*exp(-x[0]/
+	y=0.025+x[0]*(par[4]*std::exp(-x[0]/
 	(par[0]*(1+par[1]*x[0]+par[2]*x[0]*x[0]+par[3]*x[0]*x[0]*x[0])))+
-	par[5]*exp(-x[0]*x[0]/(par[6]*par[6])));
+	par[5]*std::exp(-x[0]*x[0]/(par[6]*par[6])));
 	return y;
 }
 
 double NtupleSimpleResolutionTool::ttt0(double *x, double *par) {
 	double y;
-//	y=exp(-x[0]/(par[4]+x[0]))*par[0]*(1.0+par[1]*x[0]+par[2]*x[0]*x[0]+
-//	par[3]*x[0]*x[0]*x[0]);
-
-	y=(par[0]-(par[0]-par[5])/(1.0+exp(-(x[0]-par[6])/par[4])))*
+	y=(par[0]-(par[0]-par[5])/(1.0+std::exp(-(x[0]-par[6])/par[4])))*
 	(1+par[1]*x[0]+par[2]*x[0]*x[0]+par[3]*x[0]*x[0]*x[0]);
-
 	return y;
 }
 

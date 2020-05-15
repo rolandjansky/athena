@@ -23,7 +23,7 @@ atlas_add_library( MCTruthAlgsLib
                    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaBaseComps GaudiKernel
+                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaBaseComps GaudiKernel TrackRecordLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} )
 
 atlas_add_component( MCTruthAlgs

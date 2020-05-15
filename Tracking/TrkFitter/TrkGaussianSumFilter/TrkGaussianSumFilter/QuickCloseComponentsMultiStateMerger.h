@@ -16,51 +16,23 @@ decription           : Class for merging components of a multi-state based on
 #ifndef TrkQuickCloseComponentsMultiStateMerger_H
 #define TrkQuickCloseComponentsMultiStateMerger_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/SortingClasses.h"
 
 namespace Trk {
-
 class IMultiComponentStateCombiner;
 class TrackStateOnSurface;
-
-class QuickCloseComponentsMultiStateMerger
-  : public AthAlgTool
-  , virtual public IMultiComponentStateMerger
+namespace QuickCloseComponentsMultiStateMerger
 {
-
-public:
-  /** Constructor with parameters to be passed to AlgTool */
-  QuickCloseComponentsMultiStateMerger(const std::string&, const std::string&, const IInterface*);
-
-  /** Virtual destructor */
-  virtual ~QuickCloseComponentsMultiStateMerger();
-
-  /** AlgTool initialise method */
-  StatusCode initialize() override final;
-
-  /** AlgTool finalise method */
-  StatusCode finalize() override final;
-
   /** Method for merging components - ownership of objects is passed */
-  virtual MultiComponentState merge(Trk::MultiComponentState) const override final;
+MultiComponentState
+merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
 
-private:
-  Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
-                                                             "MaximumNumberOfComponents",
-                                                             12,
-                                                             "Maximum number of components" };
-
-  MultiComponentState mergeFullDistArray(
-    MultiComponentStateAssembler::Cache& cache, 
-    Trk::MultiComponentState&) const;
-};
+MultiComponentState
+mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
+                   Trk::MultiComponentState&,
+                   const unsigned int maximumNumberOfComponents);
+}
 
 }
 
