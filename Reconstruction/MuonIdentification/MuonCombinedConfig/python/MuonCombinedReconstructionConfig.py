@@ -271,6 +271,9 @@ def MuonCombinedReconstructionCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge( TileGMCfg(flags) )
 
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge( BeamPipeGeometryCfg(flags) ) 
+
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
@@ -315,6 +318,7 @@ if __name__=="__main__":
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
 
+    ConfigFlags.Detector.GeometryBpipe   = True 
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
@@ -325,7 +329,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True 
 
-    
     ConfigFlags.Output.ESDFileName=args.output
     
     ConfigFlags.Input.isMC = True
