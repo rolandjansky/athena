@@ -289,6 +289,12 @@ class doLargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class doR3LargeD0(InDetFlagsJobProperty):
+    """Turn running of doR3LargeD0 second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class doDisplacedSoftPion(InDetFlagsJobProperty):
     """Turn running of DisplaceSoftPion second pass down to 100 MeV on and off"""
     statusOn     = True
@@ -307,7 +313,7 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
     StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
@@ -1766,6 +1772,7 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------      
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0           = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      self.doR3LargeD0         = self.doR3LargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doLowPtLargeD0      = self.doLowPtLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doDisplacedSoftPion = self.doDisplacedSoftPion() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
 
@@ -1803,6 +1810,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+
       # no BeamGas tracking if no new tracking before (but only if beamtype is not single beam!)      
       if (jobproperties.Beam.beamType()!="singlebeam"):
         self.doBeamGas     = self.doBeamGas() and self.doNewTracking()
@@ -1814,7 +1822,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to run SiSPSeededTrackFinder
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -2003,7 +2011,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -2027,7 +2035,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()
+           or self.doForwardTracks() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -2037,12 +2045,12 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
              and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()) \
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()) \
             and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
@@ -2089,6 +2097,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
+       self.doR3LargeD0               = False
        self.doLowPtLargeD0            = False
        self.doDisplacedSoftPion       = False
        self.doHadCaloSeededSSS        = False
@@ -2369,7 +2378,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print standAloneTracking
     # -----------------------------------------
-    if self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() :
+    if self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() :
        print '*'
        print '* LargeD0 Tracking is ON'
        if self.doSiSPSeededTrackFinder() :
@@ -2713,6 +2722,7 @@ _list_InDetJobProperties = [Enabled,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
+                            doR3LargeD0,
                             doDisplacedSoftPion,
                             useExistingTracksAsInput,
                             cutLevel,
