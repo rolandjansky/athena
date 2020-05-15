@@ -628,6 +628,12 @@ void AnalysisConfig_Ntuple::loop() {
 			selectTracks<TruthParticleContainer>( &selectorTruth, "");
 			foundTruth = true;
 		}
+		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
+		        /// anything else?
+		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles");
+			std::cout << "\n\n\nFOUND TRUTH PARTICLES " << selectorTruth.size() << "\n\n" << std::endl;			
+		        foundTruth = true;
+		}
 		else { 
 			m_provider->msg(MSG::WARNING) << "Truth not found - none whatsoever!" << endmsg; 
 		}

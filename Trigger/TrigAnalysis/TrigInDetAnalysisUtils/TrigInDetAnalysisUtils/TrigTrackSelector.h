@@ -33,6 +33,8 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
+#include "xAODTruth/TruthParticleContainer.h"
+
 ///// stuff *merely* to get the particle charge!!!
 /// #include "HepPDT/ParticleData.hh"
 /// #include "HepMC/ParticleDataTable.h"
@@ -106,6 +108,9 @@ public:
   // extract all the tracks from a TrackParticle collection and add them
   void selectTracks( const TruthParticleContainer* truthtracks );
 
+  // extract all the tracks from a TrackParticle collection and add them
+  void selectTracks( const xAOD::TruthParticleContainer* truthtracks );
+
 
   // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
   bool selectTrack( const HepMC::GenParticle* track );
@@ -116,6 +121,8 @@ public:
 
   // add a TruthParticle 
   bool selectTrack( const TruthParticle* track );
+
+  bool selectTrack( const xAOD::TruthParticle* track );
 
 
   // make a TIDA::Track from a GenParticle 
