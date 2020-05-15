@@ -12,8 +12,8 @@
 #include "SCT_SLHC_GeoModel/SCT_MaterialManager.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/Version.h" 
-#include "InDetReadoutGeometry/SiCommonItems.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h" 
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h" 
 
 #include "SCT_SLHC_GeoModel/SCT_Barrel.h"

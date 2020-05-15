@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    DetectorDescription/GeoPrimitives
    DetectorDescription/Identifier
+   DetectorDescription/ReadoutGeometryBase
    Event/EventPrimitives
    GaudiKernel
    InnerDetector/InDetRawEvent/InDetSimData
@@ -48,7 +49,7 @@ atlas_add_library( SiClusterizationToolLib
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
-   Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
+   Identifier ReadoutGeometryBase EventPrimitives GaudiKernel InDetSimData InDetIdentifier
    InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
    TrkParameters TrkNeuralNetworkUtilsLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities AtlasDetDescr

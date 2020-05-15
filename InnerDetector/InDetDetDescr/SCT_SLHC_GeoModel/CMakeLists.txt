@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
@@ -35,11 +36,11 @@ atlas_add_library( SCT_SLHC_GeoModelLib
                    PUBLIC_HEADERS SCT_SLHC_GeoModel
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier ReadoutGeometryBase GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES SGTools GeoModelKernel InDetCondServices InDetIdentifier )
 
 atlas_add_component( SCT_SLHC_GeoModel
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib SGtests GeoModelKernel InDetCondServices InDetIdentifier SCT_SLHC_GeoModelLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelUtilities Identifier ReadoutGeometryBase GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib SGtests GeoModelKernel InDetCondServices InDetIdentifier SCT_SLHC_GeoModelLib )
 

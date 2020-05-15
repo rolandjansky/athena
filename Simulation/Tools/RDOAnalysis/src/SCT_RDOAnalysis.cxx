@@ -6,7 +6,7 @@
 #include "SCT_RDOAnalysis.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "StoreGate/ReadHandle.h"
 #include "TTree.h"
 #include "TString.h"

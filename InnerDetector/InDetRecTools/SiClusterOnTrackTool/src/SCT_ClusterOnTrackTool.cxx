@@ -19,7 +19,7 @@
 #include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/AnnulusBoundsPC.h"
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include <cmath>
 
 using CLHEP::micrometer;

@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDict
                           DetectorDescription/IdDictDetDescr
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventInfo
                           Event/EventPrimitives
                           GaudiKernel
@@ -59,12 +60,12 @@ atlas_add_library( FastTrackSimWrapLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps GeneratorObjects InDetIdentifier InDetPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrigCaloEvent TrigDecisionToolLib TrigFTKSimLib StoreGateLib SGtests SCT_CablingLib
-                   PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AtlasDetDescr IdDict IdDictDetDescr Identifier EventInfo EventPrimitives GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex TrkFitterInterfaces PixelCablingLib )
+                   PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AtlasDetDescr IdDict IdDictDetDescr Identifier ReadoutGeometryBase EventInfo EventPrimitives GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex TrkFitterInterfaces PixelCablingLib )
 
 atlas_add_component( FastTrackSimWrap
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GeneratorObjects InDetIdentifier InDetPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrigDecisionToolLib TrigCaloEvent TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr IdDict IdDictDetDescr Identifier EventInfo EventPrimitives GaudiKernel InDetRIO_OnTrack InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex TrkFitterInterfaces FastTrackSimWrapLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GeneratorObjects InDetIdentifier InDetPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrigDecisionToolLib TrigCaloEvent TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr IdDict IdDictDetDescr Identifier ReadoutGeometryBase EventInfo EventPrimitives GaudiKernel InDetRIO_OnTrack InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetRawData InDetSimData TileIdentifier TrkRIO_OnTrack TrkSpacePoint VxVertex TrkFitterInterfaces FastTrackSimWrapLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*jobOptions*.py )

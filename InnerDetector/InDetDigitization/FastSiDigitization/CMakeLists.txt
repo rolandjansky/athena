@@ -9,6 +9,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventPrimitives
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
@@ -57,7 +58,7 @@ atlas_add_component( FastSiDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel SiPropertiesSvcLib InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData TrkEventTPCnv PathResolver CxxUtils StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier AtlasCLHEP_RandomGenerators TrkDetDescrInterfaces TrkDigEvent TrkGeometry TrkSurfaces TrkExUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel ReadoutGeometryBase SiPropertiesSvcLib InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData TrkEventTPCnv PathResolver CxxUtils StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier AtlasCLHEP_RandomGenerators TrkDetDescrInterfaces TrkDigEvent TrkGeometry TrkSurfaces TrkExUtils )
 
 # Install files from the package:
 atlas_install_headers( FastSiDigitization )

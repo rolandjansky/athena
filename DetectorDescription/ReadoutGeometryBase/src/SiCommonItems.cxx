@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 
@@ -35,7 +35,7 @@ SiCommonItems::lorentzAngleSvc() const
     if (!m_lorentzAngleSvcHandle.empty()) {
       StatusCode sc = m_lorentzAngleSvcHandle.retrieve(); 
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "InDetReadoutGeometry ERROR: Could not locate Lorentz angle service: " << m_lorentzAngleSvcHandle.name() << endreq;
+	msg(MSG::ERROR) << "ReadoutGeometryBase ERROR: Could not locate Lorentz angle service: " << m_lorentzAngleSvcHandle.name() << endreq;
       }
     }
     m_lorentzAngleSvc =  &*m_lorentzAngleSvcHandle;

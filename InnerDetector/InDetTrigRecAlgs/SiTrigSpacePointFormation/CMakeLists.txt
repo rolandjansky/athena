@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/IRegionSelector
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventPrimitives
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -33,7 +34,7 @@ include_directories(src)
 atlas_add_component( SiTrigSpacePointFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector EventPrimitives InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector ReadoutGeometryBase EventPrimitives InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( SiTrigSpacePointFormation )

@@ -4,7 +4,7 @@
 
 #include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"  
+#include "ReadoutGeometryBase/SiLocalPosition.h"  
 #include "InDetReadoutGeometry/SiDetectorElement.h"  
 
 #include "InDetPrepRawData/SCT_ClusterCollection.h"

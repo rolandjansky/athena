@@ -8,8 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 //#include "CLHEP/Geometry/Transform3D.h"
 

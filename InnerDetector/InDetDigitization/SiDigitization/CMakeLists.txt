@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Control/DataModel
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetSimEvent )
@@ -21,5 +22,5 @@ atlas_add_library( SiDigitization
                    src/SiChargedDiodeCollection.cxx
                    src/SiSurfaceCharge.cxx
                    PUBLIC_HEADERS SiDigitization
-                   LINK_LIBRARIES AthenaKernel CxxUtils DataModel Identifier GaudiKernel InDetReadoutGeometry InDetSimEvent )
+                   LINK_LIBRARIES AthenaKernel CxxUtils DataModel Identifier ReadoutGeometryBase GaudiKernel InDetReadoutGeometry InDetSimEvent )
 

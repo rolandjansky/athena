@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventPrimitives
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -34,6 +35,6 @@ atlas_add_library( ISF_FatrasDetDescrModel
                    src/*.cxx
                    PUBLIC_HEADERS ISF_FatrasDetDescrModel
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier EventPrimitives InDetIdentifier InDetReadoutGeometry ISF_FatrasDetDescrInterfaces TrkDetDescrUtils TrkDetElementBase TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier ReadoutGeometryBase EventPrimitives InDetIdentifier InDetReadoutGeometry ISF_FatrasDetDescrInterfaces TrkDetDescrUtils TrkDetElementBase TrkGeometry TrkSurfaces TrkEventPrimitives TrkParameters StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

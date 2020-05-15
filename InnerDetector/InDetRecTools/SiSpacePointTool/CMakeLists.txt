@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           PRIVATE
+                          DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
@@ -27,10 +28,10 @@ atlas_add_library( SiSpacePointToolLib
                    PUBLIC_HEADERS SiSpacePointTool
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives InDetPrepRawData
-                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SiSpacePoint TrkSpacePoint )
+                   PRIVATE_LINK_LIBRARIES ReadoutGeometryBase GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SiSpacePoint TrkSpacePoint )
 
 atlas_add_component( SiSpacePointTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives InDetPrepRawData GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SiSpacePoint TrkSpacePoint SiSpacePointToolLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives InDetPrepRawData ReadoutGeometryBase GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SiSpacePoint TrkSpacePoint SiSpacePointToolLib )
 

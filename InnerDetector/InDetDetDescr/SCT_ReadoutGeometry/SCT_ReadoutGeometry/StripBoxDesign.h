@@ -14,7 +14,7 @@
 
 #include <vector>
 #include <stdexcept> // For throw stuff
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 
 namespace Trk {

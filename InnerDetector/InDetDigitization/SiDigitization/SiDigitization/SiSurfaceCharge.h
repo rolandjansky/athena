@@ -17,7 +17,7 @@
 #define SIDIGITIZATION_SISURFACECHARGE_H
 
 //#include "SiTrackerDetDescr/SiLocalPosition.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetSimEvent/SiCharge.h"
 
 

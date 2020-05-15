@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           PRIVATE
+                          DetectorDescription/ReadoutGeometryBase
                           InnerDetector/InDetRawEvent/InDetRawData
 			  InnerDetector/InDetDetDesct/InDetIdentifier
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -30,7 +31,7 @@ atlas_add_component( SiDigiAnalysis
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps GeneratorObjects
-                     PRIVATE_LINK_LIBRARIES InDetRawData InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry)
+                     PRIVATE_LINK_LIBRARIES ReadoutGeometryBase InDetRawData InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry)
 
 # Install files from the package:
 atlas_install_headers( SiDigiAnalysis )

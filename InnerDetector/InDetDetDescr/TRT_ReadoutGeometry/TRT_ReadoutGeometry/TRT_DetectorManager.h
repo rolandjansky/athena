@@ -13,7 +13,7 @@
 #include "InDetReadoutGeometry/InDetDetectorManager.h"
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
@@ -22,8 +22,6 @@
 #include "AthenaKernel/IIOVSvc.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
-
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include <vector>
 #include <string>

@@ -256,7 +256,7 @@ class LibraryEstimator:
             ('InDetDD::PixelModuleDesign','InDetReadoutGeometry'),
             ('InDetDD::PixelDiodeMatrix','InDetReadoutGeometry'),
             ('InDetDD::SiDetectorElement','InDetReadoutGeometry'),
-            ('InDetDD::SiLocalPosition','InDetReadoutGeometry'),
+            ('InDetDD::SiLocalPosition','ReadoutGeometryBase'),
             ('InDetDD::SCT_BarrelModuleSide','InDetReadoutGeometry'),
             ('InDetDD::SCT_ForwardModuleSide','InDetReadoutGeometry'),
             ('InDetDD::SCT_ForwardFrameTransformation','InDetReadoutGeometry'),
