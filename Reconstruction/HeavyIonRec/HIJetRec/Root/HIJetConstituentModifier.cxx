@@ -18,6 +18,8 @@ HIJetConstituentModifier::HIJetConstituentModifier(const std::string& myname): J
 
 StatusCode HIJetConstituentModifier::initialize(){
 
+  //Shallow copy key automatically built from the cluster key
+	m_clusterKey = m_clusterKey.key() + ".shallowCopy";
   ATH_CHECK( m_clusterKey.initialize() );
 
   return StatusCode::SUCCESS;

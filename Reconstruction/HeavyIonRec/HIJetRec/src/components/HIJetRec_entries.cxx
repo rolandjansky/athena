@@ -8,6 +8,7 @@
 #include "HIJetRec/HIEventShapeJetIteration.h"
 #include "HIJetRec/HIJetClusterSubtractorTool.h"
 #include "HIJetRec/HIJetConstituentSubtractionTool.h"
+#include "HIJetRec/HIJetConstituentModifier.h"
 #include "HIJetRec/HIJetDRAssociationTool.h"
 #include "HIJetRec/HIJetMaxOverMeanTool.h"
 #include "HIJetRec/HIJetDiscriminatorTool.h"
@@ -24,10 +25,10 @@ DECLARE_COMPONENT( HISubtractedCellMakerTool )
 
 DECLARE_COMPONENT( HIEventShapeJetIteration )
 DECLARE_COMPONENT( HIJetConstituentSubtractionTool )
+DECLARE_COMPONENT( HIJetConstituentModifier )
 DECLARE_COMPONENT( HIJetClusterSubtractorTool )
 DECLARE_COMPONENT( HIJetDRAssociationTool )
 DECLARE_COMPONENT( HIJetMaxOverMeanTool )
 DECLARE_COMPONENT( HIJetDiscriminatorTool )
 DECLARE_COMPONENT( HIJetSignificanceTool )
 DECLARE_COMPONENT( HIUEModulatorTool )
-

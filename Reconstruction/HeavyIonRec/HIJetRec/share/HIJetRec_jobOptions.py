@@ -190,7 +190,8 @@ for k in jtm.jetrecs :
         in_name=k.OutputContainer
         out_name=in_name.replace("_%s" % unsubtr_suffix,"")
         #>slight tweak in case R=1.0 jets are requestd, add some substructure tools
-        modifiers=GetHIModifierList(out_name,hi_tools)
+        modifiers=GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)
+        modifiers+=GetHIModifierList(out_name,hi_tools)
         if '10HIJets' in k.name() :
             from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
             jtm += KtDeltaRTool('ktdr10',JetRadius =1.0)

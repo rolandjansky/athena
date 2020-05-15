@@ -14,7 +14,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-class ISvcLocator;
 //**********************************************************************
 
 HIClusterSubtraction::HIClusterSubtraction(std::string name) : asg::AsgTool(name)//,
@@ -25,9 +24,12 @@ HIClusterSubtraction::HIClusterSubtraction(std::string name) : asg::AsgTool(name
 
 StatusCode HIClusterSubtraction::initialize()
 {
+	//New key for the shallow copy automatically built from the cluster key
+	m_outClusterKey = m_inClusterKey.key() + ".shallowCopy";
 	//Keys initialization
 	ATH_CHECK( m_eventShapeKey.initialize() );
-	ATH_CHECK( m_clusterKey.initialize() );
+	ATH_CHECK( m_inClusterKey.initialize() );
+	ATH_CHECK( m_outClusterKey.initialize() );
 
   for (auto tool :  m_clusterCorrectionTools)
   {
@@ -55,7 +57,7 @@ int HIClusterSubtraction::execute() const
   CHECK(m_modulatorTool->getShape(eshape), 1);
 
   //New implementation: make a shallow copy of original HIClusters and apply subtraction to clusters in the new container
-	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_clusterKey );
+	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_inClusterKey );
 
 	ATH_MSG_DEBUG("Shallow-copying HIClusters");
 
@@ -65,22 +67,23 @@ int HIClusterSubtraction::execute() const
   //shallowcopy.second->setShallowIO(m_shallowIO);
 
   // Make sure that memory is managed safely
-  std::unique_ptr<xAOD::CaloClusterContainer> outCaloClus(shallowcopy.first);
-  std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowcopy.second);
+  //std::unique_ptr<xAOD::CaloClusterContainer> outCaloClus(shallowcopy.first);
+  //std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowcopy.second);
 
   // Connect the copied clusters to their originals
-  xAOD::setOriginalObjectLink(*readHandleClusters, *outCaloClus);
+  //xAOD::setOriginalObjectLink(*readHandleClusters, *outCaloClus);
+  // Now a handle to write the shallow Copy
+  SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleShallowClusters ( m_outClusterKey );
+	//xAOD::CaloClusterContainer* ccl = shallowcopy.first;
 
   if(m_updateMode)
   {
-		const xAOD::CaloClusterContainer* ccl = shallowcopy.first;
-		//ccl = readHandleClusters.cptr();
     std::unique_ptr<std::vector<float> > subtractedE(new std::vector<float>());
-    subtractedE->reserve(ccl->size());
+    subtractedE->reserve(shallowcopy.first->size());
 		//Decoration via SG::AuxElement::Decorator should still work in MT code (that seems from browsing the code)
     SG::AuxElement::Decorator< float > decorator("HISubtractedE");
 
-    for(xAOD::CaloClusterContainer::const_iterator itr=ccl->begin(); itr!=ccl->end(); itr++)
+    for(xAOD::CaloClusterContainer::const_iterator itr=shallowcopy.first->begin(); itr!=shallowcopy.first->end(); itr++)
     {
       const xAOD::CaloCluster* cl=*itr;
       xAOD::IParticle::FourMom_t p4;
@@ -91,8 +94,7 @@ int HIClusterSubtraction::execute() const
   }
   else
   {
-		xAOD::CaloClusterContainer* ccl = shallowcopy.first;
-    for(xAOD::CaloClusterContainer::iterator itr=ccl->begin(); itr!=ccl->end(); itr++)
+    for(xAOD::CaloClusterContainer::iterator itr=shallowcopy.first->begin(); itr!=shallowcopy.first->end(); itr++)
     {
       xAOD::CaloCluster* cl=*itr;
       xAOD::IParticle::FourMom_t p4;
@@ -107,8 +109,16 @@ int HIClusterSubtraction::execute() const
 	      toolIt != m_clusterCorrectionTools.end(); toolIt++)
     {
       ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
-			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), ccl), 1);
+			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), shallowcopy.first), 1);
     }//End loop over correction tools
   }
+	auto unique_first_copy = xAOD::prepareElementForShallowCopy(shallowcopy.first);
+	auto unique_second_copy = xAOD::prepareElementForShallowCopy(shallowcopy.second);
+	xAOD::setOriginalObjectLink(*readHandleClusters, *unique_first_copy);
+
+	if(writeHandleShallowClusters.record ( std::move(unique_first_copy), std::move(unique_second_copy)).isFailure() ){
+			ATH_MSG_ERROR("Unable to write Shallow Copy containers for event shape with key: " << m_outClusterKey.key());
+			return 1;
+	}
   return 0;
 }

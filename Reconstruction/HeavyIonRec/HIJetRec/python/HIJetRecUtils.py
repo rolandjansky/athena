@@ -207,6 +207,17 @@ def ApplySubtractionToClusters(**kwargs) :
     jtm.jetrecs += [theAlg]
     jtm.HIJetRecs+=[theAlg]
 
+def GetConstituentsModifierTool(**kwargs) :
+    #For the cluster key, same exact logic as used for ApplySubtractionToClusters
+    if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
+    else : cluster_key=HIJetFlags.HIClusterKey()
+
+    HIJetConstituentModifier=CompFactory.HIJetConstituentModifier
+    toolName='HIJetConstituentModifierTool'
+    if 'name' in kwargs.keys() : toolName = kwargs['name']
+    cmod=HIJetConstituentModifier(toolName)
+    cmod.ClusterKey=cluster_key
+    return cmod
 
 def AddIteration(seed_container,shape_name, **kwargs) :
 
