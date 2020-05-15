@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_ReadCalibDataUtilities_h
 #define SCT_ReadCalibDataUtilities_h
 
 // Include STL stuff
-#include <limits>
+#include <array>
 #include <string>
 
 // Include boost stuff
-#include "boost/array.hpp"
 #include "boost/tokenizer.hpp"
 #include "boost/lexical_cast.hpp"
 
@@ -40,18 +39,18 @@ namespace SCT_ReadCalibChipUtilities {
     return noNan;
   }
 
-  const boost::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainDbParameterNames{
+  const std::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainDbParameterNames{
     {"gainByChip", "gainRMSByChip", "offsetByChip", "offsetRMSByChip", "noiseByChip", "noiseRMSByChip"}
-};
-  const boost::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainParameterNames{
+  };
+  const std::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainParameterNames{
     {"GainByChip", "GainRMSByChip", "OffsetByChip", "OffsetRMSByChip", "NoiseByChip", "NoiseRMSByChip"}
-};
-  const boost::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccDbParameterNames{
-  {"occupancyByChip", "occupancyRMSByChip", "offsetByChip", "noiseByChip"}
-};
-  const boost::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccParameterNames{
-  {"OccupancyByChip", "OccupancyRMSByChip", "OffsetByChip", "NoiseByChip"}
-};
+  };
+  const std::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccDbParameterNames{
+    {"occupancyByChip", "occupancyRMSByChip", "offsetByChip", "noiseByChip"}
+  };
+  const std::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccParameterNames{
+    {"OccupancyByChip", "OccupancyRMSByChip", "OffsetByChip", "NoiseByChip"}
+  };
 
   const std::string nPtGainFolder{"/SCT/DAQ/Calibration/ChipGain"};
   const std::string noiseOccFolder{"/SCT/DAQ/Calibration/ChipNoise"};
