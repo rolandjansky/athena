@@ -82,6 +82,9 @@ namespace Monitored {
  * colon is required). In case of a 2D histogram the labels are assigned consecutively to the x-axis 
  * and then y-axis bins.
  */
+namespace Monitored {
+  class Group;
+}
 class GenericMonitoringTool : public AthAlgTool {
 public:
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
@@ -90,8 +93,9 @@ public:
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
 
-  /// Retrieve the histogram fillers
-  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;
+  /// feed the fillers
+  void invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;  
+  
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path
@@ -101,6 +105,8 @@ public:
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 private:
+
+  
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_histoPath { this, "HistPath", {}, "Directory for histograms [name of parent if not set]" };
@@ -108,6 +114,7 @@ private:
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
   std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
+  mutable std::mutex m_fillMutex;
 };
 
 /**

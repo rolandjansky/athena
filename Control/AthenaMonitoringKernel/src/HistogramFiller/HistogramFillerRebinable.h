@@ -43,7 +43,6 @@ namespace Monitored {
 
       { // scope for mutex
         const auto valuesVector = this->m_monVariables[AXIS].get().getVectorRepresentation();
-        std::scoped_lock lock(*this->m_mutex);
 
         TH1* hist = this->template histogram<TH1>();
         TAxis* axis = detail::getAxis<TH1,AXIS>(hist);
