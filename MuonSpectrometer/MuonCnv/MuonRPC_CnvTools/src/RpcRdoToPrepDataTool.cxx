@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -84,5 +84,45 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
     }
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
+  ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (hash vector)");
+  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( idVect, selectedIdVect );
+  if (status.isFailure()){
+    ATH_MSG_FATAL("Error processing Core decode from Legacy (hash vector)");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Core decode processed in Legacy decode (hash vector)");
+
+  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes();
+  for (auto hash : prd_hashes){
+    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+  }
+
+  // For additional information on container contents, this function can be used 
+  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds ){
+  ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (ROB vector)");
+  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( robIds );
+  if (status.isFailure()){
+    ATH_MSG_FATAL("Error processing Core decode from Legacy (ROB vector)");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Core decode processed in Legacy decode (ROB vector)");
+  
+  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes();
+  for (auto hash : prd_hashes){
+    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+  }
+
+  // For additional information on container contents, this function can be used
+  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
+
   return StatusCode::SUCCESS;
 }

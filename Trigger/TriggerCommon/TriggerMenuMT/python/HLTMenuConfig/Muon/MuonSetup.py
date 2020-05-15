@@ -166,14 +166,10 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                                                Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
-  #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-  #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-  from AthenaCommon.Constants import DEBUG
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                         = "RpcRdoToPrepDataTool",
                                                          RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache,
                                                          RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
-  RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
 
   if athenaCommonFlags.isOnline: 
       RpcRdoToRpcPrepDataTool.ReadKey = ""

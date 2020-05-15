@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,10 +37,6 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::initialize()
   ATH_CHECK( RpcRdoToPrepDataToolCore::initialize() );
   ATH_CHECK( m_prdContainerCacheKey.initialize( SG::AllowEmpty ) );
   ATH_CHECK( m_coindataContainerCacheKey.initialize( SG::AllowEmpty ) );
-  //m_rpcPrepDataContainerKeyLocal = m_rpcPrepDataContainerKey.key()+"_LOCAL";
-  //m_rpcCoinDataContainerKeyLocal = m_rpcCoinDataContainerKey.key()+"_LOCAL";
-  //ATH_CHECK(m_rpcPrepDataContainerKeyLocal.initialize());
-  //ATH_CHECK(m_rpcCoinDataContainerKeyLocal.initialize());
   ATH_MSG_DEBUG("initialize() successful in " << name());
   
   return StatusCode::SUCCESS;
@@ -62,10 +58,6 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
 {
   // We will need to retrieve from cache even in different threads
   SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
-  if (rpcPRDHandle.isPresent()){
-    firstTimeInTheEvent = false;
-    return StatusCode::SUCCESS;
-  }
   // In MT, we always want to treat this as if its the first time in the event
   firstTimeInTheEvent = true;
   // Clear vectors which get filled
@@ -133,31 +125,6 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
     // Pass the container from the handle
     m_rpcCoinDataContainerFromCache = rpcCoinHandle.ptr();
   }
-
-  // We also need to make local thread ONLY versions of the containers which will be filled in a method which cannot
-  // carry between threads. At the end of decoding we will move the contents to cache container in a thread-safe way
-  /*
-  SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandleLocal(m_rpcPrepDataContainerKeyLocal);
-
-  StatusCode status = rpcPRDHandleLocal.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
-  if (status.isFailure() || !rpcPRDHandleLocal.isValid() )   {
-    ATH_MSG_FATAL("Could not record (local-thread) container of RPC PrepData Container at " << m_rpcPrepDataContainerKeyLocal.key()); 
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Created (local-thread) container " << m_rpcPrepDataContainerKeyLocal.key());
-  m_rpcPrepDataContainer = rpcPRDHandleLocal.ptr();
-
-  if (m_producePRDfromTriggerWords){
-    SG::WriteHandle< Muon::RpcCoinDataContainer >rpcCoinHandleLocal(m_rpcCoinDataContainerKeyLocal);
-    status = rpcCoinHandleLocal.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
-    if (status.isFailure() || !rpcCoinHandleLocal.isValid() )   {
-      ATH_MSG_FATAL("Could not record (local-thread) container of RPC Coin Data Container at " << m_rpcCoinDataContainerKeyLocal.key()); 
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("Created (local-thread) container " << m_rpcCoinDataContainerKeyLocal.key());
-    m_rpcCoinDataContainer = rpcCoinHandleLocal.ptr();
-  }
-  */
 
   // To prevent a memory leak, delete the pointer if it exists
   if(m_rpcPrepDataContainer){
@@ -253,15 +220,187 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::transferOutputToCache(){
     ATH_MSG_DEBUG("Coin hash " << hash << " has been moved to cache container");
   }
 
-  // Debug - Check the contents
+  
   auto prd_hashes_cache_check = m_rpcPrepDataContainerFromCache->GetAllCurrentHashes();
   for (auto hash : prd_hashes_cache_check){
-    ATH_MSG_DEBUG("Contents of CACHE : " << hash);
-  }
-  auto prd_hashes_local_check = m_rpcPrepDataContainer->GetAllCurrentHashes();
- for (auto hash : prd_hashes_local_check){
-    ATH_MSG_DEBUG("Contents of LOCAL : " << hash);
+    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
   }
 
+  auto prd_hashes_local_check = m_rpcPrepDataContainer->GetAllCurrentHashes();
+  for (auto hash : prd_hashes_local_check){
+    ATH_MSG_DEBUG("Contents of LOCAL in this view : " << hash);
+  }
+  
+  // For additional information on the contents of the cache-based container, this function can be used
+  //printMT();
+
   return StatusCode::SUCCESS;
+}
+
+void Muon::RpcRdoToPrepDataToolMT::printMT()
+{
+  msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
+  msg (MSG::INFO) << "***************** Listing RpcPrepData collections content **********************************************" << endmsg;
+  
+  if (m_rpcPrepDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endmsg;
+  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
+  
+  int ncoll = 0;
+  int ict = 0;
+  int ictphi = 0;
+  int ictamb = 0;
+  int icteta = 0;
+  int icttrg = 0;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = m_rpcPrepDataContainerFromCache->begin();
+       rpcColli!=m_rpcPrepDataContainerFromCache->end(); ++rpcColli) {
+
+    const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
+        
+    if ( rpcColl->size() > 0 ) {
+      msg (MSG::INFO) <<"PrepData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
+      RpcPrepDataCollection::const_iterator it_rpcPrepData;
+      int icc = 0;
+      int iccphi = 0;
+      int icceta = 0;
+      //            int icctrg = 0;
+      for (it_rpcPrepData=rpcColl->begin(); it_rpcPrepData != rpcColl->end(); it_rpcPrepData++) {
+	icc++;
+	ict++;
+	//                 if ((*it_rpcPrepData)->triggerInfo() > 0) 
+	//                 {
+	//                     icctrg++;
+	//                     icttrg++;
+	//                 }
+	//                 else
+	//                 {                    
+	if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
+	  iccphi++;
+	  ictphi++;
+	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
+	}
+	else {    
+	  icceta++;
+	  icteta++;
+	}                    
+	//                 }
+	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
+			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
+			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
+			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
+      }
+      ncoll++;
+      msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
+	//                <<icctrg<<" trigger hits / "
+		      <<iccphi<<" phi hits / "
+		      <<icceta<<" eta hits "<<endmsg;
+      msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+    }
+  }
+  msg (MSG::INFO) <<"*** Event  Summary: "
+		  <<ncoll <<" Collections / "
+		  <<icttrg<<" trigger hits / "
+		  <<ictphi<<" phi hits / "
+		  <<icteta<<" eta hits "<<endmsg;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  
+  msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
+  msg (MSG::INFO) << "***************** Listing RpcCoinData collections content **********************************************" << endmsg;
+  
+  if (m_rpcCoinDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endmsg;
+  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
+  
+  ncoll = 0;
+  ict = 0;
+  ictphi = 0;
+  icteta = 0;
+  int ictphilc = 0;
+  int ictphihc = 0;
+  int ictetalc = 0;
+  int ictetahc = 0;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = m_rpcCoinDataContainerFromCache->begin();
+       rpcColli!=m_rpcCoinDataContainerFromCache->end(); ++rpcColli) {
+
+    const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
+        
+    if ( rpcColl->size() > 0 ) {  
+      msg (MSG::INFO) <<"CoinData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
+      RpcCoinDataCollection::const_iterator it_rpcCoinData;
+      int icc = 0;
+      int iccphi = 0;
+      int icceta = 0;
+      int iccphilc = 0;
+      int iccetahc = 0;
+      int iccphihc = 0;
+      int iccetalc = 0;
+      //            int icctrg = 0;
+      for (it_rpcCoinData=rpcColl->begin(); it_rpcCoinData != rpcColl->end(); it_rpcCoinData++) {
+	icc++;
+	ict++;
+	//                 if ((*it_rpcPrepData)->triggerInfo() > 0) 
+	//                 {
+	//                     icctrg++;
+	//                     icttrg++;
+	//                 }
+	//                 else
+	//                 {                    
+	if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
+	        
+	  iccphi++;
+	  ictphi++;
+	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	    iccphilc++;
+	    ictphilc++;
+	  }
+	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	    iccphihc++;
+	    ictphihc++;
+	  }                    
+	}
+	else {
+	  icceta++;
+	  icteta++;
+	  if ( (*it_rpcCoinData)->isLowPtCoin() ) {
+	    iccetalc++;
+	    ictetalc++;
+	  }
+	  else if ((*it_rpcCoinData)->isHighPtCoin()) {
+	    iccetahc++;
+	    ictetahc++;
+	  }
+	}                    
+	//                 }
+	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
+			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
+			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
+			<<" cm/pad/sl ids = "
+			<<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
+			<<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
+			<<(*it_rpcCoinData)->isLowPtCoin() <<"/"<<(*it_rpcCoinData)->isHighPtCoin() <<"/"<<(*it_rpcCoinData)->isLowPtInputToHighPtCm() 
+			<<endmsg;
+      }
+      ncoll++;
+      msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
+	//                <<icctrg<<" trigger hits / "
+		      <<iccphi<<" phi coin. hits / "
+		      <<icceta<<" eta coin. hits \n"
+		      <<iccphilc<<" phi lowPt / "
+		      <<iccphihc<<" phi highPt / "
+		      <<iccetalc<<" eta lowPt / "
+		      <<iccetahc<<" eta highPt coincidences  "
+		      <<endmsg;
+      msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+    }
+  }
+  msg (MSG::INFO) <<"*** Event  Summary: "
+		  <<ncoll <<" Collections / "
+		  <<ictphi<<" phi coin. hits / "
+		  <<icteta<<" eta coin. hits \n"
+		  <<ictphilc<<" phi lowPt / "
+		  <<ictphihc<<" phi highPt / "
+		  <<ictetalc<<" eta lowPt / "
+		  <<ictetahc<<" eta highPt coincidences  "
+		  <<endmsg;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
 }

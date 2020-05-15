@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLMT_H
@@ -24,7 +24,7 @@ public:
 protected:
   virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
   StatusCode transferOutputToCache();
-
+  void printMT();
 
 private:
   /// This is the key for the cache for the MDT PRD containers, can be empty
@@ -34,8 +34,6 @@ private:
   /// and make contents available to Core code 
   Muon::RpcPrepDataContainer* m_rpcPrepDataContainerFromCache;
   Muon::RpcCoinDataContainer* m_rpcCoinDataContainerFromCache;
-  SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepDataContainerKeyLocal;
-  SG::WriteHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinDataContainerKeyLocal;
 
 
 };
