@@ -1794,6 +1794,9 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
             settings['ebeam1']=beamEnergy
         if 'ebeam2' not in settings:
             settings['ebeam2']=beamEnergy
+    # Make sure nevents is an integer
+    if 'nevents' in settings:
+        settings['nevents'] = int(settings['nevents'])
 
     mglog.info('Modifying run card located at '+run_card_input)
     if run_card_backup is not None:
@@ -1827,7 +1830,7 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
                         line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting.lower()]))+'='+setting
                         if comment != '':
                             line += '  !' + comment
-                        mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting.lower()])+'.')
+                        mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting.lower()]))
                         used_settings += [ stripped_setting.lower() ]
         newCard.write(line.strip()+'\n')
 
