@@ -114,7 +114,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      ATH_MSG_DEBUG("XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")");
       DBXMLUtils dbUtils(basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       setSchemaVersion(dbUtils.getSchemaVersion(fileName));
@@ -123,14 +123,14 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     }
   else
     {
-      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+      ATH_MSG_DEBUG("XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")");
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
     }
 
   if(!bParsed){
-    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
+    ATH_MSG_ERROR("XML file "<<fileName<<" not found");
     return nullptr;
   }
 
@@ -173,27 +173,27 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     rowsPerChip = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
     readoutSide = getInt( "FrontEndChipGeo", readoutIndexGeo,"readoutSide");
 
-    msg(MSG::DEBUG) << "readout geo - old geo : "
+    ATH_MSG_DEBUG("readout geo - old geo : "
         << moduleName << " " << phiPitch << " " << etaPitch << " "
         << etaPitchLong << " " << etaPitchEnd << " "
         << circuitsPhi << " " << circuitsEta << " "
         << rowsPerChip << " " << colsPerChip << " *"
-        << circuitsEta << "   empty " << emptyRows << endmsg;
+        << circuitsEta << "   empty " << emptyRows);
   }
 
-  msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
-  msg(MSG::DEBUG)<<"readout geo : "<<chipName<<endmsg;
-  msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endmsg;
-  msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" eta : "<<circuitsEta<<" "<<colsPerChip<<endmsg;
-  msg(MSG::DEBUG)<<"readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchEnd<<" "<<
-    circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerChip <<" "<< colsPerChip<<" *"<<circuitsEta<<endmsg;
-  msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
+  ATH_MSG_DEBUG("readout geo : ------------------------------------------------------------------------");
+  ATH_MSG_DEBUG("readout geo : "<<chipName);
+  ATH_MSG_DEBUG("readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows);
+  ATH_MSG_DEBUG("readout geo : "<<moduleName<<" eta : "<<circuitsEta<<" "<<colsPerChip);
+  ATH_MSG_DEBUG("readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchEnd<<" "<<
+    circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerChip <<" "<< colsPerChip<<" *"<<circuitsEta);
+  ATH_MSG_DEBUG("readout geo : ------------------------------------------------------------------------");
 
   double cellRowPerCirc = circuitsPhi*rowsPerChip;
 
   TerminateXML();
 
-  msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
+  ATH_MSG_DEBUG("readout geo : ------------------------------------------------------------------------");
 
   PixelDiodeMatrix * fullMatrix = buildMatrix( phiPitch, etaPitch,
                                                phiPitchLong, phiPitchEnd,
@@ -203,17 +203,17 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
                                                circuitsPhi, circuitsEta,
                                                rowsPerChip, colsPerChip);
 
-  msg(MSG::DEBUG) << "fullMatrix = buildMatrix(" << phiPitch << ", " << etaPitch << ", " <<
+  ATH_MSG_DEBUG("fullMatrix = buildMatrix(" << phiPitch << ", " << etaPitch << ", " <<
                                                phiPitchLong << ", " << phiPitchEnd << ", " <<
                                                etaPitchLong << ", " << etaPitchEnd << ", " <<
                                                nPhiLong << ", " << nPhiEnd << ", " <<
                                                nEtaLong << ", " << nEtaEnd << ", " <<
                                                circuitsPhi << ", " << circuitsEta << ", " <<
-                                               rowsPerChip << ", " << colsPerChip << ")" << endmsg;
+                                               rowsPerChip << ", " << colsPerChip << ")");
 
-  msg(MSG::DEBUG) << "matrix that was build:\n" << fullMatrix->createDebugStringRepr() << endmsg;
+  ATH_MSG_DEBUG("matrix that was build:\n" << fullMatrix->createDebugStringRepr());
 
-  msg(MSG::DEBUG)<<"readout geo - design " << thick<<" "<<
+  ATH_MSG_DEBUG("readout geo - design " << thick<<" "<<
     circuitsPhi<<" "<<
     circuitsEta<<" "<<
     colsPerChip<<" "<<
@@ -221,7 +221,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     colsPerChip<<" "<<
     rowsPerChip<<" "<<
     electrons<<" "<<
-    readoutSide<<endmsg;
+    readoutSide);
 
   PixelModuleDesign* design = new PixelModuleDesign( thick,
 						     circuitsPhi,
@@ -235,7 +235,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 						     readoutSide);
   fullMatrix->unref(); // ownership of fullMatrix was transfered to design
 
-  msg(MSG::DEBUG)<<"readout geo - design : "<<design->width()<<" "<<design->length()<<" "<<design->thickness()<<"    "<<design->rows()<<" "<<design->columns()<<endmsg;
+  ATH_MSG_DEBUG("readout geo - design : "<<design->width()<<" "<<design->length()<<" "<<design->thickness()<<"    "<<design->rows()<<" "<<design->columns());
 
   // Multiple connections (ganged pixels)
   if (emptyRows>0){
@@ -245,7 +245,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     std::vector<int> v_emptyrows = getVectorInt("GangedType",gangedIndex,"emptyrow");
     std::vector<int> v_connectrows = getVectorInt("GangedType",gangedIndex,"connectrow");
 
-    msg(MSG::DEBUG)<<"readout geo - emptyrows>0 : "<< gangedType<<" "<< gangedIndex<<endmsg;
+    ATH_MSG_DEBUG("readout geo - emptyrows>0 : "<< gangedType<<" "<< gangedIndex);
 
     int minRow = v_emptyrows[0];
     int maxRow = minRow;
@@ -316,33 +316,33 @@ PixelDiodeMatrix* PixelDesignBuilder::buildMatrix(  double phiPitch, double etaP
 {
   // checking for unlogical values
   if (circuitsPhi < 1 or circuitsEta < 1) {
-    msg(MSG::WARNING) << "Number of circuits is 0" << endreq;
+    ATH_MSG_WARNING("Number of circuits is 0");
     return nullptr;
   }
   if (diodeRowPerCirc < 1 or diodeColPerCirc < 1) {
-    msg(MSG::WARNING) << "Number of diodes per circuit is 0" << endreq;
+    ATH_MSG_WARNING("Number of diodes per circuit is 0");
     return nullptr;
   }
   if (nPhiLong < 0 or nPhiEnd < 0 or nEtaLong < 0 or nEtaEnd < 0) {
-    msg(MSG::WARNING) << "Number of long/end cells per circuit is below 0" << endreq;
+    ATH_MSG_WARNING("Number of long/end cells per circuit is below 0");
     return nullptr;
   }
 
   // checking and correcting inconsistent values
   if (nPhiLong == 0 and (phiPitchLong == 0.0 or phiPitchLong == phiPitch)) {
-    msg(MSG::WARNING) << "nPhiLong is set to 0, but phiPitchLong is neither 0 nor phiPitch! Setting nPhiLong to 1" << endreq;
+    ATH_MSG_WARNING("nPhiLong is set to 0, but phiPitchLong is neither 0 nor phiPitch! Setting nPhiLong to 1");
     nPhiLong = 1;
   }
   if (nPhiEnd == 0 and (phiPitchEnd == 0.0 or phiPitchEnd == phiPitch)) {
-    msg(MSG::WARNING) << "nPhiEnd is set to 0, but phiPitchEnd is neither 0 nor phiPitch! Setting nPhiEnd to 1" << endreq;
+    ATH_MSG_WARNING("nPhiEnd is set to 0, but phiPitchEnd is neither 0 nor phiPitch! Setting nPhiEnd to 1");
     nPhiEnd = 1;
   }
   if (nEtaLong == 0 and (etaPitchLong == 0.0 or etaPitchLong == etaPitch)) {
-    msg(MSG::WARNING) << "nEtaLong is set to 0, but etaPitchLong is neither 0 nor etaPitch! Setting nEtaLong to 1" << endreq;
+    ATH_MSG_WARNING("nEtaLong is set to 0, but etaPitchLong is neither 0 nor etaPitch! Setting nEtaLong to 1");
     nEtaLong = 1;
   }
   if (nEtaEnd == 0 and (etaPitchEnd == 0.0 or etaPitchEnd == etaPitch)) {
-    msg(MSG::WARNING) << "nEtaEnd is set to 0, but etaPitchEnd is neither 0 nor etaPitch! Setting nEtaEnd to 1" << endreq;
+    ATH_MSG_WARNING("nEtaEnd is set to 0, but etaPitchEnd is neither 0 nor etaPitch! Setting nEtaEnd to 1");
     nEtaEnd = 1;
   }
 
@@ -520,9 +520,9 @@ int PixelDesignBuilder::getNLongOrEndPixels(int parentIndex, const char* childTa
   if(getSchemaVersion() >= 5) {
     return getInt("FrontEndChip", parentIndex, childTag, 0);
   }
-  msg(MSG::DEBUG) << "XML: FrontEndChip/" << childTag
+  ATH_MSG_DEBUG("XML: FrontEndChip/" << childTag
       << " not defined in old schema (" << getSchemaVersion() << ")"
-      << " returning 0 ..." << endreq;
+      << " returning 0 ...");
   return 0;
 }
 
@@ -531,8 +531,8 @@ double PixelDesignBuilder::getLongOrEndPitch(int parentIndex, const char* childT
   if(getSchemaVersion() >= 5) {
     return getDouble("FrontEndChip", parentIndex, childTag, 0);
   }
-  msg(MSG::DEBUG) << "XML: FrontEndChip/" << childTag
+  ATH_MSG_DEBUG("XML: FrontEndChip/" << childTag
       << " not defined in old schema (" << getSchemaVersion() << ")"
-      << " returning 0.0 ..." << endreq;
+      << " returning 0.0 ...");
   return 0.0;
 }
