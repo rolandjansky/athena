@@ -416,7 +416,8 @@ def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="gr
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets", customGetters=None, pretools = [], constmods = []):
+                    outputGroup="CustomJets", customGetters=None, pretools = [], constmods = [],
+                    overwrite=False):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -427,7 +428,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
     if algseq is None:
         dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
         return
-    elif IsInInputFile("xAOD::JetContainer",jetname):
+    elif IsInInputFile("xAOD::JetContainer",jetname) and not overwrite:
         dfjetlog.warning( "Collection  "+jetname+" is already in input AOD!" )
         return        
     elif algname in DFJetAlgs:
@@ -462,7 +463,11 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         finderArgs['ghostArea'] = ghostArea
         finderArgs['modifiersin'] = mods
         finderArgs['calibOpt'] = calibOpt
-        print "mods in:", finderArgs['modifiersin']
+        dfjetlog.info("mods in:"+ finderArgs['modifiersin'])
+        if overwrite:
+            dfjetlog.info("Will overwrite AOD version of "+jetname)
+            finderArgs['overwrite']=True
+
         #finderArgs.pop('modifiersin') # leave the default modifiers.
     
         # map the input to the jtm code for PseudoJetGetter
