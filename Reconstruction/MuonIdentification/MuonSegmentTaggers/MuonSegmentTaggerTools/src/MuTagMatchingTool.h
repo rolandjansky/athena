@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuTagMatchingTool_H
 #define MuTagMatchingTool_H
 
+#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include <string>
+#include "GaudiKernel/ToolHandle.h"
+
 #include "TrkParameters/TrackParameters.h" 
 #include "TrkGeometry/TrackingGeometry.h"
 #include "MuonSegment/MuonSegment.h"
@@ -16,15 +17,15 @@
 #include "TrkExInterfaces/IPropagator.h"  
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
-//#include "TrkParameters/Perigee.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class StoreGateSvc;
+#include <string>
 
   /**
      @class MuTagMatchingTool
@@ -33,25 +34,17 @@ class StoreGateSvc;
   
   */
 
-namespace Muon {
-  class MuonEDMPrinterTool;
-}
-
 namespace Trk{
   class Surface;
   class Track;
-  class IResidualPullCalculator;
-  //  class PropDirection;
 }
-
 
 class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
  public:
   MuTagMatchingTool(const std::string& t ,const std::string& n ,const IInterface* p);
-  virtual ~MuTagMatchingTool          ();
+  virtual ~MuTagMatchingTool()=default;
   
-  virtual StatusCode initialize        ();
-  virtual StatusCode finalize          ();
+  virtual StatusCode initialize();
   
   std::string segmentStationString( const Muon::MuonSegment* segment ) const ;
 
@@ -134,8 +127,7 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
 
    ToolHandle<Trk::IExtrapolator> p_IExtrapolator ;//!< Pointer on IExtrapolator
    ToolHandle<Trk::IPropagator> p_propagator ;//!< Pointer on propagator for SL propagation
-   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
    ServiceHandle<Muon::IMuonEDMHelperSvc>         m_edmHelperSvc {this, "edmHelper", 
      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
      "Handle to the service providing the IMuonEDMHelperSvc interface" };
