@@ -32,7 +32,7 @@ atlas_add_component( TRT_DriftCircleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib InDetRawData InDetPrepRawData TrkPrepRawData CommissionEvent GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry LumiBlockData)
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib InDetRawData InDetPrepRawData TrkPrepRawData CommissionEvent GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry LumiBlockData TRT_DriftFunctionToolLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_DriftCircleTool )
