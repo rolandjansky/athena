@@ -2,6 +2,8 @@
 
   <class pattern="std::vector<short*int>" />
 
+  <class name="Muon::MM_RawData" />
+  <class name="Muon::STGC_RawData" />
   <class name="TgcRawData" />
   <class name="MdtAmtHit" />
   <class name="RpcFiredChannel" />
@@ -21,12 +23,18 @@
   <class name="std::vector<RpcCoinMatrix*>" />
   <class name="DataVector<CscRawData>" />
   <class name="std::vector<CscRawData*>" />
+  <class name="DataVector<Muon::MM_RawData>" />
+  <class name="std::vector<Muon::MM_RawData*>" />
+  <class name="DataVector<Muon::STGC_RawData>" />
+  <class name="std::vector<Muon::STGC_RawData*>" />
 
 
   <class name="IdentifiableContainer<TgcRdo>" />                                  
   <class name="IdentifiableContainer<MdtCsm>" />                                 
   <class name="IdentifiableContainer<RpcPad>" />
   <class name="IdentifiableContainer<CscRawDataCollection>" />
+  <class name="IdentifiableContainer<Muon::MM_RawDataCollection>" />
+  <class name="IdentifiableContainer<Muon::STGC_RawDataCollection>" />
 
   <class name="DataLinkVector<TgcRdo>" >
     <field name="m_last" transient="true" />
@@ -44,12 +52,22 @@
     <field name="m_last" transient="true" />
     <field name="m_vect" transient="true" />
   </class>
+  <class name="DataLinkVector<Muon::MM_RawDataCollection>" >
+    <field name="m_last" transient="true" />
+    <field name="m_vect" transient="true" />
+  </class>
+  <class name="DataLinkVector<Muon::STGC_RawDataCollection>" >
+    <field name="m_last" transient="true" />
+    <field name="m_vect" transient="true" />
+  </class>
 
 
   <class name="TgcRdo" />
   <class name="MdtCsm" />
   <class name="RpcPad" />
   <class name="CscRawDataCollection" />
+  <class name="Muon::MM_RawDataCollection" />
+  <class name="Muon::STGC_RawDataCollection" />
 
   <class name="TgcRdoContainer" />
   <class name="std::vector<TgcRdo * >" />
@@ -71,10 +89,16 @@
   <class name="DataVector<CscRawDataCollection>" id="D7600810-31BC-4344-A3C6-9C59F47E5551" />
   <class name="CscRawDataCollection_Cache" />
 
-  <class name="STGC_RawDataContainer" />
-  <class name="std::vector<STGC_RawDataCollection * >" />
-  <class name="DataVector<STGC_RawDataCollection>" id="3786AB67-8A7A-4DA5-B178-3FE9CB3A6FD2" />
+  <class name="Muon::MM_RawDataContainer" />
+  <class name="std::vector<Muon::MM_RawDataCollection * >" />
+  <class name="DataVector<Muon::MM_RawDataCollection>" id="5F202045-CE2C-4AD4-96BA-7DA18053B90F" />
+  <class name="MM_RawDataCollection_Cache" />
+
+  <class name="Muon::STGC_RawDataContainer" />
+  <class name="std::vector<Muon::STGC_RawDataCollection * >" />
+  <class name="DataVector<Muon::STGC_RawDataCollection>" id="3786AB67-8A7A-4DA5-B178-3FE9CB3A6FD2" />
   <class name="STGC_RawDataCollection_Cache" />
+
 
 
 </lcgdict>
