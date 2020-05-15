@@ -11,23 +11,33 @@ genSeq.Pythia8.Commands += [
 
 ## Load parameters by including parameter dictionary 'parameters' in 'offline_dict'
 from EvgenProdTools.offline_dict import parameters
-for k,v in parameters.items():
-    if k == 'particles':
-        for key,value in v.items():
-## Only the top quark, the leptons and the bosons are included
-            if (int(key) in range(6,26)):
-                genSeq.Pythia8.Commands += [
-                    str(key)+':m0 = '+str(value['mass']),
-                    str(key)+':mWidth = '+str(value['width']),
-                ]
-## Only the parameters sin2thetaW and sin2thetaWbar are included
-    if k == 'EW_parameters':
-        for key,value in v.items():
-            if key[1] == 'sin2thetaW' or key[1] == 'sin2thetaWbar':
-                genSeq.Pythia8.Commands += [
-                    'StandardModel:'+str(key[1])+' = '+str(value),
-                ]
 
+## Particle masses and widths
+particle_params = k.get("particles")
+if particle_params:
+    for key, value in particle_params.items():
+        ## Only the top quark, the leptons and the bosons are applied
+        if int(key) in range(6,26):
+            genSeq.Pythia8.Commands += [
+                "{:d}:m0 = {}".format(int(key), value['mass']),
+                "{:d}:mWidth = {}".format(int(key), value['width'])
+            ]
+else:
+    print "Could not retrieve standard ATLAS particle parameters"
+
+## SM electroweak parameters
+ew_params = k.get("EW_parameters")
+if ew_params:
+    ## Only the parameters sin2thetaW and sin2thetaWbar are applied
+    for key,value in v.items():
+        if key[1] in ('sin2thetaW', 'sin2thetaWbar'):
+            genSeq.Pythia8.Commands += [
+                'StandardModel:{} = {}'.format(key[1], value)
+            ]
+else:
+    print "Could not retrieve standard ATLAS EW parameters"
+
+## Control storing LHE in the HepMC record
 if "StoreLHE" in genSeq.Pythia8.__slots__.keys():
-   print "Pythia8_Base_Fragment.py: DISABLING storage of LHE record in HepMC by default. Please reenable storeage if desired"
+   print "Pythia8_Base_Fragment.py: DISABLING storage of LHE record in HepMC by default. Please re-enable storage if desired"
    genSeq.Pythia8.StoreLHE = False
