@@ -88,8 +88,8 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     #-- badChannels groups --
 
-    badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
-    badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName,'/LAr/','lb')
+    badChannelToolArrayBarrel = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"Barrel",'/LAr/','lb')
+    badChannelToolArrayEndcap = helper.addArray([lArDQGlobals.Sides],larCoverageAlg,badChannelsGroupName+"EndCap",'/LAr/','lb')
 
     #-- CoverageHW groups --
     availErrCode = larCoverageAlg.AvailableErrorCodes
@@ -106,9 +106,11 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     ### Configure histograms
 
+    coveragePath='CoverageNewAlg/'
+
     # -- caloNoiseTool histograms --
 
-    caloNoiseTool_path='CoverageNewAlg/CaloNoiseTool/'
+    caloNoiseTool_path=coveragePath+'CaloNoiseTool/'
     #LB histogram: need to know which LB the CaloNoiseTool histogram is about. Only add to caloNoiseToolGroup to avoid duplicates 
     caloNoiseToolGroup.defineHistogram('lb1_x;FirstLBnumber',
                                        type='TH1D',
@@ -136,15 +138,15 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
 
     # -- badChannels histograms --
-    badChannels_path='Coverage/BadChannels/'
+    badChannels_path=coveragePath+'BadChannels/'
     badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
                                               type='TH2I',
                                               path=badChannels_path,
-                                              title='Known Bad Channels - Barrel;Feedthrough(+Slot increasing);Channel',
+                                              title='Known Bad Channels - Barrel {0};Feedthrough(+Slot increasing);Channel',
                                               weight='flag',
-                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMB"+side],
-                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][0],
-                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMB"+side][1],
+                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMBA"], #bins from A side also used for C, they're the same
+                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMBA"][0],
+                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMBA"][1],
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
@@ -153,11 +155,11 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
     badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
-                                              title='Known Bad Channels - Endcap '+side+';Feedthrough(+Slot increasing);Channel',
+                                              title='Known Bad Channels - Endcap {0};Feedthrough(+Slot increasing);Channel',
                                               weight='flag',
-                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMEC"+side],
-                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][0],
-                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMEC"+side][1],
+                                              xbins=lArDQGlobals.Feedthrough_Slot_Nbins["EMECA"], #bins from A side also used for C, they're the same
+                                              xmin=lArDQGlobals.Feedthrough_Slot_range["EMECA"][0],
+                                              xmax=lArDQGlobals.Feedthrough_Slot_range["EMECA"][1],
                                               ybins=lArDQGlobals.FEB_N_channels,
                                               ymin=-0.5,
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
@@ -166,7 +168,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
 
     #--coverageHW histograms
-    coverage_path='CoverageNewAlg/perPartition/'
+    coverage_path=coveragePath+'perPartition/'
     coverageToolArrayEMBA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMBA_statusCode',
                                             type='TH2I',
                                             path=coverage_path,
