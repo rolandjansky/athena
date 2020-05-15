@@ -2,9 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
-
-from G4AtlasServices.G4AtlasServicesConf import G4UA__UserActionSvc
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 from G4UserActions.G4UserActionsConfigNew import AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg, LooperKillerToolCfg, G4SimTimerToolCfg, G4TrackCounterToolCfg
 
 
@@ -58,11 +56,10 @@ def UserActionSvcCfg(ConfigFlags, name="G4UA::UserActionSvc", **kwargs):
     result = ComponentAccumulator()
 
     # new user action tools
-    kwargs.setdefault('UserActionTools',
-                      getDefaultActions(ConfigFlags))
+    kwargs.setdefault('UserActionTools', getDefaultActions(ConfigFlags))
 
     # placeholder for more advanced config, if needed
-    result.addService ( G4UA__UserActionSvc(name, **kwargs) )
+    result.addService ( CompFactory.G4UA.UserActionSvc(name, **kwargs) )
 
     return result
     
