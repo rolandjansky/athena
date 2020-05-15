@@ -136,8 +136,12 @@ namespace InDetDD {
       
       /** Query wether the matrix is just a single cell. Mainly for internal use. */
       bool singleCell() const;
+
+      /** Create a string representation for debugging purposes **/
+      std::string createDebugStringRepr() const;
       
     private:
+      std::string createDebugStringRepr(unsigned int level) const;
       double        m_phiWidth;
       double        m_etaWidth;
       int           m_phiCells;    
@@ -174,6 +178,11 @@ namespace InDetDD {
     inline bool PixelDiodeMatrix::singleCell() const
     {
       return m_singleCell;
+    }
+
+    inline std::string PixelDiodeMatrix::createDebugStringRepr() const
+    {
+      return this->createDebugStringRepr(0);
     }
 
 } // end namespace
