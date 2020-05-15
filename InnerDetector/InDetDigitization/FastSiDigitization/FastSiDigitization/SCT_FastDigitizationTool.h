@@ -13,8 +13,6 @@
  * @author John Chapman - ATLAS Collaboration
  */
 
-#include "FastSiDigitization/ISCT_FastDigitizationTool.h"
-
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -84,7 +82,7 @@ namespace CLHEP {
 }
 
 class SCT_FastDigitizationTool :
-  virtual public PileUpToolBase, virtual public ISCT_FastDigitizationTool
+  virtual public PileUpToolBase
 {
 
 public:
