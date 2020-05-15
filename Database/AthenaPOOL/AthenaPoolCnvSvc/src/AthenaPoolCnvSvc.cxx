@@ -386,12 +386,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    std::string fileName;
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
-      auto streamingTool = m_outputStreamingTool[m_streamServer];
+      auto& streamingTool = m_outputStreamingTool[m_streamServer];
       // Clear object to get Placements for all objects in a Stream
       char* placementStr = nullptr;
       int num = -1;
       StatusCode sc = streamingTool->clearObject(&placementStr, num);
-      if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 0 && num > 0) {
+      if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 6 && num > 0) {
          fileName = strstr(placementStr, "[FILE=");
          fileName = fileName.substr(6, fileName.find(']') - 6);
          if (!this->connectOutput(fileName).isSuccess()) {
@@ -458,7 +458,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                      return abortSharedWrClients(num);
                   }
                   tokenStr = token->toString();
-
                   if (className == "DataHeader_p6") {
                      // Found DataHeader
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
@@ -498,6 +497,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             }
             // Send Token back to Client
             sc = streamingTool->lockObject(tokenStr.c_str(), num);
+            while (sc.isRecoverable()) {
+               sc = streamingTool->lockObject(tokenStr.c_str(), num);
+            }
             if (!sc.isSuccess()) {
                ATH_MSG_ERROR("Failed to lock Data for " << tokenStr);
                return abortSharedWrClients(-1);
@@ -523,6 +525,8 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             }
          }
          placementStr = nullptr;
+      } else if (sc.isSuccess() && placementStr != nullptr && strncmp(placementStr, "stop", 4) == 0) {
+         return(StatusCode::RECOVERABLE);
       } else if (sc.isRecoverable() || num == -1) {
          return(StatusCode::RECOVERABLE);
       }
