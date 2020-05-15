@@ -128,8 +128,8 @@
 #+ Trigger/TrigConfiguration/TrigConfxAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
-#+ Trigger/TrigEvent/TrigRoiConversion
-#+ Trigger/TrigEvent/TrigSteeringEvent
++ Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
 #+ Trigger/TrigValidation/TrigAnalysisTest
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
