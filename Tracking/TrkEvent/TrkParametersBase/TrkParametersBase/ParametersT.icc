@@ -206,7 +206,7 @@ namespace Trk
 
     m_surface.reset((rhs.m_surface && rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface.get()));
     if(rhs.covariance()) {
-      m_covariance = new AmgSymMatrix(DIM)(*rhs.covariance());
+      m_covariance = std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance());
 }
   }
 
@@ -215,16 +215,14 @@ namespace Trk
   ParametersT<DIM,T,S>::ParametersT(ParametersT<DIM,T,S>&& rhs):
     ParametersBase<DIM,T>(std::forward<ParametersBase<DIM,T> >(rhs)),
     m_parameters(std::move(rhs.m_parameters)),
-    m_covariance(rhs.m_covariance),
+    m_covariance(std::move(rhs.m_covariance)),
     m_position(std::move(rhs.position())),
     m_momentum(std::move(rhs.momentum())),  
     m_surface(std::move (rhs.m_surface)),
     m_chargeDef(std::move(rhs.m_chargeDef))
   {
-    rhs.m_covariance = nullptr;
     // False positive:
     // cppcheck-suppress useInitializationList
-    rhs.m_surface = nullptr;
   }
 
   // assignment operator
@@ -234,15 +232,9 @@ namespace Trk
     if(this != &rhs)
     {
       ParametersBase<DIM,T>::operator=(rhs);
-     
-      // delete the covariance if there
-      if(m_covariance) { delete m_covariance;
-}
-    
-      // now assign
       m_parameters = rhs.m_parameters;
       m_covariance = rhs.covariance() ?
-        (new AmgSymMatrix(DIM)(*rhs.covariance()))
+        std::make_unique<AmgSymMatrix(DIM)>(*rhs.covariance())
         : nullptr;
       m_position   = rhs.position();
       m_momentum   = rhs.momentum();
@@ -260,21 +252,13 @@ namespace Trk
     if(this != &rhs)
     {
       ParametersBase<DIM,T>::operator=(std::move(rhs));
-
-      
-      if(m_covariance) { delete m_covariance;
-}
-
       m_parameters = std::move(rhs.m_parameters);
-      m_covariance = rhs.m_covariance;
-      rhs.m_covariance = nullptr;
+      m_covariance = std::move(rhs.m_covariance);
       m_position   = std::move(rhs.position());
       m_momentum   = std::move(rhs.momentum());
       m_surface = std::move(rhs.m_surface);
-      rhs.m_surface = nullptr;
       m_chargeDef  = std::move(rhs.m_chargeDef);
     }
-  
     return *this;
   }
 
@@ -282,11 +266,6 @@ namespace Trk
   template<int DIM,class T,class S>
   ParametersT<DIM,T,S>::~ParametersT()
   {
-    if(m_covariance)
-    {
-      delete m_covariance;
-      m_covariance = nullptr;
-    }
   }
 
  
@@ -398,10 +377,10 @@ namespace Trk
     this->updateParametersHelper(updatedParameters);
     // update the covariance
     if (updatedCovariance) {
-      if (updatedCovariance != m_covariance) {
-        delete m_covariance;
+      //make sure we did not receive what we already hold
+      if (updatedCovariance != m_covariance.get()) {
+        m_covariance.reset(updatedCovariance);
       }
-      m_covariance = updatedCovariance;
     }
   }
 
@@ -415,8 +394,7 @@ namespace Trk
     if (m_covariance) {
       (*m_covariance) = updatedCovariance;
     } else { // otherwise create one
-      auto tmp = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
-      m_covariance = tmp.release();
+      m_covariance= std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
     }
   }
 

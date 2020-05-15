@@ -80,9 +80,9 @@ namespace Trk
     /** Access method for the parameters */
     virtual const AmgVector(DIM)& parameters() const = 0;             
       
-    /** Access method for the covariance matrix - returns 0 if no covariance matrix is given */
+    /** Access method for the covariance matrix - returns nullptr if no covariance matrix is given */
     virtual const AmgSymMatrix(DIM)* covariance() const = 0;
-      
+ 
     /** Access to the Surface method */
     virtual const Surface& associatedSurface() const = 0;
       
