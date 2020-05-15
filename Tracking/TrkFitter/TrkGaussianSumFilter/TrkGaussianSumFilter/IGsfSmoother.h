@@ -19,6 +19,7 @@ decription           : Abstract interface for the GSF smoother
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -49,6 +50,7 @@ public:
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
+    const EventContext& ctx,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const = 0;
