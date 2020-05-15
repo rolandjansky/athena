@@ -217,6 +217,10 @@ replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
+# Rebuild the PFlow jets for a consistent set of inputs to MET
+addCHSPFlowObjects()
+addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=SeqPHYSLITE, outputGroup="PHYSLITE", calibOpt="arj:pflow", overwrite=True)
+
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
@@ -318,9 +322,6 @@ print( jetSequence ) # For debugging
 SeqPHYSLITE += jetSequence
 
 # Make sure the MET knows what we've done
-# First we need to rebuild charged pflow objects
-from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
-scheduleCHSPFlowMods(SeqPHYSLITE)
 # Now build MET from our analysis objects
 from DerivationFrameworkJetEtMiss import METCommon
 from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
