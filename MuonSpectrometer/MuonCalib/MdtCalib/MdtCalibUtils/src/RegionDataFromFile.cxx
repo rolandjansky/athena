@@ -1,8 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/RegionDataFromFile.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #define MAX_VALUE 100000
 
 namespace MuonCalib {
@@ -12,8 +15,8 @@ namespace MuonCalib {
     if( regionId >= 0 && regionId < (int)m_identifiersPerRegions.size() ){
       return m_identifiersPerRegions[regionId];
     }else{
-      std::cout << "RegionDataFromFile::getIdentifiers: WARNING <index out of range> " 
-		<< regionId << " size " << m_identifiersPerRegions.size() << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RegionDataFromFile");
+      log<<MSG::WARNING<<"getIdentifiers() <index out of range> " << regionId << " size " << m_identifiersPerRegions.size()<<endmsg;
       return id_vec();
     }
   }
@@ -24,8 +27,8 @@ namespace MuonCalib {
       m_identifiersPerRegions[regionId] = ids;
       return true;
     }else{
-      std::cout << "RegionDataFromFile::addRegion: WARNING <index out of range> " 
-		<< regionId << " size " << m_identifiersPerRegions.size() << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RegionDataFromFile");
+      log<<MSG::WARNING<<"addRegion() <index out of range> " << regionId << " size " << m_identifiersPerRegions.size()<<endmsg;
       return false;      
     }    
   }
@@ -53,11 +56,10 @@ namespace MuonCalib {
       is >> dummy >> regionId >> nelements;
       nelements = (nelements > MAX_VALUE) ? MAX_VALUE : nelements;
       if( regionId != i ){
-	std::cout << "RegionDataFromFile::read ERROR <read wrong regionId> " 
-		  << regionId << " current " << i << std::endl;
-	std::cout << "Aborting reading " << std::endl;
-	clear();
-	return is;
+        MsgStream log(Athena::getMessageSvc(),"RegionDataFromFile");
+        log<<MSG::WARNING<<"read() <read wrong regionId> " << regionId << " current " << i<<". Aborting reading"<<endmsg;
+        clear();
+        return is;
       }      
 
       id_vec ids;
