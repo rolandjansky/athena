@@ -60,10 +60,16 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsStringUtilityTest)
     const std::string aValidString{"myToolName"};
     const std::string invalidString{"2BorNot2B"};
     const std::string invalidString2{"B>BorNot2B"};
+    // Example from https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonConfig/python/MuonRecToolsConfig.py#0229
+    // giving rise to ATLASRECTS-5500
+    const std::string muonExample{"Trk::EnergyLossUpdator"};
+    const std::string muonExampleWithTypo{"Trk:EnergyLossUpdator"};
     BOOST_TEST(validToolName(aValidString) == true);
     BOOST_TEST(validToolName(empty) == false);
     BOOST_TEST(validToolName(invalidString) == false);
     BOOST_TEST(validToolName(invalidString2) == false);
+    BOOST_TEST(validToolName(muonExample) == true);
+    BOOST_TEST(validToolName(muonExampleWithTypo) == false);
   }
   /*
     std::string
