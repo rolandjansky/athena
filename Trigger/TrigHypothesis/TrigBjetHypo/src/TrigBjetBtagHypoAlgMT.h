@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H
@@ -20,6 +20,9 @@
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  public:
   TrigBjetBtagHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
@@ -34,6 +37,9 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
                                             TrigCompositeUtils::Decision&,
 					    int index,
 					    int indexPrmVertex = 0 ) const;
+  virtual StatusCode monitor_tracks( const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const;
+
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   
  private:
   ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
@@ -42,6 +48,8 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
 
   SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTagging","Undefined","Key for BTagging"};
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trackKey {this,"Tracks","Undefined","Key for precision tracks, to be linked to output decision"};
+  Gaudi::Property< std::string > m_prmVtxLink {this,"PrmVtxLink","Undefined","PrmVtx link to attach to the output decision"};
+  SG::ReadHandleKey< xAOD::VertexContainer > m_inputPrmVtx {this,"PrmVtx","Undefined","Primary vertex to be linked to the output decision"};
 }; 
 
 #endif
