@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -38,6 +38,9 @@ class MinBiasChainConfig(ChainConfigurationBase):
                 hypo = SPCountHypoTool(chainDict["chainName"])
                 if "hmt" in chainDict["chainName"]:
                     hypo.totNumSctSP = int( chainDict["chainParts"][0]["hypoL2Info"].strip("sp") )
+                if "mb_sptrk" in chainDict["chainName"]:
+                    hypo.totNumPixSP  = 2
+                    hypo.totNumSctSP  = 3
                 # will set here thresholds
                 return hypo
         SpList = []
@@ -67,6 +70,9 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
         SpCount=TrigCountSpacePointsMT()
         SpCount.SpacePointsKey=recordable("HLT_SpacePointCounts")
+        
+        from TrigT2MinBias.TrigT2MinBiasMonitoringMT import SpCountMonitoring
+        SpCount.MonTool = SpCountMonitoring()
 
         SPrecoSeq = parOR("SPrecoSeq", SpList + [ SpCount ])
         SPSequence = seqAND("SPSequence", [SPInputMakerAlg, SPrecoSeq])
@@ -76,12 +82,12 @@ class MinBiasChainConfig(ChainConfigurationBase):
         SpCountHypo =SPCountHypoAlgMT()
         SpCountHypo.SpacePointsKey=recordable("HLT_SpacePointCounts")
 
-        stepSPCount = ChainStep( "stepSPCount",  [MenuSequence( Sequence    = SPSequence,
+        Step1_SPCount = ChainStep( "Step1_SPCount",  [MenuSequence( Sequence    = SPSequence,
                           Maker       = SPInputMakerAlg,
                           Hypo        = SpCountHypo,
                           HypoToolGen = generateSPCountHypo )] )
 
-        return stepSPCount
+        return Step1_SPCount
 
     def getMinBiasTrkStep(self):
         """ Use the reco-dict to construct a single MinBias step """
@@ -89,6 +95,10 @@ class MinBiasChainConfig(ChainConfigurationBase):
                 hypo = TrackCountHypoTool(chainDict["chainName"])
                 if "hmt" in chainDict["chainName"]:
                     hypo.required_ntrks = int( chainDict["chainParts"][0]["hypoEFInfo"].strip("trk") )
+                if "mb_sptrk" in chainDict["chainName"]:
+                    hypo.min_pt  = 0.2
+                    hypo.max_z0  = 401
+
                 # will set here cuts
                 return hypo
         from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
@@ -125,12 +135,15 @@ class MinBiasChainConfig(ChainConfigurationBase):
         TrackCountHypo.trackCountKey=recordable("HLT_TrackCount")
         TrackCountHypo.tracksKey=recordable("HLT_IDTrack_MinBias_FTF")
 
+        from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
+        TrackCountHypo.MonTool = TrackCountMonitoring()
+
         TrkrecoSeq = parOR("TrkrecoSeq", [verifier]+TrkList)
         TrkSequence = seqAND("TrkSequence", [TrkInputMakerAlg, TrkrecoSeq])
         TrkInputMakerAlg.ViewNodeName = TrkrecoSeq.name()
 
-        stepTrkCount = ChainStep( "stepTrkCount",  [MenuSequence( Sequence    = TrkSequence,
+        Step2_TrkCount = ChainStep( "Step2_TrkCount",  [MenuSequence( Sequence    = TrkSequence,
                             Maker       = TrkInputMakerAlg,
                             Hypo        = TrackCountHypo,
                             HypoToolGen = generateTrackCountHypo )] )
-        return stepTrkCount
+        return Step2_TrkCount
