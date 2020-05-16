@@ -77,8 +77,8 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
        << " eta : " <<  muon.eta()
        << " phi : " <<  muon.phi()
        << " mass : " <<  muon.m() << " author " << muon.author() 
-       << " secondary authors: "
-       << " type : " << muon.muonType();
+       << " type : " << muon.muonType()
+       << " secondary authors: ";
   for( int a = 0;a<xAOD::Muon::NumberOfMuonAuthors;++a ){
     xAOD::Muon::Author author = static_cast<xAOD::Muon::Author>(a);
     if( author != muon.author() && muon.isAuthor(author) ) sout << " " << a;
