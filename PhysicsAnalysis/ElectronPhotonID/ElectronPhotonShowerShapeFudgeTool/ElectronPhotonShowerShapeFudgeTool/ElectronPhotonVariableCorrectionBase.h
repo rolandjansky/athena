@@ -135,6 +135,8 @@ private:
     std::string m_configFile;
     //! @brief The name of the variable to correct
     std::string m_correctionVariable;
+    //! @brief Values of discontinuities in the variable which should not be corrected
+    std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
     std::string m_correctionFunctionString;
     //! @brief The actual TF1 correction function
@@ -181,6 +183,11 @@ private:
      */
     bool passedCorrectPhotonType(const xAOD::Photon& photon) const;
 
+    /** @brief Check if the value passed is equal to one of the values passed via the UncorrectedDiscontinuites flag and should thus not be corrected
+     * @param value The value which should be checked
+     */
+    bool isEqualToUncorrectedDiscontinuity(const float value) const;
+
     /** @brief Get the relevant information for a correction function parameter from the given conf file
      * @param env The given TEnv, which is used to read out the current conf file
      * @param parameter_number The parameter number with respect to the m_correctionFunctionTF1
@@ -188,7 +195,7 @@ private:
      * @details The relevant information for the parameter with the given parameter number and given parameter type is retrieved from the current configuration
      * file, and saved in the according member variables of the class, i.e. m_graphCopies, m_binValues, m_etaBins, m_ptBins
      */
-    const StatusCode getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType& type);
+    const StatusCode getParameterInformationFromConf(TEnv& env, const int parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType type);
 
     /** @brief Get the actual parameters entering the correction TF1 for the current e/y object to be corrected
      * @param properties The vector where the values of the correction TF1 parameters will be saved in
@@ -197,7 +204,7 @@ private:
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
      * each of the correction function parameters are updated with this function.
      */
-    const StatusCode getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const;
+    const StatusCode getCorrectionParameters(std::vector<float>& properties, const float pt, const float absEta) const;
 
     /** @brief Get the correction function parameter value if its type is eta- or pT-binned
      * @param return_parameter_value The respective correction function parameter value is saved in this parameter
@@ -205,7 +212,7 @@ private:
      * @param binning The eta or pT binning
      * @param parameter_number The number of the parameter with respect to the correction TF1. Needed in order to retrieve the correct values matching this parameter.
      */
-    const StatusCode get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const;
+    const StatusCode get1DBinnedParameter(float& return_parameter_value, const float evalPoint, const std::vector<float>& binning, const int parameter_number) const;
 
     /** @brief Get the correction function parameter value if its type is eta- and pT-binned
      * @param return_parameter_value The respective correction function parameter value is saved in this parameter
@@ -213,20 +220,20 @@ private:
      * @param ptEvalPoint pT evaluation point - i.e., the pT value of the current e/y object to be corrected. Used to find the correct pT bin to use for the correction
      * @param parameter_number The number of the parameter with respect to the correction TF1. Needed in order to retrieve the correct values matching this parameter.
      */
-    const StatusCode get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const;
+    const StatusCode get2DBinnedParameter(float& return_parameter_value, const float etaEvalPoint, const float ptEvalPoint, const int parameter_number) const;
 
     /** @brief Find the bin number in which the evalPoint is located in the binning binning.
      * @param return_bin The respective bin number is saved in this parameter
      * @param evalPoint The evaluation point for which the bin number should be found
      * @param binning The binning which should be evaluated
      */
-    const StatusCode findBin(int& return_bin, const float& evalPoint, const std::vector<float>& binning) const;
+    const StatusCode findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) const;
 
     /** @brief Return the interpolation flag of parameter parameter_number as a boolean.
      * @param parameter_number Number of the parameter for which the interpolation flag should be checked
      * @return The interpolation flag of parameter parameter_number (boolean)
      */
-    bool getInterpolationFlag(const int& parameter_number) const;
+    bool getInterpolationFlag(const int parameter_number) const;
 
     /** @brief Given a point x, approximates the value via linear interpolation based on the two nearest bin centers. Re-implementation of Double_t TH1::Interpolate( Double_t x) const.
      * @param return_parameter_value The interpolated parameter value is saved in this parameter
@@ -235,14 +242,14 @@ private:
      * @param binning The binning based on which the interpolation should be done
      * @param binValues The bin values according to the binning given in binning
      */
-    const StatusCode interpolate(float& return_parameter_value, const float& evalPoint, const int& bin, const std::vector<float>& binning, const std::vector<float>& binValues) const;
+    const StatusCode interpolate(float& return_parameter_value, const float evalPoint, const int bin, const std::vector<float>& binning, const std::vector<float>& binValues) const;
 
     /** @brief Get the bin center of a bin bin_int using the binning binning
      * @param return_bin_center The bin center is saved in this parameter
      * @param binning The binning which should be used to find the bin centers
      * @param bin_int The bin for which the bin center should be found
      */
-    const StatusCode getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const;
+    const StatusCode getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int bin_int) const;
 
     /** @brief Returns the linearly intrpolated value of value given the bin centers and bin values
      * @param value The x-value at which the interpolation should be done
@@ -251,7 +258,7 @@ private:
      * @param right_bin_center The x-value of the right bin center used for the interpolation
      * @param right_bin_value The y-value of the right bin at the right bin center
      */
-    float interpolate_function(const float& value, const float& left_bin_center, const float& left_bin_value, const float& right_bin_center, const float& right_bin_value) const;
+    float interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) const;
 
     /** @brief Get the events energy density from the eventShape
      * @param value The respective correction function parameter value is saved in this parameter
@@ -273,7 +280,7 @@ private:
      * @param original_variable The original value of the corrected variable
      * @param properties The vector containing the correction TF1 parameters so the correction TF1 can be set for the respective e/y object
      */
-    const StatusCode correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const;
+    const StatusCode correct(float& return_corrected_variable, const float original_variable, std::vector<float>& properties) const;
 
 }; //end class ElectronPhotonVariableCorrectionBase
 

@@ -158,6 +158,18 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
         return StatusCode::FAILURE;
     }
 
+    // check if there are any (discrete) values which should be left uncorrected
+    if (env.Lookup("UncorrectedDiscontinuities"))
+    {
+        m_uncorrectedDiscontinuities = AsgConfigHelper::HelperFloat("UncorrectedDiscontinuities", env);
+        // if flag is given, but no values, fail
+        if (m_uncorrectedDiscontinuities.size() < 1)
+        {
+            ATH_MSG_ERROR("Did not find any discontinuities to not correct, despite finding the flag UncorrectedDiscontinuities.");
+            return StatusCode::FAILURE;
+        }
+    }
+
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
@@ -182,6 +194,11 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         original_variable = (*m_variableToCorrect)(photon);
         //Save the original value to the photon under different name
         (*m_originalVariable)(photon) = original_variable;
+        // check if tool should skip correcting this variable, as it's from some discontinuity
+        if (isEqualToUncorrectedDiscontinuity(original_variable))
+        {
+            return CP::CorrectionCode::Ok;
+        }
     }
     else
     {
@@ -230,6 +247,11 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         original_variable = (*m_variableToCorrect)(electron);
         //Save the original value to the photon under different name
         (*m_originalVariable)(electron) = original_variable;
+        // check if tool should skip correcting this variable, as it's from some discontinuity
+        if (isEqualToUncorrectedDiscontinuity(original_variable))
+        {
+            return CP::CorrectionCode::Ok;
+        }
     }
     else
     {
@@ -262,7 +284,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
     return CP::CorrectionCode::Ok;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const
+const StatusCode ElectronPhotonVariableCorrectionBase::correct(float& return_corrected_variable, const float original_variable, std::vector<float>& properties) const
 {   
     // set the parameters of the correction function
     for (unsigned int parameter_itr = 0; parameter_itr < properties.size(); parameter_itr++)
@@ -296,6 +318,27 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::correctedCopy( co
 // Helper Functions
 // ===========================================================================
 
+bool ElectronPhotonVariableCorrectionBase::isEqualToUncorrectedDiscontinuity(const float value) const
+{
+    // if no values set, return false as there is nothing to check
+    if (m_uncorrectedDiscontinuities.size() < 1)
+    {
+        return false;
+    }
+
+    // check all discontinuities which where passed
+    for (unsigned int value_itr = 0; value_itr < m_uncorrectedDiscontinuities.size(); value_itr++)
+    {
+        if (value == m_uncorrectedDiscontinuities.at(value_itr))
+        {
+            // if the value is equal to one of the discontinuities, no need to check further
+            return true;
+        }
+    }
+    // if we eer get here, the value was never equal to a discontinuity
+    return false;
+}
+
 const StatusCode ElectronPhotonVariableCorrectionBase::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
 {
     // just reteriving eta and pt is probably less expensive then checking if I need it and
@@ -325,7 +368,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getKinematicProperties(co
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType& type)
+const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFromConf(TEnv& env, const int parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType type)
 {
     // don't want to write the same code multiple times, so set flags when to retrieve eta/pt bins
     bool getEtaBins = false;
@@ -487,7 +530,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFr
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const
+const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(std::vector<float>& properties, const float pt, const float absEta) const
 {
     // according to the parameter type, get the actual parameter going to the correction function
     // for this, loop over the parameter type vector
@@ -530,7 +573,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(s
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const
+const StatusCode ElectronPhotonVariableCorrectionBase::get1DBinnedParameter(float& return_parameter_value, const float evalPoint, const std::vector<float>& binning, const int parameter_number) const
 {
     // need to find the bin in which the evalPoint is
     int bin = -1;
@@ -551,7 +594,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get1DBinnedParameter(floa
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const
+const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(float& return_parameter_value, const float etaEvalPoint, const float ptEvalPoint, const int parameter_number) const
 {
     //need to find eta bin, and need to find pt bin
     //from this, calculate which parameter of the list is needed to be returned.
@@ -597,7 +640,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float& evalPoint, const std::vector<float>& binning) const
+const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) const
 {
     // need to find the bin in which the evalPoint is
     return_bin = -1;
@@ -633,7 +676,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
     return StatusCode::SUCCESS;
 }
 
-bool ElectronPhotonVariableCorrectionBase::getInterpolationFlag(const int& parameter_number) const
+bool ElectronPhotonVariableCorrectionBase::getInterpolationFlag(const int parameter_number) const
 {
     bool do_interpolation = false;
     // get parameter number type
@@ -647,7 +690,7 @@ bool ElectronPhotonVariableCorrectionBase::getInterpolationFlag(const int& param
     return do_interpolation;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return_parameter_value, const float& evalPoint, const int& bin, const std::vector<float>& binning, const std::vector<float>& binValues) const
+const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return_parameter_value, const float evalPoint, const int bin, const std::vector<float>& binning, const std::vector<float>& binValues) const
 {
     // check if passed binning is consistent
     if (binning.size() != binValues.size())
@@ -705,7 +748,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int& bin_int) const
+const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& return_bin_center, const std::vector<float>& binning, const int bin_int) const
 {
     if (bin_int < 0)
     {
@@ -741,7 +784,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& retur
     return StatusCode::SUCCESS;
 }
 
-float ElectronPhotonVariableCorrectionBase::interpolate_function(const float& value, const float& left_bin_center, const float& left_bin_value, const float& right_bin_center, const float& right_bin_value) const
+float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) const
 {
     return left_bin_value + (value - left_bin_center) * (right_bin_value - left_bin_value) / (right_bin_center - left_bin_center);
 }
