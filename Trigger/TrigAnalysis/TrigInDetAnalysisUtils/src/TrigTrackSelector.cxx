@@ -13,10 +13,9 @@
 #include "xAODTruth/TruthVertex.h"
 
 
-TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) : 
+TrigTrackSelector::TrigTrackSelector( TrackFilter* selector, double radius ) : 
     TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
-    //m_first(true),
-    m_correctTrkTracks(false) {  } 
+    m_correctTrkTracks(false), m_radius(radius) {  } 
 
 
 bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
@@ -395,8 +394,8 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
       ///     then you will miss that track, and
       ///     also the resulting track, even if it is
       ///     a high et track  
-      const double inner_radius = 47;
-      const double outer_radius = 47;
+      const double inner_radius = m_radius; /// was hardcoded as 47 - now this can be set from the constructor
+      const double outer_radius = m_radius;
       if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
 	   ( !track->hasDecayVtx() || rd>outer_radius ) ) final_state = true; 
       
@@ -538,8 +537,8 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     ///     then you will miss that track, and
     ///     also the resulting track, even if it is
     ///     a high et track  
-    const double inner_radius = 47;
-    const double outer_radius = 47;
+    const double inner_radius = m_radius; /// used to be hardcoded as 47 mm, now can be set in the constructor
+    const double outer_radius = m_radius;
     if ( ( track->genParticle()->production_vertex() && rp<=inner_radius ) && 
 	 ( track->genParticle()->end_vertex()==0 || rd>outer_radius ) ) final_state = true; 
       

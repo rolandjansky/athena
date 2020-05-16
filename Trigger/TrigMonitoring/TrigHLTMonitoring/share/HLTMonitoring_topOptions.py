@@ -25,7 +25,6 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doMinBias  = False
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
-  HLTMonFlags.doIDJpsiMon  = False
   HLTMonFlags.doMaM = False
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
   log.info('Environment is tier0ESD')

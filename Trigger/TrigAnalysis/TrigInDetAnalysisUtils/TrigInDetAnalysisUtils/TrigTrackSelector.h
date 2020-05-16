@@ -75,7 +75,7 @@ class TrigTrackSelector : public TrackSelector {
 public:
 
   //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
-  TrigTrackSelector( TrackFilter* selector );
+  TrigTrackSelector( TrackFilter* selector, double radius=47 );
 
   ~TrigTrackSelector() { clear(); }
 
@@ -166,6 +166,8 @@ private:
   double m_zBeam;
 
   bool m_correctTrkTracks;
+
+  double m_radius;
 
 };
 
