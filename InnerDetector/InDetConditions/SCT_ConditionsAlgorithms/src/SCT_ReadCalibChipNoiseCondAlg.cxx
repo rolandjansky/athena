@@ -4,16 +4,18 @@
 
 #include "SCT_ReadCalibChipNoiseCondAlg.h"
 
+#include "FillFromStringUtility.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipDefs.h"
 
 #include <limits>
 #include <memory>
 
 using namespace SCT_ConditionsData;
-using namespace SCT_ReadCalibChipUtilities;
+using namespace SCT_ReadCalibChipDefs;
 
 SCT_ReadCalibChipNoiseCondAlg::SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -117,6 +119,6 @@ SCT_ReadCalibChipNoiseCondAlg::insertNoiseOccFolderData(SCT_ModuleNoiseCalibData
   for (int i{0}; i!=N_NOISEOCC; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     std::string dbData{((folderData)[noiseOccDbParameterNames[i]]).data<std::string>()};
-    fillFromString(dbData, datavec);
+    fillArrayFromString(dbData, datavec);
   }
 }
