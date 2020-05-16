@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/test/VarHandleKeyProperty_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -265,7 +263,7 @@ void test5()
 int main()
 {
   ISvcLocator* pDum;
-  if (!Athena_test::initGaudi("VarHandleKeyProperty_test.txt", pDum)) {
+  if (!Athena_test::initGaudi("StoreGate/VarHandleKeyProperty_test.txt", pDum)) {
     return 1;
   }
 

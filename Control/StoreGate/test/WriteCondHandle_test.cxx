@@ -433,7 +433,7 @@ int main()
 {
   ISvcLocator* svcloc;
   //need MessageSvc
-  if (!Athena_test::initGaudi("WriteCondHandle_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("StoreGate/WriteCondHandle_test.txt", svcloc)) {
     return 1;
   }
 
