@@ -547,7 +547,7 @@ StatusCode TestHepMC::execute() {
           const HepMC::FourVector tau_decaypos = vtx->position();
           const double tau_displacement = tau_decaypos.x()*tau_decaypos.x() + tau_decaypos.y()*tau_decaypos.y() + tau_decaypos.z()*tau_decaypos.z();
           //tau_child!=1 exclude cases in which a tau is copied to another vertex or emits a photon
-          if ((tau_displacement < 1.e-6) && (tau_child!=1)) ++m_FastDecayedTau;
+          if ((tau_displacement == 0) && (tau_child!=1)) ++m_FastDecayedTau;
         } else {
           ATH_MSG_WARNING("UNDECAYED PARTICLE WITH PDG_ID = " << m_pdg);
           ++m_decayCheckRate;
