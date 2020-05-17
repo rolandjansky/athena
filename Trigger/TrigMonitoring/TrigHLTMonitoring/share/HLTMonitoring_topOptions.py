@@ -43,9 +43,6 @@ else :
   HLTMonFlags.doMonTier0 = False
   HLTMonFlags.doMaM = False
 
-# temporarily disabling IDJpsiMon to deal with ATR-12037
-HLTMonFlags.doIDJpsiMon = False
-
 log.info("HLTMonFlags are:")
 print HLTMonFlags
 
