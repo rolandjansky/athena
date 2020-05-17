@@ -12,6 +12,7 @@ CREATED:  Sep 2007
  ********************************************************************/
 
 // INCLUDE HEADER FILES:
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"

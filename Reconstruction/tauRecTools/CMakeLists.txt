@@ -15,6 +15,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_depends_on_subdirs(
       PUBLIC
       Control/AthLinks
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Control/CxxUtils
       Event/xAOD/xAODCaloEvent
@@ -36,6 +37,7 @@ else()
       PUBLIC
       Calorimeter/CaloUtils
       Control/AthLinks
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Control/CxxUtils
       Event/xAOD/xAODCaloEvent
@@ -108,7 +110,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking xAODParticleEvent
+      xAODTracking xAODParticleEvent AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
@@ -120,7 +122,7 @@ else()
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking xAODParticleEvent CaloUtilsLib Particle
+      xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 endif()

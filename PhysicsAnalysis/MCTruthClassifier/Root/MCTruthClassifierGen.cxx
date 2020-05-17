@@ -8,6 +8,7 @@
  */
 
 #include "MCTruthClassifier/MCTruthClassifier.h"
+#include "AsgDataHandles/ReadHandle.h"
 using namespace MCTruthPartClassifier;
 using std::abs;
 
