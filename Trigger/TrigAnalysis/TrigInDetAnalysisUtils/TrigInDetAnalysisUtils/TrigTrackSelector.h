@@ -74,7 +74,10 @@ class TrigTrackSelector : public TrackSelector {
 
 public:
 
-  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
+  /// use 47 mm as radius - this corresponds to the inner radius of the pixel detector in Run 1
+  /// for consistency of the definition for the monitoring between Run 1 and Run 2.
+  /// For Run 3 we should probably use the oportunity to update this at some point to use the 
+  /// inner layer radius of the IBL which is 32 mm
   TrigTrackSelector( TrackFilter* selector, double radius=47 );
 
   ~TrigTrackSelector() { clear(); }
