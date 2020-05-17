@@ -355,7 +355,7 @@ ByteStreamEventStorageInputSvc::buildFragment(
         // convert old fragment
         if(formatVersion != eformat::MAJOR_DEFAULT_VERSION) {
           // 100 for increase of data-size due to header conversion
-          DataType  newEventSize = eventSize + 1000;
+          const uint32_t newEventSize = eventSize + 1000;
           DataType* newFragment  = new DataType[newEventSize];
           eformat::old::convert(fragment, newFragment, newEventSize);
 
@@ -464,12 +464,18 @@ ByteStreamEventStorageInputSvc::EventCache::releaseEvent()
 {
   // cleanup parts of previous event and re-init them
   if(rawEvent) {
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = 0;
-    rawEvent->start(fragment);
-    delete [] fragment; fragment = 0;
+    OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = rawEvent->start();
+    delete [] fragment; fragment = nullptr;
     rawEvent.reset(nullptr);
     eventStatus = 0;
   }
+}
+
+
+/******************************************************************************/
+ByteStreamEventStorageInputSvc::EventCache::~EventCache()
+{
+  releaseEvent();
 }
 
 
