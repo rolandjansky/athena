@@ -389,6 +389,9 @@ namespace top {
     registerParameter("NominalWeightFallbackIndex",
                       "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
                       "-1");
+    registerParameter("ForceNominalWeightFallbackIndex",
+                      "Force usage of NominalWeightFallbackIndex, even if MC sample metadata is correct. (Default: False)",
+                      "False");
 
     registerParameter("TruthBlockInfo", "Do you want to dump the full Truth block info? True or False", "False");
 
