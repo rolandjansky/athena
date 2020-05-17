@@ -341,8 +341,8 @@ TrigSignatureMoniMT                                 INFO HLT_mu6_mu4_L12MU4 #171
 TrigSignatureMoniMT                                 INFO -- #1713982776 Events         20         20         1          0          0          0          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1713982776 Features                             2          0          0          0          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu6_mu6noL1_L1MU6 #451489897
-TrigSignatureMoniMT                                 INFO -- #451489897 Events          20         20         0          0          0          0          0          0          0          
-TrigSignatureMoniMT                                 INFO -- #451489897 Features                              0          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #451489897 Events          20         20         1          1          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #451489897 Features                              1          1          0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6 #3518031697
 TrigSignatureMoniMT                                 INFO -- #3518031697 Events         20         20         1          -          -          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #3518031697 Features                             1          -          -          -          -          -          
