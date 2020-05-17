@@ -22,6 +22,8 @@ MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.MuonSlice.doTrigMuonConfig=True
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 class muonNames(object):
   def __init__(self):
     #EFSA and EFCB containers have different names 
@@ -83,6 +85,41 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
 
   from AthenaCommon.AppMgr import ToolSvc
+
+  if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+    ### sTGC RDO data ###
+    from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__STGC_RDO_Decoder
+    STGCRodDecoder =  Muon__STGC_RDO_Decoder(name            = "STGC_RDO_Decoder")
+
+    ToolSvc += STGCRodDecoder
+
+    from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataToolMT
+    sTgcRdoToPrepDataTool = Muon__sTgcRdoToPrepDataToolMT(name           = "sTgcRdoToPrepDataTool")
+
+    ToolSvc += sTgcRdoToPrepDataTool
+
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import StgcRdoToStgcPrepData
+    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData")
+
+    viewAlgs_MuonPRD.append( StgcRdoToStgcPrepData )
+
+    ### MM RDO data ###
+    from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MM_RDO_Decoder
+    MMRodDecoder =  Muon__MM_RDO_Decoder(name            = "MM_RDO_Decoder")
+
+    ToolSvc +=  MMRodDecoder
+
+    from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataToolMT
+    MmRdoToPrepDataTool = Muon__MmRdoToPrepDataToolMT(name           = "MmRdoToPrepDataTool")
+
+    ToolSvc += MmRdoToPrepDataTool
+
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MM_RdoToMM_PrepData
+    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MM_RdoToMM_PrepData",
+                                            PrintInputRdo = True  )
+
+    viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
+
 
   ### CSC RDO data ###
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
@@ -467,6 +504,8 @@ def muEFSARecoSequence( RoIs, name ):
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
+  from MuonRecExample.MuonRecFlags import muonRecFlags
+
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
 
   efAlgs = []
@@ -496,7 +535,10 @@ def muEFSARecoSequence( RoIs, name ):
                                            ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                            ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                            ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-   
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
+      EFMuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
+                                             ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements')]
+
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
   from AthenaCommon.AlgSequence import AthSequencer
   from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
@@ -507,8 +549,33 @@ def muEFSARecoSequence( RoIs, name ):
     # Sets up and configures the muon alignment:
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
+  if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
+      efAlgs.append(theMuonLayerHough)
+      SegmentFinder = CfgGetter.getPublicTool("MuonClusterSegmentFinderTool")
+      Cleaner = CfgGetter.getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
+      Cleaner.Extrapolator = CfgGetter.getPublicTool("MuonStraightLineExtrapolator")
+      Cleaner.Fitter = CfgGetter.getPublicTool("MCTBSLFitterMaterialFromTrack")
+      Cleaner.PullCut = 3
+      Cleaner.PullCutPhi = 3
+      SegmentFinder.TrackCleaner = Cleaner
+      
+      theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,SegmentCollectionName="MuonSegments",
+                                                       MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
+                                                       MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
+                                                       MuonTruthSummaryTool = None)
+    # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
+      if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
+          CfgGetter.getPublicTool("CscSegmentUtilTool")
+          CfgGetter.getPublicTool("Csc2dSegmentMaker")
+          CfgGetter.getPublicTool("Csc4dSegmentMaker")
+      else:
+          theSegmentFinderAlg.Csc2dSegmentMaker = ""
+          theSegmentFinderAlg.Csc4dSegmentMaker = ""
 
-  theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
+  else:
+    theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
+
   from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
   TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "MuonSegments", 
                                           TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"), 
@@ -570,6 +637,11 @@ def muEFCBRecoSequence( RoIs, name ):
                               ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' ),
                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+  if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
+    ViewVerifyMS.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
+                                ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements') ]
+
   muEFCBRecoSequence += ViewVerifyMS
 
   # Make sure required objects are still available at whole-event level
@@ -753,6 +825,10 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                        ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                        ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
+      ViewVerifyInsideOut.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
+                                          ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements') ]
+
     efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 
