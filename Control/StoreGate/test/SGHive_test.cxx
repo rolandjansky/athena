@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,8 +7,6 @@
  ------------------------------
  ATLAS Collaboration
  ***************************************************************************/
-
-// $Id: SGHive_test.cxx 797434 2017-02-15 23:30:43Z ssnyder $
 
 
 #undef NDEBUG
@@ -115,7 +113,7 @@ public:
 int main() {
   cout << "*** SGHiveTest BEGINS ***" << endl;
   ISvcLocator* pSvcLoc;
-  if (!initGaudi("SGHive_test.txt", pSvcLoc)) {
+  if (!initGaudi("StoreGate/SGHive_test.txt", pSvcLoc)) {
     return 1;
   }
   IHiveWhiteBoard* pWB(0);
