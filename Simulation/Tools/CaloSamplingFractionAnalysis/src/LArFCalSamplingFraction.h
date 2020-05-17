@@ -1,39 +1,24 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAR_FCAL_SAMPLING_FRACTION_H
 #define LAR_FCAL_SAMPLING_FRACTION_H
 
-// C++
+// C++ stdlib
 #include <string>
 
-// ROOT
-#include "TH1.h"
-
 // ATLAS Software
-#include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ObjectVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ObjectVector.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
-//#include "AnalysisTools/AnalysisTools.h"
-//#include "GeoAdaptors/GeoFCALHit.h"
+#include "GeoAdaptors/GeoLArHit.h"
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
-//#include "UserAnalysisUtils/UserAnalysisSelectionTool.h"
-//#include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
-//#include "UserAnalysisUtils/UserAnalysisOverlapCheckingTool.h"
-//#include "UserAnalysisUtils/UserAnalysisOverlapRemovalTool.h"
-
-//#include "TrigDecisionTool/TrigDecisionTool.h"
-
-//#include "TLorentzVector.h"
-//#include "CLHEP/Vector/LorentzVector.h"
-#include "GeoAdaptors/GeoLArHit.h"
+#include "StoreGate/StoreGateSvc.h"
 
 class JetCollection;
 class ISvcLocator;
@@ -48,12 +33,6 @@ class CaloDetDescrManager;
 class TCECollection;
 class TCEnergies;
 
-//using namespace Trig;
-//namespace Trig {
-//  class ChainGroup;
-//}
-
-// upgrade to inherit from AthAlgorithm
 
 class LArFCalSamplingFraction : public AthAlgorithm
 {
@@ -61,7 +40,6 @@ public:
     LArFCalSamplingFraction(const std::string &name, ISvcLocator *pSvcLocator);
     ~LArFCalSamplingFraction();
 
-    virtual StatusCode beginRun();
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode execute();
@@ -72,55 +50,26 @@ public:
     void FCalCalibAnalysis(const std::string name, const CaloCalibrationHit *CalibHit);
     void FCalClusterCenter(const LArHitContainer *container);
     void FCalHitCenter(const LArHitContainer *container);
-    void FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E, std::vector<double> *hit_x,
-                      std::vector<double> *hit_y, std::vector<double> *hit_ieta, std::vector<double> *hit_iphi,
+    void FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E,
+                      std::vector<double> *hit_x, std::vector<double> *hit_y,
+                      std::vector<double> *hit_ieta, std::vector<double> *hit_iphi,
                       int &NCell);
     StatusCode doCalib();
 
 private:
     /** methods called by execute() */
 
-    // to add event info to new ntuple (used to go by default in CollectionTree)
+    // To add event info to new ntuple (used to go by default in CollectionTree)
     StatusCode addEventInfo();
 
 private:
-    /** get a handle to the tool helper */
-    //   ToolHandle<AnalysisTools> m_analysisTools;
-
-    /** get a handle on the user tool for pre-selection and overlap removal */
-    //   ToolHandle<UserAnalysisSelectionTool>       m_analysisSelectionTool;
-    //   ToolHandle<UserAnalysisPreparationTool>     m_analysisPreparationTool;
-    //   ToolHandle<UserAnalysisOverlapCheckingTool> m_analysisOverlapCheckingTool;
-    //   ToolHandle<UserAnalysisOverlapRemovalTool>  m_analysisOverlapRemovalTool;
-
-    /** tool to access the trigger decision */
-    //   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-
-    /** a handle on the Hist/TTree registration service */
+    /** A handle on the Hist/TTree registration service */
     ITHistSvc *m_thistSvc;
 
-    /** a handle on Store Gate for access to the Event Store */
+    /** A handle on Store Gate for access to the Event Store */
     StoreGateSvc *m_storeGate;
 
-    /** the key of the Electron Container to retrieve from the AOD */
-    //   std::string m_electronContainerName;
-
-    /** name of the AOD truth particle container to retrieve from StoreGate */
-    //   std::string m_truthParticleContainerName;
-
-    /** key to get missing ET information */
-    //   std::string m_missingETObjectName;
-
-    /// The missing ET object
-    //   const MissingET * m_pMissing;
-    //   double m_pxMiss;
-    //   double m_pyMiss;
-    //   double m_ptMiss;
-
     /** Athena-Aware Ntuple (AAN) variables - branches of the AAN TTree */
-
-    // stuff for new ntuple
-    // The standard AANT, CollectionTree, is bare bones
     TTree *m_tree_AS;
 
     unsigned int m_runNumber;
@@ -131,80 +80,78 @@ private:
     double m_eventWeight;
     unsigned int m_statusElement;
 
+    /* ----- FCal-related variables ----- */
+    double m_vertx; // x-position for vertex generated particle (beam)
+    double m_verty;
+    double m_vertz;
 
-    // FCal-related variables
-    double vertx; // x-position for vertex generated particle (beam)
-    double verty;
-    double vertz;
+    double m_vertex_eta; // eta value of generated particle
+    double m_vertex_phi;
 
-    double vertex_eta; // eta value of generated particle
-    double vertex_phi;
-    double pt;
+    double m_pt; // Momentum of generated particle
+    double m_px;
+    double m_py;
+    double m_pz;
 
-    double px; // Momentum of generated particle
-    double py;
-    double pz;
+    double m_E; // Energy of generated particle
 
-    double E; // Energy of generated particle
+    int m_NCell1; // Number of cells hit
+    int m_NCell2;
+    int m_NCell3;
 
-    int NCell1; // Number of cells hit
-    int NCell2;
-    int NCell3;
+    double m_x_mc_cc1; // Center of cluster in x (FCal1, extrapolated)
+    double m_y_mc_cc1;
 
-    double x_mc_cc1; // Center of cluster in x (FCal1, extrapolated)
-    double y_mc_cc1;
+    double m_x_mc_cc2; // Center of cluster in x (FCal2, extrapolated)
+    double m_y_mc_cc2;
 
-    double x_mc_cc2; // Center of cluster in x (FCal2, extrapolated)
-    double y_mc_cc2;
+    double m_x_mc_cc3; // Center of cluster in x (FCal3, extrapolated)
+    double m_y_mc_cc3;
 
-    double x_mc_cc3; // Center of cluster in x (FCal3, extrapolated)
-    double y_mc_cc3;
+    double m_x_cc1; // Center of cluster in x (FCal1, c of g)
+    double m_y_cc1;
 
-    double x_cc1; // Center of cluster in x (FCal1, c of g)
-    double y_cc1;
+    double m_x_cc2; // Center of cluster in x (FCal2, c of g)
+    double m_y_cc2;
 
-    double x_cc2; // Center of cluster in x (FCal2, c of g)
-    double y_cc2;
-
-    double x_cc3; // Center of cluster in x (FCal3, c of g)
-    double y_cc3;
+    double m_x_cc3; // Center of cluster in x (FCal3, c of g)
+    double m_y_cc3;
 
     std::vector<int> *m_pdg_id;  // particle id
-    std::vector<double> *hit_x1; // hit positions of cells
-    std::vector<double> *hit_y1;
 
-    std::vector<double> *hit_x2;
-    std::vector<double> *hit_y2;
+    std::vector<double> *m_hit_x1; // hit positions of cells
+    std::vector<double> *m_hit_y1;
 
-    std::vector<double> *hit_x3;
-    std::vector<double> *hit_y3;
+    std::vector<double> *m_hit_x2;
+    std::vector<double> *m_hit_y2;
 
-    std::vector<double> *hit_ieta1; // hit indices of cells
-    std::vector<double> *hit_iphi1;
-    std::vector<double> *hit_ieta2;
-    std::vector<double> *hit_iphi2;
-    std::vector<double> *hit_ieta3;
-    std::vector<double> *hit_iphi3;
+    std::vector<double> *m_hit_x3;
+    std::vector<double> *m_hit_y3;
 
-    std::vector<double> *cell1_E; // Energy in cells
-    std::vector<double> *cell2_E;
-    std::vector<double> *cell3_E;
+    std::vector<double> *m_hit_ieta1; // hit indices of cells
+    std::vector<double> *m_hit_iphi1;
+    std::vector<double> *m_hit_ieta2;
+    std::vector<double> *m_hit_iphi2;
+    std::vector<double> *m_hit_ieta3;
+    std::vector<double> *m_hit_iphi3;
 
-    double FCal1_SumE; // Energy in individual FCal modules
-    double FCal2_SumE;
-    double FCal3_SumE;
-    double TCScint_E;
-    double TCIron_E;
+    std::vector<double> *m_cell1_E; // Energy in cells
+    std::vector<double> *m_cell2_E;
+    std::vector<double> *m_cell3_E;
+
+    double m_FCal1_SumE; // Energy in individual FCal modules
+    double m_FCal2_SumE;
+    double m_FCal3_SumE;
+    double m_TCScint_E;
+    double m_TCIron_E;
 
     double m_totalFCalEnergy;
     int m_numHitsFCal;
 
-    //--------------------- Calibration Hits Variables -----------------------//
-    //------------------------------------------------------------------------//
-
+    /* ----- Calibration Hits Variables ----- */
     double m_totalCalibrationEnergy; // Total energy
 
-    // Physic Processes
+    // Physic processes
     double m_totalEmEnergy;
     double m_totalNonEmEnergy;
     double m_totalInvisibleEnergy;
@@ -271,8 +218,8 @@ private:
     m_calibHitMap_t m_calibHitMap;
 
     // Variables needed for cluster centers
-    double cx1, cx2, cx3;
-    double cy1, cy2, cy3;
+    double m_cx1, m_cx2, m_cx3;
+    double m_cy1, m_cy2, m_cy3;
 };
 
 #endif // LAR_FCAL_SAMPLING_FRACTION_H

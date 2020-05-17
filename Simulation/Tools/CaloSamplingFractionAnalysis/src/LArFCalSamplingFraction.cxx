@@ -1,38 +1,37 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCalSamplingFraction.h"
 
-// the first two come for free when using AthAlgorithm
-//#include "GaudiKernel/MsgStream.h"
-//#include "StoreGate/StoreGateSvc.h"
+// C++ stdlib
+#include <algorithm>
+#include <functional>
+#include <iostream>
+#include <cmath>
+
+// Root
+#include "TTree.h"
+
+// ATLAS Software
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include <algorithm>
-#include <math.h>
-#include <functional>
-#include <iostream>
-
 // Event Info
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "TTree.h"
-
-
-// ID classes...
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/CaloDM_ID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "Identifier/Identifier.h"
+// ID classes
 #include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloDM_ID.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "Identifier/Identifier.h"
 
-// Hits and hit collections.
+// Hits and hit collections
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArReadoutGeometry/FCALModule.h"
@@ -40,12 +39,12 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "GeoAdaptors/GeoLArHit.h"
-//#include "GeoAdaptors/GeoFCALHit.h" // not in 17.7.0
 #include "GeoAdaptors/GeoCaloCalibHit.h"
 
 // For Cryostat Positions
 #include "LArG4RunControl/LArG4TBPosOptions.h"
-// beam particle stuff
+
+// Other useful tools for particle/event/beam info
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -57,108 +56,46 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Geometry/Point3D.h"
 
-//17.3. changes
-// no GeoAdapter/GeoFCalHit
-// no LArSimevent/LArHit or LArHitContainer
-
-//There is a LArHitContainer somewhere - LArHitFCAL
 
 static const double mZ = 91.19 * CLHEP::GeV;
 static const int MAX_PARTICLES = 20;
 
-//using namespace Analysis;
-//using namespace Rec;
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 /// Constructor
 
 LArFCalSamplingFraction::LArFCalSamplingFraction(const std::string &name, ISvcLocator *pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_calibrationRun(false),
-      cx1(0.0), cx2(0.0), cx3(0.0),
-      cy1(0.0), cy2(0.0), cy3(0.0)
+      m_cx1(0.0), m_cx2(0.0), m_cx3(0.0),
+      m_cy1(0.0), m_cy2(0.0), m_cy3(0.0)
 {
     declareProperty("Calibration", m_calibrationRun);
-    /** switches to control the analysis through job options */
-
-    //  declareProperty( "AnalysisTools",               m_analysisTools );
-    //  declareProperty( "AnalysisSelectionTool",       m_analysisSelectionTool);
-    //  declareProperty( "AnalysisPreparationTool",     m_analysisPreparationTool);
-    //  declareProperty( "AnalysisOverlapCheckingTool", m_analysisOverlapCheckingTool);
-    //  declareProperty( "AnalysisOverlapRemovalTool",  m_analysisOverlapRemovalTool);
-    //  declareProperty( "TrigDecisionTool",            m_trigDec, "The tool to access TrigDecision");
-    //
-    //  declareProperty("ElectronContainer", m_electronContainerName="ElectronAODCollection");
-    //  declareProperty("McParticleContainer", m_truthParticleContainerName = "SpclMC");
-    //  declareProperty("MissingETObject",m_missingETObjectName="MET_RefFinal");
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
+///////////////////////////////////////////////////////////////////////////////
+/// Destructor
 
 LArFCalSamplingFraction::~LArFCalSamplingFraction() {}
 
 
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 /// Initialize
-/// initialize StoreGate
-/// get a handle on the analysis tools
-/// book histograms
-
-StatusCode LArFCalSamplingFraction::beginRun()
-{
-    //  ATH_MSG_ERROR("Initializing LArFCalSamplingFraction (before eventloop)");
-
-    // retrieve trigger decision tool
-    // needs to be done before the first run/event since a number of
-    // BeginRun/BeginEvents are registered by dependent services
-    StatusCode sc = StatusCode::SUCCESS;
-
-    //  if ( m_doTrigger ) {
-    //     sc = m_trigDec.retrieve();
-    //     if ( sc.isFailure() )ATH_MSG_DEBUG("Can't get handle on TrigDecisionTool");
-    //     else ATH_MSG_DEBUG("Got handle on TrigDecisionTool");
-    //
-    //  }
-    //
-    //  // Initialize the trigger passed counters
-    //  // this can not be done before initialize, since the properties need to be set from job-options first
-    //  std::vector<std::string>::const_iterator it;
-    //  for(it = m_triggerChains.begin();it != m_triggerChains.end(); it++)
-    //     m_triggersPassed[*it] = 0;
-
-    return sc;
-}
+///  - Get a handle on the analysis tools
+///  - Set up output TTree
 
 StatusCode LArFCalSamplingFraction::initialize()
 {
     ATH_MSG_INFO("Initializing LArFCalSamplingFraction");
 
-    /** get a handle on the NTuple and histogramming service */
-
-    // sc = service("THistSvc", m_thistSvc);
-    // if (sc.isFailure()) {
-    //     ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
-    //     return sc;
-    // }
-
+    // Get a handle on the NTuple and histogramming service
     ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
     CHECK(histSvc.retrieve());
     ATH_MSG_DEBUG(" retrieved THistSvc");
 
-    //StatusCode sc;
-    // StoreGateSvc* detectorStore = 0;
-    // sc = service("DetectorStore", detectorStore);
-    //      sc = (detectorStore)->retrieve(posOptions,"LArG4TBPosOptions");
     const CaloIdManager *caloIdManager;
     ATH_CHECK(detStore()->retrieve(caloIdManager));
-
-    // if ( !sc.isSuccess()  ||  caloIdManager == 0 ) {
-    //     throw GaudiException("Could not get CaloIdManager",
-    //                          "LArFCalTB_MC_CBNT_AA", StatusCode::FAILURE);
-    // }
 
     // Use just for now for Calibration... change later to GeoCalibHit
     m_larFCalID = caloIdManager->getFCAL_ID();
@@ -172,32 +109,32 @@ StatusCode LArFCalSamplingFraction::initialize()
     if (m_caloCellID == 0)
         throw GaudiException("Invalid Calo Cell ID helper", "LArHitAnalysis", StatusCode::FAILURE);
 
-    m_pdg_id = new std::vector<int>;  // particle id
-    hit_x1 = new std::vector<double>; // hit positions of cells
-    hit_y1 = new std::vector<double>;
+    m_pdg_id = new std::vector<int>; // particle id
 
-    hit_x2 = new std::vector<double>;
-    hit_y2 = new std::vector<double>;
+    m_hit_x1 = new std::vector<double>; // hit positions of cells
+    m_hit_y1 = new std::vector<double>;
 
-    hit_x3 = new std::vector<double>;
-    hit_y3 = new std::vector<double>;
+    m_hit_x2 = new std::vector<double>;
+    m_hit_y2 = new std::vector<double>;
 
-    hit_ieta1 = new std::vector<double>; // hit indices of cells
-    hit_iphi1 = new std::vector<double>;
-    hit_ieta2 = new std::vector<double>;
-    hit_iphi2 = new std::vector<double>;
-    hit_ieta3 = new std::vector<double>;
-    hit_iphi3 = new std::vector<double>;
+    m_hit_x3 = new std::vector<double>;
+    m_hit_y3 = new std::vector<double>;
 
-    cell1_E = new std::vector<double>; // Energy in cells
-    cell2_E = new std::vector<double>;
-    cell3_E = new std::vector<double>;
+    m_hit_ieta1 = new std::vector<double>; // hit indices of cells
+    m_hit_iphi1 = new std::vector<double>;
+    m_hit_ieta2 = new std::vector<double>;
+    m_hit_iphi2 = new std::vector<double>;
+    m_hit_ieta3 = new std::vector<double>;
+    m_hit_iphi3 = new std::vector<double>;
 
-    /** Now add branches and leaves to the AAN tree */
-    // the TTree
+    m_cell1_E = new std::vector<double>; // Energy in cells
+    m_cell2_E = new std::vector<double>;
+    m_cell3_E = new std::vector<double>;
+
+    // Now add branches and leaves to the AAN tree
     m_tree_AS = new TTree("tree_AS", "TTree of AnalysisSkleton");
 
-    // First add Event info stuff
+    // Event info
     m_tree_AS->Branch("Run", &m_runNumber, "Run/I");             // run number
     m_tree_AS->Branch("Event", &m_eventNumber, "Event/I");       // event number
     m_tree_AS->Branch("Time", &m_eventTime, "Time/I");           // time stamp
@@ -205,70 +142,70 @@ StatusCode LArFCalSamplingFraction::initialize()
     m_tree_AS->Branch("BCID", &m_bCID, "BCID/I");                // bunch crossing ID
     m_tree_AS->Branch("Weight", &m_eventWeight, "Weight/D");     // weight
 
-    // FCal stuff - sort this out - check whether branches need references
+    // FCal-specific and other variables
     m_tree_AS->Branch("EFCal", &m_totalFCalEnergy, "EFCal/D");
     m_tree_AS->Branch("NHitsFCal", &m_numHitsFCal, "NhitsFCal/I");
 
-    m_tree_AS->Branch("Vertex_Eta", &vertex_eta, "Vertex_Eta/D");
-    m_tree_AS->Branch("Vertex_Phi", &vertex_phi, "Vertex_Phi/D");
+    m_tree_AS->Branch("Vertex_Eta", &m_vertex_eta, "Vertex_Eta/D");
+    m_tree_AS->Branch("Vertex_Phi", &m_vertex_phi, "Vertex_Phi/D");
 
-    m_tree_AS->Branch("Pt", &pt, "Pt/D");
-    m_tree_AS->Branch("px", &px, "px/D");
-    m_tree_AS->Branch("py", &py, "py/D");
-    m_tree_AS->Branch("pz", &pz, "pz/D");
-    m_tree_AS->Branch("E", &E, "E/D");
+    m_tree_AS->Branch("Pt", &m_pt, "Pt/D");
+    m_tree_AS->Branch("px", &m_px, "px/D");
+    m_tree_AS->Branch("py", &m_py, "py/D");
+    m_tree_AS->Branch("pz", &m_pz, "pz/D");
+    m_tree_AS->Branch("E", &m_E, "E/D");
 
-    m_tree_AS->Branch("VertexX", &vertx, "VertexX/D");
-    m_tree_AS->Branch("VertexY", &verty, "VertexY/D");
-    m_tree_AS->Branch("VertexZ", &vertz, "VertexZ/D");
+    m_tree_AS->Branch("VertexX", &m_vertx, "VertexX/D");
+    m_tree_AS->Branch("VertexY", &m_verty, "VertexY/D");
+    m_tree_AS->Branch("VertexZ", &m_vertz, "VertexZ/D");
 
-    m_tree_AS->Branch("MC_CCX1", &x_mc_cc1, "MC_CCX1/D");
-    m_tree_AS->Branch("MC_CCY1", &y_mc_cc1, "MC_CCY1/D");
+    m_tree_AS->Branch("MC_CCX1", &m_x_mc_cc1, "MC_CCX1/D");
+    m_tree_AS->Branch("MC_CCY1", &m_y_mc_cc1, "MC_CCY1/D");
 
-    m_tree_AS->Branch("MC_CCX2", &x_mc_cc2, "MC_CCX2/D");
-    m_tree_AS->Branch("MC_CCY2", &y_mc_cc2, "MC_CCY2/D");
+    m_tree_AS->Branch("MC_CCX2", &m_x_mc_cc2, "MC_CCX2/D");
+    m_tree_AS->Branch("MC_CCY2", &m_y_mc_cc2, "MC_CCY2/D");
 
-    m_tree_AS->Branch("MC_CCX3", &x_mc_cc3, "MC_CCX3/D");
-    m_tree_AS->Branch("MC_CCY3", &y_mc_cc3, "MC_CCY3/D");
+    m_tree_AS->Branch("MC_CCX3", &m_x_mc_cc3, "MC_CCX3/D");
+    m_tree_AS->Branch("MC_CCY3", &m_y_mc_cc3, "MC_CCY3/D");
 
-    m_tree_AS->Branch("CCX1", &x_cc1, "CCX1/D");
-    m_tree_AS->Branch("CCY1", &y_cc1, "CCY1/D");
+    m_tree_AS->Branch("CCX1", &m_x_cc1, "CCX1/D");
+    m_tree_AS->Branch("CCY1", &m_y_cc1, "CCY1/D");
 
-    m_tree_AS->Branch("CCX2", &x_cc2, "CCX2/D");
-    m_tree_AS->Branch("CCY2", &y_cc2, "CCY2/D");
+    m_tree_AS->Branch("CCX2", &m_x_cc2, "CCX2/D");
+    m_tree_AS->Branch("CCY2", &m_y_cc2, "CCY2/D");
 
-    m_tree_AS->Branch("CCX3", &x_cc3, "CCX3/D");
-    m_tree_AS->Branch("CCY3", &y_cc3, "CCY3/D");
+    m_tree_AS->Branch("CCX3", &m_x_cc3, "CCX3/D");
+    m_tree_AS->Branch("CCY3", &m_y_cc3, "CCY3/D");
 
-    m_tree_AS->Branch("NCell_1", &NCell1, "NCell1_1/I");
-    m_tree_AS->Branch("NCell_2", &NCell2, "NCell1_2/I");
-    m_tree_AS->Branch("NCell_3", &NCell3, "NCell1_3/I");
+    m_tree_AS->Branch("NCell_1", &m_NCell1, "NCell1_1/I");
+    m_tree_AS->Branch("NCell_2", &m_NCell2, "NCell1_2/I");
+    m_tree_AS->Branch("NCell_3", &m_NCell3, "NCell1_3/I");
 
     m_tree_AS->Branch("ParticleID", &m_pdg_id);
 
-    m_tree_AS->Branch("Hit_X1", &hit_x1);
-    m_tree_AS->Branch("Hit_Y1", &hit_y1);
+    m_tree_AS->Branch("Hit_X1", &m_hit_x1);
+    m_tree_AS->Branch("Hit_Y1", &m_hit_y1);
 
-    m_tree_AS->Branch("Hit_X2", &hit_x2);
-    m_tree_AS->Branch("Hit_Y2", &hit_y2);
+    m_tree_AS->Branch("Hit_X2", &m_hit_x2);
+    m_tree_AS->Branch("Hit_Y2", &m_hit_y2);
 
-    m_tree_AS->Branch("Hit_X3", &hit_x3);
-    m_tree_AS->Branch("Hit_Y3", &hit_y3);
+    m_tree_AS->Branch("Hit_X3", &m_hit_x3);
+    m_tree_AS->Branch("Hit_Y3", &m_hit_y3);
 
-    m_tree_AS->Branch("Hit_eta1", &hit_ieta1);
-    m_tree_AS->Branch("Hit_phi1", &hit_iphi1);
-    m_tree_AS->Branch("Hit_eta2", &hit_ieta2);
-    m_tree_AS->Branch("Hit_phi2", &hit_iphi2);
-    m_tree_AS->Branch("Hit_eta3", &hit_ieta3);
-    m_tree_AS->Branch("Hit_phi3", &hit_iphi3);
+    m_tree_AS->Branch("Hit_eta1", &m_hit_ieta1);
+    m_tree_AS->Branch("Hit_phi1", &m_hit_iphi1);
+    m_tree_AS->Branch("Hit_eta2", &m_hit_ieta2);
+    m_tree_AS->Branch("Hit_phi2", &m_hit_iphi2);
+    m_tree_AS->Branch("Hit_eta3", &m_hit_ieta3);
+    m_tree_AS->Branch("Hit_phi3", &m_hit_iphi3);
 
-    m_tree_AS->Branch("Cell1_E", &cell1_E);
-    m_tree_AS->Branch("Cell2_E", &cell2_E);
-    m_tree_AS->Branch("Cell3_E", &cell3_E);
+    m_tree_AS->Branch("Cell1_E", &m_cell1_E);
+    m_tree_AS->Branch("Cell2_E", &m_cell2_E);
+    m_tree_AS->Branch("Cell3_E", &m_cell3_E);
 
-    m_tree_AS->Branch("FCal1_E", &FCal1_SumE, "FCal1_E/D");
-    m_tree_AS->Branch("FCal2_E", &FCal2_SumE, "FCal2_E/D");
-    m_tree_AS->Branch("FCal3_E", &FCal3_SumE, "FCal3_E/D");
+    m_tree_AS->Branch("FCal1_E", &m_FCal1_SumE, "FCal1_E/D");
+    m_tree_AS->Branch("FCal2_E", &m_FCal2_SumE, "FCal2_E/D");
+    m_tree_AS->Branch("FCal3_E", &m_FCal3_SumE, "FCal3_E/D");
 
     if (m_calibrationRun) {
         m_caloDmID = caloIdManager->getDM_ID();
@@ -277,8 +214,7 @@ StatusCode LArFCalSamplingFraction::initialize()
             throw GaudiException("Invalid Calo DM ID helper", "LArFCalTB_MC_CBNT_AA", StatusCode::FAILURE);
 
         // Define the hit containers that we'll analyze in this program.
-        // For now, initialize the pointers to the containers to NULL
-        // (zero).
+        // For now, initialize the pointers to the containers to NULL (zero).
         m_calibHitMap["LArCalibrationHitActive"] = 0;
         m_calibHitMap["LArCalibrationHitInactive"] = 0;
         m_calibHitMap["LArCalibrationHitDeadMaterial"] = 0;
@@ -337,8 +273,9 @@ StatusCode LArFCalSamplingFraction::initialize()
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////
-/// Finalize - delete any memory allocation from the heap
+///////////////////////////////////////////////////////////////////////////////
+/// Finalize
+///  - delete any memory allocation from the heap
 
 StatusCode LArFCalSamplingFraction::finalize()
 {
@@ -346,77 +283,79 @@ StatusCode LArFCalSamplingFraction::finalize()
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////
-/// Clear - clear CBNT members
+///////////////////////////////////////////////////////////////////////////////
+/// Init event
+///  - clear CBNT members
 
 StatusCode LArFCalSamplingFraction::initEvent()
 {
     /// For Athena-Aware NTuple
 
-    //std::cout<<"MOOCOWY - starting event, clearing variables\n";
+    ATH_MSG_INFO("Initializing event, clearing variables");
 
-    vertx = 0; // x-position for vertex generated particle (beam)
-    verty = 0;
-    vertz = 0;
+    m_vertx = 0; // x-position for vertex generated particle (beam)
+    m_verty = 0;
+    m_vertz = 0;
 
-    vertex_eta = 0; // eta value of generated particle
-    vertex_phi = 0;
-    pt = 0;
+    m_vertex_eta = 0; // eta value of generated particle
+    m_vertex_phi = 0;
 
-    px = 0; // Momentum of generated particle
-    py = 0;
-    pz = 0;
+    m_pt = 0; // Momentum of generated particle
+    m_px = 0;
+    m_py = 0;
+    m_pz = 0;
 
-    E = 0; // Energy of generated particle
+    m_E = 0; // Energy of generated particle
 
-    NCell1 = 0; // Number of cells hit
-    NCell2 = 0;
-    NCell3 = 0;
+    m_NCell1 = 0; // Number of cells hit
+    m_NCell2 = 0;
+    m_NCell3 = 0;
 
-    x_mc_cc1 = 0; // Center of cluster in x (FCal1, extrapolated)
-    y_mc_cc1 = 0;
+    m_x_mc_cc1 = 0; // Center of cluster in x (FCal1, extrapolated)
+    m_y_mc_cc1 = 0;
 
-    x_mc_cc2 = 0; // Center of cluster in x (FCal2, extrapolated)
-    y_mc_cc2 = 0;
+    m_x_mc_cc2 = 0; // Center of cluster in x (FCal2, extrapolated)
+    m_y_mc_cc2 = 0;
 
-    x_mc_cc3 = 0; // Center of cluster in x (FCal3, extrapolated)
-    y_mc_cc3 = 0;
+    m_x_mc_cc3 = 0; // Center of cluster in x (FCal3, extrapolated)
+    m_y_mc_cc3 = 0;
 
-    x_cc1 = 0; // Center of cluster in x (FCal1, c of g)
-    y_cc1 = 0;
+    m_x_cc1 = 0; // Center of cluster in x (FCal1, c of g)
+    m_y_cc1 = 0;
 
-    x_cc2 = 0; // Center of cluster in x (FCal2, c of g)
-    y_cc2 = 0;
+    m_x_cc2 = 0; // Center of cluster in x (FCal2, c of g)
+    m_y_cc2 = 0;
 
-    x_cc3 = 0; // Center of cluster in x (FCal3, c of g)
-    y_cc3 = 0;
+    m_x_cc3 = 0; // Center of cluster in x (FCal3, c of g)
+    m_y_cc3 = 0;
 
     m_pdg_id->clear(); // particle id
-    hit_x1->clear();   // hit positions of cells
-    hit_y1->clear();
 
-    hit_x2->clear();
-    hit_y2->clear();
+    m_hit_x1->clear(); // hit positions of cells
+    m_hit_y1->clear();
 
-    hit_x3->clear();
-    hit_y3->clear();
+    m_hit_x2->clear();
+    m_hit_y2->clear();
 
-    hit_ieta1->clear(); // hit indices of cells
-    hit_iphi1->clear();
-    hit_ieta2->clear();
-    hit_iphi2->clear();
-    hit_ieta3->clear();
-    hit_iphi3->clear();
+    m_hit_x3->clear();
+    m_hit_y3->clear();
 
-    cell1_E->clear(); // Energy in cells
-    cell2_E->clear();
-    cell3_E->clear();
+    m_hit_ieta1->clear(); // hit indices of cells
+    m_hit_iphi1->clear();
+    m_hit_ieta2->clear();
+    m_hit_iphi2->clear();
+    m_hit_ieta3->clear();
+    m_hit_iphi3->clear();
 
-    FCal1_SumE = 0; // Energy in individual FCal modules
-    FCal2_SumE = 0;
-    FCal3_SumE = 0;
-    TCScint_E = 0;
-    TCIron_E = 0;
+    m_cell1_E->clear(); // Energy in cells
+    m_cell2_E->clear();
+    m_cell3_E->clear();
+
+    m_FCal1_SumE = 0; // Energy in individual FCal modules
+    m_FCal2_SumE = 0;
+    m_FCal3_SumE = 0;
+    m_TCScint_E = 0;
+    m_TCIron_E = 0;
 
     m_totalFCalEnergy = 0;
     m_numHitsFCal = 0;
@@ -480,41 +419,22 @@ StatusCode LArFCalSamplingFraction::initEvent()
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/// Calculate FCal hit center
+
 void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container)
 {
     double max1 = 0.0;
     double max2 = 0.0;
     double max3 = 0.0;
 
-    // this is screwing up.
-    // there are entries in the hit collection
-    // Either the iterator (hi) is bad (so that it can't be made to point to a valid LArHit)
-    // or the conversion LArHit-> GeoFCALhit is bad.
+    // Loop over hits in container
+    for (LArHit* const& hit : *container) {
 
-    LArHitContainer::const_iterator hi = (*container).begin(), he = (*container).end();
+        GeoLArHit fcalhit(*hit);
 
-    //  std::cout << "Beginning of first loop" << std::endl;
-    while (hi != he) {
-        // int size = container->size();
-        // for (int i=0; i<m_numHitsFCal; i++){
-
-        //    GeoFCALHit fcalhit(*((*container)[i]));
-
-        // check the iterator. try a LArHit method on *hi
-        // std::cout<<"MOOMOOCOWY  hit energy, cellid\n";
-        // std::cout<<"energy = "<<(*hi)->energy()<<", ID = "<<(*hi)->cellID()<<"\n";
-
-        //just use lar hit
-        //getDetDescrElement()->is_lar_fcal()
-        //getLayer()
-
-        GeoLArHit fcalhit(**hi);
-
-        // if (!(*hi))
-        if ((!fcalhit) | (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            std::cout << "LArhit is not define" << std::endl;
-            hi++;
+        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
+            ATH_MSG_WARNING("Hit in LarHitContainer is not a GeoFCalHit");
             continue;
         }
 
@@ -522,50 +442,41 @@ void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container)
 
         int module_index = fcalhit.getDetDescrElement()->getLayer();
 
-        //    const FCALModule *module = fcalhit.getModule();
-        //    FCALModule::Module module_index = module->getModuleIndex();
-        //    const FCALTile *tile = fcalhit.getTile();
-
-        // want x,y,module
-
         double x = fcalhit.getDetDescrElement()->x();
         double y = fcalhit.getDetDescrElement()->y();
 
-        // Determine the center of the cluster for FCal1
+        // Determine the center of the cluster for each FCal module
         if (module_index == 1) {
+            // FCal1
             if (max1 < energy) {
                 max1 = energy;
-                cx1 = x;
-                cy1 = y;
+                m_cx1 = x;
+                m_cy1 = y;
             }
         }
-
-        // Determine the center of the cluster for FCal2
-        if (module_index == 2) {
-            // cell2_E = energy;
+        else if (module_index == 2) {
+            // FCal2
             if (max2 < energy) {
                 max2 = energy;
-                cx2 = x;
-                cy2 = y;
+                m_cx2 = x;
+                m_cy2 = y;
             }
         }
-
-        // Determine the center of the cluster for FCal3
-        //std::cout << "if Module 3 " << std::endl;
-        if (module_index == 3) {
-            // cell3_E = energy;
+        else if (module_index == 3) {
+            // FCal3
             if (max3 < energy) {
                 max3 = energy;
-                cx3 = x;
-                cy3 = y;
+                m_cx3 = x;
+                m_cy3 = y;
             }
         }
 
-        hi++;
-
-    } //End of hit loop;
+    } // End loop over hits in container
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/// Calculate FCal cluster center
 
 void LArFCalSamplingFraction::FCalClusterCenter(const LArHitContainer *container)
 {
@@ -573,114 +484,90 @@ void LArFCalSamplingFraction::FCalClusterCenter(const LArHitContainer *container
     float yNumer1 = 0.0, yNumer2 = 0.0, yNumer3 = 0.0;
     float Denom1 = 0.0, Denom2 = 0.0, Denom3 = 0.0;
 
-    double subClusterSize = 30.0; // [mm]
+    double subClusterSize = 30.0;  // [mm]
     double thisCG_R = 0.0;
-    //  LArHitContainer::const_iterator
-    //    hi=(*container).begin(),he=(*container).end();
-    //  while (hi!=he){
-    //    GeoFCALHit fcalhit(**hi);
 
-    //     int size = container->size();
-    for (int i = 0; i < 1; i++) {
+    // Loop over hits in container
+    for (LArHit* const& hit : *container) {
 
-        GeoLArHit fcalhit(*((*container)[i]));
+        GeoLArHit fcalhit(*hit);
 
-        // if (!fcalhit)
-        // if (!(*hi))
-        if ((!fcalhit) | (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            std::cout << "MOOCOWYCOWY: hit in LarHitContainer is not a GepFCalHit\n";
+        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
+            ATH_MSG_WARNING("Hit in LarHitContainer is not a GeoFCalHit");
             continue;
         }
 
         double energy = fcalhit.Energy();
         int module_index = fcalhit.getDetDescrElement()->getLayer();
 
-        //    const FCALModule *module = fcalhit.getModule();
-        //    FCALModule::Module module_index = module->getModuleIndex();
-        //    const FCALTile *tile = fcalhit.getTile();
-
-        // want x,y,module
-
         double x = fcalhit.getDetDescrElement()->x();
         double y = fcalhit.getDetDescrElement()->y();
 
-        /*
-          std::cout << "module_index is " << module_index << std::endl;
-          std::cout << "x is " << x << std::endl;
-          std::cout << "y is " << y << std::endl;
-
-          std::cout << "cx1 is " << cx1 << std::endl;
-          std::cout << "cy1 is " << cy1 << std::endl;
-        */
-        // Determine Center of cluster of FCal1
+        // Determine center of cluster
         if (module_index == 1) {
-            double x_subcheck1 = cx1 - x;
-            double y_subcheck1 = cy1 - y;
+            // FCal1
+            double x_subcheck1 = m_cx1 - x;
+            double y_subcheck1 = m_cy1 - y;
             thisCG_R = sqrt(x_subcheck1 * x_subcheck1 + y_subcheck1 * y_subcheck1);
 
             if (thisCG_R <= subClusterSize) {
-                // Calculate the Cluster Center;
                 xNumer1 += x * energy;
                 yNumer1 += y * energy;
                 Denom1 += energy;
             }
         }
-
-        // Determine Center of cluster of FCal2
-        if (module_index == 2) {
-            double x_subcheck2 = cx2 - x;
-            double y_subcheck2 = cy2 - y;
+        else if (module_index == 2) {
+            // FCal2
+            double x_subcheck2 = m_cx2 - x;
+            double y_subcheck2 = m_cy2 - y;
             thisCG_R = sqrt(x_subcheck2 * x_subcheck2 + y_subcheck2 * y_subcheck2);
 
             if (thisCG_R <= subClusterSize) {
-                // Calculate the Cluster Center;
                 xNumer2 += x * energy;
                 yNumer2 += y * energy;
                 Denom2 += energy;
             }
         }
-
-        // Determine Center of cluster of FCal3
-        if (module_index == 3) {
-            double x_subcheck3 = cx3 - x;
-            double y_subcheck3 = cy3 - y;
+        else if (module_index == 3) {
+            // FCal3
+            double x_subcheck3 = m_cx3 - x;
+            double y_subcheck3 = m_cy3 - y;
             thisCG_R = sqrt(x_subcheck3 * x_subcheck3 + y_subcheck3 * y_subcheck3);
 
             if (thisCG_R <= subClusterSize) {
-                // Calculate the Cluster Center;
                 xNumer3 += x * energy;
                 yNumer3 += y * energy;
                 Denom3 += energy;
             }
         }
 
-        //    hi++;
-    } // End of Loop
+    } // End loop over hits in container
 
     if (fabs(Denom1) > 0.0) {
-        x_cc1 = xNumer1 / Denom1;
-        y_cc1 = yNumer1 / Denom1;
+        m_x_cc1 = xNumer1 / Denom1;
+        m_y_cc1 = yNumer1 / Denom1;
     }
 
     if (fabs(Denom2) > 0.0) {
-        x_cc2 = xNumer2 / Denom2;
-        y_cc2 = yNumer2 / Denom2;
+        m_x_cc2 = xNumer2 / Denom2;
+        m_y_cc2 = yNumer2 / Denom2;
     }
 
     if (fabs(Denom3) > 0.0) {
-        x_cc3 = xNumer3 / Denom3;
-        y_cc3 = yNumer3 / Denom3;
+        m_x_cc3 = xNumer3 / Denom3;
+        m_y_cc3 = yNumer3 / Denom3;
     }
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+/// Calibration hit analysis
+
 StatusCode LArFCalSamplingFraction::doCalib()
 {
     StatusCode sc;
-    MsgStream log(messageService(), name());
 
-    log << MSG::VERBOSE
-        << "TB2003 MC FCal Calibration Analysis started" << endreq;
+    ATH_MSG_DEBUG("Starting FCal Calibration Analysis");
 
     // Get the calibration hit containers (if any)
     for (m_calibHitMap_ptr_t i = m_calibHitMap.begin();
@@ -692,25 +579,22 @@ StatusCode LArFCalSamplingFraction::doCalib()
         sc = evtStore()->retrieve(container, name);
 
         if (sc.isFailure() || container == 0) {
-            log << MSG::ERROR
-                << "CaloCalibrationHit container was not found"
-                << endreq;
+            ATH_MSG_ERROR("CaloCalibrationHit container was not found");
             m_numHitsActive = 0;
             m_numHitsInactive = 0;
             m_numHitsDead = 0;
             (*i).second = 0;
+
             return StatusCode::FAILURE;
         }
 
-        log << MSG::DEBUG
-            << "CaloCalibrationHit container successfully retrieved."
-            << endreq;
+        ATH_MSG_DEBUG("CaloCalibrationHit container successfully retrieved");
 
         (*i).second = container;
     }
 
-    // Get the number of hits in each container. (The braces let
-    // me re-use the name 'container'.)
+    // Get the number of hits in each container
+    // (The braces let us re-use the name 'container')
     {
         const CaloCalibrationHitContainer *container = m_calibHitMap["LArCalibrationHitActive"];
 
@@ -736,8 +620,7 @@ StatusCode LArFCalSamplingFraction::doCalib()
             m_numHitsDead = 0;
     }
 
-    // Loop over all the hit containers, inspecting each hit within the
-    // collection.
+    // Loop over all the hit containers, inspecting each hit within the collection
     for (m_calibHitMap_ptr_t i = m_calibHitMap.begin();
          i != m_calibHitMap.end();
          i++)
@@ -749,28 +632,20 @@ StatusCode LArFCalSamplingFraction::doCalib()
         if (container == 0)
             continue;
 
-        // For each hit in the container...
-        CaloCalibrationHitContainer::const_iterator j;
+        // Loop over calibration hits in container
+        for (CaloCalibrationHit* const& calibhit : *container) {
 
-        for (j = container->begin();
-             j != container->end();
-             j++)
-        {
-            // Reminder:
-            // j = pointer to an entry in vector<CaloCalibrationHit*>
-            // *j = an entry in vector<CaloCalibrationHit*>, that is, a CaloCalibrationHit*.
-            const CaloCalibrationHit *hit = *j;
-            Identifier identifier = hit->cellID();
-            double energy = hit->energyTotal();
+            Identifier identifier = calibhit->cellID();
+            double energy = calibhit->energyTotal();
 
-            // Accumulate energy sums.  Use the ID helpers to
-            // determine in which detector the hit took place.
+            // Accumulate energy sums. Use the ID helpers to determine in which
+            // detector the hit took place.
 
             m_totalCalibrationEnergy += energy;
-            m_totalEmEnergy += hit->energyEM();
-            m_totalNonEmEnergy += hit->energyNonEM();
-            m_totalInvisibleEnergy += hit->energyInvisible();
-            m_totalEscapedEnergy += hit->energyEscaped();
+            m_totalEmEnergy += calibhit->energyEM();
+            m_totalNonEmEnergy += calibhit->energyNonEM();
+            m_totalInvisibleEnergy += calibhit->energyInvisible();
+            m_totalEscapedEnergy += calibhit->energyEscaped();
 
             if (name == "LArCalibrationHitActive")
                 m_totalActiveEnergy += energy;
@@ -785,24 +660,23 @@ StatusCode LArFCalSamplingFraction::doCalib()
                     m_FCalDead += energy;
             }
 
-            // std::cout << "MOOCOWY:checking if this is an FCal hit\n"<<"Cell id: "<<identifier<<"\n";
+            if (m_caloCellID->is_lar_fcal(identifier))
+                FCalCalibAnalysis(name, calibhit);
 
-            if (m_caloCellID->is_lar_fcal(identifier)) {
-                //std::cout<<"MOOCOWY - is an fcalhit\n";
-                FCalCalibAnalysis(name, hit);
-            }
-        } // for each calibration hit
-    }     // for each calibration hit container
+        } // End loop over calibration hits in container
+    } // End loop over containers
 
-    // Execution completed.
+    // Execution completed
 
-    log << MSG::VERBOSE << "execute() completed successfully" << endreq;
-    //  return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("doCalib() completed successfully");
     return sc;
 }
 
 
-//// Added by JPA, June 2005 for FCal Analysis with Calibration Hits on
+///////////////////////////////////////////////////////////////////////////////
+/// FCal Analysis with Calibration Hits on
+/// Added by JPA, June 2005
+
 void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const CaloCalibrationHit *CalibHit)
 {
     Identifier id = CalibHit->cellID();
@@ -816,22 +690,23 @@ void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const Ca
     m_FCalEscaped += CalibHit->energyEscaped();
 
     if (m_larFCalID->module(id) == 1) {
+        // FCal1
         m_totalFCal1CalibrationEnergy += energy;
         m_FCal1Em += CalibHit->energyEM();
         m_FCal1NonEm += CalibHit->energyNonEM();
         m_FCal1Invisible += CalibHit->energyInvisible();
         m_FCal1Escaped += CalibHit->energyEscaped();
     }
-
-    if (m_larFCalID->module(id) == 2) {
+    else if (m_larFCalID->module(id) == 2) {
+        // FCal2
         m_totalFCal2CalibrationEnergy += energy;
         m_FCal2Em += CalibHit->energyEM();
         m_FCal2NonEm += CalibHit->energyNonEM();
         m_FCal2Invisible += CalibHit->energyInvisible();
         m_FCal2Escaped += CalibHit->energyEscaped();
     }
-
-    if (m_larFCalID->module(id) == 3) {
+    else if (m_larFCalID->module(id) == 3) {
+        // FCal3
         m_totalFCal3CalibrationEnergy += energy;
         m_FCal3Em += CalibHit->energyEM();
         m_FCal3NonEm += CalibHit->energyNonEM();
@@ -871,114 +746,85 @@ void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const Ca
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+/// Calculate truth impact position
+
 void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_iterator e)
 {
     for (HepMC::GenEvent::particle_const_iterator p = (**e).particles_begin();
          p != (**e).particles_end(); p++)
     {
-        // Call it "theParticle"
         const HepMC::GenParticle *theParticle = *p;
 
-        // old GenParticles used HepLorentzVectors, now they use HepMC::FourVectors
+        // Note: old GenParticles used HepLorentzVectors, now they use HepMC::FourVectors
 
-        // Get the kinematic variables:
-        //      HepLorentzVector momentum  = theParticle->momentum();
-        // PT - HepMC->Hep Lorentz
+        // Get the kinematic variables
         HepMC::FourVector HMCmom = theParticle->momentum();
         CLHEP::HepLorentzVector momentum(CLHEP::Hep3Vector(HMCmom.px(), HMCmom.py(), HMCmom.pz()), HMCmom.e());
 
-        //      HepPoint3D       origin = theParticle->production_vertex()->point3d();
         HepMC::ThreeVector HMC3vec = theParticle->production_vertex()->point3d();
         HepGeom::Point3D<double> origin = HepGeom::Point3D<double>(HMC3vec.x(), HMC3vec.y(), HMC3vec.z());
 
-        //      HepMC::GenVertex *decayVertex = theParticle->end_vertex();
-        /*
-        double           charge =
-        theParticle->pdg_id() > 0 ?
-        particleData->charge() : - particleData->charge();
-             */
         // Put VEta and VPhi into the Ntuple
-        vertex_phi = momentum.vect().phi();
-        vertex_eta = -log(tan(momentum.vect().theta() / 2));
+        m_vertex_phi = momentum.vect().phi();
+        m_vertex_eta = -log(tan(momentum.vect().theta() / 2));
 
-        if (!finite(vertex_eta))
-            vertex_eta = 0;
+        if (!finite(m_vertex_eta))
+            m_vertex_eta = 0;
 
-        pt = momentum.vect().perp();
+        m_pt = momentum.vect().perp();
 
-        px = momentum.px();
-        py = momentum.py();
-        pz = momentum.pz();
+        m_px = momentum.px();
+        m_py = momentum.py();
+        m_pz = momentum.pz();
 
-        E = momentum.e();
+        m_E = momentum.e();
 
-        vertx = theParticle->production_vertex()->point3d().x();
-        verty = theParticle->production_vertex()->point3d().y();
-        vertz = theParticle->production_vertex()->point3d().z();
+        m_vertx = theParticle->production_vertex()->point3d().x();
+        m_verty = theParticle->production_vertex()->point3d().y();
+        m_vertz = theParticle->production_vertex()->point3d().z();
 
-        // Must get x-offset depending on TB position
-        // The 90.0mm is from initial x-offset of fcal in cryostat
-        // The -15.0mm is from initial y-offset of fcal in cryostat
-        // 2nd number changes between different positions (these numbers
-        // will be in data base soon
+        // Must get x-offset depending on TB position. The 90.0 mm is from the
+        // initial x-offset of FCal in cryostat. The -15.0 mm is from the
+        // initial y-offset of FCal in cryostat. The second number changes
+        // between different positions (these numbers will be in database soon)
 
         std::string nickname;
-        double xoffset = 0.0;
-        //      LArG4TBPosOptions *posOptions = NULL;
-        //
-        //      StatusCode sc;
-        //      StoreGateSvc* detectorStore = 0;
-        //      sc = service("DetectorStore", detectorStore);
-        //      sc = (detectorStore)->retrieve(posOptions,"LArG4TBPosOptions");
-        //
-        //      if (sc.isSuccess()) {
-        //          nickname = posOptions->PositionNickname();
-        //      }
-        //      double sinangle = 0.0;
-        //      if( nickname == "POSITION1")   {xoffset = 90.0 - 18.0; sinangle = 0.0154;} // [mm]
-        //      if( nickname == "POSITION2")   {xoffset = 90.0 + 14.5; sinangle = 0.0218;}
-        //      if( nickname == "POSITION3")   {xoffset = 90.0 + 47.0; sinangle = 0.0281;}
-        //      if((nickname == "POSITION4L") ||
-        //         (nickname == "POSITION4H")) {xoffset = 90.0 + 155.0; sinangle = 0.0520;}
-        //
-        //      // Extrapolate to FCal 1 face;
-        //      const double yoffset = -15.0*mm;
-        //      x_mc_cc1 = 0;
-        //      y_mc_cc1 = 0;
-        //      double x=0.0,y = 0.0;
-        // change these for atlas
+        double xoffset = 0;
         double sinangle = 0;
         double yoffset = 0;
         const double z1 = -32668.5 * CLHEP::mm; // This is 4668.5 (z=0 to FCal1 Face) + 28000 (B9 to z=0)
         const double z2 = -33128.3 * CLHEP::mm; // This is 5128.3 (z=0 to FCal1 Face) + 28000 (B9 to z=0)
         const double z3 = -33602.8 * CLHEP::mm; // This is 5602.8 (z=0 to FCal1 Face) + 28000 (B9 to z=0)
-        //PT
+
         double shift2 = sinangle * (5128.3 - 4668.5) * CLHEP::mm;
         double shift3 = sinangle * (5602.8 - 4668.5) * CLHEP::mm;
-        // accounts for rotation of Fcal + cryostat.
-        x_mc_cc1 = origin.x() + px * z1 / pz + xoffset;
-        y_mc_cc1 = origin.y() + py * z1 / pz + yoffset;
 
-        x_mc_cc2 = origin.x() + px * z2 / pz + shift2 + xoffset;
-        y_mc_cc2 = origin.y() + py * z2 / pz + yoffset;
+        // Accounts for rotation of Fcal + cryostat.
+        m_x_mc_cc1 = origin.x() + m_px * z1 / m_pz + xoffset;
+        m_y_mc_cc1 = origin.y() + m_py * z1 / m_pz + yoffset;
 
-        x_mc_cc3 = origin.x() + px * z3 / pz + shift3 + xoffset;
-        y_mc_cc3 = origin.y() + py * z3 / pz + yoffset;
+        m_x_mc_cc2 = origin.x() + m_px * z2 / m_pz + shift2 + xoffset;
+        m_y_mc_cc2 = origin.y() + m_py * z2 / m_pz + yoffset;
+
+        m_x_mc_cc3 = origin.x() + m_px * z3 / m_pz + shift3 + xoffset;
+        m_y_mc_cc3 = origin.y() + m_py * z3 / m_pz + yoffset;
 
     } // particles
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/// The main FCal analysis method
+
 StatusCode LArFCalSamplingFraction::doFCal()
 {
-    MsgStream log(messageService(), name());
-    StatusCode sc;
+    ATH_MSG_INFO("Starting main FCal analysis");
 
-    log << MSG::DEBUG
-        << "LArFCalSamplingFraction parameters are: \n"
-        << "Calibration: " << m_calibrationRun << "\n"
-        << endreq;
+    ATH_MSG_DEBUG("LArFCalSamplingFraction parameters are:");
+    ATH_MSG_DEBUG("Calibration: " << m_calibrationRun);
+
+    StatusCode sc;
 
     // ACCESSING EVENT INFORMATION
     // Get the basic event information (run number, event number).
@@ -987,23 +833,22 @@ StatusCode LArFCalSamplingFraction::doFCal()
     sc = evtStore()->retrieve(eventInfo);
 
     if (sc.isFailure()) {
-        log << MSG::ERROR
-            << "Could not fetch event information" << endreq;
+        ATH_MSG_ERROR("Could not fetch event information");
         return sc;
     }
 
     const EventID *eventID = eventInfo->event_ID();
     m_runNumber = eventID->run_number();
     m_eventNumber = eventID->event_number();
-    std::cout << "MOOCOWY: run " << m_runNumber << ", event " << m_eventNumber << "\n";
+
+    ATH_MSG_INFO("Run " << m_runNumber << ", event " << m_eventNumber);
 
     // How to access MC Truth information:
     const McEventCollection *mcEventCollection;
     sc = evtStore()->retrieve(mcEventCollection, "TruthEvent");
 
     if (sc.isSuccess()) {
-        // There can potentially be more than one MC event in the
-        // collection.
+        // There can potentially be more than one MC event in the collection.
         McEventCollection::const_iterator mcEvent;
         int numMcEvent = 0;
 
@@ -1013,10 +858,8 @@ StatusCode LArFCalSamplingFraction::doFCal()
             TruthImpactPosition(mcEvent);
     } // retrieved MC event collection
     else {
-        log << MSG::DEBUG
-            << "Run " << m_runNumber
-            << " Event " << m_eventNumber
-            << " - Could not fetch MC event collection" << endreq;
+        ATH_MSG_DEBUG("Run " << m_runNumber << ", event " << m_eventNumber
+                      << ": could not fetch MC event collection");
     }
 
     // Accessing Hits
@@ -1026,46 +869,34 @@ StatusCode LArFCalSamplingFraction::doFCal()
     sc = evtStore()->retrieve(container, FCalContainerName);
 
     if (sc.isFailure() || container == 0) {
-        log << MSG::ERROR
-            << "LArHitFCAL container was not found"
-            << endreq;
+        ATH_MSG_ERROR("LArHitFCAL container was not found");
         m_numHitsFCal = 0;
         return StatusCode::FAILURE;
     }
 
-    log << MSG::DEBUG
-        << "LArHitFCAL container successfully retrieved."
-        << endreq;
+    ATH_MSG_DEBUG("LArHitFCAL container successfully retrieved");
 
     // Get the number of hits in the LArHitFCAL container
     m_numHitsFCal = container->size();
-    //  log << MSG::DEBUG
-    std::cout << "NumHitsFCal = " << m_numHitsFCal << "\n";
-    //      << endreq;
+    ATH_MSG_INFO("NumHitsFCal = " << m_numHitsFCal);
 
     if (m_numHitsFCal > 0) {
-        // Calculate the center of gravity.
+        // Calculate the center of gravity
         FCalHitCenter(container);
         FCalClusterCenter(container);
     }
 
-    // For each hit in the container...
+    // Loop over hits in container
+    for (LArHit* const& hit : *container) {
 
-    LArHitContainer::const_iterator j;
-
-    // for ( j = container->begin();
-    //       j != container->end();
-    //       j++ )
-    for (int i = 0; i < m_numHitsFCal; i++) {
-        GeoLArHit fcalhit(*((*container)[i]));
+        GeoLArHit fcalhit(*hit);
 
         // Added by JPA to get particle id for each hit
         const McEventCollection *mcEventCollection;
         sc = evtStore()->retrieve(mcEventCollection, "TruthEvent");
 
         if (sc.isSuccess()) {
-            // There can potentially be more than one MC event in the
-            // collection.
+            // There can potentially be more than one MC event in the collection
             McEventCollection::const_iterator mcEvent;
             int numParticles = 0;
 
@@ -1075,31 +906,20 @@ StatusCode LArFCalSamplingFraction::doFCal()
             {
                 // There may be many particles per event
                 for (HepMC::GenEvent::particle_const_iterator p = (**mcEvent).particles_begin();
-                     p != (**mcEvent).particles_end(); p++)
+                     p != (**mcEvent).particles_end();
+                     p++)
                 {
-                    // Call it "theParticle"
                     const HepMC::GenParticle *theParticle = *p;
                     m_pdg_id->push_back(theParticle->pdg_id());
                     numParticles++;
-                    // log << MSG::INFO << "The number of particles is " << numParticles << endreq;
                 }
             }
-
-            // log << MSG::INFO
-            //     << "The number of particle is "
-            //     << numParticles
-            //     << endreq;
         } // retrieved MC event collection
 
-        //End JPA particle id
+        // End JPA particle id
 
-        // j = pointer to an entry in vector<LArHit*>
-        // *j = an entry in vector<LArHit*>, that is, a LArHit*.
-        //      GeoFCALHit fcalhit(**j);
-        if ((!fcalhit) | (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            log << MSG::ERROR
-                << "GeoFCalHit is not defined"
-                << endreq;
+        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
+            ATH_MSG_ERROR("GeoFCalHit is not defined");
         }
 
         double energy = fcalhit.Energy();
@@ -1107,39 +927,31 @@ StatusCode LArFCalSamplingFraction::doFCal()
         m_totalFCalEnergy += energy;
 
         if (module_index == 1) {
-            FCal1_SumE += energy;
-            FillCellInfo(fcalhit, cell1_E, hit_x1, hit_y1,
-                         hit_ieta1, hit_iphi1, NCell1);
+            m_FCal1_SumE += energy;
+            FillCellInfo(fcalhit, m_cell1_E, m_hit_x1, m_hit_y1, m_hit_ieta1, m_hit_iphi1, m_NCell1);
         }
-
-        if (module_index == 2) {
-            FCal2_SumE += energy;
-            FillCellInfo(fcalhit, cell2_E, hit_x2, hit_y2,
-                         hit_ieta2, hit_iphi2, NCell2);
+        else if (module_index == 2) {
+            m_FCal2_SumE += energy;
+            FillCellInfo(fcalhit, m_cell2_E, m_hit_x2, m_hit_y2, m_hit_ieta2, m_hit_iphi2, m_NCell2);
         }
-
-        if (module_index == 3) {
-            FCal3_SumE += energy;
-            FillCellInfo(fcalhit, cell3_E, hit_x3, hit_y3,
-                         hit_ieta3, hit_iphi3, NCell3);
+        else if (module_index == 3) {
+            m_FCal3_SumE += energy;
+            FillCellInfo(fcalhit, m_cell3_E, m_hit_x3, m_hit_y3, m_hit_ieta3, m_hit_iphi3, m_NCell3);
         }
-    } // for each hit
+    } // End loop over hits in container
 
     // Calibration hit analysis.
     if (m_calibrationRun)
         CHECK(doCalib());
 
-    //  TCECollection* TCColl;
-    //  sc = evtStore()->retrieve(TCColl, "TailCatcherEnergy");
-    //  TCScint_E = (*TCColl)[0]->getScint();
-    //  TCIron_E = (*TCColl)[0]->getAbsorber();
-    log << MSG::VERBOSE << "doFCal() completed successfully" << endreq;
-
-    //std::cout<<"MOCOWYCOWY: Doing the FCal stuff\n";
+    ATH_MSG_DEBUG("doFCal() completed successfully");
 
     return StatusCode::SUCCESS;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+/// Fill FCal cell information
 
 void LArFCalSamplingFraction::FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E,
                                            std::vector<double> *hit_x, std::vector<double> *hit_y,
@@ -1157,7 +969,6 @@ void LArFCalSamplingFraction::FillCellInfo(const GeoLArHit &fcalhit, std::vector
     bool cellHit = true;
 
     if (NCell != 0) {
-
         for (int icell = 0; icell < NCell; icell++) {
             if ((hitx == hit_x->at(icell)) && (hity == hit_y->at(icell))) {
                 cellHit = false;
@@ -1179,23 +990,19 @@ void LArFCalSamplingFraction::FillCellInfo(const GeoLArHit &fcalhit, std::vector
 
 
 //////////////////////////////////////////////////////////////////////////////////
-/// Execute - on event by event
+/// Execute (event by event)
 
 StatusCode LArFCalSamplingFraction::execute()
 {
-    //
-    m_eventNumber++;
     ATH_MSG_DEBUG(" in execute()");
 
-    StatusCode sc;
+    m_eventNumber++;
 
-    // initialize first before processing each event
-    sc = initEvent();
+    // Initialize first before processing each event
+    StatusCode sc = initEvent();
 
     if (sc.isFailure())
         ATH_MSG_WARNING("initEvent failed. Continue");
-
-    // initialize variables in ntuple
 
     sc = doFCal();
 
@@ -1214,14 +1021,12 @@ StatusCode LArFCalSamplingFraction::execute()
 
 StatusCode LArFCalSamplingFraction::addEventInfo()
 {
-    ATH_MSG_DEBUG("in addEventInfo");
+    ATH_MSG_DEBUG("in addEventInfo()");
 
-    // this code has been taken from AnalysisExamples/VFitZmmOnAOD
+    // This code has been taken from AnalysisExamples/VFitZmmOnAOD
     // I have the actual EventNumber, but skipped the sequential count of event #
-    //
 
-    //get EventInfo for run and event number
-
+    // Get EventInfo for run and event number
     const EventInfo *eventInfo;
     StatusCode sc = evtStore()->retrieve(eventInfo);
 
@@ -1231,7 +1036,7 @@ StatusCode LArFCalSamplingFraction::addEventInfo()
     }
 
     const EventID *myEventID = eventInfo->event_ID();
-    //
+
     m_runNumber = myEventID->run_number();
     m_eventNumber = myEventID->event_number();
     ATH_MSG_DEBUG("event " << m_eventNumber);

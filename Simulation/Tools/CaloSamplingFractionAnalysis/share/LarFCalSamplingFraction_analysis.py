@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 """
 Calculate FCal Sampling Fractions
 =================================
@@ -75,13 +77,13 @@ def calculate_samp_frac(args):
 
     # Loop over events and sum energy values
     for event in aan_chain:
-        if args.module == "FCal1":
+        if args.module.lower() == "fcal1":
             totalE = event.Calib_FCal1Active + event.Calib_FCal1Inactive
             activeE = event.FCal1_E
-        elif args.module == "FCal2":
+        elif args.module.lower() == "fcal2":
             totalE = event.Calib_FCal2Active + event.Calib_FCal2Inactive
             activeE = event.FCal2_E
-        elif args.module == "FCal3":
+        elif args.module.lower() == "fcal3":
             totalE = event.Calib_FCal3Active + event.Calib_FCal3Inactive
             activeE = event.FCal3_E
 
@@ -118,12 +120,12 @@ def main():
         args = parse_args()
 
         if args.module is None:
-            if "FCal1" in args.infile:
-                args.module = "FCal1"
-            elif "FCal2" in args.infile:
-                args.module = "FCal2"
-            elif "FCal3" in args.infile:
-                args.module = "FCal3"
+            if "fcal1" in args.infile.lower():
+                args.module = "fcal1"
+            elif "fcal2" in args.infile.lower():
+                args.module = "fcal2"
+            elif "fcal3" in args.infile.lower():
+                args.module = "fcal3"
             else:
                 raise Exception("unknown FCal module")
 
