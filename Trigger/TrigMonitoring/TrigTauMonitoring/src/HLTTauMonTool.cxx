@@ -542,7 +542,7 @@ StatusCode HLTTauMonTool::fill() {
 				}
 			} 
 			if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
-	
+	                if(m_trigItems[j]=="tau25_idperf_tracktwoRNN" || m_trigItems[j]=="tau25_idperf_tracktwoMVA" || m_trigItems[j]=="tau25_idperf_tracktwoMVABDT") ATH_MSG_ALWAYS(" monRNN value is: " << monRNN << " monBDT value is: " << monBDT << " chain name: " << m_trigItems[j]);
 			std::string goodTauRefType;
 			if (monRNN) {
 				goodTauRefType = "RNN";
