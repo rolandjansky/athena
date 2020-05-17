@@ -383,8 +383,8 @@ namespace DerivationFramework {
           }
 
           if(m_dofjvt) {
-            ATH_MSG_DEBUG( "fJvt value = " << jet->auxdata<float>("fJvt") );
-            (*dec_fjvt)(jet_orig) = jet->auxdata<float>("fJvt");
+            ATH_MSG_DEBUG( "fJvt value = " << jet->auxdata<float>(m_fjvtMomentKey) );
+            (*dec_fjvt)(jet_orig) = jet->auxdata<float>(m_fjvtMomentKey);
           }
 
           if(m_dobtag) {

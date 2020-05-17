@@ -495,22 +495,22 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
         extjetlog.info('ExtendedJetCommon: Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",overlapLabel=""):
+def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",overlapLabel="",outLabel="fJvt",includePV=False):
     supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtxHgg']
     if not jetalg in supportedJets:
         extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
-        applyJetCalibration(jetalg,algname,sequence,suffix='_PFlow_fJVT')
-        updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix='_PFlow_fJVT')
-        jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
+        applyJetCalibration(jetalg,algname,sequence,suffix=algname)
+        updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix=algname)
+        jetaugtool = getJetAugmentationTool(jetalg,suffix=algname)
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
             extjetlog.error('*** PFlow fJvt called but required augmentation tool does not exist! ***')
             extjetlog.error('*** Jet calibration and JVT have to be applied ! ***')
             return
 
-        pffjvttoolname = 'DFJetPFfJvt_'+jetalg
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg+algname
 
         from AthenaCommon.AppMgr import ToolSvc
 
@@ -518,10 +518,14 @@ def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",ove
             jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
             jetaugtool.JetForwardPFlowJvtTool.verticesName=primaryVertexCont
             jetaugtool.JetForwardPFlowJvtTool.orLabel=overlapLabel
+            jetaugtool.JetForwardPFlowJvtTool.includePV=includePV
+            jetaugtool.JetForwardPFlowJvtTool.outLabel=outLabel
+            jetaugtool.fJvtMomentKey = outLabel
         else:
-            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,verticesName=primaryVertexCont,orLabel=overlapLabel)
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,verticesName=primaryVertexCont,jetsName=pffjvttoolname+'Jets',orLabel=overlapLabel,outLabel=outLabel,includePV=includePV)
             ToolSvc += pffjvttool
             jetaugtool.JetForwardPFlowJvtTool = pffjvttool
+            jetaugtool.fJvtMomentKey = outLabel
 
         extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
