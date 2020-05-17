@@ -566,6 +566,7 @@ class MessageCountStep(Step):
         self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
+        self.warning_threshold = None
         self.info_threshold = None
         self.debug_threshold = None
         self.verbose_threshold = None
@@ -575,6 +576,8 @@ class MessageCountStep(Step):
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
         self.args += ' -e "{:s}"'.format(self.end_pattern)
+        if self.warning_threshold is None:
+            self.warning_threshold = 0
         if self.info_threshold is None:
             self.info_threshold = test.exec_steps[0].max_events
         if self.debug_threshold is None:
@@ -600,17 +603,23 @@ class MessageCountStep(Step):
             if self.auto_report_result:
                 self.report_result()
             return self.result, cmd
-        (num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0)
+        (num_warning, num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0, 0)
         for log_file in log_files:
             json_file = 'MessageCount.{:s}.json'.format(log_file)
             if not os.path.isfile(json_file):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
+                num_warning += summary['WARNING']
                 num_info += summary['INFO']
                 num_debug += summary['DEBUG']
                 num_verbose += summary['VERBOSE']
                 num_other += summary['other']
+        if num_warning > self.warning_threshold:
+            self.log.info(
+                '%s Number of WARNING messages %s is higher than threshold %s',
+                self.name, num_warning, self.warning_threshold)
+            self.result += 1
         if num_info > self.info_threshold:
             self.log.info(
                 '%s Number of INFO messages %s is higher than threshold %s',
