@@ -91,6 +91,11 @@ def MainServicesCfg(cfgFlags):
     msgsvc=CompFactory.MessageSvc()
     msgsvc.OutputLevel=cfgFlags.Exec.OutputLevel
     cfg.addService(msgsvc)
+
+    if cfgFlags.Exec.DebugStage != "":
+        cfg.setDebugStage(cfgFlags.Exec.DebugStage)
+
+
     ########################################################################
     # Additional components needed for threaded jobs only
     if cfgFlags.Concurrency.NumThreads>0:
