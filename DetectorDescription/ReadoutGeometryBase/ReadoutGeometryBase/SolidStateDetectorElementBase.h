@@ -72,6 +72,17 @@ public:
 
     ///////////////////////////////////////////////////////////////////
     //
+    /// @name Navigation
+    /// Methods to access neighbours.
+    //
+    ///////////////////////////////////////////////////////////////////
+
+    //@{
+    virtual std::vector<const SolidStateDetectorElementBase *> neighbours() const;
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    //
     /// @name Transformation/Orientation
     //
     ///////////////////////////////////////////////////////////////////
@@ -375,6 +386,21 @@ protected:
     //Declaring the Method providing Verbosity Level
     bool msgLvl (MSG::Level lvl) const { return m_commonItems->msgLvl(lvl);}
 
+public:
+    
+    
+    ///////////////////////////////////////////////////////////////////
+    /// @name Non-const methods:
+    /// These are not needed by most clients.
+    ///////////////////////////////////////////////////////////////////
+    //@{
+    // Set neighbours. 
+    
+    void setNeighbours(std::vector<const SolidStateDetectorElementBase *>);
+    void addNeighbour(const SolidStateDetectorElementBase *);
+    
+    //@}
+
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
@@ -395,6 +421,8 @@ protected:
     IdentifierHash m_idHash; // hash id
     const DetectorDesign *m_design; // local description of this detector element
     SiCommonItems * m_commonItems;
+
+    std::vector<const SolidStateDetectorElementBase *> m_neighbours;
 
     //
     // Cached values.
@@ -449,6 +477,21 @@ protected:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
+
+inline std::vector<const SolidStateDetectorElementBase *> SolidStateDetectorElementBase::neighbours() const
+{
+    return m_neighbours;
+}
+
+inline void SolidStateDetectorElementBase::setNeighbours(std::vector<const SolidStateDetectorElementBase *> neighbours)
+{
+    m_neighbours = neighbours;
+}
+
+inline void SolidStateDetectorElementBase::addNeighbour(const SolidStateDetectorElementBase * neighbour)
+{
+    m_neighbours.push_back(neighbour);
+}
 
 inline HepGeom::Point3D<double> SolidStateDetectorElementBase::globalPositionHit(const HepGeom::Point3D<double> &localPos) const
 {
