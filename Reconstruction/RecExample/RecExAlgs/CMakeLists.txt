@@ -23,8 +23,4 @@ atlas_add_component( RecExAlgs
 # Install files from the package:
 atlas_install_headers( RecExAlgs )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
-
-atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )
+atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
