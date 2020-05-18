@@ -74,7 +74,9 @@ def PoolReadCfg(configFlags):
         result.addService(apaps)
         result.addService(ProxyProviderSvc(ProviderNames=[apaps.getFullJobOptName(),])) #No service handle yet???
 
-        evSel=EventSelectorAthenaPool("EventSelector", InputCollections = filenames)
+        evSel=EventSelectorAthenaPool("EventSelector", 
+                                      InputCollections = filenames, 
+                                      SkipEvents=configFlags.Exec.SkipEvents)
 
     result.addService(evSel)
     result.setAppProperty("EvtSel",evSel.getFullJobOptName())
