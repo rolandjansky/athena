@@ -17,7 +17,6 @@ import glob
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
 
-
 class RefComparisonStep(Step):
     '''Base class for steps comparing a file to a reference'''
 
@@ -564,6 +563,7 @@ class MessageCountStep(Step):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
         self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
         self.print_on_fail = None
@@ -592,7 +592,7 @@ class MessageCountStep(Step):
     def run(self, dry_run=False):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
-        log_files = filter(r.match, files)
+        log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False
@@ -720,6 +720,8 @@ def default_check_steps(test):
 
     # MessageCount
     msgcount = MessageCountStep('MessageCount')
+    for logmerge in [step for step in check_steps if isinstance(step, LogMergeStep)]:
+        msgcount.skip_logs.append(logmerge.merged_name)
     check_steps.append(msgcount)
 
     # Tail (probably not so useful these days)
