@@ -20,7 +20,7 @@ import sys
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap, electronPIDmenu
 
-def ConfiguredAsgElectronIsEMSelector( name, quality, menu=electronPIDmenu.menuDC14, **kw ):
+def ConfiguredAsgElectronIsEMSelector( name, quality, menu=electronPIDmenu.menuHLLHC, **kw ):
     """
     Configure the AsgElectronIsEMSelector with the quality cuts
     and allow for (re-)setting of all provided cuts.
