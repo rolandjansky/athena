@@ -78,6 +78,8 @@ namespace top {
                       "True/False. Switch on/off electron charge ID selection (Default False).", "False");
     registerParameter("UseEgammaLeakageCorrection",
                       "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
+    registerParameter("EnablePromptLeptonImprovedVetoStudies",
+		      "True/False. Adds the (many!) variables necessary to validate the PromptLeptonImprovedVeto electron+muon isolation -- TEMPORARY, for studies only (Default False).", "False");
 
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)", "Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)", "Tight");
