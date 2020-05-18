@@ -120,9 +120,9 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 
   p_sherpa->FillHepMCEvent(*event);
   if (event->weights().size()>2) {
-    double weight_normalisation = event->weights()[2];
+    //double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {
-      if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
+      //if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
       if (i>3) { // cap variation weights
         // cap variation weights at m_variation_weight_cap*nominal to avoid spikes from numerical instability
         if (fabs(event->weights()[i]) > m_variation_weight_cap*fabs(event->weights()[0])) {

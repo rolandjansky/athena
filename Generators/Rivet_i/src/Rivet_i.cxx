@@ -10,6 +10,7 @@
 #include "HepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -40,7 +41,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  //m_histSvc("THistSvc", name),
+  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -313,6 +314,12 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   // then it doesn't use named weights
   // --> no need for weight-name cleaning
   if (str.size() > 1) {
+    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
+      orig_order[item.second] = item.first;
+    }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
     vector<pair<string,string> > w_subs = {
@@ -336,6 +343,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       if (temp.size() == 2 || temp.size() == 3) {
         string wname = temp[0];
         if (temp.size() == 3)  wname += "," + temp[1];
+        string old_name = string(wname);
         double value = old_wc[wname];
         for (const auto& sub : w_subs) {
           size_t start_pos = wname.find(sub.first);
@@ -344,9 +352,13 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
             start_pos = wname.find(sub.first);
           }
         }
-        new_wc[wname];
-        new_wc.back() = value;
+        new_name_to_value[wname] = value;
+        old_name_to_new_name[old_name] = wname;
       }
+    }
+    for (const string& old_name : orig_order) {
+      const string& new_name = old_name_to_new_name[old_name];
+      new_wc[ new_name ] = new_name_to_value[new_name];
     }
     // end of weight-name cleaning
   }
