@@ -94,6 +94,10 @@ Some components of Hbb tagging also live here. These include:
      overlap. In general we recommend removing any jet where
      `relativeDeltaRToVRJet < 1.0`.
 
+   - `VRJetOverlapDecoratorTool`: ASG interface around the class
+     above.
+
+
 ### Other Files ###
 
 There are also several tools that you _probably_ don't have to touch:

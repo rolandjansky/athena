@@ -42,6 +42,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx
   Root/VRJetOverlapDecorator.cxx
+  Root/VRJetOverlapDecoratorTool.cxx
   Root/HbbTag.cxx
   Root/HbbTagTool.cxx
   Root/HbbTagConfig.cxx

@@ -19,6 +19,7 @@ class VRJetOverlapDecorator
 {
 public:
   VRJetOverlapDecorator(const VRJetOverlapConfig& = VRJetOverlapConfig());
+  ~VRJetOverlapDecorator();
   void decorate(const xAOD::JetContainer& jets) const;
 private:
   VRJetParameters m_param_source;
