@@ -205,9 +205,7 @@ namespace top {
       }
     }
     ///-- Large-R JES systematics --///
-    std::string largeR(m_config->largeRJetUncertainties_NPModel() + "_");
-    if(largeR=="CategoryReduction_Tau21WTA_") largeR="CategoryReduction_"; // We need to adjust the name for this configuration in order to keep correlations with small-R jets
-    
+    std::string largeRModName = getLargeRModName(m_config->largeRJetUncertainties_NPModel());
     CP::SystematicSet largeRsysts;
     if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
       if ((m_config->largeRJESJMSConfig() == "CombMass") || (m_config->largeRJESJMSConfig() == "TCCMass")) { //TA mass
@@ -237,7 +235,7 @@ namespace top {
     }
 
     // add the merged set of systematics for large-R jets including the tagging SF systs
-    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeR, true);
+    addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, largeRModName, true);
 
     ///-- Large R jet substructure --///
     if (m_config->jetSubstructureName() == "Trimmer") m_jetSubstructure.reset(new top::LargeJetTrimmer);
@@ -661,6 +659,11 @@ namespace top {
     }
 
     return StatusCode::SUCCESS;
+  }
+
+  std::string JetObjectCollectionMaker::getLargeRModName(const std::string& NPModel) const {
+    if (NPModel.find("CategoryReduction")!=std::string::npos) return "CategoryReduction_";
+    return NPModel+"_"; 
   }
 
   void JetObjectCollectionMaker::addSystematics(const std::set<std::string>& specifiedSystematics,

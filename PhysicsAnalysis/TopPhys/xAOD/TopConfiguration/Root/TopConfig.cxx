@@ -1233,7 +1233,7 @@ namespace top {
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
-    this->largeRJetUncertaintiesConfigDir(settings->value("LargeRJetUncertaintiesConfigDir"));
+    this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
