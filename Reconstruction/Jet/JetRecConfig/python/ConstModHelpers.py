@@ -51,7 +51,7 @@ ConstModConfigs = {
     "SK":     {}
 }
 
-def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssociation",vtxKey="PrimaryVertices"):
+def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssoc",vtxKey="PrimaryVertices"):
     inputtype = constit.basetype
 
     # Need to extend to TCC

@@ -146,7 +146,6 @@ if __name__=="__main__":
     
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.isMC  = True
     ConfigFlags.Input.Files = args.filesIn.split(",")
 
     # Flags relating to multithreaded execution
@@ -171,6 +170,15 @@ if __name__=="__main__":
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
+
+    # Nowadays the jet calibration tool requires the EventInfo
+    # to be decorated with lumi info, which is not in Run 2 AODs
+    from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+    cfg.merge(LuminosityCondAlgCfg(ConfigFlags))
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
+    cfg.addEventAlgo(muWriter,"AthAlgSeq")
 
     # Add the components from our jet reconstruction job
     cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
