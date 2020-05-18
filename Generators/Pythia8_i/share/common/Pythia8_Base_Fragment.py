@@ -13,7 +13,7 @@ genSeq.Pythia8.Commands += [
 from EvgenProdTools.offline_dict import parameters
 
 ## Particle masses and widths
-particle_params = k.get("particles")
+particle_params = parameters.get("particles")
 if particle_params:
     for key, value in particle_params.items():
         ## Only the top quark, the leptons and the bosons are applied
@@ -26,10 +26,10 @@ else:
     print "Could not retrieve standard ATLAS particle parameters"
 
 ## SM electroweak parameters
-ew_params = k.get("EW_parameters")
+ew_params = parameters.get("EW_parameters")
 if ew_params:
     ## Only the parameters sin2thetaW and sin2thetaWbar are applied
-    for key,value in v.items():
+    for key,value in ew_params.items():
         if key[1] in ('sin2thetaW', 'sin2thetaWbar'):
             genSeq.Pythia8.Commands += [
                 'StandardModel:{} = {}'.format(key[1], value)
