@@ -51,7 +51,7 @@ namespace Monitored {
       }
 
       TH1* hist = this->template histogram<TH1>();
-      TAxis* axis = detail::getAxis<TH1,AXIS>(hist);
+      TAxis* axis = detail::getAxis<AXIS>(hist);
       if (m_rebinMode == RebinMode::AddBins) {
         if (Monitored::detail::shouldRebinHistogram(axis, max)) {
           Monitored::detail::rebinHistogram<AXIS>(hist, max);

@@ -5,10 +5,10 @@
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 
-#include "CxxUtils/checker_macros.h"
 #include "TEfficiency.h"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
+#include "HistogramFillerUtils.h"
 
 namespace Monitored {
   /**
@@ -24,7 +24,8 @@ namespace Monitored {
     }
 
     virtual unsigned fill() const override {
-      if ( m_monVariables.size()<2 ) return 0;
+      const size_t nMonVar = m_monVariables.size();
+      if ( nMonVar<2 ) return 0;
 
       const IMonitoredVariable& var0 = m_monVariables[0].get();
 
@@ -37,13 +38,14 @@ namespace Monitored {
       }
       auto cutMaskAccessor = cutMaskValuePair.second;
 
-      auto efficiency = this->histogram<TEfficiency>();
+      TEfficiency* efficiency = this->histogram<TEfficiency>();
+      const TH1* efftot = efficiency->GetTotalHistogram();
 
-      int nMonVar = m_monVariables.size();
       if ( nMonVar==2 ) { // Single observable (1D TEfficiency)
         for (unsigned i = 0; i < var0.size(); ++i) {
           if (cutMaskAccessor(i)) {
-            efficiency->Fill(var0.get(i), retrieveVariable(efficiency,1,i));
+            efficiency->Fill(var0.get(i),
+                             detail::getFillValue<Axis::X>(efftot, m_monVariables[0].get(), i));
           }
         }
         return var0.size();
@@ -51,8 +53,8 @@ namespace Monitored {
         for (unsigned i = 0; i < var0.size(); ++i) {
           if (cutMaskAccessor(i)) {
             efficiency->Fill(var0.get(i),
-                             retrieveVariable(efficiency,1,i),
-                             retrieveVariable(efficiency,2,i));
+                             detail::getFillValue<Axis::X>(efftot, m_monVariables[1].get(), i),
+                             detail::getFillValue<Axis::Y>(efftot, m_monVariables[2].get(), i));
           }
         }
         return var0.size();
@@ -60,9 +62,9 @@ namespace Monitored {
         for (unsigned i = 0; i < var0.size(); ++i) {
           if (cutMaskAccessor(i)) {
             efficiency->Fill(var0.get(i),
-                             retrieveVariable(efficiency,1,i),
-                             retrieveVariable(efficiency,2,i),
-                             retrieveVariable(efficiency,3,i));
+                             detail::getFillValue<Axis::X>(efftot, m_monVariables[1].get(), i),
+                             detail::getFillValue<Axis::Y>(efftot, m_monVariables[2].get(), i),
+                             detail::getFillValue<Axis::Z>(efftot, m_monVariables[3].get(), i));
           }
         }
         return var0.size();
@@ -70,32 +72,6 @@ namespace Monitored {
         return 0;
       }
     }
-
-    double retrieveVariable(TEfficiency* efficiency, int iVariable, int i) const {
-      const IMonitoredVariable& valueVariable = m_monVariables[iVariable].get();
-      if ( valueVariable.hasStringRepresentation() ) {
-        TH1* tot ATLAS_THREAD_SAFE  = const_cast<TH1*>(efficiency->GetTotalHistogram());
-        const TAxis* axis = getAxis(tot, iVariable);
-        const int binNumber = axis->FindFixBin( valueVariable.getString(i).c_str() );
-        return axis->GetBinCenter(binNumber);
-      } else {
-        return valueVariable.get(i);
-      }
-    }
-
-    const TAxis* getAxis(TH1* hist, int iAxis) const {
-      if ( iAxis==1 ) {
-        return hist->GetXaxis();
-      } else if ( iAxis==2 ) {
-        return hist->GetYaxis();
-      } else if ( iAxis==3 ) {
-        return hist->GetZaxis();
-      } else {
-        HistogramException("Invalid request for axis when defining TEfficiency.");
-        return nullptr;
-      }
-    }
-
   };
 }
 

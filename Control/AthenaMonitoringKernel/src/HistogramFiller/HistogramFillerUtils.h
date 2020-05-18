@@ -31,13 +31,34 @@ namespace Monitored {
     constexpr std::array axis_bit{TH1::kXaxis, TH1::kYaxis, TH1::kZaxis};
 
     /**
-     * Helper to get corresponding TAxis selected by Monitored::Axis
+     * Helper to get corresponding TAxis selected by Monitored::Axis.
+     * (works for const/non-const TAxis/TH1 thanks to auto return type)
      */
-    template<typename H, Axis AXIS>
-    constexpr TAxis* getAxis(H* hist) {
+    template<Axis AXIS, typename H>
+    constexpr auto getAxis(H* hist) {
       if constexpr (AXIS==Axis::X) return hist->GetXaxis();
       else if constexpr (AXIS==Axis::Y) return hist->GetYaxis();
       else return hist->GetZaxis();
+    }
+
+    /**
+     * Return value for filling i'th entry of var into AXIS for hist.
+     * If var is string-valued performs a bin lookup first.
+     *
+     * @tparam AXIS    Histograms axis
+     * @param  hist    Histogram
+     * @param  var     MonitoredVariable for value lookup
+     * @param  i       index for IMonitoredVariable value lookup
+     */
+    template<Axis AXIS, typename H>
+    double getFillValue(const H* hist, const IMonitoredVariable& var, size_t i) {
+      if ( var.hasStringRepresentation() ) {
+        const TAxis* axis = getAxis<AXIS>(hist);
+        const int binNumber = axis->FindFixBin( var.getString(i).c_str() );
+        return axis->GetBinCenter(binNumber);
+      } else {
+        return var.get(i);
+      }
     }
 
     /**
@@ -65,7 +86,7 @@ namespace Monitored {
     template<Axis AXIS, typename H>
     void rebinHistogram(H* hist, const double value) {
       hist->SetCanExtend(axis_bit[AXIS]);
-      TAxis* a = getAxis<H,AXIS>(hist);
+      TAxis* a = getAxis<AXIS>(hist);
 
       // Rebinning requires to take OH lock in online (no-op offline)
       oh_scoped_lock_histogram lock;
@@ -122,8 +143,8 @@ namespace Monitored {
     template<typename H, typename T, T... a, typename ...Vs>
     bool fillWillRebinHistogram(H* hist, std::integer_sequence<T, a...>, const Vs&... v) {
       // First check if axis is extensible, then if value would be outside of range
-      return (... || (getAxis<H, static_cast<Axis>(a)>(hist)->CanExtend() and
-                      detail::fillWillRebinHistogram(getAxis<H, static_cast<Axis>(a)>(hist), v)));
+      return (... || (getAxis<static_cast<Axis>(a)>(hist)->CanExtend() and
+                      detail::fillWillRebinHistogram(getAxis<static_cast<Axis>(a)>(hist), v)));
     }
     #pragma GCC diagnostic pop
 
