@@ -164,9 +164,6 @@ namespace top {
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
                       "19000.");
-    registerParameter("JetUncertainties_BunchSpacing",
-                      "25ns (default) or 50ns - for JetUncertainties",
-                      "25ns");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");

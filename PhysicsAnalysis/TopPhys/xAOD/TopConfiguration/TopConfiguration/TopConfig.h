@@ -1193,13 +1193,6 @@ namespace top {
       }
     }
 
-    inline virtual void jetUncertainties_BunchSpacing(const std::string& s) {
-      if (!m_configFixed) {
-        m_jetUncertainties_BunchSpacing = s;
-      }
-    }
-
-    inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
 
     virtual void jetUncertainties_NPModel(const std::string& s);
     virtual void jetUncertainties_QGFracFile(const std::string& s);
@@ -2075,7 +2068,6 @@ namespace top {
     float m_jetEtacut; // jet object selection (abs) eta cut
     std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
-    std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
