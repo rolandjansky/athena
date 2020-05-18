@@ -125,6 +125,7 @@ TOPQ2Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ2Kernel", Thi
 # JetTagNonPromptLepton decorations
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ2Sequence, 'TOPQ2')
@@ -132,6 +133,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ2Sequence, 'TOPQ2')
 # Add BDT decoration algs
 TOPQ2Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ2Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
+TOPQ2Sequence += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ2Sequence
