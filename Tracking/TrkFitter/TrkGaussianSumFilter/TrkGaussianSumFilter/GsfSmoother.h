@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      GsfSmoother.h  -  description
-      -----------------------------
-begin                : Wednesday 9th March 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class definition for the GSF smoother
-**********************************************************************************
-*/
+/**
+ * @file   GsfSmoother.h
+ * @date   Friday 25th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class definition for the GSF smoother
+ */
 
 #ifndef TrkGsfSmoother_H
 #define TrkGsfSmoother_H

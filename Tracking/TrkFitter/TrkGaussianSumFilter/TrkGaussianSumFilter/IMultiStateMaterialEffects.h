@@ -2,6 +2,18 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+ * @file   IMultiStateMaterialEffects.h
+ * @date   Thursday 17th February 2005
+ * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
+ * 
+ * Abstract base class for defining material
+ * effects including energy loss and multiple scattering for
+ * use in the multi-component state environment. These
+ * material effects will produce multi-component state
+ */
+
+
 /*************************************************************************************
       IMultiStateMaterialEffects.h  -  description
       --------------------------------------------

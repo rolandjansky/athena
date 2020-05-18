@@ -2,17 +2,16 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        PosteriorWeightsCalculator.h  -  description
-                        ---------------------------------------------
-created              : Wednesday 22nd December 2004
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-description          : Class to calculate the weighting of state components
-                        after an update from a measurement. The information for
-                        the measurement is provided through the RIO_OnTrack
-                        object.
-*********************************************************************************/
+/**
+ * @file   PosteriorWeightsCalculator.h
+ * @date   Friday 25th February 2005
+ * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
+ * 
+ * Class to calculate the weighting of state components
+ * after an update from a measurement. The information for
+ * the measurement is provided through the RIO_OnTrack
+ * object.
+ */
 
 #ifndef PosteriorWeightsCalculator_H
 #define PosteriorWeightsCalculator_H
