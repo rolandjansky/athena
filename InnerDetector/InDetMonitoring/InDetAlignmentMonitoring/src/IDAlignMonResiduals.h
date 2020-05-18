@@ -592,10 +592,14 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   //Pixel Histograms
   TH1F* m_pix_b_residualx;
   TH1F* m_pix_b_residualy;
+  TH1F* m_oldpix_b_residualx;
+  TH1F* m_oldpix_b_residualy;
   TH1F* m_pix_b_residualx_fine;
   TH1F* m_pix_b_residualy_fine;
   TH1F* m_pix_b_biased_residualx;
   TH1F* m_pix_b_biased_residualy;
+  TH1F* m_pix_ec_residualx;
+  TH1F* m_pix_ec_residualy;
   TH1F* m_pix_eca_residualx;
   TH1F* m_pix_eca_residualy;
   TH1F* m_pix_ecc_residualx;
@@ -604,6 +608,11 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_pix_eca_residualy_fine;
   TH1F* m_pix_ecc_residualx_fine;
   TH1F* m_pix_ecc_residualy_fine;
+
+  TH1F* m_pix_b0_planars_residualx; // IBL planars
+  TH1F* m_pix_b0_planars_residualy;
+  TH1F* m_pix_b0_3D_residualx; // IBL 3D
+  TH1F* m_pix_b0_3D_residualy;
 
   TH1F* m_pix_eca_pullx;
   TH1F* m_pix_eca_pully;
