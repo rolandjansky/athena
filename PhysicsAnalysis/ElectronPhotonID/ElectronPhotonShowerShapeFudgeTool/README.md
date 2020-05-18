@@ -145,6 +145,12 @@ The correction values for each respective bin are given to the tool using the fl
 Parameter2Values: 1.; 0.9; 0.7; 0.45; 0.6; 1.1
 ```
 
+If wanted, a partwise linear interpolation between the given pT bin values can be used. For this, simply set the flag `Parameter*Interpolate` to `TRUE` if `Parameter*` is a parameter binned in pT. If the flag is not set, it is assumed to be `FALSE`, however, the code does not complain if you explicitly set the flag to `FALSE`. The implemented method mostly follows the [interpolation method implemented in the ROOT TH1 class](https://root.cern.ch/doc/master/classTH1.html#a8ca269364ca55ea1e7fb65f9d3b21722). For interpolation into the last pt bin, whose upper boundary is infinity, we treat the bin as having the width "w" of the next-to-last bin. Thus, we interpolate a distance w/2 into the last bin, and after this distance the value is constant. For example, this would look like this:
+
+```bash
+Parameter2Interpolate: TRUE
+```
+
 For the **event density**, no further information must be given to the tool. The tool will extract the event density from the event and use it as the respective parameter.
 
 If you want to include parameters depending on other quantities, please read the [developer manual](#how-to-change-and-adapt-the-tool-developer-manual) or [contact the developers](mailto:nils.gillwald@desy.de).
@@ -159,6 +165,14 @@ In order to check whether the passed object in e.g. `applyCorrection` is intende
 
 The tool will then check if the passed object is compatible with the `ApplyTo` flag provided, and will fail with a `CP::CorrectionCode::Error` if the object type is not as expected.
 
+If there are **discrete parameter values which should be left uncorrected**, you can use the flag `UncorrectedDiscontinuities`. You should pass all values which should not be corrected to it as a list, like this:
+
+```bash
+UncorrectedDiscontinuities: 0.0; 1.0
+```
+
+Note that this will work fine for integer-like floats! It will probably fail for longer floats because of the internal floating point precision of C++ (i.e. the code checks equality using `==`, and does not check if the difference between the variable value and the values which should be skipped is smaller than some epsilon). If you need this to work for all floats, contact the maintainers and we'll see what we can do.
+
 An **example configuration file** containing examples for all possible flags can be found in `./data/ElectronPhotonVariableCorrectionBase_ExampleConf.conf`. The complete list of example configuration files is (all in `./data/`):
 
 - `ElectronPhotonVariableCorrectionBase_ExampleConvertedPhotonConf.conf` for converted photons,
@@ -167,7 +181,7 @@ An **example configuration file** containing examples for all possible flags can
 - `ElectronPhotonVariableCorrectionBase_ExampleIsoCorrectionConf.conf` for the isolation correction,
 - `ElectronPhotonVariableCorrectionBase_ExampleConf.conf` general example showing what the tool can do and how all different possible parameters can be handled.
 
-The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`.
+The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/3b/36/DAOD_HIGG1D2.20317301._000001.pool.root.1`.
 
 #### The tool configuration file
 

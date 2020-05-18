@@ -36,7 +36,7 @@ public:
     /** @brief Standard constructor
      * @param myname Internal name of the tool instance, so they can be distinguished
      */ 
-    ElectronPhotonVariableCorrectionTool( const std::string& myname);
+    ElectronPhotonVariableCorrectionTool(const std::string& myname);
     //! @brief Standard destructor
     ~ElectronPhotonVariableCorrectionTool() {};
 

@@ -217,6 +217,10 @@ replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
+# Rebuild the PFlow jets for a consistent set of inputs to MET
+addCHSPFlowObjects()
+addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=SeqPHYSLITE, outputGroup="PHYSLITE", calibOpt="arj:pflow", overwrite=True)
+
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
@@ -318,9 +322,6 @@ print( jetSequence ) # For debugging
 SeqPHYSLITE += jetSequence
 
 # Make sure the MET knows what we've done
-# First we need to rebuild charged pflow objects
-from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
-scheduleCHSPFlowMods(SeqPHYSLITE)
 # Now build MET from our analysis objects
 from DerivationFrameworkJetEtMiss import METCommon
 from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
@@ -463,7 +464,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PSFrac",
   "BTagging_AntiKt4EMPFlow_201903.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",

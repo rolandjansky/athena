@@ -43,6 +43,7 @@
 // Tool interfaces
 // Toolbox, which holds the tools
 #include "AssociationUtils/ToolBox.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 class IJetCalibrationTool;
 class IJERTool;
@@ -525,6 +526,7 @@ namespace ST {
     bool m_autoconfigPRWCombinedmode;
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;
+    std::string m_autoconfigPRWRtags;
     std::string m_mcCampaign;
     int m_mcChannel;
 
@@ -677,6 +679,7 @@ namespace ST {
     bool   m_orRemoveCaloMuons;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
+    bool   m_orPhotonFavoured;
     double m_orBJetPtUpperThres;
     bool m_orLinkOverlapObjects;
 
@@ -692,6 +695,7 @@ namespace ST {
     bool m_useSigLepForIsoCloseByOR;
     std::string m_IsoCloseByORpassLabel;
 
+    bool m_useTRUTH3;
 
     std::string m_metJetSelection;
 
@@ -706,6 +710,7 @@ namespace ST {
     CP::SystematicSet m_currentSyst;
 
     std::string m_EG_corrModel;
+    std::string m_EG_corrFNList;
     bool m_applyJVTCut;
 
     std::string m_bTaggingCalibrationFilePath;
@@ -727,6 +732,7 @@ namespace ST {
     asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
+    asg::AnaToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     //
     std::string m_jesConfig;

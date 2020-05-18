@@ -212,18 +212,23 @@ namespace top {
     m_muonPtcut(25000.),
     m_muonEtacut(2.5),
     m_muonQuality("SetMe"),
+    m_muonUseMVALowPt(false),
+    m_muonUse2stationMuonsHighPt(true),
     m_muonQualityLoose("SetMe"),
+    m_muonUseMVALowPtLoose(false),
+    m_muonUse2stationMuonsHighPtLoose(true),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
-    m_do2StationsHighPt(false),
-    m_doExtraSmearing(false),
+    m_muonMuonDoSmearing2stationHighPt(true),
+    m_muonMuonDoExtraSmearingHighPt(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
+    m_softmuonUseMVALowPt(false),
     m_softmuonDRJetcut(0.4),
     m_softmuonAdditionalTruthInfo(false),
     m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
@@ -1130,22 +1135,49 @@ namespace top {
       this->muonIsolation(cut_wp);
       this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
     }
+    bool muonUse2stationHighPt = true;
+    settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
+    if (settings->value("MuonQuality") != "HighPt") muonUse2stationHighPt = false;
+    this->muonUse2stationMuonsHighPt(muonUse2stationHighPt);
+    bool muonUseMVALowPt = false;
+    settings->retrieve("MuonUseMVALowPt", muonUseMVALowPt);
+    if (settings->value("MuonQuality") != "LowPt" && muonUseMVALowPt) {
+      ATH_MSG_WARNING("Could not set MuonUseMVALowPt True without using the LowPt muon WP. MuonUseMVALowPt is now setted to the default value (False)");
+      muonUseMVALowPt = false;
+    }
+    this->muonUseMVALowPt(muonUseMVALowPt);
+    bool muonUse2stationHighPtLoose = true;
+    settings->retrieve("MuonUse2stationHighPtLoose", muonUse2stationHighPtLoose);
+    if (settings->value("MuonQualityLoose") != "HighPt") muonUse2stationHighPtLoose = false;
+    this->muonUse2stationMuonsHighPtLoose(muonUse2stationHighPtLoose);
+    bool muonUseMVALowPtLoose = false;
+    settings->retrieve("MuonUseMVALowPtLoose", muonUseMVALowPtLoose);
+    if (settings->value("MuonQualityLoose") != "LowPt" && muonUseMVALowPtLoose) {
+      ATH_MSG_WARNING("Could not set MuonUseMVALowPtLoose True without using the LowPt muon WP. MuonUseMVALowPtLoose is now setted to the default value (False)");
+      muonUseMVALowPtLoose = false;
+    }
+    this->muonUseMVALowPtLoose(muonUseMVALowPtLoose);
     {
       std::string const& cut_wp = settings->value("MuonIsolationLoose");
       std::string const& sf_wp = settings->value("MuonIsolationSFLoose");
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    bool do2StationsHighPt = false;
-    settings->retrieve("do2StationsHighPt", do2StationsHighPt);
-    if (settings->value("MuonQuality") != "HighPt" && do2StationsHighPt) {
-      ATH_MSG_WARNING("Could not set do2StationsHighPt True without using the HighPt muon WP. do2StationsHighPt is now setted to the default value (False)");
-      do2StationsHighPt = false;
+    bool muonDoSmearing2stationHighPt = false;
+    settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
+    if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;
+    else if ( !muonUse2stationHighPt && muonDoSmearing2stationHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoSmearing2stationHighPt True without MuonUse2stationHighPt. MuonDoSmearing2stationHighPt is now setted to False");
+      muonDoSmearing2stationHighPt = false;
     }
-    this->muondo2StationsHighPt(do2StationsHighPt);
-    bool doExtraSmearing = false;
-    settings->retrieve("doExtraSmearing", doExtraSmearing);
-    this->muondoExtraSmearing( doExtraSmearing );
+    this->muonMuonDoSmearing2stationHighPt(muonDoSmearing2stationHighPt);
+    bool muonDoExtraSmearingHighPt = false;
+    settings->retrieve("MuonDoExtraSmearingHighPt", muonDoExtraSmearingHighPt);
+    if ( settings->value("MuonQuality") != "HighPt" && muonDoExtraSmearingHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True without using the HighPt muon WP. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
+      muonDoExtraSmearingHighPt = false;
+    }
+    this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
@@ -1153,6 +1185,13 @@ namespace top {
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
+    bool softmuonUseMVALowPtSoftMuon = false;
+    settings->retrieve("SoftMuonUseMVALowPt", softmuonUseMVALowPtSoftMuon);
+    if (settings->value("SoftMuonQuality") != "LowPt" && softmuonUseMVALowPtSoftMuon) {
+      ATH_MSG_WARNING("Could not set SoftMuonUseMVALowPt True without using the LowPt softmuon WP. SoftMuonUseMVALowPt is now setted to the default value (False)");
+      softmuonUseMVALowPtSoftMuon = false;
+    }
+    this->softmuonUseMVALowPt(softmuonUseMVALowPtSoftMuon);
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
     if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
     else this->softmuonAdditionalTruthInfo(false);

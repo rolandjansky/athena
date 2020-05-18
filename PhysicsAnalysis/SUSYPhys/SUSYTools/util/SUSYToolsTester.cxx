@@ -9,9 +9,15 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <map>
+#include <regex>
+#include <numeric>
 
 // ROOT include(s):
 #include <TFile.h>
+#include <TTree.h>
+#include <TBranch.h>
 #include <TError.h>
 #include <TString.h>
 #include <TStopwatch.h>
@@ -95,6 +101,10 @@ enum sel {
   trgmatch,
   passOR
 };
+
+// get list of containers in file ~ checkxAOD.py style
+std::map<std::string, std::string> getFileContainers(std::unique_ptr<TFile> &);
+//std::map<std::string, std::string> getFileContainers(TFile *);
 
 std::vector<std::string> getTokens(TString line, TString delim){
   std::vector<std::string> vtokens;
@@ -204,8 +214,27 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   ANA_CHECK( ifile.get() );
 
-  // Create a TEvent object:
+  // Open file and check available containers
+  std::map<std::string, std::string> containers = getFileContainers(ifile);
+  bool hasTrkJets(false), hasFatJets(false), timestampedJets(false), timestampedTrkJets(false);
+  for (auto x : containers) {
+    if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets")!=std::string::npos) {
+       hasTrkJets = true;
+       if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets_20")!=std::string::npos) timestampedTrkJets = true;
+    }
+    if (x.first.find("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")!=std::string::npos) hasFatJets = true;
+    if (x.first.find("BTagging_AntiKt4EMTopo_20")!=std::string::npos || x.first.find("BTagging_AntiKt4EMPFlow_20")!=std::string::npos) timestampedJets = true;
+  }
+  if (debug) {
+    ANA_MSG_INFO("Checking file contents (containers):");
+    for (auto x : containers) ANA_MSG_INFO("  - found " << x.first.c_str() << " (" << x.second.c_str() << ")");
+    ANA_MSG_INFO("hasTrkJets: " << (hasTrkJets?"true":"false"));
+    ANA_MSG_INFO("hasFatJets: " << (hasFatJets?"true":"false"));
+    ANA_MSG_INFO("timestampedJets: " << (timestampedJets?"true":"false"));
+    ANA_MSG_INFO("timestampedTrkJets: " << (timestampedTrkJets?"true":"false"));
+  }
 
+  // Create a TEvent object:
 
 #ifdef ROOTCORE
   xAOD::TEvent event( xAOD::TEvent::kAthenaAccess );
@@ -431,6 +460,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           xStream = TString(cbk->inputStream()).ReplaceAll("Stream","");
           ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
         }
+        if ( cbk->name() == "PHYSVALKernel" && cbk->inputStream() == "StreamAOD" ){
+          xStream = "PHYSVAL";
+          ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
+        }
         if ( cbk->name() == "PHYSLITEKernel" && cbk->inputStream() == "StreamAOD" ){
           xStream = "PHYSLITE";
           ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
@@ -454,6 +487,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       } else { Info( APP_NAME, "No relevent CutBookKeepers found" ); }
 
+      if (xStream=="PHYSLITE") {
+         hasTrkJets = false;
+         hasFatJets = false;
+      }
     }
 
     // Only need to PRW if we aren't running on PHYSLITE
@@ -475,6 +512,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
             static_cast< int >( ei->runNumber() ),
             static_cast< int >( entry ) );
     }
+
 
     // if (!isData && entry % period == 0) {
     //   float xsectTimesEff =  my_XsecDB->xsectTimesEff(ei->mcChannelNumber());
@@ -500,6 +538,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
     }
     else {
+
       // Check SUSY Proc. ID for signal MC (only for first event for now!)
       if(entry<5){
         // --- Deprecated usage of procID
@@ -530,6 +569,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
     }
+
 
     //Check PV in the event
     if (objTool.GetPrimVtx() == nullptr) {
@@ -585,18 +625,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
     ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisJets":"") );
 
+
     // TrackJets
     xAOD::JetContainer* trkjets_nominal(0);
     xAOD::ShallowAuxContainer* trkjets_nominal_aux(0);
-    if (xStream!="PHYSLITE") ANA_CHECK( objTool.GetTrackJets(trkjets_nominal, trkjets_nominal_aux) );
+    if (hasTrkJets) objTool.GetTrackJets(trkjets_nominal, trkjets_nominal_aux);
 
     // FatJets
     const xAOD::JetContainer* FJC(0);
     xAOD::JetContainer* fatjets_nominal(0);
     xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
-    if(xStream.Contains("SUSY10")){
+    if(hasFatJets) { // xStream.Contains("SUSY10") || xStream.Contains("PHYSVAL")){
       if( event.retrieve(FJC, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets").isSuccess() ){
-
         ANA_CHECK( objTool.GetFatJets(fatjets_nominal, fatjets_nominal_aux) );
         if (debug && entry < 10) {
           for (const auto& fatjet : *fatjets_nominal) {
@@ -610,13 +650,13 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       }
     }
 
+
     //Taus
     xAOD::TauJetContainer* taus_nominal(0);
     xAOD::ShallowAuxContainer* taus_nominal_aux(0);
     if(xStream.Contains("SUSY3")){
       ANA_CHECK( objTool.GetTaus(taus_nominal,taus_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisTauJets":"TauJets") );
     }
-
 
     // MET
     xAOD::MissingETContainer* metcst_nominal = new xAOD::MissingETContainer;
@@ -644,6 +684,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         Info(APP_NAME , "--- SHERPA2.2 REWEIGHTING : %f", RW_sh22);
       }
     }
+
 
     // Additionally define a nominal weight for each object type
     double elecSF_nominal(1.);
@@ -704,6 +745,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       mucuts[isys][icut] += 1;
       ++icut;
 
+
       // Generic pointers for either nominal or systematics copy
       xAOD::ElectronContainer* electrons(electrons_nominal);
       xAOD::PhotonContainer* photons(photons_nominal);
@@ -740,6 +782,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       bool syst_affectsJets = ST::testAffectsObject(xAOD::Type::Jet, sysInfo.affectsType);
       bool syst_affectsBTag = ST::testAffectsObject(xAOD::Type::BTag, sysInfo.affectsType);
       //      bool syst_affectsMET = ST::testAffectsObject(xAOD::Type::MissingET, sysInfo.affectsType);
+
 
       if (sysInfo.affectsKinematics) {
         if (syst_affectsElectrons) {
@@ -805,6 +848,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       // *************** Now start processing the event *****************
       // ***************    ************************    *****************
 
+
       if (isNominal || (sysInfo.affectsKinematics && syst_affectsElectrons) ) {
         for (const auto& el : *electrons) {
           //objTool.IsSignalElectron( *el ) ; // TODO: check that this should be removed /CO
@@ -850,6 +894,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
 
+
       if (isNominal || (sysInfo.affectsKinematics && syst_affectsJets)) {
         for (const auto& jet : *jets) {
           objTool.IsBJet( *jet) ;
@@ -873,6 +918,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       //  }
       // }
 
+
       if (debug) Info(APP_NAME, "Overlap removal");
 
       // do overlap removal
@@ -888,6 +934,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
 
+
       xAOD::JetInput::Type jetInputType = xAOD::JetInput::Uncategorized;
       if (debug) Info(APP_NAME, "GoodJets?");
       for (const auto& jet : *jets) {
@@ -898,13 +945,23 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           goodJets->push_back(jet);
         }
         // PHYSLITE doesn't bother trying to keep JetInputType as a decoration
-        jetInputType = xStream=="PHYSLITE"?xAOD::JetInput::PFlow:jet->getInputType();
+        if (xStream=="PHYSVAL") jetInputType = jet->getInputType();
+        else if (xStream=="PHYSLITE") jetInputType = xAOD::JetInput::PFlow;
+        else if (xStream.Contains("SUSY")) {
+           std::string jetcoll = jets_nominal_aux->name(); 
+           if (jetcoll.find("EMTopo")!=std::string::npos) jetInputType = xAOD::JetInput::EMTopo;
+           else if (jetcoll.find("EMPFlow")!=std::string::npos) jetInputType = xAOD::JetInput::PFlow;
+        }
       }
 
       std::string jetCollection = xAOD::JetInput::typeName(jetInputType);
       ANA_MSG_DEBUG ("xAOD::JetInputtypeName: " << jetCollection); 
       if (jetCollection == "EMPFlow") {
-        if (objTool.IsPFlowCrackVetoCleaning(electrons, photons)) return StatusCode::FAILURE;
+        if (objTool.treatAsYear()<2017 && !objTool.IsPFlowCrackVetoCleaning(electrons, photons)) { 
+            Warning(APP_NAME , "Event failed 2015+2016 IsPFlowCrackVetoCleaning(electrons, photons), skipping...");
+            store.clear();
+            continue;
+        }
       }
 
       if (isNominal || sysInfo.affectsKinematics) {
@@ -1018,6 +1075,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       float muonSF = 1.0;
       int mu_idx[nSel] = {0};
       bool passTMtest = false;
+
 
       TString muTrig2015 = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50"; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       TString muTrig2016 = "HLT_mu26_ivarmedium_OR_HLT_mu50";
@@ -1179,7 +1237,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       event_weight *= btagSF;
 
       // checking BtagSF 
-      if ( xStream.Contains("SUSY1") ) { // PHYS_VAL doesn't contain truthlabel for VR jets
+      if ( xStream.Contains("SUSY1") ) { // PHYSVAL doesn't contain truthlabel for VR jets
         float btagSF_trkJet(1.);
         if (!isData) {
           if (isNominal) {btagSF_trkJet = btagSF_trkJet_nominal = objTool.BtagSF_trkJet(trkjets);}
@@ -1245,6 +1303,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       if(debug)
         ANA_MSG_DEBUG(">>>> Finished with variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" );
 
+
       ++isys;
     }
 
@@ -1273,6 +1332,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
             static_cast< int >( ei->runNumber() ),
             static_cast< int >( entry + 1 ) );
     }
+
+
   }
 
   m_clock0.Stop();
@@ -1306,3 +1367,28 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   // Return gracefully:
   return 0;
 }
+
+//====================================================================================================
+// get list of containers in file ~ checkxAOD.py style
+std::map<std::string, std::string> getFileContainers(std::unique_ptr<TFile> &f) {
+  std::map< std::string, std::string > containers;
+  std::unique_ptr< TTree > ctree( dynamic_cast<TTree*>( f->Get("CollectionTree") ) );
+  TObjArray *blist = dynamic_cast<TObjArray*>( ctree->GetListOfBranches() );
+  std::smatch match;
+  std::string result, bname;
+  for (int ib=0; ib<blist->GetEntries(); ++ib) {
+     TBranch *b = dynamic_cast<TBranch*>( blist->At(ib) );
+     bname = b->GetName();
+     if (bname.find("Aux")==std::string::npos) continue;
+     //
+     if (std::regex_search(bname, match, std::regex("(.*)Aux\\..*")) && match.size() > 1) { result = match.str(1); }            // static
+     else if (std::regex_search(bname, match, std::regex("(.*)AuxDyn\\..*")) && match.size() > 1) { result = match.str(1); }    // dynamic
+     //
+     if ((!result.empty()) && (containers.find(result)==containers.end()) && (ctree->GetBranch(result.c_str()))) {
+        containers[result] = ctree->GetBranch(result.c_str())->GetClassName();
+     }
+     result = "";
+  }
+  return containers;
+}
+

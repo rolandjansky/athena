@@ -68,16 +68,29 @@ namespace CP {
     }
     CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
         static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
-        value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
-        // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
+        static const SG::AuxElement::ConstAccessor<float> dRJet_DxAOD("DFCommonJetDr");
         static std::atomic<unsigned int> warned = {0};
-        if (warned<5 && !dRJet.isAvailable(mu)){
-            Warning("MuonEfficiencyCorrections::IsoSF()","The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
-            Warning("MuonEfficiencyCorrections::IsoSF()","using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
-            Warning("MuonEfficiencyCorrections::IsoSF()","You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
-            Warning("MuonEfficiencyCorrections::IsoSF()","For the time being the inclusive scale-factor is going to be returned.");
-		    Warning("MuonEfficiencyCorrections::IsoSF()","In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
-		    warned++;
+        if( dRJet_DxAOD.isAvailable(mu) ) {
+            // decoration available in DxAOD
+            value = dRJet_DxAOD(mu);
+        } else if( dRJet.isAvailable(mu) ) {
+            // decoration manually provided by analyzers
+            value = dRJet.isAvailable(mu);
+            if (warned < 5) Warning("MuonEfficiencyCorrections::dRJetAxisHandler()","MuonsAuxDyn.DFCommonJetDr is not available in this DxAOD, but you've decorated the muon with dRJet. Using it for retrieving the isolation scale factors.");
+            ++warned;                    
+        } else {
+            // decoration not available 
+            value = -2.; 
+            // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
+            
+            if (warned<5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
+                ++warned;
+            }
         }
         return CorrectionCode::Ok;
     }

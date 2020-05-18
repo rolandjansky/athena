@@ -873,6 +873,30 @@ namespace top {
       }
     }
 
+    void muonUseMVALowPt(const bool& UseMVALowPt) {
+      if (!m_configFixed) {
+	m_muonUseMVALowPt = UseMVALowPt;
+      }
+    }
+
+    void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
+      if (!m_configFixed) {
+	m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
+      }
+    }
+
+    void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
+      if (!m_configFixed) {
+	m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+      }
+    }
+
+    void muonUse2stationMuonsHighPtLoose(const bool& Use2stationMuonsHighPtLoose) {
+      if (!m_configFixed) {
+	m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
+      }
+    }
+
     inline virtual void muonQualityLoose(const std::string& quality) {
       if (!m_configFixed) {
         m_muonQualityLoose = quality;
@@ -903,15 +927,15 @@ namespace top {
       }
     }
 
-    void muondo2StationsHighPt(const bool& do2StationsHighPt) {
+    void muonMuonDoSmearing2stationHighPt(const bool& MuonDoSmearing2stationHighPt) {
       if (!m_configFixed) {
-	m_do2StationsHighPt = do2StationsHighPt;
+	m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
       }
     }
 
-    void muondoExtraSmearing(const bool& doExtraSmearing) {
+    void muonMuonDoExtraSmearingHighPt(const bool& MuonDoExtraSmearingHighPt) {
       if (!m_configFixed) {
-	m_doExtraSmearing = doExtraSmearing;
+	m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
       }
     }
 
@@ -919,12 +943,16 @@ namespace top {
     inline virtual float muonEtacut() const {return m_muonEtacut;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
+    inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
+    inline virtual bool muonUse2stationMuonsHighPt() const {return m_muonUse2stationMuonsHighPt;}
+    inline virtual bool muonUseMVALowPtLoose() const {return m_muonUseMVALowPtLoose;}
+    inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
-    inline virtual bool muondo2StationsHighPt() const {return m_do2StationsHighPt;}
-    inline virtual bool muondoExtraSmearing() const {return m_doExtraSmearing;}
+    inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
+    inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -942,6 +970,12 @@ namespace top {
     inline virtual void softmuonQuality(const std::string& quality) {
       if (!m_configFixed) {
         m_softmuonQuality = quality;
+      }
+    }
+
+    void softmuonUseMVALowPt(const bool& UseMVALowPtSoftMuon) {
+      if (!m_configFixed) {
+	m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
       }
     }
 
@@ -972,6 +1006,7 @@ namespace top {
     inline virtual float softmuonPtcut() const {return m_softmuonPtcut;}
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
+    inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
     inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
@@ -2000,26 +2035,29 @@ namespace top {
     int m_fwdElectronBCIDCleaningMinRun;
     int m_fwdElectronBCIDCleaningMaxRun;
 
-
-
     // Muon configuration
     float m_muonPtcut; // muon object selection pT cut
     float m_muonEtacut; // muon object selection (abs) eta cut
     std::string m_muonQuality; // muon quality used in object selection
+    bool m_muonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_muonUse2stationMuonsHighPt; //to allow muon reco with 2-station
     std::string m_muonQualityLoose; // loose muon quality used in object selection
+    bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
+    bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
     std::string m_muonIsolation;
     std::string m_muonIsolationLoose;
     std::string m_muonIsolationSF;
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
-    bool m_do2StationsHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
-    bool m_doExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
+    bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h

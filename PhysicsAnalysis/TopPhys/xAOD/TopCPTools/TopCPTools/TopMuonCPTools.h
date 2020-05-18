@@ -64,7 +64,7 @@ namespace top {
     StatusCode setupScaleFactors();
 
     CP::IMuonSelectionTool*
-    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta);
+    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta, const bool& useMVALowPt, const bool& use2stationMuonsHighPt);
 
     CP::IMuonTriggerScaleFactors*
     setupMuonTrigSFTool(const std::string& name, const std::string& quality);
@@ -73,7 +73,7 @@ namespace top {
     setupMuonSFTool(const std::string& name, const std::string& WP);
 
     CP::IMuonCalibrationAndSmearingTool*
-      setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearing, const bool& do2StationsHighPt);
+      setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearingHighPt, const bool& do2StationsHighPt);
   };
 }  // namespace top
 

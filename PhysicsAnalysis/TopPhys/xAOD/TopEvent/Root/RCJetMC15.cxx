@@ -143,12 +143,14 @@ StatusCode RCJetMC15::initialize() {
     m_split23 = std::make_shared<JetSubStructureUtils::KtSplittingScale>(2);
 
     m_qw = std::make_shared<JetSubStructureUtils::Qw>();
-  }
-  if (m_useAdditionalJSS) {
+    
     m_ECF1 = std::make_shared<fastjet::contrib::EnergyCorrelator>(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF2 = std::make_shared<fastjet::contrib::EnergyCorrelator>(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF3 = std::make_shared<fastjet::contrib::EnergyCorrelator>(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
 
+  }
+  if (m_useAdditionalJSS) {
+    
     m_gECF332 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
     m_gECF461 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(6, 4, 1,
@@ -346,9 +348,9 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double tau2 = m_nSub2_beta1->result(correctedJet);
             double tau3 = m_nSub3_beta1->result(correctedJet);
 
-            if (fabs(tau1) > 1e-8) tau21 = tau2 / tau1;
+            if (std::abs(tau1) > 1e-8) tau21 = tau2 / tau1;
             else tau21 = -999.0;
-            if (fabs(tau2) > 1e-8) tau32 = tau3 / tau2;
+            if (std::abs(tau2) > 1e-8) tau32 = tau3 / tau2;
             else tau32 = -999.0;
 
 
@@ -356,6 +358,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double split12 = m_split12->result(correctedJet);
             double split23 = m_split23->result(correctedJet);
             double qw = m_qw->result(correctedJet);
+	    
+	    double D2 = -1;
+
+            double vECF1 = m_ECF1->result(correctedJet);
+            double vECF2 = m_ECF2->result(correctedJet);
+            double vECF3 = m_ECF3->result(correctedJet);
+            if (std::abs(vECF2) > 1e-8) D2 = vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2);
+            else D2 = -999.0;
+	    
 
             // now attach the results to the original jet
             rcjet->auxdecor<float>("Tau32_clstr") = tau32;
@@ -371,16 +382,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             rcjet->auxdecor<float>("Qw_clstr") = qw;
 
             rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
+	    
+	    rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
+            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
+            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
+            rcjet->auxdecor<float>("D2_clstr") = D2;
+	    
           } // end of if useJSS
 
           if (m_useAdditionalJSS) {
-            double D2 = -1;
-
-            double vECF1 = m_ECF1->result(correctedJet);
-            double vECF2 = m_ECF2->result(correctedJet);
-            double vECF3 = m_ECF3->result(correctedJet);
-            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
-            else D2 = -999.0;
 
             // MlB's t/H discriminators
             // E = (a*n) / (b*m)
@@ -396,23 +406,17 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double gECF311 = m_gECF311->result(correctedJet);
 
             double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
-            if (fabs(gECF212) > 1e-12) {
-              L1 = gECF321 / (pow(gECF212, (1.0)));
-              L2 = gECF331 / (pow(gECF212, (3.0 / 2.0)));
+            if (std::abs(gECF212) > 1e-12) {
+              L1 = gECF321 / gECF212;
+              L2 = gECF331 / sqrt(gECF212*gECF212*gECF212);
             }
-            if (fabs(gECF331) > 1e-12) {
-              L3 = gECF311 / (pow(gECF331, (1.0 / 3.0)));
-              L4 = gECF322 / (pow(gECF331, (4.0 / 3.0)));
+            if (std::abs(gECF331) > 1e-12) {
+              L3 = gECF311 / pow(gECF331,1./3.);
+              L4 = gECF322 / pow(gECF331,4./3.);
             }
-            if (fabs(gECF441) > 1e-12) {
-              L5 = gECF422 / (pow(gECF441, (1.0)));
+            if (std::abs(gECF441) > 1e-12) {
+              L5 = gECF422/gECF441;
             }
-
-
-            rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
-            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
-            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
-            rcjet->auxdecor<float>("D2_clstr") = D2;
 
             rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
             rcjet->auxdecor<float>("gECF461_clstr") = gECF461;
@@ -522,7 +526,7 @@ bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
   if (jet.pt() < m_ptcut) return false;
 
   // [|eta|] calibrated < 2.5
-  if (std::fabs(jet.eta()) > m_etamax) return false;
+  if (std::abs(jet.eta()) > m_etamax) return false;
 
   // small-r jet mass not calibrated and no uncertainties
 
@@ -625,8 +629,8 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
           //Pileup suppression, using the nominal working point
           float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
 
-          if (fabs((*jetTrIt)->d0()) < 2 && fabs((*jetTrIt)->eta()) < 2.5 &&
-              fabs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
+          if (std::abs((*jetTrIt)->d0()) < 2 && std::abs((*jetTrIt)->eta()) < 2.5 &&
+              std::abs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
             temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
             clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
           }

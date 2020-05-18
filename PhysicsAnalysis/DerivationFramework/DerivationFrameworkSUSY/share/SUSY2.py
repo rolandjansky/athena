@@ -33,6 +33,8 @@ SeqSUSY2 = CfgMgr.AthSequencer("SeqSUSY2")
 DerivationFrameworkJob += SeqSUSY2
 
 
+
+
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
@@ -104,6 +106,11 @@ SUSY2VertexTPThinningTool = DerivationFramework__VertexParticleThinning( name   
 
 ToolSvc += SUSY2VertexTPThinningTool
 thinningTools.append(SUSY2VertexTPThinningTool)
+
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
+
 
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning

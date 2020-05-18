@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventType.h"
 #include "EventInfoRunNumberFixAlg.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
@@ -40,6 +42,12 @@ namespace xAOD {
     if( originalEventInfo->mcChannelNumber()==m_mcChannelNumber ){
       return StatusCode::SUCCESS;
     }
+
+    // Fix the classic EventInfo
+    const ::EventInfo* classicEventInfo = nullptr;
+    ATH_CHECK( evtStore()->retrieve (classicEventInfo) );
+    EventType* eventType = const_cast<EventType *> (classicEventInfo->event_type());
+    eventType->set_mc_channel_number (m_mcChannelNumber);
 
     //
     const SG::DataProxy* proxy =

@@ -282,10 +282,13 @@ addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm15Seq, "JETM15", ptm
 addVRJets(jetm15Seq)
 addVRJets(jetm15Seq,training='201903')
 
+
+
+
 # Now we can run the UFO building taking our unified PFlow container as input
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CSSK")
+emufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CHS",caloClusterName="LCOriginTopoClusters")
+emcsskufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CSSK", caloClusterName='LCOriginTopoClusters')
 
 from JetRec.JetRecConf import PseudoJetGetter
 
@@ -301,7 +304,6 @@ chsufogetters = [ufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
 addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = csskufogetters, constmods=["CSSK"])
 addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = chsufogetters, constmods=["CHS"])
 
-
 # Create TCC objects
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
@@ -309,6 +311,8 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(jetm15Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 addTCCTrimmedJets(jetm15Seq,"JETM15")
+
+
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm15Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM15MainKernel",
