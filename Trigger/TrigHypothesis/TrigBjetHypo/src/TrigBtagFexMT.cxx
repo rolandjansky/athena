@@ -39,6 +39,8 @@
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
 
+#include "StoreGate/ReadDecorHandle.h"
+
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
@@ -87,7 +89,6 @@ StatusCode TrigBtagFexMT::initialize() {
   //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
   //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
-  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -191,16 +192,6 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::BTaggingContainer* btaggingContainer = btaggingHandle.get();
   ATH_MSG_DEBUG( "Exiting with " << btaggingContainer->size() <<" btagging objects" );
 
-
-  // Creating dummy B-Tagging container in order to avoid
-  // warnings from the SGInputLoader
-  std::unique_ptr< xAOD::BTaggingContainer > outputBtagging = std::make_unique< xAOD::BTaggingContainer >();
-  std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
-  outputBtagging->setStore( outputBtaggingAux.get() );
-
-  SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
-  CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
-  ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
 
   return StatusCode::SUCCESS;
 }

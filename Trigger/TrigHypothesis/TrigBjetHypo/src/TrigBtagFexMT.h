@@ -30,6 +30,7 @@
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 
+#include "StoreGate/ReadDecorHandleKey.h"
 
 namespace Analysis {
   class IBTagTool;
