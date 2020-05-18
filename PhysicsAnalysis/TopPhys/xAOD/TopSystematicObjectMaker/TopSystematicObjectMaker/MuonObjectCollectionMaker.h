@@ -34,6 +34,7 @@
 // CP Tool include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
@@ -99,6 +100,8 @@ namespace top {
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Tight_FixedRad;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose_VarRad;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose_FixedRad;
+
+    ToolHandle<CP::IIsolationLowPtPLVTool> m_isolationTool_LowPtPLV;
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
 
