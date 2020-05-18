@@ -221,8 +221,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(const std::vector<Muon:
     sc = findAlphaMax(h_hough,houghPeaks);
     if(sc.isFailure()) return sc;
     ATH_MSG_DEBUG("Found HoughPeaks");
-    
-    std::tuple<double,double,double,double> track;
+
     sc = selectTrack(mmPrd, xpos, flag, houghPeaks, idx_selected);
     ATH_MSG_DEBUG("Selected track");
     if(sc.isFailure()) return sc;
@@ -309,7 +308,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(const std::vector<Muon::M
             }
         }
         if(true){
-            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)*Gaudi::Units::degree);
+            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/Gaudi::Units::degree);
             ATH_MSG_DEBUG("restimate              ="<< std::get<1>(track));
             ATH_MSG_DEBUG("slope estimate         ="<< slope);
             ATH_MSG_DEBUG("intercept estimate     ="<< intercept);
