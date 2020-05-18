@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Control/AthenaBaseComps
                           Control/StoreGate
+			  Control/CxxUtils
                           Event/xAOD/xAODCaloEvent
                           GaudiKernel
                           PRIVATE
@@ -38,13 +39,15 @@ atlas_add_component( CaloLocalHadCalib
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloGeoHelpers AthenaBaseComps StoreGateLib SGtests xAODCaloEvent GaudiKernel CaloDetDescrLib CaloDmDetDescr CaloEvent CaloIdentifier CaloSimEvent CaloUtilsLib AthenaKernel GeneratorObjects TBEvent PathResolver )
+		     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloGeoHelpers AthenaBaseComps StoreGateLib CxxUtils 
+		     SGtests xAODCaloEvent GaudiKernel CaloDetDescrLib CaloDmDetDescr CaloEvent CaloIdentifier CaloSimEvent CaloUtilsLib AthenaKernel GeneratorObjects TBEvent PathResolver )
 
 atlas_add_dictionary( CaloLocalHadCalibDict
                       CaloLocalHadCalib/CaloLocalHadCalibDict.h
                       CaloLocalHadCalib/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloGeoHelpers AthenaBaseComps StoreGateLib SGtests xAODCaloEvent GaudiKernel CaloDetDescrLib CaloDmDetDescr CaloEvent CaloIdentifier CaloSimEvent CaloUtilsLib AthenaKernel GeneratorObjects TBEvent PathResolver )
+		      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloGeoHelpers AthenaBaseComps StoreGateLib CxxUtils
+		      SGtests xAODCaloEvent GaudiKernel CaloDetDescrLib CaloDmDetDescr CaloEvent CaloIdentifier CaloSimEvent CaloUtilsLib AthenaKernel GeneratorObjects TBEvent PathResolver )
 
 # Install files from the package:
 atlas_install_headers( CaloLocalHadCalib )
