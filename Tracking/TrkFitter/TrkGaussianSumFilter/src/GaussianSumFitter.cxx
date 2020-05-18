@@ -320,11 +320,14 @@ Trk::GaussianSumFitter::fit(
               prdComparisonFunction);
   }
 
+  const EventContext& ctx= Gaudi::Hive::currentContext();
   // Perform GSF forwards fit
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
-      ->fitPRD(
-        sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis)
+      ->fitPRD(ctx,
+               sortedPrepRawDataSet,
+               estimatedParametersNearOrigin,
+               particleHypothesis)
       .release();
 
   if (!forwardTrajectory) {
@@ -340,7 +343,6 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  const EventContext& ctx= Gaudi::Hive::currentContext();
   // Perform GSF smoother operation
   SmoothedTrajectory* smoothedTrajectory =
     m_gsfSmoother->fit(ctx,*forwardTrajectory, particleHypothesis);
@@ -462,11 +464,15 @@ Trk::GaussianSumFitter::fit(
          sortedMeasurementSet.end(),
          measurementBaseComparisonFunction);
   }
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
-      ->fitMeasurements(
-        sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis)
+      ->fitMeasurements(ctx,
+                        sortedMeasurementSet,
+                        estimatedParametersNearOrigin,
+                        particleHypothesis)
       .release();
 
   if (!forwardTrajectory) {
@@ -484,7 +490,6 @@ Trk::GaussianSumFitter::fit(
 
   // Perform GSF smoother operation
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   SmoothedTrajectory* smoothedTrajectory =
     m_gsfSmoother->fit(ctx, *forwardTrajectory, particleHypothesis, ccot);
 
