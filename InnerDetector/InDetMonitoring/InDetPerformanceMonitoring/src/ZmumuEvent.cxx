@@ -91,7 +91,24 @@ bool ZmumuEvent::Reco()
 
   // Clear out the previous events record.
   this->Clear();
+
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
+
+  // START patch by Anthony to avoid crash when MuonSpetrometer::Pt was not defined
+  if (false) {
+    for( auto muon :  *pxMuonContainer ){
+      const xAOD::TrackParticle* idtrk(0);
+      const xAOD::TrackParticle* metrk(0);
+      idtrk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+      metrk = muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+      if (idtrk && metrk) {
+	muon->auxdecor<float>("InnerDetectorPt") = idtrk->pt();      
+	muon->auxdecor<float>("MuonSpectrometerPt") = metrk->pt();
+      }
+    }
+  }
+  // END patch 
+
   if (pxMuonContainer != NULL) {
     if(m_doDebug) {std::cout << " * ZmumuEvent * track list has "<< pxMuonContainer->size() << " muon in xAOD::MuonContainer " << m_container <<std::endl; }
     xAOD::MuonContainer::const_iterator xMuonItr  = pxMuonContainer->begin();
