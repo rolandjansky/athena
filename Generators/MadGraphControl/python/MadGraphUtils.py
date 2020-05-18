@@ -2008,7 +2008,8 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
         mglog.info( '"'+k+'" = '+v )
 
     # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
-    if not checkSetting('event_norm','average',mydict):
+    # Modification: average or bias is ok; sum is incorrect. Change the test to set sum to average
+    if checkSetting('event_norm','sum',mydict):
         modify_run_card(process_dir=process_dir,settings={'event_norm':'average'})
         mglog.warning("setting event_norm to average, there is basically no use case where event_norm=sum is a good idea")
 
