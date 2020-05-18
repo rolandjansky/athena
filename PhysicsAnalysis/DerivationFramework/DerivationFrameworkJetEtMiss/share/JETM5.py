@@ -122,7 +122,8 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=jetm5Seq, algname="QGTaggerToo
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm5Seq, algname='JetForwardJvtToolBDTAlg')
 
 # PFlow fJvt #
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg',includePV=False)
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlgNew',outLabel="fJvtWithPV",includePV=True)
 
 #====================================================================
 # SET UP STREAM   
@@ -166,7 +167,7 @@ JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM
 
 # Add QG tagger variables
 JETM5SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
-                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
+                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_fJvtWithPV"]
 
 for truthc in [
     "TruthMuons",

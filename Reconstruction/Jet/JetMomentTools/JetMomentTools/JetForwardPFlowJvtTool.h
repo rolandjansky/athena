@@ -120,6 +120,7 @@
     bool m_isdata;
     int m_pvind;
     int m_vertices;
+    bool m_includePV;
     double m_etaThresh;
     double m_forwardMinPt;
     double m_forwardMaxPt;
@@ -137,6 +138,7 @@
     bool m_tightOP;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
+    std::unique_ptr<SG::AuxElement::Decorator<float> > Dec_outFjvtRaw;
     asg::AnaToolHandle<CP::RetrievePFOTool> m_pfotool;
     asg::AnaToolHandle<CP::WeightPFOTool> m_wpfotool;
     asg::AnaToolHandle<IJetCalibrationTool> m_pfoJES;
