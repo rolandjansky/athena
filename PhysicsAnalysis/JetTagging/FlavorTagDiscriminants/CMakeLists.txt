@@ -43,11 +43,13 @@ atlas_add_library( FlavorTagDiscriminants
   Root/FlipTagEnums.cxx
   Root/VRJetOverlapDecorator.cxx
   Root/HbbTag.cxx
+  Root/HbbTagTool.cxx
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo PathResolver
+  JetInterface
   ${LWTNN_LIBRARIES})
 
 if (NOT XAOD_STANDALONE)
