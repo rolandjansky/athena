@@ -151,9 +151,9 @@ bool allTests()
         progressFile = "/tmp/fbt_merged.root";
         FBT_CHECK( setup(tool, "CP::LhoodMM_tools") );
         progressFile.clear();
-        FBT_CHECK( fillResult(tool, result4) );
+        FBT_CHECK( fillResult(tool, result5) );
     }
-    FBT_CHECK(result2 == result4 );
+    FBT_CHECK(result2 == result5 );
     
     return true;
 }
