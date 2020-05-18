@@ -463,7 +463,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         finderArgs['ghostArea'] = ghostArea
         finderArgs['modifiersin'] = mods
         finderArgs['calibOpt'] = calibOpt
-        dfjetlog.info("mods in:"+ finderArgs['modifiersin'])
+        dfjetlog.info("mods in:"+ str(finderArgs['modifiersin']))
         if overwrite:
             dfjetlog.info("Will overwrite AOD version of "+jetname)
             finderArgs['overwrite']=True
