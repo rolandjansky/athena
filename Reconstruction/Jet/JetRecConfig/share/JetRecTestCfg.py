@@ -165,8 +165,8 @@ if __name__=="__main__":
     jetdefs = DefineJetCollections(ConfigFlags)
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    cfg=MainServicesThreadedCfg(ConfigFlags) 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(ConfigFlags) 
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
