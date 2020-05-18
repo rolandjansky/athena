@@ -8,6 +8,12 @@
 # packages get fixed up, or moved to the main list if these packages
 # are not intended for analysis.
 
+- PhysicsAnalysis/Algorithms/AsgAnalysisAlgorithms
+- PhysicsAnalysis/Algorithms/EgammaAnalysisAlgorithms
+- PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
+- PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms
+- PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
+- PhysicsAnalysis/Algorithms/TauAnalysisAlgorithms
 - PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
@@ -57,7 +63,7 @@
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonStationIndex
-#+ PhysicsAnalysis/Algorithms/.*
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 #+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
