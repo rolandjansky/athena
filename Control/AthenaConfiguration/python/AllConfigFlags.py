@@ -19,7 +19,8 @@ def _createCfgFlags():
     acf=AthConfigFlags()
 
     #Flags steering the job execution:
-    acf.addFlag('Exec.OutputLevel',3,) #Global Output Level
+    from AthenaCommon.Constants import INFO
+    acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
     acf.addFlag('Exec.MaxEvents',-1) 
     acf.addFlag("Exec.SkipEvents",0)
     acf.addFlag("Exec.DebugStage","")
