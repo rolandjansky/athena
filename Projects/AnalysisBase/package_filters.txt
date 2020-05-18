@@ -54,7 +54,7 @@
 #+ ForwardDetectors/ZDC/ZdcAnalysis
 #+ ForwardDetectors/ZDC/ZdcNtuple
 + Generators/TruthUtils
-#+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonStationIndex
 #+ PhysicsAnalysis/Algorithms/.*
@@ -64,7 +64,7 @@
 #+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 #+ PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
-#+ PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
 + PhysicsAnalysis/AnalysisCommon/PATInterfaces
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
