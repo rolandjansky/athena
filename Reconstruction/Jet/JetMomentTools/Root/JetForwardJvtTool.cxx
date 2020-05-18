@@ -83,10 +83,16 @@
     if (jetCont.size()>0 && acc_fjvt_der.isAvailable(*jetCont[0])){
       // We did all the work upstream. Add decorations as requested and get out
       for (const auto& jetF : jetCont) {
+	(*Dec_out)(*jetF) = 1;
+	(*Dec_outFjvt)(*jetF) = 1;
+	(*Dec_outTiming)(*jetF) = 1;
+	fjvt_dec(*jetF) = 0;
+	if (!forwardJet(jetF)) continue;
         double fjvt = acc_fjvt_der(*jetF);
         (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
         (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
         (*Dec_outFjvt)(*jetF) = (fjvt<=m_fjvtThresh);
+	fjvt_dec(*jetF) = fjvt;
       }
       return 0;
     }
