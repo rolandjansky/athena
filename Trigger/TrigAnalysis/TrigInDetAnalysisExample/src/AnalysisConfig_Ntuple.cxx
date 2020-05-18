@@ -628,6 +628,11 @@ void AnalysisConfig_Ntuple::loop() {
 			selectTracks<TruthParticleContainer>( &selectorTruth, "");
 			foundTruth = true;
 		}
+		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
+		        /// anything else?
+		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles");
+		        foundTruth = true;
+		}
 		else { 
 			m_provider->msg(MSG::WARNING) << "Truth not found - none whatsoever!" << endmsg; 
 		}
@@ -791,13 +796,10 @@ void AnalysisConfig_Ntuple::loop() {
 
 	selectorRef.clear();
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-	if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>("InDetTrackParticles")) {
+	if      (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>("InDetTrackParticles")) {
 	  selectTracks<xAOD::TrackParticleContainer>( &selectorRef, "InDetTrackParticles" );
 	}
-	else
-#endif
-	if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>("TrackParticleCandidate")) {
+	else if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>("TrackParticleCandidate")) {
 	  selectTracks<Rec::TrackParticleContainer>( &selectorRef, "TrackParticleCandidate" );
         }
 	else { 
@@ -984,11 +986,9 @@ void AnalysisConfig_Ntuple::loop() {
 	  if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>(collection_test)) {
 	    found = selectTracks<Rec::TrackParticleContainer>( &selectorTest, collectionname );
 	  }
-#ifdef XAODTRACKING_TRACKPARTICLE_H
 	  else if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>(collection_test)) {
 	    found = selectTracks<xAOD::TrackParticleContainer>( &selectorTest, collectionname );
 	  }
-#endif
 	  else if (m_provider->evtStore()->contains<TrigInDetTrackCollection>(collection_test)) {
 	    found = selectTracks<TrigInDetTrackCollection>( &selectorTest, collectionname );
 	  }

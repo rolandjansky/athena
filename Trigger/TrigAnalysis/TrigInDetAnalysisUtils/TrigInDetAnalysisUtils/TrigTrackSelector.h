@@ -33,6 +33,8 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
+#include "xAODTruth/TruthParticleContainer.h"
+
 ///// stuff *merely* to get the particle charge!!!
 /// #include "HepPDT/ParticleData.hh"
 /// #include "HepMC/ParticleDataTable.h"
@@ -72,8 +74,11 @@ class TrigTrackSelector : public TrackSelector {
 
 public:
 
-  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
-  TrigTrackSelector( TrackFilter* selector );
+  /// use 47 mm as radius - this corresponds to the inner radius of the pixel detector in Run 1
+  /// for consistency of the definition for the monitoring between Run 1 and Run 2.
+  /// For Run 3 we should probably use the oportunity to update this at some point to use the 
+  /// inner layer radius of the IBL which is 32 mm
+  TrigTrackSelector( TrackFilter* selector, double radius=47 );
 
   ~TrigTrackSelector() { clear(); }
 
@@ -106,6 +111,9 @@ public:
   // extract all the tracks from a TrackParticle collection and add them
   void selectTracks( const TruthParticleContainer* truthtracks );
 
+  // extract all the tracks from a TrackParticle collection and add them
+  void selectTracks( const xAOD::TruthParticleContainer* truthtracks );
+
 
   // add a TruthParticle from a GenParticle - easy, bet it doesn't work 
   bool selectTrack( const HepMC::GenParticle* track );
@@ -116,6 +124,8 @@ public:
 
   // add a TruthParticle 
   bool selectTrack( const TruthParticle* track );
+
+  bool selectTrack( const xAOD::TruthParticle* track );
 
 
   // make a TIDA::Track from a GenParticle 
@@ -159,6 +169,8 @@ private:
   double m_zBeam;
 
   bool m_correctTrkTracks;
+
+  double m_radius;
 
 };
 

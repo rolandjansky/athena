@@ -42,6 +42,8 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigMuonEfficiency
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
+- Trigger/TrigTools/TrigJPsiTools
+- Trigger/TrigMonitoring/TrigIDJpsiMonitoring
 
 # Data quality packages not needed in Athena
 - DataQuality/DataQualityConfigurations
