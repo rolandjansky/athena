@@ -39,20 +39,18 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
 
   //retrieve UE
   //Introduction of a read handle for the HIShapeContainer
-  SG::ReadHandle<xAOD::HIEventShapeContainer>  read_handle_evtShape ( m_eventShapeKey );
+  SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
 
   const xAOD::HIEventShapeContainer* shape=nullptr;
   const HIEventShapeIndex* es_index=nullptr;
   if(m_eventShapeKey.key().compare("") != 0)
   {
-    //if(evtStore()->retrieve(shape,EventShapeKey()).isFailure())
-    if (!read_handle_evtShape.isValid())
+    if (!readHandleEvtShape.isValid())
     {
       ATH_MSG_ERROR("Could not retrieve input HIEventShape " << m_eventShapeKey.key() );
       return StatusCode::FAILURE;
     }
-    shape = read_handle_evtShape.get(); /** TODO check if this is neeed  **/
-    //HIEventShapeMap is a c++ map that neeeds the string key to identify the paired object
+    shape = readHandleEvtShape.get();
     es_index=HIEventShapeMap::getIndex(m_eventShapeKey.key());
     if(es_index==nullptr)
     {
@@ -73,17 +71,16 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
   const xAOD::VertexContainer* vertices=nullptr;
 
   //Introduction of a read handle for the HIShapeContainer
-  SG::ReadHandle<xAOD::VertexContainer>  read_handle_vertexContainer ( m_vertexContainer );
+  SG::ReadHandle<xAOD::VertexContainer>  readHandleVertexContainer ( m_vertexContainer );
 
   if(m_originCorrection)
   {
-    if(!read_handle_vertexContainer.isValid())
+    if(!readHandleVertexContainer.isValid())
     {
       ATH_MSG_ERROR("Could not retrieve VertexContainer " << m_vertexContainer.key());
       return StatusCode::FAILURE;
     }
-    //if(evtStore()->retrieve(vertices,m_vertexContainer).isFailure())
-    vertices = read_handle_vertexContainer.get();
+    vertices = readHandleVertexContainer.get();
     for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex )
     {
       if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx)
@@ -136,36 +133,36 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
       m_subtractorTool->subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulatorTool, eshape); //modifies p4_cl to be constituent 4-vector AFTER subtraction
       if(m_originCorrection)
       {
-	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-	float mag = 0;
-	if(cl->isAvailable<float>("HIMag")) mag=cl->auxdataConst<float>("HIMag");
-	else
-	{
-	  double cm_mag=0;
-	  if(cl->retrieveMoment (xAOD::CaloCluster::CENTER_MAG, cm_mag)) mag=cm_mag;
-	}
-	if(mag!=0.)
-	{
-	  float eta0=cl->eta0();
-	  float phi0=cl->phi0();
-	  float radius=mag/std::cosh(eta0);
-	  xAOD::IParticle::FourMom_t p4_pos;
-	  p4_pos.SetX(radius*std::cos(phi0)-origin->x());
-	  p4_pos.SetY(radius*std::sin(phi0)-origin->y());
-	  p4_pos.SetZ(radius*std::sinh(eta0)-origin->z());
+      	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
+      	float mag = 0;
+      	if(cl->isAvailable<float>("HIMag")) mag=cl->auxdataConst<float>("HIMag");
+      	else
+      	{
+      	  double cm_mag=0;
+      	  if(cl->retrieveMoment (xAOD::CaloCluster::CENTER_MAG, cm_mag)) mag=cm_mag;
+      	}
+      	if(mag!=0.)
+      	{
+      	  float eta0=cl->eta0();
+      	  float phi0=cl->phi0();
+      	  float radius=mag/std::cosh(eta0);
+      	  xAOD::IParticle::FourMom_t p4_pos;
+      	  p4_pos.SetX(radius*std::cos(phi0)-origin->x());
+      	  p4_pos.SetY(radius*std::sin(phi0)-origin->y());
+      	  p4_pos.SetZ(radius*std::sinh(eta0)-origin->z());
 
-	  double deta=p4_pos.Eta()-eta0;
-	  double dphi=p4_pos.Phi()-phi0;
-	  //adjust in case eta/phi are flipped in case of neg E clusters
-	  //this method is agnostic wrt convention
-	  if(p4_cl.Eta()*eta0 <0.) deta*=-1;
+      	  double deta=p4_pos.Eta()-eta0;
+      	  double dphi=p4_pos.Phi()-phi0;
+      	  //adjust in case eta/phi are flipped in case of neg E clusters
+      	  //this method is agnostic wrt convention
+      	  if(p4_cl.Eta()*eta0 <0.) deta*=-1;
 
-	  double eta_prime=p4_cl.Eta()+deta;
-	  double phi_prime=p4_cl.Phi()+dphi;
-	  double e_subtr=p4_cl.E();
-	  p4_cl.SetPtEtaPhiE(e_subtr/std::cosh(eta_prime),eta_prime,phi_prime,e_subtr);
-	}
-	else missingMoment=true;
+      	  double eta_prime=p4_cl.Eta()+deta;
+      	  double phi_prime=p4_cl.Phi()+dphi;
+      	  double e_subtr=p4_cl.E();
+      	  p4_cl.SetPtEtaPhiE(e_subtr/std::cosh(eta_prime),eta_prime,phi_prime,e_subtr);
+      	}
+      	else missingMoment=true;
       }
 
       p4_subtr+=p4_cl;

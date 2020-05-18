@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetConstituentModifier.h"
+#include "HIJetRec/HIJetConstituentModifierTool.h"
 #include "HIJetRec/HIJetRecDefs.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -12,11 +12,11 @@
 
 #include "StoreGate/ReadHandle.h"
 
-HIJetConstituentModifier::HIJetConstituentModifier(const std::string& myname): JetModifierBase(myname)
+HIJetConstituentModifierTool::HIJetConstituentModifierTool(const std::string& myname): JetModifierBase(myname)
 {
 }
 
-StatusCode HIJetConstituentModifier::initialize(){
+StatusCode HIJetConstituentModifierTool::initialize(){
 
   //Shallow copy key automatically built from the cluster key
 	m_clusterKey = m_clusterKey.key() + ".shallowCopy";
@@ -25,7 +25,7 @@ StatusCode HIJetConstituentModifier::initialize(){
   return StatusCode::SUCCESS;
 }
 
-int HIJetConstituentModifier::modifyJet(xAOD::Jet& jet) const {
+int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
 
     const xAOD::JetConstituentVector constituents = jet.getConstituents();
     std::vector<size_t> cluster_indices;
@@ -57,7 +57,9 @@ int HIJetConstituentModifier::modifyJet(xAOD::Jet& jet) const {
    {
      auto cl=ccl->at(index);
      jet.addConstituent(cl);
+     ATH_MSG_INFO("Cluster Pt(): " << cl->p4(HIJetRec::subtractedClusterState()).Pt());
      subtrP4=cl->p4(HIJetRec::subtractedClusterState());
+     ATH_MSG_INFO("SubtrP4 Pt(): " << subtrP4.Pt());
    }
    jet4vec.SetCoordinates(subtrP4.Pt(),subtrP4.Eta(),subtrP4.Phi(),subtrP4.M());
    jet.setJetP4(jet4vec);

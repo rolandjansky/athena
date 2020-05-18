@@ -55,6 +55,7 @@ int HIClusterSubtraction::execute() const
 
   const xAOD::HIEventShape* eshape = nullptr;
   CHECK(m_modulatorTool->getShape(eshape), 1);
+	ATH_MSG_DEBUG("HIClusterSubtraction creating key for ShallowCopy! ");
 
   //New implementation: make a shallow copy of original HIClusters and apply subtraction to clusters in the new container
 	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_inClusterKey );
@@ -66,12 +67,6 @@ int HIClusterSubtraction::execute() const
   /// Set whether only the overriden parameters should be written out - default is true
   //shallowcopy.second->setShallowIO(m_shallowIO);
 
-  // Make sure that memory is managed safely
-  //std::unique_ptr<xAOD::CaloClusterContainer> outCaloClus(shallowcopy.first);
-  //std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowcopy.second);
-
-  // Connect the copied clusters to their originals
-  //xAOD::setOriginalObjectLink(*readHandleClusters, *outCaloClus);
   // Now a handle to write the shallow Copy
   SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleShallowClusters ( m_outClusterKey );
 	//xAOD::CaloClusterContainer* ccl = shallowcopy.first;
@@ -98,7 +93,10 @@ int HIClusterSubtraction::execute() const
     {
       xAOD::CaloCluster* cl=*itr;
       xAOD::IParticle::FourMom_t p4;
-      if(m_setMoments) m_subtractorTool->subtractWithMoments(cl, shape, es_index, m_modulatorTool, eshape);
+
+      if(m_setMoments) {
+				m_subtractorTool->subtractWithMoments(cl, shape, es_index, m_modulatorTool, eshape);
+			}
       else
       {
 					m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
@@ -108,12 +106,14 @@ int HIClusterSubtraction::execute() const
     for(ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt=m_clusterCorrectionTools.begin();
 	      toolIt != m_clusterCorrectionTools.end(); toolIt++)
     {
-      ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
+      ATH_MSG_INFO(" Applying correction = " << (*toolIt)->name() );
 			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), shallowcopy.first), 1);
     }//End loop over correction tools
   }
+
 	auto unique_first_copy = xAOD::prepareElementForShallowCopy(shallowcopy.first);
 	auto unique_second_copy = xAOD::prepareElementForShallowCopy(shallowcopy.second);
+
 	xAOD::setOriginalObjectLink(*readHandleClusters, *unique_first_copy);
 
 	if(writeHandleShallowClusters.record ( std::move(unique_first_copy), std::move(unique_second_copy)).isFailure() ){

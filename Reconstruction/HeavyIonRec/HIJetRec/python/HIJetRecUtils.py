@@ -212,10 +212,12 @@ def GetConstituentsModifierTool(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
-    HIJetConstituentModifier=CompFactory.HIJetConstituentModifier
+    print ('Cluster Key %s' % cluster_key)
+    HIJetConstituentModifierTool=CompFactory.HIJetConstituentModifierTool
     toolName='HIJetConstituentModifierTool'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
-    cmod=HIJetConstituentModifier(toolName)
+    print ('Toolname ConstModif %s' % toolName)
+    cmod=HIJetConstituentModifierTool(toolName)
     cmod.ClusterKey=cluster_key
     return cmod
 
@@ -394,6 +396,7 @@ def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]
     if coll_name not in jtm.HICalibMap.keys() :
         print ('Calibration for R=%d not available using default R=0.4 calibration')
         coll_name='AntiKt4HIJets'
+
     mod_list=prepend_tools
     mod_list+=[jtm.HICalibMap[coll_name]]
     mod_list+=jtm.modifiersMap['HI']

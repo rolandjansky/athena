@@ -3,8 +3,8 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef HIJETREC_HIJETCONSTITUENTMODIFIER_H
-#define HIJETREC_HIJETCONSTITUENTMODIFIER_H
+#ifndef HIJETREC_HIJETCONSTITUENTMODIFIERTOOL_H
+#define HIJETREC_HIJETCONSTITUENTMODIFIERTOOL_H
  ///////////////////////////////////////////////////////
  /// \class HIJetConstituentModifier
  /// \author R.Longo - riccardo.longo@cern.ch
@@ -20,14 +20,14 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-class HIJetConstituentModifier : public JetModifierBase {
+class HIJetConstituentModifierTool : public JetModifierBase {
 
-   ASG_TOOL_CLASS(HIJetConstituentModifier, IJetModifier);
+   ASG_TOOL_CLASS(HIJetConstituentModifierTool, IJetModifier);
 
  public:
 
   // Constructor from tool name.
-  HIJetConstituentModifier(const std::string& myname);
+  HIJetConstituentModifierTool(const std::string& myname);
 
   virtual StatusCode initialize() override;
   // Inherited method to modify a jet.

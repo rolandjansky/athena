@@ -39,8 +39,8 @@ if not jetFlags.useTruth():
 jetFlags.useTruth.set_Value_and_Lock(is_mc_or_overlay)
 
 
-#Tower level subtraction
-HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
+#Tower level subtraction - made it false by default to avoid confusion
+#HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
 
 jetFlags.useTracks.set_Value_and_Lock(True)
 #HIP mode
@@ -178,7 +178,7 @@ if not HIJetFlags.DoCellBasedSubtraction():
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
 #Subtraction for egamma and to get layers
-ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+#ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
 #Cluster subtraction for jets
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
 ###
@@ -190,8 +190,8 @@ for k in jtm.jetrecs :
         in_name=k.OutputContainer
         out_name=in_name.replace("_%s" % unsubtr_suffix,"")
         #>slight tweak in case R=1.0 jets are requestd, add some substructure tools
-        modifiers=GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)
-        modifiers+=GetHIModifierList(out_name,hi_tools)
+        hi_tools+=GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)
+        modifiers=GetHIModifierList(out_name,hi_tools)
         if '10HIJets' in k.name() :
             from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
             jtm += KtDeltaRTool('ktdr10',JetRadius =1.0)
