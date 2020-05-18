@@ -4,6 +4,8 @@
 #ifndef SimpleMMClusterBuilderTool_h
 #define SimpleMMClusterBuilderTool_h
 
+#include <vector>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -46,6 +48,7 @@ namespace Muon
     const MmIdHelper* m_mmIdHelper;
 
     bool m_useErrorParametrization;
+    uint m_maxHoleSize;
     
 };
 
