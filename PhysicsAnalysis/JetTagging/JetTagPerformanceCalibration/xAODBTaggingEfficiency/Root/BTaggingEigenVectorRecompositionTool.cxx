@@ -80,6 +80,10 @@ StatusCode BTaggingEigenVectorRecompositionTool::initialize()
 CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfOriginalNuisanceParameters(const std::string & label) const
 {
   std::vector<std::string> NPnameList = getListOfOriginalNuisanceParameters(label);
+  if(NPnameList.empty()){
+    ATH_MSG_ERROR("Could not retrieve list of original nuisance parameters");
+    return CP::CorrectionCode::Error;
+  }
   
   ATH_MSG_INFO("=============================================");
   ATH_MSG_INFO("Printing list of original nuisance parameters:");
@@ -107,10 +111,14 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients
   std::vector<int> evIdxList = {evIdx};
   std::map<std::string, std::map<std::string, double>> outterMap = 
     getCoefficientMap(label, evIdxList);
-  
+  if(outterMap.empty()){
+    ATH_MSG_ERROR("Could not retrieve coefficient map of Eigen_"<<label<<"_"<<std::to_string(evIdx));
+    return CP::CorrectionCode::Error;
+  }
+
   std::map<std::string, double> innerMap =
     outterMap["Eigen_"+label+"_"+std::to_string(evIdx)];
-  ATH_MSG_INFO("Printing coefficient of Eigen_"<<label<<"_"+std::to_string(evIdx));
+  ATH_MSG_INFO("Printing coefficient of Eigen_"<<label<<"_"<<std::to_string(evIdx));
   ATH_MSG_INFO("");
   for (std::map<std::string, double>::iterator in = innerMap.begin();
        in != innerMap.end(); ++in){
@@ -118,7 +126,8 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients
   }
   ATH_MSG_INFO("");
   ATH_MSG_INFO("Finished printing coefficients of Eigen_"
-	       <<label<<"_"+std::to_string(evIdx));
+	       <<label<<"_"<<std::to_string(evIdx));
+  ATH_MSG_INFO("=============================================");
 
   return CP::CorrectionCode::Ok;
 }

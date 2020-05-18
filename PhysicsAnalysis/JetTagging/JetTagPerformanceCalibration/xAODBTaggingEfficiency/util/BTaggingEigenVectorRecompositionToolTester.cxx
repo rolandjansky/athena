@@ -44,6 +44,7 @@ int main() {
   }
   
   const std::string label = "B";
+  const int evIdx = 0;
   /**
      printListOfCoefficients(label, evIdx)
 
@@ -54,7 +55,7 @@ int main() {
      Print out original nuisance parameter names along with the corresponding
      coefficient value of specified eigenvector evIdx.
    */
-  auto correction_code = evr_tool->printListOfCoefficients(label, 2);
+  auto correction_code = evr_tool->printListOfCoefficients(label, evIdx);
   if (correction_code != CP::CorrectionCode::Ok) {
     std::cout << "getListOfCoefficients failed!" << std::endl;
   }
@@ -83,7 +84,7 @@ int main() {
      vector of coefficient values. The order is the same as output given by
      getListOfOriginalNuisanceParameters()
    */
-  std::vector<double> coeffs = evr_tool->getCoefficients(label, 2);
+  std::vector<double> coeffs = evr_tool->getCoefficients(label, evIdx);
   
   /**
      getListOfOriginalNuisanceParameters(label)
@@ -103,7 +104,10 @@ int main() {
      output:
      Print all original nuisance parameter names
    */
-  evr_tool->printListOfOriginalNuisanceParameters("B");
+  correction_code = evr_tool->printListOfOriginalNuisanceParameters("B");
+  if (correction_code != CP::CorrectionCode::Ok) {
+    std::cout << "printListOfOriginalNuisanceParameters failed!" << std::endl;
+  }
 
   // The following commented part is used for output the return values above.
   //int cnt = 0 ;
