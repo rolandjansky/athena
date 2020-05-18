@@ -17,6 +17,16 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+def ElectronIsEMMediumSelectorConfigHLLHC(theTool) :
+    '''
+    These are the cut base isEM definitions: Medium from MC15HLLHC
+    '''
+    
+    theTool = GetTool(theTool)
+
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20170524_HLLHC/ElectronIsEMMediumSelectorCutDefs.conf"
+    
+
 def ElectronIsEMMediumSelectorConfigDC14(theTool) :
     '''
     These are the cut base isEM definitions: Medium from MC15

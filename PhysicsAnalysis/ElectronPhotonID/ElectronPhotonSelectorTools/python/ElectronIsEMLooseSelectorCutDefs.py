@@ -25,8 +25,18 @@ def ElectronIsEMLooseSelectorConfigDC14(theTool) :
     theTool = GetTool(theTool)
     
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/ElectronIsEMLooseSelectorCutDefs.conf"
+    
 
-
+def ElectronIsEMLooseSelectorConfigHLLHC(theTool) :
+    '''
+    These are the cut base isEM definitions: Loose from HLLHC
+    '''
+    
+    theTool = GetTool(theTool)
+    
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20170524_HLLHC/ElectronIsEMLooseSelectorCutDefs.conf"
+    
+    
 def ElectronIsEMLooseSelectorConfig2011(theTool) :
     '''
     This is for the Loose++ isEM definitions.
