@@ -40,7 +40,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
     
 	declareProperty("SiPropertiesSvc",m_siPropertiesSvc,"SiPropertiesSvc");
   declareProperty("SiConditionsServices", m_siConditionsSvc);
-  declareProperty("DetectorName", m_detectorName="Pixel", "Detector name (Pixel or SCT)");
+  declareProperty("DetectorName", m_detectorName="Pixel", "Detector name (Pixel, SCT, or HGTD)");
   // Temperature and voltages from job options only used if SiConditionsServices is None or
   // if value read from database is out of range.
   declareProperty("Temperature",m_temperature = -7., "Default temperature in Celcius.");
@@ -124,10 +124,16 @@ StatusCode SiLorentzAngleSvc::geoInitCallback(IOVSVC_CALLBACK_ARGS) {
 StatusCode SiLorentzAngleSvc::geoInitialize() {
   ATH_MSG_INFO("SiLorentzAngleSvc geoInitialize");
 
-  if (m_detectorName != "Pixel" && m_detectorName != "SCT") {
-    ATH_MSG_FATAL("Invalid detector name: " << m_detectorName << ". Must be Pixel or SCT." );
+  if (m_detectorName != "Pixel" && m_detectorName != "SCT" && m_detectorName != "HGTD") {
+    ATH_MSG_FATAL("Invalid detector name: " << m_detectorName << ". Must be Pixel, SCT, or HGTD." );
     return StatusCode::FAILURE;
   }
+
+  if (m_detectorName == "HGTD") {
+    ATH_MSG_INFO("SiLorentzAngleSvc Configured with HGTD as detector name, nothing to initialize.");
+    return StatusCode::SUCCESS;
+  }
+
   m_isPixel = (m_detectorName == "Pixel");
  
   // Get conditions summary service. 
@@ -248,69 +254,110 @@ StatusCode SiLorentzAngleSvc::callBack(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
 
 
 double SiLorentzAngleSvc::getLorentzShift(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_lorentzShift[elementHash];
 }
 
 double SiLorentzAngleSvc::getLorentzShift(const IdentifierHash & elementHash, const Amg::Vector2D & locPos) {
   if (m_ignoreLocalPos) return getLorentzShift(elementHash);
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   // The cache is used to store the results.  The cache is therefore invalidated if we specify a position.
   updateCache(elementHash, locPos, true);
   return m_lorentzShift[elementHash];
 }
 
 double SiLorentzAngleSvc::getLorentzShiftEta(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_lorentzShiftEta[elementHash];
 }
 
 double SiLorentzAngleSvc::getLorentzShiftEta(const IdentifierHash & elementHash, const Amg::Vector2D& locPos) {
   if (m_ignoreLocalPos) return getLorentzShiftEta(elementHash);
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   // The cache is used to store the results.  The cache is therefore invalidated if we specify a position.
   updateCache(elementHash, locPos, true);
   return m_lorentzShiftEta[elementHash];
 }
 
 double SiLorentzAngleSvc::getTanLorentzAngle(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_tanLorentzAngle[elementHash];
 }
 
 double SiLorentzAngleSvc::getTanLorentzAngle(const IdentifierHash & elementHash, const Amg::Vector2D& locPos) {
   if (m_ignoreLocalPos) return getTanLorentzAngle(elementHash);
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   // The cache is used to store the results.  The cache is therefore invalidated if we specify a position.
   updateCache(elementHash, locPos, true);
   return m_tanLorentzAngle[elementHash];
 }
 
 double SiLorentzAngleSvc::getTanLorentzAngleEta(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_tanLorentzAngleEta[elementHash];
 }
 
 double SiLorentzAngleSvc::getTanLorentzAngleEta(const IdentifierHash & elementHash, const Amg::Vector2D& locPos) {
   if (m_ignoreLocalPos) return getTanLorentzAngleEta(elementHash);
+  if (m_detectorName == "HGTD") {
+    return 0;
+  }
   // The cache is used to store the results.  The cache is therefore invalidated if we specify a position.
   updateCache(elementHash, locPos, true);
   return m_tanLorentzAngleEta[elementHash];
 }
 
 double SiLorentzAngleSvc::getBiasVoltage(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    // return default bias voltage
+    return m_biasVoltage;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_monitorBiasVoltage[elementHash];
 }
 
 double SiLorentzAngleSvc::getTemperature(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    // return default temperature
+    return m_temperature;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_monitorTemperature[elementHash];
 }
 
 double SiLorentzAngleSvc::getDepletionVoltage(const IdentifierHash & elementHash) {
+  if (m_detectorName == "HGTD") {
+    // return default depletion voltage
+    return m_deplVoltage;
+  }
   if (!m_cacheValid[elementHash]) { updateCache(elementHash); }
   return m_monitorDepletionVoltage[elementHash];
 }
 
 void SiLorentzAngleSvc::invalidateCache() {
+  if (m_detectorName == "HGTD") {
+    ATH_MSG_DEBUG("No need to invalidate general cache for HGTD." );
+    return;
+  }
+
   ATH_MSG_DEBUG("Invalidating general cache." );
   // Invalidate all caches.
   std::fill(m_cacheValid.begin(), m_cacheValid.end(), false);
@@ -343,6 +390,11 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash) {
 }
 
 void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Vector2D& locPos, bool useLocPos) {
+  if (m_detectorName == "HGTD") {
+    ATH_MSG_VERBOSE("No need to update cache for HGTD");
+    return;
+  }
+
   ATH_MSG_VERBOSE("Updating cache for elementHash = " << elementHash );
 
   if (!useLocPos) m_cacheValid[elementHash] = true;
@@ -496,6 +548,10 @@ const Amg::Vector3D& SiLorentzAngleSvc::getMagneticField(const IdentifierHash & 
   // If we are not specifying the position (and using the default position which is the center of the detector) 
   // we return the cached value if it has been filled. Otherwise we fetch the field from the field service.
   // For the case where we have a fixed field we use that.
+  if (m_detectorName == "HGTD") {
+    ATH_MSG_VERBOSE("Returning nominal magnetic field for HGTD");
+    return Amg::Vector3D(0,0,m_nominalField);
+  }
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
   if (useLocPos || !m_magFieldCacheValid[elementHash]) {
     // Get Magnetic field
