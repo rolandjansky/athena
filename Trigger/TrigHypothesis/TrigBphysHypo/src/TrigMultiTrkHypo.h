@@ -79,7 +79,6 @@ class TrigMultiTrkHypo: public ::HypoBase {
 
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this, "VertexPointEstimator", "", "tool to find starting point for the vertex fitter"};
   ToolHandle<Trk::TrkVKalVrtFitter> m_vertexFitter {this, "VertexFitter", "", "VKalVrtFitter tool to fit tracks into the common vertex"};
-  std::unique_ptr<Trk::IVKalState> m_vertexFitterState;
 
   ToolHandleArray<TrigMultiTrkHypoTool> m_hypoTools {this, "HypoTools", {}, "tools to perform selection"};
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "monitoring tool"};
