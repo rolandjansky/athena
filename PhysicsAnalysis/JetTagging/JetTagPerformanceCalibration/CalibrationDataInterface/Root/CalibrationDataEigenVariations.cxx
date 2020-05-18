@@ -1104,7 +1104,6 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
   if(dim > 1) nbins *= ny;
   if(dim > 2) nbins *= nz;
   TMatrixD matSF(uncList.size(), nbins);
-  //TH1* histSF = new TH1("SFMatrix", "SFMatrix",nbins,0,nbins,uncList.size(),0,uncList.size());
   Int_t col = 0; // mark the column number
   // Fill the Delta SF Matrix
   for(unsigned int i = 0; i < uncList.size(); i++){
@@ -1115,11 +1114,8 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
 	for(int binx = 1; binx <= nx; binx++){
  	  Int_t bin = originSF_hvec.at(i)->GetBin(binx, biny, binz);
 	  TMatrixDRow(matSF,i)[col] = originSF_hvec[i]->GetBinContent(bin);
-	  //Int_t binh = histSF->GetBin(col+1,i+1,1);
-	  //histSF->SetBinContent(binh, originSF_hvec[i]->GetBinContent(bin));
 	  col++;
 	}
-    //histSF->GetYaxis()->SetBinLabel(i+1,uncList.at(i));
   }
 
   // get eigen vectors of scale factors. Note that this is not the original eigen-vector.
@@ -1136,7 +1132,7 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
     eigenSF_hvec.push_back(up);
   }
   TMatrixD matEigen(nEigen, nbins);
-  //TH2D* histEigen = new TH2D("EigenMatrix", "EigenMatrix",nbins,0,nbins,uncList.size(),0,uncList.size());
+
   // Fill the Eigen Matrix
   for(int i = 0; i < nEigen; i++){
     col = 0;
@@ -1146,8 +1142,6 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
 	for(int binx = 1; binx <= nx; binx++){
 	  Int_t bin = eigenSF_hvec.at(i)->GetBin(binx, biny, binz);
 	  TMatrixDRow(matEigen,i)[col] = eigenSF_hvec[i]->GetBinContent(bin);
-	  //Int_t binh = histEigen->GetBin(col+1,i+1,1);
-	  //histEigen->SetBinContent(binh, originSF_hvec[i]->GetBinContent(bin));
 	  col++;
 	}
   }
@@ -1171,25 +1165,6 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
     }
     coefficientMap["Eigen_"+label+"_"+std::to_string(col)] = temp_map;
   }
-
-  //for (std::map<std::string, std::map<std::string, double>>::iterator out=coefficientMap.begin();
-  //   out!=coefficientMap.end(); ++out){
-  //std::cout<<"____________________________________________"<<std::endl;
-  //std::cout<<out->first<<std::endl;
-  //for (std::map<std::string, double>::iterator in=out->second.begin();
-  //	 in!=out->second.end(); ++in){
-  //  std::cout<<in->first<<" "<<in->second<<std::endl;
-  //}
-  //}
-
-  //TFile *MyFile = new TFile("mat_45Eigen.root","RECREATE");
-  //histEigen->Write("histEigen");
-  //matEigen.Write("matEigen");
-  //matEigenInvert.Write("matEigenInvert");
-  ////histSF->Write("histSF");
-  //matSF.Write("matSF");
-  //MyFile->WriteObject(&uncList, "listSF");
-  //MyFile->Close();
   
   return true;
 }

@@ -27,9 +27,9 @@ class IBTaggingEigenVectorRecompositionTool : virtual public CP::ISystematicsToo
 
   public:
 
-  virtual CP::CorrectionCode printListOfOriginalNuisanceParameters() const = 0;
+  virtual CP::CorrectionCode printListOfOriginalNuisanceParameters(const std::string & label) const = 0;
 
-  virtual CP::CorrectionCode printListOfCoefficients() const = 0;
+  virtual CP::CorrectionCode printListOfCoefficients(const std::string & label,const int& evIdx) const = 0;
 
   virtual std::vector<std::string> getListOfOriginalNuisanceParameters(const std::string& label) const = 0;
   

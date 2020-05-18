@@ -42,11 +42,11 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   /* Get list of original nuisance parameters that will linearly combined with the list of 
      coefficients returns below to recompose each eigen vector
  */
-  CP::CorrectionCode printListOfOriginalNuisanceParameters() const;
+  CP::CorrectionCode printListOfOriginalNuisanceParameters(const std::string & label) const;
 
   /* print list of coefficients to be used to build the linear combination 
    */
-  CP::CorrectionCode printListOfCoefficients() const;
+  CP::CorrectionCode printListOfCoefficients(const std::string & label, const int& evIdx) const;
 
   std::vector<std::string> getListOfOriginalNuisanceParameters(const std::string& label) const;
   std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string & label, const std::vector<int> eigenIdxList = std::vector<int>()) const;
@@ -62,8 +62,6 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
 
 
  private:
-
-  bool m_initialised;
 
   std::map<std::string, std::map<std::string, double>> m_coefficientMapB;
   std::map<std::string, std::map<std::string, double>> m_coefficientMapC;
