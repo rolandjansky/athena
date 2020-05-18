@@ -5,9 +5,9 @@
 /**
  * @file AlignedDynArray.h
  * @date   26th November 2019
- * @author amorley, christos
+ * @author Anthony Morley, Christos Anastopoulos
  * @brief  Dynamic array fullfilling alignment requirements
- *********************************************************************************/
+ */
 
 #ifndef GSFUtils_AlignedDynArray_H
 #define GSFUtils_AlignedDynArray_H
@@ -16,8 +16,7 @@
 namespace GSFUtils {
 template<typename T, size_t Alignment>
 /**
- * @bried A wrapper around std::aligned_alloc
- * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc
+ * A wrapper around std::aligned_alloc 
  *
  * Provides
  * - Additional RAII functionality

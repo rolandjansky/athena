@@ -117,9 +117,13 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from AthenaCommon import CfgGetter
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
    topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO"]
+   PRD_TruthMaps = ["RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"]
    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
        topSequence.MuonTruthDecorationAlg.SDOs+=["MM_SDO","sTGC_SDO"]
+       PRD_TruthMaps += ["MM_TruthMap", "STGC_TruthMap"]
    if not MuonGeometryFlags.hasCSC(): topSequence.MuonTruthDecorationAlg.CSCSDOs = ""
+   else: PRD_TruthMaps += ["CSC_TruthMap"]
+   topSequence.MuonTruthDecorationAlg.PRD_TruthMaps = PRD_TruthMaps
 
    try:
        from PyUtils.MetaReaderPeeker import metadata

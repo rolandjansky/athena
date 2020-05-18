@@ -61,8 +61,8 @@ namespace ISFTesting {
     MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
                                                          G4Event*&,
                                                          EBC_EVCOLL kindOfCollection));
-    MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
-                                                HepMC::GenEvent*));
+    MOCK_CONST_METHOD3(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                                HepMC::GenEvent*,bool));
 
   }; // MockInputConverter class
 

@@ -58,7 +58,10 @@ namespace Monitored {
       const unsigned minLumi = lumiPage * historyDepth;
       const unsigned maxLumi = minLumi + historyDepth - 1;
 
-      def.alias = def.alias + "(" + std::to_string(minLumi) + "-" + std::to_string(maxLumi) + ")";
+      if ( historyDepth > 1 )
+	def.alias = def.alias + "_LB" + std::to_string(minLumi) + "_" + std::to_string(maxLumi);
+      else
+	def.alias = def.alias + "_LB" + std::to_string(minLumi);
 
       return m_factory->create(def);
     }

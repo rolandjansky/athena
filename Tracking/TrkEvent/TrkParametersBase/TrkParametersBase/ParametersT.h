@@ -11,7 +11,6 @@
 
 // Trk includes
 #include "TrkParametersBase/ParametersBase.h"
-
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -98,7 +97,13 @@ namespace Trk
     ParametersT<DIM,T,S>& operator=(ParametersT<DIM,T,S>&& rhs);
       
     //** Destructor */
-    virtual ~ParametersT();
+    virtual ~ParametersT()=default;
+ 
+    /** Test to see if there's a surface there. */
+    virtual bool hasSurface() const override final { return m_surface != nullptr; }
+ 
+    /** Access to the Surface method */
+    virtual const S& associatedSurface() const override final {return *m_surface;}    
       
     /** equality operator */
     virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
@@ -109,29 +114,6 @@ namespace Trk
     /** Return the ParametersType enum */
     virtual ParametersType type() const override {return Trk::AtaSurface;}
 
-    /** Returns charge of track */
-    virtual double charge() const override final {return m_chargeDef.charge();}
-
-    /** Access method for the parameters */
-    virtual const AmgVector(DIM)& parameters() const override final {return m_parameters;}
-      
-    /** Access method for the covariance matrix - 0 if no covariance matrix is given */
-    virtual const AmgSymMatrix(DIM)* covariance() const override final {return m_covariance;}
-    
-    /** Access to the Surface method */
-    virtual const S& associatedSurface() const override final {return *m_surface;}    
-  
-    /** Test to see if there's a surface there. */
-    virtual bool hasSurface() const override final { return m_surface != nullptr; }
-
-    /** Access method for the position */
-    // cppcheck-suppress virtualCallInConstructor
-    virtual const Amg::Vector3D& position() const override final {return m_position;}
-      
-    /** Access method for the momentum */
-    // cppcheck-suppress virtualCallInConstructor
-    virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
- 
     /** Return the measurementFrame of the parameters */
     virtual Amg::RotationMatrix3D measurementFrame() const override;
     
@@ -146,9 +128,20 @@ namespace Trk
     /* Helper to factor in update of parameters*/
     void updateParametersHelper(const AmgVector(DIM)&);
 
- 
   protected:
-    template<typename pars> friend class ::TrackParametersCovarianceCnv;
+    /*
+     * Add dependent names into scope
+     */
+    using ParametersBase<DIM,T>::m_parameters;
+    using ParametersBase<DIM,T>::m_covariance;
+    using ParametersBase<DIM,T>::m_position;
+    using ParametersBase<DIM,T>::m_momentum;
+    using ParametersBase<DIM,T>::m_chargeDef;
+    SurfaceUniquePtrT<const S> m_surface; //!< surface template
+  
+  protected:
+    template<typename pars>
+    friend class ::TrackParametersCovarianceCnv;
     friend class ::TrackParametersCnv_p2;
     friend class ::MeasuredPerigeeCnv_p1;
     template <class SURFACE_CNV, class ATA_SURFACE>
@@ -162,14 +155,7 @@ namespace Trk
     ParametersT (const Amg::Vector3D& pos,
                  const Amg::Vector3D& mom,
                  AmgSymMatrix(DIM)* covariance = 0);
-    
-    AmgVector(DIM)              m_parameters;       //!< contains the n parameters
-    AmgSymMatrix(DIM)*          m_covariance;       //!< contains the n x n covariance matrix
-    Amg::Vector3D               m_position;         //!< point on track
-    Amg::Vector3D               m_momentum;         //!< momentum at this point on track
-    SurfaceUniquePtrT<const S>  m_surface;          //!< surface template
-    T                           m_chargeDef;        //!< charge definition for this track
-
+ 
     /** DESIGN TO BE REVISITED */
   protected:
     friend class MaterialEffectsEngine;

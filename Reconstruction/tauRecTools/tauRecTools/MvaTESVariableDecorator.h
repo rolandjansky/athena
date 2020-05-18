@@ -9,6 +9,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 // xAOD include(s)
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class MvaTESVariableDecorator

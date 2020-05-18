@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "FastSiDigitization/ISiSmearedDigitizationTool.h"
 #include <string>
 
 #include "HitManagement/TimedHitCollection.h"
@@ -69,8 +68,7 @@ namespace Trk {
 
 }
 
-class SiSmearedDigitizationTool : virtual public PileUpToolBase,
-  virtual public ISiSmearedDigitizationTool
+class SiSmearedDigitizationTool : virtual public PileUpToolBase
 {
 
 public:

@@ -20,6 +20,7 @@
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 #include <set>
@@ -30,8 +31,6 @@ namespace MuonGM
 {
   class MuonDetectorManager;
 }
-
-class IRPCcablingSvc;
 
 namespace Muon {
 
@@ -76,7 +75,6 @@ protected:
 
   float m_etaphi_coincidenceTime;       //!< time for phi*eta coincidence 
   float m_overlap_timeTolerance;        //!< tolerance of the timing calibration 
-  bool  m_processingData;               //!< data or MC 
   bool  m_producePRDfromTriggerWords;   //!< if 1 store as prd the trigger hits 
   bool  m_solvePhiAmbiguities;          //!< toggle on/off the removal of phi ambiguities 
   bool  m_doingSecondLoopAmbigColls;    //!< true if running a second loop over ambiguous collections in RoI-based mode
@@ -100,15 +98,13 @@ protected:
   
   SG::ReadHandleKey<RpcPadContainer>             m_rdoContainerKey;
 
-  /// RPC cabling Svc
-  const IRPCcablingSvc *m_rpcCabling;
-
   // Rob Data Provider handle 
   ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
 
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
- 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
   

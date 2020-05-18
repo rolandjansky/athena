@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #define FASTSIDIGITIZATION_PIXELFASTDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "FastSiDigitization/IPixelFastDigitizationTool.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimEvent/SiHitCollection.h" // cannot fwd declare
@@ -58,7 +57,7 @@ namespace InDet {
 }
 
 class PixelFastDigitizationTool :
-  virtual public PileUpToolBase, virtual public IPixelFastDigitizationTool
+  virtual public PileUpToolBase
 {
 
 public:

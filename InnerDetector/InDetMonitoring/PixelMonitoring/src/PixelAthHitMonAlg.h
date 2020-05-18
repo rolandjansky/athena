@@ -2,38 +2,39 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELATHERRORMONTOOL_H
-#define PIXELATHERRORMONTOOL_H
-
-#include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoringKernel/Monitored.h"
-
-#include "InDetIdentifier/PixelID.h"
-#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#ifndef PIXELATHHITMONTOOL_H
+#define PIXELATHHITMONTOOL_H
 
 #include "PixelAthMonitoringBase.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+//#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetRawData/InDetRawDataContainer.h"
+#include "InDetRawData/InDetTimeCollection.h"
 
 class PixelID;
-class IPixelByteStreamErrorsSvc;
+class IPixelCablingSvc;
+class PixelRDORawData;
 
-class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
+class PixelAthHitMonAlg : public PixelAthMonitoringBase {
 
  public:
   
-  PixelAthErrorMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~PixelAthErrorMonAlg();
+  PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  virtual ~PixelAthHitMonAlg();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   std::string findComponentString(int bec, int ld) const;
 
  private:
 
-  ToolHandle<IPixelByteStreamErrorsTool> m_pixelErrorTool{this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamErrors"};
+  ServiceHandle<IPixelCablingSvc> m_pixelCableSvc; //FE info
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const PixelID* m_pixelid;
+
+  SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOName{this, "RDOName", "PixelRDOs", "rdo data key"};
 
   bool m_doOnline;
   bool m_doModules;

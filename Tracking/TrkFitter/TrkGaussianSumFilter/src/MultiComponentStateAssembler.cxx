@@ -2,15 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        MultiComponentStateAssembler.cxx  -  description
-                        ----------------------------------------------------
-begin                : Monday 20th December 2004
-author               : atkinson,morley,anastopoulos
-email                : Tom.Atkinson@cern.ch
-description          : Implementation code for MultiComponentStateAssembler
-                        class.
-*********************************************************************************/
+/**
+ * @file   MultiComponentStateAssembler.h
+ * @date   Monday 20th December 2004
+ * @author Atkinson,Anthony Morley, Christos Anastopoulos
+ *
+ * Implementation code for MultiComponentStateAssembler
+ */
+
 
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkMultiComponentStateOnSurface/ComponentParameters.h"

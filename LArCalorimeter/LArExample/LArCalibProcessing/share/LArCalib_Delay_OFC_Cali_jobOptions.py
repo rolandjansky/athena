@@ -454,7 +454,7 @@ else :
    #theByteStreamInputSvc.FullFileName=FullFileName
    svcMgr.EventSelector.Input = FullFileName
    
-theByteStreamInputSvc.MaxBadEvents=0
+scvMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #
