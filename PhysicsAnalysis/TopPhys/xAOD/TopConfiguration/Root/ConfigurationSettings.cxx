@@ -419,7 +419,7 @@ namespace top {
                       "This can be False / None (isolation requirement disabled), "
                       "True (use default isolation), "
                       "or a configuration in the format `VAR CUT`, where VAR is one of the isolation variables and CUT is the cut applied as `VAR / pt < CUT`.",
-                      "ptcone30 0.1");
+                      "ptcone20 0.1");
 
 
     registerParameter("TruthJetPt",
