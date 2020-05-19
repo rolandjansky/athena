@@ -1,4 +1,4 @@
-        run       event       nTopo   nIdTracks       nJets      nMuons       nElec   nTrueElec   nFakeElec       nPhot   nTruePhot   nFakePhot
+         run       event       nTopo   nIdTracks       nJets      nMuons       nElec   nTrueElec   nFakeElec       nPhot   nTruePhot   nFakePhot
       284500    87473001         118         128           4           1           9           2           7           7           4           3
       284500    87473014          85          79           6           0           9           1           8           7           4           3
       284500    87473022          38          30           4           0           5           1           4           2           1           1
