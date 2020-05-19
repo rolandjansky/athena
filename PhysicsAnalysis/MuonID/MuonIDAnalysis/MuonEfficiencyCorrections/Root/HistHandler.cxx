@@ -76,9 +76,16 @@ namespace CP {
     
     CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
         static std::atomic<unsigned int> warned = {0};
-        if( m_acc.isAvailable(mu) ) {
+        static const SG::AusElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
+        if (acc_dR_deriv.isAvailable(mu)){
+            value = m_acc(mu);
+        }else if( m_acc.isAvailable(mu) ) {
             // decoration available in DxAOD
             value = m_acc(mu);
+            if (warned < 5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The DFCommonJetDr jet decoration is not available in the derivaiton will fall back to %s",m_close_jet_decor.c_str());
+                ++warned;
+            }
         } else {
             // decoration not available 
             value = -2.; 
