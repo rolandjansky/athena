@@ -32,7 +32,7 @@ namespace CP {
                 m_sf_decoration_name(),
                 m_calibration_version("200513_Precision_r21"),
                 m_lowpt_threshold(15.e3),
-                m_iso_jet_dR("DFCommonJetDr"),
+                m_iso_jet_dR("dRJet"),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
                 m_init(false),
