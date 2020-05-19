@@ -180,6 +180,24 @@ softTagAlgTight.OperatingPoint = 'Tight'
 
 FTAG1Seq += softTagAlgTight
 
+# use by low pT Xbb
+SoftBJetMSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetMSVFinder")
+ToolSvc += SoftBJetMSVFinderTool
+SoftBJetMSVFinderTool.ConeForTag = 0.8
+SoftBJetMSVFinderTool.MultiVertex = True
+SoftBJetMSVFinderTool.MultiWithOneTrkVrt = True
+
+softTagAlgMSVTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolMSVTight",
+                           OutputLevel=INFO, #DEBUG
+                           )
+
+softTagAlgMSVTight.SVFinderName = 'SoftBJetMSVFinder'
+softTagAlgMSVTight.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgMSVTight.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgMSVTight.OperatingPoint = 'MSVTight'
+
+FTAG1Seq += softTagAlgMSVTight
+
 # make Pixel and SCT conditions available
 include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
 include ("InDetRecExample/SCTConditionsAccess.py")
@@ -451,13 +469,15 @@ FTAG1SlimmingHelper.AppendToDictionary = {
 # Add soft b-tagging containers
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
-StaticContent = []
+StaticContent = []  
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_MSVTight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_MSVTight_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
 
