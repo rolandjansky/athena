@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/VRJetOverlapDecoratorTool.h"
@@ -16,9 +16,6 @@ namespace FlavorTagDiscriminants {
 
   StatusCode VRJetOverlapDecoratorTool::initialize() {
     m_dec.reset(new VRJetOverlapDecorator);
-    return StatusCode::SUCCESS;
-  }
-  StatusCode VRJetOverlapDecoratorTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

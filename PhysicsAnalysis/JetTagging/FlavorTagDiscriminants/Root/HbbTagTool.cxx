@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/HbbTagTool.h"
@@ -21,12 +21,9 @@ namespace FlavorTagDiscriminants {
     m_hbb.reset(new HbbTag(HbbTagConfig(m_props.nnFile)));
     return StatusCode::SUCCESS;
   }
-  StatusCode HbbTagTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
 
   int HbbTagTool::decorate(const xAOD::JetContainer& jets) const {
-    for (const auto& jet: jets) {
+    for (const xAOD::Jet* jet: jets) {
       m_hbb->decorate(*jet);
     }
     return 0; // 0 means success

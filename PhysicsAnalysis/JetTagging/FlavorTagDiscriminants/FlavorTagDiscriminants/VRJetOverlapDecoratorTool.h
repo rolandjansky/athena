@@ -1,6 +1,6 @@
 // for text editors: this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VR_JET_OVERLAP_DECORATOR_TOOL_H
@@ -20,13 +20,12 @@ namespace FlavorTagDiscriminants {
     VRJetOverlapDecoratorTool(const std::string& name);
     ~VRJetOverlapDecoratorTool();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode initialize() override;
 
     // returns 0 for success
     int decorate(const xAOD::JetContainer& jets) const;
   private:
-    std::unique_ptr<VRJetOverlapDecorator> m_dec; //!
+    std::unique_ptr<VRJetOverlapDecorator> m_dec;
   };
 
 }

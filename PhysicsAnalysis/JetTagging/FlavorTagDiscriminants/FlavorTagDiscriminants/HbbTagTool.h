@@ -1,6 +1,6 @@
 // for text editors: this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HBB_TAG_TOOL_H
@@ -24,14 +24,13 @@ namespace FlavorTagDiscriminants {
     HbbTagTool(const std::string& name);
     ~HbbTagTool();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode initialize() override;
 
     // returns 0 for success
     int decorate(const xAOD::JetContainer& jets) const;
   private:
-    HbbTagProperties m_props; //!
-    std::unique_ptr<HbbTag> m_hbb; //!
+    HbbTagProperties m_props;
+    std::unique_ptr<HbbTag> m_hbb;
   };
 
 }
