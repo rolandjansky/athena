@@ -11,6 +11,7 @@
 #include "PathResolver/PathResolver.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TMatrixT.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -205,6 +206,31 @@ StatusCode LhoodMM_tools::register2DHistogram(TH2* h2, const float *xval, const 
     ATH_MSG_INFO("Registered a 2D histogram "<<h2->GetName());
   } else {
     ATH_MSG_ERROR("Error in  LhoodMM_tools::register2DHistogram: histogram has already been registered");
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+} 
+
+StatusCode LhoodMM_tools::register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) {
+
+  auto sc = BaseFakeBkgTool::register3DHistogram(h3, xval, yval, zval);
+
+  if(sc != StatusCode::SUCCESS) return sc;
+    
+  auto currentMap = m_fitInfo_3dhisto_map.find(h3);
+  if (currentMap ==  m_fitInfo_3dhisto_map.end() ) {
+    m_fitInfo_3dhisto_map[h3];
+    // size all the vectors appropriately
+    int ncells = h3->GetNcells();
+    auto *fitinfovec =  &m_fitInfo_3dhisto_map.find(h3)->second;
+    fitinfovec->resize(ncells);
+    for (int icell = 0; icell < ncells; icell++) {
+      LhoodMMFitInfo* fitInfo =  &(fitinfovec->at(icell));
+      fitInfo->reset();
+    }
+    ATH_MSG_INFO("Registered a 3D histogram "<<h3->GetName());
+  } else {
+    ATH_MSG_ERROR("Error in  LhoodMM_tools::register3DHistogram: histogram has already been registered");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -435,6 +461,29 @@ StatusCode LhoodMM_tools::incrementMatrices(const LhoodMMEvent& mmevt) {
       return StatusCode::FAILURE;
     }
 
+  }
+
+  std::map<TH3*, std::tuple<const float*, const float*, const float*> >::iterator map3_iter;
+  for (map3_iter = m_values_3dhisto_map.begin(); map3_iter != m_values_3dhisto_map.end(); map3_iter++) {
+    std::tuple<const float*, const float*, const float*> val = map3_iter->second;
+    TH3* h = map3_iter->first;
+    auto histoMap = m_fitInfo_3dhisto_map.find(map3_iter->first);
+    if (histoMap != m_fitInfo_3dhisto_map.end() ) {
+      int icell;
+      LhoodMMFitInfo *fitInfo;
+      if (m_needToResize) {
+        for (icell = 0; icell<h->GetNcells(); icell++) {
+          fitInfo = &histoMap->second[icell];
+          fitInfo->resizeVectors(nlep);
+        }
+      }
+      icell = h->FindBin(*(std::get<0>(val)), *(std::get<1>(val)), *(std::get<2>(val)) );
+      fitInfo = &histoMap->second[icell];
+      incrementOneMatrixSet(*fitInfo, mmevt);
+    } else {
+      ATH_MSG_ERROR("Can not find entry for 3d histogram"); 
+      return StatusCode::FAILURE;
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -1158,6 +1207,14 @@ StatusCode LhoodMM_tools::fillHistograms() {
     status = fillHisto_internal(fitInfo_vec, histogram);
     ATH_MSG_VERBOSE("Inside fill code, mean = " << histogram->ProjectionX()->GetMean());
   }
+
+  for (auto map3_iter=m_fitInfo_3dhisto_map.begin(); map3_iter != m_fitInfo_3dhisto_map.end(); map3_iter++) {
+    auto& fitInfo_vec = map3_iter->second;
+    TH3* histogram = (TH3*)map3_iter->first;
+    status = fillHisto_internal(fitInfo_vec, histogram);
+    ATH_MSG_VERBOSE("Inside fill code, mean = " << histogram->ProjectionX()->GetMean());
+  }
+
   return status;
 }
 
@@ -1680,6 +1737,8 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   ATH_MSG_VERBOSE("Branch split level is " << fitInfoBranch->GetSplitLevel() );
   t->Branch("fitInfo_1dhisto_map", &m_fitInfo_1dhisto_map);
   t->Branch("fitInfo_2dhisto_map", &m_fitInfo_2dhisto_map);
+  t->Branch("fitInfo_3dhisto_map", &m_fitInfo_3dhisto_map);
+
   t_nlep->Branch("maxnlep", &m_maxnlep_loose);  
 
   ATH_MSG_VERBOSE("Filling tree...");
@@ -1759,6 +1818,8 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   std::unique_ptr<std::map<TH2*, std::vector< LhoodMMFitInfo > > > tmp_fitInfo_2dhisto_map(new std::map<TH2*, std::vector< LhoodMMFitInfo > >);
   auto *tmp_fitInfo_2dhisto_map_ptr =  tmp_fitInfo_2dhisto_map.get(); 
   t->SetBranchAddress("fitInfo_2dhisto_map", &tmp_fitInfo_2dhisto_map_ptr);
+  std::map<TH3*, std::vector< LhoodMMFitInfo > > *tmp_fitInfo_3dhisto_map =  new std::map<TH3*, std::vector< LhoodMMFitInfo > >;
+  t->SetBranchAddress("fitInfo_3dhisto_map", &tmp_fitInfo_3dhisto_map);
 
   nentries = (Int_t)t->GetEntries();
   for (Int_t ievt = 0; ievt < nentries; ievt++) {
@@ -1795,6 +1856,22 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
 	    hm.second[icell].add(im.second[icell], m_maxnlep_loose);
 	  }
 	}
+      }
+    }
+    for(auto& hm : m_fitInfo_3dhisto_map){
+      TH1F* histogram = (TH1F*)hm.first;
+      std::string hname = histogram->GetName();
+      for (auto& im: *tmp_fitInfo_3dhisto_map){
+        ATH_MSG_VERBOSE("Found a matching histogram");
+        TH1F* ihistogram = (TH1F*)im.first;
+        std::string iname = ihistogram->GetName();
+        if (hname == iname) {
+          int ncells = histogram->GetNcells();
+          for (int icell = 0; icell<ncells; icell++) {
+            hm.second[icell].resizeVectors(m_maxnlep_loose);
+            hm.second[icell].add(im.second[icell], m_maxnlep_loose);
+          }
+        }
       }
     }
     
