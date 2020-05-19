@@ -1,0 +1,13 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Smart pointer dictionaries for xAOD container type: @_type@ -->
+
+<class name="DataLink<@_type@>" />
+<class name="std::vector<DataLink<@_type@> >" />
+
+<class name="ElementLink<@_type@>" />
+<class name="std::vector<ElementLink<@_type@> >" />
+<class name="std::vector<std::vector<ElementLink<@_type@> > >" />
+
+<class name="SG::AuxTypeVectorFactory<DataLink<@_type@> >" />
+<class name="SG::AuxTypeVectorFactory<ElementLink<@_type@> >" />
+<class name="SG::AuxTypeVectorFactory<std::vector<ElementLink<@_type@> > >" />
