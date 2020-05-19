@@ -45,6 +45,7 @@
 // CLHEP includes
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 // HepPDT
 #include "HepPDT/ParticleID.hh"
 #include "HepPDT/DecayData.hh"
@@ -244,6 +245,18 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid) c
   const auto& pMomentum(genPart.momentum());
   const Amg::Vector3D mom(pMomentum.px(), pMomentum.py(), pMomentum.pz());
   const double pMass = this->getParticleMass(genPart);
+
+  double e=pMomentum.e();
+  if(e>1) { //only test for >1 MeV in momentum
+    double px=pMomentum.px();
+    double py=pMomentum.py();
+    double pz=pMomentum.pz();
+    double teste=sqrt(px*px + py*py + pz*pz + pMass*pMass);
+    if(std::abs(e-teste)/e>0.01) {
+      ATH_MSG_WARNING("Difference in energy for: " << genPart<<" Morg="<<pMomentum.m()<<" Mmod="<<pMass<<" Eorg="<<e<<" Emod="<<teste);
+    }
+  }  
+
   const int pPdgId = genPart.pdg_id();
   const double charge = HepPDT::ParticleID(pPdgId).charge();
   const double pTime = pVertex->position().t() / Gaudi::Units::c_light;
@@ -262,6 +275,8 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid) c
                                          bcid,
                                          pBarcode,
                                          tBinding );
+                                         
+                                         
   return sParticle;
 }
 
@@ -546,13 +561,54 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         }
         g4particle->SetDaughter( daughterG4Particle );
       }
-     } // particle had an end vertex
-    //Code copied from TruthHepMCEventConverter::TransformHepMCParticle
+    } // particle had an end vertex
+    
+    double px,py,pz;
+    const double pmass = g4particle->GetMass();
     CLHEP::Hep3Vector gpv = g4particle->GetMomentum();
-    double pmass = g4particle->GetMass();
-    const double pe = sqrt(gpv.mag2() + pmass*pmass);  // this does only change for boosts, etc.
-    genpart->set_momentum(CLHEP::HepLorentzVector(gpv.x(),gpv.y(),gpv.z(),pe));
-    //End of code copied from TruthHepMCEventConverter::TransformHepMCParticle
+    double g4px=g4particle->GetMomentum().x();
+    double g4py=g4particle->GetMomentum().y();
+    double g4pz=g4particle->GetMomentum().z();
+    if(useHepMC) {
+      //Code adapted from TruthHepMCEventConverter::TransformHepMCParticle
+      px=g4px;
+      py=g4py;
+      pz=g4pz;
+    } else {
+      //Take mass from g4particle, put keep momentum as in genpart
+      px=genpart->momentum().px();
+      py=genpart->momentum().py();
+      pz=genpart->momentum().pz();
+      //Now a dirty hack to keep backward compatibility in the truth:
+      //When running AtlasG4 or FullG4 between 21.0.41 and 21.0.111, the genpart 3-momentum and mass was reset to the values from the g4particle 
+      //together with the mass of the g4particle after the 1st initialization of the g4particle from the genevent. This is done for a consistent mass
+      //value in the truth record compared to the used g4 mass. Since g4particles don't store the 3-momentum directly, but rather a
+      //unit direction vector, the mass and the kinetic energy, this reduces the numeric accuracy.
+      //For backward compatibility, if all 3-momentum components agree to the g4particle momentum within 1 keV, we keep
+      //this old method. This comparison is needed, since in ISF this code could be rerun after the ID or CALO simulation, where
+      //real energy was lost in previous detectors and hence genpart should NOT be changed to some g4particle values!
+      //TODO: find a way to implement this in a backward compatible way in ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid)
+      if(std::abs(px-g4px)<CLHEP::keV && std::abs(py-g4py)<CLHEP::keV && std::abs(pz-g4pz)<CLHEP::keV) {
+        px=g4px;
+        py=g4py;
+        pz=g4pz;
+      }
+    }
+    const double mag2=px*px + py*py + pz*pz;
+    const double pe = std::sqrt(mag2 + pmass*pmass);  // this does only change for boosts, etc.
+    
+    double originalEnergy=genpart->momentum().e();
+    if(originalEnergy>0.01) { //only test for >1 MeV in momentum
+      if((originalEnergy-pe)/originalEnergy>0.01) {
+        double genpx=genpart->momentum().px();
+        double genpy=genpart->momentum().py();
+        double genpz=genpart->momentum().pz();
+        double genp=sqrt(genpx*genpx + genpy*genpy + genpz*genpz);
+        ATH_MSG_WARNING("Truth change in energy for: " << genpart<<" Morg="<<genpart->momentum().m()<<" Mmod="<<pmass<<" Eorg="<<originalEnergy<<" Emod="<<pe<<" porg="<<genp<<" pmod="<<gpv.mag());
+      }
+    }  
+
+    genpart->set_momentum(CLHEP::HepLorentzVector(px,py,pz,pe));
   } // Truth was detected
 
   ATH_MSG_VERBOSE("PrimaryParticleInformation:");
