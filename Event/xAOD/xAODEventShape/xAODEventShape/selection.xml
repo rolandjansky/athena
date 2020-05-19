@@ -1,15 +1,9 @@
-<!-- $Id: selection.xml 615735 2014-09-09 10:13:08Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-
+   <!-- xAOD::EventShape interface type(s). -->
    <class name="xAOD::EventShape_v1"
-          id="E06E8747-7C16-4BBA-B648-68F64BA70B7D" >
-   </class>
-  <class name="xAOD::EventShapeAuxInfo_v1"
-         id="7C9459AC-B89C-43A1-A57A-FF035EAA5D81" />
-
-
-   <!-- Custom streamer for the event format class: -->
+          id="E06E8747-7C16-4BBA-B648-68F64BA70B7D" />
    <read sourceClass="xAOD::EventShape_v1" version="[1-]"
          targetClass="xAOD::EventShape_v1"
          source="" target="" >
@@ -17,12 +11,11 @@
          newObj->setStore( ( SG::IAuxStore* ) 0 );
       ]]>
    </read>
+   <typedef name="xAOD::EventShape" />
 
-   <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
+   <!-- xAOD::EventShape auxiliary type(s). -->
+   <class name="xAOD::EventShapeAuxInfo_v1"
+          id="7C9459AC-B89C-43A1-A57A-FF035EAA5D81" />
+   <typedef name="xAOD::EventShapeAuxInfo" />
 
 </lcgdict>
