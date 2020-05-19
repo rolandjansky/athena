@@ -114,6 +114,7 @@ namespace top {
     m_nominalWeightName("SetMe"),
     m_nominalWeightIndex(-1),
     m_MCweightsSize(-1),
+    m_forceWeightIndex(false),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
@@ -800,6 +801,8 @@ namespace top {
         std::cout << "Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex") << std::endl;
         throw;
       }
+
+      settings->retrieve("ForceNominalWeightFallbackIndex", m_forceWeightIndex);
 
       // Save the Top Parton History
       if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();

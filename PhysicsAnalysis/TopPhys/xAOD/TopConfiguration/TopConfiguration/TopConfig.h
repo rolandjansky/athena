@@ -340,6 +340,7 @@ namespace top {
     }
     inline std::string nominalWeightName() const {return m_nominalWeightName;}
     inline size_t nominalWeightIndex() const {return m_nominalWeightIndex;}
+    inline bool forceNominalWeightFallbackIndex() const {return m_forceWeightIndex;}
 
     inline void setMCweightsVectorSize(size_t weights_size) {
       m_MCweightsSize = weights_size;
@@ -1933,6 +1934,7 @@ namespace top {
     std::string m_nominalWeightName;
     size_t m_nominalWeightIndex;
     size_t m_MCweightsSize;
+    bool m_forceWeightIndex; // to force useage of index instead of metadata
 
     // Top Parton History
     bool m_doTopPartonHistory;
