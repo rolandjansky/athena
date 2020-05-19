@@ -35,6 +35,7 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Concurrency.NumConcurrentEvents=1
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 
