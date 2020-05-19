@@ -75,8 +75,6 @@ VRJetOverlapDecorator::VRJetOverlapDecorator(const VRJetOverlapConfig& cfg):
 {
 }
 
-VRJetOverlapDecorator::~VRJetOverlapDecorator() {}
-
 void VRJetOverlapDecorator::decorate(const xAOD::JetContainer& jets) const {
   VRConfig cfg;
   // we use the default arguments if there are no jets (it won't
