@@ -44,11 +44,11 @@ namespace top {
     m_isolationTool_TightTrackOnly_FixedRad("CP::IsolationTool_TightTrackOnly_FixedRad"),
     m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
     m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
-    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
     m_isolationTool_Tight_VarRad("CP::IsolationTool_Tight_VarRad"),
     m_isolationTool_Tight_FixedRad("CP::IsolationTool_Tight_FixedRad"),
     m_isolationTool_Loose_VarRad("CP::IsolationTool_Loose_VarRad"),
     m_isolationTool_Loose_FixedRad("CP::IsolationTool_Loose_FixedRad"),
+    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
 
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
     declareProperty("config", m_config);
@@ -71,11 +71,11 @@ namespace top {
     declareProperty("IsolationTool_TightTrackOnly_FixedRad", m_isolationTool_TightTrackOnly_FixedRad);
     declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
     declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
-    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IsolationTool_Tight_VarRad", m_isolationTool_Tight_VarRad);
     declareProperty("IsolationTool_Tight_FixedRad", m_isolationTool_Tight_FixedRad);
     declareProperty("IsolationTool_Loose_VarRad", m_isolationTool_Loose_VarRad);
     declareProperty("IsolationTool_Loose_FixedRad", m_isolationTool_Loose_FixedRad);
+    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
   }
 
