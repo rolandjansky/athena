@@ -73,6 +73,13 @@ def setupMenu():
         ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
 
+        # Unisolated single muons for monitoring isolated muons
+        ChainProp(name="HLT_mu8_L1MU6", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu14_L1MU10", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu24_L1MU20", groups=SingleMuonGroup),
+        ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
+
+
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
