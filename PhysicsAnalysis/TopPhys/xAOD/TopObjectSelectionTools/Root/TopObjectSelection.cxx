@@ -790,19 +790,7 @@ namespace top {
         float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
 
         if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR &&
-            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the
-                                                                                                                                                                                                                            // dR
-                                                                                                                                                                                                                            // selection
-                                                                                                                                                                                                                            // must
-                                                                                                                                                                                                                            // be
-                                                                                                                                                                                                                            // done
-                                                                                                                                                                                                                            // here,
-                                                                                                                                                                                                                            // because
-                                                                                                                                                                                                                            // we
-                                                                                                                                                                                                                            // need
-                                                                                                                                                                                                                            // the
-                                                                                                                                                                                                                            // post-OR
-                                                                                                                                                                                                                            // jets...
+            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the dR selection must be done here, because we need the post-OR jets...
         i++;
       }
     }//end of OR procedure for soft muons
@@ -923,7 +911,10 @@ namespace top {
 
     // Decorate the muon with dR of closest jet (ie smallest dR)
 
-    mu.auxdecor< float >("dRJet") = dRMin;
+    // commenting out as a temporary solution since this decoration
+    // would be used for 2D muon SFs, but MCP used different
+    // definition of the variable
+    //mu.auxdecor< float >("dRJet") = dRMin;
 
     return dRMin;
   }
