@@ -2,14 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*************************************************************************************
-                        GsfMaterialMixtureConvolution.h  -  description
-                        -----------------------------------------------
-begin                : Thursday 7th September 2006
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class description for convolution of GSF material mixture
-************************************************************************************/
+/**
+ * @file   GsfMaterialMixtureConvolution.h
+ * @date   Thursday 7th September 2006
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief Class description for convolution of GSF material mixture 
+ */
 
 #ifndef TrkGsfMaterialMixtureConvolution_H
 #define TrkGsfMaterialMixtureConvolution_H

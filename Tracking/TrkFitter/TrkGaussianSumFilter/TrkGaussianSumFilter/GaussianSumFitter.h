@@ -2,16 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      GaussianSumFitter.h  -  description
-      -----------------------------------
-begin                : Monday 7th March 2005
-author               : amorley, atkinson
-email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
-decription           : Class for fitting according to the Gaussian Sum Filter
-                       formalisation.
-**********************************************************************************
-*/
+/**
+ * @file   GaussianSumFitter.h
+ * @date   Monday 7th March 2005 
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
+ */
 
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
@@ -25,8 +21,6 @@ decription           : Class for fitting according to the Gaussian Sum Filter
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-
 #include <atomic>
 
 

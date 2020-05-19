@@ -2,16 +2,13 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-/*********************************************************************************
-  GsfExtrapolator.h  -  description
-------------------------------------------
-begin                : Tuesday 25th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Extrapolation of MultiComponentState class based on
-Andi's single component state extrapolator. It is an
-AlgTool inheriting from the IMultiStateExtrapolator class
-*********************************************************************************/
+/**
+ * @file   GsfExtrapolator.h
+ * @date   Tuesday 25th January 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * Extrapolation of MultiComponentState class. It is an                                                                    
+ * AlgTool inheriting from the IMultiStateExtrapolator class
+ */
 
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
