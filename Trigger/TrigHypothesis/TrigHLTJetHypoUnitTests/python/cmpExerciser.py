@@ -232,6 +232,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Exec.MaxEvents=10
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(JetHypoExerciserCompareCfg(label,
