@@ -76,7 +76,7 @@ namespace CP {
     
     CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
         static std::atomic<unsigned int> warned = {0};
-        static const SG::AusElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
+        static const SG::AuxElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
         if (acc_dR_deriv.isAvailable(mu)){
             value = m_acc(mu);
         }else if( m_acc.isAvailable(mu) ) {
@@ -95,7 +95,7 @@ namespace CP {
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");
-                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with DFCommonJetDr, for your benefit.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You can define custom jet decorations via the 'CloseJetDRDecorator' property of the MuonEfficiencyCorrections tool");
                 ++warned;
             }
