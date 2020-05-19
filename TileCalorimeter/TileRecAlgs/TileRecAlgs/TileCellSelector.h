@@ -47,6 +47,8 @@ class TileCellSelector: public AthAlgorithm {
     unsigned int m_const;
     unsigned int m_overLG;
     unsigned int m_overHG;
+    unsigned int m_underLG;
+    unsigned int m_underHG;
     unsigned int m_dqerr;
     unsigned int m_dmuerr;
     unsigned int m_warnerr;
@@ -127,6 +129,12 @@ class TileCellSelector: public AthAlgorithm {
     bool m_checkDMUs;
     bool m_checkOverLG;
     bool m_checkOverHG;
+    bool m_checkUnderLG;
+    bool m_checkUnderHG;
+    float m_overflowLG;
+    float m_overflowHG;
+    float m_underflowLG;
+    float m_underflowHG;
     bool m_checkWarning;
     bool m_checkError;
     bool m_printOnly;
