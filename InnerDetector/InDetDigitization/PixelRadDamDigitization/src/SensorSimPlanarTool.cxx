@@ -510,11 +510,11 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         pixelPhi_i =  phi_i - centreOfPixel_i.xPhi();
 
         //Make limits for NN loop
-        nnLoop_pixelEtaMax = std::min( 2,pixel_i.etaIndex() );
-        nnLoop_pixelEtaMin = std::max( -2, pixel_i.etaIndex() + 1 - etaCells );
+        nnLoop_pixelEtaMax = std::min( 1,pixel_i.etaIndex() );
+        nnLoop_pixelEtaMin = std::max( -1, pixel_i.etaIndex() + 1 - etaCells );
 
-        nnLoop_pixelPhiMax = std::min( 2,pixel_i.phiIndex() );
-        nnLoop_pixelPhiMin = std::max( -2, pixel_i.phiIndex() + 1 - phiCells );
+        nnLoop_pixelPhiMax = std::min( 1,pixel_i.phiIndex() );
+        nnLoop_pixelPhiMin = std::max( -1, pixel_i.phiIndex() + 1 - phiCells );
 
         //Setup values to check for overflow when using maps
         numBins_driftTime_e = distanceMap_e[Layer]->GetNbinsY(); //Returns nBins = totalBins - underflow - overflow 
