@@ -32,6 +32,7 @@ namespace CP {
                 m_sf_decoration_name(),
                 m_calibration_version("200513_Precision_r21"),
                 m_lowpt_threshold(15.e3),
+                m_iso_jet_dR("DFCommonJetDr"),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
                 m_init(false),
@@ -65,8 +66,14 @@ namespace CP {
         declareProperty("LowPtThreshold", m_lowpt_threshold);
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
+        /// Name of the decorator carrying the information the distance to the
+        /// next what ever jet (AntiKt4EMTopo,....)
+        declareProperty("CloseJetDRDecorator", m_iso_jet_dR);
     }
-   float MuonEfficiencyScaleFactors::lowPtTransition() const{
+    std::string MuonEfficiencyScaleFactors::close_by_jet_decoration() const{
+        return m_iso_jet_dR;
+    }
+    float MuonEfficiencyScaleFactors::lowPtTransition() const{
         return m_lowpt_threshold;
     }
     bool MuonEfficiencyScaleFactors::uncorrelate_sys() const { return m_seperateSystBins; }

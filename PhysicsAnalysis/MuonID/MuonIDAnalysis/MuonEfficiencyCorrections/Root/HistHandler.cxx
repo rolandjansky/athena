@@ -66,29 +66,30 @@ namespace CP {
         value = mu.phi();
         return CorrectionCode::Ok;
     }
+    void dRJetAxisHandler::set_close_jet_decorator(const std::string& decor_name){
+        m_close_jet_decor = decor_name;
+    }
+    
+    std::string dRJetAxisHandler::m_close_jet_decor = "dRJet";
+    dRJetAxisHandler::dRJetAxisHandler():
+            m_acc(m_close_jet_decor){}
+    
     CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
-        static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
-        static const SG::AuxElement::ConstAccessor<float> dRJet_DxAOD("DFCommonJetDr");
         static std::atomic<unsigned int> warned = {0};
-        if( dRJet_DxAOD.isAvailable(mu) ) {
+        if( m_acc.isAvailable(mu) ) {
             // decoration available in DxAOD
-            value = dRJet_DxAOD(mu);
-        } else if( dRJet.isAvailable(mu) ) {
-            // decoration manually provided by analyzers
-            value = dRJet.isAvailable(mu);
-            if (warned < 5) Warning("MuonEfficiencyCorrections::dRJetAxisHandler()","MuonsAuxDyn.DFCommonJetDr is not available in this DxAOD, but you've decorated the muon with dRJet. Using it for retrieving the isolation scale factors.");
-            ++warned;                    
+            value = m_acc(mu);
         } else {
             // decoration not available 
             value = -2.; 
             // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
-            
             if (warned<5){
-                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The %s decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)", m_close_jet_decor.c_str());
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You can define custom jet decorations via the 'CloseJetDRDecorator' property of the MuonEfficiencyCorrections tool");
                 ++warned;
             }
         }

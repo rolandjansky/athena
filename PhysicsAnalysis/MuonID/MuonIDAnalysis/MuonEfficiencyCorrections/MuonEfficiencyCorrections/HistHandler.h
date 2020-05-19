@@ -220,8 +220,15 @@ namespace CP {
     };
     class dRJetAxisHandler: public AxisHandler {
         public:
+            dRJetAxisHandler();
+            
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~dRJetAxisHandler() = default;
+            static void set_close_jet_decorator(const std::string& decor_name);
+            
+        private:
+            static std::string m_close_jet_decor;
+            SG::AuxElement::ConstAccessor<float> m_acc;
     };
     class UndefinedAxisHandler: public AxisHandler {
         public:
