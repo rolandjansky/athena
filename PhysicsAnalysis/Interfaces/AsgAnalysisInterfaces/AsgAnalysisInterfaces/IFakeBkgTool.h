@@ -13,6 +13,7 @@
 class TDirectory;
 class TH1;
 class TH2;
+class TH3;
 
 namespace CP
 {
@@ -53,6 +54,11 @@ class IFakeBkgTool : virtual public CP::ISystematicsTool
     /// the 'xval' / 'yval' arguments point to variables corresponding to the X/Y axis of the histogram and that need to be updated before each call to addEvent()
     /// undefined behaviour if the pointers are invalidated during the tool's lifetime
     virtual StatusCode register2DHistogram(TH2* h2, const float *xval, const float *yval) = 0;
+
+   /// \brief associates a 3D histogram to the tool, to obtain a binned estimate of the fake lepton background
+    /// the 'xval' / 'yval' / 'zval'  arguments point to variables corresponding to the X/Y/Z axis of the histogram and that need to be updated before each call to addEvent()
+    /// undefined behaviour if the pointers are invalidated during the tool's lifetime
+    virtual StatusCode register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) = 0;
 
     virtual StatusCode saveProgress(TDirectory* dir) = 0;
     
