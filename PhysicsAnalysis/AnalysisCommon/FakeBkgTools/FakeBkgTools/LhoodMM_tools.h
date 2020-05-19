@@ -14,6 +14,8 @@
 #include <vector>
 
 class TH1;
+class TH2;
+class TH3;
 class TMinuit_LHMM;
 class TDirectory;
 
@@ -47,6 +49,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
   virtual StatusCode getTotalYield(float& yield, float& statErrUp, float& statErrDown) override final;
   virtual StatusCode register1DHistogram(TH1* h1, const float *val) override;
   virtual StatusCode register2DHistogram(TH2* h2, const float *xval, const float *yval) override;
+  virtual StatusCode register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) override;
 
   double nfakes(Double_t *poserr, Double_t *negerr); 
  
@@ -110,6 +113,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
   
   std::map<TH1*, std::vector< LhoodMMFitInfo > > m_fitInfo_1dhisto_map;
   std::map<TH2*, std::vector< LhoodMMFitInfo > > m_fitInfo_2dhisto_map;
+  std::map<TH3*, std::vector< LhoodMMFitInfo > > m_fitInfo_3dhisto_map;
 
   double m_dilep_SSfrac_num, m_dilep_SSfrac_denom;
   std::vector< std::vector < double > > m_OSfrac;

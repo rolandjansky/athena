@@ -7,6 +7,7 @@
    <class name="std::vector<CP::LhoodMMFitInfo>" />
    <class name="std::map<TH1*,std::vector<CP::LhoodMMFitInfo> >" />
    <class name="std::map<TH2*,std::vector<CP::LhoodMMFitInfo> >" />
+   <class name="std::map<TH3*,std::vector<CP::LhoodMMFitInfo> >" />
    <class name="FakeBkgTools::Efficiency" />
    <class name="std::vector<FakeBkgTools::Efficiency>" />
    <class name="FakeBkgTools::Uncertainty" />

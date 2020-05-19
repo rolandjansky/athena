@@ -55,6 +55,8 @@ class BaseLinearFakeBkgTool : public BaseFakeBkgTool, virtual public ILinearFake
     
     virtual StatusCode register1DHistogram(TH1* h1, const float *val) override;
     virtual StatusCode register2DHistogram(TH2* h2, const float *xval, const float *yval) override;
+    virtual StatusCode register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) override;
+
     StatusCode assignYieldRange(TH1* h);
   
     virtual StatusCode saveProgress(TDirectory* dir) override;
