@@ -184,7 +184,7 @@ StatusCode TileCellSelector::initialize() {
   ATH_MSG_INFO( "OverflowLG " << m_overflowLG);
   ATH_MSG_INFO( "OverflowHG " << m_overflowHG);
   ATH_MSG_INFO( "UnderflowLG " << m_underflowLG);
-  ATH_MSG_INFO( "UnderflowHG " << m_underflowLG);
+  ATH_MSG_INFO( "UnderflowHG " << m_underflowHG);
 
   ATH_MSG_INFO( "SkipEmpty " << ((m_skipEmpty) ? "true" : "false"));
   ATH_MSG_INFO( "SkipMasked " << ((m_skipMasked) ? "true" : "false"));
