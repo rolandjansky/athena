@@ -109,50 +109,6 @@ PixelDiodeMatrix:: ~PixelDiodeMatrix()
   if (m_upperCell) m_upperCell->unref();
 }
 
-std::string
-PixelDiodeMatrix::createDebugStringRepr(unsigned int level) const
-{
-    std::string prefix = "";
-    for (unsigned int i=0; i<level; i++) {
-      prefix += "  ";
-    }
-    // base case: single cell
-    if (m_singleCell) {
-        std::string cellSize = "";
-        cellSize += prefix + "phi: " + std::to_string(m_phiWidth) + "\n";
-        cellSize += prefix + "eta: " + std::to_string(m_etaWidth) + "\n";
-        return cellSize;
-    }
-
-    std::string cellContent = "";
-
-    if (!m_lowerCell and !m_middleCells and !m_upperCell) {
-      cellContent += prefix + "completly empty (WARNING: there should always be at least one cell!)\n";
-      return cellContent;
-    }
-
-    cellContent += prefix + "direction: ";
-    if (m_direction == phiDir)      {cellContent += "phi\n";}
-    else if (m_direction == etaDir) {cellContent += "eta\n";}
-    else                            {cellContent += "unknown\n";}
-
-    // recursive call for nested cells
-    if (m_lowerCell) {
-      cellContent += prefix + "lowerCell: \n";
-      cellContent += m_lowerCell->createDebugStringRepr(level+1);
-    }
-    if (m_middleCells) {
-      cellContent += prefix + "middleCells: " + std::to_string(m_numCells) + "x :\n";
-      cellContent += m_middleCells->createDebugStringRepr(level+1);
-    }
-    if (m_upperCell) {
-      cellContent += prefix + "upperCell: \n";
-      cellContent += m_upperCell->createDebugStringRepr(level+1);
-    }
-
-    return cellContent;
-}
-
 const PixelDiodeMatrix * 
 PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId & cellId) const
 
