@@ -167,9 +167,6 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
     
-    #from TrigEgammaMonitoring.TrigEgammaMonitCategory import validation_electron, validation_photon
-    #from TrigEgammaMonitoring.TrigEgammaMonitCategory import validationTP_electron, validationTP_Jpsiee
-    #from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags, monitoring_jpsitags
     
     # This will be removed for future.
     monitoring_electron = ['HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
@@ -177,12 +174,6 @@ class TrigEgammaMonAlgBuilder:
     monitoringTP_electron = ['HLT_e26_lhtight_L1EM24VHI','HLT_e60_lhmedium_L1EM24VHI','HLT_e140_lhloose_L1EM24VHI']
 
 
-    #self.electronList = validation_electron
-    #self.photonList   = validation_photon
-    #self.tpList       = validationTP_electron
-    #self.jpsiList     = validationTP_Jpsiee
-    #self.tagItems     = [] #monitoring_tags 
-    #self.jpsitagItems = [] #monitoring_jpsitags
 
     self.electronList = monitoring_electron
     self.photonList   = monitoring_photon
