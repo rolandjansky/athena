@@ -1460,6 +1460,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   for (int i = 0; i <= m_maxESbr; i++) {
     m_passedES[i] = false;
   }
+  m_passedESNONISO = false;
 
   if (m_requestESchains) {
     std::vector<std::string>::iterator itrES;
