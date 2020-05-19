@@ -37,7 +37,9 @@ int main() {
 
   asg::AnaToolHandle<IBTaggingEigenVectorRecompositionTool> evr_tool("BTaggingEigenVectorRecompositionTool/BTagEVRTest");
   StatusCode code7 = evr_tool.setProperty("BTaggingEfficiencyTool", btag_eff_tool);
-  if (code7 != StatusCode::SUCCESS) {
+  StatusCode code8 = evr_tool.initialize();
+  if (code7 != StatusCode::SUCCESS
+      ||code8 != StatusCode::SUCCESS ) {
     std::cout << "Initialization of tool" << evr_tool->name() << " failed!" << std::endl;
   } else {
     std::cout << "Initialization of tool " << evr_tool->name() << " finished." << std::endl;

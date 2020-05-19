@@ -118,6 +118,7 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients
 
   std::map<std::string, double> innerMap =
     outterMap["Eigen_"+label+"_"+std::to_string(evIdx)];
+  ATH_MSG_INFO("=============================================");
   ATH_MSG_INFO("Printing coefficient of Eigen_"<<label<<"_"<<std::to_string(evIdx));
   ATH_MSG_INFO("");
   for (std::map<std::string, double>::iterator in = innerMap.begin();
