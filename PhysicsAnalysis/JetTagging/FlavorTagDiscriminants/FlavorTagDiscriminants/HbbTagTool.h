@@ -27,7 +27,7 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
 
     // returns 0 for success
-    int decorate(const xAOD::JetContainer& jets) const;
+    int decorate(const xAOD::JetContainer& jets) const override;
   private:
     HbbTagProperties m_props;
     std::unique_ptr<HbbTag> m_hbb;
