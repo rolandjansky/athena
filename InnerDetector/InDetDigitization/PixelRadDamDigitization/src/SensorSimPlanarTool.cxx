@@ -376,6 +376,12 @@ StatusCode SensorSimPlanarTool::initialize() {
     distanceMap_h[Layer]=distanceMap_h_hold;
     timeMap_e[Layer]=timeMap_e_hold;
     timeMap_h[Layer]=timeMap_h_hold;
+    
+    // Define necessary variables to describe hists stored in ramoPotentialMap
+    // to skip calling FindBin during induceCharge for speed reasons
+    ramo_x_binMap[Layer] = 1000. * (ramoPotentialMap[Layer]->GetNbinsX() / (ramoPotentialMap[Layer]->GetXaxis()->GetXmax() - ramoPotentialMap[Layer]->GetXaxis()->GetXmin()));
+    ramo_y_binMap[Layer] = 1000. * (ramoPotentialMap[Layer]->GetNbinsY() / (ramoPotentialMap[Layer]->GetYaxis()->GetXmax() - ramoPotentialMap[Layer]->GetYaxis()->GetXmin()));
+    ramo_z_binMap[Layer] = 1000. * (ramoPotentialMap[Layer]->GetNbinsZ() / (ramoPotentialMap[Layer]->GetZaxis()->GetXmax() - ramoPotentialMap[Layer]->GetZaxis()->GetXmin()));
   }
   return StatusCode::SUCCESS;
 }
@@ -628,9 +634,20 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_i_e*=scale_i;
 
-            int nbin_ramo_i_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_i_e )*1000. );
-            int nbin_ramo_i_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_i_e )*1000. );
-            int nbin_ramo_i_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( dist_electrode*1000 );
+            int nbin_ramo_i_x = int( 1 + std::abs( dPhi_i_e ) * ramo_x_binMap[Layer] );
+            int nbin_ramo_i_y = int( 1 + std::abs( dEta_i_e ) * ramo_y_binMap[Layer] );
+            int nbin_ramo_i_z;
+            //distinction necessary because of min(z) = -0.5
+            if (Layer.second != 0){
+              nbin_ramo_i_z = int( 1.5 + dist_electrode * ramo_z_binMap[Layer] );
+            }
+            else {
+              nbin_ramo_i_z = int( 1 + dist_electrode * ramo_z_binMap[Layer] );
+            }
+            // Check for overflow bins
+            if (nbin_ramo_i_x > numBins_weightingPotential_x){ nbin_ramo_i_x = numBins_weightingPotential_x + 1; }
+            if (nbin_ramo_i_y > numBins_weightingPotential_y){ nbin_ramo_i_y = numBins_weightingPotential_y + 1; }
+            if (nbin_ramo_i_z > numBins_weightingPotential_z){ nbin_ramo_i_z = numBins_weightingPotential_z + 1; }
             //int nbin_ramo_i = ramoPotentialMap[0]->FindBin( std::abs( dEta_i_e )*1000. , std::abs( dPhi_i_e )*1000., dist_electrode*1000);
 
             //Boundary check on maps
@@ -651,9 +668,21 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_f_e*=scale_f_e;
 
-            int nbin_ramo_f_e_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_f_e )*1000. );
-            int nbin_ramo_f_e_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_f_e )*1000. );
-            int nbin_ramo_f_e_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_e*1000 );
+            int nbin_ramo_f_e_x = int( 1 + std::abs( dPhi_f_e ) * ramo_x_binMap[Layer] );
+            int nbin_ramo_f_e_y = int( 1 + std::abs( dEta_i_e ) * ramo_y_binMap[Layer] );
+            int nbin_ramo_f_e_z;
+            //distinction necessary because of min(z) = -0.5
+            if (Layer.second != 0){
+              nbin_ramo_f_e_z = int( 1.5 + depth_f_e * ramo_z_binMap[Layer] );
+            }
+            else {
+              nbin_ramo_f_e_z = int( 1 + depth_f_e * ramo_z_binMap[Layer] );
+            }
+
+            // Check for overflow bins
+            if (nbin_ramo_f_e_x > numBins_weightingPotential_x){ nbin_ramo_f_e_x = numBins_weightingPotential_x + 1; }
+            if (nbin_ramo_f_e_y > numBins_weightingPotential_y){ nbin_ramo_f_e_y = numBins_weightingPotential_y + 1; }
+            if (nbin_ramo_f_e_z > numBins_weightingPotential_z){ nbin_ramo_f_e_z = numBins_weightingPotential_z + 1; }
             //int nbin_ramo_f_e = ramoPotentialMap[0]->FindBin( std::abs( dEta_f_e )*1000. , std::abs( dPhi_f_e )*1000., depth_f_e*1000);
             double ramo_f_e=0.;
             if( nbin_ramo_f_e_x <= numBins_weightingPotential_x && nbin_ramo_f_e_y <= numBins_weightingPotential_y && nbin_ramo_f_e_z <=numBins_weightingPotential_z ){
@@ -665,9 +694,21 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_f_h*=scale_f_h;
 
-            int nbin_ramo_f_h_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_f_h )*1000. );
-            int nbin_ramo_f_h_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_f_h )*1000. );
-            int nbin_ramo_f_h_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_h*1000 );
+            int nbin_ramo_f_h_x = int( 1 + std::abs( dPhi_f_h ) * ramo_x_binMap[Layer] );
+            int nbin_ramo_f_h_y = int( 1 + std::abs( dEta_f_h ) * ramo_y_binMap[Layer] );
+            int nbin_ramo_f_h_z;
+            //distinction necessary because of min(z) = -0.5
+            if (Layer.second != 0){
+              nbin_ramo_f_h_z = int( 1.5 + depth_f_h * ramo_z_binMap[Layer] );
+            }
+            else {
+              nbin_ramo_f_h_z = int( 1 + depth_f_h * ramo_z_binMap[Layer] );
+            }
+
+            // Check for overflow bins
+            if (nbin_ramo_f_h_x > numBins_weightingPotential_x){ nbin_ramo_f_h_x = numBins_weightingPotential_x + 1; }
+            if (nbin_ramo_f_h_y > numBins_weightingPotential_y){ nbin_ramo_f_h_y = numBins_weightingPotential_y + 1; }
+            if (nbin_ramo_f_h_z > numBins_weightingPotential_z){ nbin_ramo_f_h_z = numBins_weightingPotential_z + 1; }
             //int nbin_ramo_f_h = ramoPotentialMap->FindBin( std::abs( dEta_f_h )*1000. , std::abs( dPhi_f_h )*1000., depth_f_h*1000);
             //Boundary check on maps
             double ramo_f_h=0.;
