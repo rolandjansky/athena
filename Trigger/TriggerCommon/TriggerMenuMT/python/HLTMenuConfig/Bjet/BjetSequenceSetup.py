@@ -117,6 +117,11 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
     hypo.Tracks = PTTrackParticles[0]
+    hypo.PrmVtx = prmVtxKey
+    hypo.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
+
+    from TrigBjetHypo.TrigBjetOnlineMonitoringMTConfig import TrigBjetOnlineMonitoring
+    hypo.MonTool = TrigBjetOnlineMonitoring()
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
     return MenuSequence( Sequence    = BjetAthSequence,

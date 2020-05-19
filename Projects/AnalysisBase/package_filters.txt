@@ -18,7 +18,6 @@
 - Reconstruction/Jet/JetMomentTools
 - Reconstruction/Jet/JetRec
 - Reconstruction/Jet/JetSubStructureMomentTools
-- Reconstruction/Jet/JetSubStructureUtils
 
 
 
@@ -56,7 +55,7 @@
 #+ ForwardDetectors/ZDC/ZdcNtuple
 + Generators/TruthUtils
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
-#+ InnerDetector/InDetRecTools/TrackVertexAssociationTool
++ InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonStationIndex
 #+ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
@@ -68,9 +67,9 @@
 #+ PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
 + PhysicsAnalysis/AnalysisCommon/PATInterfaces
-#+ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
-#+ PhysicsAnalysis/AnalysisCommon/PMGTools
++ PhysicsAnalysis/AnalysisCommon/PMGTools
 #+ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
@@ -83,10 +82,10 @@
 #+ PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 #+ PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-#+ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
-#+ PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
 + PhysicsAnalysis/TauID/DiTauMassTools

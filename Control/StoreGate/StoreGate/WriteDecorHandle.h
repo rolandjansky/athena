@@ -235,6 +235,24 @@ private:
   virtual void* typeless_dataPointer_impl (bool quiet) override;
 
 
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a standalone object
+   *        (@c T derives from @c SG::AuxElement).
+   */
+  bool isAvailable (std::true_type);
+
+
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a container
+   *        (@c T does not derive from @c SG::AuxElement).
+   */
+  bool isAvailable (std::false_type);
+
+
   /** 
    * @brief Return the referenced object as a @c SG::AuxVectorData.
    *        Specialization for the case of a standalone object
@@ -268,6 +286,8 @@ private:
 
   /// Accessor for the aux data item.
   accessor_t m_acc;
+
+  bool m_madeAlias;
 };
 
 

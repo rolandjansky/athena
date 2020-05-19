@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/AthLinks
    Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgDataHandles
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
    PRIVATE
@@ -33,7 +34,7 @@ find_package( ROOT COMPONENTS Core Hist RIO )
 atlas_add_library( TrackVertexAssociationToolLib
    Root/*.cxx
    PUBLIC_HEADERS TrackVertexAssociationTool
-   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking
+   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo )
 
 if( NOT XAOD_STANDALONE )

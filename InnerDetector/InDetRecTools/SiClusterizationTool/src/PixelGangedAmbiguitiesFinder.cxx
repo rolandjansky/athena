@@ -53,7 +53,7 @@ StatusCode PixelGangedAmbiguitiesFinder::initialize() {
   // Output is the map.
 void PixelGangedAmbiguitiesFinder::execute(
                               PixelClusterCollection* collection,
-                              PixelGangedClusterAmbiguities& theMap){
+                              PixelGangedClusterAmbiguities& theMap) const{
     if (collection->size()<2) return;
 
     ATH_MSG_DEBUG(collection->size() << " clusters");

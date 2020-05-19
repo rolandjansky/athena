@@ -22,10 +22,12 @@
 #include <TFile.h>
 #include <TObject.h>
 
+#include "CxxUtils/checker_macros.h"
+
 class TTree;
 class TBranch;
 
-class CaloHadDMCoeffData {
+class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffData {
   public :
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain

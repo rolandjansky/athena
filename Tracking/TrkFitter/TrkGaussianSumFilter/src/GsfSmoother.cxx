@@ -64,7 +64,8 @@ Trk::GsfSmoother::configureTools(
 }
 
 Trk::SmoothedTrajectory*
-Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
+Trk::GsfSmoother::fit(const EventContext& ctx,
+                      const ForwardTrajectory& forwardTrajectory,
                       const ParticleHypothesis particleHypothesis,
                       const Trk::CaloCluster_OnTrack* ccot) const
 {
@@ -247,7 +248,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
      is opposite to the direction of momentum */
 
     Trk::MultiComponentState extrapolatedState =
-      m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+      m_extrapolator->extrapolate(ctx,
                                   updatedState,
                                   measurement->associatedSurface(),
                                   Trk::oppositeMomentum,
@@ -365,7 +366,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       if (ccot && trackStateOnSurface == secondLastTrackStateOnSurface) {
 
         Trk::MultiComponentState ccotState =
-          addCCOT(updatedStateOnSurface, ccot, smoothedTrajectory.get());
+          addCCOT(ctx,updatedStateOnSurface, ccot, smoothedTrajectory.get());
         if (!ccotState.empty()) {
           updatedState = std::move(ccotState);
         }
@@ -474,7 +475,8 @@ Trk::GsfSmoother::combine(
 }
 
 Trk::MultiComponentState
-Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
+Trk::GsfSmoother::addCCOT(const EventContext& ctx,
+                          const Trk::TrackStateOnSurface* currentState,
                           const Trk::CaloCluster_OnTrack* ccot,
                           Trk::SmoothedTrajectory* smoothedTrajectory) const
 {
@@ -496,7 +498,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   // Extrapolate to the Calo
   if (currentSurface) {
     extrapolatedState =
-      m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+      m_extrapolator->extrapolateDirectly(ctx,
                                           *currentMultiComponentState,
                                           ccot->associatedSurface(),
                                           Trk::alongMomentum,
@@ -530,7 +532,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
 
   // Extrapolate back to the surface nearest the origin
   extrapolatedState =
-    m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+    m_extrapolator->extrapolateDirectly(ctx,
                                         updatedState,
                                         *currentSurface,
                                         Trk::oppositeMomentum,

@@ -18,7 +18,7 @@ decription           : Class for fitting according to the Gaussian Sum Filter
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,19 +26,19 @@ decription           : Class for fitting according to the Gaussian Sum Filter
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+
 #include <atomic>
 
-namespace Trk {
 
+namespace Trk {
 class IMultiStateMeasurementUpdator;
 class MultiComponentStateOnSurface;
 class IMultiStateExtrapolator;
-
-class TrackFitInputPreparator;
 class IForwardGsfFitter;
 class IGsfSmoother;
-class Track;
 class FitQuality;
+class Track;
+
 
 class GaussianSumFitter
   : virtual public ITrackFitter
@@ -110,6 +110,7 @@ public:
 private:
   /** Produces a perigee from a smoothed trajectory */
   const MultiComponentStateOnSurface* makePerigee(
+    const EventContext& ctx,
     const SmoothedTrajectory*,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
@@ -151,20 +152,23 @@ private:
   bool m_refitOnMeasurementBase;
   bool m_doHitSorting;
   PropDirection m_directionToPerigee;
-  TrkParametersComparisonFunction* m_trkParametersComparisonFunction;
+  std::unique_ptr<TrkParametersComparisonFunction> m_trkParametersComparisonFunction;
+  std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;
   ServiceHandle<IChronoStatSvc> m_chronoSvc;
-  TrackFitInputPreparator* m_inputPreparator;
 
-  // GSF Fit Statistics
-  mutable std::atomic<int> m_FitPRD; // Number of Fit PrepRawData Calls
-  mutable std::atomic<int>
-    m_FitMeasurementBase; // Number of Fit MeasurementBase Calls
-  mutable std::atomic<int> m_ForwardFailure;  // Number of Foward Fit Failures
-  mutable std::atomic<int> m_SmootherFailure; // Number of Smoother Failures
-  mutable std::atomic<int> m_PerigeeFailure;  // Number of MakePerigee Failures
-  mutable std::atomic<int>
-    m_fitQualityFailure; // Number of Tracks that fail fit Quailty test
+  // Number of Fit PrepRawData Calls
+  mutable std::atomic<int> m_FitPRD;   
+  // Number of Fit MeasurementBase Calls
+  mutable std::atomic<int> m_FitMeasurementBase;
+  // Number of Foward Fit Failures
+  mutable std::atomic<int> m_ForwardFailure;
+  // Number of Smoother Failures
+  mutable std::atomic<int> m_SmootherFailure;
+  // Number of MakePerigee Failures
+  mutable std::atomic<int> m_PerigeeFailure;
+  // Number of Tracks that fail fit Quailty test
+  mutable std::atomic<int> m_fitQualityFailure;
 };
 
 } // end Trk namespace

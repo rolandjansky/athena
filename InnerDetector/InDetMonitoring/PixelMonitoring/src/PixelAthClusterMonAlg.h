@@ -5,14 +5,10 @@
 #ifndef PIXELATHCLUSTERMONTOOL_H
 #define PIXELATHCLUSTERMONTOOL_H
 
-#include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoringKernel/Monitored.h"
 #include "PixelAthMonitoringBase.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "InDetIdentifier/PixelID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 

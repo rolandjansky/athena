@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Service configurations for ISF
@@ -109,10 +109,11 @@ def GenericTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
     kwargs.setdefault('SkipIfNoChildren', True)
     kwargs.setdefault('SkipIfNoParentBarcode', True)
     kwargs.setdefault('ForceEndVtxInRegions', [])
-    #long_lived_simulators = ['LongLived', 'longLived', 'QS']
-    #from ISF_Config.ISF_jobProperties import ISF_Flags
-    #is_long_lived_simulation = any(x in ISF_Flags.Simulator() for x in long_lived_simulators) #FIXME this should be set in a nicer way.
-    is_long_lived_simulation = True
+    
+    # Mimics old configuration, which is marked as `#FIXME this should be set in a nicer way.'
+    long_lived_simulators = ['LongLived', 'longLived', 'QS']
+    simulator = ConfigFlags.Sim.ISF.Simulator
+    is_long_lived_simulation = any(x in simulator for x in long_lived_simulators)
     if is_long_lived_simulation:
         kwargs.setdefault('QuasiStableParticlesIncluded', True)
 

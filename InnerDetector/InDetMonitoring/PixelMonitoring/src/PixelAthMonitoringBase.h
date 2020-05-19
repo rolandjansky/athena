@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELATHMONITORINGBASE_H
@@ -42,6 +42,7 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 
  public:
   void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights ) const;
+  void fill2DProfLumiLayers( const std::string& prof2Dname, int lb, float (*weights)[PixLayers::COUNT], const int* nCategories ) const;
 
   int getPixLayersID(int ec, int ld) const;
   void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;

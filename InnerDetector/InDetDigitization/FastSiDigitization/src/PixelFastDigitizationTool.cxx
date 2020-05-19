@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_ambiguitiesMap(nullptr),
   m_digitizationStepper("Trk::PlanarModuleStepper")
 {
-  declareInterface<IPixelFastDigitizationTool>(this);
   declareProperty("RndmSvc"                        , m_rndmSvc,                  "Random Number Service used in Pixel digitization" );
   declareProperty("RndmEngine"                     , m_randomEngineName,         "Random engine name");
   declareProperty("ClusterMaker"                   , m_clusterMaker);

@@ -327,7 +327,7 @@ ISF::InputConverter::passesFilters(const HepMC::GenParticle& part) const
 
 
 //________________________________________________________________________
-G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& ispVector, HepMC::GenEvent *genEvent) const
+G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& ispVector, HepMC::GenEvent *genEvent, bool useHepMC) const
 {
   const int eventID(1);
   G4Event *g4evt = new G4Event(eventID);
@@ -351,7 +351,7 @@ G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& 
 	}
         continue;
     }
-    this->addG4PrimaryVertex(g4evt,isp);
+    this->addG4PrimaryVertex(g4evt,isp,useHepMC);
     n_pp++;
   }
 
@@ -459,7 +459,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
 
 
 //________________________________________________________________________
-G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParticle& isp) const
+G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParticle& isp, bool useHepMC) const
 {
   ATH_MSG_VERBOSE("Creating G4PrimaryParticle from ISFParticle.");
 
@@ -487,7 +487,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   G4double px(0.0);
   G4double py(0.0);
   G4double pz(0.0);
-  if(genpart) {
+  if(useHepMC && genpart) {
     auto &genpartMomentum = genpart->momentum();
     px = genpartMomentum.x();
     py = genpartMomentum.y();
@@ -576,7 +576,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 }
 
 //________________________________________________________________________
-void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const
+void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp, bool useHepMC) const
 {
   /*
     see conversion from PrimaryParticleInformation to TrackInformation in
@@ -588,7 +588,7 @@ void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParti
     that we don't miss something
   */
 
-  G4PrimaryParticle *g4particle = this->getG4PrimaryParticle( isp );
+  G4PrimaryParticle *g4particle = this->getG4PrimaryParticle( isp, useHepMC );
   if (!g4particle) {
     ATH_MSG_ERROR("Failed to create G4PrimaryParticle for ISParticle (" << isp <<")");
     return;

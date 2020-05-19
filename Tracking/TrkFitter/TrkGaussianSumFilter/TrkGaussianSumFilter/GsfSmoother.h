@@ -56,6 +56,7 @@ public:
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
+    const EventContext& ctx,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const;
@@ -67,6 +68,7 @@ private:
 
   /** Methof to add the CaloCluster onto the track */
   MultiComponentState addCCOT(
+    const EventContext& ctx,
     const Trk::TrackStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
     Trk::SmoothedTrajectory* smoothedTrajectory) const;

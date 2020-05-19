@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_RTDATAFROMFILE_H
@@ -7,10 +7,11 @@
 
 #include "MdtCalibUtils/RtData_t_r_reso.h"
 #include "MdtCalibData/RtFullInfo.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <vector>
 #include <iostream>
-#include <string>
 
 namespace MuonCalib {
 
@@ -23,7 +24,7 @@ namespace MuonCalib {
     typedef std::vector<RtRelation*>            RtRelations;
   public:
     RtDataFromFile() : m_rts(0), m_major_version(1), m_minor_version(0)  {}
-    ~RtDataFromFile();
+    ~RtDataFromFile()=default;
     
     /** return number of rt relations */
     unsigned int nRts() const { return m_rts; }
@@ -31,9 +32,9 @@ namespace MuonCalib {
     /** retrieve rt-relation for a give regionId */
     RtRelation* getRt( unsigned int regionId ) const { 
       if( regionId >= (unsigned int)m_rts ){
-	std::cout << "RtDataFromFile::getRt ERROR <regionId out of range> "
-		  << regionId << " size " << m_rts << std::endl;
-	return 0;
+        MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+        log<<MSG::WARNING<<"getRt() <regionId out of range> " << regionId << " size " << m_rts <<endmsg;
+        return 0;
       }
       return m_rtRelations[regionId];
     }
@@ -44,13 +45,14 @@ namespace MuonCalib {
     /** RtDataFromFile takes ownership of rt */
     bool addRt( int regionId, RtRelation* rt ){
       if( regionId < 0 || regionId >= (int)m_rts ){
-	std::cout << "RtDataFromFile::addRt ERROR <regionId out of range> "
-		  << regionId << " size " << m_rts << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+        log<<MSG::WARNING<<"addRt() <regionId out of range> " << regionId << " size " << m_rts <<endmsg;
+        return false;
       }
       if( m_rtRelations[regionId] != 0 ){
-	std::cout << "RtDataFromFile::addRt ERROR <rt already set> " << std::endl;
-	return false;
+        MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+        log<<MSG::WARNING<<"addRt() <rt already set>" << endmsg;
+        return false;
       }
 
       m_rtRelations[regionId] = rt;

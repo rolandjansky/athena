@@ -5,6 +5,7 @@
 #ifndef TAUREC_TAUCALIBRATELC_H
 #define TAUREC_TAUCALIBRATELC_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODEventInfo/EventInfo.h"
 

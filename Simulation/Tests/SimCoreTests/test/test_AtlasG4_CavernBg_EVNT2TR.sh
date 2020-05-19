@@ -35,7 +35,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summary --diff-root --file=*EVNT.pool.root
+    art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --diff-root --file=*EVNT.pool.root
     rc2=$?
 fi
 

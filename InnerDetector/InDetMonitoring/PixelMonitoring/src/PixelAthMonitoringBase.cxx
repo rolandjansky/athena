@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelMonitoring/PixelAthMonitoringBase.h"
+#include "PixelAthMonitoringBase.h"
 
 
 //////////////////////////////////////////////
@@ -76,6 +76,27 @@ void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname
   }
 }
 //////////////////////////////////////////////
+
+///
+/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
+///
+void PixelAthMonitoringBase::fill2DProfLumiLayers( const std::string& prof2Dname, int lumiblock, float(*values)[PixLayers::COUNT], const int* nCategories) const {
+  ATH_MSG_VERBOSE( "in fill2DProfLumiLayers()" );
+
+  // Define the monitored variables
+  auto lb  = Monitored::Scalar<int>( prof2Dname + "_lb", lumiblock );
+  auto val = Monitored::Scalar<float>( prof2Dname + "_val", 1.0);
+  auto cat = Monitored::Scalar<int>( prof2Dname + "_cat");
+
+  for (int i = 0; i < PixLayers::COUNT; i++) {
+    for (cat = 0; cat < nCategories[i]; cat++) {
+      val = values[cat][i];
+      fill( pixLayersLabel[i], lb, cat, val);
+    }
+  }
+}
+//////////////////////////////////////////////
+
 
 ///
 /// filling 1DProfile per-pp0(ROD) histograms for ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,8 +31,7 @@ class TRT_ID;
  * ie transforms a raw drifttime to a calibrated drift radius
 
 */
-class TRT_DriftFunctionTool: public AthAlgTool, 
-			     virtual public ITRT_DriftFunctionTool{
+class TRT_DriftFunctionTool: public extends<AthAlgTool, ITRT_DriftFunctionTool>{
 
 public:
   /** Constructor                           */
@@ -42,9 +41,6 @@ public:
 
   /** Destructor                            */	
   virtual ~TRT_DriftFunctionTool();
-
-  /** AlgTool InterfaceID                   */
-  static const InterfaceID& interfaceID();
 
   /** Retrieves needed services             */
   virtual StatusCode initialize() override;

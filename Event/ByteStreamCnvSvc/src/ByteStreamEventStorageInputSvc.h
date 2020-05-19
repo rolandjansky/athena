@@ -75,7 +75,8 @@ private: // data
     std::unique_ptr<RawEvent> rawEvent    = nullptr; //!< current event
     unsigned int              eventStatus = 0;       //!< check_tree() status of the current event
     long long int             eventOffset = 0;       //!< event offset within a file, can be -1
-    void                      releaseEvent();
+    void                      releaseEvent();        //!< deletes fragments and raw event
+    virtual                   ~EventCache();         //!< calls releaseEvent
   };
 
   SG::SlotSpecificObj<EventCache> m_eventsCache;
