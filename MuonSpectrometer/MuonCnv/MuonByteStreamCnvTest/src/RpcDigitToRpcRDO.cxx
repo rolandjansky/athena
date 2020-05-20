@@ -23,7 +23,7 @@ static double time_correction(double, double, double);
 
 namespace {
   static constexpr unsigned int const& rpcRawHitWordLength = 7;
-  static constexpr double const& inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
+  static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
 }
 
 /////////////////////////////////////////////////////////////////////////////
