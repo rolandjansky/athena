@@ -69,7 +69,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
 
   if (!externalCachePRD) {
     // without the cache we just record the container
-    StatusCode status = rpcPRDHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+    StatusCode status = rpcPRDHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
     if (status.isFailure() || !rpcPRDHandle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key()); 
       return StatusCode::FAILURE;
@@ -100,7 +100,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
     const bool externalCacheCoinData = !m_coindataContainerCacheKey.key().empty();
     if(!externalCacheCoinData){
       // without the cache we just record the container
-      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
       if (status.isFailure() || !rpcCoinHandle.isValid() )   {
         ATH_MSG_FATAL("Could not record container of RPC Coin Data Container at " << m_rpcCoinDataContainerKey.key()); 
         return StatusCode::FAILURE;
@@ -134,9 +134,9 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
     delete m_rpcCoinDataContainer;
   }
 
-  m_rpcPrepDataContainer = new Muon::RpcPrepDataContainer(m_muonIdHelperTool->rpcIdHelper().module_hash_max());
+  m_rpcPrepDataContainer = new Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
   if (m_producePRDfromTriggerWords){
-    m_rpcCoinDataContainer = new Muon::RpcCoinDataContainer(m_muonIdHelperTool->rpcIdHelper().module_hash_max());
+    m_rpcCoinDataContainer = new Muon::RpcCoinDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
   }
 
   return StatusCode::SUCCESS;
@@ -258,7 +258,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
     const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
         
     if ( rpcColl->size() > 0 ) {
-      msg (MSG::INFO) <<"PrepData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
+      msg (MSG::INFO) <<"PrepData Collection ID "<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
       RpcPrepDataCollection::const_iterator it_rpcPrepData;
       int icc = 0;
       int iccphi = 0;
@@ -274,7 +274,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	//                 }
 	//                 else
 	//                 {                    
-	if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
 	  iccphi++;
 	  ictphi++;
 	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
@@ -285,7 +285,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	}                    
 	//                 }
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
-			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
+			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
 			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
 			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
       }
@@ -325,7 +325,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
     const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
         
     if ( rpcColl->size() > 0 ) {  
-      msg (MSG::INFO) <<"CoinData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
+      msg (MSG::INFO) <<"CoinData Collection ID "<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
       RpcCoinDataCollection::const_iterator it_rpcCoinData;
       int icc = 0;
       int iccphi = 0;
@@ -345,7 +345,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	//                 }
 	//                 else
 	//                 {                    
-	if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
+	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
 	        
 	  iccphi++;
 	  ictphi++;
@@ -372,7 +372,7 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	}                    
 	//                 }
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
-			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
+			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
 			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
 			<<" cm/pad/sl ids = "
 			<<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
