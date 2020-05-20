@@ -1306,7 +1306,7 @@ class athenaExecutor(scriptExecutor):
 
         #Switch to ComponentAccumulator based config if requested
         if 'CA' in self.conf.argdict:
-            self._cmd += "--CA"
+            self._cmd.append("--CA")
 
         # Add topoptions
         if self._skeleton is not None:
