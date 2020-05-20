@@ -10,8 +10,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "PixelNoisyCellGenerator.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 

@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -34,7 +33,7 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
     } 
 
   if(!bParsed){
-        basics->msgStream()<<MSG::ERROR<<"XML file "<<fileName<<" not found"<<endreq;
+    basics->msgStream()<<MSG::ERROR<<"XML file "<<fileName<<" not found"<<endreq;
     return;
   }
 
@@ -57,8 +56,8 @@ int PixelRingSupportXMLHelper::getNbSupport(int layer, int ring)
   m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelRingSupportGeo", "name", -1, ringGeoName) : -1;
 
   if(m_ringGeoIndex<0) return 0;
-  std::vector<double> v = getVectorDouble("PixelRingSupportGeo",m_ringGeoIndex,"rmin");
-  return (int)v.size();
+  std::vector<double> vt = getVectorDouble("PixelRingSupportGeo",m_ringGeoIndex,"thickness");
+  return (int)vt.size();
 }
 
 double PixelRingSupportXMLHelper::getRingSupportRMin(int iSupport) const
@@ -119,7 +118,7 @@ int PixelRingSupportXMLHelper::getNbLayerSupport(int layer)
   if(!m_bXMLfileExist) return 0;
 
   int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
-  if(layerIndex < 0) return 0;
+  if ( layerIndex < 0 ) return 0;
 
   std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
   m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, ringGeoName) : -1;
@@ -135,8 +134,7 @@ std::vector<int> PixelRingSupportXMLHelper::getNbLayerSupportIndex(int layer)
   if(!m_bXMLfileExist) return layers;
 
   int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
-  if (layerIndex < 0) return layers;
-
+  if ( layerIndex < 0 ) return layers;
   std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
    
   // using the first name support to get the layer index
@@ -150,6 +148,30 @@ std::vector<int> PixelRingSupportXMLHelper::getNbLayerSupportIndex(int layer)
     layers.push_back(m_ringGeoIndex);
   }
   return layers;
+}
+
+std::vector<int> PixelRingSupportXMLHelper::getNbShellSupportIndex(int layer)
+{
+  std::vector<int> shells;
+  
+  if(!m_bXMLfileExist) return shells;
+
+  int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  if ( layerIndex < 0 ) return shells;
+  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
+   
+  // using the first name support to get the layer index
+  std::stringstream ss(ringGeoName);
+  std::string item;
+  
+  while (ss>>item) {
+    if(item.size()==0) continue;
+       
+    m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportShell", "name", -1, item) : -1;
+    shells.push_back(m_ringGeoIndex);
+  }
+
+   return shells;
 }
 
 std::vector<double> PixelRingSupportXMLHelper::getLayerSupportRadius(int /*iSupport*/) const
@@ -188,5 +210,60 @@ std::string PixelRingSupportXMLHelper::getLayerSupportMaterialAtIndex(int index)
   std::vector<std::string> v = getVectorString("PixelLayerSupportGeo",index,"material");
   int myIndex = (v.size()==1)? 0 : index;
   return v[myIndex];
+}
+
+//============== SHELL DESCRIPTION ==================
+
+std::vector<double>  PixelRingSupportXMLHelper::getLayerShellRadius(int layer) const
+{
+  std::vector<double> v; 
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return v; 
+  return getVectorDouble("PixelLayerSupportShell",layerIndex,"r");
+
+}
+
+std::vector<double>   PixelRingSupportXMLHelper::getLayerShellZBounds(int layer) const
+{
+  std::vector<double> v; 
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return v; 
+  return getVectorDouble("PixelLayerSupportShell",layerIndex,"z");
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getCorrugatedShellZClearance(int layer) const
+{
+  std::vector<double> v; 
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return v; 
+  return getVectorDouble("PixelLayerSupportShell",layerIndex,"CorrugatedZClearance");
+}
+
+double PixelRingSupportXMLHelper::getCorrugatedCableClearance(int layer) const
+{
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return -1.; 
+  return getDouble("PixelLayerSupportShell",layerIndex,"CorrugatedCableClearance");
+}
+
+double PixelRingSupportXMLHelper::getCorrugatedShellDepth(int layer) const
+{
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return -1.; 
+  return getDouble("PixelLayerSupportShell",layerIndex,"CorrugatedShellDepth");
+}
+
+double PixelRingSupportXMLHelper::getLayerShellThickness(int layer) const
+{
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return -1.; 
+  return getDouble("PixelLayerSupportShell",layerIndex,"thickness");
+}
+
+std::string PixelRingSupportXMLHelper::getLayerShellMaterial(int layer) const
+{
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
+  if (layerIndex<0) return ""; 
+  return getString("PixelLayerSupportShell",layerIndex,"material");
 }
 

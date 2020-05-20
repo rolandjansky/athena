@@ -19,10 +19,6 @@
 #ifndef TRIG_TrigEFBMuMuFex_H
 #define TRIG_TrigEFBMuMuFex_H
 
-// standard stuff
-#include <string>
-#include <map>
-#include <cmath> 
 // general athena stuff
 //// trigger includes
 #include "TrigInterfaces/ComboAlgo.h"

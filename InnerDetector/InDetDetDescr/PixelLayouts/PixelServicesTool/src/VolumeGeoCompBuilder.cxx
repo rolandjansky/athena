@@ -108,260 +108,149 @@ const std::vector<const ServiceVolume * > & VolumeGeoCompBuilder::servicesChild(
   return *m_servChild;
 }
 
+  // Why do we pass GeoPhysVol here? 
+  // Is this functiopn totally redundant?
 void VolumeGeoCompBuilder::buildAndPlace(const std::string & region, GeoPhysVol* /*parent*/, double zcenter) 
 {
-
-
   // Get volumes defined by Volume splitter and add them on top GeoPhysVol
   setRegion(region, zcenter);
-  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) 
-    if(!isEnvelopeOrChild(iElement))
-    {
-
-      msg(MSG::DEBUG)<<"VolumeGeoCompBuilder :: BuildAndPlace "<<services()[iElement]->volName()<<endreq;
-
-      //      InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
-      //      GeoVPhysVol* physVol = build(iElement);
-
-//       if (physVol) {
-
-// 	InDet::GeoSimpleObject *objBase= cmpConverter.convertIntoGeoComponent(physVol);
-
-// 	for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) { 
-// 	  //	  parent->add(getPlacement(iElement,iCopy));
-// 	  //	  parent->add(physVol);
-
-// 	  InDet::GeoSimpleObject *obj= objBase->place(getPlacement(iElement,iCopy)->getTransform() ,0);
-// 	  m_svcObjects.push_back(obj);
-// 	}
-	
-// 	objBase->UnRef();
-// 	delete objBase;
-//      }
+  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) {
+    if(!isEnvelopeOrChild(iElement)) {
+      msg(MSG::DEBUG)<<"VolumeGeoCompBuilder :: BuildAndPlace "<<services()[iElement]->volName() << "Not Envelope or Child" << endreq;
     }  
-
+  }
 }
 
-  
+
 void VolumeGeoCompBuilder::buildAndPlace(const std::string& region, GeoFullPhysVol* parent, double zcenter) 
 {
-
   // Get volumes defined by Volume splitter and add them on top GeoPhysVol
   setRegion(region, zcenter);
 
-  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) 
-    if(!isEnvelopeOrChild(iElement))
-      {
-	
-	msg(MSG::DEBUG)<<"VolumeGeoCompBuilder :: BuildAndPlace "<<services()[iElement]->volName()<<endreq;
+  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) {
+    if(!isEnvelopeOrChild(iElement)) {   
+      msg(MSG::DEBUG)<<"VolumeGeoCompBuilder :: BuildAndPlace "<<services()[iElement]->volName() << " not envelope or child" << endreq;
+    }  
+  }
 
-	//	InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
-	//	GeoVPhysVol* physVol = build(iElement);
+  // if region is not Pixel -> stop here
+  if (region.compare("Pixel")!=0) return;
 
-// 	if (physVol) 
-// 	  {
-// 	    InDet::GeoSimpleObject *objBase= cmpConverter.convertIntoGeoComponent(physVol);
-	    
-// 	    for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) { 
-// 	      //	  parent->add(getPlacement(iElement,iCopy));
-// 	      //	  parent->add(physVol);
-	      
-// 	      InDet::GeoSimpleObject *obj= objBase->place(getPlacement(iElement,iCopy)->getTransform() ,0);
-// 	      m_svcObjects.push_back(obj);
-
-// 	    }
-
-// 	    objBase->UnRef();
-// 	    delete objBase;
-// 	  }
-      }  
-
-
-// if region is not Pixel -> stop here
-  if(region.compare("Pixel")!=0) return;
-
-  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) 
-    if(getEnvelopeNum(iElement)>0&&services()[iElement]->envelopeParent()==0)
-      {
-
-	buildAndPlaceEnvelope(region, parent, -1, iElement, zcenter); 
-      }
+  for (unsigned int iElement = 0; iElement < services().size(); ++iElement) {
+    if(getEnvelopeNum(iElement)>0&&services()[iElement]->envelopeParent()==0) {
+      buildAndPlaceEnvelope(region, parent, -1, iElement, zcenter); 
+    }
+  }
 }
 
 
-
+// Following two functions are completely identical
+// Only difference is "parent" passed as GeoPhysVol or GepoPhgysVolFull, neither of which are ever used.
+// Can we stop passing the parent volume, and remove one copy?
 void VolumeGeoCompBuilder::buildAndPlaceEnvelope(const std::string& region, GeoPhysVol* /*parent*/, int /*iParent*/, int iElement, double zcenter)
 {
-
   msg(MSG::DEBUG)<<"VolumeGeoCompBuilder:: BuildAndPlace envelope "<<services()[iElement]->volName()<<endreq;
 
   GeoPhysVol* physVol = dynamic_cast<GeoPhysVol*>(build(iElement));
 
-  if (physVol) 
-    {
-      for (unsigned int iChild = 0; iChild < services().size(); ++iChild) 
-	{
-	  if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()>0)
-	    {
-	      msg(MSG::DEBUG)<<"***************** Build sub envelope "<<endreq;
-	      // if volume is a child volume : build and place it
-	      buildAndPlaceEnvelope(region, physVol, iElement, iChild, zcenter);
-	      msg(MSG::DEBUG)<<"***************** Build sub envelope - done "<< physVol->getNChildVols()<<endreq;
-// 	      int nbChildren=physVol->getNChildVols();
-// 	      for(int iChild=0; iChild<nbChildren; iChild++)
-// 		{
-// 		  const GeoVPhysVol* vol2 = &(*(physVol->getChildVol(iChild)));
-// 		  std::cout<<"    - child "<<iChild<<" "<<vol2->getNChildVols()<<std::endl;
-// 		}
-	    }
-	}
-
-      for (unsigned int iChild = 0; iChild < services().size(); ++iChild) 
-	{
-	  if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()==0)
-	    {
-	      // if volume is not a child volume
-	      GeoVPhysVol* physVol_child = build(iChild);
-	      if (physVol_child) {
-		for (int iCopy2 = 0; iCopy2 < numCopies(iChild); ++iCopy2) 
-		  { 
-		    physVol->add(getPlacementEnvelope(iChild,iCopy2,iElement));
-		    physVol->add(physVol_child);
-		  }
-	      }
-	    }
-	}
-
-      
-      msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion debut"<<services()[iElement]->volName()<<endreq;
-
-      //      InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
-      //      InDet::GeoSimpleObject *objBase= 0;
-      //      if(iParent<0) objBase = cmpConverter.convertIntoGeoComponent(physVol);
-
-      msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion fin"<<services()[iElement]->volName()<<endreq;
-
-      for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) 
-	{ 
-	  // add all the copies
-// 	  if(iParent<0)parent->add(getPlacement(iElement,iCopy));
-// 	  else parent->add(getPlacementEnvelope(iElement,iCopy,iParent));
-// 	  parent->add(physVol);
-
-	  msg(MSG::DEBUG)<<"BuildAndPlace envelope "<<services()[iElement]->volName()<<"   copie "<<iCopy<<endreq;
-
-// 	  InDet::GeoSimpleObject *obj= 0;
-// 	  if(iParent<0){
-// 	    obj = objBase->place(getPlacement(iElement,iCopy)->getTransform(),0);
-// 	    m_svcObjects.push_back(obj);
-// 	  }
-// 	  else{
-// 	    parent->add(getPlacementEnvelope(iElement,iCopy,iParent));
-// 	    parent->add(physVol);
-// 	  }
-	}
-
-//       if(objBase){
-// 	objBase->UnRef();
-// 	delete objBase;
-//       }
+  if (physVol) {
+    for (unsigned int iChild = 0; iChild < services().size(); ++iChild) {
+      if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()>0) {
+	msg(MSG::DEBUG)<<"***************** Build sub envelope "<<endreq;
+	// if volume is a child volume : build and place it
+	buildAndPlaceEnvelope(region, physVol, iElement, iChild, zcenter);
+	msg(MSG::DEBUG)<<"***************** Build sub envelope - done "<< physVol->getNChildVols()<<endreq;
+      }
     }
+    
+    for (unsigned int iChild = 0; iChild < services().size(); ++iChild) {
+      if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()==0) {
+	// if volume is not a child volume
+	GeoVPhysVol* physVol_child = build(iChild);
+	if (physVol_child) {
+	  for (int iCopy2 = 0; iCopy2 < numCopies(iChild); ++iCopy2) { 
+	    physVol->add(getPlacementEnvelope(iChild,iCopy2,iElement));
+	    physVol->add(physVol_child);
+	  }
+	}
+      }
+    }
+    
+      
+    // msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion debut"<<services()[iElement]->volName()<<endreq;
+    // InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
+    // InDet::GeoSimpleObject *objBase= 0;
+    // if(iParent<0) objBase = cmpConverter.convertIntoGeoComponent(physVol);
+    // msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion fin"<<services()[iElement]->volName()<<endreq;
 
+    for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) { 
+      msg(MSG::DEBUG)<<"BuildAndPlace envelope "<<services()[iElement]->volName()<<"   copie "<<iCopy<<endreq;
+    }
+  }  
 }
 
 
 void VolumeGeoCompBuilder::buildAndPlaceEnvelope(const std::string& region, GeoFullPhysVol* /*parent*/, int /*iParent*/, int iElement, double zcenter)
 {
-
   msg(MSG::DEBUG)<<"VolumeGeoCompBuilder:: BuildAndPlace envelope (GeoFullPhysVol) "<<services()[iElement]->volName()<<endreq;
-
   GeoPhysVol* physVol = dynamic_cast<GeoPhysVol*>(build(iElement));
 
-  if (physVol) 
-    {
-      for (unsigned int iChild = 0; iChild < services().size(); ++iChild) 
-	{
-	  if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()>0)
-	    {
-	      msg(MSG::DEBUG)<<"***************** Build sub envelope "<<endreq;
-	      // if volume is a child volume : build and place it
-	      buildAndPlaceEnvelope(region, physVol, iElement, iChild, zcenter);
-	      msg(MSG::DEBUG)<<"***************** Build sub envelope - done "<< physVol->getNChildVols()<<endreq;
-	      int nbChildren=physVol->getNChildVols();
-	      for(int iChild=0; iChild<nbChildren; iChild++)
-		{
-		  const GeoVPhysVol* vol2 = &(*(physVol->getChildVol(iChild)));
-		  msg(MSG::DEBUG)<<"    - child "<<iChild<<" "<<vol2->getNChildVols()<<endreq;
-		}
-	    }
+  if (physVol) {
+    for (unsigned int iChild = 0; iChild < services().size(); ++iChild) {
+      if (isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()>0) {
+	msg(MSG::DEBUG)<<"***************** Build sub envelope "<<endreq;
+	// if volume is a child volume : build and place it
+	buildAndPlaceEnvelope(region, physVol, iElement, iChild, zcenter);
+	msg(MSG::DEBUG)<<"***************** Build sub envelope - done "<< physVol->getNChildVols()<<endreq;
+	int nbChildren=physVol->getNChildVols();
+	for(int iChild=0; iChild<nbChildren; iChild++) {
+	  const GeoVPhysVol* vol2 = &(*(physVol->getChildVol(iChild)));
+	  msg(MSG::DEBUG)<<"    - child "<<iChild<<" "<<vol2->getNChildVols()<<endreq;
 	}
-
-      for (unsigned int iChild = 0; iChild < services().size(); ++iChild) 
-	{
-	  if(isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()==0)
-	    {
-	      // if volume is not a child volume
-	      GeoVPhysVol* physVol_child = build(iChild);
-	      if (physVol_child) {
-		for (int iCopy2 = 0; iCopy2 < numCopies(iChild); ++iCopy2) 
-		  { 
-		    physVol->add(getPlacementEnvelope(iChild,iCopy2,iElement));
-		    physVol->add(physVol_child);
-		  }
-	      }
-	    }
+      }
+    }
+    
+    for (unsigned int iChild = 0; iChild < services().size(); ++iChild) {
+      if (isChildService(iElement,iChild)&&services()[iChild]->envelopeNum()==0) {
+	// if volume is not a child volume
+	GeoVPhysVol* physVol_child = build(iChild);
+	if (physVol_child) {
+	  for (int iCopy2 = 0; iCopy2 < numCopies(iChild); ++iCopy2) { 
+	    physVol->add(getPlacementEnvelope(iChild,iCopy2,iElement));
+	    physVol->add(physVol_child);
+	  }
 	}
-
-      
-      msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion debut"<<services()[iElement]->volName()<<endreq;
-
-      //      InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
-      //      InDet::GeoSimpleObject *objBase= 0;
-      //      if(iParent<0) objBase = cmpConverter.convertIntoGeoComponent(physVol);
-
-      msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion fin"<<services()[iElement]->volName()<<endreq;
-
-      for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) 
-	{ 
-	  // add all the copies
-// 	  if(iParent<0)parent->add(getPlacement(iElement,iCopy));
-// 	  else parent->add(getPlacementEnvelope(iElement,iCopy,iParent));
-// 	  parent->add(physVol);
-
-	  msg(MSG::DEBUG)<<"BuildAndPlace envelope "<<services()[iElement]->volName()<<"   copie "<<iCopy<<endreq;
-
-// 	  InDet::GeoSimpleObject *obj= 0;
-// 	  if(iParent<0){
-// 	    obj = objBase->place(getPlacement(iElement,iCopy)->getTransform(),0);
-// 	    m_svcObjects.push_back(obj);
-// 	  }
-// 	  else{
-// 	    parent->add(getPlacementEnvelope(iElement,iCopy,iParent));
-// 	    parent->add(physVol);
-// 	  }
-	}
-
-//       if(objBase){
-// 	objBase->UnRef();
-// 	delete objBase;
-//       }
+      }
     }
 
+      
+    //msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion debut"<<services()[iElement]->volName()<<endreq;
+    // InDet::GeoComponentCnv cmpConverter = InDet::GeoComponentCnv();
+    // InDet::GeoSimpleObject *objBase= 0;
+    // if(iParent<0) objBase = cmpConverter.convertIntoGeoComponent(physVol);
+    // msg(MSG::DEBUG)<<"BuildAndPlace envelope - conversion fin"<<services()[iElement]->volName()<<endreq;
+
+    for (int iCopy = 0; iCopy < numCopies(iElement); ++iCopy) { 
+      msg(MSG::DEBUG)<<"BuildAndPlace envelope "<<services()[iElement]->volName()<<"   copie "<<iCopy<<endreq;
+    }
+  }
 }
+  
 
 GeoVPhysVol*  VolumeGeoCompBuilder::build(int iElement) 
 {
-
-  if (m_region == "None") 
-    {
-      msg(MSG::ERROR) << "No region set. Cannot build services" << endreq;
-      return 0;
-    }
+  if (m_region == "None") {
+    msg(MSG::ERROR) << "No region set. Cannot build services" << endreq;
+    return 0;
+  }
 
   const ServiceVolume & param = *(services()[iElement]);
 
   // If the subelement does not belong to the current region return 0.
-  if (param.region() != m_region) return 0;
+  if (param.region() != m_region) {
+    msg(MSG::DEBUG) << "Param region (" << param.region() << ")does not match current region (" << m_region << "). Ignoring service!" << endreq;
+    return 0;
+  }
   
   const GeoShape * serviceShape = param.getShape();
   double volume = param.origVolume();
@@ -370,47 +259,41 @@ GeoVPhysVol*  VolumeGeoCompBuilder::build(int iElement)
 
   const GeoMaterial* serviceMat = param.material();
   std::string materialName;
-  if (!serviceMat) 
-    {
-      materialName = param.materialName();
-      if (m_matManager) 
-	{
-	  //serviceMat = m_matManager->getMaterialForVolume(materialName,volume/param.fractionInRegion());
-	  // FIXME
-	  serviceMat = m_matManager->getMaterialForVolume(materialName,volume);
-	} 
-      else {
-	msg(MSG::ERROR) << "Material manager not available. Cannot build material."  << endreq;  
-	return 0;
-      }  
-    } else {
+  if (!serviceMat) {
+    materialName = param.materialName();
+    if (!m_matManager) {
+      msg(MSG::ERROR) << "Material manager not available. Cannot build material."  << endreq;  
+      return 0;
+    }  
+    
+    //serviceMat = m_matManager->getMaterialForVolume(materialName,volume/param.fractionInRegion());
+    // FIXME - NPR - what needs fixing?
+    serviceMat = m_matManager->getMaterialForVolume(materialName,volume);
+  } else {
     materialName = serviceMat->getName();
   }
-
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)<< "Volume/material: " << logName << "/" << materialName << endmsg;
-    if (!param.shapeType().empty()) msg(MSG::DEBUG)<< " shape: " << param.shapeType() << endmsg;
-    msg(MSG::DEBUG) << " volume (CLHEP::cm3): " << volume/CLHEP::cm3 << endmsg;
-    msg(MSG::DEBUG) << " rmin,rmax,zmin,zmax: "
-	      << param.rmin() << ", "
-	      << param.rmax() << ", "
-	      << param.zmin() << ", "
-	      << param.zmax() << endmsg;
-  }
+  
+  
+  msg(MSG::DEBUG)<< "Volume/material: " << logName << "/" << materialName << endmsg;
+  if (!param.shapeType().empty()) msg(MSG::DEBUG)<< " shape: " << param.shapeType() << endmsg;
+  msg(MSG::DEBUG) << " volume (CLHEP::cm3): " << volume/CLHEP::cm3 << endmsg;
+  msg(MSG::DEBUG) << " rmin,rmax,zmin,zmax: "
+		  << param.rmin() << ", "
+		  << param.rmax() << ", "
+		  << param.zmin() << ", "
+		  << param.zmax() << endmsg;
   
   // Or use volume of original volume in param.
   //const GeoMaterial* serviceMat = mat_mgr->getMaterialForVolume(param.material(),param.origVolume());
   GeoLogVol* serviceLog = new GeoLogVol(logName,serviceShape,serviceMat);
   GeoPhysVol* servicePhys = new GeoPhysVol(serviceLog);
-
-
+  
   return servicePhys;
 }
 
 
 bool VolumeGeoCompBuilder::isEnvelopeOrChild(int iElement){
-
-  const ServiceVolume& param = *(services()[iElement]);
+const ServiceVolume& param = *(services()[iElement]);
   if(param.envelopeNum()==0&&param.envelopeParent()==0)return false;
   return true;
 }
@@ -432,26 +315,21 @@ double VolumeGeoCompBuilder::getZcenter(int iElement){
 
 bool VolumeGeoCompBuilder::isChildService(int iElt,int iChld)
 {
+  if (iElt == iChld) return false;
+
   const ServiceVolume& param1 = *(services()[iElt]);
-  const ServiceVolume& param2 = *(services()[iChld]);
-  
-  if(iElt==iChld||param1.envelopeNum()!=param2.envelopeParent())return false;
+  const ServiceVolume& param2 = *(services()[iChld]);  
+  if (param1.envelopeNum() != param2.envelopeParent()) return false;
 
-  if(param1.zsymm()==1)
-    {
-      double zmin=(param1.zmin()*param2.zmin());
-      double zmax=(param1.zmax()*param2.zmax());
-      
-      if(zmin>0&&zmax>0) return true;
-      return false;
-    }
+  if(param1.zsymm()==1) {
+    double zmin=(param1.zmin()*param2.zmin());
+    double zmax=(param1.zmax()*param2.zmax());
+    
+    if(zmin>0 && zmax>0) return true;
+    return false;
+  }
 
-//   double zmin=(param1.zmin()*param2.zmin());
-//   double zmax=(param1.zmax()*param2.zmax());
-  
-//   if(zmin>0&&zmax>0) return true;
   return true;
-
 }
 
 int VolumeGeoCompBuilder::numCopies(int iElement)
@@ -481,30 +359,31 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacement(int iElement, int iCopy, bool
   
   // BOX, ROD and TRAP need special treatment.
   const std::string & shapeType = param.shapeType();
-  if (shapeType == "TRAP" || shapeType == "TRAP2") 
-    {
-      // Need to rotate by -90 deg.
-      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;
-    }
-  if ( shapeType == "TRAP2") 
-    {
-      // Need to rotate by -90 deg.
-      //      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * HepGeom::RotateY3D(-90.*CLHEP::deg) * xform;
+  if (shapeType == "TRAP" || shapeType == "TRAP2") {
+    // Need to rotate by -90 deg.
+    xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;
+  }
 
-      xform =  HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;  // * HepGeom::RotateX3D(-90.*CLHEP::deg);
-    }
-  if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") 
-    {
-      double radius = 0.5*(param.rmin() + param.rmax());
-      xform = HepGeom::TranslateX3D(radius) * xform;
-      phiStart = param.phiLoc(); 
-    } 
-  else if (shapeType == "ROD" || shapeType == "ROD2") 
-    {
-      double radius = param.rmin();
-      xform = HepGeom::TranslateX3D(radius) * xform;
-      phiStart = param.phiLoc(); 
-    }
+  // FIX(??) - Doesnt this rotate trap2 by by -90 degrees a second time?
+  if ( shapeType == "TRAP2") {
+    // Need to rotate by -90 deg.
+    //      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * HepGeom::RotateY3D(-90.*CLHEP::deg) * xform;
+
+    xform =  HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;  // * HepGeom::RotateX3D(-90.*CLHEP::deg);
+  }
+
+
+  if (shapeType == "BOX" || shapeType == "TRAP" || shapeType == "TRAP2") {
+    double radius = 0.5*(param.rmin() + param.rmax());
+    xform = HepGeom::TranslateX3D(radius) * xform;
+    phiStart = param.phiLoc(); 
+  } 
+
+  if (shapeType == "ROD" || shapeType == "ROD2") {
+    double radius = param.rmin();
+    xform = HepGeom::TranslateX3D(radius) * xform;
+    phiStart = param.phiLoc(); 
+  }
   
   // For volumes that are placed more than once.
   double deltaPhi = 0;
@@ -513,9 +392,7 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacement(int iElement, int iCopy, bool
   }
   
   double phi =  phiStart + deltaPhi * iCopy;
-  if (phi) {
-    xform = HepGeom::RotateZ3D(phi) * xform;
-  }
+  xform = HepGeom::RotateZ3D(phi) * xform;
   
   // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
   if (rotateAroundY) {  
@@ -524,6 +401,7 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacement(int iElement, int iCopy, bool
   
   return new GeoTransform(xform);
 }
+
 
 
 GeoTransform *  VolumeGeoCompBuilder::getPlacementEnvelope(int iElement, int iCopy, int iEnvElement)
@@ -535,17 +413,17 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacementEnvelope(int iElement, int iCo
   double rCenter=0.;
 
   bool bMoveToCenter=false;
-  if(paramEnv.shapeType()=="BOX")bMoveToCenter=true;
-  if(paramEnv.shapeType()=="TUBE"&&paramEnv.zsymm()==1&&fabs(paramEnv.zmin())>0.01)bMoveToCenter=true;
+  if (paramEnv.shapeType()=="BOX") bMoveToCenter=true;
+  if (paramEnv.shapeType()=="TUBE" && paramEnv.zsymm()==1 && fabs(paramEnv.zmin())>0.01) bMoveToCenter=true;
   //  if(paramEnv.shapeType()=="PGON31")bMoveToCenter=true;
-  if(bMoveToCenter)rCenter=(paramEnv.rmin()+paramEnv.rmax())*0.5;
+  if (bMoveToCenter) rCenter = (paramEnv.rmin() + paramEnv.rmax())*0.5;
 
   // NB. Corrected for placement in endcaps
   double zpos = param.zposition() - zCenter;
   //  double rpos = param.rposition() - rCenter;
 
   // Check if we need to rotate around Y axis.
-   bool rotateAroundY = false;
+  bool rotateAroundY = false;
   if (param.needsRotation()) { // zpos will always be negative in this case
     zpos = -zpos;
     rotateAroundY = true;
@@ -562,30 +440,28 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacementEnvelope(int iElement, int iCo
   
   // BOX, ROD and TRAP need special treatment.
   //  const std::string & shapeType = param.shapeType();
-  if (shapeType == "TRAP" ) 
-    {
-      // Need to rotate by -90 deg.
-      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;
-    }
-  if ( shapeType == "TRAP2") 
-    {
-      // Need to rotate by -90 deg.
-      //      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * HepGeom::RotateY3D(-90.*CLHEP::deg) * xform;
+  if (shapeType == "TRAP" ) {
+    // Need to rotate by -90 deg.
+    xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * xform;
+  }
 
-      xform = HepGeom::RotateX3D(-90.*CLHEP::deg) * xform;
-    }
-  if (shapeType == "BOX" || shapeType == "TRAP"|| shapeType == "TRAP2") 
-    {
-      double radius = 0.5*(param.rmin() + param.rmax()) - rCenter;
-      xform = HepGeom::TranslateX3D(radius) * xform;
-      phiStart = param.phiLoc(); 
-    } 
-  else if (shapeType == "ROD" || shapeType == "ROD2") 
-    {
-      double radius = param.rmin();
-      xform = HepGeom::TranslateX3D(radius) * xform;
-      phiStart = param.phiLoc(); 
-    }
+  if ( shapeType == "TRAP2") {
+    // Need to rotate by -90 deg.
+    //      xform = HepGeom::RotateZ3D(-90.*CLHEP::deg) * HepGeom::RotateY3D(-90.*CLHEP::deg) * xform;  
+    xform = HepGeom::RotateX3D(-90.*CLHEP::deg) * xform;
+  }
+  
+  if (shapeType == "BOX" || shapeType == "TRAP"|| shapeType == "TRAP2") {
+    double radius = 0.5*(param.rmin() + param.rmax()) - rCenter;
+    xform = HepGeom::TranslateX3D(radius) * xform;
+    phiStart = param.phiLoc(); 
+  } 
+  
+  if (shapeType == "ROD" || shapeType == "ROD2") {
+    double radius = param.rmin();
+    xform = HepGeom::TranslateX3D(radius) * xform;
+    phiStart = param.phiLoc(); 
+  }
   
   // For volumes that are placed more than once.
   double deltaPhi = 0;
@@ -594,9 +470,7 @@ GeoTransform *  VolumeGeoCompBuilder::getPlacementEnvelope(int iElement, int iCo
   }
   
   double phi =  phiStart + deltaPhi * iCopy;
-  if (phi) {
-    xform = HepGeom::RotateZ3D(phi) * xform;
-  }
+  xform = HepGeom::RotateZ3D(phi) * xform;
   
   // For shapes that are not symmetric about a rotation around Y axis. We need to rotate.
   if (rotateAroundY) {  

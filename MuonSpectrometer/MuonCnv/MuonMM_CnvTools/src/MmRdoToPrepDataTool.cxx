@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ using namespace Trk;
 using namespace Muon;
 
 Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
-					       const std::string& n,
-					       const IInterface*  p )
+                 const std::string& n,
+                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   m_muonMgr(0),
@@ -43,18 +43,21 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
   m_mmPrepDataContainer(0),
-  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
+  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this),
+  m_calibTool("Muon::NSWCalibTool/NSWCalibTool", this)
+
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
-
+ 
   //  template for property decalration
   declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
-		  "Muon::MMPrepDataContainer to record");
+      "Muon::MMPrepDataContainer to record");
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("MMRDO"),
-		  "Muon::MMPrepDataContainer to record");
+      "Muon::MMPrepDataContainer to record");
   
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
+  declareProperty("NSWCalibTool", m_calibTool);
 }
 
 
@@ -85,12 +88,12 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
   m_mmIdHelper = m_muonMgr->mmIdHelper();
   
   ATH_CHECK( m_idHelperTool.retrieve() );
-
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
 
   ATH_MSG_INFO("initialize() successful in " << name());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -101,8 +104,8 @@ StatusCode Muon::MmRdoToPrepDataTool::finalize()
 
 }
 
-StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollection *rdoColl, 
-							std::vector<IdentifierHash>& idWithDataVect)
+StatusCode Muon::MmRdoToPrepDataTool::processCollection( const MM_RawDataCollection *rdoColl, 
+							std::vector<IdentifierHash>& idWithDataVect )
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
 
@@ -138,12 +141,12 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     if (StatusCode::SUCCESS != m_mmPrepDataContainer->addCollection(prdColl, hash)) {
       ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
-		    << (int)hash );
+        << (int)hash );
       return StatusCode::FAILURE;
     }
 
   }
-
+  
   std::vector<MMPrepData> MMprds;
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
@@ -155,8 +158,8 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     const Identifier rdoId = rdo->identify();
 //    const Identifier elementId = m_mmIdHelper->elementID(rdoId);
     ATH_MSG_DEBUG(" dump rdo " << m_idHelperTool->toString(rdoId ));
-    const int time = rdo->time();
-    const int charge = rdo->charge();
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
     int channel = rdo->channel();
     std::vector<Identifier> rdoList;
     Identifier parentID = m_mmIdHelper->parentID(rdoId);
@@ -168,7 +171,6 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     // get the local and global positions
     const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
-
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
       ATH_MSG_WARNING("Could not get the local strip position for MM");
@@ -182,9 +184,12 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
       ATH_MSG_WARNING("Could not get the global strip position for MM");
       continue;
     }
+    NSWCalib::CalibratedStrip calibStrip;
+    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
 
 //    const Trk::Surface& surf = detEl->surface(rdoId);
 //    const Amg::Vector3D* globalPos = surf.localToGlobal(localPos);
+
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
     const Trk::PlaneSurface& psurf = detEl->surface(layid);
@@ -213,14 +218,19 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 // add strip width to error
     resolution = sqrt(resolution*resolution+errX*errX);
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    Amg::MatrixX* cov = new Amg::MatrixX(2,2);
     cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    (*cov)(0,0) = calibStrip.resTransDistDrift;  
+    (*cov)(1,1) = calibStrip.resLongDistDrift;
+    localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
     } else {
-       MMprds.push_back(MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+      MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+       // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
+       mpd.setHashAndIndex(hash,0);
+       MMprds.push_back(mpd);
     } 
   }
 
@@ -304,7 +314,7 @@ void Muon::MmRdoToPrepDataTool::processRDOContainer( std::vector<IdentifierHash>
 
 // methods for ROB-based decoding
 StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, 
-					       std::vector<IdentifierHash>& idWithDataVect )
+                 std::vector<IdentifierHash>& idWithDataVect )
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
@@ -331,7 +341,7 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 } 
 
 StatusCode Muon::MmRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, 
-					       const std::vector<IdentifierHash>& chamberHashInRobs )
+                 const std::vector<IdentifierHash>& chamberHashInRobs )
 {
   ATH_MSG_DEBUG("Size of the robIds" << robIds.size() );
   ATH_MSG_DEBUG("Size of the chamberHash" << chamberHashInRobs.size() );

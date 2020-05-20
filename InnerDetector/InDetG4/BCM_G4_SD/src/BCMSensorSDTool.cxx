@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -16,6 +16,7 @@
 BCMSensorSDTool::BCMSensorSDTool(const std::string& type, const std::string& name, const IInterface *parent) :
   SensitiveDetectorBase(type,name,parent)
 {
+  declareProperty("IsUpgrade", m_isUpgrade = false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -25,7 +26,7 @@ G4VSensitiveDetector* BCMSensorSDTool::makeSD()
   ATH_MSG_DEBUG( "Initializing SD" );
 
   // Create a fresh SD
-  return new BCMSensorSD(name(), m_outputCollectionNames[0]);
+  return new BCMSensorSD(name(), m_outputCollectionNames[0], m_isUpgrade);
 }
 
 

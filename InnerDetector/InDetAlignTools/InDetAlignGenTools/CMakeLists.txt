@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
+                          DetectorDescription/ReadoutGeometryBase
                           Event/EventPrimitives
                           InnerDetector/InDetAlignEvent/InDetAlignTrkInfo
                           InnerDetector/InDetAlignTools/InDetAlignToolInterfaces
@@ -54,7 +55,7 @@ atlas_add_component( InDetAlignGenTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps SGTools AthenaPoolUtilities GeoPrimitives Identifier EventPrimitives InDetAlignTrkInfo InDetPrepRawData TrkEventPrimitives TrkEventUtils TrkTrack TrkExInterfaces TrkToolInterfaces AthenaKernel DataModel AtlasDetDescr DetDescrConditions GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps SGTools AthenaPoolUtilities GeoPrimitives Identifier ReadoutGeometryBase EventPrimitives InDetAlignTrkInfo InDetPrepRawData TrkEventPrimitives TrkEventUtils TrkTrack TrkExInterfaces TrkToolInterfaces AthenaKernel DataModel AtlasDetDescr DetDescrConditions GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetAlignGenTools )

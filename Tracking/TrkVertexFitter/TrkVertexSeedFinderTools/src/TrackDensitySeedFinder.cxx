@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -78,8 +78,11 @@ namespace Trk
     else
     {
       ATH_MSG_DEBUG("No tracks with sufficient weight; return z position = 0");
+      // in this case, we need to return z = 0 to make the upstream vertex finder bail out. 
+      // Return at this point to ensure we do not accidentally invalid the z=0 via the 
+      // constraint applied below. 
+      return Amg::Vector3D(0,0,0); 
     }
-
     if (constraint)
     {
       return Amg::Vector3D(constraint->position().x(), constraint->position().y(), zResult + constraint->position().z());

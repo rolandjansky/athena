@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONPATTERNCALIBRATION_H
@@ -21,22 +21,11 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 
-#include "Identifier/Identifier.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-class StoreGate;
-class MsgStream;
-
 class MdtPrepData;
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class StoreGateSvc;
-class Identifier;
-
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -52,7 +41,6 @@ namespace Muon {
   class MdtPrepData;
   class MuonClusterOnTrack;
   class MdtDriftCircleOnTrack;
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
   class IMuonPatternSegmentAssociationTool;
 
@@ -108,7 +96,6 @@ namespace Muon {
     virtual ~MuonPatternCalibration();
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     void calibrate( const MuonPatternCombination& pat, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const;
     int  getRegionId( const Identifier& id ) const ;
@@ -143,17 +130,6 @@ namespace Muon {
 
     std::string m_keyRpc;
     std::string m_keyTgc;
-  
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
-
-    MsgStream* m_log;       //<! pointer to message stream
-    bool m_debug; 
-    bool m_verbose;
     
     bool m_doMultiAnalysis; //<! use neighbouring chambers during segment finding
     bool m_doFullFinder; //<! 

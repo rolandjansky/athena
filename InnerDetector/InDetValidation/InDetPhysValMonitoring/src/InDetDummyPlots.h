@@ -35,7 +35,7 @@ public:
   void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
   void minDR(float min_dR, float prod_rad, float prob, double BIDPt);
   void algoEfficiency(double radius, int SiSPweight, int TRTSeededweight, int TRTStandaloneweight, int other_weight);
-  void track_author(std::bitset<52> authorset);
+  void track_author(std::bitset<xAOD::NumberOfTrackRecoInfo> authorset);
 
 
 private:

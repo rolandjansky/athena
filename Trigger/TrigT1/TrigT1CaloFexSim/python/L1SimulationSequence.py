@@ -79,6 +79,8 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if  jobproperties.Global.InputFormat() == 'bytestream':
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
+    #python options for supercells
+    include('LArROD/LArConfigureCablingSCFolder.py')
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
@@ -118,13 +120,26 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         # These are fully simulated supercells with applied BCID corrections
         # This is the only kind of supercells where BCID corrections are applied
         from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
-        l1simAlgSeq += createSuperCellBCIDAlg()
+        l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SCell",SCellContainerOut="SCellBCID")
         SCIn="SCellBCID"
     elif simflags.Calo.SCellType() == "Emulated":
         # Supercells are reconstructed from the ET sum of the constituent calo cells 
         # This sets simflags.Calo.ApplySCQual to False
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theNoiseTool=CaloNoiseToolDefault()
+        svcMgr.ToolSvc += theNoiseTool
+        from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+        theBCIDTool=CaloLumiBCIDToolDefault()
+        svcMgr.ToolSvc += theBCIDTool
         from LArL1Sim.LArL1SimConf import LArSCSimpleMaker
-        l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCell" )
+        #Give the supercell maker the BCID tool, so it can undo the BCID correction per cell. Then add noise, and return the container SimpleSCellNoBCID
+        #Normally needs ot read SimpleSCellNoBCID
+        l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool )
+        #Now run the BCID correction per supercell. Take the container generated above, then return SimpleSCell
+        from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
+        l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SimpleSCellNoBCID",SCellContainerOut="SimpleSCell")
+        #Tell the rest of the sequence we want to use SimpleSCell, e.g., for building electrons, towers, jets and triggering on dark matter! 
         SCIn="SimpleSCell"
     else:
         SCIn="SCell" # default
@@ -134,6 +149,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     l1simAlgSeq += createJGTowerMaker( useSCQuality = simflags.Calo.ApplySCQual(),
                                        useAllCalo = simflags.Calo.UseAllCalo(),
                                        SuperCellType = SCIn,
+                                       EmulateSuperCellTiming=False,
                                        SuperCellQuality = simflags.Calo.QualBitMask() )
 
 
@@ -150,6 +166,10 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
                                SCBitMask = simflags.Calo.QualBitMask() )
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
+        
+        #jFEX taus 
+        from TrigT1CaloFexSim.TrigT1CaloFexSimConf import JFexEleTau
+        l1simAlgSeq += JFexEleTau(RegenerateSeeds = True, NoiseStrategy=0, ApplyNoise = False, CheckMax = True, UseRun2=False, SingleTowerSeed=True) 
 
         #include L1Topo Simulation
         if simflags.Topo.RunTopoAlgorithms():

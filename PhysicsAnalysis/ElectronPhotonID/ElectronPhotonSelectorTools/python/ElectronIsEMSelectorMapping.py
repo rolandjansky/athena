@@ -25,6 +25,7 @@ class electronPIDmenu:
     menuTrig2012 = 4
     menuTrigDC14 = 5
     menuDC14 = 6
+    menuHLLHC = 7
 
 import ElectronPhotonSelectorTools.ElectronIsEMSelectorCutDefs as ElectronIsEMSelectorCutDefs
 import ElectronPhotonSelectorTools.ElectronIsEMLooseSelectorCutDefs as ElectronIsEMLooseSelectorCutDefs
@@ -73,6 +74,13 @@ ElectronIsEMMapDC14 = {
     egammaPID.NoIDCut: ( 0, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14 )
     }
 
+ElectronIsEMMapHLLHC = {
+    egammaPID.ElectronIDLoosePP: ( egammaPID.ElectronLoosePP, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigHLLHC ),
+    egammaPID.ElectronIDMediumPP: ( egammaPID.ElectronMediumPP, ElectronIsEMMediumSelectorCutDefs.ElectronIsEMMediumSelectorConfigHLLHC ),
+    egammaPID.ElectronIDTightPP: ( egammaPID.ElectronTightPP, ElectronIsEMTightSelectorCutDefs.ElectronIsEMTightSelectorConfigHLLHC ),
+    egammaPID.NoIDCut: ( 0, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14 )
+    }
+
 TrigElectronIsEMMap2012 = {
     egammaPID.ElectronIDLoose1: ( egammaPID.ElectronLoose1, TrigElectronIsEMLoose1SelectorCutDefs.TrigElectronIsEMLoose1SelectorConfig2012 ),
     egammaPID.ElectronIDMedium1: ( egammaPID.ElectronMedium1, TrigElectronIsEMMedium1SelectorCutDefs.TrigElectronIsEMMedium1SelectorConfig2012 ),
@@ -96,6 +104,8 @@ def ElectronIsEMMap(quality, menu):
         return ElectronIsEMMap2012OLD[quality]
     elif menu == electronPIDmenu.menuDC14:
         return ElectronIsEMMapDC14[quality]
+    elif menu == electronPIDmenu.menuHLLHC:
+        return ElectronIsEMMapHLLHC[quality]
     elif menu == electronPIDmenu.menuTrig2012:
         return TrigElectronIsEMMap2012[quality]
     elif menu == electronPIDmenu.menuTrigDC14:

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from G4AtlasApps.SimFlags import simFlags
@@ -16,3 +16,7 @@ def getBCMSensorSD(name="BCMSensorSD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Pixel::bcmDiamondLog"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.BCMSensorSDTool(name, **kwargs)
+
+def getSLHC_BCMSensorSD(name="SLHC_BCMSensorSD", **kwargs):
+    kwargs.setdefault("IsUpgrade", True )
+    return getBCMSensorSD(name, **kwargs)

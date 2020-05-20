@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWER_H
@@ -59,6 +59,10 @@ class JGTower{
 bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dphi);
 bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool acceptEqual=false);
 float deltaPhi(float phi1, float phi2);
+int GFEX_pFPGA_Int(std::string in); 
+std::string GFEX_pFPGA(float eta); 
+float GTowerArea(float eta);
+
 
 class TowerHelper{
 

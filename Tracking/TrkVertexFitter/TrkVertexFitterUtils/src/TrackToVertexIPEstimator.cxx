@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
@@ -422,8 +422,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	 else tmpLinTrack = true;
        }
        //now update vertex position removing the linearized track, and do not add the track back to the output vertex
-       xAOD::Vertex reducedVertex;
-       reducedVertex = m_Updator->positionUpdate(*vtx, linTrack, trackWeight,-1);
+       const IVertexUpdator::positionUpdateOutcome & reducedVertex = m_Updator->positionUpdate(*vtx, linTrack, trackWeight,IVertexUpdator::removeTrack);
        
        //calculate updated chi2
        double chi2 = vtx->chiSquared();
@@ -435,8 +434,8 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
        ndf += -1 * trackWeight * (2.0);
 
        //reducedVertex has the updated position and covariance
-       outputVertex->setPosition(reducedVertex.position());
-       outputVertex->setCovariancePosition(reducedVertex.covariancePosition());
+       outputVertex->setPosition(reducedVertex.position);
+       outputVertex->setCovariancePosition(reducedVertex.covariancePosition);
 
        //chi2 and ndf now store the updated FitQuality
        outputVertex->setFitQuality( chi2, ndf );

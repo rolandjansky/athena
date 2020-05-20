@@ -10,6 +10,8 @@
 #include "TrkSurfaces/Surface.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
+#include <vector>
+
 class MMPrepDataContainerCnv;
 class IdentifierHash;
 
@@ -46,6 +48,42 @@ namespace Muon
 	@param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
 	(the pointer is assumed to belong to GeoModel and will not be deleted)
     */
+
+   /** @brief full constructor including time, charge and strip vectors */
+    MMPrepData( const Identifier& RDOId,
+		const IdentifierHash &idDE,
+		const Amg::Vector2D& locpos,
+		const std::vector<Identifier>& rdoList,
+		const Amg::MatrixX* locErrMat,
+		const MuonGM::MMReadoutElement* detEl, 
+		const short int time,
+		const int charge, 
+		const float driftDist,
+		const std::vector<uint16_t>& stripNumbers, 
+		const std::vector<short int>& stripTimes, 
+		const std::vector<int>& stripCharges );
+
+    /** @brief constructor including time and charge and drift distance */
+    MMPrepData( const Identifier& RDOId,
+		const IdentifierHash &idDE,
+		const Amg::Vector2D& locpos,
+		const std::vector<Identifier>& rdoList,
+		const Amg::MatrixX* locErrMat,
+		const MuonGM::MMReadoutElement* detEl, 
+		const short int time,
+		const int charge,
+		const float driftDist );
+
+    /** @brief constructor including time and charge */
+    MMPrepData( const Identifier& RDOId,
+		const IdentifierHash &idDE,
+		const Amg::Vector2D& locpos,
+		const std::vector<Identifier>& rdoList,
+		const Amg::MatrixX* locErrMat,
+		const MuonGM::MMReadoutElement* detEl, 
+		const short int time,
+		const int charge );
+
     MMPrepData( const Identifier& RDOId,
 		const IdentifierHash &idDE,
 		const Amg::Vector2D& locpos,
@@ -53,22 +91,14 @@ namespace Muon
 		const Amg::MatrixX* locErrMat,
 		const MuonGM::MMReadoutElement* detEl);
 
-    /** @full constructor including time and charge */
-    MMPrepData( const Identifier& RDOId,
-		const IdentifierHash &idDE,
-		const Amg::Vector2D& locpos,
-		const std::vector<Identifier>& rdoList,
-		const Amg::MatrixX* locErrMat,
-		const MuonGM::MMReadoutElement* detEl, 
-		const int time,
-		const int charge );
-
-
     /** @brief Destructor: */
     virtual ~MMPrepData();
 
     /** @brief set microTPC parameters */
-    void setMicroTPC(double angle, double chisqProb);
+    void setMicroTPC(float angle, float chisqProb);
+
+    /** @brief set drift distances and uncertainties */
+    void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
 
     /** @brief Returns the global position*/
     const Amg::Vector3D& globalPosition() const;
@@ -77,18 +107,36 @@ namespace Muon
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
     const MuonGM::MMReadoutElement* detectorElement() const;
 
-    /** @brief Returns the TDC counts */
-    int time() const;
+    /** @brief Returns the time (in ns) */
+    short int time() const;
 
-    /** @brief Returns the ADC counts */
-    double charge() const;
+    /** @brief Returns the AD */
+    int charge() const;
+
+    /** @brief Returns the Drift Distance */
+    float driftDist() const;
 
     /** @brief Returns the microTPC angle */
-    double angle() const;
+    float angle() const;
 
     /** @brief Returns the microTPC chisq Prob. */
-    double chisqProb() const;
+    float chisqProb() const;
 
+    /** @brief returns the list of strip numbers */
+    const std::vector<uint16_t>& stripNumbers() const;
+
+    /** @brief returns the list of times */
+    const std::vector<short int>& stripTimes() const;
+
+    /** @brief returns the list of charges */
+    const std::vector<int>& stripCharges() const;
+
+    /** @brief returns the list of drift distances */
+    const std::vector<float>& stripDriftDist() const;
+
+    /** @brief returns the list of drift distances */
+    const std::vector<Amg::MatrixX>& stripDriftErrors() const;
+    
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
 
@@ -101,14 +149,26 @@ namespace Muon
     const MuonGM::MMReadoutElement* m_detEl;
 
     /** @brief measured time */
-    int m_time;
+    /** @brief the time is calibrated, i.e. it is in units of ns, after t0 subtraction **/
+    short int m_time;
 
     /** @brief measured charge */
+    /** @brief the charge is calibrated, i.e. it is in units of electrons, after pedestal subtraction **/
     int m_charge;
 
+    /** @brief drift distance */
+    float m_driftDist;
+
     /** @angle and chisquare from micro-TPC fit */
-    double m_angle;
-    double m_chisqProb;
+    float m_angle;
+    float m_chisqProb;
+
+    /** @list of strip numbers, time and charge, of the strips associated to the PRD */
+    std::vector<uint16_t> m_stripNumbers;
+    std::vector<short int> m_stripTimes;
+    std::vector<int> m_stripCharges;
+    std::vector<float> m_stripDriftDist;
+    std::vector<Amg::MatrixX>  m_stripDriftErrors;
 
   };
 
@@ -125,24 +185,54 @@ namespace Muon
     return *m_globalPosition;
   }
 
-  inline int MMPrepData::time() const 
+  inline short int MMPrepData::time() const 
   {
     return m_time;
   }
   
-  inline double MMPrepData::charge() const 
+  inline int MMPrepData::charge() const 
   {
     return m_charge;
   }
 
-  inline double MMPrepData::angle() const 
+  inline float MMPrepData::driftDist() const 
+  {
+    return m_driftDist;
+  }
+
+  inline float MMPrepData::angle() const 
   {
     return m_angle;
   }
 
-  inline double MMPrepData::chisqProb() const 
+  inline float MMPrepData::chisqProb() const 
   {
     return m_chisqProb;
+  }
+
+  inline const std::vector<uint16_t>& MMPrepData::stripNumbers() const
+  {
+    return m_stripNumbers;
+  }
+
+  inline const std::vector<short int>& MMPrepData::stripTimes() const
+  {
+    return m_stripTimes;
+  }
+
+  inline const std::vector<int>& MMPrepData::stripCharges() const
+  {
+    return m_stripCharges;
+  }
+
+  inline const std::vector<float>& MMPrepData::stripDriftDist() const
+  {
+    return m_stripDriftDist;
+  }
+
+  inline const std::vector<Amg::MatrixX>& MMPrepData::stripDriftErrors() const
+  {
+    return m_stripDriftErrors;
   }
 
 }

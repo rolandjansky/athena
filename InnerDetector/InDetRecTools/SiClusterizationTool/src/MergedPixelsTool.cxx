@@ -28,7 +28,7 @@
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetIdentifier/PixelID.h"
@@ -397,7 +397,7 @@ namespace InDet {
         if ( groupSize >= m_minSplitSize && groupSize <= m_maxSplitSize ) {
           // prepare for the return value of the pixel cluster 
           std::vector<InDet::PixelClusterParts> splitClusterParts;
-          if ( !m_splitProbTool.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) {
+          if ( !m_splitProbTool.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isInnermostPixelLayer())) {
             InDet::PixelClusterSplitProb splitProbObj = m_splitProbTool->splitProbability(*cluster);
             clusterSplitP1 = splitProbObj.splitProbability(2);
             clusterSplitP2 = splitProbObj.splitProbability(3);
@@ -406,7 +406,7 @@ namespace InDet {
               ATH_MSG_VERBOSE( "Trying to split cluster ... ");
               splitClusterParts = m_clusterSplitter->splitCluster(*cluster,splitProbObj);
             }
-          } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
+          } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isInnermostPixelLayer())) 
             splitClusterParts = m_clusterSplitter->splitCluster(*cluster);
           
           // check if splitting worked

@@ -4,6 +4,7 @@
 #
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 # DetFlags.pixel_setOff()
 # DetFlags.SCT_setOff()
 DetFlags.TRT_setOff()

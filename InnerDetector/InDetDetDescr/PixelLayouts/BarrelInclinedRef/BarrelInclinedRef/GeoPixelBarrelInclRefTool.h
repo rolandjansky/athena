@@ -47,9 +47,8 @@ class GeoPixelBarrelInclRefTool : virtual public IGeoPixelBarrelTool, public Ath
  private:
 
   ToolHandle<IPixelServicesTool> m_IDserviceTool;
-  ToolHandle<IGeoPixelLayerTool> m_layerInnerTool;
-  ToolHandle<IGeoPixelLayerTool> m_layerOuterTool;
-  double m_layerInnerMax;
+  ToolHandle<IGeoPixelLayerTool> m_layerPlanarTool;
+  ToolHandle<IGeoPixelLayerTool> m_layerAlpineTool;
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
 
   mutable InDetMaterialManager* m_matMgr;

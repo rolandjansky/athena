@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -580,50 +582,7 @@ else:
     #
     # ------------------------------------------------------------         
 
-    if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-      if InDetFlags.doSLHCVeryForward(): 
-       if (not 'InDetNewTrackingCutsForwardTracks' in dir()): 
-         print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"       
-         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts 
-         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks") 
-         InDetNewTrackingCutsForwardTracks.printInfo() 
-         # 
-         # --- now run Si pattern for Low Pt 
-         # 
-         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
-         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks, 
- 		                                                      InDetKeys.ResolvedForwardTracks(), 
- 		                                                      InDetKeys.SiSpSeededForwardTracks(), 
- 		                                                      InDetNewTrackingCutsForwardTracks, 
- 		                                                      TrackCollectionKeys, 
- 		                                                      TrackCollectionTruthKeys)   
-         # for ITK, forward tracks get added to the combined collection
-         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
-
-
-      else:
-       if (not 'InDetNewTrackingCutsForwardTracks' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
-        InDetNewTrackingCutsForwardTracks.printInfo()
-        #
-        # --- now run Si pattern for Low Pt
-        #
-        include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                                   InDetKeys.ResolvedForwardTracks(),
-                                                                   InDetKeys.SiSpSeededForwardTracks(),
-                                                                   InDetNewTrackingCutsForwardTracks,
-                                                                   TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys)  
-        # for ITK, forward tracks get added to the combined collection
-        InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
-
-
-
-
-    elif InDetFlags.doForwardTracks():
+    if InDetFlags.doForwardTracks():
       #
       # --- configure cuts for forward tracklets
       #
@@ -645,26 +604,6 @@ else:
       # --- do not add into list for combination YET
       # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
 
-    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
-      #
-      # --- configure cuts for Low Pt tracking
-      #
-      if (not 'InDetNewTrackingCutsSLHCConversionFinding' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now"
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
-      InDetNewTrackingCutsSLHCConversionFinding.printInfo()
-      #
-      #
-      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetSLHCConversionFindingSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                           InDetKeys.ResolvedSLHCConversionFindingTracks(),
-                                                           InDetKeys.SiSpSeededSLHCConversionFindingTracks(),
-                                                           InDetNewTrackingCutsSLHCConversionFinding,
-                                                           TrackCollectionKeys,
-                                                           TrackCollectionTruthKeys)
-
-      InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
 
 
     if InDetFlags.doROIConv() and InDetFlags.doSLHC():
@@ -756,7 +695,7 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     
@@ -1452,8 +1391,6 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
-      elif InDetFlags.doSLHCConversionFinding():
-        cuts = InDetNewTrackingCutsSLHCConversionFinding
       elif InDetFlags.doROIConv():
         cuts = InDetNewTrackingCutsROIConv
       else:

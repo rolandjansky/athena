@@ -352,8 +352,8 @@ class L2BMuMuHypo_DiMu_7invm9_noVtx (TrigL2BMuMuHypo):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 7000.
-        self.UpperMassCut      = 9000.
+        self.LowerMassCut      = 6000.
+        self.UpperMassCut      = 10000.
         self.ApplyUpperMassCut = True
         self.ApplyChi2Cut      = False
         self.Chi2VtxCut        = 20.
@@ -385,8 +385,8 @@ class L2BMuMuHypo_DiMu_11invm60_noVtx (TrigL2BMuMuHypo):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 11000.
-        self.UpperMassCut      = 60000.
+        self.LowerMassCut      = 10000.
+        self.UpperMassCut      = 65000.
         self.ApplyUpperMassCut = True
         self.ApplyChi2Cut      = False
         self.Chi2VtxCut        = 20.
@@ -415,8 +415,8 @@ class L2BMuMuHypo_DiMu_11invm24_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
         super( L2BMuMuHypo_DiMu_11invm24_noVtx, self ).__init__( name )
         
         # L2 Bmumu cuts
-        self.LowerMassCut      = 11000.
-        self.UpperMassCut      = 24000.
+        self.LowerMassCut      = 10000.
+        self.UpperMassCut      = 26000.
         
 class L2BMuMuHypo_DiMu_11invm24 (L2BMuMuHypo_DiMu_11invm24_noVtx):
     __slots__ = []
@@ -433,8 +433,8 @@ class L2BMuMuHypo_DiMu_24invm60_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
         super( L2BMuMuHypo_DiMu_24invm60_noVtx, self ).__init__( name )
         
         # L2 Bmumu cuts
-        self.LowerMassCut      = 24000.
-        self.UpperMassCut      = 60000.
+        self.LowerMassCut      = 22000.
+        self.UpperMassCut      = 65000.
         
 class L2BMuMuHypo_DiMu_24invm60 (L2BMuMuHypo_DiMu_24invm60_noVtx):
     __slots__ = []

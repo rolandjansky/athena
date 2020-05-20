@@ -30,6 +30,12 @@ class JetParticleAssociation : public asg::AsgTool {
         virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
             match(const xAOD::JetContainer&) const = 0;
 
+	int modify(xAOD::JetContainer& jets) const;
+
+	std::string outputCollectionName() const {
+	  return m_outputCollectionName;
+	}
+
     private:
         std::string m_outputCollectionName;
         std::string m_jetCollectionName;

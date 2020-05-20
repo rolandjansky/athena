@@ -19,6 +19,7 @@
 export NAME="mc_pp_v8_enableLVL1PhaseI_grid"
 export MENU="MC_pp_v8"
 export EVENTS="500"
+export INPUT="run3_l1calo"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags as tf;tf.doLVL1PhaseI.set_Value_and_Lock(True);"
 
 source exec_athena_art_trigger_validation.sh

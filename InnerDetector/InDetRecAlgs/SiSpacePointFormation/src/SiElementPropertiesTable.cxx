@@ -11,7 +11,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
 
 namespace InDet{

@@ -110,15 +110,12 @@ trackSummaryAccessorV1<uint8_t>( xAOD::SummaryType type ) {
   DEFINE_ACCESSOR( uint8_t, numberOfGoodPrecisionLayers       );  
   DEFINE_ACCESSOR( uint8_t, numberOfContribPixelBarrelFlatLayers    );
   DEFINE_ACCESSOR( uint8_t, numberOfContribPixelBarrelInclinedLayers);
-  DEFINE_ACCESSOR( uint8_t, numberOfContribPixelBarrelRings         );
   DEFINE_ACCESSOR( uint8_t, numberOfContribPixelEndcap              );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelFlatHits             );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelInclinedHits         );
-  DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelRingHits             );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelEndcapHits                 );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelFlatHoles            );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelInclinedHoles        );
-  DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelRingHoles            );
   DEFINE_ACCESSOR( uint8_t, numberOfPixelEndcapHoles                );
   
   default:

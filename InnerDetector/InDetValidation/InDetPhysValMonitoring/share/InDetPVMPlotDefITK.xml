@@ -152,5 +152,189 @@
       =======================================================
   -->
   
+  <!--
+   =======================================================
+   hit efficiency plots:
+   * filled by InDetPerfPlot_hitEff
+   * currently these plots will only get filled for ESD.
+   Reason:contents are created by InDetPhysHitDecoratorTool
+   and require unlsimmed Trk::Track collection.
+   ========================================================
+  -->
+
+  <!--Splitting all layers-->
+
+<h id="eff_hit_vs_eta_pix_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_innermost" type="TEfficiency" title="Cluster Efficiency: Pixel Innermost Layer">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_nextToInnermost" type="TEfficiency" title="Cluster Efficiency: Pixel Next-To-Innermost Layer">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_others" type="TEfficiency" title="Cluster Efficiency: Pixel All Other Layers">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 4">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 4">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<!--
+   =======================================================
+   end of hit efficiency plots
+   ======================================================
+-->
+
+<!--
+   =======================================================
+   hit residuals & cluster width plots:
+   * filled by InDetPerfPlot_hitResidual
+   * currently these plots will only get filled for ESD.
+   Not filled in xAOD/DxAOD.
+   Reason:contents are created by InDetPhysHitDecoratorTool
+   and require unlsimmed Trk::Track collection.
+   ========================================================
+  -->
+<!-- hitResidual plots -->
+<!-- innermost, next-to-innetmost, others -->
+<!-- x residuals -->
+<h id="residualx_pixel" type="TH1F" title="Residual: Pixel X">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/> 
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_1hit" type="TH1F" title="Residual: Pixel X 1 hit">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_2ormorehits" type="TH1F" title="Residual: Pixel X &gt;=2 hits">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<!-- y residuals -->
+<h id="residualy_pixel" type="TH1F" title="Residual: Pixel Y">
+  <x title="y residual(#mum)" n="1000" lo="-500" hi="500"/> 
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_1hit" type="TH1F" title="Residual: Pixel Y 1 hit">
+  <x title="y residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_2ormorehits" type="TH1F" title="Residual: Pixel Y &gt;=2 hits">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<!-- pulls -->
+<h id="residualpullx_pixel" type="TH1F" title="Residualpull: Pixel X">
+  <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_pixel" type="TH1F" title="Residualpull: Pixel Y">
+  <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- cluster width plots -->
+<h id="clusterPhiWidth_pixel" type="TH1F" title="Cluster width in phi: Pixel">
+  <x title="Pixels" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="clusterEtaWidth_pixel" type="TH1F" title="Cluster width in eta: Pixel">
+  <x title="Pixels" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<!-- cluster width vs eta plots -->
+<h id="clusterPhiWidth_eta_pixel" type="TProfile" title="Cluster width in phi vs eta: Pixel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel" type="TProfile" title="Cluster width in eta vs eta: Pixel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<!--
+=======================================================
+end of hit residuals & cluster width plots
+=======================================================
+  -->
+  
 </hdef>
 

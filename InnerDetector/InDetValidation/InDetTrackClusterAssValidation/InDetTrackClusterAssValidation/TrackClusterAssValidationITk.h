@@ -13,12 +13,10 @@
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidationUtils.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
 
 namespace InDet {
@@ -59,7 +57,6 @@ namespace InDet {
 
       bool                               m_usePIX                 ;
       bool                               m_useSCT                 ;
-      bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
       int                                m_pdg                    ;
       int                                m_outputlevel            ;
@@ -73,7 +70,6 @@ namespace InDet {
       int                                m_nspacepointsPTOT       ;
       int                                m_nspacepointsSTOT       ;
       int                                m_nspacepointsOTOT       ;
-      int                                m_nclustersTRT           ;
       int                                m_nqtracks               ;
       int                                m_efficiency   [100][6]  ;
       int                                m_efficiencyN  [100][6][5];
@@ -82,10 +78,10 @@ namespace InDet {
       int                                m_efficiencyNEG[100][6]  ;
       int                                m_ntracksPOSB  [100]     ;
       int                                m_ntracksPOSE  [100]     ;
-      int                                m_ntracksPOSDBM[100];
+      int                                m_ntracksPOSFWD[100];
       int                                m_ntracksNEGB  [100]     ;
       int                                m_ntracksNEGE  [100]     ;
-      int                                m_ntracksNEGDBM[100];
+      int                                m_ntracksNEGFWD[100];
       int                                m_total        [100][50] ;
       int                                m_fake         [100][50] ;
       int                                m_events                 ;
@@ -105,7 +101,6 @@ namespace InDet {
       int                                m_nclustersNegEP         ;
       int                                m_nclustersNegES         ;
       unsigned int                       m_clcut                  ;
-      unsigned int                       m_clcutTRT               ;
       unsigned int                       m_spcut                  ;
       double                             m_ptcut                  ;
       double                             m_ptcutmax               ;
@@ -121,10 +116,8 @@ namespace InDet {
       std::vector<std::string>           m_tracklocation          ; 
       std::string                        m_clustersSCTname        ;
       std::string                        m_clustersPixelname      ;
-      std::string                        m_clustersTRTname        ;
       std::string                        m_truth_locationPixel    ;
       std::string                        m_truth_locationSCT      ;
-      std::string                        m_truth_locationTRT      ;
 
       SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT    ;
       SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel  ;
@@ -132,14 +125,11 @@ namespace InDet {
 
       const SiClusterContainer         * m_pixcontainer           ;
       const SiClusterContainer         * m_sctcontainer           ;
-      const TRT_DriftCircleContainer   * m_trtcontainer           ;
 
       const PRD_MultiTruthCollection   * m_truthPIX               ;
       const PRD_MultiTruthCollection   * m_truthSCT               ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;
 
       std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterN    ;
-      std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterTRTN ;
       std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>  m_kinespacepointN ;
 
       std::list<Barcode>                         m_particles[100] ;
@@ -148,8 +138,10 @@ namespace InDet {
       std::multimap<const HepMC::GenParticle*,int> m_tracksN[100] ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
       
-      /** service to get cut values depending on different variable */
-      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;   
+      // eta dependent cuts
+      std::vector < double >         m_etabins       ;
+      std::vector < double >         m_ptbins        ;
+      std::vector < unsigned int >   m_minclusterbins;
       
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -176,6 +168,9 @@ namespace InDet {
 
       int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&);
       int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&, double&);
+      
+      double minpT(double eta) const;
+      unsigned int minclusters(double eta) const;
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
@@ -183,6 +178,24 @@ namespace InDet {
     };
   MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidationITk&);
   std::ostream& operator << (std::ostream&,const TrackClusterAssValidationITk&); 
+  
+  inline double TrackClusterAssValidationITk::minpT(double eta) const {
+    if (m_ptbins.empty()) return m_ptcut;
+    double aeta = std::abs(eta);
+    for(int n = int(m_ptbins.size()-1); n>=0; --n) {
+      if(aeta > m_etabins.at(n)) return m_ptbins.at(n);
+    }
+    return m_ptcut;
+  }
+  
+  inline unsigned int TrackClusterAssValidationITk::minclusters(double eta) const {
+    if (m_minclusterbins.empty()) return m_clcut;
+    double aeta = std::abs(eta);
+    for(int n = int(m_minclusterbins.size()-1); n>=0; --n) {
+      if(aeta > m_etabins.at(n)) return m_minclusterbins.at(n);
+    }
+    return m_clcut;
+  }
 
 }
 #endif // TrackClusterAssValidationITk_H

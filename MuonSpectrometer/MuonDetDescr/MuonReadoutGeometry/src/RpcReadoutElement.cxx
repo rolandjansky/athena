@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The Rpc detector = an assembly module = RPC in amdb 
  ----------------------------------------------------
 ***************************************************************************/
-
-
-//<doc><file>	$Id: RpcReadoutElement.cxx,v 1.5 2009-05-13 15:03:47 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
@@ -22,6 +18,10 @@
 
 #define RpcReadout_verbose false
 
+namespace {
+  static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
+}
+
 namespace MuonGM {
 
 
@@ -29,7 +29,7 @@ namespace MuonGM {
 				       int zi, int fi, bool is_mirrored,
 				       MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-      m_hasDEDontop(false), m_nphigasgaps(-1), m_netagasgaps(-1),
+      m_hasDEDontop(false), m_nlayers(2), m_nphigasgaps(-1), m_netagasgaps(-1),
       m_gasgapssize(-9999.), m_gasgapzsize(-9999.), m_nphistrippanels(-1),
       m_netastrippanels(-1), m_nphistripsperpanel(-1), m_netastripsperpanel(-1),
       m_phistripwidth(-9999.), m_etastripwidth(-9999.), m_phistrippitch(-9999.),
@@ -258,10 +258,7 @@ namespace MuonGM {
     if (!m_hasDEDontop) {
       if (measPhi ==0) lstrip = NetaStrips()-strip+1;
       lgg++;
-      if (lgg>2) lgg=1;
-      if (RpcReadout_verbose)
-	std::cout<<"RpcReadoutElement::localstripos  m_hasDEDontop ="<<m_hasDEDontop
-		 <<" lstrip, lgg "<<lstrip<<" "<<lgg<<std::endl;
+      if (lgg>m_nlayers) lgg=1;
     }
     
 
@@ -317,13 +314,14 @@ namespace MuonGM {
   double RpcReadoutElement::localGasGapDepth(int gasGap) const
   {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
-    double xgg = - m_Rsize/2.;
-    xgg = xgg + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
-    if (RpcReadout_verbose) std::cout<<"RpcReadoutElement:: localGasGapDepth 1st "<<xgg<<std::endl;
-    if (gasGap == 1) return xgg;
-    xgg = xgg + r->rpcLayerThickness + r->centralSupPanelThickness;
- 
-    if (RpcReadout_verbose) std::cout<<"RpcReadoutElement:: localGasGapDepth selected is "<<xgg<<std::endl;
+    double xgg=0;
+    if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness;
+    } else {
+      xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
+      if (gasGap == 1) return xgg;
+      xgg = xgg + r->rpcLayerThickness + r->centralSupPanelThickness;
+    }
     return xgg;
   }
 
@@ -383,7 +381,7 @@ namespace MuonGM {
     int lgg = gasGap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
     }
 
     bool topgg = false;
@@ -410,7 +408,7 @@ namespace MuonGM {
     int lgg = gasgap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
     }
 
     bool topgg = false;
@@ -466,10 +464,7 @@ namespace MuonGM {
     int lgg = gasgap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
-      if (RpcReadout_verbose)
-	std::cout<<"RpcReadoutElement::localgasgapPos  m_hasDEDontop ="<<m_hasDEDontop
-		 <<" lgg "<<lgg<<std::endl;
+      if (lgg>m_nlayers) lgg=1;
     }
     
 
@@ -584,10 +579,7 @@ namespace MuonGM {
     int lsp = gasgap;
     if (!m_hasDEDontop) {
       lsp++;
-      if (lsp>2) lsp=1;
-      if (RpcReadout_verbose)
-	std::cout<<"RpcReadoutElement::localStripPanelPos  m_hasDEDontop ="<<m_hasDEDontop
-		 <<" lsp "<<lsp<<std::endl;
+      if (lsp>m_nlayers) lsp=1;
     }
     
 
@@ -714,8 +706,8 @@ namespace MuonGM {
   {
     m_id = id;
     const RpcIdHelper* idh = manager()->rpcIdHelper();
-    IdentifierHash collIdhash = 0;
-    IdentifierHash detIdhash = 0;
+    IdentifierHash collIdhash;
+    IdentifierHash detIdhash;
     // set parent data collection hash id
     int gethash_code = idh->get_module_hash(id, collIdhash);
     if (gethash_code != 0) 
@@ -1044,7 +1036,7 @@ namespace MuonGM {
     
     
     int gasgap     = idh->gasGap(id);
-    if (gasgap  <1 || gasgap >2) return false;
+    if (gasgap  <1 || gasgap >m_nlayers) return false;
     
     int measPhi    = idh->measuresPhi(id);
     int strip      = idh->strip(id);

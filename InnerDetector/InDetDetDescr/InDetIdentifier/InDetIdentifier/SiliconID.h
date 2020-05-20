@@ -76,7 +76,6 @@ public:
 
     /// Test for pixle b-layer - generic, i.e. works for EITHER pixel or sct id
     /// Test for pixel inner most and next to inner most 
-    bool             is_blayer         (const Identifier& id) const;  
     bool             is_innermost      (const Identifier& id) const; 
     bool             is_nexttoinnermost(const Identifier& id) const;
     //@}
@@ -182,21 +181,6 @@ SiliconID::is_barrel       (const Identifier& id) const
     }
 }
 
-
-//----------------------------------------------------------------------------
-    /// Test for pixle b-layer  to be phased out
-inline bool
-SiliconID::is_blayer       (const Identifier& id) const
-{
-    if (is_pixel(id)) {
-	// Pixel id
-	return (m_pixel_helper->is_blayer(id));
-    }
-    else {
-	// SCT
-	return (false);
-    }
-}
 
 //----------------------------------------------------------------------------
     /// Test for pixle b-layer  to be phased out

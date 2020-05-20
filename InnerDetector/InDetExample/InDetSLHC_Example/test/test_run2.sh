@@ -79,7 +79,7 @@ if [ $dosim -ne 0 ]; then
 
   # Sim step (based on PanDA job 3777178576 which made HITS.12860054._032508.pool.root.1, which is the input for AMI config q221):
   run Sim_tf.py \
-    --AMITag          s3126 \
+    --AMITag          s3505 \
     --inputEVNTFile   "$evnt" \
     --outputHITSFile  "$hits" \
     --skipEvents      3000 \
@@ -91,13 +91,12 @@ if [ $dosim -ne 0 ]; then
     --physicsList     FTFP_BERT_ATL_VALIDATION \
     --truthStrategy   MC15aPlus \
     --simulator       FullG4 \
-    --DBRelease       all:'current' \
     --conditionsTag   default:'OFLCOND-MC16-SDR-14' \
     --geometryVersion default:'ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \
                       EVNTtoHITS:'simFlags.TRTRangeCut=30.0; simFlags.TightMuonStepping=True' \
     --preInclude      EVNTtoHITS:'SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-    --postInclude     default:'RecJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py'
+    --postInclude     default:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py'
   echo "art-result: $? sim"
 
   # DCube Sim hit plots

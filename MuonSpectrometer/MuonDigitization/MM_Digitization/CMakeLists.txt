@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
+			  MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools
                           Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver
                           Tracking/TrkDetDescr/TrkDetDescrUtils

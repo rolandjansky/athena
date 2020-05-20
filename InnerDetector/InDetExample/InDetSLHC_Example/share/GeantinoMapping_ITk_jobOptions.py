@@ -60,6 +60,7 @@ globalflags.DetDescrVersion = myGeo
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 
@@ -77,14 +78,24 @@ elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
 elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
    
-elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22'):
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+     globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
    
 print "SLHC_Flags.LayoutOption = ",SLHC_Flags.LayoutOption
 
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
-include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
+    include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
+else:
+    include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
+
 include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
@@ -156,4 +167,11 @@ topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=False)
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
+if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-00') or \
+   globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22-01'):
+    include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
+else:
+    include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")

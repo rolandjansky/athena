@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Rpc_H
@@ -31,11 +31,14 @@ public:
    GeoFullPhysVol* build(int minimalgeo, int cutoutson,
                          std::vector<Cutout*>);
    void print();
+   unsigned int nGasGaps() const;
 
 private:
    RpcComponent* m_component;
+   unsigned int m_nlayers;
 
 };
+inline unsigned int Rpc::nGasGaps() const { return m_nlayers; }
 } // namespace MuonGM
 
 

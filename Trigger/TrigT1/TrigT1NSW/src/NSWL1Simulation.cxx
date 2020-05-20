@@ -25,6 +25,7 @@ namespace NSWL1 {
       m_monitors(this),
       m_pad_tds("NSWL1::PadTdsOfflineTool",this),
       m_pad_trigger("NSWL1::PadTriggerLogicOfflineTool",this),
+      m_pad_trigger_lookup("NSWL1::PadTriggerLookupTool",this),
       m_strip_tds("NSWL1::StripTdsOfflineTool",this),
       m_strip_cluster("NSWL1::StripClusterTool",this),
       m_strip_segment("NSWL1::StripSegmentTool",this),
@@ -40,6 +41,7 @@ namespace NSWL1 {
 
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
+     declareProperty( "UseLookup",   m_useLookup    = false, "Toggle Lookup mode on and off default is the otf(old) mode" );
     declareProperty( "DoNtuple",     m_doNtuple     = false, "Create an ntuple for data analysis" );
     declareProperty( "DoMM",         m_doMM         = false, "Run data analysis for MM" );
     declareProperty( "DosTGC",       m_dosTGC       = true, "Run data analysis for sTGCs" );
@@ -48,7 +50,9 @@ namespace NSWL1 {
     declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
 
     declareProperty( "PadTdsTool",      m_pad_tds,  "Tool that simulates the functionalities of the PAD TDS");
+    //PadTriggerTool : in principle can be totally wuiped out. necesary for ntuples currently. Once you isolate ntuple making code and the trigger code you can abandon this method. Things ae still tangled a bit somewhow so keep it just in case
     declareProperty( "PadTriggerTool",  m_pad_trigger, "Tool that simulates the pad trigger logic");
+    declareProperty( "PadTriggerLookupTool",  m_pad_trigger_lookup, "Tool that is used to lookup pad trigger patterns per execute against the same LUT as in trigger FPGA");
     declareProperty( "StripTdsTool",    m_strip_tds,  "Tool that simulates the functionalities of the Strip TDS");
     declareProperty( "StripClusterTool",m_strip_cluster,  "Tool that simulates the Strip Clustering");
     declareProperty( "StripSegmentTool",m_strip_segment,  "Tool that simulates the Segment finding");
@@ -91,7 +95,12 @@ namespace NSWL1 {
     
     if(m_dosTGC){
       ATH_CHECK(m_pad_tds.retrieve());
-      ATH_CHECK(m_pad_trigger.retrieve());
+      if(m_useLookup){
+        ATH_CHECK(m_pad_trigger_lookup.retrieve());
+      }
+      else{
+        ATH_CHECK(m_pad_trigger.retrieve());
+      }
       ATH_CHECK(m_strip_tds.retrieve());
       ATH_CHECK(m_strip_cluster.retrieve());
       ATH_CHECK(m_strip_segment.retrieve());
@@ -143,7 +152,13 @@ namespace NSWL1 {
 
     if(m_dosTGC){
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
-      ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
+      if(m_useLookup){
+        ATH_CHECK( m_pad_trigger_lookup->lookup_pad_triggers(pads, padTriggers) );
+      }
+      else{
+          ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
+      }
+     
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );

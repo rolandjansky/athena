@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -18,16 +18,14 @@
 #include "MuonSimData/MuonSimData.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-//#include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 
 class MuonPRD_MultiTruthMaker : public AthAlgorithm  {
   
 public:
   MuonPRD_MultiTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
+  virtual ~MuonPRD_MultiTruthMaker()=default;
 
-  virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
   
 private:
 

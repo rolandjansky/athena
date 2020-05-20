@@ -22,7 +22,6 @@
 #ifndef TrigL2BMuMuXFex_h 
 #define TrigL2BMuMuXFex_h
 
-#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/ComboAlgo.h"
 #include "BtrigUtils.h"
 

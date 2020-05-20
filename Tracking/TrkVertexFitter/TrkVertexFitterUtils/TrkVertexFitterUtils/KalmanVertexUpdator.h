@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexFitterUtils_KalmanVertexUpdator_H
@@ -60,26 +60,35 @@ namespace Trk
    xAOD::Vertex * remove(xAOD::Vertex& vtx,  VxTrackAtVertex& trk) const;
 
 /**
- * Position update method  
+ * Position update method. The 'mode' parameter is used to indicate whether we want to add or remove a track. 
  */
-  xAOD::Vertex positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const;
+  positionUpdateOutcome positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, IVertexUpdator::updateMode mode) const;
 
 /**
  * Method calculating the interstep Chi2 increment
  */ 
-  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;
+  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;  
+  float trackParametersChi2(const IVertexUpdator::positionUpdateOutcome& new_vtx, const LinearizedTrack * trk) const;
+
 
 /** 
  * Method calculating the vertex displacement-related part of the chi2   
  */
   float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const;
+  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const IVertexUpdator::positionUpdateOutcome& new_vtx) const;
+
 
   private:
   
+  // internal methods performing the actual calculations
+  float trackParametersChi2(const Amg::Vector3D & new_position, const LinearizedTrack * trk, const AmgSymMatrix(5) & trkParametersWeight) const;
+  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const Amg::Vector3D & new_position) const;
+
+
 /**
  * Method where the fit is actually done
  */
-  xAOD::Vertex* update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk,int sign) const;
+  xAOD::Vertex* update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk, IVertexUpdator::updateMode mode) const;
    
  };//end of class definition
 }//end of namespace definition

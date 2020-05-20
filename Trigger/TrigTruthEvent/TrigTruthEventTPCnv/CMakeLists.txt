@@ -69,3 +69,9 @@ atlas_add_test( TrigInDetTrackTruthMapCnv_tlp3_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions GeneratorObjectsTPCnv TrigInDetEvent TrigInDetEventTPCnv TrigInDetTruthEvent TestTools AthenaKernel CxxUtils SGTools GaudiKernel TrigTruthEventTPCnv )
 
+atlas_add_test( TrigInDetTrackTruthMapCnv_tlp4_test
+                SOURCES
+                test/TrigInDetTrackTruthMapCnv_tlp4_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions GeneratorObjectsTPCnv TrigInDetEvent TrigInDetEventTPCnv TrigInDetTruthEvent TestTools AthenaKernel CxxUtils SGTools GaudiKernel TrigTruthEventTPCnv )
+

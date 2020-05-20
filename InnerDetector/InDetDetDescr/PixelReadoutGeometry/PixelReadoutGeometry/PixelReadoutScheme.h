@@ -15,8 +15,8 @@
 #include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
 
 // Input and output classes
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 
 namespace InDetDD {
 

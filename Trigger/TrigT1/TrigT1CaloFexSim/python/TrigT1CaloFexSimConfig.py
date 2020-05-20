@@ -30,6 +30,7 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
                                  SuperCellType = SuperCellType, 
                                  noise_file = "Run3L1CaloSimulation/Noise/noise_r10684_v3.root",
                                  plotSeeds = False,
+                                 saveSeeds = True,
                                  dumpTowerInfo = False,
 
                                  makeSquareJets = False,
@@ -56,6 +57,8 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
                                  jJetRound_jet_total_noise_multiplier = 0.0,
                                  jJetRound_jet_min_ET_MeV = 5000,
                                  
+                                 makeRoundJetsPUsub=True,
+                                 
                                  makeRoundLargeRJets = True,
                                  jJetRound_LargeR_seed_size = 0.31, # seed square of side this. 0.3 for 3x3 towers
                                  jJetRound_LargeR_max_r = 0.26,     # distance (in eta and phi, not a radius) within 
@@ -73,12 +76,12 @@ def createJGTowerReader( SuperCellType = "SCell", **kwargs ) :
                                  map_jet_total_noise_multiplier = 0.0,
                                  map_jet_min_ET_MeV = 500,
                                  
-                                 gJet_seed_size=0.2,#Not for gFEX
-                                 gJet_max_r=1.0,
-                                 gJet_r=1.0,
-                                 gJet_seed_tower_noise_multiplier = 0.0,
-                                 gJet_seed_min_ET_MeV = 500,
+                                 gJet_r=0.9,
+                                 gJet_block_tower_noise_multiplier = 0., 
+                                 gJet_block_min_ET_MeV = 0.,
+                                 gJet_tower_noise_multiplier = 0.,
                                  gJet_jet_min_ET_MeV = 5000.,
+
                              )
     for arg in kwargs:
         towerReader.__setattr__(arg,kwargs[arg])

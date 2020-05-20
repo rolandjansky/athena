@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -59,7 +59,8 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   double m_highpttrkthr;
   double m_highptidthr;
   double m_highptjetthr;
-  bool   m_applyIDon0p;
+  bool m_applyIDon0p;
+  bool m_rejectRNN0p;
 
   /** variables used for cuts in hypo algorithm */   
   int m_numTrack;

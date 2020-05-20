@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleSTgcClusterBuilderTool.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
@@ -19,7 +19,7 @@ Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::stri
   m_stgcIdHelper(nullptr)
 {
   declareProperty("ChargeCut", m_chargeCut=0.0);
-  declareProperty("AllowHoles",m_allowHoles=true);
+  declareProperty("maxHoleSize",m_maxHoleSize=1);
 }
 
 Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
@@ -47,7 +47,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::finalize()
 // Build the clusters given a vector of single-hit PRD
 //
 StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
-							   std::vector<Muon::sTgcPrepData*>& clustersVect)
+							   std::vector<Muon::sTgcPrepData*>& clustersVect) const
 {
 
   ATH_MSG_DEBUG("Size of the input vector: " << stripsVect.size()); 
@@ -67,17 +67,13 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   else {
     ATH_MSG_DEBUG("Size of the channel vectors is zero");
     return StatusCode::SUCCESS;
-  } 
-  // clear the clusters vector
-  for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
-    for ( unsigned int gasGap=0 ; gasGap<5 ; ++gasGap ) {
-      m_clusters[multilayer][gasGap].clear();   
-      m_clustersStripNum[multilayer][gasGap].clear();
-    }
   }
 
+  std::vector<std::set<unsigned int>> clustersStripNum[2][4];
+  std::vector<std::vector<Muon::sTgcPrepData>> clusters[2][4];
+
   for ( auto& it : stripsVect ) {
-    if ( !addStrip(it) ) {
+    if ( !addStrip(it,clustersStripNum,clusters) ) {
       ATH_MSG_ERROR("Could not add a strip to the sTGC clusters");
       return StatusCode::FAILURE;
     }
@@ -87,18 +83,22 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   //
   clustersVect.clear();
 
-  for ( unsigned int multilayer =0 ; multilayer<3 ; ++multilayer ) {
-    for ( unsigned int gasGap=0 ; gasGap<5 ; ++gasGap ) {
+  for ( unsigned int multilayer=0 ; multilayer<2 ; ++multilayer ) {
+    for ( unsigned int gasGap=0 ; gasGap<4 ; ++gasGap ) {
       //
       // loop on the clusters of that gap
       //
-      for ( unsigned int i=0 ; i<m_clusters[multilayer][gasGap].size() ; ++i ) { 
+      for ( unsigned int i=0 ; i<clusters[multilayer][gasGap].size() ; ++i ) { 
         // get the cluster
-        std::vector<Muon::sTgcPrepData> const &cluster = m_clusters[multilayer][gasGap].at(i);
+        std::vector<Muon::sTgcPrepData> const &cluster = clusters[multilayer][gasGap].at(i);
         //
         // loop on the strips and set the cluster weighted position and charge
         //
         std::vector<Identifier> rdoList;
+        //vectors to hold the properties of the elements of a cluster
+        std::vector<int> elementsCharge;
+        std::vector<short int> elementsTime;
+        std::vector<uint16_t> elementsChannel;
         Identifier clusterId;
         double weightedPosX = 0.0;
         double posY = (cluster.at(0)).localPosition().y();
@@ -107,6 +107,9 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         double totalCharge  = 0.0;
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
+          elementsCharge.push_back(it.charge());
+          elementsTime.push_back(it.time());
+          elementsChannel.push_back(m_stgcIdHelper->channel(it.identify()));
           double weight = 0.0;
           isWire ? weight = 1.0 : weight = it.charge(); 
           ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
@@ -154,7 +157,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement());
+            rdoList, covN, cluster.at(0).detectorElement(),
+            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
         clustersVect.push_back(prdN);   
       }
     }
@@ -166,13 +170,14 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
 }
 
 
-bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
+bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& strip, std::vector<std::set<unsigned int>> clustersStripNum[2][4], 
+                  std::vector<std::vector<Muon::sTgcPrepData>> clusters[2][4])const
 {
 
   Identifier prd_id = strip.identify();
   int channelType = m_stgcIdHelper->channelType(prd_id);
-  int multilayer = m_stgcIdHelper->multilayer(prd_id);
-  int gasGap = m_stgcIdHelper->gasGap(prd_id);
+  int multilayer = m_stgcIdHelper->multilayer(prd_id)-1;
+  int gasGap = m_stgcIdHelper->gasGap(prd_id)-1;
   unsigned int stripNum = m_stgcIdHelper->channel(prd_id);
 
   ATH_MSG_DEBUG(">>>>>>>>>>>>>> In addStrip: channelType, multilayer, gasGap, stripNum: " << channelType 
@@ -180,7 +185,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
       << gasGap << " " << stripNum);
   
   // if no cluster is present start creating a new one
-  if ( m_clustersStripNum[multilayer][gasGap].size()==0 ) {
+  if (clustersStripNum[multilayer][gasGap].size()==0 ) {
 
     ATH_MSG_DEBUG( ">>> No strip present in this gap: adding it as first cluster " );
     set<unsigned int> clusterStripNum;
@@ -189,13 +194,13 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);
 
-    std::vector<std::set<unsigned int>> &clustersStripNum = m_clustersStripNum[multilayer][gasGap];
-    std::vector<std::vector<Muon::sTgcPrepData>> &clusters = m_clusters[multilayer][gasGap];
+    std::vector<std::set<unsigned int>> &clustersOfLayerStripNum = clustersStripNum[multilayer][gasGap];
+    std::vector<std::vector<Muon::sTgcPrepData>> &clustersOfLayer = clusters[multilayer][gasGap];
 
-    clustersStripNum.emplace_back();
-    clustersStripNum.back().insert(stripNum);
-    clusters.emplace_back();
-    clusters.back().push_back(strip);
+    clustersOfLayerStripNum.emplace_back();
+    clustersOfLayerStripNum.back().insert(stripNum);
+    clustersOfLayer.emplace_back();
+    clustersOfLayer.back().push_back(strip);
 
     return true;
   }
@@ -204,25 +209,25 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     //
     // check if the strip can be added to a cluster
     //
-    for ( unsigned int i=0 ; i<m_clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
+    for ( unsigned int i=0 ; i<clustersStripNum[multilayer][gasGap].size() ; ++i  ) {
 
-      set<unsigned int> &clusterStripNum = m_clustersStripNum[multilayer][gasGap].at(i);
+      set<unsigned int> &clusterStripNum = clustersStripNum[multilayer][gasGap].at(i);
 
       unsigned int firstStrip = *(clusterStripNum.begin());
       unsigned int lastStrip  = *(--clusterStripNum.end());
-
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
-      if ( (stripNum==lastStrip+1 || stripNum==firstStrip-1) 
-	   || (m_allowHoles && ( abs(stripNum-lastStrip)<=2 || abs(stripNum-firstStrip)<=2 ))) {
 
+      unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
+      unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
+      if ( diffFirst<=m_maxHoleSize + 1 || diffLast<=m_maxHoleSize + 1) {
         ATH_MSG_DEBUG(">> inserting a new strip");
-	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
-	m_clusters[multilayer][gasGap].at(i).push_back(strip);
+        clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+        clusters[multilayer][gasGap].at(i).push_back(strip);
 
-        ATH_MSG_DEBUG("size after inserting is: " << m_clustersStripNum[multilayer][gasGap].at(i).size());
+        ATH_MSG_DEBUG("size after inserting is: " << clustersStripNum[multilayer][gasGap].at(i).size());
         ATH_MSG_DEBUG("and the first and last strip are: " 
-          << *(m_clustersStripNum[multilayer][gasGap].at(i).begin()) << " "  
-          << *(--m_clustersStripNum[multilayer][gasGap].at(i).end())); 
+          << *(clustersStripNum[multilayer][gasGap].at(i).begin()) << " "  
+          << *(--clustersStripNum[multilayer][gasGap].at(i).end())); 
 	return true;
       }
     }
@@ -234,8 +239,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     clusterStripNum.insert(stripNum);
     cluster.push_back(strip);
 
-    m_clustersStripNum[multilayer][gasGap].push_back(clusterStripNum);
-    m_clusters[multilayer][gasGap].push_back(cluster);
+    clustersStripNum[multilayer][gasGap].push_back(clusterStripNum);
+    clusters[multilayer][gasGap].push_back(cluster);
 
     return true;
   }
@@ -246,7 +251,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
 ///
 /// sort the strips if needed
 void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& stripsVect,
-					       std::vector<Muon::sTgcPrepData*>& clustersVect ) 
+					       std::vector<Muon::sTgcPrepData*>& clustersVect ) const 
 {
 
   ATH_MSG_INFO("====> Dumping all strips:  ");

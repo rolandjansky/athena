@@ -1,5 +1,5 @@
 """ 
-    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 __author__ =   "A. Salzburger"
@@ -48,32 +48,34 @@ class SLHC_Setup_XMLReader :
         xmlReader = InDet__XMLReaderSvc(name='InDetXMLReaderSvc')
 
         dictionaryFileName = ""
-        if kwargs.has_key("dictionaryFileName"): dictionaryFileName = kwargs["dictionaryFileName"]
-        createXML = False
-        if kwargs.has_key("createXML"): createXML = kwargs["createXML"]
+        if kwargs.has_key("dictionaryFileName"):
+            dictionaryFileName = kwargs["dictionaryFileName"]
+            createXML = False
+        if kwargs.has_key("createXML"):
+            createXML = kwargs["createXML"]
         doPix = kwargs["doPix"]
         doSCT = kwargs["doSCT"]
         isGMX = kwargs["isGMX"]
         AddBCL = False
         if kwargs.has_key("addBCL"): AddBCL = kwargs["addBCL"]
         
-        PIXMODULEFILE = str(kwargs["PixelModules"]) + ".xml"
-        PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
-        PIXBARRELFILE = str(kwargs["PixelLayout"]) + "_PixelBarrel.xml"
-        PIXENDCAPFILE = str(kwargs["PixelLayout"]) + "_PixelEndcap.xml"
-        if kwargs.has_key("PixelEndcapLayout"): PIXENDCAPFILE = str(kwargs["PixelEndcapLayout"]) + "_PixelEndcap.xml"
-        
-        SCTMODULEFILE = "ITK_SCTModules.xml"
-        SCTSTAVEFILE  = str(kwargs["SCTLayout"]) + "_SCTStave.xml"
-        SCTBARRELFILE = str(kwargs["SCTLayout"]) + "_SCTBarrel.xml"
-        SCTENDCAPFILE = str(kwargs["SCTLayout"]) + "_SCTEndcap.xml"
+        #unless you override them, (for example by setting SLHC_Flags.LayoutVersion) these are the names of the geometry xml files
+        PIXSTAVEFILE  = "PixelStave.xml"
+        PIXBARRELFILE = "PixelBarrel.xml"
+        PIXENDCAPFILE = "PixelEndcap.xml"
+        PIXMODULEFILE = "ITK_PixelModules.xml"
 
-        ## ###### Setup dictionary file to use  ######
-        ## dictDir = os.path.dirname(dictionaryFileName)
-        ## if not os.path.exists(dictDir):
-        ##     os.makedirs(dictDir)
+        #These kwargs are set in SLHC_Setup_InclBrl4.py - in SLHC_Setup.py they are left unset => defaults
+        if kwargs.has_key("PixelModules"):
+            PIXMODULEFILE = str(kwargs["PixelModules"]) + ".xml"
+        if kwargs.has_key("PixelLayout"):
+            PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
+            PIXBARRELFILE = str(kwargs["PixelLayout"]) + "_PixelBarrel.xml"
+            PIXENDCAPFILE = str(kwargs["PixelLayout"]) + "_PixelEndcap.xml"
+        if kwargs.has_key("PixelEndcapLayout"): 
+            PIXENDCAPFILE = str(kwargs["PixelEndcapLayout"]) + "_PixelEndcap.xml"
 
-        # Check if PIXXD node is define din the DB
+        # Check if PIXXD node is defined in the DB
         readXMLfromDB_PIXXDD = False
         from AthenaCommon.GlobalFlags import globalflags
         geoTagName = globalflags.DetDescrVersion()
@@ -101,17 +103,13 @@ class SLHC_Setup_XMLReader :
 
             pixBarrelLayout = pathName+"/"+str(PIXBARRELFILE)
             pixEndcapLayout = pathName+"/"+str(PIXENDCAPFILE)
-            stripBarrelLayout = pathName+"/"+str(SCTBARRELFILE)
-            stripEndcapLayout = pathName+"/"+str(SCTENDCAPFILE)
-
+            
         else:
 
             pixBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH')
             pixEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH')
-            stripBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH')
-            stripEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH')
 
-            fileList = [pixBarrelLayout,pixEndcapLayout,stripBarrelLayout,stripEndcapLayout]
+            fileList = [pixBarrelLayout,pixEndcapLayout]
 
             if None in fileList:
                 if SLHC_Flags.UseLocalGeometry():
@@ -123,16 +121,24 @@ class SLHC_Setup_XMLReader :
         ###### Setup XMLreader flags
         print "**** FLAGS **************************************************"
         # need to set these in the interface to use kwargs syntax
+        # This should be overhauled... no longer very useful when moving away from LayoutOption as steering
         XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = pixBarrelLayout,
                                            PixelEndcapLayout = pixEndcapLayout,
-                                           SCTBarrelLayout = stripBarrelLayout,
-                                           SCTEndcapLayout = stripEndcapLayout,
                                            doPix = kwargs["doPix"],
                                            doSCT = kwargs["doSCT"],
 					   isGMX = kwargs["isGMX"],
 					   addBCL = AddBCL,
                                            readXMLfromDB = readXMLfromDB_PIXXDD
                                            )
+
+        #New scheme where we don't use a LayoutOption... configuration of this need to be overhauled!!!!
+        # See InDetTrackingGeometryXML/python/XMLReaderJobProperties.py - these properties should be taken from 
+        # XML or DB tag somehow, rather than set in python
+        if SLHC_Flags.LayoutOption == "":
+            XMLReaderFlags.isRingLayout = True
+            XMLReaderFlags.splitBarrelLayers = True
+            XMLReaderFlags.InnerLayerIndices = [0, 1]
+            XMLReaderFlags.InnerDiskIndices = []
         XMLReaderFlags.dump() #
         print "******************************************************"
 
@@ -155,11 +161,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_PixelBarrelLayers = XMLReaderFlags.PixelBarrelLayout()
             if XMLReaderFlags.PixelEndcapLayout()!='UNDEFINED' :
                 xmlReader.XML_PixelEndcapLayers = XMLReaderFlags.PixelEndcapLayout()
-            ###### Setup XML files for SCT ######
-            xmlReader.XML_SCTModules      = find_file_env(str(SCTMODULEFILE),'DATAPATH')
-            xmlReader.XML_SCTStaves       = find_file_env(str(SCTSTAVEFILE),'DATAPATH')
-            xmlReader.XML_SCTBarrelLayers = XMLReaderFlags.SCTBarrelLayout()
-            xmlReader.XML_SCTEndcapLayers = XMLReaderFlags.SCTEndcapLayout()
             
         else:
 
@@ -169,11 +170,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_PixelBarrelLayers = pathName+"/"+str(PIXBARRELFILE)
             if XMLReaderFlags.PixelEndcapLayout()!='UNDEFINED' :
                 xmlReader.XML_PixelEndcapLayers = pathName+"/"+str(PIXENDCAPFILE)
-            ###### Setup XML files for SCT ######
-            xmlReader.XML_SCTModules      = pathName+"/"+str(SCTMODULEFILE)
-            xmlReader.XML_SCTStaves       = pathName+"/"+str(SCTSTAVEFILE)
-            xmlReader.XML_SCTBarrelLayers = pathName+"/"+str(SCTBARRELFILE)
-            xmlReader.XML_SCTEndcapLayers = pathName+"/"+str(SCTENDCAPFILE)
             
         from AthenaCommon.AppMgr import theApp
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr

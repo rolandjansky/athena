@@ -16,8 +16,8 @@
 // member classes
 #include "SiDigitization/SiHelper.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 

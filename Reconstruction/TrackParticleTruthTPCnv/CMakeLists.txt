@@ -48,3 +48,8 @@ atlas_add_test( TrackParticleTruthCollectionCnv_p2_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv Particle ParticleTruth TestTools AthenaKernel SGTools StoreGateLib SGtests TrackParticleTruthTPCnv )
 
+atlas_add_test( TrackParticleTruthCollectionCnv_p3_test
+                SOURCES
+                test/TrackParticleTruthCollectionCnv_p3_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities GeneratorObjectsTPCnv Particle ParticleTruth TestTools AthenaKernel SGTools StoreGateLib SGtests TrackParticleTruthTPCnv )

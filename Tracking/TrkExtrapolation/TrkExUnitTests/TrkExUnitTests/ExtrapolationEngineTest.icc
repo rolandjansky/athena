@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Root includes
@@ -15,6 +15,12 @@
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkGeometry/Layer.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
 {
@@ -61,8 +67,9 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
         
         if (m_collectMaterial){
             m_materialThicknessInX0Accumulated->clear();
+            m_materialThicknessInL0Accumulated->clear();
             m_materialThicknessInX0Steps->clear();
-            m_materialThicknessInX0Steps->clear();
+            m_materialThicknessInL0Steps->clear();
             m_materialPositionX->clear();
             m_materialPositionY->clear();
             m_materialPositionZ->clear();
@@ -75,8 +82,24 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
         
         if (m_collectSensitive){
             m_sensitiveLayerIndex->clear();
+            m_sensitiveSurfaceType->clear();
             m_sensitiveLocalPosX->clear();
             m_sensitiveLocalPosY->clear();
+            m_sensitiveLocalPosR->clear();
+            m_sensitiveLocalPosPhi->clear();
+            m_sensitiveIsPixel->clear();
+            m_sensitiveIsInnermost->clear();
+            m_sensitiveIsNextToInnermost->clear();
+            m_sensitiveBarrelEndcap->clear();
+            m_sensitiveLayerDisc->clear();
+            m_sensitiveEtaModule->clear();
+            m_sensitivePhiModule->clear();
+            m_sensitiveSide->clear();
+            m_sensitiveNearBondGap->clear();
+            m_sensitiveisInside->clear();
+            m_sensitiveisInsideBound->clear();
+            m_materialtInX0AccumulatedUpTo->clear();
+            m_materialtInL0AccumulatedUpTo->clear();
         }
         
         for (size_t ip = 0; ip < m_parameterNames.size(); ++ip){
@@ -96,8 +119,11 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
         // create the start parameters
         double d0 = m_smearProductionVertex ? (m_smearFlatOriginT ? (m_d0Min + (m_d0Max-m_d0Min)*Trk::TrkExUnitTestBase::m_flatDist->shoot()) : Trk::TrkExUnitTestBase::m_gaussDist->shoot()*m_sigmaOriginT) : 0.;
         double z0 = m_smearProductionVertex ? (m_smearFlatOriginZ ? (m_z0Min + (m_z0Max-m_z0Min)*Trk::TrkExUnitTestBase::m_flatDist->shoot()) : Trk::TrkExUnitTestBase::m_gaussDist->shoot()*m_sigmaOriginZ) : 0.;
-        // create the start parameters
-        P startParameters(d0,z0, phi, theta, q/p, Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
+        if (not m_z0Values.empty())
+	   z0 = m_z0Values.at(it%m_z0Values.size());	   
+
+	// create the start parameters
+	P startParameters(d0,z0, phi, theta, q/p, Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
         
         m_startPositionX = startParameters.position().x();
         m_startPositionY = startParameters.position().y();
@@ -298,7 +324,7 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
     
     // loop over the collected information
     for (auto& es : ecc.extrapolationSteps){
-        // continue if we have parameters
+       // continue if we have parameters
        const T* parameters = es.parameters;
        if (parameters){
            // collect for stepwise extrapolation
@@ -331,15 +357,69 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
            m_pP[ip]->push_back(parameters->momentum().mag());
            m_pPt[ip]->push_back(parameters->momentum().perp());
            // check this
-	       if (ip == 0 && m_collectSensitive){
-               // fill the layer index and the local variables
-               int idx = parameters->associatedSurface().associatedLayer() ? 
-                   parameters->associatedSurface().associatedLayer()->layerIndex().value() : 0;
-               m_sensitiveLayerIndex->push_back(idx);
+           if (ip == 0 && m_collectSensitive){
+             // fill the layer index and the local variables
+             int idx = parameters->associatedSurface().associatedLayer() ? 
+                 parameters->associatedSurface().associatedLayer()->layerIndex().value() : -1;
+             m_sensitiveLayerIndex->push_back(idx);
+             int type = parameters->associatedSurface().type();
+             m_sensitiveSurfaceType->push_back(type);
+
+             if (type == Trk::Surface::Disc) {
+               // loc R and loc phi
+               m_sensitiveLocalPosR->push_back(parameters->localPosition()[Trk::loc1]); 
+               m_sensitiveLocalPosPhi->push_back(parameters->localPosition()[Trk::loc2]); 
+               Amg::Vector2D localCart = *(dynamic_cast<const Trk::DiscSurface*>(&parameters->associatedSurface())->localPolarToLocalCartesian(parameters->localPosition()));
+               m_sensitiveLocalPosX->push_back(localCart[Trk::loc1]); 
+               m_sensitiveLocalPosY->push_back(localCart[Trk::loc2]); 
+             } else if (type == Trk::Surface::Plane) {
                // loc X and loc Y
-	           m_sensitiveLocalPosX->push_back(parameters->localPosition().x()); 
-	           m_sensitiveLocalPosY->push_back(parameters->localPosition().y()); 
-	       }  
+               m_sensitiveLocalPosX->push_back(parameters->localPosition()[Trk::loc1]);
+               m_sensitiveLocalPosY->push_back(parameters->localPosition()[Trk::loc2]); 
+             }
+                
+             if (parameters->associatedSurface().associatedDetectorElement()) {
+               Identifier id = parameters->associatedSurface().associatedDetectorElement()->identify();
+                  
+               if (m_idHelper->is_pixel(id)) {
+                 // save pixel info
+                 m_sensitiveIsPixel->push_back(1);
+                 m_sensitiveIsInnermost->push_back(m_pixel_ID->is_innermost(id));
+                 m_sensitiveIsNextToInnermost->push_back(m_pixel_ID->is_nexttoinnermost(id));
+                 m_sensitiveBarrelEndcap->push_back(m_pixel_ID->barrel_ec(id));
+                 m_sensitiveLayerDisc->push_back(m_pixel_ID->layer_disk(id));
+                 m_sensitiveEtaModule->push_back(m_pixel_ID->eta_module(id));
+                 m_sensitivePhiModule->push_back(m_pixel_ID->phi_module(id));
+                 m_sensitiveSide->push_back(0);
+             
+               } else if (m_idHelper->is_sct(id)) {
+                 // save sct info 
+                 m_sensitiveIsPixel->push_back(0);
+                 m_sensitiveIsInnermost->push_back(0);
+                 m_sensitiveIsNextToInnermost->push_back(0);
+                 m_sensitiveBarrelEndcap->push_back(m_sct_ID->barrel_ec(id));
+                 m_sensitiveLayerDisc->push_back(m_sct_ID->layer_disk(id));
+                 m_sensitiveEtaModule->push_back(m_sct_ID->eta_module(id));
+                 m_sensitivePhiModule->push_back(m_sct_ID->phi_module(id));
+                 m_sensitiveSide->push_back(m_sct_ID->side(id));
+               }
+               
+               const InDetDD::SiDetectorElement* siElement = dynamic_cast<const InDetDD::SiDetectorElement*> (parameters->associatedSurface().associatedDetectorElement());
+               double phitol = 2.5; double etatol = 5.0;               
+               bool nearGap = siElement->nearBondGap(parameters->localPosition(), etatol);
+               InDetDD::SiIntersect siIn = siElement->inDetector(parameters->localPosition(), phitol, etatol);
+               bool isInside = siIn.in();
+               m_sensitiveNearBondGap->push_back(nearGap ? 1 : 0);
+               m_sensitiveisInside->push_back(isInside ? 1 : 0);
+               auto& pBounds = parameters->associatedSurface().bounds();
+               bool isInsideBounds = pBounds.inside(parameters->localPosition(),phitol,etatol);
+               m_sensitiveisInsideBound->push_back(isInsideBounds ? 1 : 0);
+               
+             }
+             m_materialtInX0AccumulatedUpTo->push_back(m_materialThicknessInX0Accumulated->back());
+	     m_materialtInL0AccumulatedUpTo->push_back(m_materialThicknessInL0Accumulated->back());
+	     
+	   }
                 
            // collect the material if configured to do so
            if (m_collectMaterial && es.material){
@@ -376,6 +456,7 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                } 
                // the stepwise material
                m_materialThicknessInX0Accumulated->push_back(m_materialThicknessInX0);
+               m_materialThicknessInL0Accumulated->push_back(m_materialThicknessInL0);
                m_materialThicknessInX0Steps->push_back(tInX0);
                m_materialThicknessInX0Steps->push_back(tInL0);
                m_materialPositionX->push_back(es.materialPosition.x());

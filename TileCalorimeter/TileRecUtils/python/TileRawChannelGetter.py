@@ -518,6 +518,8 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderWienerFilter.Minus1Iteration         = True
                 theTileRawChannelBuilderWienerFilter.AmplitudeCorrection     = False; # don't need correction after iterations
                 theTileRawChannelBuilderWienerFilter.TimeCorrection          = False; # don't need correction after iterations
+
+                ServiceMgr.TileInfoLoader.LoadWienerFilterWeights=True
       
                 mlog.info(" adding now TileRawChannelBuilderWienerFilter to ToolSvc")   
                 ToolSvc += theTileRawChannelBuilderWienerFilter

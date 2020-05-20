@@ -275,7 +275,7 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
     if( trackRecord->GetMomentum().mag() < m_momentumCutSim ) return false; 
   }
   if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
-  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
+  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.8 ) return false;
   return entry.mdtHits.size() + entry.cscHits.size() > 4;
 }
 

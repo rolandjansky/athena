@@ -2,21 +2,6 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-# List of FTK chains
-monitoring_tau_FTK = [
-    'tau12_idperf_FTK',
-    'tau12_perf_FTK',
-    'tau12_perf0_FTK',
-    'tau12_perf_FTKNoPrec',
-    'tau12_perf0_FTKNoPrec',
-    'tau12_medium0_FTK',
-    'tau12_medium1_FTK',
-    'tau12_medium0_FTKNoPrec',
-    'tau12_medium1_FTKNoPrec',
-    'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-    'tau25_perf_tracktwo_L1TAU12IM_FTK',
-    'tau25_medium1_tracktwo_L1TAU12IM_FTK'
-] 
 
 # Lowest-energy single tau monitored at HLT
 monitoring_singleTau = 'tau25_medium1_tracktwo'
@@ -54,6 +39,12 @@ monitoring_tau_pp = [
     #'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_perf_tracktwo',
+     'tau25_idperf_tracktwoMVABDT',
+     'tau25_perf_tracktwoMVABDT',
+     'tau25_mediumRNN_tracktwoMVABDT',
+     'tau25_idperf_tracktwoRNN',
+     'tau25_perf_tracktwoRNN',
+     'tau25_mediumRNN_tracktwoRNN',
     'tau25_medium1_tracktwo',
     'tau25_idperf_tracktwoMVA',
     'tau25_perf_tracktwoMVA',
@@ -75,18 +66,6 @@ monitoring_tau_pp = [
     'tau160_idperf_tracktwo_L1TAU100', # TES change. 'tau160_idperf_tracktwo',
     'tau160_perf_tracktwo_L1TAU100', # TES change. 'tau160_perf_tracktwo',
     'tau160_medium1_tracktwo_L1TAU100', # 1tau
-    'tau12_idperf_FTK',
-    'tau12_perf_FTK',
-    'tau12_perf0_FTK',
-    'tau12_perf_FTKNoPrec',
-    'tau12_perf0_FTKNoPrec',
-    'tau12_medium0_FTK',
-    'tau12_medium1_FTK',
-    'tau12_medium0_FTKNoPrec',
-    'tau12_medium1_FTKNoPrec',
-    'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-    'tau25_perf_tracktwo_L1TAU12IM_FTK',
-    'tau25_medium1_tracktwo_L1TAU12IM_FTK',
     #'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
     #'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
     #'mu14_ivarloose_tau35_medium1_tracktwo', # tau+mu, high ET
@@ -153,18 +132,6 @@ monitoring_tau_validation = [
     'tau160_perf_tracktwo_L1TAU100', # 'tau160_perf_tracktwo',
     'tau160_medium1_tracktwo',
     'tau160_medium1_tracktwo_L1TAU100', # 1tau
-    'tau12_idperf_FTK',
-    'tau12_perf_FTK',
-    'tau12_perf0_FTK',
-    'tau12_perf_FTKNoPrec',
-    'tau12_perf0_FTKNoPrec',
-    'tau12_medium0_FTK',
-    'tau12_medium1_FTK',
-    'tau12_medium0_FTKNoPrec',
-    'tau12_medium1_FTKNoPrec',
-    'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-    'tau25_perf_tracktwo_L1TAU12IM_FTK',
-    'tau25_medium1_tracktwo_L1TAU12IM_FTK',
     'mu14_iloose_tau25_perf_tracktwo',
     'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
     'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO

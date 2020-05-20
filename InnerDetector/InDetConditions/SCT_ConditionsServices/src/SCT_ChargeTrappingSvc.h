@@ -64,8 +64,13 @@ public:
   virtual double getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos);
   virtual double getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos);
   virtual double getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos);
+  virtual double getElectronDriftMobility(const IdentifierHash &  elementHash, const double & pos);
   bool getdoCTrap(const IdentifierHash & elementHash, const  double & pos);
-  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
+  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin,
+                                double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
+  virtual void getElectronTransport(double & x0, double & y0, double & xfin, double & yfin,
+                                    double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
+
   virtual void getInitPotentialValue();
   /// IOV CallBack
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
@@ -83,7 +88,10 @@ private:
   void initPotentialValue();
   double induced(int istrip, double x, double y)const;
   double GetPotentialValue(int& ix, int& iy);  
-  void holeTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
+  void holeTransport(double & x0, double & y0, double & xfin, double & yfin,
+                     double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
+  void electronTransport(double & x0, double & y0, double & xfin, double & yfin,
+                         double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
 
   
   
@@ -121,7 +129,9 @@ private:
   std::vector<double> m_trappingTime;
   std::vector<double> m_electrodeTime;
   std::vector<double> m_trappingPosition;
+
   std::vector<double> m_holeDriftMobility;
+  std::vector<double> m_electronDriftMobility;
   mutable bool m_getdoCTrap;
 
   double m_PotentialValue[81][115];

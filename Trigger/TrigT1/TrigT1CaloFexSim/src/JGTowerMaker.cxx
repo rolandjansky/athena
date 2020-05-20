@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODL1Calo includes
@@ -30,6 +30,7 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   declareProperty("useAllRun2TT",m_useAllRun2TT=false);
   declareProperty("SuperCellType",m_scType="SCell");
   declareProperty("SuperCellQuality",m_scQuality=0x200);
+  declareProperty("EmulateSuperCellTiming",m_EmulateSC=false); 
 }
 
 
@@ -99,8 +100,16 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
            const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
            CaloCell* scell = (CaloCell*) scells->findCell(sc_hash);
            if(scell==nullptr)continue; 
-	   if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
-           float scell_et = scell->et();
+	   float scell_et = scell->et();
+	   if(isnan(scell_et))ATH_MSG_ERROR("Supercell ET is nan. Likely due to BCID correction or something else upstream");
+	   float time = scell->time(); 
+	   if(m_EmulateSC){
+	     if(scell_et<10e3 && fabs(time)>8) continue;
+	     if(scell_et>=10e3 && (time > 16 || time<-8)) continue; 
+	   }
+	   else{
+	     if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
+	   }
            jgEt += scell_et; 
            lar_et+=scell_et;
         }

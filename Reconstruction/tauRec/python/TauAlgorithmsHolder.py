@@ -97,7 +97,7 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = "TES_MC16a_prelim.root",
+                                    calibrationFile = tauFlags.tauRecToolsLCCalibFile(),
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis,
                                     doPtResponse = True,
@@ -745,7 +745,7 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'MvaTES_20170207_v2_BDTG.weights.root') #update config?
+                                      WeightFileName = tauFlags.tauRecToolsMvaTESWeights() )
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -755,7 +755,7 @@ def getCombinedP4FromRecoTaus():
     _name = sPrefix + 'CombinedP4FromRecoTaus'
     from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
     CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
-                                                    WeightFileName = 'CalibLoopResult_v04-04.root') #update config?
+                                                    WeightFileName = tauFlags.tauRecToolsCombP4Weights() )
     cached_instances[_name] = CombinedP4FromRecoTaus
     return CombinedP4FromRecoTaus
     
@@ -834,8 +834,8 @@ def getTauWPDecoratorJetBDT():
     _name = sPrefix + 'TauWPDecoratorJetBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "FlatJetBDT1Pv2.root", #update
-                                       flatteningFile3Prong = "FlatJetBDT3Pv2.root", #update
+                                       flatteningFile1Prong = tauFlags.tauRecWPDecoratorJetBDTConfig()[0],
+                                       flatteningFile3Prong = tauFlags.tauRecWPDecoratorJetBDTConfig()[1],
                                        CutEnumVals = 
                                        [ ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
                                          ROOT.xAOD.TauJetParameters.JetBDTSigMedium, ROOT.xAOD.TauJetParameters.JetBDTSigTight ],

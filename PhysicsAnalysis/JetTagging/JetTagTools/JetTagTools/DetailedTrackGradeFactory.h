@@ -58,7 +58,9 @@ private:
 
   bool m_hitBLayerGrade;   // grade for tracks without hit in First Layers
   bool m_useSharedHitInfo; /// if false the following cuts are ignored
-
+ 
+  bool m_useITkTrackGrading; // enabling ITk grading
+  int m_ITkTrackGradingVersion; // version of the ITk grading
   bool m_useRun2TrackGrading; // enabling run2 grading
   bool m_useInnerLayers0HitInfo; //grading categories with no hits in one of the first 2 innermost pixel layers
   bool m_useDetailSharedHitInfo; //grading categories according to shared hit content
@@ -70,15 +72,20 @@ private:
   int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
   int m_nSharedInnermostPixelLayer;/// max. number of shared hits in innermost pixel layer (IBL)
   int m_nSharedNextToInnermostPixelLayer;/// max. number of shared hits next-to-innermost pixel layer (Run1 B layer)
+  int m_nOutlierPix;  /// max. number of pixel outliers in two first layers
+  int m_nSpoiltPix;   /// max. number of spoilt hits in pixel
+  int m_nInTotPixEta23;    /// min. number of pixel hits in two first layers for 2<|eta|<3
+  int m_nInTotPixEta34;    /// min. number of pixel hits in two first layers for 3<|eta|<4
 
   bool m_ptFracGrade;   // grade for tracks with ptFrac < m_ptFracCut
   double m_ptFracCut;    /// cut on ptFrac
 
   bool m_ptEtaGrades;    /// grades in pt and/or |eta| of tracks
   std::vector<double> m_ptLowerCuts;
-
-
   std::vector<double> m_etaLowerCuts;
+
+  std::vector<std::vector<double>> m_gammaLowerCuts;
+
 
 };
 

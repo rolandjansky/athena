@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           Control/StoreGate
                           DetectorDescription/IdDictDetDescr
+                          DetectorDescription/ReadoutGeometryBase
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
@@ -36,7 +37,7 @@ atlas_add_component( InDetJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel VxVertex JiveXMLLib DataModel StoreGateLib SGtests IdDictDetDescr InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetPrepRawData TrkEventPrimitives TrkPrepRawData TrkSpacePoint TrkTruthData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel VxVertex JiveXMLLib DataModel StoreGateLib SGtests IdDictDetDescr ReadoutGeometryBase InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetPrepRawData TrkEventPrimitives TrkPrepRawData TrkSpacePoint TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( InDetJiveXML )

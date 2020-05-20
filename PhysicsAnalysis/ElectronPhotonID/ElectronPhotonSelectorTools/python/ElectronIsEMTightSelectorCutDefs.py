@@ -23,6 +23,17 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+
+def ElectronIsEMTightSelectorConfigHLLHC(theTool) :
+    '''
+    These are the cut base isEM definitions: Tight from HLLHC
+    '''
+    
+    theTool = GetTool(theTool)
+
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20170524_HLLHC/ElectronIsEMTightSelectorCutDefs.conf"
+
+
 def ElectronIsEMTightSelectorConfigDC14(theTool) :
     '''
     These are the cut base isEM definitions: Tight from MC15

@@ -86,7 +86,7 @@ public :
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMaxID, const MM_DigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMinID, const int & stripMaxID, const MM_DigitToolInput & digiInput);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };
@@ -95,6 +95,7 @@ public :
   inline void setCrossTalk1 (float val) { m_crossTalk1 = val; };
   inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
   inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
+  inline void setAvalancheGain(float val) {m_avalancheGain = val;}
 
   float getQThreshold    () const { return m_qThreshold;      };
   float getDriftGapWidth () const { return m_driftGapWidth;   };

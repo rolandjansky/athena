@@ -35,7 +35,7 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 

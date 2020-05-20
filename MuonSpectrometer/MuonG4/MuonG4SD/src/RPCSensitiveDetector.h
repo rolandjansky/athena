@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class RPCSensitiveDetector
@@ -96,8 +96,8 @@ class RPCSensitiveDetector : public G4VSensitiveDetector {
 
 public:
     /** construction/destruction */
-    RPCSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
-    ~RPCSensitiveDetector() {}
+    RPCSensitiveDetector(const std::string& name, const std::string& hitCollectionName, unsigned int nGasGaps);
+    ~RPCSensitiveDetector()=default;
 
     /** member functions */
     void Initialize(G4HCofThisEvent*) override final;
@@ -105,7 +105,7 @@ public:
     
 private:
     /** member data */
-    SG::WriteHandle<RPCSimHitCollection>  m_myRPCHitColl;
+    SG::WriteHandle<RPCSimHitCollection> m_myRPCHitColl;
     RpcHitIdHelper* m_muonHelper;
     bool m_isGeoModel;
 };

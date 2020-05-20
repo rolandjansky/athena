@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_CSCRAWDATACNV_P3_H
 #define MUON_CSCRAWDATACNV_P3_H
 
-
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"  
 #include "MuonEventAthenaPool/CscRawData_p3.h"
 #include "MuonRDO/CscRawData.h"
+#include "StoreGate/DataHandle.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 
 class MsgStream;
 
@@ -23,6 +23,10 @@ public:
   
   virtual void		persToTrans(const CscRawData_p3* persObj, CscRawData* transObj, MsgStream &log);
   virtual void		transToPers(const CscRawData* transObj, CscRawData_p3* persObj, MsgStream &log);
+private:
+  bool initialize();
+  bool m_init=false;
+  const DataHandle<CscIdHelper> m_cscIdHelper=nullptr;
 };
 
 

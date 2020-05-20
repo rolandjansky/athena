@@ -23,7 +23,7 @@ export TDT_LOG=${JOB_LOG%%.*}.TrigDecTool.${JOB_LOG#*.}
 athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_TrigDecTool.py 2>&1 | tee ${TDT_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${TDT_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${TDT_LOG} 2>&1 | tee checklog.TrigDecTool.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${TDT_LOG} 2>&1 | tee checklog.TrigDecTool.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigDecTool"
 
 echo "##############################"
@@ -32,7 +32,7 @@ export EDM_LOG=${JOB_LOG%%.*}.TrigEDMCheck.${JOB_LOG#*.}
 athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_TrigEDMCheck.py 2>&1 | tee ${EDM_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${EDM_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${EDM_LOG} 2>&1 | tee checklog.TrigEDMCheck.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${EDM_LOG} 2>&1 | tee checklog.TrigEDMCheck.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigEDMCheck"
 
 echo "##############################"
@@ -41,7 +41,7 @@ export EDMAUX_LOG=${JOB_LOG%%.*}.TrigEDMAuxCheck.${JOB_LOG#*.}
 athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_TrigEDMAuxCheck.py 2>&1 | tee ${EDMAUX_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${EDMAUX_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${EDMAUX_LOG} 2>&1 | tee checklog.TrigEDMAuxCheck.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${EDMAUX_LOG} 2>&1 | tee checklog.TrigEDMAuxCheck.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigEDMAuxCheck"
 
 echo "################################"
@@ -50,7 +50,7 @@ export TRIGHLTMON_LOG=${JOB_LOG%%.*}.TrigHLTMon.${JOB_LOG#*.}
 TrigHLTMon_tf.py --inputAODFile  AOD.pool.root --outputHISTFile myHIST.root 2>&1 | tee ${TRIGHLTMON_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${TRIGHLTMON_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${TRIGHLTMON_LOG} 2>&1 | tee checklog.TrigHLTMon.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${TRIGHLTMON_LOG} 2>&1 | tee checklog.TrigHLTMon.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigHLTMon"
 
 echo "################################"
@@ -59,7 +59,7 @@ export HLTMON_LOG=${JOB_LOG%%.*}.HLTMonitoring.${JOB_LOG#*.}
 athena.py -c 'fileList=["ESD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigESD_HLTMonitoring.py 2>&1 | tee ${HLTMON_LOG}
 echo "art-result: ${PIPESTATUS[0]} ${HLTMON_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${HLTMON_LOG} 2>&1 | tee checklog.HLTMonitoring.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${HLTMON_LOG} 2>&1 | tee checklog.HLTMonitoring.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.HLTMonitoring"
 mv histo.root expert-monitoring.root 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
@@ -80,7 +80,7 @@ else
    athena.py -c 'TestType="RSegamma";useCONDBR2=False;' -b TrigAnalysisTest/testAthenaTrigAODtoAOD_TrigNavSlimming.py 2>&1 | tee ${SLIM_LOG}
    echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}"
    echo $(date "+%FT%H:%M %Z")"     Running checklog"
-   timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG} 2>&1 | tee checklog.TrigNavSlimming.log
+   timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG} 2>&1 | tee checklog.TrigNavSlimming.log
    echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigNavSlimming"
 fi
 

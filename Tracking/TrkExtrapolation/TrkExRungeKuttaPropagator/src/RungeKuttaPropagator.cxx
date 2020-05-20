@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,6 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
  bool                               ,
  const TrackingVolume*              ) const
 {
-  if(!&Tp) return 0;
   Sol.erase(Sol.begin(),Sol.end()); Path = 0.; if(DS.empty()) return 0;
   m_direction               = D; 
 
@@ -345,7 +344,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
  double                       * Jac   ,
  bool                       returnCurv) const 
 {
-  const Trk::Surface* su = &Su; if(!&Tp || !su) return 0;
+  const Trk::Surface* su = &Su; if(!su) return 0;
   if(su == &Tp.associatedSurface()) return buildTrackParametersWithoutPropagation(Tp,Jac);
 
   m_direction               = D    ;
@@ -473,7 +472,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 { 
   const Trk::Surface* su = &Su;
 
- if(!&Tp || !su) return 0;
+ if(!su) return 0;
 
   m_direction               = D ; 
 
@@ -619,7 +618,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   const TrackingVolume*            ) const 
 {
   bool nJ = false;
-  const Trk::Surface* su = &Su; if(!&Tp || !su) return 0; 
+  const Trk::Surface* su = &Su; if(!su) return 0; 
   m_direction            = 0. ;
 
   m_needgradient = false; 

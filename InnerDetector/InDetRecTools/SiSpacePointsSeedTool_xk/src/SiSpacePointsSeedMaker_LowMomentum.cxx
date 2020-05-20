@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ InDet::SiSpacePointsSeedMaker_LowMomentum::SiSpacePointsSeedMaker_LowMomentum
   m_r3max       = 600.    ;
   m_drmin       = 10.     ; 
   m_drmax       = 200.    ;    
-  m_rapcut      = 2.7     ;
+  m_etamax      = 2.7     ;
   m_zmin        = -250.   ;
   m_zmax        = +250.   ;
   m_dzver       = 5.      ;
@@ -109,7 +109,7 @@ InDet::SiSpacePointsSeedMaker_LowMomentum::SiSpacePointsSeedMaker_LowMomentum
   declareProperty("maxRadius3"            ,m_r3max                 );
   declareProperty("mindRadius"            ,m_drmin                 );
   declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("RapidityCut"           ,m_rapcut                );
+  declareProperty("etaMax"                ,m_etamax                );
   declareProperty("maxdZver"              ,m_dzver                 );
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
@@ -547,8 +547,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpConditions( MsgStream&
   out<<"| pTmax  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmax
      <<"                              |"<<std::endl;
-  out<<"| |rapidity|          <=  | " 
-     <<std::setw(12)<<std::setprecision(5)<<m_rapcut
+  out<<"| |eta|               <=  | "
+     <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 
@@ -766,8 +766,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::buildFrameWork()
   m_ptmin     = fabs(m_ptmin)                  ;  if(m_ptmin < 50.) m_ptmin = 50.;
   m_iptmax  = 1./fabs(m_ptmax)                 ;
   m_iptmin  = 1./fabs(m_ptmin)                 ;
-  m_rapcut    = fabs(m_rapcut)                 ;
-  m_dzdrmax   = 1./tan(2.*atan(exp(-m_rapcut))); 
+  m_etamax    = fabs(m_etamax)                 ;
+  m_dzdrmax   = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin   =-m_dzdrmax                      ;
   m_r3max     = r_rmax                         ; 
 

@@ -16,10 +16,13 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
+#include "MuonRDO/MM_RawData.h"
 #include "MuonRDO/MM_RawDataContainer.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 
 #include <string>
 #include <vector>
+
 class AtlasDetectorID;
 class Identifier;
 class MmIdHelper;
@@ -40,12 +43,13 @@ namespace Muon
   class IMuonRawDataProviderTool;
   class MuonIdHelperTool;
   class IMMClusterBuilderTool;
+  class INSWCalibTool;
 
   class MmRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
   {
   public:
     MmRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
-    
+
     /** default destructor */
     virtual ~MmRdoToPrepDataTool ();
     
@@ -90,14 +94,14 @@ namespace Muon
     
     /// MdtPrepRawData containers
     Muon::MMPrepDataContainer * m_mmPrepDataContainer;
-    SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey;
+    SG::WriteHandleKey<Muon::MMPrepDataContainer>    m_mmPrepDataContainerKey;
     SG::ReadHandleKey< MM_RawDataContainer >         m_rdoContainerKey;
 
     std::string m_outputCollectionLocation;            
     bool m_merge; 
 
     ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
-
+    ToolHandle<INSWCalibTool> m_calibTool;
   }; 
 } // end of namespace
 

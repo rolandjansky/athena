@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -15,8 +15,6 @@ def configureFlagsBase():
         DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
         DetFlags.Forward_setOff() # Forward dets are off by default
         DetFlags.geometry.DBM_setOff()
-        DetFlags.geometry.sTGC_setOff()
-        DetFlags.geometry.Micromegas_setOff()
 
     ## Configure tasks
     DetFlags.digitize.all_setOff()
@@ -210,9 +208,12 @@ def configureFlagsFastOnly():
 ## methods for simulators which combine Geant4,  Fatras and FastCaloSim
 
 def configureFlagsATLFASTIIF_G4MS():
-    configureFlagsATLFASTII()
+    configureFlagsATLFASTIIF()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_G4MS"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
     return
 
 def configureFlagsMultiSimTest():

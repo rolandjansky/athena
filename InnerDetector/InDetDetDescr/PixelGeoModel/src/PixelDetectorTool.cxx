@@ -12,7 +12,7 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h" 
 #include "PixelGeoModel/PixelDetectorFactoryFastGeo.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"

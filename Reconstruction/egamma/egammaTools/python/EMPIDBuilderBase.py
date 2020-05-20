@@ -3,6 +3,7 @@
 # default configuration of the EMPIDBuilder
 from AthenaCommon.Logging import logging
 from AthenaCommon.DetFlags import DetFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
 import traceback
 
@@ -31,14 +32,21 @@ class EMPIDBuilderElectronBase ( EMPIDBuilder ) :
         try:
             # Cut based 
             from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
-            LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP)
-            ToolSvc+=LooseElectronSelector
-            MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP)
-            ToolSvc+=MediumElectronSelector
-            TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP)
-            ToolSvc+=TightElectronSelector
-
-
+            if commonGeoFlags.Run()=="RUN4": 
+                LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP, electronPIDmenu.menuHLLHC)
+                ToolSvc+=LooseElectronSelector
+                MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP, electronPIDmenu.menuHLLHC)
+                ToolSvc+=MediumElectronSelector
+                TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP, electronPIDmenu.menuHLLHC)
+                ToolSvc+=TightElectronSelector
+            else:
+                LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP, electronPIDmenu.menuDC14)
+                ToolSvc+=LooseElectronSelector
+                MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP, electronPIDmenu.menuDC14)
+                ToolSvc+=MediumElectronSelector
+                TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP, electronPIDmenu.menuDC14)
+                ToolSvc+=TightElectronSelector
+                
             # Likelihood
             from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
             LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)

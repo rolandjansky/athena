@@ -115,6 +115,13 @@
     <class name="std::vector< std::pair<unsigned int, Muon::MuonSimData_p2> >" />
     <class name="Muon::MuonSimDataCollection_p2" id="E0AA3013-4EF7-45B6-BDB1-17B21BF60791"/>
 
+    <class name="Muon::MuonSimData_p3" />
+    <class name="std::pair<HepMcParticleLink_p3, Muon::MuonMCData_p1>" />
+    <class name="std::vector<std::pair<HepMcParticleLink_p3, Muon::MuonMCData_p1> >" />
+    <class name="std::pair<unsigned int, Muon::MuonSimData_p3>" />
+    <class name="std::vector< std::pair<unsigned int, Muon::MuonSimData_p3> >" />
+    <class name="Muon::MuonSimDataCollection_p3" id="5548BB93-558D-468B-B477-AD81ABB1D4FC"/>
+
     <class name="Muon::CscSimData_p1" />
     <class name="Muon::CscMcData_p1" />
     <class name="std::pair<HepMcParticleLink_p1, Muon::CscMcData_p1>" />
@@ -122,7 +129,21 @@
     <class name="std::pair<unsigned int, Muon::CscSimData_p1>" />
     <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p1> >" />
     <class name="Muon::CscSimDataCollection_p1" id="DD2A8397-4435-4DA2-AD14-ADD7294694B2"/>
-    
+
+    <class name="Muon::CscSimData_p2" />
+    <class name="std::pair<HepMcParticleLink_p2, Muon::CscMcData_p1>" />
+    <class name="std::vector<std::pair<HepMcParticleLink_p2, Muon::CscMcData_p1> >" />
+    <class name="std::pair<unsigned int, Muon::CscSimData_p2>" />
+    <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p2> >" />
+    <class name="Muon::CscSimDataCollection_p2" id="023993E1-BAAA-4F36-8CD4-8F03E3983E8D"/>
+
+    <class name="Muon::CscSimData_p3" />
+    <class name="std::pair<HepMcParticleLink_p3, Muon::CscMcData_p1>" />
+    <class name="std::vector<std::pair<HepMcParticleLink_p3, Muon::CscMcData_p1> >" />
+    <class name="std::pair<unsigned int, Muon::CscSimData_p3>" />
+    <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p3> >" />
+    <class name="Muon::CscSimDataCollection_p3" id="F4A88385-E7F0-4D98-98EA-B2E6C2483A6F"/>
+
     <!-- MuonRDO -->
     <class name="Muon::STGC_RawData_p1" />
     <class name="std::vector<Muon::STGC_RawData_p1>" />
@@ -135,12 +156,5 @@
     <class name="Muon::MM_RawDataCollection_p1" />
     <class name="std::vector<Muon::MM_RawDataCollection_p1>" />
     <class name="Muon::MM_RawDataContainer_p1" id="5F202045-CE2C-4AD4-96BA-7DA18053B90F" />
-
-    <class name="Muon::CscSimData_p2" />
-    <class name="std::pair<HepMcParticleLink_p2, Muon::CscMcData_p1>" />
-    <class name="std::vector<std::pair<HepMcParticleLink_p2, Muon::CscMcData_p1> >" />
-    <class name="std::pair<unsigned int, Muon::CscSimData_p2>" />
-    <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p2> >" />
-    <class name="Muon::CscSimDataCollection_p2" id="023993E1-BAAA-4F36-8CD4-8F03E3983E8D"/>
 
 </lcgdict>

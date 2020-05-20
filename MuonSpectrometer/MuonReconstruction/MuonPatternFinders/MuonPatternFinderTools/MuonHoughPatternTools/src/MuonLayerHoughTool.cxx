@@ -28,8 +28,9 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
-    m_detMgr(0),
-    m_ntechnologies(4),
+    m_detMgr(nullptr),
+    m_ntechnologies(UINT_MAX),
+    m_techToTruthNameIdx(),
     m_incidentSvc("IncidentSvc",name)
   {
     declareInterface<MuonLayerHoughTool>(this);
@@ -52,17 +53,13 @@ namespace Muon {
     declareProperty("AddSectors", m_addSectors = true);
   }
 
-  MuonLayerHoughTool::~MuonLayerHoughTool()
-  {
-
-  }
-
   StatusCode MuonLayerHoughTool::initialize() {
 
     if (m_idHelper.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_idHelper );
       return StatusCode::FAILURE;
     }
+    m_ntechnologies = m_idHelper->mdtIdHelper().technologyNameIndexMax()+1;
     if (m_printer.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_printer );
       return StatusCode::FAILURE;
@@ -91,11 +88,21 @@ namespace Muon {
     
     initializeSectorMapping();
 
-    if( m_truthNames.empty() ){
+    if( m_truthNames.empty() && m_doTruth ){
       std::string postfix = "_TruthMap";
       std::string allNames("");
+      unsigned int i=0;
       for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
-        m_truthNames.push_back( std::string(m_idHelper->mdtIdHelper().technologyString(tech)) + postfix );
+        // check if technology is part of layout
+        if (tech==MuonStationIndex::CSC && !m_idHelper->HasCSC()) continue;
+        else if (tech==MuonStationIndex::STGC && !m_idHelper->HasSTgc()) continue;
+        else if (tech==MuonStationIndex::MM && !m_idHelper->HasMM()) continue;
+        std::string thisname = std::string(m_idHelper->mdtIdHelper().technologyString(tech)) + postfix;
+        m_truthNames.emplace_back( thisname );
+        // since we need to access the elements of m_truthNames later on, we need to remember 
+        // which technology is saved at which index of the vector
+        m_techToTruthNameIdx.insert(std::make_pair(tech, i));
+        ++i;
         allNames += " ";
         allNames += m_truthNames.back();
       }
@@ -145,22 +152,6 @@ namespace Muon {
     }
     m_incidentSvc->addListener( this, IncidentType::EndEvent );
 
-
-    // /// test layerhash 
-    // for( int reg = 0;reg<MuonStationIndex::DetectorRegionIndexMax;++reg ){   
-    //   MuonStationIndex::DetectorRegionIndex region = static_cast<MuonStationIndex::DetectorRegionIndex>(reg);
-    //   for( int lay=0;lay<Muon::MuonStationIndex::LayerIndexMax;++lay ){
-    //     MuonStationIndex::LayerIndex layer   = static_cast<MuonStationIndex::LayerIndex>(lay);
-    //     unsigned int layerHash = MuonStationIndex::sectorLayerHash(region,layer);
-    //     auto regionLayer = MuonStationIndex::decomposeSectorLayerHash( layerHash );
-    //     if( region != regionLayer.first || layer != regionLayer.second ){
-    //       ATH_MSG_WARNING("Bad hash conversion " << MuonStationIndex::regionName(region) << " - " << MuonStationIndex::regionName(regionLayer.first)
-    //                       << " layer " << MuonStationIndex::layerName(layer) << " - " << MuonStationIndex::layerName(regionLayer.second));
-    //     }
-    //   }
-    // }
-
-
     return StatusCode::SUCCESS;
   }
 
@@ -191,7 +182,6 @@ namespace Muon {
       }
       ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << name << " found " << m_truthCollections[i]->size());
     }
-
     if(m_ntuple){
       const xAOD::TruthParticleContainer* truthMuons = evtStore()->tryConstRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
       if (truthMuons) {
@@ -1787,7 +1777,7 @@ namespace Muon {
                                                const sTgcPrepDataContainer* stgcCont,  
                                                const MMPrepDataContainer*   mmCont,
                                                MuonLayerHoughTool::HoughDataPerSector& houghData ){
-                                               
+
     // loop over all possible station layers in the sector
     for( unsigned int tech=0;tech<m_ntechnologies;++tech ){
       for( unsigned int layerHash=0;layerHash<MuonStationIndex::sectorLayerHashMax();++layerHash ){
@@ -1858,7 +1848,6 @@ namespace Muon {
   void MuonLayerHoughTool::matchTruth( const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ){
     typedef PRD_MultiTruthCollection::const_iterator iprdt;
     std::pair<iprdt, iprdt> range = truthCol.equal_range(id);
-    
     // Loop over particles contributing to this cluster
     for(iprdt i = range.first; i != range.second; i++) {
       if(!i->second.isValid()) {
@@ -1908,7 +1897,10 @@ namespace Muon {
       debug->time = prd.tdc();
       debug->r = prd.localPosition()[Trk::locR];
       
-      if( technology < m_truthCollections.size() ) matchTruth(*m_truthCollections[technology],id,*debug);
+      std::map<unsigned int,unsigned int>::const_iterator pos = m_techToTruthNameIdx.find(technology);
+      if (pos != m_techToTruthNameIdx.end()) {
+        matchTruth(*m_truthCollections[pos->second],id,*debug);
+      }
       MuonHough::Hit* hit = new MuonHough::Hit(sublayer,x,ymin,ymax,1.,debug,&prd);
       hits.push_back(hit);
     }
@@ -1955,8 +1947,10 @@ namespace Muon {
       debug->isEtaPhi = (neta && nphi);
       debug->trigConfirm = 1;
       debug->time = prd.time();
-      if( technology < m_truthCollections.size() ) matchTruth(*m_truthCollections[technology],id,*debug);
-
+      std::map<unsigned int,unsigned int>::const_iterator pos = m_techToTruthNameIdx.find(technology);
+      if (pos != m_techToTruthNameIdx.end()) {
+        matchTruth(*m_truthCollections[pos->second],id,*debug);
+      }
       float weight = (neta && nphi) ? 2 : 1;
       if( m_idHelper->rpcIdHelper().measuresPhi(id) ) {
         const float r = rCor(prd);
@@ -2005,8 +1999,10 @@ namespace Muon {
       float ymax = y + stripCor;
       MuonHough::HitDebugInfo* debug = new MuonHough::HitDebugInfo(technology,sector,region,layer,sublayer);
       debug->r = stripCor;
-      if( technology < m_truthCollections.size() ) matchTruth(*m_truthCollections[technology],id,*debug);
-
+      std::map<unsigned int,unsigned int>::const_iterator pos = m_techToTruthNameIdx.find(technology);
+      if (pos != m_techToTruthNameIdx.end()) {
+        matchTruth(*m_truthCollections[pos->second],id,*debug);
+      }
       MuonHough::Hit* hit = new MuonHough::Hit(sublayer,x,ymin,ymax,1.,debug,&prd);
       hits.push_back(hit);
     }
@@ -2042,8 +2038,10 @@ namespace Muon {
       debug->isEtaPhi = 1;
       debug->trigConfirm = (prd.getBcBitMap() & sTgcPrepData::BCBIT_CURRENT) == sTgcPrepData::BCBIT_CURRENT;
       debug->time = prd.getBcBitMap();
-      if( technology < m_truthCollections.size() ) matchTruth(*m_truthCollections[technology],id,*debug);
-
+      std::map<unsigned int,unsigned int>::const_iterator pos = m_techToTruthNameIdx.find(technology);
+      if (pos != m_techToTruthNameIdx.end()) {
+        matchTruth(*m_truthCollections[pos->second],id,*debug);
+      }
       if( m_idHelper->stgcIdHelper().channelType(id) == 1 ) {
         // eta strips
         float x = prd.globalPosition().z();
@@ -2169,7 +2167,6 @@ namespace Muon {
     unsigned int technology = m_idHelper->technologyIndex(chid);
     for( unsigned int si=0;si<sectors.size();++si ){
       if( sectors[si] != sector ) continue;
-      //int sector = sectors[si];
       std::vector< TgcClusterObj3D >::const_iterator clit = clustering.clusters3D.begin();
       std::vector< TgcClusterObj3D >::const_iterator clit_end = clustering.clusters3D.end();
       
@@ -2205,7 +2202,10 @@ namespace Muon {
   debug->clusterLayers = cl.etaCluster.layers();
   debug->isEtaPhi = cl.phiCluster.layers();
   debug->time = cl.etaCluster.hitList.front()->getBcBitMap();
-        if( technology < m_truthCollections.size() ) matchTruth(*m_truthCollections[technology],id,*debug);
+  std::map<unsigned int,unsigned int>::const_iterator pos = m_techToTruthNameIdx.find(technology);
+  if (pos != m_techToTruthNameIdx.end()) {
+    matchTruth(*m_truthCollections[pos->second],id,*debug);
+  }
 
   MuonHough::HitDebugInfo* phiDebug = new MuonHough::HitDebugInfo(*debug);
   phiDebug->clusterSize = cl.phiCluster.hitList.size();
@@ -2245,7 +2245,6 @@ namespace Muon {
 
   // all chambers are mapped onto a layer and sector map
   void MuonLayerHoughTool::initializeSectorMapping() {
-    m_ntechnologies = m_idHelper->mdtIdHelper().technologyNameIndexMax()+1;
     m_collectionsPerSector.resize(MuonStationIndex::numberOfSectors());
     // set sector numbers
     unsigned int nsectorHashMax = MuonStationIndex::sectorLayerHashMax();

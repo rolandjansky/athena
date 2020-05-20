@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackTruthCollectionCnv.h"
@@ -8,8 +8,10 @@
 #include "TrkTruthTPCnv/TrackTruthCollection_p0.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p1.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p2.h"
+#include "TrkTruthTPCnv/TrackTruthCollection_p3.h"
 #include "TrkTruthTPCnv/TrackTruthCollectionCnv_p1.h"
 #include "TrkTruthTPCnv/TrackTruthCollectionCnv_p2.h"
+#include "TrkTruthTPCnv/TrackTruthCollectionCnv_p3.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -25,6 +27,8 @@ pool::Guid TrackTruthCollectionCnv::p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A609
 
 pool::Guid TrackTruthCollectionCnv::p2_guid("44F35B21-838A-4C4E-B09B-971CEA0EB70A");
 
+pool::Guid TrackTruthCollectionCnv::p3_guid("E228CC04-0FFD-4764-80A1-B221255AC513");
+
 
 //================================================================
 TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
@@ -34,9 +38,9 @@ TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) :
 //================================================================
 TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCollection* trans) {
   MsgStream log(messageService(), "TrackTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackTruthCollection_p2"<<endreq;
+  log<<MSG::DEBUG<<"Writing TrackTruthCollection_p3"<<endreq;
   TrackTruthCollectionPERS* pers=new TrackTruthCollectionPERS();
-  m_converter_p2.transToPers(trans,pers,log);
+  m_converter_p3.transToPers(trans,pers,log);
   return pers;
 }
 
@@ -45,7 +49,13 @@ TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
   MsgStream log(messageService(), "TrackTruthCollectionCnv" );
   std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
 
-  if (compareClassGuid(p2_guid)) {
+  if (compareClassGuid(p3_guid)) {
+    log<<MSG::DEBUG<<"Read TrackTruthCollection_p3. GUID="<<m_classID.toString()<<endreq;
+    Trk::TrackTruthCollection_p3* pers=poolReadObject<Trk::TrackTruthCollection_p3>();
+    m_converter_p3.persToTrans(pers, trans.get(), log);
+    delete pers;
+  }
+  else if (compareClassGuid(p2_guid)) {
     log<<MSG::DEBUG<<"Read TrackTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
     Trk::TrackTruthCollection_p2* pers=poolReadObject<Trk::TrackTruthCollection_p2>();
     m_converter_p2.persToTrans(pers, trans.get(), log);

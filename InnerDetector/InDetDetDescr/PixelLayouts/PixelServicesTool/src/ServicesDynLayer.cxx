@@ -6,7 +6,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <numeric>
 
+// FIXME: convert cout to athena msg stremer
 ServicesDynLayer::ServicesDynLayer( double radius, double halfLength, double staveZOffset, int nStaves,
 				    DetTypeDyn::Type type, DetTypeDyn::Part part, int num, int numStaveTmp,
 			      const std::string& suffix,
@@ -76,7 +78,6 @@ std::string ServicesDynLayer::name() const
 
 int ServicesDynLayer::modulesPerStaveTot() const
 {
-  int modTot=0;
-  for(int i=0; i<(int)m_nModulesPerStave.size(); i++) modTot+=m_nModulesPerStave[i];
-  return modTot;
+  // sum nModules in each entry of m_nModulesPerStave
+  return std::accumulate(m_nModulesPerStave.begin(), m_nModulesPerStave.end(), 0);
 }

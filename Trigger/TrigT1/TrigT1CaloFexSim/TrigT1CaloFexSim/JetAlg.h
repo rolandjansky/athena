@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JetAlg_H
@@ -58,11 +58,11 @@ class JetAlg{
   static std::map<TString, std::shared_ptr<Seed>> m_SeedMap;
 
   static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, TString seedname, bool &m_dumpSeedsEtaPhi);
-  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, TString seedname, float seed_size, float range, std::vector<float> noise, float seed_tower_noise_multiplier, float seed_total_noise_multiplier, float seed_min_ET_MeV);
+  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, TString seedname, float seed_size, float range, std::vector<float> noise, float seed_tower_noise_multiplier, float seed_min_ET_MeV,bool seed_electrons);
 
-  static StatusCode BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, float rho); 
-  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_saveSeeds = false);
-  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_total_noise_multiplier, float jet_min_ET_MeV, bool m_saveSeeds = false);
-  static StatusCode BuildgBlocksJets(const xAOD::JGTowerContainer* blocks, TString jetname, float rho);
+  static StatusCode BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float seed_threshold, float jet_min_ET_MeV, float rhoA, float rhoB,float rhoC, bool useNegTowers);
+  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_min_ET_MeV, bool m_saveSeeds = false);
+  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, TString seedname, TString jetname, float jet_size, std::vector<float> noise, float jet_tower_noise_multiplier, float jet_min_ET_MeV, bool m_saveSeeds = false);
+  static StatusCode BuildgBlocksJets(const xAOD::JGTowerContainer* blocks, TString jetname, float rhoA, float rhoB, float rhoC);
 };
 #endif

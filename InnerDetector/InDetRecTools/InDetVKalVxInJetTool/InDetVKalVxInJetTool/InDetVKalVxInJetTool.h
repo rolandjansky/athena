@@ -220,6 +220,8 @@ namespace InDet {
 
       bool m_existIBL;
 
+      bool m_IsPhase2;
+
       long int m_RobustFit;
 
       double m_Xbeampipe;

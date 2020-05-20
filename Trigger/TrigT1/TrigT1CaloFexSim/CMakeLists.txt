@@ -37,7 +37,8 @@ atlas_add_component( TrigT1CaloFexSim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODMissingET xAODJet xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver
+                     PRIVATE_LINK_LIBRARIES TrigEFMissingETLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

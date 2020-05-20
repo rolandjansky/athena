@@ -13,10 +13,9 @@ namespace Trk {
   enum DetectorRegion {
     pixelBarrelFlat     = 0,
     pixelBarrelInclined = 1,
-    pixelBarrelRing     = 2,
-    pixelEndcap         = 3,
-    stripBarrel         = 4,
-    stripEndcap         = 5
+    pixelEndcap         = 2,
+    stripBarrel         = 3,
+    stripEndcap         = 4
   };
   
   

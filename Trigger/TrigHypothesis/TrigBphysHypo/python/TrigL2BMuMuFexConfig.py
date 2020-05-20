@@ -410,8 +410,8 @@ class L2BMuMuFex_DiMu_7invm9_noOS (TrigL2BMuMuFex):
         # self.TrackAlgoId      = 2
         # self.pTsumTrackPair   = 0.
         self.OppositeSign       = False
-        self.LowerMassCut       = 7000.
-        self.UpperMassCut       = 9000.
+        self.LowerMassCut       = 6000.
+        self.UpperMassCut       = 10000.
         self.ApplyUpperMassCut  = True
         self.doVertexFit        = True
         self.TrigL2VertexFitter = L2VFitTool
@@ -439,8 +439,8 @@ class L2BMuMuFex_DiMu_11invm60_noOS (TrigL2BMuMuFex):
         # self.TrackAlgoId      = 2
         # self.pTsumTrackPair   = 0.
         self.OppositeSign       = False
-        self.LowerMassCut       = 11000.
-        self.UpperMassCut       = 60000.
+        self.LowerMassCut       = 10000.
+        self.UpperMassCut       = 65000.
         self.ApplyUpperMassCut  = True
         self.doVertexFit        = True
         self.TrigL2VertexFitter = L2VFitTool
@@ -461,8 +461,8 @@ class L2BMuMuFex_DiMu_11invm24_noOS (L2BMuMuFex_DiMu_11invm60_noOS):
         super( L2BMuMuFex_DiMu_11invm24_noOS, self ).__init__( name )
         
         # L2 Bmumu cuts
-        self.LowerMassCut       = 11000.
-        self.UpperMassCut       = 24000.
+        self.LowerMassCut       = 10000.
+        self.UpperMassCut       = 26000.
 
 
 class L2BMuMuFex_DiMu_24invm60_noOS (L2BMuMuFex_DiMu_11invm60_noOS):
@@ -471,8 +471,8 @@ class L2BMuMuFex_DiMu_24invm60_noOS (L2BMuMuFex_DiMu_11invm60_noOS):
         super( L2BMuMuFex_DiMu_24invm60_noOS, self ).__init__( name )
         
         # L2 Bmumu cuts
-        self.LowerMassCut       = 24000.
-        self.UpperMassCut       = 60000.
+        self.LowerMassCut       = 22000.
+        self.UpperMassCut       = 65000.
 
 
 class L2BMuMuFex_DiMu_18invm60_noOS (TrigL2BMuMuFex):

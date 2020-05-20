@@ -10,6 +10,9 @@
     <class name="Trk::PRD_MultiTruthCollection_p3" id="68703476-9D09-4504-B492-E5E4DC933E71" />
     <class name="std::vector<Trk::PRD_MultiTruthCollection_p3::Entry>" />
     <class name="Trk::PRD_MultiTruthCollection_p3::Entry" />
+    <class name="Trk::PRD_MultiTruthCollection_p4" id="146138A6-2314-498F-80A7-2347C9822981" />
+    <class name="std::vector<Trk::PRD_MultiTruthCollection_p4::Entry>" />
+    <class name="Trk::PRD_MultiTruthCollection_p4::Entry" />
 
     <!-- Track Truth p0 -->
     <class name="TrackTruthVector"  id="8BC86D69-DBC4-4B34-8273-513D9BE771D5" />
@@ -24,6 +27,10 @@
     <class name="Trk::TrackTruthCollection_p2" id="44F35B21-838A-4C4E-B09B-971CEA0EB70A" />
     <class name="std::vector<Trk::TrackTruthCollection_p2::Entry>" />
     <class name="Trk::TrackTruthCollection_p2::Entry" />
+    <!-- Track Truth p3 -->
+    <class name="Trk::TrackTruthCollection_p3" id="E228CC04-0FFD-4764-80A1-B221255AC513" />
+    <class name="std::vector<Trk::TrackTruthCollection_p3::Entry>" />
+    <class name="Trk::TrackTruthCollection_p3::Entry" />
 
     <!-- DetailedTrackTruth stuff -->
 
@@ -55,5 +62,11 @@
     <class name="std::vector<Trk::DetailedTrackTruthCollection_p3::Entry>" />
     <class name="Trk::DetailedTrackTruthCollection_p3::Entry" />
     <class name="Trk::TruthTrajectory_p2" />
+
+    <class name="Trk::DetailedTrackTruthCollection_p4" id="94E5A7B5-D0E0-41D4-A6F7-8F5CE64D307D" />
+    <class name="Trk::DetailedTrackTruth_p4" />
+    <class name="std::vector<Trk::DetailedTrackTruthCollection_p4::Entry>" />
+    <class name="Trk::DetailedTrackTruthCollection_p4::Entry" />
+    <class name="Trk::TruthTrajectory_p3" />
 
 </lcgdict>

@@ -85,7 +85,7 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
 
     s=stest 
     logging.info("Running clean in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     CleanDirName="clean_run_"+s+"_"+UniqID
 
@@ -94,11 +94,11 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
             " mkdir -p " + CleanDirName    +" ;" + 
             " cd "       + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " +extraArg+" > "+s+".log 2>&1" )
+            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" )
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished clean in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
 def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
@@ -108,7 +108,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
 
     s=stest 
     logging.info("Running patched in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -120,12 +120,12 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+s+"; cd run_"+s+";"
-    cmd += " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " +extraArg+" > "+s+".log 2>&1" 
+    cmd += " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" 
     
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --postInclude 'EVNTtoHITS:PyJobTransforms/UseFrontier.py' --imf False " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
@@ -207,7 +207,7 @@ def GetReleaseSetup(isCImode=False):
     release_head=os.environ['AtlasVersion']
     platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
-    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'_'+project+'_'+platform+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
     # suggest to use latest opt over dbg
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
@@ -670,7 +670,7 @@ def main():
         qTestsToRun = {}
         if RunSim:
             qTestsToRun = { 
-            's3126':[ 'EVNTtoHITS' ]
+            's3505':[ 'EVNTtoHITS' ]
             }
         elif RunOverlay:
             qTestsToRun = {

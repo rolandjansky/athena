@@ -1,21 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ******************************************************************************
-// ATLAS Muon Identifier Helpers Package
-// -----------------------------------------
-// ******************************************************************************
-
-//<doc><file> $Id: RpcIdHelper.h,v 1.35 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
 
 #ifndef MUONIDHELPERS_RPCIDHELPER_H
 #define MUONIDHELPERS_RPCIDHELPER_H
 
-// Includes
-
 #include "MuonIdHelpers/MuonIdHelper.h"
+
 class MsgStream;
 // ******************************************************************************
 // class RpcIdHelper
@@ -61,13 +52,8 @@ class RpcIdHelper : public MuonIdHelper
 {
  public:
 
-  // Constructor
-
   RpcIdHelper();
-
-  // Destructor
-
-  virtual ~RpcIdHelper();
+  virtual ~RpcIdHelper()=default;
 
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 
@@ -248,7 +234,7 @@ class RpcIdHelper : public MuonIdHelper
       StripMax       = 99
     };
   inline virtual void create_mlog() const;
-
+  unsigned int m_gasGapMax; // maximum number of gas gaps
 };
 
 // For backwards compatibility
@@ -651,7 +637,7 @@ inline  int RpcIdHelper::gasGapMin() const
 
 inline  int RpcIdHelper::gasGapMax() const
 {
-  return GasGapMax;
+  return m_gasGapMax;
 }
 
 inline  int RpcIdHelper::measuresPhiMin() const

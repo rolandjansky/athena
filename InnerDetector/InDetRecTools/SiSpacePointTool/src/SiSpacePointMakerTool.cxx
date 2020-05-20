@@ -10,7 +10,7 @@
 // For processing clusters
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
 
 // Space points

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -24,7 +24,7 @@ class BCMSensorSD : public G4VSensitiveDetector
 {
  public:
   // Constructor
-  BCMSensorSD(const std::string& name, const std::string& hitCollectionName);
+  BCMSensorSD(const std::string& name, const std::string& hitCollectionName, bool isUpgrade);
 
   // Destructor
   ~BCMSensorSD() { /* I don't own myHitColl if all has gone well */ }
@@ -43,6 +43,7 @@ class BCMSensorSD : public G4VSensitiveDetector
  private:
   // The hits collection
   SG::WriteHandle<SiHitCollection> m_HitColl;
+  bool m_isUpgrade;
 };
 
 #endif

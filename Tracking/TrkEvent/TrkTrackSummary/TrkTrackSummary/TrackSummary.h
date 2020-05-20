@@ -125,21 +125,18 @@ enum SummaryType {
         // Additional info for ITk
         numberOfContribPixelBarrelFlatLayers     = 73,  //!< number of contributing barrel flat layers of the pixel detector [unit8_t].
         numberOfContribPixelBarrelInclinedLayers = 74,  //!< number of contributing barrel inclined layers of the pixel detector [unit8_t].
-        numberOfContribPixelBarrelRings          = 75,  //!< number of contributing barrel ring layers of the pixel detector [unit8_t].
-        numberOfContribPixelEndcap               = 76,  //!< number of contributing endcap layers of the pixel detector [unit8_t].
+        numberOfContribPixelEndcap               = 75,  //!< number of contributing endcap layers of the pixel detector [unit8_t].
         
-        numberOfPixelBarrelFlatHits              = 77,  //!< these are the pixel hits, in the barrel flat layers [unit8_t].
-        numberOfPixelBarrelInclinedHits          = 78,  //!< these are the pixel hits, in the barrel inclined layers [unit8_t].
-        numberOfPixelBarrelRingHits              = 79,  //!< these are the pixel hits, in the barrel ring layers [unit8_t].
-        numberOfPixelEndcapHits                  = 80,  //!< these are the pixel hits, in the endcap layers [unit8_t].
+        numberOfPixelBarrelFlatHits              = 76,  //!< these are the pixel hits, in the barrel flat layers [unit8_t].
+        numberOfPixelBarrelInclinedHits          = 77,  //!< these are the pixel hits, in the barrel inclined layers [unit8_t].
+        numberOfPixelEndcapHits                  = 78,  //!< these are the pixel hits, in the endcap layers [unit8_t].
                                                 
-        numberOfPixelBarrelFlatHoles             = 81,  //!< number of pixel barrel flat layers on track with absence of hits [unit8_t].
-        numberOfPixelBarrelInclinedHoles         = 82,  //!< number of pixel barrel flat inclined on track with absence of hits [unit8_t].
-        numberOfPixelBarrelRingHoles             = 83,  //!< number of pixel barrel ring layers on track with absence of hits [unit8_t].
-        numberOfPixelEndcapHoles                 = 84,  //!< number of pixel endcap layers on track with absence of hits [unit8_t].
+        numberOfPixelBarrelFlatHoles             = 79,  //!< number of pixel barrel flat layers on track with absence of hits [unit8_t].
+        numberOfPixelBarrelInclinedHoles         = 80,  //!< number of pixel barrel flat inclined on track with absence of hits [unit8_t].
+        numberOfPixelEndcapHoles                 = 81,  //!< number of pixel endcap layers on track with absence of hits [unit8_t].
         
         // -- numbers...
-        numberOfTrackSummaryTypes = 85
+        numberOfTrackSummaryTypes = 82
     };
 
 // Troels.Petersen@cern.ch:

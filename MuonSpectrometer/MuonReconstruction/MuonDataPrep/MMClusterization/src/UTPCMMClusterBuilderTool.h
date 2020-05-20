@@ -1,20 +1,27 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef UTPCMMClusterBuilderTool_h
 #define UTPCMMClusterBuilderTool_h
+
+#include <tuple>
+#include <vector>
+#include <memory>
+#include <string>
+
 
 #include "GaudiKernel/ToolHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include <numeric>
-
 #include "TH2D.h"
-#include "TMath.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
+#include "TLinearFitter.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+#include "TMatrixDSym.h"
 
 class MmIdHelper;
 namespace MuonGM
@@ -33,18 +40,18 @@ namespace Muon
   public:
     /** Default constructor */
     UTPCMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
-     
+
     /** Default destructor */
     virtual ~UTPCMMClusterBuilderTool() = default;
 
     /** standard initialize method */
     virtual StatusCode initialize() override;
-    
+
     /** standard finalize method */
     //virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec);
+	 		   std::vector<Muon::MMPrepData*>& clustersVec)const ;
 
   private: 
 
@@ -54,26 +61,28 @@ namespace Muon
 
 
     // params for the hough trafo
-    double m_alphaMin,m_alphaMax,m_alphaResolution;
-    double m_dMin,m_dMax,m_dResolution;
+    double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;
+    double m_dMin,m_dMax,m_dResolution,m_driftRange;
     int m_houghMinCounts;
 
-    double m_timeOffset,m_dHalf,m_vDrift;
+    double m_outerChargeRatioCut;
+    int m_maxStripsCut;
 
-    double m_toRad=TMath::Pi()/180.;
+    bool m_digiHasNegativeAngles;
+    float m_scaleClusterError;
+
+    StatusCode runHoughTrafo(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& xpos, std::vector<int>& flag, std::vector<int>& idx_selected)const;
+    StatusCode fillHoughTrafo(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& xpos, std::vector<int>& flag,  std::unique_ptr<TH2D>& h_hough)const;
+    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator, double xmax, double xmin)const;
+
+    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos)const;
+    StatusCode selectTrack(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& xpos, std::vector<int>& flag, std::vector<std::tuple<double,double>> &tracks, std::vector<int> &idxGoodStrips)const;
+
+    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope, double& intercept, double& interceptRMS)const;
+    StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut)const;
+    StatusCode finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
+  };
 
 
-    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected);
-    StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time, float meanX);
-    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator,float xmax,float xmin,float xmean);
-
-    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos);
-    StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<float>& xpos, std::vector<float>& time,float meanX,std::vector<int>& flag,std::vector<int>& idx_selected);
-
-    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
-    StatusCode finalFit(std::vector<float>& xpos, std::vector<float>& time, std::vector<int>& idxSelected,float& x0,float &fitAngle, float &chiSqProb);
-};
-
-
-}
+} //  namespace Muon
 #endif

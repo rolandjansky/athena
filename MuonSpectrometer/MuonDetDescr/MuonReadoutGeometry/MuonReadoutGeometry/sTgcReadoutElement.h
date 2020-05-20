@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,6 +20,7 @@
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
+class BLinePar;
 
 namespace Trk{
   class PlaneSurface;
@@ -143,6 +144,17 @@ namespace MuonGM {
 
     //double getSectorOpeningAngle(bool isLargeSector);
 
+    inline double getALine_rots() const;
+    inline double getALine_rotz() const;
+    inline double getALine_rott() const;
+    inline bool has_ALines() const;
+    inline bool has_BLines() const;
+    void setDelta(double, double, double, double, double, double);
+    void setBLinePar(BLinePar* bLine) const;
+    inline void clearBLinePar() const;
+    void clearBLineCache() const;
+    void fillBLineCache() const;
+
   private:
 
     std::vector<MuonChannelDesign> m_phiDesign;
@@ -158,6 +170,15 @@ namespace MuonGM {
 
     int m_sTGC_type;
 
+    double m_rots;
+    double m_rotz;
+    double m_rott;
+
+    bool m_hasALines;
+    bool m_hasBLines;
+
+    HepGeom::Transform3D* m_delta;
+
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
 
@@ -170,9 +191,29 @@ namespace MuonGM {
     std::vector<double> m_PadminHalfY;
     std::vector<double> m_PadmaxHalfY;
 
+    mutable BLinePar* m_BLinePar;
+
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void sTgcReadoutElement::clearBLinePar() const
+  { m_BLinePar = 0;}
+
+  double sTgcReadoutElement::getALine_rots() const
+  { return m_rots;}
+
+  double sTgcReadoutElement::getALine_rotz() const
+  { return m_rotz;}
+
+  double sTgcReadoutElement::getALine_rott() const
+  { return m_rott;}
+
+  bool sTgcReadoutElement::has_ALines() const 
+  { return m_hasALines;}
+
+  bool sTgcReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->stgcIdHelper()->gasGap(id),manager()->stgcIdHelper()->channelType(id));

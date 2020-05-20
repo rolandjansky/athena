@@ -27,7 +27,7 @@ void Trk::DetailedHitInfo::addHit(Trk::DetectorRegion region, int layer, int eta
     if (el.first==region) {
       for (auto& count : el.second) {
         if (std::get<0>(count) == layer) {
-          // increase the constributing layers only for inclined/ring/endcap modules
+          // increase the constributing layers only for inclined/endcap modules
           if (region!=pixelBarrelFlat and region!=stripBarrel and eta_module!=m_prevEta) { 
             std::get<1>(count)++;
             m_prevEta=eta_module;  
@@ -138,7 +138,6 @@ int Trk::DetailedHitInfo::getStripContributions() {
   for (auto& el : m_detailedHitInfo) {
     if (el.first==pixelBarrelFlat or 
         el.first==pixelBarrelInclined or
-        el.first==pixelBarrelRing or
         el.first==pixelEndcap) {
       continue;
     }
@@ -154,7 +153,6 @@ int Trk::DetailedHitInfo::getStripHits() {
   for (auto& el : m_detailedHitInfo) {
     if (el.first==pixelBarrelFlat or 
         el.first==pixelBarrelInclined or
-        el.first==pixelBarrelRing or
         el.first==pixelEndcap) {
       continue;
     }

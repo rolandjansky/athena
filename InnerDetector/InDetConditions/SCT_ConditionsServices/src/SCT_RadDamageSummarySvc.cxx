@@ -8,8 +8,6 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 
-
-// #include "SCT_RamoPotentialSvc.h"
 #include "SCT_ChargeTrappingSvc.h"
 
 #include "Identifier/Identifier.h"
@@ -23,15 +21,11 @@ SCT_RadDamageSummarySvc::SCT_RadDamageSummarySvc(const std::string& name, ISvcLo
   AthService(name, sl),
   m_detStore("DetectorStore", name),
   m_SCT_ID(0),
-  // m_ramoPotentialSvc("RamoPotentialSvc",name),
   m_chargeTrappingSvc("SCT_ChargeTrappingSvc",name),
-  // m_useRamo(true),
   m_useTrapping(true)
 {
   
-  // declareProperty("RamoPotentialSvc",m_ramoPotentialSvc);
   declareProperty("SCT_ChargeTrappingSvc",m_chargeTrappingSvc);
-  // declareProperty("UseRamoPotentialSvc",m_useRamo, "Set to true to use the Ramo Potential");
   declareProperty("UseChargeTrappingSvc",m_useTrapping, "Set to true to switch on charge trapping");
   declareProperty("DoChargeTrapping",m_doCTrap=false, "Do charge trapping");
   declareProperty("StoreGateSvc", m_detStore);
@@ -56,21 +50,16 @@ StatusCode SCT_RadDamageSummarySvc::initialize(){
     msg(MSG::FATAL) << "Unable to retrieve detector store" << endmsg;
     return StatusCode::FAILURE;
   }
-  
-  // if(m_useRamo){
-    // if (StatusCode::SUCCESS!=m_ramoPotentialSvc.retrieve()) {
-      // msg(MSG::FATAL) << "Unable to retrieve RamoPotentialSvc" << endmsg;
-      // return StatusCode::FAILURE;
-    // } 
-    // msg(MSG::INFO) << "RamoPotentialSvc retrieved" << endmsg;
-  // }
-  
+    
   if(m_useTrapping){
     if (StatusCode::SUCCESS!=m_chargeTrappingSvc.retrieve()) {
       msg(MSG::FATAL) << "Unable to retrieve SCT_ChargeTrappingSvc" << endmsg;
       return StatusCode::FAILURE;
     } 
     msg(MSG::INFO) << "SCT_ChargeTrappingSvc retrieved" << endmsg;
+  }
+  else{
+    msg(MSG::DEBUG) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
   }
   
   sc = m_detStore->retrieve( m_SCT_ID, "SCT_ID" );
@@ -107,32 +96,12 @@ StatusCode SCT_RadDamageSummarySvc::queryInterface(const InterfaceID& riid, void
 }
 
 
-
-// // -- Ramo potential 
-// double RadDamageSummarySvc::RamoPotential(const IdentifierHash & elementHash, const Hep3Vector & pos){
- 
-  // double ramo = 0.0;
-  // if (!m_useRamo){
-    // //    msg(MSG::INFO) << "RamoPotentialSvc is not requested. Returning default value." << endmsg;
-  // }
-  // else{
-    // //    msg(MSG::INFO) << "RamoPotentialSvc was requested. This may slow significantly your digitization." << endmsg;
-    // ramo = m_ramoPotentialSvc->getRamoPotential(elementHash, pos);
-  // }
-  // return ramo;
-// }
-
 bool SCT_RadDamageSummarySvc::doCTrap(const IdentifierHash & elementHash, const double & zpos){
   
   m_doCTrap = false;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     m_doCTrap =  m_chargeTrappingSvc->getdoCTrap(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
   return m_doCTrap;
 }
 
@@ -141,11 +110,7 @@ bool SCT_RadDamageSummarySvc::doCTrap(const IdentifierHash & elementHash, const 
 double SCT_RadDamageSummarySvc::ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos){
 
   double prob = 0.0;
-  if (!m_useTrapping){
-    //    msg(MSG::INFO) << "ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     prob = m_chargeTrappingSvc->getTrappingProbability(elementHash, zpos);
   }
   return prob;
@@ -155,14 +120,9 @@ double SCT_RadDamageSummarySvc::ChargeTrappingProbability(const IdentifierHash &
 double SCT_RadDamageSummarySvc::TrappingConstant(const IdentifierHash & elementHash, const double & zpos){
 
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getTrappingHoles(elementHash, zpos);              // Mod
   }
-
   return k;
 }
 
@@ -171,15 +131,9 @@ double SCT_RadDamageSummarySvc::TrappingConstant(const IdentifierHash & elementH
 double SCT_RadDamageSummarySvc::ElectricField(const IdentifierHash & elementHash, const double & zpos){
 
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getElectricField(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return k;
 }
 
@@ -187,15 +141,9 @@ double SCT_RadDamageSummarySvc::ElectricField(const IdentifierHash & elementHash
 double SCT_RadDamageSummarySvc::TrappingTime(const IdentifierHash & elementHash, const double & zpos){
 
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getTrappingTime(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return k;
 }
 
@@ -203,15 +151,9 @@ double SCT_RadDamageSummarySvc::TrappingTime(const IdentifierHash & elementHash,
 double SCT_RadDamageSummarySvc::TimeToElectrode(const IdentifierHash & elementHash, const double & zpos){
 
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getTimeToElectrode(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return k;
 }
 
@@ -219,15 +161,9 @@ double SCT_RadDamageSummarySvc::TimeToElectrode(const IdentifierHash & elementHa
 double SCT_RadDamageSummarySvc::TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos){
   
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getTrappingPositionZ(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return k;
 }
 
@@ -235,48 +171,46 @@ double SCT_RadDamageSummarySvc::TrappingPositionZ(const IdentifierHash & element
 double SCT_RadDamageSummarySvc::HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos){
   
   double k = 0.0;
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping){
     k = m_chargeTrappingSvc->getHoleDriftMobility(elementHash, zpos);
   }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return k;
 }
+
+
+// -- electron drift mobility
+double SCT_RadDamageSummarySvc::ElectronDriftMobility(const IdentifierHash & elementHash, const double & zpos){
+  
+  double k = 0.0;
+  if (m_useTrapping){
+    k = m_chargeTrappingSvc->getElectronDriftMobility(elementHash, zpos);
+  }
+  return k;
+}
+
+
 //------------------------------------------------
 // -- Ramo Potential
 //-----------------------------------------------
 void SCT_RadDamageSummarySvc::InitPotentialValue() {
-    
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+  if (m_useTrapping)
     m_chargeTrappingSvc->getInitPotentialValue(); 
-  }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return;
 }
 
-
-void SCT_RadDamageSummarySvc::HoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const{  
-    
-  if (!m_useTrapping){
-    //  msg(MSG::INFO) << "SCT_ChargeTrappingSvc is not requested. Returning default value." << endmsg;
-  }
-  else{
-    //    msg(MSG::INFO) << "Accessing SCT_ChargeTrappingSvc." << endmsg;
+void SCT_RadDamageSummarySvc::HoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const{
+  if (m_useTrapping)
     m_chargeTrappingSvc->getHoleTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2 );
-  }
-  //  msg(MSG::WARNING) << "Electric Field = " << k << endmsg;
-  
   return;
 }
+
+
+void SCT_RadDamageSummarySvc::ElectronTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const{  
+  if (m_useTrapping)
+    m_chargeTrappingSvc->getElectronTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2 );
+  return;
+}
+
 
 
 ////

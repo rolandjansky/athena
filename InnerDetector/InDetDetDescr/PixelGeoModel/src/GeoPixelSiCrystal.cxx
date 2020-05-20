@@ -23,8 +23,8 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include <vector>
 

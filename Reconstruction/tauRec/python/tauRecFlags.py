@@ -162,6 +162,54 @@ class useOldVertexFitterAPI(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class tauRecToolsLCCalibFile(JobProperty):
+    """ TES calibration file for TauCalibrateLC
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="TES_MC16a_prelim.root"
+
+class tauRecToolsCombP4Weights(JobProperty):
+    """ Config file for CombinedP4FromRecoTaus
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="CalibLoopResult_v04-04.root"
+    
+class tauRecToolsMvaTESWeights(JobProperty):
+    """ Weights file for MVA TES
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="MvaTES_20170207_v2_BDTG.weights.root"
+    
+class tauRecJetBDTConfig(JobProperty):
+    """ Weights files for the tau/jet BDT evaluator
+    """
+    statusOn=True
+    allowedTypes=[[[]]]
+    StoredValue=[ ["vars2016_pt_gamma_1p_isofix.root", 0, 1], ["vars2016_pt_gamma_3p_isofix.root", 2, 1000] ]
+
+class tauRecEleBDTConfig(JobProperty):
+    """ Weights files for the tau/e BDT
+    """
+    statusOn=True
+    allowedTypes=[[[]]]
+    StoredValue=[ ["EleBDT1PBar.root", 1, 1.37], ["EleBDT1PEnd1.root", 1, 1.37, 2.0], ["EleBDT1PEnd23.root", 1, 2.0, 3.0] ]
+
+class tauRecWPDecoratorJetBDTConfig(JobProperty):
+    """ Flattening files for the tau/jet WP decorator
+    """
+    statusOn=True
+    allowedTypes=[ [] ]
+    StoredValue=["FlatJetBDT1Pv2.root", "FlatJetBDT3Pv2.root"]
+
+class tauRecJetRNNConfig(JobProperty):
+    """ Weights files for the tau/jet RNN evaluator
+    """
+    statusOn=True
+    allowedTypes=[ [] ]
+    StoredValue=["rnnid_prelim_config_deep_1p.json", "rnnid_prelim_config_deep_3p.json", 10, 6]
 
 # Defines a sub-container for the algorithm switches
 class tauRecFlags(JobPropertyContainer):
@@ -171,7 +219,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,tauRecToolsLCCalibFile,tauRecToolsCombP4Weights,tauRecToolsMvaTESWeights,tauRecJetBDTConfig,tauRecEleBDTConfig,tauRecWPDecoratorJetBDTConfig,tauRecJetRNNConfig]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

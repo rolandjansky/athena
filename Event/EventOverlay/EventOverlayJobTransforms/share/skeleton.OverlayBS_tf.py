@@ -168,6 +168,11 @@ else:
     #DetFlags.overlay.LAr_setOff()
     DetFlags.overlay.Truth_setOn()
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+
 DetFlags.Print()
 
 include ( "RecExCond/AllDet_detDescr.py" )

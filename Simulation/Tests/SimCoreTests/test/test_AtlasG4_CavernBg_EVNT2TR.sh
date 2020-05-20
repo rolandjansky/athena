@@ -26,9 +26,12 @@ AtlasG4_tf.py \
 
 echo  "art-result: $? simulation"
 
+# remove HITS file so it does not trigger regression
+rm discard.HITS.pool.root
+
 ArtPackage=$1
 ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summary --diff-root --file=*EVNT.pool.root
 
 echo  "art-result: $? regression"

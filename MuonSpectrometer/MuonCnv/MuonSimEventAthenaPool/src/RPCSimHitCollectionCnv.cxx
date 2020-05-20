@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSimHitCollectionCnv.h"
@@ -16,6 +16,7 @@
 #include "MuonSimEventTPCnv/RPCSimHitCollection_p1.h"
 #include "MuonSimEventTPCnv/RPCSimHitCollection_p2.h"
 #include "MuonSimEventTPCnv/RPCSimHitCollection_p3.h"
+#include "MuonSimEventTPCnv/RPCSimHitCollection_p4.h"
 #include "HitManagement/AthenaHitsVector.h" //for back-compatibility
 
 
@@ -30,7 +31,7 @@ RPCSimHitCollectionCnv::~RPCSimHitCollectionCnv() {
 RPCSimHitCollection_PERS*    RPCSimHitCollectionCnv::createPersistent (RPCSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "RPCSimHitCollectionCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    RPCSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
+    RPCSimHitCollection_PERS *pixdc_p= m_TPConverter_p4.createPersistent( transCont, log );
     return pixdc_p;
 }
 
@@ -40,9 +41,17 @@ RPCSimHitCollection* RPCSimHitCollectionCnv::createTransient() {
     static pool::Guid   p1_guid("C4C57487-41DC-4706-9604-721D76F0AA52"); 
     static pool::Guid   p2_guid("1B611C70-CC6F-42AE-9F6D-7DA6A9A22546");
     static pool::Guid   p3_guid("B48E5E17-FB26-4BC0-A0E2-5324925EAE2F");
+    static pool::Guid   p4_guid("9C0F7B3D-D443-4A84-BFDA-53FBB1022B02");
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    RPCSimHitCollection* p_collection(0);
-    if( compareClassGuid(p3_guid) ) {
+    RPCSimHitCollection* p_collection(nullptr);
+    if( compareClassGuid(p4_guid) ) {
+      if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 4 detected"<<endmsg;
+      // poolReadObject< RPCSimHitCollection_PERS >( m_TPConverter );
+      // p_collection = m_TPConverter.createTransient( log );
+      std::auto_ptr< Muon::RPCSimHitCollection_p4 >   col_vect( this->poolReadObject< Muon::RPCSimHitCollection_p4 >() );
+      p_collection = m_TPConverter_p4.createTransient( col_vect.get(), log );
+    }
+    else if( compareClassGuid(p3_guid) ) {
       if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
       // poolReadObject< RPCSimHitCollection_PERS >( m_TPConverter );
       // p_collection = m_TPConverter.createTransient( log );

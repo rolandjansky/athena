@@ -193,6 +193,8 @@ StatusCode TRTFastDigitizationTool::initializeNumericalConstants() {
 
   m_trtTailFraction = 4.7e-4;               // part of the fraction in Tails 
   m_trtSigmaDriftRadiusTail = 4./sqrt(12.);   //  sigma of one TRT straw in R (Tail) [mm]
+  m_trtHighProbabilityBoostBkg = 1.3;  // for all particles but electrons 
+  m_trtHighProbabilityBoostEle = 1.;  // for electrons 
 
   return StatusCode::SUCCESS;
 
@@ -204,18 +206,22 @@ StatusCode TRTFastDigitizationTool::setNumericalConstants() {
   // Efficiency and resolution dependence on  pileup 
   // Resolution is parametrized with a double gaussian so there are two parameters (res1 = core, res2= tail) 
 
-  static const float eff_corr_pileup_dependence = -0.001;   // variation of efficiency with the number of Xing
-  static const float res1_corr_pileup_dependence = 0.01;   // variation of core resolution (fractional) with the number of Xing
+  static const float eff_corr_pileup_dependence = -0.0005;   // variation of efficiency with the number of Xing
+  static const float res1_corr_pileup_dependence = 0.005;   // variation of core resolution (fractional) with the number of Xing
   static const float res2_corr_pileup_dependence = 0.015;   // variation of tail resolution (fractional) with the number of Xing
   // scale factors relative to the value for mu=20
-  float effcorr = 1-eff_corr_pileup_dependence*(m_NCollPerEvent-20);  
+  float effcorr = 1+eff_corr_pileup_dependence*(m_NCollPerEvent-20);  
   float res1corr =  1+res1_corr_pileup_dependence*(m_NCollPerEvent-20);  
   float res2corr =  1+res2_corr_pileup_dependence*(m_NCollPerEvent-20);  
 
   // Now the numerical parameters for efficiency and resolution   
   static const float tailRes = 3.600;  // scale factor for tail resolution
-  static const float coreFrac_Xe = 0.900;  // fraction of events in resolution core (Xe) 
-  static const float coreFrac_Ar = 0.800;  // fraction of events in resolution core (Ar)  
+  //static const float coreFrac_Xe = 0.900;  // fraction of events in resolution core (Xe) 
+  //static const float coreFrac_Ar = 0.800;  // fraction of events in resolution core (Ar) 
+  static const float coreFracEndcap_Xe = 0.40;  // fraction of events in resolution core (Xe) 
+  static const float coreFracEndcap_Ar = 0.40;  // fraction of events in resolution core (Ar)  
+  static const float coreFracBarrel_Xe = 0.250;  // fraction of events in resolution core (Xe) 
+  static const float coreFracBarrel_Ar = 0.250;  // fraction of events in resolution core (Ar) 
  
   static const float eff_BarrelA_Xe = 0.840;     // efficiency scale factor 
   static const float eff_EndcapA_Xe = 0.875;   
@@ -231,49 +237,49 @@ StatusCode TRTFastDigitizationTool::setNumericalConstants() {
   static const float err_Barrel_Ar = 1.020;     
   static const float err_Endcap_Ar = 1.040; 
 
-  static const float coreRes_Barrel_Xe = 1.545;  // scale factor for core resolution    
-  static const float coreRes_Endcap_Xe = 1.455;  
-  static const float coreRes_Barrel_Ar = 1.495;    
-  static const float coreRes_Endcap_Ar = 1.405; 
+  static const float coreRes_Barrel_Xe = 0.4; // 1.545;  // scale factor for core resolution    
+  static const float coreRes_Endcap_Xe = 0.5; // 1.455;  
+  static const float coreRes_Barrel_Ar = 0.4; // 1.495;    
+  static const float coreRes_Endcap_Ar = 0.5; // 1.405; 
 
   m_cFit[ 0 ][ 0 ] = effcorr*eff_BarrelA_Xe;   // Barrel A-side Xenon
   m_cFit[ 0 ][ 1 ] = err_Barrel_Xe;
-  m_cFit[ 0 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 0 ][ 2 ] = coreFracBarrel_Xe;
   m_cFit[ 0 ][ 3 ] = res1corr*coreRes_Barrel_Xe;
   m_cFit[ 0 ][ 4 ] = res2corr*tailRes;
   m_cFit[ 1 ][ 0 ] = effcorr*eff_EndcapA_Xe;   // Endcap A-side Xenon
   m_cFit[ 1 ][ 1 ] = err_Endcap_Xe;
-  m_cFit[ 1 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 1 ][ 2 ] = coreFracEndcap_Xe;
   m_cFit[ 1 ][ 3 ] = res1corr*coreRes_Endcap_Xe;
   m_cFit[ 1 ][ 4 ] = res2corr*tailRes; 
   m_cFit[ 2 ][ 0 ] = effcorr*eff_BarrelC_Xe;   // Barrel C-side Xenon
   m_cFit[ 2 ][ 1 ] = err_Barrel_Xe;
-  m_cFit[ 2 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 2 ][ 2 ] = coreFracBarrel_Xe;
   m_cFit[ 2 ][ 3 ] = res1corr*coreRes_Barrel_Xe;
   m_cFit[ 2 ][ 4 ] = res2corr*tailRes;
   m_cFit[ 3 ][ 0 ] = effcorr*eff_EndcapC_Xe;   // Endcap C-side Xenon
   m_cFit[ 3 ][ 1 ] = err_Endcap_Xe;
-  m_cFit[ 3 ][ 2 ] = coreFrac_Xe;
+  m_cFit[ 3 ][ 2 ] = coreFracEndcap_Xe;
   m_cFit[ 3 ][ 3 ] = res1corr*coreRes_Endcap_Xe;
   m_cFit[ 3 ][ 4 ] = res2corr*tailRes; 
   m_cFit[ 4 ][ 0 ] = effcorr*eff_BarrelA_Ar;   // Barrel A-side Argon
   m_cFit[ 4 ][ 1 ] = err_Barrel_Ar;
-  m_cFit[ 4 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 4 ][ 2 ] = coreFracBarrel_Ar;
   m_cFit[ 4 ][ 3 ] = res1corr*coreRes_Barrel_Ar;
   m_cFit[ 4 ][ 4 ] = res2corr*tailRes; 
   m_cFit[ 5 ][ 0 ] = effcorr*eff_EndcapA_Ar;   // Endcap A-side Argon
   m_cFit[ 5 ][ 1 ] = err_Endcap_Ar;
-  m_cFit[ 5 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 5 ][ 2 ] = coreFracEndcap_Ar;
   m_cFit[ 5 ][ 3 ] = res1corr*coreRes_Endcap_Ar;
   m_cFit[ 5 ][ 4 ] = res2corr*tailRes;
   m_cFit[ 6 ][ 0 ] = effcorr*eff_BarrelC_Ar;   // Barrel C-side Argon
   m_cFit[ 6 ][ 1 ] = err_Barrel_Ar;
-  m_cFit[ 6 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 6 ][ 2 ] = coreFracBarrel_Ar;
   m_cFit[ 6 ][ 3 ] = res1corr*coreRes_Barrel_Ar;
   m_cFit[ 6 ][ 4 ] = res2corr*tailRes; 
   m_cFit[ 7 ][ 0 ] = effcorr*eff_EndcapC_Ar;   // Endcap C-side Argon
   m_cFit[ 7 ][ 1 ] = err_Endcap_Ar;
-  m_cFit[ 7 ][ 2 ] = coreFrac_Ar;
+  m_cFit[ 7 ][ 2 ] = coreFracEndcap_Ar;
   m_cFit[ 7 ][ 3 ] = res1corr*coreRes_Endcap_Ar;
   m_cFit[ 7 ][ 4 ] = res2corr*tailRes; 
 
@@ -385,8 +391,15 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       if ( m_useTrtElectronPidTool ) {
 
         double position = ( fabs(BEC) == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
-        // double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, driftRadiusLoc, position );
-        double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
+        double probability;
+        if ( abs( particleEncoding ) == 11 && kineticEnergy > 5000. ) {  // electron
+           probability = m_trtHighProbabilityBoostEle*getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
+        }
+        else{
+           probability = m_trtHighProbabilityBoostBkg*getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
+        }
+
+        // double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position);
         if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= maskHT;
       }
       else {
@@ -415,7 +428,8 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       HepMcParticleLink trklink(hit->particleLink());
       if (m_needsMcEventCollHelper) {
         if(hit.pileupType()!=lastPileupType)        {
-          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType());
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg);
           lastPileupType=hit.pileupType();
         }
         trklink.setEventCollection(currentMcEventCollection);

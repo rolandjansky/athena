@@ -40,10 +40,12 @@ ConvertDynStaveServices::convertStaveServices( const StaveDynServices& stServ) c
   return result;
 }
 
+// FIXME: Duplicate of ./PixelServicesTool/SvcCcawUtils.h ccaw::area
+// FIXME: Also, function is not part of any class?
 inline double area (double R) {return M_PI*R*R;}
 
 inline double pipeWeight( double R, double thick) {
-  double Ti_dens = 4.54e3; // kg/m3
+  double Ti_dens = 4.54e3; // kg/m3 // FIXME: Hardcoded value
   return (area(R+thick)-area(R))*Ti_dens;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
@@ -35,9 +35,7 @@ public:
   Clockwork();
 
   // Destructor:
-  ~Clockwork();
-
-
+  ~Clockwork()=default;
 
   // Point to NTuple:
   NTuple::Tuple  *nt;
@@ -67,23 +65,18 @@ public:
   NTuple::Item<long>   layer;
   NTuple::Item<long>   tube;
 
-
 };
 
 
-MuonHitRelocation::Clockwork::Clockwork() : nt(0)
+MuonHitRelocation::Clockwork::Clockwork() : nt(nullptr)
 {
 }
-
-MuonHitRelocation::Clockwork::~Clockwork() {
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 
 MuonHitRelocation::MuonHitRelocation(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),m_c(new Clockwork()), m_rmuonHelper(0), m_mmuonHelper(0),
-  m_tmuonHelper(0), m_cmuonHelper(0), m_stmuonHelper(0), m_mmmuonHelper(0)
+  m_tmuonHelper(0), m_cmuonHelper(0), m_stmuonHelper(0), m_mmmuonHelper(0), m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
     declareProperty("checkMdt", m_checkMdt = true );
     declareProperty("checkRpc", m_checkRpc = true );
@@ -135,13 +128,13 @@ StatusCode MuonHitRelocation::initialize(){
   ATH_CHECK( nt->addItem("DBPHI",        m_c->dbphi    ) );
   ATH_CHECK( nt->addItem("LAYER",        m_c->layer    ) ); //tube layer or gas gap
   ATH_CHECK( nt->addItem("TUBE",         m_c->tube     ) ); //tube layer or gas gap
-  //status =  nt->addItem("CHANNEL",      m_c->channel   ); //tube number or strip number or wire gang number
-  //status =  nt->addItem("MEASPHI",      m_c->measphi   ); 
 
   m_c->nt = nt;
+
+  ATH_CHECK(m_idHelperTool.retrieve());
   
   m_cmuonHelper = CscHitIdHelper::GetHelper();
-  m_rmuonHelper = RpcHitIdHelper::GetHelper();
+  m_rmuonHelper = RpcHitIdHelper::GetHelper(m_idHelperTool->rpcIdHelper().gasGapMax());
   m_tmuonHelper = TgcHitIdHelper::GetHelper();
   m_mmuonHelper = MdtHitIdHelper::GetHelper();
 
@@ -209,8 +202,6 @@ StatusCode MuonHitRelocation::execute() {
               m_c->run   = pevt->event_ID()->run_number();
               m_c->theta = direction.theta();
               m_c->phi   = direction.phi();
-              //std::cout<<"Event # "<<m_c->event<<"  phi/theta  "<<m_c->phi<<"/"<<m_c->theta<<std::endl;
-
       
               m_c->lx = (*i_hit).localPosition().x();
               m_c->ly = (*i_hit).localPosition().y();
@@ -277,7 +268,6 @@ StatusCode MuonHitRelocation::execute() {
               ATH_MSG_DEBUG("        TGC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).TGCid();
-              //std::cout<<"TGC idHit = "<<idHit<<std::endl;
       
               Amg::Vector3D u = ghit.getGlobalPosition();
               m_c->x=u.x();
@@ -461,7 +451,6 @@ StatusCode MuonHitRelocation::execute() {
               ATH_MSG_DEBUG("        sTGC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).sTGCId();
-              //std::cout<<"TGC idHit = "<<idHit<<std::endl;
       
               Amg::Vector3D u = ghit.getGlobalPosition();
               m_c->x=u.x();

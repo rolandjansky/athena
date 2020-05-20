@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -25,6 +25,9 @@ class BCMSensorSDTool : public SensitiveDetectorBase
 protected:
   // Make me an SD!
   G4VSensitiveDetector* makeSD() override final;
+
+private:
+  bool m_isUpgrade;
 
 };
 

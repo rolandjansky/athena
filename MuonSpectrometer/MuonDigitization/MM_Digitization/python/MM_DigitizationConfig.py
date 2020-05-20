@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MM_Digitization job properties
@@ -30,6 +30,7 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
+    kwargs.setdefault("SmearingTool","MMCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
@@ -56,3 +57,7 @@ def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
     return CfgMgr.MM_Response_DigitTool(name,**kwargs)
 
 
+def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return MM_DigitizationTool(name,**kwargs)

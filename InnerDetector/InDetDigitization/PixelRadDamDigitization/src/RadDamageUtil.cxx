@@ -46,7 +46,7 @@ RadDam::RadDamageUtil::RadDamageUtil(const std::string& type, const std::string&
   AthAlgTool(type,name,parent),
   m_defaultRamo( 1 ),
   m_defaultEField( 1 ),
-  m_EfieldInterpolator(""),
+  m_EfieldInterpolator("RadDam::EfieldInterpolator", this),
   m_betaElectrons(4.5e-16),
   m_betaHoles(6.0e-16),
   m_saveDebugMaps(false),

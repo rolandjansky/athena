@@ -16,9 +16,9 @@
 #include "Identifier/Identifier.h"
 //#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -548,7 +548,7 @@ StatusCode PixelFastDigitizationTool::digitize()
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
-  srand (time(NULL));
+  
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
@@ -906,7 +906,8 @@ StatusCode PixelFastDigitizationTool::digitize()
       
       HepMcParticleLink trklink(hit->particleLink());
       if (m_needsMcEventCollHelper) {
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType()) );
+        MsgStream* amsg = &(msg());
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg) );
       }
       if (trklink.isValid()){
         const int barcode( trklink.barcode());
@@ -937,7 +938,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 	   Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
            InDet::PixelCluster* currentCluster = clusIter->second;
 	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
-	   double random= rand()%10000/10000.0;
+	   double random= CLHEP::RandFlat::shoot(m_randomEngine,0.0,1.0);
 	   
 	   //Apply an eta and mu dependent inefficiency SF
 	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),m_mu_val,isBarrel);

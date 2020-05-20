@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <vector>

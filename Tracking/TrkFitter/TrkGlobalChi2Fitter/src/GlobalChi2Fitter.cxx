@@ -2559,30 +2559,10 @@ namespace Trk {
           }
         }
         if (rotated) {
-          double v0 = 0.5 *
-                      (covmat(0,
-                              0) +
-                       covmat(1,
-                              1) -
-                       sqrt((covmat(0,
-                                    0) +
-                             covmat(1,
-                                    1)) *
-                            (covmat(0,
-                                    0) +
-          covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
-          double v1 = 0.5 *
-                      (covmat(0,
-                              0) +
-                       covmat(1,
-                              1) +
-                       sqrt((covmat(0,
-                                    0) +
-                             covmat(1,
-                                    1)) *
-                            (covmat(0,
-                                    0) +
-          covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
+          double s = covmat(0,0) + covmat(1,1);
+          double sqrt_delta = sqrt( s * s - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1)));
+          double v0 = 0.5 * (s - sqrt_delta);
+          double v1 = 0.5 * (s + sqrt_delta);
           sinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
           errors[0] = sqrt(v0);
         }else {
@@ -2688,6 +2668,14 @@ namespace Trk {
       }else {
         delete ptsos;
         msg(MSG::WARNING) << "Measurement error is zero or negative, drop hit" << endmsg;
+
+	msg(MSG::WARNING) << std::setprecision(12) << "Covariance matrix is (" << covmat << ")"<< endmsg;
+	double s = covmat(0,0) + covmat(1,1);
+	double alpha = (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1));
+	double sqrt_delta = sqrt( s * s - 4 * alpha);
+	double v0 = 0.5 * (s - sqrt_delta);
+	msg(MSG::WARNING) << "Intermediate variables are s=" << s << " alpha=" << alpha << " sqrt_delta=" << sqrt_delta << " v0=" << v0 << std::setprecision(6) << endmsg;
+
       }
       m_hitcount++;
     }
@@ -5992,30 +5980,10 @@ public:
           const Amg::MatrixX &covmat = broadrot->localCovariance();
           newerror[0] = sqrt(covmat(0, 0));
           if (state_maxsipull->sinStereo() != 0) {
-            double v0 = 0.5 *
-                        (covmat(0,
-                                0) +
-                         covmat(1,
-                                1) -
-                         sqrt((covmat(0,
-                                      0) +
-                               covmat(1,
-                                      1)) *
-                              (covmat(0,
-                                      0) +
-            covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
-            double v1 = 0.5 *
-                        (covmat(0,
-                                0) +
-                         covmat(1,
-                                1) +
-                         sqrt((covmat(0,
-                                      0) +
-                               covmat(1,
-                                      1)) *
-                              (covmat(0,
-                                      0) +
-            covmat(1, 1)) - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1))));
+	    double s = covmat(0,0) + covmat(1,1);
+	    double sqrt_delta = sqrt( s * s - 4 * (covmat(0, 0) * covmat(1, 1) - covmat(0, 1) * covmat(0, 1)));
+	    double v0 = 0.5 * (s - sqrt_delta);
+	    double v1 = 0.5 * (s + sqrt_delta);
             newsinstereo = sin(0.5 * asin(2 * covmat(0, 1) / (v0 - v1)));
             if (v0 > 0.) newerror[0] = sqrt(v0);
           }

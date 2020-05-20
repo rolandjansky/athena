@@ -37,30 +37,35 @@ fi
 if [[ $INPUT == "pbpb" ]]; then
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e3754_s2633_r7161/RDO.06677682._000002.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e3754_s2633_r7161/RDO.06677682._000003.pool.root.1"]'
 
-elif [[ $INPUT == "ftk" ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.digit.RDO_FTK.e6337_e5984_s3126_d1480_d1471_tid15265974_00/RDO_FTK.15265974._004440.pool.root.1"]'
-
 elif [[ $INPUT == "bphysics" ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_FTK.Bphysics_1000.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root"]'
 
 elif [[ $INPUT == "mubphysics" ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.digit.RDO_FTK.e3802_s3126_r11234_d1505/RDO_FTK.17121384._000012.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.digit.RDO_FTK.e3802_s3126_r11234_d1505/RDO_FTK.17121384._000028.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.merge.RDO.e3802_s3126_r11478/RDO.18537785._000009.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.merge.RDO.e3802_s3126_r11478/RDO.18537785._000010.pool.root.1"]'
 
 elif [[ $INPUT == "minbias" ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_FTK.minbias_1000.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00/RDO.07858100._000087.pool.root.1"]'
 
 elif [[ $INPUT == 'data' ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1.pool.root","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1.pool.root"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._000435.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._001626.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._002546.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._005117.pool.root.1"]'
+
+elif [[ $INPUT == 'run3_l1calo' ]]; then
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_d1536_tid18795273_00/RDO.18795273._000063.pool.root.1"]'
 
 else 
   # Default - ttbar
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000065.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s3214_r11234_d1505/RDO_FTK.17071950._000235.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO.e4993_s3214_d1540_tid19539348_00/RDO.19539348._000084.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO.e4993_s3214_d1540_tid19539348_00/RDO.19539348._000041.pool.root.1"]'
 fi
 
 ######################################
 
 # Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
-art.py createpoolfile
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+ART_AVAILABLE=`which art.py >/dev/null 2>&1; echo $?`
+if [[ $ART_AVAILABLE == "0" ]]; then
+  echo "Executing art.py createpoolfile"
+  art.py createpoolfile
+fi
 
 ######################################
 

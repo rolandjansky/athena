@@ -27,8 +27,9 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_test_18082018/ttbar/step3/DAOD_IDTRKVALID_digi.pool.root" ]
 
 # uncomment to set a single input file via the athena command line options (athena -c "INFILE='blah.root'" )
-#if "INFILE" in globals():
-#      FNAME= [INFILE]
+if "INFILE" in globals():
+      FNAME= [INFILE]
+
 #.......................................................................
 # uncomment to read multiple files:
 #import glob
@@ -84,7 +85,9 @@ xmlTags = [
             ["ATLAS-P2-ITK-19","InclBrl_4","InclinedQuads"],
             ["ATLAS-P2-ITK-20","InclBrl_4","InclinedDuals"],
             # step 3.1
-            ["ATLAS-P2-ITK-22","InclBrl_4","InclinedAlternative"],
+            ["ATLAS-P2-ITK-22-00","InclBrl_4","InclinedAlternative"],
+            ["ATLAS-P2-ITK-22-01","InclBrl_4","InclinedAlternative"],
+            ["ATLAS-P2-ITK-22-02","",""],
             ]
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
@@ -96,7 +99,10 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
          SLHC_Flags.LayoutOption=layoutOption
       from InDetRecExample.InDetJobProperties import InDetFlags
       include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
-      include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
+      if (layoutDescr!=""):
+         include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
+      else:
+         include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
       include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
       if geoTag=="ATLAS-P2-ITK-10" or geoTag=="ATLAS-P2-ITK-09" :
          include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
@@ -122,8 +128,11 @@ DetDescrVersion = jobproperties.Global.DetDescrVersion()
 
 for geoTag, layoutDescr, layoutOption in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
-      print "postInclude for ",layoutDescr, " layout"
-      include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
+      if(layoutDescr!=""):
+         print "postInclude for ",layoutDescr, " layout"
+         include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
+      else:
+         include('InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py')
       break
 
 #-----------------------------------------------------------------------

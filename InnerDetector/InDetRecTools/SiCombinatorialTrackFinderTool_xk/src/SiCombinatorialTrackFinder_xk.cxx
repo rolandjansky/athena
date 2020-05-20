@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -66,6 +66,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_pTminBrem   = 2000.              ;
   m_fieldService = 0                 ; 
   m_passThroughExtension = false     ;
+  m_doFastTracking = false           ;
   m_outputlevel  = 0                 ;
   m_nprint       = 0                 ;
   m_goodseeds    = 0                 ;
@@ -102,6 +103,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
+  declareProperty("doFastTracking"       ,m_doFastTracking      );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -240,6 +242,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   m_tools.setTools(pixcond,sctcond);
   m_tools.setTools(m_pixIdHelper,m_sctIdHelper);
 
+  // Set the Fast Tracking setup
+  // 
+  m_tools.setFastTracking(m_doFastTracking);
+  
+  // Set the ITk Geometry setup
+  m_tools.setITkGeometry(m_ITkGeometry);
 
   // Setup callback for magnetic field
   //
@@ -469,6 +477,7 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
     m_heavyion = true;
   }
   m_tools.setHeavyIon(m_heavyion);
+  
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -610,12 +619,19 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   if(!m_pix && !m_sct) return m_tracks;
 
   int  FT = findTrack(Tp,Sp,Gp,DE,PT); 
-  if(FT < 4) m_statistic[FT] = 1;
+
+  if(FT < 4){
+    m_statistic[FT] = 1;
+    return m_tracks;
+  }
 
   bool  Q = (FT==5); 
   if(Q) {
     Q = m_trajectory.isNewTrack(PT); 
-    if(!Q) m_statistic[4] = 1;
+    if(!Q) {
+      m_statistic[4] = 1;
+      return m_tracks;
+    }
   }
   else m_statistic[3]=1;
 
@@ -737,7 +753,7 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
   if(!Q)  { return 2; }
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
-  int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_heavyion) itmax = 50;
+  int itmax    = 30; if(m_heavyion) itmax = 50;
 
   // Track finding
   //
@@ -748,12 +764,16 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
     if(!m_trajectory.backwardSmoother (false)      ) return 3;
     if(!m_trajectory.backwardExtension(itmax)      ) return 3;
 
-    if(m_trajectory.difference() > 0) {
-      if(!m_trajectory.forwardFilter()          ) return 3;
-      if(!m_trajectory.backwardSmoother (false) ) return 3;
-    } 
-    int na = m_trajectory.nclustersNoAdd();
-    if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    if (m_doFastTracking) {
+      if(m_trajectory.nclusters() < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    } else {
+      if(m_trajectory.difference() > 0) {
+        if(!m_trajectory.forwardFilter()          ) return 3;
+        if(!m_trajectory.backwardSmoother (false) ) return 3;
+      }
+      int na = m_trajectory.nclustersNoAdd();
+      if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    }
   }
   else        {      // Strategy for mixed seeds
 

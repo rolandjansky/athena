@@ -27,7 +27,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 

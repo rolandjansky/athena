@@ -16,7 +16,7 @@ class SLHC_Setup :
     def __init__(self):
 
         import os, shutil
-        from PyJobTransformsCore.envutil import *
+        from PyJobTransformsCore.envutil import find_file_env
         
         #--------------------------------------------------------------
         # XML reader

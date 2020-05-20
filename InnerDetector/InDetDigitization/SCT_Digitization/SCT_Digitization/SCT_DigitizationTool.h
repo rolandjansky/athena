@@ -170,7 +170,7 @@ private:
   ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
   ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
 
-  std::vector<SiHitCollection*> hitCollPtrs;
+  std::vector<SiHitCollection*>                      m_hitCollPtrs;
 
   SCT_RDO_Container        *                         m_rdocontainer ;                     //!< RDO container
   InDetSimDataCollection   *                         m_simDataCollMap;                    //!< SDO Map
@@ -184,8 +184,8 @@ private:
   CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
   const AtlasDetectorID* m_atlasID;  //FIXME should be replaced with m_detID usage
   std::list<ISiChargedDiodesProcessorTool* >         m_diodeCollectionTools;
-  TimedHitCollection<SiHit>                          *m_thpcsi;
-  SiChargedDiodeCollection                           *chargedDiodes;
+  TimedHitCollection<SiHit>*                         m_thpcsi;
+  SiChargedDiodeCollection*                          m_chargedDiodes;
   IntegerProperty                                    m_vetoThisBarcode;
 
 

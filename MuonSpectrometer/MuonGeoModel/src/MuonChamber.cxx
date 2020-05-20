@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -93,7 +93,7 @@ MuonChamber::MuonChamber(Station *s): DetectorElement(s->GetName())
 
 GeoVPhysVol*
 MuonChamber::build(MuonDetectorManager* manager, int zi,
-				int fi, bool is_mirrored, bool& isAssembly)
+        int fi, bool is_mirrored, bool& isAssembly)
 {
   MsgStream log(m_msgSvc, "MuGM:MuonChamber");
   bool debug   = log.level() <= MSG::DEBUG;
@@ -332,9 +332,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             if (fabs(cut->lengthY-180.2)<0.001)
             {
                 cut->lengthY = cut->lengthY+(0.010)*CLHEP::mm;
-                //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
-                //imt		     <<cut->lengthY
-                //imt		     <<std::endl;
+                //imt     std::cout<<"Redefining "<<stName<<" cut lengthY to "
+                //imt        <<cut->lengthY
+                //imt        <<std::endl;
             }
             if (fabs(cut->dy-1019.8)<0.001)
             {
@@ -500,12 +500,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
     StandardComponent* c = (StandardComponent*)m_station->GetComponent(i);
     if (verbose) {
-	log << MSG::VERBOSE 
-	    << " Component index "<<c->index<<" in loop for " << stName << " " << stationType
-	    << " at zi, fi " << zi << " " << fi+1 << "  cName " << c->name
-	    << " thickness " << c->GetThickness() << " length " << c->dy
-	    << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
-	log << MSG::VERBOSE <<" Component local (amdb) coords "<<c->posx<<" "<<c->posy<<" "<<c->posz<<endmsg;
+  log << MSG::VERBOSE 
+      << " Component index "<<c->index<<" in loop for " << stName << " " << stationType
+      << " at zi, fi " << zi << " " << fi+1 << "  cName " << c->name
+      << " thickness " << c->GetThickness() << " length " << c->dy
+      << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
+  log << MSG::VERBOSE <<" Component local (amdb) coords "<<c->posx<<" "<<c->posy<<" "<<c->posz<<endmsg;
     }
     
 
@@ -516,7 +516,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     ypos = -thickness/2. + (c->posz+amdbOrigine_along_thickness)+c->GetThickness()/2.;
     zpos = -length/2. + amdbOrigine_along_length + c->posy + c->dy/2.;
     xpos = c->posx;
-	
+  
     std::string techname = c->name;
     std::string type = techname.substr(0,3);
             
@@ -557,9 +557,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         cut->dx = tempdx;
         cut->dy = tempdy;
 
-	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*CLHEP::deg);
-	// should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
-	// can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
+  if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*CLHEP::deg);
+  // should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
+  // can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
 
         cut->lengthY = templengthY;
         // in thickness, cutout will coincide with component
@@ -572,29 +572,29 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 //          if (cut->dy < 10.) zposcut = -zpos+cut->dy - 15.5;
 //        }
         ncutouts++;
-	if (verbose) {
-	log<<MSG::VERBOSE<<"A new cutout for this component "<<endmsg;
-	log<<MSG::VERBOSE<<*cut<<endmsg;
-	}
-	//	std::cout<<"Component x,y "<<c->posx<<", "<<c->posy<<" in m_station: "<<stName<<" component "<<techname<<" Jobj = "<<c->index<<std::endl;
+  if (verbose) {
+  log<<MSG::VERBOSE<<"A new cutout for this component "<<endmsg;
+  log<<MSG::VERBOSE<<*cut<<endmsg;
+  }
+  //  std::cout<<"Component x,y "<<c->posx<<", "<<c->posy<<" in m_station: "<<stName<<" component "<<techname<<" Jobj = "<<c->index<<std::endl;
 
         // Corrected cutout values for BMS7, BMS14
         if (stName.substr(0,3) == "BMS") {
-	    if (fi == 3) { // stationPhi = 4
-	      if (std::abs(zi) == 1) { //stationEta = +-1
+      if (fi == 3) { // stationPhi = 4
+        if (std::abs(zi) == 1) { //stationEta = +-1
               double margin = 1.0;  // make cutout a little bigger to avoid coincident boundaries
               if (type == "RPC" || type == "DED") {
-		  //std::cout<<"Component ="
-		  //	 <<type<<" in BMS at fi=3, zi="
-		  //	 <<zi<<" cut parameters are listed"
-		  //	 <<std::endl;
-		  //std::cout<<*cut<<std::endl;
+      //std::cout<<"Component ="
+      //   <<type<<" in BMS at fi=3, zi="
+      //   <<zi<<" cut parameters are listed"
+      //   <<std::endl;
+      //std::cout<<*cut<<std::endl;
                 cut->widthXl += 2*margin;
                 cut->widthXs += 2*margin;
                 cut->dx += margin;
                 cut->lengthY += 2*margin;
                 if (zi>0) cut->dy = -margin;
-		//std::cout<<"modified as /n"<<*cut<<std::endl;
+    //std::cout<<"modified as /n"<<*cut<<std::endl;
               }
             }
             if (zi == -1) {
@@ -603,19 +603,19 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           }
         }
 
-	// the following is a fine tuning ----- MUST CHECK for a better solution
+  // the following is a fine tuning ----- MUST CHECK for a better solution
         if (stName.substr(0,3) == "BOS" && zi == -6 && type == "MDT") {
           cut->dy = c->dy - cut->dy - cut->lengthY - halfpitch;
-	  cut->dead1 = 30.; // why this is not 30. or -30. already ?????
-	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
-	  if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
+    cut->dead1 = 30.; // why this is not 30. or -30. already ?????
+    if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
+    if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
         }
 
 
-	// this mirroring of the cutout is necessary only for barrel MDT chambers; for EC the cutout will be automatically mirrored  
-	// this fix cannot be applied in 15.6.X.Y for layout < r.04.04 due to the frozen tier0 policy
-	if (  type=="MDT" && (is_mirrored || zi < 0) && stName.substr(0,1)=="B" )
-	{
+  // this mirroring of the cutout is necessary only for barrel MDT chambers; for EC the cutout will be automatically mirrored  
+  // this fix cannot be applied in 15.6.X.Y for layout < r.04.04 due to the frozen tier0 policy
+  if (  type=="MDT" && (is_mirrored || zi < 0) && stName.substr(0,1)=="B" )
+  {
           // MDT in chambers explicitly described at z<0 have to be 
           // rotated by 180deg to adj. tube staggering
           // reverse the position (x amdb) of the cutout if the m_station is mirrored
@@ -625,37 +625,37 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // it has for the m_station at z>0
           vcutdef.push_back(cutmirr);
           vcutdef_todel.push_back(cutmirr);
-	  	  if (verbose) log<<MSG::VERBOSE<<"adding for application mirrored cut \n"<<*cutmirr<<endmsg;
+        if (verbose) log<<MSG::VERBOSE<<"adding for application mirrored cut \n"<<*cutmirr<<endmsg;
         } 
-	else if (type=="RPC" || type=="DED")
-	{
-	    Cutout* cutRpcType = new Cutout(*cut);
-	    // temporary for testing fixes to r.03.09 
-	    if (stName.substr(0,3)=="BMS" && zi==4 && (c->index==20 || c->index==21 || c->index==24 || c->index==25)) 
-		cutRpcType->dy = 1102.5;
-	    if (stName.substr(0,3)=="BOS" && zi==6 && type=="DED") cutRpcType->dy = 706.;
-	    cutRpcType->dy = cutRpcType->dy - c->posy;
-	    cutRpcType->dx = cutRpcType->dx - c->posx;
-	    if (type=="RPC")
-	    {
-		RpcComponent* rp = (RpcComponent*)c;
-		if (rp->iswap == -1) 
-		{
-		    cutRpcType->dy = c->dy - (cutRpcType->dy+cutRpcType->lengthY);
-		}
-	    }
-	    //std::cout<<"rpctypecut dx, dy = "<<cutRpcType->dx <<" "<<cutRpcType->dy<<std::endl;
-	    if (verbose) log<<MSG::VERBOSE<<" Rpc or ded coutout redefined as follows \n"<<*cutRpcType<<endmsg;
-	    vcutdef.push_back(cutRpcType);
-	    vcutdef_todel.push_back(cutRpcType);
-	}
-	else if (type == "TGC") {
+  else if (type=="RPC" || type=="DED")
+  {
+      Cutout* cutRpcType = new Cutout(*cut);
+      // temporary for testing fixes to r.03.09 
+      if (stName.substr(0,3)=="BMS" && zi==4 && (c->index==20 || c->index==21 || c->index==24 || c->index==25)) 
+    cutRpcType->dy = 1102.5;
+      if (stName.substr(0,3)=="BOS" && zi==6 && type=="DED") cutRpcType->dy = 706.;
+      cutRpcType->dy = cutRpcType->dy - c->posy;
+      cutRpcType->dx = cutRpcType->dx - c->posx;
+      if (type=="RPC")
+      {
+    RpcComponent* rp = (RpcComponent*)c;
+    if (rp->iswap == -1) 
+    {
+        cutRpcType->dy = c->dy - (cutRpcType->dy+cutRpcType->lengthY);
+    }
+      }
+      //std::cout<<"rpctypecut dx, dy = "<<cutRpcType->dx <<" "<<cutRpcType->dy<<std::endl;
+      if (verbose) log<<MSG::VERBOSE<<" Rpc or ded coutout redefined as follows \n"<<*cutRpcType<<endmsg;
+      vcutdef.push_back(cutRpcType);
+      vcutdef_todel.push_back(cutRpcType);
+  }
+  else if (type == "TGC") {
           // In AMDB, y coordinates of cutout and component are given by
           // radius from detector z-axis.  To get standard y value of cutout, 
           // subtract radius of component from radius of cutout 
           Cutout* tgccut = new Cutout(*cut);
           tgccut->dy -= c->posy;  //
-	  	  if (verbose) log<<MSG::VERBOSE<<" Tgc cutout redefined as follows \n"<<*tgccut<<endmsg;
+        if (verbose) log<<MSG::VERBOSE<<" Tgc cutout redefined as follows \n"<<*tgccut<<endmsg;
           vcutdef.push_back(tgccut);
           vcutdef_todel.push_back(tgccut);
 
@@ -694,9 +694,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       // ss - 24-05-2006 I don't really understand if this is needed at all
       //      it was introduced by Isabel T.
       if (zi < 0 && stName.substr(0,3) == "BOG" && is_mirrored) {
-        //	      htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
+        //        htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
         //      tubes OK but chambers wrong
-        //	      htcomponent = HepGeom::RotateX3D(180.*CLHEP::deg)*htcomponent;
+        //        htcomponent = HepGeom::RotateX3D(180.*CLHEP::deg)*htcomponent;
         //      chambers OK but tubes wrong
         htcomponent = HepGeom::RotateX3D(180.*CLHEP::deg)*htcomponent*
                       HepGeom::RotateX3D(180.*CLHEP::deg);  // turn chambers but go back for tubes
@@ -868,7 +868,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
           // log << MSG::DEBUG << "LB: " << r->name << " height is " <<
           //     r->height << " length is " << r->length << " width is "
-          //			      << r->width << endmsg;
+          //            << r->width << endmsg;
           // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
         savemem->StoreDetector(lvo, key);
           // AMDB origin is in bottom centre of bottom cross-piece at
@@ -928,7 +928,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
         xfaligncomponent = new GeoAlignableTransform(htcomponent);
         //xfrpccomponent.push_back(xfcomponent);
-	//      }
+  //      }
 
       // end of position stuff
 
@@ -1045,15 +1045,15 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         //            log<<MSG::DEBUG<<" its centre x-translated by "<<ypos;
         //            log<<" y-translated by "<<xpos;
         //            log<<" z-translated by "<<zpos<<endmsg;
-	htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*
+  htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*
                       HepGeom::TranslateZ3D(zpos);
         std::string key = stName+techname;
-	if ((manager->IncludeCutoutsFlag() ||
+  if ((manager->IncludeCutoutsFlag() ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3)=="BOG")) 
             && zi >= 0)
           key += "p"+buildString(mysql->allocPosFindSubtype(statType, fi, zi),0) +
                  "_"+buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
-	else if ((manager->IncludeCutoutsFlag()||
+  else if ((manager->IncludeCutoutsFlag()||
                  (manager->IncludeCutoutsBogFlag() && stName.substr(0,3)=="BOG")) 
                  && zi < 0)
           key += "m"+buildString(mysql->allocPosFindSubtype(statType, fi, zi),0) +
@@ -1212,15 +1212,15 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
       if (ml==1) 
-	{
-	  // set fixed point for MDT deformations: s0,z0,t0 for the point at lowest t,z (z,y amdb) and s=x=0  
-	  mstat->setBlineFixedPointInAmdbLRS(c->posx, c->posy, c->posz);
-	}
+  {
+    // set fixed point for MDT deformations: s0,z0,t0 for the point at lowest t,z (z,y amdb) and s=x=0  
+    mstat->setBlineFixedPointInAmdbLRS(c->posx, c->posy, c->posz);
+  }
       else 
-	{
-	  HepGeom::Point3D<double> b0 = mstat->getBlineFixedPointInAmdbLRS();
-	  if (c->posy<b0.y()) mstat->setBlineFixedPointInAmdbLRS(b0.x(), c->posy, b0.z());
-	}
+  {
+    HepGeom::Point3D<double> b0 = mstat->getBlineFixedPointInAmdbLRS();
+    if (c->posy<b0.y()) mstat->setBlineFixedPointInAmdbLRS(b0.x(), c->posy, b0.z());
+  }
       int jobIndex = c->index;
       //mstat->addMuonReadout(det, jobIndex);
       mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
@@ -1287,16 +1287,16 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                (xfcomponent->getTransform())[2][2] << " " <<
                (xfcomponent->getTransform())[2][3] << " " << std::endl;
 */
-	xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
-	//delete xfcomponent;
-	ptrd->add(xfaligncomponent);
+  xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+  //delete xfcomponent;
+  ptrd->add(xfaligncomponent);
         ptrd->add(lvc);
 
         CscReadoutElement* det =
             new CscReadoutElement(lvc, stName, zi, fi+1, is_mirrored, manager);
         Position ip = mysql->GetStationPosition(stName.substr(0,3),fi,zi); 
         setCscReadoutGeom(det, cs, ip, geometry_version, stName);
-	
+  
 
         const CscIdHelper* csc_id = manager->cscIdHelper();
         det->setHasCutouts(ncutouts > 0);
@@ -1306,9 +1306,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         det->setChamberLayer(chamberLayer);
         det->setParentStationPV(PVConstLink(ptrd));
         det->setParentMuonStation(mstat);
-	int jobIndex = c->index;
-	//mstat->addMuonReadoutElement(det,jobIndex);
-	mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
+  int jobIndex = c->index;
+  //mstat->addMuonReadoutElement(det,jobIndex);
+  mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
         if (debug) log<<MSG::DEBUG<<std::string(stName+techname)
                         <<" trying to build a CSC Id from stType/eta/phi/ml "
                         <<stationType<<"/"
@@ -1323,8 +1323,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                                           1, 0, 1);
         det->setIdentifier(id);
         det->setLastInitField(5);
-	// set alignment parameters for the wire layers
-	det->setCscInternalAlignmentParams(); 
+  // set alignment parameters for the wire layers
+  det->setCscInternalAlignmentParams(); 
         manager->addCscReadoutElement(det, id);
 
       }
@@ -1357,9 +1357,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
         ptrd->add(new GeoIdentifierTag(geoid));
         ptrd->add(nm);
-	xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
-	//delete xfcomponent;
-	ptrd->add(xfaligncomponent);
+  xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+  //delete xfcomponent;
+  ptrd->add(xfaligncomponent);
         ptrd->add(lvt);
 
         TgcReadoutElement* det = new TgcReadoutElement(lvt, stName, zi, fi+1,
@@ -1372,14 +1372,14 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         det->setStationPhi(stationPhi);
         det->setParentStationPV(PVConstLink(ptrd));
         det->setParentMuonStation(mstat);
-	int jobIndex = c->index;
-	//mstat->addMuonReadoutElement(det,jobIndex);
-	mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
-	if (debug) log<<MSG::DEBUG<<std::string(stName+techname)
-			<<" trying to build a TGC Id from stType/eta/phi "
-			<<stationType<<"/"
-			<<stationEta<<"/"
-			<<stationPhi<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<geoid<<" tagName = "<<stag<<endreq;
+  int jobIndex = c->index;
+  //mstat->addMuonReadoutElement(det,jobIndex);
+  mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
+  if (debug) log<<MSG::DEBUG<<std::string(stName+techname)
+      <<" trying to build a TGC Id from stType/eta/phi "
+      <<stationType<<"/"
+      <<stationEta<<"/"
+      <<stationPhi<<"/ and /1/0/1"<<endmsg<<" Copy number is "<<geoid<<" tagName = "<<stag<<endreq;
         int gg = 1;
         int isStrip = 0;
         int ch = 1;
@@ -1391,13 +1391,13 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
 
       }
-			
+      
       if (lvr && RPCON && manager->rpcIdHelper()) {
         RpcComponent* rp = (RpcComponent*)c;
         int ndivy = rp->ndivy;
         int ndivz = rp->ndivz;
 //         if (geometry_version == "M28") 
-// 	{
+//  {
 //           GeoSerialDenominator* nm =
 //               new GeoSerialDenominator(stName + "_stName "+techname+" rpccomponent ");
 //           for (int j = 0; j < ndivz; j++) {
@@ -1409,11 +1409,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 //             }
 //           }
 
-// 	} 
-// 	else 
-// 	{
+//  } 
+//  else 
+//  {
           if (ndivz!=1 || ndivy!=1 ) log << MSG::ERROR << " RPC segmentation z,y "
-		                         << ndivz << " " << ndivy <<std::endl;
+                             << ndivz << " " << ndivy <<std::endl;
           double zpos = -length/2. + c->posy+c->dy/2.;
           double xpos = c->posx;
           // implement really the mirror symmetry
@@ -1428,8 +1428,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
            //  <<ypos<<" "<<zpos<<" "
            //  <<ndivz << " " << ndivy <<endmsg;
           //htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
-          //		      *HepGeom::TranslateZ3D(zpos);
-          //		    xfcomponent = new GeoTransform(htcomponent);
+          //          *HepGeom::TranslateZ3D(zpos);
+          //        xfcomponent = new GeoTransform(htcomponent);
 
           const RpcIdHelper* rpc_id = manager->rpcIdHelper();
           int stationEta = zi;
@@ -1465,11 +1465,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           }
 
           int dbphi = 1;
-	  //std::cout<<stName<<" ----------------------------------- dbphi = "<<dbphi<<std::endl;
+    //std::cout<<stName<<" ----------------------------------- dbphi = "<<dbphi<<std::endl;
           if (xpos > 400.*CLHEP::mm) dbphi = 2; // this special patch is needed for BMS in the ribs where xpos is ~950mm; the theshold to 100mm (too low) caused a bug
-	  // in BOG at eta +/-4 and stationEta 7 (not 6) ==>> 28 Jan 2016 raising the threshold to 400.mm 
+    // in BOG at eta +/-4 and stationEta 7 (not 6) ==>> 28 Jan 2016 raising the threshold to 400.mm 
           // doublet phi not aware of pos. in space !!!
-	  //std::cout<<" dbphi reset to  "<<dbphi<<" due to xpos "<< xpos <<" >10cm "<<std::endl;
+    //std::cout<<" dbphi reset to  "<<dbphi<<" due to xpos "<< xpos <<" >10cm "<<std::endl;
 
           int doubletPhi = dbphi;
           // doublet phi aware of pos. in space !!!
@@ -1496,11 +1496,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if (useAssemblies || isAssembly) {
             geoid = c->index;
           } 
-	  else 
-	  {
+    else 
+    {
             int tag = rp->index + doubletR*100 + dbphi*1000;
             if (rp->iswap == -1) tag=-1*tag;
-            geoid = tag;	    
+            geoid = tag;      
           }
 
           GeoNameTag* nm = new GeoNameTag(stag);   
@@ -1521,9 +1521,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                  (xfcomponent->getTransform())[2][2] << " " <<
                  (xfcomponent->getTransform())[2][3] << " " << std::endl;
 */
-	  xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
-	  //delete xfcomponent;
-	  ptrd->add(xfaligncomponent);
+    xfaligncomponent->setDelta(HepGeom::Transform3D::Identity);
+    //delete xfcomponent;
+    ptrd->add(xfaligncomponent);
           ptrd->add(lvr);
                     
           RpcReadoutElement* det = new RpcReadoutElement(lvr, stName, zi, fi+1,is_mirrored, manager);
@@ -1536,19 +1536,20 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           det->setDoubletR(doubletR);
           det->setDoubletZ(doubletZ);
           det->setDoubletPhi(doubletPhi);
-	  if( debug ) log << MSG::DEBUG << std::string(stName+techname)
-			    << " trying to build a RPC Id from stType/eta/phi/dbR/dbZ/dbP "
-			    << stationType << "/"
-			    << stationEta << "/" << stationPhi << "/" << doubletR << "/"
-			    << doubletZ << "/" << doubletPhi
-			    << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
-			    << geoid << " tagName= " << stag << endmsg;
-                    
+    if( debug ) log << MSG::DEBUG << std::string(stName+techname)
+          << " trying to build a RPC Id from stType/eta/phi/dbR/dbZ/dbP "
+          << stationType << "/"
+          << stationEta << "/" << stationPhi << "/" << doubletR << "/"
+          << doubletZ << "/" << doubletPhi
+          << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
+          << geoid << " tagName= " << stag << endmsg;
+
+          if (stName.find("BIS")==0) det->setNumberOfLayers(3); // all BIS RPCs always have 3 gas gaps
           det->setParentStationPV(PVConstLink(ptrd));
           det->setParentMuonStation(mstat);
-	  int jobIndex = c->index;
-	  //mstat->addMuonReadoutElement(det,jobIndex);
-	  mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
+    int jobIndex = c->index;
+    //mstat->addMuonReadoutElement(det,jobIndex);
+    mstat->addMuonReadoutElementWithAlTransf(det, xfaligncomponent, jobIndex);
           Identifier id = rpc_id->channelID(stationType, stationEta,
                                             stationPhi, doubletR, doubletZ,
                                             doubletPhi, gasGap, measuresPhi, 
@@ -1562,16 +1563,16 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                 //              std::cout << "ID = " << rpc_id->show_to_string(id) << std::endl;
                 //              HepGeom::Point3D<double> dummy=det->gasGapPos(id);
                 //              std::cout << " Rpcreadoutelement gas gap pos = "
-                //			<< dummy.x() << " " << dummy.y() << " "
+                //      << dummy.x() << " " << dummy.y() << " "
                 //              << dummy.z() << std::endl;
-                //	      dummy=det->stripPos(id);
+                //        dummy=det->stripPos(id);
                 //              std::cout << " Rpcreadoutelement strip pos = "
-                //			<< dummy.x() << " " << dummy.y() << " "
+                //      << dummy.x() << " " << dummy.y() << " "
                 //              << dummy.z() << std::endl;
                 //=========================
-	  det->fillCache(); // fill temporary cache (global position on known yet)
-	  det->initDesign(); ///  init design : design uses  global (converting back to local) positions 
-	  det->clearCache(); // clear temporary cache
+    det->fillCache(); // fill temporary cache (global position on known yet)
+    det->initDesign(); ///  init design : design uses  global (converting back to local) positions 
+    det->clearCache(); // clear temporary cache
           manager->addRpcReadoutElement(det, id);
 
 
@@ -1820,12 +1821,12 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
   // if (re->getStationName().substr(0,3)=="BME") 
   //   {
   //     std::cout<<" inner struct: re->m_nphigasgaps "<< re->m_nphigasgaps<< " re->m_netagasgaps "<< re->m_netagasgaps 
-  // 	       <<" re->m_nphistrippanels "<<  re->m_nphistrippanels 
-  // 	       <<" re->m_netastrippanels "<<  re->m_netastrippanels 
-  // 	       <<" re->m_phistrippitch   "<<  re->m_phistrippitch 
-  // 	       <<" re->m_etastrippitch   "<<  re->m_etastrippitch 
-  // 	       <<" re->m_nphistripsperpanel "<< re->m_nphistripsperpanel
-  // 	       <<" re->m_netastripsperpanel "<< re->m_netastripsperpanel<<std::endl;
+  //         <<" re->m_nphistrippanels "<<  re->m_nphistrippanels 
+  //         <<" re->m_netastrippanels "<<  re->m_netastrippanels 
+  //         <<" re->m_phistrippitch   "<<  re->m_phistrippitch 
+  //         <<" re->m_etastrippitch   "<<  re->m_etastrippitch 
+  //         <<" re->m_nphistripsperpanel "<< re->m_nphistripsperpanel
+  //         <<" re->m_netastripsperpanel "<< re->m_netastripsperpanel<<std::endl;
   //  }
 
 
@@ -1960,11 +1961,11 @@ int MuonChamber::stationPhiTGC(std::string stName, int fi, int zi_input, std::st
         case 2: stphi = zi+6;
             break;
         case 3: 
-	    if (geometry_version.substr(0,7)!="R.03.03") 
-		stphi = zi+9-1; //zi are 2 and 3 (counting do not tart by 1)
-	    else
-		stphi = zi+9; //zi are numbered in order, i.e. 1 and 2 
-	    break;	
+      if (geometry_version.substr(0,7)!="R.03.03") 
+    stphi = zi+9-1; //zi are 2 and 3 (counting do not tart by 1)
+      else
+    stphi = zi+9; //zi are numbered in order, i.e. 1 and 2 
+      break;  
         case 4: stphi = zi+11;
             break;
         case 5: stphi = zi+14;

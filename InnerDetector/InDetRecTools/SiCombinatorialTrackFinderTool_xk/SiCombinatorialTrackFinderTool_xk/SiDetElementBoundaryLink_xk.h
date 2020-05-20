@@ -70,12 +70,10 @@ namespace InDet{
       m_detelement =  L.m_detelement;
       m_ITkGeometry = L.m_ITkGeometry;
       for(int i=0; i!=4; ++i) {
-
-	    m_bound00[i] = L.m_bound00[i];
-	    m_bound01[i] = L.m_bound01[i];
-	    m_bound11[i] = L.m_bound11[i];
-
-	    for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+        m_bound00[i] = L.m_bound00[i];
+        m_bound01[i] = L.m_bound01[i];
+        m_bound11[i] = L.m_bound11[i];
+        for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
       }
       m_dR = L.m_dR;
     }
@@ -84,17 +82,17 @@ namespace InDet{
     (const SiDetElementBoundaryLink_xk& L) 
     {
       if(&L!=this) {
-	    m_detelement =  L.m_detelement;
+        m_detelement =  L.m_detelement;
         m_ITkGeometry = L.m_ITkGeometry;
-	    for(int i=0; i!=4; ++i) {
-
-	      m_bound00[i] = L.m_bound00[i];
-	      m_bound01[i] = L.m_bound01[i];
-	      m_bound11[i] = L.m_bound11[i];
-
-	      for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
-	    }
-	    m_dR = L.m_dR;
+        for(int i=0; i!=4; ++i) {
+          
+          m_bound00[i] = L.m_bound00[i];
+          m_bound01[i] = L.m_bound01[i];
+          m_bound11[i] = L.m_bound11[i];
+          
+          for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+        }
+        m_dR = L.m_dR;
       }
     return(*this);
     }

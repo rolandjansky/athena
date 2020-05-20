@@ -11,9 +11,12 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/SGTools
+   Control/AthenaKernel
+   Control/AthenaBaseComps
    Calorimeter/CaloGeoHelpers
    TileCalorimeter/TileSimEvent
    PRIVATE
+   Calorimeter/CaloDetDescr
    GaudiKernel )
 
 # External dependencies:
@@ -64,13 +67,16 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
+                           ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h
                            ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h
                            ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h
                            ISF_FastCaloSimEvent/TFCS2DFunctionLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
@@ -88,7 +94,7 @@ atlas_add_library( ISF_FastCaloSimEvent
    PUBLIC_HEADERS ISF_FastCaloSimEvent
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools AthenaKernel AthenaBaseComps CaloDetDescrLib
    CaloGeoHelpers TileSimEvent
    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

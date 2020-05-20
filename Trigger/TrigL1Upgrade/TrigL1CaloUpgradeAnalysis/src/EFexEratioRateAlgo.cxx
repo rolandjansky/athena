@@ -116,12 +116,14 @@ StatusCode EFexEratioRateAlgo::execute(){
         if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
                 msg << MSG::WARNING << "did not find EventInfo container" << endreq;
         }
+/*      Future usage to come soon
         long bunch_crossing(-1);
-        long bunch_crossingNor(-1);
+        long bunch_crossingNor(-1); // future usage
         if ( evt ) {
            bunch_crossing = evt->bcid();
            bunch_crossingNor = bcids_from_start ( bunch_crossing );
         }
+*/
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
 	if ( evtStore()->retrieve(scluster,m_inputClusterName).isFailure() ){
 		msg << MSG::WARNING << "did not find super cluster container" << endreq;
@@ -138,13 +140,13 @@ StatusCode EFexEratioRateAlgo::execute(){
 		//return StatusCode::SUCCESS;
 	}
 
+/*      Future usage to come soon
 	const xAOD::VertexContainer* nvtx(NULL);
-        int nvtxs=0;
         if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
                 msg << MSG::WARNING << "did not find Vectices container" << endreq;
                 return StatusCode::SUCCESS;
         }
-        if ( nvtx != NULL) nvtxs = nvtx->size();
+*/
 
 	const xAOD::TruthParticleContainer* truth;
 	if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {

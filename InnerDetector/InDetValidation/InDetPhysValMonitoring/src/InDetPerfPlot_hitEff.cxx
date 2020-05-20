@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,7 @@ InDetPerfPlot_hitEff::InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::st
   m_fillAdditionalITkPlots(false),
   m_hitEfficiencyVsEta{},   
   m_hitEfficiencyVsEta_PerLayer{},
+  m_hitEfficiencyVsEta_PerType{},
   m_debug{false} {
   //
 }
@@ -59,6 +60,10 @@ void InDetPerfPlot_hitEff::FillAdditionalITkPlots(bool fill) {
   
   book(m_hitEfficiencyVsEta_PerLayer[0][L0PIXBARR][BARREL], "eff_hit_vs_eta_pix_barrel_layer0");
   book(m_hitEfficiencyVsEta_PerLayer[0][PIXEL][ENDCAP]    , "eff_hit_vs_eta_pix_endcap_layer0");
+  
+  book(m_hitEfficiencyVsEta_PerType[INNERMOST]        , "eff_hit_vs_eta_pix_innermost");
+  book(m_hitEfficiencyVsEta_PerType[NEXT_TO_INNERMOST], "eff_hit_vs_eta_pix_nextToInnermost");
+  book(m_hitEfficiencyVsEta_PerType[OTHER]            , "eff_hit_vs_eta_pix_others"); 
     
   for (int layer=1; layer < N_LAYERS; layer++) {
     book(m_hitEfficiencyVsEta_PerLayer[layer][PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel_layer"+std::to_string(layer));
@@ -69,6 +74,7 @@ void InDetPerfPlot_hitEff::FillAdditionalITkPlots(bool fill) {
     book(m_hitEfficiencyVsEta_PerLayer[layer][SCT][BARREL], "eff_hit_vs_eta_sct_barrel_layer"+std::to_string(layer));
     book(m_hitEfficiencyVsEta_PerLayer[layer][SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap_layer"+std::to_string(layer));
   }  
+  
 }
 
 void
@@ -91,6 +97,9 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
       std::vector<int> result_iLayer;
       SG::AuxElement::ConstAccessor<std::vector<int>> iLayer ("measurement_iLayer");
       if (!iLayer.isAvailable(trkprt) && m_fillAdditionalITkPlots) result_iLayer = trkprt.auxdecor<std::vector<int> >("measurement_iLayer");
+      std::vector<int> result_lType;
+      SG::AuxElement::ConstAccessor<std::vector<int>> lType ("measurement_lType");
+      if (!lType.isAvailable(trkprt) && m_fillAdditionalITkPlots) result_lType = trkprt.auxdecor<std::vector<int> >("measurement_lType");
       // NP: this should be fine... residual filled with -1 if not hit
       //Only do this if decoration doesn't already exist
 
@@ -99,19 +108,24 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
         const bool isHit((measureType == 0)or(measureType == 4));
         const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
-        int layer = 0;
-	if (m_fillAdditionalITkPlots){ 
-	  if(!iLayer.isAvailable(trkprt)) layer = result_iLayer[idx];
-	  else layer  = (iLayer(trkprt))[idx];
-	}
-	float eta = std::fabs(trkprt.eta());
+        int layer = 0; int type = 0;
+        if (m_fillAdditionalITkPlots){ 
+          if(!iLayer.isAvailable(trkprt)) layer = result_iLayer[idx];
+          else layer  = (iLayer(trkprt))[idx];
+          if(!lType.isAvailable(trkprt)) type = result_lType[idx];
+          else type  = (lType(trkprt))[idx];
+        }
+        float eta = std::fabs(trkprt.eta());
         if (det == DBM) {
           continue; // ignore DBM
         }
         //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
         fillHisto(m_hitEfficiencyVsEta[det][region], eta, isHit);
-        if (m_fillAdditionalITkPlots and (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS)))
+        if (m_fillAdditionalITkPlots and (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS))) {
           fillHisto(m_hitEfficiencyVsEta_PerLayer[layer][det][region], eta, isHit);
+          if (det==PIXEL or det==L0PIXBARR)
+            fillHisto(m_hitEfficiencyVsEta_PerType[type], eta, isHit);
+        }
       }
     }
   }

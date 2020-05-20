@@ -104,12 +104,10 @@ StatusCode LArFexAnalysis::execute(){
 #endif
 
 	const xAOD::VertexContainer* nvtx(NULL);
-        int nvtxs=0;
         if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
                 msg << MSG::WARNING << "did not find Vectices container" << endreq;
                 return StatusCode::SUCCESS;
         }
-        if ( nvtx != NULL) nvtxs = nvtx->size();
 
 	if ( m_doTruth ) {
 	const xAOD::TruthParticleContainer* truth;

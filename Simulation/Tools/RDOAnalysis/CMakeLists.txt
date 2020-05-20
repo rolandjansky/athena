@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          DetectorDescription/ReadoutGeometryBase
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
@@ -37,7 +38,7 @@ atlas_add_component( RDOAnalysis
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry InDetReadoutGeometry InDetRawData InDetSimData InDetBCM_RawData InDetPrepRawData LArRawEvent MuonRDO MuonSimData TileEvent TrkSurfaces TrkTruthData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps ReadoutGeometryBase InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry InDetReadoutGeometry InDetRawData InDetSimData InDetBCM_RawData InDetPrepRawData LArRawEvent MuonRDO MuonSimData TileEvent TrkSurfaces TrkTruthData )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -18,10 +18,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_pixStaves("PixelStaves.xml"),
   m_xml_pixBarrelLayers("PixelBarrelLayers.xml"),
   m_xml_pixEndcapLayers("PixelEndcapLayers.xml"),
-  m_xml_sctmodules("SCTModules.xml"),
-  m_xml_sctStaves("SCTStaves.xml"),
-  m_xml_sctBarrelLayers("SCTBarrelLayers.xml"),
-  m_xml_sctEndcapLayers("SCTEndcapLayers.xml"),
   m_xml_SLHCVersion("SLHC"),
   m_doPix(true),
   m_doSCT(true),
@@ -34,10 +30,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("XML_PixelStaves",       m_xml_pixStaves);
   declareProperty("XML_PixelBarrelLayers", m_xml_pixBarrelLayers);
   declareProperty("XML_PixelEndcapLayers", m_xml_pixEndcapLayers);
-  declareProperty("XML_SCTModules",        m_xml_sctmodules);
-  declareProperty("XML_SCTStaves",         m_xml_sctStaves);
-  declareProperty("XML_SCTBarrelLayers",   m_xml_sctBarrelLayers);
-  declareProperty("XML_SCTEndcapLayers",   m_xml_sctEndcapLayers);
   declareProperty("XML_SLHCVersion",       m_xml_SLHCVersion);
   declareProperty("doPix",                 m_doPix);
   declareProperty("doSCT",                 m_doSCT);
@@ -85,20 +77,6 @@ StatusCode InDet::XMLReaderSvc::initialize()
     ATH_MSG_INFO("Reading Pixel Endcap Layer templates");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
-  }
-  if(m_doSCT and not m_isGMX) {
-    // WARNING: read front-end chips BEFORE modules
-    ATH_MSG_INFO("Reading SCT FrontEndChip templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","FrontEndChip");
-    ATH_MSG_INFO("Reading SCT Module templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","Module");
-    ATH_MSG_INFO("Reading SCT Stave templates");
-    parseFile(m_xml_sctStaves.c_str(),"SCTStaves","SCTStave");
-    ATH_MSG_INFO("Reading SCT Barrel Layer templates");
-    parseFile(m_xml_sctBarrelLayers.c_str(),"SCTBarrelLayers","SCTBarrelLayer");
-    ATH_MSG_INFO("Reading SCT Endcap Layer templates");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapRing");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapDisc");
   }
 
   if(!TerminateXML()) {
@@ -547,6 +525,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   XMLCh* TAG_splitOffset     = transcode("SplitOffset");
   XMLCh* TAG_readoutLayer    = transcode("ReadoutLayer");
   XMLCh* TAG_readoutRegion   = transcode("ReadoutRegion");
+  XMLCh* TAG_inclination     = transcode("Inclination");
 
   // temporary variables
   std::string name;
@@ -571,6 +550,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   std::vector<double>       tmpphioffset;
   std::vector<int>          tmprolayer;
   std::vector<std::string>  tmproregion;
+  std::vector<double>       tmpinclination;
 
   for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
 
@@ -602,6 +582,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     else if (XMLString::equals(currentElement->getTagName(),TAG_ringpos))         tmpringpos    = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_readoutRegion))   tmproregion   = getVectorString(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_readoutLayer))    tmprolayer    = getVectorInt(currentNode);  
+    else if (XMLString::equals(currentElement->getTagName(),TAG_inclination))     tmpinclination = getVectorDouble(currentNode);  
   }
 
   // If different number of entries for rings fields, use the values of ring 0 everywhere
@@ -719,6 +700,14 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     for (unsigned int ir = 0 ; ir < nrings; ir++) tmprolayer.push_back(layer->ilayer);
   } 		
 
+  if(tmpinclination.size() != nrings && tmpinclination.size()>0){
+    double inclinedAngle = tmpinclination.at(0);
+    tmpinclination.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(inclinedAngle);
+  } else if (tmpinclination.size()==0) {
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(0.);
+  } 		
+
   // loop over rings to store the info in template
   for(unsigned int ir=0;ir<tmpringpos.size();ir++){
 
@@ -741,16 +730,19 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     layer->splitOffset.push_back(tmpsplitoffset.at(ir));
     layer->readoutRegion.push_back(tmproregion.at(ir));
     layer->readoutLayer.push_back(tmprolayer.at(ir));
+    layer->inclination.push_back(tmpinclination.at(ir));
 
     // compute ring radii
+    double inclination = tmpinclination.at(ir);
     double innerRadius = tmpradius.at(ir);
     double outerRadius = tmpradius.at(ir);
-    if (rtype.compare("Inner")==0) outerRadius += modlength;
-    else innerRadius -= modlength;
+    if (rtype.compare("Inner")==0) outerRadius += modlength*cos(inclination);
+    else innerRadius -= modlength*cos(inclination);
     layer->innerRadius.push_back(innerRadius);
     layer->outerRadius.push_back(outerRadius);
     // compute ring thickness (module thickness + zoffset (can be negative))
-    double tmpthick  = modthick + std::fabs(tmpzoffset.at(ir)); 
+    double tmpthick  = inclination!=0 ? modthick + std::fabs(tmpzoffset.at(ir) + tmpsplitoffset.at(ir) ) + modlength*sin(inclination) :
+                                        modthick + std::fabs(tmpzoffset.at(ir)) ; 
     if(double_sided) tmpthick += modthick+2*stereoSep;
     layer->thickness.push_back(tmpthick);
 

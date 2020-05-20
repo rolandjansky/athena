@@ -6,7 +6,6 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "GeneratorObjects/McEventCollection.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 
@@ -42,8 +41,11 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
   ATH_MSG_VERBOSE("Processing EventInfo event #"<< evt<< " run: " << numrun);
   m_muonevnt->Fill(evt);
   m_muonrun->Fill(numrun);
-  const DataHandle<McEventCollection> mcEvent;
-  CHECK(evtStore()->retrieve(mcEvent,m_key));
+  SG::ReadHandle<McEventCollection> mcEvent( m_mcEventKey );
+  if (!mcEvent.isValid()) {
+    ATH_MSG_ERROR( "Could not retrieve McEventCollection" );
+    return StatusCode::FAILURE;
+  }
 
   // *AS* Why only if mcEvent ==1? when would there be more than one event?
   if (mcEvent->size()!=1) {
@@ -109,6 +111,7 @@ StatusCode MuonHitTestToolBase::initialize() {
       all subalgorithms (MDT,RPC,CSC,TGC)
       For detailed description look in the .cxx code
   */
+ ATH_CHECK( m_mcEventKey.initialize() );
 
   m_path+="Muon/";
   // will only create new if not already registered (uses m_path)

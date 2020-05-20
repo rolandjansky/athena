@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetailedTrackTruthCollectionCnv.h"
@@ -9,6 +9,7 @@
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p1.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p2.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p3.h"
+#include "TrkTruthTPCnv/DetailedTrackTruthCollection_p4.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -22,6 +23,7 @@ pool::Guid DetailedTrackTruthCollectionCnv::p0_guid("8F573396-F26F-47FD-B05C-549
 pool::Guid DetailedTrackTruthCollectionCnv::p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
 pool::Guid DetailedTrackTruthCollectionCnv::p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
 pool::Guid DetailedTrackTruthCollectionCnv::p3_guid("F5A1DC75-C3FB-4575-8178-905223CF1277");
+pool::Guid DetailedTrackTruthCollectionCnv::p4_guid("94E5A7B5-D0E0-41D4-A6F7-8F5CE64D307D");
 
 //================================================================
 DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
@@ -31,21 +33,28 @@ DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* sv
 //================================================================
 DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersistent(DetailedTrackTruthCollection* trans) {
   MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p3"<<endreq;
+  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p4"<<endreq;
 
   //orig: return new DetailedTrackTruthCollectionPERS( *reinterpret_cast<DetailedTrackTruthCollectionPERS*>(trans) );
 
   DetailedTrackTruthCollectionPERS* pers=new DetailedTrackTruthCollectionPERS();
-  m_converter_p3.transToPers(trans,pers,log);
+  m_converter_p4.transToPers(trans,pers,log);
   return pers;
 }
 
 //================================================================
 DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient() {
   MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv" );
-  DetailedTrackTruthCollection *trans(0);
+  DetailedTrackTruthCollection *trans(nullptr);
 
-  if (compareClassGuid(p3_guid)) {
+  if (compareClassGuid(p4_guid)) {
+    trans = new DetailedTrackTruthCollection();
+    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p4. GUID="<<m_classID.toString()<<endreq;
+    Trk::DetailedTrackTruthCollection_p4* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p4>();
+    m_converter_p4.persToTrans(pers, trans, log);
+    delete pers;
+  }
+  else if (compareClassGuid(p3_guid)) {
     trans = new DetailedTrackTruthCollection();
     log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p3. GUID="<<m_classID.toString()<<endreq;
     Trk::DetailedTrackTruthCollection_p3* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p3>();

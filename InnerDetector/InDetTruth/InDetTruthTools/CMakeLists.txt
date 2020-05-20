@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTruthTracks/TrkTruthTrackInterfaces
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
+                          DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -31,7 +32,7 @@ atlas_add_component( InDetTruthTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaKernel AthenaBaseComps TrkEventPrimitives AtlasDetDescr GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaKernel AthenaBaseComps TrkEventPrimitives AtlasDetDescr ReadoutGeometryBase GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( InDetTruthTools )

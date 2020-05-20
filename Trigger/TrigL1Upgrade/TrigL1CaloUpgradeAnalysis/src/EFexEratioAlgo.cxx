@@ -118,12 +118,14 @@ StatusCode EFexEratioAlgo::execute(){
         if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
                 msg << MSG::WARNING << "did not find EventInfo container" << endreq;
         }
+/*      Future usage to come soon
         long bunch_crossing(-1);
         long bunch_crossingNor(-1);
         if ( evt ) {
            bunch_crossing = evt->bcid();
            bunch_crossingNor = bcids_from_start ( bunch_crossing );
         }
+*/
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
 	if ( evtStore()->retrieve(scluster,m_inputClusterName).isFailure() ){
 		msg << MSG::WARNING << "did not find super cluster container" << endreq;
@@ -141,12 +143,10 @@ StatusCode EFexEratioAlgo::execute(){
 	}
 
 	const xAOD::VertexContainer* nvtx(NULL);
-        int nvtxs=0;
         if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
                 msg << MSG::WARNING << "did not find Vectices container" << endreq;
                 return StatusCode::SUCCESS;
         }
-        if ( nvtx != NULL) nvtxs = nvtx->size();
 
 	const xAOD::TrackParticleContainer* tracks;
 	if ( evtStore()->retrieve(tracks,"InDetTrackParticles").isFailure() ) {
@@ -254,42 +254,8 @@ StatusCode EFexEratioAlgo::execute(){
                         dphi = fabsf( M_PI - dphi );
                         dphi = fabsf( M_PI - dphi );
                         if ( dphi > 0.08 ) continue;
-                        float resolution = 100.0*(el->pt() - cl->et() ) / el->pt();
-                        float off_eta = el->caloCluster()->eta();
-                        float SE_eta = cl->eta();
-                        float resol_eta = -100.0;
-                        if ( fabsf(off_eta) > 0 ) resol_eta =
-                                100.0*(off_eta-SE_eta)/off_eta;
-
-                        float off_phi = el->caloCluster()->phi();
-                        float SE_phi = cl->phi();
-                        float resol_phi = -100.0;
-                        if ( fabsf(off_phi) > 0 ) resol_phi =
-                                100.0*(off_phi-SE_phi)/off_phi;
-			float off_reta = el->auxdata<float>("Reta");
-			float SE_reta = 0.0;
-			if ( cl->e277() > 0.0 )
-				{ SE_reta = cl->e237()/cl->e277(); }
-			float resol_reta = -100.0;
-			if ( off_reta > 0 ) resol_reta = 
-				100.0*(off_reta-SE_reta)/off_reta;
 			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
 				continue;
-			float off_f1 = el->auxdata<float>("f1");
-			float SE_f1 = 0.0;
-			if ( cl->energy() > 0.0 )
-				{ SE_f1 = (cl->energy(CaloSampling::EMB1)+cl->energy(CaloSampling::EME1))/cl->energy(); }
-			float resol_f1 = -100.0;
-			if ( fabsf(off_f1) > 0.01 ) resol_f1 = 
-				100.0*(off_f1-SE_f1)/off_f1;
-
-			float off_f3 = el->auxdata<float>("f3");
-			float SE_f3 = 0.0;
-			if ( cl->energy() > 0.0 )
-				{ SE_f3 = (cl->energy(CaloSampling::EMB3)+cl->energy(CaloSampling::EME3))/cl->energy(); }
-			float resol_f3 = -100.0;
-			if ( fabsf(off_f3) > 0.001 ) resol_f3 = 
-				100.0*(off_f3-SE_f3)/off_f3;
 
                 }
         }

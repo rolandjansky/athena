@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -85,6 +85,8 @@ class CscIdHelper : public MuonIdHelper
   int get_geo_detectorElement_hash (const Identifier& id,
 					IdentifierHash& hash_id ) const;
   int get_geo_channel_hash(const Identifier&, IdentifierHash&) const;
+
+  int get_hash_fromGeoHash(const IdentifierHash& geoHash, IdentifierHash& realHash, const IdContext* context) const;
 
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   

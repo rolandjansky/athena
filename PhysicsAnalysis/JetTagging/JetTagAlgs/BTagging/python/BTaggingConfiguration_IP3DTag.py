@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
 # Configuration functions for IP3DTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -8,10 +7,16 @@ from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeo
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from IOVDbSvc.CondDB import conddb
 btagrun1=False
+btagItk=False
+btagItk_version=5
+
 if conddb.dbdata == 'COMP200':
     btagrun1=True
 elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    if(commonGeoFlags.Run()=="RUN4"):
+       btagItk=True
+       BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
 
 metaIP3DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP3D',
@@ -71,6 +76,11 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                   "InANDNInSplit", "PixSplit",
                   "Good"]
         if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
+        if btagItk: 
+            if btagItk_version==5: grades=["A01","A05","A06","A07","A08","A0910","A14A","A14B","B01","B05","B0910","B11","B14","zone_1","zone_2","zone_3","zone_4"]
+            elif btagItk_version==7: grades=["A01","A02","A03","A04","A05","A06","A07","A08","A14_1","A14_2","A14_3","A14_4",
+                                             "B01","B02","B03","B04","B05","B06","B07","B08","B14_1","B14_2","B14_3","B14_4",
+                                             "C01","C020304","C05","C06","C07","C0809","C14_1","C14_2","C14_3","C14_4"]
 
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
@@ -121,7 +131,9 @@ def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'useRun2TrackGrading'    : (btagrun1 == False),
+		     'useRun2TrackGrading'    : (btagrun1 == False and not(btagItk)),
+                     'useITkTrackGrading'     : (btagItk == True),
+                     'ITkTrkGradeVersion'     :  btagItk_version,
                      'useInnerLayers0HitInfo' : (btagrun1 == False),
                      'useDetailSplitHitInfo'  : (btagrun1 == False),
                      'hitBLayerGrade'         : True }

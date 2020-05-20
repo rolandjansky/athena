@@ -392,9 +392,9 @@ def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
 def getKernel_ATLFASTIIF_G4MS(name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ]       )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasSelector' ]               )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonFatrasSelector',
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_MuonAFIIGeant4Selector',
                                                         'ISF_EtaGreater5ParticleKillerSimSelector',
-                                                        'ISF_DefaultFastCaloSimSelector'  ]         )
+                                                        'ISF_DefaultLegacyAFIIFastCaloSimSelector' ])
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultAFIIGeant4Selector' ]           )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]       )
     # set the simFlags accordingly (TODO: is this even needed?)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSensitiveDetectorCosmics.h"
@@ -11,20 +11,19 @@
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
-//#include "SimHelpers/DetectorGeometryHelper.h"
 #include "MCTruth/TrackHelper.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // construction/destruction
-RPCSensitiveDetectorCosmics::RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
+RPCSensitiveDetectorCosmics::RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName, unsigned int nGasGaps)
   : G4VSensitiveDetector( name )
   , m_myRPCHitColl( hitCollectionName )
   , m_globalTime(0.)
   , m_isGeoModel(true)
   , m_momMag(0.)
 {
-  m_muonHelper = RpcHitIdHelper::GetHelper();
+  m_muonHelper = RpcHitIdHelper::GetHelper(nGasGaps);
 }
 
 void RPCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)

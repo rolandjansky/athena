@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 
 /***************************************************************************
  test MuonGeoModel from digits to pos. in space
  ----------------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonGMCheck.h,v 1.15 2009-03-28 10:59:00 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_MUONGMCHECK_H
 # define MUONGEOMODEL_MUONGMCHECK_H
@@ -19,14 +15,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
-
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
-class MmIdHelper;
-class Identifier;
+namespace Muon {
+    class MuonIdHelperTool;
+}
 
 namespace MuonGM
 {    
@@ -89,12 +80,7 @@ private:
     
 
     const MuonGM::MuonDetectorManager*	p_MuonMgr;
-    const RpcIdHelper*            p_RpcIdHelper;
-    const TgcIdHelper*            p_TgcIdHelper;
-    const CscIdHelper*            p_CscIdHelper;
-    const MdtIdHelper*            p_MdtIdHelper;
-    const sTgcIdHelper*           p_sTgcIdHelper;
-    const MmIdHelper*             p_MmIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muIdHelper;
 
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
 
@@ -152,9 +138,6 @@ private:
     void checkParentStation();
     void checkreadouttgcgeo();
     void checkRegionSelectorMap();
-//     void showPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc, Identifier id);
-//     void showMdtPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc);
-//     void showTgcPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc);
 
     void testMdtDetectorElementHash();
     void testRpcDetectorElementHash();

@@ -14,7 +14,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 

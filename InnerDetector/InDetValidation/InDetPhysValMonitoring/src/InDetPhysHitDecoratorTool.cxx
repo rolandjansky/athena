@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file InDetPhysHitDecoratorTool.cxx
@@ -96,7 +96,7 @@ bool
 InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, const std::string& prefix) {
   static int trackNumber(0);
 
-  typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
+  typedef std::tuple<int, int, int, int, float, float, float, float, int, int, int> SingleResult_t;
   typedef std::vector<SingleResult_t> TrackResult_t;
   //const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
@@ -104,10 +104,14 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
   const int invalidDetector(-1);
   const int invalidRegion(-1);
   const int invalidLayer(-1);
+  const int invalidLayerType(-1);
   const int invalidWidth(-1);
   const int invalidMeasure(-1);
-  const SingleResult_t invalidResult = std::make_tuple(invalidDetector, invalidRegion, invalidLayer, invalidRes,
-                                                       invalidPull, invalidRes, invalidPull, invalidWidth, invalidWidth,
+  const SingleResult_t invalidResult = std::make_tuple(invalidDetector, invalidRegion, 
+                                                       invalidLayer, invalidLayerType,
+                                                       invalidRes, invalidPull, 
+                                                       invalidRes, invalidPull, 
+                                                       invalidWidth, invalidWidth,
                                                        invalidMeasure);
   // get element link to the original track
   const ElementLink< TrackCollection >& trackLink = particle.trackLink();// using xAODTracking-00-03-09, interface has
@@ -179,7 +183,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
         Subdetector det(INVALID_DETECTOR);
         Region r(INVALID_REGION);
         int iLayer(invalidLayer);
-        const bool successfulIdentification = decideDetectorRegion(surfaceID, det, r, iLayer);
+        LayerType lType(INVALID_LAYER);
+        const bool successfulIdentification = decideDetectorRegion(surfaceID, det, r, iLayer, lType);
         if (not successfulIdentification) {
           ATH_MSG_DEBUG("Could not identify surface");
           continue;
@@ -256,8 +261,9 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
           }
           --trackParametersCounter;
         }
-        thisResult = std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth, etaWidth,
-                                     measureType);
+        thisResult = std::make_tuple(det, r, iLayer, lType, 
+                                     residualLocX, pullLocX, residualLocY, pullLocY, 
+                                     phiWidth, etaWidth, measureType);
         result.push_back(thisResult);
       }// end of for loop*/
       ATH_MSG_DEBUG(
@@ -272,6 +278,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
         result_r.reserve(arraySize);
         std::vector<int> result_iLayer;
         result_iLayer.reserve(arraySize);
+        std::vector<int> result_lType;
+        result_lType.reserve(arraySize);
         std::vector<float> result_residualLocX;
         result_residualLocX.reserve(arraySize);
         std::vector<float> result_pullLocX;
@@ -290,17 +298,19 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
           result_det.push_back(std::get<0>(single_result));
           result_r.push_back(std::get<1>(single_result));
           result_iLayer.push_back(std::get<2>(single_result));
-          result_residualLocX.push_back(std::get<3>(single_result));
-          result_pullLocX.push_back(std::get<4>(single_result));
-          result_residualLocY.push_back(std::get<5>(single_result));
-          result_pullLocY.push_back(std::get<6>(single_result));
-          result_phiWidth.push_back(std::get<7>(single_result));
-          result_etaWidth.push_back(std::get<8>(single_result));
-          result_measureType.push_back(std::get<9>(single_result));
+          result_lType.push_back(std::get<3>(single_result));
+          result_residualLocX.push_back(std::get<4>(single_result));
+          result_pullLocX.push_back(std::get<5>(single_result));
+          result_residualLocY.push_back(std::get<6>(single_result));
+          result_pullLocY.push_back(std::get<7>(single_result));
+          result_phiWidth.push_back(std::get<8>(single_result));
+          result_etaWidth.push_back(std::get<9>(single_result));
+          result_measureType.push_back(std::get<10>(single_result));
         }
         particle.auxdecor<std::vector<int> >(prefix + "measurement_region") = result_r;
         particle.auxdecor<std::vector<int> >(prefix + "measurement_det") = result_det;
         particle.auxdecor<std::vector<int> >(prefix + "measurement_iLayer") = result_iLayer;
+        particle.auxdecor<std::vector<int> >(prefix + "measurement_lType") = result_lType;
         particle.auxdecor<std::vector<float> >(prefix + "hitResiduals_residualLocX") = result_residualLocX;
         particle.auxdecor<std::vector<float> >(prefix + "hitResiduals_pullLocX") = result_pullLocX;
         particle.auxdecor<std::vector<float> >(prefix + "hitResiduals_residualLocY") = result_residualLocY;
@@ -318,7 +328,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
 }
 
 bool
-InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetector& det, Region& r, int& layer) {
+InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetector& det, Region& r, int& layer, LayerType& lType) {
   bool success(false);
   const int normalBarrel(0);
   const int upgradedBarrel(1);
@@ -327,6 +337,7 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetecto
 
   det = INVALID_DETECTOR;// default
   r = INVALID_REGION;
+  lType = INVALID_LAYER;
   int bec(-100);
 
   // following the logic in the original code, should be reviewed!
@@ -353,6 +364,11 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetecto
     if (BARREL == r and layer == 0) {
       det = L0PIXBARR;
     }
+    if (m_pixelID->is_innermost(id)) {
+      lType = INNERMOST;
+    } else if (m_pixelID->is_nexttoinnermost(id)) {
+      lType = NEXT_TO_INNERMOST;
+    } else lType=OTHER;
   }
   if (det == DBM) {
     r = (bec < 0) ? (BARREL) : (ENDCAP);

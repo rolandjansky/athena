@@ -20,8 +20,6 @@
 #ifndef TRIG_TrigL2DiMuXFex_H 
 #define TRIG_TrigL2DiMuXFex_H
 
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
 
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
@@ -29,11 +27,9 @@
 
 #include "TrigParticle/TrigL2Bphys.h"
 #include "TrigParticle/TrigL2BphysContainer.h"
-#include "TrigInDetEvent/TrigVertexCollection.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
-#include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 
 #include "TrigBphysHypo/Constants.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"

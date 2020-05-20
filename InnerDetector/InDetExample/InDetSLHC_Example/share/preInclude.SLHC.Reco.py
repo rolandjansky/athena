@@ -54,9 +54,6 @@ InDetFlags.doLowBetaFinder=False # This should be False.
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs = True
-    InDetFlags.doSLHCConversionFinding = False
-    if not InDetFlags.useEtaDependentCuts(): # because InDetEtaDependentCutsTool covers whole eta region
-        InDetFlags.doSLHCVeryForward = True
 
 # if rec.OutputFileNameForRecoStep() == 'ESDtoAOD': 
 #     InDetFlags.doNewTracking=False

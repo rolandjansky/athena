@@ -110,8 +110,10 @@ void ServicesDynTracker::constructEndcapLayer( double zpos, double rmin, double 
 					       suffix,
 					       nModulesPerStave, nChipsPerModule);
   
-  if (type == DetTypeDyn::Pixel) m_endcapPixelLayers.push_back(nl);
-  else                        m_endcapStripLayers.push_back(nl);
+  if (type == DetTypeDyn::Pixel) 
+    m_endcapPixelLayers.push_back(nl);
+  else 
+    m_endcapStripLayers.push_back(nl);
 }
 
 
@@ -184,12 +186,10 @@ void ServicesDynTracker::finaliseServices()
 void ServicesDynTracker::addEosMaterial( const ServiceDynVolume& vol, std::vector<ServiceDynMaterial>& result) 
 {
   string name;
-  if (vol.name().find("Pixel") != string::npos) {
+  if (vol.name().find("Pixel") != string::npos)
     name = "pix::PixelEOS";
-  }
-  else {
+  else
     name = "pix::StripEOS";
-  }
   
   const ServicesDynLayer* layer = vol.layers().front();
   

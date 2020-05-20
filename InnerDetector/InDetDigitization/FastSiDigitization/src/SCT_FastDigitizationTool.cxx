@@ -26,6 +26,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandLandau.h"
+#include "CLHEP/Random/RandFlat.h"
 
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
@@ -34,7 +35,7 @@
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
 // FATRAS
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkExUtils/LineIntersection2D.h"
@@ -984,7 +985,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       // Build Truth info for current cluster
       HepMcParticleLink trklink(currentSiHit->particleLink());
       if (m_needsMcEventCollHelper) {
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType()) );
+        MsgStream* amsg = &(msg());
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType(), amsg) );
       }
       if (trklink.isValid())
       {
@@ -1019,7 +1021,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	   SCT_detElement_RIO_map::iterator clusIter = currentClusIter++;
            const InDet::SCT_Cluster* currentCluster = clusIter->second;
 	   bool isBarrel=currentCluster->detectorElement()->isBarrel();
-	   double random= rand()%10000/10000.0;
+	   double random= CLHEP::RandFlat::shoot(m_randomEngine,0.0,1.0);
 	   
 	   //Retrieve an eta and mu dependent inefficiency SF
 	   double inefficiencySF = RetrieveInefficiencySF(fabs(currentCluster->globalPosition().eta()),m_mu_val,isBarrel);

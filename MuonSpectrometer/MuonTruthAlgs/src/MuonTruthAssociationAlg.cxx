@@ -87,7 +87,7 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
     //xAOD::TrackParticle* tp = const_cast<xAOD::TrackParticle*>(muon->primaryTrackParticle());
     //// hack: when converting from release 17, these truth links are absent (must fix); use the inDetParticle instead
     const xAOD::TrackParticle* tp(0);
-    if (m_associateWithInDetTP || muon->author()==2) {
+    if (m_associateWithInDetTP || muon->author()==2 || muon->author()==6) {
       tp = muon->trackParticle(xAOD::Muon_v1::InnerDetectorTrackParticle);
     } 
     else{

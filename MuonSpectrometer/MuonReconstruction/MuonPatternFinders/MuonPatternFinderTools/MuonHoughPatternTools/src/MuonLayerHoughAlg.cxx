@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHoughAlg.h"
@@ -32,43 +32,40 @@ MuonLayerHoughAlg::MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MuonLayerScanTool", m_layerTool );
 }
 
-MuonLayerHoughAlg::~MuonLayerHoughAlg()
-{
-}
-
 StatusCode MuonLayerHoughAlg::initialize()
 {
+  if (m_layerTool.empty()) {
+    ATH_MSG_ERROR("MuonLayerScanTool property is empty");
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK( m_layerTool.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
-
   return StatusCode::SUCCESS; 
 }
 
 StatusCode MuonLayerHoughAlg::execute()
 {
-  
-
-  const Muon::RpcPrepDataContainer* rpcPrds = 0;      
+  const Muon::RpcPrepDataContainer* rpcPrds = nullptr;      
   if( evtStore()->contains<Muon::RpcPrepDataContainer>(m_keyRpc) && evtStore()->retrieve(rpcPrds,m_keyRpc).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer " << m_keyRpc );
   }
-  const Muon::MdtPrepDataContainer* mdtPrds = 0;      
+  const Muon::MdtPrepDataContainer* mdtPrds = nullptr;      
   if( evtStore()->contains<Muon::MdtPrepDataContainer>(m_keyMdt) && evtStore()->retrieve(mdtPrds,m_keyMdt).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve MdtPrepDataContainer " << m_keyMdt );
   }
-  const Muon::TgcPrepDataContainer* tgcPrds = 0;      
+  const Muon::TgcPrepDataContainer* tgcPrds = nullptr;      
   if( evtStore()->contains<Muon::TgcPrepDataContainer>(m_keyTgc) && evtStore()->retrieve(tgcPrds,m_keyTgc).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer " << m_keyTgc );
   }
-  const Muon::CscPrepDataContainer* cscPrds = 0;      
+  const Muon::CscPrepDataContainer* cscPrds = nullptr;      
   if( evtStore()->contains<Muon::CscPrepDataContainer>(m_keyCsc) && evtStore()->retrieve(cscPrds,m_keyCsc).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve CscPrepDataContainer " << m_keyCsc );
   }
-  const Muon::sTgcPrepDataContainer* stgcPrds = 0;      
+  const Muon::sTgcPrepDataContainer* stgcPrds = nullptr;      
   if( evtStore()->contains<Muon::sTgcPrepDataContainer>(m_keysTgc) && evtStore()->retrieve(stgcPrds,m_keysTgc).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve sTgcPrepDataContainer " << m_keysTgc );
   }
-  const Muon::MMPrepDataContainer* mmPrds = 0;      
+  const Muon::MMPrepDataContainer* mmPrds = nullptr;      
   if( evtStore()->contains<Muon::MMPrepDataContainer>(m_keyMM) && evtStore()->retrieve(mmPrds,m_keyMM).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve MmPrepDataContainer " << m_keyMM );
   }
@@ -89,12 +86,3 @@ StatusCode MuonLayerHoughAlg::execute()
   return StatusCode::SUCCESS;
 } // execute
 
-
-
-
-
-StatusCode MuonLayerHoughAlg::finalize()
-{
-  
-  return AthAlgorithm::finalize();
-}

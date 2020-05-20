@@ -12,6 +12,7 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 
 // For new strategy reconstruction
@@ -79,6 +80,7 @@ namespace InDet {
       bool                           m_ITKGeometry        ; // Is it ITK geometry
       bool                           m_useITKPPSseeds     ; // Use PPS seeds for ITK geometry
       bool                           m_useConvSeeded      ;
+      bool                           m_doFastTracking     ; // Use to enable the fastTracking strategy for ITk
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
       int                            m_nseeds             ; // Number seeds
@@ -102,6 +104,9 @@ namespace InDet {
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiZvertexMaker         > m_zvertexmaker  ;  // Space poins z-vertex maker
       ToolHandle< ISiTrackMaker           > m_trackmaker    ;  // Track                maker     
+      
+      /** service to get cut values depending on different variable */
+      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;
     
       // For new strategy reconstruction
       //
@@ -132,13 +137,16 @@ namespace InDet {
       bool isGoodEvent();
       double trackQuality(const Trk::Track*);
       void filterSharedTracks(std::multimap<double,Trk::Track*>&);
+      void filterSharedTracksN(std::multimap<double,Trk::Track*>&,std::list<Trk::Track*>&);
       void fillZHistogram(const Trk::Track*,Trk::PerigeeSurface&);
       void findZvertex(std::list<Trk::Vertex>&,double*); 
       StatusCode  oldStrategy();
       StatusCode  newStrategy();
       StatusCode  itkStrategy();
       StatusCode convStrategy();
+      StatusCode  itkFastTrackingStrategy();
       void magneticFieldInit();
+      bool Quality(const Trk::Track*,int,int);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

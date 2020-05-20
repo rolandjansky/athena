@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -370,16 +370,19 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   }
   
   ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
-  if (fabs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
-    ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
+  double maxZ0 = m_maxZImp;
+  if (not m_etaDependentCutsSvc.name().empty()) maxZ0 = m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta);
+  if (fabs(extrapolatedPerigee->parameters()[Trk::z0]) > maxZ0) {
+    ATH_MSG_DEBUG ("Track Z impact > "<<maxZ0<<", reject it");
     delete extrapolatedPerigee;
     return Trk::TrackScore(0);
   }
 
   double maxD0 = m_maxRPhiImp;
+  if (not m_etaDependentCutsSvc.name().empty()) maxD0 = m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta);
   if(m_useEmClusSeed && isEmCaloCompatible( track ) ) maxD0 = m_maxRPhiImpEM;
   if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
-    ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
+    ATH_MSG_DEBUG ("Track Rphi impact > "<<maxD0<<", reject it");
     delete extrapolatedPerigee;
     return Trk::TrackScore(0);
   }
