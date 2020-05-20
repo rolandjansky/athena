@@ -265,15 +265,47 @@ class AthConfigFlags(object):
 
     def fillFromArgs(self,listOfArgs=None):
         """
-        Expects a list of strings of key=value pairs representing configuration flags. 
+
         Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
         """
-        
-        if listOfArgs is None:
-            import sys
-            listOfArgs=sys.argv[1:]
+        import argparse,sys
+        parser= argparse.ArgumentParser()
+        parser.add_argument("-d","--debug",default=None,help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
+        parser.add_argument("--evtMax",type=int,default=None,help="Max number of events to process")
+        parser.add_argument("--skipEvents",type=int,default=None,help="Number of events to skip")
+        parser.add_argument("--filesInput",default=None,help="Input file(s)")
+        parser.add_argument("-l", "--loglevel",default=None,help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
 
-        for arg in listOfArgs:
+        (args,leftover)=parser.parse_known_args(listOfArgs or sys.argv[1:])
+
+        #First, handle athena.py-like arguments:
+
+        if args.debug:
+            from AthenaCommon.Debugging import DbgStage
+            if args.debug not in DbgStage.allowed_values:
+                raise ValueError("Unknown debug stage, allowed values {}".format(DbgStage.allowed_values))
+            self.Exec.DebugStage=args.debug
+
+        if args.evtMax:
+            self.Exec.MaxEvents=args.evtMax
+
+        if args.skipEvents:
+            self.Exec.SkipEvents=args.skipEvents
+
+        if args.filesInput:
+            self.Input.Files=args.filesInput.split(",")
+        
+        if args.loglevel:
+            from AthenaCommon import Constants
+            if hasattr(Constants,args.loglevel):
+                self.Exec.OutputLevel=getattr(Constants,args.loglevel)
+            else:
+                raise ValueError("Unknown log-level, allowed values are ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, FATAL")
+
+        #All remaining arguments are assumed to be key=value pairs to set arbitrary flags:
+
+
+        for arg in leftover:
             #Safety check on arg: Contains exactly one '=' and left side is a valid flag
             argsplit=arg.split("=")
             if len(argsplit)!=2:
@@ -283,7 +315,6 @@ class AthConfigFlags(object):
             if not self.hasFlag(key):
                 raise KeyError("{} is not a known configuration flag".format( key ) )
             
-
             value=argsplit[1].strip()
 
             try:
@@ -403,6 +434,30 @@ class TestOverwriteFlags(TestFlagsSetupDynamic):
         self.assertEqual( copyf.T.Abool, False, "The flags clone does not have dynamic flags")
         copyf.dump()
         print("")
+
+class flagsFromArgsTest(unittest.TestCase): 
+    def setUp(self):
+        self.flags = AthConfigFlags()
+        self.flags.addFlag('Exec.OutputLevel',3) #Global Output Level
+        self.flags.addFlag('Exec.MaxEvents',-1) 
+        self.flags.addFlag("Exec.SkipEvents",0)
+        self.flags.addFlag("Exec.DebugStage","")
+        self.flags.addFlag('Input.Files',[])
+        self.flags.addFlag('detA.flagB',0)
+
+    def runTest(self):
+        argline="-l VERBOSE --debug exec --evtMax=10 --skipEvents=3 --filesInput=bla1.data,bla2.data detA.flagB=7"
+        print ("Interpreting arguments:")
+        print (argline)
+        self.flags.fillFromArgs(argline.split())
+        self.assertEqual(self.flags.Exec.OutputLevel,1,"Failed to set output level from args")
+        self.assertEqual(self.flags.Exec.MaxEvents,10,"Failed to set MaxEvents from args")
+        self.assertEqual(self.flags.Exec.SkipEvents,3,"Failed to set SkipEvents from args")
+        self.assertEqual(self.flags.Exec.DebugStage,"exec","Failed to set DebugStage from args")
+        self.assertEqual(self.flags.Input.Files,["bla1.data","bla2.data"],"Failed to set FileInput from args")
+        self.assertEqual(self.flags.detA.flagB,7,"Failed to set arbitrary from args")
+
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
