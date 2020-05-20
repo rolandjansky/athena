@@ -28,7 +28,6 @@
 #include "../src/HistogramFiller/HistogramFillerEfficiency.h"
 #include "../src/HistogramFiller/CumulativeHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1D.h"
-#include "../src/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
 #include "../src/HistogramFiller/HistogramFillerRebinable.h"
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
@@ -63,7 +62,6 @@ class HistogramFillerFactoryTestSuite {
       return {
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateStaticCumulativeHistogramFiller1D),
-        REGISTER_TEST_CASE(test_shouldCreateStaticVecHistogramFiller1DWithOverflows),
         REGISTER_TEST_CASE(test_shouldCreateStaticVecHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFillerRebinable1D),
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFiller2D),
@@ -72,7 +70,6 @@ class HistogramFillerFactoryTestSuite {
         REGISTER_TEST_CASE(test_shouldCreateStaticHistogramFillerEfficiency),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockCumulativeHistogramFiller1D),
-        REGISTER_TEST_CASE(test_shouldCreateLumiblockVecHistogramFiller1DWithOverflows),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockVecHistogramFiller1D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFillerRebinable1D),
         REGISTER_TEST_CASE(test_shouldCreateLumiblockHistogramFiller2D),
@@ -99,11 +96,6 @@ class HistogramFillerFactoryTestSuite {
     void test_shouldCreateStaticCumulativeHistogramFiller1D() {
       m_histDef->kCumulative = true;
       performCreateFillerAndVerify<CumulativeHistogramFiller1D, StaticHistogramProvider>();
-    }
-
-    void test_shouldCreateStaticVecHistogramFiller1DWithOverflows() {
-      m_histDef->kVecUO = true;
-      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticVecHistogramFiller1D() {
@@ -145,12 +137,6 @@ class HistogramFillerFactoryTestSuite {
       m_histDef->kCumulative = true;
       m_histDef->kLBNHistoryDepth = 10;
       performCreateFillerAndVerify<CumulativeHistogramFiller1D, LumiblockHistogramProvider>();
-    }
-
-    void test_shouldCreateLumiblockVecHistogramFiller1DWithOverflows() {
-      m_histDef->kVecUO = true;
-      m_histDef->kLBNHistoryDepth = 10;
-      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockVecHistogramFiller1D() {

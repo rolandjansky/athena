@@ -51,7 +51,9 @@ struct Cache
   bool assemblyDone;
 };
 
-/** Resets the cache */
+typedef MultiComponentStateAssembler::Cache Cache;
+
+/** @brief resets the cache */
 void
 reset(Cache& cache);
 
@@ -84,23 +86,8 @@ assembledState(Cache& cache, const double);
 bool
 prepareStateForAssembly(Cache& cache);
 
-/** Method to assemble state with correct weightings */
-MultiComponentState
-doStateAssembly(Cache& cache, const double);
-
-/** Method to check the validity of of the cached state */
-bool
-isStateValid(const Cache& cache);
-
 } // End MultiComponentStateAssembler namespace
 
-typedef MultiComponentStateAssembler::Cache Cache;
 } // End Trk namepace
-
-inline bool
-Trk::MultiComponentStateAssembler::isStateValid(const Cache& cache)
-{
-  return !cache.multiComponentState.empty();
-}
 
 #endif

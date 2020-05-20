@@ -1,11 +1,18 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
-cmake_minimum_required( VERSION 3.6 )
+cmake_minimum_required( VERSION 3.10 )
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
 project( Athena VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
+
+# Turn on CUDA as an available compiler, if it's available.
+include( CheckLanguage )
+check_language( CUDA )
+if( CMAKE_CUDA_COMPILER )
+   enable_language( CUDA )
+endif()
 
 # Set the versions of the TDAQ externals to pick up for the build:
 if( NOT LCG_NIGHTLY )
