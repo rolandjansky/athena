@@ -20,10 +20,9 @@ DECLARE_COMPONENT( HIClusterMaker )
 DECLARE_COMPONENT( HIJetCellSubtractorTool )
 DECLARE_COMPONENT( HIClusterSubtraction )
 DECLARE_COMPONENT( HISubtractedCellMakerTool )
-DECLARE_COMPONENT( HIJetConstituentModifierTool )
 #endif
 
-
+DECLARE_COMPONENT( HIJetConstituentModifierTool )
 DECLARE_COMPONENT( HIEventShapeJetIteration )
 DECLARE_COMPONENT( HIJetConstituentSubtractionTool )
 DECLARE_COMPONENT( HIJetClusterSubtractorTool )

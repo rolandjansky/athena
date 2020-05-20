@@ -42,11 +42,8 @@ StatusCode HIClusterSubtraction::initialize()
 
 int HIClusterSubtraction::execute() const
 {
-
   //const jet::cellset_t & badcells = badCellMap.cells() ;
   //retrieve UE
-	//From here on temporarily commented out code bc needs a dedicated treatment in MT to compile
-	//In rel 21 we were updating a non-const CaloCalusterContainer. That approach is no more acceptable in Athena MT
 	ATH_MSG_WARNING("HIClusterSubtraction being rebuilt to work in MT - upgrade not yet over! ");
 	const xAOD::HIEventShapeContainer* shape = 0;
 	SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
@@ -59,8 +56,6 @@ int HIClusterSubtraction::execute() const
 
   //New implementation: make a shallow copy of original HIClusters and apply subtraction to clusters in the new container
 	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_inClusterKey );
-
-	ATH_MSG_DEBUG("Shallow-copying HIClusters");
 
   std::pair<xAOD::CaloClusterContainer*,xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*readHandleClusters);
 
@@ -111,12 +106,14 @@ int HIClusterSubtraction::execute() const
     }//End loop over correction tools
   }
 
-	auto unique_first_copy = xAOD::prepareElementForShallowCopy(shallowcopy.first);
-	auto unique_second_copy = xAOD::prepareElementForShallowCopy(shallowcopy.second);
+// Make sure that memory is managed safely
+  std::unique_ptr<xAOD::CaloClusterContainer> outClusters(shallowcopy.first);
+  std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowcopy.second);
 
-	xAOD::setOriginalObjectLink(*readHandleClusters, *unique_first_copy);
-
-	if(writeHandleShallowClusters.record ( std::move(unique_first_copy), std::move(unique_second_copy)).isFailure() ){
+  // Connect the copied jets to their originals
+  xAOD::setOriginalObjectLink(*readHandleClusters, *outClusters);
+	
+	if(writeHandleShallowClusters.record ( std::move(outClusters), std::move(shallowAux)).isFailure() ){
 			ATH_MSG_ERROR("Unable to write Shallow Copy containers for event shape with key: " << m_outClusterKey.key());
 			return 1;
 	}

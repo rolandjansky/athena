@@ -218,7 +218,8 @@ def GetConstituentsModifierTool(**kwargs) :
     if 'name' in kwargs.keys() : toolName = kwargs['name']
     print ('Toolname ConstModif %s' % toolName)
     cmod=HIJetConstituentModifierTool(toolName)
-    cmod.ClusterKey=cluster_key
+    cmod.ClusterKey=cluster_key+'.shallowCopy'
+    jtm.add(cmod)
     return cmod
 
 def AddIteration(seed_container,shape_name, **kwargs) :

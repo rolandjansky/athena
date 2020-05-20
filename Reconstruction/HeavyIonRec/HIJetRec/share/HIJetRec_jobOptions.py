@@ -161,11 +161,6 @@ subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",m
 #main subtractor
 subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
-#put subtraction tool at the FRONT of the jet modifiers list
-hi_tools=[subtr1,subtr2]
-hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
-
-
 #==========#==========#==========#==========#==========#==========
 #special addition for egamma
 #Downstream egamma jo will call SubtractedCellGetter, it assumes that the container pointed to by
@@ -178,9 +173,15 @@ if not HIJetFlags.DoCellBasedSubtraction():
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
 #Subtraction for egamma and to get layers
-#ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
 #Cluster subtraction for jets
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
+
+#put subtraction tool at the FRONT of the jet modifiers list
+hi_tools=[subtr1,subtr2]
+hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
+hi_tools+=[GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)]
+
 ###
 #subtracted algorithms
 #make main jets from unsubtr collections w/ same R, add modifiers for subtraction
@@ -190,7 +191,6 @@ for k in jtm.jetrecs :
         in_name=k.OutputContainer
         out_name=in_name.replace("_%s" % unsubtr_suffix,"")
         #>slight tweak in case R=1.0 jets are requestd, add some substructure tools
-        hi_tools+=GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)
         modifiers=GetHIModifierList(out_name,hi_tools)
         if '10HIJets' in k.name() :
             from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool

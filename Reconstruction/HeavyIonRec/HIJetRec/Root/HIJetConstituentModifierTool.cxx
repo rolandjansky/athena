@@ -18,8 +18,9 @@ HIJetConstituentModifierTool::HIJetConstituentModifierTool(const std::string& my
 
 StatusCode HIJetConstituentModifierTool::initialize(){
 
+  ATH_MSG_INFO("Initializing HIJetConstituentModifierTool");
   //Shallow copy key automatically built from the cluster key
-	m_clusterKey = m_clusterKey.key() + ".shallowCopy";
+	//m_clusterKey += ".shallowCopy";
   ATH_CHECK( m_clusterKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -30,7 +31,6 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
     const xAOD::JetConstituentVector constituents = jet.getConstituents();
     std::vector<size_t> cluster_indices;
     cluster_indices.reserve(constituents.size());
-
     for (auto citer = constituents.begin(); citer != constituents.end(); ++citer)
     {
       cluster_indices.push_back(citer->rawConstituent()->index());
@@ -52,14 +52,14 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    xAOD::JetFourMom_t jet4vec;
    //need to add usual safety checks on cluster container access
    SG::ReadHandle<xAOD::CaloClusterContainer> readHandleSubtractedClusters ( m_clusterKey );
-   const xAOD::CaloClusterContainer* ccl=readHandleSubtractedClusters.cptr();
+
+   const xAOD::CaloClusterContainer* ccl=readHandleSubtractedClusters.get();
+
    for(auto index : cluster_indices)
    {
      auto cl=ccl->at(index);
      jet.addConstituent(cl);
-     ATH_MSG_INFO("Cluster Pt(): " << cl->p4(HIJetRec::subtractedClusterState()).Pt());
-     subtrP4=cl->p4(HIJetRec::subtractedClusterState());
-     ATH_MSG_INFO("SubtrP4 Pt(): " << subtrP4.Pt());
+     subtrP4+=cl->p4(HIJetRec::subtractedClusterState());
    }
    jet4vec.SetCoordinates(subtrP4.Pt(),subtrP4.Eta(),subtrP4.Phi(),subtrP4.M());
    jet.setJetP4(jet4vec);
