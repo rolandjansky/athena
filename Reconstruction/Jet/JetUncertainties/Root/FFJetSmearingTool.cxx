@@ -257,8 +257,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
     TString data_file_location =  m_HistogramsFilePath;//m_ConfigFile;
 
-    TFile *data_file  = new TFile(data_file_location,"READ");
-    if(data_file->IsOpen()==false){
+    TFile data_file(data_file_location,"READ");
+    if(data_file.IsOpen()==false){
         ATH_MSG_FATAL( "Unable to open " << data_file_location );
         return StatusCode::FAILURE;
     }
@@ -274,7 +274,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_CALO_ResponseMap  = (TH2D*)data_file->Get( CaloResponseMap_path  );
+    m_CALO_ResponseMap  = (TH2D*)data_file.Get( CaloResponseMap_path  );
     m_CALO_ResponseMap->SetDirectory(0);
 
 
@@ -287,7 +287,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             return StatusCode::FAILURE;
         }
 
-        m_TA_ResponseMap  = (TH2D*)data_file->Get( TAResponseMap_path   );
+        m_TA_ResponseMap  = (TH2D*)data_file.Get( TAResponseMap_path   );
         m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
     }
 
@@ -310,7 +310,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file.Get(m_Syst_HistPath_map[Syst_Name].c_str());
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
@@ -334,16 +334,14 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file.Get(m_Syst_HistPath_map[Syst_Name].c_str());
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
         }
     }
 
-
-    data_file-> Close();
-    delete data_file;
+    data_file.Close();
 
 
     //Read the Calo and TA mass weight histograms from the same file that JetUncertainties uses
