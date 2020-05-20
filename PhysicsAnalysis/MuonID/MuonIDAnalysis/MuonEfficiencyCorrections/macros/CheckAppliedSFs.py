@@ -23,11 +23,19 @@ class ReleaseComparer(object):
         ### Direct access to the branch which are going to be compared
         self.__old_branch = test_tree.GetLeaf(branch_old)
         self.__new_branch = test_tree.GetLeaf(branch_new)
-        
+        if not self.__old_branch:
+            raise NameError("Could not find "+branch_old+" in the Tree")
+            
+        if not self.__new_branch:
+            raise NameError("Could not find "+branch_new+" in the Tree")
         ### Weights as a function of the muon kinematics
         self.__old_weight = 1. if not weight_old else test_tree.GetLeaf(weight_old)
         self.__new_weight = 1. if not weight_new else test_tree.GetLeaf(weight_new)
-        
+        if weight_old and not self.__old_weight:
+            raise NameError("Could not find "+weight_old+" in the Tree")
+        if weight_new and not self.__new_weight:
+            raise NameError("Could not find "+weight_new+" in the Tree")
+            
         self.__quality_branch = test_tree.GetLeaf("Muon_quality")
         if branch_old.find("HighPt") != -1 : self.__quality_branch = test_tree.GetLeaf("Muon_isHighPt")
         if branch_old.find("LowPt")  != -1 : self.__quality_branch = test_tree.GetLeaf("Muon_isLowPt")
@@ -112,6 +120,11 @@ class SystematicComparer(ReleaseComparer):
                                  log_binning = True)
         self.__sys_old = test_tree.GetLeaf(branch_sys_old)
         self.__sys_new = test_tree.GetLeaf(branch_sys_new)
+        if not self.__sys_old:
+            raise NameError("Failed to retrieve "+branch_sys_old)
+        if not self.__sys_new:
+            raise NameError("Failed to retrieve "+branch_sys_new)
+        
         
      def fill(self):
         self.get_old_histo().fill(value = math.fabs(self.get_old_var().GetValue() - self.__sys_old.GetValue()) / (self.get_old_var().GetValue() if self.get_old_var().GetValue() != 0. else 1.) , 
@@ -125,8 +138,11 @@ KnownWPs = {
     "Loose" : "RECO",
     "Medium" : "RECO",
     "Tight" : "RECO",
+    "HightPt3Layers":"RECO",
     "HighPt" : "RECO",
     "LowPt" : "RECO",
+    "LowPtMVA" : "RECO",
+    
     "TTVA" : "TTVA",
     "FCLooseIso": "ISO",                    
     "FCTight_FixedRadIso": "ISO",
@@ -146,12 +162,6 @@ def getArgParser():
     parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
     parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="Internal")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
-    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", 
-                                                                                          "MUON_EFF_RECO_SYS_LOWPT__1down", 
-                                                                                          "MUON_EFF_RECO_STAT_LOWPT__1down", 
-                                                                                          "MUON_EFF_RECO_SYS__1down",
-                                                                                          "MUON_EFF_RECO_STAT__1down"  
-                                                                                          ])
     parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","DataEff","MCEff"])
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
@@ -165,19 +175,25 @@ def getCalibReleasesAndWP(tree):
     allWPs = set([wp for wp in KnownWPs.iterkeys() ])
     WPs = []
     for i in branchesInFile:
+        print i
         if not i.endswith("SF"): continue
         if not i.startswith("c"): continue
         calibCand = i[1:-3]
-        beststr = ""
-        for wp in allWPs:
-            wpstr = "_"+wp
-            if not wpstr in calibCand: continue
-            if calibCand.rfind(wpstr) < calibCand.rfind(beststr): beststr = wpstr
-        if len(beststr) > 0:
-            if not beststr[1:] in WPs: WPs.append(beststr[1:])
-            if not calibCand.replace(beststr,"") in calibReleases: calibReleases.append(calibCand.replace(beststr,""))
+        
+        wp_str = i[ : i.rfind("_")]
+        beststr = wp_str[wp_str.rfind("_")+1 : ]
+        if beststr in allWPs:
+            if not beststr in WPs: WPs.append(beststr)
+            if not calibCand[ : calibCand.find(beststr)-1] in calibReleases: calibReleases.append(calibCand[ : calibCand.find(beststr)-1])
     print "INFO: Found the following working points: %s"%(", ".join(WPs))
     return calibReleases, WPs
+
+def getSystematics(tree, wp, calib_release):
+    search_str = "c%s_%s_SF"%(calib_release, wp)
+    syst_names = [key.GetName()[len(search_str) + 2:] for key in tree.GetListOfBranches() if key.GetName().startswith(search_str) and key.GetName() != search_str]
+    print syst_names
+    return syst_names
+
 if __name__ == "__main__":    
     Options = getArgParser().parse_args()
 
@@ -212,12 +228,13 @@ if __name__ == "__main__":
     Histos = []
     
     for wp in WPs:
+        systematics = getSystematics(tree,wp, calibReleases[0])+[""]
         for t in Options.SFConstituent:
             corrType = "Scale Factor"
             if t == "DataEff": corrType = "Data efficiency"
             elif t == "MCEff": corrType = "MC efficiency"
                 
-            for var in Options.varType:
+            for var in systematics:
                 if len(var) == 0:
                     Histos += [
                     ReleaseComparer(
@@ -237,8 +254,8 @@ if __name__ == "__main__":
                              test_tree = tree,
                              branch_old = "c%s_%s_%s"%(calibReleases[0],wp,t),   branch_new = "c%s_%s_%s"%(calibReleases[1],wp,t),
                       
-                            branch_sys_old = "c%s_%s_%s__%s"%(calibReleases[0],wp,t,var.replace("RECO",KnownWPs[wp])),
-                            branch_sys_new = "c%s_%s_%s__%s"%(calibReleases[1],wp,t,var.replace("RECO",KnownWPs[wp])),
+                            branch_sys_old = "c%s_%s_%s__%s"%(calibReleases[0],wp,t,var),
+                            branch_sys_new = "c%s_%s_%s__%s"%(calibReleases[1],wp,t,var),
                         )] 
   
             continue
