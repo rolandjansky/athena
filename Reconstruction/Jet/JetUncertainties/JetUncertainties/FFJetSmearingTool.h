@@ -106,9 +106,6 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
 
         StatusCode getMatchedTruthJet( xAOD::Jet* jet_reco, xAOD::Jet& jet_truth_matched);
 
-    protected:
-        //TO COMPLETE
-
     private:
 
 
