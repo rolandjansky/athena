@@ -36,9 +36,9 @@
 // Other packages includes
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
+#include "JetInterface/IJetResolutionTool.h"
 
 // Local includes
-#include "JetUncertainties/IFFJetSmearingTool.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/RootHelpers.h"
 
@@ -67,7 +67,7 @@
 
 
 
-class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool 
+class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool 
 {
 
     /// Proper constructor for Athena
