@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from JetRecConfig import JetRecConfig
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -28,7 +29,7 @@ def JetRecTestCfg(jetdefs,configFlags,args):
     components = ComponentAccumulator()
     for ca in jetcas:
         components.merge(ca)
-    components.printConfig(args.verboseAccumulators,summariseProps=True)
+    components.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
 
     return components
 
@@ -145,7 +146,6 @@ if __name__=="__main__":
     
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.isMC  = True
     ConfigFlags.Input.Files = args.filesIn.split(",")
 
     # Flags relating to multithreaded execution
@@ -171,14 +171,18 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
+    # Nowadays the jet calibration tool requires the EventInfo
+    # to be decorated with lumi info, which is not in Run 2 AODs
+    from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+    cfg.merge(LuminosityCondAlgCfg(ConfigFlags))
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
+    cfg.addEventAlgo(muWriter,"AthAlgSeq")
+
     # Add the components from our jet reconstruction job
     cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
 
-    # # build eventinfo attribute list
-    # from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
-    # EventInfoTagBuilder = EventInfoTagBuilder(AttributeList="SimpleTag")
-    # cfg.addEventAlgo(EventInfoTagBuilder,"AthAlgSeq")
-    
     # Write what we produced to AOD
     # First define the output list
     outputlist = ["EventInfo#*"]

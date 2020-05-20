@@ -39,7 +39,8 @@ StatusCode FSRoIsUnpackingTool::start() {
 
 StatusCode FSRoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
-
+  m_allFSChains.clear();
+  
   for ( auto thresholdToChain: m_thresholdToChainMapping ) {
     m_allFSChains.insert( thresholdToChain.second.begin(), thresholdToChain.second.end() );
   }
@@ -66,10 +67,13 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
 			std::inserter(activeFSchains, activeFSchains.end() ) );
 
   auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
-  for ( auto c: activeFSchains ) addDecisionID( c, decision );
+  addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
-  ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains");
-
+  ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 
+      TrigCompositeUtils::DecisionIDContainer ids; 
+      TrigCompositeUtils::decisionIDs( decision, ids ); 
+      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
+  
 
   std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
   TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
@@ -79,7 +83,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
   ATH_CHECK( roiHandle.record ( std::move( fsRoIsColl ) ) );
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");
-  decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey.key(), 0 ) );
+  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey.key(), 0 ) );  
 
   return StatusCode::SUCCESS;
 }

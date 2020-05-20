@@ -62,19 +62,19 @@ from DecisionHandling.DecisionHandlingConf  import InputMakerForRoI
 
 # TODO - split ID into two parts, one for SP counting another for the tracking, the tracking will go to the second step (Tracking) sequence
 inputMakerSPCount = InputMakerForRoI(name="IMMinBiasSPCount", RoIs="HLT_MBSP")
-stepSPCount = ChainStep( "stepSPCount",  [MenuSequence( Maker=inputMakerSPCount,
+Step1_SPCount = ChainStep( "Step1_SPCount",  [MenuSequence( Maker=inputMakerSPCount,
                                                         Sequence=parOR("SPCountReco", [inputMakerSPCount]+idAlgs + [ SpCount ] ),
                                                         Hypo=SpCountHypo, HypoToolGen=generateSPCountHypo )] )
 
 
 inputMakerTrkCount = InputMakerForRoI(name="IMMinBiasTrkCount", RoIs="HLT_MBTRK")
-stepTrkCount = ChainStep( "stepTrkCount",
+Step2_TrkCount = ChainStep( "Step2_TrkCount",
                           [ MenuSequence( Maker=inputMakerTrkCount ,
                                           Sequence=parOR("TrkCountReco", [inputMakerTrkCount]),
                                           Hypo=TrackCountHypo,
                                           HypoToolGen=generateTrackCountHypo )] )
 
-makeChain(chainName, ["FSNOSEED"], ChainSteps=[stepSPCount, stepTrkCount])
+makeChain(chainName, ["FSNOSEED"], ChainSteps=[Step1_SPCount, Step2_TrkCount])
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT

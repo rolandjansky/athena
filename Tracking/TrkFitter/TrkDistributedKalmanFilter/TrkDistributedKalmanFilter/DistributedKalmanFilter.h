@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,16 +21,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h" 
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include <vector>
 
 class IAlgTool;
 class AtlasDetectorID;
-
-namespace MagField {	
-  class IMagFieldSvc;
-}
 
 namespace Trk {
 	
@@ -102,10 +100,12 @@ private:
 	// Private functions:
 	///////////////////////////////////////////////////////////////////
 
-	Trk::TrkTrackState* extrapolate(TrkTrackState*, 
+	Trk::TrkTrackState* extrapolate(TrkTrackState*,
                                         TrkPlanarSurface*,
-                                        TrkPlanarSurface*) const;
-	bool runForwardKalmanFilter(TrkTrackState*) const;
+                                        TrkPlanarSurface*,
+                                        MagField::AtlasFieldCache &fieldCache) const;
+        bool runForwardKalmanFilter(TrkTrackState*,
+                                    MagField::AtlasFieldCache &fieldCache) const;
 	void runSmoother() const;
 	int  findOutliers(double) const;
 	void calculateLRsolution() const;
@@ -115,15 +115,22 @@ private:
 	void deleteTrackStates() const;
 	void report();
 	void report(char fileName[]);
-	void getMagneticField(double[3],double*) const;
+	void getMagneticField(double[3],
+                              double*,
+                              MagField::AtlasFieldCache &fieldCache) const;
 	void matrixInversion5x5(double a[5][5]) const;
 	Perigee* createMeasuredPerigee(TrkTrackState*) const;
 
-	void numericalJacobian(TrkTrackState*, TrkPlanarSurface*,TrkPlanarSurface*,
-                               double A[5][5]) const;
-	double integrate(double Rk[5], 
+	void numericalJacobian(TrkTrackState*,
+                               TrkPlanarSurface*,
+                               TrkPlanarSurface*,
+                               double A[5][5],
+                               MagField::AtlasFieldCache &fieldCache) const;
+	double integrate(double Rk[5],
                          TrkPlanarSurface* pSB,
-                         TrkPlanarSurface* pSE, double* Rf) const;
+                         TrkPlanarSurface* pSE,
+                         double* Rf,
+                         MagField::AtlasFieldCache &fieldCache) const;
 
 	///////////////////////////////////////////////////////////////////
 	// Private data:
@@ -136,7 +143,9 @@ private:
 	ToolHandle<IExtrapolator>                m_extrapolator;
 	const AtlasDetectorID*      m_idHelper;
 
-	ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;  
+        SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey
+           {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
 	std::vector<TrkBaseNode*>* m_pvpNodes;
 	std::vector<TrkPlanarSurface*>* m_pvpSurfaces;
 	std::vector<TrkTrackState*>* m_pvpTrackStates;
@@ -144,7 +153,18 @@ private:
 	// ME temporary fix
 	std::vector<double> m_option_sortingRefPoint;
 
-    };	
+    };
+
+   inline
+   void Trk::DistributedKalmanFilter::getMagneticField(double gP[3],
+                                                       double* pB,
+                                                       MagField::AtlasFieldCache &fieldCache) const
+   {
+      pB[0]=0.0;pB[1]=0.0;pB[2]=0.0;
+      double field[3];
+      fieldCache.getField(gP,field);//field is returned in kT
+      for(int i=0;i<3;i++) pB[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
+   }
 
 } // end of namespace
 

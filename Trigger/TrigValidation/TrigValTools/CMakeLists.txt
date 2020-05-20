@@ -26,7 +26,7 @@ atlas_add_dictionary( TrigValToolsDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/TrigValSteering bin/chainDump.py )
 atlas_install_data( share/*.json share/*.conf )
-atlas_install_runtime( macros/*.C bin/chainDump.py )
+atlas_install_runtime( bin/chainDump.py )
 atlas_install_scripts( bin/*.py bin/*.pl bin/*.sh test/*.py )
 atlas_install_generic( html/root2html/*.html
                        DESTINATION share/TrigValTools/root2html

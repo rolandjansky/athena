@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
@@ -14,6 +14,8 @@
 #include <iostream>
 #include <vector>
 #include "MuonCalibEventBase/MuonCalibSegment.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonCalib{
   class TimedMdtCalibHit;
@@ -94,47 +96,47 @@ namespace MuonCalib{
   inline double TimedSegment::radiusHit(unsigned int i) const{
     if(i>m_radiiHit.size() ) return 0.;
     else {
-      std::cout << "radiusHit(" << i << ") = " << m_radiiHit[i] << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"TimedSegment");
+      log<<MSG::INFO<<"radiusHit(" << i << ") = " << m_radiiHit[i]<<endmsg;
       return m_radiiHit.at(i);
     }
   }
   inline double TimedSegment::timeHit(unsigned int i) const{
     if(i>m_timesHit.size() ) return 0.;
     else {
-      //     std::cout << "  timeHit(" << i << ") = " << m_timesHit.at(i) << std::endl;
       return m_timesHit.at(i);
     }
   }
   inline double TimedSegment::sigmaTimeHit(unsigned int i) const{
     if(i>m_sigmaTimesHit.size() ) return 0.;
     else {
-      //    std::cout << "s_timeHit(" << i << ") = " << m_sigmaTimesHit.at(i) << std::endl;
       return m_sigmaTimesHit.at(i);
     }
   }
-  inline void   TimedSegment::setRadiusHit(unsigned int i,  double dr ){
+  inline void TimedSegment::setRadiusHit(unsigned int i,  double dr ){
+    MsgStream log(Athena::getMessageSvc(),"TimedSegment");
     if(i>m_radiiHit.size()){
-      std::cout << "m_radiiHit has a too small size" << std::endl;
-      m_radiiHit.insert(m_radiiHit.begin()+i, dr); 
+      log<<MSG::WARNING<<"m_radiiHit has a too small size"<<endmsg;
+      m_radiiHit.insert(m_radiiHit.begin()+i, dr);
     }
     else m_radiiHit.at(i) = dr;
-    std::cout << i << " set " << dr << " in the dr_vector, " << m_radiiHit.at(i) << std::endl; 
+    log<<MSG::INFO<<i<<" set " << dr << " in the dr_vector, " << m_radiiHit.at(i)<<endmsg;
   }
   inline void   TimedSegment::setTimeHit(unsigned int i,  double time ){
     if(i>m_timesHit.size()){
-      std::cout << "m_timesHit has a too small size" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"TimedSegment");
+      log<<MSG::WARNING<<"m_timesHit has a too small size"<<endmsg;
       m_timesHit.insert(m_timesHit.begin()+i, time); 
        }
     else m_timesHit.at(i) = time;
-    //    std::cout << i << " set " << time << " in the dt_vector, " << m_timesHit.at(i) << std::endl; 
   }
   inline void   TimedSegment::setSigmaTimeHit(unsigned int i, double sigmaTime ){
     if(i>m_sigmaTimesHit.size()){
-      std::cout << "m_sTimesHit has a too small size" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"TimedSegment");
+      log<<MSG::WARNING<<"m_sTimesHit has a too small size"<<endmsg;
       m_sigmaTimesHit.insert(m_timesHit.begin()+i, sigmaTime); 
     }
     else m_sigmaTimesHit.at(i) = sigmaTime;
-    //    std::cout << i << " set " << sigmaTime << " in the sdt_vector, " << m_sigmaTimesHit.at(i) << std::endl; 
   }
 
 }//MuonCalib

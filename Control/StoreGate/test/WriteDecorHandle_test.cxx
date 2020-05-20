@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-
-// $Id$
 /**
  * @file StoreGate/test/WriteDecorHandle_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -247,11 +243,13 @@ void test4()
   SG::WriteDecorHandle<MyObj, int> h1 (k1);
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.auxid() == ityp);
+  assert (!h1.isAvailable());
 
   h1 (*pobj) = 22;
 
   MyObj::Accessor<int> bdec ("bbb");
   assert (bdec (*pobj) == 22);
+  assert (h1.isAvailable());
 }
 
 
@@ -309,7 +307,7 @@ int main()
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
   //need MessageSvc
-  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("StoreGate/VarHandleBase_test.txt", svcloc)) {
     return 1;
   }
 

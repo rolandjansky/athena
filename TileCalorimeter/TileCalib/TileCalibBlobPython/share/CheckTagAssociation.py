@@ -107,11 +107,11 @@ else:
     taglist=rfolder.listTags()
 #    print (taglist)
     for tag in taglist:
-        try: 
+        try:
             foldertag = TileCalibTools.getFolderTag(db, folder, tag)
             if localtag == foldertag:
                 print (" leaf tag %s linked to global tag %s " % (localtag, tag))
         except Exception:
             print (" ")
 #            print (" WARNING !, existing global tag %s is not linked to local tag %s " % (tag,localtag))
-                 
+

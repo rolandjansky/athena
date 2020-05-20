@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_UPDATECALIBHIT_H
@@ -7,6 +7,8 @@
 
 #include "MdtCalibInterfaces/IRtRelation.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <iostream>
 
@@ -24,12 +26,11 @@ MdtCalibHit using the pointer to the IRtRelation passed to the constructor.
   
     void operator()(MdtCalibHit* hit){
       if( m_rt ){
-	//     std::cout << "UpdateCalibHit hit " << std::endl; 
 	double t = hit->driftTime();
-	//      std::cout << " updating " << t << "  -> " << m_rt->radius(t) << "  s " << m_rt->sigmaR(t) << std::endl;
 	hit->setDriftRadius( m_rt->radius(t), m_rt->sigmaR(t) );
       }else{
-	std::cout << "UpdateCalibHit failed, invalid rt " << std::endl;
+        MsgStream log(Athena::getMessageSvc(), "UpdateCalibHit");
+        log<<MSG::WARNING<<"UpdateCalibHit failed, invalid rt"<<endmsg;
       }
     }
   private:

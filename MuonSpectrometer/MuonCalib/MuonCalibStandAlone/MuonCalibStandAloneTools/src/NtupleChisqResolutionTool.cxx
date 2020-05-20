@@ -34,15 +34,16 @@
 #include "TString.h"
 #include "TF1.h"
 #include "TMath.h" // for TMath::Prob()
+#include <TString.h> // for Form
 
 namespace MuonCalib {
 
   //******************************************************************************
-  static NtupleChisqResolutionTool* static_NtupleChisqResolutionTool_pointer = NULL;
+  static NtupleChisqResolutionTool* static_NtupleChisqResolutionTool_pointer = nullptr;
 
   inline void NtupleChisqResolutionTool_fcn_wrapper(int &npar, double *gin, double &f, double *par, int iflag) {
-    if(static_NtupleChisqResolutionTool_pointer==NULL) {
-      exit(-1);
+    if(!static_NtupleChisqResolutionTool_pointer) {
+      throw std::runtime_error(Form("File: %s, Line: %d\nNtupleChisqResolutionTool_fcn_wrapper() - ERROR: static_NtupleChisqResolutionTool_pointer is nullptr", __FILE__, __LINE__));
     }
     static_NtupleChisqResolutionTool_pointer->fcn(npar, gin, f, par, iflag);
   }
@@ -61,7 +62,7 @@ namespace MuonCalib {
   {
     ATH_MSG_INFO( "initialize()" );
     ATH_CHECK( m_calib_input_svc.retrieve() );
-    return StatusCode :: SUCCESS;	
+    return StatusCode::SUCCESS;	
   }
  
   //******************************************************************************
@@ -76,7 +77,7 @@ namespace MuonCalib {
   //******************************************************************************
 
 
-  void NtupleChisqResolutionTool :: setRegion()
+  void NtupleChisqResolutionTool::setRegion()
   {
     //try to get rt relation
     p_rt_rel = m_calib_input_svc->GetRtRelation();
@@ -151,7 +152,7 @@ namespace MuonCalib {
     for (unsigned int k=0; k<point.size(); k++) {
       double radius(r_min+k*bin_width);
       point[k].set_x1(t_from_r(radius, p_rt_rel));
-      point[k].set_x2(fitpar[0]*exp(-fitpar[1]*radius)+fitpar[2]);
+      point[k].set_x2(fitpar[0]*std::exp(-fitpar[1]*radius)+fitpar[2]);
       point[k].set_error(1.0);
     }
     m_final_resolution = new RtResolutionChebyshev(
@@ -190,7 +191,7 @@ namespace MuonCalib {
 	  it!=(m_seg->at(k))->mdtHOTEnd();++it)   
 	{
 	  r=(*it)->driftRadius();
-	  double newResol = par[0]*exp(-par[1]*r)+par[2];
+	  double newResol = par[0]*std::exp(-par[1]*r)+par[2];
 	  (*it)->setDriftRadius(r,newResol);
 	}  
 

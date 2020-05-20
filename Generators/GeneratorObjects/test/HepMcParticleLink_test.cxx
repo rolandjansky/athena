@@ -409,9 +409,9 @@ namespace MCTesting {
 
     // Add a dummy GenEvent
     const int process_id1(20);
-    const int event_number1(32767);
-    // 32767 = 2^15 -1 is the largest supported event number by
-    // HepMcParticleLink as the 16th bit of the unsigned short used to
+    const int event_number1(2147483647);
+    // 2147483647 = 2^31 -1 is the largest supported event number by
+    // HepMcParticleLink as the 32nd bit of the unsigned int used to
     // hold the eventIndex is used to flag whether the it represents the
     // position of the GenEvent in the McEventCollection or the
     // GenEvent::event_number.
@@ -424,6 +424,10 @@ namespace MCTesting {
     const int process_id2(20);
     const int event_number2(25);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    const HepMcParticleLink::index_type dummyIndex2(1);
+    const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    const HepMC::GenParticle* particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent
     const int process_id3(20);
     const int event_number3(17);
@@ -468,6 +472,45 @@ namespace MCTesting {
     ASSERT_EQ( refEvtNum1, testLink1d.eventIndex());
     ASSERT_EQ( dummyIndex1, testLink1d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle1,testLink1d.cptr());
+
+    //Testing links to the second dummy GenEvent
+
+    // HepMcParticleLink built using a GenParticle pointer and the
+    // position of the GenEvent.
+    HepMcParticleLink testLink2a(particle2,1, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink2a.isValid() );
+    ASSERT_EQ( particle2->barcode(), testLink2a.barcode());
+    ASSERT_EQ( refEvtNum2, testLink2a.eventIndex());
+    ASSERT_EQ( dummyIndex2, testLink2a.getEventPositionInCollection(sg));
+    ASSERT_EQ(particle2,testLink2a.cptr());
+    // A HepMcParticleLink built using the barcode and the position of
+    // the GenEvent.
+    HepMcParticleLink testLink2b(particle2->barcode(),1, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink2b.isValid() );
+    ASSERT_EQ( particle2->barcode(), testLink2b.barcode());
+    ASSERT_EQ( refEvtNum2, testLink2b.eventIndex());
+    ASSERT_EQ( dummyIndex2, testLink2b.getEventPositionInCollection(sg));
+    ASSERT_EQ(particle2,testLink2b.cptr());
+    // HepMcParticleLink built using a GenParticle pointer and the
+    // event_number of the GenEvent.
+    HepMcParticleLink testLink2c(particle2,event_number2);
+    ASSERT_TRUE( testLink2c.isValid() );
+    ASSERT_EQ( particle2->barcode(), testLink2c.barcode());
+    ASSERT_NE( dummyIndex2, testLink2c.eventIndex());
+    ASSERT_EQ( refEvtNum2, testLink2c.eventIndex());
+    ASSERT_EQ( dummyIndex2, testLink2c.getEventPositionInCollection(sg));
+    ASSERT_EQ(particle2,testLink2c.cptr());
+    // A HepMcParticleLink built using the barcode and the event_number of
+    // the GenEvent.
+    HepMcParticleLink testLink2d(particle2->barcode(),event_number2);
+    ASSERT_TRUE( testLink2d.isValid() );
+    ASSERT_EQ( particle2->barcode(), testLink2d.barcode());
+    ASSERT_NE( dummyIndex2, testLink2d.eventIndex());
+    ASSERT_EQ( refEvtNum2, testLink2d.eventIndex());
+    ASSERT_EQ( dummyIndex2, testLink2d.getEventPositionInCollection(sg));
+    ASSERT_EQ(particle2,testLink2d.cptr());
 
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());

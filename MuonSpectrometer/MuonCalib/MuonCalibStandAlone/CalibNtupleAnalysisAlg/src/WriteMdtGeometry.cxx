@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -104,7 +104,6 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
   MdtIdHelper::const_id_iterator it     = m_idHelperSvc->mdtIdHelper().module_begin();
   MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
-    std::cout<<"."<<std::flush;
     const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(*it,1,1,1));
     if(!detEl) continue;
     //get number of mls;
@@ -118,9 +117,6 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
       const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
       int n_tubes=detEl_ml->getNtubesperlayer();
-      //			if(detEl_ml==NULL) {
-      //			  std::cerr<<"detEl_ml==NULL"<<std::endl;
-      //			}
       rowBuffer["N_TUBES"].data<int>()=n_tubes;
       for(int ly=1; ly<=n_layers; ly++)	{
 	rowBuffer["LY"].data<int>()=ly;
@@ -133,7 +129,6 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
 }  //end WriteMdtGeometry::fill_db
 
 inline void WriteMdtGeometry::fillLayer(const MuonGM::MdtReadoutElement *detEl, coral::AttributeList &rowBuffer, const int &ml, const int &ly) {
-  //	std::cout<<"fillTubePos for "<<ml<<", "<<ly<<", "<<tb<<std::endl;
   Amg::Vector3D TubePos1 = detEl->GlobalToAmdbLRSCoords(detEl->tubePos(ml,ly,1));
   Amg::Vector3D TubePos2 = detEl->GlobalToAmdbLRSCoords(detEl->tubePos(ml,ly,2));
   rowBuffer["LOC_Y"].data<float>()=TubePos1.y();

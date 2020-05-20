@@ -21,9 +21,6 @@ GoodRunsListSelectorTool.OutputLevel = INFO
 # add LumiBlockMetaDataTool and configure
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
-LumiBlockMetaDataTool.storeXMLFiles = True
-LumiBlockMetaDataTool.applyDQCuts = True
 LumiBlockMetaDataTool.OutputLevel = DEBUG
 
 # add LumiCalcSvc and configure

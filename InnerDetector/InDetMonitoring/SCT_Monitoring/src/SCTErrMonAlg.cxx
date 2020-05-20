@@ -29,6 +29,7 @@ StatusCode SCTErrMonAlg::initialize() {
   if (m_useDCS) ATH_CHECK(m_dcsTool.retrieve());
   else m_dcsTool.disable();
   ATH_CHECK(m_pSummaryTool.retrieve());
+  ATH_CHECK(m_flaggedTool.retrieve());
 
   // Retrieve geometrical information
   const InDetDD::SCT_DetectorManager* sctManager{nullptr};
@@ -68,6 +69,25 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
   auto is1DAcc{Monitored::Scalar<bool>("is1D", true)};
   auto sctFlagAcc{Monitored::Scalar<bool>("sctFlag", sctFlag)};
   fill("SCTErrMonitor", lumiBlockAcc, is1DAcc, sctFlagAcc);
+
+  // Check wafers with many fired strips (event dependent) using SCT_FlaggedConditionTool.
+  std::array<int, N_REGIONS_INC_GENERAL> flaggedWafersIndices
+    {ENDCAP_C_INDEX, BARREL_INDEX, ENDCAP_A_INDEX, GENERAL_INDEX};
+  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers;
+  nFlaggedWafers.fill(0);
+  const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
+  for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {
+    const IdentifierHash hash{iHash};
+    if (not m_flaggedTool->isGood(hash)) {
+      const Identifier wafer_id{m_pSCTHelper->wafer_id(hash)};
+      const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+      nFlaggedWafers[barrel_ec]++;
+      nFlaggedWafers[GENERAL_INDEX]++;
+    }
+  }
+  auto flaggedWwafersIndicesAcc{Monitored::Collection("flaggedWafersIndices", flaggedWafersIndices)};
+  auto nFlaggedWafersAcc{Monitored::Collection("nFlaggedWafers", nFlaggedWafers)};
+  fill("SCTErrMonitor", flaggedWwafersIndicesAcc, nFlaggedWafersAcc);
 
   if (sctFlag) {
     return StatusCode::SUCCESS;

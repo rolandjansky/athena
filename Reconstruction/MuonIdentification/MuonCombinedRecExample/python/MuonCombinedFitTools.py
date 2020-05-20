@@ -45,6 +45,8 @@ def iPatFitter( name='iPatFitter', **kwargs):
     kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("FullCombinedFit", True )
     kwargs.setdefault("MaterialAllocator",getPublicTool("MuidMaterialAllocator"))
+    from InDetRecExample import TrackingCommon
+    kwargs.setdefault("SolenoidalIntersector",TrackingCommon.getSolenoidalIntersector())
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MaxIterations", 15)
     else:

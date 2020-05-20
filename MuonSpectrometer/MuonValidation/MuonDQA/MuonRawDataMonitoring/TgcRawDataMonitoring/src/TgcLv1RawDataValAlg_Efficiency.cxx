@@ -303,7 +303,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
     // Get Side
     int ac = (oeta<0);
     // Set pTs above 50 to 50.1
-    if(fabs(opt)>50.) opt = 50.1*oq;
+    if(std::abs(opt)>50.) opt = 50.1*oq;
 
     //ophi = -pi to pi
     //ophi_mod = -pi/12 to 23*pi/12
@@ -314,7 +314,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
     for(int pt=0;pt<6;pt++){
       m_tgclv1turnondenom[ac][pt][pn][ms]->Fill(opt);
       if(opt> thresetavsphi[pt]){
-        m_tgclv1effetavsphidenom[ac][pt][pn][ms]->Fill(fabs(oeta),ophi_mod);
+        m_tgclv1effetavsphidenom[ac][pt][pn][ms]->Fill(std::abs(oeta),ophi_mod);
       }
       if( m_found_express_stream && m_found_nonmuon_express_chain ){
         m_tgclv1turnondenom_ES[ac][pt]->Fill(opt);
@@ -411,7 +411,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
       for(int pt=0;pt<6;pt++){
         if(flag[pt]==true){
           if(opt> thresetavsphi[pt]){
-            m_tgclv1effetavsphinum[ac][pt][pn][ms][pcn]->Fill(fabs(oeta),ophi_mod);
+            m_tgclv1effetavsphinum[ac][pt][pn][ms][pcn]->Fill(std::abs(oeta),ophi_mod);
           }
         }
       }

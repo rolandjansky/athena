@@ -451,8 +451,8 @@ if not 'FullFileName' in dir():
    theApp.exit(-1)
 else :   
    theByteStreamInputSvc.FullFileName=FullFileName
-   
-theByteStreamInputSvc.MaxBadEvents=0
+  
+svcMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #

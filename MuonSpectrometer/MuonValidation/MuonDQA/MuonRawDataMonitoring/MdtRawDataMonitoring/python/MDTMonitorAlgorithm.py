@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 #from MdtRawDataMonitoring.MdtRawMonLabels import *
-from .MdtMonUtils import getMDTLabel
+from .MdtMonUtils import getMDTLabel, getMDTLabelx
 from .MDTTubeMax import tubeMax
 from .MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
 
@@ -26,9 +26,6 @@ def MdtMonitoringConfig(inputFlags):
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
-
-    # Temporary, until we move to services/private tools-- from MuonSpectrometer/MuonConfig
-    result.addPublicTool( CompFactory.Muon.MuonIdHelperTool() )
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -120,8 +117,27 @@ def MdtMonitoringConfig(inputFlags):
                             path='Overview',   xbins=50, xmin=0., xmax=2000., ybins=20, ymin=0., ymax=400.
                             )
 
-    
-    
+    labels_allSec=list()
+    for phi in range(0, 16):
+        sectPhi=str(phi+1)
+        if phi+1 < 10: 
+            sectPhi="0"+sectPhi
+        thisLabelx=getMDTLabelx("labels_sectorPhi"+sectPhi)
+        labels_allSec=labels_allSec+thisLabelx
+        title="MDTHitsOccup_ADCCut_Sector"+sectPhi
+        maxbin=len(thisLabelx)
+        nbins=maxbin
+        mdtGroup.defineHistogram('hits_phi_'+sectPhi+';'+title,  type='TH1F',
+                                 title=title+';;Number of hits',
+                                 path='Overview/HitOccupancies_Sectors',   xbins=nbins, xmin=0., xmax=maxbin, xlabels=thisLabelx
+                             )
+    maxbin=len(labels_allSec)
+    nbins=maxbin
+    mdtGroup.defineHistogram('hits_allphi;Number_of_MDT_hits_per_chamber_ADCCut',  type='TH1F',
+                             title='Number_of_MDT_hits_per_chamber_ADCCut;;Number of hits',
+                            path='Overview',   xbins=nbins, xmin=0., xmax=maxbin, xlabels=labels_allSec
+                             )
+
     mdtGroup.defineHistogram('adc_mon_nosel;Overall_ADC_spectrum',  type='TH1F',
                             title='Overall_ADC_spectrum;[adc counts];Number of Entries',
                             path='Overview',   xbins=100, xmin=0., xmax=400.

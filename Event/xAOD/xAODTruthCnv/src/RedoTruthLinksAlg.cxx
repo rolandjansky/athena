@@ -64,7 +64,7 @@ namespace xAODMaker {
 	    // Create link between HepMC and xAOD truth
 	    //truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), evt->eventNumber()), par));
 	    /// @todo AB: Truth particle links should only be made to the signal event... hence the 0. Right?
-	    truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), 0), par));
+	    truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), 0, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION), par));
 	  }
 	}
         

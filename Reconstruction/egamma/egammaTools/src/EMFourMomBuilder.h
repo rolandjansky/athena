@@ -9,9 +9,10 @@
   @class EMFourMomBuilder
   sets the fourmomentum : energy is taken from the cluster and angles either from tracking or cluster.
   In case the egamma object is a conversion :
-  - if it is a single/double track conversion with TRT only tracks (i.e no more than 4 hits in pixel+SCT), take the cluster info, not the track info
+  - if it is a single/double track conversion with TRT only tracks 
+  - (i.e no more than 4 hits in pixel+SCT), take the cluster info, not the track info
   - 
-  @author D. Zerwas
+  @author  Zerwas,Anastopoulos
   */
 
 // XAOD INCLUDES:
@@ -47,11 +48,11 @@ public:
     ~EMFourMomBuilder();
 
     /** @brief initialize method*/
-    StatusCode initialize();
+    StatusCode initialize() override;
     /** @brief execute method*/
-    virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma* eg) const;
+    virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma* eg) const override;
     /** @brief execute method*/
-    virtual StatusCode hltExecute(xAOD::Egamma* eg) const;
+    virtual StatusCode hltExecute(xAOD::Egamma* eg) const override;
 
 private:
 

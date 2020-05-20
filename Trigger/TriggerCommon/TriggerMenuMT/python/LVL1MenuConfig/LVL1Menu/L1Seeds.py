@@ -406,7 +406,7 @@ def getInputTEfromL1Item(l1item):
         'L1_TAU8_FIRSTEMPTY': ['HA8'],
         'L1_TAU8_UNPAIRED_ISO': ['HA8'],
         'L1_TAU8_UNPAIRED_NONISO': ['HA8'],
-	'L1_TAU12_EMPTY':      ['HA12'],
+        'L1_TAU12_EMPTY':      ['HA12'],
         'L1_TAU12_FIRSTEMPTY': ['HA12'],
         'L1_TAU12_UNPAIRED_ISO': ['HA12'],
         'L1_RD0_FIRSTEMPTY':  [''],

@@ -29,7 +29,6 @@
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
-#include <boost/lexical_cast.hpp>
 
 // constructor
 InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -543,7 +542,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
             double crmax = ringRmaxa[idset]+m_layerEnvelopeCover;
 	    if(idset==int(groupedDiscs.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
             // now create the sub volume
-            std::string ringVolumeName = volumeName+"Ring"+boost::lexical_cast<std::string>(idset);
+            std::string ringVolumeName = volumeName+"Ring"+std::to_string(idset);
             const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(groupedDiscs[idset],
                                                                                                   *m_materialProperties,
                                                                                                   crmin,crmax,

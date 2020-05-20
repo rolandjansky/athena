@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
    Tools/PathResolver )
 
 # External dependencies:
-find_package( Boost )
 find_package( tdaq-common )
 
 # Component(s) in the package:
@@ -34,10 +33,8 @@ atlas_add_library( PixelCablingLib
 
 atlas_add_component( PixelCabling
    src/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   ${TDAQ-COMMON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES}
-   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
+   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
    AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PixelConditionsData PathResolver PixelCablingLib )
 
 atlas_add_test( PixelCablingConfigNew_test

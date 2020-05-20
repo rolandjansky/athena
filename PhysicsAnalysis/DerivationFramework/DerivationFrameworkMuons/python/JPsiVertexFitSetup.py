@@ -1,3 +1,6 @@
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
 
@@ -12,7 +15,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__KalmanVertexUpdator
   VertexUpdater = Trk__KalmanVertexUpdator(name             = "MuonTP_KalmanVertexUpdator")
   ToolSvc += VertexUpdater
-  print      VertexUpdater
+  print (     VertexUpdater)
 
 
 
@@ -21,7 +24,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
     MuContainer = job.CalibratedMuonsProvider.Output
 
 
-  from AthenaCommon.Constants import INFO,DEBUG,WARNING
+  from AthenaCommon.Constants import WARNING
   from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
   ExampleJpsiFinder = Analysis__JpsiFinder(name                        = prefix+"JpsiFinderName",
                                            muAndMu                     = False,
@@ -70,7 +73,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   OutputLevel           = WARNING )
 
   ToolSvc += MuonTP_Reco_mumu
-  print MuonTP_Reco_mumu
+  print (MuonTP_Reco_mumu)
 
 
   from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
@@ -88,7 +91,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   OutputLevel           = WARNING)
 
   ToolSvc += MuonTP_Select_Jpsi2mumu
-  print MuonTP_Select_Jpsi2mumu
+  print (MuonTP_Select_Jpsi2mumu)
 
   if addAlgo:
       from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import MuonTPJpsiVertexFittingAlg

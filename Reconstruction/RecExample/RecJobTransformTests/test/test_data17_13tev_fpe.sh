@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reco_tf runs on 13TeV collision data with floating point exception enabled 2017
+# art-memory: 6000
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

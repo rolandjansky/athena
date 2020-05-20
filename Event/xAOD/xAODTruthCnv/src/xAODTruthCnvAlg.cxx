@@ -284,7 +284,7 @@ namespace xAODMaker {
 	    if (!isSignalProcess) xTruthPileupEvent->addTruthParticleLink(eltp);
                     
 	    // Create link between HepMC and xAOD truth
-	    if (isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),0), eltp));
+	    if (isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION), eltp));
 	    if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
                     
 	    // Is this one of the beam particles?

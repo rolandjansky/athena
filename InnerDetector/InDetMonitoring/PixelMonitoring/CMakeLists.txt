@@ -21,7 +21,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/EventPrimitives
    InnerDetector/InDetConditions/InDetConditionsSummaryService
-   InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -40,10 +39,10 @@ find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( PixelMonitoring
-   PixelMonitoring/*.h src/*.cxx src/components/*.cxx
+   src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib AtlasDetDescr
-   GaudiKernel InDetRawData InDetPrepRawData TrkTrack InDetByteStreamErrors 
+   GaudiKernel InDetRawData InDetPrepRawData TrkTrack 
    AthenaPoolUtilities GeoPrimitives xAODEventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
    TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver 

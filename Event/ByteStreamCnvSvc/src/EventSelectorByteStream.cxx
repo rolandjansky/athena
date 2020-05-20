@@ -181,41 +181,6 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
 
-   // For backward compatibility, check InputSvc properties for bad events
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-   if (!joSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get JobOptionsSvc.");
-      return(StatusCode::FAILURE);
-   }
-   typedef std::vector<const Property*> Properties_t;
-   const Properties_t* esProps = joSvc->getProperties("ByteStreamInputSvc");
-   if (esProps != 0) {
-      std::vector<const Property*>::const_iterator ii = esProps->begin();
-      while (ii != esProps->end()) {
-         IntegerProperty temp;
-         if ((*ii)->name() == "MaxBadEvents") {     // find it
-            if ((*ii)->load(temp)) {                // load it
-               if (temp.value() != -1) {            // check if it is set
-                  m_maxBadEvts = temp.value();
-                  ATH_MSG_INFO("Retrieved MaxBadEvents=" << m_maxBadEvts << " from ByteStreamInputSvc");
-               }
-            }
-         }
-         BooleanProperty temp2;
-         if ((*ii)->name() == "ProcessBadEvents") {     // find it
-            if ((*ii)->load(temp)) {                // load it
-               if (temp.value()) {            // check if it is set
-                  m_procBadEvent = temp.value();
-                  ATH_MSG_INFO("Retrieved ProcessBadEvents=" << m_procBadEvent << " from ByteStreamInputSvc");
-               }
-            }
-         }
-         ++ii;
-      }
-   } else {
-      ATH_MSG_WARNING("Did not find ByteStreamInputSvc jobOptions properties");
-   }
-   
    // Must happen before trying to open a file
    StatusCode risc = this->reinit();
 

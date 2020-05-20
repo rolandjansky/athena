@@ -125,7 +125,7 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       }
       std::stringstream eta_inttostring;
       std::string eta_str;
-      eta_inttostring << abs(Eta_int);
+      eta_inttostring << std::abs(Eta_int);
       eta_inttostring >> eta_str; 
       Eta_string += eta_str;
       Eta_string += "C";

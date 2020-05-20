@@ -24,6 +24,8 @@ def SCT_GeometryCfg( flags ):
         SCT_DetectorTool=CompFactory.SCT_DetectorTool
         sctDetectorTool = SCT_DetectorTool()
     sctDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
+    sctDetectorTool.Alignable = True # make this a flag?
+    sctDetectorTool.DetectorName = "SCT"
     geoModelSvc.DetectorTools += [ sctDetectorTool ]
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))

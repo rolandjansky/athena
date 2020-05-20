@@ -11,6 +11,7 @@
 #include "GaudiKernel/NTuple.h"
 
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"

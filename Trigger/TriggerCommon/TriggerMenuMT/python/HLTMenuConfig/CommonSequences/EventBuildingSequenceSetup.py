@@ -74,6 +74,20 @@ def pebInfoWriterTool(name, eventBuildType):
                          SubDetector.SCT_ENDCAP_A_SIDE,
                          SubDetector.SCT_ENDCAP_C_SIDE
         ])
+    elif 'TilePEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.TILECAL_LASER_CRATE,
+                         SubDetector.TILECAL_BARREL_A_SIDE,
+                         SubDetector.TILECAL_BARREL_C_SIDE,
+                         SubDetector.TILECAL_EXT_A_SIDE,
+                         SubDetector.TILECAL_EXT_C_SIDE,
+                         SubDetector.TDAQ_CTP,
+                         SubDetector.TDAQ_CALO_PREPROC, # = 0x71
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_DAQ, # = 0x72
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, # = 0x73
+                         SubDetector.TDAQ_CALO_JET_PROC_DAQ, # = 0x74
+                         SubDetector.TDAQ_CALO_JET_PROC_ROI # = 0x75
+        ])
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)

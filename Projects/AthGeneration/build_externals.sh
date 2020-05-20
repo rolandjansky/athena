@@ -95,6 +95,17 @@ if [ "$FORCE" = "1" ]; then
     rm -fr ${BUILDDIR}/build/AthGenerationExternals ${BUILDDIR}/build/GAUDI
 fi
 
+# Check if previous externals build can be reused:
+externals_stamp=${BUILDDIR}/build/AthGenerationExternals/${BINARY_TAG}/externals.stamp
+if [ -f ${externals_stamp} ]; then
+    if diff -q ${externals_stamp} ${thisdir}/externals.txt; then
+        echo "Correct version of externals already available in ${BUILDDIR}"
+        exit 0
+    else
+        rm ${externals_stamp}
+    fi
+fi
+
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
 
@@ -198,5 +209,7 @@ ${scriptsdir}/build_Gaudi.sh \
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
     echo "AthGeneration externals build encountered ${ERROR_COUNT} error(s)"
+else
+    cp ${thisdir}/externals.txt ${externals_stamp}
 fi
 exit ${ERROR_COUNT}

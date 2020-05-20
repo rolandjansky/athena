@@ -10,7 +10,7 @@
 #define PIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDER_H
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -29,7 +29,7 @@
 // Forward declarations
 class PixelID;
 
-class PixelRawDataProvider : public AthAlgorithm {
+class PixelRawDataProvider : public AthReentrantAlgorithm {
 
  public:
 
@@ -39,7 +39,7 @@ class PixelRawDataProvider : public AthAlgorithm {
   //! Initialize
   StatusCode initialize() override;
   //! Execute
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   //! Don't need to override Finalize
 
   

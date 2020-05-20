@@ -332,9 +332,11 @@ if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg") ):
         from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-        xAODEventInfoCnvAlgDefault(sequence=topSequence)
+        xAODEventInfoCnvAlgDefault(sequence=condSeq)
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -429,6 +431,8 @@ CAtoGlobalWrapper(L1ConfigSvcCfg,None)
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
+
+
 
 
 # ---------------------------------------------------------------
@@ -536,7 +540,6 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
 # Use parts of NewJO
 #-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Output flags
@@ -557,6 +560,7 @@ if opt.doWriteBS:
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 # ID Cache Creators
 ConfigFlags.lock()
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
 
 
@@ -580,7 +584,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, destinationSeq=AlgSequence("AthMasterSeq"), decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
@@ -604,6 +608,11 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-------------------------------------------------------------
 # Print top sequence

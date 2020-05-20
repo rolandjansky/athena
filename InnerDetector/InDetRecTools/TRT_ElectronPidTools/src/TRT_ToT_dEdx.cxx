@@ -5,7 +5,7 @@
 //
 //  !!!!!! Problem with calibration constants for mean ToT on the tracks (norm_ ...) !!!!!!!
 //
-#include "TRT_ElectronPidTools/TRT_ToT_dEdx.h"
+#include "TRT_ToT_dEdx.h"
 #include "TRT_ElectronPidTools/TRT_ToT_Corrections.h"
 
 
@@ -16,7 +16,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
 #include "TrkSurfaces/Surface.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
 
@@ -25,6 +24,7 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadDecorHandle.h"
 #include <cmath>
 #include <limits>
 
@@ -123,7 +123,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   }
  
   // Initialize ReadHandleKey and ReadCondHandleKey
-  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_rdhkEvtInfo.initialize());
   ATH_CHECK(m_ReadKey.initialize());
   ATH_CHECK(m_trtDetEleContKey.initialize());
   //Get AssoTool
@@ -310,22 +310,21 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
   ATH_MSG_DEBUG("dEdx()");
 
   double nVtx=-1.;
-  // Event information 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  if (!eventInfo.isValid()){
-    REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
+  // Event information
+  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
+  if(!eventInfoDecor.isPresent()) {
+    REPORT_MESSAGE(MSG::FATAL) << "EventInfo decoration not available!";
     return 0;
   }
- 
+
   //    Average interactions per crossing for the current BCID
-  double mu = -1.;
-  mu = eventInfo->averageInteractionsPerCrossing();
+  double mu = eventInfoDecor(0);
   if(m_isData) {
     nVtx = 1.3129 + 0.716194*mu + (-0.00475074)*mu*mu;
   }
-  else
+  else {
     nVtx = 1.0897 + 0.748287*mu + (-0.00421788)*mu*mu;
-
+  }
 
   if (!track) {
     return 0;

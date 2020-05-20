@@ -5,6 +5,8 @@
 #include "CalibNtupleUtils/HistHandler.h"
 #include "CalibNtupleUtils/HistSetting.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <algorithm>
 #include <sstream>
 #include "TString.h"
@@ -68,7 +70,8 @@ void HistHandler::write(){
   for( std::map<std::string, TH1F*>::const_iterator CI = m_myMap.begin(); CI != m_myMap.end(); ++ CI ){
     TString name( CI->first ) ;
     (CI->second)->Write(name);
-    std::cout << " writing " <<name << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" writing "<<name<<endmsg;
   }
 }
  
@@ -86,7 +89,10 @@ TH1F* HistHandler::Hist( const MuonCalib::MuonFixedId& Id ) const {
   std::map< std::string, TH1F*>::const_iterator position = m_myMap.find(histName);
   if( position != m_myMap.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH1F* assigned in the map"<<endmsg;
+  }
   return 0;
 }
  
@@ -98,9 +104,11 @@ TH1F* HistHandler::Hist(  const std::string tag  ) const {
   std::map< std::string, TH1F*>::const_iterator position = m_myMap.find( histName );
   if( position != m_myMap.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH1F* assigned in the map"<<endmsg;
+  }
   return 0;
-  
 }
 
 TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
@@ -118,8 +126,10 @@ TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
   std::map< std::string, TH2F*>::const_iterator position2 = m_my2Map.find(histName);
   if( position2 != m_my2Map.end() ){ 
     return position2->second;
-  } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
-  
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH2F* assigned in the map"<<endmsg;
+  }
   return NULL;
 }
 
@@ -130,9 +140,11 @@ TH2F* HistHandler::Hist2(  const std::string tag  ) const {
   std::map< std::string, TH2F*>::const_iterator position = m_my2Map.find( histName );
   if( position != m_my2Map.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH2F* assigned in the map"<<endmsg;
+  }
   return 0;
-  
 }
 void HistHandler::fill(std::string tag , Float_t entry ) {
   std::ostringstream histStream("");

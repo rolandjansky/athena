@@ -102,7 +102,7 @@ class TileCellHashMgr():
             return (None,None)
 
         part=bisect.bisect(self._nCellsPart,hash)-1
-        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        module=(hash-self._nCellsPart[part])//self._nCellsModule[part]+1
         modName="%s%02d" % (self._partNames[part],module)
         index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
@@ -145,7 +145,7 @@ class TileCellHashMgr():
             return None
 
         part=bisect.bisect(self._nCellsPart,hash)-1
-        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        module=(hash-self._nCellsPart[part])//self._nCellsModule[part]+1
         index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)):
@@ -179,7 +179,7 @@ class TileCellHashMgr():
             return None
 
         part=bisect.bisect(self._nCellsPart,hash)-1
-        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        module=(hash-self._nCellsPart[part])//self._nCellsModule[part]+1
         modName="%s%02d" % (self._partNames[part],module)
 
         return modName

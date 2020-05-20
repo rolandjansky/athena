@@ -42,10 +42,10 @@ def printProperties(msg, c, nestLevel = 0):
 
 
         if isinstance(propval,GaudiHandles.PublicToolHandleArray):
-            ths = [th.name for th in propval]
+            ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
-            ths = [th.name for th in propval]
+            ths = [th.getName() for th in propval]
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
             propstr = "Handle( {0} )".format(propval.typeAndName)
@@ -642,7 +642,7 @@ class ComponentAccumulator(object):
         jos=app.getService("JobOptionsSvc")
 
         def addCompToJos(comp,namePrefix=""):
-            name=namePrefix+comp.name
+            name=namePrefix+comp.getName()
             for k, v in comp._properties.items():
                 #Handle special cases of properties:
                 #1.PrivateToolHandles
@@ -803,7 +803,7 @@ class ComponentAccumulator(object):
 # Compatibility layer allowing to convert between new (as of 2020) Gaudi Configurable2
 # and old Confiburable classes
 
-def __indent( indent ):
+def __indent( indent = ""):
     return indent + "  "
 
 
@@ -845,7 +845,7 @@ def conf2toConfigurable( comp, indent="" ):
         _log.warning( "{}Component: \"{}\" is of type string, no conversion, some properties possibly not set?".format(indent, comp ) )
         return comp
 
-    _log.info( "{}Converting from GaudiConfig2 object {} type {}".format(indent, compName(comp), type(comp) ) )
+    _log.info( "{}Converting from GaudiConfig2 object {} type {}".format(indent, compName(comp), comp.__class__.__name__ ))
 
     def __alreadyConfigured( instanceName ):
         from AthenaCommon.Configurable import Configurable
@@ -911,16 +911,19 @@ def conf2toConfigurable( comp, indent="" ):
                 __areSettingsSame( getattr(existingConfigurableInstance, pname), pvalue, __indent(indent))
             else:
                 if alreadySetProperties[pname] != pvalue:
-                    raise ConfigurationError( "CAtoGlobalWrapper existing Configurabl component {} and Conf2 component have different property: {} {} vs Conf2 value {}, this is not mergable".format(
-                        existingConfigurable.getName(), pname, alreadySetProperties[pname], pvalue) )
-
+                    _log.info("{}Merging property: {} for {}".format(__indent(indent), pname, newConf2Instance.getName() ))
+                    # create surrogate
+                    clone = newConf2Instance.getInstance("Clone")
+                    setattr(clone, pname, alreadySetProperties[pname])
+                    updatedPropValue = newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname))
+                    setattr(existingConfigurable, pname, updatedPropValue)
+                    del clone
+                    _log.info("{} invoked GaudiConf2 semantics to merge the {} and the {} to {} for property {} of {}".format(
+                        __indent(indent), alreadySetProperties[pname], pvalue, pname,  updatedPropValue, existingConfigurable.getName()))
 
     existingConfigurable = __alreadyConfigured( comp.name )
     if existingConfigurable: # if configurable exists we try to merge with it
         __areSettingsSame( existingConfigurable, comp )
-            #conf2Clone =  __configurableToConf2( existingConfigurable )
-
-            #        comp.merge( conf2Clone ) # let the Configurable2 system to handle merging
         _log.debug( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
         instance = existingConfigurable
     else: # create new configurable
@@ -931,8 +934,7 @@ def conf2toConfigurable( comp, indent="" ):
     return instance
 
 
-from AthenaCommon.AppMgr import athAlgSeq
-def CAtoGlobalWrapper(cfgFunc, flags, destinationSeq=athAlgSeq, **kwargs):
+def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
     """
     Temporarily available method allowing to merge CA into the configurations based on Configurable classes
     """
@@ -947,14 +949,15 @@ def CAtoGlobalWrapper(cfgFunc, flags, destinationSeq=athAlgSeq, **kwargs):
         ca = result
     Configurable.configurableRun3Behavior=0
 
-    appendCAtoAthena(ca,destinationSeq)
+    appendCAtoAthena(ca)
     pass
 
-def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
+def appendCAtoAthena(ca):
     _log = logging.getLogger( "conf2toConfigurable".ljust(32) )
     _log.info( "Merging of CA to global ..." )
 
-    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athAlgSeq,athCondSeq
+
+    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len(ca.getServices()) != 0:
         _log.info( "Merging services" )
         for comp in ca.getServices():
@@ -974,13 +977,21 @@ def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
             ToolSvc += instance
 
     _log.info( "Merging sequences and algorithms" )
-    from AthenaCommon.CFElements import findSubSequence, flatSequencers
-    from AthenaCommon.AlgSequence import AlgSequence
+    from AthenaCommon.CFElements import findSubSequence
+
+    def __fetchOldSeq(name=""):
+        from AthenaCommon.Configurable import Configurable
+        currentBehaviour = Configurable.configurableRun3Behavior
+        Configurable.configurableRun3Behavior=0
+        from AthenaCommon.AlgSequence import AlgSequence
+        seq =  AlgSequence(name)
+        Configurable.configurableRun3Behavior=currentBehaviour
+        return seq
 
     def __mergeSequences( currentConfigurableSeq, conf2Sequence, indent="" ):
         sequence = findSubSequence( currentConfigurableSeq, conf2Sequence.name )
         if not sequence:
-            sequence = AlgSequence( conf2Sequence.name )
+            sequence = __fetchOldSeq( conf2Sequence.name )
             __setProperties( sequence, conf2Sequence, indent=__indent( indent ) )
             currentConfigurableSeq += sequence
             _log.info( "{}Created missing AlgSequence {} and added to {}".format( __indent( indent ), sequence.name(), currentConfigurableSeq.name() ) )
@@ -989,15 +1000,30 @@ def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
             if el.__class__.__name__ == "AthSequencer":
                 __mergeSequences( sequence, el, __indent( indent ) )
             elif el.getGaudiType() == "Algorithm":
-
                 sequence += conf2toConfigurable( el, indent=__indent( indent ) )
-                _log.info( "{}Created algorithm {} and added to the sequence {}".format( __indent( indent ),  el.getFullJobOptName(), sequence.name() ) )
+                _log.info( "{}Algorithm {} and added to the sequence {}".format( __indent( indent ),  el.getFullJobOptName(), sequence.name() ) )
 
-    __mergeSequences( destinationSeq, ca._sequence )
-    for name, content in six.iteritems( flatSequencers(athAlgSeq) ):
-        _log.debug( "{}Sequence {}".format( "-\\",  name ) )
-        for c in content:
-            _log.debug( "{} name {} type {}".format( " +",  c.name(), type(c) ) )
+
+    preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
+    #preconfigured = ["AthMasterSeq", "AthCondSeq", "AthAlgSeq", "AthOutSeq", "AthRegSeq"]
+
+    for seq in ca._allSequences:
+        merged = False
+        for pre in preconfigured:
+            if seq.getName() == pre.getName():
+                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre ) )
+                __mergeSequences( pre, seq )
+                merged = True
+                break
+            if findSubSequence( pre, seq.name ):
+                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre ) )
+                __mergeSequences( pre, seq )
+                merged = True
+                break
+
+        if not merged:
+            _log.info( "{}not found sequence {} merging it to AthAlgSeq".format( __indent(), seq.name ) )
+            __mergeSequences( athAlgSeq, seq )
 
     ca.wasMerged()
     _log.info( "Merging of CA to global done ..." )

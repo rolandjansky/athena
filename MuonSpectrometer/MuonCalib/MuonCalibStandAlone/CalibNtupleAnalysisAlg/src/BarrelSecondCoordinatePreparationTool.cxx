@@ -31,14 +31,6 @@ BarrelSecondCoordinatePreparationTool::BarrelSecondCoordinatePreparationTool(
 
 //*****************************************************************************
 
-////////////////
-// DESTRUCTOR //
-////////////////
-BarrelSecondCoordinatePreparationTool::~BarrelSecondCoordinatePreparationTool(void) {
-}
-
-//*****************************************************************************
-
 ///////////////////////
 // METHOD initialize //
 ///////////////////////
@@ -132,7 +124,6 @@ void BarrelSecondCoordinatePreparationTool::prepareSegments(
 
 // reconstruct the second coordinate //
     if (!handleRPChits(*(it->second), raw_hits)) {
-      //			cout<<"RPC FIT FAILED!"<<endl;
       to_delete.insert(it->first);
     }
 

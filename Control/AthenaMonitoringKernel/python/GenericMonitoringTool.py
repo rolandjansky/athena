@@ -27,20 +27,21 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         self._defaultDuration = kwargs.pop('defaultDuration', None)
         super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
 
-    def __new__( cls, name=None, *args, **kwargs ):
-        if not Configurable.configurableRun3Behavior:
-            if name is None: name = cls.__name__
+    if not isRun3Cfg():
+        def __new__( cls, name=None, *args, **kwargs ):
+            if not Configurable.configurableRun3Behavior:
+                if name is None: name = cls.__name__
 
-        # GenericMonitoringTool is always private. To avoid the user having
-        # to ensure a unique instance name, always create a new instance.
-        b = Configurable.configurableRun3Behavior
-        Configurable.configurableRun3Behavior = 1
-        try:
-            conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
-        finally:
-            Configurable.configurableRun3Behavior = b
+            # GenericMonitoringTool is always private. To avoid the user having
+            # to ensure a unique instance name, always create a new instance.
+            b = Configurable.configurableRun3Behavior
+            Configurable.configurableRun3Behavior = 1
+            try:
+                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
+            finally:
+                Configurable.configurableRun3Behavior = b
 
-        return conf
+            return conf
 
     @property
     def convention(self):
@@ -203,14 +204,14 @@ def _alias(varname):
 def _options(opt):
     # Set the default dictionary of options
     settings = {
-        'Sumw2': False,
-        'kLBNHistoryDepth': 0,
-        'kAddBinsDynamically': False,
-        'kRebinAxes': False,
-        'kCanRebin': False,
-        'kVec': False,
-        'kVecUO': False,
-        'kCumulative': False,
+        'Sumw2': False,                 # store sum of squares of weights
+        'kLBNHistoryDepth': 0,          # length of lumiblock history
+        'kAddBinsDynamically': False,   # add new bins if fill is outside axis range
+        'kRebinAxes': False,            # increase axis range without adding new bins
+        'kCanRebin': False,             # allow all axes to be rebinned
+        'kVec': False,                  # add content to each bin from each element of a vector
+        'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
+        'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -248,7 +249,7 @@ def _options(opt):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
-#  @param opt      String or dictionary of histogram options
+#  @param opt      String or dictionary of histogram options (see _options())
 #  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.

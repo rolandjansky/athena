@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
@@ -136,7 +136,11 @@ InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContain
 StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) {
 
   ATH_MSG_DEBUG("Start vertex matching");
-
+  if (vxContainer.empty() ||   // reject empty vertex containers
+       (vxContainer.size() == 1 && vxContainer.at(0)->vertexType() == xAOD::VxType::NoVtx)){  // as well as containers containing only a dummy vertex
+    ATH_MSG_DEBUG("No vertices to match.");
+    return StatusCode::SUCCESS; 
+  }
   // Identify MC vertices to match to -- this is the collection for hard scatter
   const xAOD::TruthEventBaseContainer * truthEvents = nullptr;
   if ( evtStore()->contains<xAOD::TruthEventBaseContainer>( "TruthEvents" ) )

@@ -57,7 +57,7 @@ atlas_add_dictionary( CalibNtupleAnalysisAlgDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GoodRunsListsLib GeoPrimitives GaudiKernel MagFieldElements MagFieldConditions MdtCalibData MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry CalibNtupleAnalysisAlgLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py OST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 atlas_add_test( flake8_share

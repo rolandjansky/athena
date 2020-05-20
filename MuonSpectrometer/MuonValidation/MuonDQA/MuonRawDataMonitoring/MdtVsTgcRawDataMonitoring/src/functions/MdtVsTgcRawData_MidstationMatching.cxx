@@ -103,7 +103,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         const Trk::RIO_OnTrack* rio = segm0->rioOnTrack(iROT);
 	if(!rio) continue;
         Identifier id = rio->identify();
-        stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+        stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
         
         if((stationName==17)||(stationName==18))nMdtMeas++;// MDT
       }
@@ -135,16 +135,13 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
       // Get position variables
       //const Trk::GlobalPosition segm1Pos = segm1->globalPosition();
       const Amg::Vector3D segm1Pos = segm1->globalPosition();
-      
-      //float segm1PosRho = abs(segm1Pos.perp());
-      //float segm1PosEta = abs(segm1Pos.eta());
+
       float segm1PosPhi = segm1Pos.phi();
       float segm1PosThe = segm1Pos.theta();
       float segm1PosZ   = segm1Pos.z();
       if(segm1PosPhi<0)segm1PosPhi+=2*M_PI;
       if(segm1PosThe>M_PI/2) segm1PosThe=M_PI-segm1PosThe;
-      //Trk::GlobalDirection segm1PosZunit(segm1Pos/abs(segm1PosZ));
-      Amg::Vector3D segm1PosZunit(segm1Pos/abs(segm1PosZ));
+      Amg::Vector3D segm1PosZunit(segm1Pos/std::abs(segm1PosZ));
       
       
       ////////////////////////////////////////////////////////////////////////
@@ -156,8 +153,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         const Trk::RIO_OnTrack* rio = segm1->rioOnTrack(iROT);
 	if(!rio) continue;
         Identifier id = rio->identify();
-        stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
-        bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+        stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
+        bool isStrip = m_idHelperSvc->tgcIdHelper().isStrip(id);
         
         if(((stationName==41)||(stationName==42))&&isStrip)nTGCStrips[0]++;// TGC
         if(((stationName==43)||(stationName==44))&&isStrip)nTGCStrips[1]++;// TGC
@@ -186,29 +183,26 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         if(skipSegm)continue;
         
         // Get position variables
-        //const Trk::GlobalPosition segm2Pos = segm2->globalPosition();
         const Amg::Vector3D segm2Pos = segm2->globalPosition(); 
-	float segm2PosRho = abs(segm2Pos.perp());
+	float segm2PosRho = std::abs(segm2Pos.perp());
         float segm2PosPhi = segm2Pos.phi();
         float segm2PosZ   = segm2Pos.z();
         if(segm2PosPhi<0)segm2PosPhi+=2*M_PI;
-        //Trk::GlobalDirection segm2PosZunit(segm2Pos/abs(segm2PosZ));
-        Amg::Vector3D segm2PosZunit(segm2Pos/abs(segm2PosZ));
+        Amg::Vector3D segm2PosZunit(segm2Pos/std::abs(segm2PosZ));
         
         // Apply preliminary phi cut between segm1 and segm2 positions
         float dPhi_Segm1_Segm2 = segm1PosPhi-segm2PosPhi;
         if(dPhi_Segm1_Segm2<-M_PI)dPhi_Segm1_Segm2+=2*M_PI;
         if(dPhi_Segm1_Segm2> M_PI)dPhi_Segm1_Segm2-=2*M_PI;
-        if(abs(dPhi_Segm1_Segm2)<dPhiCutSegmentMatching){
+        if(std::abs(dPhi_Segm1_Segm2)<dPhiCutSegmentMatching){
           failedGroupingCut=true;
           break;
         }
         
         // Extrapolate segm1 position to segm2's Z position
-        float dZ = abs(segm2PosZ)-abs(segm1PosZ);
-        //Trk::GlobalPosition extrPos(segm1Pos+(segm1PosZunit*dZ));
+        float dZ = std::abs(segm2PosZ)-std::abs(segm1PosZ);
         Amg::Vector3D extrPos(segm1Pos+(segm1PosZunit*dZ));
-        float extrPosRho = abs(extrPos.perp());
+        float extrPosRho = std::abs(extrPos.perp());
         float extrPosThe = extrPos.theta();
         float extrPosPhi = extrPos.phi();
         if(extrPosThe>M_PI/2) extrPosThe=M_PI-extrPosThe;
@@ -221,8 +215,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         if(dPhi_Extr_Segm2> M_PI)dPhi_Extr_Segm2-=2*M_PI;
         
         // Cut segments (segm1) which are inside difference cuts
-        if((abs(dPhi_Extr_Segm2)<dPhiCutSegmentMatching)||
-           (abs(dRho_Extr_Segm2)<dRhoCutSegmentMatching)){
+        if((std::abs(dPhi_Extr_Segm2)<dPhiCutSegmentMatching)||
+           (std::abs(dRho_Extr_Segm2)<dRhoCutSegmentMatching)){
           failedGroupingCut=true;
           break;
         }
@@ -253,7 +247,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
             
             // Extrapolate position from nearest Station's Segment to Sector's Z
             float sectorZ=tre->globalPosition().z();
-            float dZ_sector=abs(sectorZ)-abs(segm1PosZ);
+            float dZ_sector=std::abs(sectorZ)-std::abs(segm1PosZ);
             //Trk::GlobalPosition sectorExtrapolatedPos = segm1Pos+(segm1PosZunit*dZ_sector);
             Amg::Vector3D sectorExtrapolatedPos = segm1Pos+(segm1PosZunit*dZ_sector);
             
@@ -325,11 +319,11 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
           Identifier tgcid=(*prepitc)->identify();
           int tgcAC=(tre->sideA()==false);//isNotAside a:0, c:1
           int tgcFE=(tre->forward()==false);//isNotForward f:0, e:1
-          int tgcWS=(m_muonIdHelperTool->tgcIdHelper().isStrip(tgcid));//isStrip w=0, s=1
-          int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid);
-          int stationEta  = abs(tre->getStationEta());
+          int tgcWS=(m_idHelperSvc->tgcIdHelper().isStrip(tgcid));//isStrip w=0, s=1
+          int stationName = m_idHelperSvc->tgcIdHelper().stationName(tgcid);
+          int stationEta  = std::abs(tre->getStationEta());
           int stationPhi  = tre->getStationPhi();
-          int gasGap      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid);
+          int gasGap      = m_idHelperSvc->tgcIdHelper().gasGap(tgcid);
           
           // Cut hits except those from same side Midstation
           if(tgcAC!=i) continue;
@@ -341,20 +335,18 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
           if(stationIndex==3)continue;
           
           // Get position variables
-          //const Trk::GlobalPosition prdPos = tpd->globalPosition();
           const Amg::Vector3D prdPos = tpd->globalPosition(); 
-	  float tgcRho = abs(prdPos.perp());
+	  float tgcRho = std::abs(prdPos.perp());
           float tgcPhi = prdPos.phi();
           float tgcZ   = prdPos.z();
           if(tgcPhi<0)tgcPhi+=2*M_PI;
           
           // Extrapolate Segm1 to PRD Z position
-          float dZ = abs(tgcZ) - abs(segm1PosZ);
-          //Trk::GlobalPosition tgcExtrapolatedPos = ((segm1Pos)+((segm1PosZunit)*dZ));
+          float dZ = std::abs(tgcZ) - std::abs(segm1PosZ);
           Amg::Vector3D tgcExtrapolatedPos = ((segm1Pos)+((segm1PosZunit)*dZ));
           
           // Get extrapolated variables
-          float tgcExtrRho = abs(tgcExtrapolatedPos.perp());
+          float tgcExtrRho = std::abs(tgcExtrapolatedPos.perp());
           float tgcExtrPhi = tgcExtrapolatedPos.phi();
           if(tgcExtrPhi<0)tgcExtrPhi+=2*M_PI;
           
@@ -365,7 +357,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
           if(dPhi> M_PI)dPhi-=2*M_PI;
           
           // Pass through loose phi cut to eliminate some noise
-          if(abs(dPhi)<dPhiCut_Loose){
+          if(std::abs(dPhi)<dPhiCut_Loose){
             // Fill PRD sagitta histograms
             if(m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]) m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]->Fill(dRho);
             if(m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]) m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]->Fill(dPhi);
@@ -373,13 +365,12 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
             // Do Global check
             if(canCheckGlobal[stationIndex]){
               float dRhoCut = dRhoCutGlobal[tgcWS]*tgcExtrRho;
-              if(abs(dPhi)<dPhiCutGlobal[tgcWS] && abs(dRho)<dRhoCut){
-                // if(layer>=0)hitregistered[layer][tgcWS] = true;// Global hit
+              if(std::abs(dPhi)<dPhiCutGlobal[tgcWS] && std::abs(dRho)<dRhoCut){
               }
             }// global
 
             // Add PRD which matches Segm1 position to vector for further analysis
-            if(abs(dPhi)<dPhiCutSector[tgcWS] && abs(dRho)<dRhoCutSector[tgcWS]){
+            if(std::abs(dPhi)<dPhiCutSector[tgcWS] && std::abs(dRho)<dRhoCutSector[tgcWS]){
               tpdVector[tgcWS].push_back(tpd);
             }
             // Do Sector Efficiency Check
@@ -389,7 +380,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
                  (stationPhi==TGCstation_StationPhi[stationIndex])&&
                  (tgcFE==TGCstation_StationFE[stationIndex])){
                 // Do check
-                if(abs(dPhi)<dPhiCutSector[tgcWS] && abs(dRho)<dRhoCutSector[tgcWS]){
+                if(std::abs(dPhi)<dPhiCutSector[tgcWS] && std::abs(dRho)<dRhoCutSector[tgcWS]){
                   if(layer>=0)sectorhitregistered[layer][tgcWS]=true;// Sector hit
                 }
               }
@@ -434,12 +425,12 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
           float prd1Phi = prdPos1.phi();
           float prd1Z   = prdPos1.z();
           if(prd1Phi<0)prd1Phi+=2*M_PI;
-          Amg::Vector3D prd1PosZunit(prdPos1/abs(prd1Z));
+          Amg::Vector3D prd1PosZunit(prdPos1/std::abs(prd1Z));
           
           // Get id values
           Identifier tgcid1=(tpdVector[k].at(iTPD1))->identify();
-          int stationName1 = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid1);
-          int gasGap1      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid1);
+          int stationName1 = m_idHelperSvc->tgcIdHelper().stationName(tgcid1);
+          int gasGap1      = m_idHelperSvc->tgcIdHelper().gasGap(tgcid1);
           int layer1       = TGCgetlayer(stationName1,gasGap1);
           if(layer1>=0)thisTPDlayerMatches[layer1]++;
           
@@ -449,17 +440,17 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
             
             // Get position variables
             const Amg::Vector3D prdPos2 = tpdVector[k].at(iTPD2)->globalPosition(); 
-	    float prd2Rho = abs(prdPos2.perp());
+	    float prd2Rho = std::abs(prdPos2.perp());
             float prd2Phi = prdPos2.phi();
             float prd2Z   = prdPos2.z();
             if(prd2Phi<0)prd2Phi+=2*M_PI;
             
             // Extrapolate PRD1 to PRD2 Z position
-            float dZ = abs(prd2Z)- abs(prd1Z);
+            float dZ = std::abs(prd2Z)- std::abs(prd1Z);
             Amg::Vector3D prdExtrPos = ((prdPos1)+((prd1PosZunit)*dZ));
             
             // Get extrapolated variables
-            float prdExtrRho = abs(prdExtrPos.perp());
+            float prdExtrRho = std::abs(prdExtrPos.perp());
             float prdExtrPhi = prdExtrPos.phi();
             if(prdExtrPhi<0)prdExtrPhi+=2*M_PI;
             
@@ -474,11 +465,11 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
             if(m_tgc_prdcompsag[i][k][2]) m_tgc_prdcompsag[i][k][2]->Fill(dPhi);
             
             // Do check
-            if(abs(dPhi)<dPhiCutTPD[k] && abs(dRho)<dRhoCutTPD[k]){
+            if(std::abs(dPhi)<dPhiCutTPD[k] && std::abs(dRho)<dRhoCutTPD[k]){
               // Get id values
               Identifier tgcid2=(tpdVector[k].at(iTPD2))->identify();
-              int stationName2 = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid2);
-              int gasGap2      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid2);
+              int stationName2 = m_idHelperSvc->tgcIdHelper().stationName(tgcid2);
+              int gasGap2      = m_idHelperSvc->tgcIdHelper().gasGap(tgcid2);
               int layer2       = TGCgetlayer(stationName2,gasGap2);
               
               // Add PRD2 to matches for PRD1

@@ -26,10 +26,8 @@ PURPOSE:  Transient/Persisten converter for EtaPhiBins class
 // RecTPCnv includes
 #include "HIRecTPCnv/EtaPhiBinsCnv_p1.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,1)
 #include <TBufferFile.h>
 #include <TROOT.h>
-#endif
 
 /////////////////////////////////////////////////////////////////// 
 // methods: 
@@ -46,11 +44,7 @@ void EtaPhiBinsCnv_p1::persToTrans(  const EtaPhiBins_p1* pers,
   trans->m_EtaMax      = pers->m_EtaMax;
   trans->m_NEtaBins    = pers->m_NEtaBins;
   trans->m_NPhiBins    = pers->m_NPhiBins;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,15,1)
-  TBuffer b(TBuffer::kRead);
-#else
   TBufferFile b(TBuffer::kRead);
-#endif
   b.SetBuffer((void*)&(pers->m_h2vec[0]),pers->m_h2vec.size(),kFALSE);
   TH2F* h2 = (TH2F*) b.ReadObject(gROOT->GetClass("TH2F"));
   trans->m_H2          = *h2;
@@ -76,11 +70,7 @@ void EtaPhiBinsCnv_p1::transToPers(  const EtaPhiBins* trans,
   //trans->m_H2.Print();
 
   msg << MSG::DEBUG << "Make TBuffer" << endmsg;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,15,1)
-  TBuffer b(TBuffer::kWrite);
-#else
   TBufferFile b(TBuffer::kWrite);
-#endif
   msg << MSG::DEBUG << "Writing H2 into TBuffer" << endmsg;
   b.WriteObject(&trans->m_H2);
   char* buf = b.Buffer(); 

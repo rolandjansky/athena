@@ -25,7 +25,7 @@ class TileRodIdHash  {
   virtual ~TileRodIdHash() { };
 
   /** initialize */
-  void initialize(int offset ); 
+  void initialize(int offset, int runnum );
 
   /** new initialize for the HLT */
   void initialize (int offset, const std::vector<ID>& rmod );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // other packages
@@ -17,9 +17,6 @@ MdtCalibrationRegionSvc::MdtCalibrationRegionSvc(const std::string &name,ISvcLoc
   : AthService(name,sl), m_mdtIdHelper(0), m_regionType(ONERT), m_numberOfRegions(1) {
 }
 
-MdtCalibrationRegionSvc::~MdtCalibrationRegionSvc() {
-}
-
 // queryInterface 
 StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID &riid, void **ppvIF) { 
   if( interfaceID().versionMatch(riid) ) {
@@ -32,30 +29,19 @@ StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID &riid, void
 } 
 
 StatusCode MdtCalibrationRegionSvc::initialize() { 
-  if( AthService::finalize().isFailure() ) return StatusCode::FAILURE;
+  ATH_CHECK(AthService::initialize());
 
   // initialize the MdtIdHelper
   ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", name());
-  if (detStore.retrieve().isFailure())   {
-    ATH_MSG_ERROR( "Can't locate the DetectorStore" ); 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore.retrieve());
 
-  StatusCode sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if ( sc.isFailure()) {
-    ATH_MSG_ERROR( "Can't retrieve MdtIdHelper" );
-    return sc;
-  }
+  ATH_CHECK(detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER"));
   
   // Initialize RT and correction function regions
   remapRtRegions("OneRt");
   
-  return sc;
+  return StatusCode::SUCCESS;
 }  //end MdtCalibrationRegionSvc::initialize
-
-StatusCode MdtCalibrationRegionSvc::finalize() { 
-  return AthService::finalize();
-}
 
 void MdtCalibrationRegionSvc::remapRtRegions(std::string mapName) {
   m_regionHash.resize(0);

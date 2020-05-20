@@ -2,6 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import PhotonChainConfiguration as PhotonChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
@@ -19,20 +20,16 @@ def generateChainConfigs( chainDict ):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )  
         Photon = PhotonChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Photon]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
-
-    log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
 

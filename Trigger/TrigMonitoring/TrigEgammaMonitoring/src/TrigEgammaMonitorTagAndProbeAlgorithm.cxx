@@ -46,7 +46,6 @@ TrigEgammaMonitorTagAndProbeAlgorithm::~TrigEgammaMonitorTagAndProbeAlgorithm()
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
     
     ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize() );
-    ATH_CHECK(m_eventInfoKey.initialize());
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
    
@@ -138,7 +137,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
     fillLabel(monGroup, m_anatype+"_CutCounter", "Events");
 
 
-    SG::ReadHandle<xAOD::EventInfo> eventInfo( m_eventInfoKey, ctx );
+    SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
     if( !eventInfo.isValid() ){
       ATH_MSG_WARNING("Failed to retrieve EventInfo");
       return false;

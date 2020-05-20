@@ -132,6 +132,7 @@ namespace xAOD {
       { "EMPFlowCSSKTime",       EMPFlowCSSKTime },
       { "EMPFlowVorSKTime",      EMPFlowVorSKTime },
       { "HI",                    HI },
+      { "HIClusters", 		 HIClusters },
       { c_unCategorized,         Uncategorized }
     };
 
@@ -181,6 +182,7 @@ namespace xAOD {
       { EMPFlowCSSKTime,       "EMPFlowCSSKTime" },
       { EMPFlowVorSKTime,      "EMPFlowVorSKTime" },
       { HI,                    "HI" },
+      { HIClusters, 	       "HIClusters" },
       { Uncategorized,         c_unCategorized }
     };
 

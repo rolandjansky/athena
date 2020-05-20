@@ -7,8 +7,6 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createSimConfigFlags():
     scf=AthConfigFlags()
 
-    scf.addFlag("Sim.ISFRun",False)
-    scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ParticleID",False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr", "Off"
 
@@ -21,22 +19,23 @@ def createSimConfigFlags():
     scf.addFlag("Sim.SimBarcodeOffset", 200000)
 
     #for forward region
-    scf.addFlag('Sim.TwissFileBeam1',False)
-    scf.addFlag('Sim.TwissFileBeam2',False)
-    scf.addFlag('Sim.TwissEnergy',8000000.)
-    scf.addFlag('Sim.TwissFileBeta',550.)
-    scf.addFlag('Sim.TwissFileNomReal',False) #'nominal','real' #default to one of these?!
-    scf.addFlag('Sim.TwissFileVersion','v01')
+    scf.addFlag("Sim.TwissFileBeam1",False)
+    scf.addFlag("Sim.TwissFileBeam2",False)
+    scf.addFlag("Sim.TwissEnergy",8000000.)
+    scf.addFlag("Sim.TwissFileBeta",550.)
+    scf.addFlag("Sim.TwissFileNomReal",False) #"nominal","real" #default to one of these?!
+    scf.addFlag("Sim.TwissFileVersion","v01")
 
     #for G4AtlasAlg
     #in simflags
-    scf.addFlag('Sim.ReleaseGeoModel',True)
-    scf.addFlag('Sim.RecordFlux',False)
-    scf.addFlag('Sim.TruthStrategy','MC12') #todo - needs to have some extra functionality!
-    scf.addFlag('Sim.G4Commands',['/run/verbose 2'])
+    scf.addFlag("Sim.ReleaseGeoModel",True)
+    scf.addFlag("Sim.RecordFlux",False)
+    scf.addFlag("Sim.TruthStrategy","MC12") #todo - needs to have some extra functionality!
+    scf.addFlag("Sim.G4Commands",["/run/verbose 2"])
     #in atlasflags
-    scf.addFlag('Sim.FlagAbortedEvents',False)
-    scf.addFlag('Sim.KillAbortedEvents',True)
+    scf.addFlag("Sim.FlagAbortedEvents",False)
+    scf.addFlag("Sim.KillAbortedEvents",True)
+    scf.addFlag("Sim.IncludeParentsInG4Event",False)
 
     # Do full simulation + digitisation + reconstruction chain
     scf.addFlag("Sim.DoFullChain", False)
@@ -48,25 +47,29 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
 
     #For G4AtlasToolsConfig
-    scf.addFlag('Sim.RecordStepInfo',False) 
-    scf.addFlag('Sim.StoppedParticleFile', False) 
-    scf.addFlag('Sim.BeamPipeSimMode', 'Normal')  ## ['Normal', 'FastSim', 'EGammaRangeCuts', 'EGammaPRangeCuts']
-    scf.addFlag('Sim.LArParameterization', 2)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
+    scf.addFlag("Sim.RecordStepInfo",False)
+    scf.addFlag("Sim.StoppedParticleFile", False)
+    scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
+    scf.addFlag("Sim.LArParameterization", 2)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
     #For BeameffectsAlg
-    scf.addFlag('Sim.Vertex.Source', 'CondDB' ) #'CondDB', 'VertexOverrideEventFile.txt', 'VertexOverride.txt',"LongBeamspot"
+    scf.addFlag("Sim.Vertex.Source", "CondDB" ) #"CondDB", "VertexOverrideEventFile.txt", "VertexOverride.txt","LongBeamspot"
 
     #for G4UserActions
-    scf.addFlag('Sim.Layout','ATLAS-R2-2015-03-01-00')
-    scf.addFlag('Sim.NRRThreshold', False)
-    scf.addFlag('Sim.NRRWeight', False)
-    scf.addFlag('Sim.PRRThreshold', False)
-    scf.addFlag('Sim.PRRWeight', False)
+    scf.addFlag("Sim.Layout","ATLAS-R2-2015-03-01-00")
+    scf.addFlag("Sim.NRRThreshold", False)
+    scf.addFlag("Sim.NRRWeight", False)
+    scf.addFlag("Sim.PRRThreshold", False)
+    scf.addFlag("Sim.PRRWeight", False)
 
     # For G4FieldConfigNew
-    scf.addFlag('Sim.G4Stepper', 'AtlasRK4')
-    scf.addFlag('Sim.G4EquationOfMotion', '')
+    scf.addFlag("Sim.G4Stepper", "AtlasRK4")
+    scf.addFlag("Sim.G4EquationOfMotion", "")
+    scf.addFlag("Sim.UsingGeant4", True)
 
-    scf.addFlag('Sim.UsingGeant4', True)
+    # For ISF
+    scf.addFlag("Sim.ISFRun",False)
+    scf.addFlag("Sim.ISF.HITSMergingRequired", True)
+    scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
+
     return scf
-

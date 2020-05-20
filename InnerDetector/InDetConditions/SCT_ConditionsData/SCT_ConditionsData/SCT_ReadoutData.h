@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,7 +24,10 @@
 
 class Identifier;
 
-/** Enums for module and chip type*/
+/** 
+ * @enum ModuleType
+ * @brief Enums for module and chip type
+ **/
 namespace SCT_Parameters {
   enum ModuleType {BARREL, MODIFIED_0, MODIFIED_1, ENDCAP};
 }
@@ -31,21 +36,20 @@ namespace SCT_Parameters {
  * @class SCT_ReadoutTool
  * Class to represent the SCT module readout
  **/
-
 class SCT_ReadoutData {
 
- public:
+public:
 
   SCT_ReadoutData(IMessageSvc* msgSvc=nullptr);
   virtual ~SCT_ReadoutData();
 
-  // Default copy constructor
+  /** Default copy constructor*/
   SCT_ReadoutData(const SCT_ReadoutData&) = default;
-  // Default assignment operator
+  /** Default assignment operator*/
   SCT_ReadoutData& operator=(const SCT_ReadoutData&) = default;
-  // Default move constructor
+  /** Default move constructor*/
   SCT_ReadoutData(SCT_ReadoutData&&) = default;
-  // Default move assignment operator
+  /** Default move assignment operator*/
   SCT_ReadoutData& operator=(SCT_ReadoutData&&) = default;
   
   /** Find the ID of the input chip for chip*/ 
@@ -117,7 +121,7 @@ class SCT_ReadoutData {
   /** Set all chips out of readout and clear both links to start */
   void clearChipReadout();
 
- private:
+private:
 
   /** Private data*/
   std::vector<SCT_Chip*>              m_chips;               //!< Vector of actual SCT Chips for that module

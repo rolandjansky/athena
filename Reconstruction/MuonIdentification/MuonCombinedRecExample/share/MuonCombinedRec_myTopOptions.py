@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from RecExConfig.RecFlags import rec as rec
 from RecExConfig.RecAlgsFlags import recAlgs as recAlgs
 from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
@@ -7,7 +9,6 @@ athenaCommonFlags.AllowIgnoreConfigError = False
 
 # configure all flags to run all Subset + Muon Combined
 import MuonCombinedRecExample.MuonCombinedRecOnlySetup
-#import MuonRecExample.MuonRecStandaloneOnlySetup
 
 #--------------------------------------------------------------------------------
 # Input setup
@@ -315,78 +316,16 @@ rec.doWriteAOD = True
 try:
     include("MuonRecExample/MuonRec_topOptions.py")
     ###### put any user finetuning after this line #####
-#    topSequence.MergeMuonCollections.OutputLevel = DEBUG
-#    topSequence.MakeAODMuons.OutputLevel = DEBUG
     if muonCombinedRecFlags.doxAOD():
-        #ToolSvc.MuonCreatorTool.OutputLevel = VERBOSE
-        #ToolSvc.MuonCombinedFitTagTool.OutputLevel = VERBOSE
-        #ToolSvc.MuonSegmentTagTool.OutputLevel = DEBUG
-        #ToolSvc.MuonCandidateTool.OutputLevel = VERBOSE
-        #ToolSvc.InDetCandidateTool.OutputLevel = VERBOSE
-        #ToolSvc.MuonCombinedParticleCreator.OutputLevel = VERBOSE
-        #topSequence.ExtrapolatedMuonTracksTruthAlg.OutputLevel = VERBOSE
-        #topSequence.CombinedMuonTracksTruthAlg.OutputLevel = VERBOSE
-        #ToolSvc += CfgMgr.Trk__TrackParticleCaloExtensionTool("TrackParticleCaloExtensionTool",OutputLevel = VERBOSE)
-        #ToolSvc.MuonCombinedTrackFitter.OutputLevel = VERBOSE
-        #ToolSvc.MuidTrackCleaner.OutputLevel = VERBOSE
-        #ToolSvc += CfgMgr.Rec__MuidCaloMaterialParam("MuidCaloMaterialParam",OutputLevel = VERBOSE)
-        #ToolSvc += CfgMgr.Rec__MuidCaloTrackStateOnSurface("MuidCaloTrackStateOnSurface",OutputLevel = VERBOSE)
-        #ToolSvc.CombinedMuonTrackBuilder.OutputLevel=VERBOSE
-        #ToolSvc.iPatFitter.OutputLevel=DEBUG
-        #ToolSvc.TrackDepositInCaloTool.OutputLevel = VERBOSE
-        #ToolSvc +=  CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool",OutputLevel=DEBUG);
-        #ToolSvc +=  CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool",OutputLevel=DEBUG);
-        #ToolSvc.MuonCombinedInDetDetailedTrackSelectorTool.OutputLevel = VERBOSE
         pass
-    #ToolSvc.MuonTrackSteering.OutputLevel = VERBOSE
-    #ToolSvc.MuonTrackSteering.OnlyMdtSeeding = True
-    #ToolSvc.MuonPatternSegmentMaker.OutputLevel = VERBOSE
-    #ToolSvc.DCMathSegmentMaker.OutputLevel = DEBUG
-    #ToolSvc.DCMathSegmentMaker.CurvedErrorScaling = False
-    #ToolSvc += CfgMgr.Muon__MuonSegmentInOverlapResolvingTool("MuonSegmentInOverlapResolvingTool",OutputLevel = VERBOSE)
-    #ToolSvc.MuonTrackCleaner.OutputLevel = VERBOSE
-
-    #ToolSvc.MuonExtrapolator.OutputLevel = VERBOSE
-    #ToolSvc.MCTBExtrapolator.OutputLevel = VERBOSE
-    #ToolSvc.MuonNavigator.OutputLevel = VERBOSE
-    #ToolSvc.AtlasNavigator.OutputLevel = VERBOSE
-    #ToolSvc.AtlasExtrapolator.OutputLevel = VERBOSE
-    #ToolSvc.MuSt_MCTBFitter.OutputLevel = VERBOSE
-    #ToolSvc.TrackingVolumeArrayCreator.OutputLevel = VERBOSE
-    #ToolSvc.TrackingVolumeHelper.OutputLevel = VERBOSE
-    #ToolSvc.MuonStationBuilder.OutputLevel = VERBOSE
-    #ToolSvc.MuonInertMaterialBuilder.OutputLevel = VERBOSE
-    #ToolSvc.MCTBSLFitter.OutputLevel = VERBOSE
-    #ToolSvc.MooMuonTrackBuilder.OutputLevel = VERBOSE
-    #ToolSvc.MuSt_MCTBSLFitter.OutputLevel = VERBOSE
-    #ToolSvc.AtlasSTEP_Propagator.OutputLevel=VERBOSE
-    #ToolSvc.MdtMathSegmentFinder.FinderDebugLevel = 10
-    #ToolSvc.MuSt_MooTrackFitter.OutputLevel = VERBOSE
-    #ToolSvc.MuSt_MooSLTrackFitter.OutputLevel = VERBOSE
-    #ToolSvc.MuSt_MooCandidateMatchingTool.OutputLevel = VERBOSE
-    #ToolSvc.MooMuonTrackBuilder.OutputLevel = VERBOSE    #topSequence.MuonSegmentCnvAlg.OutputLevel = VERBOSE
-    #topSequence.TrackParticleTruthAlg.OutputLevel = VERBOSE
-    #from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
-    #from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-    #ToolSvc += Muon__MuonIdHelperTool("MuonIdHelperTool",OutputLevel=VERBOSE)
-    #ToolSvc.MdtDriftCircleOnTrackCreator.OutputLevel=DEBUG
-    #ToolSvc.MuonLayerHoughTool.OutputLevel = VERBOSE
-    #ToolSvc.MuonLayerHoughTool.DebugHough = True
-    #ToolSvc.MuonLayerHoughTool.DoNtuple = True
-    #ToolSvc.MuonLayerHoughTool.UseSeeds = False
     colname = "Muons"
-    #from MuonTrackPerformance.MuonTrackPerformanceConf import MuonSegmentPerformanceAlg
-    #topSequence += MuonSegmentPerformanceAlg(name="MuonSegmentPerformanceAlg",OutputLevel=VERBOSE)
-    #topSequence.MuonSegmentPerformanceAlg.OutputLevel=VERBOSE
-    #topSequence.MuonTruthDecorationAlg.OutputLevel=VERBOSE
+
     if rec.doTruth() and muonRecFlags.doTrackPerformance():
         topSequence.MuonStandalonePerformanceAlg.ProduceEventListMissedTracks = 2 # "0: off, 1: two station, 2: + one station" );
         if( muonCombinedRecFlags.doxAOD() ):
             topSequence.ExtrapolatedMuonPerformanceAlg.ProduceEventListMissedTracks = 2
             topSequence.CombinedMuonPerformanceAlg.ProduceEventListMissedTracks = 2
     
-    #include("MuonTestEDM/MuonTestEDM_jobOptions.py")
-
     if muonCombinedRecFlags.doMuGirlLowBeta():
         ToolSvc.MuonTrackTruthTool.ConsideredPDGs=[13,-13,1000015,-1000015]
         topSequence.ExtrapolatedMuonPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTMONITORINGRUN3RAW_ALG_H
@@ -81,7 +81,6 @@ private:
     bool m_ArgonXenonSplitter;
     
     int m_totalEvents;
-    int m_evtLumiBlock;
     float m_longToTCut;
     
     int m_min_si_hits;

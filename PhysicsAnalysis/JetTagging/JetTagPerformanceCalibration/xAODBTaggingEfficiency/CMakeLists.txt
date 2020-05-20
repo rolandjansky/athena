@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODJet
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+  PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
   PRIVATE
   Tools/PathResolver
