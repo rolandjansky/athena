@@ -82,12 +82,10 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg, MainServicesThreadedCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    if ConfigFlags.Concurrency.NumThreads == 0:
-        cfg = MainServicesSerialCfg()
-    else:
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+    cfg = MainServicesCfg(ConfigFlags)
+    
     if isReadingRaw:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg

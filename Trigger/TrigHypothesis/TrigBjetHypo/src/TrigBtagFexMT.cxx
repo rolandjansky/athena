@@ -184,7 +184,7 @@ StatusCode TrigBtagFexMT::execute() {
   for ( const xAOD::Vertex *pv : *vxContainer ) {
     ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<< " y=" << pv->y() << " z=" << pv->z() );
   }
-
+/*
   // Test retrieval of B-Tagging container
   ATH_MSG_DEBUG( "Attempting to retrieve B-Tagging container with key " << m_BTaggingContainerKey.key() );
   SG::ReadHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle< xAOD::BTaggingContainer >( m_BTaggingContainerKey,ctx );
@@ -192,7 +192,13 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::BTaggingContainer* btaggingContainer = btaggingHandle.get();
   ATH_MSG_DEBUG( "Exiting with " << btaggingContainer->size() <<" btagging objects" );
 
+  xAOD::BTagging *toAdd = new xAOD::BTagging();
+  outputBtagging->push_back( toAdd );
 
+  SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
+  CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
+  ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
+*/
   return StatusCode::SUCCESS;
 }
 

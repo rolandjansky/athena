@@ -31,8 +31,7 @@ namespace Trk
   */
   enum ParametersType {
     AtaSurface   = 0,
-    Curvilinear  = 1,
-    MultiPars    = 2
+    Curvilinear  = 1
   };
 
   /**
@@ -62,12 +61,6 @@ namespace Trk
     virtual ~ParametersBase()=default;
     //** equality operator */
     virtual bool operator==(const ParametersBase<DIM,T>&) const = 0;
-    
-    //** inequality operator */
-    bool operator!=(const ParametersBase<DIM,T>& rhs) const
-    {
-      return !(*this == rhs);
-    }
     
     /** Access method for the parameters */
     const AmgVector(DIM)& parameters() const;             

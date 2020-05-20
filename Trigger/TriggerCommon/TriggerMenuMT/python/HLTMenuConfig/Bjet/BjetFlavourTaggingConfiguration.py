@@ -81,6 +81,5 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     #acc.addEventAlgo(bTagFex)
 
 
-    return acc
-
+    return [acc,btagname]
 

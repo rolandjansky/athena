@@ -19,6 +19,11 @@ set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
    "Path to AnalysisBaseReleaseEnvironmentConfig.cmake" )
 find_package( AnalysisBaseReleaseEnvironment REQUIRED )
 
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
+
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 

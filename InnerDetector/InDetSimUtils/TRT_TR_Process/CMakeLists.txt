@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tools/PathResolver )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( CLHEP )
 find_package( Geant4 )
 find_package( XercesC )

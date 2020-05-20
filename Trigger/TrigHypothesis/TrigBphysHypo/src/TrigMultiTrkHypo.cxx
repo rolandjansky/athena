@@ -92,8 +92,6 @@ StatusCode TrigMultiTrkHypo::initialize() {
   ATH_CHECK( m_trigBphysContainerKey.initialize() );
 
   ATH_CHECK( m_vertexFitter.retrieve() );
-  m_vertexFitterState = m_vertexFitter->makeState();
-  m_vertexFitter->setMassInputParticles(m_trkMass, *m_vertexFitterState);
   ATH_CHECK( m_vertexPointEstimator.retrieve() );
 
   ATH_CHECK( m_hypoTools.retrieve() );
@@ -317,7 +315,9 @@ xAOD::TrigBphys* TrigMultiTrkHypo::fit(const std::vector<ElementLink<xAOD::Track
   if (errorcode != 0) startingPoint = Amg::Vector3D::Zero(3);
   ATH_MSG_DEBUG( "Starting point: (" << startingPoint(0) << ", " << startingPoint(1) << ", " << startingPoint(2) << ")" );
 
-  xAOD::Vertex* vertex = m_vertexFitter->fit(tracklist, startingPoint, *m_vertexFitterState);
+  auto fitterState = m_vertexFitter->makeState();
+  m_vertexFitter->setMassInputParticles(m_trkMass, *fitterState);
+  xAOD::Vertex* vertex = m_vertexFitter->fit(tracklist, startingPoint, *fitterState);
   if (!vertex) {
     ATH_MSG_DEBUG( "Vertex fit fails" );
     return result;
@@ -331,7 +331,7 @@ xAOD::TrigBphys* TrigMultiTrkHypo::fit(const std::vector<ElementLink<xAOD::Track
 
   double invariantMass = 0.;
   double invariantMassError = 0.;
-  if (!m_vertexFitter->VKalGetMassError(invariantMass, invariantMassError, *m_vertexFitterState).isSuccess()) {
+  if (!m_vertexFitter->VKalGetMassError(invariantMass, invariantMassError, *fitterState).isSuccess()) {
     ATH_MSG_DEBUG( "Warning from TrkVKalVrtFitter: can not calculate uncertainties" );
     invariantMass = -9999.;
   }

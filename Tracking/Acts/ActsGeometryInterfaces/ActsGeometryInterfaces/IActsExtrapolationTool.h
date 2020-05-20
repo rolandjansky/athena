@@ -28,8 +28,32 @@ class IActsExtrapolationTool : virtual public IAlgTool {
 
   virtual
   std::vector<Acts::detail::Step>
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+                   
+  virtual
+  std::unique_ptr<const Acts::CurvilinearParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
+            Acts::NavigationDirection navDir = Acts::forward,
+            double pathLimit = std::numeric_limits<double>::max()) const = 0;
+            
+  virtual
+  std::vector<Acts::detail::Step>
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   const Acts::Surface& target,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+            
+  virtual
+  std::unique_ptr<const Acts::BoundParameters>
+  propagate(const EventContext& ctx,
+            const Acts::BoundParameters& startParameters,
+            const Acts::Surface& target,
+            Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
 
   virtual

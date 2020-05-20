@@ -368,13 +368,9 @@ TriggerHLTListRun3 = [
 
     # FIXME: add vertex tracks
 
-    #bjet jets first step
-    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:FullScanBjetView'),
-    ('xAOD::JetAuxContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
-
-    #bjet jets second step
-    ('xAOD::JetContainer#HLT_InViewJets',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::JetAuxContainer#HLT_InViewJetsAux.btaggingLink',          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    # bjet jets
+    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::JetAuxContainer#HLT_GSCJetAux.btaggingLink',          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # vertex for b-jets
     ('xAOD::VertexContainer#HLT_EFHistoPrmVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),

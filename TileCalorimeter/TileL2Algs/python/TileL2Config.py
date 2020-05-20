@@ -109,8 +109,8 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     acc.merge( TrigBSReadCfg(ConfigFlags) )

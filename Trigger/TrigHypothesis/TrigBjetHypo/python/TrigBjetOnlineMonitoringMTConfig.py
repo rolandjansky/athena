@@ -29,3 +29,4 @@ class TrigBjetOnlineMonitoring(GenericMonitoringTool):
         # Jet Histograms
         self.defineHistogram('jet_pt', path='EXPERT', type='TH1F', title="Jet PT", xbins = default_bin_count, xmin=0, xmax=800000) 
         self.defineHistogram('jet_eta', path='EXPERT', type='TH1F', title="Jet Eta", xbins = default_bin_count, xmin=-5, xmax=5) 
+        self.defineHistogram('jet_phi', path='EXPERT', type='TH1F', title="Jet Phi", xbins = default_bin_count, xmin=-3.5, xmax=3.5) 
