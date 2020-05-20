@@ -191,6 +191,13 @@ class JobOptionsTemplate(object):
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
+                if 'CA' in self._exe.conf.argdict:
+                    #ComponentAccumulator based config, import skeleton here:
+                    for skeleton in self._exe._skeleton: #FIXME: Multiple skeletons won't work
+                        print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
+                        pythonizedSkeleton=skeleton[:-3].replace('/','.')
+                        print('from {0} import fromRunArgs'.format(pythonizedSkeleton),file=runargsFile)
+                        print('fromRunArgs({0})'.format(self._runArgsName),file=runargsFile)
 
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
@@ -225,5 +232,10 @@ class JobOptionsTemplate(object):
         self.writeRunArgs(input = input, output = output)
         # Make sure runArgs and skeleton are valid
         self.ensureJobOptions()
-        return [ self._runArgsFile ] + self._exe._skeleton
+        if 'CA' in self._exe.conf.argdict:
+            #ComponentAccumulator based config, use only runargs file
+            return [ self._runArgsFile ]
+        else:
+            #Traditional athena: runargs + skeleton
+            return [ self._runArgsFile ] + self._exe._skeleton
 
