@@ -739,6 +739,12 @@ namespace top {
       }
     }
 
+    inline virtual void enablePromptLeptonImprovedVetoStudies(const std::string& s) {
+      if (!m_configFixed) {
+	m_enablePromptLeptonImprovedVetoStudies = (s == "True" || s == "true");
+      }
+    }
+
     inline virtual const std::string& egammaSystematicModel() {return m_egammaSystematicModel;}
     inline virtual const std::string& electronEfficiencySystematicModel() {return m_electronEfficiencySystematicModel;}
     inline virtual const std::string& electronEfficiencySystematicModelEtaBinning() {
@@ -760,6 +766,7 @@ namespace top {
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
     inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
+    inline bool enablePromptLeptonImprovedVetoStudies() const {return m_enablePromptLeptonImprovedVetoStudies;}
 
     // Fwd electron
     inline virtual void fwdElectronID(const std::string& s) {
@@ -2027,6 +2034,7 @@ namespace top {
     std::string m_electronIDLooseDecoration;
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
+    bool m_enablePromptLeptonImprovedVetoStudies;
 
     //Fwd electron configuration
     float m_fwdElectronPtcut;

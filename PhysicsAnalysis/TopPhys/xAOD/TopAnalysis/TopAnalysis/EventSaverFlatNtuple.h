@@ -574,6 +574,34 @@ namespace top {
     std::vector<int> m_softmu_b_hadron_parent_pdgid;
     std::vector<int> m_softmu_c_hadron_parent_pdgid;
 
+    //temporary: PLIV for electrons+muons
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_conversion;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_non_prompt_b;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_non_prompt_c;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_prompt;
+    std::vector<short> m_PLIV_el_PromptLeptonImprovedInput_MVAXBin;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_PtFrac;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_DRlj;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_PtRel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedVetoBARR;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedVetoECAP;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_non_prompt_b;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_non_prompt_c;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_prompt;
+    std::vector<short> m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_PtFrac;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_DRlj;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedVeto;
+
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;

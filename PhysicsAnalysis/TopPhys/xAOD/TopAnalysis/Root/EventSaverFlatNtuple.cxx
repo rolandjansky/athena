@@ -808,6 +808,23 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_conversion, "PLIV_el_PromptLeptonRNN_conversion");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_non_prompt_b, "PLIV_el_PromptLeptonRNN_non_prompt_b");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_non_prompt_c, "PLIV_el_PromptLeptonRNN_non_prompt_c");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_prompt, "PLIV_el_PromptLeptonRNN_prompt");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_MVAXBin, "PLIV_el_PromptLeptonImprovedInput_MVAXBin");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack, "PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel, "PLIV_el_PromptLeptonImprovedInput_topoetcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel, "PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_PtFrac, "PLIV_el_PromptLeptonImprovedInput_PtFrac");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_DRlj, "PLIV_el_PromptLeptonImprovedInput_DRlj");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel, "PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_PtRel, "PLIV_el_PromptLeptonImprovedInput_PtRel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx, "PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoBARR, "PLIV_el_PromptLeptonImprovedVetoBARR");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoECAP, "PLIV_el_PromptLeptonImprovedVetoECAP");
+	}
       }
 
       //forward electrons
@@ -843,6 +860,19 @@ namespace top {
           systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
         }
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_b, "PLIV_mu_PromptLeptonRNN_non_prompt_b");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_c, "PLIV_mu_PromptLeptonRNN_non_prompt_c");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_prompt, "PLIV_mu_PromptLeptonRNN_prompt");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin, "PLIV_mu_PromptLeptonImprovedInput_MVAXBin");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel, "PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_PtFrac, "PLIV_mu_PromptLeptonImprovedInput_PtFrac");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_DRlj, "PLIV_mu_PromptLeptonImprovedInput_DRlj");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel, "PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel, "PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest, "PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedVeto, "PLIV_mu_PromptLeptonImprovedVeto");
+	}
       }
 
       //soft muons
@@ -2132,9 +2162,42 @@ namespace top {
         m_el_true_isPrompt.resize(n_electrons);
         m_el_true_isChargeFl.resize(n_electrons);
       }
+      if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	m_PLIV_el_PromptLeptonRNN_conversion.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_non_prompt_b.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_non_prompt_c.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_prompt.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_MVAXBin.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_PtFrac.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_DRlj.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_PtRel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedVetoBARR.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedVetoECAP.resize(n_electrons);
+      }
 
       static const SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
       static const SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
+
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_conversion("PromptLeptonRNN_conversion");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_non_prompt_b("PromptLeptonRNN_non_prompt_b");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_non_prompt_c("PromptLeptonRNN_non_prompt_c");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_prompt("PromptLeptonRNN_prompt");
+      static const SG::AuxElement::Accessor<short> PLIV_el_PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+      static const SG::AuxElement::Accessor<short> PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack("PromptLeptonImprovedInput_TrackJetNTrack");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_topoetcone30rel("PromptLeptonImprovedInput_topoetcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel("PromptLeptonImprovedInput_ptvarcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_PtFrac("PromptLeptonImprovedInput_PtFrac");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_DRlj("PromptLeptonImprovedInput_DRlj");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel("PromptLeptonImprovedInput_CaloClusterSumEtRel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_PtRel("PromptLeptonImprovedInput_PtRel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedVetoBARR("PromptLeptonImprovedVetoBARR");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedVetoECAP("PromptLeptonImprovedVetoECAP");
 
       for (const auto* const elPtr : event.m_electrons) {
         m_el_pt[i] = elPtr->pt();
@@ -2162,6 +2225,24 @@ namespace top {
           m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
           m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
         }
+
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  m_PLIV_el_PromptLeptonRNN_conversion[i] = PLIV_el_PromptLeptonRNN_conversion.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_conversion(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_non_prompt_b[i] = PLIV_el_PromptLeptonRNN_non_prompt_b.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_non_prompt_b(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_non_prompt_c[i] = PLIV_el_PromptLeptonRNN_non_prompt_c.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_non_prompt_c(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_prompt[i] = PLIV_el_PromptLeptonRNN_prompt.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_prompt(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_el_PromptLeptonImprovedInput_MVAXBin.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_MVAXBin(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack[i] = PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_el_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_topoetcone30rel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel[i] = PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_PtFrac[i] = PLIV_el_PromptLeptonImprovedInput_PtFrac.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_PtFrac(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_DRlj[i] = PLIV_el_PromptLeptonImprovedInput_DRlj.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_DRlj(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel[i] = PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_PtRel[i] = PLIV_el_PromptLeptonImprovedInput_PtRel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_PtRel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx[i] = PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedVetoBARR[i] = PLIV_el_PromptLeptonImprovedVetoBARR.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedVetoBARR(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedVetoECAP[i] = PLIV_el_PromptLeptonImprovedVetoECAP.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedVetoECAP(*elPtr) : -999.;
+	}
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {
@@ -2211,6 +2292,31 @@ namespace top {
         m_mu_true_origin.resize(n_muons);
         m_mu_true_isPrompt.resize(n_muons);
       }
+      if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	m_PLIV_mu_PromptLeptonRNN_non_prompt_b.resize(n_muons);
+	m_PLIV_mu_PromptLeptonRNN_non_prompt_c.resize(n_muons);
+	m_PLIV_mu_PromptLeptonRNN_prompt.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_PtFrac.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_DRlj.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedVeto.resize(n_muons);
+      }
+
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_non_prompt_b("PromptLeptonRNN_non_prompt_b");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_non_prompt_c("PromptLeptonRNN_non_prompt_c");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_prompt("PromptLeptonRNN_prompt");
+      static const SG::AuxElement::Accessor<short> PLIV_mu_PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel("PromptLeptonImprovedInput_topoetcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_PtFrac("PromptLeptonImprovedInput_PtFrac");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_DRlj("PromptLeptonImprovedInput_DRlj");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel("PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel("PromptLeptonImprovedInput_CaloClusterERel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
 
       for (const auto* const muPtr : event.m_muons) {
         m_mu_pt[i] = muPtr->pt();
@@ -2231,6 +2337,20 @@ namespace top {
         }
         if (muPtr->isAvailable<float>("d0sig")) m_mu_d0sig[i] = muPtr->auxdataConst<float>("d0sig");
         if (muPtr->isAvailable<float>("delta_z0_sintheta")) m_mu_delta_z0_sintheta[i] = muPtr->auxdataConst<float>("delta_z0_sintheta");
+
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  m_PLIV_mu_PromptLeptonRNN_non_prompt_b[i] = PLIV_mu_PromptLeptonRNN_non_prompt_b.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_b(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonRNN_non_prompt_c[i] = PLIV_mu_PromptLeptonRNN_non_prompt_c.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_c(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonRNN_prompt[i] = PLIV_mu_PromptLeptonRNN_prompt.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_prompt(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_mu_PromptLeptonImprovedInput_MVAXBin.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_MVAXBin(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_PtFrac[i] = PLIV_mu_PromptLeptonImprovedInput_PtFrac.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_PtFrac(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_DRlj[i] = PLIV_mu_PromptLeptonImprovedInput_DRlj.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_DRlj(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel[i] = PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel[i] = PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest[i] = PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedVeto[i] = PLIV_mu_PromptLeptonImprovedVeto.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedVeto(*muPtr) : -999.;
+	}
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {

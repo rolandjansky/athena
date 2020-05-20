@@ -48,6 +48,7 @@ namespace top {
     m_isolationTool_Tight_FixedRad("CP::IsolationTool_Tight_FixedRad"),
     m_isolationTool_Loose_VarRad("CP::IsolationTool_Loose_VarRad"),
     m_isolationTool_Loose_FixedRad("CP::IsolationTool_Loose_FixedRad"),
+    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
 
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
     declareProperty("config", m_config);
@@ -74,6 +75,7 @@ namespace top {
     declareProperty("IsolationTool_Tight_FixedRad", m_isolationTool_Tight_FixedRad);
     declareProperty("IsolationTool_Loose_VarRad", m_isolationTool_Loose_VarRad);
     declareProperty("IsolationTool_Loose_FixedRad", m_isolationTool_Loose_FixedRad);
+    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
   }
 
@@ -98,6 +100,7 @@ namespace top {
     top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
+    top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Tight_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Tight_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Loose_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
@@ -140,6 +143,12 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
     static const SG::AuxElement::ConstAccessor<int> chamberIndex("chamberIndex");
+    static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
+    static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
+    static SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -273,8 +282,17 @@ namespace top {
 	  passIsol_TightTrackOnly_FixedRad = m_isolationTool_TightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
         }
 	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
-	  passIsol_PLVTight = m_isolationTool_PLVTight->accept(*muon) ? 1 : 0;
-	  passIsol_PLVLoose = m_isolationTool_PLVLoose->accept(*muon) ? 1 : 0;
+	  if ( PLV_TrackJetNTrack.isAvailable(*muon) &&
+	       PLV_DRlj.isAvailable(*muon) &&
+	       PLV_PtRel.isAvailable(*muon) &&
+	       PLV_PtFrac.isAvailable(*muon) )
+	    top::check(m_isolationTool_LowPtPLV->augmentPLV(*muon), "Failed to agument muon with LowPtPLV decorations");
+	  else
+	    byhand_LowPtPLV(*muon) = 1.1;
+	  if (PLV_PromptLeptonVeto.isAvailable(*muon)) {
+	    passIsol_PLVTight = m_isolationTool_PLVTight->accept(*muon) ? 1 : 0;
+	    passIsol_PLVLoose = m_isolationTool_PLVLoose->accept(*muon) ? 1 : 0;
+	  }
         }
 	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_Tight_FixedRad = m_isolationTool_Tight_FixedRad->accept(*muon) ? 1 : 0;

@@ -87,8 +87,8 @@ namespace top {
 					     "HighPtTrackOnly",
 					     "TightTrackOnly_VarRad",
 					     "TightTrackOnly_FixedRad",
-					     "PLVTightMuon",
-					     "PLVLooseMuon",
+					     "PLVTight",
+					     "PLVLoose",
 					     "Tight_VarRad",
 					     "Tight_FixedRad",
 					     "Loose_VarRad",
@@ -130,37 +130,33 @@ namespace top {
     for (const std::string& isoWP : all_isolations) {
       std::string tool_name;
       if (isoWP.find("PLV") != std::string::npos){
-	if (isoWP.find("Muon") == std::string::npos) {
-	  tool_name = "CP::IsolationTool_LowPtPLV";
-	  if(!asg::ToolStore::contains<CP::IIsolationLowPtPLVTool>(tool_name)) {
-	    CP::IIsolationLowPtPLVTool* iso_tool = new CP::IsolationLowPtPLVTool(tool_name);
-	    top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
-	    m_isolationToolsLowPtPLV.push_back(iso_tool);
-	  }
+	tool_name = "CP::IsolationTool_LowPtPLV";
+	if(!asg::ToolStore::contains<CP::IIsolationLowPtPLVTool>(tool_name)) {
+	  CP::IIsolationLowPtPLVTool* iso_tool = new CP::IsolationLowPtPLVTool(tool_name);
+	  top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
+	  m_isolationToolsLowPtPLV.push_back(iso_tool);
 	}
       }
       tool_name = "CP::IsolationTool_" + isoWP;
-      if (isoWP == "PLVTightMuon") tool_name = "CP::IsolationTool_PLVTight";
-      if (isoWP == "PLVLooseMuon") tool_name = "CP::IsolationTool_PLVLoose";
       if (!asg::ToolStore::contains<CP::IIsolationSelectionTool>(tool_name)) {
-        CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
-        top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),
-                   "Failed to set CalibFileName for " + tool_name);
-        if (electron_isolations.find(isoWP) !=
-            electron_isolations.end()) top::check(asg::setProperty(iso_tool, "ElectronWP",
-                                                                   isoWP),
-                                                  "Failed to set electron WP for " +
-                                                  tool_name);
-        if (muon_isolations.find(isoWP) != muon_isolations.end()) top::check(asg::setProperty(iso_tool, "MuonWP",
-                                                                                              isoWP),
-                                                                             "Failed to set muon WP for " + tool_name);
-        if (photon_isolations.find(isoWP) !=
-            photon_isolations.end()) top::check(asg::setProperty(iso_tool, "PhotonWP",
-                                                                 isoWP),
-                                                "Failed to set photon WP for " +
-                                                tool_name);
-        top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
-        m_isolationTools.push_back(iso_tool);
+	CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
+	top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),
+		   "Failed to set CalibFileName for " + tool_name);
+	if (electron_isolations.find(isoWP) !=
+	    electron_isolations.end()) top::check(asg::setProperty(iso_tool, "ElectronWP",
+								   isoWP),
+						  "Failed to set electron WP for " +
+						  tool_name);
+	if (muon_isolations.find(isoWP) != muon_isolations.end()) top::check(asg::setProperty(iso_tool, "MuonWP",
+											      isoWP),
+									     "Failed to set muon WP for " + tool_name);
+	if (photon_isolations.find(isoWP) !=
+	    photon_isolations.end()) top::check(asg::setProperty(iso_tool, "PhotonWP",
+								 isoWP),
+						"Failed to set photon WP for " +
+						tool_name);
+	top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
+	m_isolationTools.push_back(iso_tool);
       }
     }
     return StatusCode::SUCCESS;
