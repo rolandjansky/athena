@@ -191,7 +191,6 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     Amg::Vector2D fastDigitPos(0.,0.);
     if( !detEl->stripPosition(offId,fastDigitPos ) ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain local position for identifier " << m_MmIdHelper->print_to_string(offId) );
-      continue;
     }
 
     Amg::Vector3D detpos = detEl->globalPosition();
