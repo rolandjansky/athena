@@ -84,4 +84,4 @@ if __name__ == "__main__":
     top_acc.run(25)
     #with open('test4.pkl', mode="wb") as f:
     #   dill.dump(acc, f)
-    top_acc.store(open("test00.pkl", "w"))
+    top_acc.store(open("test00.pkl", "wb"))
