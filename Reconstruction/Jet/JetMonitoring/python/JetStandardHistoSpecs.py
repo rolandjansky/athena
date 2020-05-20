@@ -79,8 +79,8 @@ _knownHistos = [
     HistoSpec('Jvt', (70, -0.2, 1.2), title='Jet JVT;JVT;',  ),
     HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT; JVFCorr;', ),
     HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt; JVTRpt;', ),
-    HistoSpec('EM3Frac', (50,-0.1,0.5), title="EM3 fraction;EM3 fraction;Entries"),
-    HistoSpec('Tile0Frac', (50,-0.1,0.5), title="Tile0 fraction;Tile0 fraction;Entries"),
+    HistoSpec('EM3Frac', (50,-0.1,1.0), title="EM3 fraction;EM3 fraction;Entries"),
+    HistoSpec('Tile0Frac', (50,-0.1,1.0), title="Tile0 fraction;Tile0 fraction;Entries"),
 
 
     HistoSpec('GhostMuonSegmentCount', (60, 0, 60), title='Number of associated muon segments;Number;', xvar=VarSpec('GhostMuonSegmentCount','int')),
