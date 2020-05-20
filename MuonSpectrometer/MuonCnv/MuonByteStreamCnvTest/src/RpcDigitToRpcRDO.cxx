@@ -30,7 +30,8 @@ namespace {
 /////////////////////////////////////////////////////////////////////////////
 
 RpcDigitToRpcRDO::RpcDigitToRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator),
+  m_MuonMgr(nullptr)
 {
 }
 
@@ -46,10 +47,6 @@ StatusCode RpcDigitToRpcRDO::initialize()
   ATH_CHECK(detStore()->retrieve(m_MuonMgr));
 
   ATH_CHECK(m_cabling.retrieve()) ;
-  if (m_cabling->rpcCabSvcType() == "simLike_MapsFromFiles" || m_cabling->rpcCabSvcType() == "dataLike") m_cablingType="MuonRPC_Cabling";
-  else if (m_cabling->rpcCabSvcType() == "simulationLike") m_cablingType="RPCcablingSim";
-  else if (m_cabling->rpcCabSvcType() == "simulationLikeInitialization" ) m_cablingType="RPCcabling";
-  else ATH_MSG_WARNING( "Unknown cabling type: rpcCabSvcType()="<< m_cabling->rpcCabSvcType() );
 
   ATH_CHECK(m_readKey.initialize());
 
@@ -236,21 +233,21 @@ double time_correction(double x, double y, double z)
   return std::sqrt(x*x+y*y+z*z)*inverseSpeedOfLight;
 }
 
-
+// NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+//       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+//       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
 StatusCode RpcDigitToRpcRDO::fillTagInfo() const
 {
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
   ATH_CHECK(tagInfoMgr.retrieve());
 
-  StatusCode sc = tagInfoMgr->addTag("RPC_CablingType",m_cablingType);
-
+  std::string cablingType="MuonRPC_Cabling";
+  StatusCode sc = tagInfoMgr->addTag("RPC_CablingType",cablingType);
   if(sc.isFailure()) {
-    ATH_MSG_WARNING( "RPC_CablingType " << m_cablingType
-                     << " not added to TagInfo "  );
+    ATH_MSG_WARNING( "RPC_CablingType " << cablingType << " not added to TagInfo "  );
     return sc;
   } else {
-    ATH_MSG_DEBUG( "RPC_CablingType " << m_cablingType
-                   << " is Added TagInfo "  );
+    ATH_MSG_DEBUG( "RPC_CablingType " << cablingType << " is Added TagInfo "  );
   }
 
   return StatusCode::SUCCESS;
