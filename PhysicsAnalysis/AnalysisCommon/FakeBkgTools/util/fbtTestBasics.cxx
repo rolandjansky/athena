@@ -125,7 +125,7 @@ bool allTests()
     FBT_CHECK( readFromXML() );
     FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result3) );
     FBT_CHECK( readFromROOT() );
-    FBT_CHECK( result1 == result2 );
+    FBT_CHECK( result1 == result3 );
     
     if(verbose) std::cout <<"\nWill test getEventWeight()\n";
     {
@@ -134,7 +134,7 @@ bool allTests()
         FBT_CHECK( eventLoop(tool, result4) );
         if(verbose) result3.Print();
     }
-    FBT_CHECK( result1 == result3 );
+    FBT_CHECK( result1 == result4 );
     
     if(verbose) std::cout <<"\nWill test parallel jobs and merging\n";
     eventOffset = 0;
