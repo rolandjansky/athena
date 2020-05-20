@@ -1060,6 +1060,12 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
+    
+    inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
+      if (!m_configFixed) {
+        m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
+      }
+    }
 
     inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {
       if (!m_configFixed) {
@@ -1070,6 +1076,7 @@ namespace top {
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
     inline virtual void trackJetPtcut(const float pt) {
@@ -1187,13 +1194,6 @@ namespace top {
       }
     }
 
-    inline virtual void jetUncertainties_BunchSpacing(const std::string& s) {
-      if (!m_configFixed) {
-        m_jetUncertainties_BunchSpacing = s;
-      }
-    }
-
-    inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
 
     virtual void jetUncertainties_NPModel(const std::string& s);
     virtual void jetUncertainties_QGFracFile(const std::string& s);
@@ -2070,7 +2070,6 @@ namespace top {
     float m_jetEtacut; // jet object selection (abs) eta cut
     std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
-    std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
@@ -2087,6 +2086,7 @@ namespace top {
     float m_largeRJetPtcut; // large R jet object selection pT cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
     std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210

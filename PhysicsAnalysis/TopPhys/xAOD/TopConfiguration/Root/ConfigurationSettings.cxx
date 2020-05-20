@@ -164,9 +164,6 @@ namespace top {
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
                       "19000.");
-    registerParameter("JetUncertainties_BunchSpacing",
-                      "25ns (default) or 50ns - for JetUncertainties",
-                      "25ns");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");
@@ -199,6 +196,9 @@ namespace top {
     registerParameter("LargeRJetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
                       "CategoryReduction");
+    registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
+                      "Path to directory containing large-R jet uncertainties config",
+                      "rel21/Summer2019");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
                       "CombMass");

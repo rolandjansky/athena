@@ -85,6 +85,9 @@ namespace top {
     // return all recommendedSystematics
     inline const std::list<CP::SystematicSet>& recommendedSystematics()   const {return m_recommendedSystematics;}
   protected:
+  
+    // Function will return prefix which will be added to systematic names obtained from tools
+    virtual std::string getLargeRModName(const std::string& NPModel) const;
     // specify Systematic
     virtual void addSystematics(const std::set<std::string>& specifiedSystematics,
                                 const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet,

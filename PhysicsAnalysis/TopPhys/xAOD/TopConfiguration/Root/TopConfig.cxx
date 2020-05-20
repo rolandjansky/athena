@@ -240,7 +240,6 @@ namespace top {
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
     m_jetPtGhostTracks(19000.),
-    m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
     m_jetUncertainties_QGHistPatterns(),
@@ -255,6 +254,7 @@ namespace top {
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
+    m_largeRJetUncertaintiesConfigDir("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
@@ -1224,7 +1224,6 @@ namespace top {
     this->jetEtacut(std::stof(settings->value("JetEta")));
     this->fwdJetAndMET(settings->value("FwdJetAndMET"));
     this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
-    this->jetUncertainties_BunchSpacing(settings->value("JetUncertainties_BunchSpacing"));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
@@ -1237,6 +1236,7 @@ namespace top {
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
+    this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
