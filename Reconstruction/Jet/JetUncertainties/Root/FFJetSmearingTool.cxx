@@ -376,21 +376,20 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
 
 
-    TFile *Calo_TA_weight_file  = new TFile(Calo_TA_weight_file_path,"READ");
-    if(Calo_TA_weight_file->IsOpen()==false){
+    TFile Calo_TA_weight_file(Calo_TA_weight_file_path,"READ");
+    if(Calo_TA_weight_file.IsOpen()==false){
         ATH_MSG_FATAL( "Unable to open " << Calo_TA_weight_file );
         return StatusCode::FAILURE;
     }
 
-    m_caloMassWeight = (TH3F*)Calo_TA_weight_file->Get(Calo_weight_hist_name);
-    m_TAMassWeight = (TH3F*)Calo_TA_weight_file->Get(TA_weight_hist_name);
+    m_caloMassWeight = (TH3F*)Calo_TA_weight_file.Get(Calo_weight_hist_name);
+    m_TAMassWeight = (TH3F*)Calo_TA_weight_file.Get(TA_weight_hist_name);
 
     m_caloMassWeight->SetDirectory(0);
     m_TAMassWeight->SetDirectory(0);//To keep it open when we close the .root file
 
 
-    Calo_TA_weight_file-> Close();
-    delete Calo_TA_weight_file;
+    Calo_TA_weight_file.Close();
 
     return StatusCode::SUCCESS;
 }
