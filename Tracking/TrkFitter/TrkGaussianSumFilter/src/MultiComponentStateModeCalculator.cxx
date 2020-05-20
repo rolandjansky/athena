@@ -15,7 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 
 namespace {
-constexpr double invsqrt2PI = 1. / sqrt(2. * M_PI);
+const double invsqrt2PI = 1. / sqrt(2. * M_PI);
 
 /** bried method to determine the value of the a gaussian distribution at a
  * given value */
