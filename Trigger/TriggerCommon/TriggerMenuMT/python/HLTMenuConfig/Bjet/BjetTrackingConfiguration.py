@@ -3,16 +3,14 @@
 from AthenaCommon.CFElements import seqAND
 #from AthenaCommon.Constants import DEBUG
 
-def getSecondStageBjetTracking( inputRoI ):
+def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence = []
 
     # Second stage of Fast tracking (for precision tracking preparation)
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs, viewVerify = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="_Bjet", rois=inputRoI )
 
-    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + inputRoI ),
-                               ( 'xAOD::VertexContainer' , 'StoreGateSvc+HLT_EFHistoPrmVtx' ),
-                               ( 'xAOD::JetContainer' , 'StoreGateSvc+InViewJets' )]
+    viewVerify.DataObjects += dataObjects
 
     # Make sure the required objects are still available at whole-event level
     from IOVDbSvc.CondDB import conddb
@@ -28,11 +26,10 @@ def getSecondStageBjetTracking( inputRoI ):
 
     # Precision Tracking
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", rois=inputRoI, inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
-    algSequence += PTAlgs
+    algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
-    return [ algSequence, PTTracks, PTTrackParticles ]
+    return [ algSequence, PTTrackParticles ]
 
 
 
