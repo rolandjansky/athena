@@ -105,4 +105,20 @@ atlas_add_test( HistogramDefinitionSvc_test
                 POST_EXEC_SCRIPT "nopost.sh"
 )
 
+atlas_add_test( XmlEntityInclusion_test
+                SOURCES
+                test/XmlEntityInclusion_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( InDetPlotBase_test
+                SOURCES
+                test/InDetPlotBase_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
 
