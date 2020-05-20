@@ -656,8 +656,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
            double ramo_f_e=0.;
            if(doRamoE){
 
-             int nbin_ramo_f_e_x = int( 1 + fabs( dPhi_f_e ) * ramo_x_binMap[Layer] );
-             int nbin_ramo_f_e_y = int( 1 + fabs( dEta_f_e ) * ramo_y_binMap[Layer] );
+             int nbin_ramo_f_e_x = int( 1 + std::abs( dPhi_f_e ) * ramo_x_binMap[Layer] );
+             int nbin_ramo_f_e_y = int( 1 + std::abs( dEta_f_e ) * ramo_y_binMap[Layer] );
 
              // Check for overflow in ramo hists in x- and y-direction
              if (nbin_ramo_f_e_x > numBins_weightingPotential_x){ 
@@ -672,7 +672,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
              }
            }
            else{
-             if (fabs(dEta_f_e)<Module.etaPitch()/2.  && fabs(dPhi_f_e)<Module.phiPitch()/2.) ramo_f_e=1.;
+             if (std::abs(dEta_f_e)<Module.etaPitch()/2.  && std::abs(dPhi_f_e)<Module.phiPitch()/2.) ramo_f_e=1.;
            }
 
            double ramo_f_h=0;
@@ -684,8 +684,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
              dEta_f_h*=scale_f_h;
 
-             int nbin_ramo_f_h_x = int( 1 + fabs( dPhi_f_h ) * ramo_x_binMap[Layer] );
-             int nbin_ramo_f_h_y = int( 1 + fabs( dEta_f_h ) * ramo_y_binMap[Layer] );
+             int nbin_ramo_f_h_x = int( 1 + std::abs( dPhi_f_h ) * ramo_x_binMap[Layer] );
+             int nbin_ramo_f_h_y = int( 1 + std::abs( dEta_f_h ) * ramo_y_binMap[Layer] );
 
              // Check for overflow in ramo hists in x- and y-direction
              if (nbin_ramo_f_h_x > numBins_weightingPotential_x){
