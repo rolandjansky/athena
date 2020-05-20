@@ -30,7 +30,7 @@ if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
     CoolDataBaseFolder = '/PIXEL/ITkClusterError'
     DetDescrVersion = globalflags.DetDescrVersion()
     if(DetDescrVersion.startswith('ATLAS-P2-ITK-22')):
-        ctag = 'PixelITkError_v2'
+        ctag = 'PixelITkError_v3'
     else:
         print "Undefined ITkClusterErrorData tag"
     cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'

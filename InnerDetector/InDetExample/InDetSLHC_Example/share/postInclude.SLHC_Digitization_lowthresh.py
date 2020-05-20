@@ -70,9 +70,9 @@ if DetFlags.digitize.pixel_on():
     ServiceMgr.PixelCalibSvc.NoiseThresh     =  75
 
     ## ITk chip values for charge calibration
-    ServiceMgr.PixelCalibSvc.ToTParA       = 256
-    ServiceMgr.PixelCalibSvc.ToTParE        = -200
-    ServiceMgr.PixelCalibSvc.ToTParC       = 150000
+    ServiceMgr.PixelCalibSvc.ToTParA       = 14
+    ServiceMgr.PixelCalibSvc.ToTParE        = -1000
+    ServiceMgr.PixelCalibSvc.ToTParC       = 8000
     ServiceMgr.PixelCalibSvc.ToTParP1      = 0.4
     ServiceMgr.PixelCalibSvc.ToTParP2      = 0.02
     # Avoid using calibration folders which may not exist
