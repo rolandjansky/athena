@@ -138,7 +138,7 @@ if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
 
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     ## Initialize a new component accumulator
-    cfg = MainServicesSerialCfg() #use this syntax for storegate
+    cfg = MainServicesCfg(ConfigFlags) #use this syntax for storegate
     # Add configuration to read EVNT pool file
     cfg.merge(PoolReadCfg(ConfigFlags))
 
