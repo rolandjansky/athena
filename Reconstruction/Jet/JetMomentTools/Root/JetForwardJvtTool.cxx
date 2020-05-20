@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.cxx
@@ -83,10 +83,18 @@
     if (jetCont.size()>0 && acc_fjvt_der.isAvailable(*jetCont[0])){
       // We did all the work upstream. Add decorations as requested and get out
       for (const auto& jetF : jetCont) {
-        double fjvt = acc_fjvt_der(*jetF);
-        (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
-        (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
-        (*Dec_outFjvt)(*jetF) = (fjvt<=m_fjvtThresh);
+	if (!forwardJet(jetF)){
+	  (*Dec_out)(*jetF) = 1;
+	  (*Dec_outFjvt)(*jetF) = 1;
+	  (*Dec_outTiming)(*jetF) = 1;
+	  fjvt_dec(*jetF) = 0;
+	} else {
+	  double fjvt = acc_fjvt_der(*jetF);
+	  (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+	  (*Dec_outFjvt)(*jetF) = (fjvt<=m_fjvtThresh);
+	  (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+	  fjvt_dec(*jetF) = fjvt;
+	}
       }
       return 0;
     }
@@ -94,16 +102,18 @@
     getPV();
     if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
-      (*Dec_out)(*jetF) = 1;
-      (*Dec_outFjvt)(*jetF) = 1;
-      (*Dec_outTiming)(*jetF) = 1;
-      fjvt_dec(*jetF) = 0;
-      if (!forwardJet(jetF)) continue;
-      double fjvt = getFJVT(jetF)/jetF->pt();
-      if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-      if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
-      if (fjvt>m_fjvtThresh || fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_out)(*jetF) = 0;
-      fjvt_dec(*jetF) = fjvt;
+      if (!forwardJet(jetF)){
+	(*Dec_out)(*jetF) = 1;
+	(*Dec_outFjvt)(*jetF) = 1;
+	(*Dec_outTiming)(*jetF) = 1;
+	fjvt_dec(*jetF) = 0;
+      } else {
+	double fjvt = getFJVT(jetF)/jetF->pt();
+	if (fjvt>m_fjvtThresh || fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_out)(*jetF) = 0;
+	if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
+	if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
+	fjvt_dec(*jetF) = fjvt;
+      }
     }
     return 0;
   }
