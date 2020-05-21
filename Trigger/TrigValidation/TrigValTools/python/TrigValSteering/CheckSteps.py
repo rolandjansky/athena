@@ -17,7 +17,6 @@ import glob
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
 
-
 class RefComparisonStep(Step):
     '''Base class for steps comparing a file to a reference'''
 
@@ -564,34 +563,36 @@ class MessageCountStep(Step):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
         self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
-        self.warning_threshold = None
-        self.info_threshold = None
-        self.debug_threshold = None
-        self.verbose_threshold = None
-        self.other_threshold = None
+        self.print_on_fail = None
+        self.thresholds = {}
         self.auto_report_result = True
 
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
         self.args += ' -e "{:s}"'.format(self.end_pattern)
-        if self.warning_threshold is None:
-            self.warning_threshold = 0
-        if self.info_threshold is None:
-            self.info_threshold = test.exec_steps[0].max_events
-        if self.debug_threshold is None:
-            self.debug_threshold = 0
-        if self.verbose_threshold is None:
-            self.verbose_threshold = 0
-        if self.other_threshold is None:
-            self.other_threshold = test.exec_steps[0].max_events
+        if self.print_on_fail is None:
+            self.print_on_fail = self.required
+        if self.print_on_fail:
+            self.args += ' --saveAll'
+        if 'WARNING' not in self.thresholds:
+            self.thresholds['WARNING'] = 0
+        if 'INFO' not in self.thresholds:
+            self.thresholds['INFO'] = test.exec_steps[0].max_events
+        if 'DEBUG' not in self.thresholds:
+            self.thresholds['DEBUG'] = 0
+        if 'VERBOSE' not in self.thresholds:
+            self.thresholds['VERBOSE'] = 0
+        if 'other' not in self.thresholds:
+            self.thresholds['other'] = test.exec_steps[0].max_events
         super(MessageCountStep, self).configure(test)
 
     def run(self, dry_run=False):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
-        log_files = filter(r.match, files)
+        log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False
@@ -603,43 +604,28 @@ class MessageCountStep(Step):
             if self.auto_report_result:
                 self.report_result()
             return self.result, cmd
-        (num_warning, num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0, 0)
+
         for log_file in log_files:
             json_file = 'MessageCount.{:s}.json'.format(log_file)
+            if self.print_on_fail:
+                all_json_file = 'Messages.{:s}.json'.format(log_file)
             if not os.path.isfile(json_file):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
-                num_warning += summary['WARNING']
-                num_info += summary['INFO']
-                num_debug += summary['DEBUG']
-                num_verbose += summary['VERBOSE']
-                num_other += summary['other']
-        if num_warning > self.warning_threshold:
-            self.log.info(
-                '%s Number of WARNING messages %s is higher than threshold %s',
-                self.name, num_warning, self.warning_threshold)
-            self.result += 1
-        if num_info > self.info_threshold:
-            self.log.info(
-                '%s Number of INFO messages %s is higher than threshold %s',
-                self.name, num_info, self.info_threshold)
-            self.result += 1
-        if num_debug > self.debug_threshold:
-            self.log.info(
-                '%s Number of DEBUG messages %s is higher than threshold %s',
-                self.name, num_debug, self.debug_threshold)
-            self.result += 1
-        if num_verbose > self.verbose_threshold:
-            self.log.info(
-                '%s Number of VERBOSE messages %s is higher than threshold %s',
-                self.name, num_verbose, self.verbose_threshold)
-            self.result += 1
-        if num_other > self.other_threshold:
-            self.log.info(
-                '%s Number of "other" messages %s is higher than threshold %s',
-                self.name, num_other, self.other_threshold)
-            self.result += 1
+                for level, threshold in six.iteritems(self.thresholds):
+                    if summary[level] > threshold:
+                        self.result += 1
+                        self.log.info(
+                            '%s Number of %s messages %s is higher than threshold %s',
+                            self.name, level, summary[level], threshold)
+                        if self.print_on_fail:
+                            self.log.info('%s Printing all %s messages', self.name, level)
+                            with open(all_json_file) as af:
+                                all_msg = json.load(af)
+                                for msg in all_msg[level]:
+                                    print(msg.strip())  # noqa: ATL901
+
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
@@ -734,6 +720,8 @@ def default_check_steps(test):
 
     # MessageCount
     msgcount = MessageCountStep('MessageCount')
+    for logmerge in [step for step in check_steps if isinstance(step, LogMergeStep)]:
+        msgcount.skip_logs.append(logmerge.merged_name)
     check_steps.append(msgcount)
 
     # Tail (probably not so useful these days)
