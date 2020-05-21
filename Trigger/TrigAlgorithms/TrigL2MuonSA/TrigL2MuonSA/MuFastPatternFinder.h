@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
@@ -7,16 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
-
 #include "MdtCalibSvc/MdtCalibrationTool.h"
-
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -48,10 +46,9 @@ class MuFastPatternFinder: public AthAlgTool
 			   const std::string& name,
 			   const IInterface*  parent);
     
-      ~MuFastPatternFinder();
+      ~MuFastPatternFinder()=default;
     
       virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
     
    private:
 
@@ -70,10 +67,7 @@ class MuFastPatternFinder: public AthAlgTool
       // MDT calibration service
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
 
-      // Id helper
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-         "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 // --------------------------------------------------------------------------------
