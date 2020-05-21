@@ -101,7 +101,6 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dump(MsgStrea
      auto stringLength = dotPosition - slashPosition;
      return fullname.substr(slashPosition, stringLength);
    };
-   // @TODO restore ios
    std::streamsize ss = out.precision();
    int iw=9;
    out << "Output from ";
@@ -193,16 +192,15 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
   for(const Track* a_track : *tracks) {
     ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
     stat.increment_by_eta(TrackStat::kNcandidates,a_track); // @TODO should go to the score processor
-
+    
     // only fitted tracks get hole search, input is not fitted
     float score = m_scoringTool->score( *a_track, true);
     ATH_MSG_DEBUG ("Track Score is "<< score);
     // veto tracks with score 0
     bool reject = score==0;      
-    
-    // double track rejection
-    if (!reject) {
+    if (reject){
       stat.increment_by_eta(TrackStat::kNcandScoreZero,a_track);
+    } else {// double track rejection
       std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(*prd_to_track_map, *a_track);
       // convert to set
       PrdSignature prdSig( prds.begin(),prds.end() );
@@ -218,7 +216,6 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
 
     if (!reject) {
       // add track to map, map is sorted small to big ! set if fitted
-
       ATH_MSG_VERBOSE ("Track ("<< a_track <<" --> "<< *a_track << ") has score "<<score);
       trackScoreTrackMap->push_back( std::make_pair(a_track, -score));
     }
