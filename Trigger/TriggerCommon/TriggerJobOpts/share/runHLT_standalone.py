@@ -409,9 +409,6 @@ elif globalflags.InputFormat.is_bytestream():
         svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
-    # Online specific setup of BS converters
-    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
-
 
 # ---------------------------------------------------------------
 # Trigger config
