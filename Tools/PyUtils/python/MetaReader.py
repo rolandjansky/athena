@@ -51,7 +51,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
     if mode != 'full' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
-    if len(meta_key_filter) > 0:
+    if meta_key_filter:
         msg.info('Filter used: {0}'.format(meta_key_filter))
 
     # create the storage object for metadata.
@@ -149,7 +149,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '*': 'EventStreamInfo_p*'
                     }
 
-                if mode == 'full' and len(meta_key_filter) > 0:
+                if mode == 'full' and meta_key_filter:
                     meta_filter = {f: '*' for f in meta_key_filter}
                 # store all persistent classes for metadata container existing in a POOL/ROOT file.
                 persistent_instances = {}
@@ -199,7 +199,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 metadata_tree.GetEntry(0)
 
                 # clean the meta-dict if the meta_key_filter flag is used, to return only the key of interest
-                if len(meta_key_filter) > 0:
+                if meta_key_filter:
                     meta_dict[filename] = {}
 
                 # read the metadata
