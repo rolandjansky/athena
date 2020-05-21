@@ -10,6 +10,7 @@
 #include "CaloUtils/CaloVertexedCluster.h"
 
 #include "TauAxisSetter.h"
+#include "tauRecTools/HelperFunctions.h"
 
 /********************************************************************/
 TauAxisSetter::TauAxisSetter(const std::string& name) :
@@ -89,21 +90,16 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
     if(m_doVertexCorrection)
     {
 	TLorentzVector tauInterAxis;
-	
-	for (cItr = pJetSeed->getConstituents().begin(); cItr != cItrE; ++cItr) {
-	  tempClusterVector.SetPtEtaPhiE( (*cItr)->pt(), (*cItr)->eta(), (*cItr)->phi(), (*cItr)->e() );
-	  if (BaryCenter.DeltaR(tempClusterVector) > m_clusterCone)
-	    continue;
-	  
-	  const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-	  if (!cluster) continue;
-	  
+
+	std::vector<const xAOD::CaloCluster*> clusterList;
+	ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr, BaryCenter, m_clusterCone));
+	for (auto cluster : clusterList){
 	  if (pTau.vertexLink())
 	    tauInterAxis += xAOD::CaloVertexedCluster(*cluster, (*pTau.vertexLink())->position()).p4();
 	  else
 	    tauInterAxis += xAOD::CaloVertexedCluster(*cluster).p4();
 	}
-	
+
 	// save values for intermediate axis 
 	ATH_MSG_DEBUG("tau axis:" << tauInterAxis.Pt()<< " " << tauInterAxis.Eta() << " " << tauInterAxis.Phi()  << " " << tauInterAxis.E() );
         pTau.setP4(tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), pTau.m());
