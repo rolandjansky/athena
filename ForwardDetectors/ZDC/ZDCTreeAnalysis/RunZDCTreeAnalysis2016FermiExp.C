@@ -328,21 +328,21 @@ TChain *inputFiles(int year)
 {
     TChain *chain = new TChain("zdcTree");
 
-    // if (year == 1111) {
-    //     // chain->Add("ZDC_10kNeutrons_Merged_157TeV_80MHz.root");
-    //     chain->Add("ZDC_10kNeutrons_Merged_251TeV_80MHz.root");
-    // }
-    // else if (year == 2016) {
-    //     chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000001.ANALYSIS.root");
-    //     chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000002.ANALYSIS.root");
-    // }
-    // else if (year == 2018) {
-    //     chain->Add("data2018/data18_hi.00367365.calibration_zdcCalib.merge.AOD.c1319_m2048.89_ANALYSIS.root");
-    //     chain->Add("data2018/user.steinber.18605473._000006.ANALYSIS.root");
-    // }
-    // else throw;
+    if (year == 1111) {
+        // chain->Add("ZDC_10kNeutrons_Merged_157TeV_80MHz.root");
+        chain->Add("ZDC_10kNeutrons_Merged_251TeV_80MHz.root");
+    }
+    else if (year == 2016) {
+        chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000001.ANALYSIS.root");
+        chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000002.ANALYSIS.root");
+    }
+    else if (year == 2018) {
+        chain->Add("data2018/data18_hi.00367365.calibration_zdcCalib.merge.AOD.c1319_m2048.89_ANALYSIS.root");
+        chain->Add("data2018/user.steinber.18605473._000006.ANALYSIS.root");
+    }
+    else throw;
 
-    chain->Add("debug.root");
+    // chain->Add("debug.root");
 
     return chain;
 }
