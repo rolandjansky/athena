@@ -412,6 +412,22 @@ class TailStep(Step):
         self.args += ' >'+self.output_name
         super(TailStep, self).configure(test)
 
+class DownloadRefStep(Step):
+    '''Execute art.py download to downlaod results from previous day '''
+
+    def __init__(self, name='DownloadRefWeb'):
+        super(DownloadRefStep, self).__init__(name)
+        self.executable = 'art.py'
+        self.artpackage = ' '
+        self.artjobname = ' '
+        self.args = 'download '
+        self.auto_report_result = True
+
+    def configure(self, test):
+        self.args += ' '+self.artpackage+' '+self.artjobname
+        super(DownloadRefStep, self).configure(test)
+
+
 
 class HistCountStep(InputDependentStep):
     '''Execute histSizes.py to count histograms in a ROOT file'''
@@ -425,6 +441,45 @@ class HistCountStep(InputDependentStep):
     def configure(self, test):
         self.args += ' '+self.input_file
         super(HistCountStep, self).configure(test)
+
+
+class PhysValWebStep(InputDependentStep):
+    '''Execute physval_make_web_display.py to make PhysVal web display from NTUP_PHYSVAL.root'''
+
+    def __init__(self, name='PhysValWeb'):
+        super(PhysValWebStep, self).__init__(name)
+        self.input_file = 'NTUP_PHYSVAL.pool.root'
+        self.executable = 'physval_make_web_display.py'
+        self.refdir = ' '
+        self.sig=' '
+        self.args = '--ratio --drawopt HISTPE --refdrawopt HIST --title Test '
+        self.auto_report_result = True
+
+    def configure(self, test):
+        refargs = ' --reffile Ref:'+self.refdir+'/NTUP_PHYSVAL.pool.root '
+        outargs = ' --outdir PHYSVAL_WEB/'+self.sig
+        dirargs = ' --startpath run_1/HLT/'+self.sig
+        self.args += ' '+refargs+' '+outargs+' '+dirargs
+        self.args += ' '+self.input_file
+        super(PhysValWebStep, self).configure(test)
+
+    def run(self, dry_run=False):
+        retcode, cmd = super(PhysValWebStep, self).run(dry_run)
+        fname='PHYSVAL_WEB/'+self.sig+'/index.html'
+        if os.path.exists(fname):
+            f=open(fname,"r")
+            nred=0
+            for line in f:
+                if (line.find('Red') != -1):
+                    nred+=1
+            if nred > 0:
+                self.log.debug("red histograms in display for slice %s %d",self.sig,nred)
+                retcode+=nred
+        else:
+            retcode+=1000
+            self.log.debug("missing index.html file for slice: %s ",self.sig)
+        self.report_result(retcode,"CheckWeb"+self.sig)
+        return retcode, cmd
 
 
 class ChainDumpStep(InputDependentStep):
