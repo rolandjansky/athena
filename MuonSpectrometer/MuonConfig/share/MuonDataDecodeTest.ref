@@ -17,7 +17,6 @@ CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscR
 CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
 RpcRdoToRpcPrep...   INFO properties are 
-RpcRdoToRpcPrep...   INFO processingData                     0
 RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
 RpcRdoToRpcPrep...   INFO reduceCablingOverlap               1
 RpcRdoToRpcPrep...   INFO solvePhiAmbiguities                1
