@@ -152,7 +152,7 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData* /*readCdo*/) const {
+StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData* readCdo) const {
 
   std::string space = "                          ";
 
@@ -197,7 +197,7 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
           Amg::Vector3D pos = descriptor->stripPos(channelId);
 
           // get now strip_code from cablingSvc
-          unsigned long int strip_code_cab = m_cabling->strip_code_fromOffId (StationName, StationEta, StationPhi,
+          unsigned long int strip_code_cab = readCdo->strip_code_fromOffId (StationName, StationEta, StationPhi,
                                                                               DoubletR, DoubletZ, DoubletP,
                                                                               GasGap, MeasuresPhi, Strip);
 
