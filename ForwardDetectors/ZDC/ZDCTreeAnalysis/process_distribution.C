@@ -36,28 +36,6 @@ void process_File1()
     chain->SetBranchAddress("zdc_raw", &zdc_raw);
     chain->SetBranchAddress("zdc_Status", &zdc_Status);
 
-    //[side][module][gain][delay][sample]
-
-    // for (int i = 0; i < 1000000; i++)
-    // {
-    //     chain->GetEntry(i);
-    //     if (i % 100000 == 0) cout << "Processing " << i << " events" << endl;
-
-    //     for (int m_index = 0; m_index < 4; m_index++)
-    //     {
-    //         for (int g_index = 0; g_index < 2; g_index++)
-    //         {
-    //             for (int d_index = 0; d_index < 2; d_index++)
-    //             {
-    //                 if ((zdc_Status[1][m_index] & 0x405) == 1)
-    //                 {
-    //                     float avg = ((float)zdc_raw[1][m_index][g_index][d_index][0] + (float)zdc_raw[1][m_index][g_index][d_index][1]) / 2.0;
-    //                     hist[1][m_index][g_index][d_index]->Fill(avg);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     for (int i = 0; i < 1000000; i++)
     {

@@ -533,7 +533,7 @@ public:
 
     return fitPreT0;
   }
-  virtual float GetPreAmp() const {return 0;}
+  virtual float GetPreAmp() const {return GetWrapperTF1()->GetParameter(2);}
 
   virtual float GetPostT0()  const {return 0;}
   virtual float GetPostAmp() const {return 0;}
@@ -655,7 +655,7 @@ public:
 
     return fitPreT0;
   }
-  virtual float GetPreAmp() const {return 0;}
+  virtual float GetPreAmp() const {return GetWrapperTF1()->GetParameter(2);}
 
   virtual float GetPostT0()  const {return 0;}
   virtual float GetPostAmp() const {return 0;}
@@ -745,6 +745,8 @@ public:
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
+    GetWrapperTF1()->ReleaseParameter(2);
+    GetWrapperTF1()->ReleaseParameter(3);
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, std::max(t0, (float) 20.0));
     GetWrapperTF1()->SetParameter(6, std::max(abs(expamp), (float) 1.5));

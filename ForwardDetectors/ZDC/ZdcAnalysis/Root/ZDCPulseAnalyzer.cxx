@@ -861,6 +861,10 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
     }
   }
 
+  if (m_fitFunction == "ComplexPrePulse" || m_fitFunction == "GeneralPulse") {
+    if (!m_prePulse) m_fixPrePulse = true;
+  }
+
   if (m_preExpTail) {
     m_initialPrePulseT0  = -20;
     m_initialPrePulseAmp = m_samplesSub[m_minSampleEvt];

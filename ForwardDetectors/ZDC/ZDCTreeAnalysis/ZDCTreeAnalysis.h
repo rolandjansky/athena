@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Wed Dec 16 10:23:25 2015 by ROOT version 6.04/12
