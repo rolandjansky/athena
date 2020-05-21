@@ -238,12 +238,6 @@ def tauIdTrackSequence( RoIs , name):
 
     for viewAlg in viewAlgs:
        tauIdTrackSequence += viewAlg
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = RoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = RoIs
-       if "TrackRoiUpdater" in viewAlg.name():
-         viewAlg.RoIInputKey = RoIs
        if "TrigFastTrackFinder" in  viewAlg.name():
          TrackCollection = viewAlg.TracksName
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():          
@@ -330,14 +324,7 @@ def tauCoreTrackSequence( RoIs, name ):
 
     viewAlgs.append(tauTrackRoiUpdaterAlg)
 
-    for viewAlg in viewAlgs:
-       tauCoreTrackSequence += viewAlg
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = RoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = RoIs
-       if "TrackRoiUpdater" in viewAlg.name():
-         viewAlg.RoIInputKey = RoIs
+    tauCoreTrackSequence += viewAlgs
 
     sequenceOut = TrackCollection
 
