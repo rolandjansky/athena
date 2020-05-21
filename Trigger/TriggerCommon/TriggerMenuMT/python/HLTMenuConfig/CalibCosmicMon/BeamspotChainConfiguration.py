@@ -38,11 +38,6 @@ def allTE_trkfast():
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotInputRoIs' ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
-        # Make sure the event info is still available at whole-event level
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
         beamspotSequence = seqAND("beamspotSequence",viewAlgs+[T2VertexBeamSpot_activeAllTE()])
         inputMakerAlg.ViewNodeName = beamspotSequence.name()
 

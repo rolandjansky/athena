@@ -37,6 +37,7 @@ def precisionElectronRecoSequence(RoIs):
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
                                  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+PixelClusterAmbiguitiesMap' ), # makeInDetPrecisionTracking should get this, but it doesn't
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), # Seems to be necessary, despite load below
                                  ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' ),
@@ -47,8 +48,7 @@ def precisionElectronRecoSequence(RoIs):
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                       ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
+    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
                                        ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+PixelClusterAmbiguitiesMap' ),
                                        ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
