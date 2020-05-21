@@ -245,18 +245,30 @@ namespace CP {
         public:
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
-                value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
-		// We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
-                static std::atomic<unsigned int> warned = {0};
-                if (warned<5 && !dRJet.isAvailable(mu)){
-                    using namespace msgMuonEfficiency;
-                    ANA_MSG_WARNING("The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
-                    ANA_MSG_WARNING("using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
-                    ANA_MSG_WARNING("You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
-                    ANA_MSG_WARNING("For the time being the inclusive scale-factor is going to be returned.");
+		static const SG::AuxElement::ConstAccessor<float> dRJet_DxAOD("DFCommonJetDr");
+		using namespace msgMuonEfficiency;
+		if( dRJet_DxAOD.isAvailable(mu) ) {
+		  // decoration available in DxAOD
+		  value = dRJet_DxAOD(mu);
+		  ANA_MSG_VERBOSE("Taking #Delta R(jet,#mu) decoration from MuonsAuxDyn.DFCommonJetDr for retrieving the muon isolation scale factors.");
+		} else if( dRJet.isAvailable(mu) ) {
+		  // decoration manually provided by analyzers
+		  value = dRJet.isAvailable(mu);
+		  ANA_MSG_INFO("MuonsAuxDyn.DFCommonJetDr is not available in this DxAOD, but you've decorated the muon with dRJet. Using it for retrieving the isolation scale factors.");
+		} else {
+		  // decoration not available 
+		  value = -2.; 
+		  // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
+		  static std::atomic<unsigned int> warned = {0};
+		  if (warned<5){
+		    ANA_MSG_WARNING("The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
+		    ANA_MSG_WARNING("using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+		    ANA_MSG_WARNING("You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
+		    ANA_MSG_WARNING("For the time being the inclusive scale-factor is going to be returned.");
 		    ANA_MSG_WARNING("In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
 		    warned++;
-                }
+		  }
+		}
                 return CorrectionCode::Ok;
             }
             virtual ~dRJetAxisHandler() = default;

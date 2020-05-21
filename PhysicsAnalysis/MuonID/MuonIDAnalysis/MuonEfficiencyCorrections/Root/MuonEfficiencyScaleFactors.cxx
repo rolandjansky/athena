@@ -31,7 +31,7 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("200202_Precision_r21"),
+                m_calibration_version("200513_Precision_r21"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
