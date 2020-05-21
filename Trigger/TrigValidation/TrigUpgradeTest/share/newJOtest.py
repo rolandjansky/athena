@@ -94,4 +94,4 @@ print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
     acc.store( p )
     p.close()
-#acc.run(maxEvents=20)
+acc.run()

@@ -7,8 +7,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeSummary
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
     stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView, SequenceFilterNode
-from AthenaCommon.CFElements import parOR, seqAND, findAlgorithm
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isInputMakerBase, isHypoBase
+from AthenaCommon.CFElements import parOR, seqAND, findAlgorithm, findAllAlgorithms
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -21,132 +21,144 @@ def printStepsMatrix(matrix):
             print('---- {}: {}'.format(chainName, namesInCell))  # noqa: ATL901
     print('-------------------------')  # noqa: ATL901
 
+def memoize(f):
+    """ caches call of the helper functions, (copied from the internet) remove when we move to python 3.2 or newer and rplace by functools.lru_cache"""
+    memo = {}
+    def helper(*x):
+        tupledx = tuple(x)
+        if tupledx not in memo:            
+            memo[tupledx] = f(*x)
+        return memo[tupledx]
+    return helper
 
 def generateDecisionTree(chains):
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     acc.addSequence( seqAND(mainSequenceName) )
 
-    log.debug('Generating decision tree with main sequence: {}'.format(mainSequenceName))
+    @memoize
+    def getFiltersStepSeq( stepNumber ):
+        """
+        Returns sequence containing all filters for a step
+        """            
+        name = 'Step{}_{}'.format(stepNumber, CFNaming.FILTER_POSTFIX)
+        if stepNumber > 1:
+            getRecosStepSeq( stepNumber -1 ) # make sure steps sequencers are correctly made: Step1_filter, Step1_recos, Step2_filters, Step2_recos ...
+        seq = parOR( name )
+        acc.addSequence( seq, parentName = mainSequenceName )
+        return seq
 
-    chainStepsMatrix = defaultdict(lambda: defaultdict(list))
+    @memoize
+    def getRecosStepSeq( stepNumber ):
+        """
+        """
+        getFiltersStepSeq( stepNumber ) # make sure there is filters step before recos
+        name = 'Step{}{}'.format(stepNumber, CFNaming.RECO_POSTFIX)
+        seq = parOR( name )
+        acc.addSequence( parOR( name ), parentName = mainSequenceName )
+        return seq
 
-    ## Fill chain steps matrix
-    for index, chain in enumerate(chains):
-        for stepNumber, chainStep in enumerate(chain.steps):
-            chainStepsMatrix[stepNumber][chainStep.name].append(chain)
+    @memoize
+    def getSingleMenuSeq( stepNumber, stepName ):
+        """
+        """
+        name = "Menu{}{}".format(stepNumber, stepName)
+        seq = parOR( name )
+        allRecoSeqName = getRecosStepSeq( stepNumber ).name        
+        acc.addSequence( seqAND( name ), parentName = allRecoSeqName )
+        return seq
 
-    printStepsMatrix(chainStepsMatrix)
-
-    allCFSequences = []
     
+    @memoize
+    def getFilterAlg( stepNumber, stepName ):
+        """ 
+        Returns, if need be create, filter for a given step
+        """
+        
+        filtersStep = getFiltersStepSeq( stepNumber )
+        singleRecSeq = getSingleMenuSeq( stepNumber, stepName )
+        
+        filterName = CFNaming.filterName( stepName )
+        filterAlg = CompFactory.RoRSeqFilter( filterName )
+        
+        acc.addEventAlgo( filterAlg, sequenceName=filtersStep.name )
+        acc.addEventAlgo( filterAlg, sequenceName=singleRecSeq.name )
+                             
+        log.debug('Creted filter {}'.format(filterName))
+        return filterAlg
 
-    ## Matrix with steps lists generated. Creating filters for each cell
-    for nstep in sorted(chainStepsMatrix.keys()):
-        stepDecisions = []
-
-        stepName = CFNaming.stepName(nstep)
-
-        stepFilterNodeName = '{}{}'.format(stepName, CFNaming.FILTER_POSTFIX)
-        filterAcc = ComponentAccumulator()
-        filterAcc.addSequence( parOR(stepFilterNodeName) )
-
-        stepRecoNodeName = CFNaming.stepRecoNodeName(mainSequenceName, stepName)
-        stepRecoNode = parOR(stepRecoNodeName)
-        recoAcc = ComponentAccumulator()
-        recoAcc.addSequence(stepRecoNode)
-
-        CFSequences = []
-
-        chainCounter=0
-        for chainName in chainStepsMatrix[nstep]:
-            chainsInCell = chainStepsMatrix[nstep][chainName]
-
-            if not chainsInCell:
-                # If cell is empty, there is nothing to do
-                continue
-
-            firstChain = chainsInCell[0]
-            if nstep == 0:
-                filter_input = firstChain.L1decisions
-            else:
-                #tmp FP replacement, but it should not work properly
-                #filter_input = [output for sequence in firstChain.steps[nstep - 1].sequences for output in sequence.outputs]
-                filter_input = [output for output in allCFSequences[nstep - 1][chainCounter].decisions]
-
-            chainStep = firstChain.steps[nstep]
-
-            # One aggregated filter per chain (one per column in matrix)
-            filterName = CFNaming.filterName(chainStep.name)
-            #filter = buildFilter(filterName, filter_input)
-
-            # append input to filter if it exists
-            filterAlg = findAlgorithm( filterAcc.getSequence(), filterName )
-            if filterAlg:
-                filterAlg.Input += filter_input
-            else:
-                filter_output = [ CFNaming.filterOutName(filterName, i) for i in filter_input ]
-                filterAlg = CompFactory.RoRSeqFilter(filterName, Input=filter_input, Output=filter_output )
-                filterAcc.addEventAlgo(filterAlg, sequenceName = stepFilterNodeName)
-
-            stepReco, stepView = createStepView(chainStep.name)
-            viewWithFilter = seqAND(chainStep.name, [filterAlg, stepView])
-
-            sfilter = SequenceFilterNode(filterAlg, 'Input', 'Output')
-            recoAcc.addSequence(viewWithFilter, parentName = stepRecoNodeName)
-
-            stepsAcc = ComponentAccumulator()
-
-            CFSequenceAdded = False
-            filter_output =[]
-            for i in filter_input: 
-                filter_output.append( CFNaming.filterOutName(filterName, i))
-
-            for chain in chainsInCell:
-                step = chain.steps[nstep]
-                CFSeq = CFSequence(step, sfilter)
-                CFSeq.connect(filter_output)
-                if not CFSequenceAdded:
-                    CFSequences.append(CFSeq)
-                    CFSequenceAdded = True
-                for seq in step.sequences:
-                    if seq.ca is None:
-                        raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
-                    stepsAcc.merge( seq.ca )
-                if step.isCombo:
-                    if step.combo is not None:
-                        stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
-                sfilter.addChain(chain.name)
-
-            recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())
-            chainCounter+=1
             
-        for sequence in CFSequences:
-            stepDecisions += sequence.decisions
+    def addIfNotThere( prop, toadd ):
+        if toadd not in prop:
+            prop.append( toadd )
 
+    @memoize 
+    def findInputMaker( stepCounter, stepName ):
+        seq = getSingleMenuSeq( stepCounter, stepName )
+        print("HERE "+seq.name)
+        algs = findAllAlgorithms( seq )
+        print("HERE "+str(len(algs)))
+        for alg in algs:
+            print("HERE"+alg.name)
+            if isInputMakerBase(alg):
+                return alg
+        raise "No input maker in seq "+seq.name
 
+    @memoize
+    def findHypoAlg( stepCounter, stepName ):
+        seq = getSingleMenuSeq( stepCounter, stepName )
+        algs = findAllAlgorithms( seq )
+        for alg in algs:
+            print("HERE"+alg.name)
+            if isHypoBase(alg):
+                return alg
+        raise "No hypo alg in seq "+seq.name
 
-        acc.merge(filterAcc, sequenceName = mainSequenceName)
-        acc.merge(recoAcc, sequenceName = mainSequenceName)
+    
+    #create all sequences and filter algs, add Hypo algs and tools (decision CF)
+    for chain in chains:
+        for stepCounter, step in enumerate(chain.steps, 1):
+            for sequence in step.sequences:
+                getFilterAlg(stepCounter, step.name)
+                recoSeqName = getSingleMenuSeq(stepCounter, step.name).name
+                acc.merge( sequence.ca, sequenceName=recoSeqName )
+    acc.printConfig()
+                
+    # connect all outputs (decision DF)
+    for chain in chains:
+        for stepCounter, step in enumerate(chain.steps, 1):
+            for sequence in step.sequences:
+                filterAlg = getFilterAlg(stepCounter, step.name)
+                addIfNotThere( filterAlg.Chains, chain.name )
+                if stepCounter == 1:
+                    addIfNotThere( filterAlg.Input, chain.L1decisions )
+                else: # looks to the previous step
+                    hypoOutput = findSingleRecoSeqOutput( chain.steps[chainCounter-1] )
+                    addIfNotThere( filterAlg.Input, hypoOutput )
+                    
+                im = findInputMaker( stepCounter, step.name )
+                for i in filterAlg.Input:
+                    filterOutputName = CFNaming.filterOutName( i )
+                    addIfNotThere( filterAlg.Ouput, filterOutName )
+                    addIfNotThere( im.InputMakerInpuDecisions,  filterOutName )
+                    
+                hypoAlg = findHypo( stepConter, step )
+                for i in im.InputMakerInpuDecisions:
+                    imOutputName = CFNaming.inputMakerOutName( im.name, i )
+                    addIfNotThere( hypoAlg.InputDecisions, imOutputName )
+                for i in hypoAlg.InputDecisions:
+                    hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
+                    addIfNotThere( hypoAlg.DecisonOutput, hypoOutName )
 
-        summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
-        acc.addEventAlgo(summary, sequenceName = mainSequenceName)
-
-        allCFSequences.append(CFSequences)
-
-        stepCF_DataFlow_to_dot(stepRecoNodeName, CFSequences)
-        stepCF_ControlFlow_to_dot(stepRecoNode)
-
+                hypoAlg.HypoTools.append( sequence._hypoToolConf.create() )
+                            
     acc.printConfig()
 
-    all_DataFlow_to_dot(mainSequenceName, allCFSequences)
-
+    kaboom
     return acc
 
 
 
 def createControlFlowNewJO(HLTNode, CFseq_list):
-    """ Creates Control Flow Tree starting from the CFSequences in newJO"""
-    
- 
+    """ Creates Control Flow Tree starting from the CFSequences in newJO"""     
     return
