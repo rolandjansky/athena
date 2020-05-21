@@ -141,8 +141,8 @@ if __name__=="__main__":
     cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     cfgFlags.lock()
     
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg=MainServicesSerialCfg() 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(cfgFlags) 
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(cfgFlags))

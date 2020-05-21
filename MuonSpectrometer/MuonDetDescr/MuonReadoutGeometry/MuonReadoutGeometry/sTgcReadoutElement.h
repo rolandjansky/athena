@@ -148,6 +148,7 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double);
+    void setDelta(MuonDetectorManager* mgr);
     void setBLinePar(BLinePar* bLine);
     inline void clearBLinePar();
 
@@ -173,7 +174,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;

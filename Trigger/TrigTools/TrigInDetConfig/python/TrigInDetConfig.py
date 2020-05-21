@@ -303,7 +303,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.addEventAlgo(InDetPixelClusterization)
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False, withTdaqTool=False))
 
 
   #
@@ -405,8 +405,8 @@ if __name__ == "__main__":
     eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
     eventDataSvc.NSlots = nThreads
     acc.addService( eventDataSvc )
-    #from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    #acc.merge( MainServicesThreadedCfg( ConfigFlags ) )
+    #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(l1DecoderAlg)

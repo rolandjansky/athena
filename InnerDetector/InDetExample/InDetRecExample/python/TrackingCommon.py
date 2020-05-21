@@ -1334,3 +1334,17 @@ def getInDetCosmicScoringTool_TRT(NewTrackingCuts, name='InDetCosmicExtenScoring
                                           **setDefaults(kwargs,
                                                         minTRTHits  = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                         SummaryTool = getInDetTrackSummaryToolNoHoleSearch()))
+
+def getSolenoidParametrizationCondAlg(name='SolenoidParametrizationCondAlg',**kwargs) :
+    the_name=makeName(name,kwargs)
+    # @TODO require that the magnetid field is setup.
+    from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidParametrizationCondAlg
+    return Trk__SolenoidParametrizationCondAlg(the_name, **setDefaults(kwargs,
+                                                                       AtlasFieldCacheCondObj = 'fieldCondObj',
+                                                                       WriteKey               = 'SolenoidParametrization' ))
+
+def getSolenoidalIntersector(name="SolenoidalIntersector", **kwargs) :
+    the_name=makeName(name,kwargs)
+    createAndAddCondAlg(getSolenoidParametrizationCondAlg, "SolenoidParametrizationCondAlg")
+    from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidalIntersector
+    return Trk__SolenoidalIntersector(the_name, **setDefaults(kwargs, SolenoidParameterizationKey = 'SolenoidParametrization'))

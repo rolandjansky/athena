@@ -35,7 +35,7 @@ def usage():
     print ("-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db")
     print ("-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'")
     print ("-w, --warning   suppress warning messages about missing drawers in DB")
-    
+
 letters = "hr:l:s:t:f:D:dBHPwm:b:e:a:g:c:N:X:C"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","pmt","warning","module=","begin=","end=","chmin=","chmax=","gain=","adc=","chan=","comment"]
 
@@ -46,7 +46,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/CONDBR2'
@@ -90,7 +90,7 @@ for o, a in opts:
     elif o in ("-D","--dbname"):
         dbname = a
     elif o in ("-r","--run"):
-        run = int(a) 
+        run = int(a)
     elif o in ("-l","--lumi"):
         lumi = int(a)
     elif o in ("-b","--begin"):

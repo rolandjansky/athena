@@ -57,7 +57,7 @@ atlas_add_test( ObjContainer_test
 atlas_add_test( TrkExToolsStringUtility_test	
   SOURCES 
   test/TrkExToolsStringUtility_test.cxx src/TrkExToolsStringUtility.cxx
-  INCLUDE_DIRS  ${Boost_INCLUDE_DIRS}     ${CURL_INCLUDE_DIRS}   
+  INCLUDE_DIRS  ${Boost_INCLUDE_DIRS}  
   LINK_LIBRARIES ${Boost_LIBRARIES} 
   POST_EXEC_SCRIPT "nopost.sh"
 )

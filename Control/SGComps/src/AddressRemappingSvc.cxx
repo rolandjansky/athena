@@ -465,6 +465,9 @@ void AddressRemappingSvc::initDeletes()
       // on everything being read.
       if (alg->name() == "SGInputLoader") continue;
 
+      // Also ignore ViewDataVerifier algs, since they have no real output
+      if (alg->type() == "AthViews::ViewDataVerifier" ) continue;
+
       for (const DataObjID& dobj : alg->outputDataObjs()) {
         static const std::string pref = "StoreGateSvc+";
         if (dobj.key().substr (0, pref.size()) == pref) {

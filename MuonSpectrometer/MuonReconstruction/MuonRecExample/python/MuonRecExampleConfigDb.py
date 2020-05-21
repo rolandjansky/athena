@@ -232,7 +232,7 @@ addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBui
 addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
-
+addTool("MuonRecExample.NSWTools.ClusterTimeProjectionMMClusterBuilderTool","ClusterTimeProjectionMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 addTool("NSWCalibTools.NSWCalibToolsConfig.MMCalibSmearingTool","MMCalibSmearingTool")

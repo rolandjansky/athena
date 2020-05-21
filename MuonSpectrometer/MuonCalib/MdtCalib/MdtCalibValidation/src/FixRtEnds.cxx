@@ -2,24 +2,22 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MdtCalibValidation/FixRtEnds.h"
-
-//MuonCalibMath
 #include "MuonCalibMath/SamplePoint.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//root
 #include "TGraph.h"
 #include "TF1.h"
 
 namespace MuonCalib {
 
 int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
-  std::cout<<"FixRtEnds::FixEnds"<<std::endl;
 //check monotony
   bool fix_begin, fix_end;
   if(!checkMono(points, fix_begin, fix_end)) {
-    std::cerr<<"Monotonic check failed!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Monotonic check failed!"<<endmsg;
     return FIX_FAILED;
   }
   if(fix_begin || fix_end) {
@@ -28,23 +26,23 @@ int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
       gr->SetPoint(i, points[i].x1(), points[i].x2());
     }
     gr->Write("bevor_fix");
-    std::cout<<"Fix needed"<<std::endl;
   }
   if(!fix_begin && !fix_end) {
-    std::cout<<"Rt relation is monotonic. Ok."<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::DEBUG<<"Rt relation is monotonic. Ok."<<endmsg;
     return NO_FIX_NEEDED;
   }
   if(fix_begin)	{
-    std::cerr<<"Fixing start"<<std::endl;
     if(!fixBegin(points)) {
-      std::cerr<<"Fix failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+      log<<MSG::WARNING<<"Fix failed!"<<endmsg;
       return FIX_FAILED;
     }
   }
   if(fix_end) {
-    std::cerr<<"Fixing end."<<std::endl;
     if(!fixEnd(points))	{
-      std::cerr<<"Fix failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+      log<<MSG::WARNING<<"Fix failed!"<<endmsg;
       return FIX_FAILED;
     }
   }
@@ -53,13 +51,14 @@ int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
     gr->SetPoint(i, points[i].x1(), points[i].x2());
   }
   gr->Write("after_fix");
-  std::cout<<"Fix needed"<<std::endl;
   if(!checkMono(points, fix_begin, fix_end)) {
-    std::cerr<<"Monotonic check failed!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Monotonic check failed!"<<endmsg;
     return FIX_FAILED;
   }
   if(fix_begin || fix_end) {
-    std::cerr<<"Still not monotonic"<<std::endl;		
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Still not monotonic"<<endmsg;
     return FIX_FAILED;
   }
   return FIX_APPLIED;

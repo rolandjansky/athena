@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  MuonCalib_ExtraTreeTrackFillerTool_h
@@ -34,7 +34,6 @@ class ExtraTreeTrackFillerTool: virtual public IExtraTreeFillerTool, public AthA
  public:
   ExtraTreeTrackFillerTool(const std::string &type, const std::string &name, const IInterface *parent);
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   virtual StatusCode writeTracks(unsigned int &index);
 
  protected:

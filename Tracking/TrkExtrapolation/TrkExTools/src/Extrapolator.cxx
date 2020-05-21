@@ -220,6 +220,11 @@ Trk::Extrapolator::initialize() {
 
   m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : Trk::MagneticFieldProperties(
     Trk::FullField);
+    
+  //before we start messing around, how many of these updaters were actually passed in?
+  const auto numberOfSubPropagatorsGiven = m_propNames.size();
+  const auto numberOfSubMatEffUpdatersGiven = m_updatNames.size();
+  //
   if (m_propagators.empty()) {
     m_propagators.push_back("Trk::RungeKuttaPropagator/DefaultPropagator");
   }
@@ -326,17 +331,15 @@ Trk::Extrapolator::initialize() {
     ATH_MSG_FATAL("Configuration Problem of Extrapolator: "
                   << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! ");
   }
-  const auto nprop = fullPropagatorNames.size();
-  const auto nupdate = fullUpdatorNames.size();
-  const std::string propStr = std::to_string(nprop)+" propagator" + std::string((nprop == 1)? "":"s");
-  const std::string updStr = std::to_string(nupdate)+" updater" + std::string((nprop == 1)? "":"s");
-  std::string msgString{"\nThe extrapolator uses six propagators and material effects updaters:\n"};
+  const std::string propStr = std::to_string(numberOfSubPropagatorsGiven)+" propagator" + std::string((numberOfSubPropagatorsGiven == 1)? "":"s");
+  const std::string updStr = std::to_string(numberOfSubMatEffUpdatersGiven)+" updater" + std::string((numberOfSubMatEffUpdatersGiven == 1)? "":"s");
+  std::string msgString{"\nThe extrapolator uses six sub-propagators and sub-material effects updaters:\n"};
   msgString += propStr + " and "+updStr+" were given in the configuration,\n";
-  msgString += "the rest have been filled from defaults, as follows: \n";
+  msgString += "the extrapolator sub-tools have been defined as follows: \n";
   for (int i(0);i != int(Trk::NumberOfSignatures);++i){
     msgString += std::to_string(i)+") propagator: "+m_subPropagators[i]->name()+", updater: "+m_subupdaters[i]->name()+"\n";
   }
-  ATH_MSG_INFO(msgString);
+  ATH_MSG_VERBOSE(msgString);
   ATH_CHECK( m_stepPropagator.retrieve() );
   ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
@@ -347,7 +350,7 @@ StatusCode
 Trk::Extrapolator::finalize() {
   if (m_navigationStatistics) {
     ATH_MSG_INFO(" Perfomance Statistics  : ");
-    ATH_MSG_INFO(" [P] Methode Statistics ------- -----------------------------------------------------------");
+    ATH_MSG_INFO(" [P] Method Statistics ------- -----------------------------------------------------------");
     ATH_MSG_INFO("     -> Number of extrapolate() calls                : " << m_extrapolateCalls);
     ATH_MSG_INFO("     -> Number of extrapolateBlindly() calls         : " << m_extrapolateBlindlyCalls);
     ATH_MSG_INFO("     -> Number of extrapolateDirectly() calls        : " << m_extrapolateDirectlyCalls);
@@ -369,7 +372,7 @@ Trk::Extrapolator::finalize() {
     if (m_navigationBreakDetails) {
       ATH_MSG_DEBUG("   Detailed output for Navigation breaks             : ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakLoop << " loops occured in the following volumes:    ");
-      ATH_MSG_DEBUG("    o " << m_navigationBreakOscillation << " osillations occured in following volumes: ");
+      ATH_MSG_DEBUG("    o " << m_navigationBreakOscillation << " oscillations occured in following volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakNoVolume << " times no next volume found of  volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakDistIncrease << " distance increases detected at volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakVolumeSignature << " no propagator configured for volumes: ");

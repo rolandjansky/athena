@@ -73,15 +73,6 @@ CaloHadDMCoeffCheck::CaloHadDMCoeffCheck() :
 
 CaloHadDMCoeffCheck::~CaloHadDMCoeffCheck()
 {
-//   for(unsigned int i_area=0; i_area<m_ereco.size(); i_area++){
-//     for(unsigned int i_eta=0; i_eta<m_ereco[i_area].size(); i_eta++){
-//       for(unsigned int i_ener=0; i_ener<m_ereco[i_area][i_eta].size(); i_ener++){
-//         if(m_ereco[i_area][i_eta][i_ener]) delete m_ereco[i_area][i_eta][i_ener];
-//         if(m_etrue[i_area][i_eta][i_ener]) delete m_etrue[i_area][i_eta][i_ener];
-//       } // i_ener
-//     } // i_eta
-//   } // i_area
-
   delete m_HadDMHelper;
 }
 

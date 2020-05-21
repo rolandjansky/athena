@@ -1,10 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-
-// $Id$
 /**
  * @file StoreGate/test/ReadDecorHandleKeyArrau_test.cxx
  * @author Jovan Mitrevski <Jovan.Mitrevski.cern.ch>

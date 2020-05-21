@@ -483,8 +483,7 @@ class TestSequencesMerging( unittest.TestCase ):
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
             "SCT_RDO_Container#SCT_RDOs",
-            "InDetSimDataCollection#SCT_SDO_Map"	    
-        ])
+            "InDetSimDataCollection#SCT_SDO_Map"])
         ca2.printConfig()
 
         print("after merge")
@@ -494,8 +493,8 @@ class TestSequencesMerging( unittest.TestCase ):
         self.assertEqual( len(ca1._allSequences), 2, "Dangling sequences not maintained" )
                 
         print("Instantiating top CA")
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        topca = MainServicesThreadedCfg( ConfigFlags )
+        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+        topca = MainServicesCfg( ConfigFlags )
         topca.printConfig()
 
         print("Merging to the top level CA")        

@@ -32,12 +32,12 @@ atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent TrigCompositeUtilsLib
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigTimeAlgsLib AthenaMonitoringKernelLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigTimeAlgsLib AthenaMonitoringKernelLib TrigCostMonitorMTLib AthViews )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
                      src/components/*.cxx
-                     LINK_LIBRARIES DecisionHandlingLib TrigCompositeUtilsLib )
+                     LINK_LIBRARIES DecisionHandlingLib TrigCompositeUtilsLib TrigTimeAlgsLib AthenaMonitoringKernelLib TrigCostMonitorMTLib )
 
 atlas_install_python_modules( python/*.py )
 

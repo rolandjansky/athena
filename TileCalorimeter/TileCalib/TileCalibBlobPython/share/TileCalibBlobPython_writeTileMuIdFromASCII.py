@@ -21,7 +21,7 @@ log.setLevel(logging.DEBUG)
 #________________________________________________________________________
 def fillTileMuId(file, since,
                until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
-    
+
     #=== construct folder path
     folder = TileCalibTools.getTilePrefix(False)+"MUID"
 
@@ -32,10 +32,10 @@ def fillTileMuId(file, since,
         default.push_back(5000.)
     defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(default)
-    defVec.push_back(default)    
-    
+    defVec.push_back(default)
+
     #=====================================================
-    #=== fill 
+    #=== fill
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt',False)
     writer.setComment(os.getlogin(),"Arantxa's values, april 2009.")
@@ -67,7 +67,7 @@ def fillTileMuId(file, since,
                 calibDrawer.init(defVec,48,1)
             #=== fill in realistic values (just for the low gain index, store 40 values)
             adc = 0
-            line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)            
+            line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)
             for i in range(40):
                 value = float(values[i])
                 calibDrawer.setData(chn,adc,i,value)

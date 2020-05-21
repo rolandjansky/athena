@@ -281,7 +281,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
         jetlog.debug("Setting up input track containers and track-vertex association")
         from JetRecTools import JetRecToolsConfig
         # Jet track selection
-        jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+        jettrackselloose = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True)
         jettvassoc = JetRecToolsConfig.getTrackVertexAssocTool()
 
         jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
@@ -499,8 +499,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    cfg=MainServicesThreadedCfg(ConfigFlags) 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(ConfigFlags) 
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -515,3 +515,6 @@ if __name__=="__main__":
     cfg.printConfig(withDetails=False,summariseProps=True)
 
     cfg.run(maxEvents=10)
+
+    import sys
+    sys.exit(0)

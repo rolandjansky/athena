@@ -103,8 +103,11 @@ def makeInDetPrecisionTracking( whichSignature,
   #If run in views need to check data dependancies!
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
-         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                                  ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks ) ] 
+    verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
+                             ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks )]
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap )]
       
   
   from AthenaCommon.AppMgr import ToolSvc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,9 +8,6 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: ActiveStore_test.cxx 698338 2015-10-03 18:39:22Z ssnyder $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 #include "TestTools/initGaudi.h"
 #include "TestTools/SGassert.h"
@@ -41,7 +38,7 @@ CLASS_DEF(Foo, 8101, 1)
 int main() {
   cout << "*** ActiveStoreTest BEGINS ***" << endl;
   ISvcLocator* pSvcLoc;
-  if (!initGaudi("ActiveStore_test.txt", pSvcLoc)) {
+  if (!initGaudi("StoreGate/ActiveStore_test.txt", pSvcLoc)) {
     return 1;
   }
   ActiveStoreSvc* pASS(0);

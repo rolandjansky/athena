@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOENDCAP_ENDCAPDMCONSTRUCTION_H
@@ -12,7 +12,7 @@ namespace LArGeo {
   class EndcapDMConstruction
   {
   public:
-    EndcapDMConstruction();
+    EndcapDMConstruction(bool);
     ~EndcapDMConstruction();
 
     void create(GeoFullPhysVol* envelope);
@@ -20,6 +20,8 @@ namespace LArGeo {
   private:
     EndcapDMConstruction(const EndcapDMConstruction&);
     EndcapDMConstruction& operator=(const EndcapDMConstruction&);
+
+    bool m_activateFT;
   };
 
 }

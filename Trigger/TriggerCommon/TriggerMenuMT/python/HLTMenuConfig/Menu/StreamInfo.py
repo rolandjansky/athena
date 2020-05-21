@@ -39,15 +39,10 @@ _all_streams = [
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring','calibration', False, False),
     StreamInfo('SCTNoise','calibration',False,False),
+    StreamInfo('Tile','calibration',False,False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
-    StreamInfo('UPC', 'physics', True, True),
-    StreamInfo('UCC', 'physics', True, True),
-    StreamInfo('PC', 'physics', True, True),
-    StreamInfo('CC', 'physics', True, True),
-    StreamInfo('PCPEB', 'calibration', False, False),
-    StreamInfo('CCPEB', 'calibration', False, False),
     # Special stream to be used only for special chains rejecting all events like timeburner
     StreamInfo('DISCARD', 'unknown', False, False)
 ]

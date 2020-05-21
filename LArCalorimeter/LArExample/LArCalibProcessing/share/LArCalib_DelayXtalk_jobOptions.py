@@ -265,7 +265,7 @@ if not 'FullFileName' in dir():
 else :   
    theByteStreamInputSvc.FullFileName=FullFileName
    
-theByteStreamInputSvc.MaxBadEvents=0
+svcMgr.EventSelector.MaxBadEvents = 0
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]

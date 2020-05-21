@@ -170,6 +170,19 @@ namespace {
       fileLoader.saveFile(filename, ds);
       return true;
    }
+
+   std::string
+   outputFileName(const std::string & kind, const Config & cfg) {
+      if( ! cfg.write )
+         return "";
+      std::string filename = kind;
+      if ( cfg.base != "" ) {
+         filename += "_" + cfg.base;
+      }
+      filename += ".json";
+      return filename;
+   }
+
 }
 
 int main(int argc, char** argv) {
@@ -256,19 +269,17 @@ int main(int argc, char** argv) {
       TrigConf::L1Menu l1menu;
       TrigConf::HLTMenu hltmenu;
       
-      dbloader.loadL1Menu( cfg.smk, l1menu );
+      dbloader.loadL1Menu( cfg.smk, l1menu, outputFileName("L1Menu", cfg) );
       if (l1menu) {
          cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
          l1menu.printMenu(cfg.detail);
-         writeJsonFile(l1menu, "L1Menu", cfg);
       } else {
          cout << "Did not load an L1 menu" << endl;
       }
 
-      dbloader.loadHLTMenu( cfg.smk, hltmenu );
+      dbloader.loadHLTMenu( cfg.smk, hltmenu, outputFileName("HLTMenu", cfg));
       if (hltmenu) {
          cout << "Loaded HLT menu with " << hltmenu.size() << " chains" << endl;
-         writeJsonFile(hltmenu, "HLTMenu", cfg);
       } else {
          cout << "Did not load an HLT menu" << endl;
       }
@@ -277,7 +288,7 @@ int main(int argc, char** argv) {
       TrigConf::TrigDBJobOptionsLoader jodbloader(cfg.dbalias);
 
       TrigConf::DataStructure jo;
-      jodbloader.loadJobOptions( cfg.smk, jo );
+      jodbloader.loadJobOptions( cfg.smk, jo, outputFileName("HLTJobOptions", cfg) );
       if (jo) {
          cout << "Loaded job options with " << jo.getObject("properties").getKeys().size() << " entries " << endl;
          if( cfg.detail ) {
@@ -288,7 +299,6 @@ int main(int argc, char** argv) {
                }
             }
          }
-         writeJsonFile(jo, "HLTJobOptions", cfg);
       } else {
          cout << "Did not load job options" << endl;
       }
@@ -300,10 +310,9 @@ int main(int argc, char** argv) {
       TrigConf::TrigDBL1PrescalesSetLoader dbloader(cfg.dbalias);
       TrigConf::L1PrescalesSet l1pss;
       
-      dbloader.loadL1Prescales( cfg.l1psk, l1pss );
+      dbloader.loadL1Prescales( cfg.l1psk, l1pss, outputFileName("L1PrescalesSet", cfg) );
       if (l1pss) {
          cout << "Loaded L1 prescales set with " << l1pss.size() << " prescales" <<  endl;
-         writeJsonFile(l1pss, "L1PrescalesSet", cfg);
       } else {
          cout << "Did not load an L1 prescales set" << endl;
       }
@@ -315,10 +324,9 @@ int main(int argc, char** argv) {
       TrigConf::TrigDBHLTPrescalesSetLoader dbloader(cfg.dbalias);
       TrigConf::HLTPrescalesSet hltpss;
       
-      dbloader.loadHLTPrescales( cfg.hltpsk, hltpss );
+      dbloader.loadHLTPrescales( cfg.hltpsk, hltpss, outputFileName("HLTPrescalesSet", cfg) );
       if (hltpss) {
          cout << "Loaded HLT prescales set with " << hltpss.size() << " prescales" <<  endl;
-         writeJsonFile(hltpss, "HLTPrescalesSet", cfg);
       } else {
          cout << "Did not load an HLT prescales set" << endl;
       }
@@ -330,11 +338,10 @@ int main(int argc, char** argv) {
       TrigConf::TrigDBL1BunchGroupSetLoader dbloader(cfg.dbalias);
       TrigConf::L1BunchGroupSet bgs;
 
-      dbloader.loadBunchGroupSet( cfg.bgsk, bgs );
+      dbloader.loadBunchGroupSet( cfg.bgsk, bgs, outputFileName("BunchGroupSet", cfg) );
       if (bgs) {
          cout << "Loaded L1 bunchgroup set with " << bgs.size() << " bunchgroups" <<  endl;
          bgs.printSummary(cfg.detail);
-         writeJsonFile(bgs, "BunchGroupSet", cfg);
       } else {
          cout << "Did not load an L1 bunchgroups set" << endl;
       }

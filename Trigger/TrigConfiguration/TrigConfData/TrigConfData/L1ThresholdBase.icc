@@ -26,6 +26,14 @@ namespace TrigConf {
    template<class T>
    void ValueWithEtaDependence<T>::addRangeValue(const T & value, int etaMin, int etaMax, unsigned int priority, bool symmetric) {
       RangeValue rv = { value, etaMin, etaMax, priority, symmetric };
+      for( const auto & rv : m_rangeValues ) {
+         if( rv.priority != priority )
+            continue;
+         if( (etaMax >= rv.etaMin) and (etaMin <= rv.etaMax) ) { // overlaps with existing range of the same priority
+            throw std::runtime_error( "Range eta " + std::to_string(etaMin) + " - " + std::to_string(etaMax) +
+                                      " (priority " + std::to_string(priority) + ") overlaps with existing range of the same priority");
+         }
+      }
       m_rangeValues.emplace_back( std::move(rv) );
    }
 

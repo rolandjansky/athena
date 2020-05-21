@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,8 +32,6 @@
 #include "TH2F.h"
 #include "TFile.h"
 #include "TMath.h"
-
-#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace SCT_CalibAlgs;
@@ -131,7 +129,7 @@ SCT_CalibLbTool::book() {
       ////
       for (int iChip(0); iChip!=n_chipsPerSide; ++iChip) {
          int chipId{m_pSCTHelper->side(waferId)==0 ? iChip:iChip+n_chipsPerSide};
-         const string formattedChipPosition{formattedPosition + boost::lexical_cast<string>(chipId)};
+         const string formattedChipPosition{formattedPosition + std::to_string(chipId)};
          const string hname{pathRoot + detectorPaths[bec2Index(bec)] + "/" + formattedChipPosition};
          const string histTitle{string{"SCT"} + detectorNames[bec2Index(bec)] + string{" LB: chip "} + formattedChipPosition};
          TH1F* hist_tmp{new TH1F{TString{formattedChipPosition}, TString{histTitle}, m_LbRange, 0.5, m_LbRange+0.5}};
@@ -181,7 +179,7 @@ SCT_CalibLbTool::read(const std::string& fileName) {
       ////
       for (int iChip{0}; iChip!=n_chipsPerSide; ++iChip) {
          int chipId{m_pSCTHelper->side(waferId)==0 ? iChip : iChip+n_chipsPerSide};
-         const string hname{detectorPaths[bec2Index(bec)] + "/" + formattedPosition + boost::lexical_cast<string>(chipId)};
+         const string hname{detectorPaths[bec2Index(bec)] + "/" + formattedPosition + std::to_string(chipId)};
          TH1F* hist_tmp{static_cast<TH1F*>(fileLB->Get(hname.c_str()))};
          if (hist_tmp==nullptr) {
             ATH_MSG_ERROR("Error in reading LB histogram");

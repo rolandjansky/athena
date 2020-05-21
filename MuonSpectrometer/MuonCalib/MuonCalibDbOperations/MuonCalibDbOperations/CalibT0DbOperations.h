@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibT0DbOperations_h
 #define CalibT0DbOperations_h
 
-//c - c++
 #include <string>
 #include <vector>
-
 
 namespace coral {
   class IQuery;
@@ -29,7 +27,7 @@ class CalibT0DbOperations {
  public:
 //=====================constructor - destructor=================================
   CalibT0DbOperations(CalibDbConnection & db_conn);
-  virtual ~CalibT0DbOperations();
+  virtual ~CalibT0DbOperations()=default;
 //=====================publlic member functions=================================
   //load t0 for chamber
   MdtStationT0Container * LoadT0Calibration(const NtupleStationId & id, int head_id, std::string &site_name);

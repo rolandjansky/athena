@@ -42,7 +42,7 @@ def collectHypos( steps ):
                 # will replace by function once dependencies are sorted
                 if hasProp( alg, 'HypoInputDecisions'):
                     __log.info( "found hypo " + alg.getName() + " in " +stepSeq.getName() )
-                    if __isCombo( alg ):
+                    if __isCombo( alg ) and len(alg.ComboHypoTools):
                         __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.getName() for  tool in alg.ComboHypoTools])))
                     hypos[stepSeq.getName()].append( alg )
                 else:
@@ -175,8 +175,11 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = OrderedDict()
 
+    
     for stepName, stepHypos in sorted( hypos.items() ):
-        for hypo in stepHypos:
+        # order hypos so that ComboHypos are last ones
+        orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))  
+        for hypo in orderedStepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
 
@@ -192,6 +195,7 @@ def triggerSummaryCfg(flags, hypos):
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.debug("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+
 
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )

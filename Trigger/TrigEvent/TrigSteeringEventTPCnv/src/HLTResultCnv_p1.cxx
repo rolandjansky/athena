@@ -26,7 +26,7 @@ void HLTResultCnv_p1::transToPers(const HLT::HLTResult* trans,
     const EventContext& ctx = Gaudi::Hive::currentContext();
     std::vector< unsigned int > temp;
     if (cache->trigNavigationThinningSvc()->doSlimming (ctx, temp).isFailure()) {
-      log << MSG::ERROR << "HLTReultCnv_p1::transToPers: doSlimming failed." << endmsg;
+      log << MSG::ERROR << "HLTResultCnv_p1::transToPers: doSlimming failed." << endmsg;
     }
     pers->m_navigationResult = temp;
   }

@@ -169,7 +169,7 @@ StatusCode HIJetClusterSubtractorTool::initializeTool()
 {
   if(m_useSamplings)
   {
-    std::string local_path=m_configDir+m_inputFile;
+    std::string local_path=static_cast<std::string>(m_configDir)+m_inputFile;
     std::string full_path=PathResolverFindCalibFile(local_path);
     TFile* f=TFile::Open(full_path.c_str());
     if(f==nullptr)

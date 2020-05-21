@@ -46,8 +46,8 @@ if __name__ == "__main__":
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    acc = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))

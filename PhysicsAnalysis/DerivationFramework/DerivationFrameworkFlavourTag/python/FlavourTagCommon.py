@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #********************************************************************
 
@@ -146,13 +148,13 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
             Sequencer += SAbtagger
             SAJetBTaggerAlgs[SA + AuthorSubString[i].lower()] = SAbtagger
             ftaglog.info("Create {} in {}".format(SAbtagger,Sequencer))
-            # print SAbtagger
+            # print (SAbtagger)
             #global DerivationFrameworkJob
             #DerivationFrameworkJob += SAbtagger
         except AttributeError as error:
-            print '#BTAG# --> ' + str(error)
-            print '#BTAG# --> ' + jet[1]
-            print '#BTAG# --> ' + AuthorSubString[i]
+            print ('#BTAG# --> ' + str(error))
+            print ('#BTAG# --> ' + jet[1])
+            print ('#BTAG# --> ' + AuthorSubString[i])
             NotInJetToolManager.append(AuthorSubString[i])
 
     if len(NotInJetToolManager) > 0:
@@ -267,12 +269,12 @@ def applyBTagging(jetalg,algname,sequence):
                 btagtool.MinPt = 0
                 if '_BTagging' in jetalg:
                     btagtool.JetAuthor = jetalg.replace('_BTagging','Jets_BTagging')
-                btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning
+                btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrieved, and only print a warning
                 btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root"
             btagKey = btagWP+'_'+btagAlg
             btagtooldict[btagKey] = btagtool
 
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyBTaggingAugmentation
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)
 
 def applyBTagging_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):

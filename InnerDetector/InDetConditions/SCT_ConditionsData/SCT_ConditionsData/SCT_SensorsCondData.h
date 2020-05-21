@@ -1,11 +1,14 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_SensorsCondData.h
- * header file for data object for SCT_SensorsSvc
- * @author Susumu Oda - 2017-12-04
+ * @brief header file for data object for SCT_SensorsCondAlg and SCT_SensorsTool.
+ * @author Susumu Oda
+ * @date 2017-12-04
  **/
 
 #ifndef SCT_SENSORSCONDDATA_H
@@ -18,12 +21,17 @@
 
 #include <map>
 
+/**
+ * @typedef SCT_SensorsCondData
+ * @brief Class for data object for SCT_SensorsCondAlg and SCT_SensorsTool.
+ **/
 typedef std::map<CondAttrListCollection::ChanNum, SCT_SensorCondData> SCT_SensorsCondData;
 
-// Class definition
+// Class definition for StoreGate
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_SensorsCondData , 198841041 , 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_SensorsCondData, 137294721 );
 

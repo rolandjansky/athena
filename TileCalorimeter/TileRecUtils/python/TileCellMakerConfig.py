@@ -127,8 +127,8 @@ if __name__ == "__main__":
 
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     acc.merge( TrigBSReadCfg(ConfigFlags) )

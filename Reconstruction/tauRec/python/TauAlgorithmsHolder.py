@@ -329,7 +329,8 @@ def getElectronVetoVars():
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
                                                         VertexCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
-                                                        tauEVParticleCache = getParticleCache() )
+                                                        tauEVParticleCache = getParticleCache(),
+                                                        IncShowerSubtr = tauFlags.useShowerSubClusters() )
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables

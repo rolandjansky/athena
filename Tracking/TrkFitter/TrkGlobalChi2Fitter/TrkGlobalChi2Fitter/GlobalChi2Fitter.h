@@ -14,6 +14,8 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include <mutex>
 
@@ -104,6 +106,8 @@ namespace Trk {
       std::vector< std::unique_ptr< const std::vector < const TrackStateOnSurface *>,
                                     void (*)(const std::vector<const TrackStateOnSurface *> *) > >
         m_matTempStore;
+
+      MagField::AtlasFieldCache m_field_cache;
 
       FitterStatusCode m_fittercode;
 
@@ -280,6 +284,7 @@ namespace Trk {
      * position of the intersection can be used to find materials in that layer
      * at that position.
      *
+     * @param[in] cache The standard GX2F cache.
      * @param[in] surface The surface to intersect with.
      * @param[in] param1 The main track parameters to calculate the
      * intersection from.
@@ -296,6 +301,7 @@ namespace Trk {
      * intersection method of the appropriate Surface subclass.
      */
     std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
+      Cache & cache,
       const DiscSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
@@ -312,6 +318,7 @@ namespace Trk {
      * intersection method of the appropriate Surface subclass.
      */
     std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
+      Cache & cache,
       const CylinderSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
@@ -523,6 +530,21 @@ namespace Trk {
 
     void incrementFitStatus(enum FitterStatusType) const;
 
+    /**
+     * @brief Initialize a field cache inside a fit cache object.
+     *
+     * Following the shift from old-style magnetic field services to the new
+     * cached implementation for thread safety, we need some additional logic
+     * to create a magnetic field cache object and insert it into our fitting
+     * cache object for access.
+     *
+     * @param[in] cache The GX2F cache objects in which to load the magnetic
+     * field cache.
+     */
+    void initFieldCache(
+      Cache & cache
+    ) const;
+
     ToolHandle < IRIO_OnTrackCreator > m_ROTcreator;
     ToolHandle < IRIO_OnTrackCreator > m_broadROTcreator;
     ToolHandle < IUpdator > m_updator;
@@ -537,8 +559,14 @@ namespace Trk {
     ToolHandle < IMaterialEffectsOnTrackProvider > m_calotool;
     ToolHandle < IMaterialEffectsOnTrackProvider > m_calotoolparam;
 
-    ServiceHandle < MagField::IMagFieldSvc > m_fieldService;
     ServiceHandle < ITrackingGeometrySvc > m_trackingGeometrySvc;
+
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
+      this,
+      "AtlasFieldCacheCondObj",
+      "fieldCondObj",
+      "Trk::GlobalChi2Fitter field conditions object key"
+    };
 
     bool m_signedradius;
     bool m_calomat, m_extmat;
