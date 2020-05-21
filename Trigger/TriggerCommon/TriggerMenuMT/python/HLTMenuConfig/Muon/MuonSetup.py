@@ -665,9 +665,6 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
-    # Make sure required objects are still available at whole-event level
-    topSequence.SGInputLoader.Load += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
-
     # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "Cond/StatusHT" ):

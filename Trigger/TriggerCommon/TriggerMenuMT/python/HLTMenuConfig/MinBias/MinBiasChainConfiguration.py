@@ -124,11 +124,6 @@ class MinBiasChainConfig(ChainConfigurationBase):
           verifier.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
-          # Make sure required objects are still available at whole-event level
-          from AthenaCommon.AlgSequence import AlgSequence
-          topSequence = AlgSequence()
-          topSequence.SGInputLoader.Load += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                             ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
         TrkList = idAlgs[-2:] # FTF and Track to xAOD::TrackParticle conversion alg
         TrackCountHypo=TrackCountHypoAlgMT()
