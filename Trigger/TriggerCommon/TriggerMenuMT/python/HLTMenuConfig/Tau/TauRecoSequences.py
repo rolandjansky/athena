@@ -195,6 +195,9 @@ def tauIdTrackSequence( RoIs , name):
     if ("Iso" in name) or ("TrackTwo" in name) or ("EF" in name):
       signName = 'TauIso'
 
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs )
+
     tauViewDataVerifierName = ""
     if "FTFId" in name:
       tauViewDataVerifierName = "tauViewDataVerifierIdFTF"
@@ -208,14 +211,14 @@ def tauIdTrackSequence( RoIs , name):
       tauViewDataVerifierName = "tauViewDataVerifierEF"
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, ViewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator = "_" + signName, rois = RoIs, viewVerifier = tauViewDataVerifierName )
+    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs, viewVerifier = tauViewDataVerifierName )
 
     if "FTFIso" in name:
-       ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' )]
+       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' )]
     else:
-       ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
+       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
 
-    ViewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
+    viewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
@@ -230,7 +233,7 @@ def tauIdTrackSequence( RoIs , name):
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                          ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      ViewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     for viewAlg in viewAlgs:
@@ -302,13 +305,13 @@ def tauCoreTrackSequence( RoIs, name ):
     tauCoreTrackSequence = seqAND(name)
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, ViewVerify = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
+    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='TauCore', separateTrackParticleCreator="TauCore", rois = RoIs )
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-    ViewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' ),
+    viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #For some reason not picked up properly
 
@@ -320,7 +323,7 @@ def tauCoreTrackSequence( RoIs, name ):
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                          ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      ViewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
