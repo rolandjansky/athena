@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file ExampleMonitorAlgorithm.py
@@ -79,8 +79,6 @@ def ExampleMonitoringConfig(inputFlags):
                             path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
-    myGroup.defineHistogram('random', title='LB;x;Events',
-                            path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
     myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
