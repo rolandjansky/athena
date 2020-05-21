@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 # art-description: Run MT and ST simulation outside ISF, reading ttbar events, writing HITS, using MC16 geometry and conditions
-# art-include: master/Athena
 
 # art-type: grid
 # art-athena-mt: 8
@@ -21,15 +20,17 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'FullG4MT' \
+--simulator 'G4FastCaloMT' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
---imf False
+--preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+#--postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_G4FastCaloMT.OutputLevel=VERBOSE;' \
+#--imf False
 
 rc=$?
-mv log.EVNTtoHITS log.FullG4MTAthenaMT
-echo  "art-result: $rc FullG4MTAthenaMT"
+mv log.EVNTtoHITS log.G4FastCaloMTAthenaMT
+echo  "art-result: $rc G4FastCaloMTAthenaMT"
+rc=0
 rc2=-9999
 if [ $rc -eq 0 ]
 then
@@ -45,15 +46,16 @@ then
   --DataRunNumber '284500' \
   --physicsList 'FTFP_BERT_ATL' \
   --truthStrategy 'MC15aPlus' \
-  --simulator 'FullG4MT' \
+  --simulator 'G4FastCaloMT' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-  --imf False
-    mv log.EVNTtoHITS log.FullG4MTAthena
-    rc2=$?
+  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+#  --postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_G4FastCaloMT.OutputLevel=VERBOSE;' \
+#  --imf False
+  rc2=$?
+  mv log.EVNTtoHITS log.G4FastCaloMTAthena
 fi
-echo  "art-result: $rc2 FullG4MTAthena"
+echo  "art-result: $rc2 G4FastCaloMTAthena"
 rc3=-9999
 if [ $rc -eq 0 ]
 then
@@ -69,26 +71,27 @@ then
   --DataRunNumber '284500' \
   --physicsList 'FTFP_BERT_ATL' \
   --truthStrategy 'MC15aPlus' \
-  --simulator 'FullG4' \
+  --simulator 'G4FastCalo' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-  --imf False
-    mv log.EVNTtoHITS log.FullG4Athena
-    rc3=$?
+  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+#  --postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_G4FastCalo.OutputLevel=VERBOSE;ServiceMgr.ISF_AFIIParticleBrokerSvc.OutputLevel=VERBOSE;' \
+#  --imf False
+  rc3=$?
+  mv log.EVNTtoHITS log.G4FastCaloAthena
 fi
-echo  "art-result: $rc3 FullG4Athena"
+echo  "art-result: $rc3 G4FastCaloAthena"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --error-mode=resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc4=$?
 fi
-echo  "art-result: $rc4 FullG4MT_STvsMT"
+echo  "art-result: $rc4 G4FastCaloMT_STvsMT"
 rc5=-9999
 if [ $rc3 -eq 0 ]
 then
-    acmd.py diff-root test.MT.HITS.pool.root test.ST.old.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+    acmd.py diff-root test.ST.HITS.pool.root test.ST.old.HITS.pool.root --error-mode=resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc5=$?
 fi
-echo  "art-result: $rc5 FullG4MTvsFullG4"
+echo  "art-result: $rc5 G4FastCaloMTvsG4FastCalo"
