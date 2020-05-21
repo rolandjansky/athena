@@ -15,8 +15,10 @@
 
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Transient(Geant) to Persistent(Disk)
@@ -50,6 +52,8 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
 
   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p4::transToPers()" << endmsg;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
   const HepMcParticleLink * lastLink=NULL;
   int lastId = -1;
   double lastT = 0.0*CLHEP::ns;
@@ -71,7 +75,7 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
       const HepMcParticleLink::index_type position =
         HepMcParticleLink::getEventPositionInCollection(lastLink->eventIndex(),
                                                         lastLink->getEventCollection(),
-                                                        SG::CurrentEventStore::store()).at(0);
+                                                        proxy).at(0);
       if (position!=0) {
         index = lastLink->eventIndex();
         if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {

@@ -14,7 +14,10 @@
 #include "CLHEP/Geometry/Point3D.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 // Athena
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/StoreGateSvc.h"
 
 //  * * *  stolen from eflowRec  * * *  //
@@ -77,6 +80,8 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
   static const double dRcut = 1.0e-7;
   static const double dTcut = 1.0;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
   const HepMcParticleLink * lastLink=nullptr;
   int lastId = -1;
   double stringFirstTheta = 0.0;
@@ -106,7 +111,7 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
       const HepMcParticleLink::index_type position =
         HepMcParticleLink::getEventPositionInCollection(lastLink->eventIndex(),
                                                         lastLink->getEventCollection(),
-                                                        SG::CurrentEventStore::store()).at(0);
+                                                        proxy).at(0);
       if (position!=0) {
         index = lastLink->eventIndex();
         if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
