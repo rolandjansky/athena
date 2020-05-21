@@ -31,17 +31,18 @@ class TauSubstructureVariables : public TauRecToolBase
         virtual StatusCode finalize() override;
 
     private:
-        /** Maximal pile up correction in GeV for a tau candidate.
-         *  Used for the caloIso corrected variable.
-         */
-        double m_maxPileUpCorrection; 
+        // Maximal pile up correction in GeV for a tau candidate.
+        // Used for the caloIso corrected variable.
+	double m_maxPileUpCorrection;
         double m_pileUpAlpha;         //!< slope of the pileup correction
         
-        /** 
-         * enable cell origin correction 
-         * eta and phi of the cells are corrected wrt to the origin of the tau vertex
-         */
-        bool m_doVertexCorrection;
+        // enable cell origin correction
+        // eta and phi of the cells are corrected wrt to the origin of the tau vertex
+	bool m_doVertexCorrection;
+
+	// use shower subtracted clusters with PFlow jet seeds
+	bool m_incShowerSubtr;
+
 };
 
 #endif
