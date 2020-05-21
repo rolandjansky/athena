@@ -26,9 +26,9 @@ public:
     ASG_TOOL_CLASS2(TauCommonCalcVars, TauRecToolBase, ITauToolBase)
     ~TauCommonCalcVars();
     
-    StatusCode initialize() override;   
+    virtual StatusCode initialize() override;   
     StatusCode execute(xAOD::TauJet& pTau) const;
-    StatusCode finalize() override;  
+    virtual StatusCode finalize() override;  
 
 private:
     int m_isolationTrackType;

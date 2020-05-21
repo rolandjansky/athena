@@ -32,9 +32,9 @@ public:
     ASG_TOOL_CLASS2(TauWPDecorator, TauRecToolBase, ITauToolBase)
     ~TauWPDecorator();
 
-    StatusCode initialize() override;
-    StatusCode finalize() override;
-    StatusCode execute(xAOD::TauJet& pTau) const override;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);

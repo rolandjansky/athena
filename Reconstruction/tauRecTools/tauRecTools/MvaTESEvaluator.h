@@ -21,13 +21,13 @@ class MvaTESEvaluator
   MvaTESEvaluator(const std::string& name="MvaTESEvaluator");
   virtual ~MvaTESEvaluator();
     
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
   StatusCode execute(xAOD::TauJet& xTau)
   {
     return static_cast<const MvaTESEvaluator*>(this)->execute(xTau);
   }
-  StatusCode execute(xAOD::TauJet& xTau) const override;
-  StatusCode finalize() override { return StatusCode::SUCCESS; }
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
+  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   
  private:
   // MVA input variables (provide all variables in float)
