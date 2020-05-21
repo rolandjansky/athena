@@ -56,12 +56,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     viewAlgs.append( ViewDataVerifier )
 
-    # Make sure required objects are still available at whole-event level
+    # Load RDOs if we aren't loading bytestream
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
-    # Load RDOs if we aren't loading bytestream
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),

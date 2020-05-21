@@ -147,8 +147,7 @@ def tauCaloSequence(ConfigFlags):
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
-                                       ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
     if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
       topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
@@ -180,8 +179,7 @@ def tauCaloMVASequence(ConfigFlags):
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
-                                       ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
     if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
       topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
@@ -227,8 +225,7 @@ def tauIdTrackSequence( RoIs , name):
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                       ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+    topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
