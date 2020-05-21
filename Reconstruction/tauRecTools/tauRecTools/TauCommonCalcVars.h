@@ -27,7 +27,7 @@ public:
     ~TauCommonCalcVars();
     
     virtual StatusCode initialize() override;   
-    StatusCode execute(xAOD::TauJet& pTau) const;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode finalize() override;  
 
 private:

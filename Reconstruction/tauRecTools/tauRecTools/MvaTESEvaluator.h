@@ -22,10 +22,6 @@ class MvaTESEvaluator
   virtual ~MvaTESEvaluator();
     
   virtual StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau)
-  {
-    return static_cast<const MvaTESEvaluator*>(this)->execute(xTau);
-  }
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
   virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   

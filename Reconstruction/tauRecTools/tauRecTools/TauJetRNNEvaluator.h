@@ -33,7 +33,7 @@ public:
     virtual ~TauJetRNNEvaluator();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet &tau) const;
+    virtual StatusCode execute(xAOD::TauJet &tau) const override;
     // Getter for the underlying RNN implementation
     TauJetRNN *get_rnn_0p();
     TauJetRNN *get_rnn_1p();
