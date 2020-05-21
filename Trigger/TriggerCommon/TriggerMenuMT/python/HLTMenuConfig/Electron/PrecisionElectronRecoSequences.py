@@ -36,21 +36,12 @@ def precisionElectronRecoSequence(RoIs):
                                  ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
-                                 ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+PixelClusterAmbiguitiesMap' ), # makeInDetPrecisionTracking should get this, but it doesn't
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ), # Seems to be necessary, despite load below
-                                 ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' ),
-                                 ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs_EF' ),
-                                 ( 'InDet::TRT_DriftCircleContainer' , 'StoreGateSvc+TRT_DriftCircles' ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' )]
 
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
-                                       ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+PixelClusterAmbiguitiesMap' ),
-                                       ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
 
     # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
     from IOVDbSvc.CondDB import conddb
@@ -66,6 +57,9 @@ def precisionElectronRecoSequence(RoIs):
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+    else:
+      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+      ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
     """ Precision Track Related Setup.... """
     PTAlgs = []
