@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_SimpleW
     if ( ROTs->size() != trkPars->size() ) {
         ATH_MSG_ERROR("vector of RIO_OnTrack and TrackParameters do not have the same size: assignmentProbabilities cannot be calculated");
         delete assgnProbVec;
-        return 0;
+        return nullptr;
     } else {
         // -----------------------------
         // loop over ROTs to calc non-normalized assignment probabilities

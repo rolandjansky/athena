@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +33,8 @@ Trk::MeasRecalibSteeringTool::MeasRecalibSteeringTool(const std::string& t,
   m_trtTubeHitCreator("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_StrawTubeOnTrackTool"),
   m_haveInDetTools(true),
   //m_haveMuonTools(false),
-  m_idHelper(0),
-  m_mbHelper(0)
+  m_idHelper(nullptr),
+  m_mbHelper(nullptr)
 {
   declareInterface<IMeasurementRecalibrator>(this);
 
@@ -119,16 +119,16 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
  const MeasurementType  inputMtype) const
 {
   // prepare guaranteed input
-  const Trk::RIO_OnTrack* rot = 0; 
+  const Trk::RIO_OnTrack* rot = nullptr; 
   Trk::RoT_Extractor::extract( rot, &meas); // std and competing ROTs
-  if (rot==NULL) {
+  if (rot==nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: no recalibration input!" );
-    return 0;
+    return nullptr;
   }
-  if (rot->prepRawData() == NULL) {
+  if (rot->prepRawData() == nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: re-calibration called " <<
                      "on data without PrepRawData objects available." );
-    return 0;
+    return nullptr;
   }
   MeasurementType mType = inputMtype;
   if (inputMtype == unidentified) mType = m_mbHelper->defineType(&meas);
@@ -162,7 +162,7 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
         return newrot;
         //      }
     }
-    return 0;
+    return nullptr;
   } else {
     return m_rotCreator->correct(*(rot->prepRawData()), trkPar);
   }
@@ -204,16 +204,16 @@ Trk::MeasRecalibSteeringTool::makeBroadMeasurement(const MeasurementBase& meas,
   const {
 
   // prepare guaranteed input
-  const Trk::RIO_OnTrack* rot = 0; 
+  const Trk::RIO_OnTrack* rot = nullptr; 
   Trk::RoT_Extractor::extract( rot, &meas); // std and competing ROTs
-  if (rot==NULL) {
+  if (rot==nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: no recalibration input!" );
-    return 0;
+    return nullptr;
   }
-  if (rot->prepRawData() == NULL) {
+  if (rot->prepRawData() == nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: re-calibration called " <<
                      "on data without PrepRawData objects available." );
-    return 0;
+    return nullptr;
   }
   MeasurementType mType = inputMtype;
   if (inputMtype == unidentified) mType = m_mbHelper->defineType(&meas);
@@ -232,7 +232,7 @@ Trk::MeasRecalibSteeringTool::makeBroadMeasurement(const MeasurementBase& meas,
     return m_trtTubeHitCreator->correct(*rot->prepRawData(), trkPar);
   }
 
-  return 0;
+  return nullptr;
 }
 
 //================================================================================
