@@ -61,8 +61,6 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    bsCnvSvc.InitCnvs += [ "EventInfo",]
-
     return acc
 
 def TrigBSReadCfg(inputFlags):
