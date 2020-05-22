@@ -31,32 +31,50 @@ namespace top {
   ///This flag will not work for Sherpa samples given the structure of Sherpa's truth record.
   /// note that in case of light-hadrons->muons the muon will always be considered as from "unknown", because often we cannot reconstruct the history when light hadrons are involved...
   enum class LepPartonOriginFlag{
-    Unknown=0,  ///< e.g. this can mean the muon is coming from light hadrons and there is no truth history, or anyway it was impossible to reconstruct the history
+    MissingTruthInfo=0,  ///< e.g. this can mean the muon is coming from light hadrons and there is no truth history, or anyway it was impossible to reconstruct the history
     FromAntiTopViaHadronicBosonToHF=-3,  ///< tipically means that the muon is coming from tbar->W->...->muon in some way (or any tbar->W/Z/gamma*/H->...->muon), the "..." must involve HF hadrons
     FromAntiTopViaLeptonicBoson=-2,  ///< tipically means that the muon is coming from tbar->W->...->muon in some way (or any tbar->W/Z/gamma*/H->...->muon), the "..." cannot involve hadrons
     FromAntiTopViaQuarkToHF=-1, ///< tipically means that the muon is coming from tbar->bbar->...->muon in some way (or any tbar->qbar->...->muon), the "..." will for sure involve HF hadrons
     FromTopViaQuarkToHF=1, ///< tipically means that the muon is coming from t->b->...->muon in some way (or any t->q->...->muon), the "..." will for sure involve HF hadrons
     FromTopViaLeptonicBoson=2, ///< tipically means that the muon is coming from t->W->...->muon in some way (or any t->W/Z/gamma*/H->...->muon), the "..." cannot involve hadrons
     FromTopViaHadronicBosonToHF=3, ///< tipically means that the muon is coming from t->W->...->muon in some way (or any t->W/Z/gamma*/H->...->muon), the "..." must involve HF hadrons
-    FromLeptonicBoson=4, ///< W/Z/gamma*/H->muon or W/Z/gamma*/H->tau->muon
-    FromHadronicBosonToHF=5, ///< W/Z/gamma*/H->HF hadrons->muon
-    FromGluonToHFHadron=6, ///< g->HF hadron->muon or g->HF hadron->tau->muon
+    FromLeptonicBoson=4, ///< general case of W/Z/gamma*/H->muon or W/Z/gamma*/H->tau->muon
+    FromHadronicBosonToHF=5, ///< general case of W/Z/gamma*/H->HF hadrons->muon
+    FromHFHadronOfUnkownOrigin=6, ///< HF hadron->muon or HF hadron->tau->muon, we're not sure where the HF hadron is coming from (maybe a gluon?)
+    FromHiggsViaLeptonicBosonToHF=7, ///H->VV->muon
+    FromHiggsViaHadronicBosonToHF=8, ///H->VV->HF->muon
+    FromHiggsToHF=9, ///H->HF->muon, not sure if this can happen in some generators
+    FromHiggs=10, ///direct H->muon
+    FromBSM=1000, /// BSMparticle->muon
+    FromBSMViaLeptonicBosonToHF=1001, /// BSMparticle->V->muon
+    FromBSMViaHadronicBosonToHF=1002, /// BSMparticle->V->HF->muon
+    FromBSMToHF=1003, /// BSMparticle->HF->muon
+    Unknown=9999, /// we have truth info but we were unable to classify the muon
   };
   
   ///this enum defines a flag used to understand the particle origin of a lepton (tipically a soft muon),
   ///i.e. if it is from a boson decay, from a B-hadron, from a B->D->mu decay, etc...
   enum class LepParticleOriginFlag{
-    Unknown=0, ///< tipically this happens for muon from light-hadrons
-    FromLeptonicBoson=1, ///< from H/W/Z/gamma* with leptonic decay (note: this will not work for Sherpa, will appear as Unknown)
-    FromLeptonicBosonToTau=2, ///< from H/W/Z/gamma*->tau->lep (note: this will not work for Sherpa, will appear as Unknown)
-    FromB=3, ///< from direct B-hadron decay
-    FromBtoTau=4, ///< from B-hadron to tau to mu decay
-    FromBtoC=5, ///< from B-hadron to C-hadron to muon decay
-    FromBtoCtoTau=6,  ///< from B-hadron to C-hadron to tau to muon decay
-    FromC=7, ///< from direct C-hadron (with no B-hadron parent) decay
-    FromCtoTau=8, ///< from C-hadron (with no B-hadron parent) to tau to mu decay
-    FromTau=9, ///< from Tau leptonic (not coming from W or HF-hadron, so not sure this can really happen)
-    FromLightHadron=10, ///< often these muons are Unknown, but in some cases we have the truth record and we can verify they are from light-hadrons
+    MissingTruthInfo=0, ///< no associated truth muon tipically this happens for muon from light-hadrons
+    FromPhoton=22, ///gamma*->muonmuon
+    FromPhotonToTau=2215, ///gamma*->tautau and tau->muon
+    FromLeptonicZ=23, ///< from Z->tau->lep (note: this will not work for Sherpa)
+    FromLeptonicZToTau=2315, ///< from Z->tau->lep (note: this will not work for Sherpa)
+    FromLeptonicW=24, ///< from W with leptonic decay (note: this will not work for Sherpa)
+    FromLeptonicWToTau=2415, ///< from W->tau->lep (note: this will not work for Sherpa)
+    FromHiggs=25, ///Higgs->muon
+    FromHiggsToTau=2515, ///Higgs->tau->mu
+    FromB=5, ///< from direct B-hadron decay
+    FromBtoTau=515, ///< from B-hadron to tau to mu decay
+    FromBtoC=54, ///< from B-hadron to C-hadron to muon decay
+    FromBtoCtoTau=5415,  ///< from B-hadron to C-hadron to tau to muon decay
+    FromC=4, ///< from direct C-hadron (with no B-hadron parent) decay
+    FromCtoTau=415, ///< from C-hadron (with no B-hadron parent) to tau to mu decay
+    FromTau=15, ///< from Tau leptonic (not coming from W or HF-hadron, so not sure this can really happen)
+    FromLightHadron=100, ///< often these muons are Unknown, but in some cases we have the truth record and we can verify they are from light-hadrons
+    FromBSM=1000, ///BSMparticle->muon
+    FromBSMToTau=1001, ///BSMparticle->tau->muon
+    Unknown=9999, /// we have truth info but we were unable to classify the muon
   };
 
 /**

@@ -260,8 +260,9 @@ int main(int argc, char** argv) {
       tdp.setTranslator(topConfig->GetMCMCTranslator());
 
       int ShowerIndex = tdp.getShoweringIndex(topConfig->getDSID());
-      ATH_MSG_INFO("DSID: " << topConfig->getDSID() << "\t" << "ShowerIndex: " << ShowerIndex);
+      ATH_MSG_INFO("DSID: " << topConfig->getDSID() << "\t" << "ShowerIndex: " << ShowerIndex << " PS generator: "<< tdp.getShoweringString(topConfig->getDSID()));
       topConfig->setMapIndex(ShowerIndex);
+      topConfig->setShoweringAlgorithm(tdp.getShowering(topConfig->getDSID()));
     }
   } //close and delete the ptr to testFile
 

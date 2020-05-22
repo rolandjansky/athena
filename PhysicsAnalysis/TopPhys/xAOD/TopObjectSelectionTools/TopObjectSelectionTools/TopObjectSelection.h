@@ -244,6 +244,9 @@ namespace top {
                                          const xAOD::JetContainer* xaod_jet,
                                          std::vector<unsigned int>& goodMuons,
                                          std::vector<unsigned int>& goodJets);
+                                         
+    void decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,
+                                         std::vector<unsigned int>& goodMuons);
 
     /**
      * @brief Pointer to the configuration object so we can check which objects
