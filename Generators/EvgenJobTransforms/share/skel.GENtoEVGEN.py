@@ -96,6 +96,9 @@ if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_P
 ## Ensure that mandatory args have been supplied (complain before processing the includes)
 if not hasattr(runArgs, "ecmEnergy"):
     raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
+
 if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
 #if not hasattr(runArgs, "runNumber"):
