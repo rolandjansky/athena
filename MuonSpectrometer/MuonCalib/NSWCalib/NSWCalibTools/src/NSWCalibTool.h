@@ -4,6 +4,9 @@
 #ifndef NSWCalibTool_h
 #define NSWCalibTool_h
 
+#include <map>
+#include <string>
+
 #include "NSWCalibTools/INSWCalibTool.h"
 
 
@@ -21,8 +24,6 @@
 
 #include "TRandom3.h"
 #include "TTree.h"
-#include "TF1.h"
-#include <vector>
 
 namespace Muon {
 
@@ -39,23 +40,30 @@ namespace Muon {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
+    StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const override;
   private:
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-    
+
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-   
+
+    StatusCode initializeGasProperties();
 
     TF1* m_lorentzAngleFunction;
-     
+    
     float m_vDrift;
     float m_timeRes;
     float m_longDiff;
     float m_transDiff;
+    float m_interactionDensitySigma;
+    float m_interactionDensityMean;
     float m_ionUncertainty;
     double m_timeOffset;
+
+    std::string m_gasMixture;
   };
-  
-}
+
+
+}  // namespace Muon
 
 #endif
