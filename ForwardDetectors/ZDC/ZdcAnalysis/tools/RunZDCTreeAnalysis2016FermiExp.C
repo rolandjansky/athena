@@ -100,7 +100,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
     // ComplexPrePulse, FermiExpLinear, GeneralPulse, FermiExp
     ZDCTreeAnalysis* ana;
     if      (year == 2016) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "GeneralPulse", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
-    else if (year == 2018) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "FermiExpLinear", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
+    else if (year == 2018) {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "GeneralPulse", peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
     else                   {ana = new ZDCTreeAnalysis(chain, nSamples, deltaT, 0, "FermiExp"      , peak2ndDerivMinSamples, peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG);}
 
     ana->SetDebugLevel(5);
