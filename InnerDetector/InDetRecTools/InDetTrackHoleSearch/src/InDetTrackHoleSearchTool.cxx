@@ -76,9 +76,6 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
 
   if (m_usepix) {
-    // Get PixelConditionsSummaryTool
-    ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     // Get InDetPixelLayerTool from ToolService
     ATH_CHECK(m_pixelLayerTool.retrieve());
     ATH_MSG_INFO("Retrieved tool " << m_pixelLayerTool);
@@ -805,7 +802,6 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   if (m_atlasId->is_pixel(id)) { 
     if (m_usepix) {
       ATH_MSG_VERBOSE("Found element is a Pixel module without a hit, see if it might be dead");
-      isgood=m_pixelCondSummaryTool->isGood(idHash);
       isgood=m_pixelLayerTool->expectHit(parameters);
       if (isgood) {
         // this detElement is only cosidered as hole if the extrapolation of
