@@ -1,75 +1,72 @@
-<!-- $Id: selection.xml 670153 2015-05-27 11:42:29Z tbisanz $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <typedef name="xAOD::TruthParticle" />
-  <typedef name="xAOD::TruthVertex" />
-  <typedef name="xAOD::TruthEvent" />
+   <!-- xAOD::TruthParticle interface type(s). -->
+   <class name="xAOD::TruthParticle_v1" />
+   <class name="xAOD::TruthParticle_v1::Polarization" />
+   <class name="xAOD::TruthParticleContainer_v1"
+          id="58F98A16-E465-4CA5-A099-73033206D8E3" />
+   <typedef name="xAOD::TruthParticle" />
+   <typedef name="xAOD::TruthParticleContainer" />
 
-  <typedef name="xAOD::TruthParticleContainer" />
-  <typedef name="xAOD::TruthVertexContainer" />
-  <typedef name="xAOD::TruthEventContainer" />
+   <!-- xAOD::TruthParticle auxiliary type(s). -->
+   <class name="xAOD::TruthParticleAuxContainer_v1"
+          id="BA8FA08F-8DD6-420D-97D5-8B54EABECD65" />
+   <typedef name="xAOD::TruthParticleAuxContainer" />
 
-  <typedef name="xAOD::TruthParticleAuxContainer" />
-  <typedef name="xAOD::TruthVertexAuxContainer" />
-  <typedef name="xAOD::TruthEventAuxContainer" />
+   <!-- xAOD::TruthVertex interface type(s). -->
+   <class name="xAOD::TruthVertex_v1" />
+   <class name="xAOD::TruthVertexContainer_v1"
+          id="5FBAE0AB-09F7-4B6C-B066-0A003FC38ECF" />
+   <typedef name="xAOD::TruthVertex" />
+   <typedef name="xAOD::TruthVertexContainer" />
 
-  <typedef name="xAOD::TruthMetaData" />
-  <typedef name="xAOD::TruthMetaDataContainer" />
+   <!-- xAOD::TruthVertex auxiliary type(s). -->
+   <class name="xAOD::TruthVertexAuxContainer_v1"
+          id="B6BD3B02-C411-4EB9-903F-5B099D3B1A3E" />
+   <typedef name="xAOD::TruthVertexAuxContainer" />
 
+   <!-- xAOD::TruthEvent interface type(s). -->
+   <class name="xAOD::TruthEventBase_v1" />
+   <class name="xAOD::TruthEventBaseContainer_v1" />
+   <typedef name="xAOD::TruthEventBase" />
+   <typedef name="xAOD::TruthEventBaseContainer" />
 
-  <!-- The TruthParticle_v1 class(es): -->
-  <class name="xAOD::TruthParticle_v1" />
-  <class name="xAOD::TruthParticle_v1::Polarization" />
+   <class name="xAOD::TruthEvent_v1" />
+   <class name="xAOD::TruthEvent_v1::PdfInfo" />
+   <class name="xAOD::TruthEventContainer_v1"
+          id="6290F297-F529-40EE-9FE5-1C577678306D" />
+   <typedef name="xAOD::TruthEvent" />
+   <typedef name="xAOD::TruthEventContainer" />
 
-  <!-- The TruthVertex_v1 class: -->
-  <class name="xAOD::TruthVertex_v1" />
+   <class name="xAOD::TruthPileupEvent_v1" />
+   <class name="xAOD::TruthPileupEventContainer_v1"
+          id="05ECB16C-A36F-4853-8BB7-C9E7A84B4677" />
+   <typedef name="xAOD::TruthPileupEvent" />
+   <typedef name="xAOD::TruthPileupEventContainer" />
 
-  <!-- The TruthEvent_v1 class(es): -->
-  <class name="xAOD::TruthEventBase_v1" />
-  <class name="xAOD::TruthEventBaseContainer_v1" />
-  <class name="xAOD::TruthEvent_v1" />
-  <class name="xAOD::TruthPileupEvent_v1" />
-  <class name="xAOD::TruthEvent_v1::PdfInfo" />
-  <class name="xAOD::TruthMetaData_v1" />
+   <!-- xAOD::TruthEvent auxiliary type(s). -->
+   <class name="xAOD::TruthEventAuxContainer_v1"
+          id="1B945EFD-4F7D-4BDD-9FB1-6FB975315961" />
+   <typedef name="xAOD::TruthEventAuxContainer" />
 
-  <!-- The persistent classes: -->
-  <class name="xAOD::TruthParticleContainer_v1"
-         id="58F98A16-E465-4CA5-A099-73033206D8E3" />
-  <class name="xAOD::TruthVertexContainer_v1"
-         id="5FBAE0AB-09F7-4B6C-B066-0A003FC38ECF" />
-  <class name="xAOD::TruthEventContainer_v1"
-         id="6290F297-F529-40EE-9FE5-1C577678306D" />
-  <class name="xAOD::TruthPileupEventContainer_v1"
-         id="05ECB16C-A36F-4853-8BB7-C9E7A84B4677" />
-  <class name="xAOD::TruthMetaDataContainer_v1"
-         id="754BDA89-C0D9-43BF-B468-32E10C1690FE" />
+   <class name="xAOD::TruthPileupEventAuxContainer_v1"
+          id="9E9DD653-247C-4D5E-B14C-538EADEA6CD2" />
+   <typedef name="xAOD::TruthPileupEventAuxContainer" />
 
-  <class name="xAOD::TruthParticleAuxContainer_v1"
-         id="BA8FA08F-8DD6-420D-97D5-8B54EABECD65" />
-  <class name="xAOD::TruthVertexAuxContainer_v1"
-         id="B6BD3B02-C411-4EB9-903F-5B099D3B1A3E" />
-  <class name="xAOD::TruthEventAuxContainer_v1"
-         id="1B945EFD-4F7D-4BDD-9FB1-6FB975315961" />
-  <class name="xAOD::TruthPileupEventAuxContainer_v1"
-         id="9E9DD653-247C-4D5E-B14C-538EADEA6CD2" />
-  <class name="xAOD::TruthMetaDataAuxContainer_v1"
-         id="E2EF5F89-DFFA-4225-823E-29E40130A7B2" />
+   <!-- xAOD::TruthMetaData interface type(s). -->
+   <class name="xAOD::TruthMetaData_v1" />
+   <class name="xAOD::TruthMetaDataContainer_v1"
+          id="754BDA89-C0D9-43BF-B468-32E10C1690FE" />
+   <typedef name="xAOD::TruthMetaData" />
+   <typedef name="xAOD::TruthMetaDataContainer" />
 
-  <!-- Smart pointers for TruthParticle_v1: -->
-  <class name="DataLink<xAOD::TruthParticleContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TruthParticleContainer_v1> >" />
-  <class name="ElementLink<xAOD::TruthParticleContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TruthParticleContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TruthParticleContainer_v1> > >" />
+   <!-- xAOD::TruthMetaData auxiliary type(s). -->
+   <class name="xAOD::TruthMetaDataAuxContainer_v1"
+          id="E2EF5F89-DFFA-4225-823E-29E40130A7B2" />
+   <typedef name="xAOD::TruthMetaDataAuxContainer" />
 
-  <!-- Smart pointers for TruthVertex_v1: -->
-  <class name="DataLink<xAOD::TruthVertexContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TruthVertexContainer_v1> >" />
-  <class name="ElementLink<xAOD::TruthVertexContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TruthVertexContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TruthVertexContainer_v1> > >" />
-
-  <!-- The helper functions: -->
-  <function pattern="xAOD::TruthHelpers::*" />
+   <!-- Helper function(s). -->
+   <function pattern="xAOD::TruthHelpers::*" />
 
 </lcgdict>
