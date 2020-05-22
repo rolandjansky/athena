@@ -33,7 +33,7 @@ class PropResultRootWriterSvc : public AthService {
       return IID_PropResultRootWriterSvc;    
     }
     
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) {
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override {
       ATH_MSG_DEBUG("in queryInterface()");    
       if (PropResultRootWriterSvc::interfaceID().versionMatch(riid)) {
         ATH_MSG_DEBUG("matched PropResultRootWriterSvc");
