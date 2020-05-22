@@ -23,7 +23,7 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
 
     // returns 0 for success
-    int decorate(const xAOD::JetContainer& jets) const override;
+    StatusCode decorate(const xAOD::JetContainer& jets) const override;
   private:
     std::unique_ptr<VRJetOverlapDecorator> m_dec;
   };

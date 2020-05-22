@@ -19,9 +19,9 @@ namespace FlavorTagDiscriminants {
     return StatusCode::SUCCESS;
   }
 
-  int VRJetOverlapDecoratorTool::decorate(const xAOD::JetContainer& jets) const {
+  StatusCode VRJetOverlapDecoratorTool::decorate(const xAOD::JetContainer& jets) const {
     m_dec->decorate(jets);
-    return 0; // 0 means success
+    return StatusCode::SUCCESS;
   }
 
 }

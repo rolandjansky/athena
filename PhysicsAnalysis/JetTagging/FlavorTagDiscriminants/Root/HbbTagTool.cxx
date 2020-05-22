@@ -22,11 +22,11 @@ namespace FlavorTagDiscriminants {
     return StatusCode::SUCCESS;
   }
 
-  int HbbTagTool::decorate(const xAOD::JetContainer& jets) const {
+  StatusCode HbbTagTool::decorate(const xAOD::JetContainer& jets) const {
     for (const xAOD::Jet* jet: jets) {
       m_hbb->decorate(*jet);
     }
-    return 0; // 0 means success
+    return StatusCode::SUCCESS;
   }
 
 }
