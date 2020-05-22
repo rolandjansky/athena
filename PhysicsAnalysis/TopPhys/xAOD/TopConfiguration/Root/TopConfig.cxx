@@ -64,6 +64,7 @@ namespace top {
 
     m_DSID(-1),
     m_MapIndex(0),
+    m_showeringAlgo(SampleXsection::unknown),
     // Is MC
     m_isMC(false),
     // Is AFII

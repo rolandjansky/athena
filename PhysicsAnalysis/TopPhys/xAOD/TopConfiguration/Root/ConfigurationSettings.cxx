@@ -147,13 +147,13 @@ namespace top {
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
     registerParameter("SoftMuonAdditionalTruthInfo",
-                      "Decide if you want to store additional truth information on the particle-level origin for soft muons (see TopParticleLevel/TruthTools.h): True or False (default)",
+                      "Experimental: store additional truth information on soft muons particle-level origin: True or False (default)",
                       "False");
     registerParameter("SoftMuonAdditionalTruthInfoCheckPartonOrigin",
-                      "Decide if you want to store additional truth information on the parton-level origin for soft muons (see TopParticleLevel/TruthTools.h, this makes sense only if also SoftMuonAdditionalTruthInfo is True) : True or False (default)",
+                      "Experimental: store additional truth information on soft muons parton-level origin; requires SoftMuonAdditionalTruthInfo to be true; automatically disabled if PS!=pythia8 and PS!=herwigpp : True or False (default)",
                       "False");
     registerParameter("SoftMuonAdditionalTruthInfoDoVerbose",
-                      "Debug output for soft muon addition information: True or False (default)",
+                      "Debug output for soft muon additional truth-level information: True or False (default)",
                       "False");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");

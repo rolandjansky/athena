@@ -32,6 +32,8 @@
 // Tree Filter
 #include "TopConfiguration/TreeFilter.h"
 
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   class AodMetaDataAccess;
   class ConfigurationSettings;
@@ -67,6 +69,10 @@ namespace top {
     // TDP path
     void setTDPPath(const std::string& s);
     inline const std::string& getTDPPath() const {return m_topDataPreparationPath;}
+    
+    //showering algorithm
+    void setShoweringAlgorithm(SampleXsection::showering in) { m_showeringAlgo=in; }
+    SampleXsection::showering getShoweringAlgorithm() const {return m_showeringAlgo;}
 
     inline bool recomputeCPvars() const {return m_recomputeCPvars;}
 
@@ -1856,6 +1862,7 @@ namespace top {
 
     unsigned int m_DSID;
     unsigned int m_MapIndex;
+    SampleXsection::showering m_showeringAlgo;
     bool m_is_sherpa_22_vjets = false;
 
     bool m_isMC;

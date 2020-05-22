@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODRootAccess
                           TopEvent
                           TopConfiguration
+                          TopDataPreparation
                           TruthUtils
                           MCTruthClassifier
                           JetReclustering
@@ -42,6 +43,7 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                                   xAODRootAccess
                                   TopEvent
                                   TopConfiguration
+                                  TopDataPreparation
                                   MCTruthClassifierLib
                                   TruthUtils
                                   JetReclusteringLib

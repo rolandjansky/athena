@@ -16,15 +16,6 @@
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/xAODTruthHelpers.h"
-#include "xAODTracking/TrackParticle.h"
-
-#include "TopParticleLevel/TruthTools.h"
-
-
-
 namespace top {
   SoftMuonObjectCollectionMaker::SoftMuonObjectCollectionMaker(const std::string& name) :
     asg::AsgTool(name),
@@ -135,12 +126,8 @@ namespace top {
               muon->auxdecor<float>("delta_z0_sintheta") = delta_z0 * std::sin(muon->primaryTrackParticle()->theta());
             }
           }
-        }
-        //add soft muon truth history info
-        if(m_config->softmuonAdditionalTruthInfo())
-        {
-          top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->softmuonAdditionalTruthInfoDoVerbose());
-        }
+        }//end of if (muon->primaryTrackParticle())
+        
       }//end of loop on muons
 
       ///-- set links to original objects ///

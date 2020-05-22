@@ -13,6 +13,7 @@
 #include "xAODTruth/TruthVertex.h"
 #include "AthContainers/AuxElement.h"
 #include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 #include "TruthUtils/PIDHelpers.h"
 
@@ -23,19 +24,34 @@
 #include <iostream>
 
 #include "TopParticleLevel/MsgCategory.h"
+
 using namespace TopParticleLevel;
 
 namespace top {
   namespace truth {
     
-    void getRecoMuonHistory(const xAOD::Muon* muon, bool doPartonHistory, bool verbose)
+    const xAOD::TruthParticle* getTruthMuonAssociatedToRecoMuon(const xAOD::Muon* muon)
     {
+      if(!muon) return 0;
+      const xAOD::TrackParticle* track = muon->primaryTrackParticle();
+      if(!track) return 0;
+      
+      const xAOD::TruthParticle* truthmu= xAOD::TruthHelpers::getTruthParticle(*track);      
+      if(!truthmu) return 0;
+      if(!truthmu->isMuon()) return 0; //note that the truth particle associated with a muon can be e.g. a pion/kaon in some cases (since pion/kaon decays are not done at generator level, but at simulation level), we ignore these cases
+      
+      return truthmu;
+    }
+    
+    void getRecoMuonHistory(const xAOD::Muon* muon, bool doPartonHistory, SampleXsection::showering shAlgo, bool verbose)
+    {
+
       if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: ---------------entering in function-----------------");
       if(!muon) return;
       
       if(verbose)
       {
-        //we retrieve the origin from the MCClassifier, it's useful for crosschecks; see https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/MCTruthClassifier/trunk/MCTruthClassifier/MCTruthClassifierDefs.h
+        //we retrieve the origin from the MCClassifier, it's useful for crosschecks; see https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/MCTruthClassifier/MCTruthClassifier/MCTruthClassifierDefs.h
         int origin=0;
         const static SG::AuxElement::Accessor<int> origmu("truthOrigin");
         if (origmu.isAvailable(*muon)) origin = origmu(*muon);
@@ -43,87 +59,168 @@ namespace top {
         ATH_MSG_INFO("getRecoMuonHistory::called on muon with pt="<<muon->pt()<<" origin="<<origin);
       }
       
-      if(muon->isAvailable<const xAOD::TruthParticle*>("truthMuonLink")) return; //this means we already ran on this muon in some way
-      const xAOD::TruthParticle* truthmu = 0; //pointer to the truth muon associated with the reco muon
+      if(doPartonHistory && shAlgo!=SampleXsection::pythia8 && shAlgo!=SampleXsection::herwigpp)
+      {
+        static int nWarnings=0;
+        if(nWarnings<10 || verbose)
+        {
+          ATH_MSG_WARNING("top::truth::getRecoMuonHistory : partonHistory can be checked only for pythia8 and herwigpp showering algorithms, SoftMuonAdditionalTruthInfoCheckPartonOrigin will be ignored for this sample");
+          nWarnings++;
+        }
+        doPartonHistory=false;
+      }
+      
+      if(!muon->isAvailable<bool>("hasRecoMuonHistoryInfo")) //add default values
+      {
+        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        
+        if(doPartonHistory)
+        {
+          muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+          muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        }
+      }
+      else if(muon->auxdecor<bool>("hasRecoMuonHistoryInfo"))
+      {
+         if(verbose) ATH_MSG_INFO("getRecoMuonHistory::we already ran on this muon, exiting");
+         return; //this means we already ran on this muon in some way
+      }
+      muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=true;
       
       //first we retrieve the truth muon associated with the reco one
-      const xAOD::TrackParticle* track = muon->primaryTrackParticle();
-      if(track) truthmu = xAOD::TruthHelpers::getTruthParticle(*track); //note that the truth particle associated with a muon can be e.g. a pion/kaon in some cases (since pion/kaon decays are not done at generator level, but at simulation level); getTruthMuonHistory will take care of this case
+      const xAOD::TruthParticle* truthmu = muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink"); //pointer to the truth muon associated with the reco muon
+      
+      if(!truthmu) truthmu=top::truth::getTruthMuonAssociatedToRecoMuon(muon);
       
       if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: retrieved truth muon pointer="<<truthmu);
+      if(!truthmu) return;
       
-      if(truthmu) getTruthMuonHistory(truthmu, doPartonHistory, verbose);
+      muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::Unknown;
+      if(doPartonHistory) muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::Unknown;
       
+      if(verbose)
+      {
+        ATH_MSG_INFO("getRecoMuonHistory::---truth decay chain---");
+        printDecayChain(truthmu, msg(MSG::Level::INFO));
+      }
+      
+      getTruthMuonHistory(truthmu, doPartonHistory, shAlgo, verbose);
       //we attach the truth muon to the reco muon
       muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = truthmu;
-      muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = truthmu ? truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") : top::LepParticleOriginFlag::Unknown;
-      muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") : 0;
-      muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") : 0;
-      muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") : 0;
-      muon->auxdecor<const xAOD::TruthParticle*>("truthDirectBosonMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthDirectBosonMotherLink")  : 0;
+      muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag");
+      muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink");
+      muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink");
+      muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink");
+      muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink");
+      
+      if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: written LepParticleOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag")));
       
       if(doPartonHistory)
       {
-        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = truthmu ? truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") : top::LepPartonOriginFlag::Unknown;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") : 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = truthmu ? truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") : 0;
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink");
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink");
+        
+        if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: written LepPartonOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag")));
       }
       
+
       if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: exiting function");
       return;
     }
     
     ////getTruthMuonHistory/////
-    void getTruthMuonHistory(const xAOD::TruthParticle* truthmu, bool doPartonHistory, bool verbose)
+    void getTruthMuonHistory(const xAOD::TruthParticle* truthmu, bool doPartonHistory, SampleXsection::showering shAlgo, bool verbose)
     {
       if(verbose)  ATH_MSG_INFO("getTruthMuonHistory:: entering in function");
       
-      if(!truthmu && verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on empty truth muon");
-      if(truthmu && verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on truth particle with pdgId="<<truthmu->pdgId()<<" barcode="<<truthmu->barcode()<<" status="<<truthmu->status()<<" pt="<<truthmu->pt());
-
-      top::LepParticleOriginFlag lepParticleOriginFlag=top::LepParticleOriginFlag::Unknown; //flag defined in TopEvent/EventTools.h
-      const xAOD::TruthParticle* truthmu_mother=0; //direct mother of the muon
-      const xAOD::TruthParticle* truthmu_Bmother=0; //first bottom hadron encountered when going through ancestors
-      const xAOD::TruthParticle* truthmu_Cmother=0; //first charmed hadron encountered when going through ancestors
-      const xAOD::TruthParticle* truthmu_DirectBosonMother=0; //this will hold e.g. W->mu or W->tau->mu decays, BUT NOT W->hadrons->mu decays!
-      
-      if(truthmu && abs(truthmu->pdgId())!=13) //the truth particle associated with a muon can be e.g. a pion/kaon in some cases (since pion/kaon decays are not done at generator level, but at simulation level)
+      if(!truthmu) 
       {
-         truthmu_mother=truthmu; 
-         truthmu=0; //we don't have the truth muon in this case
+        if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on empty truth muon");
+        return;
+      }
+      if(!(truthmu->isMuon()))
+      {
+        if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on non-muon particle");
+        return;
       }
       
-      bool alreadyDecorated=false; //let's check if we already ran on the truh muon associated with the reco one
-      if(truthmu)
-      {
-        if(truthmu->isAvailable<top::LepParticleOriginFlag>("LepParticleOriginFlag")) //we already decorated this truth muon, let's not waste time and recover the info from there
-        {
-          if(verbose) ATH_MSG_INFO("getTruthMuonHistory::--> truth muon already decorated ");
-          lepParticleOriginFlag=truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag");
-          truthmu_mother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink");
-          truthmu_Bmother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink");
-          truthmu_Cmother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink");
-          truthmu_DirectBosonMother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthDirectBosonMotherLink");
-          alreadyDecorated=true;
-        }
-        else truthmu_mother=top::truth::getFirstDifferentParent(truthmu,verbose); //in this case we retrieve the mother of the muon
-      }//end if(truthmu)
+      if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on truth particle with pdgId="<<truthmu->pdgId()<<" barcode="<<truthmu->barcode()<<" status="<<truthmu->status()<<" pt="<<truthmu->pt());
       
-      if(truthmu_mother && abs(truthmu_mother->pdgId())!=13 && !alreadyDecorated) //let's then look at the history of this muon
+      if(!truthmu->isAvailable<bool>("hasTruthMuonHistoryInfo")) //add default values
       {
+        truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")=false;
+        truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::Unknown;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0; 
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+      }
+      else if(truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")) 
+      {
+        if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> we already ran on this truth muon, exiting");
+        return;
+      }
+      truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")=true;
+      
+      top::LepParticleOriginFlag lepParticleOriginFlag=top::LepParticleOriginFlag::Unknown; //flag defined in TopEvent/EventTools.h
+      const xAOD::TruthParticle* truthmu_mother=0; //direct mother of the muon
+      const xAOD::TruthParticle* truthmu_firstNonLeptonMother=0; //in case of X->muon or X->tau->muon, this will always contain X
+      const xAOD::TruthParticle* truthmu_Bmother=0; //first bottom hadron encountered when going through ancestors
+      const xAOD::TruthParticle* truthmu_Cmother=0; //first charmed hadron encountered when going through ancestors
+      
+      const xAOD::TruthParticle* initial_mu = getInitialStateParticle(truthmu);
+      if(initial_mu) truthmu_mother= initial_mu->parent(0); 
+      
+      if(truthmu_mother && abs(truthmu_mother->pdgId())!=13) //let's then look at the history of this muon
+      {
+        
+        if(!truthmu_mother->isLepton()) truthmu_firstNonLeptonMother=truthmu_mother; //basically all cases apart from tau->muon
+        
         if(verbose) ATH_MSG_INFO("getTruthMuonHistory::mother pdgId="<<truthmu_mother->pdgId()<<" isB="<<truthmu_mother->isBottomHadron()<<" isC="<<truthmu_mother->isCharmHadron()<<" isLight="<<truthmu_mother->isLightHadron());
         
         if(truthmu_mother->isLightHadron()) lepParticleOriginFlag=top::LepParticleOriginFlag::FromLightHadron; //in this case we set the muon as coming from a light hadron and we don't investigate further
-        else if(abs(truthmu_mother->pdgId())>=22 && abs(truthmu_mother->pdgId())<=25) //W->munu or Z/H/gamma*->mumu decay
+        else if(truthmu_mother->isW()) //W->munu
         {
-          lepParticleOriginFlag=top::LepParticleOriginFlag::FromLeptonicBoson;
-          truthmu_DirectBosonMother=truthmu_mother;
+          lepParticleOriginFlag=top::LepParticleOriginFlag::FromLeptonicW;
         }
-        else if(abs(truthmu_mother->pdgId())==15) //muon from tau
+        else if(truthmu_mother->isZ()) //Z->mumu
         {
-          const xAOD::TruthParticle* tauMother = top::truth::getFirstDifferentParent(truthmu_mother,verbose);
-          lepParticleOriginFlag=top::truth::getTruthMuonFromTauHistory(tauMother,truthmu_Bmother,truthmu_Cmother,truthmu_DirectBosonMother,verbose);
-        }//end of muon from tau
+          lepParticleOriginFlag=top::LepParticleOriginFlag::FromLeptonicZ;
+        }
+        else if(truthmu_mother->isPhoton()) //gamma*->mumu decay
+        {
+          lepParticleOriginFlag=top::LepParticleOriginFlag::FromPhoton;
+        }
+        else if(truthmu_mother->isHiggs())
+        {
+          lepParticleOriginFlag=top::LepParticleOriginFlag::FromHiggs;
+        }
+        else if(truthmu_mother->isBSM())
+        {
+          lepParticleOriginFlag=top::LepParticleOriginFlag::FromBSM;
+        }
+        else if(truthmu_mother->isTau()) //muon from tau
+        {
+          lepParticleOriginFlag=top::truth::getTruthMuonFromTauHistory(truthmu_mother,truthmu_Bmother,truthmu_Cmother,truthmu_firstNonLeptonMother,verbose);
+        }
         else if(truthmu_mother->isBottomHadron())  //muon from B->mu+X decay
         {
           lepParticleOriginFlag=top::LepParticleOriginFlag::FromB;
@@ -138,33 +235,27 @@ namespace top {
       
       if(verbose)
       {
-        ATH_MSG_INFO("getTruthMuonHistory::---decay chain---");
-        if(truthmu) printDecayChain(truthmu, msg(MSG::Level::INFO));
-        else ATH_MSG_INFO("getTruthMuonHistory::->not available");
         ATH_MSG_INFO("getTruthMuonHistory::LepParticleOriginFlag="<<static_cast<int>(lepParticleOriginFlag));
         if(truthmu) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon pdgId="<<truthmu->pdgId()<<" barcode="<<truthmu->barcode()<<" pt="<<truthmu->pt());
         else ATH_MSG_INFO("getTruthMuonHistory::-->truth muon not found");
         if(truthmu_mother) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon mother pdgId="<<truthmu_mother->pdgId()<<" barcode="<<truthmu_mother->barcode()<<" pt="<<truthmu_mother->pt());
         else ATH_MSG_INFO("getTruthMuonHistory::-->truth muon mother not found");
+        if(truthmu_firstNonLeptonMother) ATH_MSG_INFO("getTruthMuonHistory::-->truthmu_firstNonLeptonMother pdgId="<<truthmu_firstNonLeptonMother->pdgId()<<" barcode="<<truthmu_firstNonLeptonMother->barcode()<<" pt="<<truthmu_firstNonLeptonMother->pt());
+        else ATH_MSG_INFO("getTruthMuonHistory::-->truthmu_firstNonLeptonMother not found");
         if(truthmu_Bmother) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon Bmother pdgId="<<truthmu_Bmother->pdgId()<<" barcode="<<truthmu_Bmother->barcode()<<" pt="<<truthmu_Bmother->pt());
         else ATH_MSG_INFO("getTruthMuonHistory::-->truth muon Bmother not found");
         if(truthmu_Cmother) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon Cmother pdgId="<<truthmu_Cmother->pdgId()<<" barcode="<<truthmu_Cmother->barcode()<<" pt="<<truthmu_Cmother->pt());
         else ATH_MSG_INFO("getTruthMuonHistory::-->truth muon Cmother not found");
-        if(truthmu_DirectBosonMother) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon Direct Boson mother pdgId="<<truthmu_DirectBosonMother->pdgId()<<" barcode="<<truthmu_DirectBosonMother->barcode()<<" pt="<<truthmu_DirectBosonMother->pt());
-        else ATH_MSG_INFO("getTruthMuonHistory::->truth muon Direct Boson mother not found");
       }
       
-      if(truthmu && !truthmu->isAvailable<top::LepParticleOriginFlag>("LepParticleOriginFlag"))
-      {
-        //we decorate also on the truth muon associated with the reco one, because in this way if the truth muon was already decorated in another copy of the muon (for systematics) we avoid losing time.
-        truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = lepParticleOriginFlag;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = truthmu_mother; 
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = truthmu_Bmother;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = truthmu_Cmother;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthDirectBosonMotherLink") = truthmu_DirectBosonMother;
-      }
+      //we decorate also on the truth muon associated with the reco one, because in this way if the truth muon was already decorated in another copy of the muon (for systematics) we avoid losing time.
+      truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = lepParticleOriginFlag;
+      truthmu->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = truthmu_firstNonLeptonMother;
+      truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = truthmu_mother; 
+      truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = truthmu_Bmother;
+      truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = truthmu_Cmother;
       
-      if(doPartonHistory && truthmu && !truthmu->isAvailable<const xAOD::TruthParticle*>("truthPartonMotherLink")) top::truth::getTruthMuonPartonHistory(truthmu, lepParticleOriginFlag, truthmu_mother, truthmu_Bmother, truthmu_Cmother, truthmu_DirectBosonMother, verbose);
+      if(doPartonHistory) top::truth::getTruthMuonPartonHistory(truthmu, lepParticleOriginFlag, truthmu_Bmother, truthmu_Cmother, truthmu_firstNonLeptonMother, shAlgo, verbose);
       
       if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: exiting from function");
       
@@ -172,134 +263,360 @@ namespace top {
     }
     
     /////getTruthMuonPartonHistory/////
-    top::LepPartonOriginFlag getTruthMuonPartonHistory(const xAOD::TruthParticle* truthmu, top::LepParticleOriginFlag lepParticleOriginFlag, const xAOD::TruthParticle* truthmu_mother, const xAOD::TruthParticle* truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother,  const xAOD::TruthParticle* truthmu_DirectBosonMother, bool verbose)
+    void getTruthMuonPartonHistory(const xAOD::TruthParticle* truthmu, top::LepParticleOriginFlag lepParticleOriginFlag, const xAOD::TruthParticle* truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother,  const xAOD::TruthParticle* truthmu_firstNonLeptonMother, SampleXsection::showering shAlgo, bool verbose)
     {
-      const xAOD::TruthParticle* truthmu_PartonMother=0;
-      const xAOD::TruthParticle* truthmu_TopMother=0;
+      if(verbose)  ATH_MSG_INFO("getTruthMuonPartonHistory:: entering in function");
+      
+      if(!truthmu && verbose) 
+      {
+        ATH_MSG_INFO("getTruthMuonPartonHistory:: -> called on empty truth muon");
+        return;
+      }
+      
+      if(!truthmu->isAvailable<bool>("hasTruthMuonPartonHistoryInfo"))//default values
+      {
+        truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")=false;
+        truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+      }
+      else if(truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")) 
+      {
+        if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> we already ran on this truth muon, exiting");
+        return;
+      }
+      truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")=true;
+      
+      const xAOD::TruthParticle* truthmu_mother=truthmu_firstNonLeptonMother;
+      
+      if(!truthmu_mother)
+      {
+        if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> no muon mother available, returning");
+        return;
+      }
+      if(lepParticleOriginFlag==top::LepParticleOriginFlag::MissingTruthInfo || lepParticleOriginFlag==top::LepParticleOriginFlag::FromLightHadron)
+      {
+        
+        if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from light hadron, will not fill info");
+        return;
+      }
+      
       top::LepPartonOriginFlag lepPartonOriginFlag=top::LepPartonOriginFlag::Unknown;
       
-      bool alreadyDecorated=false;
+      //this is the priority we use to look for parents in order: top, higgs, BSM, W/Z, gamma*
+      auto get_priority = [](const xAOD::TruthParticle* p) -> int {
+              if(!p) return 999;
+              if(p->isTop()) return 0;
+              if(p->isHiggs()) return 10;
+              if(p->isBSM()) return 15;
+              if(p->isW() || p->isZ()) return 20;
+              if(p->isPhoton()) return 25;
+              return 100;
+      };
       
-      if(truthmu && truthmu->isAvailable<const xAOD::TruthParticle*>("truthPartonMotherLink")) //we already decorated the truth muon, let's read from there
+      if(truthmu_mother->isTop()) // shouldn't happen, but maybe some generators don't store intermediate bosons
       {
-        truthmu_PartonMother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") ;
-        truthmu_TopMother=truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink");
-        lepPartonOriginFlag=truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag");
-        alreadyDecorated=true;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = truthmu_mother;
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = truthmu_mother;
+        if(truthmu_mother->pdgId()>0) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaLeptonicBoson;
+        else lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaLeptonicBoson;
       }
-      
-      if(!alreadyDecorated)
+      else if(truthmu_mother->isHiggs())
       {
-        if(lepParticleOriginFlag==top::LepParticleOriginFlag::Unknown || lepParticleOriginFlag==top::LepParticleOriginFlag::FromLightHadron) lepPartonOriginFlag=top::LepPartonOriginFlag::Unknown; //we always consider muons from light hadrons to be from unknown origin, to avoid problems
-        else if(truthmu_mother)
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = truthmu_mother;
+        lepPartonOriginFlag=top::LepPartonOriginFlag::FromHiggs;
+      }
+      else if(truthmu_mother->isBSM())
+      {
+        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = truthmu_mother;
+        lepPartonOriginFlag=top::LepPartonOriginFlag::FromBSM;
+      }
+      else if(truthmu_mother->isW() || truthmu_mother->isZ() || truthmu_mother->isPhoton() ) //the muon is coming from a leptonically decaying boson (eventually via a boson->tau->mu)
+      {
+        lepPartonOriginFlag=top::LepPartonOriginFlag::FromLeptonicBoson; //this is the basic info if we don't find further infromation
+        
+        if(truthmu_mother->isW()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = truthmu_mother;
+        else if(truthmu_mother->isZ()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = truthmu_mother;
+        else if(truthmu_mother->isPhoton()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = truthmu_mother;
+        
+        //then we check in case we can find the mother of the boson
+        const xAOD::TruthParticle* initialStateBoson=top::truth::getInitialStateParticle(truthmu_mother,verbose);
+        const xAOD::TruthParticle* bosonOrigin=0;
+        unsigned int bosonOrigin_priority=999;
+        
+        if(initialStateBoson) 
         {
-          if(truthmu_DirectBosonMother) //the muon is coming from a leptonically decaying boson (eventually via a boson->tau->mu)
+          for(unsigned int ip=0; ip<initialStateBoson->nParents(); ip++)
           {
-            truthmu_PartonMother=truthmu_DirectBosonMother;
-            const xAOD::TruthParticle* bosonMother=top::truth::getFirstDifferentParent(truthmu_DirectBosonMother,verbose);
-            if(!bosonMother || abs(bosonMother->pdgId())!=6) lepPartonOriginFlag=top::LepPartonOriginFlag::FromLeptonicBoson;
-            else
+            const xAOD::TruthParticle* parent=initialStateBoson->parent(ip);
+            if(!parent) continue;
+            
+            unsigned int parent_priority=get_priority(parent);
+            if(parent_priority<bosonOrigin_priority)
             {
-              if(bosonMother->pdgId()==6) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaLeptonicBoson;
-              if(bosonMother->pdgId()==(-6)) lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaLeptonicBoson;
-              truthmu_TopMother=bosonMother;
+              bosonOrigin_priority=parent_priority;
+              bosonOrigin=parent;
             }
           }
-          else  //in this case the muon is not coming from a boson
-          {
-            truthmu_PartonMother=getFirstPartonParent(truthmu_mother,verbose);
-            truthmu_TopMother=getFirstSpecificParent(truthmu_PartonMother,6,true,verbose);
-            
-            const xAOD::TruthParticle* firstNonLeptonMother=0;
-            if(!truthmu_mother->isLepton()) firstNonLeptonMother=truthmu_mother;
-            else firstNonLeptonMother=top::truth::getFirstNonLeptonParent(truthmu_mother,verbose);
-            
-            if(firstNonLeptonMother)
-            {
-              if(abs(firstNonLeptonMother->pdgId())>=22 && abs(firstNonLeptonMother->pdgId())<=25 && verbose) ATH_MSG_WARNING("getTruthMuonHistory:: we should have already found leptonically decaying boson...");
-              
-              if(firstNonLeptonMother->isBottomHadron() || firstNonLeptonMother->isCharmHadron())
-              {
-                const xAOD::TruthParticle* hadron=0;
-                if(truthmu_Bmother) hadron=truthmu_Bmother;
-                else if(truthmu_Cmother) hadron=truthmu_Cmother;
-                else if(verbose) ATH_MSG_WARNING("getTruthMuonHistory:: we were expecting a HF hadron here...");
-                
-                if(hadron)
-                {
-                  std::vector<int> possiblePdgIds = {6,21,22,23,24,25}; //top, gluon, photon, Z, W, higgs
-                  const xAOD::TruthParticle* motherOfHadron=getFirstParentAmongList(hadron,possiblePdgIds,true,verbose);
-                  if(motherOfHadron)
-                  {
-                    if(abs(motherOfHadron->pdgId())==21) lepPartonOriginFlag=top::LepPartonOriginFlag::FromGluonToHFHadron;
-                    if(motherOfHadron->pdgId()==6) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaQuarkToHF;
-                    if(motherOfHadron->pdgId()==(-6)) lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaQuarkToHF;
-                    if(abs(motherOfHadron->pdgId())>=22 && abs(motherOfHadron->pdgId())<=25)
-                    {
-                      const xAOD::TruthParticle* motherOfBoson=getFirstDifferentParent(motherOfHadron,verbose);
-                      if(motherOfBoson && motherOfBoson->pdgId()==6) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaHadronicBosonToHF;
-                      else if(motherOfBoson && motherOfBoson->pdgId()==(-6)) lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaHadronicBosonToHF;
-                      else{
-                        lepPartonOriginFlag=top::LepPartonOriginFlag::FromHadronicBosonToHF;
-                      }
-                    }
-                  }//end of if(motherOfHadron)
-                }//end of if(hadron)
-              }//end of else if(firstNonLeptonMother->isBottomHadron() || firstNonLeptonMother->isCharmHadron())
-              else{
-                if(verbose) ATH_MSG_INFO("getTruthMuonHistory:: uncathegorized non-lepton parent has pgdId="<<firstNonLeptonMother->pdgId());
-              }
-            }//end of if(firstNonLeptonMother)
-            
-          }//end of non-bosonic case
+        }
+        if(bosonOrigin && bosonOrigin->isTop())
+        {
+          if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from boson from top");
           
-        }//end of else if(truthmu_mother)
-      }//end of if(!alreadyDecorated)
-      
-      if(truthmu && !truthmu->isAvailable<const xAOD::TruthParticle*>("truthPartonMotherLink"))
-      {
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = truthmu_PartonMother; 
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = truthmu_TopMother;
-        truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = lepPartonOriginFlag;
+          truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = bosonOrigin;
+          if(bosonOrigin->pdgId()>0) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaLeptonicBoson;
+          else lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaLeptonicBoson;
+        }
+        else if(bosonOrigin && bosonOrigin->isHiggs())
+        {
+          if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from boson from higgs");
+          truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = bosonOrigin;
+          lepPartonOriginFlag=top::LepPartonOriginFlag::FromHiggsViaLeptonicBosonToHF;
+        }
+        else if(bosonOrigin && bosonOrigin->isBSM())
+        {
+          if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from boson from BSM");
+          truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = bosonOrigin;
+          lepPartonOriginFlag=top::LepPartonOriginFlag::FromBSMViaLeptonicBosonToHF;
+        }
+        else
+        {
+          if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from boson not from top or higgs");
+          lepPartonOriginFlag=top::LepPartonOriginFlag::FromLeptonicBoson; 
+        }
       }
-      
-      if(verbose)
+      else if(truthmu_Bmother || truthmu_Cmother) //in this case the muon is not coming from a boson direct decay, we treat only cases from HF hadrons
       {
-        if(truthmu_PartonMother) ATH_MSG_INFO("getTruthMuonHistory::------> parton mother="<<truthmu_PartonMother->pdgId());
-        else ATH_MSG_INFO("getTruthMuonHistory::------> parton mother not available");
-        if(truthmu_TopMother) ATH_MSG_INFO("getTruthMuonHistory::------> top mother="<<truthmu_TopMother->pdgId());
-        else ATH_MSG_INFO("getTruthMuonHistory::------> top mother not available");
-        ATH_MSG_INFO("getTruthMuonHistory::------> LepPartonOriginFlag="<<static_cast<int>(lepPartonOriginFlag));
-      }
+        lepPartonOriginFlag=top::LepPartonOriginFlag::FromHFHadronOfUnkownOrigin; //default case
+        
+        bool isBHadronMother=truthmu_Bmother;
+        const xAOD::TruthParticle* hadronMother= isBHadronMother ? truthmu_Bmother : truthmu_Cmother;
+        const xAOD::TruthParticle* firstHadronMother=getFirstHFHadronOfSameFlavour(hadronMother,verbose);
+        
+        if(verbose)
+        {
+          ATH_MSG_INFO("getTruthMuonPartonHistory:: isBHadronmother="<<isBHadronMother<<" Bmom="<<truthmu_Bmother<<" Cmom="<<truthmu_Cmother<<" hadMom="<<hadronMother<<" firstHadMom="<<firstHadronMother);
+          ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from hadron pdgId="<<(hadronMother ? hadronMother->pdgId() : 0)<<", first hadron in chain pdgId="<<(firstHadronMother ? firstHadronMother->pdgId() : 0));
+        }
+        if(firstHadronMother)
+        {
+          
+          const xAOD::TruthParticle* hf_parton_parent=0;
+          
+          if(shAlgo == SampleXsection::herwigpp)  //in herwig we have pdgId==81 for clusters as hadron parents
+          {
+            if(firstHadronMother->parent(0) && firstHadronMother->parent(0)->pdgId()==81)
+            {
+              firstHadronMother=getInitialStateParticle(firstHadronMother->parent(0));
+            }
+          }
+          
+          //first we find the HF parton that originated the HF hadron
+          for(unsigned int ip=0; ip<firstHadronMother->nParents(); ip++)
+          {
+            const xAOD::TruthParticle* parent=firstHadronMother->parent(ip);
+            if(!parent) continue;
+            if(isBHadronMother && abs(parent->pdgId())==5)
+            {
+              hf_parton_parent=parent;
+              break;
+            }
+            else if(!isBHadronMother && abs(parent->pdgId())==4)
+            {
+              hf_parton_parent=parent;
+              break;
+            }
+            
+          }
+          
+          truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") =hf_parton_parent;
+          
+          //the we get the first HF parton of the evolution chain
+          const xAOD::TruthParticle* initial_hf_parton_parent=0;
+          if(hf_parton_parent) initial_hf_parton_parent = top::truth::getInitialStateParticle(hf_parton_parent,verbose);
+          
+          //parton ancestor will be the particle/resonance originating the first HF quark
+          const xAOD::TruthParticle* parton_ancestor=0;
+          unsigned int parton_ancestor_priority=999;
+          
+          if(initial_hf_parton_parent)
+          {
+            for(unsigned int ip=0; ip<initial_hf_parton_parent->nParents(); ip++)
+            {
+              const xAOD::TruthParticle* parent=initial_hf_parton_parent->parent(ip);
+              if(!parent) continue;
+              if(!parton_ancestor) parton_ancestor=parent;
+              else
+              { 
+                unsigned int priority =get_priority(parent);
+                if(priority < parton_ancestor_priority)
+                {
+                  parton_ancestor_priority=priority;
+                  parton_ancestor=parent;
+                }
+              }
+            }
+          }
+          
+          //finally we (hopefully) know where the HF hadron is originally coming from
+          if(parton_ancestor && parton_ancestor->isTop())
+          {
+            truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = parton_ancestor;
+            if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from HF from top");
+            
+            if(parton_ancestor->pdgId()>0) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaQuarkToHF;
+            else lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaQuarkToHF;
+          }
+          else if(parton_ancestor && parton_ancestor->isHiggs())
+          {
+            truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = parton_ancestor;
+            lepPartonOriginFlag=top::LepPartonOriginFlag::FromHiggsToHF;
+          }
+          else if(parton_ancestor && parton_ancestor->isBSM())
+          {
+            truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = parton_ancestor;
+            lepPartonOriginFlag=top::LepPartonOriginFlag::FromBSMToHF;
+          }
+          else if(parton_ancestor && (parton_ancestor->isW() || parton_ancestor->isZ() || parton_ancestor->isPhoton()))
+          {
+            const xAOD::TruthParticle* first_bosonMotherOfHfQuark=top::truth::getInitialStateParticle(parton_ancestor);
+            
+            if(parton_ancestor->isW()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = parton_ancestor;
+            else if(parton_ancestor->isZ()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = parton_ancestor;
+            else if(parton_ancestor->isPhoton()) truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = parton_ancestor;
+            
+            const xAOD::TruthParticle* bosonOrigin=0;
+            unsigned int bosonOrigin_priority=999;
+            
+            if(first_bosonMotherOfHfQuark)
+            {
+              for(unsigned int ip=0; ip<first_bosonMotherOfHfQuark->nParents(); ip++)
+              {
+                const xAOD::TruthParticle* parent=first_bosonMotherOfHfQuark->parent(ip);
+                if(!parent) continue;
+                
+                unsigned int priority =get_priority(parent);
+                if(priority<bosonOrigin_priority)
+                {
+                  bosonOrigin=parent;
+                  bosonOrigin_priority=priority;
+                }
+              }
+              if(bosonOrigin && bosonOrigin->isTop())
+              {
+                if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from HF from boson from top");
+                truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = bosonOrigin;
+                
+                if(bosonOrigin->pdgId()>0) lepPartonOriginFlag=top::LepPartonOriginFlag::FromTopViaHadronicBosonToHF;
+                else lepPartonOriginFlag=top::LepPartonOriginFlag::FromAntiTopViaHadronicBosonToHF;
+              }
+              else if(bosonOrigin && bosonOrigin->isHiggs())
+              {
+                if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from HF from boson from higgs");
+                truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = bosonOrigin;
+                lepPartonOriginFlag=top::LepPartonOriginFlag::FromHiggsViaHadronicBosonToHF;
+              }
+              else if(bosonOrigin && bosonOrigin->isBSM())
+              {
+                if(verbose) ATH_MSG_INFO("getTruthMuonPartonHistory:: -> muon from HF from boson from BSM");
+                truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = bosonOrigin;
+                lepPartonOriginFlag=top::LepPartonOriginFlag::FromBSMViaHadronicBosonToHF;
+              }
+              else
+              {
+                lepPartonOriginFlag=top::LepPartonOriginFlag::FromHadronicBosonToHF; //not sure where this is coming from
+              }
+            }
+          }//end of V->HF->muon case
+          
+        }//end of HF->muon case
+        
+      }//end of non-bosonic case
       
-      return lepPartonOriginFlag;
+      truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = lepPartonOriginFlag;
+      
+      if(verbose) ATH_MSG_INFO("getTruthMuonHistory::------> LepPartonOriginFlag="<<static_cast<int>(lepPartonOriginFlag));
+      
+      return;
       
     }//end of getTruthMuonPartonHistory
     
     /////getTruthMuonFromCharmHistory/////
     top::LepParticleOriginFlag getTruthMuonFromCharmHistory(const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother, bool verbose)
     {
+      if(verbose) ATH_MSG_INFO("called getTruthMuonFromCharmHistory");
+      const xAOD::TruthParticle* initial_C_hadron=getFirstHFHadronOfSameFlavour(truthmu_Cmother); //we find the first non-Chadron ancestor of the C-hadron
       
-      const xAOD::TruthParticle* mother_of_C_hadron=getFirstDifferentParentExcludingHadrons(truthmu_Cmother,4,verbose); //we find the first non-Chadron ancestor of the C-hadron
-      
-      if(!mother_of_C_hadron) return top::LepParticleOriginFlag::FromC; //we don't know where the C-hadron is coming from
-      if(mother_of_C_hadron->isBottomHadron()) //B->D->mu case
+      if(initial_C_hadron)
       {
-        truthmu_Bmother=mother_of_C_hadron;
-        return top::LepParticleOriginFlag::FromBtoC;
+        bool hasBHadronParent=false;
+        for(unsigned int ip=0; ip<initial_C_hadron->nParents(); ip++)
+        {
+          const xAOD::TruthParticle* parent=initial_C_hadron->parent(ip);
+          if(!parent) continue;
+          if(parent->isBottomHadron()) 
+          {
+            hasBHadronParent=true;
+            truthmu_Bmother=parent;
+            break;
+          }
+        }
+        if(hasBHadronParent) return top::LepParticleOriginFlag::FromBtoC;
       }
-      return top::LepParticleOriginFlag::FromC; //in other cases this is coming from D->mu+X or something
       
+      return top::LepParticleOriginFlag::FromC; //we don't know where the C-hadron is coming from
     } //end of getTruthMuonFromCharmHistory method
     
     /////getTruthMuonFromTauHistory/////
-    top::LepParticleOriginFlag getTruthMuonFromTauHistory(const xAOD::TruthParticle* tauMother, const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* &truthmu_Cmother, const xAOD::TruthParticle* &truthmu_DirectBosonMother, bool verbose)
+    top::LepParticleOriginFlag getTruthMuonFromTauHistory(const xAOD::TruthParticle* tau, const xAOD::TruthParticle* &truthmu_Bmother, const xAOD::TruthParticle* &truthmu_Cmother, const xAOD::TruthParticle* &truthmu_firstNonLeptonMother, bool verbose)
     {
-      if(!tauMother) return top::LepParticleOriginFlag::FromTau; //muon from tau, we don't know where the tau is coming from
-      if(abs(tauMother->pdgId())>=22 && abs(tauMother->pdgId())<=25) //e.g. W->taunu->mununu decay
+      if(!tau && verbose) 
       {
-        truthmu_DirectBosonMother=tauMother;
-        return top::LepParticleOriginFlag::FromLeptonicBosonToTau;
+        ATH_MSG_WARNING("getTruthMuonFromTauHistory called on empty tau");
+        return top::LepParticleOriginFlag::FromTau; 
+      }
+      if(!tau->isTau())
+      {
+        ATH_MSG_ERROR("getTruthMuonFromTauHistory called on non-tau, pdgId"<<(tau->pdgId()));
+        throw;
+      }
+      const xAOD::TruthParticle* initialTau = top::truth::getInitialStateParticle(tau);
+      if(!initialTau)
+      {
+        if(verbose)ATH_MSG_INFO("getTruthMuonFromTauHistory:: could not find initial state tau");
+        return top::LepParticleOriginFlag::FromTau; 
+      }
+      
+      const xAOD::TruthParticle* tauMother=initialTau->parent(0);
+      
+      if(!tauMother) return top::LepParticleOriginFlag::FromTau; //muon from tau, we don't know where the tau is coming from
+      
+      if(!tauMother->isLepton()) truthmu_firstNonLeptonMother=tauMother;
+      
+      if(tauMother->isW()) //W->taunu with tau->mununu decay
+      {
+        return top::LepParticleOriginFlag::FromLeptonicWToTau;
+      }
+      if(tauMother->isZ()) //Z->tautau with tau->mununu
+      {
+        return top::LepParticleOriginFlag::FromLeptonicZToTau;
+      }
+      if(tauMother->isPhoton())
+      {
+        return top::LepParticleOriginFlag::FromPhotonToTau;
+      }
+      if(tauMother->isHiggs())
+      {
+        return top::LepParticleOriginFlag::FromHiggsToTau;
+      }
+      if(tauMother->isBSM())
+      {
+        return top::LepParticleOriginFlag::FromBSMToTau;
       }
       if(tauMother->isBottomHadron()) //the muon is from a B->tau+X with tau->mununu decay
       {
@@ -309,14 +626,22 @@ namespace top {
       if(tauMother->isCharmHadron()) //now this is getting complicated, the muon is from e.g. D->tau+X with tau->mununu decay, now we have to understand where the D is coming from...
       {
         truthmu_Cmother=tauMother;
-        const xAOD::TruthParticle* mother_of_C_hadron=getFirstDifferentParentExcludingHadrons(truthmu_Cmother,4,verbose); //we find the first non-Chadron ancestor of the C-hadron
-      
-        if(!mother_of_C_hadron) return top::LepParticleOriginFlag::FromCtoTau; // we don't know where the C-hadron is coming from
-        if(mother_of_C_hadron->isBottomHadron()) //B->D->mu case
+        const xAOD::TruthParticle* initial_C_hadron=getFirstHFHadronOfSameFlavour(truthmu_Cmother); //we find the first non-Chadron ancestor of the C-hadron
+        
+        bool hasBHadronParent=false;
+        
+        for(unsigned int ip=0; ip<initial_C_hadron->nParents(); ip++)
         {
-          truthmu_Bmother=mother_of_C_hadron;
-          return top::LepParticleOriginFlag::FromBtoCtoTau;
+          const xAOD::TruthParticle* parent=initial_C_hadron->parent(ip);
+          if(!parent) continue;
+          if(parent->isBottomHadron())
+          {
+            hasBHadronParent=true;
+            truthmu_Bmother=parent;
+            break;
+          }
         }
+        if(hasBHadronParent) return top::LepParticleOriginFlag::FromBtoCtoTau;
         else  //in this case this is coming from D->tau->mu+X or something with no B-hadron ancestor
         {
           return top::LepParticleOriginFlag::FromCtoTau;
@@ -326,165 +651,97 @@ namespace top {
       return top::LepParticleOriginFlag::FromTau; //in all other cases we don't know anything apart from the fact that the muon is coming from a tau
     }//end of getTruthMuonFromTauHistory method
     
-    const xAOD::TruthParticle* getFirstNonLeptonParent(const xAOD::TruthParticle* truthPart, bool verbose)
+    //getFirstHadronOfSameFlavour//
+    const xAOD::TruthParticle* getFirstHFHadronOfSameFlavour(const xAOD::TruthParticle* truthParticle, bool verbose)
     {
-      if(!truthPart) return 0;
+      if(!truthParticle) return 0;
+      bool isBottomHadron=truthParticle->isBottomHadron();
+      bool isCharmHadron=truthParticle->isCharmHadron();
       
-      const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
-      int niterations=0;
-      while(parent)
+      if(!(isBottomHadron) && !(isCharmHadron))
       {
-        if((niterations++)>100)
-        {
-          if(verbose) ATH_MSG_INFO("getFirstNonLeptonParent:: too many iterations");
-          return 0;
-        }
-        if(!parent->isLepton()) break;        
-        parent=getFirstDifferentParent(parent);
+        if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: this can be called only on HF hadrons...");
+        return 0;
       }
-      
-      return parent;
-    }
-    
-    const xAOD::TruthParticle* getFirstSpecificParent(const xAOD::TruthParticle* truthPart, int pdgId, bool absolute, bool verbose)
-    {
-      if(!truthPart) return 0;
-      
-      const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
+      const xAOD::TruthParticle* parent=truthParticle;
       int niterations=0;
       while(parent)
       {
         if((niterations++)>100)
         {
-          if(verbose) ATH_MSG_INFO("getFirstSpecificParent:: too many iterations; requested pdgId="<<pdgId);
+          if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: too many iterations on particle "<<(truthParticle->pdgId()));
           return 0;
         }
-        if(absolute)
+        
+        parent=getInitialStateParticle(parent,verbose);
+        if(!parent)
         {
-          if(abs(parent->pdgId())==abs(pdgId)) break;
+          if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: initial state particle not found");
+          break;
+        }
+        
+        if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: initial state particle found="<<(parent->pdgId()));
+        
+        bool hasSameFlavourParent=false;
+        for(unsigned int ip=0; ip<parent->nParents(); ip++)
+        {
+          if(parent->parent(ip))
+          {
+            if((isBottomHadron && parent->parent(ip)->isBottomHadron())||(isCharmHadron && parent->parent(ip)->isCharmHadron()))
+            {
+              parent=parent->parent(ip);
+              hasSameFlavourParent=true;
+              break;
+            }
+          }
+        }
+        
+        if(!hasSameFlavourParent)
+        {
+          if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: parent="<<(parent->pdgId())<<" has no same flavour ancestor");
+           break;
         }
         else
         {
-          if(parent->pdgId()==pdgId) break;
+          if(verbose) ATH_MSG_INFO("getFirstHFHadronOfSameFlavour:: found same flavour parent="<<(parent->pdgId()));
         }
-        parent=getFirstDifferentParent(parent);
+        
       }
-      
       return parent;
     }
+    //end of getFirstHadronOfSameFlavour method//
     
-    const xAOD::TruthParticle* getFirstParentAmongList(const xAOD::TruthParticle* truthPart, std::vector<int> &pdgIds, bool absolute, bool verbose)
+    //getInitialStateParticle//
+    const xAOD::TruthParticle* getInitialStateParticle(const xAOD::TruthParticle* truthParticle, bool verbose)
     {
-      if(!truthPart) return 0;
-      
-      const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
+      if(!truthParticle) return 0;
+      int pdgId=truthParticle->pdgId();
       int niterations=0;
+      const xAOD::TruthParticle* parent=truthParticle;
+      
       while(parent)
       {
         if((niterations++)>100)
         {
-          if(verbose) ATH_MSG_INFO("getFirstParentAmongList:: too many iterations");
+          if(verbose) ATH_MSG_INFO("getInitialStateParticle:: too many iterations for particle "<<(truthParticle->pdgId()));
           return 0;
         }
-        bool toBreak=false;
-        for(int pdgId : pdgIds)
+        
+        bool hasParentWithSamePdgId=false;
+        for(unsigned int ip=0; ip<parent->nParents(); ip++)
         {
-          int id1=pdgId;
-          int id2=parent->pdgId();
-          if(absolute)
+          if(parent->parent(ip) && (parent->parent(ip)->pdgId()==pdgId))
           {
-            id1=abs(id1);
-            id2=abs(id2);
-          }
-          if(id1==id2)
-          {
-            toBreak=true;
+            parent=parent->parent(ip);
+            hasParentWithSamePdgId=true;
             break;
           }
         }
-        if(toBreak) break;
-        parent=getFirstDifferentParent(parent);
-      }
-      
-      return parent;
-    }
-    
-    const xAOD::TruthParticle* getFirstPartonParent(const xAOD::TruthParticle* truthPart, bool verbose)
-    {
-      if(!truthPart) return 0;
-      
-      const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
-      int niterations=0;
-      while(parent)
-      {
-        if((niterations++)>100)
-        {
-          if(verbose) ATH_MSG_INFO("getFirstPartonParent:: too many iterations");
-          return 0;
-        }
-        if(parent->isParton()) break;        
-        parent=getFirstDifferentParent(parent);
-      }
-      
-      return parent;
-    }
-    
-    const xAOD::TruthParticle* getFirstDifferentParentExcludingHadrons(const xAOD::TruthParticle* truthPart, int whichHadrons, bool verbose)
-    {
-      if(!truthPart) return 0;
-      const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
-      int niterations=0;
-      while(parent)
-      {
-        if((niterations++)>100)
-        {
-          if(verbose) ATH_MSG_INFO("getFirstDifferentParentExcludingHadrons:: too many iterations");
-          return 0;
-        }
-        if(whichHadrons<0  && !parent->isHadron()) break;
-        if(whichHadrons==4  && !parent->isCharmHadron()) break;
-        if(whichHadrons==5  && !parent->isBottomHadron()) break;
-        if(whichHadrons==45  && !parent->isCharmHadron() && !parent->isBottomHadron()) break;
-        
-        parent=getFirstDifferentParent(parent);
-      }
-      
-      return parent;
-      
-    }
-    
-    const xAOD::TruthParticle* getFirstDifferentParent(const xAOD::TruthParticle* truthPart, bool verbose)
-    {
-      if(!truthPart)
-      {
-        ATH_MSG_WARNING(" called top::truth::getFirstDifferentParent on a null pointer");
-        return 0;
-      }
-      
-      int pdgId=truthPart->pdgId();
-      
-      const xAOD::TruthParticle* parent=truthPart;
-      int parentPdgId=pdgId;
-      int niterations=0;
-      
-      while(parentPdgId==pdgId)
-      {
-        if((niterations++) >100)
-        {
-          if(verbose) ATH_MSG_INFO("getFirstDifferentParent:: too many iterations");
-          return 0;
-        }
-
-        if(parent->nParents()>=1) parent=parent->parent(0);
-        else break; //we cannot go further
-
-        if(!parent) break; 
-        parentPdgId=parent->pdgId();
-        
+        if(!hasParentWithSamePdgId) break;
       }
       return parent;
     }
-    
+    //end of getInitialStateParticle method//
     
     void printDecayChain(const xAOD::TruthParticle* truthPart,
                          std::ostream& os /* = std::cout */,
@@ -495,24 +752,50 @@ namespace top {
         return;
       }
 
-      const xAOD::TruthParticle* parent {
-        truthPart->prodVtx()->incomingParticle(0)
-      };
       os << prefix << "[" << truthPart->pdgId();
       int niterations=0;
-      while (parent) {
+      
+      while (truthPart) {
         if((niterations++)>30)
         {
           os<<" STOP! too many iterations ";
           break;
         }
-        os << " <- " << parent->pdgId();
+        if(truthPart->nParents()<1) break;
         
-        if (parent->prodVtx()) {
-          parent = parent->prodVtx()->incomingParticle(0);
-        } else {
-          break;
+        os << " <- ";
+        const xAOD::TruthParticle* firstWithSamePdgId=0;
+        const xAOD::TruthParticle* firstNonParton=0;
+        const xAOD::TruthParticle* firstCorrectFlavorQuark=0;
+        
+        for(unsigned int ip=0; ip<truthPart->nParents(); ip++)
+        {
+          if(ip>0) os<<", ";
+          os<<" "<<(truthPart->parent(ip) ? truthPart->parent(ip)->pdgId() : 0);
+          if(!truthPart->parent(ip)) continue;
+          
+          if(!firstWithSamePdgId && truthPart->parent(ip)->pdgId()==truthPart->pdgId())
+          {
+            firstWithSamePdgId = truthPart->parent(ip);
+          }
+          if(!firstNonParton && !truthPart->parent(ip)->isParton())
+          {
+            firstNonParton = truthPart->parent(ip);
+          }
+          if(truthPart->isBottomHadron() && abs(truthPart->parent(ip)->pdgId())==5)
+          {
+            firstCorrectFlavorQuark = truthPart->parent(ip);
+          }
+          if(truthPart->isCharmHadron() && abs(truthPart->parent(ip)->pdgId())==4)
+          {
+            firstCorrectFlavorQuark = truthPart->parent(ip);
+          }
+          
         }
+        if(firstWithSamePdgId) truthPart=firstWithSamePdgId;
+        else if(firstNonParton) truthPart=firstNonParton;
+        else if(firstCorrectFlavorQuark) truthPart=firstCorrectFlavorQuark;
+        else truthPart=truthPart->parent(0);
         
       }
       os << "]" << '\n';

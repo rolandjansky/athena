@@ -20,6 +20,12 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "PATCore/TAccept.h"
 
+#include "TopParticleLevel/TruthTools.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   TopObjectSelection::TopObjectSelection(const std::string& name) :
     asg::AsgTool(name),
@@ -789,13 +795,12 @@ namespace top {
 
         float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
 
-        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR &&
-            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the dR selection must be done here, because we need the post-OR jets...
+        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i); //the DR selection must be done here, because we need the post-OR jets
         i++;
       }
     }//end of OR procedure for soft muons
-
-
+    
+    if(m_config->isMC() && m_config->useSoftMuons() && m_config->softmuonAdditionalTruthInfo()) decorateSoftMuonsPostOverlapRemoval(xaod_softmu,goodSoftMuons);
 
     // set the indices in the xAOD::SystematicEvent
     currentSystematic->setGoodPhotons(goodPhotons);
@@ -809,10 +814,35 @@ namespace top {
     currentSystematic->setGoodTrackJets(goodTrackJets);
 
     decorateEventInfoPostOverlapRemoval(goodJets.size(), currentSystematic->isLooseEvent());
-
     return StatusCode::SUCCESS;
   }
+  
+  void TopObjectSelection::decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,std::vector<unsigned int>& goodSoftMuons)
+  {
 
+    for (auto iMu : goodSoftMuons) {
+    // Get muon iMu
+    const xAOD::Muon* muon = xaod_softmu->at(iMu);
+
+        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        
+        top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+    }//end of loop on soft muons
+  }
   void TopObjectSelection::applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,
                                                                  std::vector<unsigned int>& indices) {
     // Copy the original indices of the xAOD objects in
