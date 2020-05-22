@@ -142,11 +142,11 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
 		  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
 		}
 		if(fillAccept and not alreadyFilled) {
-		  m_histAcceptExclusiveJets[i]->Fill(xi_1);
+		  fillHist1D(m_histAcceptExclusiveJets[i]->GetName(),xi_1);
 		} else if(fillReject) {
-		  m_histRejectExclusiveJets[i]->Fill(xi_1);
+		  fillHist1D(m_histRejectExclusiveJets[i]->GetName(),xi_1);
 		}
-		TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
+		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		
 	      }
 	    }
@@ -196,11 +196,11 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
 		  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
 		}
 		if(fillAccept and not alreadyFilled) {
-		  m_histAcceptExclusiveJets[i]->Fill(xi_1);
+		  fillHist1D(m_histAcceptExclusiveJets[i]->GetName(),xi_1);
 		  } else if(fillReject) {
-		  m_histRejectExclusiveJets[i]->Fill(xi_1);
+		  fillHist1D(m_histRejectExclusiveJets[i]->GetName(),xi_1);
 		}
-		TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
+		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		  
 	      }
 	    }
