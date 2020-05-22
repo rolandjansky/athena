@@ -124,6 +124,9 @@ def createTriggerFlags():
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
+
+    # shortcut to check if job is running in a partition (i.e. partition name is not empty)
+    flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
     
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)
