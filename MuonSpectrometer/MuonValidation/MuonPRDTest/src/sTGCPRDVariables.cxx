@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCPRDVariables.h"
@@ -8,7 +8,7 @@
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 #include "TTree.h"
-
+#include <TString.h> // for Form
 
 StatusCode sTGCPRDVariables::fillVariables()
 {
@@ -55,6 +55,7 @@ StatusCode sTGCPRDVariables::fillVariables()
       m_NSWsTGC_prd_bcTag->push_back(bcTag);
 
       const MuonGM::sTgcReadoutElement* det = prd->detectorElement();
+      if (!det) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCPRDVariables::fillVariables() - no associated detectorElement", __FILE__, __LINE__));
       Amg::Vector3D pos = prd->globalPosition();
       Amg::Vector2D loc_pos(0., 0.);
        det->surface(Id).globalToLocal(pos, Amg::Vector3D(0., 0., 0.), loc_pos);
