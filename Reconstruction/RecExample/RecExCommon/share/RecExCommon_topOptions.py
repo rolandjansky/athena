@@ -597,7 +597,9 @@ if globalflags.InputFormat.is_bytestream():
 ### write mu values into xAOD::EventInfo
 if rec.doESD() and rec.readRDO():
     if globalflags.DataSource()=='geant4':
-        include_muwriter = hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" )
+        include_muwriter = (globalflags.InputFormat.is_bytestream() or
+                            hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
+                            objKeyStore.isInInput( "xAOD::EventInfo"))
     else:
         include_muwriter = not athenaCommonFlags.isOnline()
 
