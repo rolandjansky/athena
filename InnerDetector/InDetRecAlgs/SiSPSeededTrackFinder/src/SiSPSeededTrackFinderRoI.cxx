@@ -58,6 +58,7 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   //
   declareProperty("ZWindowRoISeedTool"  ,m_ZWindowRoISeedTool  );
   declareProperty("RandomRoISeedTool"  ,m_RandomRoISeedTool  );
+  declareProperty("RoIWidth", m_RoI_width = 1.0);
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("TrackTool"           ,m_trackmaker          );
   declareProperty("TracksLocation"      ,m_outputTracks        );
@@ -262,7 +263,8 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   //  
   m_seedsmaker  ->newEvent(-1); 
   std::list<Trk::Vertex> VZ; 
-  m_seedsmaker->find3Sp(VZ, ZBoundary); 
+  if(m_RoI_width >= 0.) m_seedsmaker->find3Sp(VZ, ZBoundary); 
+  if(m_RoI_width < 0.) m_seedsmaker->find3Sp(VZ); //If you want to disable the RoI, make the RoI input width a negative value.  The RoI "vertex" container will still be there in case you want to use that information for whatever reason (ie where the RoI would have been centered)
   if(m_doRandomSpot) m_seedsmaker->find3Sp(VZ, RandZBoundary); //see comment proceding line with "double RandZBoundary[2];"
   m_trackmaker->newEvent(PIX,SCT);
 

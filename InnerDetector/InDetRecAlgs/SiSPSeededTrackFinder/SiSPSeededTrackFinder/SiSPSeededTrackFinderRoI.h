@@ -97,6 +97,7 @@ namespace InDet {
       ToolHandle<InDet::IZWindowRoISeedTool>           m_RandomRoISeedTool;
       std::vector<InDet::IZWindowRoISeedTool::ZWindow> m_listRoIs;
       std::vector<InDet::IZWindowRoISeedTool::ZWindow> m_listRandRoIs;
+      float m_RoI_width; /// width of z0 window; mostly to be used to bypass RoI if input is negative!
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
