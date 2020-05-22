@@ -505,7 +505,7 @@ class athenaLogFileReport(logFileReport):
         ## look up for lines before core dump for "abnormal" and "last normal" line(s)
 
         #  make a list of last e.g. 50 lines before core dump
-        #  An new "line generator" is required to give access to the upper lines
+        #  A new "line generator" is required to give access to the upper lines
         linesList = []
         lineGen = trfUtils.lineByLine(log)
         for line, linecounter in lineGen:
