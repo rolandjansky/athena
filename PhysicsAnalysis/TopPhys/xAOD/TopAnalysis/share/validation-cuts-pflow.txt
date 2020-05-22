@@ -83,7 +83,7 @@ LargeRJetUncertainties_NPModel CategoryReduction
 ### Electron configuration
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation Gradient
+ElectronIsolation FCTight
 ElectronIsolationLoose None
 
 ### Photon configuration
@@ -109,8 +109,8 @@ MuonDoSmearing2stationHighPt True
 
 ### Tau configuration
 TauPt 25000
-TauJetIDWP Medium
-TauJetIDWPLoose Medium
+TauJetIDWP RNNMedium
+TauJetIDWPLoose RNNLoose
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
 TauEleOLR False

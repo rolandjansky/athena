@@ -856,12 +856,6 @@ namespace top {
       }
     }
 
-    inline virtual void photonUseRadiativeZ(const bool b) {
-      if (!m_configFixed) {
-        m_photon_configuration.useRadiativeZ = b;
-      }
-    }
-
     // Muon configuration
     inline virtual void muonPtcut(const float pt) {
       if (!m_configFixed) {
@@ -1394,10 +1388,6 @@ namespace top {
 
     inline const std::string& photonIsolationLoose() {
       return m_photon_configuration_loose.isolation;
-    }
-
-    inline const bool& photonUseRadiativeZ() {
-      return m_photon_configuration.useRadiativeZ;
     }
 
     // inline const std::string& tauJetID() const {return m_tauJetID;}
@@ -2153,7 +2143,6 @@ namespace top {
       float eta = 2.5;
       std::string isolation = "None";
       std::string identification = "None";
-      bool useRadiativeZ = false;
     } m_photon_configuration, m_photon_configuration_loose;
 
     // [[[-----------------------------------------------

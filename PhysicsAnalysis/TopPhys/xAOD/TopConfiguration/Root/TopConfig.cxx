@@ -1127,7 +1127,6 @@ namespace top {
     this->photonIdentificationLoose(settings->value("PhotonIDLoose"));
     this->photonIsolation(settings->value("PhotonIsolation"));
     this->photonIsolationLoose(settings->value("PhotonIsolationLoose"));
-    if (settings->value("PhotonUseRadiativeZ") == "True") this->m_photon_configuration.useRadiativeZ = true;
 
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));

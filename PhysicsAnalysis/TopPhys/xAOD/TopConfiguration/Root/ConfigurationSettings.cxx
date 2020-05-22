@@ -66,7 +66,7 @@ namespace top {
                       "default");
     registerParameter("ElectronIsolation",
                       "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
-                      "Gradient");
+                      "FCTight");
     registerParameter("ElectronIsolationLoose",
                       "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
@@ -102,8 +102,6 @@ namespace top {
     registerParameter("PhotonIsolationLoose",
                       "Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.",
                       "FixedCutLoose");
-    registerParameter("PhotonUseRadiativeZ", "True/False. Set to True to enable photon radiative Z up to 100 GeV.",
-                      "False");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
@@ -193,7 +191,7 @@ namespace top {
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
-    registerParameter("LargeRJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "25000.");
+    registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
     registerParameter("LargeRJetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",

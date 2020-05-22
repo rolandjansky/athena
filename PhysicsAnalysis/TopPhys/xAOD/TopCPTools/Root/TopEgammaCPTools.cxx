@@ -100,11 +100,6 @@ namespace top {
         "top::EgammaCPTools: no need to initialise anything since using neither electrons nor fwd electrons nor photons");
     }
 
-    // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
-    if (m_config->photonUseRadiativeZ()) {
-      ATH_MSG_INFO(
-        "top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
-    }
     return StatusCode::SUCCESS;
   }
 
