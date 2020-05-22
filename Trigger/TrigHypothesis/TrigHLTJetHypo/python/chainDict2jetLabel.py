@@ -276,6 +276,69 @@ def _make_dijet_label(chain_parts):
             )""" % argvals
 
 
+def _make_ht_label(chain_parts):
+    """ht label. ht cuts, and cuts on particpating jets
+    Currently supported cuts:
+    - all jets: ht
+    - all jets: et
+    - all jets:  eta
+
+    - default values are used for unspecified cuts.
+    The cut set can be extended according to the pattern
+    """
+
+    assert len(chain_parts) == 1
+    scenario = chain_parts[0]['hypoScenario']
+    
+    assert scenario.startswith('ht')
+
+    arg_res = [
+        re.compile(r'^(?P<lo>\d*)(?P<key>ht)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>eta)(?P<hi>\d*)$'),
+    ]
+
+    defaults = {
+        'ht': ('0', 'inf'),
+        'et': ('0', 'inf'),
+        'eta': ('0', 'inf'),
+    }
+
+
+    args = _args_from_scenario(scenario)
+    argvals = {}
+    while args:
+        assert len(args) == len(arg_res)
+        arg = args.pop()
+        for r in arg_res:
+            m = r.match(arg)
+            if m is not None:
+                arg_res.remove(r)
+                gd = m.groupdict()
+                key = gd['key']
+
+                try:
+                    lo = float(gd['lo'])
+                except ValueError:
+                    lo = defaults[key][0]
+                argvals[key+'lo'] = lo 
+                try:
+                    hi = float(gd['hi'])
+                except ValueError:
+                    hi = defaults[key][1]
+                argvals[key+'hi'] =  hi
+
+    assert len(args) == len(arg_res)
+    assert len(args) == 0
+
+    return """
+    ht([(%(htlo).0fht) 
+        (%(etlo).0fet%(ethi).0f)
+        (%(etalo).0feta%(etahi).0f)
+    ])"""  % argvals
+    
+
+
 def _make_combinationsTest_label(chain_parts):
     """make test label for  combinations helper with two simple children."""
 
@@ -369,16 +432,13 @@ def _tests():
 
     print('\n--------- _tests() starts _______')
 
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-
     chain_names = (
         'HLT_j85_L1J20',
         # 'HLT_j80_0eta240_2j60_320eta490_L1J20',
         # ``'HLT_j85_j70_L1J20',
         'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
         'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
-        
+        'HLT_j0_ht1000htSEP100etSEP0eta333',        
     )
     
 
@@ -401,9 +461,6 @@ def _tests1():
     
     print('\n--------- _tests1() starts _______')
 
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-    
     chain_name = 'HLT_j85_L1J20'
 
     chain_dict = DictFromChainName.dictFromChainName(chain_name)
@@ -422,9 +479,6 @@ def _tests1():
 def _tests2():
     print('\n--------- _tests2() starts _______')
 
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-    
     chain_name = 'HLT_j85_L1J20'
 
     chain_dict = DictFromChainName.dictFromChainName(chain_name)
@@ -442,6 +496,13 @@ def _tests2():
 
 
 if __name__ == '__main__':
+    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (
+        SingleJetGroup,
+        MultiJetGroup)
+    
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+
     _tests()
     _tests1()
     _tests2()
