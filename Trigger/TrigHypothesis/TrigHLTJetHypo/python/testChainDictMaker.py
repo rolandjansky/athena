@@ -27,7 +27,7 @@ def testChainDictMaker():
                   groups=MultiJetGroup),
 
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
-                  l1SeedThresholds=['FSNOSEED']*3,
+                  l1SeedThresholds=['FSNOSEED'],
                   groups=MultiJetGroup),
     ]
 
