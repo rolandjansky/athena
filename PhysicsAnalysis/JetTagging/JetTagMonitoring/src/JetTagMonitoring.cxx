@@ -1600,6 +1600,7 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   const xAOD::BTagging* btag = jet->btagging();
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
+    return;
   }
   double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
   double mv_tmp = 0;

@@ -2,14 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfBetheHeitlerEffects.h  -  description
-      -----------------------------------------
-begin                : Friday 18th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Bethe-Heitler material effects for the GSF
-*********************************************************************************/
+/**
+ * @file   GsfBetheHeitlerEffects.h
+ * @date   Friday 18th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Bethe-Heitler material effects for electrons, used in the GSF 
+ */
 
 #ifndef Trk_GsfBetheHeitlerEffects_H
 #define Trk_GsfBetheHeitlerEffects_H

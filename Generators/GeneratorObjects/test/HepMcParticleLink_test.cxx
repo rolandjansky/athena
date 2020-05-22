@@ -10,6 +10,7 @@
 #undef NDEBUG
 
 #include <iostream>
+#include <limits>
 #include <list>
 // Framework
 #include "TestTools/initGaudi.h"
@@ -50,6 +51,9 @@ namespace MCTesting {
     }
 
     virtual void TearDown() override {
+      StoreGateSvc* pStore(nullptr);
+      ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
+      pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
     }
   };
 
@@ -178,6 +182,55 @@ namespace MCTesting {
     return inParticle4;
   }
 
+  HepMC::GenParticle* populateFilteredGenEvent(HepMC::GenEvent & ge)
+  {
+    //.......Create new particle (geantino) to link  hits from pileup
+    HepMC::GenParticle* genPart=new HepMC::GenParticle();
+    genPart->set_pdg_id(999); //Geantino
+    genPart->set_status(1); //!< set decay status
+    genPart->suggest_barcode( std::numeric_limits<int32_t>::max() );
+
+    HepMC::GenVertex* genVertex=new HepMC::GenVertex();
+    genVertex->add_particle_out(genPart);
+
+    //to set geantino vertex as a truth primary vertex
+    HepMC::GenVertex* hScatVx = ge.barcode_to_vertex(-3);
+    if(hScatVx!=nullptr) {
+      HepMC::FourVector pmvxpos=hScatVx->position();
+      genVertex->set_position(pmvxpos);
+      //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+      HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
+      if (hScatVx->particles_in_size()==2){
+        HepMC::FourVector mom1=(*itrp)->momentum();
+        HepMC::FourVector mom2=(*(++itrp))->momentum();
+        HepMC::FourVector vxmom;
+        vxmom.setPx(mom1.e()+mom2.e());
+        vxmom.setPy(0.);
+        vxmom.setPz(0.);
+        vxmom.setE(mom1.e()+mom2.e());
+
+        genPart->set_momentum(vxmom);
+      }
+    }
+
+    if(!ge.vertices_empty()){
+      std::vector<HepMC::GenVertex *> vtxvec;
+      HepMC::GenEvent::vertex_iterator itvtx = ge.vertices_begin();
+      for (;itvtx != ge.vertices_end(); ++itvtx ) {
+        ge.remove_vertex(*itvtx);
+        vtxvec.push_back((*itvtx));
+        //fix me: delete vertex pointer causes crash
+        //delete (*itvtx);
+      }
+      for(unsigned int i=0;i<vtxvec.size();i++)  delete vtxvec[i];
+    }
+
+    //.....add new vertex with geantino
+    ge.add_vertex(genVertex);
+
+    return genPart;
+  }
+
   TEST_F(HepMcParticleLink_test, old_test) {
     std::cout << "*** HepMcParticleLink_test starts ***" <<std::endl;
 
@@ -203,7 +256,7 @@ namespace MCTesting {
     HepMcParticleLink gammaLink12(pGamma->barcode(), 1);
 
     std::cout << "Testing HepMcParticleLink streamer "
-         << gammaLink1 << " --- " << gammaLink11 <<std::endl;
+              << gammaLink1 << " --- " << gammaLink11 <<std::endl;
 
 
 #ifdef GENP_DEBUG
@@ -222,9 +275,6 @@ namespace MCTesting {
     ASSERT_EQ(*gammaLink1, *gammaLink11);
     ASSERT_NE( gammaLink1, gammaLink11 ); //FIXME weird! Can't check ptr...
     ASSERT_LT( gammaLink1, gammaLink11 );  //FIXME weird! Can't check ptr...
-    StoreGateSvc* pStore(nullptr);
-    ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
     std::cout << "*** HepMcParticleLink_test OK ***" <<std::endl;
   }
 
@@ -245,12 +295,9 @@ namespace MCTesting {
     // the GenEvent in the McEventCollection should still work.
     HepMcParticleLink testLink1b(particle1->barcode(),0);
     ASSERT_TRUE( testLink1b.isValid() );
-    StoreGateSvc* pStore(nullptr);
-    ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
-  TEST_F(HepMcParticleLink_test, truth_event_link) {
+  TEST_F(HepMcParticleLink_test, truth_event_link_first_event) {
     // create dummy input McEventCollection with a name that
     // HepMcParticleLink knows about
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
@@ -268,25 +315,28 @@ namespace MCTesting {
     const int process_id2(20);
     const int event_number2(25);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
-    const HepMcParticleLink::index_type dummyIndex2(1);
-    const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
-    const HepMC::GenParticle* particle2 = populateGenEvent2(ge2);
+    (void)populateGenEvent2(ge2);
     // Add a third dummy GenEvent (identical to the first)
     const int process_id3(20);
     const int event_number3(17);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
-    const HepMcParticleLink::index_type dummyIndex3(2);
-    const HepMcParticleLink::index_type refEvtNum3 = static_cast<HepMcParticleLink::index_type>(event_number3);
     HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
-    const HepMC::GenParticle* particle3 = populateGenEvent(ge3);
+    (void)populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    (void)populateFilteredGenEvent(ge4);
+
+    const IProxyDict* sg = SG::CurrentEventStore::store();
 
     //Testing links to the first dummy GenEvent
-    const IProxyDict* sg = SG::CurrentEventStore::store();
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink1a(particle1,0, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink1a(particle1,dummyIndex1, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1a.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1a.barcode());
@@ -295,7 +345,7 @@ namespace MCTesting {
     ASSERT_EQ(particle1,testLink1a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink1b(particle1->barcode(),0, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink1b(particle1->barcode(),dummyIndex1, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1b.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1b.barcode());
@@ -320,12 +370,48 @@ namespace MCTesting {
     ASSERT_EQ( refEvtNum1, testLink1d.eventIndex());
     ASSERT_EQ( dummyIndex1, testLink1d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle1,testLink1d.cptr());
+  }
+
+  TEST_F(HepMcParticleLink_test, truth_event_link_second_event) {
+    // create dummy input McEventCollection with a name that
+    // HepMcParticleLink knows about
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
+    inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // Add a dummy GenEvent
+    const int process_id1(20);
+    const int event_number1(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
+    (void)populateGenEvent(ge1);
+    // Add a second dummy GenEvent
+    const int process_id2(20);
+    const int event_number2(25);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    const HepMcParticleLink::index_type dummyIndex2(1);
+    const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    const HepMC::GenParticle* particle2 = populateGenEvent2(ge2);
+    // Add a third dummy GenEvent (identical to the first)
+    const int process_id3(20);
+    const int event_number3(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
+    (void)populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    (void)populateFilteredGenEvent(ge4);
+
+    const IProxyDict* sg = SG::CurrentEventStore::store();
 
     //Testing links to the second dummy GenEvent
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink2a(particle2,1, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink2a(particle2, dummyIndex2, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink2a.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2a.barcode());
@@ -334,7 +420,7 @@ namespace MCTesting {
     ASSERT_EQ(particle2,testLink2a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink2b(particle2->barcode(),1, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink2b(particle2->barcode(), dummyIndex2, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink2b.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2b.barcode());
@@ -359,12 +445,47 @@ namespace MCTesting {
     ASSERT_EQ( refEvtNum2, testLink2d.eventIndex());
     ASSERT_EQ( dummyIndex2, testLink2d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle2,testLink2d.cptr());
+  }
+
+  TEST_F(HepMcParticleLink_test, truth_event_link_third_event) {
+    // create dummy input McEventCollection with a name that
+    // HepMcParticleLink knows about
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
+    inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // Add a dummy GenEvent
+    const int process_id1(20);
+    const int event_number1(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
+    const HepMC::GenParticle* particle1 = populateGenEvent(ge1);
+    // Add a second dummy GenEvent
+    const int process_id2(20);
+    const int event_number2(25);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    (void)populateGenEvent2(ge2);
+    // Add a third dummy GenEvent (identical to the first)
+    const int process_id3(20);
+    const int event_number3(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    const HepMcParticleLink::index_type dummyIndex3(2);
+    const HepMcParticleLink::index_type refEvtNum3 = static_cast<HepMcParticleLink::index_type>(event_number3);
+    HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
+    const HepMC::GenParticle* particle3 = populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    (void)populateFilteredGenEvent(ge4);
+
 
     //Testing links to the third dummy GenEvent
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink3a(particle3,2, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink3a(particle3, dummyIndex3, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink3a.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3a.barcode());
@@ -372,7 +493,7 @@ namespace MCTesting {
     ASSERT_EQ(particle3,testLink3a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink3b(particle3->barcode(),2, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink3b(particle3->barcode(), dummyIndex3, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink3b.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3b.barcode());
@@ -395,10 +516,227 @@ namespace MCTesting {
     ASSERT_EQ( refEvtNum3, testLink3d.eventIndex());
     ASSERT_NE(particle3,testLink3d.cptr());
     ASSERT_EQ(particle1,testLink3d.cptr()); //POINTS AT THE IDENTICAL PARTICLE IN FIRST GenEvent!!
+  }
 
-    StoreGateSvc* pStore(nullptr);
-    ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
+  TEST_F(HepMcParticleLink_test, truth_event_link_fourth_event) {
+    // create dummy input McEventCollection with a name that
+    // HepMcParticleLink knows about
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
+    inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // Add a dummy GenEvent
+    const int process_id1(20);
+    const int event_number1(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
+    (void)populateGenEvent(ge1);
+    // Add a second dummy GenEvent
+    const int process_id2(20);
+    const int event_number2(25);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    (void)populateGenEvent2(ge2);
+    // Add a third dummy GenEvent (identical to the first)
+    const int process_id3(20);
+    const int event_number3(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
+    (void)populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    const HepMcParticleLink::index_type dummyIndex4(3);
+    const HepMcParticleLink::index_type refEvtNum4 = static_cast<HepMcParticleLink::index_type>(event_number4);
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    const HepMC::GenParticle* particle4 = populateFilteredGenEvent(ge4);
+
+    const IProxyDict* sg = SG::CurrentEventStore::store();
+
+    // Testing links to the fourth GenEvent - filtered pile-up truth
+
+    // HepMcParticleLink built using a GenParticle pointer and the
+    // event_number of the GenEvent.
+    HepMcParticleLink testLink4a(particle4,event_number4);
+    ASSERT_TRUE( testLink4a.isValid() );
+    ASSERT_EQ( particle4->barcode(), testLink4a.barcode());
+    ASSERT_EQ( refEvtNum4, testLink4a.eventIndex());
+    ASSERT_EQ( dummyIndex4, testLink4a.getEventPositionInCollection(sg));
+    ASSERT_EQ( particle4, testLink4a.cptr());
+    // A HepMcParticleLink built using the barcode and the event_number of
+    // the GenEvent.
+    HepMcParticleLink testLink4b(particle4->barcode(),event_number4);
+    ASSERT_TRUE( testLink4b.isValid() );
+    ASSERT_EQ( particle4->barcode(), testLink4b.barcode());
+    ASSERT_EQ( refEvtNum4, testLink4b.eventIndex());
+    ASSERT_EQ( dummyIndex4, testLink4a.getEventPositionInCollection(sg));
+    ASSERT_EQ( particle4, testLink4b.cptr());
+    // HepMcParticleLink built using a GenParticle pointer and the
+    // position of the GenEvent.
+    HepMcParticleLink testLink4c(particle4, dummyIndex4, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink4c.isValid() );
+    ASSERT_EQ( particle4->barcode(), testLink4c.barcode());
+    ASSERT_EQ( refEvtNum4, testLink4c.eventIndex());
+    ASSERT_EQ( dummyIndex4, testLink4c.getEventPositionInCollection(sg));
+    ASSERT_EQ( particle4, testLink4c.cptr());
+
+    // A HepMcParticleLink built using the barcode and the position of
+    // the GenEvent.
+    HepMcParticleLink testLink4d(particle4->barcode(), dummyIndex4, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_TRUE( testLink4d.isValid() );
+    ASSERT_EQ( particle4->barcode(), testLink4d.barcode());
+    ASSERT_EQ( refEvtNum4, testLink4d.eventIndex());
+    ASSERT_EQ( dummyIndex4, testLink4d.getEventPositionInCollection(sg));
+    ASSERT_EQ( particle4, testLink4d.cptr());
+  }
+
+  TEST_F(HepMcParticleLink_test, truth_event_link_delta_rays) {
+    // create dummy input McEventCollection with a name that
+    // HepMcParticleLink knows about
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
+    inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // Add a dummy GenEvent
+    const int process_id1(20);
+    const int event_number1(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    const HepMcParticleLink::index_type dummyIndex1(0);
+    const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
+    HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
+    (void)populateGenEvent(ge1);
+    // Add a second dummy GenEvent
+    const int process_id2(20);
+    const int event_number2(25);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    const HepMcParticleLink::index_type dummyIndex2(1);
+    const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    (void)populateGenEvent2(ge2);
+    // Add a third dummy GenEvent (identical to the first)
+    const int process_id3(20);
+    const int event_number3(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
+    (void)populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    (void)populateFilteredGenEvent(ge4);
+
+    const IProxyDict* sg = SG::CurrentEventStore::store();
+
+    // Testing Links to delta-rays (barcode=0) - not recorded in McEventCollection
+    const int deltaRayBarcode(0);
+    HepMC::GenParticle *deltaRayPtr{};
+
+    // HepMcParticleLink built using a delta-ray barcode and the event_number of
+    // the GenEvent.
+    HepMcParticleLink testLink5a(deltaRayBarcode, refEvtNum1);
+    ASSERT_EQ( refEvtNum1, testLink5a.eventIndex());
+    ASSERT_FALSE( testLink5a.isValid() );
+    ASSERT_EQ( deltaRayBarcode, testLink5a.barcode());
+    ASSERT_EQ( dummyIndex1, testLink5a.getEventPositionInCollection(sg));
+    ASSERT_EQ( deltaRayPtr, testLink5a.cptr());
+
+    // HepMcParticleLink built using a delta-ray barcode and the event_number of
+    // the GenEvent. GenEvent not recorded
+    const int event_number5(460);
+    const HepMcParticleLink::index_type refEvtNum5 = static_cast<HepMcParticleLink::index_type>(event_number5);
+    HepMcParticleLink testLink5b(deltaRayBarcode, refEvtNum5);
+    ASSERT_FALSE( testLink5b.isValid() );
+    ASSERT_EQ( deltaRayBarcode, testLink5b.barcode());
+    ASSERT_EQ( refEvtNum5, testLink5b.eventIndex());
+    ASSERT_EQ( HepMcParticleLink:: ExtendedBarCode::UNDEFINED, testLink5b.getEventPositionInCollection(sg));
+    ASSERT_EQ( deltaRayPtr, testLink5b.cptr());
+
+    // HepMcParticleLink built using a delta-ray barcode and the
+    // position of the GenEvent.
+    HepMcParticleLink testLink5c(deltaRayBarcode, dummyIndex1, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_FALSE( testLink5c.isValid() );
+    ASSERT_EQ( deltaRayBarcode, testLink5c.barcode());
+    ASSERT_EQ( refEvtNum1, testLink5c.eventIndex());
+    ASSERT_EQ( dummyIndex1, testLink5c.getEventPositionInCollection(sg));
+    ASSERT_EQ( deltaRayPtr, testLink5c.cptr());
+
+    // HepMcParticleLink built using a delta-ray barcode and the
+    // position of the GenEvent.
+    HepMcParticleLink testLink5d(deltaRayBarcode, dummyIndex2, EBC_MAINEVCOLL,
+                                 HepMcParticleLink::IS_POSITION);
+    ASSERT_FALSE( testLink5d.isValid() );
+    ASSERT_EQ( deltaRayBarcode, testLink5d.barcode());
+    ASSERT_EQ( refEvtNum2, testLink5d.eventIndex());
+    ASSERT_EQ( dummyIndex2, testLink5d.getEventPositionInCollection(sg));
+    ASSERT_EQ( deltaRayPtr, testLink5d.cptr());
+  }
+
+  TEST_F(HepMcParticleLink_test, truth_event_link_cut_events) {
+    // create dummy input McEventCollection with a name that
+    // HepMcParticleLink knows about
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
+    inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // Add a dummy GenEvent
+    const int process_id1(20);
+    const int event_number1(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    const HepMcParticleLink::index_type dummyIndex1(0);
+    const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
+    HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
+    (void)populateGenEvent(ge1);
+    // Add a second dummy GenEvent
+    const int process_id2(20);
+    const int event_number2(25);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
+    (void)populateGenEvent2(ge2);
+    // Add a third dummy GenEvent (identical to the first)
+    const int process_id3(20);
+    const int event_number3(17);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
+    (void)populateGenEvent(ge3);
+
+    const int event_number4(89);
+    inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
+    HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
+    ge4.set_event_number(event_number4);
+    (void)populateFilteredGenEvent(ge4);
+
+    //Testing links to the first dummy GenEvent
+    const IProxyDict* sg = SG::CurrentEventStore::store();
+
+    // Links to GenParticles which were not copied to the current McEventCollection
+
+    // Info about a GenParticle/GenEvent which is not part of the
+    // McEventCollection. For example if pile-up truth was not
+    // recorded.
+    const int event_number5(460);
+    const HepMcParticleLink::index_type refEvtNum5 = static_cast<HepMcParticleLink::index_type>(event_number5);
+    const int cutBarcode(210001);
+    const HepMC::GenParticle* cutParticlePtr{};
+
+    // Link to a GenParticle which was not recorded to the
+    // McEventCollection, even though other parts of the same GenEvent
+    // were recorded.
+    HepMcParticleLink testLink6a(cutBarcode, refEvtNum1);
+    ASSERT_FALSE( testLink6a.isValid() );
+    ASSERT_EQ( cutBarcode, testLink6a.barcode());
+    ASSERT_EQ( refEvtNum1, testLink6a.eventIndex());
+    ASSERT_EQ( dummyIndex1, testLink6a.getEventPositionInCollection(sg));
+    ASSERT_EQ( cutParticlePtr, testLink6a.cptr());
+
+    // Link to a GenEvent which was not recorded to the McEventCollection
+    HepMcParticleLink testLink6b(cutBarcode, refEvtNum5);
+    ASSERT_FALSE( testLink6b.isValid() );
+    ASSERT_EQ( cutBarcode, testLink6b.barcode());
+    ASSERT_EQ( refEvtNum5, testLink6b.eventIndex());
+    ASSERT_EQ( HepMcParticleLink:: ExtendedBarCode::UNDEFINED, testLink6b.getEventPositionInCollection(sg));
+    ASSERT_EQ( cutParticlePtr, testLink6b.cptr());
   }
 
   TEST_F(HepMcParticleLink_test, max_event_number) {
@@ -438,7 +776,7 @@ namespace MCTesting {
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink1a(particle1,0, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink1a(particle1, dummyIndex1, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1a.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1a.barcode());
@@ -447,7 +785,7 @@ namespace MCTesting {
     ASSERT_EQ(particle1,testLink1a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink1b(particle1->barcode(),0, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink1b(particle1->barcode(), dummyIndex1, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink1b.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1b.barcode());
@@ -477,7 +815,7 @@ namespace MCTesting {
 
     // HepMcParticleLink built using a GenParticle pointer and the
     // position of the GenEvent.
-    HepMcParticleLink testLink2a(particle2,1, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink2a(particle2, dummyIndex2, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink2a.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2a.barcode());
@@ -486,7 +824,7 @@ namespace MCTesting {
     ASSERT_EQ(particle2,testLink2a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
-    HepMcParticleLink testLink2b(particle2->barcode(),1, EBC_MAINEVCOLL,
+    HepMcParticleLink testLink2b(particle2->barcode(), dummyIndex2, EBC_MAINEVCOLL,
                                  HepMcParticleLink::IS_POSITION);
     ASSERT_TRUE( testLink2b.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2b.barcode());
@@ -511,10 +849,6 @@ namespace MCTesting {
     ASSERT_EQ( refEvtNum2, testLink2d.eventIndex());
     ASSERT_EQ( dummyIndex2, testLink2d.getEventPositionInCollection(sg));
     ASSERT_EQ(particle2,testLink2d.cptr());
-
-    StoreGateSvc* pStore(nullptr);
-    ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
 } // <-- namespace MCTesting

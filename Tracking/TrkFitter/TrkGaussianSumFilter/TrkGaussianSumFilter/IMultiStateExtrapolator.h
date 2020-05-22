@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *********************************************************************************
-                        IMultiStateExtrapolator.h  -  description
-                        ------------------------------------------
-begin                : Tuesday 25th January 2005
-author               : atkinson,Morley,Anastopoulos
-decription           : Extrapolation of a MultiComponentState to a destination
-                       surface
-=================================================================================
-*/
+/**
+ * @file   IMultiStateExtrapolator.h
+ * @date   Tuesday 25th January 2005
+ * @author Anthony Morley, Christos Anastopoulos
+ * Abstract base class for extrapolation of a MultiComponentState
+ */
+
 
 #ifndef TrkIMultiStateExtrapolator_H
 #define TrkIMultiStateExtrapolator_H

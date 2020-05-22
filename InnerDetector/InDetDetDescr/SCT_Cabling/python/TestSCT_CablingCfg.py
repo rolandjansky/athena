@@ -48,8 +48,8 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(ConfigFlags)
 
     from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
     cfg.merge(McEventSelectorCfg(ConfigFlags))

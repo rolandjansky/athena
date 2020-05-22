@@ -80,7 +80,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
-  m_trigZFinder("TrigZFinder"),
+  m_trigZFinder("TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),

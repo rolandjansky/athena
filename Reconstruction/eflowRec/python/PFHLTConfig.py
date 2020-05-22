@@ -163,8 +163,8 @@ if __name__=="__main__":
     #
     cfgFlags.lock()
     
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg=MainServicesSerialCfg() 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(cfgFlags) 
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     tccfg = CaloTopoClusterCfg(cfgFlags)

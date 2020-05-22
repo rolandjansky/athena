@@ -44,7 +44,7 @@ atlas_add_library( TrigInDetEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers Navigation AthenaKernel Identifier EventKernel FourMom GaudiKernel InDetPrepRawData TrkPrepRawData TrkSpacePoint TrkTrack TrigSerializeCnvSvcLib TrigNavigationLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking xAODTrigMinBias Particle ParticleTruth TrkParameters TrkSegment TrkTruthData VxSecVertex VxVertex )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking xAODTrigMinBias Particle ParticleTruth TrkParameters TrkSegment TrkTruthData VxSecVertex VxVertex TrkEventUtils )
 
 atlas_add_sercnv_library( TrigInDetEventSerCnv
                           FILES TrigInDetEvent/TrigInDetTrack.h TrigInDetEvent/TrigInDetTrackCollection.h TrigInDetEvent/TrigInDetTrackFitPar.h TrigInDetEvent/TrigVertex.h TrigInDetEvent/TrigVertexCollection.h TrigInDetEvent/TrigTrackCounts.h TrigInDetEvent/TrigTrackCountsCollection.h TrigInDetEvent/TrigVertexCounts.h TrigInDetEvent/TrigVertexCountsCollection.h TrigInDetEvent/TrigTauTracksInfo.h TrigInDetEvent/TrigTauTracksInfoCollection.h TrigInDetEvent/TrigHisto1D.h TrigInDetEvent/TrigHisto2D.h TrigInDetEvent/TrigSpacePointCounts.h TrigInDetEvent/TrigSpacePointCountsCollection.h TrigInDetEvent/TrigTrtHitCounts.h TrigInDetEvent/TrigTrtHitCountsCollection.h TrkTrack/TrackCollection.h TrkTrack/TrackExtensionMap.h VxVertex/VxContainer.h TrkSegment/SegmentCollection.h Particle/TrackParticleContainer.h

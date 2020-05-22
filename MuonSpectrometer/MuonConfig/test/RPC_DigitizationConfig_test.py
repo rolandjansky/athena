@@ -8,7 +8,7 @@ from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from MuonConfig.RPC_DigitizationConfig import RPC_DigitizerDigitToRDOCfg
@@ -22,7 +22,7 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.lock()
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(RPC_DigitizerDigitToRDOCfg(ConfigFlags))
 # Dump config

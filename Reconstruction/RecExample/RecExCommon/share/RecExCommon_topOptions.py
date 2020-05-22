@@ -599,7 +599,7 @@ if rec.doESD() and rec.readRDO():
     if globalflags.DataSource()=='geant4':
         include_muwriter = hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" )
     else:
-        include_muwriter = jobproperties.Beam.beamType()=="collisions" and not athenaCommonFlags.isOnline()
+        include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
         try:

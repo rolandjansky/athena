@@ -27,7 +27,7 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "in execute()"  );
   SG::WriteHandle<STGC_RawDataContainer> rdos (m_rdoContainer, ctx);
   SG::ReadHandle<sTgcDigitContainer> digits (m_digitContainer, ctx);
-  ATH_CHECK( rdos.record(std::make_unique<STGC_RawDataContainer>(m_idHelperSvc->mmIdHelper().module_hash_max())) );
+  ATH_CHECK( rdos.record(std::make_unique<STGC_RawDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())) );
 
   if (digits.isValid() ) {
     for (const sTgcDigitCollection* digitColl : *digits ) {
@@ -36,7 +36,7 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
       // module Id hash
       Identifier digitId = digitColl->identify();
       IdentifierHash hash;
-      int getRdoCollHash = m_idHelperSvc->mmIdHelper().get_module_hash(digitId,hash);
+      int getRdoCollHash = m_idHelperSvc->stgcIdHelper().get_module_hash(digitId,hash);
       if ( getRdoCollHash !=0 ) {
         ATH_MSG_ERROR("Could not get the module hash Id");
         return StatusCode::FAILURE;

@@ -1,16 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonCoinHierarchy/TgcCoinHierarchyFindTool.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
 #include "TrigMuonCoinHierarchy/DummyHitChannelToOnlineID.h"
-
 #include "PathResolver/PathResolver.h"
 
 using Muon::TgcCoinData;
@@ -42,8 +38,7 @@ namespace Trigger {
   StatusCode TgcCoinHierarchyFindTool::initialize() {
     ATH_MSG_DEBUG("initialize()");
 
-    // Retrieve MuonIdHelperTool
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK(m_idHelperSvc.retrieve());
     
     // Try to configure the cabling service
     StatusCode sc = getCabling();
@@ -55,12 +50,6 @@ namespace Trigger {
       sc = readMask2File(); 
       if(sc.isFailure()) return sc; 
     }
-
-    return StatusCode::SUCCESS;
-  }
-  
-  StatusCode TgcCoinHierarchyFindTool::finalize() {
-    ATH_MSG_DEBUG("finalize()");
 
     return StatusCode::SUCCESS;
   }
@@ -436,7 +425,7 @@ namespace Trigger {
     if(hasTracklet) {
       const TgcCoinData* tracklet = pHierarchy->getCoincidence(TgcCoinData::TYPE_TRACKLET, isStrip);
       const Identifier trackletChannelId = tracklet->channelIdOut();
-      trackletChannel = m_muonIdHelperTool->tgcIdHelper().channel(trackletChannelId);  
+      trackletChannel = m_idHelperSvc->tgcIdHelper().channel(trackletChannelId);  
       int trackletSubDetectorID = -1;
       int trackletRodID = -1;
       int trackletSswID = -1;
@@ -462,8 +451,8 @@ namespace Trigger {
     }    
     
     const Identifier hiptChannelIdOut = hiPt->channelIdOut();
-    int hiptChannel = m_muonIdHelperTool->tgcIdHelper().channel(hiptChannelIdOut);  
-    int hiptStationPhi = m_muonIdHelperTool->tgcIdHelper().stationPhi(hiptChannelIdOut);  
+    int hiptChannel = m_idHelperSvc->tgcIdHelper().channel(hiptChannelIdOut);  
+    int hiptStationPhi = m_idHelperSvc->tgcIdHelper().stationPhi(hiptChannelIdOut);  
     int hiptSubDetectorID = -1;
     int hiptRodID = -1;
     int hiptSswID_out = -1;
@@ -509,9 +498,7 @@ namespace Trigger {
                        hiptSbLoc_in_strip, bitpos_in, hiptSlbChannel);
     }
 
-    const int hiPtStationEtaOut = m_muonIdHelperTool->tgcIdHelper().stationEta(hiptChannelIdOut);
-    // If abs(hiPtStationEtaOut) is 4 or 5, abs(m_muonIdHelperTool->tgcIdHelper().stationEta(hiPt->channelIdIn())) is 4. 
-    // In other cases, abs(m_muonIdHelperTool->tgcIdHelper().stationEta(hiPt->channelIdIn())) is 2.  
+    const int hiPtStationEtaOut = m_idHelperSvc->tgcIdHelper().stationEta(hiptChannelIdOut);
 
     TgcCoinHierarchy::TYPE type = (isStrip ? TgcCoinHierarchy::STRIP : TgcCoinHierarchy::WIRE);
     
@@ -524,7 +511,7 @@ namespace Trigger {
         return StatusCode::FAILURE;
       }
 
-      const int hitStationEta = m_muonIdHelperTool->tgcIdHelper().stationEta(hit->identify());
+      const int hitStationEta = m_idHelperSvc->tgcIdHelper().stationEta(hit->identify());
 
       // HiPt Endcap Strip looses the information to distinguish A,B-inputs and C,D-inputs.
       // The minimum combinations of TGC3 (HiPt) and TGC1 (Hit) are checked.

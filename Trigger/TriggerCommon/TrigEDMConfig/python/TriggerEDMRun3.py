@@ -291,6 +291,12 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.',          'BS ESD AODFULL', 'Jet'),
 
+    # custom BeamSpot tracks - we don't want to write these out in general so this 
+    # is commented, if we want to write them out at some point, then these lines
+    # should be uncommented and they should get written out   
+    #    ('xAOD::TrackParticleContainer#HLT_IDTrack_BeamSpot_FTF',         'BS ESD AODFULL', 'ID', 'inViews:beamspotViewRoIs' ),
+    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_BeamSpot_FTFAux.',  'BS ESD AODFULL', 'ID', 'inViews:beamspotViewRoIs' ),
+
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET_cell',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_cellAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -356,7 +362,7 @@ TriggerHLTListRun3 = [
     # FIXME: add vertex tracks
 
     # bjet jets
-    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:FullScanBjetView'),
+    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::JetAuxContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # vertex for b-jets

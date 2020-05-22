@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        IMultiStateMaterialEffectsUpdator.h  -  description
-                        ---------------------------------------------------
-begin                : Tuesday 1stMarch 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Base class definition for material effects for
-                       multi-component states
-*********************************************************************************/
+/**
+ * @file   IMultiStateMaterialEffectsUpdator.h
+ * @date   Tuesday 1stMarch 2005
+ * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
+ * @brief Base class definition for material effects for multi-component states
+ */
 
 #ifndef TrkIMultiStateMaterialEffectsUpdator_H
 #define TrkIMultiStateMaterialEffectsUpdator_H

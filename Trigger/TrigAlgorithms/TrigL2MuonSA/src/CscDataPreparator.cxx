@@ -1,19 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
-
-#include "Identifier/IdentifierHash.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 
 using namespace Muon;
 
@@ -47,13 +42,6 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::CscDataPreparator::~CscDataPreparator() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
 
@@ -80,8 +68,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_CHECK( m_cscClusterProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
-   // Tool for CSC ID helper
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );
+   ATH_CHECK(m_idHelperSvc.retrieve());
+
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
@@ -198,13 +186,13 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
-	cscHit.StationName  = m_muonIdHelperTool->cscIdHelper().stationName( prepData.identify() );
-	cscHit.StationEta   = m_muonIdHelperTool->cscIdHelper().stationEta( prepData.identify() );
-	cscHit.StationPhi   = m_muonIdHelperTool->cscIdHelper().stationPhi( prepData.identify() );
-	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;//m_muonIdHelperTool->cscIdHelper().chamberLayer( prepData.identify() );
-	cscHit.WireLayer    = m_muonIdHelperTool->cscIdHelper().wireLayer( prepData.identify() );
-	cscHit.MeasuresPhi  = m_muonIdHelperTool->cscIdHelper().measuresPhi( prepData.identify() );
-	cscHit.Strip        = m_muonIdHelperTool->cscIdHelper().strip( prepData.identify() );
+	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData.identify() );
+	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData.identify() );
+	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData.identify() );
+	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;
+	cscHit.WireLayer    = m_idHelperSvc->cscIdHelper().wireLayer( prepData.identify() );
+	cscHit.MeasuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi( prepData.identify() );
+	cscHit.Strip        = m_idHelperSvc->cscIdHelper().strip( prepData.identify() );
 	cscHit.Chamber      = chamber;
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
@@ -278,18 +266,6 @@ double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw,
 
   return roadr*( cos(phiw)*sin(hitphi)-sin(phiw)*cos(hitphi) );
 
-}
-
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::CscDataPreparator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing CscDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
 }
 
 // --------------------------------------------------------------------------------

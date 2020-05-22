@@ -18,9 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
-TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_tgc_cabling_server("TGCcablingServerSvc", name)
+TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthReentrantAlgorithm(name, pSvcLocator),
+    m_tgc_cabling_server("TGCcablingServerSvc", name),
+    m_cabling(nullptr)
 {
   declareProperty ( "isNewTgcDigit", m_isNewTgcDigit = true );
 }
@@ -220,6 +221,9 @@ TgcRdo * TgcDigitToTgcRDO::getTgcRdo(const TgcRawData * rawData,  std::map<uint1
   return rdo;
 }
 
+// NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+//       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+//       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
 StatusCode TgcDigitToTgcRDO::fillTagInfo() const
 {
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
@@ -242,7 +246,6 @@ StatusCode TgcDigitToTgcRDO::fillTagInfo() const
 
 StatusCode TgcDigitToTgcRDO::getCabling() {
 
-  m_cabling = nullptr;
   ATH_CHECK( m_tgc_cabling_server->giveCabling(m_cabling) );
 
   int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
