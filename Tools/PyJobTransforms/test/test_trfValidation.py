@@ -618,7 +618,7 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport12 = athenaLogFileReport('file12')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11','file12',\
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12',\
                  'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)

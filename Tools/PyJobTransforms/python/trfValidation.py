@@ -264,10 +264,10 @@ class athenaLogFileReport(logFileReport):
         self._dbtime  = 0.0
 
     ## Generally, a knowledge file consists of non-standard logging error/abnormal lines
-    #  which are left out during log scan whereas they could help diagnosis job failures.
+    #  which are left out during log scan and could help diagnose job failures.
     def knowledgeFileHandler(self, knowledgefile):
         # load abnormal/error line(s) from the knowledge file(s)
-        _linesList = []
+        linesList = []
         fullName = trfUtils.findFile(os.environ['DATAPATH'], knowledgefile)
         if not fullName:
             msg.warning('Knowledge file {0} could not be found in DATAPATH'.format(knowledgefile))
@@ -279,11 +279,10 @@ class athenaLogFileReport(logFileReport):
                     if line.startswith('#') or line == '' or line =='\n':
                         continue
                     line = line.rstrip('\n')
-                    _linesList.append(line)
-        except (IOError, OSError) as xxx_todo_changeme:
-            (errno, errMsg) = xxx_todo_changeme.args
-            msg.warning('Failed to open knowledge file {0}: {1} ({2})'.format(fullName, errMsg, errno))
-        return _linesList
+                    linesList.append(line)
+        except OSError as e:
+            msg.warning('Failed to open knowledge file {0}: {1}'.format(fullName, e))
+        return linesList
 
     def scanLogFile(self, resetReport=False):
         if resetReport:
@@ -442,19 +441,20 @@ class athenaLogFileReport(logFileReport):
         return {'level': firstName, 'nLevel': firstLevel, 'firstError': firstError}
 
     ## @brief Attempt to suck a core dump report from the current logfile
-    # This function scans log in two different directions:
-    # 1.downwards; to exctracting information after CoreDrmpSvc and 2.upwards; to find abnormal lines
+    # This function scans logs in two different directions:
+    # 1) downwards, to exctract information after CoreDrmpSvc; and 2) upwards, to find abnormal lines
     # @note: Current downwards scan just eats lines until a 'normal' line is seen.
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, log, lineGenerator, firstline, firstLineCount):
-        _abnormalLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
+        abnormalLinesList = self.knowledgeFileHandler('coreDumpKnowledgeFile.db')
         _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
-        seenAbnormalLine = []
-        abnormalLineReport = {}
-        lastNormalLinesReport = {}
-        detailsReport = {}
+        linesToBeScaned = 50
+        seenAbnormalLines = []
+        abnormalLinesReport = {}
+        lastNormalLineReport = {}
+        coreDumpDetailsReport = {}
 
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
@@ -505,50 +505,48 @@ class athenaLogFileReport(logFileReport):
         ## look up for lines before core dump for "abnormal" and "last normal" line(s)
 
         #  make a list of last e.g. 50 lines before core dump
-        #  An inner line generator is required to give access to the upper lines
+        #  An new "line generator" is required to give access to the upper lines
         linesList = []
-        innerLineGen = trfUtils.lineByLine(log)
-        for line, linecounter in innerLineGen:
-            if linecounter in range(firstLineCount-50, firstLineCount-1):
-                linesList.append([linecounter,line])
+        lineGen = trfUtils.lineByLine(log)
+        for line, linecounter in lineGen:
+            if linecounter in range(firstLineCount - linesToBeScaned, firstLineCount-1):
+                linesList.append([linecounter, line])
             elif linecounter == firstLineCount:
                 break
 
-        for linecounter,line in reversed(linesList):
-            if re.findall(r'|'.join(_abnormalLinesList), line):
-                _seenLine = False
-                for dic in seenAbnormalLine:
-                    #count repetition or partly similarities e.g. first 20 char at abnormal lines
+        for linecounter, line in reversed(linesList):
+            if re.findall(r'|'.join(abnormalLinesList), line):
+                seenLine = False
+                for dic in seenAbnormalLines:
+                    # count repetitions or similar (e.g. first 15 char) abnormal lines
                     if dic['message'] == line or dic['message'][0:15] == line[0:15]:
                         dic['count'] += 1
-                        _seenLine = True
+                        seenLine = True
                         break
-                    else:
-                        _seenLine = False
-                if _seenLine is False :
-                    seenAbnormalLine.append({'message': line, 'firstLine': linecounter, 'count':1})
+                if seenLine is False:
+                    seenAbnormalLines.append({'message': line, 'firstLine': linecounter, 'count': 1})
             else:
                 if line != '':
-                    lastNormalLinesReport = {'message':line, 'firstLine':linecounter,'count':1}
+                    lastNormalLineReport = {'message': line, 'firstLine': linecounter, 'count': 1}
                     break
                 else:
                     continue
 
         # write the list of abnormal lines into a dictionary to report
-        # each abnormal lines' details are labaled by numbers, starting from 0
-        # e.g. first abnormal lines' keys are :{'meesage0','firstLine0','count0'}
-        for a in range(len(seenAbnormalLine)):
-            abnormalLineReport.update({'message{0}'.format(a):seenAbnormalLine[a]['message'],'firstLine{0}'.format(a):seenAbnormalLine[a]['firstLine'],'count{0}'.format(a):seenAbnormalLine[a]['count']})
-        detailsReport = {'abnormalLine(s) before CoreDump': abnormalLineReport, 'lastNormalLine before CoreDump': lastNormalLinesReport}
+        # each abnormal line's keys are labaled by numbers, starting from 0
+        # e.g. first abnormal line's keys are :{'meesage0', 'firstLine0', 'count0'}
+        for a in range(len(seenAbnormalLines)):
+            abnormalLinesReport.update({'message{0}'.format(a): seenAbnormalLines[a]['message'], 'firstLine{0}'.format(a): seenAbnormalLines[a]['firstLine'], 'count{0}'.format(a): seenAbnormalLines[a]['count']})
+        coreDumpDetailsReport = {'abnormalLine(s) before CoreDump': abnormalLinesReport, 'lastNormalLine before CoreDump': lastNormalLineReport}
 
-        # concatenate briefly first seen abnormal line to the core dump message
-        if len(seenAbnormalLine) > 0:
-            coreDumpReport += '; Abnormal line(s) seen just before core dump: ' + seenAbnormalLine[0]['message'][0:30] + '...[truncated] ' + '(see the jobReport)'
+        # concatenate an extract of first seen abnormal line to the core dump message
+        if len(seenAbnormalLines) > 0:
+            coreDumpReport += '; Abnormal line(s) seen just before core dump: ' + seenAbnormalLines[0]['message'][0:30] + '...[truncated] ' + '(see the jobReport)'
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
         self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'moreDetails': detailsReport, 'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
+        self._errorDetails['FATAL'].append({'moreDetails': coreDumpDetailsReport, 'message': coreDumpReport, 'firstLine': firstLineCount, 'count': 1})
 
     def g494ExceptionParser(self, lineGenerator, firstline, firstLineCount):
         g4Report = firstline
