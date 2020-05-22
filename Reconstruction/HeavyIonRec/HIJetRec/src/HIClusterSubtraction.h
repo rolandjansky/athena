@@ -27,6 +27,7 @@
 #include <HIJetRec/IHISubtractorTool.h>
 #include <HIJetRec/IHIUEModulatorTool.h>
 #include "CaloRec/CaloClusterCollectionProcessor.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -45,6 +46,8 @@ public:
 
   virtual int execute() const;
 
+	bool doOriginCorrection( xAOD::CaloCluster* cl, const xAOD::Vertex* origin, xAOD::IParticle::FourMom_t& p4_cl ) const;
+
 
 private:
   /// \brief Name of input cluster container
@@ -53,6 +56,8 @@ private:
 	SG::WriteHandleKey< xAOD::CaloClusterContainer > m_outClusterKey { this, "OutClusterKey", "OutClusterKey", "Name of the input Cluster Container"};
   /// \brief Name of HIEventShapeContainer defining background
 	SG::ReadHandleKey< xAOD::HIEventShapeContainer > m_eventShapeKey { this, "EventShapeKey", "EventShapeKey", "Name of HIEventShapeContainer defining background"};
+  /// |brief Name of Vertex Container for origin correction
+	SG::ReadHandleKey< xAOD::VertexContainer > m_vertexContainer { this, "VertexContainer", "PrimaryVertices", "Vertex container for primary vertices"};
 
 	// Tool handles
   ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetSubtractorToolBase", "Handle to IHISubtractorTool which does calculates subtracted kinematics" };
@@ -62,6 +67,8 @@ private:
 	// Booleans
 	Gaudi::Property< bool > m_setMoments { this, "SetMoments", true, "Set Moments boolean switch"};
 	Gaudi::Property< bool > m_updateMode  { this, "UpdateOnly", false, "Update Mode boolean switch"};
+  //Moving the origin correction directly here
+	Gaudi::Property< bool > m_originCorrection { this, "ApplyOriginCorrection", false, "Apply Origin Correction boolean switch"};
 
 };
 #endif

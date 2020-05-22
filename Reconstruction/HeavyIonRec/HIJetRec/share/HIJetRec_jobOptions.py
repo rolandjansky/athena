@@ -173,7 +173,7 @@ if not HIJetFlags.DoCellBasedSubtraction():
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
 #Subtraction for egamma and to get layers
-ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+#ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
 #Cluster subtraction for jets
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
 

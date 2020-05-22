@@ -20,6 +20,7 @@ namespace HIJetRec{
 
   constexpr xAOD::CaloCluster::State unsubtractedClusterState() {return xAOD::CaloCluster::ALTCALIBRATED;}
   constexpr xAOD::CaloCluster::State subtractedClusterState() {return xAOD::CaloCluster::UNCALIBRATED;}
+  constexpr xAOD::CaloCluster::State subtractedPVCorrectedClusterState() {return xAOD::CaloCluster::CALIBRATED;}
 
   inline bool inTowerBoundary(float eta0, float phi0, float eta, float phi)
   {
@@ -27,13 +28,13 @@ namespace HIJetRec{
     if( 2.*std::abs(xAOD::P4Helpers::deltaPhi(phi0,phi)) > HI::TowerBins::getBinSizePhi() ) return false;
     return true;
   }
-  
+
   inline void setClusterP4(const xAOD::CaloCluster::FourMom_t& p, xAOD::CaloCluster* cl, xAOD::CaloCluster::State s)
   {
     float energy=p.Energy();
     float eta=p.Eta();
     float phi=p.Phi();
-    if(energy < 0.) 
+    if(energy < 0.)
     {
       eta*=-1.;
       if(phi > 0.) phi-=M_PI;
