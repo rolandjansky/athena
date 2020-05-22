@@ -302,7 +302,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                       useZBoundFinding = True)
 
 
-         else if NewTrackingCuts.mode() == "ForwardTracks":
+         elif NewTrackingCuts.mode() == "ForwardTracks":
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
