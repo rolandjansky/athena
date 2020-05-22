@@ -15,8 +15,8 @@ class TypeMap {
 public:
   typedef std::pair<HLT::class_id_type,std::string> clid_string_t;
   TypeMap();
-  bool isKnown(const xAOD::Type::ObjectType& recoType);
-  clid_string_t get(const xAOD::Type::ObjectType& recoType);
+  bool isKnown(const xAOD::Type::ObjectType& recoType) const;
+  clid_string_t get(const xAOD::Type::ObjectType& recoType) const;
 private:
   std::map<xAOD::Type::ObjectType,clid_string_t> m_typemap;
 };

@@ -50,10 +50,12 @@ class ChainConfigurationBase(object):
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
         return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboToolConfs=comboTools)
-
+    
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
                         ChainSteps = chainSteps,
                         L1Thresholds = [self.L1Threshold] )
 
         return myChain
+
+

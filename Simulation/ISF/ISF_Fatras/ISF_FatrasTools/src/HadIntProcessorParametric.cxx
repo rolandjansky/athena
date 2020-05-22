@@ -321,20 +321,6 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 		  << parent->pdgCode() << " and barcode "
 		  << parent->barcode() );
   
-  /* TODO: update to ISF TruthService
-  // create GenVertex at interaction point, add the pion as incoming and add vertex to the event
-  HepMC::GenVertex* decayvertex = new HepMC::GenVertex(CLHEP::HepLorentzVector(vertex, 0.));
-  decayvertex->add_particle_in(m_particleBroker->current());
-  HepMC::GenEvent* parentEvent = s_currentGenParticle->parent_event();
-  if( !parentEvent) {
-  ATH_MSG_WARNING( "[ had ] particle with PDG ID "
-  << m_particleBroker->current()->pdgCode() << " and barcode "
-  << m_particleBroker->current()->barcode() << " does not have a parent!"
-  );
-  } else {
-  parentEvent->add_vertex(decayvertex);
-  }
-  */
   
   // create the genParticles
   

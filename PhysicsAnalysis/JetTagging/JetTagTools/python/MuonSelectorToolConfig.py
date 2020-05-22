@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MuonSelectionTool configurable
-CP__MuonSelectionTool=CompFactory.CP__MuonSelectionTool
+CP__MuonSelectionTool=CompFactory.CP.MuonSelectionTool
 
 def MuonSelectorToolCfg( name = 'MuonSelectorTool', useBTagFlagsDefaults = True, **options ):
     """Sets up a MuonSelectorTool tool and returns it.

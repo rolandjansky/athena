@@ -238,4 +238,24 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
     extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+def applyOverlapRemoval(sequence=DerivationFrameworkJob):
+    from AssociationUtils.config import recommended_tools
+    from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
+    outputLabel = 'DFCommonJets_passOR'
+    bJetLabel = '' #default
+    orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
+    algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
+                OverlapLabel=outputLabel,
+                            OverlapRemovalTool=orTool,
+                            BJetLabel=bJetLabel)
+    sequence += algOR
+
+    from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonJetDrTool
+    MuonJetDrTool = DerivationFramework__MuonJetDrTool( name = "MuonJetDrTool")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += MuonJetDrTool
+    DFCommonMuonJetTools = []
+    DFCommonMuonJetTools.append(MuonJetDrTool)
+    sequence += CfgMgr.DerivationFramework__CommonAugmentation("DFCommonMuonsKernel2",AugmentationTools = DFCommonMuonJetTools)
+
 ##################################################################

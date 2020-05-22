@@ -35,12 +35,6 @@ svcMgr.ByteStreamInputSvc.OutputLevel=DEBUG
 # Skip too many events
 svcMgr.EventSelector.SkipEvents = 10
 
-# The piece which does the AttList conversion for WRITING
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
-svcMgr += ByteStreamAttListMetadataSvc("ByteStreamAttListMetadataSvc")
-svcMgr.ByteStreamAttListMetadataSvc.InputStoreName = 'DetectorStore'
-svcMgr.ByteStreamAttListMetadataSvc.OutputLevel = DEBUG
-
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 

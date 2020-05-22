@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
+from itertools import groupby
 
 from AthenaCommon.Logging import logging
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
@@ -11,49 +11,90 @@ from .L1MenuFlags import L1MenuFlags
 
 log = logging.getLogger("Menu.L1.Base.BunchGroupSet")
 
+def createDefaultBunchGroupSetMC():
+    """
+    create BunchGroupSet for simulation
 
-def setDefaultBunchGroupDefinition(bgs):
+    This BGS is independent from the menu, and contains only BG0 (BCRVeto) and BG1 (Paired)
+    """
+    bgs = BunchGroupSet("MC")
+    bgs.addBunchGroup( BunchGroupSet.BunchGroup(name = 'BCRVeto', internalNumber = 0).addRange(0,3539).addRange(3561,3563).normalize() )\
+       .addBunchGroup( BunchGroupSet.BunchGroup(name = 'Paired', internalNumber = 1).addTrain(0,3564).normalize() )
+    return bgs
+
+
+def createDefaultBunchGroupSet():
     """
     sets default bunchgroups for all menus, needed for simulation.
     """
+    if L1MenuFlags.BunchGroupNames.statusOn: # if flag has been set
+        # if menu defines bunchgroup names, then we generate a bunchgroup set from that
+        name = L1MenuFlags.MenuSetup().partition('_')[0]
+        bgs = BunchGroupSet(name)
+        bgs.addBunchGroup( BunchGroupSet.BunchGroup(name = 'BCRVeto', internalNumber = 0).addRange(0,3539).addRange(3561,3563).normalize() )\
+           .addBunchGroup( BunchGroupSet.BunchGroup(name = 'Paired', internalNumber = 1).addTrain(0,3564).normalize() )
 
-    bgs.bunchGroups = Limits.NumBunchgroups * [None]
+        bunchgroupnames = L1MenuFlags.BunchGroupNames()[:Limits.NumBunchgroups]
+        bunchgroupnames += ['NotUsed'] * (Limits.NumBunchgroups - len(bunchgroupnames))
+        for i,bgname in enumerate(bunchgroupnames):
+            bgs.bunchGroups[i].name = bgname
+    else:
+        bgs = createDefaultBunchGroupSetMC()
 
-    # BGS and BG names
-    bgs.name = TriggerFlags.triggerMenuSetup().partition('_')[0]
-    bunchgroupnames = L1MenuFlags.BunchGroupNames()[:Limits.NumBunchgroups]
-    bunchgroupnames += ['NotUsed'] * (Limits.NumBunchgroups - len(bunchgroupnames))
-
-    for i,bgname in enumerate(bunchgroupnames):
-        bgs.addBunchGroup( bgname, i, [] )
-
-    # these bunchgroups need to be filled for MC simulation
-    bgs.bunchGroups[0].bunches = [1]
-    bgs.bunchGroups[1].bunches = [1]
-    bgs.bunchGroups[7].bunches = [1]
-
+    return bgs
 
 
 class BunchGroupSet(object):
 
     class BunchGroup(object):
-        def __init__(self, name='', internalNumber=0, partition=0, bunches=[]):
-            self.name           = name
-            self.internalNumber = internalNumber
-            self.menuPartition  = partition
-            self.bunches        = bunches
-
+        nameUndefBG = "NotUsed"
+        def __init__(self, internalNumber, name = nameUndefBG, partition=0, bunches=None):
+            # check if internalNumber is within limits
+            if internalNumber<0 or internalNumber >= Limits.NumBunchgroups:
+                raise RuntimeError('Cannot create bunchgroup with internal number %i (must be between 0 and %i)' % (internalNumber, Limits.NumBunchgroups-1))
+            self.name           = name # name of the bunchgroup
+            self.internalNumber = internalNumber # number between 0 and 15
+            self.menuPartition  = partition # CTP partition that the bunchgroup belongs to
+            self.bunches        = bunches if bunches else [] # list of bcids
+            self.normalized     = [] # list of trains (filled in normalized())
+        def __str__(self):
+            return "bunchgroup %s(%i) with %i bunches" % (self.name, self.internalNumber, len(self))
+        def __len__(self):
+            return len(self.bunches)
+        def addBunch(self, bcid):
+            self.bunches += [ bcid ]
+            return self
+        def addRange(self, firstbcid, lastbcid):
+            self.bunches += list(range(firstbcid, lastbcid+1))
+            return self
+        def addTrain(self, firstbcid, length):
+            self.bunches += list(range(firstbcid, firstbcid+length))
+            return self
+        def normalize(self):
+            """ turn list of bunches into trains """
+            self.normalized = []
+            self.bunches = sorted(list(set(self.bunches))) # uniq and sort
+            if any(map(lambda bcid : bcid<0 or bcid >= 3564, self.bunches)):
+                raise RuntimeError("Found bcid outside range 0..3563 in bunchgroup %s" % self.name)
+            for k,g in groupby(enumerate(self.bunches), lambda x : x[1]-x[0]):
+                train = list(g)
+                self.normalized += [ (train[0][1], len(train)) ]
+            return self
         def json(self):
             confObj = odict()
             confObj["name"]  = self.name
             confObj["id"]    = self.internalNumber
-            confObj["bcids"] = self.bunches
+            confObj["info"] = "%i bunches, %i groups" % (len(self), len(self.normalized))
+            confObj["bcids"] = []
+            for first, length in self.normalized:
+                confObj["bcids"] += [ odict( [ ("first", first), ("length", length) ] ) ]
             return confObj
         
-    def __init__(self, name='', menuPartition=0, bunchGroups = None):
+
+    def __init__(self, name='', menuPartition=0):
         self.name          = name
         self.menuPartition = menuPartition
-        self.bunchGroups   = bunchGroups
+        self.bunchGroups   = [ BunchGroupSet.BunchGroup(i) for i in range(0,Limits.NumBunchgroups) ] # initialize all BunchGroups
 
     def __len__(self):
         return len(self.bunchGroups)
@@ -66,9 +107,6 @@ class BunchGroupSet(object):
         partitioning = dict( zip([1,2,3],zip(first,last)) )
         return partitioning
 
-    def setDefaultBunchGroupDefinition(self):
-        setDefaultBunchGroupDefinition(self)
-
 
     def resize(self, newsize):
         if type(self.bunchGroups) != list:
@@ -77,27 +115,35 @@ class BunchGroupSet(object):
         self.bunchGroups = self.bunchGroups[:newsize]
 
 
-    def addBunchGroup(self, name, internalNumber, bunches):
-        # check if internalNumber is within limits
-        if internalNumber<0 or internalNumber >= Limits.NumBunchgroups:
-            log.error('Warning: tried to add bunchgroup %i, which is not between 0 and %i', internalNumber, Limits.NumBunchgroups-1)
-            return self
-
+    def addBunchGroup(self, bunchGroup):
         # check if one already exists with this number
-        if self.bunchGroups[internalNumber] is not None:
-            log.error('Warning: tried to add bunchgroup %i, but one with that number already exists', internalNumber)
-            return self
+        doesExist = self.bunchGroups[bunchGroup.internalNumber].name != BunchGroupSet.BunchGroup.nameUndefBG
+        if doesExist:
+            raise RuntimeError("Adding bunchgroup with internal number %i, which already exists" % bunchGroup.internalNumber)
 
         partition=0
         for lowestBG in L1MenuFlags.BunchGroupPartitioning():
-            if internalNumber >= lowestBG:
+            if bunchGroup.internalNumber >= lowestBG:
                 partition += 1
-
-        self.bunchGroups[internalNumber] = BunchGroupSet.BunchGroup(name, internalNumber, partition, bunches)
+        bunchGroup.partition = partition
+        self.bunchGroups[bunchGroup.internalNumber] = bunchGroup
         return self
+
 
     def json(self):
         confObj = odict()
         for bg in self.bunchGroups:
             confObj["BGRP%i" % bg.internalNumber] = bg.json()
         return confObj
+
+    def writeJSON(self, outputFile, destdir="./", pretty=True):
+        outputFile = destdir.rstrip('/') + '/' + outputFile
+        confObj = odict()
+        confObj["name"] = self.name
+        confObj["filetype"] = "bunchgroupset"
+        confObj["bunchGroups"] = self.json()
+        with open( outputFile, mode="wt" ) as fh:
+            import json
+            json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
+        log.info("Wrote %s", outputFile)
+        return outputFile

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from optparse import OptionParser
 
@@ -32,8 +34,8 @@ class OracleGainReader:
     dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
     try:
       db = dbSvc.openDatabase(dbString, False)        
-    except Exception, e:
-      print 'Error: Problem opening database', e
+    except Exception as e:
+      print ('Error: Problem opening database', e)
       sys.exit(1)
 
     folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
@@ -48,8 +50,8 @@ class OracleGainReader:
 
     try:
       itr=folder.browseObjects(startValKey, endValKey, chsel)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print (e)
       sys.exit(1)
 
     for row in itr:
@@ -89,7 +91,7 @@ class GainPredictor:
       
     except IOError:
 
-      print "\ncould not find file: %s ....exiting\n" % file_name
+      print ("\ncould not find file: %s ....exiting\n" % file_name)
 
       sys.exit()
 
@@ -204,23 +206,23 @@ if __name__ == "__main__":
 
   if options.help: # print helpful info 
     
-    print "\nusage:    python LArHVGainsPredictor.py [options]"
+    print ("\nusage:    python LArHVGainsPredictor.py [options]")
     
-    print "\noptions:\n"                  
+    print ("\noptions:\n"                  )
 
-    print "-n, --hv_input_new    new hv input .sqlite file (see below)    (default:           '') *"
-    print "-r, --hv_input_ref    ref hv input .sqlite file (see below)    (default:           '') *"
-    print "-t, --hv_corr_diff    minimum abs. change in hv corrections    (default:         0.01)"
-    print "-c, --channel_list    file containing an input channel list    (default:           '')"
-    print "-o, --output_files    name assigned to all the output files    (default: gains_update)"
+    print ("-n, --hv_input_new    new hv input .sqlite file (see below)    (default:           '') *")
+    print ("-r, --hv_input_ref    ref hv input .sqlite file (see below)    (default:           '') *")
+    print ("-t, --hv_corr_diff    minimum abs. change in hv corrections    (default:         0.01)")
+    print ("-c, --channel_list    file containing an input channel list    (default:           '')")
+    print ("-o, --output_files    name assigned to all the output files    (default: gains_update)")
 
-    print "\n[*] minimal requirements"
+    print ("\n[*] minimal requirements")
 
-    print "\nexample:  python LArHVGainsPredictor.py -n file_1 -r file_2"
+    print ("\nexample:  python LArHVGainsPredictor.py -n file_1 -r file_2")
 
-    print "\nnote: if no input channel list is given all the channels will be considered by default"
+    print ("\nnote: if no input channel list is given all the channels will be considered by default")
 
-    print "\n(see https://twiki.cern.ch/twiki/bin/save/Atlas/LevelOneCaloGainPredictor for more info)\n"
+    print ("\n(see https://twiki.cern.ch/twiki/bin/save/Atlas/LevelOneCaloGainPredictor for more info)\n")
 
     sys.exit()
 
@@ -231,7 +233,7 @@ if __name__ == "__main__":
   if options.hv_input_new == "" \
   or options.hv_input_ref == "":
 
-    print "\ntoo few input arguments given ....exiting  (see python LArHVGainsPredictor.py -h for more info)\n"
+    print ("\ntoo few input arguments given ....exiting  (see python LArHVGainsPredictor.py -h for more info)\n")
         
     sys.exit()
     
@@ -239,7 +241,7 @@ if __name__ == "__main__":
 
   hv_input_ref = PlotCalibrationHV.L1CaloHVReader(options.hv_input_ref)
 
-  print "\nreading hv input: %s and hv reference: %s" % (options.hv_input_new, options.hv_input_ref)
+  print ("\nreading hv input: %s and hv reference: %s" % (options.hv_input_new, options.hv_input_ref))
   
   ### create instance of geometry convertor and load receiver-PPM map
   
@@ -280,11 +282,11 @@ if __name__ == "__main__":
 
     except IOError:
 
-      print "\ncould not find file: %s ....exiting\n" % options.channel_list
+      print ("\ncould not find file: %s ....exiting\n" % options.channel_list)
 
       sys.exit()
 
-    print "\nreading input channel list from:", options.channel_list
+    print ("\nreading input channel list from:", options.channel_list)
    
     orig_gains = {}
 
@@ -300,7 +302,7 @@ if __name__ == "__main__":
 
   else: # from oracle database
 
-    print "\nreading input channel list from oracle database"
+    print ("\nreading input channel list from oracle database")
     
     orig_gains = OracleGainReader()
     
@@ -310,15 +312,15 @@ if __name__ == "__main__":
 
   if not receiver_list:
 
-    print "\ninput channel list is empty ....exiting\n"
+    print ("\ninput channel list is empty ....exiting\n")
 
     sys.exit()
     
-  print "\nsearching %s channels for hv correction changes > %s" % (len(receiver_list), options.hv_corr_diff)
+  print ("\nsearching %s channels for hv correction changes > %s" % (len(receiver_list), options.hv_corr_diff))
 
   ### loop over receivers
     
-  print "\npreparing gain updates for the following list of channels:"
+  print ("\npreparing gain updates for the following list of channels:")
     
   for receiver in receiver_list:
     
@@ -401,7 +403,7 @@ if __name__ == "__main__":
 
     if not pred_gains:
       
-      print "" # just some formatting
+      print ("") # just some formatting
     
     pred_gains[receiver] = [pred_gain, error_code]
       
@@ -427,23 +429,23 @@ if __name__ == "__main__":
       
     ### print output to screen
 
-    print ("%9s   %3s   %3i %2i   %6s   %.3f   %.3f   %6.1f %%   %1i") % (coolid, layer, eta_bin, phi_bin, receiver, orig_gain, pred_gain, diff_gain, num_layers),
+    print (("%9s   %3s   %3i %2i   %6s   %.3f   %.3f   %6.1f %%   %1i") % (coolid, layer, eta_bin, phi_bin, receiver, orig_gain, pred_gain, diff_gain, num_layers), end='')
 
-    print ("  [%s]") % ", ".join("%.3f" % x for x in layer_corr_ref),
+    print (("  [%s]") % ", ".join("%.3f" % x for x in layer_corr_ref), end='')
     
-    print ("  [%s]") % ", ".join("%.3f" % x for x in layer_corr_new),
+    print (("  [%s]") % ", ".join("%.3f" % x for x in layer_corr_new), end='')
 
-    print ("  [%s]") % ", ".join( "%2i" % x for x in layer_names)
+    print (("  [%s]") % ", ".join( "%2i" % x for x in layer_names))
 
     ### write output to text file
     
-    print >> output_text, ("%6s   %.3f   %s") % (receiver, pred_gain, " ".join("%.3f" % x for x in layer_corr_new)),
+    print (("%6s   %.3f   %s") % (receiver, pred_gain, " ".join("%.3f" % x for x in layer_corr_new)), file=output_text, end='')
 
-    print >> output_text, ("  #  "),
+    print (("  #  "), file=output_text, end='')
 
-    print >> output_text, ("%9s   %3i %2i   %3s   %.3f") % (coolid, eta_bin, phi_bin, layer, orig_gain), 
+    print (("%9s   %3i %2i   %3s   %.3f") % (coolid, eta_bin, phi_bin, layer, orig_gain), file=output_text, end='')
 
-    print >> output_text, ("  %s") % " ".join("%6.3f" % (layer_corr_new[x] - layer_corr_ref[x]) for x in range (4))
+    print (("  %s") % " ".join("%6.3f" % (layer_corr_new[x] - layer_corr_ref[x]) for x in range (4)), file=output_text)
 
   output_text.close()
 
@@ -453,7 +455,7 @@ if __name__ == "__main__":
 
   ### write output to .ps/pdf file  
   
-  print "\nrecreating text and ps/pdf files: %s and %s" % (options.output_files+".txt", options.output_files+".ps/pdf")
+  print ("\nrecreating text and ps/pdf files: %s and %s" % (options.output_files+".txt", options.output_files+".ps/pdf"))
 
   canvas = ROOT.TCanvas("canvas","",200,10,700,500)
 
@@ -485,4 +487,4 @@ if __name__ == "__main__":
   
   os.system("ps2pdf "+options.output_files+".ps")
   
-  print "\nfinished.... need a drink now!\n"
+  print ("\nfinished.... need a drink now!\n")

@@ -12,7 +12,9 @@ def main():
 
     # Set up the environment:
     import ROOT
-    ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )
+    if not ROOT.xAOD.Init( "trig_test" ).isSuccess():
+        print ( "Failed to call xAOD::Init(...)" )
+        return 1
 
     # Open an input file for reading:
     FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/" \

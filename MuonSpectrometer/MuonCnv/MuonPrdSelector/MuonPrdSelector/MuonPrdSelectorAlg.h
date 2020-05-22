@@ -1,33 +1,25 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonPrdSelectorAlg.h
-//   Header file for class MuonPrdSelectorAlg
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONPRDSELECTORALG_H
 #define MUONPRDSELECTORALG_H
 
-// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/DataHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-//#include "MuonPrepRawData/MuonPrepDataContainer.h"
+
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include <utility>
 #include <vector>
 #include <string>
-
-
-
 
 /*
    class MuonPrdSelectorAlg
@@ -46,7 +38,6 @@ class MuonPrdSelectorAlg : public AthAlgorithm  {
   // Basic algorithm methods:
   virtual StatusCode initialize();   //!< Algorithm initialization: retrieves StoreGate/DetectorStore/MuonIdHelpers/MuonPrepDataContainers
   virtual StatusCode execute();      //!< Retrieves and records containers, performs selection
-  virtual StatusCode finalize();     //!< Does nothing
 
  private:
   void print();                      //!< method for DEBUG purposes: prints the content of input and output MuonPrepDataContainer
@@ -61,8 +52,7 @@ class MuonPrdSelectorAlg : public AthAlgorithm  {
   StatusCode selectTGCs() ; //!< selects the hits from TGCcollections
   StatusCode selectCSCs() ; //!< selects the hits from CSCcollections
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   ToolHandle<IMuonIdCutTool>             m_muonIdCutTool;  //defines the cuts
 

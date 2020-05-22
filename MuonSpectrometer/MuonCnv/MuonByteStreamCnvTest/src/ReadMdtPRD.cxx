@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,9 +12,6 @@ S. Rosati Dec 2005
 
 #include "MuonByteStreamCnvTest/ReadMdtPRD.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-
-using namespace std;
 
 static const int maxColl =   1200;
 static const int maxPrd =    5000;
@@ -35,7 +32,7 @@ ReadMdtPRD::ReadMdtPRD(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode ReadMdtPRD::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 
@@ -92,9 +89,9 @@ StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
 	  m_tdc[m_nPrd] = (*mdtPrd)->tdc();
 	  m_adc[m_nPrd] = (*mdtPrd)->adc();
 	  
-	  m_multi[m_nPrd] = m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id); 
-	  m_layer[m_nPrd] = m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id);
-	  m_wire[m_nPrd]  = m_muonIdHelperTool->mdtIdHelper().tube(dig_id); 
+	  m_multi[m_nPrd] = m_idHelperSvc->mdtIdHelper().multilayer(dig_id); 
+	  m_layer[m_nPrd] = m_idHelperSvc->mdtIdHelper().tubeLayer(dig_id);
+	  m_wire[m_nPrd]  = m_idHelperSvc->mdtIdHelper().tube(dig_id); 
 	  ++m_nPrd;
 	  ATH_MSG_DEBUG( " MdtPrepData number:  " << m_nPrd );
 	  
@@ -125,13 +122,6 @@ StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode ReadMdtPRD::finalize()
-{
-  ATH_MSG_INFO( "in finalize()"  );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode ReadMdtPRD::accessNtuple() {
 

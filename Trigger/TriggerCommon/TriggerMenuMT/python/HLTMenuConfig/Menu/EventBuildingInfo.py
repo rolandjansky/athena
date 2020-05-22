@@ -1,11 +1,18 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from TrigEDMConfig import DataScoutingInfo
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 '''
 This file defines Event Building identifiers which can be used in chain names.
-Please follow the naming convention SomeNamePEBVariant or SomeNameDSVariant,
+To avoid circular dependency between TrigEDMConfig and Menu, the Data Scouting
+identifiers are moved to TrigEDMConfig.DataScoutingInfo. Nevertheless, Data
+Scouting is just a special case of Partial Event Building.
+
+When adding new identifiers, please follow the naming convention
+    SomeNamePEBVariant for Partial Event Building (here) or
+    SomeNameDSVariant for Data Scouting (in DataScoutingInfo),
 where SomeName and Variant are generally camel-case unless they're acronyms
 like LAr or RPC. Variant is normally empty unless there are several variants
 like RPCPEB and RPCPEBSecondaryReadout.
@@ -14,42 +21,15 @@ Possible examples:
 LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
 '''
 
+
 # PEB identifiers
 PartialEventBuildingIdentifiers = [
-  'BeamSpotPEB',
-  'LArPEB',
-  'RPCPEBSecondaryReadout',
-  'SCTPEB'
+    'BeamSpotPEB',
+    'LArPEB',
+    'RPCPEBSecondaryReadout',
+    'SCTPEB',
+    'TilePEB'
 ]
-
-# Data scouting identifiers and the corresponding HLT result ROBFragment module IDs
-# WARNING: Never change the module IDs during data taking!
-# WARNING: ID=0 is reserved for full HLT result
-DataScoutingIdentifiers = {
-  'CostMonDS': 1,
-  'JetDS': 5
-}
-
-
-def getDataScoutingResultID(name):
-    if name in DataScoutingIdentifiers:
-        return DataScoutingIdentifiers[name]
-    else:
-        log.error('Unknown name %s, cannot assign result ID', name)
-
-
-def getAllDataScoutingResultIDs():
-    return DataScoutingIdentifiers.values()
-
-
-def getFullHLTResultID():
-    # WARNING: Don't change this, it should always be zero.
-    # It's defined here to avoid using a magic number in other places
-    return 0
-
-
-def getAllDataScoutingIdentifiers():
-    return list(DataScoutingIdentifiers.keys())
 
 
 def getAllPartialEventBuildingIdentifiers():
@@ -57,4 +37,4 @@ def getAllPartialEventBuildingIdentifiers():
 
 
 def getAllEventBuildingIdentifiers():
-    return PartialEventBuildingIdentifiers + list(DataScoutingIdentifiers.keys())
+    return PartialEventBuildingIdentifiers + DataScoutingInfo.getAllDataScoutingIdentifiers()

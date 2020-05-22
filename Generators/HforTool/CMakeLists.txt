@@ -15,18 +15,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Generators/TruthUtils
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           Generators/GenInterfaces )
 
 # External dependencies:
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( HforTool
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils )
 
 # Install files from the package:
 atlas_install_headers( HforTool )

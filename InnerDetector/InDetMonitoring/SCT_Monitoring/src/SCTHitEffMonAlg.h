@@ -14,10 +14,10 @@
 #include "CommissionEvent/ComTime.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -26,7 +26,6 @@
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 //STL
 #include <string>
@@ -76,9 +75,8 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
   SG::ReadHandleKey<TrackCollection> m_TrackName{this, "TrackName", "CombinedInDetTracks"};
   SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool", "Trig::BunchCrossingTool/BunchCrossingTool"};
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   
   ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   ToolHandle<Trk::IRIO_OnTrackCreator> m_rotcreator{this, "ROTCreator", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};

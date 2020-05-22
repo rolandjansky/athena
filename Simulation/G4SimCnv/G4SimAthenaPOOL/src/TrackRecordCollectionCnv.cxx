@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4SimTPCnv/TrackRecordCollectionCnv_p1.h"
@@ -30,7 +30,7 @@ TrackRecordCollection* TrackRecordCollectionCnv::createTransient() {
     static const pool::Guid   old_guid("0F77F941-6019-4FE5-B6F4-E90BE9F7ACC9");
 
      if( this->compareClassGuid(p1_guid))  {
-      std::auto_ptr< TrackRecordCollection_p1 >   col_vect( this->poolReadObject< TrackRecordCollection_p1 >() );
+      std::unique_ptr< TrackRecordCollection_p1 >   col_vect( this->poolReadObject< TrackRecordCollection_p1 >() );
       trans_cont = converter.createTransient( col_vect.get(), mlog );
    }
    else  if( this->compareClassGuid(old_guid)) {
@@ -40,7 +40,7 @@ TrackRecordCollection* TrackRecordCollectionCnv::createTransient() {
    }  
    // New _p2 version faster and smaller
    else  if( this->compareClassGuid(p2_guid))  {
-      std::auto_ptr< TrackRecordCollection_p2 >   col_vect( this->poolReadObject< TrackRecordCollection_p2 >() );
+      std::unique_ptr< TrackRecordCollection_p2 >   col_vect( this->poolReadObject< TrackRecordCollection_p2 >() );
       trans_cont = converter_p2.createTransient( col_vect.get(), mlog );
    }
    else 

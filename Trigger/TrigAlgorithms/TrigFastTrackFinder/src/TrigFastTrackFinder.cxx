@@ -70,6 +70,7 @@
 #include "TrigNavigation/NavigationCore.icc"
 
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -79,7 +80,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
-  m_trigZFinder("TrigZFinder"),
+  m_trigZFinder("TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),
@@ -540,7 +541,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
-  m_trackMaker->newTrigEvent(trackEventData, PIX, SCT);
+  m_trackMaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -561,11 +562,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       }
     }
 
-    std::list<const Trk::SpacePoint*> spList = {osp1, osp2, osp3};
+    std::vector<const Trk::SpacePoint*> spVec = {osp1, osp2, osp3};
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(trackEventData, spList);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {

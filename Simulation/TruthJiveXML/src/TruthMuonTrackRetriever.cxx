@@ -8,7 +8,7 @@
 //#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IPartPropSvc.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrackRecord/TrackRecord.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "HepPDT/ParticleData.hh"

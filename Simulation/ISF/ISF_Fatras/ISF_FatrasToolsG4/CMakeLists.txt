@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/ISF/ISF_Fatras/ISF_FatrasInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           PRIVATE
+                          Generators/AtlasHepMC
                           Control/StoreGate
                           Simulation/Barcode/BarcodeEvent
                           Simulation/G4Atlas/G4AtlasAlg
@@ -25,7 +26,6 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Geant4 )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
 
@@ -33,9 +33,6 @@ find_package( XercesC )
 atlas_add_component( ISF_FatrasToolsG4
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ISF_Event ISF_FatrasInterfaces TrkEventPrimitives StoreGateLib SGtests ISF_Interfaces TrkGeometry )
-
-# Install files from the package:
-atlas_install_headers( ISF_FatrasToolsG4 )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GEANT4_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEANT4_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ISF_Event ISF_FatrasInterfaces TrkEventPrimitives StoreGateLib SGtests ISF_InterfacesLib ISF_Geant4ToolsLib TrkGeometry )
 

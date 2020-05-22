@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 767269 2016-08-10 15:10:39Z aryzhov $
 ################################################################################
 # Package: TileMonitoring
 ################################################################################
@@ -56,14 +55,10 @@ atlas_add_component( TileMonitoring
 
 # Install files from the package:
 atlas_install_headers( TileMonitoring )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
-# Check python syntax:
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
-                POST_EXEC_SCRIPT nopost.sh )
-
+# Tests:
 atlas_add_test( TileCellMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileCellMonitorAlgorithm
                 PROPERTIES TIMEOUT 300
@@ -107,6 +102,16 @@ atlas_add_test( TileDigiNoiseMonitorAlgorithm_test
 atlas_add_test( TileRawChannelTimeMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileRawChannelTimeMonitorAlgorithm
                 PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelNoiseMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileRawChannelNoiseMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileMuonFitMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileMuonFitMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TileMonitoringConfig_test

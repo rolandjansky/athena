@@ -25,5 +25,5 @@ atlas_add_library( ZdcConditions
                    PUBLIC_HEADERS ZdcConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier ZdcIdentifier GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GeoModelInterfaces )
 

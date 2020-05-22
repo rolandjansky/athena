@@ -13,8 +13,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
-
 // Gaudi includes
 
 #include "AthLinks/ElementLink.h"

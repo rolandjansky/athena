@@ -10,12 +10,12 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkValTools/InDetPrimaryConversionSelector.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 Trk::InDetPrimaryConversionSelector::InDetPrimaryConversionSelector(const std::string& type, const std::string& name,
@@ -82,10 +82,6 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
-//    HepGeom::Point3D<double>  startVertex(particle->production_vertex()->point3d().x(),
-//                             particle->production_vertex()->point3d().y(),
-//                             particle->production_vertex()->point3d().z());
-//     if ( fabs(startVertex.perp()) > m_maxRStartPrimary || fabs(startVertex.z()) > m_maxZStartPrimary) continue;
       if(particle->production_vertex() == NULL) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
         ATH_MSG_DEBUG   ("It's this one: " << *particle);
@@ -93,8 +89,8 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->point3d().z())    > m_maxZStartAll ) continue;
+        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         int   pdgCode         = particle->pdg_id();
         if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
@@ -115,9 +111,7 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
 	  HepMC::GenVertex::particles_in_const_iterator inParticle     = prodVertex->particles_in_const_begin();
 	  HepMC::GenVertex::particles_out_const_iterator inParticleEnd = prodVertex->particles_in_const_end();
 	  for ( ; inParticle != inParticleEnd; ++inParticle) {
-	    // check if mother is a photon with barcode == 10001
 	    ATH_MSG_DEBUG(" --> checking morther: " << *(*inParticle) );
-	    //if (abs((*inParticle)->pdg_id()) == 22 && (*inParticle)->barcode() == 10001 ){
 	    if ( abs((*inParticle)->pdg_id()) == 22 || abs((*inParticle)->pdg_id()) == 11 ){
 	      if (fabs(particle->momentum().perp()) >  m_minPt  &&  fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
 		genSignal->push_back(particle);

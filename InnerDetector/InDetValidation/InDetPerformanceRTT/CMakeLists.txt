@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
 			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
@@ -34,7 +35,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
-find_package( HepMC )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
@@ -42,8 +42,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( InDetPerformanceRTT
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaMonitoringLib StoreGateLib AtlasDetDescr xAODEventInfo GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry PixelReadoutGeometry TrkTrack TrkToolInterfaces SGtests GeoPrimitives IdDictDetDescr EventPrimitives InDetPrepRawData InDetRIO_OnTrack JetEvent TrkEventPrimitives TrkTrackSummary TrkTruthData )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} AtlasHepMCLib AthenaMonitoringLib StoreGateLib AtlasDetDescr xAODEventInfo GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry PixelReadoutGeometry TrkTrack TrkToolInterfaces SGtests GeoPrimitives IdDictDetDescr EventPrimitives InDetPrepRawData InDetRIO_OnTrack JetEvent TrkEventPrimitives TrkTrackSummary TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( InDetPerformanceRTT )

@@ -6,14 +6,10 @@
 #ifndef RINGERSELECTORTOOLS_TOOLS_TRACKPATTERNSHOLDER_H
 #define RINGERSELECTORTOOLS_TOOLS_TRACKPATTERNSHOLDER_H
 
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
-
 // STL includes:
 #include <vector>
 #include <cstddef>
-#if RINGER_USE_NEW_CPP_FEATURES
 #include <array>
-#endif
 
 // xAOD framework includes:
 #include "xAODTracking/TrackParticleFwd.h"
@@ -152,7 +148,6 @@ class TrackPatternsHolder : public RedirectMsgStream {
     ///@{
     /// Coefficients to aproximate Number of TRT hits:
     ///@{
-#if RINGER_USE_NEW_CPP_FEATURES
     static constexpr double m_a0 = 33.14;
     static constexpr double m_b0 = -129.1;
     static constexpr double m_c0 = 1455.;
@@ -174,27 +169,6 @@ class TrackPatternsHolder : public RedirectMsgStream {
     static constexpr std::array<float,6> m_cutBinEta_TRT{{
       0.1, 0.625, 1.07, 1.304, 1.752, 2.0
     }};
-#else
-    static const double m_a0;
-    static const double m_b0;
-    static const double m_c0;
-    static const double m_a1;
-    static const double m_b1;
-    static const double m_c1;
-    static const double m_d1;
-    static const double m_a2;
-    static const double m_b2;
-    static const double m_c2;
-    static const double m_a3;
-    static const double m_b3;
-    static const double m_a4;
-    static const double m_b4;
-    static const double m_c4;
-    static const double m_d4;
-    static const double m_a5;
-    static const double m_b5;
-    static const std::vector<float> m_cutBinEta_TRT;
-#endif
     ///@}
     ///@}
 

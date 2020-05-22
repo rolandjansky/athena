@@ -106,7 +106,7 @@ globalflags.ConditionsTag.set_Value_and_Lock(globalTag)##### SET VIA COMMAND LIN
 from IOVDbSvc.CondDB import conddb
 if globalflags.ConditionsTag():
       conddb.setGlobalTag(globalflags.ConditionsTag())
-print globalflags
+printfunc (globalflags)
 DetFlags.Calo_setOff()
 DetFlags.TRT_setOff()
 DetFlags.ID_setOff()
@@ -156,7 +156,7 @@ from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
 #svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
 svcMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=False, ForcedUse=False, doCalStreamInit=True)
 #svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
-print 'skeleton: setting doCalStreamInit true'
+printfunc ('skeleton: setting doCalStreamInit true')
 
 include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
    
@@ -184,7 +184,7 @@ svcMgr.MuonCalibStreamFileInputSvc.InputFiles = InputFiles ##### SET VIA COMMAND
 svcMgr.MuonCalibStreamDataProviderSvc.LumiBlockNumberFromCool=lumiBlockNumberFromCool
 svcMgr.MuonCalibStreamDataProviderSvc.RunNumberFromCool=runNumberFromCool
 
-print topSequence
+printfunc (topSequence)
 
 # obselete
 #include ("BFieldAth/BFieldAth_jobOptions.py")

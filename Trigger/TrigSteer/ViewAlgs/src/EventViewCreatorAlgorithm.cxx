@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -25,6 +25,14 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_CHECK( m_inViewRoIs.initialize() );
   ATH_CHECK( m_roiTool.retrieve() );
   ATH_CHECK( m_cachedViewsKey.initialize(SG::AllowEmpty) );
+
+  // Muon slice code
+  ATH_CHECK( m_inViewMuons.initialize(m_placeMuonInView) );
+  ATH_CHECK( m_inViewMuonCandidates.initialize(m_placeMuonInView) );
+
+  // Jet slice code
+  ATH_CHECK( m_inViewJets.initialize(m_placeJetInView) );
+
   return StatusCode::SUCCESS;
 }
 
@@ -115,6 +123,20 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
       ATH_CHECK(linkViewToParent(outputDecision, newView));
       // Add the single ROI into the view to seed it.
       ATH_CHECK(placeRoIInView(roiEL, viewVector->back(), context));
+      // Special muon case - following from a FullScan view, seed each new View with its MuonCombined::MuonCandidate
+      if (m_placeMuonInView) {
+        std::vector<LinkInfo<xAOD::MuonContainer>> muonELInfo = findLinks<xAOD::MuonContainer>(outputDecision, featureString(), TrigDefs::lastFeatureOfType);
+        ATH_CHECK( muonELInfo.size() == 1 );
+        ATH_CHECK( muonELInfo.at(0).isValid() );
+        ATH_CHECK( placeMuonInView( *(muonELInfo.at(0).link), viewVector->back(), context ) );
+      }
+      // Special jet case - following from a FullScan view, seed each new View with its xAOD::Jet
+      if (m_placeJetInView) {
+        std::vector<LinkInfo<xAOD::JetContainer>> jetELInfo = findLinks<xAOD::JetContainer>(outputDecision, featureString(), TrigDefs::lastFeatureOfType);
+        ATH_CHECK( jetELInfo.size() == 1 );
+        ATH_CHECK( jetELInfo.at(0).isValid() );
+        ATH_CHECK( placeJetInView( *(jetELInfo.at(0).link), viewVector->back(), context ) );
+      }
       // Link the view to the Decision object
       outputDecision->setObjectLink( viewString(), ElementLink<ViewContainer>(m_viewsKey.key(), viewVector->size()-1 ));
       ATH_MSG_DEBUG( "Made new View, storing view in viewVector " << m_viewsKey.key() << " index:" << viewVector->size()-1 );
@@ -159,7 +181,7 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
   // We must call this BEFORE having added the new link, check
   if (outputDecision->hasObjectLink(viewString())) {
     ATH_MSG_ERROR("Called linkViewToParent on a Decision object which already has been given a '" 
-      << viewString << "' link. Call this fn BEFORE linking the new View.");
+      << viewString() << "' link. Call this fn BEFORE linking the new View.");
     return StatusCode::FAILURE;
   }
   std::vector<LinkInfo<ViewContainer>> parentViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
@@ -167,6 +189,11 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
     ATH_MSG_ERROR("Could not find the parent View, but 'RequireParentView' is true.");
     return StatusCode::FAILURE;
   }
+  // Note: Some Physics Objects will have diverging reco paths, but later re-combine.
+  // Examples include an ROI processed as both Electron and Photon re-combining for PrecisionCalo. 
+  // Or, a tau ROI processed with different algorithms for different chains in an earlier Step.
+  // This will only cause a problem if downstream a collection is requested which was produced in more that one
+  // of the linked parent Views (or their parents...) as it is then ambiguous which collection should be read. 
   ATH_MSG_DEBUG( "Will link " << parentViews.size() << " parent view(s)" );
   for (const LinkInfo<ViewContainer>& parentViewLI : parentViews) {
     ATH_CHECK(parentViewLI.isValid());
@@ -188,5 +215,52 @@ StatusCode EventViewCreatorAlgorithm::placeRoIInView( const ElementLink<TrigRoiD
   auto handle = SG::makeHandle( m_inViewRoIs, context );
   ATH_CHECK( handle.setProxyDict( view ) );
   ATH_CHECK( handle.record( std::move( oneRoIColl ) ) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObject, SG::View* view, const EventContext& context ) const {
+  // fill the Muon output collection
+  ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key()<<" and "<<m_inViewMuonCandidates.key() );
+  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::MuonContainer > >();
+  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
+  oneObjectCollection->push_back( theObject );
+
+  auto muonCandidate = std::make_unique< ConstDataVector< MuonCandidateCollection > >();
+  muonCandidate->clear( SG::VIEW_ELEMENTS );
+  auto msLink = theObject->muonSpectrometerTrackParticleLink();
+  auto extTrackLink = theObject->extrapolatedMuonSpectrometerTrackParticleLink();
+  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink()) );
+
+  //store both in the view
+  auto handleMuon = SG::makeHandle( m_inViewMuons,context );
+  ATH_CHECK( handleMuon.setProxyDict( view ) );
+  ATH_CHECK( handleMuon.record( std::move( oneObjectCollection ) ) );
+
+  auto handleCandidate = SG::makeHandle( m_inViewMuonCandidates,context );
+  ATH_CHECK( handleCandidate.setProxyDict( view ) );
+  ATH_CHECK( handleCandidate.record( std::move( muonCandidate ) ) );
+
+  return StatusCode::SUCCESS;
+}
+
+// TODO - Template this?
+StatusCode EventViewCreatorAlgorithm::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
+
+  // fill the Jet output collection
+  ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
+
+  auto oneObjectCollection = std::make_unique< xAOD::JetContainer >();
+  auto oneObjectAuxCollection = std::make_unique< xAOD::JetAuxContainer >();
+  oneObjectCollection->setStore( oneObjectAuxCollection.get() );
+
+  xAOD::Jet* copiedJet = new xAOD::Jet();
+  oneObjectCollection->push_back( copiedJet );
+  *copiedJet = *theObject;
+
+  auto handle = SG::makeHandle( m_inViewJets,context );  
+  ATH_CHECK( handle.setProxyDict( view ) ); 
+  ATH_CHECK( handle.record( std::move(oneObjectCollection),std::move(oneObjectAuxCollection) ) );
+
   return StatusCode::SUCCESS;
 }

@@ -20,6 +20,8 @@
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
+#include "xAODTruth/TruthParticleContainerFwd.h"
+template struct DataVector_detail::DVLEltBaseInit< xAOD::TruthParticle_v1>;
 
 namespace xAOD {
 
@@ -290,6 +292,8 @@ namespace xAOD {
       bool isResonance() const;
       /// Check if this is a generator specific (non-physical) particle
       bool isGenSpecific() const;
+      /// Check if this is a BSM particle
+      bool isBSM() const;
 
       /// @}
 
@@ -340,7 +344,7 @@ namespace xAOD {
       /// @param parameter The polarion parameter that we are interested in
       /// @return The value of the polarization parameter requested
       ///
-      float polarizationPatameter( PolParam parameter ) const;
+      float polarizationParameter( PolParam parameter ) const;
 
       /// Single container for full polarization information
       ///

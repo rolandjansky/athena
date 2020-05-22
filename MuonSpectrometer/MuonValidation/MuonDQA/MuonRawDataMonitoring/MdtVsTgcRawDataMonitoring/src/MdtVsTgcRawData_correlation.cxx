@@ -11,26 +11,16 @@
 // Subject: correlation btw MDT hits vs TGC RoI -->Offline Muon Data Quality
 ////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
+#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 
-// MuonDetDesc
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
- 
-#include "Identifier/Identifier.h"
-
-//mdt stuff
 #include "MuonCalibIdentifier/MuonFixedId.h"
- 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <inttypes.h> 
-
+#include <inttypes.h>
 #include <sstream>
 #include <algorithm>
 
@@ -83,7 +73,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
       const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(tgcid);
       const Amg::Vector3D pos = pReadoutElementTGC->channelPos(tgcid);
 
-      float tgcEta = abs(pos.eta());
+      float tgcEta = std::abs(pos.eta());
       float tgcPhi = pos.phi();
       if(tgcPhi<0)tgcPhi+=2*M_PI;
 
@@ -122,7 +112,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
         //                                     endcap: increases with R
         // ==============================================================================
 
-        int mdtStationName      =   int(m_muonIdHelperTool->mdtIdHelper().stationName(mdt_id)) ;
+        int mdtStationName      =   int(m_idHelperSvc->mdtIdHelper().stationName(mdt_id)) ;
 
         //SN     Layer Tube Radial
         //13:EIL 2x4   x54  x4
@@ -144,8 +134,8 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
         //only Endcap middle MDT
         if(mdtStationName!=17 && mdtStationName!=18 )continue;
 
-        int mdtStationEta       =   int(m_muonIdHelperTool->mdtIdHelper().stationEta(mdt_id))  ;//backward:[-6,-1], forward:[1,6], (1 or -1 at lowest R)
-        int mdtStationPhi       =   int(m_muonIdHelperTool->mdtIdHelper().stationPhi(mdt_id))  ;//[1:8]
+        int mdtStationEta       =   int(m_idHelperSvc->mdtIdHelper().stationEta(mdt_id))  ;//backward:[-6,-1], forward:[1,6], (1 or -1 at lowest R)
+        int mdtStationPhi       =   int(m_idHelperSvc->mdtIdHelper().stationPhi(mdt_id))  ;//[1:8]
         int mdtAC = (mdtStationEta<0);//a:0, c:1
 
         float mdtSector=mdtStationPhi*2.-1.;
@@ -160,8 +150,6 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
                       <<" mdtStationEta "<<mdtStationEta
                       <<" mdtStationPhi "<<mdtStationPhi
                       <<" mdtSectorPhi "<<mdtSectorPhi );
-
-        //if( itgcstationEta!=RoIEta || itgcstationPhi!=RoIPhi48 || end_or_for!=RoIEF || a_or_c!=RoISide )continue;
 
         //loop over MDT PRD Collection
         Muon::MdtPrepDataCollection::const_iterator collection_it_end=(*containerIt)->end();
@@ -179,10 +167,10 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
           Identifier mdt_id2 = (*mdtCollection)->identify();
 
-          int mdtMultiLayer       =   int(m_muonIdHelperTool->mdtIdHelper().multilayer(mdt_id2));
-          int mdtTubeLayer        =   int(m_muonIdHelperTool->mdtIdHelper().tubeLayer(mdt_id2));
-          int mdtTube             =   int(m_muonIdHelperTool->mdtIdHelper().tube(mdt_id2));
-          int mdtTubeIdForEM = (abs(mdtStationEta)-1)*64 + mdtTube -1;
+          int mdtMultiLayer       =   int(m_idHelperSvc->mdtIdHelper().multilayer(mdt_id2));
+          int mdtTubeLayer        =   int(m_idHelperSvc->mdtIdHelper().tubeLayer(mdt_id2));
+          int mdtTube             =   int(m_idHelperSvc->mdtIdHelper().tube(mdt_id2));
+          int mdtTubeIdForEM = (std::abs(mdtStationEta)-1)*64 + mdtTube -1;
 
           ATH_MSG_DEBUG("mdtMultiLayer "<<mdtMultiLayer
                         <<" mdtTubeLayer "<<mdtTubeLayer
@@ -199,7 +187,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
           const MuonGM::MdtReadoutElement*  pReadoutElementMDT = MuonDetMgr->getMdtReadoutElement(mdt_id2);
           const Amg::Vector3D mdtgPos = pReadoutElementMDT->tubePos(mdt_id2); //global position of the wire
-          float mdtEta = abs(mdtgPos.eta());
+          float mdtEta = std::abs(mdtgPos.eta());
           float mdtPhi = mdtgPos.phi();
           float mdtr = mdtgPos.perp();
           float mdtz = mdtgPos.z();

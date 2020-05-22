@@ -57,19 +57,9 @@ LArShapeCompleteCnv::createTransient ()
   } 
   else if( compareClassGuid(p1_guid) ) {  
     log << MSG::ERROR << "Sorry if you really want to read LArShapeSubset_p1 you will need to provide a legacy converter" << endmsg;
-    // using auto_ptr ensures deletion of the persistent object
-    //std::auto_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
-    //log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
-    //return TPconverter1.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
     log << MSG::ERROR << "Sorry if you really want to read the very old LArShapeSubset you will need to provide a legacy converter" << endmsg;
-    // subset from before TP separation
-    //log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endmsg; 
-    //std::auto_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
-    // Here we must convert from LArShapeP to LArShapeP1
-    //log << MSG::VERBOSE << "subset ptr " << subset.get() << endmsg; 
-    //return (createTransient(subset.get()));
   } 
   throw std::runtime_error("Unsupported persistent version of LArShapeCompleteCnv");
 }

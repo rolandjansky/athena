@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HIJETREC_HIEVENTSHAPEJETITERATION_H
@@ -16,6 +16,8 @@
 #include "HIJetRec/IHISubtractorTool.h"
 #include "HIJetRec/IHIUEModulatorTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class HIEventShapeJetIteration : virtual public IJetExecuteTool,
   virtual public asg::AsgTool
@@ -25,8 +27,10 @@ class HIEventShapeJetIteration : virtual public IJetExecuteTool,
 public:
 
   HIEventShapeJetIteration(std::string name);
-  
-  int execute() const;
+
+  virtual StatusCode initialize() override;
+
+  virtual int execute() const override;
 
   StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const xAOD::JetContainer* theJets,
 			     std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) const;
@@ -43,35 +47,33 @@ public:
 private:
 
 
-  ToolHandle<IHISubtractorTool> m_subtractor_tool;
-  ToolHandle<IHIUEModulatorTool> m_modulator_tool;
+  ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetClusterSubtractorTool", "Handle to HIJetClusterSubtractorTool" };
+  ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool", "Handle to HIUEModulatorTool" };
 
   /// \brief Name of input HIEventShapeContainer
-  std::string m_input_event_shape_key;
-
+  SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_inputEventShapeKey { this, "InputEventShapeKey", "HIEventShape", "HIEventShape"};
   /// \brief Name of output HIEventShapeContainer
-  std::string m_output_event_shape_key;
+  SG::WriteHandleKey<xAOD::HIEventShapeContainer> m_outputEventShapeKey { this, "OutputEventShapeKey", "HIEventShape_iter", "HIEventShape_iter"};
 
   /// \brief List of names of JetCollections, all jets in these collections are seeds
-  std::string m_calo_jet_seed_key;
-  std::string m_track_jet_seed_key;
+  SG::ReadHandleKey<xAOD::JetContainer> m_caloJetSeedKey { this, "CaloJetSeedContainerKey", "", "Names of seed collections"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_trackJetSeedKey { this, "TrackJetSeedContainerKey", "", "Names of seed collections"};
 
   /// \brief Name of jet attribute providing link between jets and clusters
-  std::string m_association_key;
-
+  Gaudi::Property< std::string > m_associationKey { this, "AssociationKey", "", "Name of jet attribute providing link between jets and clusters" };
   /// \brief All clusters w/in this DR of jet are excluded from shape calc.
-  float m_exclude_DR;
-
+  Gaudi::Property< float > m_excludeDR { this, "ExclusionRadius", 0.4, "Exclude all calo regions w/in this DR to jet" };
   /// \brief If selected, the jet constituents define the associated clusters
-  bool m_exclude_constituents;
+  Gaudi::Property< bool > m_excludeConstituents { this, "ExcludeConstituents", false, "Only exclude constituents of jets" };
 
-  mutable bool m_isInit;
+  Gaudi::Property< bool > m_doRemodulation { this, "RemodulateUE", false, "Correct UE for incomplete cancellation of flow harmonics when iterating" };
 
-  bool m_do_remodulation;
-  unsigned int m_modulation_scheme;
-  std::string m_modulation_key;
-  
+  Gaudi::Property< unsigned int > m_modulationScheme { this, "ModulationScheme", 0, "Scheme to build separate ES object for flow modulation" };
+
+  SG::WriteHandleKey<xAOD::HIEventShapeContainer> m_modulationKey { this, "ModulationEventShapeKey", "HIEventShape_itr_mod", "Modulation Event Shape Key"};
+
+  Gaudi::Property< bool > m_shallowCopy { this, "ShallowCopy", true, "Use shallow copy for iterated event shape" };
+
 };
 
 #endif
-  

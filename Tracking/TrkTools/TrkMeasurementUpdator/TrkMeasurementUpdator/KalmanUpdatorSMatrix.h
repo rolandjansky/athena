@@ -32,6 +32,7 @@
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"
 #include <string_view>
+#include <cmath>
 
 typedef ROOT::Math::SMatrix<double,1,1,ROOT::Math::MatRepSym<double,1> >   SCovMatrix1;
 typedef ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >   SCovMatrix2;
@@ -305,7 +306,7 @@ private:
  inline bool KalmanUpdatorSMatrix::thetaPhiWithinRange_5D (const SParVector5& V,
                                                     const RangeCheckDef rcd) const {
    static const SParVector2 thetaMin(0.0,-M_PI);
-   return ( (fabs(V(Trk::phi)) <= M_PI) && 
+   return ( (std::abs(V(Trk::phi)) <= M_PI) && 
             (V(Trk::theta)>=thetaMin((int)rcd)) && (V(Trk::theta) <= M_PI) );
  }
 

@@ -200,6 +200,7 @@ if globalflags.DataSource.is_geant4():  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
                      'BFieldAutoConfig',
+                     'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'UseBeamSpotFlagForBjet',
@@ -331,9 +332,16 @@ if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
-        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-        xAODEventInfoCnvAlgDefault(sequence=topSequence)
+    if objKeyStore.isInInput("xAOD::EventInfo"):
+        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    else:
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg"):
+            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+            xAODEventInfoCnvAlgDefault(sequence=condSeq)
+else:
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -416,8 +424,10 @@ from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFile
 generateL1Menu()
 createL1PrescalesFileFromMenu()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-svcMgr += getL1ConfigSvc()
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc,L1ConfigSvcCfg
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
+CAtoGlobalWrapper(L1ConfigSvcCfg,None)
+#svcMgr += getL1ConfigSvc()
 
 
 # ---------------------------------------------------------------
@@ -426,6 +436,8 @@ svcMgr += getL1ConfigSvc()
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
+
+
 
 
 # ---------------------------------------------------------------
@@ -444,8 +456,8 @@ if opt.doL1Unpacking:
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if opt.decodePhaseIL1:
-            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
-            topSequence += L1TriggerResultMaker()
+            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
         else:
             l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
@@ -454,7 +466,7 @@ if opt.doL1Unpacking:
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]
 
-        topSequence += l1decoder
+        topSequence += conf2toConfigurable(l1decoder)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
@@ -488,7 +500,7 @@ if not opt.createHLTMenuExternally:
 
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
-svcMgr += getHLTConfigSvc()
+svcMgr += conf2toConfigurable( getHLTConfigSvc() )
 setupHLTPrescaleCondAlg()
 
 if not opt.createHLTMenuExternally:
@@ -533,8 +545,6 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
 # Use parts of NewJO
 #-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior+=1
-from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Output flags
@@ -552,10 +562,12 @@ if opt.doWriteBS:
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 # ID Cache Creators
 ConfigFlags.lock()
-triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-Configurable.configurableRun3Behavior-=1
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
+
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:
@@ -577,11 +589,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
-
-    Configurable.configurableRun3Behavior+=1
-    acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
-    Configurable.configurableRun3Behavior-=1
-    acc.appendToGlobals()
+    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
@@ -605,6 +613,11 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-------------------------------------------------------------
 # Print top sequence

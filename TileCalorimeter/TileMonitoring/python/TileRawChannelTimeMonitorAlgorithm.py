@@ -138,6 +138,7 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = False
 
     ConfigFlags.Tile.RunType = 'LAS'
+    ConfigFlags.Tile.TimingType = 'GAP/LAS'
     ConfigFlags.Tile.doFit = True
     ConfigFlags.Tile.correctTime = True
     ConfigFlags.Tile.doOverflowFit = False
@@ -147,8 +148,8 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg = MainServicesCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt',

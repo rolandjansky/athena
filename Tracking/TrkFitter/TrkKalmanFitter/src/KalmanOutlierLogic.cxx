@@ -260,7 +260,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
                      "with AFB "<<chi2_AFB<<" trying if this comes from problem in last hits");
       int nLastCandidates = 0;
       double candidateChi2     = 0.0;
-      Trk::ProtoTrackStateOnSurface* suspiciousState = 0;
+      Trk::ProtoTrackStateOnSurface* suspiciousState = nullptr;
       Trk::Trajectory::reverse_iterator rit
         = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(T)));
       for( ; rit!=T.rend(); ++rit) {

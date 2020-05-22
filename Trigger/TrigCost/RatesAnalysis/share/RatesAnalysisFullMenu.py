@@ -55,11 +55,11 @@ if __name__=='__main__':
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaConfiguration.ComponentFactory import CompFactory
 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
   cfg.merge(PoolReadCfg(ConfigFlags))
 
   from GaudiSvc.GaudiSvcConf import THistSvc
@@ -71,11 +71,11 @@ if __name__=='__main__':
   from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
   cfg.merge(MetaDataSvcCfg(ConfigFlags))
 
-  cfgsvc = CompFactory.TrigConf__xAODConfigSvc('xAODConfigSvc')
+  cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
   cfg.addService(cfgsvc)
 
   from TrigEDMConfig.TriggerEDM import EDMLibraries
-  tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
+  tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
   tdt.TrigConfigSvc = cfgsvc
   tdt.NavigationFormat = "TrigComposite"
   tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]

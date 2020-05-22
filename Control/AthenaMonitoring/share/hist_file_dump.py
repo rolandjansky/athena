@@ -7,21 +7,34 @@ import sys, os, operator
 import argparse
 import zlib
 import json
+from PyUtils.fprint import _formatFloat
+
+def fixprecision(x):
+    import math
+    if not isinstance(x, float):
+        return x
+    else:
+        mantissa, exponent = math.frexp(x)
+        sm = '%.12g' % mantissa
+        return _formatFloat (float(sm[:16]) * 2**exponent)
 
 def jsonfixup(instr):
     instr = instr.Data()
     j=json.loads(instr)
     # the following are very subject to floating point numeric effects
-    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy'):
+    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
+                   'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
         if badkey in j:
-            if isinstance(j[badkey], float):
-                j[badkey] = float(str(j[badkey])[:8])
+            j[badkey] = fixprecision(j[badkey])
             #print(type(j["fTsumwx"]))
+    for badkey in ('fSumw2',):
+        if badkey in j:
+            j[badkey] = [fixprecision(_) for _ in j[badkey]]
     # the following ignores small layout fluctuations in TTrees
     if 'fBranches' in j:
         for branch in j['fBranches']['arr']:
             branch['fBasketSeek'] = []
-    return json.dumps(j)
+    return json.dumps(j, sort_keys=True)
 
 parser=argparse.ArgumentParser()
 parser.add_argument('filename',
@@ -78,7 +91,9 @@ def dumpdir(d):
             if args.tree_entries and k.GetClassName() == 'TTree':
                 lhash = fuzzytreehash(k)
             elif args.hash:
-                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)))
+                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)).encode())
+                if lhash < 0:
+                    lhash += 2**32
             else:
                 lhash = 0
             idxname = os.path.join(thispath, k.GetName())

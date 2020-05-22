@@ -22,7 +22,7 @@ atlas_add_component( CommissionRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CommissionUtilsLib AthenaBaseComps GaudiKernel CommissionEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CommissionUtilsLib AthenaBaseComps GaudiKernel CommissionEvent TrackRecordLib )
 
 # Install files from the package:
 atlas_install_headers( CommissionRec )

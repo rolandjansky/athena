@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
-//use new MDT segment container 
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
@@ -35,7 +34,6 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
 void
 MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use new mdt segment
@@ -64,10 +62,10 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
       const Trk::RIO_OnTrack* rio = segm->rioOnTrack(i);
       if(!rio) continue;
       Identifier id = rio->identify();
-      stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+      stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
       // Flag Segments with ROTs in the MDT & Endcap
-      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(id))isMdt=true;
-      if(m_muonIdHelperTool->mdtIdHelper().isEndcap(id))isEndcap=true;
+      if(m_idHelperSvc->mdtIdHelper().is_mdt(id))isMdt=true;
+      if(m_idHelperSvc->mdtIdHelper().isEndcap(id))isEndcap=true;
       // If ROT is MDT
       if((stationName==13)||(stationName==49)){nMdtMeas[0]++;}
       if((stationName==14)||(stationName==15)){nMdtMeas[1]++;}
@@ -95,7 +93,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
     for(int jMDT=0;jMDT<4;jMDT++){// jMDT
       if(nMdtMeas[jMDT]){// If hits in this Station
         // Get position variables
-        float  segmGlobalEta  = abs(segmGlobalPos.eta());
+        float  segmGlobalEta  = std::abs(segmGlobalPos.eta());
         float  segmGlobalPhi  = segmGlobalPos.phi();
         if(segmGlobalPhi<0) segmGlobalPhi+=2*M_PI;
         // Fill position histogram
@@ -124,8 +122,8 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
       
       // Get detector variables
       Identifier tgcid=(*tgc_itc)->identify();
-      int tgcStationName = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid);
-      int gasGap         = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid);
+      int tgcStationName = m_idHelperSvc->tgcIdHelper().stationName(tgcid);
+      int gasGap         = m_idHelperSvc->tgcIdHelper().gasGap(tgcid);
       
       // Get position variables
       const Amg::Vector3D tgcGlobalPos  = tpd->globalPosition();

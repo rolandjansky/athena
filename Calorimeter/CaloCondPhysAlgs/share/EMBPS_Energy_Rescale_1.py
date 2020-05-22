@@ -139,10 +139,10 @@ theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","dummy.pool.roo
 #Periode C1-C8 (28 Jun - 23 Jul)
 theOutputConditionsAlg.Run1 = RunNumber
 theOutputConditionsAlg.LB1 = 1
-	
+
 #theOutputConditionsAlg.Run2 = LastRunNumber + 1
 #theOutputConditionsAlg.LB2 = 0
-	
+
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=COMP200"
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()

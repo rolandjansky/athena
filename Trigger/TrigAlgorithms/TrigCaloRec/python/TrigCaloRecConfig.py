@@ -1155,7 +1155,34 @@ class TrigCaloClusterMakerMTBase (TrigCaloClusterMakerMT):
 
         # cltime = TrigTimeHistToolConfig("TrigCaloClusterMaker_Time")
 
-#        self.AthenaMonTools = [ clvalidation, clonline, cltime, clcosmic]
+        # self.AthenaMonTools = [ clvalidation, clonline, cltime, clcosmic]
+
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+        monTool = GenericMonitoringTool('MonTool')
+
+        # Set range variables
+        maxNumberOfClusters=50.0;
+        maxProcTime=4500.0;
+        if ( "FS" in name ):
+            maxNumberOfClusters=1200.0;
+            maxProcTime=150000;
+
+        # Define histograms
+        monTool.defineHistogram('container_size', path='EXPERT', type='TH1F',  title="Container Size; Number of Clusters; Number of Events", xbins=50, xmin=0.0, xmax=maxNumberOfClusters)
+        monTool.defineHistogram('TIME_execute', path='EXPERT', type='TH1F', title="Total Execution Time; Execution time [ us ] ; Number of runs", xbins=100, xmin=0.0, xmax=maxProcTime)
+        monTool.defineHistogram('TIME_ClustMaker', path='EXPERT', type='TH1F', title="Cluster Maker Time; Execution time [ us ] ; Number of runs", xbins=100, xmin=0.0, xmax=maxProcTime)
+        monTool.defineHistogram('TIME_ClustCorr', path='EXPERT', type='TH1F', title="Cluster Correction Time; Execution time [ us ] ; Number of runs", xbins=100, xmin=0.0, xmax=100)
+        monTool.defineHistogram('Et', path='EXPERT', type='TH1F',  title="Cluster E_T; E_T [ MeV ] ; Number of Clusters", xbins=135, xmin=-200.0, xmax=2500.0)
+        monTool.defineHistogram('Eta', path='EXPERT', type='TH1F', title="Cluster #eta; #eta ; Number of Clusters", xbins=100, xmin=-2.5, xmax=2.5)
+        monTool.defineHistogram('Phi', path='EXPERT', type='TH1F', title="Cluster #phi; #phi ; Number of Clusters", xbins=64, xmin=-3.2, xmax=3.2)
+        monTool.defineHistogram('Eta,Phi', path='EXPERT', type='TH2F', title="Number of Clusters; #eta ; #phi ; Number of Clusters", xbins=100, xmin=-2.5, xmax=2.5, ybins=128, ymin=-3.2, ymax=3.2)
+        monTool.defineHistogram('clusterSize', path='EXPERT', type='TH1F', title="Cluster Type; Type ; Number of Clusters", xbins=13, xmin=0.5, xmax=13.5)
+        monTool.defineHistogram('signalState', path='EXPERT', type='TH1F', title="Signal State; Signal State ; Number of Clusters", xbins=4, xmin=-1.5, xmax=2.5)
+        monTool.defineHistogram('size', path='EXPERT', type='TH1F', title="Cluster Size; Size [Cells] ; Number of Clusters", xbins=125, xmin=0.0, xmax=250.0)
+        monTool.defineHistogram('N_BAD_CELLS', path='EXPERT', type='TH1F', title="N_BAD_CELLS; N_BAD_CELLS ; Number of Clusters", xbins=250, xmin=0.5, xmax=250.5)
+        monTool.defineHistogram('ENG_FRAC_MAX', path='EXPERT', type='TH1F', title="ENG_FRAC_MAX; ENG_FRAC_MAX ; Number of Clusters", xbins=50, xmin=0.0, xmax=1.1)
+
+        self.MonTool = monTool
 
 
 class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
@@ -1726,15 +1753,18 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0;
         maxProcTime=800.0;
+        monitorCells=True;
         if ( "FS" in name ):
           maxNumberOfCells=240000;
           maxProcTime=160000;
+          monitorCells=False;
         monTool.defineHistogram('Cells_N', path='EXPERT', type='TH1F',  title="Cells N; NCells; events", xbins=40, xmin=0.0, xmax=maxNumberOfCells)
-        monTool.defineHistogram('Cells_eT', path='EXPERT', type='TH1F',  title="Cells E_T; E_T [ GeV ] ; Nclusters", xbins=100, xmin=0.0, xmax=100.0)
-        monTool.defineHistogram('Cells_eta', path='EXPERT', type='TH1F', title="Cells #eta; #eta ; Nclusters", xbins=100, xmin=-2.5, xmax=2.5)
-        monTool.defineHistogram('Cells_phi', path='EXPERT', type='TH1F', title="Cells #phi; #phi ; Nclusters", xbins=128, xmin=-3.2, xmax=3.2)
         monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="Cells time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=maxProcTime)
+        if ( monitorCells ):
+          monTool.defineHistogram('Cells_eT', path='EXPERT', type='TH1F',  title="Cells E_T; E_T [ GeV ] ; Nclusters", xbins=100, xmin=0.0, xmax=100.0)
+          monTool.defineHistogram('Cells_eta', path='EXPERT', type='TH1F', title="Cells #eta; #eta ; Nclusters", xbins=100, xmin=-2.5, xmax=2.5)
+          monTool.defineHistogram('Cells_phi', path='EXPERT', type='TH1F', title="Cells #phi; #phi ; Nclusters", xbins=128, xmin=-3.2, xmax=3.2)
         self.MonTool = monTool
-
+        self.monitorCells = monitorCells
 
 

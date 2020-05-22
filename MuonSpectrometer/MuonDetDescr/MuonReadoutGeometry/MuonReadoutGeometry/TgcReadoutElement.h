@@ -72,46 +72,46 @@ namespace MuonGM {
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    inline double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual inline double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip position 
 	If the strip number is outside the range of valid strips, the function will return false */
-    inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    virtual inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
-    inline int  layerHash(const Identifier& id)   const; 
+    virtual inline int  layerHash(const Identifier& id)   const override; 
 
     /** returns the hash function to be used to look up the surface and surface transform for a given identifier */
-    inline int  surfaceHash(const Identifier& id) const;  
+    virtual inline int  surfaceHash(const Identifier& id) const override;
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    inline int  boundaryHash(const Identifier& id) const;  
+    virtual inline int  boundaryHash(const Identifier& id) const override;
   
     /** returns whether the given identifier measures phi or not */
-    inline bool measuresPhi(const Identifier& id) const; 
+    virtual inline bool measuresPhi(const Identifier& id) const override;
 
     /** number of layers in phi/eta projection */
-    inline int numberOfLayers( bool ) const;
+    virtual inline int numberOfLayers( bool ) const override;
 
     /** number of strips per layer */
-    inline int numberOfStrips( const Identifier& layerId )   const;
-    inline int numberOfStrips( int layer, bool ) const;
+    virtual inline int numberOfStrips( const Identifier& layerId )   const override;
+    virtual inline int numberOfStrips( int layer, bool ) const override;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi projection.
 	If one of the identifiers is outside the valid range, the function will return false */
-    inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     void  setIdentifier(Identifier id);
-    virtual bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
     inline int Ngasgaps    () const;
     inline int NstripPlanes() const;
     inline int NwirePlanes () const;
@@ -265,8 +265,8 @@ namespace MuonGM {
 
     inline const TgcReadoutParams* getReadoutParams() const;
 
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     
   private:

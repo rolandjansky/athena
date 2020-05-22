@@ -18,8 +18,8 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "StoreGate/DataHandle.h"
 #include "GeneratorObjects/McEventCollection.h"

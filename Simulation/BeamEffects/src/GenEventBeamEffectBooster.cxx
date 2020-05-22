@@ -18,8 +18,8 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace Simulation
 {

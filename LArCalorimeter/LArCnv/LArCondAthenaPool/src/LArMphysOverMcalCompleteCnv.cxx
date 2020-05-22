@@ -25,7 +25,7 @@ LArMphysOverMcalCompleteCnv::createTransient ()
   if (p) 
     return p;
   else if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
     MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
     //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endmsg; 

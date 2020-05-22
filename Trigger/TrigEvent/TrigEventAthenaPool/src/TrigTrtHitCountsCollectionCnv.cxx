@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEventTPCnv/TrigTrtHitCountsCollection_p1.h"
@@ -38,18 +38,18 @@ TrigTrtHitCountsCollection* TrigTrtHitCountsCollectionCnv::createTransient()
   static pool::Guid trans_guid( "7631C2C2-612F-4245-8C8B-D40F59222E1E" );
 
   if( compareClassGuid( p2_guid ) ){
-         std::auto_ptr< TrigTrtHitCountsCollection_p2 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p2 >() );
+         std::unique_ptr< TrigTrtHitCountsCollection_p2 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p2 >() );
          //         std::cout << "Reading IMFC p2" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if(compareClassGuid(tlp1_guid)) {
 
-         std::auto_ptr< TrigTrtHitCountsCollection_tlp1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_tlp1 >() );
+         std::unique_ptr< TrigTrtHitCountsCollection_tlp1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
-         std::auto_ptr< TrigTrtHitCountsCollection_p1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p1 >() );
+         std::unique_ptr< TrigTrtHitCountsCollection_p1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p1 >() );
          TrigTrtHitCountsCollectionCnv_p1 converter;
          return converter.createTransient( col_vect.get(), mlog );
 

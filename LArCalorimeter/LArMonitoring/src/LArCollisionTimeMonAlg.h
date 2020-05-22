@@ -17,14 +17,11 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "LArRecEvent/LArCollisionTime.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <string>
 #include <vector>
 
-
-namespace Trig {
-class IBunchCrossingTool;
-}
 
 
 class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
@@ -62,8 +59,7 @@ class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
   //containers' handles
   SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey{this, "Key", "LArCollisionTime", "Key for the LArCollisionTime data"};
 
-  //tools handles
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 
 };
 

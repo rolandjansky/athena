@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -161,14 +161,7 @@ private:
   static const size_t MASK = BLOCKSIZE-1;
 
 
-#if __cplusplus >= 201700
   static_assert (std::atomic<Block_t>::is_always_lock_free);
-#else
-# if ATOMIC_LONG_LOCK_FREE != 2
-#  error Code assumes std::atomic<unsigned long> is lock free.
-# endif
-#endif  
-
 
 public:
   /// A bit number.

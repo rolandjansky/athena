@@ -44,15 +44,15 @@ namespace MuonGM {
     ~sTgcReadoutElement();                  
 
     /** function to be used to check whether a given Identifier is contained in the readout element */
-    bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	Should be renamed to channelNumber : the only public access for all hit types */
-    int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** Channel pitch. Gives full pitch for strips, width of a full wire group
     Gives the Height of a pad */
@@ -60,7 +60,7 @@ namespace MuonGM {
      
     /** strip position - should be renamed to channel position
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** pad number corresponding to local position */
     int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
@@ -72,20 +72,20 @@ namespace MuonGM {
     bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
 
     /** number of layers in phi/eta projection */
-    int numberOfLayers( bool ) const;
+    virtual int numberOfLayers( bool ) const override;
 
     /** number of strips per layer */
-    int numberOfStrips( const Identifier& layerId )   const;
-    int numberOfStrips( int , bool measuresPhi ) const;
+    virtual int numberOfStrips( const Identifier& layerId )   const override;
+    virtual int numberOfStrips( int , bool measuresPhi ) const override;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     /** space point position for a pair of phi and eta local positions and a layer identifier 
 	The LocalPosition is expressed in the reference frame of the phi projection.
@@ -96,26 +96,26 @@ namespace MuonGM {
     Amg::Vector3D localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const;
 
     /** @brief function to fill tracking cache */
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-    int surfaceHash( const Identifier& id ) const;
+    virtual int surfaceHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
     int surfaceHash( int gasGap, int channelType) const;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
-    int layerHash( const Identifier& id ) const;
+    virtual int layerHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
     // int layerHash( int gasGap) const;        // does not fit in the scheme ( layer hash needs to follow surface hash )
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    int  boundaryHash(const Identifier& id) const;  
+    virtual int  boundaryHash(const Identifier& id) const override;
 
     /** @brief returns whether the current identifier corresponds to a phi measurement */
-    bool measuresPhi(const Identifier& id) const;
+    virtual bool measuresPhi(const Identifier& id) const override;
 
     /** @brief initialize the design classes for this readout element */
     void initDesign(double largeX, double smallX, double lengthY, double stripPitch, double wirePitch,
@@ -129,6 +129,7 @@ namespace MuonGM {
 
     /** returns the MuonChannelDesign class for the given identifier */
     const MuonPadDesign* getPadDesign( const Identifier& id ) const;
+    MuonPadDesign* getPadDesign( const Identifier& id );
 
     /** returns the MuonChannelDesign */
     const MuonPadDesign* getPadDesign( int gasGap ) const;
@@ -147,10 +148,9 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double);
-    void setBLinePar(BLinePar* bLine) const;
-    inline void clearBLinePar() const;
-    void clearBLineCache() const;
-    void fillBLineCache() const;
+    void setDelta(MuonDetectorManager* mgr);
+    void setBLinePar(BLinePar* bLine);
+    inline void clearBLinePar();
 
   private:
 
@@ -174,7 +174,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
@@ -188,13 +188,13 @@ namespace MuonGM {
     std::vector<double> m_PadminHalfY;
     std::vector<double> m_PadmaxHalfY;
 
-    mutable BLinePar* m_BLinePar;
+    BLinePar* m_BLinePar;
 
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
 
-  void sTgcReadoutElement::clearBLinePar() const
+  void sTgcReadoutElement::clearBLinePar()
   { m_BLinePar = 0;}
 
   double sTgcReadoutElement::getALine_rots() const
@@ -246,6 +246,11 @@ namespace MuonGM {
   }
 
   inline const MuonPadDesign* sTgcReadoutElement::getPadDesign( const Identifier& id ) const {
+    if (manager()->stgcIdHelper()->channelType(id)==0) return &(m_padDesign[manager()->stgcIdHelper()->gasGap(id)-1]);
+    return 0;
+  }
+
+  inline MuonPadDesign* sTgcReadoutElement::getPadDesign( const Identifier& id ) {
     if (manager()->stgcIdHelper()->channelType(id)==0) return &(m_padDesign[manager()->stgcIdHelper()->gasGap(id)-1]);
     return 0;
   }

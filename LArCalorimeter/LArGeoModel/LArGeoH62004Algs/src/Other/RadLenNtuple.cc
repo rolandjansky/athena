@@ -4,7 +4,7 @@
 
 #include "LArGeoH62004Algs/RadLenNtuple.h"
 #include "LArG4RunControl/LArGeoTBH1GeoOptions.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include <iostream>
 #include "GaudiKernel/IService.h"
@@ -59,7 +59,7 @@ void RadLenNtuple::EndOfEventAction(const G4Event* anEvent)
      if (! m_storeGate->retrieve(m_mcEvtColl, "GEN_EVENT").isFailure() ) {
 	 McEventCollection::const_iterator iEvt = m_mcEvtColl->begin(); 
 	 HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
-	 m_xcoord = (*p)->production_vertex()->point3d().x();  
+	 m_xcoord = (*p)->production_vertex()->position().x();  
      }
   }
    

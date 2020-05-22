@@ -1,25 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonSegmentTruthAssociationAlg.h
-//   Header file for class MuonSegmentTruthAssociationAlg
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRUTHPARTICLEALGS_MUONSEGMENTTRUTHASSOCIATION_H
 #define TRUTHPARTICLEALGS_MUONSEGMENTTRUTHASSOCIATION_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "StoreGate/WriteDecorHandleKey.h"
-
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -38,10 +32,9 @@ public:
   // Basic algorithm methods:
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
 
 private:
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<Muon::IMuonTrackTruthTool> m_muonTrackTruthTool;
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonSegmentContainer> >m_muonTruthSegmentContainerName{this,"MuonTruthSegmentName","MuonTruthSegments","muon truth segment container name"};
@@ -51,9 +44,6 @@ private:
   SG::ReadHandleKey<CscSimDataCollection> m_cscSimData{this,"CSC_SDO_Container","CSC_SDO","CSC SDO"};
   SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this,"TrackRecord","MuonEntryLayerFilter","Track Record Collection"};
   int m_barcodeOffset;
-  bool m_hasCSC;
-  bool m_hasSTgc;
-  bool m_hasMM;
 };
 
 } // namespace Muon

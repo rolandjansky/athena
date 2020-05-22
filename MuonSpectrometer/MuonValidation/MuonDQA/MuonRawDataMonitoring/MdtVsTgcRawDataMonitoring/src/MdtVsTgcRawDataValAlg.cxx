@@ -10,41 +10,25 @@
 // DESCRIPTION:
 // Subject: correlation btw MDT hits vs TGC RoI -->Offline Muon Data Quality
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
- 
+
+#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdoIdHash.h"
-
-// MuonDetDesc
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h" 
-
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-
 #include "TrkSegment/SegmentCollection.h"
- 
-#include "Identifier/Identifier.h"
-
-//mdt stuff
 #include "MuonCalibIdentifier/MuonFixedId.h"
- 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <inttypes.h> 
-
+#include <inttypes.h>
 #include <sstream>
 #include <algorithm>
 #include <fstream>
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -113,50 +97,11 @@ MdtVsTgcRawDataValAlg::~MdtVsTgcRawDataValAlg(){
 
 StatusCode 
 MdtVsTgcRawDataValAlg::initialize(){
-  // init message stream
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO( "in initializing MdtVsTgcRawDataValAlg"  );
-
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  /*
-    if ( m_checkCabling ) {
-    // get Cabling Server Service
-    const ITGCcablingServerSvc* TgcCabGet = 0;
-    sc = service("TGCcablingServerSvc", TgcCabGet);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
-    return StatusCode::FAILURE;
-    }
-    // get Cabling Service
-    sc = TgcCabGet->giveCabling(m_cabling);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endmsg;
-    return StatusCode::FAILURE; 
-    }
-    
-    // check whether TGCcabling is compatible with 1/12 sector or not
-    int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
-    m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
-    if (maxRodId ==12) {
-    m_log << MSG::INFO << "TGCcabling12Svc OK" << endmsg ;
-    } else {
-    m_log << MSG::WARNING << "TGCcablingSvc(octant segmentation) OK" << endmsg ;
-    }
-
-    }
-  */
-
-  //std::vector<std::string> hardware_name_list                  ;
-  //std::vector<std::string> layer_name_list                     ;
-  //std::vector<std::string> layervslayer_name_list              ;
-  // std::vector<std::string> layerPhivsEta_name_list             ;
-  //std::vector<std::string> layerPhivsEtaSector_name_list       ;
-  //hardware_name_list.push_back("XXX");
-  
-  ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+  ATH_CHECK(m_idHelperSvc.retrieve());
  
   //MDT z position
   //Name MultiLayer TubeLayer z
@@ -174,17 +119,14 @@ MdtVsTgcRawDataValAlg::initialize(){
   //18 2 3 14030.6
 
   // Retrieve the MuonDetectorManager
-  const MuonGM::MuonDetectorManager* MuonDetMgrDS;
+  const MuonGM::MuonDetectorManager* MuonDetMgrDS=nullptr;
   ATH_CHECK( detStore()->retrieve(MuonDetMgrDS) );
   ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
-
   prepareTREarray(MuonDetMgrDS);
-
   ATH_CHECK(m_tgc_PrepDataContainerName.initialize());
   ATH_CHECK(m_tgc_CoinContainerName.initialize());
   ATH_CHECK(m_mdt_PrepDataContainerName.initialize());
   ATH_CHECK(m_mdt_SegmentCollectionName.initialize());
-   
   return StatusCode::SUCCESS;
 }
 
@@ -232,20 +174,8 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
 
   //only analyze nSL==1
   int nSL = numberOfSL(tgc_coin_container.cptr());
-  //mdtvstgclv1_eff[0]->Fill(0);
-  //mdtvstgclv1_eff[1]->Fill(0);
 
   if(nSL==1){
-    //declare a group of histograms
-    //std::string m_generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGC";
-    //MonGroup tgclv1_expert( this, m_generic_path_tgclv1+"/Overview", expert, run );
-    
-    //TH1* testptr0 = tgclv1roietavsphi[0];
-    //sc = tgclv1_expert.getHist(testptr0,"RoI_Eta_Vs_Phi_A");
-    //tgclv1roietavsphi[0] = dynamic_cast<TH2*>(testptr0);
-    //if(sc.isFailure() ) m_log << MSG::WARNING << "couldn't get tgclv1roietavsphi[0] hist to MonGroup" << endmsg;
-    //m_log<<MSG::INFO <<"RoI_Eta_Vs_Phi_A_Side has been got"<<endmsg;
-    
     //fill MDT hit vs TGC RoI
     correlation(mdt_prd_container.cptr(), tgc_coin_container.cptr());
   }

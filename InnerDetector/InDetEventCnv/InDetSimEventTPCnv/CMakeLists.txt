@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetSimEvent
                           PRIVATE
                           AtlasTest/TestTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           DetectorDescription/Identifier )
 
@@ -27,7 +28,7 @@ atlas_add_library( InDetSimEventTPCnv
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES GaudiKernel GeneratorObjectsTPCnv InDetSimEvent AthenaPoolCnvSvcLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools Identifier )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools Identifier AthenaKernel )
 
 atlas_add_dictionary( InDetSimEventTPCnvDict
                       InDetSimEventTPCnv/InDetSimEventTPCnvDict.h

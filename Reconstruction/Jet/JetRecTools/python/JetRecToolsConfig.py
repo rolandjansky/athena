@@ -11,10 +11,7 @@
 from AthenaCommon import Logging
 jrtlog = Logging.logging.getLogger('JetRecToolsConfig')
 
-# Package configurable imports
-from InDetTrackSelectionTool import InDetTrackSelectionToolConf
-from TrackVertexAssociationTool import TrackVertexAssociationToolConf
-from JetRecTools import JetRecToolsConf
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # May need to specify non-standard tracking collections, e.g. for trigger
 # Testing code -- move to another module and perhaps allow extensions
@@ -32,13 +29,10 @@ trackcollectionmap = {
     }
 }
 
-def getTrackSelTool(trkopt=""):
-    jettracksname = "JetSelectedTracks"
-    if trkopt: jettracksname += "_{}".format("trkopt")
+def getTrackSelTool(trkopt="",doWriteTracks=False):
 
     # Track selector needs its own hierarchical config getter in JetRecTools?
-    from InDetTrackSelectionTool import InDetTrackSelectionToolConf
-    idtrackselloose = InDetTrackSelectionToolConf.InDet__InDetTrackSelectionTool(
+    idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
         "idtrackselloose",
         CutLevel         = "Loose",
         minPt            = 500,
@@ -46,24 +40,33 @@ def getTrackSelTool(trkopt=""):
         Extrapolator     = "",
         TrackSummaryTool = ""
     )
-    jettrackselloose = JetRecToolsConf.JetTrackSelectionTool(
+    jettrackselloose = CompFactory.JetTrackSelectionTool(
         "jettrackselloose",
-        InputContainer  = trackcollectionmap[trkopt]["Tracks"],
-        OutputContainer = jettracksname,
         Selector        = idtrackselloose
     )
+    # Should phase this out completely!
+    # Make a jet track selection alg
+    # Elsewhere just use the ID track tool directly
+    if doWriteTracks:
+        jettracksname = "JetSelectedTracks"
+        if trkopt: jettracksname += "_{}".format("trkopt")
+        jettrackselloose.InputContainer  = trackcollectionmap[trkopt]["Tracks"]
+        jettrackselloose.OutputContainer = jettracksname
+
     return jettrackselloose
 
 def getTrackVertexAssocTool(trkopt=""):
     if trkopt: "_{}".format(trkopt)
     # Track-vertex association
-    from TrackVertexAssociationTool import TrackVertexAssociationToolConf
-    idtvassoc = TrackVertexAssociationToolConf.CP__TrackVertexAssociationTool(
+    # This is to be deprecated
+    # In fact can probably be switched already to match legacy master
+    # but for a future MR
+    idtvassoc = CompFactory.getComp("CP::TrackVertexAssociationTool")(
         "idloosetvassoc",
         VertexContainer         = trackcollectionmap[trkopt]["Vertices"],
     )
 
-    jettvassoc = JetRecToolsConf.TrackVertexAssociationTool(
+    jettvassoc = CompFactory.TrackVertexAssociationTool(
         "jettvassoc",
         TrackParticleContainer  = trackcollectionmap[trkopt]["Tracks"],
         TrackVertexAssociation  = trackcollectionmap[trkopt]["TVA"],

@@ -10,13 +10,13 @@
 
 // Local include(s):
 #include "AsgTools/AsgToolMacros.h"
-#include "AsgMessaging/INamedInterface.h"
 
 // Environment specific include(s):
 #ifndef XAOD_STANDALONE
 #   include "GaudiKernel/IAlgTool.h"
 #else
 #   include "AsgMessaging/StatusCode.h"
+#   include "AsgMessaging/INamedInterface.h"
 #endif
 
 namespace asg {
@@ -36,7 +36,7 @@ namespace asg {
 #ifndef XAOD_STANDALONE
       : virtual public ::IAlgTool
 #else
-   : virtual public INamedInterface
+      : virtual public INamedInterface
 #endif // not XAOD_STANDALONE
    {
 
@@ -52,8 +52,6 @@ namespace asg {
       /// Function initialising the tool
       virtual StatusCode initialize() = 0;
 
-      /// Return the name of the tool
-      virtual const std::string& name() const = 0;
       /// Set the name of the tool
       virtual void setName( const std::string& name ) = 0;
 

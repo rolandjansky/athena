@@ -70,7 +70,7 @@ LArCoverageAlg::initialize()
   if(m_NphiBinsHEC[1]!=64) warn_binning="NphiBinsHEC[1]!=64 ";
   if(m_NphiBinsHEC[2]!=64) warn_binning="NphiBinsHEC[2]!=64 ";
   if(m_NphiBinsHEC[3]!=64) warn_binning="NphiBinsHEC[3]!=64 ";
-  if(warn_binning!="") ATH_MSG_WARNING(warn_binning+"Did you remember to adjust the white bin filling? The algorithm fills in white eta-phi bins in EMB1, EMEC2 and HEC coverage plots: this expects 256 phi bins. If you change the number of bins, you should change the white bin filling as well. Tip: look at the fill() call where deltaPhi is not zero");
+
 
   /** Retrieve ID helpers */
   ATH_CHECK(  detStore()->retrieve( m_caloIdMgr ) );
@@ -98,11 +98,18 @@ LArCoverageAlg::initialize()
   m_CaloNoiseGroupArrEM = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"EM",m_Nsample);
   m_CaloNoiseGroupArrHEC = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"HEC",m_Nsample);
   m_CaloNoiseGroupArrFCAL = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"FCAL",m_Nsample);
-  m_CoverageHWToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName,m_CoverageBarrelPartitions);
-  m_CoverageHWToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName,m_CoverageEndcapPartitions);
 
-  m_BadChannelToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName,m_Sides);
-  m_BadChannelToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName,m_Sides);
+  m_CoverageToolArrayEMBA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBA",m_availableErrorCodes);
+  m_CoverageToolArrayEMECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECA",m_availableErrorCodes);
+  m_CoverageToolArrayHECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECA",m_availableErrorCodes);
+  m_CoverageToolArrayFCalA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalA",m_availableErrorCodes);
+  m_CoverageToolArrayEMBC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBC",m_availableErrorCodes);
+  m_CoverageToolArrayEMECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECC",m_availableErrorCodes);
+  m_CoverageToolArrayHECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECC",m_availableErrorCodes);
+  m_CoverageToolArrayFCalC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalC",m_availableErrorCodes);
+
+  m_BadChannelToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"Barrel",m_Sides);
+  m_BadChannelToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"EndCap",m_Sides);
 
   /** End Initialize */
   return AthMonitorAlgorithm::initialize();
@@ -129,34 +136,31 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   auto mon_FtSlot = Monitored::Scalar<int>("mon_FtSlot",-1);
   std::vector<LArChanHelp> the_coverageMap(0);
   //Note for when we'll have the proper histogram class: the feedthrough-slot coverage plot must be filled with the latest value, the eta-phi coverage plot must be filled with the maximum value
-  auto mon_coverage = Monitored::Collection("mon_coverage",the_coverageMap,[](const LArChanHelp ch){return ch.getChStatus();});
+  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp ch){return ch.getChFtSlot();});
   auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp ch){return ch.getChNumber();});
   auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp ch){return ch.getChEta();});
-  double deltaPhi=0;
-  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[&deltaPhi](const LArChanHelp ch){return ch.getChPhi()+deltaPhi;});
+  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp ch){return ch.getChPhi();});
 
-  /** lambda functions and arrays for manipulating the_coverageMap when filling the white bins, defined here since they will be called twice */ 
-  auto etaRangeEMB1_lambda = [](const LArChanHelp ch){return !(std::abs(ch.getChEta())<1.4);};
-  const int n_binSteps = 3;
-  int binStepsEM_A[n_binSteps] = {-1,+1,+2};
-  int binStepsEM_C[n_binSteps] = {-2,-1,+1};
-  auto etaRangeEMEC2andHEC_lambda = [](const LArChanHelp ch){return !(std::abs(ch.getChEta())>2.5);};
-  int binStepsHEC = -1;
+  //cutmasks for filling the proper partition
+  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==0);});
+  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==1);});
+  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==2);});
+  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp ch){return (ch.getChSampling()==3);});
 
   /** Coverage map 
    * each line is a FEB, each column a sampling (needed for eta-phi plots): coverageMapHWEMBA[ft*(Nslot)+slot-1][sampling]=channelStatus. 
    * NOTE the -1 with the slot, needed because slots counts from 1 and vectors want 0. 
    * also: GlobalVariables::slotEMBA=[1,14]-->Nslot=14 (index=slot-1 from 0 to 13), while feedthroughEMBS=[0,31]-->Nfeedthrough=32. 
    */
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapEMBA(m_NftEMB*m_NslotEMB,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapEMBC(m_NftEMB*m_NslotEMB,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapEMECA(m_NftEMEC*m_NslotEMEC,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapEMECC(m_NftEMEC*m_NslotEMEC,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapHECA(m_NftHEC*m_NslotHEC,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapHECC(m_NftHEC*m_NslotHEC,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapFCALA(m_NftFCAL*m_NslotFCAL,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
-  std::vector<std::vector<std::vector<LArChanHelp> > > coverageMapFCALC(m_NftFCAL*m_NslotFCAL,std::vector<std::vector<LArChanHelp> >(m_Nsample,std::vector<LArChanHelp>(0)));
+  std::map<std::string,std::map<std::string,std::vector<LArChanHelp> > > coverageMap;
+  for(auto code : m_availableErrorCodes) {
+    for(auto part : m_CoverageBarrelPartitions) coverageMap[code][part] = std::vector<LArChanHelp>(0);
+    for(auto part : m_CoverageEndcapPartitions) coverageMap[code][part] = std::vector<LArChanHelp>(0);
+  }
 
+  /** known problematic FEB array, used to avoid retrieving FEB information for each channel*/
+  std::vector<long> knownDeadFEBs(0);
+  std::vector<long> knownErrorFEBs(0);
 
   /** retrieve det. description manager */
   const CaloDetDescrManager* ddman = nullptr;
@@ -185,6 +189,21 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
     lb1 = (float)GetEventInfo(ctx)->lumiBlock();
     fill(m_CaloNoiseToolGroupName,lb1,lb1_x);
   }
+
+
+  ATH_MSG_DEBUG( "collect known faulty FEBs" );
+  SG::ReadCondHandle<LArBadFebCont> bf{m_BFKey,ctx};
+  const LArBadFebCont* mfCont{*bf};
+  if(!mfCont) ATH_MSG_WARNING( "Do not have Missing FEBs container !!" );
+  else { 
+    for (std::vector<HWIdentifier>::const_iterator allFeb = m_LArOnlineIDHelper->feb_begin();allFeb != m_LArOnlineIDHelper->feb_end(); ++allFeb) {
+      HWIdentifier febid = HWIdentifier(*allFeb);
+      const LArBadFeb febStatus = mfCont->status(febid);
+      if (febStatus.deadAll() || febStatus.deadReadout()) knownDeadFEBs.push_back(febid.get_compact());
+      if(febStatus.inError()) knownErrorFEBs.push_back(febid.get_compact());
+    }
+  }
+
 
   ATH_MSG_DEBUG( "now loop on channels" );
   /** Loop over LArRawChannels */
@@ -241,17 +260,15 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
       }
 
 
-      /*THIS WILL BE MODIFIED ONCE WE HAVE FILL SOLUTION FOR 'SETBINCONTENT' PROBLEM, FROM CENTRAL MONITORING*/
-
       /** Fill Bad Channels histograms  */
       flag = DBflag(id);
       if (flag!=0) {//only fill bad channels
 	std::string the_side= (etaChan >= 0 ? "A" : "C");
 	if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	  mon_FtSlot=ft*m_NftEMB+slot;
+	  mon_FtSlot=ft*m_NslotEMB+slot;
 	  fill(m_tools[m_BadChannelToolArrayBarrel.at(the_side)],mon_FtSlot,single_channel,flag);
 	}else{
-	  mon_FtSlot=ft*m_NftEMEC+slot;
+	  mon_FtSlot=ft*m_NslotEMEC+slot;
 	  fill(m_tools[m_BadChannelToolArrayEndcap.at(the_side)],mon_FtSlot,single_channel,flag);
 	}
       }
@@ -262,8 +279,8 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
     // Compute cells status
     //
 
-    int cellContent = 0;
-    
+    int cellContent = 0;    
+
     /** Cell is connected and in the Readout
      * Select raw channels properly reconstructed, with all calib constants available
      * provenance&0x00ff == 0x00a5 : raw channels from OFC iteration, all calib constants found in DB
@@ -273,540 +290,117 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
       if(m_badChannelMask->cellShouldBeMasked(id)) cellContent=2;
       else if(energyChan != 0) cellContent=3;
-      }
-
-
-    /** Fill Coverage maps */
-    /** A-Side */
-    if(etaChan >= 0){
-      /** EM Barrel */
-      if(m_LArOnlineIDHelper->isEMBchannel(id) ) {
-	int sampling = m_LArEM_IDHelper->sampling(offlineID);
-	coverageMapEMBA[ft*m_NslotEMB+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** EM Endcap */
-      if(m_LArOnlineIDHelper->isEMECchannel(id)) {
-	int sampling = m_LArEM_IDHelper->sampling(offlineID);
-	coverageMapEMECA[ft*m_NslotEMEC+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** HEC */
-      if (m_LArOnlineIDHelper->isHECchannel(id)) {
-	int sampling = m_LArHEC_IDHelper->sampling(offlineID);
-	coverageMapHECA[ft*m_NslotHEC+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** FCAL */
-      if (m_LArOnlineIDHelper->isFCALchannel(id)) {
-	int sampling = m_LArFCAL_IDHelper->module(offlineID); 
-	double etaFCal = m_LArFCAL_IDHelper->eta(offlineID);
-	double phiFCal = m_LArFCAL_IDHelper->phi(offlineID);
-	coverageMapFCALA[ft*m_NslotFCAL+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaFCal,phiFCal));
-      }
-      /** C-Side */
-    }else{
-      /** EM Barrel */
-      if(m_LArOnlineIDHelper->isEMBchannel(id) ) {
-	int sampling = m_LArEM_IDHelper->sampling(offlineID);
-	coverageMapEMBC[ft*m_NslotEMB+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** EM Endcap */
-      if(m_LArOnlineIDHelper->isEMECchannel(id)) {
-	int sampling = m_LArEM_IDHelper->sampling(offlineID);
-	coverageMapEMECC[ft*m_NslotEMEC+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** HEC */
-      if (m_LArOnlineIDHelper->isHECchannel(id)) {
-	int sampling = m_LArHEC_IDHelper->sampling(offlineID);
-	coverageMapHECC[ft*m_NslotHEC+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaChan,phiChan));
-      }
-      /** FCAL */
-      if (m_LArOnlineIDHelper->isFCALchannel(id)) {
-	int sampling = m_LArFCAL_IDHelper->module(offlineID); 
-	double etaFCal = m_LArFCAL_IDHelper->eta(offlineID);
-	double phiFCal = m_LArFCAL_IDHelper->phi(offlineID);
-	coverageMapFCALC[ft*m_NslotFCAL+slot-1][sampling].push_back(LArChanHelp(single_channel,cellContent,etaFCal,phiFCal));
-      }
     }
-  }// end Raw Channels Loop
-  
 
-  /** now correct for missing febs and pass the coverage maps to the fill() method. */
-
-  SG::ReadCondHandle<LArBadFebCont> bf{m_BFKey,ctx};
-  const LArBadFebCont* mfCont{*bf};
-  ATH_MSG_DEBUG( "now check missing FEBS");
-  if(!mfCont) { 
-    ATH_MSG_WARNING( "Do not have Missing FEBs container !!" );
-    /** simply fill in what you have */
-      //EMB
-      for(int i_feb=0;i_feb<m_NftEMB*m_NslotEMB;i_feb++) {
-	mon_FtSlot=i_feb;
-	for(int i_sam=0;i_sam<m_Nsample;i_sam++) {
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMBA[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayBarrel.at("EMBA")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMBA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==1) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMB1_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMB1)*binStepsEM_A[i_step];
-	      fill(m_CoverageHWGroupName+"EMBA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMBC[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayBarrel.at("EMBC")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMBC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==1) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMB1_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMB1)*binStepsEM_C[i_step];
-	      fill(m_CoverageHWGroupName+"EMBC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	}
-      }
-      //EMEC
-      for(int i_feb=0;i_feb<m_NftEMEC*m_NslotEMEC;i_feb++) {
-	mon_FtSlot=i_feb;
-	for(int i_sam=0;i_sam<m_Nsample;i_sam++) {
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMECA[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("EMECA")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==2) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMEC2)*binStepsEM_A[i_step];
-	      fill(m_CoverageHWGroupName+"EMECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMECC[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("EMECC")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==2) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMEC2)*binStepsEM_C[i_step];
-	      fill(m_CoverageHWGroupName+"EMECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	}
-      }
-      //HEC
-      for(int i_feb=0;i_feb<m_NftHEC*m_NslotHEC;i_feb++) {
-	mon_FtSlot=i_feb;
-	for(int i_sam=0;i_sam<m_Nsample;i_sam++) {
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapHECA[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("HECA")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"HECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	  deltaPhi=(2*TMath::Pi()/m_NphiBinsHEC[i_sam])*binStepsHEC;
-	  fill(m_CoverageHWGroupName+"HECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //done filling the white bins
-
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapHECC[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("HECC")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"HECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-//fill in white bins
-	  the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	  deltaPhi=(2*TMath::Pi()/m_NphiBinsHEC[i_sam])*binStepsHEC;
-	  fill(m_CoverageHWGroupName+"HECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //done filling the white bins
-	}
-      }
-      //FCAL
-      for(int i_feb=0;i_feb<m_NftFCAL*m_NslotFCAL;i_feb++) {
-	mon_FtSlot=i_feb;
-	for(int i_sam=1;i_sam<m_Nsample;i_sam++) { //starting from 1 in fcal
-	  the_coverageMap=coverageMapFCALA[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("FCalA")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"FCalA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  the_coverageMap=coverageMapFCALC[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayEndcap.at("FCalC")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"FCalC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	}
-      }
-      return StatusCode::SUCCESS;
-}
-
-  /** since you have the missing FEB information, apply the correction */
-  for (std::vector<HWIdentifier>::const_iterator allFeb = m_LArOnlineIDHelper->feb_begin();allFeb != m_LArOnlineIDHelper->feb_end(); ++allFeb) {
-    HWIdentifier febid = HWIdentifier(*allFeb);
-
-    /**
+    /** Now check if it's known issue 
      * Known missing FEB: set content to 1
      * Known missing FEB but cells actually readout: set content to 4
      * Known FEB with error: set content to 0 (CaloCells not produced)
      */
-
-    int barrel_ec = m_LArOnlineIDHelper->barrel_ec(febid);
-    int pos_neg   = m_LArOnlineIDHelper->pos_neg(febid);
-    int ft        = m_LArOnlineIDHelper->feedthrough(febid);
-    int slot      = m_LArOnlineIDHelper->slot(febid);   
-    const LArBadFeb febStatus = mfCont->status(febid);
-
-    //Barrel
-    if (barrel_ec==0) {
-      int i_feb=ft*m_NslotEMB+slot-1;
-      mon_FtSlot=i_feb;
-
-      // EMBA
-      if (pos_neg==1){
-	//check for replacement
-	int replace=-100;
-	bool isMapEmpty=true;
-	for(uint i_sam=0;i_sam<coverageMapEMBA[i_feb].size();i_sam++) {
-	  if(coverageMapEMBA[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapEMBA[i_feb][i_sam][1]).getChNumber() );
-	    replace = CheckReplacement((coverageMapEMBA[i_feb][i_sam][1]).getChStatus(),febStatus);
-	    isMapEmpty=false;
-	    break;
-	  }
-	}
-	if(isMapEmpty) continue;
-	
-	/** replace content if you have to */
-        bool doReplace=(replace>-100);
-	for(uint i_sam=0;i_sam<coverageMapEMBA[i_feb].size();i_sam++) {
-	  if(doReplace) { 
-	    for (auto chanElement : coverageMapEMBA[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	  }
-	  
-	  /** now that everything is set, fill */
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMBA[i_feb][i_sam];
-	  ATH_MSG_DEBUG( "fill EMBA: i_feb=" << i_feb << " i_sam=" << i_sam << " size="<< the_coverageMap.size());
-	  fill(m_tools[m_CoverageHWToolArrayBarrel.at("EMBA")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMBA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==1) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMB1_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMB1)*binStepsEM_A[i_step];
-	      fill(m_CoverageHWGroupName+"EMBA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	}
-      }
-      
-      // EMBC
-      if (pos_neg==0){
-	
-	//check for replacement
-	int replace=-100;
-	bool isMapEmpty=true;
-	for(uint i_sam=0;i_sam<coverageMapEMBC[i_feb].size();i_sam++) {
-	  if(coverageMapEMBC[i_feb][i_sam].size()>0) {
-	    replace = CheckReplacement((coverageMapEMBC[i_feb][i_sam][1]).getChStatus(),febStatus);
-	    isMapEmpty=false;
-	    break;
-	  }
-	}
-	if(isMapEmpty) continue;
-
-	/** replace content if you have to */
-	bool doReplace=(replace>-100);
-	for(uint i_sam=0;i_sam<coverageMapEMBC[i_feb].size();i_sam++) {
-	  if(doReplace) {
-	    for (auto chanElement : coverageMapEMBC[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	  }
-	  
-	  /** now that everything is set, fill */
-	  the_coverageMap.clear();
-	  the_coverageMap=coverageMapEMBC[i_feb][i_sam];
-	  fill(m_tools[m_CoverageHWToolArrayBarrel.at("EMBC")],mon_Channels,mon_FtSlot,mon_coverage);
-	  deltaPhi=0;
-	  fill(m_CoverageHWGroupName+"EMBC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  //fill in white bins
-	  if(i_sam==1) {
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMB1_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    for(int i_step=0;i_step<n_binSteps;i_step++) {
-	      deltaPhi=(2*TMath::Pi()/m_NphiBinsEMB1)*binStepsEM_C[i_step];
-	      fill(m_CoverageHWGroupName+"EMBC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    }
-	  } //done filling the white bins
-	}
-      }
-    } 
-    //Endcap
-    if (barrel_ec==1) {
-      // First find out if it's EMEC, HEC or FCAL !
-      HWIdentifier test_chid = m_LArOnlineIDHelper->channel_Id(febid,1);
-
-      //EMEC
-      if(m_LArOnlineIDHelper->isEMECchannel(test_chid)) {
-	int i_feb=ft*m_NslotEMEC+slot-1;
-	mon_FtSlot=i_feb;
-
-	// EMECA
-	if (pos_neg==1){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapEMECA[i_feb].size();i_sam++) {
-	    if(coverageMapEMECA[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapEMECA[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapEMECA[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  for(uint i_sam=0;i_sam<coverageMapEMECA[i_feb].size();i_sam++) {
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapEMECA[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    /** now that everything is set, fill */
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapEMECA[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("EMECA")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"EMECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //fill in white bins
-	    if(i_sam==2) {
-	      the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	      for(int i_step=0;i_step<n_binSteps;i_step++) {
-		deltaPhi=(2*TMath::Pi()/m_NphiBinsEMEC2)*binStepsEM_A[i_step];
-		fill(m_CoverageHWGroupName+"EMECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	      }
-	    } //done filling the white bins
-	  }
-	}
-
-	// EMECC
-	if (pos_neg==0){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapEMECC[i_feb].size();i_sam++) {
-	    if(coverageMapEMECC[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapEMECC[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapEMECC[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  for(uint i_sam=0;i_sam<coverageMapEMECC[i_feb].size();i_sam++) {
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapEMECC[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    //now that everything is set, fill
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapEMECC[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("EMECC")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"EMECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //fill in white bins
-	    if(i_sam==2) {
-	      the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	      for(int i_step=0;i_step<n_binSteps;i_step++) {
-		deltaPhi=(2*TMath::Pi()/m_NphiBinsEMEC2)*binStepsEM_C[i_step];
-		fill(m_CoverageHWGroupName+"EMECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	      }
-	    } //done filling the white bins
-	  }
-	}
-      }
-
-      //HEC
-      if(m_LArOnlineIDHelper->isHECchannel(test_chid)){
-	int i_feb=ft*m_NslotHEC+slot-1;
-	mon_FtSlot=i_feb;
-
-	// HECA
-	if (pos_neg==1){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapHECA[i_feb].size();i_sam++) {
-	    if(coverageMapHECA[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapHECA[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapHECA[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  for(uint i_sam=0;i_sam<coverageMapHECA[i_feb].size();i_sam++) {
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapHECA[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    //now that everything is set, fill
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapHECA[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("HECA")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"HECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //fill in white bins
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    deltaPhi=(2*TMath::Pi()/m_NphiBinsHEC[i_sam])*binStepsHEC;
-	    fill(m_CoverageHWGroupName+"HECA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //done filling the white bins
-	  }
-	}
-
-	// HECC
-	if (pos_neg==0){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapHECC[i_feb].size();i_sam++) {
-	    if(coverageMapHECC[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapHECC[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapHECC[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  for(uint i_sam=0;i_sam<coverageMapHECC[i_feb].size();i_sam++) {
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapHECC[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    //now that everything is set, fill
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapHECC[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("HECC")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"HECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //fill in white bins
-	    the_coverageMap.erase(std::remove_if(the_coverageMap.begin(),the_coverageMap.end(),etaRangeEMEC2andHEC_lambda),the_coverageMap.end()); //remove eta region which doesn't need additional fill
-	    deltaPhi=(2*TMath::Pi()/m_NphiBinsHEC[i_sam])*binStepsHEC;
-	    fill(m_CoverageHWGroupName+"HECC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	    //done filling the white bins
-	  }
-	}
-      }
-
-      //FCAL
-      if(m_LArOnlineIDHelper->isFCALchannel(test_chid)){ 
-	int i_feb=ft*m_NslotFCAL+slot-1;
-	mon_FtSlot=i_feb;
-
-	// FCALA
-	if (pos_neg==1){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapFCALA[i_feb].size();i_sam++) {
-	    if(coverageMapFCALA[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapFCALA[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapFCALA[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  for(uint i_sam=1;i_sam<coverageMapFCALA[i_feb].size();i_sam++) { //starting from 1 in FCal
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapFCALA[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    //now that everything is set, fill
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapFCALA[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("FCalA")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"FCalA"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  }
-	}
-
-	// FCALC
-	if (pos_neg==0){
-	  
-	  //check for replacement
-	  int replace=-100;
-	  bool isMapEmpty=true;
-	  for(uint i_sam=0;i_sam<coverageMapFCALC[i_feb].size();i_sam++) {
-	    if(coverageMapFCALC[i_feb][i_sam].size()>0) {
-	      ATH_MSG_DEBUG( "Feedthrough=" << ft << ", Slot=" << slot << ". Channel checked for replacement: " << (coverageMapFCALC[i_feb][i_sam][1]).getChNumber() );
-	      replace = CheckReplacement((coverageMapFCALC[i_feb][i_sam][1]).getChStatus(),febStatus);
-	      isMapEmpty=false;
-	      break;
-	    }
-	  }
-	  if(isMapEmpty) continue;
-
-	  /** replace content if you have to */
-	  bool doReplace=(replace>-100);
-	  //set content
-	  for(uint i_sam=1;i_sam<coverageMapFCALC[i_feb].size();i_sam++) { //starting from 1 in fcal
-	    if(doReplace) {
-	      for (auto chanElement : coverageMapFCALC[i_feb][i_sam]) chanElement.setChanStatus(replace); //no need to check if connected, since channels not connected are not saved in the map in the first place
-	    }
-	    
-	    //now that everything is set, fill
-	    the_coverageMap.clear();
-	    the_coverageMap=coverageMapFCALC[i_feb][i_sam];
-	    fill(m_tools[m_CoverageHWToolArrayEndcap.at("FCalC")],mon_Channels,mon_FtSlot,mon_coverage);
-	    deltaPhi=0;
-	    fill(m_CoverageHWGroupName+"FCalC"+std::to_string(i_sam),mon_Eta,mon_Phi,mon_coverage);
-	  }
-	}
-      }
+    if(knownDeadFEBs.size()>0 && std::find(knownDeadFEBs.begin(), knownDeadFEBs.end(), febID.get_compact())!=knownDeadFEBs.end()) {
+      if(cellContent==0) cellContent=1;
+      else cellContent=4;
     }
-  }// end of FEB loop
+    if(knownErrorFEBs.size()>0 && std::find(knownErrorFEBs.begin(), knownErrorFEBs.end(), febID.get_compact())!=knownErrorFEBs.end())cellContent=1;
+
+    std::string cellStatusCode=Form("%d",cellContent);
+    /** Fill Coverage maps */
+    if(std::find(m_availableErrorCodes.begin(),m_availableErrorCodes.end(),cellStatusCode)!=m_availableErrorCodes.end()) {
+      std::string part;
+      int sampling=-1;
+      int i_ftslot=-1;
+      double etaFCal=0.;
+      double phiFCal=0.;
+      //set the variables for partition, sampling etc.
+
+      /** EM Barrel */
+      if(m_LArOnlineIDHelper->isEMBchannel(id) ) {
+	part="EMB";
+	sampling = m_LArEM_IDHelper->sampling(offlineID);
+	i_ftslot=ft*m_NslotEMB+slot-1;
+      }
+      /** EM Endcap */
+      if(m_LArOnlineIDHelper->isEMECchannel(id)) {
+	part="EMEC";
+	sampling = m_LArEM_IDHelper->sampling(offlineID);
+	i_ftslot=ft*m_NslotEMEC+slot-1;
+      }
+      /** HEC */
+      if (m_LArOnlineIDHelper->isHECchannel(id)) {
+	part="HEC";
+	sampling = m_LArHEC_IDHelper->sampling(offlineID);
+	i_ftslot=ft*m_NslotHEC+slot-1;
+      }
+      /** FCAL */
+      if (m_LArOnlineIDHelper->isFCALchannel(id)) {
+	part="FCal";
+	sampling = m_LArFCAL_IDHelper->module(offlineID); 
+	i_ftslot=ft*m_NslotFCAL+slot-1;
+	etaFCal = m_LArFCAL_IDHelper->eta(offlineID);
+	phiFCal = m_LArFCAL_IDHelper->phi(offlineID);
+      }
+
+      //set A-C side
+      if(etaChan >= 0) part+="A";
+      else part+="C";
+      
+      if(part.find("FCal") != std::string::npos) coverageMap[cellStatusCode][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaFCal,phiFCal));
+      else coverageMap[cellStatusCode][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaChan,phiChan));
+    }//end of 'if cellContent in availableErrors'
+  }// end Raw Channels Loop
+
+
+  /** now fill the plots */  
+
+  ATH_MSG_DEBUG( "now fill coverage plots");
+
+  for (auto chanStatusCode : m_availableErrorCodes) {
+    //EMBA
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["EMBA"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMBA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    //EMBC
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["EMBC"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMBC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+  
+    //EMECA
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["EMECA"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMECA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+
+    //EMECC
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["EMECC"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMECC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+
+    //HECA
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["HECA"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayHECA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+
+    //HECC
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["HECC"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayHECC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    
+    //FCalA
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["FCalA"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayFCalA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+
+    //FCalC
+    the_coverageMap.clear();
+    the_coverageMap=coverageMap[chanStatusCode]["FCalC"];
+    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayFCalC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+
+  }
 
   return StatusCode::SUCCESS; 
 }
 
 
-/*---------------------------------------------------------*/
-int LArCoverageAlg::CheckReplacement(int content,LArBadFeb febStatus) const
-{
-  /** check if this FEB needs replacement */
-  int replace=-100;
-  if (febStatus.deadAll() || febStatus.deadReadout()) {
-    if(content==0 || content==1) replace=1;
-    else replace=4;
-  }
-  if(febStatus.inError()) {
-    replace=1;
-  }
-  return replace;
-}
+
 
 /*---------------------------------------------------------*/
 int LArCoverageAlg::DBflag(HWIdentifier onID) const

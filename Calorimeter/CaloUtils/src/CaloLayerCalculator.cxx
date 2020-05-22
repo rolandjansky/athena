@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloLayerCalculator.cxx,v 1.1 2006-03-20 17:42:26 ssnyder Exp $
@@ -14,7 +14,6 @@
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloEvent/CaloCellContainer.h"
-
 
 /**
  * @brief Default constructor.
@@ -45,7 +44,8 @@ CaloLayerCalculator::CaloLayerCalculator()
  * to the cluster @c tofill.
  */
 StatusCode
-CaloLayerCalculator::fill (const CaloCellContainer* cell_container,
+CaloLayerCalculator::fill (const CaloDetDescrManager& mgr,
+                           const CaloCellContainer* cell_container,
                            double eta,
                            double phi,
                            double deta,
@@ -63,13 +63,26 @@ CaloLayerCalculator::fill (const CaloCellContainer* cell_container,
   }
 
   CaloCellList cell_list(cell_container); 
-  cell_list.select(eta,phi,deta,dphi,sampling);
+  cell_list.select(mgr,eta,phi,deta,dphi,sampling);
 
   fill (cell_list.begin(),
         cell_list.end(),
         eta, phi, deta, dphi, sampling, tofill);
 
   return StatusCode::SUCCESS;
+}
+
+StatusCode
+CaloLayerCalculator::fill (const CaloCellContainer* cell_container,
+                           double eta,
+                           double phi,
+                           double deta,
+                           double dphi,
+                           CaloSampling::CaloSample sampling,
+                           xAOD::CaloCluster* tofill /*= 0*/)
+{
+const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
+return fill(*mgr, cell_container, eta, phi, deta, dphi, sampling, tofill);
 }
 
 

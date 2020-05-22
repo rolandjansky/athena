@@ -6,6 +6,8 @@ from AthenaCommon.CFElements import parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
@@ -13,9 +15,9 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     verticesname = ""
 
     if trkopt=="ftf":
-        from TrigInDetConfig.InDetSetup import makeInDetAlgs
+        from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
         # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgs( "JetFS", "_FS", rois=RoIs )
+        viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=RoIs )
         jetTrkSeq += viewAlgs
         tracksname = recordable("HLT_IDTrack_FS_FTF")
         verticesname = recordable("HLT_EFHistoPrmVtx")
@@ -37,22 +39,21 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         trackcollectionmap[trkopt] = trkcolls
 
     # Jet track selection
-    jettrackselloose = getTrackSelTool(trkopt)
+    jettrackselloose = getTrackSelTool(trkopt,doWriteTracks=True)
     jettracksname = jettrackselloose.OutputContainer
     jettvassoc = getTrackVertexAssocTool(trkopt)
 
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
     trackcollectionmap[trkopt]["TVA"] = tvaname
 
-    from JetRec import JetRecConf
-    jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+    jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
-    jetTrkSeq += jettrkprepalg
+    jetTrkSeq += conf2toConfigurable( jettrkprepalg )
 
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
-    pjg = JetRecConf.PseudoJetGetter("pjg_{}".format(label),
-                                     InputContainer=tracksname,                                     
+    pjg = CompFactory.PseudoJetGetter("pjg_{}".format(label),
+                                     InputContainer=tracksname,
                                      OutputContainer=ghosttracksname,
                                      Label=label,
                                      SkipNegativeEnergy=True,
@@ -61,10 +62,10 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     trackcollectionmap[trkopt]["GhostTracks"] = ghosttracksname
     trackcollectionmap[trkopt]["GhostTracksLabel"] = label
 
-    pjgalg = JetRecConf.PseudoJetAlgorithm(
+    pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+label,
         PJGetter=pjg
         )
-    jetTrkSeq += pjgalg
+    jetTrkSeq += conf2toConfigurable( pjgalg )
 
     return jetTrkSeq, trkcolls

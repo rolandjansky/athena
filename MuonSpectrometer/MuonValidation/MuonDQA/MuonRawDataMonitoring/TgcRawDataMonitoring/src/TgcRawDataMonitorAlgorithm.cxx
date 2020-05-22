@@ -3,8 +3,8 @@
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
+
 #include "TObjArray.h"
-#include <memory>
 
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -12,10 +12,9 @@ TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name,
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::initialize() {
-
-  ATH_CHECK(m_MuonIdHelperTool.retrieve());
+  ATH_CHECK(AthMonitorAlgorithm::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_extrapolator.retrieve()); 
-
   ATH_CHECK(m_MuonContainerKey.initialize());
   ATH_CHECK(m_MuonRoIContainerKey.initialize());
   ATH_CHECK(m_TgcPrepDataContainerKey.initialize());
@@ -49,7 +48,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     m_trigTagDefs.push_back(def);
   }
   
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
@@ -189,7 +188,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       mymuon.probeOK_any = true;
       if( mymuon.muon->charge() == mu2.muon->charge() )continue;
       double dimuon_mass = (mu2.fourvec + mymuon.fourvec).M();
-      if( TMath::Abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
+      if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
       mymuon.probeOK_Z = true;
       break;
     }
@@ -197,10 +196,10 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   
   auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
   auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
-  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
-  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())>1.05&&TMath::Abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
-  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
-  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())>1.05&&TMath::Abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
+  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
+  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
+  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
+  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
   auto muon_l1passThr1 = Monitored::Collection("muon_l1passThr1",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(1)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr1);
   auto muon_l1passThr2 = Monitored::Collection("muon_l1passThr2",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(2)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr2);
   auto muon_l1passThr3 = Monitored::Collection("muon_l1passThr3",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(3)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr3);
@@ -230,7 +229,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     ATH_MSG_ERROR("evtStore() does not contain TgcPrepDataContainer with name "<< m_TgcPrepDataContainerKey);
     return StatusCode::FAILURE;
   }
-  const TgcIdHelper& tgcIdHelper = m_MuonIdHelperTool->tgcIdHelper();
+  const TgcIdHelper& tgcIdHelper = m_idHelperSvc->tgcIdHelper();
   std::vector<TgcHit> tgcHits;
   for(auto tgccnt : *tgcPrd){
     for(auto data : *tgccnt){
@@ -378,7 +377,7 @@ void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon* muon, MyMuon& mym
     Amg::Vector3D mom(0,0,0);
     Amg::Vector3D extrapolateTo(0, 0, z);
     if( extrapolate(track,extrapolateTo,TGC, etaDeta, phiDphi, mom) ){
-      double pt = extrapolateTo.z() / TMath::SinH(etaDeta[0]);
+      double pt = extrapolateTo.z() / std::sinh(etaDeta[0]);
       TVector3 vec,pos;
       pos.SetPtEtaPhi(pt,etaDeta[0],phiDphi[0]);
       vec.SetXYZ(mom.x(),mom.y(),mom.z());
@@ -470,7 +469,7 @@ TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface* tso
   }
   double targetZ = pos.z();
   double trackZ = track->position().z();
-  if (fabs(trackZ)<fabs(targetZ)-2000. || fabs(trackZ)>fabs(targetZ)+2000.){
+  if (std::abs(trackZ)<std::abs(targetZ)-2000. || std::abs(trackZ)>std::abs(targetZ)+2000.){
     return 0;
   }
   Amg::Transform3D* matrix = new Amg::Transform3D;
@@ -485,7 +484,7 @@ TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface* tso
     return 0;
   }
   distance[0] = trackZ;
-  distance[1] = fabs(trackZ - targetZ);
+  distance[1] = std::abs(trackZ - targetZ);
   const bool boundaryCheck = true;
   const Trk::Surface* surface = disc;
   const Trk::TrackParameters* param = m_extrapolator->extrapolate(*track,
@@ -556,7 +555,7 @@ TgcRawDataMonitorAlgorithm::getError(const std::vector<double>& inputVec) const
   double sum = 0;
   double sum2 = 0;
   for (int ii = 0; ii < nSize; ii++) {
-    sum = sum + inputVec.at(ii);
+    sum += inputVec.at(ii);
   }
   const double mean = sum/nSize;
   for(int jj = 0; jj < nSize; jj++){

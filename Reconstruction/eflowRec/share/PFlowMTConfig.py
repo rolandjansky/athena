@@ -246,6 +246,9 @@ if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
    PFONeutralCreatorAlgorithm.EOverPMode=True
 
+if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
+    PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
+
 topSequence += PFONeutralCreatorAlgorithm
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:

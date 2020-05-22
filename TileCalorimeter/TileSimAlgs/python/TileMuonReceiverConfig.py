@@ -24,7 +24,7 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
     infoLoader = acc.getService('TileInfoLoader')
-    pedestal = infoLoader.getDefaultProperty('MuRcvPed')
+    pedestal = infoLoader._descriptors['MuRcvPed'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -144,8 +144,8 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))

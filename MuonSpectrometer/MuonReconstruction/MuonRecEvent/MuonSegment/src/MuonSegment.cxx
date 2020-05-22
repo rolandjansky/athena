@@ -147,7 +147,9 @@ MsgStream& MuonSegment::dump( MsgStream& out ) const
     unsigned int numRoT=1;
     for (const Trk::MeasurementBase* m : containedMeasurements()) {
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
-      out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      if (rot) {
+        out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      }
     }
     return out;
 }  
@@ -170,7 +172,9 @@ std::ostream& MuonSegment::dump( std::ostream& out ) const
     unsigned int numRoT=1;
     for (const Trk::MeasurementBase* m : containedMeasurements()) {
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
-      out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      if (rot) {
+        out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      }
     }
     return out;
 }

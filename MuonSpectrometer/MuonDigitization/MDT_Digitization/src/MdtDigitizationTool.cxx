@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 
 //Random Numbers
 #include "AthenaKernel/RNGWrapper.h"
@@ -184,7 +184,7 @@ StatusCode MdtDigitizationTool::initialize() {
 }
 
 
-StatusCode MdtDigitizationTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MdtDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
   
   ATH_MSG_DEBUG("MdtDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
 
@@ -237,7 +237,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing,
 }
 
 
-StatusCode MdtDigitizationTool::getNextEvent()
+StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx)
 {
   
   ATH_MSG_DEBUG ( "MdtDigitizationTool::getNextEvent()" );
@@ -250,7 +250,7 @@ StatusCode MdtDigitizationTool::getNextEvent()
   
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<MDTSimHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<MDTSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get MDTSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -294,29 +294,29 @@ StatusCode MdtDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-CLHEP::HepRandomEngine* MdtDigitizationTool::getRandomEngine(const std::string& streamName) const
+CLHEP::HepRandomEngine* MdtDigitizationTool::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
 {
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
   std::string rngName = name()+streamName;
-  rngWrapper->setSeed( rngName, Gaudi::Hive::currentContext() );
-  return *rngWrapper;
+  rngWrapper->setSeed( rngName, ctx );
+  return rngWrapper->getEngine(ctx);
 }
 
-StatusCode MdtDigitizationTool::mergeEvent() {
+StatusCode MdtDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "MdtDigitizationTool::in mergeEvent()" );
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
+  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG("Recorded MuonSimDataCollection called " << sdoContainer.name() << " in store " << sdoContainer.store());
 
-  StatusCode status = doDigitization(digitContainer.ptr(), sdoContainer.ptr());
+  StatusCode status = doDigitization(ctx, digitContainer.ptr(), sdoContainer.ptr());
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
@@ -334,45 +334,45 @@ StatusCode MdtDigitizationTool::mergeEvent() {
 }
 
 
-StatusCode MdtDigitizationTool::processAllSubEvents() {
+StatusCode MdtDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "MdtDigitizationTool::processAllSubEvents()" );
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
+  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG("Recorded MuonSimDataCollection called " << sdoContainer.name() << " in store " << sdoContainer.store());
 
   StatusCode status = StatusCode::SUCCESS;
   if (0 == m_thpcMDT ) {
-    status = getNextEvent();
+    status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no MDT hits in this event" );
       return status;
     }
   }
 
-  ATH_CHECK(doDigitization(digitContainer.ptr(), sdoContainer.ptr()));
+  ATH_CHECK(doDigitization(ctx, digitContainer.ptr(), sdoContainer.ptr()));
 
   return status;
 }
 
 
-StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
+StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
   // Set the RNGs to use for this event.
-  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin");
-  CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name());
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("", ctx);
+  CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin", ctx);
+  CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name(), ctx);
 
 
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
-    SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
+    SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey, ctx};
     const MdtCondDbData* readCdo{*readHandle};
     m_IdentifiersToMask.clear();
     int size_id = readCdo->getDeadStationsId().size();
@@ -503,8 +503,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
   if(m_DoQballCharge == true ) {
     // chargeCalculator returns the value of electric charge for Qball particle.
     // particleGamma returns the value of gamma for Qball particle.
-    qgamma=particleGamma(hit);
-    qcharge=chargeCalculator(hit); 
+    qgamma=particleGamma(hit, phit.eventId());
+    qcharge=chargeCalculator(hit, phit.eventId()); 
     
     MdtDigiToolInput digiInput1(fabs(driftRadius),distRO,0.,0.,qcharge,qgamma); 
     digiInput = digiInput1;
@@ -903,7 +903,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
 
       //Create the Deposit for MuonSimData
-      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag), MuonMCData((float)driftRadius,localZPos));
 
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;

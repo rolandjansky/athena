@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkTrack/Track.h"
@@ -34,7 +34,8 @@ Trk::Track::Track ():
   m_fitQuality(nullptr),
   m_trackSummary(nullptr)
 {
-  if (debug) std::cout<<"Trk::Track Ctor 1 :"<<this<<std::endl;
+  if (debug) { std::cout<<"Trk::Track Ctor 1 :"<<this<<std::endl;
+}
 
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Track, so increment total count
@@ -53,7 +54,8 @@ Trk::Track::Track( const TrackInfo& info,
   m_trackSummary(nullptr),
   m_trackInfo( info )
 {
-  if (debug) std::cout<<"Trk::Track Ctor 2 :"<<this<<std::endl;
+  if (debug) { std::cout<<"Trk::Track Ctor 2 :"<<this<<std::endl;
+}
   //find the Perigee params they will become valid given the outcome
   findPerigeeImpl();
 #ifndef NDEBUG
@@ -71,7 +73,8 @@ Trk::Track::Track (const Track& rhs):
   m_fitQuality(nullptr),
   m_trackSummary(nullptr)
 {
-  if (debug) std::cout<<"Trk::Track Ctor 3 :"<<this<<std::endl;
+  if (debug) { std::cout<<"Trk::Track Ctor 3 :"<<this<<std::endl;
+}
   using namespace Trk;
 
   // check that not copying itself
@@ -146,7 +149,8 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
 
 Trk::Track::~Track()
 {
-  if (debug) std::cout<<"Trk::Track dtor :"<<this<<std::endl;
+  if (debug) { std::cout<<"Trk::Track dtor :"<<this<<std::endl;
+}
   delete m_fitQuality;
   delete m_trackSummary;
   //the following is DataVectors and so delete the contained objects automatically.
@@ -212,7 +216,19 @@ void Trk::Track::findPerigeeImpl() const
   if (tmpPerigeeParameters) {
     m_perigeeParameters.set(tmpPerigeeParameters);
   }
+}
+
+const Trk::Perigee*
+Trk::Track::perigeeParameters() const
+{
+  if (!m_perigeeParameters.isValid()) {
+    // findPerigee performs the setting of the parameters
+    // i.e does the CachedValue set
+    findPerigeeImpl();
   }
+  // Here the cached value type is a pointer
+  return *(m_perigeeParameters.ptr());
+}
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
 {
@@ -232,7 +248,8 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
       {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
         // does it have a measurement ?
-        if (rot!=nullptr) tmpMeasurementVector.push_back( rot );
+        if (rot!=nullptr) { tmpMeasurementVector.push_back( rot );
+}
       }
     }
     m_cachedMeasurementVector.set(std::move(tmpMeasurementVector));
@@ -261,12 +278,33 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() cons
   return m_cachedOutlierVector.ptr();
 }
 
-void Trk::Track::reset(){
+void Trk::Track::setTrackStateOnSurfaces(DataVector<const Trk::TrackStateOnSurface>* input)
+{
+  delete m_trackStateVector;  // delete existing
+  m_trackStateVector = input; // add new
+  reset();                    // reset caches
+}
+
+void Trk::Track::setInfo(const TrackInfo& input)
+{
+  m_trackInfo = input;
+}
+
+void Trk::Track::setTrackSummary(Trk::TrackSummary* input)
+{
+  delete m_trackSummary;  // delete existing
+  m_trackSummary = input; // add new
+}
+
+void Trk::Track::reset()
+{
   m_cachedParameterVector.reset();
   m_cachedMeasurementVector.reset();
   m_cachedOutlierVector.reset();
   m_perigeeParameters.reset();
 }
+
+
 
 unsigned int Trk::Track::numberOfInstantiations() 
 {
@@ -284,9 +322,11 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
 { 
   std::string name("Track ");
   sl <<name<<"Author = "<<track.info().dumpInfo()<<endmsg;
-  if (track.fitQuality()!=nullptr) sl << *(track.fitQuality() )<<endmsg;
-  if (track.trackSummary()!=nullptr) sl << *(track.trackSummary())<<endmsg;
-  else sl << "No TrackSummary available in this track."<<endmsg;
+  if (track.fitQuality()!=nullptr) { sl << *(track.fitQuality() )<<endmsg;
+}
+  if (track.trackSummary()!=nullptr) { sl << *(track.trackSummary())<<endmsg;
+  } else { sl << "No TrackSummary available in this track."<<endmsg;
+}
   if (track.trackStateOnSurfaces() !=nullptr)
   { 
     sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endmsg;
@@ -313,9 +353,11 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::Track& track)
 {
   std::string name("Track ");
   sl <<name<<"Author = "<<track.info().dumpInfo()<<std::endl;
-  if (track.fitQuality()!=nullptr) sl << *(track.fitQuality() )<<std::endl;
-  if (track.trackSummary()!=nullptr) sl << *(track.trackSummary())<<std::endl;
-  else sl << "No TrackSummary available in this track."<<std::endl;
+  if (track.fitQuality()!=nullptr) { sl << *(track.fitQuality() )<<std::endl;
+}
+  if (track.trackSummary()!=nullptr) { sl << *(track.trackSummary())<<std::endl;
+  } else { sl << "No TrackSummary available in this track."<<std::endl;
+}
 
   if (track.trackStateOnSurfaces() !=nullptr)
   { 

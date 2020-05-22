@@ -3,7 +3,7 @@
 */
 
 #include "TruthHelper/IsLastPhysicalHadron.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsPhysicalHadron.h"

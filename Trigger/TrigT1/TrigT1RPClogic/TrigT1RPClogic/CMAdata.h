@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMADATA_H
@@ -16,6 +16,7 @@
 
 #ifndef LVL1_STANDALONE
 #include "RPCcablingInterface/IRPCcablingSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 #endif
 
 
@@ -39,9 +40,10 @@ class CMAdata : public BaseObject
     CMAdata(unsigned long int);
     
 #ifdef LVL1_STANDALONE
-    CMAdata(const RPCdata*);
+    CMAdata(const RPCdata* rpcData);
 #else
-    CMAdata(const RPCdata*,const IRPCcablingSvc*,unsigned long int);
+    CMAdata(const RPCdata* rpcData,const IRPCcablingSvc* rpcCabling, const unsigned long int debug);
+    CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug);
 #endif
     CMAdata(const CMAdata&);
     ~CMAdata();
@@ -62,23 +64,5 @@ class CMAdata : public BaseObject
     void PrintElement(std::ostream&,std::string,bool) const;
     void Print(std::ostream&,bool) const;
 };
-/*
-template <class X> X& operator<<(X& stream,const CMAdata& data)
-{
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000000];
-    for (int i=0;i<5000000;++i) buffer[i] = '\0';
-    __osstream display(buffer,5000000);
-#endif
-
-    data.Print(display,false);
-    stream << display.str();
-    return stream;
-}
-*/
 
 #endif

@@ -1,11 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//*****************************************************************************************8
-//******************************************************************************************
-//RpcCoolStrSvc.cxx
-//******************************************************************************************
 //Service designed to read in calibration files to the cool database. Can also read them
 //back out again to check.
 // author lampen@physics.arizona.edu
@@ -23,29 +19,17 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
-
-// temporary includes to access CLOBs
-//#include "CoolKernel/ExtendedAttributeListSpecification.h"
-//#include "CoolKernel/PredefinedStorageHints.h"
-
-//Calibration data containers
 #include "MuonCondData/RpcCalibData.h"
 #include "MuonCondData/RpcCalibDBEntry.h"
 #include "MuonCondData/RpcCalibDataContainer.h"
-
-
-// root class for string manipulation 
-//#include "TString.h"
-
 #include "MuonCondSvc/RpcCoolStrSvc.h"
 
-using namespace std;
 namespace MuonCalib {
 
   //actually the number strip hash id numbers.
   //Half are for potential upgrade.
   
-  RpcCoolStrSvc::RpcCoolStrSvc(const string& name, ISvcLocator* svc) :
+  RpcCoolStrSvc::RpcCoolStrSvc(const std::string& name, ISvcLocator* svc) :
     AthService(name,svc),
     p_detstore(0),
     m_log(msgSvc(),name),  
@@ -129,18 +113,18 @@ namespace MuonCalib {
     m_log << MSG::INFO << "Opening the online mask file " << filename << " for entry into COOL database." << endmsg;
     
     //open file
-    ifstream in(filename.c_str());       
+    std::ifstream in(filename.c_str());       
     if(!in.is_open())
       {
 	m_log << MSG::ERROR << "Can't open online mask file " << filename << "!" << endmsg;
 	return StatusCode::FAILURE;
       }	
 
-    string theLine;
+    std::string theLine;
 
     while (getline(in, theLine)) { // Reads all lines
 
-      istringstream line_str;
+      std::istringstream line_str;
 
       line_str.str(theLine);
 
@@ -149,8 +133,6 @@ namespace MuonCalib {
       line_str>>std::oct>>id>>std::hex>>mask1>>std::hex>>mask2>>std::hex>>mask3;
 
       const RpcOnlineDBEntry* newEntry=new RpcOnlineDBEntry(id, mask1,mask2,mask3);
-
-      std::cout<<" created entry with id "<<std::oct<<id<<std::dec<<" " <<id<<std::endl;
 
       m_theOnlineEntries.push_back(newEntry);
 
@@ -176,22 +158,20 @@ namespace MuonCalib {
     m_log << MSG::INFO << "Opening the calibration file " << filename << " for entry into COOL database." << endmsg;
     
     //open file
-    ifstream in(filename.c_str());       
+    std::ifstream in(filename.c_str());       
     if(!in.is_open())
       {
 	m_log << MSG::ERROR << "Can't open calibration file " << filename << "!" << endmsg;
 	return StatusCode::FAILURE;
       }	
 
-    string theLine;
+    std::string theLine;
 
     while (getline(in, theLine)) { // Reads all lines
 
-      //      std::cout<<" new line "<<theLine<< "*** "<<std::endl;
-
       int delimiter=theLine.find(";");
       Identifier gapID(atoi(theLine.substr(0,delimiter).c_str()));
-      string payLoad=theLine.substr(delimiter+2,theLine.size()-delimiter-2);
+      std::string payLoad=theLine.substr(delimiter+2,theLine.size()-delimiter-2);
 
 
       const RpcCalibDBEntry* newEntry=new RpcCalibDBEntry(gapID, payLoad);
@@ -209,8 +189,6 @@ namespace MuonCalib {
 
 
   StatusCode RpcCoolStrSvc::writeToOnlineDB() const{
-
-    //    std::cout<<"folder is "<<m_folder<<std::endl;
 
     CondAttrListCollection* atrc=0;
     if (!p_detstore->contains<CondAttrListCollection>(m_folder)) {
@@ -237,8 +215,7 @@ namespace MuonCalib {
 
     atrc=const_cast<CondAttrListCollection*>(catrc);
     if (atrc==0) {
-      m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-	endmsg;
+      m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -250,19 +227,12 @@ namespace MuonCalib {
     aspec->extend("Mask2","string");
     aspec->extend("Mask3","string");
 
-    //    std::cout<<" *********** about to loop on "<<m_theOnlineEntries.size()<<" entries"<<std::endl;
-
-
     for(unsigned int k=0;k<m_theOnlineEntries.size();k++){
 
-      std::cout<<"                k is "<<k<<std::endl;
-
-      string mask1,mask2,mask3;
+      std::string mask1,mask2,mask3;
 
       m_theOnlineEntries[k]->getColumns(mask1,mask2,mask3);
       
-      //      std::cout<<" going to write these values "<<mask1<< " " <<mask2<< " "<<mask3<<std::endl;
-
       AthenaAttributeList alist(*aspec);
       
       alist["Mask1"].setValue(mask1);
@@ -271,8 +241,6 @@ namespace MuonCalib {
       
 
     CondAttrListCollection::ChanNum channum=m_theOnlineEntries[k]->getID();
-
-    //    std::cout<<"****** "<<std::oct<<channum<< " " <<m_theOnlineEntries[k]->getID()<<std::dec<<std::endl;
 
     m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
     atrc->add(channum,alist);
@@ -339,7 +307,7 @@ namespace MuonCalib {
     for(unsigned int k=0;k<m_theEntries.size();k++){
 
 
-      string recEta, detEta,recPhi1,recPhi2,detPhi1,detPhi2;
+      std::string recEta, detEta,recPhi1,recPhi2,detPhi1,detPhi2;
 
 
       m_theEntries[k]->getColumns(recEta,detEta,recPhi1,recPhi2,detPhi1,detPhi2);
@@ -355,7 +323,6 @@ namespace MuonCalib {
    
       //Changed by Caleb Lampen <lampen@physics.arizona.edu> on Aug 4, 2009. 
       CondAttrListCollection::ChanNum channum = (m_theEntries[k]->getGapID()).get_identifier32().get_compact();
-      //   std::cout << "About to add channel " << channum << " "<< m_theEntries[k]->getGapID()<< " "<<std::endl;
 
       m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
       atrc->add(channum,alist);
@@ -373,10 +340,10 @@ namespace MuonCalib {
     
   }
   
-  StatusCode RpcCoolStrSvc::makeOnlineFile(const string fileName) const{
+  StatusCode RpcCoolStrSvc::makeOnlineFile(const std::string fileName) const{
     
         m_log << MSG::INFO << "Opening online mask output file "<< fileName << " for writing." << endmsg;
-        ofstream out(fileName.c_str());
+        std::ofstream out(fileName.c_str());
         if(!out.is_open())
         {
             m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endmsg;
@@ -389,9 +356,6 @@ namespace MuonCalib {
 	  m_log << MSG::ERROR << "can't find data for folder " << m_folder << endmsg;
 	  return StatusCode::FAILURE;
 	}
-
-
-	//	std::cout<<"found collection with size "<<atrc->size()<<std::endl;
 
 	CondAttrListCollection::const_iterator itr=atrc->begin();
 
@@ -416,11 +380,11 @@ namespace MuonCalib {
 
 
   /**Generate a calibration file*/
-  StatusCode RpcCoolStrSvc::makeFile(const string fileName) const
+  StatusCode RpcCoolStrSvc::makeFile(const std::string fileName) const
   {
 
         m_log << MSG::INFO << "Opening calibration output file "<< fileName << " for writing." << endmsg;
-        ofstream out(fileName.c_str());
+        std::ofstream out(fileName.c_str());
         if(!out.is_open())
         {
             m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endmsg;
@@ -447,7 +411,6 @@ namespace MuonCalib {
 
 
 	}
-
         out.close();
         return StatusCode::SUCCESS;	
     }		

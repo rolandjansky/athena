@@ -10,12 +10,12 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkValTools/InDetReconstructableSelector.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 Trk::InDetReconstructableSelector::InDetReconstructableSelector(const std::string& type, const std::string& name,
@@ -88,10 +88,6 @@ Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* Sim
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
-//    HepGeom::Point3D<double>  startVertex(particle->production_vertex()->point3d().x(),
-//                             particle->production_vertex()->point3d().y(),
-//                             particle->production_vertex()->point3d().z());
-//     if ( fabs(startVertex.perp()) > m_maxRStartPrimary || fabs(startVertex.z()) > m_maxZStartPrimary) continue;
       if(particle->production_vertex() == NULL) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
         ATH_MSG_DEBUG   ("It's this one: " << *particle);
@@ -99,13 +95,13 @@ Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* Sim
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->point3d().z())    > m_maxZStartAll ) continue;
+        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         // 3) if jobOption, require strict definition of particles from within beam pipe
         if ( m_selectPrimariesOnly && 
-             ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartPrimary ||
-               fabs(particle->production_vertex()->point3d().z())    > m_maxZStartPrimary ) ) continue;
+             ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartPrimary ||
+               fabs(particle->production_vertex()->position().z())    > m_maxZStartPrimary ) ) continue;
 
         int   pdgCode         = particle->pdg_id();
         if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions

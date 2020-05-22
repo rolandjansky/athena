@@ -4,6 +4,8 @@
 #ifndef SimpleMMClusterBuilderTool_h
 #define SimpleMMClusterBuilderTool_h
 
+#include <vector>
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -40,6 +42,9 @@ namespace Muon
   private: 
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    
+    bool m_useErrorParametrization;
+    uint m_maxHoleSize;
     
 };
 

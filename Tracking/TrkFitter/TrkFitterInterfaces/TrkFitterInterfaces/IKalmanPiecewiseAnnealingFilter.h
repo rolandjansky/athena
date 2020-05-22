@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace Trk
                                            const IUpdator*,
                                            const IMeasurementRecalibrator*,
                                            const ProtoTrajectoryUtility*,
-                                           const IDynamicNoiseAdjustor* = 0 ) = 0;
+                                           const IDynamicNoiseAdjustor* = nullptr ) = 0;
 
     /** @brief run DAF on the full trajectory, starting from first fittable state and
                parameters therein, do not do last smoother */

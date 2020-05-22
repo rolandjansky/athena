@@ -313,13 +313,7 @@ void LArWheelSolid::get_point_on_flat_surface(G4ThreeVector &p) const
 G4double LArWheelSolid::GetCubicVolume(void)
 {
   // sagging ignored, effect should be negligible
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  double result =
-    f_vol->Integral(m_Rmin, Rmax, (const Double_t *)0, IntPrecision)
-#else
-    double result =
-    m_f_vol->Integral(m_Rmin, m_Rmax, IntPrecision)
-#endif
+    double result = m_f_vol->Integral(m_Rmin, m_Rmax, IntPrecision)
 
 #ifndef LOCAL_DEBUG
     * GetCalculator()->GetNumberOfFans()
@@ -363,11 +357,7 @@ G4double LArWheelSolid::get_length_at_r(G4double r) const
 
 G4double LArWheelSolid::get_area_on_side(void) const
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  return f_side_area->Integral(m_Rmin, m_Rmax, (const Double_t *)0, IntPrecision);
-#else
   return m_f_side_area->Integral(m_Rmin, m_Rmax, IntPrecision);
-#endif
 }
 
 G4double LArWheelSolid::GetSurfaceArea(void)

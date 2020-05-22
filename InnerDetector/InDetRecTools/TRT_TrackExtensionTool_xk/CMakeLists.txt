@@ -28,13 +28,15 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack )
+                          Tracking/TrkEvent/TrkTrack
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions)
 
 # Component(s) in the package:
 atlas_add_component( TRT_TrackExtensionTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkPseudoMeasurementOnTrack TrkSegment TrkExInterfaces TrkToolInterfaces AthenaPoolUtilities InDetRIO_OnTrack TrkSurfaces TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkPseudoMeasurementOnTrack TrkSegment TrkExInterfaces TrkToolInterfaces AthenaPoolUtilities InDetRIO_OnTrack TrkSurfaces TrkRIO_OnTrack TrkTrack MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackExtensionTool_xk )

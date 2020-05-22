@@ -40,7 +40,7 @@
 
 // monte carlo edm
 #include "GenzModuleEvent/KineHepMcmap.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 TrigInDetTrackTruthMaker::TrigInDetTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), m_trackTruthMapKey("TrigInDetTrackTruthMap"), m_minNrMatchHits(2)

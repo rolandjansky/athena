@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IThinningSvc.cxx 
@@ -59,36 +59,6 @@ namespace {
 IThinningSvc::~IThinningSvc()
 {}
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/** @brief helper method to decide if an index value is thinned or not
- */
-bool 
-IThinningSvc::isThinned ( const std::size_t idx )
-{
-  return idx == IThinningSvc::RemovedIdx;
-}
-
-template <>
-std::size_t 
-IThinningSvc::generateRemovedIdx<std::size_t>()
-{
-  return IThinningSvc::RemovedIdx;
-}
-
-template <>
-std::string 
-IThinningSvc::generateRemovedIdx<std::string>()
-{
-  return "--RemovedIdx--";
-}
-
 IThinningSvc* 
 IThinningSvc::instance( IThinningSvc* activeSvc, bool overrideSvc )
 {
@@ -99,45 +69,3 @@ IThinningSvc::instance( IThinningSvc* activeSvc, bool overrideSvc )
   return svc;
 }
 
-StatusCode
-IThinningSvc::typelessFilter( const void* in,
-                              const IThinningSvc::VecFilter_t& filter,
-                              const IThinningSvc::Operator::Type op ) {
-
-   // Translate the filter:
-   IThinningSvc::Filter_t sparse_filter;
-   const std::size_t imax = filter.size();
-   for ( std::size_t i = 0; i != imax; ++i ) {
-      sparse_filter[ i ] = filter[ i ];
-   }
-
-   // Call the other function:
-   return this->typelessFilter( in, sparse_filter, op );
-}
-
-StatusCode
-IThinningSvc::typelessFilter( const void* in,
-                              const IThinningSvc::Filter_t& filter,
-                              const IThinningSvc::Operator::Type op ) {
-
-   // Create a dummy thinning handler object:
-   ::DummyThinningHdlr* dummyHandler = new ::DummyThinningHdlr();
-
-   // Get the DataProxy of the object:
-   SG::DataProxy* proxy = this->proxy( in );
-
-   // Leave it to the service implementation to do the rest:
-   return this->filter_impl( dummyHandler, proxy, filter, op );
-}
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

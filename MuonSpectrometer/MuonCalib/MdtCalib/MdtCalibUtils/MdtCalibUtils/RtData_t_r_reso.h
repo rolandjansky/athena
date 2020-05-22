@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_RTDATA_T_R_RESO_H
@@ -33,16 +33,10 @@ class RtData_t_r_reso {
 
   /** returns falls if the current time is smaller then the previous one */
   bool addEntry( double t, double r , double reso ){
-    std::cout <<" adding entry to rt : t="<<t<<" r="<<r<<" reso="<<reso<<std::endl;
-
-    //if( !m_timeVec.empty() && t < m_timeVec.back() ) return false;
-
     m_timeVec.push_back(t);
     m_radiusVec.push_back(r);
     m_resoVec.push_back(reso);
-    
     m_npars = m_timeVec.size();
-
     return true;
   }
 

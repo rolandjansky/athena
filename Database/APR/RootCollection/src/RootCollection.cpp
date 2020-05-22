@@ -90,13 +90,6 @@ namespace pool {
            }
            m_poolOut << coral::Info << "File " << m_fileName << " opened in " << method <<  coral::MessageStream::endmsg;
  
-           // if the collection is read via "rootd" a cache might be useful
-           if(dynamic_cast<TNetFile*>(m_file)) {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-              m_file->UseCache();
-#endif              
-           }
- 
            m_tree->SetDirectory(gDirectory);
            m_schemaEditor->writeSchema();
         }

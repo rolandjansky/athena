@@ -1,33 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 02.02.2009, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF THE CONSTRUCTORS AND METHODS DEFINED IN THE CLASS ::
-//::                      BFieldCorrectionUpdateTool                     ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 #include <fstream>
 
-// MuonCalib //
 #include "MdtCalibData/RtSpline.h"
 #include "CalibNtupleAnalysisAlg/BFieldCorrectionUpdateTool.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -43,7 +23,7 @@ BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
 /////////////////
 // JOB OPTIONS //
 /////////////////
-  m_rt_file_name = string("truth_rt.dat");
+  m_rt_file_name = std::string("truth_rt.dat");
   declareProperty("rtFile", m_rt_file_name);
 
 ///////////////////////
@@ -55,14 +35,6 @@ BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
 // RESET POINTERS //
 ////////////////////
   m_rt = 0;
-}
-
-//*****************************************************************************
-
-//::::::::::::::::
-//:: DESTRUCTOR ::
-//::::::::::::::::
-BFieldCorrectionUpdateTool::~BFieldCorrectionUpdateTool(void) {
 }
 
 //*****************************************************************************
@@ -91,25 +63,6 @@ StatusCode BFieldCorrectionUpdateTool::initialize(void) {
 
   return StatusCode::SUCCESS;
 }  //end BFieldCorrectionUpdateTool::initialize
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD finalize ::
-//:::::::::::::::::::::
-StatusCode BFieldCorrectionUpdateTool::finalize(void) {
-
-/////////////
-// OBJECTS //
-/////////////
-
-/////////////
-// MESSAGE //
-/////////////
-  ATH_MSG_INFO( "Finalizing tool..." );
-
-  return StatusCode::SUCCESS;
-}
 
 //*****************************************************************************
 
@@ -148,11 +101,11 @@ bool BFieldCorrectionUpdateTool::initialize_BFieldCorFunc(void) {
 /////////////
 // OBJECTS //
 /////////////
-  ifstream rt_file;
+  std::ifstream rt_file;
   char s[255]; // auxiliary character pointer
   double dummy; // auxiliary double
-  vector<double> r,t; // entries in the r-t table
-  vector<double> B_corr_param(2);
+  std::vector<double> r,t; // entries in the r-t table
+  std::vector<double> B_corr_param(2);
 
 //////////////////////////////////////////////
 // OPEN THE r-t FILE AND READ THE r-t TABLE //
@@ -179,7 +132,7 @@ bool BFieldCorrectionUpdateTool::initialize_BFieldCorFunc(void) {
   }
 
 // create a spline r-t relationship //
-  vector<double> param(2*r.size());
+  std::vector<double> param(2*r.size());
   for (unsigned int k=0; k<r.size(); k++) {
     param[2*k] = t[k];
     param[2*k+1] = r[k];

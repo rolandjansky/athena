@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEMClusterContainerCnv.h"
@@ -36,14 +36,14 @@ TrigEMClusterContainer * TrigEMClusterContainerCnv::createTransient()
   static pool::Guid tlp1_guid( "CAA8145E-F382-4727-A114-26E137D4B27E" );
 
  if( compareClassGuid( p4_guid ) ){
-         std::auto_ptr< TrigEMClusterContainer_p4 > col_vect( poolReadObject< TrigEMClusterContainer_p4 >() );
+         std::unique_ptr< TrigEMClusterContainer_p4 > col_vect( poolReadObject< TrigEMClusterContainer_p4 >() );
          //         std::cout << "Reading IMFC p4" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
  } else if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigEMClusterContainer_p3 > col_vect( poolReadObject< TrigEMClusterContainer_p3 >() );
+         std::unique_ptr< TrigEMClusterContainer_p3 > col_vect( poolReadObject< TrigEMClusterContainer_p3 >() );
          return TPConverter_p3.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
-        std::auto_ptr< TrigEMClusterContainer_tlp1 > col_vect( poolReadObject< TrigEMClusterContainer_tlp1 >() );
+        std::unique_ptr< TrigEMClusterContainer_tlp1 > col_vect( poolReadObject< TrigEMClusterContainer_tlp1 >() );
         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigEMClusterContainer" ); }
    

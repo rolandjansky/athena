@@ -33,7 +33,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Random Numbers
 #include "AthenaKernel/RNGWrapper.h"
@@ -278,7 +278,7 @@ StatusCode RpcDigitizationTool::initialize() {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::prepareEvent(unsigned int) {
+StatusCode RpcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in prepareEvent()" );
 
@@ -336,7 +336,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
 
 //--------------------------------------------
 // Get next event and extract collection of hit collections:
-StatusCode RpcDigitizationTool::getNextEvent()
+StatusCode RpcDigitizationTool::getNextEvent(const EventContext& ctx)
 {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::getNextEvent()" );
@@ -349,7 +349,7 @@ StatusCode RpcDigitizationTool::getNextEvent()
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<RPCSimHitCollection> hitCollection(m_hitsContainerKey);
+      SG::ReadHandle<RPCSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get RPCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -394,25 +394,25 @@ StatusCode RpcDigitizationTool::getNextEvent()
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::mergeEvent() {
+StatusCode RpcDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   StatusCode status = StatusCode::SUCCESS;
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in mergeEvent()" );
 
   if(m_DumpFromDbFirst && m_RPCInfoFromDb){
-    status = DumpRPCCalibFromCoolDB() ;
+    status = DumpRPCCalibFromCoolDB(ctx) ;
     if (status == StatusCode::FAILURE) return status ;
     m_DumpFromDbFirst = false ;
   }
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<RpcDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "RpcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "RpcSDOCollection recorded in StoreGate." );
 
@@ -420,7 +420,7 @@ StatusCode RpcDigitizationTool::mergeEvent() {
   m_sdo_tmp_map.clear();
   /////////////////////////
 
-  status = doDigitization(digitContainer.ptr(), sdoContainer.ptr());
+  status = doDigitization(ctx, digitContainer.ptr(), sdoContainer.ptr());
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
@@ -439,7 +439,7 @@ StatusCode RpcDigitizationTool::mergeEvent() {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::processAllSubEvents() {
+StatusCode RpcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   StatusCode status = StatusCode::SUCCESS;
 
@@ -448,18 +448,18 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in digitize()" );
 
   if(m_DumpFromDbFirst && m_RPCInfoFromDb){
-    status = DumpRPCCalibFromCoolDB() ;
+    status = DumpRPCCalibFromCoolDB(ctx) ;
     if (status == StatusCode::FAILURE) return status ;
     m_DumpFromDbFirst = false ;
   }
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<RpcDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "RpcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "RpcSDOCollection recorded in StoreGate." );
 
@@ -468,24 +468,24 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
   /////////////////////////
 
   if (0 == m_thpcRPC ) {
-    status = getNextEvent();
+    status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no RPC hits in this event" );
       return status; // there are no hits in this event
     }
   }
 
-  ATH_CHECK(doDigitization(digitContainer.ptr(), sdoContainer.ptr()));
+  ATH_CHECK(doDigitization(ctx, digitContainer.ptr(), sdoContainer.ptr()));
 
   return status;
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
+StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   //StatusCode status = StatusCode::SUCCESS;
   //status.ignore();
@@ -592,9 +592,9 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
       // measured panel eff. will be used in that case and no phi strip killing will happen
       bool undefPhiStripStat = false;
 
-      std::vector<int> pcseta    = PhysicalClusterSize(&idpaneleta, &hit, rndmEngine); //set to one for new algorithms
+      std::vector<int> pcseta    = PhysicalClusterSize(ctx, &idpaneleta, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on eta panel: size/first/last= "<<pcseta[0]   <<"/"<<pcseta[1]   <<"/"<<pcseta[2] );
-      std::vector<int> pcsphi = PhysicalClusterSize(&idpanelphi, &hit, rndmEngine); //set to one for new algorithms
+      std::vector<int> pcsphi = PhysicalClusterSize(ctx, &idpanelphi, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on phi panel: size/first/last= "<<pcsphi[0]<<"/"<<pcsphi[1]<<"/"<<pcsphi[2] );
 
       // create Identifiers
@@ -604,8 +604,11 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
                                                        doubletZ, doubletPhi,gasGap, 1, pcsphi[1] );
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      const HepMcParticleLink particleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag);
 
-      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, hit).isFailure()) return StatusCode::FAILURE ;
+      ATH_CHECK(DetectionEfficiency(ctx, &atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, particleLink));
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -658,7 +661,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 	// ME unused: const HepMcParticleLink & particleLink = hit.particleLink();
 	// MuonMCData first  word is the packing of    : proptime, bunchTime, posy, posz
 	// MuonMCData second word is the total hit time: bunchcTime+tof+proptime+correlatedJitter / ns
-	MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()),
+	MuonSimData::Deposit deposit(particleLink,
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
@@ -700,8 +703,8 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 									 stationPhi,doubletR), doubletZ, doubletPhi,gasGap, imeasphi, clus);
 	  // here count and maybe kill dead strips if using COOL input for the detector status 
 	  if (m_Efficiency_fromCOOL) {
-        SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-        const RpcCondDbData* readCdo{*readHandle};
+            SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey, ctx};
+            const RpcCondDbData* readCdo{*readHandle};
 	    if ( !(undefPhiStripStat && imeasphi==1) )
 	      {
 		if(readCdo->getDeadStripIntMap().find( newId )  != readCdo->getDeadStripIntMap().end()) 
@@ -926,7 +929,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 }
 
 //--------------------------------------------
-std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine)
+std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const EventContext& ctx, const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine)
 {
 
   // ME unused: int stationName = m_idHelper->stationName(*id);
@@ -1089,7 +1092,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const Identifier* id, 
   else{
 
     float xstripnorm=xstrip/30.;
-    result[0] = ClusterSizeEvaluation(id, xstripnorm, rndmEngine );
+    result[0] = ClusterSizeEvaluation(ctx, id, xstripnorm, rndmEngine );
 
     int nstrips = ele->Nstrips(measuresPhi);
     //
@@ -1501,10 +1504,6 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 //--------------------------------------------
 long long int RpcDigitizationTool::PackMCTruth(float proptime, float bctime, float posy, float posz){
 
-
-  //std::cout<<"packing in word "<<proptime << " " <<tof<< std::endl;
-  using namespace std;
-
   // start with proptime: it is usually ~ns. It comes in ns. We express it in ns/10. use only 8 bits
   if (proptime<0)
     {
@@ -1690,7 +1689,7 @@ StatusCode RpcDigitizationTool::readParameters(){
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit) {
+StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const HepMcParticleLink& trkParticle) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DetectionEfficiency" );
 
@@ -1763,7 +1762,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   }
   else{
 
-    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey, ctx};
     const RpcCondDbData* readCdo{*readHandle};
 
     ATH_MSG_DEBUG("Efficiencies and cluster size + dead strips will be extracted from COOL");
@@ -2043,7 +2042,6 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
   //Efficiency correction factor for fractional-charged particles(added by Quanyin Li: quli@cern.ch)
   //link to truth particles and calculate the charge and betagamma
-  const HepMcParticleLink& trkParticle = thehit.particleLink();
   const HepMC::GenParticle* genparticle = trkParticle.cptr();
   if(genparticle){
     const int particlePdgId = genparticle->pdg_id();
@@ -2100,7 +2098,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 }
 
 //--------------------------------------------
-int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine) {
+int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Identifier* IdRpcStrip, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in ClusterSizeEvaluation" );
 
@@ -2157,7 +2155,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     }
   }
   else{
-    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey, ctx};
     const RpcCondDbData* readCdo{*readHandle};
 
     Identifier Id  = m_idHelper->panelID(*IdRpcStrip);
@@ -2342,11 +2340,11 @@ StatusCode RpcDigitizationTool::PrintCalibrationVector() {
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
+StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DumpRPCCalibFromCoolDB" );
 
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey, ctx};
   const RpcCondDbData* readCdo{*readHandle};
 
   StatusCode sc = StatusCode::SUCCESS;

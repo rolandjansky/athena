@@ -89,7 +89,7 @@ else:
       elif InDetFlags.doMinBias():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")        
       elif InDetFlags.doDVRetracking():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("LargeD0")        
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("R3LargeD0")        
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
     InDetNewTrackingCuts.printInfo()
@@ -352,8 +352,6 @@ else:
     #
     # ------------------------------------------------------------
     
-    if InDetFlags.doxKalman() or InDetFlags.doiPatRec():
-      include ("InDetRecExample/InDetRecXKalIPat.py")
     
     #
     # --- TRT track segment finding
@@ -450,7 +448,7 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -462,6 +460,8 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doR3LargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
       InDetNewTrackingCutsLargeD0.printInfo()
@@ -992,7 +992,7 @@ else:
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
                                                               AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
-                                                              AssociationMapName      = "" if not InDetFlags.doCosmics() else ("PRDtoTrackMap" + InDetKeys.UnslimmedTracks()),
+                                                              AssociationMapName      = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
@@ -1076,10 +1076,6 @@ else:
         InputTrackCollection = InDetKeys.UnslimmedTracks() 
     elif InDetFlags.doPseudoTracking():
       InputTrackCollection = InDetKeys.PseudoTracks()
-    elif InDetFlags.doiPatRec():
-      InputTrackCollection = InDetKeys.IPatConvertedTracks()
-    elif InDetFlags.doxKalman():
-      InputTrackCollection = InDetKeys.XKalConvertedTracks()
     else:
       # --- in case of reading from ESD, so we just set the Collection and truth
       InputTrackCollection      = InDetKeys.Tracks()

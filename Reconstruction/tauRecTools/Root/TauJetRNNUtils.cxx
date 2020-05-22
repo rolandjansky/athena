@@ -4,6 +4,8 @@
 
 #include "tauRecTools/TauJetRNNUtils.h"
 
+#define GeV 1000
+
 namespace TauJetRNNUtils {
 
 VarCalc::VarCalc() : asg::AsgMessaging("TauJetRNNUtils::VarCalc") {
@@ -226,17 +228,17 @@ bool massTrkSys(const xAOD::TauJet &tau, double &out) {
 }
 
 bool pt(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.pt() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.pt() / GeV, 100.0));
     return true;
 }
 
 bool ptDetectorAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptDetectorAxis() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.ptDetectorAxis() / GeV, 100.0));
     return true;
 }
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptIntermediateAxis() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.ptIntermediateAxis() /GeV, 100.0));
     return true;
 }
 

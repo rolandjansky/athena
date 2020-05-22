@@ -22,7 +22,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Incident.h"
 #include "InDetSimData/InDetSimData.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 

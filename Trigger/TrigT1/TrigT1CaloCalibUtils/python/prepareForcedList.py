@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ROOT import *
 import sys
@@ -7,7 +9,7 @@ from optparse import OptionParser
 from PlotCalibrationGains import *
 
 
-print "Starting prepareForcedList"
+print ("Starting prepareForcedList")
 
 parser = OptionParser()
   
@@ -24,25 +26,25 @@ geometry_convertor = L1CaloGeometryConvertor()
 geometry_convertor.LoadReceiverPPMMap()
 
 if options.strategy == None:
-  print "taking default strategy string"
+  print ("taking default strategy string")
   strategy ="GainOneOvEmecFcalLowEta"
 #  strategy ="GainOneOvEmbFcalHighEta" 
 else:
   strategy=options.strategy
 
-print "Using strategy string %s, check it makes sense!!!" % strategy
+print ("Using strategy string %s, check it makes sense!!!" % strategy)
 
 for line in file_input.readlines():
   line2=line.rstrip()
   parts = line2.split(' ')
   parts_stripped = [iii for iii in parts if not iii==''] 
-#  print parts_stripped
+#  print (parts_stripped)
   file_output.write("%s %.3f   # %s %s %s %s \n" % (geometry_convertor.getReceiverfromPPM(parts_stripped[2],strategy),float(parts_stripped[3]), \
            parts_stripped[0],parts_stripped[1],parts_stripped[2],parts_stripped[3]))
-#  print geometry_convertor.getReceiverfromPPM(parts_stripped[2]), " ", parts_stripped[3], " # ", parts_stripped
+#  print (geometry_convertor.getReceiverfromPPM(parts_stripped[2]), " ", parts_stripped[3], " # ", parts_stripped)
 
 
 file_input.close()
 file_output.close()
 
-print "Done!"
+print ("Done!")

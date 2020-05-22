@@ -25,12 +25,13 @@ class TrigMultiTrkHypoConfig(object):
         except KeyError:
             log.error('TrigMultiTrkHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
 
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         VertexFitter = Trk__TrkVKalVrtFitter(
             name = 'TrigBphysFitter_'+trigSequenceName+trigLevel,
             FirstMeasuredPoint = False,
             MakeExtendedVertex = False,
-            Extrapolator = 'Trk::Extrapolator/InDetExtrapolator')
+            Extrapolator = AtlasExtrapolator())
 
         from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
         VertexPointEstimator = InDet__VertexPointEstimator(

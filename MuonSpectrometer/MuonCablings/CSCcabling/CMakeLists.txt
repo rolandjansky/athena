@@ -24,7 +24,7 @@ atlas_add_library( CSCcablingLib
                    PUBLIC_HEADERS CSCcabling
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoModelInterfaces GeometryDBSvcLib )
 
 atlas_add_component( CSCcabling
                      src/components/*.cxx

@@ -254,7 +254,6 @@ TestDriver::query() {
 
 int main( int argc, char ** )
 {
-  gInterpreter->EnableAutoLoading();
   TClass::GetClass("map<string,string>");
 
    try {

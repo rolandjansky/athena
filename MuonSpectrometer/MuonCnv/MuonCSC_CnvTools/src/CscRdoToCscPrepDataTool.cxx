@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -7,7 +7,6 @@
 
 /// algorithm to decode RDO into PrepRawData
 
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
@@ -34,19 +33,12 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : CscRdoToCscPrepDataToolCore(type, name, parent) {
 }  
 
-CscRdoToCscPrepDataTool::~CscRdoToCscPrepDataTool(){}
-
 StatusCode CscRdoToCscPrepDataTool::initialize(){
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( CscRdoToCscPrepDataToolCore::initialize() );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
-
-StatusCode CscRdoToCscPrepDataTool::finalize() {
-  return CscRdoToCscPrepDataToolCore::finalize();
-}
-
 
 StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) {
   // WARNING : Trigger Part is not finished.
@@ -60,9 +52,9 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionKey.key())) {    
     /// record the container in storeGate
     SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
-    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+    ATH_CHECK(outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_idHelperSvc->cscIdHelper().module_hash_max())));
 
-    if (status.isFailure() || !outputHandle.isValid() )       {
+    if (!outputHandle.isValid()) {
       ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
       return StatusCode::FAILURE;
     } 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9,19 +9,6 @@
 //      - new way to determine the binning according to satatistics
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-
-// ROOT //
-#include "TSpline.h"
-
-// MuonCalib //
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/PolygonBase.h"
 #include "MuonCalibMath/ConstantContentBinMaker.h"
@@ -29,25 +16,17 @@
 #include "MdtCalibData/IRtRelation.h"
 #include "MuonCalibMath/DataPoint.h"
 #include "CLHEP/Matrix/Vector.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
+#include <TString.h> // for Form
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include "TSpline.h"
 
-using namespace std;
 using namespace CLHEP;
 using namespace MuonCalib;
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS ::
-//::           AdaptiveResidualSmoothing            ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: CONSTRUCTOR ::
-//:::::::::::::::::
 
 AdaptiveResidualSmoothing::AdaptiveResidualSmoothing(void) {
 }
@@ -128,13 +107,8 @@ bool AdaptiveResidualSmoothing::addResidualsFromSegment(
 
 	fitter->SetRefineSegmentFlag(false);
 
-  // prepare hit selection to exclude the first hit from the fit //
-//     vector<unsigned int> hit_selection(seg.mdtHitsOnTrack(), 0);
-//     hit_selection[0] = 1;
-
   // perform the track fit; return in case of failure //
 	if (!fitter->fit(seg)) {
-//		cout << seg.mdtHitsOnTrack() << endl;
 		return false;
 	}
 
@@ -150,12 +124,10 @@ bool AdaptiveResidualSmoothing::addResidualsFromSegment(
 	}
 
   // store the residuals //
-// 	static ofstream resfile("res.txt");
 	for (unsigned int k=0; k<fitter->trackHits().size(); k++) {
 		point[0] = fitter->trackHits()[k]->driftRadius();
 		point[1] = fitter->trackHits()[k]->driftRadius()-
-				  fabs(fitter->trackHits()[k]->signedDistanceToTrack());
-// 		resfile << point[0] << "\t" << point[1] << endl;
+				  std::abs(fitter->trackHits()[k]->signedDistanceToTrack());
 		DataPoint residual_point(point, 0);
 		m_residual_point.push_back(residual_point);
 	}
@@ -180,26 +152,18 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 ///////////////
 
 	ConstantContentBinMaker bin_maker(m_residual_point, 0.001);
-	vector<unsigned int> ref_coord(1);
+	std::vector<unsigned int> ref_coord(1);
 
 ////////////
 // CHECKS //
 ////////////
 
 	if (m_residual_point.size()==0) {
-		cerr << endl
-			 << "Class AdaptiveResidualSmoothing, method performSmoothing: "
-			 << "ERROR!\n"
-			 << "No residuals stored.\n";
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nAdaptiveResidualSmoothing::performSmoothing - No residuals stored.", __FILE__, __LINE__));
 	}
 
 	if (m_residual_point.size()<nb_entries_per_bin) {
-		cerr << endl
-			 << "Class AdaptiveResidualSmoothing, method performSmoothing: "
-			 << "ERROR!\n"
-			 << "Not enough residuals stored.\n";
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nAdaptiveResidualSmoothing::performSmoothing - Not enough residuals stored.", __FILE__, __LINE__));
 	}
 
 /////////////////////
@@ -214,20 +178,17 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 //////////////////////////////
 
 // get a polygon through the bin centres //
-// 	cout << "bin_maker.getBins().size()="
-// 		 << bin_maker.getBins().size() << endl;
-	vector<double> rad(bin_maker.getBins().size());
-	vector<SamplePoint> corr(bin_maker.getBins().size()); 
+	std::vector<double> rad(bin_maker.getBins().size());
+	std::vector<SamplePoint> corr(bin_maker.getBins().size()); 
 	for (unsigned int k=0; k<bin_maker.getBins().size(); k++) {
 		rad[k] = (bin_maker.getBins()[k])->centreOfGravity()[0];
-// 		cout << "rad[" << k << "] = " << rad[k] << endl;
 		corr[k].set_x1(rad[k]);
 		corr[k].set_x2((bin_maker.getBins()[k])->centreOfGravity()[1]);
 		corr[k].set_error(1.0);
 	}
 	sort(rad.begin(), rad.end());
 	
-	vector<double> radi;
+	std::vector<double> radi;
 	radi.push_back(rad[0]);
 	unsigned int counter(0);
 	for (unsigned int k=1; k<rad.size(); k++) {
@@ -242,25 +203,7 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 	fitter.fit_parameters(corr, 1, corr.size(), &polygon);
 
 // create an improved r-t relationship //
-// 	vector<double> rt_point;
-// 	unsigned int nb_rt_points(60);
-// 	double step_size((rt_rel.radius(rt_rel.tUpper())-
-// 										rt_rel.radius(rt_rel.tLower()))/
-// 										static_cast<double>(nb_rt_points));
-// 	for (double r=rt_rel.radius(rt_rel.tLower());
-// 						r<=rt_rel.radius(rt_rel.tUpper()); r=r+step_size) {
-// 		double t(t_from_r(rt_rel, r));
-// 		rt_point.push_back(t);
-// 		double delta_r(0.0);
-// 		for (unsigned int l=0; l<radi.size(); l++) {
-// 			delta_r = delta_r+fitter.coefficients()[l]*polygon.value(l, 
-// 															rt_rel.radius(t));
-// 		}
-// 		rt_point.push_back(rt_rel.radius(t)-delta_r);
-// 
-// 	}
-// 	RtSpline improved_rt(rt_point);
-	vector<double> rt_params;
+	std::vector<double> rt_params;
 	rt_params.push_back(rt_rel.tLower());
 	rt_params.push_back(0.01*(rt_rel.tUpper()-rt_rel.tLower()));
 //	ofstream outfile("out2.txt");
@@ -324,22 +267,18 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
     // 1000 segments -> 7.6% and 35 bins
     // 5000 segments -> 5.1% and 64 bins
     // 10000 segments-> 4.1% and 91 bins
-    nb_bins =static_cast<unsigned int>( sqrt(m_residual_point.size()/6.) );
+    nb_bins =static_cast<unsigned int>( std::sqrt(m_residual_point.size()/6.) );
     
     //calculate min_nb_per_bin
     min_nb_entries_per_bin = m_residual_point.size() / nb_bins;
-    //cout << "min number of entries/bin: " << min_nb_entries_per_bin << endl;
 
 //////////////////////////////////////
 // RETURN IF THERE ARE NO RESIDUALS //
 //////////////////////////////////////
 
     if (m_residual_point.size()==0) {
-        cerr << endl
-             << "Class AdaptiveResidualSmoothing, "
-             << "performSmoothing(., ., .): WARNING!\n"
-             << "No residuals are stored. no correction applied to r(t)!\n"
-             << endl;
+        MsgStream log(Athena::getMessageSvc(), "AdaptiveResidualSmoothing");
+        log<<MSG::WARNING<< "performSmoothing() - No residuals are stored. no correction applied to r(t)!"<<endmsg;
     }
 
     if (nb_bins==0) {
@@ -352,8 +291,8 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 //////////////////////////////////////////////////////////////
 
 // vector for the correction function //
-	vector<SamplePoint> corr(nb_bins);
-    vector<double> radii(nb_bins); 
+	std::vector<SamplePoint> corr(nb_bins);
+    std::vector<double> radii(nb_bins); 
 
 // sort the residuals point in the residual value for a simple outlyer //
 // rejection performed later                                           //
@@ -363,14 +302,14 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
     sort(m_residual_point.begin(), m_residual_point.end());
 
 // auxiliary data point arrays //
-    vector< vector<const DataPoint *> > sample_points_per_r_bin(nb_bins);
+    std::vector< std::vector<const DataPoint *> > sample_points_per_r_bin(nb_bins);
 
 // group data points in r bins //
     for (unsigned int k=0; k<m_residual_point.size(); k++) {
-        if (fabs(m_residual_point[k].dataVector()[0])>=r_max) {
+        if (std::abs(m_residual_point[k].dataVector()[0])>=r_max) {
             continue;
         }
-        bin_index = static_cast<unsigned int>(fabs(
+        bin_index = static_cast<unsigned int>(std::abs(
                             m_residual_point[k].dataVector()[0])/step_size);
         sample_points_per_r_bin[bin_index].push_back(&(m_residual_point[k]));
     }
@@ -415,7 +354,7 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 	fitter.fit_parameters(corr, 1, corr.size(), &polygon);
 
 // create output r-t relationship //
-	vector<double> rt_params;
+	std::vector<double> rt_params;
 	rt_params.push_back(rt_rel.tLower());
 	rt_params.push_back(0.01*(rt_rel.tUpper()-rt_rel.tLower()));
 //	ofstream outfile("out2.txt");
@@ -469,7 +408,7 @@ double AdaptiveResidualSmoothing::t_from_r(const IRtRelation & rt_rel,
 /////////////////////////////////////////////
 
 	while (t_max-t_min>0.1 &&
-						fabs(rt_rel.radius(0.5*(t_min+t_max))-r)>precision) {
+						std::abs(rt_rel.radius(0.5*(t_min+t_max))-r)>precision) {
 
 		if (rt_rel.radius(0.5*(t_min+t_max))>r) {
 			t_max = 0.5*(t_min+t_max);

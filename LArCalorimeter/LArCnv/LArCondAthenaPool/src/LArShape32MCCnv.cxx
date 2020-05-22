@@ -52,7 +52,7 @@ LArShape32MCCnv::createTransient ()
     static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
     MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
     if( compareClassGuid(p1_guid) ) {  
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
         //
         log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 

@@ -95,24 +95,24 @@ namespace MuonGM {
     virtual int numberOfStrips( int layer, bool measuresPhi ) const = 0;
 
     /** clear the cache of the readout elememt */
-    void clearCache() const;
+    virtual void clearCache() override;
     
     /** fill the cache of the readout element, to be implemented by the concrete implementations */
-    virtual void fillCache() const = 0;
+    virtual void fillCache() override = 0;
 
     /** access to chamber surface (phi orientation), uses the first gas gap */ 
-    const Trk::PlaneSurface&    surface() const;   
-    const Trk::SurfaceBounds&   bounds() const;
-    const Amg::Vector3D&  center() const;
-    const Amg::Vector3D& normal() const;
-    const Amg::Transform3D& transform() const;
+    virtual const Trk::PlaneSurface&    surface() const override;   
+    virtual const Trk::SurfaceBounds&   bounds() const override;
+    virtual const Amg::Vector3D&  center() const override;
+    virtual const Amg::Vector3D& normal() const override;
+    virtual const Amg::Transform3D& transform() const override;
 
     /** access to layer surfaces */
-    const Trk::PlaneSurface&    surface(const Identifier& id) const;
-    const Trk::SurfaceBounds&   bounds(const Identifier& id) const;
-    const Amg::Vector3D&  center(const Identifier& id) const;
-    const Amg::Vector3D& normal(const Identifier& id) const;
-    const Amg::Transform3D& transform(const Identifier& id) const;
+    virtual const Trk::PlaneSurface&    surface(const Identifier& id) const override;
+    virtual const Trk::SurfaceBounds&   bounds(const Identifier& id) const override;
+    virtual const Amg::Vector3D&  center(const Identifier& id) const override;
+    virtual const Amg::Vector3D& normal(const Identifier& id) const override;
+    virtual const Amg::Transform3D& transform(const Identifier& id) const override;
 
     /** access to layer surfaces */
     const Trk::PlaneSurface&    surface(int surfHash) const;
@@ -122,7 +122,7 @@ namespace MuonGM {
     const Amg::Transform3D& transform(int surfHash) const;
 
     /** returns all the surfaces contained in this detector element */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+    virtual std::vector<const Trk::Surface*> surfaces() const;
 
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
     virtual int  layerHash(const Identifier& id)   const = 0; 
@@ -138,13 +138,10 @@ namespace MuonGM {
 
   protected:
     
-    void shiftSurface(const Identifier& id) const; 
-    void restoreSurfaces() const;
+    void shiftSurface(const Identifier& id); 
+    void restoreSurfaces();
 
-    mutable SurfaceData* m_surfaceData;
-
-    /** these are all surfaces represented by this detector element : it's for visualization without casting */
-    mutable std::vector<const Trk::Surface*>  m_elementSurfaces;
+    SurfaceData* m_surfaceData;
   };
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface()   const { return surface(0); }
@@ -160,7 +157,7 @@ namespace MuonGM {
   inline const Amg::Vector3D& MuonClusterReadoutElement::normal(const Identifier& id) const { return normal(layerHash(id) ); }
   inline const Trk::SurfaceBounds&   MuonClusterReadoutElement::bounds(const Identifier& id) const { return bounds(boundaryHash(id)); }
 
-  inline void MuonClusterReadoutElement::clearCache() const {
+  inline void MuonClusterReadoutElement::clearCache() {
     // clear base cache
     delete m_surfaceData; m_surfaceData = 0;
   }
@@ -227,12 +224,13 @@ namespace MuonGM {
     return *m_surfaceData->m_surfBounds[hash]; 
   }  
 
-  inline const std::vector<const Trk::Surface*>& MuonClusterReadoutElement::surfaces() const {
+  inline std::vector<const Trk::Surface*> MuonClusterReadoutElement::surfaces() const {
+      std::vector<const Trk::Surface*> elementSurfaces;
       // create when first time requested and when possible
-      if (!m_elementSurfaces.size() && m_surfaceData)
-          m_elementSurfaces.insert(m_elementSurfaces.begin(), m_surfaceData->m_layerSurfaces.begin(), m_surfaceData->m_layerSurfaces.end());
+      if (m_surfaceData)
+        elementSurfaces.assign(m_surfaceData->m_layerSurfaces.begin(), m_surfaceData->m_layerSurfaces.end());
       // return the element surfaces      
-      return m_elementSurfaces;
+      return elementSurfaces;
   }
 
 }

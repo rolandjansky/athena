@@ -112,6 +112,7 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   declareProperty( "MuonTopoEtCone20Cut", m_MuonTopoEtCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
   declareProperty( "ElectronPtVarCone20Cut", m_ElectronPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
   declareProperty( "MuonPtVarCone20Cut", m_MuonPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
+  declareProperty( "MuonPtVarCone30Cut", m_MuonPtVarCone30Cut = 0.06 );// corresponds to the FixedTightCut working point  
   
   declareProperty( "ElectronTrigger_2016", m_ElectronTrigger_2016 = "HLT_e26_lhtight_nod0_ivarloose" ); // added by SARA
   declareProperty( "MuonTrigger_2016", m_MuonTrigger_2016 = "HLT_mu26_ivarmedium" ); // added by SARA
@@ -119,6 +120,8 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   declareProperty( "ElectronTrigger_2017", m_ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose" ); // added by SARA
   declareProperty( "MuonTrigger_2017", m_MuonTrigger_2017 = "HLT_mu26_ivarmedium" ); // added by SARA
   declareProperty( "JetTrigger_2017", m_JetTrigger_2017 = "HLT_j15" ); // added by SARA
+  declareProperty( "ElectronTrigger_201X", m_ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*" ); // e20-e99 triggers
+  declareProperty( "MuonTrigger_201X", m_MuonTrigger_201X = "HLT_mu.*" ); // all mu triggers (including mu4 for Special Runs)
 
   m_isNewLumiBlock = false;
 }
@@ -237,7 +240,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   // General histograms //
   ////////////////////////
 
-  registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",20,0.,20.));
+  registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",50,0.,50.));
   registerHist(*m_monGr_shift, m_jet_et  = TH1F_LW::create("jet_et","Jet pT; pT [GeV]",100,0.,500.)); // this is actually filled with pT although called et...
   registerHist(*m_monGr_shift, m_jet_eta = TH1F_LW::create("jet_eta","Jet #eta; #eta",100,-5.,5.));
   registerHist(*m_monGr_shift, m_jet_phi = TH1F_LW::create("jet_phi","Jet #phi; #phi",100,-3.15,3.15));
@@ -246,8 +249,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_global_xPrimVtx = TH1F_LW::create("global_xPrimVtx","Primary Vertex x Position; PV x [mm]",100,-5.0,5.0));
   registerHist(*m_monGr_shift, m_global_yPrimVtx = TH1F_LW::create("global_yPrimVtx","Primary Vertex y Position; PV y [mm]",100,-5.0,5.0));
   registerHist(*m_monGr_shift, m_global_zPrimVtx = TH1F_LW::create("global_zPrimVtx","Primary Vetex z Position; PV z [mm]",100,-250.,250.));
-  registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",100,-0.5,99.5));
-  //m_priVtx_trks->GetXaxis()->SetTitle("Primary Vertex #trks"); // removed by SARA (put correct title above instead)
+  registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",150,-0.5,149.5));
 
   registerHist(*m_monGr_shift, m_trackParticle_n = TH1F_LW::create("NTrackParticle","Number of TrackParticles; Number of tracks",100,0.,1000.));
   registerHist(*m_monGr_shift, m_global_BLayerHits = TH1F_LW::create("global_BLayerHits","Number of IBL Hits on TrackParticle; Number of IBL hits",5,0.,5.)); // updated by SARA // IBL hits in Run-2, old b-layer in Run-1
@@ -286,7 +288,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   m_trigPassed->GetXaxis()->SetBinLabel(7,m_MuonTrigger_2017.c_str());
   m_trigPassed->GetXaxis()->SetBinLabel(8,(m_ElectronTrigger_2017+"_OR_"+m_MuonTrigger_2017).c_str());
   m_trigPassed->GetXaxis()->SetBinLabel(9,m_JetTrigger_2017.c_str());
-
+  
   ///////////////////////
   // Cutflow hitograms //
   ///////////////////////
@@ -307,6 +309,16 @@ StatusCode JetTagMonitoring::bookHistograms() {
   m_cutflow_jet->GetXaxis()->SetBinLabel(4,"Taggable");
   m_cutflow_jet->GetXaxis()->SetBinLabel(5,"Taggable Good");
   m_cutflow_jet->GetXaxis()->SetBinLabel(6,"Taggable Suspect");
+  
+  ///////////////////////
+  // Pileup histograms //
+  ///////////////////////
+
+  registerHist(*m_monGr_shift, m_n_mu =  TH1F_LW::create("n_mu","Number of pile up interactions; <#mu>",100,-0.5,99.5));
+
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu0_30   = TH1F_LW::create("tag_MV_w_mu0_30"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [0,30]); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu30_50   = TH1F_LW::create("tag_MV_w_mu30_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [30,50]); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu50_70   = TH1F_LW::create("tag_MV_w_mu50_70"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [50,70]); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));
 
   ////////////////////////////
   // Taggability histograms //
@@ -340,6 +352,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
 
   registerHist(*m_monGr_shift, m_jet_2D_all = TH2F_LW::create("jet_2D_all", "Number of Jets (No Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_good = TH2F_LW::create("jet_2D_good", "Number of Jets (Quality Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+  registerHist(*m_monGr_shift, m_jet_2D_jvt = TH2F_LW::create("jet_2D_jvt", "Number of Jets (JVT Cut);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_kinematic = TH2F_LW::create("jet_2D_kinematic", "Number of Jets (Kinematic Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_quality = TH2F_LW::create("jet_2D_quality", "Number of Jets (Taggable Good);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_suspect = TH2F_LW::create("jet_2D_suspect", "Number of Jets (Taggable Suspect);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -584,6 +597,17 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   ATH_MSG_DEBUG("Lumiblock ID: " << m_lumiBlockNum);
 
+  m_runNumber = thisEventInfo->runNumber();
+
+ // r21 MV2c10 Working Points (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease21) for 2018 data
+  if(m_runNumber > 343000)
+    {
+      m_mv_60_weight_cut=0.94;
+      m_mv_70_weight_cut=0.83;
+      m_mv_77_weight_cut=0.64;
+      m_mv_85_weight_cut=0.11;
+    }
+
   ////////////////////////////////
   //* Event cleaning           *//
   ////////////////////////////////
@@ -597,23 +621,30 @@ StatusCode JetTagMonitoring::fillHistograms() {
     
   m_cutflow->Fill(1.);
 
+  //////////////////////
+  //* Get Pileup     *//
+  //////////////////////
+
+  m_mu = lbInteractionsPerCrossing();
+  m_n_mu->Fill(m_mu); 
+
   ///////////////////////////////
   //* Trigger container       *//
   ///////////////////////////////
 
-  if (m_use_trigdectool && m_trigDecTool != 0) {
+  if (m_use_trigdectool && m_trigDecTool != 0) { // only require trigger if m_use_trigdectool is true (false for express stream) and trigDecTool is ok
 
     ATH_MSG_DEBUG("TrigDecTool: " << m_trigDecTool);
-    
+
     ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_2016 << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_2016));
     ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_2016 << "): " << m_trigDecTool->isPassed(m_MuonTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_JetTrigger_2016 << "): " << m_trigDecTool->isPassed(m_JetTrigger_2016));
     
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_2016 << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_2016 << "): " << m_trigDecTool->isPassed(m_MuonTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_JetTrigger_2016 << "): " << m_trigDecTool->isPassed(m_JetTrigger_2016));
-  
- 
+    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_2017 << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_2017));
+    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_2017 << "): " << m_trigDecTool->isPassed(m_MuonTrigger_2017));
+
+    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_201X));
+    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << m_trigDecTool->isPassed(m_MuonTrigger_201X));
+    
     auto chainGroup = m_trigDecTool->getChainGroup(".*");
     for (auto & trig : chainGroup->getListOfTriggers()) {
       ATH_MSG_DEBUG("Found trigger " << trig);
@@ -621,18 +652,37 @@ StatusCode JetTagMonitoring::fillHistograms() {
     
     m_trigPassed->Fill(0.);
 
-    // 2016 menu
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2016)) m_trigPassed->Fill(1.);
-    if (m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(2.);
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2016) && m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(3.);
-    if (m_trigDecTool->isPassed(m_JetTrigger_2016)) m_trigPassed->Fill(4.);
-
-    // 2017 menu
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2017)) m_trigPassed->Fill(5.);
-    if (m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(6.);
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2017) && m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(7.);
-    if (m_trigDecTool->isPassed(m_JetTrigger_2017)) m_trigPassed->Fill(8.);
-
+    if(m_runNumber > 343000) // 2018 data
+      {
+	// 201X menu triggers
+	m_trigPassed->GetXaxis()->SetBinLabel(2,m_ElectronTrigger_201X.c_str());
+	m_trigPassed->GetXaxis()->SetBinLabel(3,m_MuonTrigger_201X.c_str());
+	m_trigPassed->GetXaxis()->SetBinLabel(4,(m_ElectronTrigger_201X+"_OR_"+m_MuonTrigger_201X).c_str());
+	m_trigPassed->GetXaxis()->SetBinLabel(5,(m_ElectronTrigger_201X+"_AND_"+m_MuonTrigger_201X).c_str());
+	m_trigPassed->GetXaxis()->SetBinLabel(6,"");
+	m_trigPassed->GetXaxis()->SetBinLabel(7,"");
+	m_trigPassed->GetXaxis()->SetBinLabel(8,"");
+	m_trigPassed->GetXaxis()->SetBinLabel(9,"");
+	// 201X menu triggers
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_201X)) m_trigPassed->Fill(1.);
+	if (m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(2.);
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) || m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(3.);
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) && m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(4.);
+      }
+    else
+      {
+	// 2016 menu
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_2016)) m_trigPassed->Fill(1.);
+	if (m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(2.);
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_2016) && m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(3.);
+	if (m_trigDecTool->isPassed(m_JetTrigger_2016)) m_trigPassed->Fill(4.);
+	
+	// 2017 menu
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_2017)) m_trigPassed->Fill(5.);
+	if (m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(6.);
+	if (m_trigDecTool->isPassed(m_ElectronTrigger_2017) && m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(7.);
+	if (m_trigDecTool->isPassed(m_JetTrigger_2017)) m_trigPassed->Fill(8.);
+      }
   }
 
   //////////////////////
@@ -708,12 +758,22 @@ StatusCode JetTagMonitoring::fillHistograms() {
   //     int    vtxNDoF  = primaryRecVertex.fitQuality().numberDoF();
 
   //     double vtxProb  = vtxChiSq / vtxNDoF;
+      
 
   if (m_use_trigdectool && m_trigDecTool != 0) { // only require trigger if m_use_trigdectool is true (will be false eg for express stream) and trigDecTool is ok
     // Require emu tigger to have unbiased sample of jets (and larger fraction of b-jets since many of these are ttbar events)
-    if (!m_trigDecTool->isPassed(m_ElectronTrigger_2016) && !m_trigDecTool->isPassed(m_MuonTrigger_2016) && // 2016 menu
-	!m_trigDecTool->isPassed(m_ElectronTrigger_2017) && !m_trigDecTool->isPassed(m_MuonTrigger_2017)) // 2017 menu
+
+  if(m_runNumber > 343000) // 2018 data
+    {
+      if (!m_trigDecTool->isPassed(m_ElectronTrigger_201X) && !m_trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
       return StatusCode::SUCCESS;
+    }
+  else
+    {
+      if (!m_trigDecTool->isPassed(m_ElectronTrigger_2016) && !m_trigDecTool->isPassed(m_MuonTrigger_2016) && // 2016 menu
+	  !m_trigDecTool->isPassed(m_ElectronTrigger_2017) && !m_trigDecTool->isPassed(m_MuonTrigger_2017)) // 2017 menu
+	return StatusCode::SUCCESS;
+    }
   }
   
   m_cutflow->Fill(4.);
@@ -929,14 +989,28 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
     if ((*muonItr) -> pt() / Gaudi::Units::GeV < m_MuonPtCut) continue;
     bool inAcceptance = TMath::Abs((*muonItr) -> eta()) < m_MuonEtaCut;
     if (!inAcceptance) continue;
-    // medium muons
-    if ((*muonItr)->quality() != 1) continue; // 1 = medium muon
-    float topoetcone20_value = -999.;
-    float ptvarcone20_value = -999.;
-    (*muonItr)-> isolation(topoetcone20_value, xAOD::Iso::topoetcone20);
-    (*muonItr)-> isolation(ptvarcone20_value, xAOD::Iso::ptvarcone20);
-    if (topoetcone20_value/(*muonItr)->pt() > m_MuonTopoEtCone20Cut) continue;
-    if (ptvarcone20_value/(*muonItr)->pt() > m_MuonPtVarCone20Cut) continue;
+
+    if(m_runNumber > 343000) // 2018 data
+      {
+	// medium muons
+	if ((*muonItr)->quality() > 1) continue; // 0 tight, 1 medium, medium <= 1 (includes 0)
+	float topoetcone20_value = -999.;
+	float ptvarcone30_value = -999.;
+	(*muonItr)-> isolation(topoetcone20_value, xAOD::Iso::topoetcone20);
+	(*muonItr)-> isolation(ptvarcone30_value, xAOD::Iso::ptvarcone30);
+	if (topoetcone20_value/(*muonItr)->pt() > m_MuonTopoEtCone20Cut) continue;
+	if (ptvarcone30_value/(*muonItr)->pt() > m_MuonPtVarCone30Cut) continue;
+      }
+    else
+      {  // medium muons
+	if ((*muonItr)->quality() != 1) continue; // 1 = medium muon
+	float topoetcone20_value = -999.;
+	float ptvarcone20_value = -999.;
+	(*muonItr)-> isolation(topoetcone20_value, xAOD::Iso::topoetcone20);
+	(*muonItr)-> isolation(ptvarcone20_value, xAOD::Iso::ptvarcone20);
+	if (topoetcone20_value/(*muonItr)->pt() > m_MuonTopoEtCone20Cut) continue;
+	if (ptvarcone20_value/(*muonItr)->pt() > m_MuonPtVarCone20Cut) continue;
+      }
     isoMuonItr = muonItr;
     ++n_isoMuons;
   }
@@ -1095,6 +1169,21 @@ void JetTagMonitoring::fillJetHistograms() {
     // Jets passing kinemtic cuts
 
     m_cutflow_jet->Fill(2.); // jets passing kinematic cuts
+
+    if(m_runNumber > 343000) // 2018 data
+      {
+	//Fix cutflow bin labels
+	m_cutflow_jet->GetXaxis()->SetBinLabel(4,"Pass JVT cut");
+	m_cutflow_jet->GetXaxis()->SetBinLabel(5,"Taggable");
+	m_cutflow_jet->GetXaxis()->SetBinLabel(6,"Taggable Good");
+	m_cutflow_jet->GetXaxis()->SetBinLabel(7,"Taggable Suspect");
+
+	if ( !passJVTCuts(*jetItr) ) continue; 
+	// Jets passing JVT cuts
+	m_cutflow_jet->Fill(3.); // passing JVT cuts (Jet Vertex Tagger, against pile-up jets)
+	m_jet_2D_jvt->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
+      }
+
     if (n_jets_kinematic == 0) firstKinematicjetItr = jetItr; // added by SARA - save this iterator since I will need to fill top histograms also for this 1st one if I find a 2nd kinematic jet later
     ++n_jets_kinematic; // added by SARA
 
@@ -1124,18 +1213,28 @@ void JetTagMonitoring::fillJetHistograms() {
     
     //if ( m_do_cuts && quality == badJet ) continue; // removed by SARA (otherwise we never fill the badJet histograms below)
     
+
     if ( taggabilityLabel == goodJet || taggabilityLabel == suspectJet ) {
-      m_cutflow_jet->Fill(3.); // added by SARA
+    if(m_runNumber > 343000) // 2018 data
+      {m_cutflow_jet->Fill(4.);} // added by SARA
+    else
+      {m_cutflow_jet->Fill(3.);} // added by SARA
       fillDetailedHistograms(*jetItr, taggabilityLabel); // SARA: added if statement to make sure we don't fill the detailed histograms for bad jets (since I removed the continue statement above)	
     }
     
     if ( taggabilityLabel == goodJet ) {
-      m_cutflow_jet->Fill(4.); // added by SARA
+    if(m_runNumber > 343000) // 2018 data
+      {m_cutflow_jet->Fill(5.);} // added by SARA
+    else
+      {m_cutflow_jet->Fill(4.);} // added by SARA
       m_jet_2D_quality->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
       fillGoodJetHistos(*jetItr);
     }
     else if ( taggabilityLabel == suspectJet ) {
-      m_cutflow_jet->Fill(5.); // added by SARA
+    if(m_runNumber > 343000) // 2018 data
+      {m_cutflow_jet->Fill(6.);} // added by SARA
+    else
+      {m_cutflow_jet->Fill(5.);} // added by SARA
       m_jet_2D_suspect->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
       fillSuspectJetHistos(*jetItr);
     }
@@ -1395,6 +1494,13 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
   m_tag_mv_w->Fill(mv);   
   m_tag_mv_w_LS->Fill(mv);   
 
+  // Plots Tagger in pile up bins
+  double mu = m_mu; 
+
+  if ( mu > 0. && mu < 30. ) m_tag_mv_w_mu0_30->Fill(mv);
+  else if ( mu > 30. && mu < 50. ) m_tag_mv_w_mu30_50->Fill(mv);
+  else if ( mu > 50. && mu < 70. ) m_tag_mv_w_mu50_70->Fill(mv);
+
   if      ( jet->pt() / Gaudi::Units::GeV > 200. ) m_tag_mv_w_pT200->Fill(mv);   
   else if ( jet->pt() / Gaudi::Units::GeV > 100. ) m_tag_mv_w_pT100_200->Fill(mv);   
   else if ( jet->pt() / Gaudi::Units::GeV >  50. ) m_tag_mv_w_pT50_100->Fill(mv);   
@@ -1494,6 +1600,7 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   const xAOD::BTagging* btag = jet->btagging();
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
+    return;
   }
   double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
   double mv_tmp = 0;
@@ -1556,6 +1663,19 @@ void JetTagMonitoring::fillBadJetHistos(const xAOD::Jet *jet) {
   return;
 
 }
+
+bool JetTagMonitoring::passJVTCuts(const xAOD::Jet *jet) {
+
+  ATH_MSG_DEBUG("passJVTCuts()");
+  
+  static SG::AuxElement::Accessor<float> JVT( "Jvt" ); //JVT > 0.59 (60 GeV)
+  double jvt = JVT(*jet);
+
+  if( !( ((jet->pt()<60000)&&(abs(jet->eta())<2.4)&&(jvt > 0.59))||((jet->pt()<60000)&&(abs(jet->eta())>2.4))||(jet->pt()>60000) ) ) return false;
+
+  return true;
+}
+
 
 /*
   void JetTagMonitoring::fillBadZone(int zone, double ip3d) {

@@ -16,6 +16,9 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 namespace InDet {
 
 
@@ -61,6 +64,8 @@ namespace InDet {
       ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool
        {this, "RoadTool", "InDet::TRT_DetElementsRoadMaker_xk", "Tool to build roads in the TRT."};
 
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+        
       mutable std::atomic<int>                      m_nsegmentsTotal {}  ; // statistics about number of segments
 
     };

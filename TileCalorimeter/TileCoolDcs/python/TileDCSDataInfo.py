@@ -1,4 +1,4 @@
-#!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: nils.gollub@cern.ch
 
 from __future__ import print_function
@@ -60,6 +60,7 @@ class TileDCSDataInfo:
                     "5VHV_OUTPUT_I"       : [ LVPS_AI, type_float],
                     "5VHV_OUTPUT_V"       : [ LVPS_AI, type_float],
                     "15VMB_INPUT_V"       : [ LVPS_AI, type_float],
+
                     "5VHV_TEMP2"          : [ LVPS_AI, type_float],
                     "5VHV_TEMP3"          : [ LVPS_AI, type_float],
                     "15VHV_TEMP3"         : [ LVPS_AI, type_float],
@@ -116,15 +117,15 @@ class TileDCSDataInfo:
     def __init__( self, dbstring=None ):
 
         self.vars = {}
-        for var, info in self.vars_LVPS_AI.items():
+        for var, info in list(self.vars_LVPS_AI.items()):
             self.vars[var] = info
-        for var, info in self.vars_LVPS_STATES.items():
+        for var, info in list(self.vars_LVPS_STATES.items()):
             self.vars[var] = info
-        for var, info in self.vars_HV.items():
+        for var, info in list(self.vars_HV.items()):
             self.vars[var] = info
-        for var, info in self.vars_HVSET.items():
+        for var, info in list(self.vars_HVSET.items()):
             self.vars[var] = info
-        for var, info in self.vars_DAQ.items():
+        for var, info in list(self.vars_DAQ.items()):
             self.vars[var] = info
 
         self.folderDrawer_to_channel = {}
@@ -215,7 +216,7 @@ class TileDCSDataInfo:
         return self.vars[variable][1]
 
     def get_all_variables(self):
-        return self.vars.keys()
+        return list(self.vars.keys())
 
     def check_drawer_syntax(self, drawer):
         partition = drawer[0:3]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFeatureContainerCnv.h"
@@ -41,19 +41,19 @@ MuonFeatureContainer * MuonFeatureContainerCnv::createTransient()
   
   if( compareClassGuid( tlp1_guid ) )     
   {
-         std::auto_ptr< MuonFeatureContainer_tlp1 > col_vect( poolReadObject< MuonFeatureContainer_tlp1 >() );
+         std::unique_ptr< MuonFeatureContainer_tlp1 > col_vect( poolReadObject< MuonFeatureContainer_tlp1 >() );
 	 //         std::cout << "Reading MFC p1" << std::endl;
          return TPconverter1.createTransient( col_vect.get(), mlog ) ;
   }
   else if( compareClassGuid( tlp2_guid ) )     
   {
-         std::auto_ptr< MuonFeatureContainer_tlp2 > col_vect( poolReadObject< MuonFeatureContainer_tlp2 >() );
+         std::unique_ptr< MuonFeatureContainer_tlp2 > col_vect( poolReadObject< MuonFeatureContainer_tlp2 >() );
 	 // std::cout << "Reading MFC p2" << std::endl;
          return TPconverter2.createTransient( col_vect.get(), mlog ) ;
   }
   else if( compareClassGuid( p3_guid ) )     
   {
-         std::auto_ptr< MuonFeatureContainer_p3 > col_vect( poolReadObject< MuonFeatureContainer_p3 >() );
+         std::unique_ptr< MuonFeatureContainer_p3 > col_vect( poolReadObject< MuonFeatureContainer_p3 >() );
 	 // std::cout << "Reading MFC p3" << std::endl;
          return TPconverter.createTransient( col_vect.get(), mlog ) ;
   }

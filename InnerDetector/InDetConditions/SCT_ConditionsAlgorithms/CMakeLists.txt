@@ -27,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( SCT_ConditionsAlgorithms

@@ -21,9 +21,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 
@@ -181,13 +181,9 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
     particles_needing_modification.push_back(*p);
   }
 
-  std::vector<HepMC::GenParticle*>::const_iterator it = particles_needing_modification.begin();
-  std::vector<HepMC::GenParticle*>::const_iterator itE = particles_needing_modification.end();
-
   m_pxsum=0.;
-
-  for (;it!=itE;++it) {
-    if (!doModification(*it,m_pxsum)) {
+  for (auto it: particles_needing_modification) {
+    if (!doModification(it,m_pxsum)) {
       msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
       ++m_nFailedEvent;
     } else
@@ -198,17 +194,13 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
   
   if ((m_gaussian_vertex_smearing)||(m_flat_vertex_smearing)) {
 
-    HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
-    HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();
-
     std::vector<HepMC::GenVertex*> vertices_needing_modification;
-    
+
+    HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
+    HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
     for(; v != vEnd; ++v ) {
       vertices_needing_modification.push_back(*v);
     }
-
-    std::vector<HepMC::GenVertex*>::const_iterator vit  = vertices_needing_modification.begin();
-    std::vector<HepMC::GenVertex*>::const_iterator vitE = vertices_needing_modification.end();
 
 
     Rndm::Numbers GaussVertexModifier_x(randSvc(), Rndm::Gauss(m_gaussian_mean[0],m_gaussian_width[0]));
@@ -234,11 +226,10 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
     m_flat_rand_y = FlatVertexModifier_y.shoot();
     m_flat_rand_z = FlatVertexModifier_z.shoot();
 
-
-    for (;vit!=vitE;++vit) {
+    for (auto vit: vertices_needing_modification) {
 
       if (m_gaussian_vertex_smearing) {
-	if (!doVertexModification(*vit, m_gauss_rand_x, m_gauss_rand_y, m_gauss_rand_z)) {
+	if (!doVertexModification(vit, m_gauss_rand_x, m_gauss_rand_y, m_gauss_rand_z)) {
 	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
@@ -246,7 +237,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
       }
 
       else if (m_flat_vertex_smearing) {
-	if (!doVertexModification(*vit, m_flat_rand_x, m_flat_rand_y, m_flat_rand_z)) {
+	if (!doVertexModification(vit, m_flat_rand_x, m_flat_rand_y, m_flat_rand_z)) {
 	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
@@ -285,7 +276,7 @@ bool EventBoost::doModification(HepMC::GenParticle * part, double& pxsum ) {
   double temp=mom.x();
   
   mom.boost(boostvector);
-  part->set_momentum(mom);
+  part->set_momentum(HepMC::FourVector(mom.px(),mom.py(),mom.pz(),mom.e()));
   if (part->status()==1) {
     pxsum+=mom.x()-temp;
   }
@@ -309,7 +300,7 @@ bool EventBoost::doVertexModification(HepMC::GenVertex * ver, double rand_x, dou
   CLHEP::HepLorentzVector vertex_offset(rand_x, rand_y, rand_z);
   CLHEP::HepLorentzVector new_vertex_pos(vertex.x()+vertex_offset.x(), vertex.y()+vertex_offset.y(), vertex.z()+vertex_offset.z());
   
-  ver->set_position(new_vertex_pos);
+  ver->set_position(HepMC::FourVector(new_vertex_pos.x(),new_vertex_pos.y(),new_vertex_pos.z(),new_vertex_pos.t()));
 
   msg(MSG::DEBUG) << "Vertex position modified from ("<<vertex.x()<<", "<<vertex.y()<<", "<<vertex.z()<<") to ("<<new_vertex_pos.x()<<", "<<new_vertex_pos.y()<<", "<<new_vertex_pos.z()<<")" << endmsg;
   

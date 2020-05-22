@@ -126,8 +126,6 @@ namespace Analysis {
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
     float    mass = -1., energyfrc = -1., energyTrk=-1, dsttomatlayer = -1; 
     int  n2trk = -1, npsec = -1; //npprm = -1;
-
-    //std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
     
     if(myVertexInfoVKal->vertices().size()){
       npsec=0;

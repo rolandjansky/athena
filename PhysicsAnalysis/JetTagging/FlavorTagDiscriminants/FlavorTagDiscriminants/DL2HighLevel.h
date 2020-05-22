@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_HIGH_LEVEL_HH
 #define DL2_HIGH_LEVEL_HH
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -27,6 +28,7 @@ namespace FlavorTagDiscriminants {
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;
+    DL2DataDependencyNames getDataDependencyNames() const;
   private:
     std::unique_ptr<DL2> m_dl2;
   };

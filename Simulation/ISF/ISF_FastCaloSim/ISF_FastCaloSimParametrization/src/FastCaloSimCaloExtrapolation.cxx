@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimCaloExtrapolation.h"
@@ -226,6 +226,11 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
     }
   else
     caloEntry=&inputPar;
+  
+  if(caloEntry==&inputPar) {
+    ATH_MSG_DEBUG("Use clone of inputPar as caloEntry");
+    caloEntry=inputPar.clone();
+  }
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo caloEntry ");
 
@@ -234,7 +239,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
       const Trk::TrackParameters* eParameters = 0;
 
       // save Calo entry hit (fallback info)
-      hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
+      hitVector->push_back(Trk::HitInfo(caloEntry,timeLim.time,nextGeoID,0.));
 
       ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
 

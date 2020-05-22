@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -101,7 +101,12 @@ HepGeom::Point3D<double>  MuonStation::getBlineFixedPointInAmdbLRS() const
 
 HepGeom::Point3D<double>  MuonStation::getUpdatedBlineFixedPointInAmdbLRS() const
 {
-  if (!m_firstRequestBlineFixedP) return m_BlineFixedPointInAmdbLRS;
+  return m_BlineFixedPointInAmdbLRS;
+}
+
+void  MuonStation::updateBlineFixedPointInAmdbLRS()
+{
+  if (!m_firstRequestBlineFixedP) return;
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
 
   // Before correction m_BlineFixedPointInAmdbLRS has a z set at the edge of
@@ -161,11 +166,10 @@ HepGeom::Point3D<double>  MuonStation::getUpdatedBlineFixedPointInAmdbLRS() cons
     }
   }
 
-
   m_firstRequestBlineFixedP = false;
-  return m_BlineFixedPointInAmdbLRS;
-
 }
+
+
 void MuonStation::setDeltaAmdbLRS(HepGeom::Transform3D xf)
 {
   if (m_delta_amdb_frame== nullptr) m_delta_amdb_frame= new HepGeom::Transform3D(xf);
@@ -270,6 +274,18 @@ const MuonReadoutElement* MuonStation::getMuonReadoutElement(int jobIndex) const
   return ((*m_REwithAlTransfInStation)[jobIndex]).first;
 }
 
+MuonReadoutElement* MuonStation::getMuonReadoutElement(int jobIndex)
+{
+  if (m_REwithAlTransfInStation->find(jobIndex)==m_REwithAlTransfInStation->end()) return nullptr;
+  #ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MuonStation");
+  if (log.level()<=MSG::DEBUG) log <<MSG::DEBUG<<"getMuonReadoutElement at Job="<<jobIndex<<" for station "
+					  <<getStationName()<<" at zi/fi = "<<getEtaIndex()<<"/"<<getPhiIndex()
+					  <<endmsg;
+  #endif
+  return ((*m_REwithAlTransfInStation)[jobIndex]).first;
+}
+
 GeoAlignableTransform* MuonStation::getComponentAlTransf(int jobIndex) const
 {
   if (m_REwithAlTransfInStation->find(jobIndex)==m_REwithAlTransfInStation->end()) return nullptr;
@@ -283,7 +299,7 @@ GeoAlignableTransform* MuonStation::getComponentAlTransf(int jobIndex) const
 }
 
 void 
-MuonStation::addMuonReadoutElementWithAlTransf(const MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex)
+MuonStation::addMuonReadoutElementWithAlTransf(MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex)
 {
 
   #ifndef NDEBUG
@@ -387,10 +403,10 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
 }
 
 
-void MuonStation::clearCache() const
+void MuonStation::clearCache()
 {
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
 
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"n. of RE in this station is "<<m_REwithAlTransfInStation->size()<<endmsg;
@@ -400,7 +416,7 @@ void MuonStation::clearCache() const
   {
     ++i;
     if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Clearing cache .... for RE ... iteration n. "<<i<<endmsg;
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr){
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in MuonStation:clearCache "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a not existing RE (iteration n. )   "<<i<<" RE is null, skipping"<<endmsg;
@@ -411,10 +427,10 @@ void MuonStation::clearCache() const
   }
 }
 
-void MuonStation::refreshCache() const
+void MuonStation::refreshCache()
 {
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
 
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"n. of RE in this station is "<<m_REwithAlTransfInStation->size()<<endmsg;
@@ -423,7 +439,7 @@ void MuonStation::refreshCache() const
   for (;it!=itEnd; ++it) {
     ++i;
     if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Refreshing cache .... for RE ... iteration n. "<<i<<endmsg;
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr){
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in MuonStation:refreshCache "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a not existing RE (iteration n. )   "<<i<<" RE is null, skipping"<<endmsg;
@@ -434,13 +450,13 @@ void MuonStation::refreshCache() const
 }
 
 
-void MuonStation::fillCache() const
+void MuonStation::fillCache()
 {
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   for (;it!=itEnd; it++) {
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr) {
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in MuonStation:fillCache "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a not existing RE, skipping"<<endmsg;
@@ -450,60 +466,60 @@ void MuonStation::fillCache() const
   }
 }
 
-void MuonStation::setBline(BLinePar * bline) 
+void MuonStation::setBline(const BLinePar * bline) 
 {
   m_hasBLines = true;
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   for (;it!=itEnd; ++it) {
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr) {
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in setBLine "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a null MuonReadoutElement, skipping"<<endmsg;
       continue;
     }
     if ( re->getTechnologyType().substr(0,3)=="MDT" ) {
-      const MdtReadoutElement* mdt = (const MdtReadoutElement*)re;
+      MdtReadoutElement* mdt = dynamic_cast<MdtReadoutElement*>(re);
       mdt->setBLinePar(bline);
     }
   }
 }
 
-void MuonStation::clearBLineCache() const
+void MuonStation::clearBLineCache()
 {
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
   int i=0;
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   for (;it!=itEnd; ++it) {
     ++i;
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr) {
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in MuonStation:clearBLineCache "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a not existing RE (iteration n. )   "<<i<<" RE is null, skipping"<<endmsg;
       continue;
     }
     if ( re->getTechnologyType().substr(0,3)=="MDT" ) {
-      const MdtReadoutElement* mdt = (const MdtReadoutElement*)re;
+      MdtReadoutElement* mdt = dynamic_cast<MdtReadoutElement*>(re);
       mdt->clearBLineCache();
     }
   }
 }
-void MuonStation::fillBLineCache() const
+void MuonStation::fillBLineCache()
 {
-  std::map<int, pairRE_AlignTransf>::const_iterator it = m_REwithAlTransfInStation->begin();
-  std::map<int, pairRE_AlignTransf>::const_iterator itEnd = m_REwithAlTransfInStation->end();
+  std::map<int, pairRE_AlignTransf>::iterator it = m_REwithAlTransfInStation->begin();
+  std::map<int, pairRE_AlignTransf>::iterator itEnd = m_REwithAlTransfInStation->end();
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
   for (;it!=itEnd; ++it) {
-    const MuonReadoutElement * re = ((*it).second).first;
+    MuonReadoutElement * re = ((*it).second).first;
     if (re==nullptr)  {
       if (log.level()<=MSG::WARNING) log<<MSG::WARNING<<" in MuonStation:fillBLineCache "<< getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
         <<" trying to get a non existing RE, skipping"<<endmsg;
       continue;
     }
     if ( re->getTechnologyType().substr(0,3)=="MDT" ) {
-      const MdtReadoutElement* mdt = (const MdtReadoutElement*)re;
+      MdtReadoutElement* mdt = dynamic_cast<MdtReadoutElement*>(re);
       mdt->fillBLineCache();
     }
   }
@@ -606,7 +622,7 @@ bool MuonStation::endcap() const
   return !barrel();
 }
 
-MdtAsBuiltPar* MuonStation::getMdtAsBuiltParams() const {
+const MdtAsBuiltPar* MuonStation::getMdtAsBuiltParams() const {
   if (!hasMdtAsBuiltParams()) {
     MsgStream log(Athena::getMessageSvc(),"MuonStation");
     if (log.level()<=MSG::WARNING) log <<MSG::WARNING << "No Mdt AsBuilt parameters for chamber " << getStationName() << endmsg;
@@ -614,7 +630,7 @@ MdtAsBuiltPar* MuonStation::getMdtAsBuiltParams() const {
   return m_XTomoData;
 }
 
-void MuonStation::setMdtAsBuiltParams(MdtAsBuiltPar* xtomo) {
+void MuonStation::setMdtAsBuiltParams(const MdtAsBuiltPar* xtomo) {
    m_XTomoData = xtomo;
 }
 

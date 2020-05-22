@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1_RPCRECROISVC_H
 #define TRIGT1_RPCRECROISVC_H
 
-
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-//class IRPCgeometrySvc;
-class Identifier;
 class IRPCcablingSvc;
-class IMDTcablingSvc;
-
 
 namespace LVL1RPC {
 
@@ -21,7 +20,8 @@ class RPCRecRoiSvc : public LVL1::RecMuonRoiSvc
 {
 public:
     RPCRecRoiSvc (const std::string& name, ISvcLocator* svc)
-        : LVL1::RecMuonRoiSvc( name, svc ), 
+        : LVL1::RecMuonRoiSvc( name, svc ),
+          m_isInit(false),
           m_phi(0),
           m_eta(0),
           m_phiMin(0),
@@ -31,13 +31,12 @@ public:
           m_side(0),
           m_sector(0),
           m_roi(0),
-          m_MuonMgr(0),
-          m_rPCcablingSvc(0)
+          m_MuonMgr(nullptr)
         {};
     
-  ~RPCRecRoiSvc (void) {};
+  ~RPCRecRoiSvc()=default;
 
-  StatusCode initialize (void); 
+  StatusCode initialize(); 
 
   void reconstruct (const unsigned int & roIWord) const;
   double phi (void) const {return m_phi;};
@@ -57,21 +56,21 @@ public:
                double & etaMin_lowHigh, double & etaMax_lowHigh, double & phiMin_lowHigh, double & phiMax_lowHigh) const; //!< calculate RoI edges TAKING INTO ACCOUNT BENDING !!!
     
     // RoI edges for Low-pt and High-pt confirm planes 
-    bool etaDimLow (double& etaMin, double& etaMax) const;
-    bool etaDimHigh(double& etaMin, double& etaMax) const;
+    bool etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
+    bool etaDimHigh(double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
 
 
 private:
-        
-    
-
+    bool m_isInit;
     mutable double m_phi, m_eta;
     mutable double m_phiMin, m_phiMax, m_etaMin, m_etaMax;
     mutable unsigned short int m_side, m_sector, m_roi;
     
-  const MuonGM::MuonDetectorManager * m_MuonMgr;
-  const IRPCcablingSvc*   m_rPCcablingSvc;
-    //  const IMDTcablingSvc*   m_mDTcablingSvc;
+    const MuonGM::MuonDetectorManager* m_MuonMgr;
+    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+    const IRPCcablingSvc* m_cabling;
 };
 
 } // end of namespace

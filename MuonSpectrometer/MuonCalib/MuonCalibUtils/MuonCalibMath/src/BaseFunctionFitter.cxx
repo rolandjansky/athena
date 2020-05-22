@@ -1,19 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.04.2005, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-///////////////////////////////////////////////////////////////
-// IMPLEMENTATION OF NON-INLINE METHODS DEFINED IN THE CLASS //
-//                    BaseFunctionFitter                     //
-///////////////////////////////////////////////////////////////
 
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include <Eigen/Dense>
-#include "cmath"
+
+#include <TString.h> // for Form
+#include <cmath>
 
 namespace MuonCalib {
 
@@ -34,23 +27,10 @@ bool BaseFunctionFitter::fit_parameters(
 ////////////
 
 	if (first_point<1 || first_point>sample_point.size()) {
-		std::cerr << "\n"
-			<< "Class BaseFunctionFitter, method fit_parameters: "
-			<< "ERROR!\n"
-			<< "Illegal first point " << first_point
-			<< ", must be >=1 and <=" << sample_point.size()
-			<< ".\n";
-			exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nBaseFunctionFitter::fit_parameters() - ERROR: Illegal first point %d, must be >=1 and <=%lu", __FILE__, __LINE__, first_point, sample_point.size()));
 	}
 	if (last_point<first_point || last_point>sample_point.size()) {
-		std::cerr << "\n"
-			<< "Class BaseFunctionFitter, method fit_parameters: "
-			<< "ERROR!\n"
-			<< "Illegal last point " << last_point
-			<< ", must be >=" << first_point
-			<< " and <=" << sample_point.size()
-			<< ".\n";
-			exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nBaseFunctionFitter::fit_parameters() - ERROR: Illegal last point %d, must be >=%d and <=%lu", __FILE__, __LINE__, last_point, first_point, sample_point.size()));
  	}
 
 ////////////////////////////////////////////////////////////
@@ -59,28 +39,6 @@ bool BaseFunctionFitter::fit_parameters(
 
 // clear the objects //
 	init(m_nb_coefficients);
-
-// fill the objects //
-// 	for (unsigned int k=first_point-1; k<last_point; k++) {
-// 
-//  		for (int j=0; j<m_nb_coefficients; j++) {
-// 		for (int p=j; p<m_nb_coefficients; p++) {
-// 
-//  			m_A[j][p] = m_A[j][p]+base_function->value(j, 
-//         					   sample_point[k].x1())
-// 					*base_function->value(p, 
-// 							sample_point[k].x1())/
-// 					std::pow(sample_point[k].error(), 2);
-// 
-// 		}
-// 
-// 		m_b[j] = m_b[j]+sample_point[k].x2()*base_function->value(j, 
-// 					sample_point[k].x1())/
-// 					std::pow(sample_point[k].error(), 2);
-// 
-// 		}
-// 
-// 	}
 
  	for (int j=0; j<m_nb_coefficients; j++) {
 		for (int p=j; p<m_nb_coefficients; p++) {

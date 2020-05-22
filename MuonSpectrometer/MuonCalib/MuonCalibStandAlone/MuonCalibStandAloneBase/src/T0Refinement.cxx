@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -15,30 +15,15 @@
 //                                     only 3 last points are used for t0-fit.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//:::::::::::::::::::::::::::::::::::::::::::::::
-//:: METHODS DEFINED IN THE CLASS T0Refinement ::
-//:::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 #include <fstream>
 
-// MuonCalib //
 #include "MuonCalibStandAloneBase/T0Refinement.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibMath/SimplePolynomial.h"
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -90,7 +75,7 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 	double sigma; // sigma(r)
 	BaseFunctionFitter fitter(3);
 	SimplePolynomial pol; // polynomial base functions x^k
-	vector<SamplePoint> my_points(3);
+	std::vector<SamplePoint> my_points(3);
 	IMdtPatRecFitter *segment_fitter(0); // pointer to the segment fitter
 	if (curved) {
 		segment_fitter = m_cfitter;
@@ -111,7 +96,7 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 	for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
 		time = (seg.mdtHOT())[k]->driftTime();
 		sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-		if(sigma>10.0 && fabs(seg.mdtHOT()[k]->driftRadius())>14.0) r_selection[k]=1;
+		if(sigma>10.0 && std::abs(seg.mdtHOT()[k]->driftRadius())>14.0) r_selection[k]=1;
 		if(sigma>10.0 && seg.mdtHOT()[k]->driftTime()<50.0) sigma=0.3;
 		(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
 	}
@@ -213,7 +198,7 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 ///////////////////////// further steps (negative branch):
 	if (my_points[1].x1()<0.0) {
 	for(unsigned int l=3; my_points[l-1].x2()<my_points[l-2].x2() && 
-			fabs(my_points[l-1].x1())<200.0; l++) {
+			std::abs(my_points[l-1].x1())<200.0; l++) {
 		SamplePoint new_point;
 		new_point.set_x1(my_points[l-1].x1()-m_delta_t0);
 
@@ -241,7 +226,7 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 ///////////////////////// further steps (positive branch):
 	if (my_points[2].x1()>0.0) {
 	for(unsigned int l=3; my_points[l-1].x2()<=my_points[l-2].x2() &&
-			fabs(my_points[l-1].x1())<200.0; l++) {
+			std::abs(my_points[l-1].x1())<200.0; l++) {
 		SamplePoint new_point;
 		new_point.set_x1(my_points[l-1].x1()+m_delta_t0);
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
@@ -271,22 +256,17 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 	double nom(fitter.coefficients()[1]);
 	double denom(fitter.coefficients()[2]);
 	delta_t0_opt = -0.5*nom/denom;
-	error = sqrt(1.0/denom);
+	error = std::sqrt(1.0/denom);
 	if (std::isnan(error)) {
 		failed = true;
 		return 0.0;
 	}
 
-//	std::cout<<"XXxxXX";
-	
-	
-	
-	
 	double direction=-0.5;
 	double min_chi2=9e9;
 	double best_t0=delta_t0_opt;
 	double current_t0=delta_t0_opt;
-	vector<double> t0s, chi2, mchi2;
+	std::vector<double> t0s, chi2, mchi2;
 	while(1)
 		{
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
@@ -325,51 +305,11 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 		mchi2.push_back(min_chi2);
 		if (t0s.size()>100)
 			{
-//			std::cout<<"Endless scan: "<<delta_t0_opt;
-//			for(unsigned int i=0; i<t0s.size(); i++)
-//				{
-//				std::cout<<" "<<t0s[i]<<","<<chi2[i]<<","<<mchi2[i];
-//				}
-//			std::cout<<std::endl;
 			failed=true;
 			return 0.0;
 			}
 		}	
-	
-/*	
-	double min_chi2=9e9;
-	double best_t0=delta_t0_opt;
-	
-	for(int i=-10; i<=10; i++)
-		{
-		double test_t0=delta_t0_opt + 0.5 * static_cast<double>(i);
-		
-		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
-			time = (seg.mdtHOT())[k]->driftTime() + test_t0;
-			sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-			(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time),
-									sigma);
-		}
-		if (!segment_fitter->fit(seg, r_selection)) {
-			
-			continue;
-		}
-		double chisq(0.0);
-		if (curved) {
-			chisq = m_cfitter->chi2();
-		} else {
-			chisq = m_qfitter->chi2PerDegreesOfFreedom();
-		}
-		
-		if (chisq<min_chi2)
-			{
-			min_chi2=chisq;
-			best_t0 = test_t0;
-			}
-		
-//		std::cout<<" "<<test_t0<<","<<chisq;
-		}
-//	std::cout<<std::endl;*/
+
 /////////////////////////////////////////
 // OVERWRITE THE SEGMENT, IF REQUESTED //
 /////////////////////////////////////////

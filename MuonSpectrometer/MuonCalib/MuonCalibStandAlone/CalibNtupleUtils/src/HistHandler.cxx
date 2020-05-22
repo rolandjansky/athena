@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleUtils/HistHandler.h"
 #include "CalibNtupleUtils/HistSetting.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <algorithm>
 #include <sstream>
 #include "TString.h"
-
-
 
 HistHandler::HistHandler( std::string title, Int_t binning, Float_t min, Float_t max, const HistSetting* setting) 
   : m_title(title), m_bin(binning), m_min(min), m_max(max), m_binY(0), m_minY(0.0), m_maxY(0.0), m_setting(setting) {
@@ -22,7 +22,7 @@ HistHandler::HistHandler( std::string title, Int_t binningX, Float_t minX, Float
 
 void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entry ) {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -45,7 +45,7 @@ void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entry ) {
 
 void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entryX, Float_t entryY ) {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -70,13 +70,14 @@ void HistHandler::write(){
   for( std::map<std::string, TH1F*>::const_iterator CI = m_myMap.begin(); CI != m_myMap.end(); ++ CI ){
     TString name( CI->first ) ;
     (CI->second)->Write(name);
-    std::cout << " writing " <<name << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" writing "<<name<<endmsg;
   }
 }
  
 TH1F* HistHandler::Hist( const MuonCalib::MuonFixedId& Id ) const {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -88,7 +89,10 @@ TH1F* HistHandler::Hist( const MuonCalib::MuonFixedId& Id ) const {
   std::map< std::string, TH1F*>::const_iterator position = m_myMap.find(histName);
   if( position != m_myMap.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH1F* assigned in the map"<<endmsg;
+  }
   return 0;
 }
  
@@ -100,14 +104,16 @@ TH1F* HistHandler::Hist(  const std::string tag  ) const {
   std::map< std::string, TH1F*>::const_iterator position = m_myMap.find( histName );
   if( position != m_myMap.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH1F* assigned in the map"<<endmsg;
+  }
   return 0;
-  
 }
 
 TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -120,8 +126,10 @@ TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
   std::map< std::string, TH2F*>::const_iterator position2 = m_my2Map.find(histName);
   if( position2 != m_my2Map.end() ){ 
     return position2->second;
-  } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
-  
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH2F* assigned in the map"<<endmsg;
+  }
   return NULL;
 }
 
@@ -132,9 +140,11 @@ TH2F* HistHandler::Hist2(  const std::string tag  ) const {
   std::map< std::string, TH2F*>::const_iterator position = m_my2Map.find( histName );
   if( position != m_my2Map.end() ) {
     return position->second;
-  } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
+  } else {
+    MsgStream log(Athena::getMessageSvc(),"HistHandler");
+    log<<MSG::INFO<<" This ID (" << histName << ") has no TH2F* assigned in the map"<<endmsg;
+  }
   return 0;
-  
 }
 void HistHandler::fill(std::string tag , Float_t entry ) {
   std::ostringstream histStream("");

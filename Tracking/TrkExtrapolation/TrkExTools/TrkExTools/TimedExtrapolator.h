@@ -337,6 +337,13 @@ namespace Trk {
        Cache(unsigned int max_navig_surf=1000.) : m_path(0.,0) {
           m_navigSurfs.reserve(max_navig_surf);
        }
+       ~Cache() {
+	  for (std::pair<const Trk::TrackParameters *, bool> param : m_garbageBin) {
+             if (param.second) {
+                delete param.first;
+             }
+	  }
+       }
        bool                    m_dense {};                         //!<  internal switch for resolved configuration
 
     // ------------ Recall / Boundary Information ----------------------- //

@@ -12,7 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.max_events = 500
+ex.max_events = 1000
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
 ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'

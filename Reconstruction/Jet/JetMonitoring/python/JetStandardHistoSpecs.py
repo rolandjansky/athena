@@ -15,6 +15,7 @@ from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, To
 knownVar = dict(    
     mass = VarSpec('m:GeV', 'float'),
     JVF = VarSpec('JVF', 'vecfloat'),
+    EPS = VarSpec('EnergyPerSampling', 'vecfloat'),
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
@@ -43,6 +44,7 @@ _knownHistos = [
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
     HistoSpec( 'e:GeV',  (100,0,500) , title='E;E [GeV];'),    
+    HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
@@ -54,7 +56,6 @@ _knownHistos = [
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')
     HistoSpec( 'JVF[0]',  (100,0,1.2) , title='JVF for vtx 0;JVF[0];', ), 
     HistoSpec( 'JVF[1]',  (100,0,1.2) , title='JVF for vtx 1;JVF[1];', ),
-
 
 
     # full list
@@ -76,10 +77,10 @@ _knownHistos = [
     HistoSpec('OotFracClusters10', (50, -0.1, 1.2), title='OotFracClusters10; OotFracClusters10;', ),
     
     HistoSpec('Jvt', (70, -0.2, 1.2), title='Jet JVT;JVT;',  ),
-    HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT JVFCorr;;', ),
-    HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt;;', ),
-    
-    
+    HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT; JVFCorr;', ),
+    HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt; JVTRpt;', ),
+    HistoSpec('EM3Frac', (50,-0.1,0.5), title="EM3 fraction;EM3 fraction;Entries"),
+    HistoSpec('Tile0Frac', (50,-0.1,0.5), title="Tile0 fraction;Tile0 fraction;Entries"),
 
 
     HistoSpec('GhostMuonSegmentCount', (60, 0, 60), title='Number of associated muon segments;Number;', xvar=VarSpec('GhostMuonSegmentCount','int')),
@@ -94,6 +95,7 @@ _knownHistos = [
     HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);', ),
     HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);', ),
     HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);', ),
+    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV[0]:SumPt(p_{T}>0.5 GeV)[0];', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),

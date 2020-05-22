@@ -15,6 +15,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkDetDescrUtils/BinningType.h"
 
+#include <cmath>
+
 #include <utility>
 #include <vector>
 
@@ -278,7 +280,7 @@ public:
     // differential
     float dd = 2 * (nextval - val) / step;
     // distance estimate
-    float dist = fabs(dd) > 1.e-06 ? (bval - val) / dd : 1.e06;
+    float dist = std::fabs(dd) > 1.e-06 ? (bval - val) / dd : 1.e06;
     return std::pair<size_t, float>(bin, dist);
   }
 

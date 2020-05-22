@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
@@ -35,11 +35,12 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Concurrency.NumConcurrentEvents=1
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 
 # Core components
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))

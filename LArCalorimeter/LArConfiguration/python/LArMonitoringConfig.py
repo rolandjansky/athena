@@ -23,6 +23,8 @@ def LArMonitoringConfig(inputFlags):
 
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':
+        from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+        acc.merge(BunchCrossingCondAlgCfg(inputFlags))
         acc.merge(LArCollisionTimeMonConfig(inputFlags))
 
     # and others on RAW data only

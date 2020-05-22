@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxStore.h 793778 2017-01-25 04:06:29Z ssnyder $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TAUXSTORE_H
 #define XAODROOTACCESS_TAUXSTORE_H
 
@@ -44,9 +41,6 @@ namespace xAOD {
    /// variables.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 793778 $
-   /// $Date: 2017-01-25 05:06:29 +0100 (Wed, 25 Jan 2017) $
    ///
    class TAuxStore : public SG::IAuxStore,
                      public SG::IAuxStoreIO {
@@ -175,7 +169,8 @@ namespace xAOD {
       virtual const auxid_set_t& getDynamicAuxIDs() const override;
 
       /// Select dynamic auxiliary attributes for writing
-      virtual void selectAux( const std::set< std::string >& attributes ) override;
+      virtual void
+      selectAux( const std::set< std::string >& attributes ) override;
 
       /// Get the IDs of the selected aux variables
       virtual auxid_set_t getSelectedAuxIDs() const override;
@@ -183,7 +178,8 @@ namespace xAOD {
       /// @}
 
    private:
-      /// Function used for setting up the statistics info about the managed branches
+      /// Function used for setting up the statistics info about the managed
+      /// branches
       TReturnCode initStats( ::TTree* tree );
       /// Connect a variable to the input tree
       TReturnCode setupInputData( auxid_t auxid ) const;

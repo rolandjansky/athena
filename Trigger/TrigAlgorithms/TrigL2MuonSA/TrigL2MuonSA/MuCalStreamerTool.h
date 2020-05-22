@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
@@ -15,18 +15,12 @@
 #include "TrigL2MuonSA/TrackData.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "StoreGate/ReadHandleKey.h"
-
-//#include "TGCcablingInterface/ITGCcablingServerSvc.h"
-//#include "TGCcablingInterface/ITGCcablingSvc.h"
-//#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
-/////////////////////////////////////////////////////////////
 
 #include <fstream>
 #include <string>
@@ -69,7 +63,7 @@ namespace TrigL2MuonSA {
 		      const std::string& name,
 		      const IInterface*  parent);
     
-    ~MuCalStreamerTool();
+    ~MuCalStreamerTool()=default;
     
     virtual StatusCode initialize();
     virtual StatusCode finalize  ();
@@ -118,14 +112,8 @@ namespace TrigL2MuonSA {
 
     // the region selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;
-      
-    // RPC cabling service
-    const IRPCcablingSvc* m_rpcCabling;
-    const CablingRPCBase* m_rpcCablingSvc;
 
-    // tgc cabling maps
-    //    const ITGCcablingSvc* m_tgcCabling;
-    //    const TGCCablingBase* m_tgcCablingSvc;
+    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
     // ROB DataProvider
     ServiceHandle<IROBDataProviderSvc> m_robDataProvider;

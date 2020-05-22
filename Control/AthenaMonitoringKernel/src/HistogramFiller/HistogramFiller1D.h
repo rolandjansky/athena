@@ -14,6 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 namespace Monitored {
+
   /**
    * @brief Filler for plain 1D histograms
    */
@@ -27,68 +28,39 @@ namespace Monitored {
       return new HistogramFiller1D( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (m_monVariables.size() != 1) { return 0; }
-      size_t varVecSize = m_monVariables.at(0).get().size();
+      const IMonitoredVariable& var = m_monVariables.at(0).get();
 
-      // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
-      if (cutMaskValuePair.first == 0) { return 0; }
-      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != varVecSize)) {
-        MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
-        log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
-            << cutMaskValuePair.first << " " << varVecSize << endmsg;
-      }
-      auto cutMaskAccessor = cutMaskValuePair.second;
-
-      std::function<double(size_t)> weightValue = [] (size_t ){ return 1.0; };  // default is always 1.0
-      const std::vector<double> weightVector{m_monWeight ? m_monWeight->getVectorRepresentation() : std::vector<double>{}};
-      if ( m_monWeight != nullptr ) {
-        if (weightVector.size() == 1) {
-          weightValue = [=](size_t){ return weightVector[0]; };
-        } else {
-          weightValue = [&](size_t i){ return weightVector[i]; };
-          if (ATH_UNLIKELY(weightVector.size() != varVecSize)) {
-            MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
-            log << MSG::ERROR << "Weight does not match the size of plotted variable: " 
-                << weightVector.size() << " " << varVecSize << endmsg;
-          }
+      std::function<bool(size_t)> cutMaskAccessor;
+      if (m_monCutMask) {
+        // handling of the cutmask
+        auto cutMaskValuePair = getCutMaskFunc();
+        if (cutMaskValuePair.first == 0) { return 0; }
+        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != var.size())) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
+          log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
+              << cutMaskValuePair.first << " " << var.size() << endmsg;
         }
+        cutMaskAccessor = cutMaskValuePair.second;
       }
 
-      if ( not m_monVariables.at(0).get().hasStringRepresentation() ) {
-        const auto valuesVector{m_monVariables.at(0).get().getVectorRepresentation()};
-        fill( std::size( valuesVector), [&](size_t i){ return valuesVector[i]; }, weightValue, cutMaskAccessor );
-        return std::size( valuesVector );
-      } else {
-        const auto valuesVector{m_monVariables.at(0).get().getStringVectorRepresentation()};
-        fill( std::size( valuesVector ), [&](size_t i){ return valuesVector[i].c_str(); }, weightValue, cutMaskAccessor );
-        return std::size( valuesVector );
-      }
-    }
+      if (m_monWeight) {
+        const std::vector<double> weightVector{m_monWeight->getVectorRepresentation()};
+        auto weightAccessor = [&](size_t i){ return weightVector[i]; };
 
-  protected:
-
-    // The following method takes the length of the vector of values and three functions as arguments:
-    // a function that returns a value, one that returns a weight, and one that functions as a cut mask
-    // template allows us to support both floating point and string variable fill calls
-    template<typename F1, typename F2, typename F3>
-    void fill( size_t n, F1 f1, F2 f2, F3 f3 ) {
-
-      std::scoped_lock lock(*m_mutex);
-      TH1* histogram = this->histogram<TH1>();
-      for ( size_t i = 0; i < n; ++i ) {
-        if (f3(i)) {
-          const auto& x = f1(i);
-          // In case re-binning occurs need to take the OH lock for online (no-op offline)
-          if ( ATH_UNLIKELY(histogram->GetXaxis()->CanExtend() and
-                            detail::fillWillRebinHistogram(histogram->GetXaxis(), x)) ) {
-            oh_scoped_lock_histogram lock;
-            histogram->Fill( x, f2(i) );
-          }
-          else histogram->Fill( x, f2(i) );
+        if (ATH_UNLIKELY(weightVector.size() != var.size())) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
+          log << MSG::ERROR << "Weight does not match the size of plotted variable: "
+              << weightVector.size() << " " << var.size() << endmsg;
         }
+        // Need to fill here while weightVector is still in scope
+        if (not m_monCutMask) return HistogramFiller::fill<TH1>(weightAccessor, detail::noCut, var);
+        else                  return HistogramFiller::fill<TH1>(weightAccessor, cutMaskAccessor, var);
       }
+
+      if (not m_monCutMask) return HistogramFiller::fill<TH1>(detail::noWeight, detail::noCut, var);
+      else                  return HistogramFiller::fill<TH1>(detail::noWeight, cutMaskAccessor, var);
     }
   };
 }

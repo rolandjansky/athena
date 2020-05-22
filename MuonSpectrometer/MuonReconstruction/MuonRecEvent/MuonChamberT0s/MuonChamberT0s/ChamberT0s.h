@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonSegPatAssMap.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONCHAMBERT0S_CHAMBERT0S_H
 #define MUONCHAMBERT0S_CHAMBERT0S_H
@@ -15,8 +11,6 @@
 #include <ext/functional>
 
 namespace Muon {
-
-  
 /**
     Stores links between chambers and the reconstructed T0.
    @author edward.moyse@cern.ch   
@@ -58,18 +52,14 @@ namespace Muon {
   };
 
 inline bool ChamberT0s::haveChamber(const Identifier& id) const {
-    using namespace __gnu_cxx;
-    using namespace std;
-    vector< pair < Identifier, float > >::const_iterator it 
-      = find_if(m_t0s.begin(), m_t0s.end(), compose1(bind2nd(equal_to<Identifier>(), id), select1st<std::pair <Identifier, float> >()));
+    std::vector< std::pair < Identifier, float > >::const_iterator it 
+      = std::find_if(m_t0s.begin(), m_t0s.end(), __gnu_cxx::compose1(bind2nd(std::equal_to<Identifier>(), id), __gnu_cxx::select1st<std::pair <Identifier, float> >()));
     return (it!=m_t0s.end());
 }
 
 inline float ChamberT0s::getT0(const Identifier& id) const {
-    using namespace __gnu_cxx;
-    using namespace std;
-    vector< pair < Identifier, float > >::const_iterator it 
-      = find_if(m_t0s.begin(), m_t0s.end(), compose1(bind2nd(equal_to<Identifier>(), id), select1st<std::pair <Identifier, float> >()));
+    std::vector< std::pair < Identifier, float > >::const_iterator it 
+      = std::find_if(m_t0s.begin(), m_t0s.end(), __gnu_cxx::compose1(bind2nd(std::equal_to<Identifier>(), id), __gnu_cxx::select1st<std::pair <Identifier, float> >()));
     if (it==m_t0s.end()) return ChamberUnknown; // No such chamber known.
     return (it->second);
 }

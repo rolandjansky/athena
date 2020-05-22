@@ -16,7 +16,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
-#include "EventInfo/TagInfo.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
@@ -1461,6 +1460,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   for (int i = 0; i <= m_maxESbr; i++) {
     m_passedES[i] = false;
   }
+  m_passedESNONISO = false;
 
   if (m_requestESchains) {
     std::vector<std::string>::iterator itrES;
@@ -2321,7 +2321,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 
   StatusCode sc;
   StoreGateSvc* p_detStore;
-  std::string tag;
 
   //Set pointer on DetectorStore
   sc = service("DetectorStore", p_detStore);
@@ -2331,14 +2330,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
   }
   ATH_MSG_DEBUG( "Found DetectorStore ") ;
 
-  const TagInfo* tagInfo = 0;
-  sc = p_detStore->retrieve( tagInfo );
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("Could not get TagInfo");
-    return StatusCode::RECOVERABLE;
-  } else {
-    tagInfo->findTag("triggerStreamOfFile",tag);
-  }
 
   if(chainName.find("noL1")!= string::npos){
     if(m_RecMuonCB_pt.size()<=1) return StatusCode::SUCCESS;
@@ -2368,7 +2359,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
     std::string EF_pre_trigger= m_FS_pre_trigger;   
     std::string EF_pre_trigger_second= m_FS_pre_trigger_second;   
 
-    if( tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
+    if( m_triggerStreamOfFile == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS;
     if(getTDT()->isPassed(EF_pre_trigger.c_str())!=1 && getTDT()->isPassed(EF_pre_trigger_second.c_str())!=1) return StatusCode::SUCCESS;
     std::string name = histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
     hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
@@ -2633,7 +2624,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
       ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
       return StatusCode::FAILURE;
     }
-    float mean_mu = evt->averageInteractionsPerCrossing();
+    float mean_mu = lbAverageInteractionsPerCrossing();
     // start to dump the probe muon information //
     if(tag_muon_index > -1){
       ATH_MSG_DEBUG(" ####### found tag muon ######### ");

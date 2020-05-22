@@ -15,9 +15,9 @@
 // CLHEP/HepMC includes
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenInteracting.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -33,7 +33,6 @@ using namespace TruthHelper;
 using CLHEP::GeV;
 
 using CLHEP::HepLorentzVector;
-//#include "HepMC/VectorConversion.h"
 namespace {
   inline 
   HepLorentzVector svToLv( const HepMC::FourVector& v )
@@ -278,7 +277,7 @@ TruthIsolationTool::computeIso( const GenParticles_t& particles,
   // Correction for tau (as was done in the old tool for the time being)
   double pxv = 0.*GeV;
   double pyv = 0.*GeV;
-  HepMC::GenVertex *decVtx = part->end_vertex();
+  auto decVtx = part->end_vertex();
   if (ida == 15 && decVtx) {
     HepMC::GenVertex::particle_iterator child  = decVtx->particles_begin(HepMC::children);
     HepMC::GenVertex::particle_iterator childE = decVtx->particles_end(HepMC::children);

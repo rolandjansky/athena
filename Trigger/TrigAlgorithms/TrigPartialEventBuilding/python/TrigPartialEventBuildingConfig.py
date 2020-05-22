@@ -3,7 +3,7 @@
 #
 
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import StaticPEBInfoWriterTool, RoIPEBInfoWriterTool
-from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 

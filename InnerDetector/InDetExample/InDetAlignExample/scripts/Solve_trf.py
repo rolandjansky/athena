@@ -272,9 +272,9 @@ if loadInDetRec_Options["beamSpotTag"]:
 
 if loadInDetRec_Options["TRTCalibTextFile"]:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
+
 
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )

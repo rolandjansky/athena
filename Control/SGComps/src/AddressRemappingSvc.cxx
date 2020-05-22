@@ -12,13 +12,11 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GenericAddress.h"
-#include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgManager.h"
 
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/IClassIDSvc.h"
-#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IRCUSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 
@@ -37,29 +35,11 @@
 AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   extends1<AthService, Athena::IInputRename>(name, pSvcLocator),
   m_clidSvc("ClassIDSvc", name),
-  m_proxyDict("StoreGateSvc", name),
   m_RCUSvc("Athena::RCUSvc", name),
-  m_algResourcePool("AlgResourcePool", name),
   m_oldTads(),
-  m_newTads(),
-  m_haveDeletes(false)
-{
-   declareProperty("ProxyDict", m_proxyDict,
-     "the IProxyDict we want to apply the remapping to (by default the event store)");
-   declareProperty("TypeKeyOverwriteMaps", m_overwriteMaps);
-   declareProperty("TypeKeyRenameMaps", m_typeKeyRenameMaps,
-                   "List of renamings to apply to input objects.  This is distinct from the "
-                   "mappings given by TypeKeyOverwriteMaps in that objects listed under "
-                   "TypeKeyOverwriteMaps are accessible by both the old and new names; "
-                   "while for TypeKeyRenameMaps, only the new names are visible (so the old names "
-                   "may be rewritten).  Overwriting may also change the visible type of an object, "
-                   "while renaming may not.  Format of list elements is OLDNAME#TYPE->NEWNAME.");
-   
-   declareProperty("SkipBadRemappings", m_skipBadRemappings=false,"If true, will delay the remapping setup until the first load, and will check against the given file");
+  m_newTads()
+{}
 
-   declareProperty("AlgResourcePool", m_algResourcePool,
-                   "Algorithm resource pool service.");
-}
 //__________________________________________________________________________
 AddressRemappingSvc::~AddressRemappingSvc() {
 }
@@ -484,6 +464,9 @@ void AddressRemappingSvc::initDeletes()
       // Need to ignore SGInputLoader; it'll have output deps
       // on everything being read.
       if (alg->name() == "SGInputLoader") continue;
+
+      // Also ignore ViewDataVerifier algs, since they have no real output
+      if (alg->type() == "AthViews::ViewDataVerifier" ) continue;
 
       for (const DataObjID& dobj : alg->outputDataObjs()) {
         static const std::string pref = "StoreGateSvc+";

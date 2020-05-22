@@ -50,8 +50,12 @@ class AlphaBetaEstimate: public AthAlgTool
 			      double MiddleSlope, double MiddleR, double MiddleZ,
 			      double sign);
     
-    double     computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR );
-    double     calcDistance(double x1,double y1,double x2,double y2,double x3,double y3) ; 
+    double     computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR ) const ;
+    double     calcDistance(double x1,double y1,double x2,double y2,double x3,double y3) const;
+    
+    inline bool isZero( float value, float tolerance = 1e-5 ) const {
+      return std::abs( value ) < tolerance;
+    }
     
     BooleanProperty  m_use_mcLUT;
 

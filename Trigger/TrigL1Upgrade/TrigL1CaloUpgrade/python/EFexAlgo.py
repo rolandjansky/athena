@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 import ROOT
 import ROOT.TH1F
@@ -33,7 +34,7 @@ class EFexAlgo (PyAthena.Alg) :
 
    # all athena like algorithms need initialize/execute/finalize
    def initialize(self):
-     print "In Initialize" # should change to use msg.log!?
+     print ("In Initialize") # should change to use msg.log!?
      PyAthena.Alg.initialize(self)
      self.sg = PyAthena.py_svc('StoreGateSvc')
      self.ds = PyAthena.py_svc('DetectorStore')
@@ -125,7 +126,7 @@ class EFexAlgo (PyAthena.Alg) :
    def sumHadTT(self,list):
       TotalSum=0.0;
       for TT in list:
-        print  "TT explore",TT.eta() , TT.sampling(), TT.pt()
+        print ( "TT explore",TT.eta() , TT.sampling(), TT.pt())
         if ( ROOT.TMath.Abs( TT.eta() )>1.72 ) : continue
         if ( TT.sampling() == 0 ) : continue
         TotalSum+=(TT.pt()*1e3)
@@ -133,14 +134,14 @@ class EFexAlgo (PyAthena.Alg) :
 
    # method executed once per event. Main loop.
    def execute(self):
-     print "In Execute"
+     print ("In Execute")
      # retrieve SuperCell container (in python this is trivial)
      SCells = self.sg['SCell']
-     print "Size of SCells container : ", SCells.size()
+     print ("Size of SCells container : ", SCells.size())
      TTs = self.sg['xAODTriggerTowers']
-     print "Size of TT container : ", TTs.size()
+     print ("Size of TT container : ", TTs.size())
      TPs = self.sg['TruthParticles']
-     print "Size of TP container : ",TPs.size()
+     print ("Size of TP container : ",TPs.size())
 
      # method to get all cells above a threshold (seeds for clusters)
      listAboveThr=self.findCellsAboveThr(SCells,3e3)
@@ -149,13 +150,13 @@ class EFexAlgo (PyAthena.Alg) :
      twoEt = self.ListOfEtVsEta
      for scell in listAboveThr:
          # for each seed build a list of cells around it
-         print 'cell aboveThr : ',scell.et()
+         print ('cell aboveThr : ',scell.et())
          cellsOfCluster=self.findCellsAround(SCells,scell)
          for c in cellsOfCluster:
-            print '\t',c.et()
+            print ('\t',c.et())
          # check if cell is em and hottested around it
          if ( not self.isCellEmMaximum(cellsOfCluster,scell) ) : continue
-         print 'continue'
+         print ('continue')
          TTOfCluster=self.findTTsAround(TTs,scell)
          # sum the et of all cells in EM layer
          clusterEmEnergy = self.sumEmCells(cellsOfCluster)
@@ -166,15 +167,15 @@ class EFexAlgo (PyAthena.Alg) :
          oneEt.append(clusterEmEnergy/1e3)
          twoEt.append([scell.eta(),clusterHadEnergy/1e3])
          if ( clusterEmEnergy > 5e2 ) :
-             print "Results : ",scell.eta(),scell.phi(),clusterEmEnergy, clusterHadEnergy
+             print ("Results : ",scell.eta(),scell.phi(),clusterEmEnergy, clusterHadEnergy)
      for truth in TPs:
          if not ( (truth.absPdgId() == 11) or (truth.pdgId()==22) ) : continue
          if not ( truth.pt() > 1e3 ) : continue
          if not ( ROOT.TMath.Abs(truth.eta()) <2.5 ) : continue
-         print "Truth : ",truth.pt(), truth.eta(), truth.phi()
+         print ("Truth : ",truth.pt(), truth.eta(), truth.phi())
 
 
-     print "End of List"
+     print ("End of List")
      return StatusCode.Success
 
    # algorithm finalize also helps by creating, filling and
@@ -193,6 +194,6 @@ class EFexAlgo (PyAthena.Alg) :
      f.Write()
      f.Close()
      PyAthena.Alg.finalize(self)
-     print "In Finalize"
+     print ("In Finalize")
      return StatusCode.Success
 

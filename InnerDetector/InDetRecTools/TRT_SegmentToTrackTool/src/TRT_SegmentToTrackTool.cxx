@@ -85,6 +85,9 @@ namespace InDet {
     ATH_CHECK( m_magFieldSvc.retrieve() );
 
     ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
+    ////////////////////////////////////////////////////////////////////////////////
+    ATH_CHECK( m_fieldCondObjInputKey.initialize());
+    ////////////////////////////////////////////////////////////////////////////////
 
     // Get output print level
     //
@@ -151,7 +154,7 @@ namespace InDet {
   }
 
 
-  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const Trk::TrackSegment& tS) const {
+  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const EventContext& ctx, const Trk::TrackSegment& tS) const {
 
 
     ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
@@ -292,7 +295,6 @@ namespace InDet {
 	  }
 	  // remember oldphi
 	  oldphi=tmpphi;
-	  //std::cout << "oldphi: " << oldphi << " tmpphi: " << tmpphi << std::endl;
 	
 	  // copy the points
 	  points.push_back(std::make_pair(tS.measurement(it)->associatedSurface().center().z(),tmpphi));
@@ -404,7 +406,6 @@ namespace InDet {
 	d             = (points.size()*sxx-sx*sx);
 	double dphidz = ((points.size()*sxy-sy*sx)/d);
 	myqoverp      = (fabs(pseudotheta)>1e-6) ? -dphidz/(0.6*tan(pseudotheta)) : 1000.;
-	// std::cout << "pt: " << sin(pseudotheta)/myqoverp << std::endl;    
 
 	// some geometry stuff to estimate further paramters...
 	double halfz  = 200.;
@@ -423,7 +424,6 @@ namespace InDet {
 	// ME: this is hardcoding, not nice and should be fixed
 	if (fabs(lastsurf->center().z())<2650*mm) {
 	  pos2 = lastsurf->center()+halfz2*strawdir2;
-	  //std::cout << "pos2: " << pos2 << std::endl;
 	  if (nbarrel==0){
 	    double dr = fabs(tan(pseudotheta)*(lastsurf->center().z()-firstsurf->center().z()));
 	    pos1      = firstsurf->center()+(halfz-dr)*strawdir1; 
@@ -458,7 +458,22 @@ namespace InDet {
 	}
 
 	Amg::Vector3D field1;
-	m_magFieldSvc->getField(Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+
+        MagField::AtlasFieldCache    fieldCache;
+
+        // Get field cache object
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+            return 0;
+        }
+        fieldCondObj->getInitializedCache (fieldCache);
+
+        //   MT version uses cache, temporarily keep old version
+        if (fieldCache.useNewBfieldCache()) fieldCache.getField    (Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+        else                                m_magFieldSvc->getField(Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+
 	field1 *= m_fieldUnitConversion; // field in Tesla
 
 	double phideflection = -.3*(pos2-pos1).perp()*field1.z()*myqoverp/sin(pseudotheta);
@@ -478,7 +493,6 @@ namespace InDet {
 	Trk::AtaStraightLine ataline(((nbarrel==0) ? pos1 : pos2),precisephi,precisetheta,myqoverp,*surfforpar);
 	Trk::PerigeeSurface persurf;
 	const Trk::TrackParameters *extrappar=m_extrapolator->extrapolateDirectly(ataline,persurf);
-	//std::cout << "ataline: " << ataline << " extrap par: " << *extrappar << std::endl;
 
 	// now get parameters
 	if (extrappar){

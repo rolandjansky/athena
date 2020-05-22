@@ -8,7 +8,7 @@
 // Framework include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -126,7 +126,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
                                                  AmgSymMatrix(5)& covCB,
                                                  double& chi2) const;
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
-    virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
+    virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const;
     virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
     virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
@@ -159,7 +159,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     StatusCode SetRelease( std::string );
     StatusCode SetType( std::string );
 
-    virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
+    virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=nullptr,unsigned int track=0);
     virtual double  sagitta(TProfile2D* corrM, TLorentzVector &lv) const;
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);

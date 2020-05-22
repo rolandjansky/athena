@@ -38,7 +38,8 @@ class PixelRawDataProviderTool : virtual public IPixelRawDataProviderTool, publi
   
   //! this is the main decoding method
   StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      IPixelRDO_Container*               rdoIdc ) const final;
+		      IPixelRDO_Container* rdoIdc,
+		      IDCInDetBSErrContainer& decodingErrors) const final;
 
 
 private: 

@@ -6,14 +6,14 @@
 // Extrapolator.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
 // Trk inlcude
 #include "TrkExTools/ObjContainer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkExToolsStringUtility.h"
 
 // for debugging could implement these methods to instrument input track parameters with
-// e.g. construcor and destrucotr monitoring
+// e.g. constructor and destructor monitoring
 inline const Trk::TrackParameters *replaceTrkParm(const Trk::TrackParameters *base_parm) {
    return base_parm;
 }
@@ -68,11 +68,10 @@ inline Trk::TrackParameters *cloneObj<Trk::TrackParameters>(const Trk::TrackPara
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-// #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 // for the comparison with a pointer
-#include <stdint.h>
+#include <cstdint>
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -97,11 +96,11 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   m_propagators(),
   m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
   m_navigator("Trk::Navigator/AtlasNavigator"),
-  m_updators(),
-  m_msupdators(),
-  m_elossupdators(),
+  m_updaters(),
+  m_msupdaters(),
+  m_elossupdaters(),
   m_subPropagators(Trk::NumberOfSignatures),
-  m_subUpdators(Trk::NumberOfSignatures),
+  m_subupdaters(Trk::NumberOfSignatures),
   m_propNames(),
   m_updatNames(),
   m_includeMaterialEffects(true),
@@ -173,9 +172,9 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   // material effects handling
   declareProperty("ApplyMaterialEffects", m_includeMaterialEffects);
   declareProperty("RequireMaterialDestinationHit", m_requireMaterialDestinationHit);
-  declareProperty("MaterialEffectsUpdators", m_updators);
-  declareProperty("MultipleScatteringUpdators", m_msupdators);
-  declareProperty("EnergyLossUpdators", m_elossupdators);
+  declareProperty("MaterialEffectsUpdators", m_updaters);
+  declareProperty("MultipleScatteringUpdators", m_msupdaters);
+  declareProperty("EnergyLossUpdators", m_elossupdaters);
   declareProperty("SubMEUpdators", m_updatNames);
   declareProperty("CacheLastMaterialLayer", m_cacheLastMatLayer);
   // general behavior navigation
@@ -215,22 +214,28 @@ Trk::Extrapolator::~Extrapolator() {
 // initialize
 StatusCode
 Trk::Extrapolator::initialize() {
+
   m_referenceSurface = new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0., 0.);
   m_referenceSurface->setOwner(Trk::TGOwn);
 
   m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : Trk::MagneticFieldProperties(
     Trk::FullField);
+    
+  //before we start messing around, how many of these updaters were actually passed in?
+  const auto numberOfSubPropagatorsGiven = m_propNames.size();
+  const auto numberOfSubMatEffUpdatersGiven = m_updatNames.size();
+  //
   if (m_propagators.empty()) {
     m_propagators.push_back("Trk::RungeKuttaPropagator/DefaultPropagator");
   }
-  if (m_updators.empty()) {
-    m_updators.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
+  if (m_updaters.empty()) {
+    m_updaters.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
   }
-  if (m_msupdators.empty()) {
-    m_msupdators.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
+  if (m_msupdaters.empty()) {
+    m_msupdaters.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
   }
-  if (m_elossupdators.empty()) {
-    m_elossupdators.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
+  if (m_elossupdaters.empty()) {
+    m_elossupdaters.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
   }
   if (!m_propagators.empty()) {
     ATH_CHECK( m_propagators.retrieve() ); 
@@ -252,47 +257,59 @@ Trk::Extrapolator::initialize() {
   ATH_CHECK( m_navigator.retrieve() );
  
   // Get the Material Updator
-  if (m_includeMaterialEffects && not m_updators.empty()) {
-    ATH_CHECK( m_updators.retrieve() );
-      for (auto& tool : m_updators) {
+  if (m_includeMaterialEffects && not m_updaters.empty()) {
+    ATH_CHECK( m_updaters.retrieve() );
+      for (auto& tool : m_updaters) {
         // @TODO tools, that are already used, should not be disabled. Those are currently disabled to silence the warning 
-        // issued by the tool usage detection, which is circumvented in case of the m_updators. 
+        // issued by the tool usage detection, which is circumvented in case of the m_updaters. 
         tool.disable();
       }    
   }
 
   // from the number of retrieved propagators set the configurationLevel
-  unsigned int validmeuts = m_updators.size();
-
+  unsigned int validmeuts = m_updaters.size();
+  std::vector<std::string> fullPropagatorNames(m_propagators.size());
+  std::vector<std::string> fullUpdatorNames(m_updaters.size());
+  auto extractNameFromTool = [] (const auto & toolHndl ){return toolHndl->name();};
+  std::transform(m_propagators.begin(), m_propagators.end(), fullPropagatorNames.begin(), extractNameFromTool );
+  std::transform(m_updaters.begin(), m_updaters.end(), fullUpdatorNames.begin(), extractNameFromTool );
   // -----------------------------------------------------------
   // Sanity check 1
-
   if (m_propNames.empty() && not m_propagators.empty()) {
     ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-propagators configured, doing it for you. ");
-    m_propNames.push_back(m_propagators[0]->name().substr(8, m_propagators[0]->name().size() - 8));
+    m_propNames.push_back(TrkExTools::getToolSuffix(fullPropagatorNames[0]));
+    if (TrkExTools::numberOfUniqueEntries(m_propNames) != TrkExTools::numberOfUniqueEntries(fullPropagatorNames)){
+      ATH_MSG_ERROR("Some configured propagators have same name but different owners");
+    }
+    if (const auto & errMsg=TrkExTools::possibleToolNameError(m_propNames); not errMsg.empty()){
+      ATH_MSG_ERROR(errMsg);
+    }
   }
 
-  if (m_updatNames.empty() && not m_updators.empty()) {
-    ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-materialupdators configured, doing it for you. ");
-    m_updatNames.push_back(m_updators[0]->name().substr(8, m_updators[0]->name().size() - 8));
+  if (m_updatNames.empty() && not m_updaters.empty()) {
+    ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-material updaters configured, doing it for you. ");
+    m_updatNames.push_back(TrkExTools::getToolSuffix(fullUpdatorNames[0]));
+    if (TrkExTools::numberOfUniqueEntries(m_updatNames) != TrkExTools::numberOfUniqueEntries(fullUpdatorNames)){
+      ATH_MSG_ERROR("Some configured material updaters have same name but different owners");
+    }
+    if (const auto & errMsg=TrkExTools::possibleToolNameError(m_updatNames); not errMsg.empty()){
+      ATH_MSG_ERROR(errMsg);
+    }
   }
+  
 
   // -----------------------------------------------------------
   // Sanity check 2
   // fill the number of propagator names and updator names up with first one
-  while (int(m_propNames.size()) < int(Trk::NumberOfSignatures)) {
-    m_propNames.push_back(m_propNames[0]);
-  }
-  while (int(m_updatNames.size()) < int(Trk::NumberOfSignatures)) {
-    m_updatNames.push_back(m_updatNames[0]);
-  }
+  m_propNames.resize(int(Trk::NumberOfSignatures), m_propNames[0]);
+  m_updatNames.resize(int(Trk::NumberOfSignatures), m_updatNames[0]);
+  
   if (validprop && validmeuts) {
     // Per definition: if configured not found, take the lowest one
     for (unsigned int isign = 0; int(isign) < int(Trk::NumberOfSignatures); ++isign) {
       unsigned int index = 0;
-
       for (unsigned int iProp = 0; iProp < m_propagators.size(); iProp++) {
-        std::string pname = m_propagators[iProp]->name().substr(8, m_propagators[iProp]->name().size() - 8);
+        std::string pname = TrkExTools::getToolSuffix(m_propagators[iProp]->name());
         if (m_propNames[isign] == pname) {
           index = iProp;
         }
@@ -301,20 +318,28 @@ Trk::Extrapolator::initialize() {
       m_subPropagators[isign] = (index < validprop) ? &(*m_propagators[index]) : &(*m_propagators[Trk::Global]);
 
       index = 0;
-      for (unsigned int iUp = 0; iUp < m_updators.size(); iUp++) {
-        std::string uname = m_updators[iUp]->name().substr(8, m_updators[iUp]->name().size() - 8);
+      for (unsigned int iUp = 0; iUp < m_updaters.size(); iUp++) {
+        std::string uname = TrkExTools::getToolSuffix(m_updaters[iUp]->name());
         if (m_updatNames[isign] == uname) {
           index = iUp;
         }
       }
-      ATH_MSG_DEBUG(" subMEUpdator:" << isign << " pointing to updator: " << m_updators[index]->name());
-      m_subUpdators[isign] = (index < validmeuts) ? &(*m_updators[index]) : &(*m_updators[Trk::Global]);
+      ATH_MSG_DEBUG(" subMEUpdator:" << isign << " pointing to updator: " << m_updaters[index]->name());
+      m_subupdaters[isign] = (index < validmeuts) ? &(*m_updaters[index]) : &(*m_updaters[Trk::Global]);
     }
   } else {
     ATH_MSG_FATAL("Configuration Problem of Extrapolator: "
                   << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! ");
   }
-
+  const std::string propStr = std::to_string(numberOfSubPropagatorsGiven)+" propagator" + std::string((numberOfSubPropagatorsGiven == 1)? "":"s");
+  const std::string updStr = std::to_string(numberOfSubMatEffUpdatersGiven)+" updater" + std::string((numberOfSubMatEffUpdatersGiven == 1)? "":"s");
+  std::string msgString{"\nThe extrapolator uses six sub-propagators and sub-material effects updaters:\n"};
+  msgString += propStr + " and "+updStr+" were given in the configuration,\n";
+  msgString += "the extrapolator sub-tools have been defined as follows: \n";
+  for (int i(0);i != int(Trk::NumberOfSignatures);++i){
+    msgString += std::to_string(i)+") propagator: "+m_subPropagators[i]->name()+", updater: "+m_subupdaters[i]->name()+"\n";
+  }
+  ATH_MSG_VERBOSE(msgString);
   ATH_CHECK( m_stepPropagator.retrieve() );
   ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
@@ -325,7 +350,7 @@ StatusCode
 Trk::Extrapolator::finalize() {
   if (m_navigationStatistics) {
     ATH_MSG_INFO(" Perfomance Statistics  : ");
-    ATH_MSG_INFO(" [P] Methode Statistics ------- -----------------------------------------------------------");
+    ATH_MSG_INFO(" [P] Method Statistics ------- -----------------------------------------------------------");
     ATH_MSG_INFO("     -> Number of extrapolate() calls                : " << m_extrapolateCalls);
     ATH_MSG_INFO("     -> Number of extrapolateBlindly() calls         : " << m_extrapolateBlindlyCalls);
     ATH_MSG_INFO("     -> Number of extrapolateDirectly() calls        : " << m_extrapolateDirectlyCalls);
@@ -347,7 +372,7 @@ Trk::Extrapolator::finalize() {
     if (m_navigationBreakDetails) {
       ATH_MSG_DEBUG("   Detailed output for Navigation breaks             : ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakLoop << " loops occured in the following volumes:    ");
-      ATH_MSG_DEBUG("    o " << m_navigationBreakOscillation << " osillations occured in following volumes: ");
+      ATH_MSG_DEBUG("    o " << m_navigationBreakOscillation << " oscillations occured in following volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakNoVolume << " times no next volume found of  volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakDistIncrease << " distance increases detected at volumes: ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakVolumeSignature << " no propagator configured for volumes: ");
@@ -424,29 +449,14 @@ Trk::Extrapolator::extrapolate(const NeutralParameters &parameters,
   return nullptr;
 }
 
-// Stratetgy Pattern extrapolation methods
-// ---------------------------------------------------------------------------------------/
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const IPropagator &prop,
-                               const Trk::TrackParameters &parm,
-                               const Trk::Surface &sf,
-                               Trk::PropDirection dir,
-                               const Trk::BoundaryCheck&  bcheck,
-                               Trk::ParticleHypothesis particle,
-                               MaterialUpdateMode matupmode) const {
-   Cache cache{};
-   return extrapolateImpl(cache,prop,cache.manage(parm).index(),sf,dir,bcheck,particle,matupmode).release();
-}
-
-
-//---------------------------------------------------------------
-const Trk::TrackParametersVector*
-Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
-                                       const Trk::TrackParameters &parm,
-                                       const Trk::Surface &sf,
-                                       Trk::PropDirection dir,
-                                       const Trk::BoundaryCheck&  bcheck,
-                                       Trk::ParticleHypothesis particle) const {
+Trk::TrackParametersUVector
+Trk::Extrapolator::extrapolateStepwiseImpl(const IPropagator& prop,
+                                           const Trk::TrackParameters& parm,
+                                           const Trk::Surface& sf,
+                                           Trk::PropDirection dir,
+                                           const Trk::BoundaryCheck& bcheck,
+                                           Trk::ParticleHypothesis particle) const
+{
 
   Cache cache{};
   // statistics && sequence output ----------------------------------------
@@ -455,17 +465,16 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
   ATH_MSG_DEBUG("F-[" << cache.m_methodSequence << "] extrapolateStepwise(...) ");
   // initialize the return parameters vector
   // create a new internal helper vector
-  cache.m_parametersOnDetElements    = new std::vector<const Trk::TrackParameters *>;
+  Trk::TrackParametersVector tmp;
+  cache.m_parametersOnDetElements    = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
   ManagedTrackParmPtr parameterOnSf(extrapolateImpl(cache,prop, cache.manage(parm).index(), sf, dir, bcheck, particle));
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
   if (parameterOnSf) {
-    cache.m_parametersOnDetElements->push_back(parameterOnSf.release());
-    const Trk::TrackParametersVector *ret=cache.m_parametersOnDetElements;
+    tmp.push_back(parameterOnSf.release());
     cache.m_parametersOnDetElements    = nullptr;
     cache.m_ownParametersOnDetElements = false;
-    return ret;
   } else {
 
      if (!cache.m_ownParametersOnDetElements) {
@@ -473,64 +482,18 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
         msg << "Will not cleanup " << static_cast<const void *>(cache.m_parametersOnDetElements);
         throw std::logic_error(msg.str());
      }
-     return nullptr;
+     tmp.clear();
   }
+  return Trk::TrackParametersUVector (tmp.begin(), tmp.end());
 }
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const IPropagator &prop,
-                               const Trk::Track &trk,
-                               const Trk::Surface &sf,
-                               Trk::PropDirection dir,
-                               const Trk::BoundaryCheck&  bcheck,
-                               Trk::ParticleHypothesis particle,
-                               MaterialUpdateMode matupmode) const {
-  
-  // intialize the starting propagator
-  const IPropagator *searchProp = nullptr;
-  // get the propagator depending on the volume
-  if (m_searchLevel < 2) {
-    unsigned int iprop = (m_searchLevel > m_configurationLevel) ? m_searchLevel : m_configurationLevel;
-    searchProp = &(*m_propagators[iprop]);
-  }
-  // call the navigator
-  // @TODO leak ?
-  const Trk::TrackParameters *closestTrackParameters = m_navigator->closestParameters(trk, sf, searchProp);
-  if (closestTrackParameters) {
-    return(extrapolate(prop, *closestTrackParameters, sf, dir, bcheck, particle, matupmode));
-  }
-  return nullptr;
-}
-
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const IPropagator &prop,
-                               const TrackParameters &parm,
-                               const std::vector< MaterialEffectsOnTrack > &sfMeff,
-                               const TrackingVolume &tvol,
-                               PropDirection dir,
-                               ParticleHypothesis particle,
-                               MaterialUpdateMode matupmode) const {
-   Cache cache{};
-   return extrapolateImpl(cache,prop,cache.manage(parm).index(),sfMeff,tvol,dir,particle,matupmode).release();
-}
-const Trk::TrackParametersVector*
-Trk::Extrapolator::extrapolateBlindly(
-  const IPropagator &prop,
-  const Trk::TrackParameters &parm,
-  Trk::PropDirection dir,
-  const Trk::BoundaryCheck&  bcheck,
-  Trk::ParticleHypothesis particle,
-  const Trk::Volume *boundaryVol) const {
-  Cache cache{};
-  return extrapolateBlindlyImpl(cache,prop,cache.manage(parm).index(),dir,bcheck,particle,boundaryVol);
-}
-
-std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextActiveLayer(
-  const IPropagator &prop,
-  const Trk::TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode) const {
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const IPropagator& prop,
+                                                    const Trk::TrackParameters& parm,
+                                                    PropDirection dir,
+                                                    const BoundaryCheck& bcheck,
+                                                    ParticleHypothesis particle,
+                                                    MaterialUpdateMode matupmode) const
+{
 
   Cache cache{};
   // statistics && sequence output ----------------------------------------
@@ -593,14 +556,15 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
   return std::pair<const Trk::TrackParameters *, const Trk::Layer *>(currPar.release(), assocLayer);
 }
 
-std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextActiveLayerM(
-  const IPropagator &prop,
-  const Trk::TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  std::vector<const Trk::TrackStateOnSurface *> &material,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode) const {
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(const IPropagator& prop,
+                                                     const Trk::TrackParameters& parm,
+                                                     PropDirection dir,
+                                                     const BoundaryCheck& bcheck,
+                                                     std::vector<const Trk::TrackStateOnSurface*>& material,
+                                                     ParticleHypothesis particle,
+                                                     MaterialUpdateMode matupmode) const
+{
   Cache cache{};
   ++cache.m_methodSequence;
   ATH_MSG_DEBUG("M-[" << cache.m_methodSequence << "] extrapolateToNextActiveLayerM(...) ");
@@ -864,7 +828,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+          Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                     1. / currentqoverp), 1., dir, particle);
           ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
                         << nextPar->momentum().mag() - currPar->momentum().mag() << "," << eloss->deltaE());
@@ -879,13 +843,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
         double dInX0 = fabs(path) / propagVol->x0();
         Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
         double scatsigma =
-          sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+          sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                             particle));
         Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                    nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+        Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                   1. / currentqoverp), 1., dir, particle);
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1169,7 +1133,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+          Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                     1. / currentqoverp), 1., dir, particle);
           cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
           if (m_dumpCache) {
@@ -1186,13 +1150,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
         }
         Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
         double scatsigma =
-          sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+          sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                             particle));
         Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                    nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(1. / currentqoverp), 1.,
+        Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(1. / currentqoverp), 1.,
                                                                 dir, particle);
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1293,7 +1257,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                   }
                   cache.m_extrapolationCache->updateX0(dInX0);
                   double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                  EnergyLoss *eloss = m_elossupdators[0]->energyLoss(*lmat, fabs(
+                  EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(*lmat, fabs(
                                                                        1. / currentqoverp), 1. / costr, dir, particle);
                   cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(),
                                                     eloss->meanRad(), eloss->sigmaRad());
@@ -1307,12 +1271,12 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
               if (cache.m_matstates) {
                 double dInX0 = thick / lx0;
                 double scatsigma =
-                  sqrt(m_msupdators[0]->sigmaSquare(*lmat, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
+                  sqrt(m_msupdaters[0]->sigmaSquare(*lmat, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
                 Trk::ScatteringAngles *newsa =
                   new Trk::ScatteringAngles(0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
                 // energy loss
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                EnergyLoss *eloss = m_elossupdators[0]->energyLoss(*lmat, fabs(
+                EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(*lmat, fabs(
                                                                      1. / currentqoverp), 1. / costr, dir, particle);
 
                 // use curvilinear TPs to simplify retrieval by fitters
@@ -1432,7 +1396,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                                                                                                                 // @TODO
                                                                                                                 // check
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+                EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                      1. / currentqoverp), 1. / costr, dir, particle);
                 cache.m_extrapolationCache->updateEloss(eloss->meanIoni(), eloss->sigmaIoni(),
                                                   eloss->meanRad(), eloss->sigmaRad());
@@ -1449,13 +1413,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                                                                                                               // @TODO
                                                                                                               // check
               double scatsigma =
-                sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
+                sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1.,
                                                   particle));
               Trk::ScatteringAngles *newsa =
                 new Trk::ScatteringAngles(0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
               // energy loss
               double currentqoverp = nextPar->parameters()[Trk::qOverP];
-              EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+              EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                    1. / currentqoverp), 1. / costr,
                                                                  dir, particle);
 
@@ -1859,13 +1823,14 @@ Trk::Extrapolator::extrapolateInAlignableTV(Cache& cache,
   return ManagedTrackParmPtr();
 }
 
-std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextStation(
-  const IPropagator &prop,
-  const Trk::TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode) const {
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextStationImpl(const IPropagator& prop,
+                                                const Trk::TrackParameters& parm,
+                                                PropDirection dir,
+                                                const BoundaryCheck& bcheck,
+                                                ParticleHypothesis particle,
+                                                MaterialUpdateMode matupmode) const
+{
   // material update on detached volume layer representation only
 
   // double tol = 0.001;
@@ -1962,7 +1927,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
               return std::pair<const Trk::TrackParameters *, const Trk::Layer *>(nextPar.release(), nullptr);
             }
             ATH_MSG_DEBUG("  [+] Crossing to next volumat     - at " << positionOutput(nextPar->position()));
-            return extrapolateToNextStation(prop, *nextPar, dir, bcheck, particle, matupmode);
+            return extrapolateToNextStationImpl(prop, *nextPar, dir, bcheck, particle, matupmode);
           }
         }
       }
@@ -2000,7 +1965,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
           const Trk::Layer *lay = (*dIter)->layerRepresentation();
           if (lay && lay != cache.m_lastMaterialLayer) {
             // material update (from detached trackingvolume)
-            const IMaterialEffectsUpdator *currentUpdator = m_subUpdators[(*dIter)->geometrySignature()];
+            const IMaterialEffectsUpdator *currentUpdator = m_subupdaters[(*dIter)->geometrySignature()];
             if (currentUpdator) {
                nextPar = ManagedTrackParmPtr::recapture(
                                     nextPar,
@@ -2027,13 +1992,14 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
   return std::pair<const Trk::TrackParameters *, const Trk::Layer *>(nullptr, nullptr);
 }
 
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateDirectly(const IPropagator &prop,
-                                       const Trk::TrackParameters &parm,
-                                       const Trk::Surface &sf,
-                                       Trk::PropDirection dir,
-                                       const Trk::BoundaryCheck&  bcheck,
-                                       Trk::ParticleHypothesis particle) const {
+Trk::TrackParameters*
+Trk::Extrapolator::extrapolateDirectlyImpl(const IPropagator& prop,
+                                           const Trk::TrackParameters& parm,
+                                           const Trk::Surface& sf,
+                                           Trk::PropDirection dir,
+                                           const Trk::BoundaryCheck& bcheck,
+                                           Trk::ParticleHypothesis particle) const
+{
   // statistics && sequence output ----------------------------------------
   ++m_extrapolateDirectlyCalls;
 
@@ -2052,12 +2018,13 @@ Trk::Extrapolator::extrapolateDirectly(const IPropagator &prop,
   return nullptr;
 }
 
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateToVolume(const IPropagator &prop,
-                                       const TrackParameters &parm,
-                                       const TrackingVolume &vol,
-                                       PropDirection dir,
-                                       ParticleHypothesis particle) const {
+const Trk::TrackParameters*
+Trk::Extrapolator::extrapolateToVolumeImpl(const IPropagator& prop,
+                                           const TrackParameters& parm,
+                                           const TrackingVolume& vol,
+                                           PropDirection dir,
+                                           ParticleHypothesis particle) const
+{
   // @TODO in principle the cache should already be created here to correctly set cache.m_methodSequence for sub-sequent calls ...
   ATH_MSG_DEBUG("V-[?" /*<< cache.m_methodSequence*/ << "] extrapolateToVolume(...) to volume '" << vol.volumeName() << "'.");
   const TrackParameters *returnParms=nullptr;
@@ -2097,7 +2064,14 @@ Trk::Extrapolator::extrapolateToVolume(const IPropagator &prop,
   // solution along path
   for ( std::pair<const Trk::Surface *, double> & a_surface : surfaces) {
     if (a_surface.second > 0) {
-      returnParms = extrapolate(prop, parm, *(a_surface.first), propDir, true, particle);
+      Cache cache{};
+      returnParms = extrapolateImpl(cache,
+                                    prop,
+                                    cache.manage(parm).index(),
+                                    *(a_surface.first),
+                                    propDir,
+                                    true,
+                                    particle).release();
       if (returnParms == &parm) {
          throw std::logic_error("Did not create new track parameters.");
       }
@@ -2113,7 +2087,14 @@ Trk::Extrapolator::extrapolateToVolume(const IPropagator &prop,
          rsIter != surfaces.rend();
          rsIter++) {
       if ((*rsIter).second < 0) {
-        returnParms = extrapolate(prop, parm, *((*rsIter).first), Trk::oppositeMomentum, true, particle);
+        Cache cache{};
+        returnParms = extrapolateImpl(cache,
+                                      prop,
+                                      cache.manage(parm).index(),
+                                      *((*rsIter).first),
+                                      Trk::oppositeMomentum,
+                                      true,
+                                      particle).release();
         if (returnParms == &parm) {
            throw std::logic_error("Did not create new track parameters.");
         }
@@ -2124,7 +2105,6 @@ Trk::Extrapolator::extrapolateToVolume(const IPropagator &prop,
       }
     }
   }
-
   // cache.m_methodSequence=0; // originially m_methodSequence was reset here but cache not available here
   return returnParms;
 }
@@ -2144,7 +2124,7 @@ Trk::Extrapolator::extrapolate(const TrackParameters &parm,
    return extrapolateImpl(cache,cache.manage(parm).index(),sf,dir,bcheck,particle,matupmode,extrapolationCache).release();
 }
 
-const std::vector<const Trk::TrackParameters *> *
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateStepwise(
   const Trk::TrackParameters &parm,
   const Trk::Surface &sf,
@@ -2155,11 +2135,11 @@ Trk::Extrapolator::extrapolateStepwise(
     // set propagator to the sticky one, will be adopted if m_stickyConfiguration == false
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return extrapolateStepwise((*currentPropagator), parm, sf, dir, bcheck, particle);
+      return extrapolateStepwiseImpl((*currentPropagator), parm, sf, dir, bcheck, particle);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return nullptr;
+  return TrackParametersUVector();
 }
 
 const Trk::TrackParameters *
@@ -2190,7 +2170,7 @@ Trk::Extrapolator::extrapolate(const Trk::Track &trk,
   return nullptr;
 }
 
-const std::vector<const Trk::TrackParameters *> *
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateBlindly(
   const Trk::TrackParameters &parm,
   Trk::PropDirection dir,
@@ -2201,14 +2181,21 @@ Trk::Extrapolator::extrapolateBlindly(
     // set propagator to the global one
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return extrapolateBlindly((*currentPropagator), parm, dir, bcheck, particle, boundaryVol);
+      Cache cache{};
+      return extrapolateBlindlyImpl(cache,
+                                    (*currentPropagator),
+                                    cache.manage(parm).index(),
+                                    dir,
+                                    bcheck,
+                                    particle,
+                                    boundaryVol);
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return nullptr;
+  return TrackParametersUVector();
 }
 
-const Trk::TrackParameters *
+Trk::TrackParameters *
 Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
                                        const Trk::Surface &sf,
                                        Trk::PropDirection dir,
@@ -2218,63 +2205,76 @@ Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
     // set propagator to the global one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
-      return(extrapolateDirectly((*currentPropagator), parm, sf, dir, bcheck, particle));
+      return (extrapolateDirectlyImpl((*currentPropagator), parm, sf, dir, bcheck, particle));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
   return nullptr;
 }
 
-std::pair<const Trk::TrackParameters *, const Trk::Layer *>  Trk::Extrapolator::extrapolateToNextActiveLayer(
-  const TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode)
-const {
+Trk::TrackParameters *
+Trk::Extrapolator::extrapolateDirectly(const IPropagator& prop,
+                                       const Trk::TrackParameters &parm,
+                                       const Trk::Surface &sf,
+                                       Trk::PropDirection dir,
+                                       const Trk::BoundaryCheck&  bcheck,
+                                       Trk::ParticleHypothesis particle) const {
+  return extrapolateDirectlyImpl(prop, parm, sf, dir, bcheck, particle);
+}
+
+
+
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextActiveLayer(const TrackParameters& parm,
+                                                PropDirection dir,
+                                                const BoundaryCheck& bcheck,
+                                                ParticleHypothesis particle,
+                                                MaterialUpdateMode matupmode) const
+{
   if (m_configurationLevel < 10) {
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      return(extrapolateToNextActiveLayer((*currentPropagator), parm, dir, bcheck, particle, matupmode));
+      return(extrapolateToNextActiveLayerImpl((*currentPropagator), parm, dir, bcheck, particle, matupmode));
     }
   }
   ATH_MSG_ERROR("[!] No default Propagator is configured ! Please check jobOptions.");
   return std::pair<const Trk::TrackParameters *, const Trk::Layer *>(0, 0);
 }
 
-std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextActiveLayerM(
-  const TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  std::vector<const Trk::TrackStateOnSurface *> &material,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode)
-const {
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextActiveLayerM(const TrackParameters& parm,
+                                                 PropDirection dir,
+                                                 const BoundaryCheck& bcheck,
+                                                 std::vector<const Trk::TrackStateOnSurface*>& material,
+                                                 ParticleHypothesis particle,
+                                                 MaterialUpdateMode matupmode) const
+{
   if (m_configurationLevel < 10) {
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      return(extrapolateToNextActiveLayerM((*currentPropagator), parm, dir, bcheck, material, particle, matupmode));
+      return (
+        extrapolateToNextActiveLayerMImpl((*currentPropagator), parm, dir, bcheck, material, particle, matupmode));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
   return std::pair<const Trk::TrackParameters *, const Trk::Layer *>(0, 0);
 }
 
-std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextStation(
-  const TrackParameters &parm,
-  PropDirection dir,
-  const BoundaryCheck&  bcheck,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode)
-const {
+std::pair<const Trk::TrackParameters*, const Trk::Layer*>
+Trk::Extrapolator::extrapolateToNextStation(const TrackParameters& parm,
+                                            PropDirection dir,
+                                            const BoundaryCheck& bcheck,
+                                            ParticleHypothesis particle,
+                                            MaterialUpdateMode matupmode) const
+{
   if (m_configurationLevel < 10) {
     // set propagator to the global one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
     if (currentPropagator) {
-      return(extrapolateToNextStation((*currentPropagator), parm, dir, bcheck, particle, matupmode));
+      return (extrapolateToNextStationImpl((*currentPropagator), parm, dir, bcheck, particle, matupmode));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
@@ -2288,9 +2288,10 @@ Trk::Extrapolator::extrapolateToVolume(const Trk::TrackParameters &parm,
                                        ParticleHypothesis particle) const {
   if (m_configurationLevel < 10) {
     // take the volume signatrue to define the right propagator
-    const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[vol.geometrySignature()] : nullptr;
+    const IPropagator* currentPropagator =
+      !m_subPropagators.empty() ? m_subPropagators[vol.geometrySignature()] : nullptr;
     if (currentPropagator) {
-      return(extrapolateToVolume(*currentPropagator, parm, vol, dir, particle));
+      return (extrapolateToVolumeImpl(*currentPropagator, parm, vol, dir, particle));
     }
   }
   ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
@@ -2360,8 +2361,8 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &,
 void
 Trk::Extrapolator::validationAction() const {
   // record the updator validation information
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-    m_subUpdators[imueot]->validationAction();
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    m_subupdaters[imueot]->validationAction();
   }
   // record the navigator validation information
   m_navigator->validationAction();
@@ -2385,9 +2386,9 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    const Trk::BoundaryCheck& bcheck,
                                    Trk::ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode) const {
-  // set the model action of the material effects updators
-  for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-    m_subUpdators[imueot]->modelAction();
+  // set the model action of the material effects updaters
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    m_subupdaters[imueot]->modelAction();
   }
 
   // reset the destination surface
@@ -2397,10 +2398,10 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
   // skip rest of navigation if particle hypothesis is nonInteracting
   if (particle == Trk::nonInteracting || int(dir) > 5) {
      if (cache.m_methodSequence) {
-        ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment m_methodSequence therefore do it here
+       ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment m_methodSequence
+                                 // therefore do it here
      }
-     return ManagedTrackParmPtr::recapture(parm,
-                                    extrapolateDirectly(prop, *parm, sf, dir, bcheck, particle));
+     return ManagedTrackParmPtr::recapture(parm, extrapolateDirectlyImpl(prop, *parm, sf, dir, bcheck, particle));
   }
 
   // statistics && sequence output ----------------------------------------
@@ -2438,7 +2439,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
     ATH_MSG_VERBOSE("  [!] Navigation direction could not be resolved, switching to extrapolateDirectly()");
     // the extrapolate directly call
     ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment m_methodSequence
-    return ManagedTrackParmPtr::recapture(parm,extrapolateDirectly(prop, *parm, sf, navDir, bcheck, particle));
+    return ManagedTrackParmPtr::recapture(parm,extrapolateDirectlyImpl(prop, *parm, sf, navDir, bcheck, particle));
   }
   // ----------------------------------------------------------------------------------------------------------
   startVolume = nextVolume;
@@ -2582,9 +2583,9 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
       }
       if (resultParameters){
         // destination reached : indicated through result parameters
-        // set the model action of the material effects updators
-        for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
-          m_subUpdators[imueot]->modelAction();
+        // set the model action of the material effects updaters
+        for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+          m_subupdaters[imueot]->modelAction();
         }
         // return the parameters at destination
         ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");
@@ -2911,7 +2912,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
   return ManagedTrackParmPtr();
 }
 
-const Trk::TrackParametersVector*
+Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateBlindlyImpl(
   Cache& cache,
   const IPropagator &prop,
@@ -2928,20 +2929,20 @@ Trk::Extrapolator::extrapolateBlindlyImpl(
   cache.m_boundaryVolume = boundaryVol;
   // initialize the return parameters vector
   // create a new internal helper vector
-  cache.m_parametersOnDetElements    = new std::vector<const Trk::TrackParameters *>;
+  Trk::TrackParametersVector tmp;
+  cache.m_parametersOnDetElements    = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
   {
      ManagedTrackParmPtr parameterOnSf(extrapolateImpl(cache,prop, parm, *m_referenceSurface, dir, bcheck, particle));
   }
   // assign the return parameter and set cache.m_parametersOnDetElements = 0;
-  Trk::TrackParametersVector *returnParameters = cache.m_parametersOnDetElements;
   cache.m_parametersOnDetElements    = nullptr;
   cache.m_ownParametersOnDetElements = false;
   // reset the boundary Volume
   cache.m_boundaryVolume = nullptr;
   // return what you have
-  return returnParameters;
+  return Trk::TrackParametersUVector (tmp.begin(), tmp.end());
 }
 
 
@@ -3516,7 +3517,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(
   if (bParameters && bParameters->associatedSurface().materialLayer()) {
     ATH_MSG_VERBOSE(" [+] parameters on BoundarySurface with material.");
     if (m_includeMaterialEffects) {
-      const IMaterialEffectsUpdator *currentUpdator = m_subUpdators[tvol.geometrySignature()];
+      const IMaterialEffectsUpdator *currentUpdator = m_subupdaters[tvol.geometrySignature()];
       if (currentUpdator) {
          bParameters = ManagedTrackParmPtr::recapture(
                                     bParameters,
@@ -4399,7 +4400,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(Cache& cache,
       cache.m_extrapolationCache->updateX0(tInX0);
       double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
       std::unique_ptr<Trk::EnergyLoss> 
-         energyLoss( m_elossupdators[0]->energyLoss(*materialProperties,std::abs(1. / currentQoP),
+         energyLoss( m_elossupdaters[0]->energyLoss(*materialProperties,std::abs(1. / currentQoP),
                                                     pathCorrection, propDir,particle));
       cache.m_extrapolationCache->updateEloss(energyLoss->meanIoni(), energyLoss->sigmaIoni(),
                                         energyLoss->meanRad(), energyLoss->sigmaRad());
@@ -4413,11 +4414,11 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(Cache& cache,
     double tInX0 = pathCorrection * materialProperties->thicknessInX0();
     // get the q/p for the energyLoss object
     double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
-    Trk::EnergyLoss *energyLoss = m_elossupdators[0]->energyLoss(*materialProperties, fabs(
+    Trk::EnergyLoss *energyLoss = m_elossupdaters[0]->energyLoss(*materialProperties, fabs(
                                                   1. / currentQoP), pathCorrection, propDir, particle);
     // get the scattering angle
     double sigmaMS =
-      sqrt(m_msupdators[0]->sigmaSquare(*materialProperties, fabs(1. / currentQoP), pathCorrection, particle));
+      sqrt(m_msupdaters[0]->sigmaSquare(*materialProperties, fabs(1. / currentQoP), pathCorrection, particle));
     Trk::ScatteringAngles *scatAngles = new ScatteringAngles(0, 0, sigmaMS / sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
     Trk::MaterialEffectsOnTrack *meot = new Trk::MaterialEffectsOnTrack(tInX0, scatAngles, energyLoss,
                                                                         *lay.surfaceRepresentation().baseSurface());
@@ -4544,6 +4545,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(
      }
   }
   Cache cache{};
+
   // reset the path
   cache.m_path = 0.;
   ++cache.m_methodSequence;
@@ -4574,8 +4576,8 @@ Trk::Extrapolator::extrapolateWithPathLimit(
   }
 
   // extrapolate to destination volume boundary with path limit
-  ManagedTrackParmPtr returnParms(extrapolateToVolumeWithPathLimit(cache,cache.manage(parm).index(), pathLim, dir, particle, boundaryVol,
-                                                                   matupmod));
+  ManagedTrackParmPtr returnParms(
+    extrapolateToVolumeWithPathLimit(cache, cache.manage(parm).index(), pathLim, dir, particle, boundaryVol, matupmod));
 
   // folr debugging
   cache.m_robustSampling = m_robustSampling;
@@ -5065,7 +5067,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
       double dInX0 = fabs(path) / cache.m_currentDense->x0();
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
-      Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+      Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                 1. / currentqoverp), 1., dir, particle);
       if (m_dumpCache) {
         dumpCache(cache," extrapolateToVolumeWithPathLimit");
@@ -5081,12 +5083,12 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
       double dInX0 = fabs(path) / cache.m_currentDense->x0();
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
       double scatsigma =
-        sqrt(m_msupdators[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
+        sqrt(m_msupdaters[0]->sigmaSquare(materialProperties, 1. / fabs(nextPar->parameters()[qOverP]), 1., particle));
       Trk::ScatteringAngles *newsa = new Trk::ScatteringAngles(0, 0, scatsigma / sin(
                                                                  nextPar->parameters()[Trk::theta]), scatsigma);
       // energy loss
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
-      Trk::EnergyLoss *eloss = m_elossupdators[0]->energyLoss(materialProperties, fabs(
+      Trk::EnergyLoss *eloss = m_elossupdaters[0]->energyLoss(materialProperties, fabs(
                                                                 1. / currentqoverp), 1., dir, particle);
       // compare energy loss
       ATH_MSG_DEBUG(" [M] Energy loss: STEP , EnergyLossUpdator:"

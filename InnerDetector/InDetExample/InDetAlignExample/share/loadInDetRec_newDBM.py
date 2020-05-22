@@ -193,9 +193,7 @@ InDetFlags.doNewTracking          = True
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-#if not Cosmics:
-InDetFlags.doxKalman              = False
-InDetFlags.doiPatRec              = False
+
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 #InDetFlags.doTRTStandalone        = False
@@ -342,9 +340,8 @@ ToolSvc += InDetRotErrorScalingTool
 # Correct TRT calibration for cosmics
 if loadInDetRec_Options["TRTCalibTextFile"] and Cosmics:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
   
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )

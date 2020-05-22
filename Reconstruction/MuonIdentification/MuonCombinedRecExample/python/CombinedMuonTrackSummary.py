@@ -42,7 +42,6 @@ if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   ToolSvc += InDet__InDetTestPixelLayerTool( 
     name = "CombinedMuonInDetTestPixelLayerTool",
     Extrapolator = atlasExtrapolator,
-    PixelSummaryTool = InDetPixelConditionsSummaryTool,
     CheckActiveAreas = True,
     CheckDeadRegions = True
     )
@@ -104,7 +103,6 @@ if DetFlags.haveRIO.pixel_on():
     name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool
   ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
   ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID

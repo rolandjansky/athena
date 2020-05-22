@@ -16,7 +16,7 @@
 #include "xAODJet/Jet.h"
 
 #include "TauPi0ClusterCreator.h"
-
+#include "tauRecTools/HelperFunctions.h"
 
 using std::vector;
 using std::string;
@@ -26,10 +26,7 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-    TauRecToolBase(name)
-    , m_clusterEtCut(500.)
-{
-    declareProperty("ClusterEtCut",                  m_clusterEtCut);
+    TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -236,7 +233,7 @@ float TauPi0ClusterCreator::getEM1CoreFrac(
         sumEPosCellsEM1 += cellE;
         float cellEtaWRTCluster = cellInCluster->eta()-pi0Candidate->eta();
         float cellPhiWRTCluster = P4Helpers::deltaPhi(cellInCluster->phi(), pi0Candidate->phi());
-        if(fabs(cellPhiWRTCluster) > 0.05 || fabs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
+        if(std::abs(cellPhiWRTCluster) > 0.05 || std::abs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
         coreEnergy+=cellE;
     }
     if(sumEPosCellsEM1<=0.) return 0.;
@@ -379,7 +376,7 @@ vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
 
     for(int iLayer=0;iLayer<4;++iLayer){
         if(sumEInLayer[iLayer]!=0) 
-            firstEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+            firstEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
         else firstEtaWRTClusterPositionInLayer[iLayer]=0.;
     }
     return firstEtaWRTClusterPositionInLayer;
@@ -411,7 +408,7 @@ vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
 
       for(int iLayer=0;iLayer<4;++iLayer){
             if(sumEInLayer[iLayer]!=0) 
-                secondEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+                secondEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
             else secondEtaWRTClusterPositionInLayer[iLayer]=0.;
       }
       return secondEtaWRTClusterPositionInLayer;
@@ -424,17 +421,16 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOC
         ATH_MSG_ERROR("Could not retrieve tau jet seed");
         return false;
     }
-    xAOD::JetConstituentVector::const_iterator clusterItr   = tauJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator clusterItrE  = tauJetSeed->getConstituents().end();
-    for (; clusterItr != clusterItrE; ++clusterItr){
+    std::vector<const xAOD::CaloCluster*> clusterList;
+
+    StatusCode sc = tauRecTools::GetJetClusterList(tauJetSeed, clusterList, m_incShowerSubtr);
+    if (!sc) return false;
+
+    for (auto cluster : clusterList){
         // Procedure: 
         // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
         // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
         // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
-
-        // Get xAOD::CaloClusters from jet constituent
-        const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*clusterItr)->rawConstituent() );
-        if (!cluster) continue;
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
         if(cluster->e()<=0.) continue;

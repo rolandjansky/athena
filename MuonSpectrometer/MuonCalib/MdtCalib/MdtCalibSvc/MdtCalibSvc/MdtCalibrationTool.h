@@ -1,22 +1,26 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONTOOL_H
 #define MDTCALIBSVC_MDTCALIBRATIONTOOL_H
 
-#include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
-#include "Identifier/Identifier.h"
-#include "MuonPrepRawData/MdtDriftCircleStatus.h"
-
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "GaudiKernel/IInterface.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/MdtDriftCircleStatus.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+
+#include <string>
 
 class MdtCalibHit;
 class MdtCalibrationSvcInput;
 class MdtCalibrationSvcSettings;
 class MdtCalibrationDbTool;
+
 namespace MuonCalib {
   class MdtRtRelation;
 }
@@ -113,6 +117,13 @@ private:
   std::unique_ptr<Imp> m_imp;
 
   ToolHandle<MdtCalibrationDbTool> m_dbTool;
+
+  // Read handle for conditions object to get the field cache
+  // If one wants to avoid that adding of this read handle here, then client tools/algs calling driftRadiusFromTime
+  // must implement this to get the AtlasFieldCache which can then be passed through the call to driftRadiusFromTime
+  // Note: a readhandle must be in a tool or an alg, and so it cannot be in the class Imp.)
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 

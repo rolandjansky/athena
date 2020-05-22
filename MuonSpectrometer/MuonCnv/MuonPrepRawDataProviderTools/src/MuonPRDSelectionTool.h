@@ -1,40 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONPRDSELECTIONTOOL_H
 #define MUON_MUONPRDSELECTIONTOOL_H
 
 #include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
-
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonLayerPrepRawData.h"
 #include "MuonLayerEvent/MuonLayerROTs.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
+#include "MuonPrepRawData/MdtPrepDataCollection.h"
+
+#include <vector>
+#include <string>
 
 namespace Muon {
-  
-  class MuonIdHelperTool;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMuonRecoValidationTool;
-  class MdtPrepData;
 
   class MuonPRDSelectionTool : virtual public Muon::IMuonPRDSelectionTool,  public AthAlgTool {
   public:
 
     /** Default AlgTool functions */
     MuonPRDSelectionTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonPRDSelectionTool();
+    virtual ~MuonPRDSelectionTool()=default;
     StatusCode initialize();
-    StatusCode finalize();
 
     /**IMuonPRDSelectionTool interface: calibrateAndSelect */   
     bool calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonLayerPrepRawData& layerPrepRawData, MuonLayerROTs& layerROTs ) const;
@@ -84,13 +81,11 @@ namespace Muon {
     bool calibrateAndSelectCluster( const MuonSystemExtension::Intersection& intersection, const COL& prds, MuonLayerROTs& layerROTs ) const {
       std::vector<const MuonClusterOnTrack*> rots;
       calibrateAndSelectCluster(intersection,prds,rots);
-      if( !rots.empty() ) layerROTs.addClusters(rots,m_idHelper->technologyIndex(rots.front()->identify()));
+      if( !rots.empty() ) layerROTs.addClusters(rots,m_idHelperSvc->technologyIndex(rots.front()->identify()));
       return true;
     }
     
-
-    /** tool handles */
-    ToolHandle<MuonIdHelperTool>              m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     mutable ToolHandle<IMuonRecoValidationTool>       m_recoValidationTool; //<! FIXME!

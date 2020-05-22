@@ -13,8 +13,6 @@
 
 // FrameWork includes
 
-// HepMC includes
-
 // McParticleKernel includes
 #include "McParticleKernel/IIOMcAodTool.h"
 

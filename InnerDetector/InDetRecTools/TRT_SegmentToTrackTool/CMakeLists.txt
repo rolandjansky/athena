@@ -19,13 +19,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
-			  Tracking/TrkDetDescr/TrkSurfaces)
+			  Tracking/TrkDetDescr/TrkSurfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # Component(s) in the package:
 atlas_add_component( TRT_SegmentToTrackTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkEventPrimitives InDetIdentifier InDetRIO_OnTrack MagFieldInterfaces TrkPseudoMeasurementOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkEventPrimitives InDetIdentifier InDetRIO_OnTrack MagFieldInterfaces TrkPseudoMeasurementOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( TRT_SegmentToTrackTool )

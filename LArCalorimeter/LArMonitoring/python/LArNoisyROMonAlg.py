@@ -13,9 +13,9 @@ def LArNoisyROMonConfig(inputFlags, inKey="",
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     NoisyFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.BadChanPerFEB)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
-    MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+    MNBTightFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTightCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
     MNBTight_PsVetoFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[0])+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+") + PS veto (<"+str(inputFlags.LAr.NoisyRO.MNBTight_PsVetoCut[1])+" channels)"
-    MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQualityCut)+")"
+    MNBLooseFEBDefStr="(>"+str(inputFlags.LAr.NoisyRO.MNBLooseCut)+" chan with Q>"+str(inputFlags.LAr.NoisyRO.CellQuality)+")"
 
     return LArNoisyROMonConfigCore(helper,CompFactory.LArNoisyROMonAlg, inputFlags, inKey, NoisyFEBDefStr, MNBTightFEBDefStr, MNBTight_PsVetoFEBDefStr, MNBLooseFEBDefStr)
 
@@ -49,8 +49,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               MNBLooseFEBDefStr=""):
 
     # first configure known bad FEBs
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior:
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
        cfg=ComponentAccumulator()
        from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
@@ -67,8 +67,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     larNoisyROMonAlg.SubDetNames=lArDQGlobals.SubDet[0:2]
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
 
-    #FIXME: only for testing
-    larNoisyROMonAlg.storeLooseMNBFEBs=True
+    #FIXME: True only for testing
+    larNoisyROMonAlg.storeLooseMNBFEBs=False
     if inKey != "":
        larNoisyROMonAlg.inputKey=inKey 
 
@@ -105,7 +105,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
          "L1_XE70"
     ]
     doTrigger=False
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
       if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
         doTrigger=True
     else:    
@@ -163,7 +163,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotMNB,FTMNB;KnownMNBFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
+       darray.defineHistogram('slotMNB,FTMNB;MNBKnownFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
                               type='TH2I', 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
@@ -252,17 +252,17 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
           darray.defineHistogram('Triggers;NoisyEventTrigger',type='TH1I',
                                  title='Trigger fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=siz+1,xmin=0.5,xmax=siz+1.5,
-                                 xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers+["NONE"])
+                                 xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers.append("NONE"))
 
           l1siz=len(larNoisyROMonAlg.L1NoiseBurstTriggers)
           darray.defineHistogram('L1Triggers;NoisyEventL1Term',type='TH1I',
                                  title='L1 term fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=l1siz+1,xmin=0.5,xmax=l1siz+1.5,
-                                 xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers+["NONE"])
+                                 xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers.append("NONE"))
 
     pass
 
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
        cfg.merge(helper.result())
        return cfg
     
@@ -294,9 +294,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
     # try NoisyRO algo 

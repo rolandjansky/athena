@@ -82,83 +82,52 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
     return StatusCode::SUCCESS;
   }  
 
-
-  //To determine the output range:
-  EventIDRange rangeIn, rangeOut;
-
   //Cabling (should have an ~infinte IOV)
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cablingHdl.range(rangeOut)) { //use RangeOut for the first one
-    ATH_MSG_ERROR("Failed to retrieve validity range for LArOnOffIdMapping object with " <<  cablingHdl.key());
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(cablingHdl);
 
   //Get pointers to input data and determine validity range
   SG::ReadCondHandle<ILAruA2MeV> uA2MeVHdl{m_lAruA2MeVKey,ctx};
   const ILAruA2MeV* laruA2MeV{*uA2MeVHdl};
-  if (!uA2MeVHdl.range(rangeIn)){ 
-    ATH_MSG_ERROR("Failed to retrieve validity range for uA2MeV object with " << uA2MeVHdl.key());
-    return StatusCode::FAILURE;
-  }
-
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn); 
+  writeHandle.addDependency(uA2MeVHdl);
   
   SG::ReadCondHandle<ILArDAC2uA> DAC2uAHdl{m_lArDAC2uAKey,ctx};
   const ILArDAC2uA* larDAC2uA{*DAC2uAHdl};
-  
-  if (!DAC2uAHdl.range(rangeIn)){
-    ATH_MSG_ERROR("Failed to retrieve validity range for DAC2uA object with key " << DAC2uAHdl.key());
-    return StatusCode::FAILURE;
-  }
-
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn); 
-  
+  writeHandle.addDependency(DAC2uAHdl);
 
   SG::ReadCondHandle<ILArRamp> rampHdl{m_lArRampKey,ctx};
   const ILArRamp* larRamp{*rampHdl};
-  if (!rampHdl.range(rangeIn)){
-    ATH_MSG_ERROR("Failed to retrieve validity range for ramp object with key " << rampHdl.key());
-    return StatusCode::FAILURE;
-  }
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+  writeHandle.addDependency(rampHdl);
 
   // retrieve LArFebConfig if needed
   const LArFebConfig *febConfig=nullptr;
   if(m_useFEBGainThresholds) {
     SG::ReadCondHandle<LArFebConfig> configHdl{m_febConfigKey,ctx};
-     febConfig = *configHdl;
-     if (febConfig==nullptr) {
-        ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_febConfigKey.key());
-        return StatusCode::FAILURE;
-     }
-     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+    febConfig = *configHdl;
+    if (febConfig==nullptr) {
+      ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_febConfigKey.key());
+      return StatusCode::FAILURE;
+    }
+    writeHandle.addDependency(configHdl);
   }
   //The following two are optional (not used for MC and/or SuperCells)
   const ILArMphysOverMcal* larmPhysOverMCal=nullptr;
   if (m_lArMphysOverMcalKey.key().size()) {
     SG::ReadCondHandle<ILArMphysOverMcal> mphysOverMcalHdl{m_lArMphysOverMcalKey,ctx};
     larmPhysOverMCal=*mphysOverMcalHdl;
-    if (!mphysOverMcalHdl.range(rangeIn)){
-      ATH_MSG_ERROR("Failed to retrieve validity range for MphysOverMcal object with key " << mphysOverMcalHdl.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+    writeHandle.addDependency(mphysOverMcalHdl);
   }//end if have MphysOverMcal
 
   const ILArHVScaleCorr* larHVScaleCorr=nullptr;
   if (m_lArHVScaleCorrKey.key().size()) {
     SG::ReadCondHandle<ILArHVScaleCorr> HVScaleCorrHdl{m_lArHVScaleCorrKey,ctx};
     larHVScaleCorr=*HVScaleCorrHdl;
-    if (!HVScaleCorrHdl.range(rangeIn)){
-      ATH_MSG_ERROR("Failed to retrieve validity range for HVScaleCorr object with key " << HVScaleCorrHdl.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+    writeHandle.addDependency(HVScaleCorrHdl);
   }//end if have HVScaleCorr
   
   
-  ATH_MSG_INFO("IOV of ADC2MeV object is " << rangeOut);
+  ATH_MSG_INFO("IOV of ADC2MeV object is " << writeHandle.getRange());
 
   //Sanity & debugging conters:
   unsigned nNouA2MeV=0;
@@ -274,7 +243,7 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
   }//end loop over readout channels
 
 
-  ATH_CHECK(writeHandle.record(rangeOut,std::move(lArADC2MeVObj)));
+  ATH_CHECK(writeHandle.record(std::move(lArADC2MeVObj)));
   
   if (nNouA2MeV) msg(MSG::ERROR) << "No uA2MeV values for " << nNouA2MeV << " channels" << endmsg;
   if (nNoDAC2uA) msg(MSG::ERROR) << "No DAC2uA values for " << nNouA2MeV << " channels" << endmsg;

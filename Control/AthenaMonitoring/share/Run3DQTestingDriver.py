@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file DQTestingDriver.py
@@ -63,18 +63,29 @@ if __name__=='__main__':
         log.info('Executing preExec: %s', args.preExec)
         exec(args.preExec)
 
+    if hasattr(ConfigFlags, "DQ") and hasattr(ConfigFlags.DQ, "Steering") and hasattr(ConfigFlags, "Detector"):
+        if hasattr(ConfigFlags.DQ.Steering, "InDet"):
+            if ((ConfigFlags.DQ.Steering.InDet, "doAlignMon") and ConfigFlags.DQ.Steering.InDet.doAlignMon) or \
+               ((ConfigFlags.DQ.Steering.InDet, "doGlobalMon") and ConfigFlags.DQ.Steering.InDet.doGlobalMon) or \
+               ((ConfigFlags.DQ.Steering.InDet, "doPerfMon") and ConfigFlags.DQ.Steering.InDet.doPerfMon):
+                ConfigFlags.Detector.GeometryID = True
+        if hasattr(ConfigFlags.DQ.Steering, "doPixelMon") and ConfigFlags.DQ.Steering.doPixelMon:
+            ConfigFlags.Detector.GeometryPixel = True
+        if hasattr(ConfigFlags.DQ.Steering, "doSCTMon") and ConfigFlags.DQ.Steering.doSCTMon:
+            ConfigFlags.Detector.GeometrySCT = True
+        if hasattr(ConfigFlags.DQ.Steering, "doTRTMon") and ConfigFlags.DQ.Steering.doTRTMon:
+            ConfigFlags.Detector.GeometryTRT = True
+            
     log.info('FINAL CONFIG FLAGS SETTINGS FOLLOW')
     ConfigFlags.dump()
         
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg, MainServicesThreadedCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    if ConfigFlags.Concurrency.NumThreads == 0:
-        cfg = MainServicesSerialCfg()
-    else:
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+    cfg = MainServicesCfg(ConfigFlags)
+    
     if isReadingRaw:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg
@@ -90,12 +101,12 @@ if __name__=='__main__':
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
         from AthenaConfiguration.ComponentFactory import CompFactory
-        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
+        if len([_ for _ in cfg._conditionsAlgs if _.name=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg")
-        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="MuonAlignmentCondAlg"]) > 0:
+            beginseq.Members.append(CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg"))
+        if len([_ for _ in cfg._conditionsAlgs if _.name=="MuonAlignmentCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += CompFactory.ForceMSConditionsAlg("ForceMSConditionsAlg")
+            beginseq.Members.append(CompFactory.ForceMSConditionsAlg("ForceMSConditionsAlg"))
     
     # any last things to do?
     if args.postExec:

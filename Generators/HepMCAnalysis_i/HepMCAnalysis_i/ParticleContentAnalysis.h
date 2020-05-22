@@ -8,10 +8,9 @@
 #include "baseAnalysis.h"
 
 // forward declarations
-namespace HepMC {
-  class GenEvent;
-  class GenParticle;
-}
+// forward declarations
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 class TH1D;
 

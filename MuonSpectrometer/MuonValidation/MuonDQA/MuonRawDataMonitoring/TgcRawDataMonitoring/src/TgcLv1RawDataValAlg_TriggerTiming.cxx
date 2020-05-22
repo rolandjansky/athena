@@ -822,7 +822,7 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
     float oeta = mu_eta->at(o);
     float ophi = mu_phi->at(o);
     float oq   = mu_q->at(o);
-    if( fabs(opt) > 50. ) opt = 50.1 * oq;
+    if( std::abs(opt) > 50. ) opt = 50.1 * oq;
     
     // Get side index
     int ac = (oeta<0);

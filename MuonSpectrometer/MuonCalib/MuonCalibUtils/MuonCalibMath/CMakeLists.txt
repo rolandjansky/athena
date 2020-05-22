@@ -7,7 +7,8 @@ atlas_subdir( MuonCalibMath )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Event/EventPrimitives )
+                          Event/EventPrimitives
+                          Control/AthenaKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -21,6 +22,6 @@ atlas_add_library( MuonCalibMath
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventPrimitives
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventPrimitives AthenaKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} )
 

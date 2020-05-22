@@ -304,7 +304,7 @@ class GenerateMenuMT(object):
 
         elif len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
-                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict, mainChainDict["mergingStrategy"], mainChainDict["mergingOffset"])
+                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
 
                 # This needs to be added for topological chains - needs implementation
                 #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]

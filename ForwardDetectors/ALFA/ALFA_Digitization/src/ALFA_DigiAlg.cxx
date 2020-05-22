@@ -27,7 +27,7 @@ StatusCode ALFA_DigiAlg::execute()
 {
   ATH_MSG_DEBUG ( "ALFA_DigiAlg::execute" );
   
-  return m_digiTool->processAllSubEvents();
+  return m_digiTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }
 
 StatusCode ALFA_DigiAlg::finalize() 

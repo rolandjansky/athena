@@ -13,7 +13,7 @@
 #include "TruthUtils/HepMCHelpers.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 /** Constructor **/

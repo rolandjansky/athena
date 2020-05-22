@@ -389,9 +389,9 @@ namespace InDet{
 	
 	int n_err_total = 0;
 	
-	int bsErrors[IPixelByteStreamErrorsTool::lastErrType+1];
+	int bsErrors[IPixelByteStreamErrorsTool::AllPixErrTypes.size()];
 	
-  for (const auto idx : { IPixelByteStreamErrorsTool::firstErrType , IPixelByteStreamErrorsTool::lastErrType } ){
+	for (const auto idx : IPixelByteStreamErrorsTool::AllPixErrTypes ){
 	  int n_errors = m_bsError->getNumberOfErrors(idx);
 	  n_err_total += n_errors;
 	  bsErrors[idx] = n_errors;
@@ -400,7 +400,7 @@ namespace InDet{
 	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 	
 	if (n_err_total){
-	for (const auto idx : { IPixelByteStreamErrorsTool::firstErrType , IPixelByteStreamErrorsTool::lastErrType } ){
+	  for (const auto idx : IPixelByteStreamErrorsTool::AllPixErrTypes ){
 	    if (bsErrors[idx])
 	      m_PixBSErr.push_back(idx);
 	    if(msgLvl(MSG::DEBUG))

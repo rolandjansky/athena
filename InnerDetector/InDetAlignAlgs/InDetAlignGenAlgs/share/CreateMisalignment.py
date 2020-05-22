@@ -191,10 +191,3 @@ if WriteDBPoolFile:
     IOVDbSvc = Service( "IOVDbSvc" )
     #IOVDbSvc.dbConnection = "impl=cool;techno=sqlite;schema=%s;X:COMP200" % DatabaseFilename
     IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=COMP200" % (DatabaseFilename)
-
-
-
-# Disable StatusCodeSvc 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
-svcMgr.StatusCodeSvc.SuppressCheck = True
-svcMgr.StatusCodeSvc.AbortOnError = False

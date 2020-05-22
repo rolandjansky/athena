@@ -559,7 +559,7 @@ def pickledDump(argdict):
             theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
         else:
             theArgumentDictionary[k] = v
-    with open(argdict['dumpPickle'], 'w') as pickleFile:
+    with open(argdict['dumpPickle'], 'wb') as pickleFile:
         import pickle as pickle
         pickle.dump(theArgumentDictionary, pickleFile)
 

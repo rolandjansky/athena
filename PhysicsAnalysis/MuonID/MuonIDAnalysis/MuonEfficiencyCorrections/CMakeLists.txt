@@ -1,8 +1,6 @@
-# $Id: CMakeLists.txt 783761 2016-11-11 16:50:45Z nkoehler $
 ################################################################################
 # Package: MuonEfficiencyCorrections
 ################################################################################
-
 
 # Declare the package name:
 atlas_subdir( MuonEfficiencyCorrections )
@@ -19,6 +17,8 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgMessaging
+   Control/AthToolSupport/AsgDataHandles
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
    Event/xAOD/xAODJet
@@ -41,15 +41,15 @@ atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces AsgMessagingLib AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonEfficiencyCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib
-      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib AsgMessagingLib
+      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib StoreGateLib )
 endif()
 
 atlas_add_dictionary( MuonEfficiencyCorrectionsDict
@@ -63,7 +63,7 @@ macro( _add_exec name )
       util/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
-      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib )
+      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib AsgMessagingLib )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )

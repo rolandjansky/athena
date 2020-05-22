@@ -3,6 +3,7 @@
 */
 
 // Framework include(s):
+#include "AsgDataHandles/ReadHandle.h"
 #include "PathResolver/PathResolver.h"
 
 // Local include(s):
@@ -405,7 +406,7 @@ namespace CP {
     TH3 *h3=static_cast<TH3*>(fmc->Get(hname.c_str()));
 
     if( h3==nullptr ){
-      ATH_MSG_ERROR("NULL sagitta map");
+      ATH_MSG_ERROR("sagitta map is nullptr");
       return nullptr;
     }
 
@@ -726,26 +727,26 @@ namespace CP {
   }
 
 
-  CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const {
+  CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const {
     //isSystematics ==false
 
     //:: If RHO is fixed and one does not apply a correction, return the nominal muon; 
-    if( (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion){
+    if( (SystCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion){
       ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb);
       return CorrectionCode::Ok;
     }
 
     unsigned int itersCB=0;
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
       itersCB= m_SagittaIterations.at(0) - 1;
 
     unsigned int itersID=0;
 
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(1) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(1) > 1)
       itersID= m_SagittaIterations.at(1) - 1;
 
     unsigned int itersME=0;
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
       itersME= m_SagittaIterations.at(2) - 1;
 
     // In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
@@ -755,55 +756,57 @@ namespace CP {
 
 
     if(DetType == MCAST::DetectorType::ID){  // Correct the ID momentum
-      return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, itersID, false, isMC, muonInfo);
     }
 
     else if(DetType == MCAST::DetectorType::MS){  // Correct the ME momentum
-      return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo);
+      return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, itersME, false, isMC, muonInfo);
     }
     else if(DetType == MCAST::DetectorType::CB){  // Correct the CB momentum;
       if( muonInfo.ptcb == 0) {
         ATH_MSG_VERBOSE("Combined pt = 0 correcting separtly ID and ME");
         if(muonInfo.ptid !=0 && muonInfo.ptms !=0){
-          if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok &&
-              applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok ) return CorrectionCode::Error;
+          if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok &&
+              applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok ) return CorrectionCode::Error;
         }
         else if(muonInfo.ptid !=0 ){
-          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
         }
         else if(muonInfo.ptms !=0 ){
-          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
         }
         else {
           return CP::CorrectionCode::Ok;
         }
       }
 
-      double central= 45.2;
-      double width=15.5;
-      double sigmas=1.0;
-      double rho= m_useFixedRho ? m_fixedRho:0.0; 
+      double central(45.2), width(15.5), sigmas(1.0);
+      double rho = m_useFixedRho ? m_fixedRho : 0.0; 
+      double nom_central(central), nom_sigmas(sigmas), nom_rho(rho);
 
-      bool isSystematic = (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion; 
+      bool isSystematic = (SystCase == MCAST::SagittaSysType::RHO);
 
       if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
-        double denominator = (  muonInfo.ptcb  ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        double denominator = muonInfo.ptcb * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
         double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
-          central=central + std::abs(0.5 * res  * central);
+          central=nom_central + std::abs(0.5 * res  * nom_central);
         }
         else if(m_currentParameters->SagittaRho==MCAST::SystVariation::Down){
-          central=central - std::abs(0.5 * res  * central);
+          central=nom_central - std::abs(0.5 * res  * nom_central);
         }
       }
       
       if(!m_useFixedRho){
-        sigmas=(std::abs(muonInfo.ptcb - central)/width);
-        rho= 1/sigmas;
-        if(sigmas <  1 ) rho=1;
+        sigmas = (std::abs(muonInfo.ptcb - central)/width);
+        nom_sigmas = (std::abs(muonInfo.ptcb - nom_central)/width);
+        rho = 1./sigmas;
+        nom_rho = 1./nom_sigmas;
+        if(sigmas < 1.) rho = 1.;
+        if(nom_sigmas < 1.) nom_rho = 1.;
       }
       
       // For standalone muons and Silicon associated fowrad do not use the combined
@@ -811,12 +814,12 @@ namespace CP {
         ATH_MSG_VERBOSE("Applying sagitta correction for Standalone");
         rho=0;
         if(muonInfo.ptid == 0  && muonInfo.ptms != 0 )  {
-          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo)!=CorrectionCode::Ok){
-            return CP::CorrectionCode::Error;
-          }
-        }
-        else if(muonInfo.ptid != 0  && muonInfo.ptms == 0 )  {
-          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, isMC, itersID, false, muonInfo)!=CorrectionCode::Ok){
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, itersME, false, isMC, muonInfo)!=CorrectionCode::Ok){
+            return CP::CorrectionCode::Error;                                                
+          }                                                                                  
+        }                                                                                    
+        else if(muonInfo.ptid != 0  && muonInfo.ptms == 0 )  {                               
+          if(applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, itersID, false, isMC, muonInfo)!=CorrectionCode::Ok){
             return CP::CorrectionCode::Error;
           }
         }
@@ -835,7 +838,7 @@ namespace CP {
 
       ATH_MSG_VERBOSE("Applying CB sagitta correction");
 
-      if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, itersCB, false, isMC, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
 
@@ -846,7 +849,7 @@ namespace CP {
 
       ATH_MSG_VERBOSE("Applying Weighted sagitta correction");
 
-      if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, isMC, itersCB, false, muonInfo)!=CP::CorrectionCode::Ok){
+      if(applySagittaBiasCorrection(MCAST::SagittaCorType::WEIGHTS, mu, itersCB, false, isMC, muonInfo)!=CP::CorrectionCode::Ok){
         return CP::CorrectionCode::Error;
       }
       else {
@@ -859,9 +862,11 @@ namespace CP {
         rho=m_fixedRho;
       }
       
-      muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
+      // Rescaling momentum to make sure it is consistent with nominal value
+      double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
+      double ptcb = rho*ptCB + (1-rho)*ptWeight;
+      muonInfo.ptcb = ptcb * origPt / nom_ptcb;
       
-      ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas);
       return CorrectionCode::Ok;
     }
     else{
@@ -883,7 +888,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -899,7 +903,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
@@ -915,7 +918,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"primaryTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "primaryTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() == nullptr ) = " << ( mu.primaryTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.primaryTrackParticleLink() = " << mu.primaryTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
@@ -2221,7 +2223,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -2239,7 +2240,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
@@ -2256,7 +2256,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
     ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"primaryTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "primaryTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() == nullptr ) = " << ( mu.primaryTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.primaryTrackParticleLink() = " << mu.primaryTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
@@ -2855,7 +2854,6 @@ namespace CP {
     // Set pt ID:
     ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to ID TrackParticle..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == nullptr ) = " << ( mu.inDetTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
@@ -2869,7 +2867,6 @@ namespace CP {
 
     ATH_MSG_VERBOSE( "Stat comb: Retrieving ElementLink to MS TrackParticle..." );
     ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
-    ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == nullptr ) );
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
 

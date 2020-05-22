@@ -284,7 +284,7 @@ getUniqueRowID( )
    if( !fragmentData.hasAllocatedIds() ) {
 
       if( !m_rowIDSession ) {
-         auto_ptr<coral::ConnectionService> connectionService( new coral::ConnectionService() );
+         unique_ptr<coral::ConnectionService> connectionService( new coral::ConnectionService() );
 	 //cout << ">>>>>>>   Timeout=" << connectionService->configuration().connectionTimeOut() << endl;
          m_rowIDSession = connectionService->connect( m_description.connection(), coral::Update );
       }
@@ -295,7 +295,7 @@ getUniqueRowID( )
       m_whereDataForCollectionNameInHeadersTable->begin()->data<std::string>() = fragmentName;
       coral::ITable& headersTable = m_rowIDSession->nominalSchema().tableHandle( RelationalCollectionNames::nameOfCollectionHeadersTable() );
 
-      std::auto_ptr<coral::IQuery> query( headersTable.newQuery() );
+      std::unique_ptr<coral::IQuery> query( headersTable.newQuery() );
       query->addToOutputList( RelationalCollectionNames::writtenRecordsVariableInCollectionHeadersTable() );
       query->defineOutputType( RelationalCollectionNames::writtenRecordsVariableInCollectionHeadersTable(), "unsigned int" );
       query->setCondition( m_whereClauseForCollectionNameInHeadersTable, *m_whereDataForCollectionNameInHeadersTable );

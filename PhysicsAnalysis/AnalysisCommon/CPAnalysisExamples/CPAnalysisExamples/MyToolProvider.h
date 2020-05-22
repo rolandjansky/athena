@@ -16,9 +16,7 @@
 #include "AsgTools/ToolHandle.h"
                     
 #include "JetCalibTools/JetCalibrationTool.h"  
-#include "JetSelectorTools/JetCleaningTool.h"  
-#include "JetResolution/JERTool.h"                 
-#include "JetResolution/JERSmearingTool.h"                   
+#include "JetSelectorTools/JetCleaningTool.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"  
 #include "MuonAnalysisInterfaces/MuonCalibrationAndSmearingTool.h"          
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"           
@@ -48,8 +46,6 @@ class MyToolProvider : public asg::AsgMessaging
   // Jet tools 
 
   JetCalibrationTool * jetCalibTool;
-  JERTool * jerTool;
-  JERSmearingTool * jerSmearingTool;
   JetUncertaintiesTool * jetUncertaintiesTool;
   JetCleaningTool * jetCleaningTool;
 

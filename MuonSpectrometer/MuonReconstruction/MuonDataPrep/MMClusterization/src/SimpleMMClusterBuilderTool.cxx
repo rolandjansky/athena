@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -14,7 +14,8 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
   AthAlgTool(t,n,p)
 {
   declareInterface<IMMClusterBuilderTool>(this);
-
+  declareProperty("useErrorParametrization", m_useErrorParametrization = true);
+  declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
 Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
@@ -66,22 +67,25 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     int strip = m_idHelperSvc->mmIdHelper().channel(id_prd);
     int gasGap  = m_idHelperSvc->mmIdHelper().gasGap(id_prd);
     int layer   = m_idHelperSvc->mmIdHelper().multilayer(id_prd);
-    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
-		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
-    for (unsigned int j=i+1; j<MMprds.size(); ++j){
+    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip
+		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z());
+    for (unsigned int j = i+1; j < MMprds.size(); ++j) {
       Identifier id_prdN = MMprds[j].identify();
       int stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
       int gasGapN  = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
       int layerN   = m_idHelperSvc->mmIdHelper().multilayer(id_prdN);
-      if( gasGapN==gasGap && layerN==layer ) {
-	ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-	if(abs(strip-stripN)<2) {
-	  jmerge = j;
-	  break;
-	}
+      if (gasGapN == gasGap && layerN == layer) {
+          ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j
+                          << " strip " << stripN
+                          << " gasGap " << gasGapN
+                          << " layer " << layerN);
+          if (static_cast<unsigned int>(std::abs(strip-stripN)) <= m_maxHoleSize + 1) {
+          jmerge = j;
+          break;
+        }
       }
     }
- 
+
     unsigned int nmerge = 0;
     std::vector<Identifier> rdoList;
     std::vector<unsigned int> mergeIndices;
@@ -93,7 +97,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     MMflag[i] = 1;
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
-    mergeStripsTime.push_back(MMprds[i].time()-MMprds[i].globalPosition().norm()/299.792);
+    mergeStripsTime.push_back(MMprds[i].time());
     mergeStripsCharge.push_back(MMprds[i].charge());
 
     unsigned int nmergeStrips = 1;
@@ -103,7 +107,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
-	if( abs(mergeStrips[k]-stripN) <= 1 ) {
+	if( static_cast<unsigned int>(std::abs(mergeStrips[k]-stripN)) <= m_maxHoleSize + 1 ) {
 	  int gasGapN  = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
 	  int layerN   = m_idHelperSvc->mmIdHelper().multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
@@ -116,8 +120,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-      mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
-      mergeStripsCharge.push_back(MMprds[j].charge());
+	    mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
+	    mergeStripsCharge.push_back(MMprds[j].charge());
 	    nmergeStrips++;
 	  }
 	}
@@ -146,6 +150,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     double weightedPosX = 0.0;
     double posY = 0.0;
     double totalCharge = 0.0;
+    double theta = 0.0;
     if ( mergeStrips.size() > 0 ) { 
       /// get the Y local position from the first strip ( it's the same for all strips in the cluster)
       posY = MMprds[mergeIndices[0]].localPosition().y();
@@ -154,9 +159,11 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	double charge = MMprds[mergeIndices[k]].charge();
 	weightedPosX += posX*charge;
 	totalCharge += charge;
+  theta += std::atan(MMprds[mergeIndices[k]].globalPosition().perp()/std::abs(MMprds[mergeIndices[k]].globalPosition().z()))*charge;
 	ATH_MSG_VERBOSE("Adding a strip to the centroid calculation: charge=" << charge);
       } 
       weightedPosX = weightedPosX/totalCharge;
+      theta /= totalCharge;
     }
 
     
@@ -169,8 +176,16 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     Amg::MatrixX* covN = new Amg::MatrixX(1,1);
     covN->setIdentity();
-    (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-    if(nmerge<=1) (*covN)(0,0) = covX;
+    if(!m_useErrorParametrization) {
+      (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+      if(nmerge<=1) (*covN)(0,0) = covX;
+    } else {
+      double localUncertainty = 0.074+0.66*theta-0.15*theta*theta;
+      if ( m_idHelperSvc->mmIdHelper().isStereo(MMprds[i].identify()) ) {
+      	localUncertainty = 10.;
+      } 
+      (*covN)(0,0) = localUncertainty * localUncertainty;
+    }
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->mmIdHelper().channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
     ///

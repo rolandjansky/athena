@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,6 +21,9 @@
 //#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h" 
+
+#include "StoreGate/ReadCondHandle.h"
+#include <sstream>
 
 /* These are some local helper classes only needed for convenience, therefore
 within anonymous namespace. They contain temporary calculations of matrices
@@ -47,8 +50,7 @@ namespace Trk
       m_maxZ(5000.),
       m_firstMeas(true),
       m_deltaR(false),
-      m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-      m_magFieldSvc("AtlasFieldSvc",n)
+      m_extrapolator("Trk::Extrapolator/InDetExtrapolator")
   {
     declareProperty("MaxIterations",             m_maxIterations);
     declareProperty("MaxChi2PerNdf",             m_maxDchi2PerNdf);
@@ -57,7 +59,6 @@ namespace Trk
     declareProperty("FirstMeasuredPoint",        m_firstMeas);
     declareProperty("Use_deltaR",                m_deltaR);
     declareProperty("Extrapolator",              m_extrapolator);
-    declareProperty("MagFieldSvc",               m_magFieldSvc);
     declareInterface<IVertexFitter>(this);
   }
 
@@ -66,27 +67,21 @@ namespace Trk
   StatusCode TrkV0VertexFitter::initialize()
   {
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
+      ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
     }
 
-  /* Get the magnetic field tool from ToolSvc */
-    if ( m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_magFieldSvc << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endmsg;
-    }
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful");
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrkV0VertexFitter::finalize()
   {
-    msg(MSG::INFO) << "Finalize successful" << endmsg;
+    ATH_MSG_DEBUG( "Finalize successful" );
     return StatusCode::SUCCESS;
   }
 
@@ -462,12 +457,20 @@ namespace Trk
     ATH_MSG_DEBUG("globalPosition of starting point: " << (*globalPosition)[0] << ", " << (*globalPosition)[1] << ", " << (*globalPosition)[2]);
     if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return 0;
 
-// magnetic field  
-    double fieldXYZ[3];  double BField[3];
-    fieldXYZ[0] = globalPosition->x();
-    fieldXYZ[1] = globalPosition->y();
-    fieldXYZ[2] = globalPosition->z();
-    m_magFieldSvc->getField(fieldXYZ,BField);
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    if (!readHandle.isValid()) {
+       std::stringstream msg;
+       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+       throw std::runtime_error(msg.str());
+    }
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    // magnetic field
+    double BField[3];
+    fieldCache.getField(globalPosition->data(),BField);
     double B_z = BField[2]*299.792;            // should be in GeV/mm
     if (B_z == 0. || std::isnan(B_z)) {
       ATH_MSG_DEBUG("Could not find a magnetic field different from zero: very very strange");
@@ -891,11 +894,8 @@ namespace Trk
 
       if (onConstr && fabs(chi2Old-chi2New) < 0.1) { break; }
 
-      double fieldXYZItr[3];  double BFieldItr[3];
-      fieldXYZItr[0] = globalPositionItr->x();
-      fieldXYZItr[1] = globalPositionItr->y();
-      fieldXYZItr[2] = globalPositionItr->z();
-      m_magFieldSvc->getField(fieldXYZItr,BFieldItr);
+      double BFieldItr[3];
+      fieldCache.getField(globalPositionItr->data(),BFieldItr);
       double B_z_new = BFieldItr[2]*299.792;            // should be in GeV/mm
       if (B_z_new == 0. || std::isnan(B_z)) {
         ATH_MSG_DEBUG("Using old B_z");

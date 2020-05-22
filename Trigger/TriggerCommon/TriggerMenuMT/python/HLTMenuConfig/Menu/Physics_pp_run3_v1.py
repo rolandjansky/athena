@@ -28,6 +28,9 @@ SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
 EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
+TauStreamersGroup = ['RATE:SeededStreamers', 'BW:Tau']
+JetStreamersGroup = ['RATE:SeededStreamers', 'BW:Jet']
+METStreamersGroup = ['RATE:SeededStreamers', 'BW:MET']
 BCIDmonGroup = ['MON:BCID']
 
 def setupMenu():

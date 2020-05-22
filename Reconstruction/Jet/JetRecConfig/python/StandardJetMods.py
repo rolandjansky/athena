@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from .JetDefinition import JetModifier
 
 ########################################################################
@@ -17,10 +19,11 @@ jetmoddict = {}
 
 ########################################################################
 # Define the simple modifier setups here -- those defined in JetRec.
-from JetRec import JetRecConf
+#from JetRec import JetRecConf
+from AthenaConfiguration.ComponentFactory import CompFactory
 def getJetFilterTool(modspec):
     threshold = int(modspec)
-    jetptfilter = JetRecConf.JetFilterTool("jetptfilter_{0}mev".format(threshold))
+    jetptfilter = CompFactory.JetFilterTool("jetptfilter_{0}mev".format(threshold))
     jetptfilter.PtMin = threshold
     return jetptfilter
 jetrecmods = {
@@ -86,11 +89,11 @@ jetmoddict.update(jetmomentmods)
 from ParticleJetTools import ParticleJetToolsConfig
 particlejetmods = {
     # Easy cases, no special config or prereqs, just default tool config
-    "PartonTruthLabel": JetModifier("Analysis__JetPartonTruthLabel","partontruthlabel",
+    "PartonTruthLabel": JetModifier("Analysis::JetPartonTruthLabel","partontruthlabel",
                                     prereqs=["ghost:TruthLabelPartons"]),
 
     # More complex cases here
-    "TruthPartonDR":    JetModifier("Analysis__JetConeLabeling","truthpartondr",
+    "TruthPartonDR":    JetModifier("Analysis::JetConeLabeling","truthpartondr",
                                     helperfn=ParticleJetToolsConfig.getJetConeLabeling),
     "JetDeltaRLabel":   JetModifier("ParticleJetDeltaRLabelTool","jetdrlabeler_jetptmin",
                                     helperfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,

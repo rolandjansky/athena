@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -28,8 +27,6 @@ void getCorrections();
 double** corrX;
 double** corrY;
 
-using namespace std;
-
 int main()
 {
 
@@ -38,10 +35,8 @@ int main()
   getCorrections();
 
   TChain* tree=new TChain("unbiasedMuonResiduals");
-  
-  //string dir="/tmp/roberth/user10.RobertHarrington.data10_7TeV.allRuns.physics_MuonswBeam.merge.DESD_SGLMU.r1299_p165.UnbiasedRes.gchi2.V22";
-  
-  string dir="/tmp/roberth/user10.RobertHarrington.data10_7TeV.allRuns.physics_MuonswBeam.merge.DESD_SGLMU.r1299_p165.UnbiasedRes.iPat.V22";
+    
+  std::string dir="/tmp/roberth/user10.RobertHarrington.data10_7TeV.allRuns.physics_MuonswBeam.merge.DESD_SGLMU.r1299_p165.UnbiasedRes.iPat.V22";
   
   tree->Add((dir+"/*root").c_str());
   
@@ -136,18 +131,18 @@ int main()
   int isideAC=0;
 
   int NVAR=4;
-  string histnames[NVAR]={"Matl",
+  std::string histnames[NVAR]={"Matl",
 			  "CaloEnergy",
 			  "CaloEnergyErr"
 			  "Momentum"};
-  string histtitles[NVAR]={"Material On Track",
+  std::string histtitles[NVAR]={"Material On Track",
 			   "Calorimeter Energy Loss",
 			   "Calorimeter Energy Loss Error",
 			   "Momentum"};
   int histnbins    [NVAR]   ={         30,           30,          30,     35};
   double histlimits[NVAR][2]={{140.,260.},{3200.,4200.},{400.,2000.},{0.,70.}};
 
-  string varnames[NVAR]={"materialOnTrack"};
+  std::string varnames[NVAR]={"materialOnTrack"};
   const int NBEC=2;
   const int NPHI=4;
   TH2F**** yVVar = new TH2F***[NVAR];
@@ -156,12 +151,13 @@ int main()
     for (int ibec=0;ibec<NBEC;ibec++) {
       yVVar[ivar][ibec]=new TH2F**[NPHI];
       for (int iphi=0;iphi<NPHI;iphi++) {
-	stringstream phiss; phiss<<iphi+1;
-	string histname=histnames[ivar]+becStr[ibec]+phiss.str();
-	string histtitle=histtitles[ivar]+"_"
-	yVVAr[ivar][ibec][iphi]=new TH2F(histname.c_str(),histtitles.c_str(),
-					 histnbins[ivar],histlimits[ivar][0],histlimits[ivar][1]);
-	
+        std::stringstream phiss; phiss<<iphi+1;
+        std::string histname=histnames[ivar]+becStr[ibec]+phiss.str();
+        std::string histtitle=histtitles[ivar]+"_"
+        yVVAr[ivar][ibec][iphi]=new TH2F(histname.c_str(),histtitles.c_str(),histnbins[ivar],histlimits[ivar][0],histlimits[ivar][1]);
+      }
+    }
+  }
 
   TH2F* yVMatlA=new TH2F("yVMatlA","yVMatlA",30,140.,260.,100,-50.,50.);
   TH2F* yVCaloEnergyA    =new TH2F("yVCaloEnergyA",   "yVCaloEnergyA",   

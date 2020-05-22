@@ -18,7 +18,8 @@
 #include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
-#include "GaudiKernel/EventContext.h"
+
+class EventContext;
 
 class IAsgElectronLikelihoodTool : virtual public CP::ISelectionTool
 {

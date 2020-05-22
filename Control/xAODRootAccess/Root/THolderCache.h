@@ -1,15 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_THOLDERCACHE_H
 #define XAODROOTACCESS_THOLDERCACHE_H
 
 // System include(s):
 #include <map>
 #include <shared_mutex>
+#include <utility>
 
 // Forward declaration(s):
 namespace std {
@@ -36,7 +35,8 @@ namespace xAOD {
          static THolderCache& instance();
 
          /// Get the dictionary for a given type info
-         ::TClass* getClass( const std::type_info& ti ) const;
+         std::pair< bool, ::TClass* >
+         getClass( const std::type_info& ti ) const;
          /// Add the dictionary for a given type
          void addClass( const std::type_info& ti, ::TClass* cl );
 

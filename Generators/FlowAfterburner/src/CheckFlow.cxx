@@ -20,9 +20,9 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "GeneratorObjects/HijingEventParams.h"
 
@@ -161,9 +161,6 @@ StatusCode CheckFlow::initialize(){
 }
 
 StatusCode CheckFlow::execute() {
-  //   HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //   static HepMC::ParticleDataTable *pp = NULL;
-  //   if (pp == NULL) pp = pdg_io.read_particle_data_table();
   msg(MSG::INFO) << ">>> CheckFlow from execute" << endmsg;
 
   //
@@ -222,13 +219,12 @@ StatusCode CheckFlow::execute() {
     return stat;
   }
 
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();
-       pitr != particles.end(); pitr++) {
-    int pid = (*pitr)->pdg_id();
-    int p_stat = (*pitr)->status();
-    double pt = (*pitr)->momentum().perp();
-    double rapid = (*pitr)->momentum().pseudoRapidity();
-    double phi = (*pitr)->momentum().phi();
+  for (auto pitr: particles) {
+    int pid = pitr->pdg_id();
+    int p_stat = pitr->status();
+    double pt = pitr->momentum().perp();
+    double rapid = pitr->momentum().pseudoRapidity();
+    double phi = pitr->momentum().phi();
     msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi 

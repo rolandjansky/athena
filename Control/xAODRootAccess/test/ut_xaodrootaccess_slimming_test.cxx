@@ -1,10 +1,6 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_slimming_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -47,21 +43,15 @@ int main() {
    xAOD::TEvent event1( xAOD::TEvent::kBranchAccess );
 
    // Set up slimming rules for some containers:
-   event1.setAuxItemList( "ElectronCollectionAux.", "eta.phi.pt.m" );
+   event1.setAuxItemList( "ElectronsAux.", "eta.phi.pt.m" );
    event1.setAuxItemList( "MuonsAux.", "eta.phi" );
 
    // Connect an input file to the event:
-   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
-   std::string FPATH =
-     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   std::string FNAME = FPATH + "/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000098.pool.root.1";
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME.c_str(), "READ" ) );
+   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
-               FNAME.c_str() );
+               FNAME );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event1.readFrom( ifile.get() ) );
@@ -79,12 +69,12 @@ int main() {
    // Read in the first event:
    if( event1.getEntry( 0 ) < 0 ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't load entry 0 from file %s" ),
-               FNAME.c_str() );
+               FNAME );
       return 1;
    }
 
    // Copy over the containers:
-   RETURN_CHECK( APP_NAME, event1.copy( "ElectronCollection" ) );
+   RETURN_CHECK( APP_NAME, event1.copy( "Electrons" ) );
    RETURN_CHECK( APP_NAME, event1.copy( "Muons" ) );
 
    // Write out this first event:
@@ -110,10 +100,10 @@ int main() {
       return 1;
    }
    ::TObjArray* branches = tree->GetListOfBranches();
-   const std::set< std::string > expectedBranches1{
-      "ElectronCollection", "ElectronCollectionAuxDyn.pt",
-      "ElectronCollectionAuxDyn.eta", "ElectronCollectionAuxDyn.phi",
-      "ElectronCollectionAuxDyn.m",
+   static const std::set< std::string > expectedBranches1{
+      "Electrons", "ElectronsAuxDyn.pt",
+      "ElectronsAuxDyn.eta", "ElectronsAuxDyn.phi",
+      "ElectronsAuxDyn.m",
       "Muons", "MuonsAuxDyn.eta", "MuonsAuxDyn.phi" };
    if( static_cast< size_t >( branches->GetEntries() ) !=
        expectedBranches1.size() ) {

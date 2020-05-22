@@ -21,7 +21,7 @@ namespace Monitored {
     }
 
     
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (m_monVariables.size() != 1) {
         return 0;
       }
@@ -41,7 +41,6 @@ namespace Monitored {
       unsigned i(0);
       auto histogram = this->histogram<TH1>();
       auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
       size_t idx = 0;
       for (auto value : valuesVector) {
         if (!cutMaskValue(idx++)) { continue; }

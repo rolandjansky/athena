@@ -16,6 +16,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doGeneral', True)
     acf.addFlag('DQ.Steering.HLT.doEgamma', True)
     acf.addFlag('DQ.Steering.HLT.doMET', True)
+    acf.addFlag('DQ.Steering.HLT.doJet', True)
     acf.addFlag('DQ.Steering.HLT.doBjet', True)
     acf.addFlag('DQ.Steering.HLT.doCalo', True)
     acf.addFlag('DQ.Steering.HLT.doMuon', True)
@@ -48,6 +49,10 @@ def TrigHLTMonTopConfig(inputFlags):
     if inputFlags.DQ.Steering.HLT.doMET:
         from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
         result.merge(TrigMETMonConfig(inputFlags))
+
+    if inputFlags.DQ.Steering.HLT.doJet:
+        from TrigJetMonitoring.TrigJetMonitorAlgorithm import TrigJetMonConfig
+        result.merge(TrigJetMonConfig(inputFlags))
 
     if inputFlags.DQ.Steering.HLT.doBjet:
         from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
@@ -148,9 +153,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigHLTMonitorAcc = TrigHLTMonConfig(ConfigFlags)

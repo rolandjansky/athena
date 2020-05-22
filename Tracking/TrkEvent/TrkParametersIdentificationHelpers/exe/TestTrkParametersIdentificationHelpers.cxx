@@ -57,8 +57,8 @@ void testCalo() {
           }
         }else{ 
           ++good;
-          if( isCalo ) ++goodCalo;
-          else {
+          if( isCalo ) { ++goodCalo;
+          } else {
             std::cout << " good but no calo!!! " << std::endl;
             printDetails = true;
           }

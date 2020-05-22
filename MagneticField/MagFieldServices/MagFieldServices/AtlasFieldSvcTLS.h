@@ -13,9 +13,9 @@
 #define MAGFIELDSERVICES_ATLASFIELDSVCTLS_H 1
 
 // MagField includes
-#include "BFieldCond.h"
-#include "BFieldZone.h"
-#include "BFieldMeshZR.h"
+#include "MagFieldElements/BFieldCond.h"
+#include "MagFieldElements/BFieldZone.h"
+#include "MagFieldElements/BFieldMeshZR.h"
 
 namespace MagField {
 

@@ -9,6 +9,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 // xAOD include(s)
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class MvaTESVariableDecorator
@@ -29,6 +30,8 @@ class MvaTESVariableDecorator
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
+  bool m_incShowerSubtr;
 };
 
 

@@ -22,7 +22,7 @@
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
 {}
 
 StatusCode
@@ -141,20 +141,9 @@ for(  ;  beg != end;  ++beg ){
 	} 
 } // end of loop over online IDs
 }
-std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
 int indexsetmax = m_indexset.size();
-//int maxBCID=3564;
-m_corrBCID.resize(1);
-for( int bcid=0; bcid<1; ++bcid) {
-std::vector<float>& BCID0=m_corrBCID[bcid];
-BCID0.resize(indexsetmax+1);
-std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
-for( ; beg != end ; ++beg ) {
-	BCID0.push_back(0.);
-}
-BCID0.push_back(0.);
-}
-m_corrBCIDref = m_corrBCID[0];
+// the extra indexsetmax is used for invalid cells
+m_corrBCID.resize(indexsetmax+1,0.0);
 
 for(unsigned int i=0; i< m_hashSym.size(); ++i) (m_hashSym[i]).clear();
 m_hashSym.clear();
@@ -198,7 +187,7 @@ m_hashSym.resize(onlineId->febHashMax());
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
 		  hashTab.push_back( index );
-		} else hashTab.push_back(indexsetmax+1);
+		} else hashTab.push_back(indexsetmax);
 #ifdef TRIGLARCELLDEBUG
 		std::cout << "Cell registered at Collection " 
 		<< std::hex << febid.get_identifier32().get_compact() << std::dec <<
@@ -212,7 +201,7 @@ m_hashSym.resize(onlineId->febHashMax());
 #endif
 		LArCell* larcell = new LArCell();
 		(*this)[idx]->push_back(larcell);
-		hashTab.push_back( indexsetmax+1);
+		hashTab.push_back( indexsetmax);
 	} // end of if bad cell
 	} // end of for ch loop
 	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > >::const_iterator
@@ -252,8 +241,6 @@ for(size_t j = i+1 ; j < RobsFromMissingFeb.size() ; j++)
 if ( RobsFromMissingFeb[i] == RobsFromMissingFeb[j] )
 m_MissingROBs.push_back(RobsFromMissingFeb[i]);
 RobsFromMissingFeb.clear();
-
-//m_it = new std::vector<LArCellCollection*>::const_iterator();
 
 return StatusCode::SUCCESS;
 }
@@ -305,7 +292,7 @@ void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
   unsigned int itsize = col->size();
   std::vector<int>& hashTab = m_hashSym[idx];
   for(unsigned int i=0; i< itsize; ++i){
-    float cor = m_corrBCIDref[ hashTab[i] ];
+    float cor = m_corrBCID[ hashTab[i] ];
     LArCell* cell = col->operator[](i);
 #ifdef TRIGLARCELLDEBUG
     std::cout << "LArCellId= " << cell->ID() << " Ecorr= " << cor << " MeV " << std::endl;
@@ -335,22 +322,18 @@ void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned i
 void LArCellCont::updateBCID( const CaloBCIDAverage& avg  ) {
 
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
-  int indexsetmax = m_indexset.size();
 
   if ( m_larCablingSvc == 0  ) return;
-    std::vector<float>& BCID0=m_corrBCID[0];
-    BCID0.resize(indexsetmax+1);
     std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
     for( ; beg != end ; ++beg ) {
       HWIdentifier hwid = (*beg).first;
       int idx = (*beg).second;
-      if ( idx < (int)BCID0.size() ){
+      if ( idx < (int)m_corrBCID.size() ){
         Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
 	float corr = avg.average(id);
-	BCID0[idx] = corr;
+	m_corrBCID[idx] = corr;
       }
     } // end of HWID
-  m_corrBCIDref = m_corrBCID[0];
   return; 
 }
 

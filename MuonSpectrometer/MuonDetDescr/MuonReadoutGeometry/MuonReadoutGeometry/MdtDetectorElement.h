@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -81,7 +81,7 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
-    const std::vector<const Trk::Surface*>& surfaces() const;
+    std::vector<const Trk::Surface*> surfaces() const;
 
    unsigned int nMDTinStation() const {return nReadoutElements();} 
    unsigned int nCSCinStation() const {return 0;}
@@ -107,9 +107,6 @@ protected:
 private:
    const MdtReadoutElement *m_mdtRE[maxMdtREinDE];
    unsigned int m_nRE;
-
-   mutable std::vector<const Trk::Surface*> m_detectorSurfaces;
-
 };
 
 } // namespace MuonGM

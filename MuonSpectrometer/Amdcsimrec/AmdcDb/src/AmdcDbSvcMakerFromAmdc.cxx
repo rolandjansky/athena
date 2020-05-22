@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromAmdc.h"
@@ -1336,7 +1336,7 @@ if ((StationNameHEAD[0] != 'T'
 //  found by Stefania Spagnolo: When computed for the -Z part there are rounding errors which giving non nul value to Dy while it should be null
 //  patch: put it a 0. if too small
               double Alim_DySmall = 0.0002 ;
-              if ( fabs(dDbVal) <= Alim_DySmall ) dDbVal = 0.;
+              if ( std::abs(dDbVal) <= Alim_DySmall ) dDbVal = 0.;
               pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
               DbVar = "I"        ; DbVarComment="SERIAL NB. OF THE OBJECT IN WHICH THE SU" ; iDbVal = pAmdcsimrec->IOBCUT(pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)	     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);

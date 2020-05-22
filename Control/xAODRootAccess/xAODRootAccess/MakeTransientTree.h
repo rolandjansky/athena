@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: MakeTransientTree.h 741414 2016-04-19 17:06:16Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_MAKETRANSIENTTREE_H
 #define XAODROOTACCESS_MAKETRANSIENTTREE_H
 

@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PRIVATE
 find_package( six )
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6,E101 --enable-extension=ATL900,ATL901,ATL902
    ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/scripts
    POST_EXEC_SCRIPT nopost.sh )
 
@@ -108,7 +108,7 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
-			                  )
+			      POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
 
 atlas_install_scripts( scripts/generateMenuMT.py )
@@ -117,6 +117,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py )
 atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 atlas_install_scripts( scripts/test_HLTmenu.sh )
 atlas_install_scripts( scripts/generateL1MenuRun3.py )
+atlas_install_scripts( scripts/verify_menu_config.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
@@ -137,6 +138,8 @@ atlas_build_lvl1_trigger_menu( Physics_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( PhysicsP1_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( MC_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( Cosmic_run3_v1 )
+atlas_build_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
+atlas_build_lvl1_trigger_menu( Dev_HI_run3_v1 )
 
 
 

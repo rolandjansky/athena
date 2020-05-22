@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -24,7 +24,7 @@ namespace Trk {
 
   // TODO: think about if handed vertices with no private store yet
 
-  TrackToVtxLink::TrackToVtxLink() : m_vertices(0) {}
+  TrackToVtxLink::TrackToVtxLink() : m_vertices(nullptr) {}
                              
   //constructor with pointers to vertices
   TrackToVtxLink::TrackToVtxLink(std::vector<xAOD::Vertex*>* ptrToVertices) {
@@ -33,15 +33,15 @@ namespace Trk {
 
   TrackToVtxLink::~TrackToVtxLink() 
   {   
-    if (m_vertices!=0) {
+    if (m_vertices!=nullptr) {
       delete m_vertices; 
-      m_vertices=0;
+      m_vertices=nullptr;
     }
   }
   
 
   TrackToVtxLink::TrackToVtxLink(const TrackToVtxLink& rhs) :
-    m_vertices(rhs.m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : 0) { }
+    m_vertices(rhs.m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : nullptr) { }
   
 
   //assignement operator changed
@@ -50,7 +50,7 @@ namespace Trk {
     if (this!=&rhs)
       {
         delete m_vertices;
-	m_vertices = m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : 0;
+	m_vertices = m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : nullptr;
       }
     return *this;
   }

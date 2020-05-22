@@ -11,6 +11,8 @@
 
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 

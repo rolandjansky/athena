@@ -32,6 +32,40 @@
 
 
 
+/// interface implementation for the IRegSelLUT methods                                                                                             
+
+/// hash id methods 
+
+void RegSelSiLUT::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+  if ( roi.isFullscan() ) return getHashList( idlist );
+  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+  getHashList( roitmp, idlist );
+}
+
+
+void RegSelSiLUT::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const { 
+  if ( roi.isFullscan() ) return getHashList( layer, idlist );
+  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+  getHashList( roitmp, layer, idlist );
+}
+
+/// rob methods
+
+void RegSelSiLUT::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) return getRobList( roblist );
+  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+  getRobList( roitmp, roblist);
+}
+
+
+void RegSelSiLUT::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+  if ( roi.isFullscan() ) return getRobList( layer, roblist );
+  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+  getRobList( roitmp, layer, roblist);
+}
+
+
+
 RegSelSiLUT::RegSelSiLUT(DET id) : m_ID(id) { construct(); }
 
 RegSelSiLUT::RegSelSiLUT(const RegSelSiLUT& r) : 
@@ -100,8 +134,8 @@ void RegSelSiLUT::initialise() {
     m_SubDet.push_back( RegSelSubDetector(subdetid[i]) );
     m_idmap.insert( std::map<int, int>::value_type(subdetid[i], i) );
 
-    int ii = subdetid.size()-1-i; 
-    std::cout << "\tsubdet " << ii << "\tid " << subdetid[ii] << std::endl;
+    //int ii = subdetid.size()-1-i; 
+    //std::cout << "\tsubdet " << ii << "\tid " << subdetid[ii] << std::endl;
   }
 	
   

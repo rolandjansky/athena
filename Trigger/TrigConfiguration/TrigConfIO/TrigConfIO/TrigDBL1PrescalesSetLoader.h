@@ -34,10 +34,11 @@ namespace TrigConf {
        * @brief Load content from the Trigger DB into an L1PrescalesSet for a given L1PrescaleKey (L1PSK)
        * @param l1psk [in] the L1PSK that should be loaded
        * @param l1pss [out] the loaded L1PrescalesSet
+       * @param outFileName [in] if set, an outputfile with the raw data blob is written
        */
       bool loadL1Prescales ( unsigned int l1psk,
-                             L1PrescalesSet & l1pss ) const;
-
+                             L1PrescalesSet & l1pss,
+                             const std::string & outFileName = "") const;
 
    };
 

@@ -115,8 +115,6 @@ include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
 
 theApp.EvtMax=EvtMax
 svcMgr.EventSelector.InputCollections = [ InputFile ]
-svcMgr.StatusCodeSvc.AbortOnError = False
-svcMgr.StatusCodeSvc.SuppressCheck = True
 svcMgr.MessageSvc.OutputLevel = OutputLevel
 
 

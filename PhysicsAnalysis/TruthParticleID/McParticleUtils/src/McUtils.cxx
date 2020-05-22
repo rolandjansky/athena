@@ -21,7 +21,6 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// CLHEP/HepMC includes
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
 

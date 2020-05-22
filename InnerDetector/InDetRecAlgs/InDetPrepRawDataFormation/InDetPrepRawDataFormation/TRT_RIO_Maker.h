@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 
 //InDet
@@ -43,7 +43,7 @@ namespace InDet{
    * Top Algorithm for InDetRawDataContainer<TRT_RDORawData> conversion
    * to TRT_DriftCircleContainer
    **/
-  class TRT_RIO_Maker : public AthAlgorithm {
+  class TRT_RIO_Maker : public AthReentrantAlgorithm {
   public:
     ///constructor
     TRT_RIO_Maker(const std::string &name, ISvcLocator *pSvcLocator);
@@ -51,9 +51,9 @@ namespace InDet{
     virtual ~TRT_RIO_Maker()  ;
     /**    @name Usual algorithm methods */
     //@{
-    StatusCode initialize ()  override;
-    StatusCode execute    ()  override;
-    StatusCode finalize   ()  override;
+    virtual StatusCode initialize ()  override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode finalize   ()  override;
     //@}
   private:
   
@@ -70,8 +70,8 @@ namespace InDet{
     int                            m_mode_rio_production;
     bool                           m_trtBadChannels;
 
-    bool m_roiSeeded;                                //!< detector manager name in StoreGate
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
+    BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
     SG::UpdateHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey;
 

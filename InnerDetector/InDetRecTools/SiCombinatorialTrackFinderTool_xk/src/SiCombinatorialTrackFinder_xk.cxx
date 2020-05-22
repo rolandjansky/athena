@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -92,12 +93,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     m_sctCondSummaryTool.disable();
   }
   
-  if ( !m_fieldServiceHandle.retrieve() ) {
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-
   // Setup callback for magnetic field
   //
   magneticFieldInit();
@@ -116,6 +111,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     ATH_CHECK( m_SCTDetEleCollKey.initialize() );
   }
 
+  // initialize conditions object key for field cache
+  //
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -134,7 +133,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::finalize()
 
 MsgStream&  InDet::SiCombinatorialTrackFinder_xk::dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   out<<std::endl;
   if (data.nprint()) return dumpevent(data, out);
@@ -250,9 +249,9 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackF
 // Initiate track finding tool 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiCombinatorialTrackFinder_xk::newEvent(SiCombinatorialTrackFinderData_xk& data) const
+void InDet::SiCombinatorialTrackFinder_xk::newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
   // Erase statistic information
   //
@@ -266,6 +265,16 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent(SiCombinatorialTrackFinderDa
   //
   data.trackinfo().setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder);
   data.cosmicTrack() = 0;
+
+  // Add conditions object to SiCombinatorialTrackFinderData to be able to access the field cache for each new event
+  // Get conditions object for field cache 
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      std::string msg = "InDet::SiCombinatorialTrackFinder_xk::newEvent: Failed to retrieve AtlasFieldCacheCondObj with key " + m_fieldCondObjInputKey.key();
+      throw(std::runtime_error(msg));
+  }
+  data.setFieldCondObj(fieldCondObj);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -273,11 +282,11 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent(SiCombinatorialTrackFinderDa
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiCombinatorialTrackFinder_xk::newEvent
-(SiCombinatorialTrackFinderData_xk& data, Trk::TrackInfo info, const TrackQualityCuts& Cuts) const
+(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data, Trk::TrackInfo info, const TrackQualityCuts& Cuts) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
-  newEvent(data);
+  newEvent(ctx, data);
   data.trackinfo() = info;
   
   // Get track qulaity cuts information
@@ -301,7 +310,7 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
 
 void InDet::SiCombinatorialTrackFinder_xk::endEvent(SiCombinatorialTrackFinderData_xk& data) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   // Print event information 
   //
@@ -318,12 +327,12 @@ void InDet::SiCombinatorialTrackFinder_xk::endEvent(SiCombinatorialTrackFinderDa
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 (SiCombinatorialTrackFinderData_xk& data,
  const Trk::TrackParameters& Tp,
- const std::list<const Trk::SpacePoint*>& Sp,
+ const std::vector<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  const TrackQualityCuts& Cuts) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   data.tools().setBremNoise(false, false);
   data.tracks().erase(data.tracks().begin(), data.tracks().end());
@@ -363,12 +372,12 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
 (SiCombinatorialTrackFinderData_xk& data,
  const Trk::TrackParameters& Tp,
- const std::list<const Trk::SpacePoint*>& Sp,
+ const std::vector<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   data.tools().setBremNoise(false, false);
   data.tracks().erase(data.tracks().begin(), data.tracks().end());
@@ -408,13 +417,13 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWithBrem
 (SiCombinatorialTrackFinderData_xk& data,
  const Trk::TrackParameters& Tp,
- const std::list<const Trk::SpacePoint*>& Sp,
+ const std::vector<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT,
  bool isCaloCompatible) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   // Old information
   //
@@ -493,15 +502,15 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 (SiCombinatorialTrackFinderData_xk& data,
  const Trk::TrackParameters& Tp,
- const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
+ const std::vector<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(data);
+  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
 
   // List detector element links preparation
   //
-  std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL;
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*> DEL;
   detectorElementLinks(DE, DEL);
 
   // Retrieve cached pointers to SG collections, or create the cache
@@ -645,7 +654,7 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
-(const std::list<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) const
+(const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) const
 {
   for (const Trk::SpacePoint* s: Sp) {
     const Trk::PrepRawData* p = s->clusterList().first;
@@ -668,7 +677,9 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
     const InDetDD::SiDetectorElement* de = (*c)->detectorElement();
 
-    for (++(cn=c); cn!=ce; ++cn) {
+    cn = c;
+    ++cn;
+    for (; cn!=ce; ++cn) {
       if (de == (*cn)->detectorElement()) return false;
     }
 
@@ -682,7 +693,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
 void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
- std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
+ std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
 {
   const InDet::SiDetElementBoundaryLinks_xk* boundaryPixel{nullptr};
   const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{nullptr};
@@ -701,6 +712,7 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
     }
   }
 
+  DEL.reserve(DE.size());
   for (const InDetDD::SiDetectorElement* d: DE) {
     IdentifierHash id = d->identifyHash();
     if (d->isPixel() && boundaryPixel && id < boundaryPixel->size()) DEL.push_back(&(*boundaryPixel)[id]);
@@ -770,12 +782,24 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   data.trajectory().setParameters();
 }
 
-void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(SiCombinatorialTrackFinderData_xk& data) const {
+void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const {
+
+  // Add conditions object to SiCombinatorialTrackFinderData to be able to access the field cache for each new event
+  // Get conditions object for field cache 
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      std::string msg = "InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData: Failed to retrieve AtlasFieldCacheCondObj with key " + m_fieldCondObjInputKey.key();
+      throw(std::runtime_error(msg));
+  }
+  data.setFieldCondObj(fieldCondObj);
+
+  // Must have set fieldCondObj BEFORE calling setTools because fieldCondObj is used there
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,
-                &*m_fieldServiceHandle,
                 (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
                 &m_fieldprop);
+  
 }

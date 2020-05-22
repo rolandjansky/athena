@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@ ZdcRawChannelCollection* ZdcRawChannelCollectionCnv::createTransient() {
 
     static const pool::Guid   p1_guid("A2BDA733-7A0A-459D-9237-33DFF3DC9982");
     if( this->compareClassGuid(p1_guid)) {
-      std::auto_ptr< ZdcRawChannelCollection_p1 >   cont( this->poolReadObject< ZdcRawChannelCollection_p1 >() );
+      std::unique_ptr< ZdcRawChannelCollection_p1 >   cont( this->poolReadObject< ZdcRawChannelCollection_p1 >() );
       trans_cont = converter_p1.createTransient( cont.get(), mlog );
     }
     else {

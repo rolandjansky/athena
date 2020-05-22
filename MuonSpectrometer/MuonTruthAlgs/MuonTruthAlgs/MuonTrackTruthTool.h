@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKTRUTHTOOL_H
 #define MUON_MUONTRACKTRUTHTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -21,7 +22,6 @@
 #include <map>
 #include <utility>
 
-class MsgStream;
 class TruthTrajectory;
 
 namespace MuonGM {
@@ -29,8 +29,6 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
   class MuonSegment;
 }
 
@@ -61,13 +59,10 @@ namespace Muon {
     MuonTrackTruthTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    ~MuonTrackTruthTool ();
+    ~MuonTrackTruthTool()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief perform truth matching for a given set of tracks */
     ResultVec match(const TrackCollection& tracks ) const;
@@ -95,16 +90,16 @@ namespace Muon {
 
     /// Returns the mother particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// It traces the decay chain until if finds the first particle that is different flavor from the starting one.
-    const HepMC::GenParticle& getMother( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getMother( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the ancestor particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// Ancestor here means the last particle at generator level that has a status code different from final state, e.g. Z
-    const HepMC::GenParticle& getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getAncestor( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the initial particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// For example a mu undergoing a mubrem would create a second mu, in which case this method returns the mu prior to bremsstrahlung.
     /// This interface calls the method getInitialPair.
-    const HepMC::GenParticle& getInitial( const TruthTrajectory& traj, const int barcodeIn ) const;
+    const HepMC::GenParticle* getInitial( const TruthTrajectory& traj, const int barcodeIn ) const;
 
     /// Returns the number of steps a particle took while maintaining its PDG ID.
     /// This method calls getInitialPair for calculating this number.
@@ -146,7 +141,7 @@ namespace Muon {
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
     ToolHandle<Muon::MuonEDMPrinterTool>         m_printer;
-    ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
 
     mutable TruthTree m_truthTree;

@@ -5,7 +5,6 @@
 #include "SCT_RDOsTestTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <boost/io/ios_state.hpp>
-//#include "HepMC/GenParticle.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetIdentifier/SCT_ID.h"

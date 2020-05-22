@@ -21,12 +21,13 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         acc.addService( eventSelector )
     else:
         filenames = inputFlags.Input.Files
-        xAODMaker__EventInfoSelectorTool, = CompFactory.getComps("xAODMaker__EventInfoSelectorTool",)
+        xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
         eventSelector.HelperTools += [xconv]
+        eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
-        acc.setAppProperty( "EvtSel", eventSelector.name() )
+        acc.setAppProperty( "EvtSel", eventSelector.name )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
     bsInputSvc.FullFileName = filenames
@@ -39,8 +40,8 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
-    eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name
+    eventPersistencySvc.CnvServices = [ bsCnvSvc.name ]
     acc.addService( bsCnvSvc )
 
     ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
@@ -57,12 +58,9 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc
-    acc.addService( ByteStreamAttListMetadataSvc() )
-    
     bsCnvSvc.InitCnvs += [ "EventInfo",]
 
     return acc
@@ -108,6 +106,36 @@ def TrigBSReadCfg(inputFlags):
         #acc.addService( conddb )    
 
     return acc
+
+
+def ByteStreamWriteCfg( flags, typeNames=[] ):
+    acc = ComponentAccumulator("AthOutSeq")
+    outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
+    outputSvc.MaxFileMB = 15000
+    # event (beyond which it creates a new file)
+    outputSvc.MaxFileNE = 15000000
+    outputSvc.OutputDirectory = "./"
+    outputSvc.AppName = "Athena"
+    # release variable depends the way the env is configured
+    #FileTag = release
+    allRuns = set(flags.Input.RunNumber)
+    assert len(allRuns) == 1, "The input is from multiple runs, do not know which one to use {}".format(allRuns)
+    outputSvc.RunNumber = allRuns.pop()
+
+    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("ByteStreamCnvSvc")
+
+    bsCnvSvc.ByteStreamOutputSvcList = [ outputSvc.getName() ]
+    streamAlg = CompFactory.AthenaOutputStream( "BSOutputStreamAlg",
+                                                EvtConversionSvc = bsCnvSvc.getName(),
+                                                OutputFile = "ByteStreamEventStorageOutputSvc",
+                                                ItemList = typeNames )
+
+    acc.addService( outputSvc )
+    acc.addService( bsCnvSvc )
+    acc.addEventAlgo( streamAlg, primary = True )
+    return acc
+
+
 
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags    

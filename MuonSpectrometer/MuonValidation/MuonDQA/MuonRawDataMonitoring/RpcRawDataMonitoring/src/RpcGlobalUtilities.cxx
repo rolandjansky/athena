@@ -1,29 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- global stuff
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: GlobalUtilities.cxx,v 1.2 2009-02-24 16:47:48 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
 #include <cmath>
 
-  
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"  
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"
-
  
 namespace RpcGM 
 {
@@ -104,7 +92,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   //Extension feet Pivot
   if(irpcdoubletR==2)PlaneTipo=1;
   //BML7 assigned to pivot 
-  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;
+  if( irpcstationName==2 && ( (std::abs(irpcstationEta)==7)||(irpcstationPhi==7&&std::abs(irpcstationEta)==6) ) )PlaneTipo=1;
   
   //evaluate strip shift
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
@@ -143,13 +131,13 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         int krpcdoubletR=irpcdoubletR;
 	
 	if(PlaneTipo==0){
-	 if(krpcstationName==2&&abs(ieta)==7         )continue;
-	 if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7)continue;
+	 if(krpcstationName==2&&std::abs(ieta)==7         )continue;
+	 if(krpcstationName==2&&std::abs(ieta)==6&&irpcstationPhi==7)continue;
 	 if(krpcstationName==4||krpcstationName==5||krpcstationName==9||krpcstationName==10)continue;  
         }
 	else if(PlaneTipo==1){
-	 if(krpcstationName==2&&abs(ieta)==7         ){krpcdoubletR=1;}
-	 else if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7){krpcdoubletR=1;}
+	 if(krpcstationName==2&&std::abs(ieta)==7         ){krpcdoubletR=1;}
+	 else if(krpcstationName==2&&std::abs(ieta)==6&&irpcstationPhi==7){krpcdoubletR=1;}
 	 else{ krpcdoubletR=2;}
         }
 	else if(PlaneTipo==2){
@@ -223,11 +211,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
    else if(irpcstationName==4		           ){ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 )	     ;}
    else{ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
    //BML7 assigned to pivot 
-   if( irpcstationName==2 && abs(irpcstationEta)==7){
+   if( irpcstationName==2 && std::abs(irpcstationEta)==7){
     ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 );
     if(irpcstationPhi==8)ShiftStripPhiAtlas +=4*16;
    }
-   if( irpcstationName==2 && irpcstationPhi==7&&abs(irpcstationEta)==6 ){
+   if( irpcstationName==2 && irpcstationPhi==7&&std::abs(irpcstationEta)==6 ){
     ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +2*16      ;
    }
   } 		
@@ -267,7 +255,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   
 
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
-    + ( ( abs(irpcstationEta) ) )*72 ;
+    + ( ( std::abs(irpcstationEta) ) )*72 ;
   // exception station name=53, assume irpcstationEta = 0 ;
   if(irpcstationName ==53)
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24;
@@ -275,7 +263,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   if ( irpcstationName==10 ) { 
     // convention: BOG <-> doubletZ=3 <-> (3-1)*8=16
     PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + 16 + (irpcstationName_index)*24 
-      + ( ( abs(irpcstationEta) ) )*72 ;
+      + ( ( std::abs(irpcstationEta) ) )*72 ;
   }
   if ( (irpcdoubletR==2) && (irpcstationName==9 || irpcstationName==10) ) {
     // convention: chambers of RPC upgrade -> eta = eta + 7
@@ -314,13 +302,10 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
       if (iname>10 && iname!=53) continue; 
       if( iname==6 || iname==7 ) continue; 
        ;  
-      //if((iname==4||iname==5||iname==9||iname==10)&&!(irpcstationName==4||irpcstationName==5||irpcstationName==9||irpcstationName==10))continue; 
-       
-      //if((iname==2||iname==3||iname==8||iname==53)&&!(irpcstationName==2||irpcstationName==3||irpcstationName==8||irpcstationName==53))continue;    
-      
+
       laststationEta =  8;   
       if(iname==irpcstationName&&iphi==irpcstationPhi){
-	laststationEta    = abs(irpcstationEta) ;
+	laststationEta    = std::abs(irpcstationEta) ;
       }
    
       for(int ieta = 0; ieta != laststationEta+1; ieta++ ){
@@ -341,8 +326,8 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	 if(iname==4||iname==5||iname==9||iname==10)continue;  
         }
 	else if(PlaneTipo==1){
-	 if(irpcstationName==2&&abs(irpcstationEta)==7  	         )ir=2;
-	 if(irpcstationName==2&&abs(irpcstationEta)==6&&irpcstationPhi==7)ir=2;
+	 if(irpcstationName==2&&std::abs(irpcstationEta)==7  	         )ir=2;
+	 if(irpcstationName==2&&std::abs(irpcstationEta)==6&&irpcstationPhi==7)ir=2;
 	 if(iname==2&&ieta==7         )ir=1;
 	 if(iname==2&&ieta==6&&iphi==7)ir=1;
         }
@@ -468,7 +453,7 @@ std::vector<std::string>    RpcLayerSectorSideName(const RpcIdHelper& rpcIdHelpe
   else {layer_name="HighPt";}
   if(irpcdoubletR==2)layer_name="Pivot";
   //BML7 assigned to pivot 
-  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )layer_name="Pivot";
+  if( irpcstationName==2 && ( (std::abs(irpcstationEta)==7)||(irpcstationPhi==7&&std::abs(irpcstationEta)==6) ) )layer_name="Pivot";
 	    
   if(irpcstationName==3||irpcstationName==5||irpcstationName==8||irpcstationName==9||irpcstationName==10){
     HVorROsideleft  = "RO side" ;

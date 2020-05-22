@@ -5,8 +5,8 @@
 #include "JetTagJetGenSoftLeptonAssociationTool.h"
 #include "JetEvent/Jet.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "JetTagInfo/SoftLeptonTruthInfo.h"
 

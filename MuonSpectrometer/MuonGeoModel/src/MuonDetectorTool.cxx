@@ -131,27 +131,7 @@ StatusCode
 MuonDetectorTool::initialize()
 {
     ATH_MSG_INFO("Initializing ...");
-
-    // Incident Svc 
-    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-    ATH_CHECK( incidentSvc.retrieve() );
-    //Cannot remove DE at End of Event (potentially before other components performe some clean-up still using DE) 
-    //StoreCleared still takes place at each event and as soon as the event store is cleared
-    incidentSvc->addListener(this, "StoreCleared");    
-    
     return StatusCode::SUCCESS;
-}
-
-void MuonDetectorTool::handle(const Incident& inc)
-{
-    //go to StoreCleared
-    if (inc.type()=="StoreCleared" && m_fillCache_initTime ==0 && m_manager!=0)
-    {
-        // Do clear cache built up during the event ...
-      ATH_MSG_DEBUG ("Clearing cache at end of event after EventStore is cleared"); 
-      //only for Mdt tubes which are able to rebuild cache on demand 
-      m_manager->clearMdtCache();
-    }
 }
 
 /**
@@ -343,6 +323,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     theFactory.setDBMuonVersion(MuonVersion);
     theFactory.setDBkey( detectorKey );
     theFactory.setDBnode(detectorNode);
+    theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
+    theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
     
     theFactory.setLayout(m_layout);
     //theFactory.setIncludeInertMats(m_includeInertMaterials);

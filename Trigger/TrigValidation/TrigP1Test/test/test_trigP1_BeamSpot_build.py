@@ -38,11 +38,12 @@ test.exec_steps = [ex_rm, ex_bs, ex]
 test.check_steps = [chk for chk in CheckSteps.default_check_steps(test)
                     if type(chk) in (CheckSteps.LogMergeStep, CheckSteps.CheckLogStep, CheckSteps.RegTestStep)]
 
-# Overwrite default RegTest settings
-regtest = test.get_step('RegTest')
-regtest.regex = 'InDet::InDetBeamSpotReader.*|BeamSpotCondAlg.*'
-regtest.reference = 'TrigP1Test/BeamSpot.ref'
-regtest.required = True # Final exit code depends on this step
+# Add a reference comparison step
+refcomp = CheckSteps.RegTestStep('RefComp')
+refcomp.regex = 'InDet::InDetBeamSpotReader.*|BeamSpotCondAlg.*'
+refcomp.reference = 'TrigP1Test/BeamSpot.ref'
+refcomp.required = True # Final exit code depends on this step
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
 
 import sys
 sys.exit(test.run())

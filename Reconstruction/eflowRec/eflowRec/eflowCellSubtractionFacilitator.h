@@ -18,13 +18,15 @@ CREATED:  3rd February 2009
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellList.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <vector>
 
 /**
  This class deals with the removal of calorimeter cells from calorimeter clusters. The main entry points are the subtractCells methods which find out how much energy they should subtract from the eflowRingSubtractionManager. The eflowRingSubtractionManager also contains a list of calorimeter cell rings (a ring is a list of calorimeter cells, in a given calorimeter layer, between two radii r1 and r2). The cell information is stored in the eflowCellList. Rings are removed one by one in the order they are stored until the summed cell ring energy is >= to the expected energy deposit from the track in the calorimeter.
 */
-class eflowCellSubtractionFacilitator{
+class eflowCellSubtractionFacilitator: public AthMessaging{
 
  public:
 

@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TSocket.h 781356 2016-10-31 14:03:28Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TSOCKET_H
 #define XAODROOTACCESS_TOOLS_TSOCKET_H
 
@@ -29,9 +26,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 781356 $
-   /// $Date: 2016-10-31 15:03:28 +0100 (Mon, 31 Oct 2016) $
-   ///
    class TSocket {
 
    public:
@@ -40,9 +34,10 @@ namespace xAOD {
       /// Destructor
       ~TSocket();
 
-      // Dtor closes the socket, so don't allow copy/assign.
-      TSocket (const TSocket&) = delete;
-      TSocket& operator= (const TSocket&) = delete;
+      /// Do not allow object copying
+      TSocket( const TSocket& ) = delete;
+      /// Do not allow assignment
+      TSocket& operator=( const TSocket& ) = delete;
 
       /// Function connecting to the specified address
       TReturnCode connect( const TInetAddress& address, int port );

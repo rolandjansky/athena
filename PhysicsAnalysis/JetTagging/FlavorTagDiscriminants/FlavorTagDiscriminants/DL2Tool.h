@@ -1,6 +1,6 @@
 // for text editors: this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_TOOL_H
@@ -26,8 +26,8 @@ namespace FlavorTagDiscriminants {
     ~DL2Tool();
 
     StatusCode initialize() override;
-    StatusCode finalize() override;
 
+    // returns 0 for success
     virtual void decorate(const xAOD::Jet& jet) const override;
   private:
     DL2Properties m_props; //!

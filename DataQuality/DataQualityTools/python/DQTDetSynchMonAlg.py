@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 def DQTDetSynchMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -40,19 +40,18 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
                           type='TH2I',
                           xbins=7, xmin=-0.5, xmax=6.5,
                           ybins=7, ymin=-0.5, ymax=6.5,
-                          labels = (["CTP", "SCT", "TRT", "LAr",
+                          xlabels = ["CTP", "SCT", "TRT", "LAr",
+                                     "Tile", "RPC", "Pixel"],
+                          ylabels = ["CTP", "SCT", "TRT", "LAr",
                                      "Tile", "RPC", "Pixel"]
-                                    + ["CTP", "SCT", "TRT", "LAr",
-                                       "Tile", "RPC", "Pixel"]
-                                    )
     )
     bcidg.defineHistogram("bcidrates_idx,bcidrates;m_BCID_rate",
                           title="BCID subdetector rate summary",
                           type='TH2I',
                           xbins=6, xmin=0.5, xmax=6.5,
                           ybins=20, ymin=0.0, ymax=1.0,
-                          labels = ["SCT", "TRT", "LAr",
-                                    "Tile", "RPC", "Pixel"]
+                          xlabels = ["SCT", "TRT", "LAr",
+                                     "Tile", "RPC", "Pixel"]
     )
 
     l1idg.defineHistogram("diffx,diffy;m_L1ID",
@@ -60,11 +59,10 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
                           type='TH2I',
                           xbins=7, xmin=-0.5, xmax=6.5,
                           ybins=7, ymin=-0.5, ymax=6.5,
-                          labels = (["CTP", "SCT", "TRT", "LAr",
+                          xlabels = ["CTP", "SCT", "TRT", "LAr",
+                                     "Tile", "RPC", "Pixel"],
+                          ylabels = ["CTP", "SCT", "TRT", "LAr",
                                      "Tile", "RPC", "Pixel"]
-                                    + ["CTP", "SCT", "TRT", "LAr",
-                                       "Tile", "RPC", "Pixel"]
-                                    )
     )
     
     detlist = ['CTP', 'SCT', 'TRT', 'LAR', 'Tile', 'RPC', 'Pixel']
@@ -173,10 +171,10 @@ if __name__ == '__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     #from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(TrigBSReadCfg(ConfigFlags))
     from TrigInDetConfig.InDetConfig import TrigInDetConfig
     cfg.merge(TrigInDetConfig(ConfigFlags))

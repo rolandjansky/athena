@@ -2,7 +2,7 @@
 
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSIDIGITZATION_SCT_FASTDIGITZATIONTOOL_H
@@ -12,8 +12,6 @@
  * $Id: SCT_DigitizationTool.h,v 1.0 2009-09-22 18:34:42 jchapman Exp $
  * @author John Chapman - ATLAS Collaboration
  */
-
-#include "FastSiDigitization/ISCT_FastDigitizationTool.h"
 
 #include "PileUpTools/PileUpToolBase.h"
 
@@ -40,8 +38,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/AlgTool.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <list>
@@ -86,7 +82,7 @@ namespace CLHEP {
 }
 
 class SCT_FastDigitizationTool :
-  virtual public PileUpToolBase, virtual public ISCT_FastDigitizationTool
+  virtual public PileUpToolBase
 {
 
 public:
@@ -97,17 +93,17 @@ public:
      @brief Called before processing physics events
   */
   virtual StatusCode initialize();
-  StatusCode prepareEvent( unsigned int );
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int );
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode mergeEvent();
-  StatusCode processAllSubEvents();
-  StatusCode createAndStoreRIOs();
+  StatusCode mergeEvent(const EventContext& ctx);
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
 
 private:
 
-  StatusCode digitize();
+  StatusCode digitize(const EventContext& ctx);
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
   void Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;

@@ -9,7 +9,7 @@
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
 

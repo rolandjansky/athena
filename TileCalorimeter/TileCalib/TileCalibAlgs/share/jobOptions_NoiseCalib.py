@@ -399,7 +399,6 @@ if 'doPerfMon' in dir():
         jobproperties.PerfMonFlags.doFastMon = False
         include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
-ByteStreamInputSvc.MaxBadEvents = 10000
 # ByteStreamInputSvc.DumpFlag = TRUE
 # from AthenaCommon.AppMgr import ToolSvc
 # ToolSvc.TileROD_Decoder.VerboseOutput = TRUE
@@ -416,5 +415,6 @@ svcMgr.MessageSvc.useColors = False
 print topSequence
 
 EventSelector.SkipEvents = EvtMin
+EventSelector.MaxBadEvents = 10000
 theApp.EvtMax=EvtMax
 

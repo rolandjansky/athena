@@ -11,7 +11,7 @@
 
 #undef NDEBUG
 #include "GeneratorObjects/CachedParticlePtr.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "SGTools/TestStore.h"
 #include "SGTools/CurrentEventStore.h"
 #include <thread>

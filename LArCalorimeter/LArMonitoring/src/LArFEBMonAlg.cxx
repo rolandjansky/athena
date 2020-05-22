@@ -11,14 +11,10 @@
 #include "LArFEBMonAlg.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-#include "LArRawEvent/LArFebErrorSummary.h"
 
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
-
-#include "TTree.h"
 
 #include "LArTrigStreamMatching.h"
 
@@ -72,6 +68,9 @@ StatusCode LArFEBMonAlg::initialize() {
     ATH_MSG_DEBUG( "Missing FEBs key" << m_BFKey.key() << " initialized" );
   }
 
+  ATH_CHECK( m_hdrContKey.initialize() );
+  ATH_CHECK( m_lArFebErrorSummaryKey.initialize() );
+
   m_histoGroups.reserve(m_SubDetNames.size());
   for (unsigned i=0; i<m_SubDetNames.size(); ++i) {
     std::vector<std::string> part;
@@ -79,6 +78,9 @@ StatusCode LArFEBMonAlg::initialize() {
     part.push_back(m_partitions[2*i+1]);
     m_histoGroups.push_back(Monitored::buildToolMap<int>(m_tools,m_SubDetNames[i],part));
   }
+
+  ATH_CHECK( m_run1DSPThresholdsKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_run2DSPThresholdsKey.initialize (SG::AllowEmpty) );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -88,11 +90,9 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   
   bool eventRejected = false;
   std::bitset<13> rejectionBits;
-  // these will be needed once TTRee is implemented:
-  //m_febInErrorTree.clear();
-  //m_febErrorTypeTree.clear();
-  // for the moment use local variable:
-  std::vector<int> febInErrorTree;
+  // for TTree
+  std::vector<int> febInErrorTree(0);
+  std::vector<int> febErrorTypeTree(0);
   
   // Retrieve event info to get event time,trigger type...
   // Retrieved at beg of method now to get the LVL1 type
@@ -104,30 +104,28 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   auto l1 = Monitored::Scalar<int>("LVL1Trig",l1Trig);
   fill(m_monGroupName,l1); 
 
-  //m_eventTime=thisEvent->timeStamp();
-  //m_eventTime_ns=thisEvent->timeStampNSOffset();
-    
+  auto eventTime = Monitored::Scalar<int>("timestamp",thisEvent->timeStamp());
+  auto eventTime_ns = Monitored::Scalar<int>("time_ns",thisEvent->timeStampNSOffset());
+
   unsigned lumi_block = thisEvent->lumiBlock();
   bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
   
   ATH_MSG_DEBUG( "LArFEBMonAlg Lumi block: "<<lumi_block);
 
-  const LArFebHeaderContainer* hdrCont;
-  const LArFebErrorSummary* lArFebErrorSummary;
-  StatusCode sc = evtStore()->retrieve(hdrCont);
-  if (sc.isFailure() || !hdrCont) {
-    ATH_MSG_WARNING( "No LArFebHeaderContainer found in TDS" ); 
-    return sc;
+  SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_hdrContKey, ctx);
+  SG::ReadHandle<LArFebErrorSummary> lArFebErrorSummary(m_lArFebErrorSummaryKey, ctx);
+  if (!hdrCont.isValid()) {
+    ATH_MSG_ERROR( "No LArFebHeaderContainer found in TDS" ); 
+    return StatusCode::FAILURE;
   }
   
   if (hdrCont->size()==0) {
-    ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
+    ATH_MSG_ERROR( "Got empty LArFebHeaderContainer. Do nothing" );
     return StatusCode::FAILURE;
   }
 
-  sc=evtStore()->retrieve( lArFebErrorSummary, "LArFebErrorSummary");
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No LArFebErrorSummary found in TDS" );
+  if (!lArFebErrorSummary.isValid()) {
+    ATH_MSG_ERROR( "No LArFebErrorSummary found in TDS" );
     return StatusCode::FAILURE;
   }
   
@@ -163,56 +161,34 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
    std::lock_guard<std::mutex> lock(m_mut);
    if (!m_dspThrDone && firstEventType == 4) {
     
-    //dspThresholds_ADC->SetTitle(Form("DSP thresholds for ADC-sample transmission (only in physics) - LB %4d",lumi_block));
-    //dspThresholds_qtime->SetTitle(Form("DSP thresholds for qfactor+time calculation (only in physics) - LB %4d",lumi_block));
-    auto dspADC = Monitored::Scalar<int>("dspThrADC",-1);
-    auto dspQT = Monitored::Scalar<int>("dspThrQT",-1);
-    if (m_keyDSPThresholds.size()>0) { 
-      if (detStore()->contains<LArDSPThresholdsComplete>(m_keyDSPThresholds)) {
-	ATH_MSG_DEBUG("Loading run1 version of LAr DSP Thresholds");
-	const LArDSPThresholdsComplete* dspThresh=0;
-	sc=detStore()->retrieve(dspThresh,m_keyDSPThresholds);
-	if(!sc.isSuccess()) {
-	  ATH_MSG_WARNING(" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
-			  << ". Will not fill histograms" );
-	}
-	else {
-	  auto chIt=m_onlineHelper->channel_begin();
-	  auto chIt_e=m_onlineHelper->channel_end();
-	  for (;chIt!=chIt_e;++chIt) {
-            dspADC=dspThresh->samplesThr(*chIt);
-            dspQT=dspThresh->tQThr(*chIt);
-            fill(m_monGroupName, dspADC, dspQT);
-	  }//end loop over channels
-	}//end got DSP Thresholds
-      } //end if contains LArDSPThresholdsComplete
-
-      else {
-	ATH_MSG_DEBUG("Loading run2 version of LAr DSP Thresholds");
-	const AthenaAttributeList* dspThrshAttr=0; 
-	sc=detStore()->retrieve(dspThrshAttr,m_keyDSPThresholds);
-	if (sc.isFailure()) {
-	  ATH_MSG_WARNING( "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
-			  << ", containing DSP Thresholds. Will not fill histograms." );
-	}
-	else {
-          std::unique_ptr<LArDSPThresholdsFlat> dspThreshFlat(new LArDSPThresholdsFlat(dspThrshAttr)); 
-	  if (!dspThreshFlat->good()) {
-	    ATH_MSG_WARNING( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_keyDSPThresholds
-			    << ". Will not fill histograms." ); 
-	  }//end if not good
-	  const IdentifierHash chanMax=m_onlineHelper->channelHashMax();
-	  for (unsigned iChan=0;iChan<chanMax;++iChan) {
-            dspADC=dspThreshFlat->samplesThrByHash(iChan);
-            dspQT=dspThreshFlat->tQThrByHash(iChan);
-            fill(m_monGroupName, dspADC, dspQT);
-	  }
-
-	}//end else got DSP Thresholds
-      }// else run 2
-    }// end load DSP thresholds from DB
+    auto dspADC = Monitored::Scalar<unsigned int>("dspThrADC",-1);
+    auto dspQT = Monitored::Scalar<unsigned int>("dspThrQT",-1);
+    if (!m_run1DSPThresholdsKey.empty()) {
+      ATH_MSG_DEBUG("Loading run1 version of LAr DSP Thresholds");
+      SG::ReadCondHandle<LArDSPThresholdsComplete> dspThresh (m_run1DSPThresholdsKey, ctx);
+      for (HWIdentifier ch : m_onlineHelper->channel_range()) {
+        dspADC=dspThresh->samplesThr(ch);
+        dspQT=dspThresh->tQThr(ch);
+        fill(m_monGroupName, dspADC, dspQT);
+      }//end loop over channels
+    }
+    else if (!m_run2DSPThresholdsKey.empty()) {
+      ATH_MSG_DEBUG("Loading run2 version of LAr DSP Thresholds");
+      SG::ReadCondHandle<AthenaAttributeList> dspThrshAttr (m_run2DSPThresholdsKey, ctx);
+      LArDSPThresholdsFlat dspThreshFlat(*dspThrshAttr);
+      if (!dspThreshFlat.good()) {
+        ATH_MSG_WARNING( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_run2DSPThresholdsKey.key()
+                         << ". Will not fill histograms." ); 
+      }//end if not good
+      const IdentifierHash chanMax=m_onlineHelper->channelHashMax();
+      for (unsigned iChan=0;iChan<chanMax;++iChan) {
+        dspADC=dspThreshFlat.samplesThrByHash(iChan);
+        dspQT=dspThreshFlat.tQThrByHash(iChan);
+        fill(m_monGroupName, dspADC, dspQT);
+      }
+    }
     else 
-      ATH_MSG_WARNING( "No LArDSPThresholds key specificed. Will not fill these histograms" );
+      ATH_MSG_WARNING( "No LArDSPThresholds key specified. Will not fill these histograms" );
     m_dspThrDone=true;
    }//m_dspThrDone
   } // locking scope
@@ -287,7 +263,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   // Loop over all febs to plot the error from statusword
   // This is mandatory to also monitor the FEBs with missing headers
    
-  //bool anyfebIE = false; 
+  bool anyfebIE = false; 
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); 
        allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
@@ -310,10 +286,10 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 
       if (currentFebStatus && febInErrorTree.size()<33){
 	febInErrorTree.push_back(febid.get_identifier32().get_compact());
-	//m_febErrorTypeTree.push_back(rejectionBits.to_ulong()); 
+	febErrorTypeTree.push_back(rejectionBits.to_ulong()); 
       }
     }  
-    //if(currentFebStatus) anyfebIE = currentFebStatus;
+    if(currentFebStatus) anyfebIE = currentFebStatus;
   }
   
   //Fill general data histos
@@ -338,8 +314,10 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   auto nbfebpart = Monitored::Scalar<int>("nbFEBpart",-1);
   for(unsigned i=0; i<m_partitions.size(); ++i) {
      part=i;
+     unsigned subdet = i / 2;
      nbfebpart=nfeb[i];
      fill(m_monGroupName,part,nbfebpart);
+     fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[i])],nbfebpart);
   }
   
   // If the nb of DSP headers is lower than the maximum, this means that there are some missing FEBs, probably
@@ -348,12 +326,13 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   //  ATH_MSG_ERROR( "ICI" << nbOfFeb << " " << m_nbOfFebBlocksTotal->GetBinLowEdge(m_nbOfFebBlocksTotal->GetMaximumBin()) );
   
   auto evtrej = Monitored::Scalar<int>("EvtRej",-1);
+  float evt_yield=-1;
   auto evtyield = Monitored::Scalar<float>("EvtRejYield",-1);
+  auto evtyield1D = Monitored::Scalar<float>("EvtRejYield1D",-1);
   auto evtoneyield = Monitored::Scalar<float>("EvtOneYield",-1);
-  auto evtyieldout = Monitored::Scalar<float>("EvtOneYieldOut",-1);
-  auto lb = Monitored::Scalar<int>("LB",lumi_block);
+  auto evtyieldout = Monitored::Scalar<float>("EvtRejYieldOut",-1);
   if (febInErrorTree.size()>=1 || newHighWaterMarkNFebBlocksTotal || nbOfFeb < m_nbOfFebBlocksTotal ){
-    evtrej=1; evtyield = 100.; evtoneyield =100.;
+    evtrej=1; evt_yield = 100.; evtoneyield =100.;
     if (febInErrorTree.size()>=4) evtrej=2;
   } else{
      evtoneyield=0.;
@@ -361,24 +340,26 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 
   if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error || nbOfFeb != m_nbOfFebBlocksTotal || nbOfFeb < m_nFEBnominal){ // Event in error (whatever is the cause)
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED) || nbOfFeb != m_nbOfFebBlocksTotal){ // Event corrupted (>=1/4 FEBs in error)
-      evtrej=3; evtyield = 100.;
+      evtrej=3; evt_yield = 100.;
       if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtyieldout=0.; // Vetoed 
       else evtyieldout=100.; // not vetoed
       auto rbits = Monitored::Scalar<unsigned long>("rejBits", rejectionBits.to_ulong());
       fill(m_monGroupName, rbits);
     }
     else{ // Event in error but not corrupted
-       evtyield = 50.; evtyieldout=100.;
+       evt_yield = 50.; evtyieldout=100.;
     }
-
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
+    evtyield1D=evt_yield;
   } else{ // The event is NOT in error. Fill per LB TProfile
-    evtrej=6; evtyield = 0.; evtyieldout=0.;
+    evtrej=6; evt_yield = 0.; evtyield1D=100; evtyieldout=0.;
   }
+  evtyield=evt_yield;
   auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/262144);
   auto sweet2 = Monitored::Scalar<int>("NbOfSweet2",totNbOfSweet2);
-  fill(m_monGroupName,evtrej,evtyield,evtoneyield, evSize, sweet2, lb);
+  auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
+  fill(m_monGroupName,evtrej,evtyieldout,evtyield,evtyield1D,evtoneyield,evSize, sweet2, lb0);
   evtrej=7;
   fill(m_monGroupName,evtrej);
   if(environment() == Environment_t::online) {
@@ -386,9 +367,15 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
      fill(m_monGroupName,evtyield,lbfake);
   }
 
-  //if(anyfebIE) { /* m_CorruptTree->Fill() FIXME once available in DQ*/; }
-
+  if(anyfebIE) { 
+     //Fill LArCorrupted tree
+     auto mon_febInErrorTree = Monitored::Collection("febHwId", febInErrorTree);
+     auto mon_febErrorTypeTree = Monitored::Collection("febErrorType", febErrorTypeTree);
+     fill(m_monGroupName,mon_febInErrorTree,mon_febErrorTypeTree,eventTime,eventTime_ns);
+  }
+  
   // Now we could fill the event size
+  auto lb = Monitored::Scalar<int>("LB",lumi_block);
   auto evsize=Monitored::Scalar<float>("LArEvSizePart",-1);
   if(environment() == Environment_t::online && m_streams.size() > 0) {
     std::vector<unsigned int> streamsThisEvent=LArMon::trigStreamMatching(m_streams,thisEvent->streamTags());
@@ -428,7 +415,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
    
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -591,8 +578,7 @@ void LArFEBMonAlg::fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uin
     unsigned subdet = partitNb_2 / 2;
     auto sl = Monitored::Scalar<int>("slotabs",slot);
     auto ftmon = Monitored::Scalar<int>("FTabs",ft);
-    auto err = Monitored::Scalar<float>("erryield",100.);
-    fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],sl,ftmon,err);
+    fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],sl,ftmon);
     float ferr=0.;
     if (lar_inerror) {// LArinError
        eventRejected = true;

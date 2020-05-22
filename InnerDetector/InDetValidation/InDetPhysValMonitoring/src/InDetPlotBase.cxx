@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -60,8 +60,8 @@ InDetPlotBase::book(TProfile*& pHisto, const SingleHistogramDefinition& hd) {
 }
 
 void
-InDetPlotBase::book(TH1*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+InDetPlotBase::book(TH1*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
+  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
 
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
@@ -71,8 +71,8 @@ InDetPlotBase::book(TH1*& pHisto, const std::string& histoIdentifier, const std:
 }
 
 void
-InDetPlotBase::book(TProfile*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+InDetPlotBase::book(TProfile*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
+  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
 
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
@@ -82,8 +82,8 @@ InDetPlotBase::book(TProfile*& pHisto, const std::string& histoIdentifier, const
 }
 
 void
-InDetPlotBase::book(TH2*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+InDetPlotBase::book(TH2*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
+  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
 
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
@@ -111,8 +111,8 @@ InDetPlotBase::book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd) {
 }
 
 void
-InDetPlotBase::book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
-  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+InDetPlotBase::book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride, const std::string& folder) {
+  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder, nameOverride);
 
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
@@ -167,7 +167,7 @@ InDetPlotBase::fillHisto(TEfficiency* pTeff,  const float value, const bool acce
 
 /**/
 SingleHistogramDefinition
-InDetPlotBase::retrieveDefinition(const std::string& histoIdentifier, const std::string& folder) {
+InDetPlotBase::retrieveDefinition(const std::string& histoIdentifier, const std::string& folder, const std::string & nameOverride) {
   SingleHistogramDefinition s; // invalid result
 
   if (not m_histoDefSvc) {
@@ -188,6 +188,9 @@ InDetPlotBase::retrieveDefinition(const std::string& histoIdentifier, const std:
   }
   if (s.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
+  }
+  if (!nameOverride.empty()){
+    s.name = nameOverride; 
   }
   return s;
 }

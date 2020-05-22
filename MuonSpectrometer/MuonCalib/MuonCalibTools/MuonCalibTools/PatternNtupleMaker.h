@@ -43,7 +43,7 @@ namespace MuonCalib {
   class PatternNtupleMaker : public AthAlgTool, virtual public IMuonCalibTool {
   public:
     PatternNtupleMaker(const std::string&,const std::string&,const IInterface*); //!<AlgTool constructor 
-    virtual ~PatternNtupleMaker();  //!<Virtual destructor
+    virtual ~PatternNtupleMaker()=default;
 
     StatusCode initialize();  //!< AlgTool initailize method: Creates an instance of MuonCalib::MuonCalibBranchNtuple, retrieves Storegate.
     StatusCode finalize();    //!< AlgTool finalize method: does not do anything special 

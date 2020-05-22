@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMonitorAlgorithm.h"
@@ -107,22 +107,31 @@ TileMonitorAlgorithm::getL1TriggerTypeBit(int lvl1TriggerIdx) const {
 
 TileMonitorAlgorithm::Partition
 TileMonitorAlgorithm::getPartition(const CaloCell* cell, const TileID* tileID) const {
+  return cell ? getPartition(cell->ID(), tileID) : MAX_PART;
+}
+
+TileMonitorAlgorithm::Partition
+TileMonitorAlgorithm::getPartition(IdentifierHash hash, const TileID* tileID) const {
+  return getPartition(tileID->cell_id(hash), tileID);
+}
+
+
+TileMonitorAlgorithm::Partition
+TileMonitorAlgorithm::getPartition(Identifier id, const TileID* tileID) const {
 
   Partition partition = MAX_PART; // by default for non Tile cell
 
-  if (cell) {
-    Identifier id = cell->ID();
-    if (tileID->is_tile(id)) {
-      int section = tileID->section(id);
-      int side = tileID->side(id);
+  if (tileID->is_tile(id)) {
+    int section = tileID->section(id);
+    int side = tileID->side(id);
 
-      if (section == 1) {
-        partition = (side == 1) ? PART_LBA : PART_LBC;
-      } else if (section == 2 || section == 3) {
-        partition = (side == 1) ? PART_EBA : PART_EBC;
-      }
+    if (section == 1) {
+      partition = (side == 1) ? PART_LBA : PART_LBC;
+    } else if (section == 2 || section == 3) {
+      partition = (side == 1) ? PART_EBA : PART_EBC;
     }
   }
 
   return partition;
 }
+

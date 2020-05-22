@@ -8,13 +8,14 @@ atlas_subdir( ViewAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
+			  Event/xAOD/xAODTracking
                           GaudiKernel
 			  Control/AthContainers
 			  Control/AthLinks 
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
 			  Event/xAOD/xAODJet
-			  Event/xAOD/xAODMuon
+                          Event/xAOD/xAODMuon
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate
@@ -30,7 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( ViewAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
-                   LINK_LIBRARIES xAODTrigger GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma xAODJet xAODMuon
+                   LINK_LIBRARIES xAODTrigger xAODTracking GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma xAODJet xAODMuon
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils MuonCombinedEvent TrigConfHLTData TrigSteeringEvent DecisionHandlingLib TrigCompositeUtilsLib )
 
 atlas_add_component( ViewAlgs

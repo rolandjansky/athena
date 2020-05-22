@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace Trk
   {
    
     // flip the charge according to qOverP
-    if (parameters[6] < 0.) this->m_chargeDef.setCharge(-1);
+    if (parameters[6] < 0.) { this->m_chargeDef.setCharge(-1);}
     // assign the parameters
     this->m_parameters[locX]   = 0.;
     this->m_parameters[locY]   = 0.;
@@ -49,14 +49,15 @@ namespace Trk
     ParametersT<DIM,T,S>(),
    m_cIdentifier(cIdentifier)
   {
-    this->m_covariance =cov;
+    this->m_covariance.reset(cov);
     this->m_position=pos;
     // flip the charge according to qOverP
-    if(tqOverP < 0.)
+    if(tqOverP < 0.) {
       this->m_chargeDef.setCharge(-1.);
-    else
+    } else {
       this->m_chargeDef.setCharge(1.);
-    
+    }
+
     // assign the parameters
     this->m_parameters[Trk::locX]   = 0.;
     this->m_parameters[Trk::locY]   = 0.;
@@ -83,7 +84,7 @@ namespace Trk
     m_cIdentifier(cIdentifier)    
   {
     this->m_chargeDef.setCharge(charge);
-    this->m_covariance = cov;
+    this->m_covariance.reset(cov);
 
     // assign the parameters
     this->m_parameters[Trk::locX]   = 0.;
@@ -91,9 +92,10 @@ namespace Trk
     this->m_parameters[Trk::phi]    = mom.phi();
     this->m_parameters[Trk::theta]  = mom.theta();
 
-    if(charge == 0.)
+    if(charge == 0.) {
       charge = 1.; // such that below is 1./mom.mag()
-    
+    }
+
     this->m_parameters[Trk::qOverP] = charge/mom.mag();
     this->m_position = pos;
     this->m_momentum = mom;
@@ -154,27 +156,32 @@ namespace Trk
     
     // make sure we compare objects of same type
     decltype(this) pCasted = dynamic_cast<decltype(this)>(&rhs);
-    if(!pCasted)
+    if(!pCasted) {
       return false;
+    }
 
     // comparison to myself?
-    if(pCasted == this)
+    if(pCasted == this) {
       return true;
+    }
 
     // compare identifier
-    if(cIdentifier() != pCasted->cIdentifier())
+    if(cIdentifier() != pCasted->cIdentifier()) {
       return false;
+    }
 
     // compare UVT frame
     CurvilinearUVT local_curvilinearFrame=curvilinearFrame();
     CurvilinearUVT casted_curvilinearFrame=pCasted->curvilinearFrame();
-    if(!local_curvilinearFrame.curvU().isApprox(casted_curvilinearFrame.curvU(),tolerance))
+    if(!local_curvilinearFrame.curvU().isApprox(casted_curvilinearFrame.curvU(),tolerance)) {
       return false;
-    if(!local_curvilinearFrame.curvV().isApprox(casted_curvilinearFrame.curvV(),tolerance))
+    }
+    if(!local_curvilinearFrame.curvV().isApprox(casted_curvilinearFrame.curvV(),tolerance)) {
       return false;
-    if(!local_curvilinearFrame.curvT().isApprox(casted_curvilinearFrame.curvT(),tolerance))
+    }
+    if(!local_curvilinearFrame.curvT().isApprox(casted_curvilinearFrame.curvT(),tolerance)) {
       return false;
-    
+    }
     // compare equality of base class parts
     return ParametersT<DIM,T,S>::operator==(rhs);
   }
@@ -222,51 +229,38 @@ namespace Trk
     return curvilinFrame;
   }
 
-  // Dedicated update method for non-curvilinear parameters - private and controlled by friendship 
-  template <int DIM,class T,class S>
-  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                                              AmgSymMatrix(DIM)* updatedCovariance)
+  // private updateParametersHelper
+  template<int DIM, class T, class S>
+  void Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) & updatedParameters)
   {
     // valid to use != here, because value is either copied or modified,
     bool updateMomentum = (updatedParameters[Trk::phi] != this->m_parameters[Trk::phi]) ||
-      (updatedParameters[Trk::theta] != this->m_parameters[Trk::theta]) ||
-      (updatedParameters[Trk::qOverP] != this->m_parameters[Trk::qOverP]);
+                          (updatedParameters[Trk::theta] != this->m_parameters[Trk::theta]) ||
+                          (updatedParameters[Trk::qOverP] != this->m_parameters[Trk::qOverP]);
 
-    // update the covariance
-    if (updatedCovariance)
-    {
-      if (updatedCovariance != this->m_covariance){
-        delete this->m_covariance;
-      }
-      this->m_covariance = updatedCovariance;
-    }
-    
-    // momentum update is needed    
-    if (updateMomentum)
-    {
-      double phi   = updatedParameters[Trk::phi];
+    // momentum update is needed
+    if (updateMomentum) {
+      double phi = updatedParameters[Trk::phi];
       double theta = updatedParameters[Trk::theta];
-      double p     = fabs(1./updatedParameters[Trk::qOverP]);
-      this->m_chargeDef.setCharge( sgn(updatedParameters[Trk::qOverP]) );
+      double p = fabs(1. / updatedParameters[Trk::qOverP]);
+      this->m_chargeDef.setCharge(sgn(updatedParameters[Trk::qOverP]));
       // assign them and update the momentum 3 vector
-      this->m_parameters[Trk::phi]    = phi;
-      this->m_parameters[Trk::theta]  = theta;
+      this->m_parameters[Trk::phi] = phi;
+      this->m_parameters[Trk::theta] = theta;
       this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
-      this->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-                                       p*sin(phi)*sin(theta),
-                                       p*cos(theta));
+      this->m_momentum = Amg::Vector3D(p * cos(phi) * sin(theta), p * sin(phi) * sin(theta), p * cos(theta));
     }
+
     // position update if needed -  loc1
-    if (updatedParameters[Trk::loc1] != 0.){ 
+    if (updatedParameters[Trk::loc1] != 0.) {
       this->m_position += updatedParameters[Trk::loc1] * curvilinearFrame().curvU();
     }
     // position update if needed -  loc2
-    if (updatedParameters[Trk::loc2] != 0.){ 
+    if (updatedParameters[Trk::loc2] != 0.) {
       this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
     }
-    
-    //Reset also the surface
-    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
-    
+    // Reset also the surface
+    this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
   }
+
 } // end of namespace Trk

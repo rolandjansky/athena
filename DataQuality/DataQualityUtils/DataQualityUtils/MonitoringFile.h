@@ -65,7 +65,7 @@ namespace dqutils {
     class OutputMetadata {
     public:
       OutputMetadata(TTree* metadata);
-      virtual ~OutputMetadata();
+      virtual ~OutputMetadata() = default;
 
       virtual void fill(std::string name, 
 			 std::string interval, 
@@ -73,14 +73,8 @@ namespace dqutils {
 			 std::string merge);
 
     protected:
-      void copyString(char* to, const std::string& from);
-      void adjustAddresses(const char* branchName, void* ptr, const char* branchstr);
-      const int m_charArrSize;
+      void makeBranch(const char* branchName, const char* branchstr);
       TTree* m_metadata;
-      char* m_nameData;
-      char* m_intervalData;
-      char* m_chainData;
-      char* m_mergeData;
     };
 
 
@@ -410,15 +404,10 @@ namespace dqutils {
       virtual bool executeMD(TEfficiency* eff, const MetaData& md);
 
     protected:
-      void copyString(char* to, const std::string& from);
+      void fillMD(const MetaData& md);
       TDirectory*  m_target;
       std::string  m_dirName;
-      const int m_charArrSize;
       TTree* m_metadata;
-      char* m_nameData;
-      char* m_intervalData;
-      char* m_chainData;
-      char* m_mergeData;
     };
 
     class GatherStatistics : public HistogramOperation {

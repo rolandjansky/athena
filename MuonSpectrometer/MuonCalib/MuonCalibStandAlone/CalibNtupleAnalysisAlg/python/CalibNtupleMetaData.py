@@ -1,18 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from ROOT import TFile, TTree
+from __future__ import print_function
+
+from ROOT import TFile
 import sys
 
 class CalibNtupleMetaData:
-	
+
   def __init__(self, filelist):
     self.MetaData={}
-    fl=file(filelist)
+    fl=open(filelist)
     root_file=None
     inf=None
     for line in fl.readlines():
       items=line.replace('\n', '').split()
-      print line.replace('\n', ''), items
+      print (line.replace('\n', ''), items)
       if len(items)==0 or items[0][0]=="#":
         continue
       if items[0]=="[":
@@ -25,20 +27,20 @@ class CalibNtupleMetaData:
       if not inf:
         sys.stderr.write("CalibNtupleMetaData WARNING: cannot open first file in filelist\n")
         continue
- 	    
+
     if not inf:
       sys.stderr.write("CalibNtupleMetaData WARNING: find an input file in filelist\n")
       return
- 			
+
     tree=inf.Get("meta_data")
     if not tree:
       sys.stderr.write("CalibNtupleMetaData WARNING: input file does not contain meta_data\n")
       return
- 	
+
     i=0
     while tree.GetEntry(i):
       i+=1
       self.MetaData[str(tree.key)] = str(tree.value)
-    print "Found meta data:"
+    print ("Found meta data:")
     for k in self.MetaData:
-      print k, self.MetaData[k]
+      print (k, self.MetaData[k])

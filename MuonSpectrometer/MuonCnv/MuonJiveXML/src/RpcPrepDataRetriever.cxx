@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/RpcPrepDataRetriever.h"
 
 #include "MuonJiveXML/MuonFullIDHelper.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
@@ -27,9 +26,9 @@ namespace JiveXML {
 
   StatusCode RpcPrepDataRetriever::initialize(){
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }        
@@ -39,11 +38,11 @@ namespace JiveXML {
   StatusCode RpcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::RpcPrepDataContainer *rpcContainer;
+    const Muon::RpcPrepDataContainer *rpcContainer=nullptr;
     if ( evtStore()->retrieve(rpcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::RpcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::RpcPrepDataContainer '" << m_sgKey << "' was not retrieved.");
       return StatusCode::SUCCESS;
     }
 
@@ -74,12 +73,12 @@ namespace JiveXML {
         Identifier id = data->identify();
   
         if (!element) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::RpcReadoutElement for hit " << id << endmsg;
+          if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::RpcReadoutElement for hit " << id);
           continue;
         }
   
 	Amg::Vector3D globalPos = element->stripPos(id);  
-        int measuresPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
+        int measuresPhi = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
         double stripLength = element->StripLength(measuresPhi);
         double stripWidth = element->StripWidth(measuresPhi);
 
@@ -88,7 +87,7 @@ namespace JiveXML {
         z.push_back(DataType(globalPos.z()/CLHEP::cm));
         lengthVec.push_back(DataType(stripLength/CLHEP::cm));
         widthVec.push_back(DataType(stripWidth/CLHEP::cm));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->rpcIdHelper())));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_idHelperSvc->rpcIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
       }
@@ -105,7 +104,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

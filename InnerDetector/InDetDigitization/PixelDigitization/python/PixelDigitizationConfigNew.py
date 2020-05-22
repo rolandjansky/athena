@@ -11,7 +11,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
     PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg, 
     PixelTDAQCondAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
 )
 
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -159,6 +159,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
                                     UseTDAQConditions=False))
     # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
+# NEW FOR RUN3    acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     # DCS setup
     acc.merge(PixelDCSCondHVAlgCfg(flags))
     acc.merge(PixelDCSCondTempAlgCfg(flags))

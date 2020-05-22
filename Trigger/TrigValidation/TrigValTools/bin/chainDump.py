@@ -13,13 +13,12 @@ import ROOT
 from collections import OrderedDict
 
 total_events_key = 'TotalEventsProcessed'
-json_file_name = 'chainDump.json'
 column_width = 10  # width of the count columns for print out
 name_width = 50  # width of the item name column for print out
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(usage='%(prog)s [options] files',
+    parser = argparse.ArgumentParser(usage='%(prog)s [options]',
                                      description=__doc__)
     parser.add_argument('-f', '--inputFile',
                         metavar='PATH',
@@ -40,9 +39,10 @@ def get_parser():
                         default=False,
                         help='Only store out of tolerance results (does not change JSON)')
     parser.add_argument('--json',
-                        action='store_true',
-                        default=False,
-                        help='Save outputs also to {:s}'.format(json_file_name))
+                        metavar='PATH',
+                        nargs='?',
+                        const='chainDump.json',
+                        help='Save outputs also to a json file with the given name or %(const)s if no name is given')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
                         default=0.001,
@@ -418,8 +418,8 @@ def main():
         write_txt_output(json_dict, args.diffOnly)
 
     if args.json:
-        logging.info('Writing results to %s', json_file_name)
-        with open(json_file_name, 'w') as outfile:
+        logging.info('Writing results to %s', args.json)
+        with open(args.json, 'w') as outfile:
             json.dump(json_dict, outfile)
 
     return retcode

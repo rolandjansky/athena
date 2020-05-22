@@ -33,6 +33,7 @@ namespace AthSYCL {
       cl::sycl::queue queue( m_deviceSelector );
       cl::sycl::range< 1 > workItems( buffer.get_count() );
 
+#ifndef TRISYCL_CL_SYCL_HPP
       // Let the user know what device the calculation is running on.
       const cl::sycl::device& device = queue.get_device();
       ATH_MSG_DEBUG( "Using device "
@@ -40,6 +41,7 @@ namespace AthSYCL {
                      << " ("
                      << device.get_info< cl::sycl::info::device::version >()
                      << ")" );
+#endif // not TRISYCL_CL_SYCL_HPP
 
       // Multiply these values using SYCL.
       static const float MULTIPLIER = 1.23f;

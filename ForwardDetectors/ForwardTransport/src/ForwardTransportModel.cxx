@@ -14,7 +14,7 @@
 #include "G4Gamma.hh"
 #include "G4Lambda.hh"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 ForwardTransportModel::ForwardTransportModel(const std::string& name, const int verboseLevel, const std::string& FwdTrSvcName)
   : G4VFastSimulationModel(name)

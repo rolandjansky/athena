@@ -27,7 +27,7 @@
  * The number, sampling and widths of the rings is fully
  * configurable.
  */
-class RingerReFex : public IReAlgToolCalo 
+class RingerReFex : public IReAlgToolCalo
 {
 
   public:
@@ -40,23 +40,23 @@ class RingerReFex : public IReAlgToolCalo
 
         RingSet(unsigned int max, unsigned int maxCells, double etasz, double phisz, const std::vector<CaloSampling::CaloSample> &samples);
         virtual ~RingSet();
-        
+
         void push_back(const std::vector<const CaloCell *>& c, const double eta_center, const double phi_center);
-        
-        void clear(void){ 
-          for(unsigned int i = 0; i < m_rings.size(); ++i) 
+
+        void clear(void){
+          for(unsigned int i = 0; i < m_rings.size(); ++i)
             m_rings[i] = 0;
         }
-        
+
         inline const double& eta_size(void) const { return m_etasz; }
         inline const double& phi_size(void) const { return m_phisz; }
-        inline size_t        maxCells(void) const { return m_maxCells; } 
+        inline size_t        maxCells(void) const { return m_maxCells; }
         inline size_t        size(void) const { return m_rings.size(); }
 
-        const std::vector<double>& pattern(void) const { return m_rings; };     
+        const std::vector<double>& pattern(void) const { return m_rings; };
         const std::vector<CaloSampling::CaloSample>& samples(void) const { return m_samples; }
         bool belongs( const CaloCell *c ) const;
-      
+
       private:
 
         double m_etasz; // the width of rings, in eta
@@ -66,13 +66,13 @@ class RingerReFex : public IReAlgToolCalo
         std::vector<double>  m_rings; // my current values
         std::vector<CaloSampling::CaloSample> m_samples; ///< I'm good for those
         float m_cachedOverEtasize; ///< cached value of 1/m_config.eta_size() for optimizations
-        float m_cachedOverPhisize; ///< cached value of 1/m_config.phi_size() for optimizations  
-        
+        float m_cachedOverPhisize; ///< cached value of 1/m_config.phi_size() for optimizations
+
 
     };
 
 
-  public: 
+  public:
 
     RingerReFex (const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~RingerReFex() { }
@@ -80,18 +80,18 @@ class RingerReFex : public IReAlgToolCalo
     using IReAlgToolCalo::execute;
 
     virtual StatusCode initialize() override;
-    
-    virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, 
-                               const IRoiDescriptor& roi, 
+
+    virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
+                               const IRoiDescriptor& roi,
                                const CaloDetDescrElement*& /*caloDDE*/,
                                const EventContext& context) const override;
 
 
-  
+
   private:
-  
+
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool"};
-    SG::WriteHandleKey<xAOD::TrigRingerRingsContainer> m_ringerContainerKey {this, "RingerKey", "HLT_L2CaloRinger", "TrigRingerRings container key"};
+    SG::WriteHandleKey<xAOD::TrigRingerRingsContainer> m_ringerContainerKey {this, "RingerKey", "HLT_FastCaloRinger", "TrigRingerRings container key"};
     SG::ReadHandleKey<xAOD::TrigEMClusterContainer>    m_clusterContainerKey {this, "ClustersName", "HLT_L2CaloEMClusters", "TrigEMCluster container key"};
     Gaudi::Property<std::vector<float>>  m_etaBins  {this, "EtaBins", {}, "Eta bins range cover by the ringer reconstruction."};
     Gaudi::Property<bool>  m_global_center  {this, "GlobalCenter", false,  ""};
@@ -104,19 +104,19 @@ class RingerReFex : public IReAlgToolCalo
     Gaudi::Property<std::vector<unsigned int>>  m_layersRings  {this, "LayersRings", {},  ""};
     Gaudi::Property<std::vector<unsigned int>>  m_nlayersRings  {this, "NLayersRings", {},  ""};
     Gaudi::Property<std::vector<unsigned int>>  m_maxCells  {this, "NMaxCells", {},  ""};
-    
+
     unsigned int              m_maxRingsAccumulated;
-    
+
     bool configurationInvalid();
 
 
     // Calculates the maximum energy cell in a CaloCell collection.
-    inline void maxCell ( const std::vector<const CaloCell*>& vcell, 
-    			                double& eta, 
-                          double& phi, 
-                          const double eta_ref, 
-    			                const double phi_ref, 
-                          const double eta_window, 
+    inline void maxCell ( const std::vector<const CaloCell*>& vcell,
+    			                double& eta,
+                          double& phi,
+                          const double eta_ref,
+    			                const double phi_ref,
+                          const double eta_window,
     			                const double phi_window) const ;
 
 

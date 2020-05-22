@@ -60,6 +60,18 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
    /// do stuff here ...  
   ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
+
+  SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  if (lutCondData.isValid()) {
+    /// inpractice, this should never be called, although in serial athena,                                                                          
+    /// because the implementation of the conditions behaviour is flawed in                                                                          
+    /// the framework, this routine will be called every event (!) regardless                                                                        
+    /// of whether it should be called or not so we need this check to                                                                               
+    /// prevent unecessary code execution on out our side                                                                                            
+    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid." );
+    return StatusCode::SUCCESS;
+  }
+
    
   /// annoyingly take the pixel cabling to determine whether to build this
   /// calorimeter table using the EventIDRange.
@@ -80,7 +92,7 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
   /// create the new lookup table
 
-  std::unique_ptr<RegSelectorHashMap> rd = createTable();
+  std::unique_ptr<IRegSelLUT> rd = createTable();
 
   if ( !rd ) return StatusCode::FAILURE;
 
@@ -88,10 +100,13 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
   /// create the conditions data for storage 
 
-  RegSelCaloLUTCondData* rcd = new RegSelCaloLUTCondData( std::move(rd) );  
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );  
 
-  try { 
-    SG::WriteCondHandle<RegSelCaloLUTCondData> lutCondData( m_tableKey, ctx );
+  try {
+    /// leave this commented here since this is where it should really be,
+    /// but we had to move it up in the code to handle the flawed conditions 
+    /// handling in the serial athena use case
+    ///    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

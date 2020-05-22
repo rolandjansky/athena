@@ -11,7 +11,7 @@
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
