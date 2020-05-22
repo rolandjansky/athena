@@ -1,20 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
 
-#include "TTree.h"
-
 #include "xAODEventInfo/EventInfo.h"
  
-///for GaudiKernel
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "Identifier/Identifier.h"
- 
- 
+
 #include "HepMC/GenParticle.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
@@ -36,17 +31,16 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-//#include "TrkMagFieldInterfaces/IMagneticFieldTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include <iostream>
-#include <fstream>
 #include "TTree.h"
+#include <TString.h> // for Form
 #include <string>
-#include <TMath.h>
 #include <sstream>
 #include <map>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace MuonGM;
@@ -919,11 +913,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	continue;
       }
 
-      const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement() ;
-      if( !detEl ) {
-	*m_log << MSG::WARNING << " no associated detectorElement!!! " << endreq;
-	continue;
-      }
+      const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement();
+      if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMDTPRDValAlg::analyseHits() - no associated detectorElement", __FILE__, __LINE__));
 
       // transform to global coords
       Amg::Vector3D simHitPosLoc(simHit->localPosition().x(), simHit->localPosition().y(), simHit->localPosition().z());
