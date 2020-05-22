@@ -14,4 +14,12 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODMETADATA {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_OBJECT_TYPES( xAOD, FileMetaData_v1 );
+   };
+}
+
 #endif // XAODMETADATA_XAODMETADATADICT_H

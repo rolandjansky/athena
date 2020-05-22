@@ -49,4 +49,17 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODTRUTH {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthParticleContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthVertexContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthEventBaseContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthEventContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthPileupEventContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TruthMetaDataContainer_v1 );
+   };
+}
+
 #endif // XAODTRUTH_XAODTRUTHDICT_H

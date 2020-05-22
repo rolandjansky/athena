@@ -34,4 +34,22 @@
 // EDM include(s):
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODMUON {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, MuonContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, MuonSegmentContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, SlowMuonContainer_v1 );
+      // Type(s) needed for the dictionary generation to succeed.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CaloClusterContainer );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrackParticleContainer );
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
+      // These lines are still needed in order for Reflex to see the
+      // member variable of xAOD::MuonSegmentAuxContainer_v1 correctly.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( Trk, SegmentCollection );
+#endif // not (defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
+   };
+}
+
 #endif // XAODMUON_XAODMUONDICT_H

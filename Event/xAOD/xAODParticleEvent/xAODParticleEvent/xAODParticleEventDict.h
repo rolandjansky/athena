@@ -23,4 +23,16 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODPARTICLEEVENT {
+      // Types for which dictionaries are built.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, ParticleContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD,
+                                           CompositeParticleContainer_v1 );
+      // Type(s) needed for the dictionary generation to succeed.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, IParticleContainer );
+   };
+}
+
 #endif // XAODPARTICLEEVENT_XAODPARTICLEEVENTDICT_H

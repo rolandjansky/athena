@@ -183,4 +183,70 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+  struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGL1CALO {
+
+    // Run 1
+
+    // JEMHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JEMHitsContainer_v1 );
+    // JEMEtSums
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JEMEtSumsContainer_v1 );
+    // JEMRoI
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JEMRoIContainer_v1 );
+    // CPMHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CPMHitsContainer_v1 );
+    // CPMTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CPMTowerContainer_v1 );
+    // CPMRoI
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CPMRoIContainer_v1 );
+    // CMMCPHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMMCPHitsContainer_v1 );
+    // CMMEtSums
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMMEtSumsContainer_v1 );
+    // CMMJetHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMMJetHitsContainer_v1 );
+    // JetElement
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JetElementContainer_v1 );
+    // RODHeader
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, RODHeaderContainer_v1 );
+    // TriggerTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TriggerTowerContainer_v1 );
+    // CMMRoI
+    XAOD_INSTANTIATE_NS_OBJECT_TYPES( xAOD, CMMRoI_v1 );
+
+    // Run 2
+
+    // TriggerTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TriggerTowerContainer_v2 );
+    // RODHeader
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, RODHeaderContainer_v2 );
+    // CMXCPHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXCPHitsContainer_v1 );
+    // CMXCPTob
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXCPTobContainer_v1 );
+    // CMXJetHits
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXJetHitsContainer_v1 );
+    // CMXJetTob
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXJetTobContainer_v1 );
+    // CMXEtSums
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXEtSumsContainer_v1 );
+    // CMXRoI
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CMXRoIContainer_v1 );
+    // CPMTower
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CPMTowerContainer_v2 );
+    // CPMTobRoI
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CPMTobRoIContainer_v1 );
+    // JEMEtSums
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JEMEtSumsContainer_v2 );
+    // JEMTobRoI
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JEMTobRoIContainer_v1 );
+    // JetElement
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, JetElementContainer_v2 );
+    // L1TopoRawData
+    XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, L1TopoRawDataContainer_v1 );
+  };
+}
+
 #endif // XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H

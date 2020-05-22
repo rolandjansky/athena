@@ -16,4 +16,12 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGMISSINGET {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigMissingETContainer_v1 );
+   };
+}
+
 #endif // xAODTrigMissingET_xAODTrigMissingET_DICT_H

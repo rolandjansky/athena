@@ -17,6 +17,21 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/IParticleHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODBASE {
+      xAOD::IParticleContainer c1;
+      DataLink< xAOD::IParticleContainer > l1;
+      std::vector< DataLink< xAOD::IParticleContainer > > l2;
+      ElementLink< xAOD::IParticleContainer > l3;
+      std::vector< ElementLink< xAOD::IParticleContainer > > l4;
+      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > l5;
+      SG::AuxTypeVectorFactory< DataLink< xAOD::IParticleContainer > > l6;
+      SG::AuxTypeVectorFactory< ElementLink< xAOD::IParticleContainer > > l7;
+      SG::AuxTypeVectorFactory< std::vector< ElementLink< xAOD::IParticleContainer > > > l8;
+   };
+}
+
 // Not sure if this line is necessary but it shouldn't hurt...
 template class DataVector<xAOD::IParticle>;
 

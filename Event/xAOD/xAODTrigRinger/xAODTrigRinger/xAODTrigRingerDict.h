@@ -29,4 +29,17 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODRINGERRINGS {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigRingerRingsContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigRingerRingsContainer_v2 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigRNNOutputContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigRNNOutputContainer_v2 );
+      // Type(s) needed for the dictionary generation to succeed.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrigEMClusterContainer );
+   };
+}
+
 #endif // XAODTRIGRINGER_XAODTRIGRINGERDICT_H
