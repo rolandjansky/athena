@@ -4,6 +4,8 @@
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 #include "MuonEfficiencyCorrections/UtilFunctions.h"
+#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+
 
 #include "PATInterfaces/SystematicsUtil.h"
 #include <TH1D.h>
@@ -29,8 +31,6 @@ namespace TestMuonSF {
     SFBranches::SFBranches(TTree* tree) :
                 m_tree(tree) {
     }
-    SFBranches::~SFBranches() {
-    }
     //############################################################
     //                   TriggerSFBranches
     //############################################################
@@ -43,8 +43,6 @@ namespace TestMuonSF {
                 m_stat_down_SF(1.),
                 m_sys_up_SF(1.),
                 m_sys_down_SF(1.) {
-    }
-    TriggerSFBranches::~TriggerSFBranches() {
     }
     CP::CorrectionCode TriggerSFBranches::fill(const xAOD::MuonContainer* muons) {
         if (getSF(muons, m_nominal_SF, CP::SystematicVariation("", 0)) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
@@ -82,48 +80,87 @@ namespace TestMuonSF {
     MuonEffiBranches::MuonEffiBranches(TTree* tree) :
                 SFBranches(tree) {
     }
-    MuonEffiBranches::~MuonEffiBranches() {
-    }
     //############################################################
     //                   MuonSFBranches
     //############################################################
     MuonSFBranches::MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name) :
                 MuonEffiBranches(tree),
                 m_handle(handle),
+                m_uncorrelate_sys(dynamic_cast<const CP::MuonEfficiencyScaleFactors*>(handle.operator->())->uncorrelate_sys()),
                 m_release(rel_name),
                 m_SFs() {
     }
     CP::CorrectionCode MuonSFBranches::fill(const xAOD::Muon& muon) {
-        for (auto& Syst_SF : m_SFs) {            
-            if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
-                Error("MuonSFBranches()", "Failed to apply variation %s for %s", Syst_SF.first.name().c_str(), name().c_str());
-                return CP::CorrectionCode::Error;
-            }            
-            CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
-            if (cc == CP::CorrectionCode::Error) {
-                Error("MuonSFBranches()", "Failed to retrieve %s scale-factor for variation %s", name().c_str(), Syst_SF.first.name().c_str());
-                return CP::CorrectionCode::Error;
-            } 
-           
-            /// No data-mc efficiencies provided for eta beyond 2.5
-            if (std::abs(muon.eta()) > 2.5) {
-                Syst_SF.second.data_eff = -1;
-                Syst_SF.second.mc_eff = -1;
-                continue;
-            }            
-            cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
-            if (cc == CP::CorrectionCode::Error) {
-                 Error("MuonSFBranches()", "Failed to retrieve %s data efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
-                return CP::CorrectionCode::Error;
-            }            
-            cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
-            if (cc == CP::CorrectionCode::Error) {
-                Error("MuonSFBranches()", "Failed to retrieve %s mc efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
-                return CP::CorrectionCode::Error;
+        /// Only the raw systematic sets have been activated
+        /// We can loop over each set and fill it properly        
+        if (!m_uncorrelate_sys){
+            for (auto& Syst_SF : m_SFs) {            
+                CP::CorrectionCode cc =  fill_systematic(muon,Syst_SF);
+                if (cc == CP::CorrectionCode::Error) return cc;
             }
-        }
+        }  else {            
+            int bin =  m_handle->getUnCorrelatedSystBin(muon);
+            if (bin < 0){
+                Warning("MuonSFBranches()", "Did not find a valid bin for muon  with pT: %.2f GeV, eta: %.2f, phi: %2.f",
+                        muon.pt(), muon.eta(),muon.phi());
+                return CP::CorrectionCode::OutOfValidityRange;
+            }        
+            for (auto& Syst_SF: m_SFs){
+                /// Only process the nominal set or the set matching the syst bin
+                bool process = false;
+                if (Syst_SF.first.name().empty()) process =true;
+                else {                    
+                     for (std::set<CP::SystematicVariation>::const_iterator t = Syst_SF.first.begin(); t != Syst_SF.first.end(); ++t) {
+                        if ((*t).isToyVariation()) {
+                            std::pair<unsigned, float> pair = (*t).getToyVariation();
+                            if (pair.first == (unsigned) bin){
+                                process = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (process) {
+                    CP::CorrectionCode cc = fill_systematic(muon, Syst_SF);
+                    if (cc == CP::CorrectionCode::Error) return cc;
+                } else {
+                    /// Assign a dummy value
+                    Syst_SF.second.scale_factor = Syst_SF.second.mc_eff = Syst_SF.second.data_eff = -1.; 
+                }                
+            }           
+        } 
         return CP::CorrectionCode::Ok;
     }
+    CP::CorrectionCode MuonSFBranches::fill_systematic(const xAOD::Muon muon, std::pair<const CP::SystematicSet, MuonSFBranches::SFSet>&  Syst_SF){
+        if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+            Error("MuonSFBranches()", "Failed to apply variation %s for %s", Syst_SF.first.name().c_str(), name().c_str());
+            return CP::CorrectionCode::Error;
+        }            
+        CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
+        if (cc == CP::CorrectionCode::Error) {
+            Error("MuonSFBranches()", "Failed to retrieve %s scale-factor for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+            return CP::CorrectionCode::Error;
+        } 
+       
+        /// No data-mc efficiencies provided for eta beyond 2.5
+        if (std::fabs(muon.eta()) > 2.5) {
+            Syst_SF.second.data_eff = -1;
+            Syst_SF.second.mc_eff = -1;
+            return CP::CorrectionCode::Ok;
+        }            
+        cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
+        if (cc == CP::CorrectionCode::Error) {
+             Error("MuonSFBranches()", "Failed to retrieve %s data efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+            return CP::CorrectionCode::Error;
+        }            
+        cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
+        if (cc == CP::CorrectionCode::Error) {
+            Error("MuonSFBranches()", "Failed to retrieve %s mc efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+            return CP::CorrectionCode::Error;
+        }
+        return CP::CorrectionCode::Ok;        
+    }
+    
     std::string MuonSFBranches::name() const {
         return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
@@ -195,8 +232,6 @@ namespace TestMuonSF {
                 m_passHighPt(false),
                 m_precLayers(0){
     }
-    MuonInfoBranches::~MuonInfoBranches() {
-    }
     bool MuonInfoBranches::init() {
         if (!initBranch(m_pt, "pt")) return false;
         if (!initBranch(m_eta, "eta")) return false;
@@ -242,7 +277,7 @@ namespace TestMuonSF {
                 m_Branches(),
                 m_sel_tool(){
         if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
-        m_Branches.push_back(EffiBranch_Ptr(new MuonInfoBranches(tree(),m_sel_tool)));
+        m_Branches.push_back(std::make_unique<TestMuonSF::MuonInfoBranches>(tree(),m_sel_tool));
         if (HasOwnerShip) m_tree = std::shared_ptr < TTree > (m_tree_raw_ptr);
     }
     MuonSFTestHelper::MuonSFTestHelper(std::shared_ptr<TTree> tree, const std::string& release_name) :
@@ -261,19 +296,17 @@ namespace TestMuonSF {
                 m_sel_tool(){
         if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
     }
-    MuonSFTestHelper::~MuonSFTestHelper() {
-    }
     void MuonSFTestHelper::addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle) {
         addTool(handle.getHandle());
     }
     void MuonSFTestHelper::addTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle) {
-        m_Branches.push_back(EffiBranch_Ptr(new MuonSFBranches(tree(), handle, m_name)));
+        m_Branches.push_back(std::make_unique<TestMuonSF::MuonSFBranches>(tree(), handle, m_name));
     }
     void MuonSFTestHelper::addReplicaTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle) {
         addReplicaTool(handle.getHandle());
     }
     void MuonSFTestHelper::addReplicaTool(const ToolHandle<CP::IMuonEfficiencyScaleFactors>& handle) {
-        m_Branches.push_back(EffiBranch_Ptr(new MuonReplicaBranches(tree(), handle, m_name)));
+        m_Branches.push_back(std::make_unique<TestMuonSF::MuonReplicaBranches>(tree(), handle, m_name));
     }
     void MuonSFTestHelper::setSelectionTool(const asg::AnaToolHandle<CP::IMuonSelectionTool> & sel_tool){
         setSelectionTool(sel_tool.getHandle());
