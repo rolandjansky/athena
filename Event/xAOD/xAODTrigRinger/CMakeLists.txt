@@ -15,8 +15,10 @@ atlas_add_library( xAODTrigRinger
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODTrigRinger/selection.xml
    OUTPUT _selectionFile
-   CONTAINERS "TrigRingerRingsContainer_v1" "TrigRingerRingsContainer_v2"
-              "TrigRNNOutputContainer_v1" "TrigRNNOutputContainer_v2" )
+   CONTAINERS "xAOD::TrigRingerRingsContainer_v1"
+              "xAOD::TrigRingerRingsContainer_v2"
+              "xAOD::TrigRNNOutputContainer_v1"
+              "xAOD::TrigRNNOutputContainer_v2" )
 
 atlas_add_dictionary( xAODTrigRingerDict
    xAODTrigRinger/xAODTrigRingerDict.h
