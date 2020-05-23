@@ -63,9 +63,9 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
 
     return acc
 
-def TrigBSReadCfg(inputFlags):
+def TrigBSReadCfg( flags, typeNames=[] ):
     # TODO: Search and replace all clients to use ByteStreamReadCfg directly, then remove TrigBSReadCfg
-    return ByteStreamReadCfg( inputFlags )
+    return ByteStreamReadCfg( flags, typeNames )
 
 
 def ByteStreamWriteCfg( flags, typeNames=[] ):
