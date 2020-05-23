@@ -158,20 +158,39 @@ int HIClusterSubtraction::execute() const
 			xAOD::IParticle::FourMom_t p4;
 
 			//Unsubtracted state record done by the subtractor tool functions.
-
       if(m_setMoments) {
-				  //This does also the setClusterP4(p4,cl,HIJetRec::subtractedClusterState()); not clear if/how do origin yet
+				  //This flag is set to false for HIJetClustersSubtractorTool and true for HIJetCellSubtractorTool,
+					// but for the second we don't do origin correction. In principle the code is structured to do the same as the
+					//else for m_setMoments=true and HIJetClustersSubtractorTool, therefore we add the code for origin correction also here
 				  m_subtractorTool->subtractWithMoments(cl, shape, es_index, m_modulatorTool, eshape);
+					if(isOriginPossible && m_originCorrection){
+						missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
+						HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
+					}
 			}
       else
       {
 					m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
 					HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
+					ATH_MSG_INFO("Applying origin correction"
+						<< std::setw(12) << "Before:"
+						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
+						<< std::setw(10) << std::setprecision(3) << p4.Eta()
+						<< std::setw(10) << std::setprecision(3) << p4.Phi()
+						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
+						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
 					if(isOriginPossible){
 						missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
 					  HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
 					}
-      }
+					ATH_MSG_INFO("Applying origin correction"
+						<< std::setw(12) << "After:"
+						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
+						<< std::setw(10) << std::setprecision(3) << p4.Eta()
+						<< std::setw(10) << std::setprecision(3) << p4.Phi()
+						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
+						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
+					}
     }//End of iterator over CaloClusterContainer
 
     for(ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt=m_clusterCorrectionTools.begin();

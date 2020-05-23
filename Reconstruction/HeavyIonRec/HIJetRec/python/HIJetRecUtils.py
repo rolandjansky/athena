@@ -145,12 +145,14 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
-
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
     if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
     else : update_only = False
+
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
 
     HIClusterSubtraction=CompFactory.HIClusterSubtraction
     toolName='HIClusterSubtraction'
@@ -161,6 +163,7 @@ def ApplySubtractionToClusters(**kwargs) :
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
     theAlg.UpdateOnly=update_only
+    theAlg.ApplyOriginCorrection=apply_origin_correction
 
     do_cluster_moments=False
     if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
