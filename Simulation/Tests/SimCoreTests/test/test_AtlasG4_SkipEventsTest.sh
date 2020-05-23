@@ -29,6 +29,6 @@ ArtPackage=$1
 ArtJobName=$2
 # TODO Here we also want to be able to grep the log file for:
 #<fileGrepperPattern>skipping event 1.*skipping event 2.*skipping event 3.*skipping event 4.*skipping event 5</fileGrepperPattern>
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"
