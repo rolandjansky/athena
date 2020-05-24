@@ -103,7 +103,7 @@ public:
    * It is ok to call this concurrently, as long as each call uses
    * the same parameters.
    */
-  void set (const IProxyDict* sg, const HepMC::GenParticle*) const;
+  void set (const IProxyDict* sg, const HepMC::GenParticle* part) const;
 
 
 private:
