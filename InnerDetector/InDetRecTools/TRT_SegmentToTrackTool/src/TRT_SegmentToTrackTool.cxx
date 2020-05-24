@@ -156,7 +156,7 @@ namespace InDet {
     //
     if (!tS.fitQuality()) {
       ATH_MSG_DEBUG ("Segment has no fit quality ! Discard...");
-      return 0;
+      return nullptr;
     }
     const Trk::FitQuality* fq = tS.fitQuality()->clone();
 
@@ -178,7 +178,7 @@ namespace InDet {
       // clean up
       delete fq; fq = 0;
       delete ep; ep = 0;
-      return 0;
+      return nullptr;
     }
 
     // --- create new track state on surface vector
@@ -203,7 +203,7 @@ namespace InDet {
 	delete ntsos; ntsos = 0;
 	delete segPar; segPar = 0;
 	delete fq; fq = 0;
-	return 0;
+	return nullptr;
       }
 
       // now create a perigee TSOS
@@ -343,7 +343,7 @@ namespace InDet {
 	  ATH_MSG_DEBUG ("Could not produce perigee");
 	  delete newTrack; newTrack = 0;
 	  delete segPar; segPar = 0;
-	  return 0;
+	  return nullptr;
 	}
       
 	// keep some values
@@ -458,7 +458,7 @@ namespace InDet {
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
         if (fieldCondObj == nullptr) {
             ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-            return 0;
+            return nullptr;
         }
         fieldCondObj->getInitializedCache (fieldCache);
 
@@ -541,7 +541,7 @@ namespace InDet {
 
       if(!fitTrack){
 	ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-	return 0;
+	return nullptr;
       }
 
       //
@@ -561,7 +561,7 @@ namespace InDet {
 
       if (!perTrack || !perTrack->covariance() ){
 	ATH_MSG_ERROR ("Cast of perigee fails, should never happen !");
-	return 0;
+	return nullptr;
       }else {
 	ATH_MSG_VERBOSE ("Perigee after refit with fudges to make it converge : " << (*perTrack) );
 
@@ -616,7 +616,7 @@ namespace InDet {
 	    const AmgSymMatrix(5)& CM = *perTrack->covariance();
 	    if( CM(1,1)==0.||CM(3,3)==0. ) {
 	      ATH_MSG_DEBUG ("Hacked perigee covariance is CRAP, reject track");
-	      delete fitTrack; return 0;
+	      delete fitTrack; return nullptr;
 	    } else {
 	      ATH_MSG_VERBOSE ("Perigee after fit with scaled covariance matrix : " << *perTrack);
 	    }

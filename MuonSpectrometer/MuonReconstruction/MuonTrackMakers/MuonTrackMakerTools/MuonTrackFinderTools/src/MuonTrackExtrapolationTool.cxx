@@ -65,15 +65,15 @@ namespace Muon {
   const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord( const Trk::TrackParameters& pars,
 											Trk::ParticleHypothesis particleHypo ) const {
 
-    if( m_muonExtrapolator.empty() ) return 0;
+    if( m_muonExtrapolator.empty() ) return nullptr;
     if( !m_trackingGeometrySvc->trackingGeometry() ){
       ATH_MSG_WARNING("  " << m_trackingGeometrySvc << " has no valid trackingGeometry pointer" );
-      return 0;
+      return nullptr;
     }
     const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
     if( !msEntrance ) {
       ATH_MSG_WARNING("  MS entrance not found" );
-      return 0;
+      return nullptr;
     }
 
     Trk::PropDirection dir = Trk::oppositeMomentum;
@@ -99,7 +99,7 @@ namespace Muon {
 
 
   const Trk::TrackParameters* MuonTrackExtrapolationTool::extrapolateToIP( const Trk::TrackParameters& pars, Trk::ParticleHypothesis particleHypo ) const {
-    if( m_atlasExtrapolator.empty() ) return 0;
+    if( m_atlasExtrapolator.empty() ) return nullptr;
 
     // temporary hack to avoid crashes in Muid.
     Amg::Vector3D refPos(0.1,0.1,0.1);
@@ -137,10 +137,10 @@ namespace Muon {
     const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName.c_str());
     if( !msEntrance ) {
       ATH_MSG_WARNING("Failed to obtain muon entry volume");
-      return 0;
+      return nullptr;
     }
     const Trk::Perigee* pp = track.perigeeParameters();
-    if( !pp ) return 0;
+    if( !pp ) return nullptr;
 
     const Trk::TrackParameters* closestPars = pp;
     const Trk::TrackParameters* closestMeasPars = pp->covariance() ? pp : 0;
@@ -317,8 +317,8 @@ namespace Muon {
 
   Trk::Track* MuonTrackExtrapolationTool::extrapolate( const Trk::Track& track ) const {
 
-    if( m_muonExtrapolator.empty() ) return 0;
-    // if straightline track and the field is on return 0
+    if( m_muonExtrapolator.empty() ) return nullptr;
+    // if straightline track and the field is on return nullptr
     bool isSL = m_edmHelperSvc->isSLTrack(track);
     if( isSL ) { // check isSL first to limit access overhead
       MagField::AtlasFieldCache    fieldCache;
@@ -329,21 +329,21 @@ namespace Muon {
     
       if (fieldCondObj == nullptr) {
         ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-        return 0;
+        return nullptr;
       }
       fieldCondObj->getInitializedCache (fieldCache);
       if( fieldCache.toroidOn() ) {
-        return 0;
+        return nullptr;
       }
     }
 
     const Trk::Perigee* pp = track.perigeeParameters();
-    if( !pp ) return 0;
+    if( !pp ) return nullptr;
 
     const Trk::TrackParameters* firstPars = findClosestParametersToMuonEntry(track);
     if( !firstPars ){
       ATH_MSG_WARNING("failed to find closest parameters to muon entry ");
-      return 0;
+      return nullptr;
     }
     
     // extrapolate to muon entry record
@@ -365,7 +365,7 @@ namespace Muon {
       // check mometum, this should always work for high pt track but low momentum track could get stuck 
       if( firstPars->momentum().mag() < 7000. ) ATH_MSG_DEBUG("lower energy muon lost during extrapolation ");      
       else                                     ATH_MSG_WARNING("failed to extrapolate parameters to muon entry and perigee ");
-      return 0;
+      return nullptr;
     }
 
     // sanity check for cosmics, if we are at the IP we should not 
@@ -390,7 +390,7 @@ namespace Muon {
     // double check
     if( !perigee ){
       ATH_MSG_WARNING(" failed to create perigee ");
-      return 0;
+      return nullptr;
     }
     
     // direction of perigee

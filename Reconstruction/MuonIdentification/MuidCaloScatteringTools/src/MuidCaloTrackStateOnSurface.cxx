@@ -160,7 +160,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
    
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-      return 0;
+      return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
     
@@ -444,7 +444,7 @@ MuidCaloTrackStateOnSurface::innerTSOS (const Trk::TrackParameters& parameters) 
     {
 	ATH_MSG_DEBUG( " innerTSOS:  extrapolation fails " );
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     return m_caloMaterialParam->trackStateOnSurface(extrapolation);
@@ -458,7 +458,7 @@ MuidCaloTrackStateOnSurface::outerTSOS (const Trk::TrackParameters& parameters) 
     {
 	ATH_MSG_DEBUG( " outerTSOS:  extrapolation fails " );
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     return m_caloMaterialParam->trackStateOnSurface(extrapolation);
@@ -474,7 +474,7 @@ MuidCaloTrackStateOnSurface::middleTSOS (const Trk::TrackParameters& middleParam
     {
 	ATH_MSG_DEBUG( " middleTSOS:  extrapolation fails " );
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     const Trk::TrackStateOnSurface* TSOS = 0;
@@ -523,7 +523,7 @@ MuidCaloTrackStateOnSurface::innerParameters (const Trk::TrackParameters& parame
 	    oppositeDirection = Trk::alongMomentum;
 	}
     }	
-    if (! surface) return 0;
+    if (! surface) return nullptr;
 
     // extrapolate to calo surface (take care to get correct cylinder intersect)
     unsigned extrapolations	= 0;
@@ -546,14 +546,14 @@ MuidCaloTrackStateOnSurface::innerParameters (const Trk::TrackParameters& parame
 				false,
 				*m_magFieldProperties,
 				Trk::nonInteracting);
-    if (! extrapolation) return 0;
+    if (! extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
     double deltaPhi = std::abs(extrapolation->position().phi() - startingPhi);
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     // also quit wrong rz-direction in endcap
@@ -565,7 +565,7 @@ MuidCaloTrackStateOnSurface::innerParameters (const Trk::TrackParameters& parame
 	{
 	    ATH_MSG_VERBOSE( " wrong way in endcap " );
 	    delete extrapolation;
-	    return 0;
+	    return nullptr;
 	}
     }
     
@@ -611,7 +611,7 @@ MuidCaloTrackStateOnSurface::innerParameters (const Trk::TrackParameters& parame
 	    if (oldParameters == &parameters)
 	    {
 		ATH_MSG_VERBOSE( " innerParameters:  extrap fails " );
-		return 0;
+		return nullptr;
 	    }
 	    if (restart)
 	    {
@@ -647,7 +647,7 @@ MuidCaloTrackStateOnSurface::innerParameters (const Trk::TrackParameters& parame
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     ATH_MSG_VERBOSE( " innerParameters:  success after "
@@ -690,7 +690,7 @@ MuidCaloTrackStateOnSurface::middleParameters (const Trk::TrackParameters& param
 	    oppositeDirection = Trk::alongMomentum;
 	}
     }	
-    if (! surface) return 0;
+    if (! surface) return nullptr;
 
     // extrapolate to calo surface (take care to get correct cylinder intersect)
     unsigned extrapolations	= 0;
@@ -713,14 +713,14 @@ MuidCaloTrackStateOnSurface::middleParameters (const Trk::TrackParameters& param
 				false,
 				*m_magFieldProperties,
 				Trk::nonInteracting);
-    if (! extrapolation) return 0;
+    if (! extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
     double deltaPhi = std::abs(extrapolation->position().phi() - startingPhi);
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     // also quit wrong rz-direction in endcap
@@ -732,7 +732,7 @@ MuidCaloTrackStateOnSurface::middleParameters (const Trk::TrackParameters& param
 	{
 	    ATH_MSG_VERBOSE( " wrong way in endcap " );
 	    delete extrapolation;
-	    return 0;
+	    return nullptr;
 	}
     }
     
@@ -778,7 +778,7 @@ MuidCaloTrackStateOnSurface::middleParameters (const Trk::TrackParameters& param
 	    if (oldParameters == &parameters)
 	    {
 		ATH_MSG_VERBOSE( " middleParameters:  extrap fails " );
-		return 0;
+		return nullptr;
 	    }
 	    //   arbitrary choice for oscillating solutions (i.e. following restart)
 	    if (restart)
@@ -815,7 +815,7 @@ MuidCaloTrackStateOnSurface::middleParameters (const Trk::TrackParameters& param
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     ATH_MSG_VERBOSE( " middleParameters: success after "
@@ -858,7 +858,7 @@ MuidCaloTrackStateOnSurface::outerParameters (const Trk::TrackParameters& parame
 	    oppositeDirection = Trk::alongMomentum;
 	}
     }	
-    if (! surface) return 0;
+    if (! surface) return nullptr;
 
     // extrapolate to calo surface (take care to get correct cylinder intersect)
     unsigned extrapolations	= 0;
@@ -881,14 +881,14 @@ MuidCaloTrackStateOnSurface::outerParameters (const Trk::TrackParameters& parame
 				false,
 				*m_magFieldProperties,
 				Trk::nonInteracting);
-    if (! extrapolation) return 0;
+    if (! extrapolation) return nullptr;
 
     // phi flip means track has crossed beam-axis (so quit)
     double deltaPhi = std::abs(extrapolation->position().phi() - startingPhi);
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
     
     // also quit wrong rz-direction in endcap
@@ -900,7 +900,7 @@ MuidCaloTrackStateOnSurface::outerParameters (const Trk::TrackParameters& parame
 	{
 	    ATH_MSG_VERBOSE( " wrong way in endcap " );
 	    delete extrapolation;
-	    return 0;
+	    return nullptr;
 	}
     }
  
@@ -946,7 +946,7 @@ MuidCaloTrackStateOnSurface::outerParameters (const Trk::TrackParameters& parame
 	    if (oldParameters == &parameters)
 	    {
 		ATH_MSG_VERBOSE( " outerParameters:  extrap fails " );
-		return 0;
+		return nullptr;
 	    }
 	    //   arbitrary choice for oscillating solutions (i.e. following restart)
 	    if (restart)
@@ -983,7 +983,7 @@ MuidCaloTrackStateOnSurface::outerParameters (const Trk::TrackParameters& parame
     if (deltaPhi > 0.5*M_PI && deltaPhi < 1.5*M_PI)
     {
 	delete extrapolation;
-	return 0;
+	return nullptr;
     }
 
     ATH_MSG_VERBOSE( " outerParameters:  success after "

@@ -312,7 +312,7 @@ namespace MuonCombined {
     }
     
     delete combinedTrack;
-    return 0;
+    return nullptr;
   }
 
 
@@ -391,7 +391,7 @@ namespace MuonCombined {
    
     if (fieldCondObj == nullptr) {
       ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
-      return 0;
+      return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
     if (!fieldCache.toroidOn()) dorefit = false;
