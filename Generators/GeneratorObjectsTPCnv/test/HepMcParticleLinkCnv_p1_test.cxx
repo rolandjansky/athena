@@ -16,7 +16,6 @@
 #include "AtlasHepMC/GenEvent.h"
 
 // CLHEP includes
-#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
@@ -36,43 +35,43 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1 == p2 );
 }
 
-void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticle*>& genPartList)
+void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticlePtr>& genPartList)
 {
-  CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-  HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+  HepMC::FourVector myPos( 0.0, 0.0, 0.0, 0.0);
+  HepMC::GenVertexPtr myVertex = HepMC::newGenVertexPtr( myPos, -1 );
   HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+  HepMC::GenParticlePtr inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
   myVertex->add_particle_in(inParticle1);
   HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+  HepMC::GenParticlePtr inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
   myVertex->add_particle_in(inParticle2);
   HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+  HepMC::GenParticlePtr inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
   myVertex->add_particle_out(inParticle3);
   genPartList.push_back(inParticle3);
   HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+  HepMC::GenParticlePtr inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
   myVertex->add_particle_out(inParticle4);
   genPartList.push_back(inParticle4);
   ge.add_vertex( myVertex );
-  ge.set_signal_process_vertex( myVertex );
+  HepMC::set_signal_process_vertex(&ge, myVertex );
   ge.set_beam_particles(inParticle1,inParticle2);
 }
 
-void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenParticle*>& genPartList)
+void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenParticlePtr>& genPartList)
 {
   //.......Create new particle (geantino) to link  hits from pileup
-  HepMC::GenParticle* genPart=new HepMC::GenParticle();
+  HepMC::GenParticlePtr genPart=HepMC::newGenParticlePtr();
   genPart->set_pdg_id(999); //Geantino
   genPart->set_status(1); //!< set decay status
-  genPart->suggest_barcode( std::numeric_limits<int32_t>::max() );
+  HepMC::suggest_barcode(genPart, std::numeric_limits<int32_t>::max() );
 
-  HepMC::GenVertex* genVertex=new HepMC::GenVertex();
+  HepMC::GenVertexPtr genVertex=HepMC::newGenVertexPtr();
   genVertex->add_particle_out(genPart);
   genPartList.push_back(genPart);
 
   //to set geantino vertex as a truth primary vertex
-  HepMC::GenVertex* hScatVx = ge.barcode_to_vertex(-3);
+  HepMC::GenVertexPtr hScatVx = HepMC::barcode_to_vertex(&ge,-3);
   if(hScatVx!=nullptr) {
     HepMC::FourVector pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
@@ -92,7 +91,7 @@ void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenPartic
   }
 
   if(!ge.vertices_empty()){
-    std::vector<HepMC::GenVertex *> vtxvec;
+    std::vector<HepMC::GenVertexPtr> vtxvec;
     HepMC::GenEvent::vertex_iterator itvtx = ge.vertices_begin();
     for (;itvtx != ge.vertices_end(); ++itvtx ) {
       ge.remove_vertex(*itvtx);
@@ -107,7 +106,7 @@ void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenPartic
   ge.add_vertex(genVertex);
 }
 
-void createMcEventCollectionInStoreGate(std::vector<HepMC::GenParticle*>& genPartList)
+void createMcEventCollectionInStoreGate(std::vector<HepMC::GenParticlePtr>& genPartList)
 {
   // create dummy input McEventCollection with a name that
   // HepMcParticleLink knows about
@@ -132,15 +131,15 @@ void createMcEventCollectionInStoreGate(std::vector<HepMC::GenParticle*>& genPar
   // values for the first event in the McEventCollection.
   const int event_number3(64);
   const int event_number4(89);
-  inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+  inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number1));
   HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
   populateGenEvent(ge1,-11,11,genPartList);
   populateGenEvent(ge1,-13,13,genPartList);
-  inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number2));
+  inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number2));
   HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
   populateGenEvent(ge2,-11,11,genPartList);
   populateGenEvent(ge2,-13,13,genPartList);
-  inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number3));
+  inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number3));
   HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
   populateGenEvent(ge3,-11,11,genPartList);
   populateGenEvent(ge3,22,22,genPartList);
@@ -166,27 +165,27 @@ void testit (const HepMcParticleLink& trans1)
 void test1()
 {
   std::cout << "test1\n";
-  std::vector<HepMC::GenParticle*> genPartList;
+  std::vector<HepMC::GenParticlePtr> genPartList;
   createMcEventCollectionInStoreGate(genPartList);
   assert ( genPartList.size() == 13 );
   // HepMcParticleLinks pointing at GenParticles in the first GenEvent in the McEventCollection
   // By event_number
-  const HepMC::GenParticle * particle1 = genPartList.at(0);
-  HepMcParticleLink trans1a(particle1->barcode(),particle1->parent_event()->event_number());
+  const HepMC::GenParticlePtr particle1 = genPartList.at(0);
+  HepMcParticleLink trans1a(HepMC::barcode(particle1),particle1->parent_event()->event_number());
   testit (trans1a);
   // By position
-  HepMcParticleLink trans1b(particle1->barcode(),0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION);
+  HepMcParticleLink trans1b(HepMC::barcode(particle1),0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION);
   testit (trans1b);
   // HepMcParticleLinks pointing at GenParticles in other GenEvents in the McEventCollection
-  const HepMC::GenParticle * particle2 = genPartList.at(7);
-  HepMcParticleLink trans2(particle2->barcode(),particle2->parent_event()->event_number());
+  const HepMC::GenParticlePtr particle2 = genPartList.at(7);
+  HepMcParticleLink trans2(HepMC::barcode(particle2),particle2->parent_event()->event_number());
   testit (trans2);
-  const HepMC::GenParticle * particle3 = genPartList.at(8);
-  HepMcParticleLink trans3(particle3->barcode(),particle3->parent_event()->event_number());
+  const HepMC::GenParticlePtr particle3 = genPartList.at(8);
+  HepMcParticleLink trans3(HepMC::barcode(particle3),particle3->parent_event()->event_number());
   testit (trans3);
   // HepMcParticleLinks pointing at filtered pileup truth
-  const HepMC::GenParticle * particle4 = genPartList.at(12);
-  HepMcParticleLink trans4(particle4->barcode(),particle4->parent_event()->event_number());
+  const HepMC::GenParticlePtr particle4 = genPartList.at(12);
+  HepMcParticleLink trans4(HepMC::barcode(particle4),particle4->parent_event()->event_number());
   testit (trans4);
   // HepMcParticleLinks pointing at delta-ray (barcode=0 - not recorded in McEventCollection) using event_number
   int deltaRayBarcode(0);

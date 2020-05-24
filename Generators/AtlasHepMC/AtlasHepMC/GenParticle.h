@@ -12,6 +12,6 @@ inline GenParticlePtr newGenParticlePtr(const HepMC::FourVector &mom = HepMC::Fo
 }
 inline int barcode(GenParticle p) {   return    p.barcode(); }
 template <class T> inline int barcode(T p) {   return    p->barcode(); }
-
+template <class T> void suggest_barcode(T p, int i){p->suggest_barcode(i);}
 }
 #endif

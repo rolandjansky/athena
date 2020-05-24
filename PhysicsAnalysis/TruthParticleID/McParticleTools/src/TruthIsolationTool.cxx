@@ -234,7 +234,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
 
 void
 TruthIsolationTool::computeIso( const GenParticles_t& particles, 
-				const HepMC::GenParticlePtr part,
+				const HepMC::GenParticle* part,
 				TruthEtIsolations& etIsolations, 
 				ITruthIsolationTool::ParticleSelect partSel  )
 {

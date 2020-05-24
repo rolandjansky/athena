@@ -244,7 +244,7 @@ StatusCode AddFlowByShifting::execute() {
     //std::cout << std::endl;
 
 
-    auto mainvtx =(*itr)->barcode_to_vertex(-1);
+    auto mainvtx=HepMC::barcode_to_vertex(*itr,-1);
     if(m_flow_fluctuations) Set_EbE_Fluctuation_Multipliers(mainvtx,hijing_pars->get_b());
 
     int particles_in_event = (*itr)->particles_size();
@@ -259,7 +259,7 @@ StatusCode AddFlowByShifting::execute() {
 				parent->momentum().py(),
 				parent->momentum().pz(),
 				parent->momentum().e());
-      ATH_MSG_DEBUG("Parent particle: " << parent->barcode()        <<
+      ATH_MSG_DEBUG("Parent particle: " << HepMC::barcode(parent)        <<
                     " PID = "           << parent->pdg_id()         <<
                     " Status = "        << parent->status()         <<
                     " Eta = "           << momentum.pseudoRapidity()<<
@@ -350,7 +350,7 @@ void AddFlowByShifting::MoveDescendantsToParent
   // by phishift to parent particle position
   auto endvtx = parent->end_vertex();
   if ( endvtx ) {
-    ATH_MSG_DEBUG("Processing branch of parent particle "<< parent->barcode());
+    ATH_MSG_DEBUG("Processing branch of parent particle "<< HepMC::barcode(parent));
 
     // now rotate descendant vertices
     for ( HepMC::GenVertex::vertex_iterator
@@ -358,7 +358,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 	  descvtxit != endvtx->vertices_end(HepMC::descendants);
 	  ++descvtxit) {
       auto descvtx = (*descvtxit);
-      ATH_MSG_DEBUG("Processing vertex " << descvtx->barcode());
+      ATH_MSG_DEBUG("Processing vertex " << HepMC::barcode(descvtx));
 
       // rotate vertex
       if(fabs(phishift) > 1e-7) {
@@ -367,7 +367,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 				  descvtx->position().z(),
 				  descvtx->position().t());
 	position.rotateZ(phishift*Gaudi::Units::rad);
-	descvtx->set_position( position );
+	descvtx->set_position(HepMC::FourVector( position.x(),position.y(),position.z(),position.t()) );
       }
 
       // now rotate their associated particles
@@ -380,7 +380,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 				  descpart->momentum().py(),
 				  descpart->momentum().pz(),
 				  descpart->momentum().e());
-	ATH_MSG_DEBUG("Descendant particle: " << descpart->barcode()<<
+	ATH_MSG_DEBUG("Descendant particle: " << HepMC::barcode(descpart)<<
                       " PID = "               << descpart->pdg_id() <<
                       " Status = "            << descpart->status() <<
                       " Eta = "               << momentum.pseudoRapidity() <<
@@ -390,7 +390,7 @@ void AddFlowByShifting::MoveDescendantsToParent
 	// rotate particle
 	if(fabs(phishift) > 1e-7) {
 	  momentum.rotateZ(phishift*Gaudi::Units::rad);
-	  descpart->set_momentum( momentum );
+	  descpart->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
    	  ATH_MSG_DEBUG(" Phi shift =   " << phishift<<
                         " Phi shifted = " << momentum.phi());
 	}

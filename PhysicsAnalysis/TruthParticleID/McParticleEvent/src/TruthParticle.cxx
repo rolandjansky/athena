@@ -107,7 +107,7 @@ const TruthParticle * TruthParticle::child(const std::size_t i) const
 }
 
 
-const HepMC::GenParticle * TruthParticle::genMother(const std::size_t i) const
+const HepMC::GenParticlePtr TruthParticle::genMother(const std::size_t i) const
 {
   if ( i < m_mothers.size() ) {
     auto mother = this->mother(i);
@@ -118,7 +118,7 @@ const HepMC::GenParticle * TruthParticle::genMother(const std::size_t i) const
   }
 }
 
-const HepMC::GenParticle * TruthParticle::genChild(const std::size_t i) const
+const HepMC::GenParticlePtr TruthParticle::genChild(const std::size_t i) const
 {
   if ( i < m_children.size() ) {
     auto child = this->child(i);
@@ -248,7 +248,7 @@ PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
-void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
+void TruthParticle::setGenParticle( const HepMC::GenParticlePtr particle )
 {
   this->particleBase().setGenParticle( particle );
 

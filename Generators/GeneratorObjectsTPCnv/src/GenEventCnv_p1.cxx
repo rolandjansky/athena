@@ -98,7 +98,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   // set the signal process vertex
   const int sigProcVtx = persObj->m_signalProcessVtx;
   if ( sigProcVtx != 0 ) {
-    transObj->set_signal_process_vertex( transObj->barcode_to_vertex( sigProcVtx ) );
+    HepMC::set_signal_process_vertex(transObj, HepMC::barcode_to_vertex(transObj,sigProcVtx ) );
   }
 
   // connect particles to their end vertices
@@ -106,7 +106,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   for ( ParticlesMap_t::iterator p = partToEndVtx.begin(); 
 	p != endItr; 
 	++p ) {
-    auto decayVtx = transObj->barcode_to_vertex( p->second );
+    auto decayVtx = HepMC::barcode_to_vertex(transObj, p->second );
     if ( decayVtx ) {
       decayVtx->add_particle_in( p->first );
     } else {

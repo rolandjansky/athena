@@ -330,7 +330,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
     HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr(HepMC::FourVector(newVertex.x(),newVertex.y(),newVertex.z(),newVertex.t()));
 
-    HepMC::set_signal_process_vertex(evt,v1); 
+    HepMC::set_signal_process_vertex(evt,v1);
     vertexPtrVec.push_back(v1);
 
     double eproj = (double) m_efrm;
@@ -480,7 +480,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                      iter != vertexPtrVec[parentDecayIndex]->particles_out_const_end(); 
                      iter++)
                   {
-                    log << (*iter)->barcode() << ", "; 
+                    log << HepMC::barcode((*iter)) << ", "; 
                   }
 
                 log << endmsg;
@@ -600,7 +600,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                               m_himain2.patt(i, 3),
                               m_himain2.patt(i, 4));
 
-      HepMC::GenParticle* newParticle_p = HepMC::newGenParticlePtr(particleP4, particleId, 
+      HepMC::GenParticlePtr newParticle_p = HepMC::newGenParticlePtr(particleP4, particleId, 
                                                          particleStatus);
 
       //  Record the particle in the vector of pointers 

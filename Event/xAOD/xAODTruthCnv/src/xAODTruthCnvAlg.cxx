@@ -173,7 +173,7 @@ namespace xAODMaker {
 	    // https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PileupDigitization#Arrangement_of_Truth_Information
 	    if (!m_doInTimePileUp && !m_doAllPileUp) break;
 	    isSignalProcess=false;
-	    int pid = genEvt->signal_process_id();
+	    int pid = HepMC::signal_process_id(genEvt);
 	    int eventNumber = genEvt->event_number();
 	    if (m_doInTimePileUp && pid==0 && eventNumber==-1) break; // stop at the separator
 	  }
@@ -259,7 +259,7 @@ namespace xAODMaker {
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	  auto disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
@@ -319,7 +319,7 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  auto signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  auto signalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
 	  for (auto  vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
