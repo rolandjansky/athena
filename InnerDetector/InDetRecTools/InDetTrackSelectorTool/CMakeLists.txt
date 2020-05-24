@@ -27,7 +27,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces )
+                          Tracking/TrkExtrapolation/TrkExInterfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions )
 
 # External dependencies:
 find_package( CLHEP )
@@ -39,7 +41,7 @@ atlas_add_component( InDetTrackSelectorTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AthContainers GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AthContainers GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackSelectorTool )
