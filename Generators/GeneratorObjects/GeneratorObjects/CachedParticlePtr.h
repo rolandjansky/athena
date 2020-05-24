@@ -59,7 +59,7 @@ public:
    * @brief Constructor referencing a specific particle.
    * @param part The particle to reference.
    */
-  CachedParticlePtr (const HepMC::GenParticlePtr part);
+  CachedParticlePtr (const HepMC::GenParticle* part);
 
 
   /**
@@ -92,7 +92,7 @@ public:
    * Otherwise, we're referencing a particular particle.
    * Return that and set @c sg to nullptr.
    */
-  const HepMC::GenParticlePtr get (IProxyDict const* & sg) const;
+  const HepMC::GenParticle* get (IProxyDict const* & sg) const;
 
 
   /**
@@ -103,7 +103,7 @@ public:
    * It is ok to call this concurrently, as long as each call uses
    * the same parameters.
    */
-  void set (const IProxyDict* sg, const HepMC::GenParticlePtr) const;
+  void set (const IProxyDict* sg, const HepMC::GenParticle*) const;
 
 
 private:

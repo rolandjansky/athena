@@ -99,7 +99,7 @@ class TruthParticleBase
    */
 
   /// return the @c HepMC::GenParticle which is being proxied
-  const HepMC::GenParticlePtr genParticle() const;
+  const HepMC::GenParticle* genParticle() const;
 
   /// return the (atlas) unique identifier
   const AthenaBarCodeImpl& getAthenaBarCodeImpl() const {return m_abc;}
@@ -136,7 +136,7 @@ class TruthParticleBase
   ChargeType m_charge;
 
   /// The @c HepMC::GenParticle we are proxying
-  const HepMC::GenParticlePtr m_genParticle;
+  const HepMC::GenParticle* m_genParticle;
 
   /// The @c AthenaBarCodeImpl held to provide unique identification
   /// throughout the whole Atlas EDM
@@ -179,7 +179,7 @@ PDG::pidType TruthParticleBase::pdgId() const
 }
 
 inline 
-const HepMC::GenParticlePtr TruthParticleBase::genParticle() const
+const HepMC::GenParticle* TruthParticleBase::genParticle() const
 {
   return m_genParticle;
 }
@@ -191,7 +191,7 @@ void TruthParticleBase::setCharge( const ChargeType charge )
 }
 
 inline 
-void TruthParticleBase::setGenParticle(  HepMC::GenParticlePtr mc )
+void TruthParticleBase::setGenParticle(  HepMC::GenParticle* mc )
 {
   m_genParticle = mc;
 }

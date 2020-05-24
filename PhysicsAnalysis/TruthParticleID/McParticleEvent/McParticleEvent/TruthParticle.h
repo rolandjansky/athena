@@ -86,7 +86,7 @@ class TruthParticle : public ParticleImpl<
    *  construct a @c TruthParticle from a @c HepMC::GenParticle and
    *  the @c TruthParticleContainer holding this @c TruthParticle
    */
-  TruthParticle( const HepMC::GenParticlePtr genParticle, 
+  TruthParticle( const HepMC::GenParticle* genParticle, 
 		 const TruthParticleContainer * container = 0 );
 
   /** Assignment operator
@@ -109,13 +109,13 @@ class TruthParticle : public ParticleImpl<
 //    */
 
   /// Retrieve the GenParticle mother of this TruthParticle
-  const HepMC::GenParticlePtr genMother(const std::size_t i=0) const;
+  const HepMC::GenParticle* genMother(const std::size_t i=0) const;
 
   /// Retrieve the GenParticle this TruthParticle has been made from (if any)
-  const HepMC::GenParticlePtr genParticle() const;
+  const HepMC::GenParticle* genParticle() const;
 
   /// Retrieve the i-th child (GenParticle) of this TruthParticle
-  const HepMC::GenParticlePtr genChild( const std::size_t i ) const;
+  const HepMC::GenParticle* genChild( const std::size_t i ) const;
 
   /** @{ HepMC::GenParticle forwarding interface
    */
@@ -237,7 +237,7 @@ class TruthParticle : public ParticleImpl<
  protected: 
   
   /// Fill the data members of ParticleBase from the GenParticle
-  void setGenParticle( const HepMC::GenParticlePtr particle );
+  void setGenParticle( const HepMC::GenParticle* particle );
 
 
 
@@ -279,7 +279,7 @@ std::ostream& operator<<( std::ostream& out, const TruthParticle& mc );
 inline TruthParticle::~TruthParticle() 
 {}
 
-inline const HepMC::GenParticlePtr TruthParticle::genParticle() const
+inline const HepMC::GenParticle* TruthParticle::genParticle() const
 {
   return this->particleBase().genParticle();
 }
