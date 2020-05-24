@@ -112,7 +112,7 @@ class TruthParticleBase
   void setCharge( const ChargeType charge );
   
   /// Fill the data members of ParticleBase from the GenParticle
-  void setGenParticle( const HepMC::GenParticlePtr particle );
+  void setGenParticle( const HepMC::GenParticle* particle );
 
   /// return the (atlas) unique identifier
   AthenaBarCodeImpl& getAthenaBarCodeImpl() {return m_abc;}
@@ -191,7 +191,7 @@ void TruthParticleBase::setCharge( const ChargeType charge )
 }
 
 inline 
-void TruthParticleBase::setGenParticle(  HepMC::GenParticle* mc )
+void TruthParticleBase::setGenParticle( const HepMC::GenParticle* mc )
 {
   m_genParticle = mc;
 }
