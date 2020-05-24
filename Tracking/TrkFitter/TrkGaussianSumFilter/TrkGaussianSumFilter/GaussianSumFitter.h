@@ -2,16 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      GaussianSumFitter.h  -  description
-      -----------------------------------
-begin                : Monday 7th March 2005
-author               : amorley, atkinson
-email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
-decription           : Class for fitting according to the Gaussian Sum Filter
-                       formalisation.
-**********************************************************************************
-*/
+/**
+ * @file   GaussianSumFitter.h
+ * @date   Monday 7th March 2005 
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
+ */
 
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
@@ -25,8 +21,7 @@ decription           : Class for fitting according to the Gaussian Sum Filter
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-
+#include "GaudiKernel/EventContext.h"
 #include <atomic>
 
 
@@ -61,31 +56,38 @@ public:
 
   /** Refit a track using the Gaussian Sum Filter */
 
-  virtual Track* fit(const Track&,
-                     const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis =
-                       nonInteracting) const override final;
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
+    const Track&,
+    const RunOutlierRemoval outlierRemoval = false,
+    const ParticleHypothesis particleHypothesis =
+      nonInteracting) const override final;
 
   /** Fit a collection of 'PrepRawData' objects using the Gaussian Sum Filter
       - This requires that an trackParameters object be supplied also as an
      initial guess */
-  virtual Track* fit(const PrepRawDataSet&,
-                     const TrackParameters&,
-                     const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis =
-                       nonInteracting) const override final;
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
+    const PrepRawDataSet&,
+    const TrackParameters&,
+    const RunOutlierRemoval outlierRemoval = false,
+    const ParticleHypothesis particleHypothesis =
+      nonInteracting) const override final;
 
   /** Fit a collection of 'RIO_OnTrack' objects using the Gaussian Sum Filter
       - This requires that an trackParameters object be supplied also as an
      initial guess */
-  virtual Track* fit(const MeasurementSet&,
-                     const TrackParameters&,
-                     const RunOutlierRemoval outlierRemoval = false,
-                     const ParticleHypothesis particleHypothesis =
-                       nonInteracting) const override final;
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
+    const MeasurementSet&,
+    const TrackParameters&,
+    const RunOutlierRemoval outlierRemoval = false,
+    const ParticleHypothesis particleHypothesis =
+      nonInteracting) const override final;
 
   /** Refit a track adding a PrepRawDataSet - Not done! */
-  virtual Track* fit(
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
     const Track&,
     const PrepRawDataSet&,
     const RunOutlierRemoval runOutlier = false,
@@ -94,14 +96,16 @@ public:
   /** Refit a track adding a RIO_OnTrack set
       - This has no form of outlier rejection and will use all hits on orginal
      track... i.e. very basic impleneation at the moment*/
-  virtual Track* fit(
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
     const Track&,
     const MeasurementSet&,
     const RunOutlierRemoval runOutlier = false,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
   /** Combine two tracks by refitting - Not done! */
-  virtual Track* fit(
+  virtual std::unique_ptr<Track> fit(
+    const EventContext& ctx,
     const Track&,
     const Track&,
     const RunOutlierRemoval runOutlier = false,

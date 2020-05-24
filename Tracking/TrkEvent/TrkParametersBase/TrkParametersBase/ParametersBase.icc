@@ -88,6 +88,36 @@ ParametersBase<DIM, T>::localPosition() const
 }
 
 template<int DIM, class T>
+void
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                         AmgSymMatrix(DIM) * updatedCovariance)
+{
+  // update the covariance
+  if (updatedCovariance) {
+    // make sure we did not receive what we already hold
+    if (updatedCovariance != m_covariance.get()) {
+      m_covariance.reset(updatedCovariance);
+    }
+  }
+  this->updateParametersHelper(updatedParameters);
+}
+
+// update function
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                         const AmgSymMatrix(DIM) & updatedCovariance)
+{
+  // if the covariance is there update in place
+  if (m_covariance) {
+    (*m_covariance) = updatedCovariance;
+  } else { // otherwise create one
+    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
+  }
+  this->updateParametersHelper(updatedParameters);
+}
+
+template<int DIM, class T>
 MsgStream&
 ParametersBase<DIM, T>::dump(MsgStream& sl) const
 {

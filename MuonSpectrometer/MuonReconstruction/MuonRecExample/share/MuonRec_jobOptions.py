@@ -165,7 +165,7 @@ if muonRecFlags.doStandalone():
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
 
         try:
             from PyUtils.MetaReaderPeeker import metadata

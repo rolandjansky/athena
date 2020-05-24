@@ -105,10 +105,6 @@ def makeInDetPrecisionTracking( whichSignature,
   if verifier:
     verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
                              ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks )]
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap )]
-      
   
   from AthenaCommon.AppMgr import ToolSvc
   #-----------------------------------------------------------------------------

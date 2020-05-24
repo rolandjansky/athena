@@ -177,6 +177,9 @@ class HLTMuonMonTool : public IHLTMonTool
   int m_lumiblock;
   int m_event;
 
+  // Steam: Main, express, StreamRDO...
+  std::string m_triggerStreamOfFile;
+
   //flags for trigger decision
   std::vector<std::string> m_chainsRate;
 

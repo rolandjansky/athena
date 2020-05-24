@@ -426,7 +426,7 @@ namespace Trk
     const Perigee* indetPerigee = dynamic_cast<const Perigee*>(indetTrack.perigeeParameters());
     const Perigee* spectrometerPerigee = dynamic_cast<const Perigee*>(spectrometerTrack.perigeeParameters());
     if (spectrometerPerigee
-        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) { spectrometerPerigee = 0; }
+        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) { spectrometerPerigee = nullptr; }
     if (!spectrometerTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
         && spectrometerPerigee) {
       if (indetTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)

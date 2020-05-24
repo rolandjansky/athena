@@ -13,4 +13,3 @@ DECLARE_COMPONENT( LVL1::EMTauInputProvider )
 DECLARE_COMPONENT( LVL1::JetInputProvider )
 DECLARE_COMPONENT( LVL1::EnergyInputProvider )
 DECLARE_COMPONENT( LVL1::MuonInputProvider )
-

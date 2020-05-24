@@ -121,13 +121,13 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                             //if (i == 0) {
                             if (!iaccept[i]) {
                                 iaccept[i]=1;
-                                m_histAcceptDPhi2[i]->Fill(deltaPhi);
+                                fillHist1D(m_histAcceptDPhi2[i]->GetName(),deltaPhi);
                             }
                             //}
                         }
                         else {
                             //if (i==0)
-                            m_histRejectDPhi2[i]->Fill(deltaPhi);
+                            fillHist1D(m_histRejectDPhi2[i]->GetName(),deltaPhi);
                         }
                         TRG_MSG_DEBUG("DeltaPhi = " << deltaPhi << " -> " 
                                       << (accept?"pass":"fail"));
@@ -168,13 +168,13 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             //if (i == 0) {
                             if (!iaccept[i]) {
                                 iaccept[i]=1;
-                                m_histAcceptDPhi2[i]->Fill(deltaPhi);
+                                fillHist1D(m_histAcceptDPhi2[i]->GetName(),deltaPhi);
                             }
                             //}
                         }
                         else {
                             //if (i==0)
-                            m_histRejectDPhi2[i]->Fill(deltaPhi);
+                            fillHist1D(m_histRejectDPhi2[i]->GetName(),deltaPhi);
                         }
                         TRG_MSG_DEBUG("DeltaPhi = " << deltaPhi << " -> " 
                                       << (accept?"pass":"fail"));

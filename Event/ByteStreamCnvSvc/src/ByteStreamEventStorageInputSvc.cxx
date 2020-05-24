@@ -525,7 +525,7 @@ ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName)
   // open the file
   if(m_reader != 0) closeBlockIterator();
 
-  m_reader = std::move(std::unique_ptr<EventStorage::DataReader>(pickDataReader(fileName)));
+  m_reader = std::unique_ptr<EventStorage::DataReader>(pickDataReader(fileName));
 
   if(m_reader == nullptr) {
     ATH_MSG_ERROR("Failed to open file " << fileName);

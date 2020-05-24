@@ -60,7 +60,6 @@
 
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-namespace std { template<typename _Tp> class auto_ptr; }
 
 MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : AthAlgTool(type, name, pIID),

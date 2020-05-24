@@ -14,14 +14,20 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Trigger/TrigEvent/TrigCaloEvent )
 
+atlas_add_library( xAODTrigCaloCnvLib
+                   xAODTrigCaloCnv/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS xAODTrigCaloCnv
+                   LINK_LIBRARIES GaudiKernel xAODTrigCalo )
+
+
 # Component(s) in the package:
 atlas_add_component( xAODTrigCaloCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODTrigCalo GaudiKernel AthenaBaseComps AthenaKernel TrigCaloEvent )
+                     LINK_LIBRARIES xAODTrigCaloCnvLib xAODTrigCalo GaudiKernel AthenaBaseComps AthenaKernel TrigCaloEvent )
 
 # Install files from the package:
-atlas_install_headers( xAODTrigCaloCnv )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

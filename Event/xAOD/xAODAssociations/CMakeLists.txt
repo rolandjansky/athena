@@ -1,19 +1,10 @@
-# $Id: CMakeLists.txt 744228 2016-05-02 14:34:11Z krasznaa $
-################################################################################
-# Package: xAODAssociations
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODAssociations )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODTracking )
+# Pull in the helper CMake code.
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODAssociations
@@ -21,8 +12,13 @@ atlas_add_library( xAODAssociations
    PUBLIC_HEADERS xAODAssociations
    LINK_LIBRARIES AthContainers AthLinks xAODCaloEvent xAODCore xAODTracking )
 
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODAssociations/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TrackParticleClusterAssociationContainer_v1" )
+
 atlas_add_dictionary( xAODAssociationsDict
    xAODAssociations/xAODAssociationsDict.h
-   xAODAssociations/selection.xml
-   LINK_LIBRARIES xAODAssociations
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODAssociations
    EXTRA_FILES Root/dict/*.cxx )

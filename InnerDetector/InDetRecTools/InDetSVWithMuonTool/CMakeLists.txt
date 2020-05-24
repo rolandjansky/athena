@@ -19,7 +19,6 @@ atlas_depends_on_subdirs(
     )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -32,10 +31,10 @@ atlas_add_library(
     InDetSVWithMuonTool
 
     INCLUDE_DIRS
-    ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
 
     LINK_LIBRARIES
-    ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES}
+    ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}
     AthenaBaseComps GaudiKernel TrkVKalVrtFitterLib xAODTracking
 
     PRIVATE_LINK_LIBRARIES

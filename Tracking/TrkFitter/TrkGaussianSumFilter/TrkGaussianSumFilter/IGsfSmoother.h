@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      IGsfSmoother.h  -  description
-      -----------------------------
-created              : Thursday 8th January 2009
-author               : amorley
-email                : Anthony.Morley@cern.ch
-decription           : Abstract interface for the GSF smoother
-**********************************************************************************
-*/
+/**
+ * @file   IGsfSmoother.h 
+ * @date   Thursday 8th January 2009
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  Abstract interface for the GSF smoother
+ */
 
 #ifndef TrkIGsfSmoother_H
 #define TrkIGsfSmoother_H

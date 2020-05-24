@@ -259,6 +259,9 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 
 }
 
+// NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+//       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+//       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
 StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
 
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
@@ -266,7 +269,7 @@ StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
     return StatusCode::FAILURE;
   }
 
-  std::string cablingType="NewMDT_Cabling";
+  std::string cablingType="NewMDT_Cabling"; // everything starting from Run2 should be 'New'
   StatusCode sc = tagInfoMgr->addTag("MDT_CablingType",cablingType); 
   
   if(sc.isFailure()) {

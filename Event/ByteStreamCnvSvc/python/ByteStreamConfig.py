@@ -25,6 +25,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
         eventSelector.HelperTools += [xconv]
+        eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
         acc.setAppProperty( "EvtSel", eventSelector.name )
 

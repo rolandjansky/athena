@@ -339,13 +339,10 @@ if __name__=="__main__":
         cfgFlags.Scheduler.ShowDataFlow = True
         cfgFlags.Scheduler.ShowControlFlow = True
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-        acc=MainServicesThreadedCfg(cfgFlags)
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
-    else:
-        from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-        acc=MainServicesSerialCfg()
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
+    
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    acc=MainServicesCfg(cfgFlags)
+    acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
 
     # Prevent the flags from being modified
     cfgFlags.lock()

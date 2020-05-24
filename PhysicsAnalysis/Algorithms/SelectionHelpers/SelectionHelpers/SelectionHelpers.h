@@ -11,17 +11,17 @@
 #include <AsgTools/MessageCheck.h>
 #include <cstdint>
 
-namespace Root
+namespace asg
 {
-  class TAccept;
+  class AcceptData;
 }
 
 namespace CP
 {
   /// \brief the type for selection decorations that are meant to hold
-  /// a \ref Root::TAccept
+  /// a \ref asg::AcceptData
   ///
-  /// This is matched to the number of bits in a TAccept, since that
+  /// This is matched to the number of bits in a AcceptData, since that
   /// holds 32 bits, so do we.
   typedef uint32_t SelectionType;
 
@@ -30,7 +30,7 @@ namespace CP
   /// selected
   ///
   /// This is to be used when making a selection decoration for a
-  /// single cut and no TAccept object is at hand, as well as to check
+  /// single cut and no AcceptData object is at hand, as well as to check
   /// whether a particular selection passed.
   inline constexpr SelectionType selectionAccept () {
     return ~SelectionType (0);}
@@ -40,7 +40,7 @@ namespace CP
   /// rejected
   ///
   /// This is to be used when making a selection decoration for a
-  /// single cut and no TAccept object is at hand.
+  /// single cut and no AcceptData object is at hand.
   inline constexpr SelectionType selectionReject () {
     return ~SelectionType (1);}
 
@@ -50,9 +50,9 @@ namespace CP
   SelectionType selectionFromBool (bool accept);
 
 
-  /// \brief the selection decoration made from the given TAccept
+  /// \brief the selection decoration made from the given AcceptData
   /// object
-  SelectionType selectionFromAccept (const Root::TAccept& accept);
+  SelectionType selectionFromAccept (const asg::AcceptData& accept);
 
 
   ANA_MSG_HEADER (msgSelectionHelpers)

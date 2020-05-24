@@ -15,12 +15,18 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkParametersBase/SurfaceUniquePtrT.h"
+
+/*
+ * Needed for persistency 
+ * friends
+ */
 template<typename T>
 class TrackParametersCovarianceCnv;
 class TrackParametersCnv_p2;
 class MeasuredPerigeeCnv_p1;
 template< class SURFACE_CNV, class ATA_SURFACE >
 class AtaSurfaceCnv_p1;
+
 
 namespace Trk
 {
@@ -47,6 +53,7 @@ namespace Trk
      @tparam S type of surface
      
      @author edward.moyse@cern.ch, andreas.salzburger@cern.ch
+     @author Christos Anastopoulos (Athena MT modifications)
   */
   template<int DIM,class T,class S>
   class ParametersT : public ParametersBase<DIM,T>
@@ -116,19 +123,14 @@ namespace Trk
 
     /** Return the measurementFrame of the parameters */
     virtual Amg::RotationMatrix3D measurementFrame() const override;
-    
-    /** Update parameters and covariance */
-    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
-
-    /** Update parameters  and covariance , passing covariance by ref. A covariance
-     * is created if one does not exist.  Otherwise in place update occurs*/
-    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
-
+ 
+     
   private :
     /* Helper to factor in update of parameters*/
-    void updateParametersHelper(const AmgVector(DIM)&);
+    virtual void updateParametersHelper(const AmgVector(DIM)&) override;
 
   protected:
+   
     /*
      * Add dependent names into scope
      */
@@ -138,26 +140,34 @@ namespace Trk
     using ParametersBase<DIM,T>::m_momentum;
     using ParametersBase<DIM,T>::m_chargeDef;
     SurfaceUniquePtrT<const S> m_surface; //!< surface template
-  
-  protected:
+   
+  /** 
+     * @brief Constructor used by curvilinear 
+     * Parameters
+     */
+    ParametersT(const Amg::Vector3D& pos,
+                const Amg::Vector3D& mom,
+                AmgSymMatrix(DIM) * covariance = 0);
+
+    /** 
+     * @brief Constructor for persistency
+     */
+    ParametersT (const AmgVector(DIM)& parameters,
+                 const S* surface,
+                 AmgSymMatrix(DIM)* covariance = 0);
+
+
+    /*
+     * friends needed for Persistency
+     */
     template<typename pars>
     friend class ::TrackParametersCovarianceCnv;
     friend class ::TrackParametersCnv_p2;
     friend class ::MeasuredPerigeeCnv_p1;
     template <class SURFACE_CNV, class ATA_SURFACE>
     friend class ::AtaSurfaceCnv_p1;
-    
-    /** --- Protected constructors : for persistency purpose only */
-    ParametersT (const AmgVector(DIM)& parameters,
-                 const S* surface,
-                 AmgSymMatrix(DIM)* covariance = 0);
-    
-    ParametersT (const Amg::Vector3D& pos,
-                 const Amg::Vector3D& mom,
-                 AmgSymMatrix(DIM)* covariance = 0);
  
     /** DESIGN TO BE REVISITED */
-  protected:
     friend class MaterialEffectsEngine;
   };
 } //end of namespace Trk

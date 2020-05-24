@@ -148,49 +148,54 @@ namespace Trk {
 
     virtual ~ GlobalChi2Fitter();
 
-    StatusCode initialize();
-    StatusCode finalize();
-
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+  
     virtual Track *fit(
       const PrepRawDataSet &,
-    const TrackParameters &,
+      const TrackParameters &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override;
 
     virtual Track *fit(
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override;
 
     virtual Track *fit(
       const MeasurementSet &,
       const TrackParameters &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override                         ;
 
     virtual Track *fit(
       const Track &,
       const PrepRawDataSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override;
 
     virtual Track *fit(
       const Track &,
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override;
 
     virtual Track *fit(
       const Track &,
       const MeasurementSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override;
 
     virtual Track* alignmentFit(
       AlignmentCache&,
