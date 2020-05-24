@@ -8,7 +8,6 @@ atlas_subdir( MagFieldElements )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          MagneticField/MagFieldInterfaces
 			  Control/CxxUtils
 			  Event/EventPrimitives
                           PRIVATE

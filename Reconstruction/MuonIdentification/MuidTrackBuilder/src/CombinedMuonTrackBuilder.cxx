@@ -75,7 +75,6 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
       m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery", this),
       m_trackSummary("Trk::TrackSummaryTool/MuidTrackSummaryTool", this),
       m_materialUpdator("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
-      m_magFieldSvc("AtlasFieldSvc", name),
       m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
       m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
       m_magFieldProperties(Trk::FullField),
@@ -170,8 +169,6 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
     declareProperty("zECToroid", m_zECToroid);
     declareProperty("IDMS_xySigma", m_IDMS_xySigma);
     declareProperty("IDMS_rzSigma", m_IDMS_rzSigma);
-
-    declareProperty("MagFieldSvc", m_magFieldSvc);
 
     // deprecated
     declareProperty("IndetSlimming", m_indetSlimming);
@@ -294,8 +291,9 @@ CombinedMuonTrackBuilder::initialize()
     ATH_MSG_DEBUG("Retrieved tool " << m_idHelperSvc);
     ATH_CHECK(m_intersector.retrieve());
     ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
-    ATH_CHECK(m_magFieldSvc.retrieve());
-    ATH_MSG_DEBUG("Retrieved service " << m_magFieldSvc);
+    /// handle to the magnetic field cache
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    ATH_MSG_DEBUG("Setup handle for key " << m_fieldCacheCondObjInputKey);
 
     if (!m_materialAllocator.empty()) {
         ATH_CHECK(m_materialAllocator.retrieve());
@@ -440,7 +438,19 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
 
     // match extrapolated indet track to inner calorimeter scattering surface
     // provided momentum defined (solenoid on)
-    if (surface && m_magFieldSvc->solenoidOn() && !m_updateWithCaloTG) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    
+    if (surface && fieldCache.solenoidOn() && !m_updateWithCaloTG) {
         const Trk::TrackStateOnSurface* innerTSOS = 0;
 
         if (m_useCaloTG) {
@@ -486,7 +496,7 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
 
     Trk::Track* muonTrack = 0;
 
-    if (!m_magFieldSvc->toroidOn()) {
+    if (!fieldCache.toroidOn()) {
         ATH_MSG_VERBOSE(" SL MS track: Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
         muonTrack = createMuonTrack(
             indetTrack, indetTrack.perigeeParameters(), 0, extrapolatedTrack.trackStateOnSurfaces()->begin(),
@@ -788,10 +798,22 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
     // fail when solenoid off and toroid on (as extrapolation from ID is not the correct strategy)
     ToolHandle<Trk::IPropagator> propagator = m_propagatorSL;
 
-    if (m_magFieldSvc->toroidOn()) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    
+    if (fieldCache.toroidOn()) {
         // fail when solenoid off and toroid on - as extrapolation from ID is not the correct strategy
         //   for material effects, fit starting value etc
-        if (!m_magFieldSvc->solenoidOn()) {
+        if (!fieldCache.solenoidOn()) {
             ATH_MSG_VERBOSE("indetExtension: method switched off when solenoid 'off' / toroid 'on'");
             return 0;
         }
@@ -941,8 +963,20 @@ Trk::Track*
 CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const Trk::Vertex* inputVertex,
                                         float bs_x, float bs_y, float bs_z) const
 {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
     // no SA fit with vertex constraint for Toroid off data
-    if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !m_magFieldSvc->toroidOn()) {
+    if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !fieldCache.toroidOn()) {
         return 0;
     }
 
@@ -1108,7 +1142,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
 
     if (vertex) {
         // vertex association only makes sense for magnet-on tracks with measured curvature
-        if (!m_magFieldSvc->toroidOn() || m_trackQuery->isLineFit(spectrometerTrack) || errorP > m_largeMomentumError) {
+        if (!fieldCache.toroidOn() || m_trackQuery->isLineFit(spectrometerTrack) || errorP > m_largeMomentumError) {
 
             ATH_MSG_VERBOSE("standaloneFit: vertex fit not attempted as curvature badly measured");
             ATH_MSG_VERBOSE(" SA::failed (6)");
@@ -1200,7 +1234,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         // FIXME: missing prefit case for excessive spectrometer eloss WARNING
         //       spot from line starting approx from vertex??
         if (inCSCregion || m_trackQuery->numberPseudoMeasurements(spectrometerTrack)
-            || (m_magFieldSvc->toroidOn()
+            || (fieldCache.toroidOn()
                 && (badlyDeterminedCurvature || errorPhi > m_largePhiError
                     || measuredPerigee->momentum().mag() < m_lowMomentum)))
         {
@@ -1381,7 +1415,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
     particleHypothesis      = Trk::muon;
     bool returnAfterCleaner = false;
 
-    if (!m_magFieldSvc->toroidOn()) returnAfterCleaner = true;
+    if (!fieldCache.toroidOn()) returnAfterCleaner = true;
 
     ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
     Trk::Track* extrapolated =
@@ -1670,7 +1704,19 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
 
     countAEOTs(&combinedTrack, " in standalone Refit input combinedTrack ");
 
-    if (!m_magFieldSvc->toroidOn()) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    
+    if (!fieldCache.toroidOn()) {
         // no standalone refit for Toroid off
         return 0;
     }
@@ -2216,7 +2262,19 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemo
     bool isCombined = m_trackQuery->isCombined(track);
     // select straightLine fitter when magnets downstream of leading measurement are off
     ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
-    if (!m_magFieldSvc->toroidOn() && !(isCombined && m_magFieldSvc->solenoidOn())) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (!fieldCache.toroidOn() && !(isCombined && fieldCache.solenoidOn())) {
 
         fitter = m_fitterSL;
         ATH_MSG_VERBOSE(" fit (track refit method): select SL fitter ");
@@ -2399,8 +2457,20 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
     }
 
     // select straightLine fitter when magnets downstream of leading measurement are off
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
     ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
-    if (!m_magFieldSvc->toroidOn() || std::abs(perigeeStartValue.position().z()) > m_zECToroid) {
+    if (!fieldCache.toroidOn() || std::abs(perigeeStartValue.position().z()) > m_zECToroid) {
 
         fitter = m_fitterSL;
         ATH_MSG_VERBOSE(" fit (track refit method): select SL fitter ");
@@ -2521,7 +2591,19 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::Track& ex
 
     // select straightLine fitter when solenoid and toroid are off
     ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
-    if (!m_magFieldSvc->toroidOn() && !m_magFieldSvc->solenoidOn()) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (!fieldCache.toroidOn() && !fieldCache.solenoidOn()) {
 
         fitter = m_fitterSL;
         ATH_MSG_VERBOSE(" fit (combined muon fit method): select SL fitter ");
@@ -3161,7 +3243,19 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
 
         // if association OK, create perigee surface and back-track to it
         if (caloAssociated) {
-            if (m_magFieldSvc->toroidOn()) {
+            MagField::AtlasFieldCache    fieldCache;
+            // Get field cache object
+            EventContext ctx = Gaudi::Hive::currentContext();
+            SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+            const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+            if (fieldCondObj == nullptr) {
+                ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+                return 0;
+            }
+            fieldCondObj->getInitializedCache (fieldCache);
+
+            if (fieldCache.toroidOn()) {
                 const Trk::TrackParameters* oldParameters = caloTSOS->front()->trackParameters();
 
                 if (oldParameters && !oldParameters->covariance()) {
@@ -3906,7 +4000,18 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     bool curvatureOK = false;
 
     ToolHandle<Trk::IPropagator> propagator = m_propagator;
-    if (!m_magFieldSvc->toroidOn()) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if (!fieldCache.toroidOn()) {
         curvatureOK = true;
         propagator  = m_propagatorSL;
     } else if (std::abs(parameters->position().z()) < m_zECToroid
@@ -3993,7 +4098,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         }
 
         // large impact: set phi to be projective (note iteration)
-        if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact || !m_magFieldSvc->toroidOn()) {
+        if (std::abs(perigee->parameters()[Trk::d0]) < m_largeImpact || !fieldCache.toroidOn()) {
             if (correctedParameters == parameters) {
                 ATH_MSG_WARNING(
                     "deleting parameters pointer that could be used further down in execution, setting it to zero!");

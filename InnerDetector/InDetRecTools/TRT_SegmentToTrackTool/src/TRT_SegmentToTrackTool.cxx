@@ -14,8 +14,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
-//Magnetic field tool
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 using Amg::Vector3D;
 using CLHEP::mm;
@@ -31,7 +29,6 @@ namespace InDet {
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
-    m_magFieldSvc("AtlasFieldSvc", name),
     m_trtId(nullptr)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
@@ -49,9 +46,6 @@ namespace InDet {
     declareProperty("RefitterTool"               ,m_fitterTool        ); //Track refit tool
     declareProperty("Extrapolator"               ,m_extrapolator      ); //Extrapolator tool
     declareProperty("ScoringTool"                ,m_scoringTool       ); //Track scoring tool
-
-    declareProperty( "MagFieldSvc"              ,m_magFieldSvc      ); //Magnetic field tool
-
   }
 
   TRT_SegmentToTrackTool::~TRT_SegmentToTrackTool()
@@ -82,11 +76,9 @@ namespace InDet {
     //
     ATH_CHECK( m_scoringTool.retrieve() );
 
-    ATH_CHECK( m_magFieldSvc.retrieve() );
-
     ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
     ////////////////////////////////////////////////////////////////////////////////
-    ATH_CHECK( m_fieldCondObjInputKey.initialize());
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize());
     ////////////////////////////////////////////////////////////////////////////////
 
     // Get output print level
@@ -462,17 +454,16 @@ namespace InDet {
         MagField::AtlasFieldCache    fieldCache;
 
         // Get field cache object
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
         if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+            ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
             return 0;
         }
         fieldCondObj->getInitializedCache (fieldCache);
 
-        //   MT version uses cache, temporarily keep old version
-        if (fieldCache.useNewBfieldCache()) fieldCache.getField    (Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
-        else                                m_magFieldSvc->getField(Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+        //   MT version uses cache
+        fieldCache.getField    (Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
 
 	field1 *= m_fieldUnitConversion; // field in Tesla
 

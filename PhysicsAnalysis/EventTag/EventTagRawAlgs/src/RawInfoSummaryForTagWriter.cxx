@@ -22,8 +22,7 @@
 
 RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
                                  ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_fieldServiceHandle("AtlasFieldSvc",name)
+  AthAlgorithm(name,pSvcLocator)
 {
   declareProperty("IDTrackKey",m_sgKeyIDtrack);
   declareProperty("CaloCellContKey", m_cellContKey="AllCalo");
@@ -38,7 +37,6 @@ RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
   declareProperty("MBTSName",m_mbtsName="MBTSContainer");
   declareProperty("MBTSCollTimeKey",m_MBTSCollTimeKey="MBTSCollisionTime");
   declareProperty("MBTS_Threshold",  m_mbts_threshold = 40.0/222.0 );  // Value in pC
-  declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
   declareProperty("OutputKey", m_RISFTKey="RawInfoSummaryForTag");
 }
 
@@ -63,7 +61,6 @@ StatusCode RawInfoSummaryForTagWriter::initialize()
     return StatusCode::FAILURE;
   }
   
-  ATH_CHECK(m_fieldServiceHandle.retrieve());
   ATH_CHECK(m_sgKeyIDtrack.initialize());
   ATH_CHECK(m_cellContKey.initialize());
   if(m_doClusterSums)  {
@@ -82,6 +79,7 @@ StatusCode RawInfoSummaryForTagWriter::initialize()
     ATH_CHECK(m_trtPhaseName.initialize());
   }
   ATH_CHECK(m_RISFTKey.initialize());
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   return StatusCode::SUCCESS;  
 }
 
@@ -115,6 +113,17 @@ StatusCode RawInfoSummaryForTagWriter::execute()
    // input Track Collection
    int totNPixHits(0),totNSCTHits(0),totNTRTHits(0);
    
+   MagField::AtlasFieldCache    fieldCache;
+   // Get field cache object
+   EventContext ctx = Gaudi::Hive::currentContext();
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+   if (fieldCondObj == nullptr) {
+     ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+     return StatusCode::FAILURE;
+   }
+   fieldCondObj->getInitializedCache (fieldCache);
 
    SG::ReadHandle<TrackCollection> tracks{m_sgKeyIDtrack};
    for (const Trk::Track* track : *tracks) {
@@ -128,7 +137,7 @@ StatusCode RawInfoSummaryForTagWriter::execute()
      if (nSCTHits>0) totNSCTHits++;
      if (nTRTHits>0) totNTRTHits++;
 
-     if(m_fieldServiceHandle->solenoidOn()){
+     if(fieldCache.solenoidOn()){
        const Trk::Perigee* perigee = track->perigeeParameters(); 
        if(!perigee) continue;
        if(perigee->parameters()[Trk::qOverP]!=0){

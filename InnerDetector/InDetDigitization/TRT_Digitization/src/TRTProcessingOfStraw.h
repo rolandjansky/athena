@@ -39,8 +39,6 @@ class TRTUncompressedHit;
 class ITRT_PAITool;
 class ITRT_SimDriftTimeTool;
 
-namespace MagField { class IMagFieldSvc; }
-
 namespace InDetDD { class TRT_DetectorManager; }
 
 class TRTDigSettings;
@@ -57,7 +55,6 @@ public:
                         const InDetDD::TRT_DetectorManager*,
                         ITRT_PAITool*,
                         ITRT_SimDriftTimeTool*,
-                        MagField::IMagFieldSvc * magfieldsvc,
                         TRTElectronicsProcessing * ep,
                         TRTNoise * noise,
                         TRTDigCondBase* digcond,
@@ -237,8 +234,6 @@ private:
 
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
-  //Magnetic field stuff
-  MagField::IMagFieldSvc* m_magneticfieldsvc;
   mutable Athena::MsgStreamMember m_msg;
 
 protected:

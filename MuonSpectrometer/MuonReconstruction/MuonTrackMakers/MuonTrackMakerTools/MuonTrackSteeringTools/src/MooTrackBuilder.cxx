@@ -42,7 +42,7 @@ namespace Muon {
 
     ATH_CHECK( m_fitter.retrieve() );
     ATH_CHECK( m_slFitter.retrieve() );
-    ATH_CHECK(m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     if( !m_errorOptimisationTool.empty() ) ATH_CHECK( m_errorOptimisationTool.retrieve() );
     ATH_CHECK( m_candidateHandler.retrieve() );
     ATH_CHECK( m_candidateMatchingTool.retrieve() );
@@ -74,7 +74,21 @@ namespace Muon {
 
   Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
 
-    if( m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ) return m_slFitter->refit(track);
+  if( m_edmHelperSvc->isSLTrack(track)) { // check isSL first to limit access overhead
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if( !fieldCache.toroidOn() ) return m_slFitter->refit(track);
+  }
+  
 
     // if not refit tool specified do a pure refit
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
@@ -341,8 +355,20 @@ namespace Muon {
       //ATH_MSG_INFO(" Performing fit"  );
     }
 
-    if( slFit || !m_magFieldSvc->toroidOn() ) return m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits);
-    else                                      return m_fitter->fit(firstCandidate,secondCandidate,externalPhiHits);
+    EventContext ctx = Gaudi::Hive::currentContext();
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if( slFit || !fieldCache.toroidOn() ) return m_slFitter->fit(firstCandidate,secondCandidate,externalPhiHits);
+    else                                  return m_fitter->fit(firstCandidate,secondCandidate,externalPhiHits);
   }
 
 
@@ -1013,7 +1039,19 @@ namespace Muon {
   }
 
   std::pair<Trk::Track*,Trk::Track*> MooTrackBuilder::splitTrack( const Trk::Track& track ) const {
-    return m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);
+    EventContext ctx = Gaudi::Hive::currentContext();
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      std::pair<Trk::Track*,Trk::Track*> emptyPair;
+      return emptyPair;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    return m_edmHelperSvc->isSLTrack(track) || !fieldCache.toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);
   }
 
   std::vector<MuPatTrack*>* MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {

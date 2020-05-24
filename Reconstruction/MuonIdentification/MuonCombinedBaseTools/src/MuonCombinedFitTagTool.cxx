@@ -39,7 +39,6 @@
 #include "Identifier/Identifier.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "xAODTracking/Vertex.h"
 
 namespace MuonCombined {
@@ -57,7 +56,6 @@ namespace MuonCombined {
   m_muonRecovery(""),
   m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this),
   m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
-  m_magFieldSvc("AtlasFieldSvc",name),
   m_DetID(0)
   {
     declareInterface<IMuonCombinedTagTool>(this);
@@ -74,7 +72,6 @@ namespace MuonCombined {
     declareProperty("MomentumBalanceCut",	m_momentumBalanceCut = 6.0);
     declareProperty("IndetPullCut", 		m_indetPullCut = 6.0);
     declareProperty("MatchChiSquaredCut",	m_matchChiSquaredCut = 30.0);
-    declareProperty("MagFieldSvc",		m_magFieldSvc);
   }
 
   MuonCombinedFitTagTool::~MuonCombinedFitTagTool()
@@ -94,7 +91,8 @@ namespace MuonCombined {
     if(! m_muonRecovery.empty() ) ATH_CHECK(m_muonRecovery.retrieve());
     ATH_CHECK(m_matchQuality.retrieve());
     ATH_CHECK(m_trackScoringTool.retrieve());
-    ATH_CHECK(m_magFieldSvc.retrieve());
+    /// handle to the magnetic field cache
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
       ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
@@ -385,7 +383,18 @@ namespace MuonCombined {
     bool dorefit = true;
     
     // no SA refit for Toroid off 
-    if (!m_magFieldSvc->toroidOn()) dorefit = false;
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    if (!fieldCache.toroidOn()) dorefit = false;
 
     float bs_x = 0.;
     float bs_y = 0.;

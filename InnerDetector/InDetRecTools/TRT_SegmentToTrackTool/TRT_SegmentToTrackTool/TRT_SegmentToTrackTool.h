@@ -53,12 +53,6 @@ namespace Trk {
 
 }
 
-namespace MagField {
-
-  class IMagFieldSvc;
-
-}
-
 namespace InDet {
 
   //class TrackSegment;
@@ -111,12 +105,11 @@ namespace InDet {
         {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
-      ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc  ;  //!< Magnetic field service
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // Read handle for conditions object to get the field cache
-      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
-                                                                           "Name of the Magnetic Field conditions object key"};
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                                 "Name of the Magnetic Field conditions object key"};
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

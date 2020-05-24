@@ -47,8 +47,6 @@ MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface (const std::string&	typ
 	m_caloEnergyParam	("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam", this),
 	m_caloMaterialParam	("Rec::MuidCaloMaterialParam/MuidCaloMaterialParam", this),
 	m_magFieldProperties    (0),
-	m_magFieldSvcHandle	("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
-	m_magFieldSvc           (0),
 	m_propagator            ("Trk::IntersectorWrapper/IntersectorWrapper", this),
 	m_minCaloRadius		(0.4*Gaudi::Units::meter),
 	m_minRemainingEnergy	(0.5*Gaudi::Units::GeV),
@@ -108,16 +106,8 @@ MuidCaloTrackStateOnSurface::initialize()
     {
 	ATH_MSG_DEBUG( "Retrieved tool " << m_caloMaterialParam );
     }
-    if (m_magFieldSvcHandle.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvcHandle );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved service " << m_magFieldSvcHandle );
-	m_magFieldSvc = &*m_magFieldSvcHandle;
-    }
+    /// handle to the magnetic field cache
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     if (m_propagator.retrieve().isFailure())
     {
 	ATH_MSG_FATAL( "Failed to retrieve tool " << m_propagator );
@@ -162,6 +152,18 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
     const Trk::TrackParameters* middleParams	= 0;
     const Trk::TrackParameters* outerParams	= 0;
 
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return 0;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    
     // track to calo surfaces - first decide in or outwards
     bool trackOutwards	= true;
     if (dynamic_cast<const Trk::PerigeeSurface*>(&parameters.associatedSurface()))
@@ -218,7 +220,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
 		    double correctedEnergy		= innerParams->momentum().mag() - energyDeposit;
 
 		    // fail potential loopers
-		    if (m_magFieldSvc->toroidOn()
+		    if (fieldCache.toroidOn()
 		    	&& correctedEnergy < m_minRemainingEnergy)
 		    {
 		    	delete middleTS;

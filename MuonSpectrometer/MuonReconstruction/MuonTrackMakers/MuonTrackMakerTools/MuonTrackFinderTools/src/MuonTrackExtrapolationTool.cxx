@@ -32,12 +32,10 @@ namespace Muon {
       m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
       m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
       m_muonExtrapolator2("Trk::Extrapolator/MuonExtrapolator"),
-      m_magFieldSvc("AtlasFieldSvc",na),
       m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",na),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonTrackExtrapolationTool>(this);
-    declareProperty( "MagFieldSvc",         m_magFieldSvc );
     declareProperty( "TrackingGeometrySvc", m_trackingGeometrySvc);
     declareProperty( "MuonExtrapolator",    m_muonExtrapolator);
     declareProperty( "MuonExtrapolator2",   m_muonExtrapolator2);
@@ -57,7 +55,7 @@ namespace Muon {
     if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
     if( !m_muonExtrapolator2.empty() ) ATH_CHECK( m_muonExtrapolator2.retrieve() );
     ATH_CHECK( m_trackingGeometrySvc.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     if( m_cosmics ) ATH_MSG_DEBUG("Running in cosmics mode" );
     
@@ -322,8 +320,21 @@ namespace Muon {
     if( m_muonExtrapolator.empty() ) return 0;
     // if straightline track and the field is on return 0
     bool isSL = m_edmHelperSvc->isSLTrack(track);
-    if( m_magFieldSvc->toroidOn() && isSL ) {
-      return 0;
+    if( isSL ) { // check isSL first to limit access overhead
+      MagField::AtlasFieldCache    fieldCache;
+      // Get field cache object
+      EventContext ctx = Gaudi::Hive::currentContext();
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    
+      if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return 0;
+      }
+      fieldCondObj->getInitializedCache (fieldCache);
+      if( fieldCache.toroidOn() ) {
+        return 0;
+      }
     }
 
     const Trk::Perigee* pp = track.perigeeParameters();
