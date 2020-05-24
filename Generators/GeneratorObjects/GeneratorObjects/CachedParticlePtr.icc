@@ -38,7 +38,7 @@ CachedParticlePtr::CachedParticlePtr (const IProxyDict* sg)
  * @param part The particle to reference.
  */
 inline
-CachedParticlePtr::CachedParticlePtr (const HepMC::GenParticle* part)
+CachedParticlePtr::CachedParticlePtr (const HepMC::GenParticlePtr part)
   : m_ptr (part)
 {
   assert (!isdict (part));
@@ -91,7 +91,7 @@ void CachedParticlePtr::store (const IProxyDict* sg)
  * Return that and set @c sg to nullptr.
  */
 inline
-const HepMC::GenParticle*
+const HepMC::GenParticlePtr
 CachedParticlePtr::get (IProxyDict const* & sg) const
 {
   const void* p = m_ptr;
@@ -101,7 +101,7 @@ CachedParticlePtr::get (IProxyDict const* & sg) const
   }
   else {
     sg = nullptr;
-    return reinterpret_cast<const HepMC::GenParticle*> (p);
+    return reinterpret_cast<const HepMC::GenParticlePtr> (p);
   }
 }
 
@@ -116,7 +116,7 @@ CachedParticlePtr::get (IProxyDict const* & sg) const
  */
 inline
 void CachedParticlePtr::set (const IProxyDict* sg,
-                             const HepMC::GenParticle* part) const
+                             const HepMC::GenParticlePtr part) const
 {
   assert (!isdict (part));
   const void* p = storedict (sg);

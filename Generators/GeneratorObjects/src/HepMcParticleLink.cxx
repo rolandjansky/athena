@@ -139,7 +139,7 @@ void HepMcParticleLink::ExtendedBarCode::print (MsgStream& os) const
  * @param positionFlag: See @c eventIndex.
  * @param sg Optional specification of a specific store to reference.
  */
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticlePtr part,
                                       uint32_t eventIndex,
                                       EBC_EVCOLL evColl,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
@@ -165,7 +165,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
 /**
  * @brief Dereference.
  */
-const HepMC::GenParticle* HepMcParticleLink::cptr() const
+const HepMC::GenParticlePtr HepMcParticleLink::cptr() const
 {
   const IProxyDict* sg = nullptr;
   auto p = m_ptrs.get (sg);

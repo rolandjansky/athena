@@ -409,7 +409,7 @@ HepMcParticleLink::HepMcParticleLink (barcode_type barCode,
  * @param sg Optional specification of a specific store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticlePtr part,
                                       uint32_t eventIndex,
                                       const std::string& evCollName,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
@@ -434,7 +434,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
  * @param ctx Context of the store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticlePtr part,
                                       uint32_t eventIndex,
                                       EBC_EVCOLL evColl,
                                       PositionFlag positionFlag,
@@ -484,7 +484,7 @@ const HepMC::GenParticle& HepMcParticleLink::operator* () const
  * @brief Dereference.
  */
 inline
-const HepMC::GenParticle* HepMcParticleLink::operator->() const
+const HepMC::GenParticlePtr HepMcParticleLink::operator->() const
 {
   return cptr();
 }
@@ -494,7 +494,7 @@ const HepMC::GenParticle* HepMcParticleLink::operator->() const
  * @brief Dereference.
  */
 inline
-HepMcParticleLink::operator const HepMC::GenParticle* () const
+HepMcParticleLink::operator const HepMC::GenParticlePtr () const
 {
   return cptr();
 }

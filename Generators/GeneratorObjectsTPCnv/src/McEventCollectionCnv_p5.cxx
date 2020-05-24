@@ -222,7 +222,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
             endItr = partToEndVtx.end();
           p != endItr;
           ++p ) {
-      auto decayVtx = genEvt->barcode_to_vertex( p->second );
+      auto decayVtx = HepMC::barcode_to_vertex(genEvt, p->second );
       if ( decayVtx ) {
         decayVtx->add_particle_in( p->first );
       } else {

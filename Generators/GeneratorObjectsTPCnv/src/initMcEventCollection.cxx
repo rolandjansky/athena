@@ -38,7 +38,7 @@ namespace Athena_test {
     // Add a dummy GenEvent
     const int process_id1(20);
     const int event_number1(17);
-    inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
     populateGenEvent(ge1,-11,11,genPartList);
     populateGenEvent(ge1,-13,13,genPartList);
@@ -68,7 +68,7 @@ namespace Athena_test {
     myVertex->add_particle_out(inParticle4);
     genPartList.push_back(inParticle4);
     ge.add_vertex( myVertex );
-    ge.set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(&ge, myVertex );
     ge.set_beam_particles(inParticle1,inParticle2);
   }
 }

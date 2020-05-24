@@ -180,7 +180,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
       const int sigProcVtx = persEvt.m_signalProcessVtx;
       if ( sigProcVtx != 0 )
         {
-          genEvt->set_signal_process_vertex( genEvt->barcode_to_vertex( sigProcVtx ) );
+          HepMC::set_signal_process_vertex(genEvt,HepMC::barcode_to_vertex(genEvt, sigProcVtx ) );
         }
 
       // connect particles to their end vertices
@@ -190,7 +190,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
             p != endItr;
             ++p )
         {
-          auto decayVtx = genEvt->barcode_to_vertex( p->second );
+          auto decayVtx= HepMC::barcode_to_vertex(genEvt, p->second );
           if ( decayVtx )
             {
               decayVtx->add_particle_in( p->first );
