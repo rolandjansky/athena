@@ -5,7 +5,7 @@
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
 #include "EventContainers/IdentifiableContainerMT.h" 
-#include "EventContainers/SelectAllObjectMT.h"
+#include "EventContainers/SelectAllObject.h"
 #include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
@@ -154,7 +154,7 @@ return 0;}
 
 int ID_ContainerTest::execute(){
 
-    typedef SelectAllObjectMT<MyCollectionContainer,MyDigit> SELECTOR ;
+    typedef SelectAllObject<MyCollectionContainer,MyDigit> SELECTOR ;
     typedef SELECTOR::const_iterator digit_const_iterator; 
 //    typedef MyCollectionContainer::const_iterator collection_iterator;
     
@@ -604,14 +604,49 @@ int ID_ContainerTest::execute(){
     }
     {
     MyCollectionContainer::IDC_WriteHandle lock;
-    lock = containerOnline->getWriteHandle(IdentifierHash(50));
-    lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
-    lock = containerOnline->getWriteHandle(IdentifierHash(60));
-    lock = containerOnline->getWriteHandle(IdentifierHash(70));
+    MyCollectionContainer::IDC_WriteHandle lock2 = containerOnline->getWriteHandle(IdentifierHash(50));
+    MyCollectionContainer::IDC_WriteHandle::Swap(lock, lock2);
+    //lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
+    //lock = containerOnline->getWriteHandle(IdentifierHash(60));
+    //lock = containerOnline->getWriteHandle(IdentifierHash(70));
     }
 
     delete containerOnline;
     delete cache;
+
+
+    auto containerordertest = new MyCollectionContainer(500);
+    containerordertest->addCollection(nullptr, 4).ignore();
+    containerordertest->addCollection(nullptr, 3).ignore();
+    containerordertest->addCollection(nullptr, 2).ignore();
+    containerordertest->addCollection(nullptr, 1).ignore();
+    containerordertest->addCollection(nullptr, 5).ignore();
+    containerordertest->addCollection(nullptr, 4).ignore(); //Deliberate duplicate
+    containerordertest->addCollection(nullptr, 7).ignore();
+
+    auto hashes  = containerordertest->GetAllCurrentHashes();
+    size_t last =0;
+    for(auto i : hashes){
+        if(last >= i) {
+            std::cout << "Ordering error" <<std::endl;
+            std::abort();
+        }
+        last =i;
+    }
+    last =0;
+    for(auto [hash,ptr] : containerordertest->GetAllHashPtrPair() ){
+        if(last >= hash) {
+            std::cout << "Ordering error" <<std::endl;
+            std::abort();
+        }
+        last =hash;
+    }
+    if(containerordertest->numberOfCollections() != 6){
+        std::cout << "Duplicate got added " << std::endl;
+        std::abort();
+    }
+
+    delete containerordertest;
     std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
 }
     return 0;

@@ -38,3 +38,8 @@ atlas_add_test( IDCValueTest SOURCES test/IDCValueTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
               )
+atlas_add_test( IDBenchTest SOURCES test/IDC_Benchmark.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
+                LOG_IGNORE_PATTERN "time"
+              )

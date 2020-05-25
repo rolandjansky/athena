@@ -181,9 +181,6 @@ namespace xAODMaker {
 	  xAOD::TruthEvent* xTruthEvent = new xAOD::TruthEvent();
 	  xAOD::TruthPileupEvent* xTruthPileupEvent = new xAOD::TruthPileupEvent();
                 
-	  /// @todo Drop or re-enable these? Signal process can be set to DSID... preferably not to the gen-name code
-	  //xTruthEvent->setSignalProcessId(genEvt->signal_process_id());
-	  //xTruthEvent->setEventNumber(genEvt->event_number());
                 
 	  if (isSignalProcess) {
 	    xTruthEventContainer->push_back( xTruthEvent );

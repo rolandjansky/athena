@@ -103,7 +103,7 @@ public:
     virtual Track* fit(const PrepRawDataSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** re-fit a track, adding a fittable measurement set:
          This function should normally be called with a MeasurementSet containing
@@ -112,7 +112,7 @@ public:
     virtual Track* fit(const Track&,
                        const MeasurementSet&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** fit a track to a set of measurementBase.
         This function should normally be called with a MeasurementSet containing
@@ -123,7 +123,7 @@ public:
     virtual Track* fit(const MeasurementSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** not implemented: makes no sense for the DAF (always returns a NULL pointer) */
     virtual Track* fit(const SpacePointSet&,
@@ -135,7 +135,7 @@ public:
     virtual Track* fit(const Track&,
                        const Track&,
                        const RunOutlierRemoval,
-                       const ParticleHypothesis) const;
+                       const ParticleHypothesis) const override;
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
