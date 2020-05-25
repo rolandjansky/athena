@@ -92,6 +92,10 @@ def generateDecisionTree(chains):
         if toadd not in prop:
             prop.append( toadd )
 
+    def setOrCheckIfTheSame( prop, toadd ):
+        if prop is not toadd:
+            prop = toadd
+
     @memoize 
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
@@ -109,6 +113,13 @@ def generateDecisionTree(chains):
             if isHypoBase(alg):
                 return alg
         raise "No hypo alg in seq "+seq.name
+
+    @memoize
+    def findSingleRecoSeqOutput( chainStep ):
+        for sequence in chainStep.sequences:
+            for output in sequence.getOutputList():
+                return output 
+        
 
     
     #create all sequences and filter algs, add Hypo algs and tools (decision CF)
@@ -139,13 +150,13 @@ def generateDecisionTree(chains):
                     addIfNotThere( filterAlg.Output, filterOutputName )
                     addIfNotThere( im.InputMakerInputDecisions,  filterOutputName )
                     
-                hypoAlg = findHypoAlg( stepConter, step )
-                for i in im.InputMakerInpuDecisions:
+                hypoAlg = findHypoAlg( stepCounter, step.name )
+                for i in im.InputMakerInputDecisions:
                     imOutputName = CFNaming.inputMakerOutName( im.name, i )
-                    addIfNotThere( hypoAlg.InputDecisions, imOutputName )
-                for i in hypoAlg.InputDecisions:
+                    setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName )
+                for i in hypoAlg.HypoInputDecisions:
                     hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
-                    addIfNotThere( hypoAlg.DecisonOutput, hypoOutName )
+                    setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName )
 
                 hypoAlg.HypoTools.append( sequence._hypoToolConf.create() )
                             
