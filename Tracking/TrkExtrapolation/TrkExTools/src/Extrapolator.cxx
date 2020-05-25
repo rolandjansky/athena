@@ -43,7 +43,6 @@ inline Trk::TrackParameters *cloneObj<Trk::TrackParameters>(const Trk::TrackPara
 }
 
 #include "TrkExTools/Extrapolator.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExUtils/IntersectionSolution.h"
@@ -93,12 +92,6 @@ bool      Trk::Extrapolator::Cache::s_reported        {};
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_propagators(),
-  m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
-  m_navigator("Trk::Navigator/AtlasNavigator"),
-  m_updaters(),
-  m_msupdaters(),
-  m_elossupdaters(),
   m_subPropagators(Trk::NumberOfSignatures),
   m_subupdaters(Trk::NumberOfSignatures),
   m_propNames(),
@@ -166,20 +159,14 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   declareProperty("SkipInitialPostUpdate", m_skipInitialLayerUpdate);
   declareProperty("MaximalMethodSequence", m_maxMethodSequence);
   // propagation steering
-  declareProperty("Propagators", m_propagators);
   declareProperty("SubPropagators", m_propNames);
-  declareProperty("STEP_Propagator", m_stepPropagator);
   // material effects handling
   declareProperty("ApplyMaterialEffects", m_includeMaterialEffects);
   declareProperty("RequireMaterialDestinationHit", m_requireMaterialDestinationHit);
-  declareProperty("MaterialEffectsUpdators", m_updaters);
-  declareProperty("MultipleScatteringUpdators", m_msupdaters);
-  declareProperty("EnergyLossUpdators", m_elossupdaters);
   declareProperty("SubMEUpdators", m_updatNames);
   declareProperty("CacheLastMaterialLayer", m_cacheLastMatLayer);
   // general behavior navigation
   declareProperty("SearchLevelClosestParameters", m_searchLevel);
-  declareProperty("Navigator", m_navigator);
   // muon system specifics
   declareProperty("UseMuonMatApproximation", m_useMuonMatApprox);
   declareProperty("UseDenseVolumeDescription", m_useDenseVolumeDescription);
