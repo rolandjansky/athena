@@ -8,8 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
-from AthenaCommon.Constants import DEBUG
-__log.setLevel(DEBUG)
 import six
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
