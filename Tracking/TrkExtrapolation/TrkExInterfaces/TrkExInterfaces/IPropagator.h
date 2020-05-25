@@ -202,7 +202,7 @@ namespace Trk {
                                                 double&                        pathLength,
                                                 ParticleHypothesis             particle   = pion,
                                                 bool                           returnCurv = false,
-                                                const TrackingVolume*          tVol       = 0) const = 0;
+                                                const TrackingVolume*          tVol       = nullptr) const = 0;
        
 
        /** Propagation interface without Covariance matrix propagation
@@ -217,7 +217,7 @@ namespace Trk {
                                                           const MagneticFieldProperties& mprop,
                                                           ParticleHypothesis             particle=pion,
                                                           bool                           returnCurv = false,
-                                                          const TrackingVolume*          tVol=0) const = 0;
+                                                          const TrackingVolume*          tVol=nullptr) const = 0;
        
        virtual TrackParameters*      propagateParameters( const EventContext&            ctx,
                                                           const TrackParameters&         parm,
@@ -228,7 +228,7 @@ namespace Trk {
                                                           TransportJacobian*&            jacob,
                                                           ParticleHypothesis             particle=pion,
                                                           bool                           returnCurv = false,
-                                                          const TrackingVolume*          tVol=0) const = 0;
+                                                          const TrackingVolume*          tVol=nullptr) const = 0;
        
 
        /** Intersection interface:
@@ -241,7 +241,7 @@ namespace Trk {
                                                       const Surface&                 sf,
                                                       const MagneticFieldProperties& mprop,
                                                       ParticleHypothesis             particle=pion,
-                                                      const TrackingVolume*          tVol=0) const = 0;
+                                                      const TrackingVolume*          tVol=nullptr) const = 0;
 
       /** Intersection and Intersector interface: 
         */
@@ -269,7 +269,7 @@ namespace Trk {
                                     const CylinderBounds&          cylbo,
                                     double                         stepSize,
                                     ParticleHypothesis             particle=pion,
-                                    const TrackingVolume*          tVol=0) const = 0;
+                                    const TrackingVolume*          tVol=nullptr) const = 0;
 
      /** a very simple propagation along a given path length */
      virtual void propagateStep(const EventContext&            ctx,
@@ -300,7 +300,7 @@ namespace Trk {
                                             const MagneticFieldProperties& mprop,
                                             ParticleHypothesis             particle   = pion,
                                             bool                           returnCurv = false,
-                                            const TrackingVolume*          tVol       = 0) const;
+                                            const TrackingVolume*          tVol       = nullptr) const;
        
 
        /** Propagation interface:
