@@ -533,7 +533,7 @@ class athenaLogFileReport(logFileReport):
                     continue
 
         # write the list of abnormal lines into a dictionary to report
-        # each abnormal line's keys are labaled by numbers, starting from 0
+        # The keys of each abnormal line are labeled by a number starting with 0
         # e.g. first abnormal line's keys are :{'meesage0', 'firstLine0', 'count0'}
         for a in range(len(seenAbnormalLines)):
             abnormalLinesReport.update({'message{0}'.format(a): seenAbnormalLines[a]['message'], 'firstLine{0}'.format(a): seenAbnormalLines[a]['firstLine'], 'count{0}'.format(a): seenAbnormalLines[a]['count']})
