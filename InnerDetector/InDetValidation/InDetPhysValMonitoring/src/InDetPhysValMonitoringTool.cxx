@@ -160,15 +160,15 @@ InDetPhysValMonitoringTool::initialize() {
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
-  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder);
+  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder, m_detailLevel); // m_detailLevel := DEBUG, enable expert histograms
 
   ATH_CHECK( m_trkParticleName.initialize() );
-  ATH_CHECK( m_truthParticleName.initialize(m_pileupSwitch == "All" and not m_truthParticleName.key().empty() ) );
+  ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );
   ATH_CHECK( m_vertexContainerName.initialize() );
   ATH_CHECK( m_truthVertexContainerName.initialize( not m_truthVertexContainerName.key().empty() ) );
   ATH_CHECK( m_eventInfoContainerName.initialize() );
 
-  ATH_CHECK( m_truthEventName.initialize( m_pileupSwitch == "HardScatter" and not m_truthEventName.key().empty()) );
+  ATH_CHECK( m_truthEventName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthEventName.key().empty() ) );
   ATH_CHECK( m_truthPileUpEventName.initialize( (m_pileupSwitch == "PileUp" or m_pileupSwitch == "All") and not m_truthPileUpEventName.key().empty() ) );
   ATH_CHECK( m_jetContainerName.initialize( not m_jetContainerName.key().empty()) );  
 
@@ -202,9 +202,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
-  std::vector<const xAOD::TruthVertex*> truthVertices = getTruthVertices();
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks 
-  
+
   if (not tracks.isValid()) {
     return StatusCode::FAILURE;
   }
@@ -229,12 +228,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
     //Filling plots for all reconstructed vertices and the hard-scatter
     ATH_MSG_DEBUG("Filling vertices info monitoring plots");
 
-    //Decorate vertices
+    // Fill vectors of truth HS and PU vertices
+    std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
+    std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
+    std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+
+    // Decorate vertices
     if (m_useVertexTruthMatchTool && m_vtxValidTool) {
        ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
        ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
     }
-    m_monPlots->fill(*vertices, truthVertices);
+    m_monPlots->fill(*vertices, truthHSVertices, truthPUVertices);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
     //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
@@ -452,7 +456,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
 StatusCode
 InDetPhysValMonitoringTool::bookHistograms() {
   ATH_MSG_INFO("Booking hists " << name() << "with detailed level: " << m_detailLevel);
-  m_monPlots->setDetailLevel(m_detailLevel); // DEBUG, enable expert histograms
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();
   for (auto hist : hists) {
@@ -494,7 +497,7 @@ InDetPhysValMonitoringTool::procHistograms() {
 }
 
 const std::vector<const xAOD::TruthParticle*>
-InDetPhysValMonitoringTool::getTruthParticles() {
+InDetPhysValMonitoringTool::getTruthParticles() const {
   // truthParticles.clear();
   std::vector<const xAOD::TruthParticle*> tempVec {};
   if (m_pileupSwitch == "All") {
@@ -553,11 +556,13 @@ InDetPhysValMonitoringTool::getTruthParticles() {
   return tempVec;
 }
 
-const std::vector<const xAOD::TruthVertex*>
-InDetPhysValMonitoringTool::getTruthVertices() {
+std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>
+InDetPhysValMonitoringTool::getTruthVertices() const {
 
-  std::vector<const xAOD::TruthVertex*> truthVertices = {};
-  truthVertices.reserve(100);
+  std::vector<const xAOD::TruthVertex*> truthHSVertices = {};
+  truthHSVertices.reserve(5);
+  std::vector<const xAOD::TruthVertex*> truthPUVertices = {};
+  truthPUVertices.reserve(100);
   const xAOD::TruthVertex* truthVtx = nullptr;
 
   bool doHS = false;
@@ -577,14 +582,14 @@ InDetPhysValMonitoringTool::getTruthVertices() {
   }
 
   if (doHS) {
-    if (!m_truthEventName.key().empty()) {
+    if (not m_truthEventName.key().empty()) {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
       if (truthEventContainer.isValid()) {
         for (const auto& evt : *truthEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
-            truthVertices.push_back(truthVtx);
+            truthHSVertices.push_back(truthVtx);
           }
         }
       }
@@ -595,14 +600,14 @@ InDetPhysValMonitoringTool::getTruthVertices() {
   }
 
   if (doPU) {
-    if (!m_truthPileUpEventName.key().empty()) {
+    if (not m_truthPileUpEventName.key().empty()) {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
       if (truthPileupEventContainer.isValid()) {
         for (const auto& evt : *truthPileupEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
-            truthVertices.push_back(truthVtx);
+            truthPUVertices.push_back(truthVtx);
           }
         }
       }
@@ -612,7 +617,7 @@ InDetPhysValMonitoringTool::getTruthVertices() {
     }
   }
 
-  return truthVertices;
+  return std::make_pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>((const std::vector<const xAOD::TruthVertex*>)truthHSVertices, (const std::vector<const xAOD::TruthVertex*>)truthPUVertices);
 
 }
 

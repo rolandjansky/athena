@@ -47,7 +47,7 @@
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
 public:
-  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName);
+  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
@@ -61,7 +61,7 @@ public:
   ///fill for things needing all truth - not just the ones from the reco tracks
   
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
 
