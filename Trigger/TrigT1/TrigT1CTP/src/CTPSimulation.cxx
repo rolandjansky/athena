@@ -133,7 +133,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "UseDeadTime", m_applyDeadTime = false, "Simulate DeadTime" );    
 	declareProperty( "UseBunchGroup", m_applyBunchGroup = true, "Simulate BunchGroup trigger" );    
 	declareProperty( "BunchGroupLocation", m_BunchGroupLoc="/TRIGGER/LVL1/BunchGroupContent", "Detector store location of bunch groups");
-	
+	declareProperty( "ForceUsingBCIDforBunchGroupEval", m_forceUsingBCIDforBunchGroupEval, "Force the use of the bcid from the event to evaluate the bunchgroup");
 	// Properties setting up the location of the data sent to the CTP:
 	declareProperty( "MuonCTPLocation", m_muonCTPLoc = LVL1MUCTPI::DEFAULT_MuonCTPLocation, 
                      "StoreGate location of Muon inputs" );
@@ -1145,20 +1145,22 @@ LVL1CTP::CTPSimulation::execute() {
       ATH_MSG_ERROR("Error in extracting threshold multiplicities");
       return sc;
    }
-	
+
    //
    // Set up the objects for creating the decision:
    //
    for (InternalTriggerMap::iterator iter = m_internalTrigger.begin(); iter != m_internalTrigger.end(); ++iter) {
       iter->second->print();
       //use bcid for BGRP triggers when running over data
-		
-      if((m_IsData)&&(!iter->second->name().find("BGRP"))){
 
-         sc = iter->second->execute((int)EventInfo::instance().bcid());
-         ATH_MSG_DEBUG("Rederiving BG " << iter->second->name() << " decision for bcid " << EventInfo::instance().bcid() << ": " << ( iter->second->evaluate() ? "ACTIVE" : "INACTIVE" ) );
-
-      } else {
+      if ( iter->second->name().find("BGRP")==0 ) { // name starts with "BGRP"
+         if( m_IsData || m_forceUsingBCIDforBunchGroupEval ) { // data or MC with data-overlay (special HeavyIon use-case)
+            sc = iter->second->execute((int)EventInfo::instance().bcid());
+            ATH_MSG_DEBUG("Rederiving BG " << iter->second->name() << " decision for bcid " << EventInfo::instance().bcid() << ": " << ( iter->second->evaluate() ? "ACTIVE" : "INACTIVE" ) );
+         } else { // mc without data-overlay
+            sc = iter->second->execute(); // uses default of BCID=1
+         }
+      } else { // Random triggers
          sc = iter->second->execute();
       }
 
@@ -1206,7 +1208,7 @@ LVL1CTP::CTPSimulation::execute() {
    ////////////////////////////////////////////////////////////////////////////
 	
   
-   if(m_IsData){
+   if(m_IsData) {
 		
       sc = evtStore()->record( rdo_output, m_rdoOutputLoc_Rerun );
       if( sc.isFailure() ) {
@@ -1227,9 +1229,8 @@ LVL1CTP::CTPSimulation::execute() {
          ATH_MSG_DEBUG("Stored CTPSLink_Rerun object in StoreGate with key: " << m_roiOutputLoc_Rerun);
          ATH_MSG_DEBUG("Dump CTPSLink_Rerun object: " << roi_output->dump());
       }
-   }
-	
-   else if(!m_IsData){ //if this is MC
+
+   } else { //if this is MC
 		
       sc = evtStore()->record( rdo_output, m_rdoOutputLoc );
       if( sc.isFailure() ) {

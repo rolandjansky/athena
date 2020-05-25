@@ -168,12 +168,12 @@ for ros in xrange(1,5):
 
                     #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
                     if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
-                        mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                        mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
                     else:
                         #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
-                        mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
-                        mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
             else:
                 if copyall or (statlo.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 0).isBad()): 
                     mgr2.setAdcStatus(ros,mod,chn,0,statlo)
