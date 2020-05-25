@@ -78,7 +78,7 @@ class TGCDatabaseManager
   TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
   TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   TGCTileMuCoincidenceMap* m_mapTileMu;
-  std::shared_ptr<TGCNSWCoincidenceMap> m_mapNSW[NumberOfSide][NumberOfOctant][NumberOfModuleInBW];
+  std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
 

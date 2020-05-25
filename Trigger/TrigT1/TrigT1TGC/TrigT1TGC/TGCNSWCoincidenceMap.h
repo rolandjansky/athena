@@ -22,10 +22,7 @@ class TGCNSWCoincidenceMap {
 
 private:
   TGCNSWCoincidenceMap();// hide default constructor
-  enum {N_dEta=64};//6bit eta
-  enum {N_dPhi=16};//4bit phi
-  enum {N_Dtheta=32};//5bit phi
-  enum {N_PT_THRESH=15};
+  enum {N_dEta=64,N_dPhi=16,N_Dtheta=32,N_PT_THRESH=15};//6bit eta,4bit phi,5bit Dtheta, 4bit pT
   enum ReadCW_Type{EtaPhi_CW=0,EtaDtheta_CW};
   std::map<TGCRegionType,int> m_NumberOfEtaRaw={{ENDCAP,37},{FORWARD,16}};
   std::map<TGCRegionType,int> m_NumberOfRoI={{ENDCAP,148},{FORWARD,64}};
@@ -35,6 +32,8 @@ public:
 
   TGCNSWCoincidenceMap(TGCArguments* tgcargs,const std::string& version,int side,int oct,int mod);
   ~TGCNSWCoincidenceMap();
+
+  bool isForward( int module );
 
   int TGCNSW_pTcalcu_EtaPhi(const NSWTrigOut *nswOut, int RoI) const;
   int TGCNSW_pTcalcu_EtaDtheta(const NSWTrigOut *nswOut, int RoI) const;
@@ -71,9 +70,8 @@ private:
   TGCArguments* m_tgcArgs;
 
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  Athena::MsgStreamMember m_msg;
 
-  //RoI info
 
 
 };

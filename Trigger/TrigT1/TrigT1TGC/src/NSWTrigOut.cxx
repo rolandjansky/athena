@@ -53,7 +53,7 @@ NSWTrigOut::NSWTrigOut(const NSWTrigOut& right)
 
 
 /////////////////////////////////////////////////////////////
-NSWTrigOut& NSWTrigOut::operator=(const NSWTrigOut& right)
+const NSWTrigOut& NSWTrigOut::operator=(const NSWTrigOut& right)
 /////////////////////////////////////////////////////////////
 {
   if (this != &right) {

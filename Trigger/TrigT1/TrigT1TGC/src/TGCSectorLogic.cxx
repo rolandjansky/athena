@@ -597,9 +597,16 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
 
     //////// calculate pT //////
 
-    std::shared_ptr<const NSWTrigOut> pNSWOut=m_nsw->getOutput(m_region,m_sideId,m_sectorId);
-    pt_EtaPhi=m_mapNSW->TGCNSW_pTcalcu_EtaPhi(pNSWOut.get(),coincidenceOut->getRoI());
-    pt_EtaDtheta=m_mapNSW->TGCNSW_pTcalcu_EtaDtheta(pNSWOut.get(),coincidenceOut->getRoI());
+    std::shared_ptr<const NSWTrigOut> pNSWOut = m_nsw->getOutput(m_region,m_sideId,m_sectorId);
+    pt_EtaPhi = m_mapNSW->TGCNSW_pTcalcu_EtaPhi(
+						pNSWOut.get(),
+						coincidenceOut->getRoI()
+						);
+
+    pt_EtaDtheta = m_mapNSW->TGCNSW_pTcalcu_EtaDtheta(
+						      pNSWOut.get(),
+						      coincidenceOut->getRoI()
+						      );
     ///////  set flag  ////////
     if(pt_EtaPhi==0 && pt_EtaDtheta==0){
       coincidenceOut->setInnerCoincidenceFlag(false);

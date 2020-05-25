@@ -36,7 +36,7 @@ namespace LVL1TGCTrigger {
     if(!tgcArgs()->USE_NSW()){return;}
 
     std::string moduleName = std::to_string(mod);
-    if( mod==2 || mod==5 || mod==8 ){
+    if( isForward(mod)){
       m_region=TGCRegionType::FORWARD;
       m_sector  = m_module/3; 
       m_sector += 3*m_octant;
@@ -91,11 +91,15 @@ namespace LVL1TGCTrigger {
 
 
 
+  bool TGCNSWCoincidenceMap::isForward( int mod ){
+    return ( mod==2 || mod==5 || mod==8 );
+  }
+
   //TGC-NSW Eta-Phi Coincidence
   int TGCNSWCoincidenceMap::TGCNSW_pTcalcu_EtaPhi(const NSWTrigOut *nswOut,int roi) const
   {
-    std::vector<int> nswEta_vec=nswOut->GetNSWeta();
-    std::vector<int> nswPhi_vec=nswOut->GetNSWphi();
+    std::vector<int> nswEta_vec=nswOut->getNSWeta();
+    std::vector<int> nswPhi_vec=nswOut->getNSWphi();
     int highest_pT=0;
 
     for(unsigned int nswTrk_id=0;nswTrk_id!=nswEta_vec.size();nswTrk_id++){
@@ -116,8 +120,8 @@ namespace LVL1TGCTrigger {
   //TGC-NSW Eta-DeltaTheta Coincidence
    int TGCNSWCoincidenceMap::TGCNSW_pTcalcu_EtaDtheta(const NSWTrigOut *nswOut,int roi) const
   {
-    std::vector<int> nswEta_vec=nswOut->GetNSWeta();
-    std::vector<int> nswDtheta_vec=nswOut->GetNSWDtheta();
+    std::vector<int> nswEta_vec=nswOut->getNSWeta();
+    std::vector<int> nswDtheta_vec=nswOut->getNSWDtheta();
     int highest_pT=0;
 
     for(unsigned int nswTrk_id=0;nswTrk_id!=nswEta_vec.size();nswTrk_id++){

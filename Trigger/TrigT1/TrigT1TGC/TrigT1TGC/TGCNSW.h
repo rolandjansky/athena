@@ -31,10 +31,10 @@ public:
   virtual ~TGCNSW();
  
   TGCNSW(const TGCNSW& right);
-  TGCNSW& operator=(const TGCNSW& right);
-  int operator==(const TGCNSW& right) const
+  const TGCNSW& operator=(const TGCNSW& right);
+  bool operator==(const TGCNSW& right) const
   { return (this==&right); }
-  int operator!=(const TGCNSW& right) const
+  bool operator!=(const TGCNSW& right) const
   { return (this!=&right); }
 
   enum { NumberOfNSWTriggerProcesser = 16 };

@@ -21,7 +21,7 @@ namespace LVL1TGCTrigger {
  
 class NSWTrigOut {
 protected:
-  int            m_sideID=-1;     // 0:A-side 1:C-side
+  int            m_sideID;     // 0:A-side 1:C-side
   std::vector<int>            m_NSWTriggerProcessor;   // 0 ~ 15
   std::vector<int>            m_NSWeta_8bit;     //  0.005
   std::vector<int>            m_NSWphi_6bit;      // 10mrad
@@ -36,15 +36,15 @@ public:
  
   NSWTrigOut(const NSWTrigOut& right);
  
-  NSWTrigOut& operator=(const NSWTrigOut& right);
+  const NSWTrigOut& operator=(const NSWTrigOut& right);
   NSWTrigOut& operator+(const NSWTrigOut& right);
   NSWTrigOut& operator+=(const NSWTrigOut& right);
-  int operator==(const NSWTrigOut& right) const
+  bool operator==(const NSWTrigOut& right) const
   {
     return (this==&right);
   }
  
-  int operator!=(const NSWTrigOut& right) const
+  bool operator!=(const NSWTrigOut& right) const
   {
     return (this!=&right);
   }
@@ -52,19 +52,19 @@ public:
 
 
   // set functons
-  void SetSide(int side){ m_sideID = side; }
-  void SetNSWTriggerProcessor(int NSWTP){ m_NSWTriggerProcessor.push_back(NSWTP); }
-  void SetEta(int NSWeta){ m_NSWeta_8bit.push_back(NSWeta); }
-  void SetPhi(int NSWphi){ m_NSWphi_6bit.push_back(NSWphi); }
-  void SetDtheta(int NSWDtheta){ m_NSWDtheta_5bit.push_back(NSWDtheta); }
+  void setSide(int side){ m_sideID = side; }
+  void setNSWTriggerProcessor(int NSWTP){ m_NSWTriggerProcessor.push_back(NSWTP); }
+  void setEta(int NSWeta){ m_NSWeta_8bit.push_back(NSWeta); }
+  void setPhi(int NSWphi){ m_NSWphi_6bit.push_back(NSWphi); }
+  void setDtheta(int NSWDtheta){ m_NSWDtheta_5bit.push_back(NSWDtheta); }
   void clear() { m_sideID=-1;m_NSWTriggerProcessor.clear(); m_NSWeta_8bit.clear();  m_NSWphi_6bit.clear(); m_NSWDtheta_5bit.clear();}
 
   // get functions
-  int GetSide() const { return m_sideID; }
-  std::vector<int> GetNSWTriggerProcessor() const {return m_NSWTriggerProcessor; }
-  std::vector<int> GetNSWeta() const {return m_NSWeta_8bit; }
-  std::vector<int> GetNSWphi() const {return m_NSWphi_6bit; }
-  std::vector<int> GetNSWDtheta() const {return m_NSWDtheta_5bit; }
+  int getSide() const { return m_sideID; }
+  const std::vector<int>& getNSWTriggerProcessor() const {return m_NSWTriggerProcessor; }
+  const std::vector<int>& getNSWeta() const {return m_NSWeta_8bit; }
+  const std::vector<int>& getNSWphi() const {return m_NSWphi_6bit; }
+  const std::vector<int>& getNSWDtheta() const {return m_NSWDtheta_5bit; }
 
   // methods  
   void print() const;

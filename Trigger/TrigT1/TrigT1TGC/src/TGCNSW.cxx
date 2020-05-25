@@ -46,7 +46,7 @@ TGCNSW::TGCNSW(const TGCNSW& right){
 }
 
 
-TGCNSW& TGCNSW::operator=(const TGCNSW& right){
+const TGCNSW& TGCNSW::operator=(const TGCNSW& right){
   if (this != &right) {
     for(int  idx1=0; idx1<2; idx1++){
       for (int idx2=0; idx2<NumberOfNSWTriggerProcesser; idx2++){
@@ -109,13 +109,13 @@ std::shared_ptr<const NSWTrigOut> TGCNSW::getOutput(TGCRegionType region ,int si
 
 
 void  TGCNSW::setOutput(int side, int NSWTriggerProcesser, int NSWeta_8bit, int NSWphi_6bit, int NSWDtheta_5bit){
-  if ( (side<0)||(side>1) ) return;//side 1::Aside 0::Cside
+  if ( (side<0)||(side>1) ) return;//side 0::Aside 1::Cside
   if ( (NSWTriggerProcesser<0) || (NSWTriggerProcesser>=NumberOfNSWTriggerProcesser) ) return;
-  m_buffer[side][NSWTriggerProcesser]->SetSide(side);
-  m_buffer[side][NSWTriggerProcesser]->SetNSWTriggerProcessor(NSWTriggerProcesser);
-  m_buffer[side][NSWTriggerProcesser]->SetEta(NSWeta_8bit);
-  m_buffer[side][NSWTriggerProcesser]->SetPhi(NSWphi_6bit);
-  m_buffer[side][NSWTriggerProcesser]->SetDtheta(NSWDtheta_5bit);
+  m_buffer[side][NSWTriggerProcesser]->setSide(side);
+  m_buffer[side][NSWTriggerProcesser]->setNSWTriggerProcessor(NSWTriggerProcesser);
+  m_buffer[side][NSWTriggerProcesser]->setEta(NSWeta_8bit);
+  m_buffer[side][NSWTriggerProcesser]->setPhi(NSWphi_6bit);
+  m_buffer[side][NSWTriggerProcesser]->setDtheta(NSWDtheta_5bit);
 }
 
 void  TGCNSW::eraseOutput(){
