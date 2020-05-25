@@ -167,8 +167,8 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   // this if-block is here for backwards compatibility reasons
   if(readoutIndexGeo>-1) {
-    etaPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchEtaLong");
-    etaPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchEtaEnd");
+    etaPitchLong = getDouble("FrontEndChipGeo", readoutIndexGeo, "pitchEtaLong");
+    etaPitchEnd  = getDouble("FrontEndChipGeo", readoutIndexGeo, "pitchEtaEnd");
     emptyRows = getInt( "FrontEndChipGeo",readoutIndexGeo,"emptyRows");
     rowsPerChip = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
     readoutSide = getInt( "FrontEndChipGeo", readoutIndexGeo,"readoutSide");
