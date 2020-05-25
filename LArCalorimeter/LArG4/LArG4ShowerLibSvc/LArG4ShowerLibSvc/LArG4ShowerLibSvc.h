@@ -23,11 +23,6 @@ namespace ShowerLib {
   class ShowerLibStatistics;
 }
 
-class IAtRndmGenSvc;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
   /**
    *
@@ -75,10 +70,7 @@ private:
     std::map<std::string,int> m_detmap;
 
     StringArrayProperty      m_fileNameList;                          //!< property, list of library files
-    StringProperty           m_rndmEngineName;                        //!< property, name of athena RNG engine
     
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-    CLHEP::HepRandomEngine *m_rndmEngine;
 };
 
 #endif // G4SHOWERLIBSVC_G4SHOWERLIBSVC_H
