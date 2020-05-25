@@ -14,6 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Trk
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
@@ -759,12 +760,12 @@ VERBOSE : Method call sequence with values
     // unsigned int geoIDToDetOrder(Trk::GeometrySignature geoid) const;
 
     // --------------- Used Tools ----------------------------- //
-    ToolHandleArray<IPropagator> m_propagators;          //!<  Array of Propagators
-    ToolHandle<IPropagator> m_stepPropagator;            //!<  Array of Propagators
-    ToolHandle<INavigator> m_navigator;                  //!<  Navigator for TrackingGeometry and magnetic fiels acces
-    ToolHandleArray<IMaterialEffectsUpdator> m_updaters; //!<  Array of Material updaters
-    ToolHandleArray<IMultipleScatteringUpdator> m_msupdaters; //!<  Array of MultipleScattering updaters
-    ToolHandleArray<IEnergyLossUpdator> m_elossupdaters;      //!<  Array of EnergyLoss updaters
+    ToolHandleArray< IPropagator >              m_propagators{this, "Propagators", {}};                   //!<  Array of Propagators
+    ToolHandle< IPropagator >                   m_stepPropagator{this, "STEP_Propagator", "Trk::STEP_Propagator/AtlasSTEP_Propagator"};                //!<  Array of Propagators
+    ToolHandle< INavigator >                    m_navigator{this, "Navigator", "Trk::Navigator/AtlasNavigator"};                     //!<  Navigator for TrackingGeometry and magnetic fiels acces
+    ToolHandleArray< IMaterialEffectsUpdator >  m_updaters{this, "MaterialEffectsUpdators", {}};                      //!<  Array of Material updaters
+    ToolHandleArray< IMultipleScatteringUpdator >  m_msupdaters{this, "MultipleScatteringUpdators", {}};                 //!<  Array of MultipleScattering updaters
+    ToolHandleArray< IEnergyLossUpdator >       m_elossupdaters{this, "EnergyLossUpdators", {}};                 //!<  Array of EnergyLoss updaters
 
     // ---------------- For Extrapolation handling ------------ //
 

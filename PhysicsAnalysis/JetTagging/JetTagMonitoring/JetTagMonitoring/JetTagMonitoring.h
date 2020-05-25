@@ -24,6 +24,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "JetTagTools/TrackSelector.h"
 
 #include "xAODJet/Jet.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
@@ -36,9 +37,6 @@ class LWHist;
 
 namespace Trk {
   class VxCandidate;
-}
-namespace Analysis {
-  class TrackSelector;
 }
 
 /**
@@ -98,9 +96,9 @@ private:
     ServiceHandle<StoreGateSvc> m_storeGate;
 
 
-    ToolHandle< Analysis::TrackSelector > m_trackSelectorTool;
-    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-    ToolHandle< Trig::TrigDecisionTool > m_trigDecTool; // added by SARA
+    ToolHandle< Analysis::TrackSelector > m_trackSelectorTool{this, "TrackSelectorTool", "Analysis::TrackSelector"};
+    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
+    PublicToolHandle< Trig::TrigDecisionTool > m_trigDecTool{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; // added by SARA
     /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 
