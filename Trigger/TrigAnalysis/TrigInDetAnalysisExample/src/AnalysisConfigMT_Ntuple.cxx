@@ -235,77 +235,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	if ( requireDecision() ) decisiontype_ = TrigDefs::requireDecision;
 
 
-#if 0
-	/// stupid TDT debug
-	{
-	  std::cout << "SUTT status of all chains " << std::endl;
-	  std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
-	  
-	  m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endmsg;
-
-	  int npassed = 0;
-
-	  std::vector<std::string> passed;
-
-
-
-	  for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-
-	    std::string chainName = configuredChains[i];
-
-#if 0
-	    std::cout << "[91;1m" << "Chain " << configuredChains[i]
-		      << "\tpassed:     " <<   (*m_tdt)->isPassed(configuredChains[i], decisiontype_ )  << " ( type " << decisiontype_ << ") : "  
-		      << "\trequiredec: " <<   (*m_tdt)->isPassed(configuredChains[i], TrigDefs::requireDecision)  << "   (ACN)[m" << std::endl;
-#endif
-	    if ( (*m_tdt)->isPassed(configuredChains[i], decisiontype_ ) ) { 
-	      npassed++;
-	      passed.push_back(configuredChains[i]);
-	    }	  
-	  
-	    
-	    
-	    if ( chainName.find("_split")!=std::string::npos ) { 
-
-	      Trig::FeatureContainer f = (*m_tdt)->features( chainName );
-	      Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
-	      Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
-	      
-	      while ( comb!=combEnd ) { 
-		
-		std::string vnames[2] = { "xPrimVx", "EFHistoPrmVtx" };
-		
-		for ( unsigned iv=0 ; iv<2 ; iv++ ) { 
-		  std::vector< Trig::Feature<xAOD::VertexContainer> > fvtx = comb->get<xAOD::VertexContainer>( vnames[iv] );
-		  
-		  for ( unsigned ivt=0 ; ivt<fvtx.size() ; ivt++ ) { 
-		    
-		    const xAOD::VertexContainer* vert = fvtx[ivt].cptr();
-		      
-		    xAOD::VertexContainer::const_iterator vit = vert->begin();
-		    
-		    for ( ; vit != vert->end(); ++vit ) {
-		      std::cout << "\t" << vnames[iv] 
-				<< "\tx " << (*vit)->x() << "\ty " << (*vit)->y() << "\tz " << (*vit)->z() 
-				<< "\tntracks " <<  (*vit)->nTrackParticles()
-				<< std::endl;
-		    }
-		  }
-		}		
-		
-		comb++;
-	      }
-	    }	
-	  }
-	  
-       	}
-#endif
-
-
-
 	/// bomb out if no chains passed and not told to keep all events  
-
-
 
 	int passed_chains = 0;
 
@@ -632,7 +562,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	//	std::cout << "SUTT Nvertices " << vertices.size() << "\ttype 101 " << vertices_full.size() << std::endl;
 
 	for ( unsigned i=0 ; i<vertices.size() ; i++ )  { 
-	  m_provider->msg(MSG::INFO) << "vertex " << i << " " << vertices[i] << endmsg;
+	  m_provider->msg(MSG::DEBUG) << "vertex " << i << " " << vertices[i] << endmsg;
 	  m_event->addVertex(vertices[i]);
 	}
 	
