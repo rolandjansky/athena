@@ -9,7 +9,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Debugging import DbgStage
 
 import GaudiKernel.GaudiHandles as GaudiHandles
-
+import GaudiConfig2
 from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 
 import collections
@@ -34,7 +34,7 @@ def printProperties(msg, c, nestLevel = 0):
             continue
         propval=getattr(c,propname)
         # Ignore empty lists
-        if propval==[]:
+        if isinstance(propval,GaudiConfig2.semantics._ListHelper) and propval.data is None:
             continue
         # Printing EvtStore could be relevant for Views?
         if propname in ["DetStore","EvtStore"]:
