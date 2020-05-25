@@ -33,7 +33,7 @@ StatusCode MvaTESVariableDecorator::finalize() {
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
+StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   
   // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger

@@ -29,7 +29,7 @@ public:
     ~TauAxisSetter();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode finalize() override;
 
 private:

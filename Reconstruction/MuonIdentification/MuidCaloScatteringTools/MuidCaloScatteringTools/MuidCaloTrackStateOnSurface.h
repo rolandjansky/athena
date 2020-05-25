@@ -23,7 +23,8 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -90,9 +91,9 @@ private:
     ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
     ToolHandle<Rec::IMuidCaloMaterialParam>	m_caloMaterialParam;
     Trk::MagneticFieldProperties*		m_magFieldProperties;
-    ServiceHandle<MagField::IMagFieldSvc>       m_magFieldSvcHandle;
-    MagField::IMagFieldSvc*                     m_magFieldSvc;
     ToolHandle<Trk::IPropagator>		m_propagator;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
     // configurable cut-off values
     double					m_minCaloRadius;

@@ -7,6 +7,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "Identifier/Identifier.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
@@ -20,12 +21,13 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-#include <iostream>
-#include <fstream>
 #include "TTree.h"
+#include <TString.h> // for Form
 #include <string>
 #include <sstream>
 #include <map>
+#include <iostream>
+#include <fstream>
 
 using namespace MuonGM;
 
@@ -822,11 +824,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	continue;
       }
 
-      const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement() ;
-      if( !detEl ) {
-	ATH_MSG_WARNING(" no associated detectorElement!!! ");
-	continue;
-      }
+      const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement();
+      if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMDTPRDValAlg::analyseHits() - no associated detectorElement", __FILE__, __LINE__));
 
       // transform to global coords
       Amg::Vector3D simHitPosLoc(simHit->localPosition().x(), simHit->localPosition().y(), simHit->localPosition().z());

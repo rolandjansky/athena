@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 618909 2014-09-29 10:16:52Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <!-- All the dictionaries for xAOD::IParticle: -->
@@ -6,22 +6,7 @@
   <class name="xAOD::IParticleContainer" />
   <class name="std::vector<xAOD::IParticle*>" />
 
-  <!-- All smart pointer dictionaries for xAOD::IParticle -->
-  <class name="DataLink<xAOD::IParticleContainer>" />
-  <class name="std::vector<DataLink<xAOD::IParticleContainer> >" />
-
-  <class name="ElementLink<xAOD::IParticleContainer>" />
-  <class name="std::vector<ElementLink<xAOD::IParticleContainer> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >" />
-
   <!-- The helper functions: -->
   <function pattern="xAOD::*" />
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
 
 </lcgdict>

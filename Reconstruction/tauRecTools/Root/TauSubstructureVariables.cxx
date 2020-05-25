@@ -67,7 +67,7 @@ StatusCode TauSubstructureVariables::finalize() {
 // Execute method
 //************************************
 
-StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
+StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
 
 	const xAOD::Jet* taujetseed = (*pTau.jetLink());
     if (!taujetseed) {

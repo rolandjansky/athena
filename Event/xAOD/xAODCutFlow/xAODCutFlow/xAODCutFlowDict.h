@@ -18,4 +18,12 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODCUTFLOW {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CutBookkeeperContainer_v1 );
+   };
+}
+
 #endif // XAODCUTFLOW_XAODCUTFLOWDICT_H
