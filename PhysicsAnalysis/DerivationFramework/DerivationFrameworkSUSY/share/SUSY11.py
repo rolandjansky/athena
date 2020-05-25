@@ -158,7 +158,8 @@ reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
 addDefaultTrimmedJets(SeqSUSY11, "SUSY11")
 addVRJets(SeqSUSY11)
- 
+addVRJets(SeqSUSY1, training='201903')
+addVRJets(SeqSUSY1, do_ghost=True)
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 
@@ -186,8 +187,10 @@ SUSY11SlimmingHelper.SmartCollections = ["Electrons", "Photons", "MET_Reference_
                                          "BTagging_AntiKt4EMPFlow_201903",
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "BTagging_AntiKt4EMTopo_201810","PrimaryVertices", "TauJets",
+                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-SUSY11SlimmingHelper.AllVariables = [ "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810" ]
+SUSY11SlimmingHelper.AllVariables = [ "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810","AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903","BTagging_AntiKtVR30Rmax4Rmin02Track_201810","BTagging_AntiKtVR30Rmax4Rmin02Track_201903" ]
 SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                        "Electrons.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.TruthLink",
                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.TruthLink",
