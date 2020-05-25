@@ -262,20 +262,26 @@ class AthConfigFlags(object):
             f.get(self)
         return
 
-
-    def fillFromArgs(self,listOfArgs=None):
-        """
-
-        Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
-        """
-        import argparse,sys
+    # scripts calling AthConfigFlags.fillFromArgs can extend this parser, and pass their version to fillFromArgs
+    def getArgumentParser(self):
+        import argparse
         parser= argparse.ArgumentParser()
         parser.add_argument("-d","--debug",default=None,help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
         parser.add_argument("--evtMax",type=int,default=None,help="Max number of events to process")
         parser.add_argument("--skipEvents",type=int,default=None,help="Number of events to skip")
         parser.add_argument("--filesInput",default=None,help="Input file(s)")
         parser.add_argument("-l", "--loglevel",default=None,help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
+        return parser
 
+    # parser argument must be an ArgumentParser returned from getArgumentParser()
+    def fillFromArgs(self,listOfArgs=None,parser=None):
+        """
+
+        Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
+        """
+        import sys
+        if parser is None:
+            parser = self.getArgumentParser()
         (args,leftover)=parser.parse_known_args(listOfArgs or sys.argv[1:])
 
         #First, handle athena.py-like arguments:
