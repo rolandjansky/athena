@@ -1011,12 +1011,12 @@ def appendCAtoAthena(ca):
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():
-                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre ) )
+                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
             if findSubSequence( pre, seq.name ):
-                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre ) )
+                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
