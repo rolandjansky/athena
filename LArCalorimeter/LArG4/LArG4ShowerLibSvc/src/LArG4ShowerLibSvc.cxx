@@ -105,7 +105,9 @@ StatusCode LArG4ShowerLibSvc::initialize()
     libmap::const_iterator it;
     for(it = m_libraryMap.begin();it != m_libraryMap.end(); it++) {
       ATH_MSG_INFO("      " << m_locations[(*it).first] << ": " << (*it).second->comment());
+#ifdef DEBUG_FrozenShowers
       m_statisticsMap[(*it).second] = (*it).second->createStatistics();
+#endif
     }
   }
 
@@ -139,7 +141,7 @@ StatusCode LArG4ShowerLibSvc::finalize()
  * Returns library from internal map based on the particle. Returns nullptr if there
  * is no library for needed particle/detector.
  */
-const ShowerLib::IShowerLib* LArG4ShowerLibSvc::getShowerLib(G4int particleCode, int detectorTag)
+const ShowerLib::IShowerLib* LArG4ShowerLibSvc::getShowerLib(G4int particleCode, int detectorTag) const
 {
   int location;
 
@@ -166,8 +168,14 @@ LArG4ShowerLibSvc::checkLibrary(G4int particleCode, int detectorTag)
  * Returns a shower based on the particle. Return empty shower if there is no
  * appropriate showers in the libraries.
  */
+
+#ifdef DEBUG_FrozenShowers
 std::vector<EnergySpot>
 LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
+#else
+std::vector<EnergySpot>
+LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag) const
+#endif
 {
   // get shower lib from the map
   const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
@@ -185,7 +193,12 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
   int randomShift = 0;
   randomShift = (int)(CLHEP::RandGauss::shoot(G4Random::getTheEngine(), 0., 2.5)+0.5);
 
+#ifdef DEBUG_FrozenShowers
   std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), m_statisticsMap[library], randomShift);
+#else
+  std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), nullptr, randomShift);
+#endif
+
 
   if (shower == nullptr) {
     return std::vector<EnergySpot>();

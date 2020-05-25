@@ -52,15 +52,18 @@ public:
     virtual bool                    checkLibrary(G4int particleCode, int detectorTag);
 
     //! return list of energy depositions for given track (interface implementation)
+#ifdef DEBUG_FrozenShowers
     virtual std::vector<EnergySpot> getShower(const G4FastTrack& track, int detectorTag);
-
+#else
+    virtual std::vector<EnergySpot> getShower(const G4FastTrack& track, int detectorTag) const;
+#endif
     virtual double                  getContainmentZ(const G4FastTrack& track, int detectorTag);
     virtual double                  getContainmentR(const G4FastTrack& track, int detectorTag);
 
 private:
 
     //! get shower library from StoreGate by track (using current volume name)
-    const ShowerLib::IShowerLib* getShowerLib(G4int particleCode, int detectorTag);
+    const ShowerLib::IShowerLib* getShowerLib(G4int particleCode, int detectorTag) const;
 
     typedef std::map<int, const ShowerLib::IShowerLib*> libmap;
     libmap m_libraryMap;                                              //!< mapping StoreGate key to handle in StoreGate
