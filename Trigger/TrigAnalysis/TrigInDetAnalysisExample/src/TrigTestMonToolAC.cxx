@@ -126,8 +126,6 @@ StatusCode TrigTestMonToolAC::init() {
 
   msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << " " << __DATE__ << endmsg;
 
-  std::cout << "SUTT TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << " " << __DATE__ << std::endl;
-  
   // roi width information
   //  m_roiInfo.etaHalfWidth(m_etaWidth);
   //  m_roiInfo.phiHalfWidth(m_phiWidth);
@@ -135,17 +133,11 @@ StatusCode TrigTestMonToolAC::init() {
   
   if ( m_buildNtuple ) { 
     if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
-
-      std::cout << "\n\nSUTT creating AnalysisConfig_Ntuple() COCK !!!\n\n" << std::endl;  
-
       m_sequences.push_back( new AnalysisConfig_Ntuple( &m_roiInfo, m_ntupleChainNames, 
 							m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 							m_keepAllEvents ) );
     }
     else { 
-
-      std::cout << "\n\nSUTT creating AnalysisConfigMT_Ntuple()\n\n" << std::endl;  
-
       m_sequences.push_back( new AnalysisConfigMT_Ntuple( &m_roiInfo, m_ntupleChainNames, 
 							  m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 							  m_keepAllEvents ) );
@@ -184,7 +176,7 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
   bool newRun         = newRunFlag();
 #endif
 
-  msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
+  msg(MSG::DEBUG) << "TrigTestMonToolAC::book() buildNtuple " << m_buildNtuple 
 		  << "\tNewEventBlock " << newEventsBlock 
 		  << "\tNewLumiBlock "  << newLumiBlock 
 		  << "\tNewRun "        << newRun  <<  std::endl;
