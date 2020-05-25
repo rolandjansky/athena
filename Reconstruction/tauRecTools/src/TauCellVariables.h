@@ -32,7 +32,7 @@ class TauCellVariables : public TauRecToolBase {
     virtual StatusCode finalize() override;
 
     /** @brief Perform the calculation of cell variables for each tau candidate */
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
   private:
     
