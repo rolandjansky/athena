@@ -70,6 +70,10 @@ StatusCode JetHistoSelectSort::processJetContainer(const JetMonitoringAlg& paren
     tmpList.remove_if( sel );
   }
 
+  if(m_eventSelTool.isEnabled()){
+    auto eventInfo = parentAlg.GetEventInfo(ctx);
+    if ( ! m_eventSelTool->keep(*eventInfo) ) tmpList.clear();
+  }
 
 
   ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
