@@ -17,7 +17,8 @@ Jamie Boyd 21 Jan 2008 (Jamie.Boyd@cern.ch)
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include <string>
 #include <vector>
@@ -85,7 +86,8 @@ class RawInfoSummaryForTagWriter : public AthAlgorithm
        
   //coral::AttributeListSpecification* m_attribListSpec;
 
-  ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 };
 
 #endif

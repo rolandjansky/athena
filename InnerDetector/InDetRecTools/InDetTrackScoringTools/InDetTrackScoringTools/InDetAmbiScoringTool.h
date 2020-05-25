@@ -20,6 +20,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include <vector>
 #include <string>
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -30,10 +33,6 @@ namespace Trk {
   class Track;
   class TrackSummary;
 
-}
-
-namespace MagField {
-  class IMagFieldSvc;
 }
 
 namespace InDet {
@@ -85,7 +84,9 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   ToolHandle<Trk::IExtrapolator>         m_extrapolator;
-  ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   
   /** use the scoring tuned to Ambiguity processing or not */
