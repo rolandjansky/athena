@@ -26,7 +26,7 @@ def memoize(f):
     memo = {}
     def helper(*x):
         tupledx = tuple(x)
-        if tupledx not in memo:            
+        if tupledx not in memo:
             memo[tupledx] = f(*x)
         return memo[tupledx]
     return helper
@@ -55,7 +55,7 @@ def generateDecisionTree(chains):
         getFiltersStepSeq( stepNumber ) # make sure there is filters step before recos
         name = 'Step{}{}'.format(stepNumber, CFNaming.RECO_POSTFIX)
         seq = parOR( name )
-        acc.addSequence( parOR( name ), parentName = mainSequenceName )
+        acc.addSequence( seq, parentName = mainSequenceName )
         return seq
 
     @memoize
@@ -63,9 +63,9 @@ def generateDecisionTree(chains):
         """
         """
         name = "Menu{}{}".format(stepNumber, stepName)
-        seq = parOR( name )
+        seq = seqAND( name )
         allRecoSeqName = getRecosStepSeq( stepNumber ).name        
-        acc.addSequence( seqAND( name ), parentName = allRecoSeqName )
+        acc.addSequence(seq, parentName = allRecoSeqName )
         return seq
 
     
@@ -95,11 +95,8 @@ def generateDecisionTree(chains):
     @memoize 
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
-        print("HERE "+seq.name)
-        algs = findAllAlgorithms( seq )
-        print("HERE "+str(len(algs)))
-        for alg in algs:
-            print("HERE"+alg.name)
+        algs = findAllAlgorithms( seq )        
+        for alg in algs:        
             if isInputMakerBase(alg):
                 return alg
         raise "No input maker in seq "+seq.name
@@ -109,7 +106,6 @@ def generateDecisionTree(chains):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
         for alg in algs:
-            print("HERE"+alg.name)
             if isHypoBase(alg):
                 return alg
         raise "No hypo alg in seq "+seq.name
@@ -131,18 +127,19 @@ def generateDecisionTree(chains):
                 filterAlg = getFilterAlg(stepCounter, step.name)
                 addIfNotThere( filterAlg.Chains, chain.name )
                 if stepCounter == 1:
-                    addIfNotThere( filterAlg.Input, chain.L1decisions )
+                    addIfNotThere( filterAlg.Input, chain.L1decisions[0] )
                 else: # looks to the previous step
-                    hypoOutput = findSingleRecoSeqOutput( chain.steps[chainCounter-1] )
+                    hypoOutput = findSingleRecoSeqOutput( chain.steps[stepCounter-1] )
                     addIfNotThere( filterAlg.Input, hypoOutput )
                     
                 im = findInputMaker( stepCounter, step.name )
                 for i in filterAlg.Input:
-                    filterOutputName = CFNaming.filterOutName( i )
-                    addIfNotThere( filterAlg.Ouput, filterOutName )
-                    addIfNotThere( im.InputMakerInpuDecisions,  filterOutName )
+                    print( str(filterAlg.name) +" "+ str(i))
+                    filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
+                    addIfNotThere( filterAlg.Output, filterOutputName )
+                    addIfNotThere( im.InputMakerInputDecisions,  filterOutputName )
                     
-                hypoAlg = findHypo( stepConter, step )
+                hypoAlg = findHypoAlg( stepConter, step )
                 for i in im.InputMakerInpuDecisions:
                     imOutputName = CFNaming.inputMakerOutName( im.name, i )
                     addIfNotThere( hypoAlg.InputDecisions, imOutputName )
@@ -154,7 +151,7 @@ def generateDecisionTree(chains):
                             
     acc.printConfig()
 
-    kaboom
+    #kaboom
     return acc
 
 
