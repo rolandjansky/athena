@@ -174,57 +174,64 @@ VERBOSE : Method call sequence with values
       - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
       */
 
-    virtual const NeutralParameters* extrapolate(const NeutralParameters& parameters,
-                                                 const Surface& sf,
-                                                 PropDirection dir = anyDirection,
-                                                 const BoundaryCheck& bcheck = true) const override final;
+    virtual const NeutralParameters* extrapolate(
+      const NeutralParameters& parameters,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true) const override final;
 
     /**  1) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual const TrackParameters* extrapolate(const TrackParameters& parm,
-                                               const Surface& sf,
-                                               PropDirection dir=anyDirection,
-                                               const BoundaryCheck&  bcheck = true,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise,
-                                               Trk::ExtrapolationCache* cache = nullptr) const override final;
+    virtual const TrackParameters* extrapolate(
+      const TrackParameters& parm,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise,
+      Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** 2) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual TrackParametersUVector extrapolateStepwise(const TrackParameters& parm,
-                                                       const Surface& sf,
-                                                       PropDirection dir = anyDirection,
-                                                       const BoundaryCheck& bcheck = true,
-                                                       ParticleHypothesis particle = pion) const override final;
+    virtual TrackParametersUVector extrapolateStepwise(
+      const TrackParameters& parm,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion) const override final;
 
     /** 3) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual const TrackParameters* extrapolate(const Track& trk,
-                                               const Surface& sf,
-                                               PropDirection dir = anyDirection,
-                                               const BoundaryCheck& bcheck = true,
-                                               ParticleHypothesis particle = pion,
-                                               MaterialUpdateMode matupmode = addNoise,
-                                               Trk::ExtrapolationCache* cache = nullptr) const override final;
+    virtual const TrackParameters* extrapolate(
+      const Track& trk,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise,
+      Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** 4) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual TrackParameters* extrapolateDirectly(const TrackParameters& parm,
-                                                 const Surface& sf,
-                                                 PropDirection dir = anyDirection,
-                                                 const BoundaryCheck& bcheck = true,
-                                                 ParticleHypothesis particle = pion) const override final;
-    /** 4.1) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual TrackParameters* extrapolateDirectly(const IPropagator& prop,
-                                                 const TrackParameters& parm,
-                                                 const Surface& sf,
-                                                 PropDirection dir = anyDirection,
-                                                 const BoundaryCheck& bcheck = true,
-                                                 ParticleHypothesis particle = pion) const override final;
+    virtual TrackParameters* extrapolateDirectly(
+      const TrackParameters& parm,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion) const override final;
 
+    /** 4.1) <b>Configured AlgTool extrapolation method</b>):*/
+    virtual TrackParameters* extrapolateDirectly(
+      const IPropagator& prop,
+      const TrackParameters& parm,
+      const Surface& sf,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion) const override final;
 
     /** 5) <b>Configured AlgTool extrapolation method</b>):*/
-    virtual TrackParametersUVector extrapolateBlindly(const TrackParameters& parm,
-                                                      PropDirection dir = anyDirection,
-                                                      const BoundaryCheck& bcheck = true,
-                                                      ParticleHypothesis particle = pion,
-                                                      const Volume* boundaryVol = nullptr) const override final;
+    virtual TrackParametersUVector extrapolateBlindly(
+      const TrackParameters& parm,
+      PropDirection dir = anyDirection,
+      const BoundaryCheck& bcheck = true,
+      ParticleHypothesis particle = pion,
+      const Volume* boundaryVol = nullptr) const override final;
 
     /** 6) <b>Configured AlgTool extrapolation method</b> ):*/
     virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayer(
@@ -243,57 +250,53 @@ VERBOSE : Method call sequence with values
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise) const override final;
 
-    /**  8) <b>Configured AlgTool extrapolation method</b> ):*/
-    virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextStation(
+    /** 8) <b>Configured AlgTool extrapolation method</b> ):*/
+    virtual const TrackParameters* extrapolateToVolume(
       const TrackParameters& parm,
+      const Trk::TrackingVolume& vol,
       PropDirection dir = anyDirection,
-      const BoundaryCheck& bcheck = true,
-      ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final;
+      ParticleHypothesis particle = pion) const override final;
 
-    /** 9) <b>Configured AlgTool extrapolation method</b> ):*/
-    virtual const TrackParameters* extrapolateToVolume(const TrackParameters& parm,
-                                                       const Trk::TrackingVolume& vol,
-                                                       PropDirection dir = anyDirection,
-                                                       ParticleHypothesis particle = pion) const override final;
-
-    /** 10) <b>Configured AlgTool extrapolation method</b>:
+    /** 9) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers in between.
       */
-    virtual std::vector<const TrackStateOnSurface*>* extrapolateM(const TrackParameters& parameters,
-                                                                  const Surface& sf,
-                                                                  PropDirection dir,
-                                                                  const BoundaryCheck&  bcheck,
-                                                                  ParticleHypothesis particle=pion,
-                                                                  Trk::ExtrapolationCache* cache = nullptr) const override final;
+    virtual std::vector<const TrackStateOnSurface*>* extrapolateM(
+      const TrackParameters& parameters,
+      const Surface& sf,
+      PropDirection dir,
+      const BoundaryCheck& bcheck,
+      ParticleHypothesis particle = pion,
+      Trk::ExtrapolationCache* cache = nullptr) const override final;
 
-    /** 11) <b>Configured AlgTool extrapolation method</b>:
+    /** 10) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in
       between.
       */
-    virtual std::vector<const TrackParameters*>* extrapolateM(const TrackParameters& parameters,
-                                                              const Surface& sf,
-                                                              PropDirection dir,
-                                                              const BoundaryCheck&  bcheck,
-                                                              std::vector<MaterialEffectsOnTrack>& material,
-                                                              std::vector<Trk::TransportJacobian *>& jacs,
-                                                              ParticleHypothesis particle=pion,
-                                                              Trk::ExtrapolationCache* cache = nullptr) const override final;
+    virtual std::vector<const TrackParameters*>* extrapolateM(
+      const TrackParameters& parameters,
+      const Surface& sf,
+      PropDirection dir,
+      const BoundaryCheck& bcheck,
+      std::vector<MaterialEffectsOnTrack>& material,
+      std::vector<Trk::TransportJacobian*>& jacs,
+      ParticleHypothesis particle = pion,
+      Trk::ExtrapolationCache* cache = nullptr) const override final;
 
-    virtual const Trk::TrackParameters*  extrapolateWithPathLimit(
-                                                                  const Trk::TrackParameters& parm,
-                                                                  double& pathLim,
-                                                                  Trk::PropDirection dir,
-                                                                  Trk::ParticleHypothesis particle,
-                                                                  std::vector<const Trk::TrackParameters*>*& parmOnSf,
-                                                                  std::vector<const Trk::TrackStateOnSurface*>*& material,
-                                                                  const Trk::TrackingVolume* boundaryVol=nullptr,
-                                                                  MaterialUpdateMode matupmod=Trk::addNoise) const override final;
+    virtual const Trk::TrackParameters* extrapolateWithPathLimit(
+      const Trk::TrackParameters& parm,
+      double& pathLim,
+      Trk::PropDirection dir,
+      Trk::ParticleHypothesis particle,
+      std::vector<const Trk::TrackParameters*>*& parmOnSf,
+      std::vector<const Trk::TrackStateOnSurface*>*& material,
+      const Trk::TrackingVolume* boundaryVol = nullptr,
+      MaterialUpdateMode matupmod = Trk::addNoise) const override final;
 
-    /** extrapolation method collecting intersections with subdetector boundaries and active volumes/layers.
-      A primitive identification is provided - to be replaced with appropriate identifier, and possibly merged
-      with TrackParameters. Material collection in option. Destination (subdetector boundary) : geoID (+ entry, -exit)
-      ( default MS exit )
+    /** extrapolation method collecting intersections with subdetector
+      boundaries and active volumes/layers. A primitive identification is
+      provided - to be replaced with appropriate identifier, and possibly merged
+      with TrackParameters. Material collection in option. Destination
+      (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
       */
     virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>* extrapolate(
       const Trk::TrackParameters& parm,
@@ -448,7 +451,7 @@ VERBOSE : Method call sequence with values
 
 
     /** Actual heavy lifting implementation for  
-     * C 1) <b>Configured AlgTool extrapolation method</b>):
+     * 1) <b>Configured AlgTool extrapolation method</b>):
      * */
     virtual ManagedTrackParmPtr extrapolateImpl(Cache& cache,
                                                 TrackParmPtr parm,
@@ -460,7 +463,7 @@ VERBOSE : Method call sequence with values
                                                 Trk::ExtrapolationCache* extrapolationCache = nullptr) const;
 
     /** Actual heavy lifting implementation for
-     * C 4) <b>Configured AlgTool extrapolation method</b>):*/
+     * 4) <b>Configured AlgTool extrapolation method</b>):*/
     TrackParameters* extrapolateDirectlyImpl(const IPropagator& prop,
                                              const TrackParameters& parm,
                                              const Surface& sf,
@@ -469,7 +472,7 @@ VERBOSE : Method call sequence with values
                                              ParticleHypothesis particle = pion) const;
 
     /** Actual heavy lifting implementation for
-     * C 5) <b>Configured AlgTool extrapolation method</b>):*/
+     * 5) <b>Configured AlgTool extrapolation method</b>):*/
     Trk::TrackParametersUVector extrapolateBlindlyImpl(Cache& cache,
                                                        const IPropagator &prop, 
                                                        TrackParmPtr parm,
@@ -480,7 +483,7 @@ VERBOSE : Method call sequence with values
 
 
     /** Actual heavy lifting implementation for  
-     * C 6) <b>Configured AlgTool extrapolation method</b>):*/
+     * 6) <b>Configured AlgTool extrapolation method</b>):*/
     std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerImpl(
       const IPropagator& prop,
       const TrackParameters& parm,
@@ -490,7 +493,7 @@ VERBOSE : Method call sequence with values
       MaterialUpdateMode matupmode = addNoise) const;
 
     /** Actual heavy lifting implementation for
-     * C 7) <b>Configured AlgTool extrapolation method</b>
+     * 7) <b>Configured AlgTool extrapolation method</b>
      */
     std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerMImpl(
       const IPropagator& prop,
@@ -501,19 +504,8 @@ VERBOSE : Method call sequence with values
       ParticleHypothesis particle = pion,
       MaterialUpdateMode matupmode = addNoise) const;
 
-    /** Actual heavy lifting implementation for
-     * C 9) <b>Configured AlgTool extrapolation method</b>
-     */
-    std::pair<const TrackParameters*, const Layer*> extrapolateToNextStationImpl(
-      const IPropagator& prop,
-      const TrackParameters& parm,
-      PropDirection dir,
-      const BoundaryCheck& bcheck,
-      ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const;
-
-    /** Actual heavy lifting implementation for
-     * C 10) <b>Configured AlgTool extrapolation method</b>
+   /** Actual heavy lifting implementation for
+     * 8) <b>Configured AlgTool extrapolation method</b>
      */
     const TrackParameters* extrapolateToVolumeImpl(const IPropagator& prop,
                                                    const TrackParameters& parm,
@@ -870,15 +862,21 @@ inline const TrackingGeometry* Extrapolator::trackingGeometry() const
 
 inline const IPropagator* Extrapolator::subPropagator(const Trk::TrackingVolume& tvol) const
 {
-  const IPropagator* currentPropagator = (tvol.geometrySignature() < m_subPropagators.size()) ?
-    m_subPropagators[tvol.geometrySignature()] : nullptr;
+  const IPropagator* currentPropagator =
+    (tvol.geometrySignature() < m_subPropagators.size())
+      ? m_subPropagators[tvol.geometrySignature()]
+      : nullptr;
 
-  if (tvol.geometrySignature()==Trk::Calo && m_useDenseVolumeDescription) currentPropagator= (Trk::MS < m_subPropagators.size()) ?
-    m_subPropagators[Trk::MS] : nullptr; 
-
-  if (!currentPropagator)
-    msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
-  return currentPropagator;         
+  if (tvol.geometrySignature() == Trk::Calo && m_useDenseVolumeDescription) {
+    currentPropagator =
+      (Trk::MS < m_subPropagators.size()) ? m_subPropagators[Trk::MS] : nullptr;
+  }
+  if (!currentPropagator) {
+    ATH_MSG_ERROR(
+      "[!] Configuration problem: no Propagator found for volumeSignature: "
+      << tvol.geometrySignature());
+  }
+  return currentPropagator;
 }
 
 inline const IMaterialEffectsUpdator* Extrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
