@@ -126,7 +126,7 @@ namespace Trk {
         particularly designed for accessing a more detailed reason for
         failed fits, which otherwise are indicated only by the returned
         NULL pointer. */
-    virtual Trk::FitterStatusCode statusCodeOfLastFit() const;
+    virtual Trk::FitterStatusCode statusCodeOfLastFit() const override;
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
