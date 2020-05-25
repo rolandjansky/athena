@@ -26,7 +26,7 @@ def getBJetSequence():
 
 def bJetStep2Sequence():
     prmVtxKey = "HLT_EFHistoPrmVtx"
-    outputRoIName = "HLT_Roi_bJetTagging"
+    outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from ViewAlgs.ViewAlgsConf import ViewCreatorCentredOnJetWithPVConstraintROITool

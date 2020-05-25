@@ -352,7 +352,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_PreselAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # bjet RoI Descriptor used for EventView creation
-    ('TrigRoiDescriptorCollection#HLT_Roi_bJetTagging',                   'BS ESD AODFULL', 'Bjet'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_Bjet',                   'BS ESD AODFULL', 'Bjet'),
 
     # bjet Second Stage Fast tracks 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_FTF',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
