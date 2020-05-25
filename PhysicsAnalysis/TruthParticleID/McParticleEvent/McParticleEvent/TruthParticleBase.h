@@ -53,7 +53,7 @@ class TruthParticleBase
 
   /** Constructor with parameters: 
    */
-  TruthParticleBase( const HepMC::GenParticlePtr mc );
+  TruthParticleBase( const HepMC::GenParticle* mc );
 
   /** Destructor: 
    */
