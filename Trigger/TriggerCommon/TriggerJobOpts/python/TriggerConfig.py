@@ -53,7 +53,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.info("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
