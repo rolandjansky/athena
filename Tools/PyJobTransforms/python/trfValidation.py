@@ -292,7 +292,7 @@ class athenaLogFileReport(logFileReport):
                         msg.warning('Detected CoreDumpSvc report - activating core dump svc grabber')
                         self.coreDumpSvcParser(myGen, line, lineCounter)
                         continue
-                    # Add the G4 exceptipon parsers
+                    # Add the G4 exception parsers
                     if 'G4Exception-START' in line > -1:
                         msg.warning('Detected G4 exception report - activating G4 exception grabber')
                         self.g4ExceptionParser(myGen, line, lineCounter, 40)
@@ -488,7 +488,7 @@ class athenaLogFileReport(logFileReport):
                     msg.warning('G4 exception closing string not found within {0} log lines of line {1}'.format(g4lines, firstLineCount))
                     break
 
-        # G4 exceptions can be fatal or they can be warnings...
+        # G4 exceptions can be errors or they can be warnings...
         msg.debug('Identified G4 exception - adding to error detail report')
         if "just a warning" in g4Report:
             if self._levelCounter['WARNING'] <= self._msgLimit:
@@ -497,8 +497,8 @@ class athenaLogFileReport(logFileReport):
             elif self._levelCounter['WARNING'] == self._msgLimit + 1:
                 msg.warning("Found message number {0} at level WARNING - this and further messages will be supressed from the report".format(self._levelCounter['WARNING']))
         else:
-            self._levelCounter['FATAL'] += 1
-            self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            self._levelCounter['ERROR'] += 1
+            self._errorDetails['ERROR'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
 
     def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount, g4ExceptionLineDepth):
         g4Report = firstline
@@ -513,7 +513,7 @@ class athenaLogFileReport(logFileReport):
                 msg.warning('G4 exception closing string not found within {0} log lines of line {1}'.format(g4lines, firstLineCount))
                 break
 
-        # G4 exceptions can be fatal or they can be warnings...
+        # G4 exceptions can be errors or they can be warnings...
         msg.debug('Identified G4 exception - adding to error detail report')
         if "-------- WWWW -------" in g4Report:
             if self._levelCounter['WARNING'] <= self._msgLimit:
@@ -522,8 +522,8 @@ class athenaLogFileReport(logFileReport):
             elif self._levelCounter['WARNING'] == self._msgLimit + 1:
                 msg.warning("Found message number {0} at level WARNING - this and further messages will be supressed from the report".format(self._levelCounter['WARNING'])) 
         else:
-            self._levelCounter['FATAL'] += 1
-            self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            self._levelCounter['ERROR'] += 1
+            self._errorDetails['ERROR'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
 
     def pythonExceptionParser(self, lineGenerator, firstline, firstLineCount):
         pythonExceptionReport = ""

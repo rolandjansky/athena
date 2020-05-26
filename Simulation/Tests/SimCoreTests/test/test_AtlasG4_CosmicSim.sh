@@ -30,6 +30,6 @@ echo  "art-result: $? simulation"
 ArtPackage=$1
 ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid ${ArtPackage} ${ArtJobName}
+art.py compare grid ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"

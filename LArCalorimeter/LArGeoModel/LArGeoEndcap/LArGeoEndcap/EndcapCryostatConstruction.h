@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,18 +31,18 @@ namespace LArGeo {
   /** @class LArGeo::EndcapCryostatConstruction
       @brief Description of the LAr End Cap cryostat, including MBTS description
    */
-  class EndcapCryostatConstruction 
+  class EndcapCryostatConstruction
     {
     public:
-    
-    EndcapCryostatConstruction(bool fullGeo);
+
+    EndcapCryostatConstruction(bool fullGeo, bool activateFT = false);
     virtual ~EndcapCryostatConstruction();
-    
+
     // Get the envelope containing one endcap (pos/neg)
     GeoFullPhysVol*     createEnvelope(bool bPos);
 
     virtual GeoVPhysVol* GetEnvelope() {return 0;};
-    
+
 
     // Set a vis limit for the FCAL
     void setFCALVisLimit(int limit) {m_fcalVisLimit=limit;}
@@ -59,8 +59,9 @@ namespace LArGeo {
     EMECConstruction          m_emec;
     HEC2WheelConstruction     m_hec2;
     FCALConstruction*         m_fcal;
-    
+
     bool                      m_fullGeo;  // true->FULL, false->RECO
+    bool m_activateFT;
 
     friend class ::LArDetectorToolNV;
 
