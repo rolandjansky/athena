@@ -4,6 +4,7 @@ from collections import defaultdict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeSummary
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
     stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
@@ -86,16 +87,7 @@ def generateDecisionTree(chains):
                              
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
-
-            
-    def addIfNotThere( prop, toadd ):
-        if toadd not in prop:
-            prop.append( toadd )
-
-    def setOrCheckIfTheSame( prop, toadd ):
-        if prop is not toadd:
-            prop = toadd
-
+                    
     @memoize 
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
@@ -103,7 +95,7 @@ def generateDecisionTree(chains):
         for alg in algs:        
             if isInputMakerBase(alg):
                 return alg
-        raise "No input maker in seq "+seq.name
+        raise Exception("No input maker in seq "+seq.name)
 
     @memoize
     def findHypoAlg( stepCounter, stepName ):
@@ -112,57 +104,72 @@ def generateDecisionTree(chains):
         for alg in algs:
             if isHypoBase(alg):
                 return alg
-        raise "No hypo alg in seq "+seq.name
-
-    @memoize
-    def findSingleRecoSeqOutput( chainStep ):
-        for sequence in chainStep.sequences:
-            for output in sequence.getOutputList():
-                return output 
+        raise Exception("No hypo alg in seq "+seq.name)
         
+    def addIfNotThere( prop, toadd, context="" ):
+        if toadd not in prop:
+            log.info("{} adding value {} to property".format(context, toadd))
+            prop.append( toadd )
+        else:
+            log.info("{} value {} already there".format(context, toadd))
 
-    
-    #create all sequences and filter algs, add Hypo algs and tools (decision CF)
+    def setOrCheckIfTheSame( prop, toadd, context):
+        if prop == "":
+            prop = toadd
+        if prop != toadd:
+            raise Exception("{}, when setting property found conflicting values, existing {} and new {}".format(context, prop, toadd))
+
+
+    #create all sequences and filter algs, merge CAs from signatures (decision CF)
     for chain in chains:
         for stepCounter, step in enumerate(chain.steps, 1):
             for sequence in step.sequences:
                 getFilterAlg(stepCounter, step.name)
                 recoSeqName = getSingleMenuSeq(stepCounter, step.name).name
                 acc.merge( sequence.ca, sequenceName=recoSeqName )
-    acc.printConfig()
-                
+
+    # cleanup settings made by Chain object (will be removed in the future)
+    for chain in chains:
+        for stepCounter, step in enumerate(chain.steps, 1):
+            hypoAlg = findHypoAlg( stepCounter, step.name )
+            hypoAlg.HypoInputDecisions  = ""
+            hypoAlg.HypoOutputDecisions = ""
+
     # connect all outputs (decision DF)
     for chain in chains:
         for stepCounter, step in enumerate(chain.steps, 1):
             for sequence in step.sequences:
                 filterAlg = getFilterAlg(stepCounter, step.name)
-                addIfNotThere( filterAlg.Chains, chain.name )
+                addIfNotThere( filterAlg.Chains, chain.name, "{} filter alg chains".format(filterAlg.name) )
                 if stepCounter == 1:
-                    addIfNotThere( filterAlg.Input, chain.L1decisions[0] )
-                else: # looks to the previous step
-                    hypoOutput = findSingleRecoSeqOutput( chain.steps[stepCounter-1] )
-                    addIfNotThere( filterAlg.Input, hypoOutput )
+                    addIfNotThere( filterAlg.Input, chain.L1decisions[0], "{} L1 input".format(filterAlg.name) )
+                else: # look into the previous step, index -2 is because we count steps from 1
+                    hypoOutput = findHypoAlg( stepCounter-1, chain.steps[chain.steps.index(step)-1].name ).HypoOutputDecisions
+                    addIfNotThere( filterAlg.Input, hypoOutput, "{} input".format(filterAlg.name) )
                     
                 im = findInputMaker( stepCounter, step.name )
                 for i in filterAlg.Input:
                     print( str(filterAlg.name) +" "+ str(i))
                     filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
-                    addIfNotThere( filterAlg.Output, filterOutputName )
-                    addIfNotThere( im.InputMakerInputDecisions,  filterOutputName )
+                    addIfNotThere( filterAlg.Output, filterOutputName, "{} output".format(filterAlg.name) )
+                    addIfNotThere( im.InputMakerInputDecisions,  filterOutputName, "{} input".format(im.name))
                     
                 hypoAlg = findHypoAlg( stepCounter, step.name )
                 for i in im.InputMakerInputDecisions:
                     imOutputName = CFNaming.inputMakerOutName( im.name, i )
-                    setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName )
+                    setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName, "{} hypo input".format(hypoAlg.name) )
                 for i in hypoAlg.HypoInputDecisions:
                     hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
-                    setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName )
-
-                hypoAlg.HypoTools.append( sequence._hypoToolConf.create() )
+                    setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName, "{} hypo output".format(hypoAlg.name) )
+                    
+                print("here " +str(dir(sequence._hypoToolConf)))
+                
+                print("chain here " +str(dir(chain)))
+                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName(chain.name ) ) )
                             
     acc.printConfig()
 
-    #kaboom
+
     return acc
 
 
