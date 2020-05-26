@@ -1,6 +1,6 @@
 """
 This job options file will run an example extrapolation using the
-Acts tracking geometry and the Acts extrapolation toolchain.
+Acts tracking geometry, the material map and the Acts extrapolation toolchain.
 """
 
 import os
@@ -27,7 +27,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 # build GeoModel
 import AthenaPython.ConfigLib as apcl
-cfg = apcl.AutoCfg(name = 'TrackingGeometryTest', input_files=athenaCommonFlags.FilesInput())
+cfg = apcl.AutoCfg(name = 'MaterialMapValidation', input_files=athenaCommonFlags.FilesInput())
 
 cfg.configure_job()
 
@@ -91,7 +91,8 @@ trkGeomSvc.BuildSubDetectors = [
   # "TRT",
   # "Calo",
 ]
-trkGeomSvc.UseMaterialMap = False
+trkGeomSvc.UseMaterialMap = True
+trkGeomSvc.MaterialMapInputFile = "material-maps.json"
 ServiceMgr += trkGeomSvc
 
 # We need the Magnetic fiels
@@ -107,8 +108,9 @@ alg.EtaRange = [-2.4, 2.4]
 alg.OutputLevel = INFO
 alg.NParticlesPerEvent = int(1e4)
 
+
 # Record the material track for material map validation
-alg.WriteMaterialTracks = False
+alg.WriteMaterialTracks = True
 # we only need this if the extrap alg is set up to write mat tracks
 if alg.WriteMaterialTracks == True:
   mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
@@ -121,8 +123,7 @@ if alg.WriteMaterialTracks == True:
 exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
 exTool.OutputLevel = INFO
 exTool.FieldMode = "ATLAS"
-exTool.InteractionMultiScatering = False
-exTool.InteractionEloss = False
+exTool.InteractionRecord = True
 # The extrapolation tool accesses the trackinggeometry service
 # through this tool. This tool has the conditions dependencies
 # on the alignment GeoAlignmentStores (pseudo-alignment only right now).
