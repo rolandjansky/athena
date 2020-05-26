@@ -3,6 +3,9 @@ from __future__ import print_function
 from eflowRec import eflowRecConf
 from InDetTrackSelectionTool import InDetTrackSelectionToolConf
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger('PFHLTSequence')
+
 # Use the appropriate containers based on what config is desired
 trackvtxcontainers = {
     "offline":  ("InDetTrackParticles","PrimaryVertices"),
@@ -145,6 +148,6 @@ def PFHLTSequence(dummyflags,clustersin,tracktype):
     pfSequence = parOR("HLTPFlow_"+tracktype, [PFTrkSel,PFAlg,PFCCreator,PFNCreator])
     pfoPrefix = "HLT_"+tracktype
 
-    print (pfSequence)
+    log.debug("Created sequence:\n%s", pfSequence)
 
     return pfSequence, pfoPrefix

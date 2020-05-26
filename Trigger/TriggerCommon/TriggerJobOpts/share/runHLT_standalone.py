@@ -355,6 +355,8 @@ from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 svcMgr += RegSelSvcDefault()
 
 if TriggerFlags.doID():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     include( "InDetRecExample/InDetRecCabling.py" )
 
 if TriggerFlags.doCalo():
