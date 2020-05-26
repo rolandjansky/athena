@@ -391,6 +391,12 @@ inline float CaloDetDescrElement::sinPhi() const
 inline float CaloDetDescrElement::cosPhi() const
 { return m_cosPhi;}
 
+inline CaloCell_ID::CaloSample
+CaloDetDescrElement::getSampling() const
+{
+  return m_sample;
+}
+
 inline void CaloDetDescrElement::set_volume(double volume)
 { m_volume = static_cast<float> (volume);}
 

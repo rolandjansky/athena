@@ -83,12 +83,6 @@ CaloDetDescrElement::print() const
     std::cout << "r          = " << m_r << std::endl;
 }
 
-CaloCell_ID::CaloSample
-CaloDetDescrElement::getSampling() const
-{
-  return m_sample;
-}
-
 int CaloDetDescrElement::getLayer() const
 {
   return 0;
