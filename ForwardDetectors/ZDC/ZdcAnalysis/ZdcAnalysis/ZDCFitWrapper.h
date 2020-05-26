@@ -856,7 +856,7 @@ public:
     double pulse3 =  postAmp * m_norm *  m_expFermiFunc->operator()(deltaTPost);
 
     double linBG = linSlope * t + linConst;
-    double expBG = expamp * std::exp(-(t) / m_tau2) - expamp;  // deltaPresamp
+    double expBG = expamp * std::exp(-(t) / m_tau2) - expamp * std::exp(-(GetTMinAdjust()) / m_tau2);  // deltaPresamp
 
     return pulse1 + pulse2 + pulse3 + linBG + expBG;
   }
