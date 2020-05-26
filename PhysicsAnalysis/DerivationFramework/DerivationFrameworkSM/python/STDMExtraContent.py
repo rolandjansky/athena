@@ -17,9 +17,9 @@ ExtraContentTrk=["InDetTrackParticles.definingParametersCovMatrixVec.theta.z0.d0
 
 ExtraContentJets=["AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt"]
 
-ExtraContentJets_EMTopo=["AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000"]
+ExtraContentJets_EMTopo=["AntiKt4EMTopoJets.JvtJvfcorr.JvtRpt.Jvt.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000.EnergyPerSampling.GhostTrack.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.FracSamplingMax.FracSamplingMaxIndex.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF"]
 
-ExtraContentJets_PFlow=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000"]
+ExtraContentJets_PFlow=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000.EnergyPerSampling.GhostTrack.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.FracSamplingMax.FracSamplingMaxIndex.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF"]
 
 ExtraContentJets_STDM11=ExtraContentJets_EMTopo+ExtraContentJets_PFlow
 
