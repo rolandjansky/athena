@@ -45,7 +45,7 @@ namespace top {
     // Allowed overlap removal options
     std::set<std::string> allowed_OR_procedures = {
       "recommended", "jetmuApplyRelPt", "harmonized",
-      "Boosted", "BoostedSlidingDREl", "BoostedSlidingDRMu", "BoostedSlidingDRElMu", "noTauJetOLR"
+      "Boosted", "BoostedSlidingDREl", "BoostedSlidingDRMu", "BoostedSlidingDRElMu", "noTauJetOLR", "noPhotonMuOR", "noPhotonMuOrJetOR"
     };
     std::string OR_procedure = m_config->overlapRemovalProcedure();
 
@@ -147,7 +147,16 @@ namespace top {
     } else if (OR_procedure == "noTauJetOLR") {
       top::check(m_ORtoolBox.tauJetORT.setProperty("DR", 0.0),
                  "Failed to set DR in TauJetORT to zero");
+    } else if (OR_procedure == "noPhotonMuOR") {
+      top::check(m_ORtoolBox.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+    } else if (OR_procedure == "noPhotonMuOrJetOR") {
+      top::check(m_ORtoolBox.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+      top::check(m_ORtoolBox.phoJetORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoJetORT to zero");
     }
+    
     if (applyElectronInJetSubtraction) {
       top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", true),
                  "Failed to setSliding DR in ElJetORT");
@@ -160,6 +169,7 @@ namespace top {
       top::check(m_ORtoolBox.eleJetORT.setProperty("SlidingDRMaxCone", 0),
                  "Failed to set SlidingDRMaxCone");
     }
+    
     top::check(m_ORtoolBox.initialize(),
                "Failed to initialize overlap removal tools");
     m_overlapRemovalTool = std::move(m_ORtoolBox.masterTool);
@@ -227,7 +237,16 @@ namespace top {
     } else if (OR_procedure == "noTauJetOLR") {
       top::check(m_ORtoolBox_Loose.tauJetORT.setProperty("DR", 0.0),
                  "Failed to set DR in TauJetORT to zero");
+    } else if (OR_procedure == "noPhotonMuOR") {
+      top::check(m_ORtoolBox_Loose.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+    } else if (OR_procedure == "noPhotonMuOrJetOR") {
+      top::check(m_ORtoolBox_Loose.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+      top::check(m_ORtoolBox_Loose.phoJetORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoJetORT to zero");
     }
+    
     if (applyElectronInJetSubtraction) {
       top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", true),
                  "Failed to setSliding DR in ElJetORT");
@@ -240,6 +259,7 @@ namespace top {
       top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("SlidingDRMaxCone", 0),
                  "Failed to set SlidingDRMaxCone");
     }
+    
     top::check(m_ORtoolBox_Loose.initialize(),
                "Failed to initialize loose overlap removal tools");
     m_overlapRemovalTool_Loose = std::move(m_ORtoolBox_Loose.masterTool);

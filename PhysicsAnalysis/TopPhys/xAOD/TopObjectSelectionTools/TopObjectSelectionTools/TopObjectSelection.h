@@ -239,11 +239,6 @@ namespace top {
                                 std::vector<unsigned int>& goodElectrons,
                                 std::vector<unsigned int>& goodMuons,
                                 std::vector<unsigned int>& goodTrackJets);
-
-    void decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                         const xAOD::JetContainer* xaod_jet,
-                                         std::vector<unsigned int>& goodMuons,
-                                         std::vector<unsigned int>& goodJets);
                                          
     void decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,
                                          std::vector<unsigned int>& goodMuons);
@@ -306,8 +301,7 @@ namespace top {
     bool m_executeNominal;
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
-    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                std::vector<unsigned int>& goodJets);
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets);
   };
 }
 #endif

@@ -531,7 +531,8 @@ namespace top {
 
     registerParameter("OverlapRemovalProcedure", "Overlap removal procedure to be used. Options include:"
                                                  " recommended [default], jetmuApplyRelPt, harmonized,"
-                                                 " Boosted, BoostedSlidingDREl, BoostedSlidingDRMu, BoostedSlidingDRElMu, noTauJetOLR",
+                                                 " Boosted, BoostedSlidingDREl, BoostedSlidingDRMu, BoostedSlidingDRElMu, noTauJetOLR, "
+                                                 " noPhotonMuOR, noPhotonMuOrJetOR",
                       "recommended"
                       );
 

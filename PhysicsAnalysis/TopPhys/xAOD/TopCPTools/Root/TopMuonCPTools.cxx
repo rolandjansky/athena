@@ -282,6 +282,8 @@ namespace top {
       tool = new CP::MuonEfficiencyScaleFactors(name);
       top::check(asg::setProperty(tool, "WorkingPoint", WP),
                  "Failed to set WP for " + name + " tool");
+      top::check(asg::setProperty(tool, "CloseJetDRDecorator", "dRMuJet_AT_usingWeirdNameToAvoidUsingOnTheFlyCalculation"), 
+                 "Failed to set WP for " + name + " tool"); //in this way we'll only read the dR(mu,jet) from the derivation, IF the variable is there, but we'll not use on-the-fly calculation, which is tricky in AT
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }
