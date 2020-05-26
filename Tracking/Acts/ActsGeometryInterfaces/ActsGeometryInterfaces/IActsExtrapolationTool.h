@@ -11,6 +11,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
@@ -27,6 +28,11 @@ namespace Acts {
 
   using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 
+  using RecordedMaterial = Acts::MaterialInteractor::result_type;
+
+  using PropagationOutput =
+      std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
+
 }
 
 class IActsTrackingGeometryTool;
@@ -38,7 +44,7 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   DeclareInterfaceID(IActsExtrapolationTool, 1, 0);
 
   virtual
-  std::vector<Acts::detail::Step>
+  Acts::PropagationOutput
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
