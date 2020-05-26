@@ -36,6 +36,9 @@
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "CLHEP/Geometry/Transform3D.h"
 
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
 namespace Trk {
 class AnnulusBounds;
 class SurfaceBounds;
@@ -195,6 +198,22 @@ private:
     const double m_R;
     const double m_lengthBF;
     Trk::AnnulusBounds *m_bounds;
+
+    protected:
+          /// Log a message using the Athena controlled logging system
+          MsgStream& msg(MSG::Level lvl) const {
+            return m_msg.get() << lvl;
+          }
+
+          /// Check whether the logging system is active at the provided verbosity level
+          bool msgLvl(MSG::Level lvl) {
+            return m_msg.get().level() <= lvl;
+          }
+
+          /// Private message stream member
+          mutable Athena::MsgStreamMember m_msg;
+
+
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -223,6 +242,7 @@ inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) con
 // Return pitch in mm for the strip at this position, at this point's distance along the strip.
     const SiCellId cellId = cellIdOfPosition(pos);
     const int row = cellId.etaIndex();
+    if(row<0) return -1.;
     const double radius = sqrt(pos.xEta() * pos.xEta() + pos.xPhi() * pos.xPhi());
     return m_pitch[row] * radius;
 }
@@ -230,6 +250,7 @@ inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) con
 inline double StripStereoAnnulusDesign::phiPitch(const SiCellId &cellId) const {
 // Return pitch in mm for centre of this strip.
     const int row = cellId.etaIndex();
+    if(row<0) return -1.;
     return m_pitch[row] * (m_stripStartRadius[row] + m_stripEndRadius[row]) / 2.;
 }
 
@@ -244,11 +265,13 @@ inline double StripStereoAnnulusDesign::phiPitchPhi(const SiLocalPosition &pos) 
   // even though SiLocalPosition might not be in PC, the etaIndex should be correct
   const SiCellId cellId = cellIdOfPosition(pos);
   const int row = cellId.etaIndex();
+  if(row<0) return -1.;
   return m_pitch[row];
 }
 
 inline double StripStereoAnnulusDesign::phiPitchPhi(const SiCellId &cellId) const {
   const int row = cellId.etaIndex();
+  if(row<0) return -1.;
   return m_pitch[row];
 }
 
@@ -285,9 +308,9 @@ inline int StripStereoAnnulusDesign::row(int stripId1Dim) const {
     std::vector<int>::const_iterator endPtr = std::upper_bound(m_firstStrip.begin(), m_firstStrip.end(), stripId1Dim);
     int rowNum = std::distance(m_firstStrip.begin(), endPtr) - 1;
     if (rowNum < 0 || rowNum >= m_nRows) {
-        std::cout << "str1D = " << stripId1Dim << " gives row " << rowNum << ", outside range 0 - " << m_nRows << "\n";
-        const std::string errMsg=std::string("StripId1Dim index out of acceptable range ") + __FILE__+std::string(": ")+std::to_string(__LINE__);
-        throw std::runtime_error(errMsg);
+      ATH_MSG_WARNING("str1D = " << stripId1Dim << " gives row " << rowNum << ", outside range 0 - " << m_nRows);
+      const std::string errMsg=std::string("StripId1Dim index out of acceptable range ") + __FILE__+std::string(": ")+std::to_string(__LINE__);
+      throw std::runtime_error(errMsg);
     }
     return rowNum;
 }
@@ -297,8 +320,7 @@ inline int StripStereoAnnulusDesign::strip(int stripId1Dim) const {
 
     int strip2D = stripId1Dim - m_firstStrip[rowNum];
     if (strip2D < 0 || strip2D >= m_firstStrip[rowNum + 1]) {
-        std::cout << "str1D " << stripId1Dim << " gives strip " << strip2D << " which is outside range 0 - " << 
-                     m_firstStrip[rowNum + 1] << "\n";
+      ATH_MSG_WARNING("str1D " << stripId1Dim << " gives strip " << strip2D << " which is outside range 0 - " << m_firstStrip[rowNum + 1]);
     }
     return strip2D;
 }
