@@ -47,18 +47,11 @@ atlas_add_library( ActsGeometryLib
                    ActsInteropLib
                    ActsGeometryInterfacesLib
                    ActsCore
-<<<<<<< HEAD
                    ActsJsonPlugin
                    TrkGeometry
                    PixelReadoutGeometry
                    SCT_ReadoutGeometry
                    TRT_ReadoutGeometry)
-
-=======
-                   PixelReadoutGeometry
-                   SCT_ReadoutGeometry
-                   TRT_ReadoutGeometry)
->>>>>>> upstream/master
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
