@@ -26,7 +26,7 @@ class TauSubstructureVariables : public TauRecToolBase
 
         ~TauSubstructureVariables();
 
-        virtual StatusCode execute(xAOD::TauJet& pTau) override;
+        virtual StatusCode execute(xAOD::TauJet& pTau) const override;
         virtual StatusCode initialize() override;
         virtual StatusCode finalize() override;
 

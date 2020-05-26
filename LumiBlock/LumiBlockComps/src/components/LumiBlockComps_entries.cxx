@@ -26,6 +26,4 @@ DECLARE_COMPONENT(LumiBlockMuWriter)
 #endif
 DECLARE_COMPONENT( LumiBlockMetaDataTool )
 
-#include "../xAOD2NtupLumiSvc.h"
-DECLARE_COMPONENT( xAOD2NtupLumiSvc )
 

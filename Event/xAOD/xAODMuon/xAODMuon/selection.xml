@@ -1,82 +1,48 @@
-<?xml version="1.0"?>
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- MuonAux _v2 dictionaries: -->
-  <class name="xAOD::MuonAuxContainer_v2"
-         id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1"/>
-  
-  <!-- MuonAux _v3 dictionaries: -->
-  <class name="xAOD::MuonAuxContainer_v3"
-                id="ECC65005-302B-4662-ACBA-D2CE5A0218B8"/>
+   <!-- xAOD::Muon interface type(s). -->
+   <class name="xAOD::Muon_v1" />
+   <class name="xAOD::MuonContainer_v1"
+          id="F84AE51A-F309-4844-B286-8E94C655B724" />
+   <typedef name="xAOD::Muon" />
+   <typedef name="xAOD::MuonContainer" />
 
-  <!-- MuonAux _v4 dictionaries: -->
-  <class name="xAOD::MuonAuxContainer_v4"
-	 id="8251F481-EA4C-4852-AE72-BED87E6FD2FB"/>
+   <!-- xAOD::Muon auxiliary type(s). -->
+   <class name="xAOD::MuonAuxContainer_v1"
+          id="EC9B677A-B3BA-4C75-87D3-373FC478291E" />
+   <class name="xAOD::MuonAuxContainer_v2"
+          id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1" />
+   <class name="xAOD::MuonAuxContainer_v3"
+          id="ECC65005-302B-4662-ACBA-D2CE5A0218B8" />
+   <class name="xAOD::MuonAuxContainer_v4"
+          id="8251F481-EA4C-4852-AE72-BED87E6FD2FB" />
+   <class name="xAOD::MuonAuxContainer_v5"
+          id="9245FA19-1552-4BBB-8CC3-57224E57A466" />
+   <typedef name="xAOD::MuonAuxContainer" />
 
-  <!-- MuonAux _v5 dictionaries: -->
-  <class name="xAOD::MuonAuxContainer_v5"
-	 id="9245FA19-1552-4BBB-8CC3-57224E57A466"/>
+   <!-- xAOD::MuonSegment interfac type(s). -->
+   <class name="xAOD::MuonSegment_v1"/>
+   <class name="xAOD::MuonSegmentContainer_v1"
+          id="9516C67E-98A5-11E3-BDFD-6C3BE51AB9F1" />
+   <typedef name="xAOD::MuonSegment" />
+   <typedef name="xAOD::MuonSegmentContainer" />
 
-  <!-- Muon_v1 dictionaries: -->
-  <class name="xAOD::Muon_v1" />
-  <class name="xAOD::MuonContainer_v1"
-         id="F84AE51A-F309-4844-B286-8E94C655B724"/>
+   <!-- xAOD::MuonSegment auxiliary type(s). -->
+   <class name="xAOD::MuonSegmentAuxContainer_v1"
+          id="51739E92-98A5-11E3-B7F4-6C3BE51AB9F1" />
+   <typedef name="xAOD::MuonSegmentAuxContainer" />
 
-  <class name="xAOD::MuonAuxContainer_v1"
-         id="EC9B677A-B3BA-4C75-87D3-373FC478291E"/>
+   <!-- xAOD::SlowMuon interface type(s). -->
+   <class name="xAOD::SlowMuon_v1" />
+   <class name="xAOD::SlowMuonContainer_v1"
+          id="78E011F9-AD91-40A8-95E9-E288A5A583FE" />
+   <typedef name="xAOD::SlowMuon" />
+   <typedef name="xAOD::SlowMuonContainer" />
 
-  <!-- All smart pointer dictionaries for xAOD::Muon v1-->
-  <class name="DataLink<xAOD::MuonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::MuonContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::MuonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::MuonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::MuonContainer_v1> > >" />
-
-
-
-  <!-- MuonSegment_v1 dictionaries -->
-  <class name="xAOD::MuonSegment_v1"/>
-  <class name="xAOD::MuonSegmentAuxContainer_v1"
-         id="51739E92-98A5-11E3-B7F4-6C3BE51AB9F1"/>
-  <class name="xAOD::MuonSegmentContainer_v1"
-         id="9516C67E-98A5-11E3-BDFD-6C3BE51AB9F1"/>
-
-  <!-- All smart pointer dictionaries for xAOD::MuonSegment -->
-  <class name="DataLink<xAOD::MuonSegmentContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::MuonSegmentContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::MuonSegmentContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::MuonSegmentContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::MuonSegmentContainer_v1> > >" />
-
-  <!-- SlowMuon_v1 dictionaries -->
-  <class name="xAOD::SlowMuon_v1"/>
-  <class name="xAOD::SlowMuonAuxContainer_v1"
-         id="B0B4F66B-C261-4403-AB96-D71249A9CDEC"/>
-  <class name="xAOD::SlowMuonContainer_v1"
-         id="78E011F9-AD91-40A8-95E9-E288A5A583FE"/>
-
-  <!-- All smart pointer dictionaries for xAOD::SlowMuon -->
-  <class name="DataLink<xAOD::SlowMuonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::SlowMuonContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::SlowMuonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::SlowMuonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::SlowMuonContainer_v1> > >" />
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <class pattern="xAOD::TrackParticle*" />
-    <class pattern="DataVector<xAOD::TrackParticle*" />
-    <class pattern="ElementLink<DataVector<xAOD::TrackParticle*" />
-    <class pattern="xAOD::CaloCluster*" />
-    <class pattern="DataVector<xAOD::CaloCluster*" />
-    <class pattern="ElementLink<DataVector<xAOD::CaloCluster*" />
-  </exclusion>
+   <!-- xAOD::SlowMuon auxiliary type(s). -->
+   <class name="xAOD::SlowMuonAuxContainer_v1"
+          id="B0B4F66B-C261-4403-AB96-D71249A9CDEC" />
+   <typedef name="xAOD::SlowMuonAuxContainer" />
 
 </lcgdict>

@@ -920,8 +920,8 @@ def efLateMuRoISequence():
   topSequence = AlgSequence()
   topSequence.SGInputLoader.Load += [( 'MuCTPI_RDO' , 'StoreGateSvc+MUCTPI_RDO' )]
 
-  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMT
-  roiAlg = TrigmuRoIMT("TrigmuRoIMT")
+  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMTConfig
+  roiAlg = TrigmuRoIMTConfig("TrigmuRoIMT")
   sequenceOut = "LateMuRoIs"
   roiAlg.RoisWriteHandleKey=sequenceOut
 

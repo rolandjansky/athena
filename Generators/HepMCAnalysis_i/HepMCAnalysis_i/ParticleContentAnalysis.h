@@ -7,11 +7,6 @@
 
 #include "baseAnalysis.h"
 
-// forward declarations
-// forward declarations
-#include "AtlasHepMC/GenEvent_fwd.h"
-#include "AtlasHepMC/GenParticle_fwd.h"
-
 class TH1D;
 
 /*

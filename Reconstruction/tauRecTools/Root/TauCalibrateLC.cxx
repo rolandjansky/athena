@@ -132,7 +132,7 @@ StatusCode TauCalibrateLC::initialize() {
 }
 
 /********************************************************************/
-StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
+StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
 { 
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp

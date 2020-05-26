@@ -11,11 +11,12 @@ from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefau
 BunchCrossingCondAlgDefault()
 
 if DQMonFlags.monManEnvironment() == 'tier0ESD':
-   from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
-   topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
-   if globalflags.DataSource()=='data':
-      from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
-      topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
+    include ("LArCellRec/LArCollisionTime_jobOptions.py")
+    from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
+    topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+    if globalflags.DataSource()=='data':
+        from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
+        topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
 if DQMonFlags.monManEnvironment() == 'tier0Raw':
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld

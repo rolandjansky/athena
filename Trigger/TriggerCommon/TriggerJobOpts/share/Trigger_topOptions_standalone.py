@@ -90,9 +90,6 @@ if globalflags.InputFormat()=='bytestream':
         svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
-    # Online specific setup of BS converters
-    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )
-
 
 # ----------------------------------------------------------------
 # Detector services not guaranteed to be loaded elsewhere

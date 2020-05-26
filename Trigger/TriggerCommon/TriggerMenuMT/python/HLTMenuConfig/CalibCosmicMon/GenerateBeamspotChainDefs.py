@@ -6,7 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.BeamspotChainConfiguration import BeamspotChainConfiguration as BeamspotChainConfiguration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
-
+import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.generateChainConfigs' )
 log.info("Importing %s",__name__)
@@ -14,9 +14,7 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-
-    import pprint
-    pprint.pprint( chainDict )
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     listOfChainDicts = splitChainDict(chainDict)
     log.debug("Will generate Config for streamer: ",chainDict['chainName'])
