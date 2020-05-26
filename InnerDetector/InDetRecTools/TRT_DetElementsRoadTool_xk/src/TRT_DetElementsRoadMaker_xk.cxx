@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,7 +84,6 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
 
   ATH_CHECK(m_roadDataKey.initialize());
   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-  ATH_MSG_INFO("initialize() init key: " << m_fieldCacheCondObjInputKey.key());
 
   return sc;
 }
