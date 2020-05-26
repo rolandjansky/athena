@@ -771,9 +771,6 @@ namespace top {
       }
     }
 
-    // Post overlap removal decorations
-    decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
-
     // for the time being the only OR performed on soft muons is wrt prompt muons
     if (xaod_softmu) {
       int i(0);
@@ -793,13 +790,17 @@ namespace top {
           }
         }
 
-        float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
+        float dRmin = 100; //nearest jet dR
+        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets);
 
-        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i); //the DR selection must be done here, because we need the post-OR jets
+        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && (!m_config->useJets() || dRmin < m_config->softmuonDRJetcut()))
+        {
+           goodSoftMuons.push_back(i);//the dR selection must be done here, because we need the post-OR jets...
+        }
         i++;
       }
     }//end of OR procedure for soft muons
-    
+
     if(m_config->isMC() && m_config->useSoftMuons() && m_config->softmuonAdditionalTruthInfo()) decorateSoftMuonsPostOverlapRemoval(xaod_softmu,goodSoftMuons);
 
     // set the indices in the xAOD::SystematicEvent
@@ -914,37 +915,17 @@ namespace top {
     }
   }
 
-  void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                                           const xAOD::JetContainer* xaod_jet,
-                                                           std::vector<unsigned int>& goodMuons,
-                                                           std::vector<unsigned int>& goodJets) {
-    // Decorate muons with the dR of closest jet (after OR is applied)
-    // Use the good indicies to loop through the good objects
-    for (auto iMu : goodMuons) {
-      // Get muon iMu
-      const xAOD::Muon* muPtr = xaod_mu->at(iMu);
-      this->calculateMinDRMuonJet(*muPtr, xaod_jet, goodJets);
-    }
-    return;
-  }
-
-  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                                  std::vector<unsigned int>& goodJets) {
+  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets) {
+    
     float dRMin = 100.0;
-
+    
     // Loop over jets, calculate dR and record smallest value
     for (auto iJet : goodJets) {
       const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
+      if(jetPtr->isAvailable<char>("passJVT") && !(jetPtr->auxdataConst<char>("passJVT") )) continue; //at this level we still have jets not passing the JVT cut in the ntuple
       float dR = mu.p4().DeltaR(jetPtr->p4());
       if (dR < dRMin) dRMin = dR;
     }
-
-    // Decorate the muon with dR of closest jet (ie smallest dR)
-
-    // commenting out as a temporary solution since this decoration
-    // would be used for 2D muon SFs, but MCP used different
-    // definition of the variable
-    //mu.auxdecor< float >("dRJet") = dRMin;
 
     return dRMin;
   }
