@@ -52,6 +52,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCutFlow
    Event/xAOD/xAODPrimitives
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
