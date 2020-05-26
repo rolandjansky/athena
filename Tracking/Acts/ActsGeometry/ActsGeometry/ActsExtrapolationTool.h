@@ -21,6 +21,7 @@
 // ACTS
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Propagator/DebugOutputActor.hpp"
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
@@ -38,6 +39,14 @@ namespace MagField {
 namespace Acts {
 class Surface;
 class BoundaryCheck;
+
+/// Using some short hands for Recorded Material
+using RecordedMaterial = Acts::MaterialInteractor::result_type;
+
+/// Finally the output of the propagation test
+using PropagationOutput =
+    std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
+
 }
 
 
@@ -48,7 +57,6 @@ namespace ActsExtrapolationDetail {
 
 class ActsExtrapolationTool : public extends<AthAlgTool, IActsExtrapolationTool>
 {
-
 public:
   virtual StatusCode initialize() override;
 
@@ -62,12 +70,12 @@ private:
   using SteppingLogger = Acts::detail::SteppingLogger;
   using DebugOutput = Acts::DebugOutputActor;
   using EndOfWorld = Acts::EndOfWorldReached;
-  using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
+  using ResultType = Acts::Result<std::pair<Acts::PropagationOutput,
                                             DebugOutput::result_type>>;
 
 public:
   virtual
-  std::vector<Acts::detail::Step>
+  Acts::PropagationOutput
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
             double pathLimit = std::numeric_limits<double>::max()) const override;

@@ -33,7 +33,7 @@ namespace Acts {
   }
 }
 
-//class IActsMaterialTrackWriterSvc;
+class IActsMaterialTrackWriterSvc;
 
 template<typename>
 class RootExCellWriter;
@@ -63,8 +63,8 @@ private:
   Gaudi::Property<size_t> m_nParticlePerEvent{this, "NParticlesPerEvent", 1, "The number of particles per event"};
 
   // this does not work right now
-  //Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
-  //ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+  Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, "Write material track"};
+  ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 
   mutable std::mutex m_writeMutex{};
   mutable std::unique_ptr<std::ofstream> m_objOut;

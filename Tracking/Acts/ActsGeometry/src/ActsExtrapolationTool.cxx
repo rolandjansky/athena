@@ -85,7 +85,7 @@ ActsExtrapolationTool::initialize()
     using BField_t = ATLASMagneticFieldWrapper;
     BField_t bField(m_fieldServiceHandle.get());
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
@@ -98,7 +98,7 @@ ActsExtrapolationTool::initialize()
     using BField_t = Acts::ConstantBField;
     BField_t bField(Bx, By, Bz);
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
@@ -108,7 +108,7 @@ ActsExtrapolationTool::initialize()
 }
 
 
-std::vector<Acts::detail::Step>
+Acts::PropagationOutput
 ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundParameters& startParameters,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/) const
@@ -123,10 +123,11 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   auto anygctx = gctx.any();
 
   // Action list and abort list
-  using ActionList = Acts::ActionList<SteppingLogger, DebugOutput>;
+  using ActionList =
+      Acts::ActionList<SteppingLogger, Acts::MaterialInteractor, DebugOutput>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
-  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx);
   options.pathLimit = pathLimit;
@@ -138,7 +139,17 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
 
-  std::vector<Acts::detail::Step> steps;
+  // Switch the material interaction on/off & eventually into logging mode
+  // auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
+  // mInteractor.multipleScattering = m_cfg.multipleScattering;
+  // mInteractor.energyLoss = m_cfg.energyLoss;
+  // mInteractor.recordInteractions = m_cfg.recordMaterialInteractions;
+  auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
+  mInteractor.multipleScattering = true;
+  mInteractor.energyLoss = true;
+  mInteractor.recordInteractions = true;
+
+  Acts::PropagationOutput output;
   DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
@@ -150,8 +161,11 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
 
       auto steppingResults = propRes.template get<SteppingLogger::result_type>();
       auto debugOutput = propRes.template get<DebugOutput::result_type>();
+      auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
+      output.first = std::move(steppingResults.steps);
+      output.second = std::move(materialResult);
       // try to force return value optimization, not sure this is necessary
-      return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
+      return std::make_pair(output, std::move(debugOutput));
     }, *m_varProp);
 
   if (!res.ok()) {
@@ -159,14 +173,14 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
                   << ". Returning empty step vector.");
     return {};
   }
-  std::tie(steps, debugOutput) = std::move(*res);
+  std::tie(output, debugOutput) = std::move(*res);
 
   if(debug) {
     ATH_MSG_VERBOSE(debugOutput.debugString);
   }
 
-  ATH_MSG_VERBOSE("Collected " << steps.size() << " steps");
+  ATH_MSG_VERBOSE("Collected " << output.first.size() << " steps");
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " end");
 
-  return steps;
+  return output;
 }

@@ -15,6 +15,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // ACTS
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -24,7 +25,7 @@
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
-//#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -35,12 +36,25 @@
 
 using namespace Acts::UnitLiterals;
 
+/// Using some short hands for Recorded Material
+using RecordedMaterial = Acts::MaterialInteractor::result_type;
+
+/// And recorded material track
+/// - this is start:  position, start momentum
+///   and the Recorded material
+using RecordedMaterialTrack =
+    std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+
+/// Finally the output of the propagation test
+using PropagationOutput =
+    std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
+
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string &name,
                                            ISvcLocator *pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_propStepWriterSvc("ActsPropStepRootWriterSvc", name),
-      m_rndmGenSvc("AthRNGSvc", name) //,
-// m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
+      m_rndmGenSvc("AthRNGSvc", name) ,
+      m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name)
 {}
 
 StatusCode ActsExtrapolationAlg::initialize() {
@@ -51,9 +65,9 @@ StatusCode ActsExtrapolationAlg::initialize() {
   ATH_CHECK(m_extrapolationTool.retrieve());
   ATH_CHECK(m_propStepWriterSvc.retrieve());
 
-  // if (m_writeMaterialTracks) {
-  // ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
-  //}
+  if (m_writeMaterialTracks) {
+  ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
+  }
 
   m_objOut = std::make_unique<std::ofstream>("steps.obj");
 
@@ -105,7 +119,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
     pars << d0, z0, phi, theta, qop, t;
     std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
 
-    std::vector<Acts::detail::Step> steps;
+    PropagationOutput output;
 
     if (charge != 0.) {
       // Perigee, no alignment -> default geo context
@@ -115,9 +129,15 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
 
-      std::cout << startParameters << std::endl;    
-      steps = m_extrapolationTool->propagate(ctx, startParameters);
-      m_propStepWriterSvc->write(steps);
+      std::cout << startParameters << std::endl;
+      output = m_extrapolationTool->propagate(ctx, startParameters);
+      m_propStepWriterSvc->write(output.first);
+      RecordedMaterialTrack track;
+      track.first.first = Acts::Vector3D(0,0,0);
+      track.first.second = momentum;
+      track.second = std::move(output.second);
+      m_materialTrackWriterSvc->write(track);
+
     }
 
     ATH_MSG_VERBOSE(name() << " execute done");

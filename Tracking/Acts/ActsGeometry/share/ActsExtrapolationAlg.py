@@ -68,7 +68,7 @@ condSeq = AthSequencer("AthCondSeq")
                                                      # OutputLevel=VERBOSE)
 
 condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
-                                                 OutputLevel=VERBOSE)
+                                                 OutputLevel=INFO)
 # periodic shift alignment. Configurable z-shift per lumiblock.
 # (currently pixel only)
 # condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
@@ -84,13 +84,15 @@ trkGeomSvc = ActsTrackingGeometrySvc()
 # used for the proxies during material mapping
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
-trkGeomSvc.OutputLevel = VERBOSE
+trkGeomSvc.OutputLevel = INFO
 trkGeomSvc.BuildSubDetectors = [
   "Pixel",
   "SCT",
-  "TRT",
+  # "TRT",
   # "Calo",
 ]
+trkGeomSvc.UseMaterialMap = True
+trkGeomSvc.MaterialMapInputFile = "material-maps.json"
 ServiceMgr += trkGeomSvc
 
 # We need the Magnetic fiels
@@ -102,19 +104,19 @@ job = AlgSequence()
 # This is the main extrapolation demo algorithm
 from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
 alg = ActsExtrapolationAlg()
-alg.EtaRange = [-5, 5]
+alg.EtaRange = [-2.4, 2.4]
 alg.OutputLevel = INFO
 alg.NParticlesPerEvent = int(1e4)
 
 # not really needed right now (also not working)
 # this can be used to test an input material map file
-# alg.WriteMaterialTracks = False
-# # we only need this if the extrap alg is set up to write mat tracks
-# if alg.WriteMaterialTracks == True:
-  # mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
-  # mTrackWriterSvc.OutputLevel = DEBUG
-  # mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
-  # ServiceMgr += mTrackWriterSvc
+alg.WriteMaterialTracks = True
+# we only need this if the extrap alg is set up to write mat tracks
+if alg.WriteMaterialTracks == True:
+  mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
+  mTrackWriterSvc.OutputLevel = INFO
+  mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
+  ServiceMgr += mTrackWriterSvc
 
 # sets up the extrapolation tool
 # this sets up the tracking geometry svc through the tracking geometry tool
@@ -141,4 +143,4 @@ if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
 
 job += alg
 
-theApp.EvtMax = 1234
+theApp.EvtMax = 10000

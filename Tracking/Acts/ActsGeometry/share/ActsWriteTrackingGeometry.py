@@ -72,6 +72,12 @@ trkGeomSvc = ActsTrackingGeometrySvc()
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
+trkGeomSvc.BuildSubDetectors = [
+  "Pixel",
+  "SCT",
+  # "TRT",
+  # "Calo",
+]
 ServiceMgr += trkGeomSvc
 
 import MagFieldServices.SetupField
