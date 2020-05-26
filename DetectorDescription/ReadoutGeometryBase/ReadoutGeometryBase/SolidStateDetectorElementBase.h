@@ -335,8 +335,8 @@ public:
     /// Recalculate subset of cached values.
     void updateConditionsCache() const;
 
-    /// Keep the actual implementation of this method in base classes
-    /// to ensure that the updateCache implementation of the base class gets called
+    /// Keep the actual implementation of this method in derived classes
+    /// to ensure that the updateCache implementation of the derived class gets called
     /// instead of just the one from this class
     virtual void updateAllCaches() const = 0;
 
