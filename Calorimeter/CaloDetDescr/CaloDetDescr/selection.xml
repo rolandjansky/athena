@@ -1,3 +1,4 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
   <class name="CaloDetDescrManager_Base"/>
   <class name="CaloDetDescrManager"/>
@@ -16,7 +17,6 @@
   <class name="EMECDescriptor"/>
   <class name="FCALDescriptor"/>
   <class name="HECDescriptor"/>
-  <class name="CaloPhiRange"/>
   <class name="CaloSubdetNames"/>
   <enum name="CaloSubdetNames::ALIGNVOL"/>
   <class name="ICaloCoordinateTool"/>

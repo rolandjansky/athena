@@ -1,0 +1,9 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <class name="CaloPhiRange" />
+   <class name="CaloSampling" />
+   <enum name="CaloSampling::CaloSample" />
+   <class name="std::vector<CaloSampling::CaloSample>" />
+
+</lcgdict>
