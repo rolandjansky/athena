@@ -10,6 +10,9 @@
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/AnnulusBounds.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 using namespace std;
 
@@ -35,8 +38,7 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_stripEndRadius(stripEndRadius),
     m_stereo(stereoAngle),
     m_R(centreR),
-    m_lengthBF(2. * centreR * sin(stereoAngle / 2.)), // Eq. 5 p. 7
-    m_msg("StripStereoAnnulusDesign")
+    m_lengthBF(2. * centreR * sin(stereoAngle / 2.)) // Eq. 5 p. 7
 {
     if (nRows < 0) {
         throw std::runtime_error(
@@ -71,10 +73,15 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
     m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "StripStereoAnnulusDesign");
+    m_log = new MsgStream(&(*msgh), "StripStereoAnnulusDesign");
+
 }
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
     delete m_bounds;
+    delete m_log;
 }
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
@@ -143,7 +150,7 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
     double r = pos.r();
     if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) {
-      ATH_MSG_WARNING("Invalid SiLocalPosition, returning invalid SiCellId");
+      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId \n" << endmsg;
       return SiCellId(); // return an invalid id
     }
 
@@ -151,7 +158,7 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
     // Following should never happen, check is done on r above
     if (row < 0 || row >= m_nRows) {
-      ATH_MSG_WARNING("Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << endl);
+      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n" << endmsg;
       return SiCellId(); // return an invalid id
     }
 //
