@@ -1,4 +1,3 @@
-
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 
@@ -303,7 +302,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                       useZBoundFinding = True)
 
 
-         if NewTrackingCuts.mode() == "ForwardTracks":
+         elif NewTrackingCuts.mode() == "ForwardTracks":
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
