@@ -173,11 +173,9 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     double ySF = sin(-m_stereo) * (x - m_R) + cos(-m_stereo) * y;
     double phiPrime = atan2(ySF, xSF); 
     int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
-    if (strip < 0) { // Outside
-        return SiCellId(); // return an invalid id
-    }
-    if (strip >= m_nStrips[row]) { // Outside
-        return SiCellId(); // return an invalid id
+    if (strip < 0 || strip >= m_nStrips[row]) { // Outside
+      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId \n" << endmsg;
+      return SiCellId(); // return an invalid id
     }
 
     int strip1D = strip1Dim(strip, row);
