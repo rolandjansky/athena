@@ -243,7 +243,6 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
   msg (MSG::INFO) << "***************** Listing RpcPrepData collections content **********************************************" << endmsg;
   
   if (m_rpcPrepDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endmsg;
-  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
   
   int ncoll = 0;
   int ict = 0;
@@ -263,17 +262,9 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
       int icc = 0;
       int iccphi = 0;
       int icceta = 0;
-      //            int icctrg = 0;
       for (it_rpcPrepData=rpcColl->begin(); it_rpcPrepData != rpcColl->end(); it_rpcPrepData++) {
 	icc++;
 	ict++;
-	//                 if ((*it_rpcPrepData)->triggerInfo() > 0) 
-	//                 {
-	//                     icctrg++;
-	//                     icttrg++;
-	//                 }
-	//                 else
-	//                 {                    
 	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
 	  iccphi++;
 	  ictphi++;
@@ -283,15 +274,13 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	  icceta++;
 	  icteta++;
 	}                    
-	//                 }
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
 			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
-			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
+			<<" time "<<(*it_rpcPrepData)->time()
 			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
       }
       ncoll++;
       msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
-	//                <<icctrg<<" trigger hits / "
 		      <<iccphi<<" phi hits / "
 		      <<icceta<<" eta hits "<<endmsg;
       msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
@@ -308,7 +297,6 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
   msg (MSG::INFO) << "***************** Listing RpcCoinData collections content **********************************************" << endmsg;
   
   if (m_rpcCoinDataContainerFromCache->size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endmsg;
-  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
   
   ncoll = 0;
   ict = 0;
@@ -334,17 +322,11 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
       int iccetahc = 0;
       int iccphihc = 0;
       int iccetalc = 0;
-      //            int icctrg = 0;
+
       for (it_rpcCoinData=rpcColl->begin(); it_rpcCoinData != rpcColl->end(); it_rpcCoinData++) {
 	icc++;
 	ict++;
-	//                 if ((*it_rpcPrepData)->triggerInfo() > 0) 
-	//                 {
-	//                     icctrg++;
-	//                     icttrg++;
-	//                 }
-	//                 else
-	//                 {                    
+
 	if (m_idHelperSvc->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
 	        
 	  iccphi++;
@@ -370,10 +352,9 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
 	    ictetahc++;
 	  }
 	}                    
-	//                 }
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
 			<<m_idHelperSvc->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
-			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
+			<<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()
 			<<" cm/pad/sl ids = "
 			<<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
 			<<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
@@ -382,7 +363,6 @@ void Muon::RpcRdoToPrepDataToolMT::printMT()
       }
       ncoll++;
       msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
-	//                <<icctrg<<" trigger hits / "
 		      <<iccphi<<" phi coin. hits / "
 		      <<icceta<<" eta coin. hits \n"
 		      <<iccphilc<<" phi lowPt / "
