@@ -1,7 +1,7 @@
 #include <list>
 #include "AthContainers/ConstDataVector.h"
 #include "JetMonitoring/JetHistoSelectSort.h"
-
+#include "JetMonitoring/JetMonitoringAlg.h" 
 
 
 JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::string & name ,const IInterface* parent):

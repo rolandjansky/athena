@@ -5,30 +5,22 @@
 #include "JetMonitoring/EventHistoVarTool.h"
 
 
-EventHistoVarTool::EventHistoVarTool( const std::string& type,  const std::string & name ,const IInterface* parent):
-  AthAlgTool( type, name, parent )
+EventHistoVarTool::EventHistoVarTool(const std::string & name ,const IInterface* parent):
+  AthAlgTool( "float", name, parent )
 
 {
   declareInterface<IEventHistoVarTool>(this);
-
-  
 }
 
 StatusCode EventHistoVarTool::initialize() {
 
-  if(m_name=="") m_name = name();
-  m_v = EventVar::Variable::create( m_name, m_type, m_index);
-  m_v->setScale(m_scale);
+  if(m_varName=="") m_varName = name();
 
-  if (! bool(m_v) ) {
-      ATH_MSG_ERROR(" could not create Event Variable "<< m_name << " type: "<< m_type << "  index="<< m_index );
+
+  /*if (! bool(m_v) ) {
+      ATH_MSG_ERROR("Could not access EventInfo variable "<< m_varName );
       return StatusCode::FAILURE;      
-  }
+  }*/
   return StatusCode::SUCCESS;
   
-}
-
-
-float EventHistoVarTool::value(const xAOD::EventInfo &e) const {
-  return m_v->value(e) ;
 }

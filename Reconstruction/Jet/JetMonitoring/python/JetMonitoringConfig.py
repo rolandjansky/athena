@@ -390,9 +390,9 @@ class SelectSpec(ToolSpec):
         if '<' in selexpr:
             # interpret it as min<v<max
             cmin, v , cmax = interpretSelStr(selexpr)
-            selSpec = ToolSpec('JetSelectorAttribute', v+'sel',
-                               Var = retrieveVarToolConf(v),
-            )
+	    if hasattr(self,'isEventVariable'):
+	      if self.isEventVariable: selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveVarToolConf(v), )
+            else: selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
             if cmin is not None: selSpec['CutMin'] = cmin
             if cmax is not None: selSpec['CutMax'] = cmax
             args['Selector'] = selSpec

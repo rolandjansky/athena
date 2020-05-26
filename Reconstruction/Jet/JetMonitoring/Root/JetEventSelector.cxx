@@ -3,7 +3,6 @@
 */
 
 #include "JetMonitoring/JetEventSelector.h"
-#include "JetMonitoring/EventVariable.h"
 #include <limits>
 
 
@@ -31,7 +30,6 @@ StatusCode JetEventSelector::initialize() {
 }
 
 int JetEventSelector::keep(const xAOD::EventInfo& e) const {
-  float v = e.auxdata<float>(m_var);
-  //float v = m_var->value(e);
+  float v = m_var->value(e);
   return (m_min < v ) && (v<m_max);
 }
