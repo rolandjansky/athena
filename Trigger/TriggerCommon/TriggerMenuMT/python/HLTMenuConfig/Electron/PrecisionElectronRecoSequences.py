@@ -27,25 +27,40 @@ def precisionElectronRecoSequence(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
     import AthenaCommon.CfgMgr as CfgMgr
 
-    ViewVerifyPrecisionCluster = CfgMgr.AthViews__ViewDataVerifier("precisionElectronClusterVerifier")
-    ViewVerifyPrecisionCluster.DataObjects = [('xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters)]
-
     ## Taking Fast Track information computed in 2nd step ##
     TrackCollection="TrigFastTrackFinder_Tracks_Electron"
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
     
-    
-    ViewVerifyTrk.DataObjects = [('TrackCollection','StoreGateSvc+'+TrackCollection),
-                                 ('xAOD::CaloClusterContainer' , precisionCaloMenuDefs.precisionCaloClusters),
-                                 ('CaloCellContainer' , 'StoreGateSvc+CaloCells'),
-                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG'),
-                                 ]
+    ViewVerifyTrk.DataObjects = [( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
+                                 ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
+                                 ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' )]
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
+
+    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "Cond/StatusHT" ):
+      ViewVerifyTrk.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
+      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
+    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
+      ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                    ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     
     if globalflags.InputFormat.is_bytestream():
-       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+    else:
+      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+      ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
-    # AlgSequence.SGInputLoader.Load.append([ ('InDetBSErrContainer','StoreGateSvc+PixelByteStreamErrs') ])
     """ Precision Track Related Setup.... """
     PTAlgs = []
     PTTracks = []
@@ -61,7 +76,6 @@ def precisionElectronRecoSequence(RoIs):
     electronPrecisionTrack = parOR("electronPrecisionTrack")
     electronPrecisionTrack += ViewVerifyTrk
     electronPrecisionTrack += PTSeq
-    electronPrecisionTrack += ViewVerifyPrecisionCluster
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg

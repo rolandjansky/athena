@@ -78,8 +78,8 @@ private:
     void fillTrackCutFlow(const asg::AcceptData& accept);
     void fillCutFlow(const asg::AcceptData& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
     // Get truth particles into a vector, possibly using the pileup from the event
-    const std::vector<const xAOD::TruthParticle *> getTruthParticles();
-    const std::vector<const xAOD::TruthVertex*> getTruthVertices();
+    const std::vector<const xAOD::TruthParticle *> getTruthParticles() const;
+    std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>> getTruthVertices() const;
 
     //
     const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );

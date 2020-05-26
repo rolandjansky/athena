@@ -9,7 +9,7 @@ class CalibNtupleMetaData:
 
   def __init__(self, filelist):
     self.MetaData={}
-    fl=file(filelist)
+    fl=open(filelist)
     root_file=None
     inf=None
     for line in fl.readlines():

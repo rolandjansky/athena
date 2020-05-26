@@ -108,9 +108,77 @@ ActsExtrapolationTool::initialize()
 }
 
 
-Acts::PropagationOutput
+std::vector<Acts::detail::Step>
+ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
+                                        const Acts::BoundParameters& startParameters,
+                                        Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                        double pathLimit /*= std::numeric_limits<double>::max()*/) const
+{
+  using namespace Acts::UnitLiterals;
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
+
+  Acts::MagneticFieldContext mctx;
+  const ActsGeometryContext& gctx
+    = m_trackingGeometryTool->getGeometryContext(ctx);
+
+  auto anygctx = gctx.any();
+
+  // Action list and abort list
+  using ActionList = Acts::ActionList<SteppingLogger, DebugOutput>;
+  using AbortConditions = Acts::AbortList<EndOfWorld>;
+
+  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+
+  Options options(anygctx, mctx);
+  options.pathLimit = pathLimit;
+  bool debug = msg().level() == MSG::VERBOSE;
+  options.debug = debug;
+
+  options.loopProtection
+    = (Acts::VectorHelpers::perp(startParameters.momentum())
+       < m_ptLoopers * 1_MeV);
+  options.maxStepSize = m_maxStepSize * 1_m;
+  options.direction = navDir;
+
+  std::vector<Acts::detail::Step> steps;
+  DebugOutput::result_type debugOutput;
+
+  auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
+      auto result = propagator.propagate(startParameters, options);
+      if (!result.ok()) {
+        return result.error();
+      }
+      auto& propRes = *result;
+
+      auto steppingResults = propRes.template get<SteppingLogger::result_type>();
+      auto debugOutput = propRes.template get<DebugOutput::result_type>();
+      // try to force return value optimization, not sure this is necessary
+      return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
+    }, *m_varProp);
+
+  if (!res.ok()) {
+    ATH_MSG_ERROR("Got error during propagation:" << res.error()
+                  << ". Returning empty step vector.");
+    return {};
+  }
+  std::tie(steps, debugOutput) = std::move(*res);
+
+  if(debug) {
+    ATH_MSG_VERBOSE(debugOutput.debugString);
+  }
+
+  ATH_MSG_VERBOSE("Collected " << steps.size() << " steps");
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " end");
+
+  return steps;
+}
+
+
+
+std::unique_ptr<const Acts::CurvilinearParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundParameters& startParameters,
+                                 Acts::NavigationDirection navDir /*= Acts::forward*/,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/) const
 {
   using namespace Acts::UnitLiterals;
@@ -123,8 +191,169 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   auto anygctx = gctx.any();
 
   // Action list and abort list
+  using ActionList = Acts::ActionList<DebugOutput>;
+  using AbortConditions = Acts::AbortList<EndOfWorld>;
+  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+
+  Options options(anygctx, mctx);
+  options.pathLimit = pathLimit;
+  bool debug = msg().level() == MSG::VERBOSE;
+  options.debug = debug;
+
+  options.loopProtection
+    = (Acts::VectorHelpers::perp(startParameters.momentum())
+       < m_ptLoopers * 1_MeV);
+  options.maxStepSize = m_maxStepSize * 1_m;
+  options.direction = navDir;
+
+  std::vector<Acts::detail::Step> steps;
+  DebugOutput::result_type debugOutput;
+
+  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::CurvilinearParameters> {
+      auto result = propagator.propagate(startParameters, options);
+      if (!result.ok()) {
+        ATH_MSG_ERROR("Got error during propagation:" << result.error()
+        << ". Returning empty parameters.");
+        return nullptr;
+      }
+      return std::move(result.value().endParameters);
+    }, *m_varProp);
+
+  return parameters;
+}
+
+std::vector<Acts::detail::Step>
+ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
+                                        const Acts::BoundParameters& startParameters,
+                                        const Acts::Surface& target,
+                                        Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                        double pathLimit /*= std::numeric_limits<double>::max()*/) const
+{
+  using namespace Acts::UnitLiterals;
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
+
+  Acts::MagneticFieldContext mctx;
+  const ActsGeometryContext& gctx
+    = m_trackingGeometryTool->getGeometryContext(ctx);
+
+  auto anygctx = gctx.any();
+
+  // Action list and abort list
+  using ActionList = Acts::ActionList<SteppingLogger, DebugOutput>;
+  using AbortConditions = Acts::AbortList<EndOfWorld>;
+  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+
+  Options options(anygctx, mctx);
+  options.pathLimit = pathLimit;
+  bool debug = msg().level() == MSG::VERBOSE;
+  options.debug = debug;
+
+  options.loopProtection
+    = (Acts::VectorHelpers::perp(startParameters.momentum())
+       < m_ptLoopers * 1_MeV);
+  options.maxStepSize = m_maxStepSize * 1_m;
+  options.direction = navDir;
+
+  std::vector<Acts::detail::Step> steps;
+  DebugOutput::result_type debugOutput;
+
+  auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
+      auto result = propagator.propagate(startParameters, target, options);
+      if (!result.ok()) {
+        return result.error();
+      }
+      auto& propRes = *result;
+
+      auto steppingResults = propRes.template get<SteppingLogger::result_type>();
+      auto debugOutput = propRes.template get<DebugOutput::result_type>();
+      // try to force return value optimization, not sure this is necessary
+      return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
+    }, *m_varProp);
+
+  if (!res.ok()) {
+    ATH_MSG_ERROR("Got error during propagation:" << res.error()
+                  << ". Returning empty step vector.");
+    return {};
+  }
+  std::tie(steps, debugOutput) = std::move(*res);
+
+  if(debug) {
+    ATH_MSG_VERBOSE(debugOutput.debugString);
+  }
+
+  ATH_MSG_VERBOSE("Collected " << steps.size() << " steps");
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " end");
+
+  return steps;
+}
+
+std::unique_ptr<const Acts::BoundParameters>
+ActsExtrapolationTool::propagate(const EventContext& ctx,
+                                 const Acts::BoundParameters& startParameters,
+                                 const Acts::Surface& target,
+                                 Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                 double pathLimit /*= std::numeric_limits<double>::max()*/) const
+{
+  using namespace Acts::UnitLiterals;
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
+
+  Acts::MagneticFieldContext mctx;
+  const ActsGeometryContext& gctx
+    = m_trackingGeometryTool->getGeometryContext(ctx);
+
+  auto anygctx = gctx.any();
+
+  // Action list and abort list
+  using ActionList = Acts::ActionList<DebugOutput>;
+  using AbortConditions = Acts::AbortList<EndOfWorld>;
+  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+
+  Options options(anygctx, mctx);
+  options.pathLimit = pathLimit;
+  bool debug = msg().level() == MSG::VERBOSE;
+  options.debug = debug;
+
+  options.loopProtection
+    = (Acts::VectorHelpers::perp(startParameters.momentum())
+       < m_ptLoopers * 1_MeV);
+  options.maxStepSize = m_maxStepSize * 1_m;
+  options.direction = navDir;
+
+  std::vector<Acts::detail::Step> steps;
+  DebugOutput::result_type debugOutput;
+
+  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::BoundParameters> {
+      auto result = propagator.propagate(startParameters, target, options);
+      if (!result.ok()) {
+        ATH_MSG_ERROR("Got error during propagation: " << result.error()
+        << ". Returning empty parameters.");
+        return nullptr;
+      }
+      return std::move(result.value().endParameters);
+    }, *m_varProp);
+
+  return parameters;
+}
+
+
+Acts::PropagationOutput
+ActsExtrapolationTool::propagationMaterial(const EventContext& ctx,
+                 const Acts::BoundParameters& startParameters,
+                 Acts::NavigationDirection navDir = Acts::forward,
+                 double pathLimit = std::numeric_limits<double>::max()) const
+{
+  using namespace Acts::UnitLiterals;
+  ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
+
+  Acts::MagneticFieldContext mctx;
+  const ActsGeometryContext& gctx
+    = m_trackingGeometryTool->getGeometryContext(ctx);
+
+  auto anygctx = gctx.any();
+
+  // Action list and abort list
   using ActionList =
-      Acts::ActionList<SteppingLogger, Acts::MaterialInteractor, DebugOutput>;
+  Acts::ActionList<SteppingLogger, Acts::MaterialInteractor, DebugOutput>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
   using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
@@ -138,6 +367,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
     = (Acts::VectorHelpers::perp(startParameters.momentum())
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
+  options.direction = navDir;
 
   // Switch the material interaction on/off & eventually into logging mode
   // auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -153,24 +383,24 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
-      auto result = propagator.propagate(startParameters, options);
-      if (!result.ok()) {
-        return result.error();
-      }
-      auto& propRes = *result;
+    auto result = propagator.propagate(startParameters, options);
+    if (!result.ok()) {
+      return result.error();
+    }
+    auto& propRes = *result;
 
-      auto steppingResults = propRes.template get<SteppingLogger::result_type>();
-      auto debugOutput = propRes.template get<DebugOutput::result_type>();
-      auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
-      output.first = std::move(steppingResults.steps);
-      output.second = std::move(materialResult);
-      // try to force return value optimization, not sure this is necessary
-      return std::make_pair(output, std::move(debugOutput));
-    }, *m_varProp);
+    auto steppingResults = propRes.template get<SteppingLogger::result_type>();
+    auto debugOutput = propRes.template get<DebugOutput::result_type>();
+    auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
+    output.first = std::move(steppingResults.steps);
+    output.second = std::move(materialResult);
+    // try to force return value optimization, not sure this is necessary
+    return std::make_pair(output, std::move(debugOutput));
+  }, *m_varProp);
 
   if (!res.ok()) {
     ATH_MSG_ERROR("Got error during propagation:" << res.error()
-                  << ". Returning empty step vector.");
+                                                  << ". Returning empty step vector.");
     return {};
   }
   std::tie(output, debugOutput) = std::move(*res);

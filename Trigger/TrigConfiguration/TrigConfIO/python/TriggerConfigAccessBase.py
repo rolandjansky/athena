@@ -139,7 +139,6 @@ class ConfigDBLoader(ConfigLoader):
         failures = []
         config = None
         for q in self.query:
-            print q.format(**qdict)
             try:
                 cursor.execute( q.format(**qdict) )
             except DatabaseError as e:

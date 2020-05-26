@@ -6,40 +6,6 @@
 # Declare the package name:
 atlas_subdir( LumiBlockComps )
 
-# Declare the package's dependencies:
-if( XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Control/StoreGate
-      Control/xAODRootAccess
-      Event/xAOD/xAODLuminosity
-      GaudiKernel
-      PRIVATE
-      DataQuality/GoodRunsLists
-      Database/AthenaPOOL/AthenaPoolUtilities
-      Database/AthenaPOOL/DBDataModel
-      Database/CoraCool )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Control/StoreGate
-      Control/xAODRootAccess
-      Database/CoolLumiUtilities
-      Event/xAOD/xAODLuminosity
-      GaudiKernel
-      LumiBlock/LumiCalc
-      PRIVATE
-      Control/CxxUtils
-      DataQuality/GoodRunsLists
-      Database/AthenaPOOL/AthenaPoolUtilities
-      Database/AthenaPOOL/DBDataModel
-      Database/CoraCool )
-endif()
-
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel )
 find_package( CORAL COMPONENTS CoralBase )
@@ -60,8 +26,8 @@ atlas_add_library( LumiBlockCompsLib
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
-   AthenaKernel xAODLuminosity GaudiKernel StoreGateLib ${extra_libs}
-   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} AthenaPoolUtilities DBDataModel
+   AthenaKernel xAODLuminosity GaudiKernel StoreGateLib AthenaPoolUtilities ${extra_libs}
+   PRIVATE_LINK_LIBRARIES ${COOL_LIBRARIES} DBDataModel
    GoodRunsListsLib xAODRootAccess )
 
 atlas_add_component( LumiBlockComps
@@ -107,6 +73,10 @@ atlas_add_test( LBDurationCondAlgConfig_test
 
 atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( LumiBlockMuWriterConfig_test
+                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 

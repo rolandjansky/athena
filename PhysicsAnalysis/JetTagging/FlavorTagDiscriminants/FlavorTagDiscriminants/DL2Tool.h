@@ -26,7 +26,6 @@ namespace FlavorTagDiscriminants {
     ~DL2Tool();
 
     StatusCode initialize() override;
-    StatusCode finalize() override;
 
     // returns 0 for success
     virtual void decorate(const xAOD::Jet& jet) const override;

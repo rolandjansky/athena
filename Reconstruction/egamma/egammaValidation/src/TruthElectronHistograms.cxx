@@ -18,7 +18,7 @@ StatusCode TruthElectronHistograms::initializePlots() {
   histoMap["deltaPhiRescaled2"] = new TH1D(Form("%s_%s",m_name.c_str(),"deltaPhiRescaled2"), ";deltaPhi2; Events", 20, -0.04, 0.04);
 
   histoMap["d0Oversigmad0"] = new TH1D(Form("%s_%s",m_name.c_str(),"d0Oversigmad0"), "; d0Oversigmad0; Events", 20, -10, 10);
-  histoMap["qOverp_resolution"] = new TH1D(Form("%s_%s",m_name.c_str(),"qOverp_resolution"), ";(q/P reco - q/P truth)/ q/p truth; Events", 20, -2, 2);
+  histoMap["qOverp_resolution"] = new TH1D(Form("%s_%s",m_name.c_str(),"qOverp_resolution"), ";(q/P reco - q/P truth)/ q/p truth; Events", 60, -1, 1.5);
 
 
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"deltaPhi2", histoMap["deltaPhi2"]));

@@ -34,10 +34,10 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg    
 
-    acc=MainServicesSerialCfg()
+    acc=MainServicesCfg(ConfigFlags)
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     acc.merge(LArFebErrorSummaryMakerCfg(ConfigFlags))
     

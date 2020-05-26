@@ -38,7 +38,6 @@ namespace Monitored {
       const auto valuesVector1{m_monVariables[0].get().getVectorRepresentation()};
       const auto valuesVector2{m_monVariables[1].get().getVectorRepresentation()};
       const auto valuesVector3{m_monVariables[2].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
       /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
       unsigned i(0);
       if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {

@@ -30,7 +30,7 @@ public:
 
   virtual StatusCode initialize() override;
 
-  int execute() const;
+  virtual int execute() const override;
 
   StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const xAOD::JetContainer* theJets,
 			     std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) const;

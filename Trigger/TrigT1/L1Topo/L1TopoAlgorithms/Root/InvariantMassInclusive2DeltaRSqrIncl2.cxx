@@ -198,13 +198,13 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptM[i]->Fill(sqrt((float)invmass2));
-                       m_histAcceptDR[i]->Fill(sqrt((float)deltaR2));
-                       m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2));
+                       fillHist1D(m_histAcceptDR[i]->GetName(),sqrt((float)deltaR2));
+                       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
                    } else if(fillReject) {
-                       m_histRejectM[i]->Fill(sqrt((float)invmass2));
-                       m_histRejectDR[i]->Fill(sqrt((float)deltaR2));
-                       m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histRejectM[i]->GetName(),sqrt((float)invmass2));
+                       fillHist1D(m_histRejectDR[i]->GetName(),sqrt((float)deltaR2));
+                       fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }
@@ -258,13 +258,13 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::process( const std::vector<TCS::TOBA
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptM[i]->Fill(sqrt((float)invmass2));
-                       m_histAcceptDR[i]->Fill(sqrt((float)deltaR2));
-                       m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2));
+                       fillHist1D(m_histAcceptDR[i]->GetName(),sqrt((float)deltaR2));
+                       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
                    } else if(fillReject) {
-                       m_histRejectM[i]->Fill(sqrt((float)invmass2));
-                       m_histRejectDR[i]->Fill(sqrt((float)deltaR2));
-                       m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histRejectM[i]->GetName(),sqrt((float)invmass2));
+                       fillHist1D(m_histRejectDR[i]->GetName(),sqrt((float)deltaR2));
+                       fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
                    }
 		  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }

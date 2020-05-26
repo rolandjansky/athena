@@ -23,14 +23,15 @@ static double time_correction(double, double, double);
 
 namespace {
   static constexpr unsigned int const& rpcRawHitWordLength = 7;
-  static constexpr double const& inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
+  static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
 }
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
 RpcDigitToRpcRDO::RpcDigitToRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator),
+  m_MuonMgr(nullptr)
 {
 }
 
@@ -46,10 +47,6 @@ StatusCode RpcDigitToRpcRDO::initialize()
   ATH_CHECK(detStore()->retrieve(m_MuonMgr));
 
   ATH_CHECK(m_cabling.retrieve()) ;
-  if (m_cabling->rpcCabSvcType() == "simLike_MapsFromFiles" || m_cabling->rpcCabSvcType() == "dataLike") m_cablingType="MuonRPC_Cabling";
-  else if (m_cabling->rpcCabSvcType() == "simulationLike") m_cablingType="RPCcablingSim";
-  else if (m_cabling->rpcCabSvcType() == "simulationLikeInitialization" ) m_cablingType="RPCcabling";
-  else ATH_MSG_WARNING( "Unknown cabling type: rpcCabSvcType()="<< m_cabling->rpcCabSvcType() );
 
   ATH_CHECK(m_readKey.initialize());
 
@@ -108,10 +105,10 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_detailed_algo)? m_cma_debug : m_fast_debug;                //
                                                                         //
-  CMAdata patterns(&data,&*m_cabling,debug);                            //
+  CMAdata patterns(&data,&*m_cabling,debug);                                //
                                                                         //
-  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl   //
-                 << ShowData<CMAdata>(patterns,"",m_data_detail)  );
+  ATH_MSG_DEBUG( "CMApatterns created from RPC digits:" << std::endl    //
+                 << ShowData<CMAdata>(patterns,"",m_data_detail)  );    //
   ////////////////////////////////////////////////////////////////////////
 
 
@@ -152,7 +149,7 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData* /*readCdo*/) const {
+StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData* readCdo) const {
 
   std::string space = "                          ";
 
@@ -197,7 +194,7 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
           Amg::Vector3D pos = descriptor->stripPos(channelId);
 
           // get now strip_code from cablingSvc
-          unsigned long int strip_code_cab = m_cabling->strip_code_fromOffId (StationName, StationEta, StationPhi,
+          unsigned long int strip_code_cab = readCdo->strip_code_fromOffId (StationName, StationEta, StationPhi,
                                                                               DoubletR, DoubletZ, DoubletP,
                                                                               GasGap, MeasuresPhi, Strip);
 
@@ -236,21 +233,21 @@ double time_correction(double x, double y, double z)
   return std::sqrt(x*x+y*y+z*z)*inverseSpeedOfLight;
 }
 
-
+// NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+//       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+//       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
 StatusCode RpcDigitToRpcRDO::fillTagInfo() const
 {
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
   ATH_CHECK(tagInfoMgr.retrieve());
 
-  StatusCode sc = tagInfoMgr->addTag("RPC_CablingType",m_cablingType);
-
+  std::string cablingType="MuonRPC_Cabling";
+  StatusCode sc = tagInfoMgr->addTag("RPC_CablingType",cablingType);
   if(sc.isFailure()) {
-    ATH_MSG_WARNING( "RPC_CablingType " << m_cablingType
-                     << " not added to TagInfo "  );
+    ATH_MSG_WARNING( "RPC_CablingType " << cablingType << " not added to TagInfo "  );
     return sc;
   } else {
-    ATH_MSG_DEBUG( "RPC_CablingType " << m_cablingType
-                   << " is Added TagInfo "  );
+    ATH_MSG_DEBUG( "RPC_CablingType " << cablingType << " is Added TagInfo "  );
   }
 
   return StatusCode::SUCCESS;

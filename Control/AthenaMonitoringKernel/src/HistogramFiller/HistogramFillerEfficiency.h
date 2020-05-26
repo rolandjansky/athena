@@ -36,7 +36,6 @@ namespace Monitored {
       auto cutMaskAccessor = cutMaskValuePair.second;
 
       auto efficiency = this->histogram<TEfficiency>();
-      std::scoped_lock lock(*m_mutex);
 
       int nMonVar = m_monVariables.size();
       if ( nMonVar==2 ) { // Single observable (1D TEfficiency)

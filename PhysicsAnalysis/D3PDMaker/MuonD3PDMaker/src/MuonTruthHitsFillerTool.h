@@ -1,10 +1,7 @@
-// This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file MuonD3PDMaker/src/MuonTruthHitsFillerTool.h
  * @author scott snyder <snyder@bnl.gov>, from code by Niels van Eldik.
@@ -12,26 +9,21 @@
  * @brief Fill truth hit information for muons.
  */
 
-
 #ifndef MUOND3PDMAKER_MUONTRUTHHITSFILLERTOOL_H
 #define MUOND3PDMAKER_MUONTRUTHHITSFILLERTOOL_H
 
+#include "D3PDMakerUtils/BlockFillerTool.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "D3PDMakerUtils/BlockFillerToolMulti.h"
 #include "TrackRecord/TrackRecord.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "xAODTruth/TruthParticle.h"
-#include "GaudiKernel/ToolHandle.h"
+
 #include <vector>
 
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
-
-
 namespace D3PD {
-
 
 /** 
  * @brief Fill truth hit information for muons.
@@ -90,8 +82,7 @@ private:
   std::vector<int*> m_nphiHitsPerChamberLayer;
   std::vector<int*> m_ntrigEtaHitsPerChamberLayer;
 
-  // other private
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   std::vector<std::string> m_PRD_TruthNames;
 };
 

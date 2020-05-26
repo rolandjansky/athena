@@ -154,7 +154,7 @@ def resolveDependencies(jetdef):
     
     # Accumulate prerequisites of the ghost-associated types
     jetlog.info("  Full list of ghosts: ")
-    for ghostdef in sorted(list(ghostdefs)):
+    for ghostdef in sorted(list(ghostdefs), key=lambda g: g.inputtype):
         jetlog.info("    " + str(ghostdef))
         gprereqs = getGhostPrereqs(ghostdef)
         prereqdict["input"].update( [req.split(':',1)[1] for req in gprereqs] )
@@ -263,7 +263,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             jetlog.debug("Preparing Constit Mods for label {0} from {1}".format(constit.label,constit.inputname))
             # May need to generate constituent modifier sequences to
             # produce the input collection
-            import ConstModHelpers
+            from . import ConstModHelpers
             constitalg = ConstModHelpers.getConstitModAlg(constit)
             if constitalg:
                 components.addEventAlgo(constitalg)
@@ -281,7 +281,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
         jetlog.debug("Setting up input track containers and track-vertex association")
         from JetRecTools import JetRecToolsConfig
         # Jet track selection
-        jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+        jettrackselloose = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True)
         jettvassoc = JetRecToolsConfig.getTrackVertexAssocTool()
 
         jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
@@ -499,8 +499,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    cfg=MainServicesThreadedCfg(ConfigFlags) 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(ConfigFlags) 
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -515,3 +515,6 @@ if __name__=="__main__":
     cfg.printConfig(withDetails=False,summariseProps=True)
 
     cfg.run(maxEvents=10)
+
+    import sys
+    sys.exit(0)

@@ -24,7 +24,7 @@ run Reco_tf.py \
   --steering        doRAWtoALL \
   --checkEventCount False \
   --ignoreErrors    True \
-  --maxEvents       1000 \
+  --maxEvents       100 \
   --valid           True \
   --validationFlags doInDet \
   --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; \
@@ -33,6 +33,7 @@ run Reco_tf.py \
   InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
   InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
   InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
+  InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
   rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; \
   rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
   rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; \
@@ -42,9 +43,11 @@ run Reco_tf.py \
   AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
   AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
   AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
-echo "art-result: $? reco"
+rec_tf_exit_code=$?
+echo "art-result: $rec_tf_exit_code reco"
 
-if [ rec_tf_exit_code  -eq 0 ]  ;then
+if [ $rec_tf_exit_code -eq 0 ]  ;then
+  echo "download latest result"
   run art.py download --user=artprod --dst="$lastref_dir" "$ArtPackage" "$ArtJobName"
   run ls -la "$lastref_dir"
 

@@ -6,7 +6,6 @@
 #define AthenaMonitoringKernel_HistogramFiller_h
 
 #include <functional>
-#include <mutex>
 #include <memory>
 #include <vector>
 
@@ -33,8 +32,7 @@ namespace Monitored {
      * @param histDef Histogram definition of ROOT object
      */
     HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider)
-      : m_mutex(std::make_shared<std::mutex>()),
-        m_histDef(new HistogramDef(histDef)),
+      : m_histDef(new HistogramDef(histDef)),
         m_histogramProvider(histogramProvider) {}
     /**
      * @brief Copy constructor
@@ -42,8 +40,7 @@ namespace Monitored {
      * @param hf Other HistogramFiller
      */
     HistogramFiller(const HistogramFiller& hf)
-      : m_mutex(hf.m_mutex),
-        m_histDef(hf.m_histDef),
+      : m_histDef(hf.m_histDef),
         m_histogramProvider(hf.m_histogramProvider),
         m_monWeight(hf.m_monWeight),
         m_monCutMask(hf.m_monCutMask) {}
@@ -145,12 +142,10 @@ namespace Monitored {
           return fill<H>(weight, cut, m..., m1.getStringVectorRepresentation());
       } else {
         // All IMonitoreVariables have been converted to vector<double/string>
-        std::scoped_lock lock(*m_mutex);
         return detail::fill(this->histogram<H>(), weight, cut, m1, m...);
       }
     }
 
-    std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;

@@ -47,7 +47,7 @@ StatusCode TauEleOLRDecorator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
+StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau) const
 {
   // get electron container                                                                                                                               
   SG::ReadHandle<xAOD::ElectronContainer> electronInHandle( m_electronInputContainer );
@@ -102,7 +102,7 @@ StatusCode TauEleOLRDecorator::finalize()
   return StatusCode::SUCCESS;
 }
 
-float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
+float TauEleOLRDecorator::getCutVal(float fEta, float fPt) const
 {
   if(fPt>1900) fPt=1900;
   if(std::abs(fEta)>2.465) fEta=2.465;

@@ -6,6 +6,11 @@
 #define SRC_MDTDQANTUPLEANALYSIS_H
 
 #include "GaudiKernel/Algorithm.h"
+#include "MuonCalibStandAloneExtraTools/StringUtil.h"
+#include "MuonCalibStandAloneExtraTools/HistogramManager.h"
+#include "MuonCalibStandAloneExtraTools/MdtDqaDb.h"
+#include "MuonCalibStandAloneExtraTools/MDTDqaDeadElements.h"
+#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 #include <iostream>
 #include <vector>
@@ -17,20 +22,10 @@
 
 #include "TFile.h"
 
-#include "MuonCalibStandAloneExtraTools/StringUtil.h"
-#include "MuonCalibStandAloneExtraTools/HistogramManager.h"
-#include "MuonCalibStandAloneExtraTools/MdtDqaDb.h"
-#include "MuonCalibStandAloneExtraTools/MDTDqaDeadElements.h"
-
-#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
-class RegionSelectionSvc;
-
 namespace MuonCalib {
 
   class MuonCalibEvent;
   class MuonCalibSegment;
-  class MuonRawHitCollection;
 
   /**
      @class NtupleAnalysis
@@ -40,10 +35,9 @@ namespace MuonCalib {
   class MdtDqaNtupleAnalysis {
   public:
     MdtDqaNtupleAnalysis(bool verbose, std::string outputFileName);     //!< default constructor
-    virtual ~MdtDqaNtupleAnalysis() = default;   //!< destructor
+    virtual ~MdtDqaNtupleAnalysis()=default;
 
     StatusCode initialize(RegionSelectionSvc *, HistogramManager *, int, float);
-    StatusCode finalize();
     
     void handleEvent(const MuonCalibEvent &event, int eventnumber, const std::vector<MuonCalibSegment *> &segments, unsigned int position );  
     void histogramAnalysis(TFile * rootfile);

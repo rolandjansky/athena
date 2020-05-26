@@ -12,7 +12,7 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <string>
@@ -25,7 +25,7 @@ namespace CP {
         public:
             MuonEfficiencyScaleFactors(const std::string& name);
 
-            virtual ~MuonEfficiencyScaleFactors();
+            virtual ~MuonEfficiencyScaleFactors() = default;
             //Proper constructor for Athena
             ASG_TOOL_CLASS2( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool )
 
@@ -135,6 +135,14 @@ namespace CP {
             
             /// Returns the number of EffiCollections stored in this class
             size_t getNCollections() const;
+            /// Returns a boolean whether the uncorrelation of systematics has been switched on
+            bool uncorrelate_sys() const;
+            
+            /// Returns the string telling the tool in which
+            /// float AuxElement the information of the separation
+            /// to the closest jet is stored
+            std::string close_by_jet_decoration() const;
+            
        
     private:
             /// utility method to 'dress' a filename using the path resolver
@@ -165,10 +173,12 @@ namespace CP {
       
             /// subfolder to load from the calibration db
             std::string m_calibration_version;
+            
 
             /// threshold below which low-pt SF (i.e. from JPsi) should be used
             float m_lowpt_threshold;
-         
+            /// Name of the decoration to catch up the close by jets
+            std::string m_iso_jet_dR;
             CP::SystematicSet m_affectingSys;
             /// It turned out that the code spends a large time in the look up of
             /// the systematics. This map tries to mitigate this issue.

@@ -79,9 +79,15 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
         refit a track removing any indet measurements with optional addition of pseudoMeasurements
         according to original extrapolation */
     Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
-
+    
     /** ITrackFitter interface:
-        refit a track */
+     *    
+     * Bring in default impl with
+     * EventContext for now
+     */
+  
+    using ITrackFitter::fit;
+    /** refit a track */
     Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
@@ -91,7 +97,7 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
     /**ITrackFitter interface:
@@ -100,7 +106,7 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
     /** ITrackFitter interface:
@@ -109,7 +115,7 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
     /** ITrackFitter interface:

@@ -24,7 +24,7 @@
 
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 
@@ -166,29 +166,26 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const EventContext& ctx,
                                                                           cache.originalTrack,
                                                                           cache.electron);
     if(collect.m_measurements.size()>4){
-      cache.refittedTrack.reset(m_ITrackFitter->fit(collect.m_measurements,
-                                                    *cache.originalTrack->perigeeParameters(),
-                                                    m_runOutlier,
-                                                    m_ParticleHypothesis)
-                                );
+      cache.refittedTrack =
+        m_ITrackFitter->fit(ctx,
+                            collect.m_measurements,
+                            *cache.originalTrack->perigeeParameters(),
+                            m_runOutlier,
+                            m_ParticleHypothesis);
     }else {
       ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector, refitting without BS");
-      cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(*cache.
-                                                     originalTrack,
-                                                     m_runOutlier,
-                                                     m_ParticleHypothesis)
-                                );
+      cache.refittedTrack = m_ITrackFitter->fit(
+        ctx, *cache.originalTrack, m_runOutlier, m_ParticleHypothesis);
     }
   } else {
     std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(cache.originalTrack);  
     if(measurements.size()>4){
-      cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(measurements,
-                                                     *cache.originalTrack->perigeeParameters(),
-                                                     m_runOutlier,
-                                                     m_ParticleHypothesis)
-                                );
+      cache.refittedTrack =
+        m_ITrackFitter->fit(ctx,
+                            measurements,
+                            *cache.originalTrack->perigeeParameters(),
+                            m_runOutlier,
+                            m_ParticleHypothesis);
     } else {
       ATH_MSG_DEBUG("Not enough measurements on tracks");
       cache.refittedTrack=nullptr; 

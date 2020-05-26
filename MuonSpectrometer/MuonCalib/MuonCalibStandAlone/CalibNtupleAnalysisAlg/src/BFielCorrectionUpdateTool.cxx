@@ -39,14 +39,6 @@ BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
 
 //*****************************************************************************
 
-//::::::::::::::::
-//:: DESTRUCTOR ::
-//::::::::::::::::
-BFieldCorrectionUpdateTool::~BFieldCorrectionUpdateTool(void) {
-}
-
-//*****************************************************************************
-
 //:::::::::::::::::::::::
 //:: METHOD initialize ::
 //:::::::::::::::::::::::
@@ -71,25 +63,6 @@ StatusCode BFieldCorrectionUpdateTool::initialize(void) {
 
   return StatusCode::SUCCESS;
 }  //end BFieldCorrectionUpdateTool::initialize
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD finalize ::
-//:::::::::::::::::::::
-StatusCode BFieldCorrectionUpdateTool::finalize(void) {
-
-/////////////
-// OBJECTS //
-/////////////
-
-/////////////
-// MESSAGE //
-/////////////
-  ATH_MSG_INFO( "Finalizing tool..." );
-
-  return StatusCode::SUCCESS;
-}
 
 //*****************************************************************************
 

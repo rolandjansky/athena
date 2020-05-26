@@ -16,14 +16,15 @@
 #define TRIGBJETHYPO_TRIGBJETHYPOTOOL_H 1
 
 // This is in current hypo, not sure if needed
-//#include "TrigInterfaces/HypoAlgo.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "xAODBTagging/BTaggingAuxContainer.h"
+
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 #include "xAODBTagging/BTaggingContainer.h"
-#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
 
 // Are these new?
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -37,6 +38,7 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
   struct TrigBjetBtagHypoToolInfo {
     TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     ElementLink< xAOD::BTaggingContainer > btaggingEL;
+    ElementLink< xAOD::VertexContainer > vertexEL;
     TrigCompositeUtils::Decision* decision;
   };
 
@@ -56,19 +58,14 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
   StatusCode decide( std::vector< TrigBjetBtagHypoToolInfo >& ) const;
 
  private:
-  template<typename T> 
-    StatusCode retrieveTool( const std::string&,PublicToolHandle< T >& );
-
-
- private:
   HLT::Identifier m_decisionId;
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
-  /** @brief DeclareProperty: list of likelihood methods to be effectively used to perform the selection. */
-  Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","list of likelihood methods to be effectively used to perform the selection"};
+  /** @brief DeclareProperty: Tagger used to perform the selection. */
+  Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","Tagger used to perform the selection"};    
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
-  Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20,"lower bound of the discriminant variable to be selected for b-tagging"};
+  Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20.,"lower bound of the discriminant variable to be selected for b-tagging"};
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;

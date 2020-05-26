@@ -10,26 +10,33 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagneticField/MagFieldConditions
+                          MagneticField/MagFieldElements
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
                           Control/CxxUtils
                           Event/EventPrimitives
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParameters )
+                          Tracking/TrkEvent/TrkParameters
+                          Tools/PathResolver )
 
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT )
 
+atlas_add_library( TrkExSolenoidalIntersectorLib
+                   src/SolenoidalIntersector.cxx
+                   src/SolenoidParametrization.cxx
+                   src/SolenoidParametrizationCondAlg.cxx
+                   PUBLIC_HEADERS TrkExSolenoidalIntersector
+                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldElements MagFieldConditions TrkExInterfaces TrkExUtils EventPrimitives TrkSurfaces TrkParameters )
+
 # Component(s) in the package:
 atlas_add_component( TrkExSolenoidalIntersector
-                     src/SolenoidalIntersector.cxx
-                     src/SolenoidParametrization.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldInterfaces TrkExInterfaces TrkExUtils EventPrimitives TrkSurfaces TrkParameters )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} TrkExSolenoidalIntersectorLib )
 
 # Install files from the package:
 atlas_install_headers( TrkExSolenoidalIntersector )
@@ -37,7 +44,7 @@ atlas_install_headers( TrkExSolenoidalIntersector )
 
 atlas_add_test( SolenoidParametrization_test
                 SOURCES test/SolenoidParametrization_test.cxx
-                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools PathResolver MagFieldElements MagFieldConditions
                 LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
@@ -46,7 +53,7 @@ atlas_add_test( SolenoidParametrization_test
 atlas_add_test( SolenoidalIntersector_test
                 SOURCES test/SolenoidalIntersector_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES}
+                LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES} MagFieldElements MagFieldConditions PathResolver TrkExSolenoidalIntersectorLib
                 LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

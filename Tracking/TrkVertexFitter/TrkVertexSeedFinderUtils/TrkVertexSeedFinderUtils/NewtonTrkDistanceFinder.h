@@ -8,10 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-namespace MagField { 
-  class IMagFieldSvc;
-}
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk
 {
@@ -72,8 +69,9 @@ namespace Trk
   double m_maxloopnumber;//as job option
 
   //variables for magnetic field service needed to retrieve the correct Bz
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-  
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey 
+        {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
   };
 
   namespace Error {

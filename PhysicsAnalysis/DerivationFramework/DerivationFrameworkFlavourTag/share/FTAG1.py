@@ -48,7 +48,7 @@ triggersSkim = triggers_jX + triggers_bperf
 FTAG1TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG1TriggerSkimmingTool",
                                                                     TriggerListOR = triggersSkim)
 ToolSvc += FTAG1TriggerSkimmingTool
-print FTAG1TriggerSkimmingTool
+printfunc (FTAG1TriggerSkimmingTool)
 
 FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1SkimKernel",
                                                          SkimmingTools = [FTAG1TriggerSkimmingTool],
@@ -77,8 +77,8 @@ FTAG1DstarVertexing = DstarVertexing( name = "FTAG1DstarVertexing",
                                       JetPtCut = 20)
 
 ToolSvc += FTAG1DstarVertexing
-print "using DstarVertexing package to add D0 vertex information"
-print FTAG1DstarVertexing
+printfunc ("using DstarVertexing package to add D0 vertex information")
+printfunc (FTAG1DstarVertexing)
 
 FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
                                                          AugmentationTools = [FTAG1DstarVertexing]
@@ -87,7 +87,7 @@ FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
 #make IPE tool for BTagTrackAugmenter
 FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
 ToolSvc += FTAG1IPETool
-print FTAG1IPETool
+printfunc (FTAG1IPETool)
 
 #====================================================================
 # Basic Jet Collections

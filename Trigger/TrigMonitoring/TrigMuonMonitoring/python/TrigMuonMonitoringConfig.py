@@ -8,6 +8,7 @@ def TrigMuonMonitoringTool():
 	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList  # access to central tool
 	HLTMuonMon = HLTMuonMonTool(name                 = 'HLTMuonMon',
 				    histoPathBase        = "/Trigger/HLT",
+				    TriggerStreamOfFile	 = getTriggerStreamOfFile(),
 				    ZTPPtCone30RelCut    = 0.5)
 	HLTMuonMon.monitoring_muonNonIso = hltmonList.monitoring_muonNonIso
 	HLTMuonMon.monitoring_muonIso = hltmonList.monitoring_muonIso
@@ -29,6 +30,11 @@ def TrigMuonMonitoringTool():
 	list = [ HLTMuonMon ];
 	return list
 
+
+def getTriggerStreamOfFile():
+	from PyUtils.MetaReaderPeeker import metadata
+	stag = metadata['triggerStreamOfFile']
+	return stag
 
 
 def setL2HypoTENames( HLTMuonMon, hltmonList):
@@ -84,12 +90,5 @@ def setL2HypoTENames( HLTMuonMon, hltmonList):
 		HLTMuonMon.monitoring_muonEFFS_L2CBHypo = muon.monitoring_muonEFFS_HI_L2CBHypo
 		HLTMuonMon.monitoring_muonLowpt_L2CBHypo = muon.monitoring_muonLowpt_HI_L2CBHypo 
 		HLTMuonMon.monitoring_muon_Support_L2CBHypo = muon.monitoring_muon_Support_HI_L2CBHypo
-
-	
-
-
-
-
-
 
 

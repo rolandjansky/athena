@@ -140,17 +140,16 @@ int main( int argc, char* argv[] ) {
      for (const auto track : *tracks) {
        for (const auto& cutLevelPair : cutFuncs) {
 	 const auto& cutLevel = cutLevelPair.first;
-	 if ( selTools[cutLevel]->accept( *track, primaryVertex )
-	      != cutFuncs[cutLevel]( *track, primaryVertex ) ) {
+         asg::AcceptData taccept = selTools[cutLevel]->accept( *track, primaryVertex );
+	 if ( bool (taccept) != cutFuncs[cutLevel]( *track, primaryVertex ) ) {
 	   Error( APP_NAME, "Track selection tool at %s cut level does not", cutLevel.data() );
 	   Error( APP_NAME, "  match hard-coded test function." );
-	   const auto& taccept = selTools[cutLevel]->getTAccept();
 	   if (taccept) Error( APP_NAME, "Passes tool but not function" );
 	   else Error( APP_NAME, "Passes function but not tool" );
 
 	   for (size_t i_cut=0; i_cut < taccept.getNCuts(); ++i_cut) {
 	     const auto& cutName = taccept.getCutName(i_cut);
-	     Info( APP_NAME, "Result of %s = %i", cutName.Data(), taccept.getCutResult(i_cut) );
+	     Info( APP_NAME, "Result of %s = %i", cutName.c_str(), taccept.getCutResult(i_cut) );
 	   }
 
 	   dumpTrack( *track ); // output track info

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -82,7 +82,6 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trtHighProbabilityBoostBkg(1.), 
     m_trtHighProbabilityBoostEle(1.)
 {
-  declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
   declareProperty( "TRT_ElectronPidTool",         m_trtElectronPidTool );
   declareProperty( "TRT_StrawStatusSummaryTool",   m_trtStrawStatusSummaryTool );

@@ -396,8 +396,8 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   auto idCylBds
     = dynamic_cast<const Acts::CylinderVolumeBounds*>(&insideVolume->volumeBounds());
 
-  double idRMax = idCylBds->get(CVBBV::eMinR);
-  double idRMin = idCylBds->get(CVBBV::eMaxR);
+  double idRMax = idCylBds->get(CVBBV::eMaxR);
+  double idRMin = idCylBds->get(CVBBV::eMinR);
   double idHlZ = idCylBds->get(CVBBV::eHalfLengthZ);
 
   if (!insideVolume->transform().isApprox(Acts::Transform3D::Identity())) {

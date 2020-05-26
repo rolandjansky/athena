@@ -58,14 +58,14 @@ StatusCode EMFourMomBuilder::initialize(){
 }
 
 StatusCode EMFourMomBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const {
-    
     (void)ctx;
     if (!eg){
         ATH_MSG_WARNING("Null pointer to egamma object ");
         return StatusCode::SUCCESS;
     }
-    xAOD::Electron *electron = dynamic_cast< xAOD::Electron* >(eg);
-    xAOD::Photon   *photon   = electron ? nullptr : dynamic_cast< xAOD::Photon* >(eg);
+    
+    xAOD::Electron *electron = eg->type() == xAOD::Type::Electron ? static_cast<xAOD::Electron*>(eg) : nullptr;
+    xAOD::Photon   *photon   = electron ? nullptr : static_cast<xAOD::Photon*>(eg);
 
     bool hasTrack(false);
     if (electron) {

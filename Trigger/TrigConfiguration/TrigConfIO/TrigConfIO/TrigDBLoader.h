@@ -18,6 +18,7 @@
 
 namespace coral {
    class ISessionProxy;
+   class Blob;
 }
 
 namespace TrigConf {
@@ -33,6 +34,11 @@ namespace TrigConf {
 
       /** Destructor */
       virtual ~TrigDBLoader();
+
+      /** write data blob into file
+          This can be used to write the DB content to file without going through a ptree
+       */
+      bool writeRawFile(const coral::Blob & data, const std::string & outFileName) const;
 
       void setLevel(MSGTC::Level lvl) { msg().setLevel(lvl); }
 

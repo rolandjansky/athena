@@ -49,7 +49,7 @@ namespace Trk
     ParametersT<DIM,T,S>(),
    m_cIdentifier(cIdentifier)
   {
-    this->m_covariance =cov;
+    this->m_covariance.reset(cov);
     this->m_position=pos;
     // flip the charge according to qOverP
     if(tqOverP < 0.) {
@@ -84,7 +84,7 @@ namespace Trk
     m_cIdentifier(cIdentifier)    
   {
     this->m_chargeDef.setCharge(charge);
-    this->m_covariance = cov;
+    this->m_covariance.reset(cov);
 
     // assign the parameters
     this->m_parameters[Trk::locX]   = 0.;
@@ -261,37 +261,6 @@ namespace Trk
     }
     // Reset also the surface
     this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
-  }
-
-  // Dedicated update method 
-  template <int DIM,class T,class S>
-  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                                              AmgSymMatrix(DIM)* updatedCovariance)
-  {
-    this->updateParametersHelper(updatedParameters);
-    // update the covariance
-    if (updatedCovariance)
-    {
-      if (updatedCovariance != this->m_covariance){
-        delete this->m_covariance;
-      }
-      this->m_covariance = updatedCovariance;
-    }
-  }
-
-  // Dedicated update method
-  template <int DIM,class T,class S>
-  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                                              const AmgSymMatrix(DIM)& updatedCovariance)
-  {
-    this->updateParametersHelper(updatedParameters);
-    // if the covariance is there update in place
-    if (this->m_covariance) {
-      (*(this->m_covariance)) = updatedCovariance;
-    } else { // otherwise create one
-      auto tmp = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
-      this->m_covariance = tmp.release();
-    }
   }
 
 } // end of namespace Trk

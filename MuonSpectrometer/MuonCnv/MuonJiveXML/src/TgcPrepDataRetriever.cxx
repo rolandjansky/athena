@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/TgcPrepDataRetriever.h"
 
 #include "MuonJiveXML/MuonFullIDHelper.h"
-
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
@@ -28,9 +26,9 @@ namespace JiveXML {
 
   StatusCode TgcPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -40,11 +38,11 @@ namespace JiveXML {
   StatusCode TgcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::TgcPrepDataContainer *tgcContainer;
+    const Muon::TgcPrepDataContainer *tgcContainer=nullptr;
     if ( evtStore()->retrieve(tgcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::TgcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::TgcPrepDataContainer '" << m_sgKey << "' was not retrieved.");
       return StatusCode::SUCCESS;
     }
 
@@ -75,22 +73,22 @@ namespace JiveXML {
         Identifier id = data->identify();
 
         if (!element) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::TgcReadoutElement for hit " << id << endmsg;
+          if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::TgcReadoutElement for hit " << id);
           continue;
         }
 
 	Amg::Vector3D globalPos; 
         double shortWidth, longWidth, length;
-        if (m_muonIdHelperTool->tgcIdHelper().isStrip(id)) {
-          int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
-          int strip = m_muonIdHelperTool->tgcIdHelper().channel(id);
+        if (m_idHelperSvc->tgcIdHelper().isStrip(id)) {
+          int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(id);
+          int strip = m_idHelperSvc->tgcIdHelper().channel(id);
           shortWidth = element->stripShortWidth(gasGap, strip);
           longWidth = element->stripLongWidth(gasGap, strip);
           length = element->stripLength(gasGap, strip);
           globalPos = element->stripPos(gasGap, strip);
         } else {
-          int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
-          int gang = m_muonIdHelperTool->tgcIdHelper().channel(id);
+          int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(id);
+          int gang = m_idHelperSvc->tgcIdHelper().channel(id);
           shortWidth = element->gangShortWidth(gasGap, gang);
           longWidth = element->gangLongWidth(gasGap, gang);
           length = element->gangLength(gasGap, gang);
@@ -103,7 +101,7 @@ namespace JiveXML {
         swidthVec.push_back(DataType(shortWidth/CLHEP::cm));
         lwidthVec.push_back(DataType(longWidth/CLHEP::cm));
         lengthVec.push_back(DataType(length/CLHEP::cm));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->tgcIdHelper())));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_idHelperSvc->tgcIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
 
@@ -122,7 +120,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     ////forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

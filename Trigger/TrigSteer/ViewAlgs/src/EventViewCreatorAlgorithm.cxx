@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -181,7 +181,7 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
   // We must call this BEFORE having added the new link, check
   if (outputDecision->hasObjectLink(viewString())) {
     ATH_MSG_ERROR("Called linkViewToParent on a Decision object which already has been given a '" 
-      << viewString << "' link. Call this fn BEFORE linking the new View.");
+      << viewString() << "' link. Call this fn BEFORE linking the new View.");
     return StatusCode::FAILURE;
   }
   std::vector<LinkInfo<ViewContainer>> parentViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
@@ -246,15 +246,21 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
 
 // TODO - Template this?
 StatusCode EventViewCreatorAlgorithm::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
+
   // fill the Jet output collection
   ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::JetContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
 
-  //store in the view
-  auto handle = SG::makeHandle( m_inViewJets,context );
-  ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
+  auto oneObjectCollection = std::make_unique< xAOD::JetContainer >();
+  auto oneObjectAuxCollection = std::make_unique< xAOD::JetAuxContainer >();
+  oneObjectCollection->setStore( oneObjectAuxCollection.get() );
+
+  xAOD::Jet* copiedJet = new xAOD::Jet();
+  oneObjectCollection->push_back( copiedJet );
+  *copiedJet = *theObject;
+
+  auto handle = SG::makeHandle( m_inViewJets,context );  
+  ATH_CHECK( handle.setProxyDict( view ) ); 
+  ATH_CHECK( handle.record( std::move(oneObjectCollection),std::move(oneObjectAuxCollection) ) );
+
   return StatusCode::SUCCESS;
 }

@@ -71,10 +71,6 @@ StatusCode ExtraTreeTrackFillerTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ExtraTreeTrackFillerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 StatusCode ExtraTreeTrackFillerTool::writeTracks(unsigned int &index) {
   //retrieve SG container
   const TrackCollection* tracks;

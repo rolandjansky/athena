@@ -25,6 +25,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
         eventSelector.HelperTools += [xconv]
+        eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
         acc.setAppProperty( "EvtSel", eventSelector.name )
 
@@ -60,55 +61,15 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    bsCnvSvc.InitCnvs += [ "EventInfo",]
-
     return acc
 
-def TrigBSReadCfg(inputFlags):
-
-    acc=ByteStreamReadCfg( inputFlags )
-
-    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
-    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
-    
-    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
-
-    bsAddressProviderSvc.TypeNames += [
-        "TileCellIDC/TileCellIDC",
-        "MdtDigitContainer/MDT_DIGITS",
-        "RpcDigitContainer/RPC_DIGITS",
-        "TgcDigitContainer/TGC_DIGITS",
-        "CscDigitContainer/CSC_DIGITS",
-        "MuCTPI_RIO/MUCTPI_RIO",
-        "CTP_RIO/CTP_RIO"
-    ]
-
-    bsAddressProviderSvc.TypeNames += [
-        "LArRawChannelContainer/LArRawChannels",
-        "TileRawChannelContainer/TileRawChannelCnt",
-        "MuCTPI_RDO/MUCTPI_RDO",
-        "HLT::HLTResult/HLTResult_L2",
-        "HLT::HLTResult/HLTResult_EF",
-        "CTP_RDO/CTP_RDO",
-        "L1TopoRDOCollection/L1TopoRDOCollection"
-    ]
-
-
-    
-    if inputFlags.Input.isMC is False:
-        bsCnvSvc.GetDetectorMask=True
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
-        # still need to figure out how conditions are setup in new system
-        #from IOVDbSvc.CondDB import conddb
-        #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
-        #acc.addService( conddb )    
-
-    return acc
+def TrigBSReadCfg( flags, typeNames=[] ):
+    # TODO: Search and replace all clients to use ByteStreamReadCfg directly, then remove TrigBSReadCfg
+    return ByteStreamReadCfg( flags, typeNames )
 
 
 def ByteStreamWriteCfg( flags, typeNames=[] ):
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator("AthOutSeq")
     outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
     outputSvc.MaxFileMB = 15000
     # event (beyond which it creates a new file)
@@ -121,20 +82,17 @@ def ByteStreamWriteCfg( flags, typeNames=[] ):
     assert len(allRuns) == 1, "The input is from multiple runs, do not know which one to use {}".format(allRuns)
     outputSvc.RunNumber = allRuns.pop()
 
-    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("OutBSCnvSvc")
-    # TODO for technical reasons a separate instance of the ByteStreamCnvSvc have to be created, once all the config (i.e. trigger) is moved to CA based the name needs to be left default
-    # to test such change the test_trig_data_v1Dev_writeBS_build.py can be used
+    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("ByteStreamCnvSvc")
 
     bsCnvSvc.ByteStreamOutputSvcList = [ outputSvc.getName() ]
     streamAlg = CompFactory.AthenaOutputStream( "BSOutputStreamAlg",
                                                 EvtConversionSvc = bsCnvSvc.getName(),
+                                                OutputFile = "ByteStreamEventStorageOutputSvc",
                                                 ItemList = typeNames )
 
     acc.addService( outputSvc )
     acc.addService( bsCnvSvc )
-    acc.addSequence( CompFactory.AthSequencer("AthOutSeq") )
-    acc.addEventAlgo( streamAlg, sequenceName="AthOutSeq", primary = True )
-
+    acc.addEventAlgo( streamAlg, primary = True )
     return acc
 
 

@@ -1,39 +1,16 @@
-################################################################################
-# Package: MuonStationIntersectSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( MuonStationIntersectSvc )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
-			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData )
-
-# External dependencies:
-find_package( Eigen )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( MuonStationIntersectSvcLib
-                   src/*.cxx
-                   PUBLIC_HEADERS MuonStationIntersectSvc
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests GeoModelUtilities
-                   PRIVATE_LINK_LIBRARIES MuonReadoutGeometry TrkDriftCircleMath MuonCondData )
+   MuonStationIntersectSvc/*.h src/*.cxx
+   PUBLIC_HEADERS MuonStationIntersectSvc
+   LINK_LIBRARIES AthenaBaseComps GeoPrimitives Identifier MuonIdHelpersLib
+   PRIVATE_LINK_LIBRARIES GaudiKernel StoreGateLib GeoModelUtilities
+   MuonReadoutGeometry TrkDriftCircleMath MuonCondData )
 
 atlas_add_component( MuonStationIntersectSvc
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests MuonReadoutGeometry TrkDriftCircleMath MuonCondData MuonStationIntersectSvcLib )
-
-atlas_install_python_modules( python/*.py )
-
+   src/components/*.cxx
+   LINK_LIBRARIES MuonStationIntersectSvcLib )

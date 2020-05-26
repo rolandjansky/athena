@@ -42,7 +42,7 @@ class ITauToolBase : virtual public asg::IAsgTool
   //-----------------------------------------------------------------
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
-  virtual StatusCode execute(xAOD::TauJet& pTau) = 0;
+  virtual StatusCode execute(xAOD::TauJet& pTau) const = 0;
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
                                          const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;

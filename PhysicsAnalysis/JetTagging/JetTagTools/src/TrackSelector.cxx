@@ -12,7 +12,6 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "ITrackToVertex/ITrackToVertex.h"
 #include <TMath.h>
 #include <string>
 #include <bitset>
@@ -26,11 +25,10 @@ namespace Analysis {
 			       const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_ntri(0),
-    m_ntrf(0),
-    m_trackToVertexTool("Reco::TrackToVertex", this) {
+    m_ntrf(0)
+  {
 
     declareInterface<TrackSelector>(this);
-    declareProperty("trackToVertexTool", m_trackToVertexTool);
     declareProperty("useBLayerHitPrediction", m_useBLayerHitPrediction = false);
     declareProperty("usePerigeeParameters", m_usePerigeeParameters = false);
     declareProperty("pTMin", m_pTMin = 1.*Gaudi::Units::GeV);

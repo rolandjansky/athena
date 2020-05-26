@@ -1,25 +1,16 @@
 TrkVertexSeedFinderUtils/Mode3dTo1dFinder_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/rootaccess/build/joboptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/rootaccess/build/joboptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /home/dcasper/Work/atlas/vtx/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/dcasper/Work/atlas/vtx/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Jun 27 11:26:14 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on localhost.localdomain on Thu May 14 05:44:16 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens
-AtlasFieldSvc        INFO Added listener to BeginRun incident
-AtlasFieldSvc        INFO initialize() successful
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Trk::Mo...   INFO Initialize successfull

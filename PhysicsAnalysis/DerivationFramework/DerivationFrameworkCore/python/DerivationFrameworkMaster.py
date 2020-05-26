@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 # DerivationFrameworkMaster.py
@@ -6,6 +6,8 @@
 # ------------------------------------------------------------
 # Contains all basic includes for running the derivation framework
 #-------------------------------------------------------------
+
+from __future__ import print_function
 
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
@@ -59,10 +61,10 @@ if inputFileSummary is not None:
 if not globalflags.InputFormat=="bytestream":
     # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
     from RecExConfig.ObjKeyStore import objKeyStore
-    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
-                                  OutputLevel = 2 )
-    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+#    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+#                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
+#                                  OutputLevel = 2 )
+#    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
@@ -84,7 +86,7 @@ jetFlags.useTracks = True
 DerivationFrameworkIsMonteCarlo=False
 DerivationFrameworkSimBarcodeOffset = int(200e3)
 if globalflags.DataSource()=='geant4':
-    print "Switching on jetFlags.useTruth"
+    print ("Switching on jetFlags.useTruth")
     jetFlags.useTruth = True
     DerivationFrameworkIsMonteCarlo = True
     try:
@@ -94,7 +96,7 @@ if globalflags.DataSource()=='geant4':
         if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
             DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
     except:
-        print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
+        print ('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
 
 def buildFileName(derivationStream):
     return derivationStream.FileName

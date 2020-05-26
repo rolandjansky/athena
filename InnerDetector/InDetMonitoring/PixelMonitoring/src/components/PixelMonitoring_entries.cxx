@@ -1,6 +1,6 @@
-#include "PixelMonitoring/PixelAthClusterMonAlg.h"
-#include "PixelMonitoring/PixelAthErrorMonAlg.h"
-#include "PixelMonitoring/PixelAthHitMonAlg.h"
+#include "src/PixelAthClusterMonAlg.h"
+#include "src/PixelAthErrorMonAlg.h"
+#include "src/PixelAthHitMonAlg.h"
 
 DECLARE_COMPONENT( PixelAthClusterMonAlg )
 DECLARE_COMPONENT( PixelAthErrorMonAlg )

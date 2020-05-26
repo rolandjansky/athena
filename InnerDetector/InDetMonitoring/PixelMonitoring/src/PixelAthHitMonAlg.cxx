@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelMonitoring/PixelAthHitMonAlg.h"
-#include "PixelMonitoring/PixelAthMonitoringBase.h"
-#include "InDetIdentifier/PixelID.h"
-
+#include "PixelAthHitMonAlg.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 
 PixelAthHitMonAlg::PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 

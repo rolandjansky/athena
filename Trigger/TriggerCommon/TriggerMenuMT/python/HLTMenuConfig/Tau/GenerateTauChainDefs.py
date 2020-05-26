@@ -5,12 +5,12 @@
 ###########################################################################
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateChainConfigs' )
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Tau.generateChainConfigs' )
 logging.getLogger().info("Importing %s",__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration import TauChainConfiguration as TauChainConfiguration
-
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 def generateChainConfigs(chainDict):
@@ -19,16 +19,14 @@ def generateChainConfigs(chainDict):
     listOfChainDefs=[]
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )        
         Tau = TauChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Tau]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multi-electron chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+      theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 

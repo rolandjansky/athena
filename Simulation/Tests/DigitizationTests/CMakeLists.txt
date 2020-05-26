@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaKernel
-                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetRawData
@@ -26,7 +26,7 @@ atlas_add_component( DigitizationTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel EventInfo GeneratorObjects InDetIdentifier InDetRawData InDetSimData )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel GeneratorObjects InDetIdentifier InDetRawData InDetSimData xAODEventInfo )
 
 # Install files from the package:
 atlas_install_headers( DigitizationTests )

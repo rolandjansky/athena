@@ -2091,7 +2091,6 @@ void MC_init_particle_simul_state(MCdo_simul_state& do_simul_state,const MCparti
 void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,HepMC::GenVertex* ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
-    //    if(do_simul_state[ver->barcode()]<=0) return;
     do_simul_state[ver->barcode()]=simul_state;
     for(HepMC::GenVertex::particles_out_const_iterator pout=ver->particles_out_const_begin();pout!=ver->particles_out_const_end();++pout) {
       const HepMC::GenParticle* par=*pout;
@@ -2106,7 +2105,6 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
 {
   if(ver) {
     if(do_simul_state[ver->barcode()]==simul_state) {
-      //log << MSG::DEBUG<<"ver: bc="<<ver->barcode()<<" : loop in MC_recursive_remove_in_particles, returning"<<endmsg;
       return;
     }
     do_simul_state[ver->barcode()]=simul_state;
@@ -2119,72 +2117,6 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
   }
 }
 
-/*
-  void print_MC_info(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles,MsgStream& log)
-  {
-  log << MSG::VERBOSE <<"print_MC_info: begin"<< endmsg;
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-  const HepMC::GenParticle* par=*ip;
-
-  if(log.level()<=MSG::DEBUG) {
-  std::string reason="---";
-  if(do_simul_state[par->barcode()]<=0) {
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::out_of_ID) reason="-ID";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::non_EM_vertex) reason="-EM";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::heavy_ion) reason="-HI";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::pdg_id_unkown) reason="-PI";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::invisibleArray) reason="-IA";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::invisibleTruthHelper) reason="-IT";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::mother_particle) reason="-MO";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::v14_truth_brems) reason="-BR";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::v14_truth_conv) reason="-CO";
-  } else {
-  reason="+OK";
-  }
-  log << MSG::DEBUG<<reason;
-
-  log <<": "<<"bc="<<par->barcode()<<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi();
-  HepMC::GenVertex*  inver =par->production_vertex();
-  HepMC::GenVertex* outver =par->end_vertex();
-  if(inver) {
-  double inr=inver->position().perp();
-  double inz=inver->position().z();
-  log<<" ; r="<<inr<<" z="<<inz<<" phi="<<inver->position().phi()<<" ; ";
-  bool sep=false;
-  for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
-  const HepMC::GenParticle* invpar=*pin;
-  if(invpar) {
-  if(sep) log<<",";
-  log<<invpar->barcode();
-  if(do_simul_state[invpar->barcode()]<=0) log<<"-";
-  else log<<"+";
-  sep=true;
-  }
-  }
-  }
-  log<<"->"<<par->barcode();
-  if(outver) {
-  log<<"->";
-  bool sep=false;
-  for(HepMC::GenVertex::particles_out_const_iterator pout=outver->particles_out_const_begin();pout!=outver->particles_out_const_end();++pout) {
-  const HepMC::GenParticle* outpar=*pout;
-  if(outpar) {
-  if(sep) log<<",";
-  log<<outpar->barcode();
-  if(do_simul_state[outpar->barcode()]<=0) log<<"-";
-  else log<<"+";
-  sep=true;
-  }
-  }
-  }
-  log<<endmsg;
-  }
-  }
-
-  log << MSG::VERBOSE <<"print_MC_info: end"<< endmsg;
-  }
-*/
 
 void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
@@ -2384,13 +2316,11 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
     for(unsigned int i=0;i<m_invisibles.size();++i) {
       if(abs(par->pdg_id())==m_invisibles[i]) {
         do_simul_state[par->barcode()]=invisibleArray;
-        //log << MSG::DEBUG <<"INVISIBLE by ARRAY: id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<endmsg;
         break;
       }
       if(m_invisibles[i]==0) {
         if(MC::isNonInteracting(par)) {
           do_simul_state[par->barcode()]=invisibleTruthHelper;
-          //log << MSG::DEBUG <<"INVISIBLE by TruthHelper: id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<endmsg;
           break;
         }
       }

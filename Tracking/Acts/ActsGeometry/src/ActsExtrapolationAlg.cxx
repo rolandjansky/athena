@@ -128,16 +128,14 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       auto anygctx = gctx.any();
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
-
       std::cout << startParameters << std::endl;
-      output = m_extrapolationTool->propagate(ctx, startParameters);
+      output = m_extrapolationTool->propagationMaterial(ctx, startParameters);
       m_propStepWriterSvc->write(output.first);
       RecordedMaterialTrack track;
       track.first.first = Acts::Vector3D(0,0,0);
       track.first.second = momentum;
       track.second = std::move(output.second);
       m_materialTrackWriterSvc->write(track);
-
     }
 
     ATH_MSG_VERBOSE(name() << " execute done");

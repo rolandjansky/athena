@@ -67,7 +67,7 @@ if globalflags.DataSource()=='data':
     FTAG3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG3TriggerSkimmingTool",
                                                                     TriggerListOR = triggers )
     ToolSvc += FTAG3TriggerSkimmingTool
-    print FTAG3TriggerSkimmingTool
+    printfunc (FTAG3TriggerSkimmingTool)
     FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
                                                          SkimmingTools = [FTAG3TriggerSkimmingTool] )
 
@@ -76,7 +76,7 @@ if globalflags.DataSource()!='data':
     FTAG3StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG3StringSkimmingTool",
                                   expression = 'count( (Muons.pt > 4*GeV) && (Muons.DFCommonGoodMuon) )  >= 1')
     ToolSvc += FTAG3StringSkimmingTool
-    print FTAG3StringSkimmingTool
+    printfunc (FTAG3StringSkimmingTool)
     FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
                                                              SkimmingTools = [FTAG3StringSkimmingTool] )
 

@@ -4,14 +4,12 @@
 
 #include "SCT_ReadCalibDataCondAlg.h"
 
+#include "FillFromStringUtility.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-
-// Include boost stuff
-#include "boost/lexical_cast.hpp"
-#include "boost/tokenizer.hpp"
 
 // Include STL stuff
 #include <limits>
@@ -21,24 +19,6 @@ using namespace SCT_ConditionsData;
 
 // Utility functions
 namespace {
-  template <typename C> 
-  bool fillFromString(const std::string& source, C& userContainer) {
-    typedef typename C::value_type V_t;
-    V_t errVal{0};
-    boost::char_separator<char> sep{" "};
-    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-    Tokenizer tok{source, sep};
-    bool noNan{true};
-    for (Tokenizer::iterator i{tok.begin()}; i!=tok.end(); ++i) {
-      try {
-	userContainer.push_back(boost::lexical_cast<V_t>(*i));
-      } catch (const boost::bad_lexical_cast&) {
-	userContainer.push_back(errVal);
-	noNan=false;
-      }
-    }
-    return noNan;
-  }
   float coerceToFloatRange(const double value) {
     const float maxfloat{std::numeric_limits<float>::max()};
     if (value>maxfloat) return maxfloat;
@@ -236,13 +216,13 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
 
       // Convert the defect strings to vectors
       std::vector<unsigned int> gaindefectbvec;
-      fillFromString(gaindefectb, gaindefectbvec);
+      fillEmptyVectorFromString(gaindefectb, gaindefectbvec);
       std::vector<unsigned int> gaindefectevec;
-      fillFromString(gaindefecte, gaindefectevec);
+      fillEmptyVectorFromString(gaindefecte, gaindefectevec);
       std::vector<unsigned int> defectTypevec;
-      fillFromString(defectType, defectTypevec);
+      fillEmptyVectorFromString(defectType, defectTypevec);
       std::vector<double> parValuevec;
-      fillFromString(parValue, parValuevec);
+      fillEmptyVectorFromString(parValue, parValuevec);
 
       // Fill the Calib defect objects
       long unsigned int gainvec_size{gaindefectbvec.size()};

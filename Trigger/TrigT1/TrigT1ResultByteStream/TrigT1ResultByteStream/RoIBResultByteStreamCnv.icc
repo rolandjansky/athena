@@ -24,7 +24,7 @@ template< class ROBF >
 RoIBResultByteStreamCnv< ROBF >::RoIBResultByteStreamCnv( ISvcLocator* svcloc )
   : Converter( storageType(), classID(), svcloc ),
     AthMessaging( msgSvc(), "RoIBResultByteStreamCnv" ),
-    m_tool( "RoIBResultByteStreamTool/ToolSvc.RoIBResultBSEncoderTool" ),
+    m_tool( "RoIBResultByteStreamTool/RoIBResultBSEncoderTool" ),
     m_ByteStreamCnvSvc( "ByteStreamCnvSvc", "RoIBResultByteStreamCnv" ),
     m_robDataProviderSvc( "ROBDataProviderSvc", "RoIBResultByteStreamCnv" ) {
 

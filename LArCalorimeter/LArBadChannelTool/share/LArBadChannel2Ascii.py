@@ -41,7 +41,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 if 'OFLP' not in DBInstance:
    globalflags.DatabaseInstance=DBInstance
-	
+
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 

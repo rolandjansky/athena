@@ -44,10 +44,41 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   DeclareInterfaceID(IActsExtrapolationTool, 1, 0);
 
   virtual
-  Acts::PropagationOutput
+  std::vector<Acts::detail::Step>
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  std::unique_ptr<const Acts::CurvilinearParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
+            Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  std::vector<Acts::detail::Step>
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   const Acts::Surface& target,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  std::unique_ptr<const Acts::BoundParameters>
+  propagate(const EventContext& ctx,
+            const Acts::BoundParameters& startParameters,
+            const Acts::Surface& target,
+            Acts::NavigationDirection navDir = Acts::forward,
+            double pathLimit = std::numeric_limits<double>::max()) const = 0;
+
+  virtual
+  Acts::PropagationOutput
+  propagationMaterial(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
   const IActsTrackingGeometryTool*

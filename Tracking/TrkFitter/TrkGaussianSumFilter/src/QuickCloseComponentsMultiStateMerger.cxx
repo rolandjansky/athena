@@ -2,64 +2,34 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      QuickCloseComponentsMultiStateMerger.cxx  -  description
-      ---------------------------------------------------
-begin                : Wednesday 3rd September 2008
-author               : amorley
-email                : Anthony.Morley@cern.ch
-decription           : Implementation code for QuickCloseComponentsMultiStateMerger
-                       class
-*********************************************************************************/
+/**
+ * @file   QuickCloseComponentsMultiStateMerger.cxx
+ * @date   Wednesday 3rd September 2008
+ * @author Anthony Morley, Christos Anastopoulos
+ *
+ * Implementation of QuickCloseComponentsMultiStateMerger
+ */
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "GaudiKernel/Chrono.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkParameters/TrackParameters.h"
 #include <cstdint>
 #include <limits>
+
 using namespace GSFUtils;
 
-Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
-                                                                                const std::string& name,
-                                                                                const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-{
-
-  declareInterface<IMultiComponentStateMerger>(this);
-}
-
-Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() = default;
-
-StatusCode
-Trk::QuickCloseComponentsMultiStateMerger::initialize()
-{
-  if (m_maximumNumberOfComponents <= 0) {
-    ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Initialisation of " << type() << " under instance " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::QuickCloseComponentsMultiStateMerger::finalize()
-{
-  ATH_MSG_INFO("Finalisation of " << type() << " under instance " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
 Trk::MultiComponentState
-Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState statesToMerge) const
+Trk::QuickCloseComponentsMultiStateMerger::merge(
+  Trk::MultiComponentState&& statesToMerge,
+  const unsigned int maximumNumberOfComponents)
 {
   // Assembler Cache
   MultiComponentStateAssembler::Cache cache;
-
-  if (statesToMerge.size() <= m_maximumNumberOfComponents) {
-    MultiComponentStateAssembler::addMultiState(cache, std::move(statesToMerge));
+  if (statesToMerge.size() <= maximumNumberOfComponents) {
+    MultiComponentStateAssembler::addMultiState(cache,
+                                                std::move(statesToMerge));
     return MultiComponentStateAssembler::assembledState(cache);
   }
 
@@ -78,21 +48,25 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState states
     // Sort to select the one with the largest weight
     std::sort(statesToMerge.begin(),
               statesToMerge.end(),
-              [](const ComponentParameters& x, const ComponentParameters& y) { return x.second > y.second; });
+              [](const ComponentParameters& x, const ComponentParameters& y) {
+                return x.second > y.second;
+              });
 
-    Trk::ComponentParameters dummyCompParams(statesToMerge.begin()->first->clone(), 1.);
+    Trk::ComponentParameters dummyCompParams(
+      statesToMerge.begin()->first->clone(), 1.);
     Trk::MultiComponentState returnMultiState;
     returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
   }
 
-  return mergeFullDistArray(cache, statesToMerge);
+  return mergeFullDistArray(cache, statesToMerge, maximumNumberOfComponents);
 }
 
 Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
   MultiComponentStateAssembler::Cache& cache,
-  Trk::MultiComponentState& statesToMerge) const
+  Trk::MultiComponentState& statesToMerge,
+  const unsigned int maximumNumberOfComponents)
 {
   const int32_t n = statesToMerge.size();
   AlignedDynArray<Component1D, alignment> components(n);
@@ -100,7 +74,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
     const AmgSymMatrix(5)* measuredCov = statesToMerge[i].first->covariance();
     const AmgVector(5)& parameters = statesToMerge[i].first->parameters();
     // Fill in infomation
-    const double cov = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
+    const double cov =
+      measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
     components[i].mean = parameters[Trk::qOverP];
     components[i].cov = cov;
     components[i].invCov = cov > 0 ? 1. / cov : 1e10;
@@ -109,13 +84,14 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
 
   // Gather the merges
   const std::vector<std::pair<int32_t, int32_t>> merges =
-    findMerges(components, n, m_maximumNumberOfComponents);
+    findMerges(components, n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {
     const int32_t mini = mergePair.first;
     const int32_t minj = mergePair.second;
-    MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini], statesToMerge[minj]);
+    MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
+                                                   statesToMerge[minj]);
     statesToMerge[minj].first.reset();
     statesToMerge[minj].second = 0.;
   }
@@ -125,10 +101,12 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
     if (!state.first) {
       continue;
     }
-    cache.multiComponentState.push_back(ComponentParameters(state.first.release(), state.second));
+    cache.multiComponentState.push_back(
+      ComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  Trk::MultiComponentState mergedState = MultiComponentStateAssembler::assembledState(cache);
+  Trk::MultiComponentState mergedState =
+    MultiComponentStateAssembler::assembledState(cache);
   // Clear the state vector
   statesToMerge.clear();
   return mergedState;
