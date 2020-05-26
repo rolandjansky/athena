@@ -81,7 +81,7 @@ atlas_add_component( InDetPhysValMonitoring
 atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py share/*.txt )
-atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl )
+atlas_install_runtime( share/*.xml )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 
 # build postprocessing program 
