@@ -1,5 +1,5 @@
 ﻿/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCDigitVariables.h"
@@ -14,8 +14,8 @@
 #include "MuonReadoutGeometry/MuonPadDesign.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
-//using MuonGM::MuonPadDesign;
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
 StatusCode sTGCDigitVariables::fillVariables()
@@ -73,8 +73,8 @@ StatusCode sTGCDigitVariables::fillVariables()
                          << " Station PhiMax ["  << stationPhiMax      << "]");
 
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
-
+      const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCDigitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
       int channelNumber = 0;
       const Identifier phiId, etaId;
       Amg::Vector3D gpos(0.,0.,0.);
