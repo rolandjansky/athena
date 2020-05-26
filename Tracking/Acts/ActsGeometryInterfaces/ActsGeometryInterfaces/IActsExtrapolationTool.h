@@ -15,24 +15,12 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
-namespace Acts {
-
-  class ISurfaceMaterial;
-  class IVolumeMaterial;
-
-  using SurfaceMaterialMap
-      = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
-
-  using VolumeMaterialMap
-      = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
-
-  using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
-
+namespace Acts{
+  /// Using some short hands for Recorded Material
   using RecordedMaterial = Acts::MaterialInteractor::result_type;
-
+  /// Finally the output of the propagation test
   using PropagationOutput =
       std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
-
 }
 
 class IActsTrackingGeometryTool;
@@ -44,7 +32,7 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   DeclareInterfaceID(IActsExtrapolationTool, 1, 0);
 
   virtual
-  std::vector<Acts::detail::Step>
+  Acts::PropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
@@ -58,7 +46,7 @@ class IActsExtrapolationTool : virtual public IAlgTool {
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
 
   virtual
-  std::vector<Acts::detail::Step>
+  Acts::PropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    const Acts::Surface& target,
@@ -72,13 +60,6 @@ class IActsExtrapolationTool : virtual public IAlgTool {
             const Acts::Surface& target,
             Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
-
-  virtual
-  Acts::PropagationOutput
-  propagationMaterial(const EventContext& ctx,
-                   const Acts::BoundParameters& startParameters,
-                   Acts::NavigationDirection navDir = Acts::forward,
-                   double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
   const IActsTrackingGeometryTool*

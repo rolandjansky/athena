@@ -27,7 +27,6 @@
 
 namespace Acts {
   class TrackingGeometry;
-
   namespace detail {
     class Step;
   }
