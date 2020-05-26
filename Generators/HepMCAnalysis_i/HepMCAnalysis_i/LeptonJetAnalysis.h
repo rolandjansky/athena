@@ -7,8 +7,6 @@
 
 #include "baseAnalysis.h"
 
-// forward declarations
-#include "AtlasHepMC/GenEvent_fwd.h"
 class TH1D;
 
 class LeptonJetAnalysis: public baseAnalysis
