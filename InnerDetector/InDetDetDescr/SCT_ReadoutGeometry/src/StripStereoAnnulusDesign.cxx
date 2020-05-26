@@ -150,7 +150,6 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
     double r = pos.r();
     if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) {
-      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId \n" << endmsg;
       return SiCellId(); // return an invalid id
     }
 
