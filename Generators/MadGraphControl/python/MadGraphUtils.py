@@ -1,6 +1,4 @@
-#! /usr/bin/env python
-
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
@@ -20,6 +18,7 @@ MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
+from MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 def setup_path_protection():
     # Addition for models directory
@@ -107,9 +106,10 @@ def error_check(errors):
     return
 
 
-def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
+def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePMGSettings=False):
     """ Generate a new process in madgraph.
     Pass a process string.
+    Optionally request JPEGs to be kept and request for PMG settings to be used in the param card
     Return the name of the process directory.
     """
     if config_only_check():
@@ -214,6 +214,10 @@ def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
     modify_config_card(process_dir=process_dir,settings=option_paths,set_commented=False)
     # Done modifying paths
 
+    # If requested, apply PMG default settings
+    if usePMGSettings:
+        do_PMG_updates(process_dir)
+
     return process_dir
 
 
@@ -249,7 +253,7 @@ def get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card)
 
 
-def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,extlhapath=None,required_accuracy=0.01,runArgs=None,bias_module=None):
+def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False, extlhapath=None, required_accuracy=0.01, runArgs=None, bias_module=None, requirePMGSettings=False):
     if config_only_check():
         return
 
@@ -270,7 +274,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
 
     if is_gen_from_gridpack():
         mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-        generate_from_gridpack(runArgs=runArgs,extlhapath=extlhapath,gridpack_compile=gridpack_compile)
+        generate_from_gridpack(runArgs=runArgs,extlhapath=extlhapath,gridpack_compile=gridpack_compile,requirePMGSettings=requirePMGSettings)
         return
 
     # Now get a variety of info out of the runArgs
@@ -355,6 +359,11 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
 
     # Check the run card
     run_card_consistency_check(isNLO=isNLO)
+
+    # Check the param card
+    code = check_PMG_updates(process_dir)
+    if requirePMGSettings and code!=0:
+        raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
     # Build up the generate command
     # Use the new-style way of passing things: just --name, everything else in config
@@ -445,7 +454,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     return 0
 
 
-def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None):
+def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None, requirePMGSettings=False):
 
     # Get of info out of the runArgs
     beamEnergy,random_seed = get_runArgs_info(runArgs)
@@ -472,6 +481,11 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
 
     if get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION) is not None:
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
+
+    # Check the param card
+    code = check_PMG_updates(process_dir)
+    if requirePMGSettings and code!=0:
+        raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
     # Modify run card, then print
     modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'iseed':str(random_seed),'python_seed':str(random_seed)})
@@ -1742,7 +1756,7 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
     #check that all specified parameters have been updated (helps to catch typos)
     for blockName in params:
-       if blockName not in doneParams:
+       if blockName not in doneParams and len(params[blockName].keys())>0:
           raise RuntimeError('Did not find any of the parameters for block '+blockName+' in param_card')
        for paramName in params[blockName]:
           if paramName not in doneParams[blockName]:
