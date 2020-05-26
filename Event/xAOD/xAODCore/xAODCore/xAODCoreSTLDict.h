@@ -64,7 +64,7 @@ namespace {
       std::map< std::string, std::vector< std::vector< float > > > stl_m4;
 
       // "Other" type(s).
-      std::bitset< 3 > stl_o1; // 3 == ? Something needed for xAODCaloEvent
+      std::bitset< 3 > stl_o1; // 3 == CaloCluster::NSTATES
       std::bitset< 11 > stl_o2; // 11 == xAOD::NumberOfTrackRecoInfo
       std::set< uint32_t > stl_o3;
    };
