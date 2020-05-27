@@ -226,7 +226,7 @@ namespace top {
     for (const std::string& isoWP : photon_isolations) {
       std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
       if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
-        if (m_config->isMC() && !af2) { // only available for full simulation
+        if (m_config->isMC()) {
           IPhotonEffTool* photonIsoSFTool = new AsgPhotonEfficiencyCorrectionTool(photonIsoSFName);
           top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                      "Failed to set ForceDataType for " + photonIsoSFName);
