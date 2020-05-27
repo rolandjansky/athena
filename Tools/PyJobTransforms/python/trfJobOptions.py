@@ -56,6 +56,18 @@ class JobOptionsTemplate(object):
     ## @brief Write the runArgs Job Options file
     def writeRunArgs(self, input = dict(), output = dict()):
         msg.info('Writing runArgs to file \"%s\"' % self._runArgsFile)
+
+        ## Check consistency btw --CA flag and provided skeletons:
+        if 'CA' in self._exe.conf.argdict:
+            if self._exe._skeletonCA is None:
+                errMsg = "Got the --CA option but this transform doesn't supply a ComponentAccumulator-based skeleton file"
+                msg.error(errMsg)
+                raise  trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'),errMsg)
+        else: # 'CA' not in self._exe.conf.argdict
+            if self._exe._skeleton is None:
+                errMsg = "No --CA option given, but this transform doesn't supply old-style skeleton file"
+                msg.error(errMsg)
+                raise  trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'),errMsg)
         
         with open(self._runArgsFile, 'w') as runargsFile:
             try:
@@ -193,11 +205,9 @@ class JobOptionsTemplate(object):
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
                 if 'CA' in self._exe.conf.argdict:
                     #ComponentAccumulator based config, import skeleton here:
-                    for skeleton in self._exe._skeleton: #FIXME: Multiple skeletons won't work
-                        print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
-                        pythonizedSkeleton=skeleton[:-3].replace('/','.')
-                        print('from {0} import fromRunArgs'.format(pythonizedSkeleton),file=runargsFile)
-                        print('fromRunArgs({0})'.format(self._runArgsName),file=runargsFile)
+                    print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
+                    print('from {0} import fromRunArgs'.format(self._exe._skeletonCA),file=runargsFile)
+                    print('fromRunArgs({0})'.format(self._runArgsName),file=runargsFile)
 
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
@@ -218,9 +228,10 @@ class JobOptionsTemplate(object):
             msg.warning('Could not find runArgs file %s' % self._runArgsFile)
 
         # Check the skeleton(s):
-        for skeleton in self._exe._skeleton:
-            if not findFile(os.environ["JOBOPTSEARCHPATH"], skeleton):
-                msg.warning('Could not find job options skeleton file %s' % skeleton)
+        if  self._exe._skeleton:
+            for skeleton in self._exe._skeleton:
+                if not findFile(os.environ["JOBOPTSEARCHPATH"], skeleton):
+                    msg.warning('Could not find job options skeleton file %s' % skeleton)
 
   
     ## @brief Get the runArgs and skeleton joboptions, Master function

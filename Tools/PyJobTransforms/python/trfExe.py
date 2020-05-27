@@ -816,6 +816,7 @@ class athenaExecutor(scriptExecutor):
     #  @param skeletonFile athena skeleton job options file (optionally this can be a list of skeletons
     #  that will be given to athena.py in order); can be set to @c None to disable writing job options 
     #  files at all
+    #  @param skeletonCA ComponentAccumulator-compliant skeleton file (used with the --CA option)
     #  @param inputDataTypeCountCheck List of input datatypes to apply preExecute event count checks to;
     #  default is @c None, which means check all inputs
     #  @param exe Athena execution script
@@ -841,9 +842,9 @@ class athenaExecutor(scriptExecutor):
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
     #  snippets into the runArgs file.
-    def __init__(self, name = 'athena', trf = None, conf = None, skeletonFile = 'PyJobTransforms/skeleton.dummy.py', inData = set(), 
-                 outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
-                 perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
+    def __init__(self, name = 'athena', trf = None, conf = None, skeletonFile = 'PyJobTransforms/skeleton.dummy.py', skeletonCA=None, 
+                 inData = set(), outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], 
+                 substep = None, inputEventTest = True, perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
                  manualDataDictionary = None, memMonitor = True, disableMP = False):
         
@@ -857,6 +858,7 @@ class athenaExecutor(scriptExecutor):
         self._errorMaskFiles = errorMaskFiles
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
         self._disableMP = disableMP
+        self._skeletonCA=skeletonCA
 
         if perfMonFile:
             self._perfMonFile = None
@@ -875,7 +877,7 @@ class athenaExecutor(scriptExecutor):
         self._extraMetadata.update({'substep': substep})
 
         # Setup JO templates
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $')
         else:
             self._jobOptionsTemplate = None
@@ -1033,7 +1035,7 @@ class athenaExecutor(scriptExecutor):
 
 
         ## Write the skeleton file and prep athena
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             inputFiles = dict()
             for dataType in input:
                 inputFiles[dataType] = self.conf.dataDictionary[dataType]
@@ -1309,7 +1311,7 @@ class athenaExecutor(scriptExecutor):
             self._cmd.append("--CA")
 
         # Add topoptions
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             self._cmd += self._topOptionsFiles
             msg.info('Updated script arguments with topoptions: %s' % self._cmd)
 
