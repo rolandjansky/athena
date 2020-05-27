@@ -35,8 +35,8 @@
 
 // Other packages includes
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-
 #include "JetInterface/IJetResolutionTool.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 // Local includes
 #include "JetUncertainties/Helpers.h"

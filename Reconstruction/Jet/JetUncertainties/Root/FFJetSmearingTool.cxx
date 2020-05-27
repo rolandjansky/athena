@@ -452,38 +452,32 @@ StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet* jet_reco, std::string& 
     }
 
 
-    int jetTruthLabel = accTruthLabel(*jet_reco);
+LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(accTruthLabel(*jet_reco));
 
-
-    if(jetTruthLabel == 1 || jetTruthLabel == 5)
+    if(jetTruthLabel == LargeRJetTruthLabel::tqqb || jetTruthLabel == LargeRJetTruthLabel::other_From_t)
     {
         jetTopology="Top";
     }
 
-    else if(jetTruthLabel == 2 || jetTruthLabel == 3 || jetTruthLabel == 4 || jetTruthLabel == 6)
+    else if(jetTruthLabel == LargeRJetTruthLabel::Wqq || jetTruthLabel == LargeRJetTruthLabel::Zqq || jetTruthLabel == LargeRJetTruthLabel::Wqq_From_t || jetTruthLabel == LargeRJetTruthLabel::other_From_V)
     {
         jetTopology="V";
     }
 
-    else if(jetTruthLabel == 8)   
+    else if(jetTruthLabel == LargeRJetTruthLabel::qcd)   
     {
         jetTopology="QCD";
     }
 
-    else if(jetTruthLabel == 9 || jetTruthLabel == 10)
+    else if(jetTruthLabel == LargeRJetTruthLabel::Hbb || jetTruthLabel == LargeRJetTruthLabel::other_From_H)
     {
         jetTopology="H";
     }
 
-    else if(jetTruthLabel == 7)    
+    else if(jetTruthLabel == LargeRJetTruthLabel::notruth)    
     {
         jetTopology="no_match";
         ATH_MSG_WARNING("No truth jet match with this reco jet");//applyCorrention should fail for the same reason before arriving here. This message should never be shown
-    }
-
-    else if(jetTruthLabel == 0)
-    {
-        return StatusCode::FAILURE;
     }
   
     else jetTopology="QCD"; //We should never arrive here 
