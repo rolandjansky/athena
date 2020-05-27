@@ -107,9 +107,9 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       StreamName             = PHYSStream.Name,
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = tau_thinning_expression)
-                                                                      #DoTauTracksThinning    = True,
-                                                                      #TauTracksKey           = "TauTracks")
+                                                                      SelectionString        = tau_thinning_expression,
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
 thinningTools.append(PHYSTauTPThinningTool)
 

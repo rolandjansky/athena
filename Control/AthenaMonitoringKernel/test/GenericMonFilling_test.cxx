@@ -451,7 +451,7 @@ bool fillFromNonTrivialSources( ToolHandle<GenericMonitoringTool>& monTool, ITHi
   {
     //! [fillFromNonTrivialSources_collection]
     std::vector<float> eta( {0.2, 0.1} );
-    std::set<double> phi( {-1, 1} ) ;
+    std::vector<double> phi( {-1, 1} ) ;
     auto vectorT   = Monitored::Collection( "Eta", eta );
     auto setT      = Monitored::Collection( "Phi", phi );
     auto group = Monitored::Group( monTool, vectorT, setT );

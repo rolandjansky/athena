@@ -66,6 +66,8 @@ class opt:
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
@@ -122,6 +124,7 @@ import TriggerJobOpts.Modifiers
 
 # Auto-configuration for athena
 if len(athenaCommonFlags.FilesInput())>0:
+    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
     import PyUtils.AthFile as athFile
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
@@ -355,6 +358,8 @@ from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 svcMgr += RegSelSvcDefault()
 
 if TriggerFlags.doID():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     include( "InDetRecExample/InDetRecCabling.py" )
 
 if TriggerFlags.doCalo():
@@ -384,6 +389,8 @@ if TriggerFlags.doID:
 
 
 
+isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -400,18 +407,14 @@ if globalflags.InputFormat.is_pool():
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif globalflags.InputFormat.is_bytestream():
-
-    # This is only needed running athena (as opposed to athenaHLT)
-    if not hasattr(svcMgr,"ByteStreamCnvSvc"):
-        from ByteStreamCnvSvc import ReadByteStream   # noqa
-        # Define the input
-        svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
-        theApp.ExtSvc += [ "ByteStreamCnvSvc"]
-
-    # Online specific setup of BS converters
-    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
-
+elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.isPartition:
+    if hasattr(svcMgr, "MetaDataSvc"):
+        # Need to set this property to ensure correct merging with MetaDataSvc from AthenaPoolCnvSvc/AthenaPool.py
+        # May be removed when the merging is fixed (or AthenaPool.py sets this property)
+        svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
+    # Set up ByteStream reading services
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
 
 # ---------------------------------------------------------------
 # Trigger config
@@ -425,7 +428,6 @@ generateL1Menu()
 createL1PrescalesFileFromMenu()
 
 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc,L1ConfigSvcCfg
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
 CAtoGlobalWrapper(L1ConfigSvcCfg,None)
 #svcMgr += getL1ConfigSvc()
 
@@ -545,10 +547,8 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
 # Use parts of NewJO
 #-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Output flags
-isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
 if opt.doWriteRDOTrigger:
     if isPartition:
         log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')

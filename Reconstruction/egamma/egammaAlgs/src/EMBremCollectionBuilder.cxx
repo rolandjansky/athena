@@ -300,7 +300,7 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info,
                                              const xAOD::TrackParticleContainer* AllTracks) const {
 
   //update the summary of the non-const track without hole search
-  m_summaryTool->updateTrackNoHoleSearch(*(Info.track));
+  m_summaryTool->updateRefittedTrack(*(Info.track));
   //Get the summary so as to add info to it
   Trk::TrackSummary* summary = Info.track->trackSummary();
 

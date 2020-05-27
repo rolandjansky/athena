@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate all EMShowerBuilder with default configuration"
 __author__ = "Bruno Lenzi"
@@ -9,12 +9,6 @@ from egammaRec.Factories import ToolFactory, getPropertyValue
 from egammaRec import egammaKeys
 from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, \
   egammaIso
-
-import ROOT, cppyy
-# Need to be sure base dict is loaded first.
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-EgammaParameters = ROOT.xAOD.Iso
 
 from CaloIdentifier import SUBCALO        
 from RecExConfig.RecFlags import rec
@@ -29,4 +23,3 @@ EMShowerBuilder = ToolFactory( egammaToolsConf.EMShowerBuilder,
         ShowerShapeTool      = egammaShowerShape,
         HadronicLeakageTool  = egammaIso,
         Print = False)
-

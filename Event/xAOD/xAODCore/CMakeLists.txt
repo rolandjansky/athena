@@ -27,10 +27,14 @@ atlas_add_library( xAODCore
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils RootUtils
    ${extra_libs} )
 
-atlas_add_dictionary( xAODCoreRflxDict
-   xAODCore/xAODCoreRflxDict.h
+atlas_add_dictionary( xAODCoreDict
+   xAODCore/xAODCoreDict.h
    xAODCore/selection.xml
    LINK_LIBRARIES xAODCore )
+
+atlas_add_dictionary( xAODCoreSTLDict
+   xAODCore/xAODCoreSTLDict.h
+   xAODCore/selectionSTL.xml )
 
 # Install the CMake code from the package:
 atlas_install_generic( cmake/xAODUtilitiesConfig.cmake

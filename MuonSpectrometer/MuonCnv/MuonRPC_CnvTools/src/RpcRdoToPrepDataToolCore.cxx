@@ -812,6 +812,9 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
   RpcPrepDataCollection * collection(0);
   RpcCoinDataCollection * collectionTrg(0);
   IdentifierHash rpcHashId;
+
+  SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+  const RpcCablingCondData* rpcCabling{*cablingCondData};
   
   // For each pad, loop on the coincidence matrices
   RpcPad::const_iterator itCM   = rdoColl->begin();
@@ -903,7 +906,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
       // here decode (get offline ids for the online indices of this hit)
       double time = 0.;
       std::vector<Identifier>* digitVec = 
-	m_rpcRdoDecoderTool->getOfflineData(rpcChan, sectorId, padId, cmaId, time);
+	m_rpcRdoDecoderTool->getOfflineData(rpcChan, sectorId, padId, cmaId, time, rpcCabling);
       time += (double)m_timeShift;
       
       if (!digitVec) {
