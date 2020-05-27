@@ -5,7 +5,7 @@
 #ifndef ACTSGEOMETRY_ACTSMATERIALTRACKWRITERSVC_H
 #define ACTSGEOMETRY_ACTSMATERIALTRACKWRITERSVC_H
 
-#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
@@ -73,7 +73,7 @@ private:
 
   // jobOptions properties
   Gaudi::Property<std::string> m_filePath{this, "FilePath", "MaterialTracks.root", "Output root file for charged particle"};
-  Gaudi::Property<std::string> m_treeName{this, "TreeName", "MaterialTracks", ""};
+  Gaudi::Property<std::string> m_treeName{this, "TreeName", "material-tracks", ""};
   Gaudi::Property<size_t> m_maxQueueSize{this, "MaxQueueSize", 5000, "Limit the write queue to this size"};
 
 };
