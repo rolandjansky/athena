@@ -1,3 +1,4 @@
+
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
@@ -109,10 +110,10 @@
 	fjvt_dec(*jetF) = 0;
       } else {
 	double fjvt = getFJVT(jetF)/jetF->pt();
-	if (fjvt>m_fjvtThresh || fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_out)(*jetF) = 0;
-	if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-	if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
-	fjvt_dec(*jetF) = fjvt;
+	(*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        (*Dec_outFjvt)(*jetF) = (fjvt<=m_fjvtThresh);
+        (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        fjvt_dec(*jetF) = fjvt;  
       }
     }
     return 0;
