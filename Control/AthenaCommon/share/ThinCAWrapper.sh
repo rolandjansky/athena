@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Thin wrapper to execute configurations with the CA. 
 # Might be called from athena.py
@@ -14,6 +14,29 @@ if [ -z ${otherargs+x} ]
     otherargs=${@}
 fi
 
+
+#Separate the top-level python script (ending with .py) from 
+#arguments passed to that script 
+scriptargs=""
+for a in $otherargs
+do
+    case "$a" in
+	*.py) topscriptfile=$a;;
+	*) scriptargs="$scriptargs $a";;
+    esac
+done
+
+#Check if we got a top-level script 
+#Improve: Check if there is exactly one!
+if [ -z ${topscriptfile} ]
+    then
+    echo "ERROR: No top-level python script given"
+    exit 1
+fi
+
+#Assemble the search path for top-level jobOption files.
+#Search the local directoy, a possible WorkDir and the installed Athena
+#Note: We could also search $PYTHONPATH but that's a much longer list
 topScriptSearchPath="."
 
 if [ ! -z "${WorkDir_DIR}" ]
@@ -26,11 +49,7 @@ if [ ! -z "${Athena_DIR}" ]
     topScriptSearchPath="$topScriptSearchPath $Athena_DIR/python" 
 fi
 
-topscriptfile=`echo $otherargs | cut -d " " -f 1`
-scriptargs=`echo $otherargs | cut -d " " -f 2-`
-
-
-
+#Now search for the top-level script:
 for pp in $topScriptSearchPath
 do
     if [ -f "$pp/$topscriptfile" ]
@@ -47,6 +66,7 @@ if [[ -z $topscript  ]];
     exit 1
 fi
 
+#Finally: Execute it! 
 python $topscript $scriptargs
 
 
