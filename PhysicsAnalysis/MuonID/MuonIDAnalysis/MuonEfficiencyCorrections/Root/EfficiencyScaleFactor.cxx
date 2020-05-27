@@ -444,7 +444,7 @@ namespace CP {
         if (!h) return;
         TRandom3 Rndm(seed);
         replicas.clear();
-        replicas.resize(nrep);
+        replicas.reserve(nrep);
         int nBins = h->nBins();
         for (int t = 0; t < nrep; t++) {
             replicas.push_back(package_histo(h->GetHist()));
