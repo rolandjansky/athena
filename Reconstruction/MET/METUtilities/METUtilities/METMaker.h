@@ -187,6 +187,7 @@ namespace met {
     bool m_orCaloTaggedMuon;
     bool m_greedyPhotons;
     bool m_veryGreedyPhotons;
+    bool m_muonPflowBugfix;
 
     int m_jetTrkNMuOlap;
     double m_jetWidthMuOlap;
@@ -194,6 +195,24 @@ namespace met {
     double m_jetEmfMuOlap;
     double m_jetTrkPtMuPt;
     double m_muIDPTJetPtRatioMuOlap;
+
+    //Parameters needed for pflow-jet OR fix
+      /// Minimum number of jet tracks to use the looser jet rejection criteria
+    int m_numJetTrk;
+    /// The 5 parameters that define the low nTrk criteria for removing jets.
+    float m_muPFJet_lowNtrk_x1;
+    float m_muPFJet_lowNtrk_x2;
+    float m_muPFJet_lowNtrk_y0;
+    float m_muPFJet_lowNtrk_y1;
+    float m_muPFJet_lowNtrk_y2;
+    /// The 5 parameters that define the high nTrk criteria for removing jets.
+    float m_muPFJet_highNtrk_x1;
+    float m_muPFJet_highNtrk_x2;
+    float m_muPFJet_highNtrk_y0;
+    float m_muPFJet_highNtrk_y1;
+    float m_muPFJet_highNtrk_y2;
+    /// dR cone within which jets can get removed
+    float m_coneDR;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:
