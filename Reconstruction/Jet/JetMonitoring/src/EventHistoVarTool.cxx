@@ -24,3 +24,14 @@ StatusCode EventHistoVarTool::initialize() {
   return StatusCode::SUCCESS;
   
 }
+
+float EventHistoVarTool::value(const xAOD::EventInfo & e) const {
+
+  if (! e.isAvailable<float>(m_varName) ) {
+    ATH_MSG_WARNING("Could not access EventInfo variable "<< m_varName << ", returning default value " << m_defaultValue );
+    return m_defaultValue;
+  }
+
+  return e.auxdata<float>(m_varName);
+
+}

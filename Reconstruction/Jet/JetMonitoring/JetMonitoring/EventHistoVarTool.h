@@ -43,13 +43,14 @@ public:
 
   virtual StatusCode initialize() ;  
 
-  virtual float value(const xAOD::EventInfo & e) const {return e.auxdata<float>(m_varName);}
+  virtual float value(const xAOD::EventInfo &) const;
   virtual std::string describe() const {return m_varName;}
   
   
 private:
 
   Gaudi::Property<std::string> m_varName {this,"Variable", ""};
+  Gaudi::Property<float> m_defaultValue = {this,"Default", -1.};
   
 };
 
