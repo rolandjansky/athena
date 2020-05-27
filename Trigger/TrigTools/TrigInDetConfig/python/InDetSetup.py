@@ -317,9 +317,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
          theTrackParticleCreatorAlg.TrackParticlesName = trackCollection
       else:
          theTrackParticleCreatorAlg.TrackParticlesName = recordable( trackCollection )
-         
-
-      theTrackParticleCreatorAlg.roiCollectionName = rois
       viewAlgs.append(theTrackParticleCreatorAlg)
 
 
