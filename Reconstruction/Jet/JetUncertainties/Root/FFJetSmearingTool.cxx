@@ -867,9 +867,7 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
   if(z <= zMin) aux_z = zMin+1e-6 ; //so it fits the low-most z-bin
 
   //Use the interpolate function from Heleprs.cxx
-  RootHelpers help_interpolate;
-
-  double weight = help_interpolate.Interpolate(histo, aux_x, aux_y, aux_z);
+  double weight = RootHelpers::Interpolate(histo, aux_x, aux_y, aux_z);
 
 
   return weight;

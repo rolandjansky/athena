@@ -21,23 +21,23 @@ class TH1;
 
 class TAxis;
 
-class RootHelpers 
+namespace RootHelpers 
 {
 
         // RootHelper to have a const method for interpolation (why is there not a const version in ROOT???)
-public:
-        double Interpolate(const TH1* histo, const double x) const;
-        double Interpolate(const TH1* histo, const double x, const double y) const;
-        double Interpolate(const TH1* histo, const double x, const double y, const double z) const;
-        Int_t FindBin(const TAxis* axis, const double x) const;
+
+        double Interpolate(const TH1* histo, const double x);
+        double Interpolate(const TH1* histo, const double x, const double y);
+        double Interpolate(const TH1* histo, const double x, const double y, const double z);
+        Int_t FindBin(const TAxis* axis, const double x);
         
-        double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1) const;
+        double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1);
 
 	Int_t test();
 
-private:
 
-};
+
+}
 
 
 

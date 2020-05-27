@@ -50,8 +50,6 @@ class UncertaintyHistogram : public asg::AsgMessaging
         TH1* m_histo;
         int  m_nDim;
 
-	RootHelpers m_roothelpersobject;
-
         // Cache projections in case of 1-D interpolation in a 2-D or 3-D histogram
         // For a 3-D histogram, it's [y][z] or [x][z] or [x][y] as appropriate
         std::vector< std::vector< std::unique_ptr<TH1> > > m_cachedProj;

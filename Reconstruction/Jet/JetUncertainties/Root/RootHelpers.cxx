@@ -18,7 +18,7 @@
 
 //Helpers to interpolate
 
-double RootHelpers::Interpolate(const TH1* histo, const double x) const
+double RootHelpers::Interpolate(const TH1* histo, const double x)
 {
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
@@ -47,13 +47,13 @@ double RootHelpers::Interpolate(const TH1* histo, const double x) const
 }
 
 
-double RootHelpers::Interpolate(const TH1* histo, const double x, const double y) const
+double RootHelpers::Interpolate(const TH1* histo, const double x, const double y)
 {
     // Call the unified method for consistency
     return Interpolate2D(histo,x,y);
 }
 
-double RootHelpers::Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin) const
+double RootHelpers::Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin)
 {
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
@@ -213,7 +213,7 @@ double RootHelpers::Interpolate2D(const TH1* histo, const double x, const double
     return f;
 }
 
-double RootHelpers::Interpolate(const TH1* histo, const double x, const double y, const double z) const
+double RootHelpers::Interpolate(const TH1* histo, const double x, const double y, const double z)
 {
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
@@ -307,7 +307,7 @@ double RootHelpers::Interpolate(const TH1* histo, const double x, const double y
     return result;
 }
 
-Int_t RootHelpers::FindBin(const TAxis* axis, const double x) const
+Int_t RootHelpers::FindBin(const TAxis* axis, const double x)
 {
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TAxis FindBin method
     // This is done because I want a const version of bin finding (no expanding on under/overflow)

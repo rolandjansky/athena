@@ -200,10 +200,10 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
         {
             case Interpolate::Full:
             case Interpolate::OnlyX:
-                return m_roothelpersobject.Interpolate(m_histo,valX);
+                return RootHelpers::Interpolate(m_histo,valX);
 
             case Interpolate::None:
-                return m_histo->GetBinContent(m_roothelpersobject.FindBin(m_histo->GetXaxis(),valX));
+                return m_histo->GetBinContent(RootHelpers::FindBin(m_histo->GetXaxis(),valX));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -219,18 +219,18 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
         switch (m_interpolate)
         {
             case Interpolate::Full:
-                return m_roothelpersobject.Interpolate(m_histo,valX,valY);
+                return RootHelpers::Interpolate(m_histo,valX,valY);
 
             case Interpolate::OnlyX:
                 // Interpolate on the x projection for a given Y bin
-                return m_roothelpersobject.Interpolate(m_cachedProj.at(0).at(m_roothelpersobject.FindBin(m_histo->GetYaxis(),valY)).get(),valX);
+                return RootHelpers::Interpolate(m_cachedProj.at(0).at(RootHelpers::FindBin(m_histo->GetYaxis(),valY)).get(),valX);
 
             case Interpolate::OnlyY:
                 // Interpolate on the y projection for a given X bin
-                return m_roothelpersobject.Interpolate(m_cachedProj.at(0).at(m_roothelpersobject.FindBin(m_histo->GetXaxis(),valX)).get(),valY);
+                return RootHelpers::Interpolate(m_cachedProj.at(0).at(RootHelpers::FindBin(m_histo->GetXaxis(),valX)).get(),valY);
 
             case Interpolate::None:
-                return m_histo->GetBinContent(m_roothelpersobject.FindBin(m_histo->GetXaxis(),valX),m_roothelpersobject.FindBin(m_histo->GetYaxis(),valY));
+                return m_histo->GetBinContent(RootHelpers::FindBin(m_histo->GetXaxis(),valX),RootHelpers::FindBin(m_histo->GetYaxis(),valY));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -244,18 +244,18 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     switch (m_interpolate)
     {
         case Interpolate::Full:
-            return m_roothelpersobject.Interpolate(m_histo,valX,valY,valZ);
+            return RootHelpers::Interpolate(m_histo,valX,valY,valZ);
 
         case Interpolate::OnlyX:
             // Interpolate on the x projection for a given y,z bin
-            return m_roothelpersobject.Interpolate(m_cachedProj.at(m_roothelpersobject.FindBin(m_histo->GetYaxis(),valY)).at(m_roothelpersobject.FindBin(m_histo->GetZaxis(),valZ)).get(),valX);
+            return RootHelpers::Interpolate(m_cachedProj.at(RootHelpers::FindBin(m_histo->GetYaxis(),valY)).at(RootHelpers::FindBin(m_histo->GetZaxis(),valZ)).get(),valX);
 
         case Interpolate::OnlyY:
             // Interpolate on the y projection for a given x,z bin
-            return m_roothelpersobject.Interpolate(m_cachedProj.at(m_roothelpersobject.FindBin(m_histo->GetXaxis(),valX)).at(m_roothelpersobject.FindBin(m_histo->GetZaxis(),valZ)).get(),valY);
+            return RootHelpers::Interpolate(m_cachedProj.at(RootHelpers::FindBin(m_histo->GetXaxis(),valX)).at(RootHelpers::FindBin(m_histo->GetZaxis(),valZ)).get(),valY);
 
         case Interpolate::None:
-            return m_histo->GetBinContent(m_roothelpersobject.FindBin(m_histo->GetXaxis(),valX),m_roothelpersobject.FindBin(m_histo->GetYaxis(),valY),m_roothelpersobject.FindBin(m_histo->GetZaxis(),valZ));
+            return m_histo->GetBinContent(RootHelpers::FindBin(m_histo->GetXaxis(),valX),RootHelpers::FindBin(m_histo->GetYaxis(),valY),RootHelpers::FindBin(m_histo->GetZaxis(),valZ));
 
         default:
             ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
