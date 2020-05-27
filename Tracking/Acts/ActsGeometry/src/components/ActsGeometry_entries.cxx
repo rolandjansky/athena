@@ -10,7 +10,7 @@
 
 #include "ActsGeometry/ActsMaterialMapping.h"
 #include "ActsGeometry/ActsSurfaceMappingTool.h"
-#include "ActsGeometry/ActsVolumeMappingTool.h"
+// #include "ActsGeometry/ActsVolumeMappingTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
 //#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
@@ -35,7 +35,7 @@ DECLARE_COMPONENT( ActsExtrapolationTool )
 
 DECLARE_COMPONENT( ActsMaterialMapping )
 DECLARE_COMPONENT( ActsSurfaceMappingTool )
-DECLARE_COMPONENT( ActsVolumeMappingTool )
+// DECLARE_COMPONENT( ActsVolumeMappingTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
 //DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
