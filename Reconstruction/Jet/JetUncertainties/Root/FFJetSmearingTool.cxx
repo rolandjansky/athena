@@ -378,7 +378,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
     TFile Calo_TA_weight_file(Calo_TA_weight_file_path,"READ");
     if(Calo_TA_weight_file.IsOpen()==false){
-        ATH_MSG_FATAL( "Unable to open " << Calo_TA_weight_file );
+        ATH_MSG_FATAL( "Unable to open " << Calo_TA_weight_file_path );
         return StatusCode::FAILURE;
     }
 
