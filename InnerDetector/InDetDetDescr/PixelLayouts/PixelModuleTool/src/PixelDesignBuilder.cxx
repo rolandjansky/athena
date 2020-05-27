@@ -329,19 +329,19 @@ PixelDiodeMatrix* PixelDesignBuilder::buildMatrix(  double phiPitch, double etaP
   }
 
   // checking and correcting inconsistent values
-  if (nPhiLong == 0 and (phiPitchLong == 0.0 or phiPitchLong == phiPitch)) {
+  if (nPhiLong == 0 and not (phiPitchLong == 0.0 or phiPitchLong == phiPitch)) {
     ATH_MSG_WARNING("nPhiLong is set to 0, but phiPitchLong is neither 0 nor phiPitch! Setting nPhiLong to 1");
     nPhiLong = 1;
   }
-  if (nPhiEnd == 0 and (phiPitchEnd == 0.0 or phiPitchEnd == phiPitch)) {
+  if (nPhiEnd == 0 and not (phiPitchEnd == 0.0 or phiPitchEnd == phiPitch)) {
     ATH_MSG_WARNING("nPhiEnd is set to 0, but phiPitchEnd is neither 0 nor phiPitch! Setting nPhiEnd to 1");
     nPhiEnd = 1;
   }
-  if (nEtaLong == 0 and (etaPitchLong == 0.0 or etaPitchLong == etaPitch)) {
+  if (nEtaLong == 0 and not (etaPitchLong == 0.0 or etaPitchLong == etaPitch)) {
     ATH_MSG_WARNING("nEtaLong is set to 0, but etaPitchLong is neither 0 nor etaPitch! Setting nEtaLong to 1");
     nEtaLong = 1;
   }
-  if (nEtaEnd == 0 and (etaPitchEnd == 0.0 or etaPitchEnd == etaPitch)) {
+  if (nEtaEnd == 0 and not (etaPitchEnd == 0.0 or etaPitchEnd == etaPitch)) {
     ATH_MSG_WARNING("nEtaEnd is set to 0, but etaPitchEnd is neither 0 nor etaPitch! Setting nEtaEnd to 1");
     nEtaEnd = 1;
   }
