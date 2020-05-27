@@ -287,10 +287,10 @@ def _make_ht_label(chain_parts):
     The cut set can be extended according to the pattern
     """
 
-    assert len(chain_parts) == 1
+    assert len(chain_parts) == 1, '_make_ht_label, no. of chain parts != 1'
     scenario = chain_parts[0]['hypoScenario']
     
-    assert scenario.startswith('ht')
+    assert scenario.startswith('HT'), '_make_ht_label(): scenario does not start with HT'
 
     arg_res = [
         re.compile(r'^(?P<lo>\d*)(?P<key>ht)(?P<hi>\d*)$'),
@@ -302,13 +302,17 @@ def _make_ht_label(chain_parts):
         'ht': ('0', 'inf'),
         'et': ('0', 'inf'),
         'eta': ('0', 'inf'),
-    }
+     }
 
 
     args = _args_from_scenario(scenario)
     argvals = {}
+    nargs = len(args)
+    assert len(args) <= len(arg_res), 'bad num of args %d, expected < %d' % (len(args),
+                                                                             len(arg_res))
+
+    # obtain argument values frrom scenario
     while args:
-        assert len(args) == len(arg_res)
         arg = args.pop()
         for r in arg_res:
             m = r.match(arg)
@@ -320,22 +324,25 @@ def _make_ht_label(chain_parts):
                 try:
                     lo = float(gd['lo'])
                 except ValueError:
-                    lo = defaults[key][0]
+                    lo = float(defaults[key][0])
                 argvals[key+'lo'] = lo 
                 try:
                     hi = float(gd['hi'])
                 except ValueError:
-                    hi = defaults[key][1]
+                    hi = float(defaults[key][1])
                 argvals[key+'hi'] =  hi
 
-    assert len(args) == len(arg_res)
-    assert len(args) == 0
+    print (argvals)
+    assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
 
-    return """
+    print ('sent 100')
+    result =  """
     ht([(%(htlo).0fht) 
-        (%(etlo).0fet%(ethi).0f)
+        (%(etlo).0fet)
         (%(etalo).0feta%(etahi).0f)
     ])"""  % argvals
+    print (result)
+    return result
     
 
 
@@ -392,6 +399,7 @@ def chainDict2jetLabel(chain_dict):
     # suported scenarios 
     router = {
         'simple': _make_simple_label,
+        'HT': _make_ht_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
         'combinationsTest': _make_combinationsTest_label,
