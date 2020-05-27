@@ -470,8 +470,8 @@ if __name__=='__main__':
 
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg = MainServicesCfg(ConfigFlags)
 
     # in case of tier0 workflow:
     #from CaloRec.CaloRecoConfig import CaloRecoCfg

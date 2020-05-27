@@ -480,7 +480,7 @@ def setupMenu():
  #Beamspot chanis first try ATR-9847                                                                                                               
     TriggerFlags.BeamspotSlice.signatures = [
 
-        ['beamspot_allTE_trkfast_peb_L13J15', 'L1_3J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_L13J15', 'L1_3J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
 
 ]   
 

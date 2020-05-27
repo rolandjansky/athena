@@ -72,9 +72,9 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = ["myESD-data.pool.root"]
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg=MainServicesSerialCfg()
+    cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     cfg.merge( LArHVScaleCfg(ConfigFlags) )

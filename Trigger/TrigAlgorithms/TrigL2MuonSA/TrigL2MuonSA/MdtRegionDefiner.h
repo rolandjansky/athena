@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTREGIONDEFINER_H
 #define  TRIGL2MUONSA_MDTREGIONDEFINER_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "TrigL2MuonSA/TgcFit.h"
@@ -19,9 +19,7 @@
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class MdtIdHelper;
+#include <string>
 
 namespace MuonGM {
      class MuonDetectorManager;
@@ -44,13 +42,12 @@ namespace TrigL2MuonSA {
 		     const std::string& name,
 		     const IInterface*  parent);
 
-    ~MdtRegionDefiner(void);
+    ~MdtRegionDefiner()=default;
     
     virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
 
     // function using the new cabling/geometry
-    void setMdtGeometry(const Muon::MuonIdHelperTool* muonIdHelperTool, const MuonGM::MuonDetectorManager* muonMgr);
+    void setMdtGeometry(const MuonGM::MuonDetectorManager* muonMgr);
     void setRpcGeometry(bool use_rpc);
     
   public:
@@ -88,7 +85,7 @@ namespace TrigL2MuonSA {
 			  TrigL2MuonSA::MuonRoad&           muonRoad);
 
   private:
-    const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;

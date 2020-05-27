@@ -1,38 +1,37 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONSEGMENTTAGTOOL_H
 #define MUONCOMBINEDBASETOOLS_MUONSEGMENTTAGTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonSegmentTagTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MSSurfaces.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
-#include <vector>
 #include "TrkParameters/TrackParameters.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagAmbiguitySolverTool.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
-#include "MSSurfaces.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagIMOTool.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 
 #include <array>
 #include <atomic>
 #include <string>
-
-namespace Trk {
-  class IParticleCaloExtensionTool;
-}
+#include <vector>
 
 namespace Muon {
   class MuonSegment;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  class IMuonSegmentSelectionTool;
 }
 
 namespace MuonCombined {
@@ -42,7 +41,7 @@ namespace MuonCombined {
     using SegmentMap = std::map< const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer> >;
   public:
     MuonSegmentTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonSegmentTagTool(void); // destructor
+    ~MuonSegmentTagTool()=default;
   
     StatusCode initialize();
     StatusCode finalize();
@@ -83,7 +82,7 @@ namespace MuonCombined {
     ToolHandle< IMuTagMatchingTool       > p_MuTagMatchingTool        ;  //!< Pointer to MuTagMatching Tool 
     ToolHandle< IMuTagAmbiguitySolverTool> p_MuTagAmbiguitySolverTool ;  //!< Pointer to MuTagAmbiguitySolverTool
     ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
-    ToolHandle< Muon::MuonIdHelperTool   > m_idHelper    ;  //!< Pointer to IPropagator
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };  //!< Pointer to IPropagator

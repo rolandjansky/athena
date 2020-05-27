@@ -247,7 +247,7 @@ class GenerateMenuMT(object):
                 import traceback
                 traceback.print_exc()
 
-        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
+        log.debug('Available signature(s) for chain generation: %s', self.availableSignatures)
 
         import pprint
         pp = pprint.PrettyPrinter(indent=4, depth=8)

@@ -114,7 +114,7 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   return StatusCode::SUCCESS;
 }
 
-double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) {
+double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) const {
   double newscore = 1. - eff_lo - (score - cut_lo)/(cut_hi - cut_lo) * (eff_hi - eff_lo);
   return newscore;
 }
@@ -143,7 +143,7 @@ StatusCode TauWPDecorator::initialize() {
 }
 
 /********************************************************************/
-StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
+StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const
 { 
 
   float mu = 0;
@@ -189,8 +189,8 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   ATH_MSG_VERBOSE("mu before " << y_var);
 
   // Implement limits
-  pt = TMath::Min(m_xmax[nProng], TMath::Max(m_xmin[nProng], pt));
-  y_var = TMath::Min(m_ymax[nProng], TMath::Max(m_ymin[nProng], y_var));
+  pt = TMath::Min(m_xmax.at(nProng), TMath::Max(m_xmin.at(nProng), pt));
+  y_var = TMath::Min(m_ymax.at(nProng), TMath::Max(m_ymin.at(nProng), y_var));
   
   ATH_MSG_VERBOSE("pT after " << pt);
   ATH_MSG_VERBOSE("mu after " << y_var);

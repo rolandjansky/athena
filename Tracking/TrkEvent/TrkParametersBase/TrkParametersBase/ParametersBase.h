@@ -16,6 +16,15 @@
 
 class MsgStream;
 
+template<typename T>
+class TrackParametersCovarianceCnv;
+class TrackParametersCnv_p2;
+class MeasuredPerigeeCnv_p1;
+template< class SURFACE_CNV, class ATA_SURFACE >
+class AtaSurfaceCnv_p1;
+
+
+
 namespace Trk
 {
   class Surface;
@@ -34,6 +43,11 @@ namespace Trk
     Curvilinear  = 1
   };
 
+  namespace InvalidParam{
+  constexpr double INVALID = std::numeric_limits<double>::quiet_NaN();
+  constexpr double INVALID_P(10e9);
+  constexpr double INVALID_QOP(10e-9);
+  }
   /**
      @class ParametersBase
 
@@ -47,6 +61,7 @@ namespace Trk
      @tparam T   charge of track (either <tt>Trk::Charged</tt> or <tt>Trk::Neutral</tt>)
      
      @author Andreas.Salzburger@cern.ch
+     @author Christos Anastopoulos (Athena MT modifications)
   */
 
   template <int DIM,class T>
@@ -59,9 +74,7 @@ namespace Trk
      */
     /** virtual Destructor */
     virtual ~ParametersBase()=default;
-    //** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>&) const = 0;
-    
+   
     /** Access method for the parameters */
     const AmgVector(DIM)& parameters() const;             
       
@@ -82,16 +95,35 @@ namespace Trk
  
     /** Returns charge of concrete type (i.e. must be implemented in inheriting classes) */
     double charge() const;
- 
-    /** Access method for the local coordinates, \f$(loc1,loc2)\f$ 
-	local parameter definitions differ for each surface type. */
+
+    /** Access method for the local coordinates, \f$(loc1,loc2)\f$
+        local parameter definitions differ for each surface type. */
     Amg::Vector2D localPosition() const;
-  
+
+    /** Update parameters and covariance.
+     * Uses NVI: Derived classes can override the
+     * implementation via updateParametersHelper
+     */
+    void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr);
+
+    /** Update parameters  and covariance , passing covariance by ref. A
+     * covariance is created if one does not exist.  Otherwise in place update
+     * occurs via assignment. 
+     * Uses NVI: Derived classes can override the
+     * implementation via updateParametersHelper
+     */
+    void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&);
+
+     //** equality operator */
+    virtual bool operator==(const ParametersBase<DIM,T>&) const;
+ 
     /** Access to the Surface method */
     virtual const Surface& associatedSurface() const = 0;
-      
-    /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
-	- the default implementation is the the RotationMatrix3D of the transform */
+
+    /** Return the measurement frame - this is needed for alignment, in
+       particular for StraightLine and Perigee Surface
+        - the default implementation is the RotationMatrix3D of the
+       transform */
     virtual Amg::RotationMatrix3D measurementFrame() const = 0;
      
    /** Pseudo constructor - avoids excessive type-casting.
@@ -104,42 +136,44 @@ namespace Trk
     /** Test to see if there's a surface there. */
     virtual bool hasSurface() const = 0 ;
 
-    /** Update parameters and covariance */
-    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) = 0;
-
-    /** Update parameters  and covariance , passing covariance by ref. A covariance
-     * is created if one does not exist.  Otherwise in place update occurs*/
-    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) = 0;
-
     /** Dumps relevant information about the track parameters into the ostream */
     virtual MsgStream&    dump(MsgStream& out) const; 
     virtual std::ostream& dump(std::ostream& out) const;
  
-    /** DESIGN TO BE REVISITED */
-    friend class MaterialEffectsEngine;
-
-  protected :
+ protected :
     /*
-     * This has pure virtual functions 
-     * so it is abstract class and we can not instanticate objects directly.
+     * This is an abstract class and we can not instanticate objects directly.
      * In the other hand derived classed can use ctors
      */
+
     ParametersBase()=default; 
+
+    /* Helper ctors for derived classes*/
     ParametersBase(const AmgVector(DIM) parameters,
                    AmgSymMatrix(DIM)* covariance,
                    const Amg::Vector3D&  position,
                    const Amg::Vector3D&  momentum,
                    const T  chargeDef);
+
+    ParametersBase(const Amg::Vector3D& pos,
+                const Amg::Vector3D& mom,
+                AmgSymMatrix(DIM) * covariance = nullptr);
+
+    ParametersBase(const AmgVector(DIM) & parameters,
+                   AmgSymMatrix(DIM) * covariance = nullptr);
+
     ParametersBase(ParametersBase&&)=default;
     ParametersBase& operator=(ParametersBase&&)=default;  
 
-
+    /* Helper to factor in update of parameters*/
+    virtual void updateParametersHelper(const AmgVector(DIM) &) = 0;
 
     AmgVector(DIM)                      m_parameters;       //!< contains the n parameters
     std::unique_ptr<AmgSymMatrix(DIM)>  m_covariance;       //!< contains the n x n covariance matrix
     Amg::Vector3D                       m_position;         //!< point on track
     Amg::Vector3D                       m_momentum;         //!< momentum at this point on track
     T                                   m_chargeDef;        //!< charge definition for this track
+
   };
 
   /**Overload of << operator for both, MsgStream and std::ostream for debug output*/

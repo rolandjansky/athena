@@ -1,54 +1,34 @@
-<!-- $Id: selection.xml 688348 2015-08-10 09:03:52Z kleney $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- BTagging_v1 dictionaries: -->
-  <class name="xAOD::BTagging_v1" />
-  <class name="xAOD::BTaggingContainer_v1"
-         id="5D19F171-E07E-4F65-BC1F-FC4F4099E9F1" />
-  <class name="xAOD::BTaggingAuxContainer_v1"
-         id="5E1973D2-D860-4BB1-B8EF-C9AD8E6C66A2" />
-  <class name="xAOD::BTaggingTrigAuxContainer_v1"
-         id="1B738105-2F3E-4DCB-9DAE-DA3A4964486E" />
+   <!-- xAOD::BTagging interface type(s). -->
+   <class name="xAOD::BTagging_v1" />
+   <class name="xAOD::BTaggingContainer_v1"
+          id="5D19F171-E07E-4F65-BC1F-FC4F4099E9F1" />
+   <typedef name="xAOD::BTagging" />
+   <typedef name="xAOD::BTaggingContainer" />
 
-  <!-- Smart pointers to BTagging_v1 objects: -->
-  <class name="DataLink<xAOD::BTaggingContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::BTaggingContainer_v1> >" />
+   <!-- xAOD::BTagging auxiliary type(s). -->
+   <class name="xAOD::BTaggingAuxContainer_v1"
+          id="5E1973D2-D860-4BB1-B8EF-C9AD8E6C66A2" />
+   <class name="xAOD::BTaggingTrigAuxContainer_v1"
+          id="1B738105-2F3E-4DCB-9DAE-DA3A4964486E" />
+   <typedef name="xAOD::BTaggingAuxContainer" />
+   <typedef name="xAOD::BTaggingTrigAuxContainer" />
 
-  <class name="ElementLink<xAOD::BTaggingContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::BTaggingContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::BTaggingContainer_v1> > >" />
+   <!-- xAOD::BTagVertex interface type(s). -->
+   <class name="xAOD::BTagVertex_v1" />
+   <class name="xAOD::BTagVertexContainer_v1"
+          id="E225A9EC-9782-43F7-B7BF-1B215187C11C" />
+   <typedef name="xAOD::BTagVertex" />
+   <typedef name="xAOD::BTagVertexContainer" />
 
-  <!-- BTagVertex_v1 dictionaries: -->
-  <class name="xAOD::BTagVertex_v1" />
-  <class name="xAOD::BTagVertexContainer_v1" 
-         id="E225A9EC-9782-43F7-B7BF-1B215187C11C" />
-  <class name="xAOD::BTagVertexAuxContainer_v1"
-         id="09CD44BA-0F40-4FDB-BB30-2F4226FF3E18" />
+   <!-- xAOD::BTagVertex auxiliary type(s). -->
+   <class name="xAOD::BTagVertexAuxContainer_v1"
+          id="09CD44BA-0F40-4FDB-BB30-2F4226FF3E18" />
+   <typedef name="xAOD::BTagVertexAuxContainer" />
 
-  <!-- Smart pointers to BTagVertex_v1 objects: -->
-  <class name="DataLink<xAOD::BTagVertexContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::BTagVertexContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::BTagVertexContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::BTagVertexContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::BTagVertexContainer_v1> > >" />
-
-
-  <class name="std::vector< std::vector< bool > >" />
-  <class name="std::vector< std::vector< int > >" />
-
-  <!--Add Helper Functions -->
-  <function pattern="xAOD::SecVtxHelper::*" /> 
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class pattern="xAOD::TrackParticle*" />
-    <class pattern="DataVector<xAOD::TrackParticle*" />
-    <class pattern="ElementLink<DataVector<xAOD::TrackParticle*" />
-    <class name="DataVector<xAOD::IParticle>" />
-  </exclusion>
+   <!-- Additional helper functions. -->
+   <function pattern="xAOD::SecVtxHelper::*" />
 
 </lcgdict>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTDATAPREPARATOR_H
@@ -7,18 +7,17 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-//#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" //added
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/MdtData.h"
@@ -33,7 +32,6 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-class StoreGateSvc;
 namespace MuonGM{
      class MuonDetectorManager;
      class MdtReadoutElement;
@@ -57,10 +55,9 @@ namespace TrigL2MuonSA {
 		      const std::string& name,
 		      const IInterface*  parent);
     
-    ~MdtDataPreparator();
+    ~MdtDataPreparator()=default;
     
     virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
     
   public:
     
@@ -126,15 +123,12 @@ namespace TrigL2MuonSA {
     
     // Tools for the Raw data conversion
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
-    //ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
-    // 	this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool", "MDTRawDataProviderTool"};
         
     // Geometry Services
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     IdentifierHash m_hash_id;
     
     // Region Selector
@@ -151,8 +145,6 @@ namespace TrigL2MuonSA {
 
     // handles to data access
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
-    //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider {
-    // 	this, "MdtPrepDataProvider", "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", "MdtPrepDataProviderTool"};
 
     SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey{
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};

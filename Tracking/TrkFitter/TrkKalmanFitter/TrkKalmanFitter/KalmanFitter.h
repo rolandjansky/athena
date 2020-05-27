@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -72,56 +72,61 @@ namespace Trk {
     virtual ~KalmanFitter();
 
     // standard Athena methods
-    StatusCode initialize();
-    StatusCode finalize();
-   
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+
     //! refit a track
     virtual Track* fit(const Track&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! fit a set of PrepRawData objects
     virtual Track* fit(const PrepRawDataSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
     
     //! fit a set of MeasurementBase objects
     virtual Track* fit(const MeasurementSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
     
     //! extend a track fit including a new set of PrepRawData objects
     virtual Track* fit(const Track&,
                        const PrepRawDataSet&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! extend a track fit including a new set of MeasurementBase objects
     virtual Track* fit(const Track&,
                        const MeasurementSet&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! combined track fit
     virtual Track* fit(const Track&,
                        const Track&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     /** @brief retrieve statuscode of last fit.
 
         particularly designed for accessing a more detailed reason for
         failed fits, which otherwise are indicated only by the returned
         NULL pointer. */
-    virtual Trk::FitterStatusCode statusCodeOfLastFit() const;
+    virtual Trk::FitterStatusCode statusCodeOfLastFit() const override;
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:

@@ -335,11 +335,6 @@ def muFastRecoSequence( RoIs ):
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
-  # Make sure event info still available at whole-event level
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
-  topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
   # Only load these objects if they aren't available in conddb
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
@@ -513,12 +508,9 @@ def muEFSARecoSequence( RoIs, name ):
   EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
   efAlgs.append( EFMuonViewDataVerifier )
 
-  # Make sure event info still available at whole-event level
+  # Only load these objects if they aren't available in conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
-  # Only load these objects if they aren't available in conddb
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested( "/MDT/DQMF/DEAD_ELEMENT" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
@@ -646,7 +638,6 @@ def muEFCBRecoSequence( RoIs, name ):
   # Make sure required objects are still available at whole-event level
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
     topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
@@ -672,9 +663,6 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
-
-    # Make sure required objects are still available at whole-event level
-    topSequence.SGInputLoader.Load += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
     # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
     from IOVDbSvc.CondDB import conddb
@@ -931,8 +919,8 @@ def efLateMuRoISequence():
   topSequence = AlgSequence()
   topSequence.SGInputLoader.Load += [( 'MuCTPI_RDO' , 'StoreGateSvc+MUCTPI_RDO' )]
 
-  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMT
-  roiAlg = TrigmuRoIMT("TrigmuRoIMT")
+  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMTConfig
+  roiAlg = TrigmuRoIMTConfig("TrigmuRoIMT")
   sequenceOut = "LateMuRoIs"
   roiAlg.RoisWriteHandleKey=sequenceOut
 

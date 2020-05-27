@@ -29,6 +29,12 @@ namespace Athena_test {
     // HepMcParticleLink knows about
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
     inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( SG::CurrentEventStore::store() ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     // Add a dummy GenEvent
     const int process_id1(20);
     const int event_number1(17);

@@ -9,7 +9,7 @@ if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     # Set up logging and new style config
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     # Construct ComponentAccumulator
-    acc = MainServicesSerialCfg()
+    acc = MainServicesCfg(ConfigFlags)
     acc.merge(PoolReadCfg(ConfigFlags))
     acc.merge(AtlasGeometryCfg(ConfigFlags))
     #acc.getService("StoreGateSvc").Dump=True
