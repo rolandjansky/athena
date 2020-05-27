@@ -18,3 +18,6 @@ atlas_add_dictionary( xAODPrimitivesDict
 atlas_add_test( ut_xAOD_primitives_enums_test
    SOURCES test/ut_xAOD_primitives_enums_test.cxx
    LINK_LIBRARIES xAODPrimitives )
+
+# Install files from the package.
+atlas_install_python_modules( python/*.py )
