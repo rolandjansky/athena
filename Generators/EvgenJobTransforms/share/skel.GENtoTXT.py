@@ -55,7 +55,7 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Gen_tf_txt')
+evgenLog = logging.getLogger('Gen_tf')
 
 ##==============================================================
 ## Run arg handling
@@ -237,7 +237,7 @@ print ("****************** CHECKING EVGEN CONFIGURATION *****************")
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
-evgenLog.info(".transform =                   Gen_tf_txt")      
+evgenLog.info(".transform =                   Gen_tf")      
 
 ## Sort and check generator name / JO name consistency
 ##
