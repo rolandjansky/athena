@@ -74,7 +74,6 @@ namespace Muon {
 
   Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
 
-  if( m_edmHelperSvc->isSLTrack(track)) { // check isSL first to limit access overhead
     MagField::AtlasFieldCache    fieldCache;
     // Get field cache object
     EventContext ctx = Gaudi::Hive::currentContext();
@@ -82,13 +81,11 @@ namespace Muon {
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("refit: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
-    if( !fieldCache.toroidOn() ) return m_slFitter->refit(track);
-  }
-  
+    if( m_edmHelperSvc->isSLTrack(track) || !fieldCache.toroidOn() ) return m_slFitter->refit(track);
 
     // if not refit tool specified do a pure refit
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
@@ -362,7 +359,7 @@ namespace Muon {
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("combine: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
@@ -1046,7 +1043,7 @@ namespace Muon {
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("splitTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       std::pair<Trk::Track*,Trk::Track*> emptyPair;
       return emptyPair;
     }
