@@ -44,9 +44,10 @@ symmetricKL(const Component1D& componentI, const Component1D& componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
-  return componentI.invCov * componentJ.cov +
-         componentJ.invCov * componentI.cov +
-         meanDifference * inverCovSum * meanDifference;
+  const double term1 = componentI.invCov * componentJ.cov;
+  const double term2 = componentJ.invCov * componentI.cov;
+  const double term3 = meanDifference * inverCovSum * meanDifference;
+  return term1 + term2 + term3;
 }
 /**
  * https://arxiv.org/pdf/2001.00727.pdf
@@ -60,9 +61,10 @@ weightedSymmetricKL(const Component1D& componentI,
   const double meanDifference = componentI.mean - componentJ.mean;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
   const double weightMul = componentI.weight * componentJ.weight;
-  const double symmetricDis = componentI.invCov * componentJ.cov +
-                              componentJ.invCov * componentI.cov +
-                              meanDifference * inverCovSum * meanDifference;
+  const double term1 = componentI.invCov * componentJ.cov;
+  const double term2 = componentJ.invCov * componentI.cov;
+  const double term3 = meanDifference * inverCovSum * meanDifference;
+  const double symmetricDis = term1 + term2 + term3;
   return weightMul * symmetricDis;
 }
 
@@ -126,13 +128,13 @@ recalculateDistances(const componentPtrRestrict componentsIn,
   for (int32_t i = 0; i < j; ++i) {
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
-    distances[index] = symmetricKL(componentI, componentJ);
+    distances[index] = weightedSymmetricKL(componentI, componentJ);
   }
   // Columns
   for (int32_t i = j + 1; i < n; ++i) {
     const int32_t index = (i - 1) * i / 2 + j;
     const Component1D componentI = components[i];
-    distances[index] = symmetricKL(componentI, componentJ);
+    distances[index] = weightedSymmetricKL(componentI, componentJ);
   }
 }
 
@@ -154,7 +156,7 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
     const Component1D componentI = components[i];
     for (int32_t j = 0; j < i; ++j) {
       const Component1D componentJ = components[j];
-      distances[indexConst + j] = symmetricKL(componentI, componentJ);
+      distances[indexConst + j] = weightedSymmetricKL(componentI, componentJ);
     }
   }
 }

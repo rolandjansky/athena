@@ -181,13 +181,12 @@ if opt.doBjetSlice == True:
     jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
 
     step1 = ChainStep("Step1_bjet", [jetSequence] )
-    step2 = ChainStep("Step2_bjet", [getBJetSequence('j')])
-    step3 = ChainStep("Step3_bjet", [getBJetSequence('btag')])
+    step2 = ChainStep("Step2_bjet", [getBJetSequence()])
 
     bjetChains  = [
-          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] )
+          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2] )
         ]
     testChains += bjetChains
 

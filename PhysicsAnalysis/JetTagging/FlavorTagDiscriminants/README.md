@@ -115,7 +115,7 @@ The neural networks we use in DL2 are saved as JSON files in the
 [ATLAS groupdata area][gd]. They follow the naming scheme
 
 ```
-[dev/]flavtag/<timestamp>/<tagger>/<tagger-specific-name>.json
+[dev/]BTagging/<timestamp>/<tagger>/<jet-collection>/<tagger-specific-name>.json
 ```
 
 where the `dev/` is for taggers which are in development (i.e. should

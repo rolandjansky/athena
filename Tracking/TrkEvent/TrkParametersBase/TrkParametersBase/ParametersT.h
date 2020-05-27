@@ -20,13 +20,6 @@
  * Needed for persistency 
  * friends
  */
-template<typename T>
-class TrackParametersCovarianceCnv;
-class TrackParametersCnv_p2;
-class MeasuredPerigeeCnv_p1;
-template< class SURFACE_CNV, class ATA_SURFACE >
-class AtaSurfaceCnv_p1;
-
 
 namespace Trk
 {
@@ -60,9 +53,9 @@ namespace Trk
   {
   public:
     /** 
-     * default constructor ONLY for POOL and derived classes 
+     * default constructor ONLY for POOL
      */
-    ParametersT();
+    ParametersT() = default;
     
     /** Constructor with local arguments - uses global <-> local for parameters */
     ParametersT(double loc1,
@@ -76,7 +69,7 @@ namespace Trk
     /** Constructor with parameters - extract position and momentum */
     ParametersT(const AmgVector(DIM)& parameters,
 		const S& surface,
-		AmgSymMatrix(DIM)* covariance = 0);
+		AmgSymMatrix(DIM)* covariance = nullptr);
   
     /** Constructor with global arguments - uses global <-> local for parameters */
     ParametersT(const Amg::Vector3D& position,
@@ -113,21 +106,26 @@ namespace Trk
     virtual const S& associatedSurface() const override final {return *m_surface;}    
       
     /** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override final;
 
     /** Virtual clone */
-    virtual ParametersT<DIM,T,S>* clone() const override {return new ParametersT<DIM,T,S>(*this);}
+    virtual ParametersT<DIM, T, S>* clone() const override final
+    {
+      return new ParametersT<DIM, T, S>(*this);
+    }
 
     /** Return the ParametersType enum */
-    virtual ParametersType type() const override {return Trk::AtaSurface;}
+    virtual ParametersType type() const override final
+    {
+      return Trk::AtaSurface;
+    }
 
     /** Return the measurementFrame of the parameters */
-    virtual Amg::RotationMatrix3D measurementFrame() const override;
- 
-     
+    virtual Amg::RotationMatrix3D measurementFrame() const override final;
+
   private :
     /* Helper to factor in update of parameters*/
-    virtual void updateParametersHelper(const AmgVector(DIM)&) override;
+    virtual void updateParametersHelper(const AmgVector(DIM)&) override final;
 
   protected:
    
@@ -141,22 +139,12 @@ namespace Trk
     using ParametersBase<DIM,T>::m_chargeDef;
     SurfaceUniquePtrT<const S> m_surface; //!< surface template
    
-  /** 
-     * @brief Constructor used by curvilinear 
-     * Parameters
-     */
-    ParametersT(const Amg::Vector3D& pos,
-                const Amg::Vector3D& mom,
-                AmgSymMatrix(DIM) * covariance = 0);
-
     /** 
      * @brief Constructor for persistency
      */
     ParametersT (const AmgVector(DIM)& parameters,
                  const S* surface,
-                 AmgSymMatrix(DIM)* covariance = 0);
-
-
+                 AmgSymMatrix(DIM)* covariance = nullptr);
     /*
      * friends needed for Persistency
      */

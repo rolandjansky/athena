@@ -15,6 +15,16 @@
 #include <memory>
 
 class MsgStream;
+
+template<typename T>
+class TrackParametersCovarianceCnv;
+class TrackParametersCnv_p2;
+class MeasuredPerigeeCnv_p1;
+template< class SURFACE_CNV, class ATA_SURFACE >
+class AtaSurfaceCnv_p1;
+
+
+
 namespace Trk
 {
   class Surface;
@@ -33,6 +43,11 @@ namespace Trk
     Curvilinear  = 1
   };
 
+  namespace InvalidParam{
+  constexpr double INVALID = std::numeric_limits<double>::quiet_NaN();
+  constexpr double INVALID_P(10e9);
+  constexpr double INVALID_QOP(10e-9);
+  }
   /**
      @class ParametersBase
 
@@ -59,9 +74,7 @@ namespace Trk
      */
     /** virtual Destructor */
     virtual ~ParametersBase()=default;
-    //** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>&) const = 0;
-    
+   
     /** Access method for the parameters */
     const AmgVector(DIM)& parameters() const;             
       
@@ -101,6 +114,8 @@ namespace Trk
      */
     void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&);
 
+     //** equality operator */
+    virtual bool operator==(const ParametersBase<DIM,T>&) const;
  
     /** Access to the Surface method */
     virtual const Surface& associatedSurface() const = 0;
@@ -127,23 +142,31 @@ namespace Trk
  
  protected :
     /*
-     * This has pure virtual functions 
-     * so it is abstract class and we can not instanticate objects directly.
+     * This is an abstract class and we can not instanticate objects directly.
      * In the other hand derived classed can use ctors
      */
+
     ParametersBase()=default; 
+
+    /* Helper ctors for derived classes*/
     ParametersBase(const AmgVector(DIM) parameters,
                    AmgSymMatrix(DIM)* covariance,
                    const Amg::Vector3D&  position,
                    const Amg::Vector3D&  momentum,
                    const T  chargeDef);
+
+    ParametersBase(const Amg::Vector3D& pos,
+                const Amg::Vector3D& mom,
+                AmgSymMatrix(DIM) * covariance = nullptr);
+
+    ParametersBase(const AmgVector(DIM) & parameters,
+                   AmgSymMatrix(DIM) * covariance = nullptr);
+
     ParametersBase(ParametersBase&&)=default;
     ParametersBase& operator=(ParametersBase&&)=default;  
 
     /* Helper to factor in update of parameters*/
-    virtual void updateParametersHelper(const AmgVector(DIM)&)=0;
-
- 
+    virtual void updateParametersHelper(const AmgVector(DIM) &) = 0;
 
     AmgVector(DIM)                      m_parameters;       //!< contains the n parameters
     std::unique_ptr<AmgSymMatrix(DIM)>  m_covariance;       //!< contains the n x n covariance matrix
