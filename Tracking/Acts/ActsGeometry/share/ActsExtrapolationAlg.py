@@ -79,7 +79,7 @@ condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
 from AthenaCommon.AppMgr import ServiceMgr
 
 # set up and configure the acts geometry construction
-from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvc
+from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
 trkGeomSvc = ActsTrackingGeometrySvc()
 # used for the proxies during material mapping
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z

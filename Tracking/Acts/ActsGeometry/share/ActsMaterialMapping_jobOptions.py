@@ -67,7 +67,7 @@ svcMgr += CondSvc( OutputLevel=INFO )
 
 
 # Set up ACTS tracking geometry service
-from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvc
+from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
 trkGeomSvc = ActsTrackingGeometrySvc()
 trkGeomSvc.OutputLevel = INFO
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
@@ -75,7 +75,7 @@ trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.BuildSubDetectors = [
   "Pixel",
   "SCT",
-  "TRT",
+  # "TRT",
   # "Calo",
 ]
 ServiceMgr += trkGeomSvc
