@@ -76,7 +76,7 @@ ActsMaterialTrackWriterSvc::finalize()
   p_tree->FlushBaskets();
   p_tree->AutoSave();
   p_tree->Write();
-  //p_tFile->Write()
+  p_tFile->Write();
   p_tFile->Close();
 
   return StatusCode::SUCCESS;
@@ -120,7 +120,7 @@ ActsMaterialTrackWriterSvc::writerThread()
     }
 
 
-    //if(m_mTracks.size() < m_maxQueueSize) {
+    if(m_mTracks.size() < m_maxQueueSize) {
       // just pop one
       ATH_MSG_VERBOSE("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize
           << ": Pop entry and write");
@@ -129,22 +129,20 @@ ActsMaterialTrackWriterSvc::writerThread()
       // writing can now happen without lock
       lock.unlock();
       doWrite(std::move(mTrack));
-    //}
-    //else {
-      //ATH_MSG_DEBUG("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize
-          //<< ": Lock and write until empty");
-      //while(!m_mTracks.empty()) {
-        //ATH_MSG_VERBOSE("Pop entry and write");
-        //// keep the lock!
-        //MaterialTrack mTrack = std::move(m_mTracks.front());
-        //m_mTracks.pop_front();
-        //doWrite(std::move(mTrack));
-      //}
-      //ATH_MSG_DEBUG("Queue is empty, continue");
+    }
+    else {
+      ATH_MSG_DEBUG("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize
+          << ": Lock and write until empty");
+      while(!m_mTracks.empty()) {
+        ATH_MSG_VERBOSE("Pop entry and write");
+        // keep the lock!
+        MaterialTrack mTrack = std::move(m_mTracks.front());
+        m_mTracks.pop_front();
+        doWrite(std::move(mTrack));
+      }
+      ATH_MSG_DEBUG("Queue is empty, continue");
 
-    //}
-
-
+    }
   }
 }
 
