@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
@@ -108,7 +108,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     log.info('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
 
     chain_name = chain_dict['chainName']
-    tool = TrigJetHypoToolMT(name=chain_name)
+    tool = CompFactory.TrigJetHypoToolMT(name=chain_name)
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.

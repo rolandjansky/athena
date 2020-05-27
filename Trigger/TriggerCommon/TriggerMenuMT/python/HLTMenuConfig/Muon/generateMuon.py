@@ -100,9 +100,10 @@ def generateChains( flags, chainDict ):
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
-    
-    import pprint
-    pprint.pprint(chainDict)
+
+    # needed for debugging
+    #import pprint
+    #pprint.pprint(chainDict)
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
 
