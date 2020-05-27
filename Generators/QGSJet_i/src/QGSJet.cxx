@@ -320,8 +320,6 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
 
   evt->set_beam_particles(beams[0], beams[1]); 
 
-  //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
-  // std::cout<<"obecny sig_proc_id " << evt->signal_process_id() << std::endl;
    int sig_id = -1;
    switch (int(c2evt_.typevt))
     {

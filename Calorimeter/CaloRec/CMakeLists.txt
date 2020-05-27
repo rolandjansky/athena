@@ -125,13 +125,13 @@ atlas_add_test( CaloCellContainerAliasAlg_test
 
 atlas_add_test( CaloThinCellsBySamplingAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
 
 
 atlas_add_test( CaloThinCellsByClusterAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
 
 

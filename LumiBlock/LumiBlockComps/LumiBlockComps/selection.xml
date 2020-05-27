@@ -1,6 +1,5 @@
 <lcgdict>
 
-   <class name="ILumiCalcSvc"/>
    <class name="ILumiBlockMuTool"/>
 
 </lcgdict>

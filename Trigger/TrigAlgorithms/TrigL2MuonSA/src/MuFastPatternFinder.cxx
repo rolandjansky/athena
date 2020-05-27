@@ -1,18 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "Identifier/Identifier.h"
-
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
@@ -38,24 +33,9 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::MuFastPatternFinder::~MuFastPatternFinder() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 {
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );                                 
-
+   ATH_CHECK( m_idHelperSvc.retrieve() );                                 
    return StatusCode::SUCCESS; 
 }
 
@@ -75,7 +55,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_muonIdHelperTool->mdtIdHelper().channelID(StationName,StationEta,
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_idHelperSvc->mdtIdHelper().channelID(StationName,StationEta,
        StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;
@@ -325,17 +305,3 @@ double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,doub
    double dz  = x - (y-bw)*ia;
    return dz/sqrt(1.+iaq);
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastPatternFinder::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuFastPatternFinder - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Run LAr digitization of an MC16a ttbar sample with 2016 geometry and conditions, without pile-up using Athena and Athena with ComponentAccumulator configuration
+# art-description: Run a digitization example to compare configuration between ConfGetter and the new ComponentAccumulator approch.
 # art-type: grid
 # art-include: master/Athena
 # art-output: mc16a_ttbar.CG.RDO.pool.root

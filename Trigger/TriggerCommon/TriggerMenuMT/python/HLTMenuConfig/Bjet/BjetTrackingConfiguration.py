@@ -8,7 +8,8 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
 
     # Second stage of Fast tracking (for precision tracking preparation)
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="_Bjet", rois=inputRoI )
+
+    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="Bjet", rois=inputRoI )
 
     viewVerify.DataObjects += dataObjects
 

@@ -1,4 +1,4 @@
-#!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: nils.gollub@cern.ch
 
 from __future__ import print_function
@@ -60,6 +60,7 @@ class TileDCSDataInfo:
                     "5VHV_OUTPUT_I"       : [ LVPS_AI, type_float],
                     "5VHV_OUTPUT_V"       : [ LVPS_AI, type_float],
                     "15VMB_INPUT_V"       : [ LVPS_AI, type_float],
+
                     "5VHV_TEMP2"          : [ LVPS_AI, type_float],
                     "5VHV_TEMP3"          : [ LVPS_AI, type_float],
                     "15VHV_TEMP3"         : [ LVPS_AI, type_float],

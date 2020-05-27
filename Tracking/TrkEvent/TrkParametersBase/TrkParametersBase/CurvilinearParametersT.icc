@@ -263,34 +263,4 @@ namespace Trk
     this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
   }
 
-  // Dedicated update method 
-  template <int DIM,class T,class S>
-  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                                              AmgSymMatrix(DIM)* updatedCovariance)
-  {
-    this->updateParametersHelper(updatedParameters);
-    // update the covariance
-    if (updatedCovariance)
-    {
-      //check if someone passed what we owm
-      if (updatedCovariance != this->m_covariance.get()){
-        this->m_covariance.reset(updatedCovariance);
-      }
-    }
-  }
-
-  // Dedicated update method
-  template <int DIM,class T,class S>
-  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                                              const AmgSymMatrix(DIM)& updatedCovariance)
-  {
-    this->updateParametersHelper(updatedParameters);
-    // if the covariance is there update in place
-    if (this->m_covariance) {
-      (*(this->m_covariance)) = updatedCovariance;
-    } else { // otherwise create one
-      this->m_covariance = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
-    }
-  }
-
 } // end of namespace Trk

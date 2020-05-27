@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "ITrackToVertex/ITrackToVertex.h"
 #include "xAODJet/JetContainer.h"   
 #include "xAODJet/JetAttributes.h"
 #include "xAODBTagging/BTagging.h"
@@ -11,7 +10,6 @@
 #include "xAODMuon/MuonContainer.h"
 
 #include "JetTagMonitoring/JetTagMonitoring.h"
-#include "JetTagTools/TrackSelector.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"    
@@ -68,9 +66,6 @@ namespace {
 JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string & name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_storeGate( "StoreGateSvc", name ),
-  m_trackSelectorTool("Analysis::TrackSelector"),
-  m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"), // added by SARA
   m_histogramsCreated(false),
   m_switch_off(false)
 {
@@ -1600,6 +1595,7 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   const xAOD::BTagging* btag = jet->btagging();
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
+    return;
   }
   double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
   double mv_tmp = 0;

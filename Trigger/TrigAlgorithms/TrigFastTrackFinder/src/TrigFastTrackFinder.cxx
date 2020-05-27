@@ -80,7 +80,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
-  m_trigZFinder("TrigZFinder"),
+  m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),
@@ -149,7 +149,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
-  declareProperty( "TrigL2ResidualCalculator",   m_trigZFinder );
+  declareProperty( "TrigL2ResidualCalculator",    m_trigL2ResidualCalculator );
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "doResMon",       m_doResMonitoring = true);

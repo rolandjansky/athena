@@ -29,7 +29,7 @@ StatusCode Trk::PropResultRootWriterSvc::initialize()
   const std::string treeName = m_treeName;  
   m_tree = new TTree(treeName.data(), "MyStudies");
   
-  std::string fullNtupleName = m_ntupleDirName + m_treeName;
+  std::string fullNtupleName = static_cast<std::string>(m_ntupleDirName) + m_treeName;
   CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
 
   if(m_tree == nullptr) {

@@ -433,7 +433,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
             const double r = (rmin + rmax) * 0.5;
             const GeoShape* warmwall = solidCyl;
             const double dphi = 5.*Gaudi::Units::deg;
-            auto put = [&warmwall, &warmhole_pos, &r, &h1, &dz](double pos){
+            auto put = [&warmwall, &warmhole_pos, &r, &h1](double pos){
               const double x = r*cos(pos), y = r*sin(pos);
               warmwall = &(warmwall->subtract(
                 h1 << GeoTrf::Translate3D(x, y, warmhole_pos)
@@ -457,7 +457,6 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
                 << endmsg;
             const double rmin = currentRecord->getDouble("RMIN")*Gaudi::Units::cm;
             const double rmax = currentRecord->getDouble("RMIN")*Gaudi::Units::cm + currentRecord->getDouble("DR")*Gaudi::Units::cm;
-            const double dz = currentRecord->getDouble("DZ")*Gaudi::Units::cm / 2.;
             const double coldhole_radius = 0.5*150.*Gaudi::Units::mm;
             const double coldhole_pos = 21.5*Gaudi::Units::mm;
             GeoTube *coldhole = new GeoTube(0., coldhole_radius, (rmax - rmin) * 4);
@@ -465,7 +464,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
             const double r = (rmin + rmax) * 0.5;
             const GeoShape *coldwall = solidCyl;
             const double dphi = 5.*Gaudi::Units::deg;
-            auto put = [&coldwall, &coldhole_pos, &r, &h1, &dz](double pos){
+            auto put = [&coldwall, &coldhole_pos, &r, &h1](double pos){
               const double x = r*cos(pos), y = r*sin(pos);
               coldwall = &(coldwall->subtract(
                 h1 << GeoTrf::Translate3D(x, y, coldhole_pos)

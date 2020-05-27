@@ -63,7 +63,7 @@ StatusCode TauTrackClassifier::finalize()
 
     
 //______________________________________________________________________________
-StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
+StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau) const
 {
   // Get track container via link from tau - instead of using read handle (not written to store yet) 
   // Check that size > 0

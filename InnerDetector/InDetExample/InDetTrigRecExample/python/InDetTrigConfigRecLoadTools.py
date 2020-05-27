@@ -674,7 +674,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                             Extrapolator = InDetTrigExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                             SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )

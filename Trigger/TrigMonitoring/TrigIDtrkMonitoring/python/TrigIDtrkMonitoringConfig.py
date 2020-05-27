@@ -23,28 +23,36 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 # Cosmic instances
                 ##############################################################
 
-                if not mt_chains:
+                # Cosmic Expert instance
                 
+                tidacos = TrigTestBase(name = "IDCosmicTool",
+                                       histoPathBase = "/Trigger/HLT")
+                tidacos.AnalysisConfig = "Tier0"
+                tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
+                # tidacos.OutputLevel = DEBUG
+                tidacos.pixHitsOffline=-1
+                tidacos.sctHitsOffline=-1
+                tidacos.siHitsOffline=-1
 
-                        # Cosmic Expert instance
-                        
-                        tidacos = TrigTestBase(name = "IDCosmicTool",
-                                               histoPathBase = "/Trigger/HLT")
-                        tidacos.AnalysisConfig = "Tier0"
-                        tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
-                        # tidacos.OutputLevel = DEBUG
-                        tidacos.pixHitsOffline=-1
-                        tidacos.sctHitsOffline=-1
-                        tidacos.siHitsOffline=-1
+                if mt_chains: 
+                        tidacos.ntupleChainNames += [
+                                "Offline",
+                                "HLT_.*_cosmic.*:HLT_IDTrack_FTF",
+                                "HLT_.*_cosmic.*:HLT_IDTrack_EFID"
+                        ]
+                else:
                         tidacos.ntupleChainNames += [
                                 "Offline",
                                 "HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
                                 "HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
                         ]
 
-                        list += [ tidacos ]
+                list += [ tidacos ]
                         
-                        
+
+
+                if not mt_chains:
+                                        
                         # Cosmic Shifter instance
                         
                         tidacosshift = TrigTestBase(name = "IDCosmicShifterTool",

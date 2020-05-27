@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ namespace Trk
       rows += m->numberDoF();
     }
 
-    if (!numberParameters || !rows) { return 0; }
+    if (!numberParameters || !rows) { return nullptr; }
 
     ATH_MSG_VERBOSE(" DerivMatrix : " << fitState.getMeasurements().size() << " measurement objects giving "
                                       << rows << " rows and " << numberParameters << " columns (parameters)");

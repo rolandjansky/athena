@@ -75,6 +75,10 @@ atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
+atlas_add_test( LumiBlockMuWriterConfig_test
+                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
 
 atlas_add_test( BunchCrossingCondAlg 
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py

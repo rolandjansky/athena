@@ -31,7 +31,7 @@ StatusCode TauIDVarCalculator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
+StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
 {
   int nVtx = 0;
   if(!inTrigger()){

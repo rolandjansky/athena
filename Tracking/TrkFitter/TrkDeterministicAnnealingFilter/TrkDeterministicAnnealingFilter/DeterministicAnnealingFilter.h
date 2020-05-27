@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -68,10 +68,13 @@ public:
     DeterministicAnnealingFilter();
     ~DeterministicAnnealingFilter();
     // standard Athena methods
-    StatusCode initialize();
-    StatusCode finalize();
-
-
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
     /** refit a track (the main method; it uses most information from pattern recognition):
     This function should normally be called with tracks containing
     Trk::CompetingRIOsOnTrack.
@@ -80,7 +83,7 @@ public:
     runOutlier has no meaning in all of the DAF's fitting methods */
     virtual Track* fit (const Track&,
                         const RunOutlierRemoval  runOutlier=false,
-                        const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                        const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** refit a track adding a PrepRawDataSet: Trk::ICompetingRIOsOnTrackCreator is used
     to create Trk::CompetingRIOsOnTrack out of the additional PrepRawData first.
@@ -90,7 +93,7 @@ public:
     virtual Track* fit(const Track&,
                        const PrepRawDataSet&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** fit a track to a PrepRawDataSet: Trk::ICompetingRIOsOnTrackCreator is used
     to create Trk::CompetingRIOsOnTrack out of the additional PrepRawData first.
@@ -100,7 +103,7 @@ public:
     virtual Track* fit(const PrepRawDataSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** re-fit a track, adding a fittable measurement set:
          This function should normally be called with a MeasurementSet containing
@@ -109,7 +112,7 @@ public:
     virtual Track* fit(const Track&,
                        const MeasurementSet&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** fit a track to a set of measurementBase.
         This function should normally be called with a MeasurementSet containing
@@ -120,7 +123,7 @@ public:
     virtual Track* fit(const MeasurementSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const override;
 
     /** not implemented: makes no sense for the DAF (always returns a NULL pointer) */
     virtual Track* fit(const SpacePointSet&,
@@ -132,7 +135,7 @@ public:
     virtual Track* fit(const Track&,
                        const Track&,
                        const RunOutlierRemoval,
-                       const ParticleHypothesis) const;
+                       const ParticleHypothesis) const override;
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
