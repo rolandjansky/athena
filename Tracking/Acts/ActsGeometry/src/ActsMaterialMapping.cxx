@@ -20,7 +20,7 @@
 // PACKAGE
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsGeometryContext.h"
-#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsMaterialStepConverterTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsSurfaceMappingTool.h"
@@ -35,8 +35,8 @@
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
-#include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Propagator/detail/StandardAborters.hpp"
+#include "Acts/Propagator/DebugOutputActor.hpp"
+#include "Acts/Propagator/StandardAborters.hpp"
 #include "Acts/Propagator/ActionList.hpp"
 
 ActsMaterialMapping::ActsMaterialMapping(const std::string &name,
