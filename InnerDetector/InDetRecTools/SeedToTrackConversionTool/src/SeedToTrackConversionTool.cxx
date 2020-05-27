@@ -32,6 +32,7 @@ InDet::SeedToTrackConversionTool::SeedToTrackConversionTool(const std::string& t
   m_nprint = 0;   
   declareInterface<ISeedToTrackConversionTool>(this);
   declareProperty("TrackPatternRecoInfo"    ,m_patternName );
+  declareProperty("SeedsegmentsOutput"    ,m_seedsegmentsOutput );
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
 }

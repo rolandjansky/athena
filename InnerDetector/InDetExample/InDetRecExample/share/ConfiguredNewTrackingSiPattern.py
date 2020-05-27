@@ -316,10 +316,12 @@ class  ConfiguredNewTrackingSiPattern:
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
 					  
-         if InDetFlags. doStoreTrackSeeds():
+         if InDetFlags. doStoreTrackSeeds() and not NewTrackingCuts.mode() == "LowPtRoI":
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
-         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
+         if InDetFlags. doStoreTrackSeeds() and NewTrackingCuts.mode() == "LowPtRoI":
+              InDetSiTrackMaker.SeedSegmentsWrite=True
+              InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversionLowPtRoI         #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
          if (InDetFlags.doPrintConfigurables()):
             print InDetSiTrackMaker
@@ -355,7 +357,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
                                                                     VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
                                                                     ZWindowRoISeedTool = ZWindowRoISeedTool,
-                                                                    RandomRoISeedTool = RandomRoISeedTool)
+                                                                    RandomRoISeedTool = RandomRoISeedTool,
+                                                                    RoIWidth = InDetFlags.LowPtRoIWindow())
           #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 
          else:

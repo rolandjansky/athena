@@ -736,6 +736,12 @@ class SiSPSeedSegments(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeedSegments'
 
+class SiSPLowPtRoISeedSegments(JobProperty):
+    """ Storegate key for SP LowPtRoI Seed Segments to studies"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSPLowPtRoISeedSegments'
+
 class SiSpSeededTrackCandidates(JobProperty):
     """ Storegate key for SP Seed Track Candidates to studies"""
     statusOn     = True
@@ -1235,6 +1241,12 @@ class xAODSiSPTrackCandidates(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSpTrackCandidates'
 
+class xAODSiSPLowPtRoITrackCandidates(JobProperty):
+    """ Storegate key for SP Seed LowPtRoI Track Candidates to studies"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSpLowPtRoITrackCandidates'
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1370,6 +1382,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSPSeedSegments)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSPLowPtRoISeedSegments)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededTrackCandidates)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSLHCTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededLowPtTracks)
@@ -1453,6 +1466,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelFourLayerExtendedTrack
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelThreeLayerTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelThreeLayerExtendedTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSiSPTrackCandidates)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODSiSPLowPtRoITrackCandidates)
 jobproperties.InDetContainerKeys.add_JobProperty(DBMDetailedTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(DBMTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDBMTracks) 
