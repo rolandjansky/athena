@@ -2,8 +2,17 @@
 #
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-# Demonstator for a thin wrapper to execute configurations with the CA
+# Thin wrapper to execute configurations with the CA. 
+# Might be called from athena.py
 #
+
+
+#otherargs is set if we are sourced from inside athena.py
+#if not yet set, resort of reguar CL arguments 
+if [ -z ${otherargs+x} ]
+    then
+    otherargs=${@}
+fi
 
 topScriptSearchPath="."
 
@@ -19,6 +28,7 @@ fi
 
 topscriptfile=`echo $otherargs | cut -d " " -f 1`
 scriptargs=`echo $otherargs | cut -d " " -f 2-`
+
 
 
 for pp in $topScriptSearchPath
