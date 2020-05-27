@@ -32,8 +32,8 @@ public:
     TauJetRNNEvaluator(const std::string &name = "TauJetRNNEvaluator");
     virtual ~TauJetRNNEvaluator();
 
-    StatusCode initialize() override;
-    StatusCode execute(xAOD::TauJet &tau) override;
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet &tau) const override;
     // Getter for the underlying RNN implementation
     TauJetRNN *get_rnn_0p();
     TauJetRNN *get_rnn_1p();
@@ -42,11 +42,11 @@ public:
 private:
     // Selects tracks to be used as input to the network
     StatusCode get_tracks(const xAOD::TauJet &tau,
-                          std::vector<const xAOD::TauTrack *> &out);
+                          std::vector<const xAOD::TauTrack *> &out) const;
 
     // Selects clusters to be used as input to the network
     StatusCode get_clusters(const xAOD::TauJet &tau,
-                            std::vector<const xAOD::CaloCluster *> &out);
+                            std::vector<const xAOD::CaloCluster *> &out) const;
 
 private:
     std::string m_output_varname;

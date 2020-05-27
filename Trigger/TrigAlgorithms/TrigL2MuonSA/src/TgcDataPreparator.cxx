@@ -1,24 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-
-#include "Identifier/IdentifierHash.h"
-
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
-
-#include "StoreGate/ActiveStoreSvc.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 using namespace MuonGM;
@@ -49,14 +41,6 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
 }
 
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::TgcDataPreparator::~TgcDataPreparator() 
-{
-}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -64,19 +48,12 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 {
    // Get a message stream instance
   ATH_MSG_DEBUG("Initializing TgcDataPreparator - package version " << PACKAGE_VERSION );
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-     return sc;
-   }
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );
+   ATH_CHECK(m_idHelperSvc.retrieve());
 
    ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
@@ -101,7 +78,6 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    ATH_CHECK(m_tgcContainerKey.initialize());
       
-   // 
    return StatusCode::SUCCESS; 
 }
 
@@ -202,8 +178,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      for( ;cwi!=cwi_end;++cwi ){ // loop over data in the collection
        if( !*cwi ) continue;
        const Muon::TgcPrepData& prepDataWi = **cwi;
-       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
-         int stationNumWi = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataWi.identify())-1;
+       if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
+         int stationNumWi = m_idHelperSvc->tgcIdHelper().stationRegion(prepDataWi.identify())-1;
          if (stationNumWi==-1) stationNumWi=3;
          if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
@@ -237,8 +213,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      for( ;chit!=chit_end;++chit ){ // loop over data in the collection
        if( !*chit ) continue;
        const Muon::TgcPrepData& prepDataHit = **chit;
-       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
-         int stationNumHit = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataHit.identify())-1;
+       if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
+         int stationNumHit = m_idHelperSvc->tgcIdHelper().stationRegion(prepDataHit.identify())-1;
          if (stationNumHit==-1) stationNumHit=3;
          if (stationNumHit<3 && fabs(prepDataHit.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
@@ -269,9 +245,9 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        const Muon::TgcPrepData& prepData = **cit;
        
        bool isInRoad = false;
-       int stationNum = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepData.identify())-1;
+       int stationNum = m_idHelperSvc->tgcIdHelper().stationRegion(prepData.identify())-1;
        if (stationNum==-1) stationNum=3;
-       if (m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())) {
+       if (m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify())) {
 	 double dphi = fabs(prepData.globalPosition().phi() - roi_phi);
 	 if( dphi > CLHEP::pi*2 ) dphi = dphi - CLHEP::pi*2;
 	 if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
@@ -291,8 +267,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        if( ! isInRoad ) continue;
        
        m_tgcReadout = prepData.detectorElement();
-       gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(prepData.identify());
-       channel = m_muonIdHelperTool->tgcIdHelper().channel(prepData.identify());
+       gasGap = m_idHelperSvc->tgcIdHelper().gasGap(prepData.identify());
+       channel = m_idHelperSvc->tgcIdHelper().channel(prepData.identify());
        
        TrigL2MuonSA::TgcHitData lutDigit;
        
@@ -301,8 +277,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.r = prepData.globalPosition().perp();
        lutDigit.z = prepData.globalPosition().z();
        lutDigit.sta = stationNum;
-       lutDigit.isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify());
-       if(m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())){
+       lutDigit.isStrip = m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify());
+       if(m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify())){
 	 lutDigit.width = m_tgcReadout->stripWidth(gasGap, channel);
        }
        else{
@@ -319,17 +295,3 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    
    return StatusCode::SUCCESS; 
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::TgcDataPreparator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

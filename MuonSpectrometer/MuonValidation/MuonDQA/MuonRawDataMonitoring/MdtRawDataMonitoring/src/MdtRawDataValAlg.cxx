@@ -66,7 +66,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
  m_masked_tubes(NULL),
- m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
+ m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
  m_trig_BARREL(false),

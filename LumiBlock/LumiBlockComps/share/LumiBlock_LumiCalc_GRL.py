@@ -14,13 +14,3 @@ ToolSvc += GoodRunsListSelectorTool()
 GoodRunsListSelectorTool.OutputLevel = INFO
 GoodRunsListSelectorTool.GoodRunsListVec = [ 'grl_topmix_mu.xml' ] # or grl_topmix_e.xml 
 GoodRunsListSelectorTool.PassThrough = False
-
-# add LumiCalcSvc to ServiceMgr and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc
-LumiCalcSvc = LumiCalcSvc()
-LumiCalcSvc.Triggers = ["EF_mu20"]
-LumiCalcSvc.UseMC = True
-LumiCalcSvc.LBCollNames = ["LumiBlocks", "IncompleteLumiBlocks"]
-LumiCalcSvc.Verbose = False
-svcMgr += LumiCalcSvc
-

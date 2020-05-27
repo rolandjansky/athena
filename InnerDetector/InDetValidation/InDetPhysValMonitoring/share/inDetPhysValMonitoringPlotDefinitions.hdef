@@ -126,6 +126,14 @@ TProfile vx_nReco_vs_nTruth_lowpu "Number of reco vertices (LOWPU) vs Number of 
 TProfile vx_nReco_vs_nTruth_highpu "Number of reco vertices (HIGHPU) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
 TProfile vx_nReco_vs_nTruth_hssplit "Number of reco vertices (HSSPLIT) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
 TProfile vx_nReco_vs_nTruth_none "Number of reco vertices (NONE) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TEfficiency m_vx_hs_reco_eff "HS vertex reconstruction efficiency" 4 0.0 2.0 0.8 1.2 "Local PU density [vertices/mm]" "HS vertex reconstruction efficiency" default
+TEfficiency m_vx_hs_sel_eff "HS vertex selection efficiency (sum[pt,track^2])" 4 0.0 2.0 0.6 1.2 "Local PU density [vertices/mm]" "HS vertex selection efficiency" default
+TProfile m_vx_hs_reco_long_reso "Reco Longitudinal Resolution" 4 0.0 2.0 0.0 0.012 "Local PU density [vertices/mm]" "Reco longitudinal resolution [mm]" default
+TProfile m_vx_hs_reco_trans_reso "Reco Transverse Resolution" 4 0.0 2.0 0.0 0.012 "Local PU density [vertices/mm]" "Reco transverse resolution [mm]" default
+TH2F vx_hs_truth_long_reso_vs_PU "Truth Longitudinal Resolution vs. PU (2D)" 4 0.0 2.0 20 -0.08 0.08 "Local PU density [vertices/mm]" "|Reco-truth| longitudinal resolution [mm]" default
+TH2F vx_hs_truth_trans_reso_vs_PU "Truth Transverse Resolution vs. PU (2D)" 4 0.0 2.0 20 0.0 0.02 "Local PU density [vertices/mm]" "|Reco-truth| transverse resolution [mm]" default
+TH1F m_vx_hs_truth_long_reso "Truth Longitudinal Resolution" 4 0.0 2.0 "Local PU density [vertices/mm]" "(Reco-truth) longitudinal resolution [mm]" default
+TH1F m_vx_hs_truth_trans_reso "Truth Transverse Resolution" 4 0.0 2.0 "Local PU density [vertices/mm]" "(Reco-truth) transverse resolution [mm]" default
 TH1F vx_nTracks "Number of tracks at vertex" 150 0 150 "Number of Tracks" "Entries" default
 TH1F vx_track_weights "Weights of tracks at vertex" 100 0. 10.0 "Weight" "Entries" default
 TH1F vx_track_pt "Tracks at vertex p_{T}" 100 0 20. "p_{T} (GeV)" "Entries" default

@@ -19,12 +19,12 @@ def fastElectronSequence(ConfigFlags):
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    viewAlgs, ViewVerify = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
+    viewAlgs, viewVerify = makeInDetAlgs( whichSignature = "Electron", separateTrackParticleCreator="Electron", rois = RoIs )
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
-    ViewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
+    viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
     
     TrackParticlesName = ""

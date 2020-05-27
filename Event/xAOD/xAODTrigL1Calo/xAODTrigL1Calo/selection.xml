@@ -1,23 +1,28 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!--  dictionaries: -->
-  
   <!-- Run1 EDM -->
-  
-  <!--   JEMHits -->
+
+  <!-- JEMHits -->
   <class name="xAOD::JEMHits_v1" />
   <class name="xAOD::JEMHitsContainer_v1"
          id="070F54C6-320D-4F22-BD42-C87C6AF99C38" />
   <class name="xAOD::JEMHitsAuxContainer_v1"
-         id="CE2C5182-53DD-46E0-9DFA-61C214A8FCE5" />  
-    
+         id="CE2C5182-53DD-46E0-9DFA-61C214A8FCE5" />
+  <typedef name="xAOD::JEMHits" />
+  <typedef name="xAOD::JEMHitsContainer" />
+  <typedef name="xAOD::JEMHitsAuxContainer" />
+
   <!-- JEMEtSums -->
   <class name="xAOD::JEMEtSums_v1" />
   <class name="xAOD::JEMEtSumsContainer_v1"
          id="DDB6D476-D1E2-490E-A81B-8D4FC65F1D81" />
   <class name="xAOD::JEMEtSumsAuxContainer_v1"
-         id="4D3C658D-597A-414E-AAA3-BE61A1D664C3" /> 
-  
+         id="4D3C658D-597A-414E-AAA3-BE61A1D664C3" />
+  <typedef name="xAOD::JEMEtSums" />
+  <typedef name="xAOD::JEMEtSumsContainer" />
+  <typedef name="xAOD::JEMEtSumsAuxContainer" />
+
   <!-- JEMRoI -->
   <class name="xAOD::JEMRoI_v1">
     <field name="s_wordIdVal" transient="true"/>
@@ -45,24 +50,32 @@
   <class name="xAOD::JEMRoIContainer_v1"
          id="52384828-A57D-477D-A8C8-597C78D02686" />
   <class name="xAOD::JEMRoIAuxContainer_v1"
-         id="959C24E5-9746-4C70-83FA-A0140C710039" /> 
-  
+         id="959C24E5-9746-4C70-83FA-A0140C710039" />
+  <typedef name="xAOD::JEMRoI" />
+  <typedef name="xAOD::JEMRoIContainer" />
+  <typedef name="xAOD::JEMRoIAuxContainer" />
 
-  <!--   CPMHits -->
+  <!-- CPMHits -->
   <class name="xAOD::CPMHits_v1" />
   <class name="xAOD::CPMHitsContainer_v1"
          id="3D15DF3F-E014-42E3-9614-37E4CD535F9C" />
   <class name="xAOD::CPMHitsAuxContainer_v1"
-         id="28FCEB20-A9DC-4FED-9FDD-00F46948E92E" />  
-  
-  <!--   CPMTower -->
+         id="28FCEB20-A9DC-4FED-9FDD-00F46948E92E" />
+  <typedef name="xAOD::CPMHits" />
+  <typedef name="xAOD::CPMHitsContainer" />
+  <typedef name="xAOD::CPMHitsAuxContainer" />
+
+  <!-- CPMTower -->
   <class name="xAOD::CPMTower_v1" />
   <class name="xAOD::CPMTowerContainer_v1"
          id="D220C61E-ECD1-427C-86D0-2C88E00ABBD2" />
   <class name="xAOD::CPMTowerAuxContainer_v1"
-         id="529B6BD7-7B7D-438C-94D7-BAA49A022C47" />  
-  
-  <!--   CPMRoI -->
+         id="529B6BD7-7B7D-438C-94D7-BAA49A022C47" />
+  <typedef name="xAOD::CPMTower" />
+  <typedef name="xAOD::CPMTowerContainer" />
+  <typedef name="xAOD::CPMTowerAuxContainer" />
+
+  <!-- CPMRoI -->
   <class name="xAOD::CPMRoI_v1">
     <field name="s_wordIdVal" transient="true"/>
     <field name="s_wordIdBit" transient="true"/>
@@ -71,98 +84,121 @@
     <field name="s_chipBit" transient="true"/>
     <field name="s_locationBit" transient="true"/>
     <field name="s_parityBit" transient="true"/>
-    <field name="s_saturationBit" transient="true"/>    
+    <field name="s_saturationBit" transient="true"/>
     <field name="s_hitsBit" transient="true"/>
-    <field name="s_wordIdMask" transient="true"/> 
+    <field name="s_wordIdMask" transient="true"/>
     <field name="s_crateMask" transient="true"/>
-    <field name="s_cpmMask" transient="true"/> 
+    <field name="s_cpmMask" transient="true"/>
     <field name="s_chipMask" transient="true"/>
-    <field name="s_locationMask" transient="true"/> 
+    <field name="s_locationMask" transient="true"/>
     <field name="s_parityMask" transient="true"/>
-    <field name="s_saturationMask" transient="true"/>     
+    <field name="s_saturationMask" transient="true"/>
     <field name="s_hitsMask" transient="true"/>
-  </class>  
+  </class>
   <class name="xAOD::CPMRoIContainer_v1"
          id="4B48CC07-6B22-46EC-9BD5-51379664B9BC" />
   <class name="xAOD::CPMRoIAuxContainer_v1"
-         id="8FA92C8D-214F-4B8F-84CA-CB7267CAD0F2" />  
+         id="8FA92C8D-214F-4B8F-84CA-CB7267CAD0F2" />
+  <typedef name="xAOD::CPMRoI" />
+  <typedef name="xAOD::CPMRoIContainer" />
+  <typedef name="xAOD::CPMRoIAuxContainer" />
 
-  <!--   CMMCPHits -->
+  <!-- CMMCPHits -->
   <class name="xAOD::CMMCPHits_v1" />
   <class name="xAOD::CMMCPHitsContainer_v1"
          id="8826CC48-CD08-4FD7-9AC4-358A4888271F" />
   <class name="xAOD::CMMCPHitsAuxContainer_v1"
          id="1951D4B4-D471-4256-8F0D-D666043E2889" />
+  <typedef name="xAOD::CMMCPHits" />
+  <typedef name="xAOD::CMMCPHitsContainer" />
+  <typedef name="xAOD::CMMCPHitsAuxContainer" />
 
-  <!--   CMMEtSums -->
+  <!-- CMMEtSums -->
   <class name="xAOD::CMMEtSums_v1" />
   <class name="xAOD::CMMEtSumsContainer_v1"
          id="186A613D-0C91-4880-9B09-B41C28B17B53" />
   <class name="xAOD::CMMEtSumsAuxContainer_v1"
-         id="A072EDD3-880D-46D0-A120-48C116FDB14E" /> 
-  
-  <!--   CMMJetHits -->
+         id="A072EDD3-880D-46D0-A120-48C116FDB14E" />
+  <typedef name="xAOD::CMMEtSums" />
+  <typedef name="xAOD::CMMEtSumsContainer" />
+  <typedef name="xAOD::CMMEtSumsAuxContainer" />
+
+  <!-- CMMJetHits -->
   <class name="xAOD::CMMJetHits_v1" />
   <class name="xAOD::CMMJetHitsContainer_v1"
          id="43B6130D-4C3F-4E22-9FE2-680E6DFA149F" />
   <class name="xAOD::CMMJetHitsAuxContainer_v1"
-         id="B3C8D000-0E7F-4A0D-8F05-6DA36FFC9DD7" />  
-  
-  <!--   CMMRoI -->
-  <class name="xAOD::CMMRoI_v1" 
+         id="B3C8D000-0E7F-4A0D-8F05-6DA36FFC9DD7" />
+  <typedef name="xAOD::CMMJetHits" />
+  <typedef name="xAOD::CMMJetHitsContainer" />
+  <typedef name="xAOD::CMMJetHitsAuxContainer" />
+
+  <!-- CMMRoI -->
+  <class name="xAOD::CMMRoI_v1"
          id="2BA7B6B2-69C6-40E8-8D2A-0398371EDC81" />
   <class name="xAOD::CMMRoIAuxInfo_v1"
-         id="B0CAB5B5-6B6B-437D-B353-1397C1F01B7E" />  
-  
+         id="B0CAB5B5-6B6B-437D-B353-1397C1F01B7E" />
+  <typedef name="xAOD::CMMRoI" />
+  <typedef name="xAOD::CMMRoIAuxInfo" />
 
-  <!--   JetElement -->
+  <!-- JetElement -->
   <class name="xAOD::JetElement_v1">
-    <field name="m_saturationThreshold" transient="true"/>     
+    <field name="m_saturationThreshold" transient="true"/>
     <field name="m_layerSaturationThreshold" transient="true"/>
-  </class>     
+  </class>
   <class name="xAOD::JetElementContainer_v1"
          id="B1103844-7187-4305-B20A-748591A54145" />
   <class name="xAOD::JetElementAuxContainer_v1"
-         id="7A0A2307-5729-4306-B520-4F75BBCC8E76" />  
-  
-  <!--   RODHeader -->
+         id="7A0A2307-5729-4306-B520-4F75BBCC8E76" />
+  <typedef name="xAOD::JetElement" />
+  <typedef name="xAOD::JetElementContainer" />
+  <typedef name="xAOD::JetElementAuxContainer" />
+
+  <!-- RODHeader -->
   <class name="xAOD::RODHeader_v1" />
   <class name="xAOD::RODHeaderContainer_v1"
          id="AA0924D2-23E2-47B3-8C7D-9D3B104B8990" />
   <class name="xAOD::RODHeaderAuxContainer_v1"
-         id="6524E46D-CC9C-43D2-BAE0-55310A6B316C" /> 
+         id="6524E46D-CC9C-43D2-BAE0-55310A6B316C" />
+  <typedef name="xAOD::RODHeader" />
+  <typedef name="xAOD::RODHeaderContainer" />
+  <typedef name="xAOD::RODHeaderAuxContainer" />
 
-  <!--   RODHeader Run2 EDM-->
+  <!-- RODHeader Run2 EDM-->
   <class name="xAOD::RODHeader_v2" />
   <class name="xAOD::RODHeaderContainer_v2"
          id="98368E90-F392-41D8-850C-317B65034544" />
   <class name="xAOD::RODHeaderAuxContainer_v2"
-         id="A94BA0CD-E57C-4C69-ADA1-CCB91BC0C36F" /> 
-  
-  <!--   TriggerTower -->
+         id="A94BA0CD-E57C-4C69-ADA1-CCB91BC0C36F" />
+
+  <!-- TriggerTower -->
   <class name="xAOD::TriggerTower_v1" />
   <class name="xAOD::TriggerTowerContainer_v1"
          id="DE2A7891-B5FE-4811-8178-EF106743312C" />
   <class name="xAOD::TriggerTowerAuxContainer_v1"
          id="3C5D20CF-6F77-4E67-B182-674EDFD2FE38" />  
-  
-  
+  <typedef name="xAOD::TriggerTower" />
+  <typedef name="xAOD::TriggerTowerContainer" />
+  <typedef name="xAOD::TriggerTowerAuxContainer" />
+
   <!-- Moving onto Run2 EDM -->
-    
-  <!--   TriggerTower -->
+
+  <!-- TriggerTower -->
   <class name="xAOD::TriggerTower_v2" />
   <class name="xAOD::TriggerTowerContainer_v2"
          id="730DE7B8-C24A-4567-A66D-0386DC50E9AC" />
   <class name="xAOD::TriggerTowerAuxContainer_v2"
-         id="07FF691A-A920-43B2-A4E7-637D335E6929" />  
-  
+         id="07FF691A-A920-43B2-A4E7-637D335E6929" />
+
   <!-- CMXCPHits_v1 -->
   <class name="xAOD::CMXCPHits_v1" />
   <class name="xAOD::CMXCPHitsContainer_v1"
          id="96ED5A94-473C-4E96-A348-78077310635F" />
   <class name="xAOD::CMXCPHitsAuxContainer_v1"
          id="F3F8A07D-536B-42EB-9792-E08DB1F76C1F" />
-
+  <typedef name="xAOD::CMXCPHits" />
+  <typedef name="xAOD::CMXCPHitsContainer" />
+  <typedef name="xAOD::CMXCPHitsAuxContainer" />
 
   <!-- CMXCPTob_v1 -->
   <class name="xAOD::CMXCPTob_v1" />
@@ -170,7 +206,9 @@
          id="5E70EF98-47ED-441F-8CC3-F1906AA2E8CD" />
   <class name="xAOD::CMXCPTobAuxContainer_v1"
          id="B4A55AC8-3D30-42AF-B954-82DA7D8A07CB" />
-
+  <typedef name="xAOD::CMXCPTob" />
+  <typedef name="xAOD::CMXCPTobContainer" />
+  <typedef name="xAOD::CMXCPTobAuxContainer" />
 
   <!-- CMXJetHits_v1 -->
   <class name="xAOD::CMXJetHits_v1" />
@@ -178,7 +216,9 @@
          id="492E21EF-A9B0-4262-80EE-4ADECDEA44E7" />
   <class name="xAOD::CMXJetHitsAuxContainer_v1"
          id="509DB371-6A95-4DE1-B950-751B99EBF5EC" />
-
+  <typedef name="xAOD::CMXJetHits" />
+  <typedef name="xAOD::CMXJetHitsContainer" />
+  <typedef name="xAOD::CMXJetHitsAuxContainer" />
 
   <!-- CMXJetTob_v1 -->
   <class name="xAOD::CMXJetTob_v1" />
@@ -186,7 +226,9 @@
          id="4116184D-A8AF-43B1-9990-9DF5C1010AB6" />
   <class name="xAOD::CMXJetTobAuxContainer_v1"
          id="094F5655-229B-49BE-870D-1E4D13866CED" />
-
+  <typedef name="xAOD::CMXJetTob" />
+  <typedef name="xAOD::CMXJetTobContainer" />
+  <typedef name="xAOD::CMXJetTobAuxContainer" />
 
   <!-- CMXEtSums_v1 -->
   <class name="xAOD::CMXEtSums_v1" />
@@ -194,8 +236,11 @@
          id="751F0DD4-FF7F-4950-9928-3198DA4B1AB4" />
   <class name="xAOD::CMXEtSumsAuxContainer_v1"
          id="B96297C3-769B-4084-9524-9D4D233B4896" />
-  
-  <!--   CMXRoI_v1 -->
+  <typedef name="xAOD::CMXEtSums" />
+  <typedef name="xAOD::CMXEtSumsContainer" />
+  <typedef name="xAOD::CMXEtSumsAuxContainer" />
+
+  <!-- CMXRoI_v1 -->
   <class name="xAOD::CMXRoI_v1" >
     <field name="s_wordIdVal0" transient="true"/>
     <field name="s_wordIdVal1" transient="true"/>
@@ -204,116 +249,114 @@
     <field name="s_sumEtHitsBit" transient="true"/>
     <field name="s_missingEtHitsBit" transient="true"/>
     <field name="s_missingEtSigHitsBit" transient="true"/>
-    <field name="s_energyBit" transient="true"/>    
+    <field name="s_energyBit" transient="true"/>
     <field name="s_overflowBit" transient="true"/>
-    <field name="s_sumTypeBit" transient="true"/> 
+    <field name="s_sumTypeBit" transient="true"/>
     <field name="s_wordIdMask" transient="true"/>
-    <field name="s_sumEtHitsMask" transient="true"/> 
+    <field name="s_sumEtHitsMask" transient="true"/>
     <field name="s_missingEtHitsMask" transient="true"/>
-    <field name="s_missingEtSigHitsMask" transient="true"/> 
+    <field name="s_missingEtSigHitsMask" transient="true"/>
     <field name="s_energyMask" transient="true"/>
-    <field name="s_overflowMask" transient="true"/>     
-    <field name="s_sumTypeMask" transient="true"/>   
-    <field name="s_exOffset" transient="true"/>    
+    <field name="s_overflowMask" transient="true"/>
+    <field name="s_sumTypeMask" transient="true"/>
+    <field name="s_exOffset" transient="true"/>
     <field name="s_eyOffset" transient="true"/>
-    <field name="s_etOffset" transient="true"/> 
+    <field name="s_etOffset" transient="true"/>
     <field name="s_maxRoiWords" transient="true"/>
-  </class>     
+  </class>
   <class name="xAOD::CMXRoIContainer_v1"
-         id="37420C80-6007-43B0-ADD3-63FAF6088EC8"/>
+         id="37420C80-6007-43B0-ADD3-63FAF6088EC8" />
   <class name="xAOD::CMXRoIAuxContainer_v1"
-         id="501FFFE3-9788-4A3C-9151-8466F32EF2B4" />    
+         id="501FFFE3-9788-4A3C-9151-8466F32EF2B4" />
+  <typedef name="xAOD::CMXRoI" />
+  <typedef name="xAOD::CMXRoIContainer" />
+  <typedef name="xAOD::CMXRoIAuxContainer" />
 
-
-  <!--   CPMTower_v2 -->
+  <!-- CPMTower_v2 -->
   <class name="xAOD::CPMTower_v2" />
   <class name="xAOD::CPMTowerContainer_v2"
          id="87CC5511-E7E5-4068-8F40-F44B0A1E9A3F" />
   <class name="xAOD::CPMTowerAuxContainer_v2"
-         id="E41859F4-0B8B-412B-A697-2B5A22C5B720" />  
-  
+         id="E41859F4-0B8B-412B-A697-2B5A22C5B720" />
+
   <!-- CPMTobRoI_v1 -->
   <class name="xAOD::CPMTobRoI_v1">
     <field name="s_wordIdVal" transient="true"/>
     <field name="s_wordIdBit" transient="true"/>
     <field name="s_crateBit" transient="true"/>
-    <field name="s_cpmBit" transient="true"/>  
+    <field name="s_cpmBit" transient="true"/>
     <field name="s_chipBit" transient="true"/>
     <field name="s_locationBit" transient="true"/>
     <field name="s_isolBit" transient="true"/>
-    <field name="s_energyBit" transient="true"/>    
+    <field name="s_energyBit" transient="true"/>
     <field name="s_wordIdMask" transient="true"/>
     <field name="s_crateMask" transient="true"/>
     <field name="s_cpmMask" transient="true"/>
-    <field name="s_chipMask" transient="true"/>    
+    <field name="s_chipMask" transient="true"/>
     <field name="s_locationMask" transient="true"/>
     <field name="s_isolMask" transient="true"/>
     <field name="s_energyMask" transient="true"/>
-    <field name="s_typeMask" transient="true"/>        
+    <field name="s_typeMask" transient="true"/>
   </class>
   <class name="xAOD::CPMTobRoIContainer_v1"
          id="B84B5967-8B6C-4743-AC18-FF68E13D9EA6" />
   <class name="xAOD::CPMTobRoIAuxContainer_v1"
          id="38CB660E-139B-4280-9517-B571CA680A37" />
-  
+  <typedef name="xAOD::CPMTobRoI" />
+  <typedef name="xAOD::CPMTobRoIContainer" />
+  <typedef name="xAOD::CPMTobRoIAuxContainer" />
+
   <!-- JEMEtSums -->
   <class name="xAOD::JEMEtSums_v2" />
   <class name="xAOD::JEMEtSumsContainer_v2"
          id="9EE079C0-5737-4710-A81D-278D97F01E50" />
   <class name="xAOD::JEMEtSumsAuxContainer_v2"
-         id="015D34AC-2FD5-4357-850E-04FD5EF6F945" />   
-
+         id="015D34AC-2FD5-4357-850E-04FD5EF6F945" />
 
   <!-- JEMTobRoI_v1 -->
   <class name="xAOD::JEMTobRoI_v1">
     <field name="s_wordIdVal" transient="true"/>
     <field name="s_wordIdBit" transient="true"/>
     <field name="s_crateBit" transient="true"/>
-    <field name="s_jemBit" transient="true"/>  
+    <field name="s_jemBit" transient="true"/>
     <field name="s_frameBit" transient="true"/>
     <field name="s_locationBit" transient="true"/>
     <field name="s_energySmallBit" transient="true"/>
-    <field name="s_energyLargeBit" transient="true"/>    
+    <field name="s_energyLargeBit" transient="true"/>
     <field name="s_wordIdMask" transient="true"/>
     <field name="s_crateMask" transient="true"/>
     <field name="s_jemMask" transient="true"/>
-    <field name="s_frameMask" transient="true"/>    
+    <field name="s_frameMask" transient="true"/>
     <field name="s_locationMask" transient="true"/>
     <field name="s_energySmallMask" transient="true"/>
-    <field name="s_energyLargeMask" transient="true"/>       
-  </class>    
+    <field name="s_energyLargeMask" transient="true"/>
+  </class>
   <class name="xAOD::JEMTobRoIContainer_v1"
          id="2C7D0000-4D7B-45D4-8EE5-B18F172A70C3" />
   <class name="xAOD::JEMTobRoIAuxContainer_v1"
          id="2EAA65B1-B1F3-4530-9413-E572D6282996" />
-  
-  
-  <!--   JetElement_v2 -->
+  <typedef name="xAOD::JEMTobRoI" />
+  <typedef name="xAOD::JEMTobRoIContainer" />
+  <typedef name="xAOD::JEMTobRoIAuxContainer" />
+
+  <!-- JetElement_v2 -->
   <class name="xAOD::JetElement_v2">
-    <field name="m_saturationThreshold" transient="true"/>     
+    <field name="m_saturationThreshold" transient="true"/>
     <field name="m_layerSaturationThreshold" transient="true"/>
-  </class>      
+  </class>
   <class name="xAOD::JetElementContainer_v2"
          id="C4E1BE3D-6499-41A6-9643-4EA716049F60" />
   <class name="xAOD::JetElementAuxContainer_v2"
-         id="A52FADFE-E250-43EC-9766-2898288521BF" />   
-  
+         id="A52FADFE-E250-43EC-9766-2898288521BF" />
+
   <!-- L1TopoRawData_v1 -->
   <class name="xAOD::L1TopoRawData_v1" />
   <class name="xAOD::L1TopoRawDataContainer_v1"
          id="59FD769F-86CA-4636-8AB0-61EB3E0482EA" />
   <class name="xAOD::L1TopoRawDataAuxContainer_v1"
-         id="E3D3AF1E-843A-4F21-A639-EE97040D3B6B" />  
-
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" /> 
-    <class pattern="ElementLink<DataVector<xAOD::IParticle*" />  
-  </exclusion>
+         id="E3D3AF1E-843A-4F21-A639-EE97040D3B6B" />
+  <typedef name="xAOD::L1TopoRawData" />
+  <typedef name="xAOD::L1TopoRawDataContainer" />
+  <typedef name="xAOD::L1TopoRawDataAuxContainer" />
 
 </lcgdict>
-

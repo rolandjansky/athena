@@ -23,4 +23,13 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODLUMINOSITY {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, BCMRawDataContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, LumiBlockRangeContainer_v1 );
+   };
+}
+
 #endif // XAODLUMINOSITY_XAODLUMINOSITYDICT_H

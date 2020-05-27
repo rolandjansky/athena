@@ -77,21 +77,27 @@ namespace Trk
    
     /** Move Constructor */
     CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&&); 
-   
-    /** Destructor */
-    virtual ~CurvilinearParametersT()=default;
-                 
+ 
     /** Assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(const CurvilinearParametersT<DIM,T,S>&);
 
     /** Move assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(CurvilinearParametersT<DIM,T,S>&&);
+  
+    /** Destructor */
+    virtual ~CurvilinearParametersT()=default;
+ 
+    /** the curvilinear parameters identifier */
+    unsigned int cIdentifier() const {return m_cIdentifier;}
+
+    void setcIdentifier (unsigned int cIdentifier)
+    { m_cIdentifier = cIdentifier; }
 
     /** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override final;
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
 
     /** Pseudo constructor */             
-    virtual CurvilinearParametersT<DIM,T,S>* clone() const override final 
+    virtual CurvilinearParametersT<DIM,T,S>* clone() const override 
     {return new CurvilinearParametersT<DIM,T,S>(*this);}
                  
     /** Return the ParametersType enum */
@@ -99,25 +105,11 @@ namespace Trk
     {return Trk::Curvilinear;}
     
     /** Return the measurementFrame of the parameters */
-    virtual Amg::RotationMatrix3D measurementFrame() const override final;
+    virtual Amg::RotationMatrix3D measurementFrame() const override;
 
     /**Dumps relevant information about the track parameters into the ostream.*/
     virtual MsgStream& dump(MsgStream& out) const override;
     virtual std::ostream& dump(std::ostream& out) const override;
-
-    /** Update parameters and covariance */
-    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
-
-    /** Update parameters  and covariance , passing covariance by ref. A covariance
-     * is created if one does not exist.  Otherwise in place update occurs*/
-    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
-
-    /** the curvilinear parameters identifier */
-    unsigned int cIdentifier() const {return m_cIdentifier;}
-
-    void setcIdentifier (unsigned int cIdentifier)
-    { m_cIdentifier = cIdentifier; }
-
 
     /** DESIGN TO BE REVISITED */
   protected:
@@ -125,7 +117,7 @@ namespace Trk
 
   private:
     /* Helper to factor in update of parameters*/
-    void updateParametersHelper(const AmgVector(DIM)&);
+    virtual void updateParametersHelper(const AmgVector(DIM)&) override;
 
     /** return the curvilinear frame */
     CurvilinearUVT curvilinearFrame() const;

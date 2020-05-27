@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MdtRegionDefiner.h"
@@ -38,26 +38,10 @@ TrigL2MuonSA::MdtRegionDefiner::MdtRegionDefiner(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-
-TrigL2MuonSA::MdtRegionDefiner::~MdtRegionDefiner(void)
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::MdtRegionDefiner::initialize()
 {
   ATH_MSG_DEBUG("Initializing MdtRegionDefiner - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-  
-  // 
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS; 
 }
 
@@ -74,10 +58,8 @@ void TrigL2MuonSA::MdtRegionDefiner::setRpcGeometry(bool use_rpc)
 // --------------------------------------------------------------------------------
 
 // set the pointers for the new cabling and geometry
-void TrigL2MuonSA::MdtRegionDefiner::setMdtGeometry(const Muon::MuonIdHelperTool* muonIdHelperTool, 
-						    const MuonGM::MuonDetectorManager* muonMgr)
+void TrigL2MuonSA::MdtRegionDefiner::setMdtGeometry(const MuonGM::MuonDetectorManager* muonMgr)
 {
-  m_muonIdHelperTool = muonIdHelperTool;
   m_muonMgr = muonMgr;
 }
 
@@ -135,8 +117,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       for(int sta_iter=0; sta_iter< (int)muonRoad.stationList.size(); sta_iter++){
 	
 	Identifier id = muonRoad.stationList[sta_iter];
-	int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
-	std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+	int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
+	std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
 	int chamber_this = 99;
 	int sector_this = 99;
 	bool isEndcap;
@@ -144,9 +126,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 
 	if(chamber_this == chamber && sector_this == sector ){
 	  if(ty1 == -1)
-	    ty1 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(name)+1;
+	    ty1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  else if(ty2 == -1)
-	    ty2 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(name)+1;
+	    ty2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
 	  m_muonStation = m_mdtReadout->parentMuonStation();
 	  
@@ -293,8 +275,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       
       for(int sta_iter=0; sta_iter<(int)muonRoad.stationList.size(); sta_iter++){
 	Identifier id = muonRoad.stationList[sta_iter];
-	int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
-	std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+	int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
+	std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
 	int chamber_this = 99;
 	int sector_this = 99;
 	bool isEndcap;
@@ -304,9 +286,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	
 	if(chamber_this == chamber && sector_this == sector){
 	  if(ty1 == -1)
-	    ty1 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(name)+1;
+	    ty1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  else if(ty2 == -1)
-		ty2 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(name)+1;
+		ty2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
 	  m_muonStation = m_mdtReadout->parentMuonStation();
 	  float scale = 10.;
@@ -767,18 +749,3 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
   }
   return StatusCode::SUCCESS;
 }  
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MdtRegionDefiner::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MdtRegionDefiner - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-

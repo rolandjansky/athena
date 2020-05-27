@@ -29,13 +29,11 @@ namespace Analysis {
     AthAlgorithm(n,p),
     m_JetName(""),
     m_bTagTool("Analysis::BTagTool",this),
-    m_bTagSecVtxTool("Analysis::BTagSecVertexing",this),
-    m_magFieldSvc("AtlasFieldSvc",n)
+    m_bTagSecVtxTool("Analysis::BTagSecVertexing",this)
   {
     declareProperty("JetCalibrationName", m_JetName);
     declareProperty("BTagTool", m_bTagTool);
     declareProperty("BTagSecVertexing", m_bTagSecVtxTool);
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
   }
 
   JetBTaggingAlg::~JetBTaggingAlg()
@@ -79,11 +77,8 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAGVTX# Retrieved tool " << m_bTagSecVtxTool);
     }
 
-    /// retrieve the magnetic field service
-    if (m_magFieldSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_magFieldSvc);
-      return StatusCode::FAILURE;
-    }
+    /// handle to the magnetic field cache
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     if (m_jetParticleLinkNameList.size() == 0) {
       ATH_MSG_FATAL( "#BTAG# Please provide track to jet association list");
@@ -139,7 +134,19 @@ namespace Analysis {
     ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
                     std::make_unique<xAOD::BTaggingAuxContainer>()) );
 
-    if (!m_magFieldSvc->solenoidOn()) {
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return StatusCode::FAILURE;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (!fieldCache.solenoidOn()) {
       for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
         const xAOD::Jet * jet = h_JetCollectionName->at(jetIndex);
         ElementLink< xAOD::BTaggingContainer> linkBTagger;

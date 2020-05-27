@@ -131,14 +131,23 @@ def generateDecisionTree(chains):
     # cleanup settings made by Chain object (will be removed in the future)
     for chain in chains:
         for stepCounter, step in enumerate(chain.steps, 1):
+            filterAlg = getFilterAlg(stepCounter, step.name)
+            filterAlg.Input = []
+            filterAlg.Output = []
+
+            imAlg = findInputMaker( stepCounter, step.name )
+            imAlg.InputMakerInputDecisions = []
+            imAlg.InputMakerOutputDecisions = ""
+
             hypoAlg = findHypoAlg( stepCounter, step.name )
             hypoAlg.HypoInputDecisions  = ""
             hypoAlg.HypoOutputDecisions = ""
-
+            
     # connect all outputs (decision DF)
     for chain in chains:
         for stepCounter, step in enumerate(chain.steps, 1):
             for sequence in step.sequences:
+
                 filterAlg = getFilterAlg(stepCounter, step.name)
                 addIfNotThere( filterAlg.Chains, chain.name, "{} filter alg chains".format(filterAlg.name) )
                 if stepCounter == 1:
@@ -149,7 +158,6 @@ def generateDecisionTree(chains):
                     
                 im = findInputMaker( stepCounter, step.name )
                 for i in filterAlg.Input:
-                    print( str(filterAlg.name) +" "+ str(i))
                     filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
                     addIfNotThere( filterAlg.Output, filterOutputName, "{} output".format(filterAlg.name) )
                     addIfNotThere( im.InputMakerInputDecisions,  filterOutputName, "{} input".format(im.name))
@@ -157,19 +165,27 @@ def generateDecisionTree(chains):
                 hypoAlg = findHypoAlg( stepCounter, step.name )
                 for i in im.InputMakerInputDecisions:
                     imOutputName = CFNaming.inputMakerOutName( im.name, i )
+                    setOrCheckIfTheSame( im.InputMakerOutputDecisions, imOutputName, "{} output".format( im.name ) )
                     setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName, "{} hypo input".format(hypoAlg.name) )
                 for i in hypoAlg.HypoInputDecisions:
                     hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
                     setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName, "{} hypo output".format(hypoAlg.name) )
                     
-                print("here " +str(dir(sequence._hypoToolConf)))
-                
-                print("chain here " +str(dir(chain)))
-                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName(chain.name ) ) )
-                            
-    acc.printConfig()
+                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName(chain.name ) ) )                                                
+
+    for chain in chains:
+        for stepCounter, step in enumerate(chain.steps, 1):
+            filterAlg = getFilterAlg(stepCounter, step.name)
+            log.info("FilterAlg {} Inputs {} Outputs ".format(filterAlg.name, filterAlg.Input, filterAlg.Output ))
 
 
+            imAlg = findInputMaker( stepCounter, step.name )
+            log.info("InputMaker {} Inputs {} Outputs ".format(imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ))
+
+            hypoAlg = findHypoAlg( stepCounter, step.name )
+            log.info("HypoAlg {} Inputs {} Outputs ".format(hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ))
+
+    kaboom
     return acc
 
 

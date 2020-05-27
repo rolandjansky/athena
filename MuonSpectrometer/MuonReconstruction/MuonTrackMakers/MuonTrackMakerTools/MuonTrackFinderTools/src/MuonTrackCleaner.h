@@ -23,7 +23,8 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include <string>
@@ -289,8 +290,10 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc       {this, "MagFieldSvc", "AtlasFieldSvc"}; 
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
 
     Gaudi::Property<bool> m_useMdtResiCut             {this, "UseMdtResiCut", false};
     Gaudi::Property<double> m_chi2Cut                 {this, "Chi2Cut", 100.};
