@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -297,16 +297,6 @@ namespace InDet {
 	float dZ = fabs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
       }
       return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
-      /*
-      if(v==ve) return true;      
-
-      float dZmin = fabs((*v)-Zv); ++v;
-
-      for(; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ<dZmin) dZmin=dZ;
-      }
-      return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
-      */
     }
   
   ///////////////////////////////////////////////////////////////////

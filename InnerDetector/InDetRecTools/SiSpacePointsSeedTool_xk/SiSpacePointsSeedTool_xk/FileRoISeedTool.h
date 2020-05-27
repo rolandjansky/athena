@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
-// Class for Z-window RoI from leading two track middle vertex z-.
+// Class for Z-window RoI from an input file
 /////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SiSpacePointsSeedTool_xk_FileRoISeedTool_h
@@ -44,12 +44,6 @@ namespace InDet {
     /** Compute RoI */
     virtual std::vector<ZWindow> getRoIs();
 
-
-    /*private:
-
-    int m_runN;
-    unsigned long long m_evtN;*/
-
   protected:
 
     /**    @name Disallow default instantiation, copy, assignment **/
@@ -61,13 +55,9 @@ namespace InDet {
     // Protected data and methods
     ///////////////////////////////////////////////////////////////////
  
-
-
     std::string m_filename; //name of file
     float m_z0_window; /// width of z0 window
     
-	
-
   }; // FileRoISeedTool
 } //InDet namespace
 

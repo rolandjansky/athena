@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -91,16 +91,6 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
   std::vector<InDet::IZWindowRoISeedTool::ZWindow> listRoIs;
   InDet::IZWindowRoISeedTool::ZWindow RoI;
   listRoIs.clear();
-  /*
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertex ("ITrackToVertex::TrackToVertex/TrackToVertex");
-  
-  if ( m_trackToVertex.retrieve().isFailure() ) { 
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
-    //return StatusCode::FAILURE; 
-  } else { 
-    ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex ); 
-    } */
-  
 
   //select tracks, then order by pT
   const TrackCollection* tracks = 0;
@@ -159,15 +149,8 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       float z0_leading_beam = lead_atbeam->parameters()[Trk::z0];
       float z0_beam = sublead_atbeam->parameters()[Trk::z0];
 
-      //std::cout<<"- z0_leading = " << z0_leading << " mm"<<std::endl;
-      //std::cout<<"- z0_sublead = " << z0 << " mm"<<std::endl;
-      //std::cout<<"- z0_leading_beam = " << z0_leading_beam << " mm"<<std::endl;
-      //std::cout<<"- z0_sublead_beam = " << z0_beam << " mm"<<std::endl;
-
       if ( fabs(z0_leading_beam - z0_beam) > m_max_delta_z ) continue;
       //create the pair in global coordinates 
-      //float z0_trk_reference = trk->perigeeParameters()->associatedSurface().center().z();
-      //float z0_trk_leading_reference = trk_leading->perigeeParameters()->associatedSurface().center().z();
       float z0_trk_reference = sublead_atbeam->associatedSurface().center().z();
       float z0_trk_leading_reference = lead_atbeam->associatedSurface().center().z();
       RoI.z_reference = (z0_beam + z0_trk_reference + z0_leading_beam + z0_trk_leading_reference) / 2;

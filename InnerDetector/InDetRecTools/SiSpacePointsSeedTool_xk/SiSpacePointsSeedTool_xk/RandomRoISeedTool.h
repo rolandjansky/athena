@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -63,8 +63,6 @@ namespace InDet {
     // Protected data and methods
     ///////////////////////////////////////////////////////////////////
   
-    //* Input track collection *//
-    //std::string m_input_truth_events; ///< input truth events collection name
     float m_z0_window; ///< width of z0 window
 
     ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;

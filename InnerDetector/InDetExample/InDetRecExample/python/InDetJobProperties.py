@@ -280,7 +280,7 @@ class LowPtRoIStrategy(InDetFlagsJobProperty):
     StoredValue  = 1
 
 class LowPtRoIWindow(InDetFlagsJobProperty):
-    """The ROI will be plus/minus the value given, so the total window will be twice the value
+    """The ROI will be plus/minus the value given (in mm), so the total window size will be twice the input value.  Inputting a negative value will run two-pass tracking with a separate container, but without an RoI (i.e. no seeds rejected due to falling outside of RoI).
     """
     statusOn     = True
     allowedTypes = ['float']

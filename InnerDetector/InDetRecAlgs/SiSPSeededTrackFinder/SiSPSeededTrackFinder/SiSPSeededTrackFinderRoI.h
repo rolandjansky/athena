@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,7 @@
 namespace InDet {
 
   // Class-algorithm for track finding in Pixels and SCT
-  // initiated by space points seeds filtering in a give
+  // initiated by space points seeds filtering in a given
   // RoI within the z axis
   //
   class SiSPSeededTrackFinderRoI : public AthAlgorithm 

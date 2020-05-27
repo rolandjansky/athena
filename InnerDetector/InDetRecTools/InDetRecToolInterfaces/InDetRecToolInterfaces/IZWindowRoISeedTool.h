@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,6 @@ namespace InDet
       Compute RoI z-window(s)
     */
     virtual std::vector<ZWindow> getRoIs() = 0;
-    //virtual std::vector<ZWindow> getRoIsWithExclusion(float ZRef) = 0;
 
   public:
     ///////////////////////////////////////////////////////////////////

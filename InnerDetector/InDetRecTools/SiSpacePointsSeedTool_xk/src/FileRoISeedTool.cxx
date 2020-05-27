@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//   Implementation file for class FileRoISeedTool
+//   Implementation file for class FileRoISeedTool (get RoI for low-pt tracking from a file)
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -102,7 +102,6 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::FileRoISeedTool::getRoIs
     while (std::getline(inFile, line)){
       
       std::istringstream iss(line);
-      //float val;
 
       int runnum;
       unsigned long long eventnum;
@@ -125,7 +124,6 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::FileRoISeedTool::getRoIs
   }
 
   inFile.close();
-
 
   return listRoIs;
   

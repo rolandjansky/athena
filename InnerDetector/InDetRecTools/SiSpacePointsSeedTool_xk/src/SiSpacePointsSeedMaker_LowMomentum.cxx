@@ -463,7 +463,6 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Ver
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Vertex>& lv,const double* ZVertex) 
 {
-  //find3Sp(lv);
 
   m_zminU     = ZVertex[0]; if(m_zminU < m_zmin) m_zminU = m_zmin; 
   m_zmaxU     = ZVertex[1]; if(m_zmaxU > m_zmax) m_zmaxU = m_zmax;
@@ -783,13 +782,11 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::newVertices(const std::list<Trk:
   if(s1==0 && s2==0) return false;
 
   std::list<Trk::Vertex>::const_iterator v;
-  //l_vertex.erase(l_vertex.begin(),l_vertex.end());
   l_vertex.clear();
   if(s2 == 0) return false;  
 
   m_isvertex = true;
   for(v=lV.begin(); v!=lV.end(); ++v) {
-    //l_vertex.push_back(float((*v).position().z()));
     l_vertex.insert(float((*v).position().z()));
   }
 
