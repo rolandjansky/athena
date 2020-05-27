@@ -20,7 +20,6 @@
 #include "Acts/Material/SurfaceMaterialMapper.hpp"
 
 // BOOST
-
 #include <cmath>
 
 class ActsSurfaceMappingTool : public extends<AthAlgTool, IActsSurfaceMappingTool>

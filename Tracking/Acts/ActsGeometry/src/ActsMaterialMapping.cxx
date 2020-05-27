@@ -20,11 +20,11 @@
 // PACKAGE
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsGeometryContext.h"
-#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
+#include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 #include "ActsGeometryInterfaces/IActsMaterialStepConverterTool.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsSurfaceMappingTool.h"
-#include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 
 // STL
 #include <fstream>
@@ -32,12 +32,12 @@
 
 //TEST
 #include "Acts/EventData/NeutralParameters.hpp"
+#include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-#include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
-#include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/StraightLineStepper.hpp"
 
 ActsMaterialMapping::ActsMaterialMapping(const std::string &name,
                                            ISvcLocator *pSvcLocator)
@@ -76,16 +76,6 @@ StatusCode ActsMaterialMapping::execute(const EventContext &ctx) const {
   mTrack = m_materialStepConverterTool->convertToMaterialTrack(*materialStepCollection);
 
   m_materialTrackWriterSvc->write(mTrack);
-
-  // std::cout << mTrack.first.first << std::endl;
-  //
-  // std::cout << mTrack.first.second << std::endl;
-  //
-  // std::cout << mTrack.second.materialInX0 << std::endl;
-  //
-  // std::cout << mTrack.second.materialInL0 << std::endl;
-  //
-  // std::cout << mTrack.second.materialInteractions.size() << std::endl;
 
   auto mappingState
         = const_cast<Acts::SurfaceMaterialMapper::State*>(&m_mappingState);

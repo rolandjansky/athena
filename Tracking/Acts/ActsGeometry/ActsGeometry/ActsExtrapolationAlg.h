@@ -14,9 +14,6 @@
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-
-// PACKAGE
 
 // STL
 #include <memory>

@@ -9,17 +9,16 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
-#include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsInterop/Logger.h"
-#include "ActsGeometry/ActsTrackingGeometryTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometry/ActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 
-// ACTS
+// ActsSurfaceMappingTool
+#include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
 
 // STL
 #include <iostream>

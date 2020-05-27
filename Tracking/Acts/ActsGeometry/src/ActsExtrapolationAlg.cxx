@@ -5,9 +5,6 @@
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 
 // ATHENA
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/EventContext.h"
@@ -17,15 +14,18 @@
 // ACTS
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
-#include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 
 // OTHER
 #include "CLHEP/Random/RandomEngine.h"
@@ -43,7 +43,6 @@ namespace Acts{
   using RecordedMaterialTrack =
       std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
 }
-
 
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string &name,
                                            ISvcLocator *pSvcLocator)

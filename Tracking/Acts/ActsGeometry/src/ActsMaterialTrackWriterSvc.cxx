@@ -136,7 +136,7 @@ ActsMaterialTrackWriterSvc::writerThread()
       while(!m_mTracks.empty()) {
         ATH_MSG_VERBOSE("Pop entry and write");
         // keep the lock!
-        MaterialTrack mTrack = std::move(m_mTracks.front());
+        Acts::RecordedMaterialTrack mTrack = std::move(m_mTracks.front());
         m_mTracks.pop_front();
         doWrite(std::move(mTrack));
       }

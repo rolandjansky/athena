@@ -15,16 +15,14 @@
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
-#include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
 // ACTS
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"

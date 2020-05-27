@@ -5,13 +5,16 @@
 #ifndef ACTSGEOMETRY_ACTSMATERIALJSONWRITERTOOL_H
 #define ACTSGEOMETRY_ACTSMATERIALJSONWRITERTOOL_H
 
+// ATHENA
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
+// PACKAGE
 #include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 
+// ACTS
 #include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
 
 namespace Acts {
