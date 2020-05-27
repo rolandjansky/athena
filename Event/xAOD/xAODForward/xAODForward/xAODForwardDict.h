@@ -75,4 +75,30 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODFORWARD {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPDataContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPToFHitContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPSiHitContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPSiHitContainer_v2 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPSiHitsClusterContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPTrackContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPTrackContainer_v2 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, AFPProtonContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, ALFADataContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, ZdcModuleContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, MBTSModuleContainer_v1 );
+
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, ForwardEventInfoContainer_v1 );
+
+      // Type(s) needed for the dictionary generation to succeed.
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TriggerTowerContainer );
+   };
+}
+
 #endif // XAODFORWARD_XAODFORWARDDICT_H

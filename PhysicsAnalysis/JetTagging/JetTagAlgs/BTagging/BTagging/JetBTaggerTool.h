@@ -19,7 +19,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Analysis{
 
@@ -45,6 +46,8 @@ class  JetBTaggerTool:
  private:
 
   SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName { this, "JetCollectionName", "", "Input jet container"};
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
   SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", "Output BTagging container"} ;
 
@@ -54,7 +57,6 @@ class  JetBTaggerTool:
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
   bool m_augment;
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
 };
 

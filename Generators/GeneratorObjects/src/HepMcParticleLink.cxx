@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,14 +26,14 @@ namespace {
 /**
  * @brief StoreGate keys to try for each EBC_EVCOLL enum.
  */
-constexpr static int NKEYS = 4;
+constexpr static int NKEYS = 5;
 const
 std::string s_keys[EBC_NCOLLKINDS][NKEYS] =
   {
-   {"TruthEvent","G4Truth","GEN_AOD","GEN_EVENT"},
-   {"TruthEvent_PU","G4Truth_PU","GEN_AOD_PU","GEN_EVENT_PU"},
-   {"TruthEvent_HighPtPU","G4Truth_HighPtPU","GEN_AOD_HighPtPU","GEN_EVENT_HighPtPU"},
-   {"TruthEvent_Cavern","G4Truth_Cavern","GEN_AOD_Cavern","GEN_EVENT_Cavern"},
+    {"TruthEvent","G4Truth","GEN_AOD","GEN_EVENT","Bkg_TruthEvent"},
+    {"TruthEvent_PU","G4Truth_PU","GEN_AOD_PU","GEN_EVENT_PU","Bkg_TruthEvent_PU"},
+    {"TruthEvent_HighPtPU","G4Truth_HighPtPU","GEN_AOD_HighPtPU","GEN_EVENT_HighPtPU","Bkg_TruthEvent_HighPtPU"},
+    {"TruthEvent_Cavern","G4Truth_Cavern","GEN_AOD_Cavern","GEN_EVENT_Cavern","Bkg_TruthEvent_Cavern"},
   };
 
 

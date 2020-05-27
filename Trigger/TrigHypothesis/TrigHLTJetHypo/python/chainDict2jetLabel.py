@@ -436,5 +436,4 @@ and([]
     # more than 2 labels is not expected
     assert False
 
-
 # module tests now in testChainDictMaker.py

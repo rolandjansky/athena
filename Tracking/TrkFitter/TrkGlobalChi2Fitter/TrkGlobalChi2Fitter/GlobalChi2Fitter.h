@@ -202,7 +202,7 @@ namespace Trk {
       const Track&,
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
-    ) const;
+    ) const override;
   
   private:
     void calculateJac(

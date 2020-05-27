@@ -21,7 +21,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
@@ -223,7 +224,8 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
                                                         "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ServiceHandle<MagField::IMagFieldSvc>    m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;  // init with callback
     ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc;
 

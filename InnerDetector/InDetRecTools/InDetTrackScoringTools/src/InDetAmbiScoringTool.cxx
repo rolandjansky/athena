@@ -16,7 +16,6 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "TMath.h"
 #include <vector>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -46,8 +45,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_trkSummaryTool("Trk::TrackSummaryTool", this),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool", this),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
-  m_extrapolator("Trk::Extrapolator", this),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_extrapolator("Trk::Extrapolator", this)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -82,7 +80,6 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("Extrapolator",      m_extrapolator);
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
-  declareProperty("MagFieldSvc",       m_magFieldSvc);
 
   declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
   declareProperty("doEmCaloSeed",      m_useEmClusSeed = true );
@@ -154,20 +151,13 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
 
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  sc =  m_magFieldSvc.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
-  }
-
   if (m_useAmbigFcn && m_useTRT_AmbigFcn) {
     msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endmsg;
     return StatusCode::FAILURE;
   }
   
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
 
@@ -310,7 +300,17 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   const Trk::TrackParameters* input = track.trackParameters()->front();
 
   // cuts on parameters
-  if (m_magFieldSvc->solenoidOn()) {
+  EventContext ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("simpleScore: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return Trk::TrackScore(0);
+  }
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()){ 
     if (fabs(input->pT()) < m_minPt) {
       ATH_MSG_DEBUG ("Track pt < "<<m_minPt<<", reject it");
       return Trk::TrackScore(0);

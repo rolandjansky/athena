@@ -177,20 +177,7 @@ namespace Trk {
          ParticleHypothesis particle = pion,
          MaterialUpdateMode matupmode = addNoise) const = 0;
 
-       /** 8) <b>Configured AlgTool extrapolation method</b>):
-         - Extrapolation using specific intermediate surfaces and energy loss effects to be accounted for at
-         each surface as specified by the corresponding MaterialEffectsOnTrack. The last propagation ends
-         at the last surface given, applying the corresponding MaterialEffectsOnTrack to the track parameters
-         before returning.
-       */
-       virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextStation(
-         const TrackParameters& parm,
-         PropDirection dir = anyDirection,
-         const BoundaryCheck& bcheck = true,
-         ParticleHypothesis particle = pion,
-         MaterialUpdateMode matupmode = addNoise) const = 0;
-
-       /** 9) <b>Configured AlgTool extrapolation method</b> ):
+      /** 8) <b>Configured AlgTool extrapolation method</b> ):
         - extrapolation to the next active layer, based on the extrapolation to the next layer
         and layer identification
         * */
@@ -199,7 +186,7 @@ namespace Trk {
                                                           PropDirection dir = anyDirection,
                                                           ParticleHypothesis particle = pion) const = 0;
 
-       /** 10) <b>Configured AlgTool extrapolation method</b>:
+       /** 9) <b>Configured AlgTool extrapolation method</b>:
         - Extrapolate to a destination surface, while collecting all the material layers in between.
        */
        virtual std::vector<const TrackStateOnSurface*>* extrapolateM(const TrackParameters& parameters,
@@ -209,7 +196,7 @@ namespace Trk {
                                                                      ParticleHypothesis particle = pion,
                                                                      Trk::ExtrapolationCache* cache = 0) const = 0;
 
-       /** 11) <b>Configured AlgTool extrapolation method</b>:
+       /** 10) <b>Configured AlgTool extrapolation method</b>:
         - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in
         between.
        */
