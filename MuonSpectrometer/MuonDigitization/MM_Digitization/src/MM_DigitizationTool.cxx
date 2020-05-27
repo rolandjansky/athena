@@ -633,7 +633,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       // see what are the members of MMSimHit
       
       // convert sim id helper to offline id
-      MM_SimIdToOfflineId simToOffline(m_idHelperSvc->mmIdHelper());
+      MM_SimIdToOfflineId simToOffline(&m_idHelperSvc->mmIdHelper());
       
       //get the hit Identifier and info
       int simId=hit.MMId();

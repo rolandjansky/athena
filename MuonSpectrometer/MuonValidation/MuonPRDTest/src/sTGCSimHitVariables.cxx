@@ -26,7 +26,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
 
   // Get sTGC Helper
   sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
-  sTgcSimIdToOfflineId simToOffline (*m_sTgcIdHelper);
+  sTgcSimIdToOfflineId simToOffline(m_sTgcIdHelper);
   
   if(nswContainer->size()==0) ATH_MSG_WARNING(" sTGCSimHit empty ");
   for(auto it : *nswContainer) {
