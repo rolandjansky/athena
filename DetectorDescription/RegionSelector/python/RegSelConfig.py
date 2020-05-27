@@ -126,8 +126,8 @@ if __name__ == "__main__":
     ConfigFlags.dump()
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    cfg=MainServicesSerialCfg() 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(ConfigFlags) 
 
     ## move up
 

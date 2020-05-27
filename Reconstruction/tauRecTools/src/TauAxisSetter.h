@@ -29,13 +29,14 @@ public:
     ~TauAxisSetter();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode finalize() override;
 
 private:
 
     Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
+    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
 };
 
 #endif

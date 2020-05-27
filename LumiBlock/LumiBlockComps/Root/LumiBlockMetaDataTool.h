@@ -41,13 +41,13 @@ class LumiBlockMetaDataTool
    virtual StatusCode finalize() override;
 
    /// Function collecting the metadata from a new input file
-   virtual StatusCode beginInputFile(const SG::SourceID&);
+   virtual StatusCode beginInputFile(const SG::SourceID&) override;
 
    /// Function collecting the metadata from a new input file
-   virtual StatusCode endInputFile(const SG::SourceID&);
+   virtual StatusCode endInputFile(const SG::SourceID&) override;
 
    /// Function writing the collected metadata to the output
-   virtual StatusCode metaDataStop();
+   virtual StatusCode metaDataStop() override;
 
  private:
    /// Fill metaDataStore and ntuples

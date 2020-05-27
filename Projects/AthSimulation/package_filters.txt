@@ -170,7 +170,6 @@
 + InnerDetector/InDetConditions/InDetConditionsSummaryService
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
 + InnerDetector/InDetConditions/PixelConditionsData
-+ InnerDetector/InDetConditions/PixelConditionsTools
 + InnerDetector/InDetConditions/PixelCoralClientUtils
 + InnerDetector/InDetConditions/SCT_ConditionsData
 + InnerDetector/InDetConditions/TRT_ConditionsAlgs

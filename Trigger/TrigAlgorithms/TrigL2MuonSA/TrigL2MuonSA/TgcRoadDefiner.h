@@ -5,26 +5,22 @@
 #ifndef  TRIGL2MUONSA_TGCROADDEFINER_H
 #define  TRIGL2MUONSA_TGCROADDEFINER_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/PtEndcapLUT.h"
-
 #include "TrigL2MuonSA/TgcFit.h"
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
 #include "RegionSelector/IRegSelSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 
 namespace TrigL2MuonSA {
 

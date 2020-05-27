@@ -85,6 +85,11 @@ set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
+
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 
@@ -117,6 +122,10 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
+
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/packages.dot
+   DESTINATION . OPTIONAL )
 
 # Temporarily add tdaq dependency to Athena build:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"

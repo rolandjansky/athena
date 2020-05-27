@@ -29,7 +29,7 @@ public:
 
   // build the geometry 
   virtual StatusCode create() override final;
-  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory);
+  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory) const;
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;

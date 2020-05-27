@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public:
                                                   const MeasurementBase*,
                                                   const Trk::KalmanMatEffectsController&,
                                                   PropDirection,
-                                                  const DNA_MaterialEffects* = 0) const = 0;
+                                                  const DNA_MaterialEffects* = nullptr) const = 0;
 
 //    virtual double calculateDna(double, double, double) const = 0;
 

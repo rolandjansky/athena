@@ -371,18 +371,24 @@ def _tests():
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import MultiJetGroup
 
-    chain_names = (
+    chains = (
         'HLT_j85_L1J20',
-        # 'HLT_j80_0eta240_2j60_320eta490_L1J20',
-        # ``'HLT_j85_j70_L1J20',
+        ChainProp(name='HLT_j85_j70_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
         'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
-        'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),
         
     )
     
 
-    for cn in chain_names:
+    for cn in chains:
+        # Contrary to the function name, this requires a ChainProp
+        # though it will generate a basic one if a string is given
+        # Needs the ChainProp when we have multiple chainParts
+        # to avoid mismatch in L1 threshold multiplicity
         chain_dict = DictFromChainName.dictFromChainName(cn)
 
         label = chainDict2jetLabel(chain_dict)

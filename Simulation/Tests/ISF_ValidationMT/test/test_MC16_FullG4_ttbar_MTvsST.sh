@@ -28,6 +28,7 @@ Sim_tf.py \
 --imf False
 
 rc=$?
+mv log.EVNTtoHITS log.FullG4MTAthenaMT
 echo  "art-result: $rc FullG4MTAthenaMT"
 rc2=-9999
 if [ $rc -eq 0 ]
@@ -49,6 +50,7 @@ then
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
   --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
   --imf False
+    mv log.EVNTtoHITS log.FullG4MTAthena
     rc2=$?
 fi
 echo  "art-result: $rc2 FullG4MTAthena"
@@ -72,6 +74,7 @@ then
   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
   --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
   --imf False
+    mv log.EVNTtoHITS log.FullG4Athena
     rc3=$?
 fi
 echo  "art-result: $rc3 FullG4Athena"

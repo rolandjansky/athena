@@ -25,6 +25,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
         eventSelector.HelperTools += [xconv]
+        eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
         acc.setAppProperty( "EvtSel", eventSelector.name )
 
@@ -60,51 +61,11 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    bsCnvSvc.InitCnvs += [ "EventInfo",]
-
     return acc
 
-def TrigBSReadCfg(inputFlags):
-
-    acc=ByteStreamReadCfg( inputFlags )
-
-    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
-    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
-    
-    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
-
-    bsAddressProviderSvc.TypeNames += [
-        "TileCellIDC/TileCellIDC",
-        "MdtDigitContainer/MDT_DIGITS",
-        "RpcDigitContainer/RPC_DIGITS",
-        "TgcDigitContainer/TGC_DIGITS",
-        "CscDigitContainer/CSC_DIGITS",
-        "MuCTPI_RIO/MUCTPI_RIO",
-        "CTP_RIO/CTP_RIO"
-    ]
-
-    bsAddressProviderSvc.TypeNames += [
-        "LArRawChannelContainer/LArRawChannels",
-        "TileRawChannelContainer/TileRawChannelCnt",
-        "MuCTPI_RDO/MUCTPI_RDO",
-        "HLT::HLTResult/HLTResult_L2",
-        "HLT::HLTResult/HLTResult_EF",
-        "CTP_RDO/CTP_RDO",
-        "L1TopoRDOCollection/L1TopoRDOCollection"
-    ]
-
-
-    
-    if inputFlags.Input.isMC is False:
-        bsCnvSvc.GetDetectorMask=True
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
-        # still need to figure out how conditions are setup in new system
-        #from IOVDbSvc.CondDB import conddb
-        #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
-        #acc.addService( conddb )    
-
-    return acc
+def TrigBSReadCfg( flags, typeNames=[] ):
+    # TODO: Search and replace all clients to use ByteStreamReadCfg directly, then remove TrigBSReadCfg
+    return ByteStreamReadCfg( flags, typeNames )
 
 
 def ByteStreamWriteCfg( flags, typeNames=[] ):

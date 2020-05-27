@@ -15,7 +15,6 @@
 #include <TH2Poly.h>
 
 #include "PATInterfaces/CorrectionCode.h"
-#include "AsgMessaging/MessageCheck.h"
 // further ROOT includes
 #include <TFile.h>
 #include <TDirectory.h>
@@ -27,8 +26,6 @@
 #include <map>
 #include <memory>
 #include <cmath>
-
-ANA_MSG_HEADER (msgMuonEfficiency)
 
 namespace CP {
     
@@ -196,79 +193,47 @@ namespace CP {
 
     class PtAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = mu.pt() / 1000.;
-                return CorrectionCode::Ok;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~PtAxisHandler() = default;
-
     };
 
     class ChargeAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = mu.charge();
-                return CorrectionCode::Ok;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~ChargeAxisHandler() = default;
-
     };
     
     class EtaAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = mu.eta();
-                return CorrectionCode::Ok;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~EtaAxisHandler() = default;
-
     };
     class AbsEtaAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = std::abs(mu.eta());
-                return CorrectionCode::Ok;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override; 
             virtual ~AbsEtaAxisHandler() = default;
-
     };
     class PhiAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = mu.phi();
-                return CorrectionCode::Ok;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~PhiAxisHandler() = default;
-
     };
     class dRJetAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
-                value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
-		// We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
-                static std::atomic<unsigned int> warned = {0};
-                if (warned<5 && !dRJet.isAvailable(mu)){
-                    using namespace msgMuonEfficiency;
-                    ANA_MSG_WARNING("The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
-                    ANA_MSG_WARNING("using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
-                    ANA_MSG_WARNING("You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
-                    ANA_MSG_WARNING("For the time being the inclusive scale-factor is going to be returned.");
-		    ANA_MSG_WARNING("In future derivations, muons will also be decorated centrally with dRJet, for your benefit.");
-		    warned++;
-                }
-                return CorrectionCode::Ok;
-            }
+            dRJetAxisHandler();
+            
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~dRJetAxisHandler() = default;
-
+            static void set_close_jet_decorator(const std::string& decor_name);
+            
+        private:
+            static std::string m_close_jet_decor;
+            SG::AuxElement::ConstAccessor<float> m_acc;
     };
     class UndefinedAxisHandler: public AxisHandler {
         public:
-            CorrectionCode GetBinningParameter(const xAOD::Muon &, float &) const override {
-                return CorrectionCode::Error;
-            }
+            CorrectionCode GetBinningParameter(const xAOD::Muon &, float &) const override;
             virtual ~UndefinedAxisHandler() = default;
-
     };
 
 } // namespace CP

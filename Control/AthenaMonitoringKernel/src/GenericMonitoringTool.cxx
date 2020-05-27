@@ -85,7 +85,7 @@ StatusCode GenericMonitoringTool::book() {
     ATH_MSG_DEBUG( "Monitoring for variable " << def.name << " prepared" );
   }
 
-  if ( fillers.empty() ) {
+  if ( fillers.empty() && m_failOnEmpty ) {
     std::string hists;
     for (const auto &h : m_histograms) hists += (h+",");
     ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<

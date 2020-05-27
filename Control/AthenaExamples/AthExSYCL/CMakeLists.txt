@@ -10,6 +10,13 @@ if( NOT SYCL_FOUND )
    return()
 endif()
 
+# When using triSYCL, disable the usage of the undefined behaviour sanitiser in
+# debug builds. As the triSYCL headers don't work with that enabled. :-(
+if( NOT SYCL_builtin_FOUND )
+   string( REPLACE "-fsanitize=undefined" "" CMAKE_CXX_FLAGS_DEBUG
+      "${CMAKE_CXX_FLAGS_DEBUG}" )
+endif()
+
 # Add a component library that has some SYCL code in it.
 atlas_add_component( AthExSYCL
    src/*.h src/*.cxx src/components/*.cxx

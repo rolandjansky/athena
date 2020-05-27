@@ -71,12 +71,12 @@ public:
     return reinterpret_cast<const T*> (IdentifiableCacheBase::get (hash));
   }
 
-  bool add (IdentifierHash hash, const T* p)
+  std::pair<bool, const void*> add (IdentifierHash hash, const T* p)
   {
     return IdentifiableCacheBase::add (hash, p);
   }
 
-  bool add (IdentifierHash hash, std::unique_ptr<T> p)
+  std::pair<bool, const void*> add (IdentifierHash hash, std::unique_ptr<T> p)
   {
     return IdentifiableCacheBase::add (hash, void_unique_ptr(std::move(p)));
   }

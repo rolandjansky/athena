@@ -848,9 +848,6 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     if 'Extrapolator' not in kwargs :
         kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
 
-    if 'PixelSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool() if DetFlags.haveRIO.pixel_on() else None)
-
     if 'SctSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
 
