@@ -24,7 +24,7 @@ class TAxis;
 namespace RootHelpers 
 {
 
-        // RootHelper to have a const method for interpolation (why is there not a const version in ROOT???)
+        // RootHelper to have a const method for interpolation. This will be change in future versions as discussed in https://sft.its.cern.ch/jira/browse/ROOT-9994
 
         double Interpolate(const TH1* histo, const double x);
         double Interpolate(const TH1* histo, const double x, const double y);
