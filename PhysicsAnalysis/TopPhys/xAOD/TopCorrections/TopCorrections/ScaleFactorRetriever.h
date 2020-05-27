@@ -84,7 +84,7 @@ namespace top {
     TAUS_TRUEHADTAU_EFF_RECO_AFII__1up, TAUS_TRUEHADTAU_EFF_RECO_AFII__1down,
     TAU_SF_END,
     // Photon SFs
-    PHOTON_IDSF_UP, PHOTON_IDSF_DOWN, PHOTON_EFF_ISO,
+    PHOTON_IDSF_UP, PHOTON_IDSF_DOWN,
     PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
     // B-tagging SFs
     BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
@@ -366,9 +366,9 @@ namespace top {
      * @param: SFSyst, systematic variation enum
      * @param: whether you want the SF for loose event or not
      */
-    float photonSF(const xAOD::Photon& x,
-                   const top::topSFSyst SFSyst,
-                   bool isLoose) const;
+    float photonSF_Reco(const xAOD::Photon& x,
+			const top::topSFSyst SFSyst,
+			bool isLoose) const;
 
     float photonSF_Isol(const xAOD::Photon& x,
                         const top::topSFSyst SFSyst,
