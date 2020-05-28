@@ -27,6 +27,12 @@ def TrigMuonMonitoringTool():
 	HLTMuonMon.BCTool = BunchCrossingTool()
 	from AthenaCommon.AppMgr import ToolSvc
 	#ToolSvc += HLTMuonMon;
+	from AthenaCommon.GlobalFlags import globalflags
+	inputDataType = str(globalflags.DataSource.StoredValue)
+	if inputDataType == 'data':
+		HLTMuonMon.truthmon_isData = 1
+	else:
+		HLTMuonMon.truthmon_isData = 0
 	list = [ HLTMuonMon ];
 	return list
 
