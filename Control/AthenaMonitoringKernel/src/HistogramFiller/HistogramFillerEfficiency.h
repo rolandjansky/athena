@@ -45,7 +45,7 @@ namespace Monitored {
         for (unsigned i = 0; i < var0.size(); ++i) {
           if (cutMaskAccessor(i)) {
             efficiency->Fill(var0.get(i),
-                             detail::getFillValue<Axis::X>(efftot, m_monVariables[0].get(), i));
+                             detail::getFillValue<Axis::X>(efftot, m_monVariables[1].get(), i));
           }
         }
         return var0.size();
