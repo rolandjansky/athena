@@ -41,7 +41,7 @@ def generateDecisionTree(chains):
     def getFiltersStepSeq( stepNumber ):
         """
         Returns sequence containing all filters for a step
-        """            
+        """
         name = 'Step{}_{}'.format(stepNumber, CFNaming.FILTER_POSTFIX)
         if stepNumber > 1:
             getRecosStepSeq( stepNumber -1 ) # make sure steps sequencers are correctly made: Step1_filter, Step1_recos, Step2_filters, Step2_recos ...
@@ -65,34 +65,34 @@ def generateDecisionTree(chains):
         """
         name = "Menu{}{}".format(stepNumber, stepName)
         seq = seqAND( name )
-        allRecoSeqName = getRecosStepSeq( stepNumber ).name        
+        allRecoSeqName = getRecosStepSeq( stepNumber ).name
         acc.addSequence(seq, parentName = allRecoSeqName )
         return seq
 
-    
+
     @memoize
     def getFilterAlg( stepNumber, stepName ):
-        """ 
+        """
         Returns, if need be create, filter for a given step
         """
-        
+
         filtersStep = getFiltersStepSeq( stepNumber )
         singleRecSeq = getSingleMenuSeq( stepNumber, stepName )
-        
+
         filterName = CFNaming.filterName( stepName )
         filterAlg = CompFactory.RoRSeqFilter( filterName )
-        
+
         acc.addEventAlgo( filterAlg, sequenceName=filtersStep.name )
         acc.addEventAlgo( filterAlg, sequenceName=singleRecSeq.name )
-                             
+
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
-                    
-    @memoize 
+
+    @memoize
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
-        algs = findAllAlgorithms( seq )        
-        for alg in algs:        
+        algs = findAllAlgorithms( seq )
+        for alg in algs:
             if isInputMakerBase(alg):
                 return alg
         raise Exception("No input maker in seq "+seq.name)
@@ -105,16 +105,20 @@ def generateDecisionTree(chains):
             if isHypoBase(alg):
                 return alg
         raise Exception("No hypo alg in seq "+seq.name)
-        
-    def addIfNotThere( prop, toadd, context="" ):
+
+    def addAndAssureUniqness( prop, toadd, context="" ):
         if toadd not in prop:
-            log.info("{} adding value {} to property".format(context, toadd))
-            prop.append( toadd )
+            log.info("{} value {} not there".format(context, toadd))
+            return list( prop ) + [ toadd ]
         else:
             log.info("{} value {} already there".format(context, toadd))
+            return list( prop )
 
-    def setOrCheckIfTheSame( prop, toadd, context):
-        if prop == "":
+    def assureUnsetOrTheSame(prop, toadd, context):
+        """
+        Central function setting strnig like proeprties (collection keys). Assures that valid names are not overwritten.
+        """
+        if prop == "" or prop == toadd:
             return toadd
         if prop != toadd:
             raise Exception("{}, when setting property found conflicting values, existing {} and new {}".format(context, prop, toadd))
@@ -122,16 +126,16 @@ def generateDecisionTree(chains):
 
     #create all sequences and filter algs, merge CAs from signatures (decision CF)
     for chain in chains:
-        for stepCounter, step in enumerate(chain.steps, 1):
+        for stepCounter, step in enumerate( chain.steps, 1 ):
             for sequence in step.sequences:
-                getFilterAlg(stepCounter, step.name)
-                recoSeqName = getSingleMenuSeq(stepCounter, step.name).name
+                getFilterAlg( stepCounter, step.name )
+                recoSeqName = getSingleMenuSeq( stepCounter, step.name ).name
                 acc.merge( sequence.ca, sequenceName=recoSeqName )
 
-    # cleanup settings made by Chain object (will be removed in the future)
+    # cleanup settings made by Chain & related objects (can be removed in the future)
     for chain in chains:
-        for stepCounter, step in enumerate(chain.steps, 1):
-            filterAlg = getFilterAlg(stepCounter, step.name)
+        for stepCounter, step in enumerate( chain.steps, 1 ):
+            filterAlg = getFilterAlg( stepCounter, step.name )
             filterAlg.Input = []
             filterAlg.Output = []
 
@@ -142,47 +146,50 @@ def generateDecisionTree(chains):
             hypoAlg = findHypoAlg( stepCounter, step.name )
             hypoAlg.HypoInputDecisions  = ""
             hypoAlg.HypoOutputDecisions = ""
-            
+
     # connect all outputs (decision DF)
     for chain in chains:
-        for stepCounter, step in enumerate(chain.steps, 1):
-            for sequence in step.sequences:
+        for stepCounter, step in enumerate( chain.steps, 1 ):
+            for seqCounter, sequence in enumerate( step.sequences ):
 
-                filterAlg = getFilterAlg(stepCounter, step.name)
-                addIfNotThere( filterAlg.Chains, chain.name, "{} filter alg chains".format(filterAlg.name) )
+                # Filters linking
+                filterAlg = getFilterAlg( stepCounter, step.name )
+                filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chain.name, "{} filter alg chains".format( filterAlg.name ) )
                 if stepCounter == 1:
-                    addIfNotThere( filterAlg.Input, chain.L1decisions[0], "{} L1 input".format(filterAlg.name) )
-                else: # look into the previous step, index -2 is because we count steps from 1
-                    hypoOutput = findHypoAlg( stepCounter-1, chain.steps[chain.steps.index(step)-1].name ).HypoOutputDecisions
-                    addIfNotThere( filterAlg.Input, hypoOutput, "{} input".format(filterAlg.name) )
+                    filterAlg.Input = addAndAssureUniqness( filterAlg.Input, chain.L1decisions[0], "{} L1 input".format( filterAlg.name ) )
+                else: # look into the previous step
+                    hypoOutput = findHypoAlg( stepCounter-1, chain.steps[chain.steps.index( step )-1].name ).HypoOutputDecisions
+                    filterAlg.Input = addAndAssureUniqness( filterAlg.Input, hypoOutput, "{} input".format( filterAlg.name ) )
 
+                # Input Maker linking
                 im = findInputMaker( stepCounter, step.name )
                 for i in filterAlg.Input:
                     filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
-                    addIfNotThere( filterAlg.Output, filterOutputName, "{} output".format(filterAlg.name) )
-                    addIfNotThere( im.InputMakerInputDecisions,  filterOutputName, "{} input".format(im.name))
-                    
+                    filterAlg.Output = addAndAssureUniqness( filterAlg.Output, filterOutputName, "{} output".format( filterAlg.name ) )
+                    im.InputMakerInputDecisions = addAndAssureUniqness( im.InputMakerInputDecisions,  filterOutputName, "{} input".format( im.name ) )
+                imOutputName = CFNaming.inputMakerOutName( im.name )
+                im.InputMakerOutputDecisions = assureUnsetOrTheSame( im.InputMakerOutputDecisions, imOutputName, "{} IM output".format( im.name ) )
+
+                # Hypo linking
                 hypoAlg = findHypoAlg( stepCounter, step.name )
-                for i in im.InputMakerInputDecisions:
-                    imOutputName = CFNaming.inputMakerOutName( im.name, i )
-                    setOrCheckIfTheSame( im.InputMakerOutputDecisions, imOutputName, "{} output".format( im.name ) )
-                    hypoAlg.HypoInputDecisions = setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName, "{} hypo input".format(hypoAlg.name) )
-                for i in hypoAlg.HypoInputDecisions:
-                    hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
-                    hypoAlg.HypoOutputDecisions = setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName, "{} hypo output".format(hypoAlg.name) )
-                    
-                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName(chain.name ) ) )                                                
+                hypoAlg.HypoInputDecisions = assureUnsetOrTheSame( hypoAlg.HypoInputDecisions, im.InputMakerOutputDecisions,
+                    "{} hypo input".format( hypoAlg.name ) )
+                hypoOutName = CFNaming.hypoAlgOutName( hypoAlg.name )
+                hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOutName,
+                    "{} hypo output".format( hypoAlg.name )  )
+
+                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
 
     for chain in chains:
-        for stepCounter, step in enumerate(chain.steps, 1):
-            filterAlg = getFilterAlg(stepCounter, step.name)
-            log.info("FilterAlg {} Inputs {} Outputs ".format(filterAlg.name, filterAlg.Input, filterAlg.Output ))
+        for stepCounter, step in enumerate( chain.steps, 1 ):
+            filterAlg = getFilterAlg( stepCounter, step.name )
+            log.info("FilterAlg {} Inputs {} Outputs {}".format( filterAlg.name, filterAlg.Input, filterAlg.Output ) )
 
             imAlg = findInputMaker( stepCounter, step.name )
-            log.info("InputMaker {} Inputs {} Outputs ".format(imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ))
+            log.info("InputMaker {} Inputs {} Outputs {}".format( imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ) )
 
             hypoAlg = findHypoAlg( stepCounter, step.name )
-            log.info("HypoAlg {} Inputs {} Outputs ".format(hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ))
+            log.info("HypoAlg {} Inputs {} Outputs {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ) )
 
     #kaboom
     return acc
@@ -190,5 +197,5 @@ def generateDecisionTree(chains):
 
 
 def createControlFlowNewJO(HLTNode, CFseq_list):
-    """ Creates Control Flow Tree starting from the CFSequences in newJO"""     
+    """ Creates Control Flow Tree starting from the CFSequences in newJO"""
     return

@@ -12,16 +12,16 @@ from AthenaCommon.AppMgr import theApp
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-#Temporarily turning off ID geometery until the configuration is fully migrated 
+#Temporarily turning off ID geometery until the configuration is fully migrated
 flags.Detector.GeometryPixel = False
-flags.Detector.GeometrySCT   = False 
-flags.Detector.GeometryTRT   = False 
+flags.Detector.GeometrySCT   = False
+flags.Detector.GeometryTRT   = False
 flags.Detector.GeometryLAr   = True
-flags.Detector.GeometryTile  = True     
-flags.Detector.GeometryMDT   = True 
+flags.Detector.GeometryTile  = True
+flags.Detector.GeometryMDT   = True
 flags.Detector.GeometryTGC   = True
-flags.Detector.GeometryCSC   = True     
-flags.Detector.GeometryRPC   = True     
+flags.Detector.GeometryCSC   = True
+flags.Detector.GeometryRPC   = True
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
@@ -38,9 +38,9 @@ assert setupMenuModule != None, "Could not import module {}".format(setupMenuPat
 assert setupMenuModule.setupMenu != None, "Could not import setupMenu from {}".format(setupMenuPath)
 flags.needFlagsCategory('Trigger')
 setupMenuModule.setupMenu(flags)
-
+flags.Exec.MaxEvents=50
 flags.Input.isMC = False
-flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
+flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
 
 flags.Trigger.L1Decoder.forceEnableAllChains = True
 flags.Concurrency.NumThreads=1
