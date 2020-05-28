@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
@@ -170,7 +170,6 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
   m_step_rho.clear();
 
   // Reserve the vector then
-
   m_step_sx.reserve(mints);
   m_step_sy.reserve(mints);
   m_step_sz.reserve(mints);
@@ -229,11 +228,7 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
     m_step_Z.push_back(mprops.material().Z());
     m_step_rho.push_back(mprops.material().massDensity());
 
-
   }
-
   p_tree->Fill();
-  //m_treeTTot = 0;
-
   ATH_MSG_VERBOSE("Write complete");
 }

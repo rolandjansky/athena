@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSMATERIALMAPPING_H
@@ -30,7 +30,6 @@
 #include <mutex>
 
 namespace Acts {
-
   class ISurfaceMaterial;
   class IVolumeMaterial;
 
@@ -41,7 +40,6 @@ namespace Acts {
       = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
 
   using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
-
 }
 
 class IActsMaterialTrackWriterSvc;
@@ -66,8 +64,6 @@ private:
   Acts::MagneticFieldContext                      m_mctx;
   Acts::GeometryContext                           m_gctx;
   Acts::SurfaceMaterialMapper::State              m_mappingState;
-
-
 };
 
 #endif // ActsGeometry_ActsExtrapolation_h

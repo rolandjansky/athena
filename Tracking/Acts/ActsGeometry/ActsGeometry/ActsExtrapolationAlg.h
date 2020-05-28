@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
@@ -58,7 +58,7 @@ private:
   Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, "The pt range for particles"};
   Gaudi::Property<size_t> m_nParticlePerEvent{this, "NParticlesPerEvent", 1, "The number of particles per event"};
 
-  // this does not work right now
+  // material track writer for the material map validation
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, "Write material track"};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 

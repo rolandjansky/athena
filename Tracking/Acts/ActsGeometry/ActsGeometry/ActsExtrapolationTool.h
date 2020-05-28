@@ -112,9 +112,9 @@ private:
   Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}, "Constant field value to use if FieldMode == Constant"};
 
   Gaudi::Property<double> m_ptLoopers{this, "PtLoopers", 300, "PT loop protection threshold. Will be converted to Acts MeV unit"};
-
   Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10, "Max step size in Acts m unit"};
 
+  // Material inteaction option
   Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", true, "Whether to consider multiple scattering in the interactor"};
   Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", true, "Whether to consider energy loss in the interactor"};
   Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", true, "Whether to record all material interactions"};

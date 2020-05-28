@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
@@ -37,7 +37,7 @@
 using namespace Acts::UnitLiterals;
 
 namespace Acts{
-  /// And recorded material track
+  /// Recorded material track
   /// - this is start:  position, start momentum
   ///   and the Recorded material
   using RecordedMaterialTrack =
