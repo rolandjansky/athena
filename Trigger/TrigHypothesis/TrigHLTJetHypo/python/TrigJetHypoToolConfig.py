@@ -118,7 +118,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     debug = False  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
     
-    log.info('%s', tool)
+    log.info('%s', str(tool))
     return tool
 
 

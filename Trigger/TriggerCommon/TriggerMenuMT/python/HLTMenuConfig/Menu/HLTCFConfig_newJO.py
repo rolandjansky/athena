@@ -115,7 +115,7 @@ def generateDecisionTree(chains):
 
     def setOrCheckIfTheSame( prop, toadd, context):
         if prop == "":
-            prop = toadd
+            return toadd
         if prop != toadd:
             raise Exception("{}, when setting property found conflicting values, existing {} and new {}".format(context, prop, toadd))
 
@@ -155,7 +155,7 @@ def generateDecisionTree(chains):
                 else: # look into the previous step, index -2 is because we count steps from 1
                     hypoOutput = findHypoAlg( stepCounter-1, chain.steps[chain.steps.index(step)-1].name ).HypoOutputDecisions
                     addIfNotThere( filterAlg.Input, hypoOutput, "{} input".format(filterAlg.name) )
-                    
+
                 im = findInputMaker( stepCounter, step.name )
                 for i in filterAlg.Input:
                     filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
@@ -166,10 +166,10 @@ def generateDecisionTree(chains):
                 for i in im.InputMakerInputDecisions:
                     imOutputName = CFNaming.inputMakerOutName( im.name, i )
                     setOrCheckIfTheSame( im.InputMakerOutputDecisions, imOutputName, "{} output".format( im.name ) )
-                    setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName, "{} hypo input".format(hypoAlg.name) )
+                    hypoAlg.HypoInputDecisions = setOrCheckIfTheSame( hypoAlg.HypoInputDecisions, imOutputName, "{} hypo input".format(hypoAlg.name) )
                 for i in hypoAlg.HypoInputDecisions:
                     hypoOutName = CFNaming.hypoAlgOutNameOld( hypoAlg.name, i)
-                    setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName, "{} hypo output".format(hypoAlg.name) )
+                    hypoAlg.HypoOutputDecisions = setOrCheckIfTheSame( hypoAlg.HypoOutputDecisions, hypoOutName, "{} hypo output".format(hypoAlg.name) )
                     
                 hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName(chain.name ) ) )                                                
 
@@ -178,14 +178,13 @@ def generateDecisionTree(chains):
             filterAlg = getFilterAlg(stepCounter, step.name)
             log.info("FilterAlg {} Inputs {} Outputs ".format(filterAlg.name, filterAlg.Input, filterAlg.Output ))
 
-
             imAlg = findInputMaker( stepCounter, step.name )
             log.info("InputMaker {} Inputs {} Outputs ".format(imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ))
 
             hypoAlg = findHypoAlg( stepCounter, step.name )
             log.info("HypoAlg {} Inputs {} Outputs ".format(hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ))
 
-    kaboom
+    #kaboom
     return acc
 
 
