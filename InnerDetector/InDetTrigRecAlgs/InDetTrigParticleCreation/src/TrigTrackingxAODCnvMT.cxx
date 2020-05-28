@@ -4,22 +4,12 @@
 
 #include "TrigTrackingxAODCnvMT.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxTrackAtVertex.h"
-#include "Particle/TrackParticle.h"
 #include "TrkTrack/Track.h"
-#include "TrkTrack/LinkToTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrkTrackSummary/TrackSummary.h"
-
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "IdDictDetDescr/IdDictManager.h"
 
 #include <cmath>
 #include <algorithm>
@@ -53,13 +43,8 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   StatusCode TrigTrackingxAODCnvMT::initialize() {
 
-    ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
-    
-    ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID").isFailure());
     ATH_CHECK(m_particleCreatorTool.retrieve());
 
-    ATH_CHECK( m_roiCollectionKey.initialize() );
-    
     ATH_CHECK( m_trackKey.initialize() );
     ATH_CHECK( m_trackParticleKey.initialize() );
 

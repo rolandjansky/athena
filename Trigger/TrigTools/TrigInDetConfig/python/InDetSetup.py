@@ -309,7 +309,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                doIBLresidual = False,
                                                                 TrackName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     

@@ -31,11 +31,9 @@
 
 // STL
 #include <string>
-#include <vector>
 
 class TH1F;
 class AtlasDetectorID;
-class Identifier;
 class PixelID;
 class TrigRoiDescriptorCollection;
  
@@ -59,14 +57,7 @@ namespace InDet
 
   private:
     ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
-    ToolHandle< Trk::IResidualPullCalculator > m_residualCalc;
-    const AtlasDetectorID* m_idHelper{};
-    const PixelID* m_pixelId{};
 
-    bool                         m_doIBLresidual{};
-
-    //Monitoring
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     SG::ReadHandleKey<TrackCollection> m_trackKey;
     SG::WriteHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey;
 
