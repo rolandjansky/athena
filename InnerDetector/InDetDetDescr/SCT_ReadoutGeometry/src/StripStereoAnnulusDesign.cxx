@@ -10,10 +10,6 @@
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/AnnulusBounds.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
-
 using namespace std;
 
 namespace InDetDD {
@@ -74,14 +70,10 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
     m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
 
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "StripStereoAnnulusDesign");
-    m_log = new MsgStream(&(*msgh), "StripStereoAnnulusDesign");
-
 }
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
     delete m_bounds;
-    delete m_log;
 }
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
@@ -157,7 +149,7 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
     // Following should never happen, check is done on r above
     if (row < 0 || row >= m_nRows) {
-      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n" << endmsg;
+      REPORT_MESSAGE( MSG::WARNING ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n";
       return SiCellId(); // return an invalid id
     }
 //
@@ -173,7 +165,7 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     double phiPrime = atan2(ySF, xSF); 
     int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
     if (strip < 0 || strip >= m_nStrips[row]) { // Outside
-      *m_log << MSG::WARNING << "Invalid SiLocalPosition, returning invalid SiCellId \n" << endmsg;
+      REPORT_MESSAGE( MSG::WARNING ) << "Invalid SiLocalPosition, returning invalid SiCellId \n";
       return SiCellId(); // return an invalid id
     }
 
