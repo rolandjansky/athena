@@ -364,11 +364,9 @@ namespace top {
      * @brief: get the photonSF for a single photon
      * @param: x, an xAOD::Photon object
      * @param: SFSyst, systematic variation enum
-     * @param: whether you want the SF for loose event or not
      */
     float photonSF_Reco(const xAOD::Photon& x,
-			const top::topSFSyst SFSyst,
-			bool isLoose) const;
+			const top::topSFSyst SFSyst) const;
 
     float photonSF_Isol(const xAOD::Photon& x,
                         const top::topSFSyst SFSyst,
