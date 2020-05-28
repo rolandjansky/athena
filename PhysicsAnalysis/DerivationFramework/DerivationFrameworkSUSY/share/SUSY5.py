@@ -244,6 +244,8 @@ addRecommendedXbbTaggers(SeqSUSY5, ToolSvc)
 # Prompt Lepton Tagger
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+
 
 # simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY5, "SUSY5")
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
@@ -251,6 +253,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 # add decoration
 SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
+SeqSUSY5 += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # CONTENT LIST
@@ -306,6 +309,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discrim
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 
 SUSY5SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY5SlimmingHelper.IncludeEGammaTriggerContent = True
