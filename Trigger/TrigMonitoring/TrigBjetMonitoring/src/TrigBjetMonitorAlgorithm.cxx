@@ -10,9 +10,20 @@
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
+#include "Particle/TrackParticleContainer.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
+#include "TrigParticle/TrigEFBjet.h"
+#include "TrigParticle/TrigEFBjetContainer.h"
+
 #include "JetEvent/JetCollection.h"
 #include "muonEvent/Muon.h"
 #include "muonEvent/MuonContainer.h"
+
+// Calculates the track errors
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+
+
 
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -36,6 +47,7 @@ StatusCode TrigBjetMonitorAlgorithm::initialize() {
 
   ATH_CHECK( m_offlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_onlineTrackContainerKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -278,7 +290,15 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	}// trigger combinations
 	
       } else { // Run 3 trigger
-	ATH_MSG_DEBUG("  ===> Run 3 access to Trigger feature: " );
+
+	ATH_MSG_DEBUG("  ===> Run 3 access to Trigger Item: " << trigName);
+
+	// online track container 
+	SG::ReadHandle<xAOD::TrackParticleContainer> theTracks(m_onlineTrackContainerKey, ctx);
+	// verify the content 
+	for ( const xAOD::TrackParticle* track : *theTracks ) {
+	  ATH_MSG_DEBUG( " Pt of track in TrackParticleContainer: " << track->pt() );
+	}
 
 	// bjet chains
 	if (bjetChain) {
@@ -318,11 +338,12 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	//bjet or mujet chains 
 	if (bjetChain || mujetChain) {
 
-	  // Jets and PV through jet link
-	  // std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, jetKey);
+	  // Jets and PV and tracks through jet link
+
 	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, m_onlineBjetContainerKey);
-	  // std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName);
+
 	  int ijet = 0;
+	  int itrack = 0;
 	  std::string nJetH = "nJet_"+trigName;
 	  auto nJet = Monitored::Scalar<int>(nJetH,0.0);
 	  nJet = onlinejets.size();
@@ -371,9 +392,74 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      fill("TrigBjetMonitor",PVy_jet);
 	    }
 	    ijet++;
-	  } // onlinejets
-	  ATH_MSG_DEBUG("  ijet : " << ijet << " nJet : " << nJet);
+
+	    // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020 
+	    const auto track_it_pair = m_trigDec->associateToEventView(theTracks, jetLinkInfo.source, "roi");
+	    const xAOD::TrackParticleContainer::const_iterator start_it = track_it_pair.first;
+	    const xAOD::TrackParticleContainer::const_iterator end_it = track_it_pair.second;
+
+	    int count = 0;
+	    for ( xAOD::TrackParticleContainer::const_iterator it = start_it; it != end_it; ++it) {
+	      count++;
+	      ATH_MSG_DEBUG( " Track " << count << " with pT " << (*it)->pt() <<" from BJet with pT " << (*jetLinkInfo.link)->pt() );
+	      ATH_MSG_DEBUG( " Track " << count << " with pT/eta/phi " << (*it)->pt() << "/" << (*it)->eta() << "/" << (*it)->phi() );
+	      ATH_MSG_DEBUG( " Track " << count << " with d0/sigd0 " << (*it)->d0() << "/" << Amg::error((*it)->definingParametersCovMatrix(), 0) );
+	      ATH_MSG_DEBUG( " Track " << count << " with z0/sigz0 " << (*it)->z0() << "/" << Amg::error((*it)->definingParametersCovMatrix(), 1) );
+	      std::string NameH = "trkPt_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto trkPt = Monitored::Scalar<float>(NameH,0.0);
+	      trkPt = ((*it)->pt())*1.e-3;
+	      ATH_MSG_DEBUG("        trkPt: " << trkPt);
+	      fill("TrigBjetMonitor",trkPt);
+	      NameH = "trkEta_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto trkEta = Monitored::Scalar<float>(NameH,0.0);
+	      trkEta = (*it)->eta();
+	      NameH = "trkPhi_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto trkPhi = Monitored::Scalar<float>(NameH,0.0);
+	      trkPhi = (*it)->phi();
+	      ATH_MSG_DEBUG("        trkEta: " << trkEta << " trkPhi : " << trkPhi);
+	      fill("TrigBjetMonitor",trkEta,trkPhi);
+	      NameH = "d0_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto d0 = Monitored::Scalar<float>(NameH,0.0);
+	      d0 = (*it)->d0();
+	      ATH_MSG_DEBUG("        d0: " << d0);
+	      fill("TrigBjetMonitor",d0);
+	      NameH = "z0_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto z0 = Monitored::Scalar<float>(NameH,0.0);
+	      z0 = (*it)->z0();
+	      ATH_MSG_DEBUG("        z0: " << z0);
+	      fill("TrigBjetMonitor",z0);
+	      NameH = "ed0_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto ed0 = Monitored::Scalar<float>(NameH,0.0);
+	      ed0 = Amg::error((*it)->definingParametersCovMatrix(), 0);
+	      ATH_MSG_DEBUG("        ed0: " << ed0);
+	      fill("TrigBjetMonitor",ed0);
+	      NameH = "ez0_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto ez0 = Monitored::Scalar<float>(NameH,0.0);
+	      ez0 = Amg::error((*it)->definingParametersCovMatrix(), 1);
+	      ATH_MSG_DEBUG("        ez0: " << ez0);
+	      fill("TrigBjetMonitor",ez0);
+	    } // it on tracks
+	    ATH_MSG_DEBUG( "  Number of tracks: " << count );
+	    itrack += count;
+
+	  } // jetLinkInfo from onlinejets
+
+	  ATH_MSG_DEBUG("  Total number of triggered b-jets: " << ijet << " nJet : " << nJet);
+	  ATH_MSG_DEBUG(" Total number of triggered tracks associated to the b-jets: " << itrack);
+	  std::string nTrackH = "nTrack_"+trigName;
+	  auto nTrack = Monitored::Scalar<int>(nTrackH,0.0);
+	  nTrack = itrack;
+	  fill("TrigBjetMonitor",nTrack);
+
 	} //bjet or mujet
+
       } // else Run3  
 
     } else {
