@@ -135,6 +135,7 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
   ANA_CHECK(m_selTool.setProperty("FlvTagCutDefinitionsFileName", m_SFFile));
   ANA_CHECK(m_selTool.initialize());
 
+  ANA_CHECK(m_effTool.setProperty("MinPt",                           m_minPt));
   ANA_CHECK(m_effTool.setProperty("TaggerName",                      m_taggerName));
   ANA_CHECK(m_effTool.setProperty("OperatingPoint",                  m_OP));
   ANA_CHECK(m_effTool.setProperty("JetAuthor",                       m_jetAuthor));
