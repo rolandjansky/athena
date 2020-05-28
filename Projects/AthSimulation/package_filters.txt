@@ -330,7 +330,6 @@
 + Tools/ART
 + Tools/FilePeeker
 + Tools/JobTransforms
-+ Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PROCTools

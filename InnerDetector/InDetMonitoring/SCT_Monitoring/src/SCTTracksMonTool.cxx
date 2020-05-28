@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTTracksMonTool.cxx
@@ -187,7 +187,7 @@ SCTTracksMonTool::fillHistograms() {
     m_tracksPerRegion->Fill(etaRegion(trackPerigeeEta));
     m_trk_eta->Fill(trackPerigeeEta);
     if (track->perigeeParameters()->parameters()[Trk::qOverP] != 0.) {
-      m_trk_pt->Fill(fabs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)));
+      m_trk_pt->Fill(std::abs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)));
     }
     m_trk_d0->Fill(track->perigeeParameters()->parameters()[Trk::d0]);
     m_trk_z0->Fill(track->perigeeParameters()->parameters()[Trk::z0]);

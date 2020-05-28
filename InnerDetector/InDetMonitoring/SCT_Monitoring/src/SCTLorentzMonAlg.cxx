@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTLorentzMonAlg.h"
@@ -11,6 +11,7 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include <cmath>
 #include <vector>
 
 SCTLorentzMonAlg::SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -147,8 +148,8 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
-                         (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
-                         (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
                          (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
                          (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {

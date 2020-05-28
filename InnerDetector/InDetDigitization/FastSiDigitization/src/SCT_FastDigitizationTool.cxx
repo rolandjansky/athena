@@ -44,6 +44,7 @@
 #include "CLHEP/Random/RandLandau.h"
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -449,7 +450,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
           const IdentifierHash detElHash = hitSiDetElement->identifyHash();
           const double tanLorAng     = m_sctTanLorentzAngleScalor*m_lorentzAngleTool->getTanLorentzAngle(detElHash);
           const int lorentzDirection = tanLorAng > 0. ? 1 : -1;
-          const bool useLorentzDrift = fabs(tanLorAng) > 0.01;
+          const bool useLorentzDrift = std::abs(tanLorAng) > 0.01;
           // shift parameters
           const double shift = m_lorentzAngleTool->getLorentzShift(detElHash);
           // lorenz angle effects : offset goes against the lorentzAngle
@@ -503,7 +504,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                   if (!hitSurface->bounds().insideLoc2(localEntry))
                     {
                       // step towards the border
-                      const double stepInY = signY*(fabs(localEntryY)-0.5*hitSiDetElement->length());
+                      const double stepInY = signY*(std::abs(localEntryY)-0.5*hitSiDetElement->length());
                       const double stepInX = stepInY*distX/distY;
                       const double stepInZ = stepInY*distZ/distY;
                       currentStep3D = Amg::Vector3D(stepInX,stepInY,stepInZ);
@@ -681,7 +682,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
                       currentPosition3D += currentStep3D;
                     }
                   //           if (currentPosition3D.z() > 0.501*signZ*thickness){
-                  if (fabs(currentPosition3D.z()) > 0.501*thickness)
+                  if (std::abs(currentPosition3D.z()) > 0.501*thickness)
                     {
                       // step has led out of the silicon, correct for it
                       lastStrip = true;
@@ -858,7 +859,7 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
           // Find length of strip at centre
           const double clusterWidth(potentialClusterRDOList.size()*hitSiDetElement->phiPitch(potentialClusterPosition)); //!< @TODO CHECK
           const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(potentialClusterPosition));
-          const double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
+          const double stripLength = std::abs(ends.first.xEta()-ends.second.xEta());
           const InDet::SiWidth siWidth( Amg::Vector2D(int(potentialClusterRDOList.size()),1), Amg::Vector2D(clusterWidth,stripLength) );
           // 2a) Cluster creation ------------------------------------
           if (!m_clusterMaker.empty())

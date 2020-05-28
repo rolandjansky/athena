@@ -20,7 +20,7 @@ Muon::RpcRDO_Decoder::RpcRDO_Decoder
 StatusCode Muon::RpcRDO_Decoder::initialize()
 {
   ATH_CHECK(AthAlgTool::initialize());
-  ATH_MSG_DEBUG ("initialize"); 
+  ATH_MSG_DEBUG ("initialize");
         
   // get RPC cablingSvc
   const IRPCcablingServerSvc* RpcCabGet = 0;
@@ -42,15 +42,14 @@ StatusCode Muon::RpcRDO_Decoder::initialize()
   }
 
   ATH_CHECK(m_idHelperSvc.retrieve());
-  ATH_CHECK(m_rpcReadKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 
 
-std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel * fChan, 
-							uint16_t& sectorID, uint16_t& padId, 
-							uint16_t& cmaId) const
+std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel* fChan,
+							uint16_t& sectorID, uint16_t& padId,
+							uint16_t& cmaId, const RpcCablingCondData* /*rpcCab*/) const
 { 
   std::vector<RpcDigit*>* rpcDigitVec = new std::vector<RpcDigit*>;
   
@@ -91,9 +90,9 @@ std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel * f
 }
 
 
-std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChannel * fChan, 
-							       uint16_t& sectorID, uint16_t& padId, 
-							       uint16_t& cmaId, double& time) const
+std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChannel* fChan,
+							       uint16_t& sectorID, uint16_t& padId,
+							       uint16_t& cmaId, double& time, const RpcCablingCondData* /*rpcCab*/) const
 { 
   std::vector<Identifier>* rpcIdVec = new std::vector<Identifier>;
   

@@ -193,6 +193,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
     PixelRodDecoder=CompFactory.PixelRodDecoder
     InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
+    # Disable duplcated pixel check for data15 because duplication mechanism was used.
+    if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+      InDetPixelRodDecoder.CheckDuplicatedPixel=False
     acc.addPublicTool(InDetPixelRodDecoder)
 
     PixelRawDataProviderTool=CompFactory.PixelRawDataProviderTool
@@ -284,6 +287,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
                                                   )
+  # Enable duplcated RDO check for data15 because duplication mechanism was used.
+  if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+    InDetMergedPixelsTool.CheckDuplicatedRDO = True
   acc.addPublicTool(InDetMergedPixelsTool)
 
   InDet__PixelGangedAmbiguitiesFinder=CompFactory.InDet.PixelGangedAmbiguitiesFinder

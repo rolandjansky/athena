@@ -19,6 +19,8 @@
 #include "xAODPFlow/versions/TrackCaloCluster_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterContainer_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/versions/FlowElementContainer_v1.h"
+#include "xAODPFlow/versions/FlowElementAuxContainer_v1.h"
 
 #include "xAODPFlow/PFODefs.h"
 
@@ -33,19 +35,21 @@
 // Instantiate all necessary types for the dictionary.
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODFLOW {
-      // Local type(s).
-      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, PFOContainer_v1 );
-      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrackCaloClusterContainer_v1 );
-      // Type(s) needed for the dictionary generation to succeed.
-      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, IParticleContainer );
-      // Weird/bad types used by the PFO reconstruction as attributes on
-      // xAOD::PFO objects. :-(
-      std::pair< ElementLink< xAOD::CaloClusterContainer >, double > dummy1;
-      std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > >
-         dummy2;
-      std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > >
-         dummy3;
-      std::vector< xAOD::PFODetails::PFOLeptonType > dummy4;
+     // Local type(s).
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, PFOContainer_v1 );
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrackCaloClusterContainer_v1 );
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, FlowElementContainer_v1 );
+     // Type(s) needed for the dictionary generation to succeed.
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, IParticleContainer );
+     // Weird/bad types used by the PFO reconstruction as attributes on
+     // xAOD::PFO objects. :-(
+     std::pair< ElementLink< xAOD::CaloClusterContainer >, double > dummy1;
+     std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > >
+     dummy2;
+     std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > >
+     dummy3;
+     std::vector< xAOD::PFODetails::PFOLeptonType > dummy4;
+
    };
 }
 

@@ -102,7 +102,7 @@ namespace Trk {
                                                   const BoundaryCheck& bcheck = true,
                                                   ParticleHypothesis particle = pion,
                                                   MaterialUpdateMode matupmode = addNoise,
-                                                  Trk::ExtrapolationCache* cache = 0) const = 0;
+                                                  Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
        /** 2) <b>Configured AlgTool extrapolation method</b>):
           - returns a vector of TrackParameters representing the tracking detector elements
@@ -125,7 +125,7 @@ namespace Trk {
                                                   const BoundaryCheck& bcheck = true,
                                                   ParticleHypothesis particle = pion,
                                                   MaterialUpdateMode matupmode = addNoise,
-                                                  Trk::ExtrapolationCache* cache = 0) const = 0;
+                                                  Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
        /** 4) <b>Configured AlgTool extrapolation method</b>):
         - direct extrapolation to the destination surface, no material effects 
@@ -156,7 +156,7 @@ namespace Trk {
          PropDirection dir = anyDirection,
          const BoundaryCheck& bcheck = true,
          ParticleHypothesis particle = pion,
-         const Volume* boundaryVol = 0) const = 0;
+         const Volume* boundaryVol = nullptr) const = 0;
 
        /** 6) <b>Configured AlgTool extrapolation method</b>):
         *- extrapolation to the next active layer, based on the extrapolation to the next layer
@@ -194,7 +194,7 @@ namespace Trk {
                                                                      PropDirection dir,
                                                                      const BoundaryCheck& bcheck,
                                                                      ParticleHypothesis particle = pion,
-                                                                     Trk::ExtrapolationCache* cache = 0) const = 0;
+                                                                     Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
        /** 10) <b>Configured AlgTool extrapolation method</b>:
         - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in
@@ -207,7 +207,7 @@ namespace Trk {
                                                                  std::vector<MaterialEffectsOnTrack>& material,
                                                                  std::vector<Trk::TransportJacobian*>& jacs,
                                                                  ParticleHypothesis particle = pion,
-                                                                 Trk::ExtrapolationCache* cache = 0) const = 0;
+                                                                 Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
        virtual const Trk::TrackParameters* extrapolateWithPathLimit(
          const Trk::TrackParameters& parm,
@@ -216,7 +216,7 @@ namespace Trk {
          Trk::ParticleHypothesis particle,
          std::vector<const Trk::TrackParameters*>*& parmOnSf,
          std::vector<const Trk::TrackStateOnSurface*>*& material,
-         const Trk::TrackingVolume* boundaryVol = 0,
+         const Trk::TrackingVolume* boundaryVol = nullptr,
          MaterialUpdateMode matupmod = Trk::addNoise) const = 0;
 
        /** extrapolation method collecting intersections with subdetector boundaries and active volumes/layers.
@@ -254,7 +254,7 @@ namespace Trk {
                                                MaterialUpdateMode /*matupmod*/) const
   {
     std::cout << "CONFIGURATION ERROR: dummy version of extrapolation-with-path-limit method called " << std::endl;
-    return 0;
+    return nullptr;
     }
 
     inline const std::vector<std::pair<const Trk::TrackParameters*, int>>*
@@ -265,7 +265,7 @@ namespace Trk {
                                     int /*destination*/) const
     {
       std::cout << "CONFIGURATION ERROR: dummy version of extrapolation through active regions called " << std::endl;
-      return 0;
+      return nullptr;
     }
 
 

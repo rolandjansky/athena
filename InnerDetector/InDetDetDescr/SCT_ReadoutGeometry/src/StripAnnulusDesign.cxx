@@ -13,7 +13,6 @@
 using namespace std;
 using std::cos;
 using std::sin;
-using std::abs;
 
 namespace InDetDD {
 StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -144,7 +143,7 @@ double StripAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition const &p
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
 
-    return fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
+    return std::abs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.

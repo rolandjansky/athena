@@ -3,24 +3,16 @@
 */
 
 #include "MuonCondSvc/MDTCondSummarySvc.h"
+
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <sstream>
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonCondInterface/IMDTConditionsSvc.h"
-#include "Identifier/Identifier.h"
 
-MDTCondSummarySvc::MDTCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
+MDTCondSummarySvc::MDTCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   m_reportingServices(name),
-  m_detStore("DetectorStore",name),m_noReports(true){
-  // default services
-  //  m_reportingServices.push_back("MDT_DCSConditionsSvc");
-  
+  m_detStore("DetectorStore",name),m_noReports(true) {
   declareProperty("ConditionsServices",m_reportingServices);
   declareProperty("DetStore", m_detStore);
 }
@@ -28,62 +20,29 @@ MDTCondSummarySvc::MDTCondSummarySvc( const std::string& name, ISvcLocator* pSvc
 
 StatusCode
 MDTCondSummarySvc::initialize(){
-  StatusCode sc(StatusCode::FAILURE);
   m_noReports = m_reportingServices.empty();
+  ATH_CHECK(m_detStore.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
-  sc = m_detStore.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
-    return sc;
-  } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
-  }  
-  
-  sc = m_muonIdHelperTool.retrieve();
-  if (sc.isFailure())
-    {
-      msg(MSG::FATAL) << " Cannot retrieve MuonIdHelperTool " << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-  
   if (m_noReports){
-    sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the MDT summary"<<endmsg;
+    ATH_MSG_DEBUG("No services were selected for the MDT summary");
   } else {
-    sc = m_reportingServices.retrieve();
-    if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_reportingServices << endmsg;
-      return StatusCode::FAILURE;
-    }
-    
+    ATH_CHECK(m_reportingServices.retrieve());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator pSvc= m_reportingServices.begin();
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator pLastSvc= m_reportingServices.end();
     for (;pSvc not_eq pLastSvc; ++pSvc){
       const std::string& svcName = pSvc->name();
-      msg(MSG::INFO)<<"Using "<< svcName << endmsg;
+      ATH_MSG_DEBUG("Using "<< svcName);
       if (m_detStore->regFcn(&IMDTConditionsSvc::initInfo,&**pSvc,
                            &MDTCondSummarySvc::update_MDT,this) != StatusCode::SUCCESS){ 
-        msg(MSG::WARNING)<<"Unable to register call back for "<<svcName<<endmsg; 
+        ATH_MSG_WARNING("Unable to register call back for "<<svcName); 
       } else {
-        msg(MSG::INFO)<<"initInfo registered for call-back for "<<svcName<<endmsg;
+        ATH_MSG_DEBUG("initInfo registered for call-back for "<<svcName);
       }
     }
   }
-
-  return sc;
-}
-
-
-
-//Finalize
-StatusCode
-MDTCondSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the MDTCondSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
-  //Code
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 MDTCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
@@ -100,26 +59,20 @@ MDTCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 
 
 StatusCode MDTCondSummarySvc::update_MDT(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::DEBUG)<<"Register Call Back for MDT System"<<endmsg;
-
+   ATH_MSG_DEBUG("Register Call Back for MDT System");
    return StatusCode::SUCCESS;
 }
 
 StatusCode MDTCondSummarySvc::initInfo(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::INFO)<<"Not to be called just dummy"<<endmsg;
+   ATH_MSG_DEBUG("Not to be called just dummy");
    return StatusCode::SUCCESS;
 }
-
-
-
 
 bool MDTCondSummarySvc::isGoodMultiLayer(const Identifier & Id) const{
   bool result=true;
   // check ID
-  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
-  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
+  Identifier MultilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_idHelperSvc->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -133,7 +86,7 @@ bool MDTCondSummarySvc::isGoodMultiLayer(const Identifier & Id) const{
 	bool found = std::binary_search((*svc)->deadMultiLayersId().begin(),(*svc)->deadMultiLayersId().end(),MultilayerId,Compare);
 	if(found) result= false;
       }else{
-	msg(MSG::DEBUG)<<" Dead Multilayer from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_DEBUG(" Dead Multilayer from the service  are not availables "<<(*svc));
 	
       }
     }
@@ -148,8 +101,8 @@ bool MDTCondSummarySvc::isGoodMultiLayer(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
   bool result=true;   
   Identifier TubeId = Id;
-  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
-  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
+  Identifier MultilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_idHelperSvc->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -159,14 +112,14 @@ bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
 	
 	bool found = std::binary_search((*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),ChamberId,Compare);
 	if(found) result= false;
-        msg(MSG::DEBUG)<<" Chamber Dropped by DCS or not installed at all "<<endmsg;
+        ATH_MSG_DEBUG(" Chamber Dropped by DCS or not installed at all");
       }
       
       if ((*svc)->deadMultiLayersId().size()!=0 && result==true){
 
 	bool found = std::binary_search((*svc)->deadMultiLayersId().begin(),(*svc)->deadMultiLayersId().end(),MultilayerId,Compare);
 	if(found) result= false;
-	msg(MSG::DEBUG)<<" MultiLayer Dropped by DCS or not installed at all "<<endmsg;
+	ATH_MSG_DEBUG(" MultiLayer Dropped by DCS or not installed at all");
       }	 
       
       if ((*svc)->deadTubesId().size()!=0 && result==true){
@@ -175,7 +128,7 @@ bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
 		
 	
       }else{
-	msg(MSG::DEBUG)<<" Dead Channel from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Channel from the service are not availables "<<(*svc));
 	result=true;
       }
     }
@@ -186,8 +139,8 @@ bool MDTCondSummarySvc::isGoodChannel(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGood(const Identifier & Id) const{
   bool total_result = true;
 //  int counter=0;
-  Identifier MultilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(Id);
-  Identifier ChamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
+  Identifier MultilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(Id);
+  Identifier ChamberId = m_idHelperSvc->mdtIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
@@ -198,23 +151,16 @@ bool MDTCondSummarySvc::isGood(const Identifier & Id) const{
 	  bool found = std::binary_search( 
 					  (*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),ChamberId,Compare);
 	  if(found) total_result = false;
-	    msg(MSG::VERBOSE)<<" Chamber Dropped by DCS or not installed at all "<<endmsg;
+	    ATH_MSG_WARNING(" Chamber Dropped by DCS or not installed at all");
 	  
 	}else if ((*svc)->deadMultiLayersId().size()!=0){
 	  
 	  bool found = std::binary_search( 
 					  (*svc)->deadMultiLayersId().begin(),(*svc)->deadMultiLayersId().end(),MultilayerId,Compare);
 	  if(found) total_result= false;
-	  
-	  //} else if ((*svc)->deadTubesId().size()!=0){
-	  //int size = (*svc)->deadTubesId().size();
-	  //bool found = std::binary_search( 
-	  //				  (*svc)->List_Chambers_with_deadTube().begin(),(*svc)->List_Chambers_with_deadTube().end(),ChamberId,Compare);
-	  //if(found) total_result= false;
-          //msg(MSG::INFO)<<" Chamber with Tubes dead "<<endmsg;	  
-	  
+
 	}else total_result = true;
-      msg(MSG::VERBOSE)<<"Thank-you for using the MDTCondSummarySvc,  service "<<endmsg;
+      ATH_MSG_VERBOSE("Thank-you for using the MDTCondSummarySvc, service");
     }   
   }
   
@@ -224,11 +170,10 @@ bool MDTCondSummarySvc::isGood(const Identifier & Id) const{
 bool MDTCondSummarySvc::isGoodChamber(const Identifier & Id) const{
   bool result=true;
   int counter =0;
-  // Identifier chamberId = m_muonIdHelperTool->mdtIdHelper().elementID(Id);
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
     for (;svc not_eq  lastSvc;svc++){
-      msg(MSG::VERBOSE)<<" Dead Stations from the service , size= "<<(*svc)->deadStationsId().size()<<endmsg;
+      ATH_MSG_VERBOSE(" Dead Stations from the service , size= "<<(*svc)->deadStationsId().size());
       if ((*svc)->deadStationsId().size()!=0){
 
 	bool found = std::binary_search( 
@@ -237,13 +182,13 @@ bool MDTCondSummarySvc::isGoodChamber(const Identifier & Id) const{
 	if(found) counter++;
       }
       else{
-	msg(MSG::DEBUG)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_DEBUG(" Dead Stations from the service  are not availables "<<(*svc));
 	
       }
     }
   
     if (counter!=0) result = false; 
-    msg(MSG::VERBOSE)<<" Dead Stations from the service  "<< counter <<endmsg;
+    ATH_MSG_WARNING(" Dead Stations from the service  "<< counter);
     
     return result;
   
@@ -261,7 +206,7 @@ const std::vector<std::string>& MDTCondSummarySvc::deadStations() const{
       if ((*svc)->deadStations().size()!=0){
 	return (*svc)->deadStations();
       }else{
-	msg(MSG::VERBOSE)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Stations from the service  are not availables "<<(*svc));
 	
       }
     }
@@ -281,7 +226,7 @@ const std::vector<std::string>& MDTCondSummarySvc::deadTubes() const{
 	return (*svc)->deadTubes();
       }else{
 
-	msg(MSG::VERBOSE)<<" Dead Tubes from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Tubes from the service  are not availables "<<(*svc));
       }
     }     
   }
@@ -298,7 +243,7 @@ const std::vector<std::string>& MDTCondSummarySvc::deadMultiLayers() const{
       if ((*svc)->deadMultiLayers().size()!=0){
 	return (*svc)->deadMultiLayers();
       }else {
-	msg(MSG::VERBOSE)<<" Dead Stations MDTConditionsSummarySvc "<<endmsg;
+	ATH_MSG_WARNING(" Dead Stations MDTConditionsSummarySvc ");
 	
       }
     }
@@ -318,7 +263,7 @@ const std::vector<Identifier>& MDTCondSummarySvc::deadStationsId() const{
       if ((*svc)->deadStationsId().size()!=0){
 	return (*svc)->deadStationsId();
       }else{
-	msg(MSG::VERBOSE)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Stations from the service  are not availables "<<(*svc));
       }
     }
     
@@ -336,7 +281,7 @@ const std::vector<Identifier>& MDTCondSummarySvc::deadTubesId() const{
     if ((*svc)->deadTubesId().size()!=0){
       return (*svc)->deadTubesId();
       } else{ 
-	msg(MSG::VERBOSE)<<" Dead Tubes from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Tubes from the service  are not availables "<<(*svc));
       }     
   }
   }
@@ -353,7 +298,7 @@ const std::vector<Identifier>& MDTCondSummarySvc::deadMultiLayersId() const{
       if ((*svc)->deadMultiLayersId().size()!=0){
 	return (*svc)->deadMultiLayersId();
       }else{
-	msg(MSG::VERBOSE)<<" Dead ML from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead ML from the service  are not availables "<<(*svc));
       }
     }
     
@@ -371,7 +316,7 @@ const std::vector<Identifier>& MDTCondSummarySvc::deadLayersId() const{
       if ((*svc)->deadLayersId().size()!=0){
 	return (*svc)->deadLayersId();
       }else{
-	msg(MSG::VERBOSE)<<" Dead LAYERS from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead LAYERS from the service  are not availables "<<(*svc));
       }
     }
     
@@ -389,7 +334,7 @@ const std::vector<Identifier>& MDTCondSummarySvc::List_Chambers_with_deadTube() 
       if ((*svc)->List_Chambers_with_deadTube().size()!=0){
 	return (*svc)->List_Chambers_with_deadTube();
       }else{
-	msg(MSG::VERBOSE)<<" Dead Tube Chambers from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Tube Chambers from the service  are not availables "<<(*svc));
       }
     }
     

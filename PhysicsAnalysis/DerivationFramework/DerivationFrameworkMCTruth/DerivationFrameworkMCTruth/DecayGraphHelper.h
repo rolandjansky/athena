@@ -55,10 +55,12 @@ namespace DerivationFramework {
                 // Hadronization vertex? (quarks,gluons -> hadrons)
                 bool isHadVtx = true;
                 for (unsigned int i=0; i<nParents; ++i) {
+                    if (decayVtx->incomingParticle(i)==nullptr) continue; 
                     int idabs = std::abs(decayVtx->incomingParticle(i)->pdgId());
                     isHadVtx = isHadVtx && (idabs<6 || idabs==21);
                 }
                 for (unsigned int i=0; i<nChildren; ++i) {
+                    if (decayVtx->outgoingParticle(i)==nullptr) continue;
                     int idabs = std::abs(decayVtx->outgoingParticle(i)->pdgId());
                     isHadVtx = isHadVtx && ((idabs>=80 && idabs<1000000) ||
                                             idabs>9000000);
@@ -67,6 +69,7 @@ namespace DerivationFramework {
                 if( !isHadVtx || keepHadVtx ){
                     // Get the particles leaving the decay vertex (CHILDREN)
                     for (unsigned int i=0; i<nChildren; ++i) {
+                        if (decayVtx->outgoingParticle(i)==nullptr) continue; 
                         int childIndex = decayVtx->outgoingParticle(i)->index();
                         particleMask[childIndex] = true;
                     }
@@ -84,10 +87,12 @@ namespace DerivationFramework {
                 // Hadronization vertex? (quarks,gluons -> hadrons)
                 bool isHadVtx = true;
                 for (unsigned int i=0; i<nParents; ++i) {
+                    if (prodVtx->incomingParticle(i)==nullptr) continue;
                     int idabs = std::abs(prodVtx->incomingParticle(i)->pdgId());
                     isHadVtx = isHadVtx && (idabs<6 || idabs==21);
                 }
                 for (unsigned int i=0; i<nChildren; ++i) {
+                    if (prodVtx->outgoingParticle(i)==nullptr) continue;
                     int idabs = std::abs(prodVtx->outgoingParticle(i)->pdgId());
                     isHadVtx = isHadVtx && ((idabs>=80 && idabs<1000000) ||
                                             idabs>9000000);
@@ -96,11 +101,13 @@ namespace DerivationFramework {
                 if( !isHadVtx || keepHadVtx ){
                     // Get the particles entering the production vertex (PARENTS)
                     for (unsigned int i=0; i<nParents; ++i) {
+                        if (prodVtx->incomingParticle(i)==nullptr) continue; 
                         int parentIndex = prodVtx->incomingParticle(i)->index();
                         particleMask[parentIndex] = true;
                     }
                     // Get the particles leaving the production vertex (SIBLINGS)
                     for (unsigned int i=0; i<nSiblings; ++i) {
+                        if (prodVtx->outgoingParticle(i)==nullptr) continue;
                         int siblingIndex = prodVtx->outgoingParticle(i)->index();
                         particleMask[siblingIndex] = true;
                     }
@@ -130,7 +137,10 @@ namespace DerivationFramework {
             
             // Get children particles and self-call
             int nChildren = decayVtx->nOutgoingParticles();
-            for (int i=0; i<nChildren; ++i) descendants(decayVtx->outgoingParticle(i),particleList,encounteredBarcodes);
+            for (int i=0; i<nChildren; ++i) {
+                if (decayVtx->outgoingParticle(i)==nullptr) continue;
+                descendants(decayVtx->outgoingParticle(i),particleList,encounteredBarcodes);
+            } 
             return;
         }
         
@@ -141,6 +151,9 @@ namespace DerivationFramework {
                          std::unordered_set<int> &encounteredBarcodes,
                          bool includeGeant) {
             
+            // Check that the particle exists
+            if (pHead==nullptr) return;           
+ 
             // Check that this barcode hasn't been seen before (e.g. we are in a loop)
             //if ( find(encounteredBarcodes.begin(),encounteredBarcodes.end(),pHead->barcode()) != encounteredBarcodes.end()) return;
             std::unordered_set<int>::const_iterator found = encounteredBarcodes.find(pHead->barcode());
@@ -159,18 +172,19 @@ namespace DerivationFramework {
             else {return;}
             
             // Get children particles and self-call
-	    int  nChildren = decayVtx->nOutgoingParticles();
+            int  nChildren = decayVtx->nOutgoingParticles();
             bool saveVertex = false;
             for (int i=0; i<nChildren; ++i) {
-	      descendants(decayVtx->outgoingParticle(i),particleMask,vertexMask,encounteredBarcodes,includeGeant);
-	      saveVertex = saveVertex || includeGeant || !(decayVtx->outgoingParticle(i)->barcode()>g4BarcodeOffset);
-	    }
+              if (decayVtx->outgoingParticle(i)==nullptr) continue;
+              descendants(decayVtx->outgoingParticle(i),particleMask,vertexMask,encounteredBarcodes,includeGeant);
+              saveVertex = saveVertex || includeGeant || !(decayVtx->outgoingParticle(i)->barcode()>g4BarcodeOffset);
+            }
 
             // Save the decay vertex
-	    if ( saveVertex ) {
-	      int vtxIndex = decayVtx->index();
-	      vertexMask[vtxIndex] = true;
-	    }
+            if ( saveVertex ) {
+              int vtxIndex = decayVtx->index();
+              vertexMask[vtxIndex] = true;
+            }
             return;
         }
         
@@ -180,6 +194,9 @@ namespace DerivationFramework {
                        std::vector<bool> &vertexMask,
                        std::unordered_set<int> &encounteredBarcodes ) {
             
+            // Check that the head particle exists
+            if (pHead==nullptr) return;
+
             // Check that this barcode hasn't been seen before (e.g. we are in a loop)
             //if ( find(encounteredBarcodes.begin(),encounteredBarcodes.end(),pHead->barcode()) != encounteredBarcodes.end()) return;
             std::unordered_set<int>::const_iterator found = encounteredBarcodes.find(pHead->barcode());
@@ -256,6 +273,7 @@ namespace DerivationFramework {
             // Loop over the parents of this particle.
             unsigned int nIncoming = prod->nIncomingParticles();
             for(unsigned int itr = 0; itr<nIncoming; ++itr){
+                if (prod->incomingParticle(itr)==nullptr) continue;
                 int parentId = prod->incomingParticle(itr)->pdgId();
                 if(HepPID::isHadron(parentId)) {
                     return true;
