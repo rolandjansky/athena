@@ -85,6 +85,10 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
     InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder_" + signature)
+    # Disable duplcated pixel check for data15 because duplication mechanism was used.
+    from RecExConfig.RecFlags import rec
+    if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+       InDetPixelRodDecoder.CheckDuplicatedPixel=False
     ToolSvc += InDetPixelRodDecoder
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
@@ -167,6 +171,10 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
   )
+  # Enable duplcated RDO check for data15 because duplication mechanism was used.
+  from RecExConfig.RecFlags import rec
+  if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+     InDetMergedPixelsTool.CheckDuplicatedRDO = True
   ToolSvc += InDetMergedPixelsTool
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder

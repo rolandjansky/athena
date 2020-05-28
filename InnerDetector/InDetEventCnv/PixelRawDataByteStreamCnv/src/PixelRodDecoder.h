@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
@@ -137,7 +137,7 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     unsigned m_maxNumGenWarnings{200};     // Maximum number of general warnings to print
     mutable std::atomic_uint m_numBCIDWarnings{};
     unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
-
+    BooleanProperty m_checkDuplicatedPixel{this, "CheckDuplicatedPixel", true, "Check duplicated pixels in fillCollection method"};
 
     ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
 
