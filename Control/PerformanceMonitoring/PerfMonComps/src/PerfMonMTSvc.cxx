@@ -665,49 +665,27 @@ void PerfMonMTSvc::divideData2Steps() {
 }
 
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
-  std::ostringstream ss;
-  ss << std::fixed;
-  ss << std::setprecision(2);
+  // Not a huge fan of this, we should eventually unify the types
+  // Just want to be explicit about what's happening
+  long ms = (long) timeMeas; 
 
-  double result = 0;
+  // Compute hrs and offset
+  auto hrs = ms / 3600000;
+  ms -= hrs * 3600000;
+  // Compute mins and offset
+  auto mins = ms / 60000;
+  ms -= mins * 60000;
+  // Compute secs and offset
+  auto secs = ms / 1000;
+  ms -= secs * 1000;
 
-  std::string significance[5] = {"ms", "sec", "mins", "hours", "days"};
-  int scaleFactor = 0;
-
-  if (timeMeas > 1000 * 60 * 60 * 24) {
-    int dayCount = timeMeas / (1000 * 60 * 60 * 24);
-    timeMeas = std::fmod(timeMeas, (1000 * 60 * 60 * 24));
-    result += dayCount;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000 * 60 * 60) {
-    int hourCount = timeMeas / (1000 * 60 * 60);
-    timeMeas = std::fmod(timeMeas, (1000 * 60 * 60));
-    result += hourCount * 1.e-3;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000 * 60) {
-    int minCount = timeMeas / (1000 * 60);
-    timeMeas = std::fmod(timeMeas, (1000 * 60));
-    result += minCount * 1.e-6;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000) {
-    int secCount = timeMeas / 1000;
-    timeMeas = std::fmod(timeMeas, 1000);
-    result += secCount * 1.e-9;
-    scaleFactor++;
-  }
-  if (timeMeas >= 0) {
-    result += timeMeas * 1.e-12;
-    scaleFactor++;
-  }
-  result = result * std::pow(1000, (5 - scaleFactor));
-
-  ss << result;
-  std::string stringObj = ss.str() + " " + significance[scaleFactor - 1];
-
-  return stringObj;
+  // Primarily care about H:M:S
+  std::stringstream ss;
+  ss.fill('0');
+  ss << std::setw(2) << hrs << "h" << 
+        std::setw(2) << mins << "m" << 
+        std::setw(2) << secs << "s";
+  return ss.str();
 }
 
 std::string PerfMonMTSvc::scaleMem(long memMeas) const {
