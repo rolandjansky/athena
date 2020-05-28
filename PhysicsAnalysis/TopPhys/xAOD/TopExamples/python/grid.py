@@ -9,22 +9,6 @@ import analysis
 import ROOT
 from PathResolver import PathResolver
 
-try:
-    import rucio.client
-except:
-    print logger.FAIL + 'DANGER DANGER DANGER' + logger.ENDC
-    print 'Could not find rucio.client.Client. If you use setupATLAS (you should) then'
-    print '"localSetupRucioClients" and run this again'
-    sys.exit(1)
-
-try:
-    rucio = rucio.client.Client()
-except:
-    print logger.FAIL + 'DANGER DANGER DANGER' + logger.ENDC
-    print 'Could not setup rucio.client.Client.'
-    print 'Did you do voms-proxy-init -voms atlas ?'
-    sys.exit(1)
-
 availableDatasets = {}
 
 class Sample:
@@ -320,18 +304,11 @@ def submit(config, allSamples):
   these = []
   print logger.OKBLUE + 'For these samples' + logger.ENDC
   
-  #Only submit jobs if the dataset actually exists (check with rucio)
   for sample in allSamples:
       currentDatasets = sample.datasets
       actuallyExists = []
       for ds in currentDatasets:
-          # doing this check only for the first sample, in case of coma-separated list of samples with same DSID and same first tag of each type
-          # a priori it's not a big deal if the additional datasets don't exist; panda will take care of it
-          if checkDatasetExists(getShortenedConcatenatedSample(ds)):
-              actuallyExists.append(ds)
-
-      sample.details(actuallyExists)
-      these += actuallyExists
+          these.append(ds)
 
   #check if it's a release - which automatically would set rootVer and cmtConfig
   if not config.CMake:
@@ -464,49 +441,6 @@ def convertAODtoTOPQ(derivationToUse, ptag, samples):
     for sample in samples:
         for i, ds in enumerate(sample.datasets):
             sample.datasets[i] = ds.replace('AOD', derivationToUse).replace('/', '') + '_' + ptag
-
-#Get a list of dataset names matching some pattern with stars in, using dq2-ls
-def listDatasets(theScope, datasetPattern):
-    response = rucio.list_dids(scope = theScope, filters = {'name' : datasetPattern})
-
-    names = []
-    for l in response:
-        names.append(l)
-
-    return names
-
-#Download all datasets that match the pattern, to the outputDirectory
-def download(theScope, datasetPattern, outputDirectory):
-    #Make sure the directory where these need to go exists
-    makeDirectory(outputDirectory)
-
-    #Get datasets matching the pattern
-    intdatasets = listDatasets(theScope, datasetPattern)
-    txt = ''
-    if len(intdatasets) != 1:
-        txt = 's'
-
-    print 'Found %d dataset%s:' % (len(intdatasets), txt)
-
-    for ds in intdatasets:
-        print '    %s' % ds
-
-    for j, d in enumerate(intdatasets):
-        cmd = 'rucio download %s:%s --dir %s' % (theScope, d, outputDirectory)
-        print logger.OKBLUE + 'Dataset %d of %d: %s' % (j+1, len(intdatasets), cmd) + logger.ENDC
-
-        #Run the dq2 command
-        os.system(cmd)
-
-#Prun submits to datasets that don't exist, so do a quick check first...
-def checkDatasetExists(name):
-    theScope = name.split('.')[0]
-    #name = 'data15_13TeV.00266904.physics_Main.merge.DAOD_TOPQ1.f594_m1435_p2361'
-    if theScope == "user" or theScope == "group":
-           theScope = name.split('.')[0] + "." + name.split('.')[1]
-    reply = listDatasets(theScope, name)
-    #print reply
-    return len(reply) == 1
 
 if __name__ == '__main__':
     print "You don't run this directly!"
