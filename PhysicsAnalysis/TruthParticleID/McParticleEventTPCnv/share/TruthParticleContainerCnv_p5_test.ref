@@ -1,2 +1,4 @@
 McParticleEventTPCnv/TruthParticleContainerCnv_p5_test
 test1
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+HepMcParticleLink    INFO find_proxy: Using GEN_AOD as McEventCollection key for this job 
