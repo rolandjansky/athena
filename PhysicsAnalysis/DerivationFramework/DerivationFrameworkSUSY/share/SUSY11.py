@@ -158,8 +158,9 @@ reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
 addDefaultTrimmedJets(SeqSUSY11, "SUSY11")
 addVRJets(SeqSUSY11)
-addVRJets(SeqSUSY1, training='201903')
-addVRJets(SeqSUSY1, do_ghost=True)
+addVRJets(SeqSUSY11, training='201903')
+addVRJets(SeqSUSY11, do_ghost=True)
+
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 
