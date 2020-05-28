@@ -94,6 +94,20 @@ class Test( unittest.TestCase ):
       check = defineHistogram('var;alias;more')
       self.assertFalse(check)
 
+   def test_invalidAlias( self ):
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      athenaCommonFlags.isOnline = True
+      check = defineHistogram('var;myhist(', path='EXPERT')
+      self.assertIs(check, '')
+      check = defineHistogram('var;myhist', path='EXPERT')
+      self.assertNotEqual(check, '')
+
+      athenaCommonFlags.isOnline = False
+      check = defineHistogram('var;my/hist')
+      self.assertIs(check, '')
+      check = defineHistogram('var;myhist(')
+      self.assertNotEqual(check, '')
+
    def test_enforcePath( self ):
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.isOnline = True
@@ -111,11 +125,10 @@ class Test( unittest.TestCase ):
       athenaCommonFlags.isOnline = False
 
    def test_enforceMergeTypesTest( self ):
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       with self.assertRaises(AssertionError):
-         check = defineHistogram('var,pass', type='TEfficiency', merge='weightedAverage')
+         defineHistogram('var,pass', type='TEfficiency', merge='weightedAverage')
       with self.assertRaises(AssertionError):
-         check = defineHistogram('var,pass', type='TTree', merge='weightedAverage')
+         defineHistogram('var,pass', type='TTree', merge='weightedAverage')
      
 
 if __name__ == '__main__':
