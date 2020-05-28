@@ -10,7 +10,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import defineHistogram, define
 
 class Test( unittest.TestCase ):
    def test_1D( self ):
-      check = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', '', 10, 0.0, 10.0)
+      check = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0)
       true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "", "path": "EXPERT", "title": "title", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 10, "xlabels": [], "xmax": 10.0, "xmin": 0.0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0.0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": false, "kLBNHistoryDepth": 0, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false}'
       self.assertEqual(json.loads(check), json.loads(true))
 
@@ -86,7 +86,7 @@ class Test( unittest.TestCase ):
       self.assertEqual(json.loads(check), json.loads(true))
 
    def test_merge( self ):
-      check = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', '', 10, 0.0, 10.0, merge='weightedAverage')
+      check = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0, merge='weightedAverage')
       true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "weightedAverage", "path": "EXPERT", "title": "title", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 10, "xlabels": [], "xmax": 10.0, "xmin": 0.0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": false, "kLBNHistoryDepth": 0, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false}'
       self.assertEqual(json.loads(check), json.loads(true))
 

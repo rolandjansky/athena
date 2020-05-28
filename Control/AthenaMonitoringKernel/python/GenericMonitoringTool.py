@@ -259,7 +259,7 @@ def _options(opt):
 #
 #  For full details see the GenericMonitoringTool documentation.
 #  @param varname  one (1D) or two (2D) variable names separated by comma
-#  @param alias    alternative histogram name (otherwise dedcued from varname)
+#                  optionally give histogram name by appending ";" plus the name
 #  @param type     histogram type
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
@@ -273,7 +273,7 @@ def _options(opt):
 #  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
 #                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
 def defineHistogram(varname, type='TH1F', path=None,
-                    title=None, weight=None, alias=None,
+                    title=None, weight=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
@@ -431,10 +431,9 @@ def defineHistogram(varname, type='TH1F', path=None,
 #  @param opt      TTree options (none currently)
 #  @param convention Expert option for how the objects are placed in ROOT
 
-def defineTree(varname, treedef, path=None,
-               title=None, alias=None,
+def defineTree(varname, treedef, path=None, title=None,
                opt='', convention=None,
                cutmask=None):
-    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
+    return defineHistogram(varname, type='TTree', path=path, title=title,
                            treedef=treedef, opt=opt, convention=convention,
                            cutmask=cutmask)
