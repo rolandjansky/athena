@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
@@ -10,7 +10,6 @@
 #include "GeoModelKernel/Units.h"
 
 using namespace std;
-using std::abs;
 
 namespace InDetDD {
 StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
@@ -169,7 +168,7 @@ double StripBoxDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) 
     SiLocalPosition posStrip = localPositionOfCell(cellId);
 
 
-    return fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
+    return std::abs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.
@@ -235,8 +234,8 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
                                             double & phiDist) const {
     
  // As the calculation is symmetric around 0,0 we only have to test it for one side.
-  double xEta = abs(pos.xEta()); //assuming centered around 0?!?
-   double xPhi = abs(pos.xPhi());
+  double xEta = std::abs(pos.xEta()); //assuming centered around 0?!?
+   double xPhi = std::abs(pos.xPhi());
  
    double xEtaEdge = 0.5 * length();
    double xPhiEdge = 0.5 * width();
