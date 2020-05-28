@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DistortionsTool.h"
@@ -154,18 +154,18 @@ Amg::Vector2D SCT_DistortionsTool::correction(IdentifierHash id, const Amg::Vect
     // ***** Calculate correction *****
     float tanThetaX = xdir/zdir; 
     float tanThetaY = ydir/zdir;
-    float delX = fabs(delZ * tanThetaX);
-    float delY = fabs(delZ * tanThetaY);
+    float delX = std::abs(delZ * tanThetaX);
+    float delY = std::abs(delZ * tanThetaY);
 
     // Add/subtract depending on angle of track
     // Signs appropriate for Digitization
-    const float moveX(fabs(delX));
+    const float moveX(std::abs(delX));
     if(xdir > 0 && Side == 0)XCorr = -moveX;//'track' moving in +ve x dir
     if(xdir > 0 && Side != 0)XCorr = moveX;//'track' moving in +ve x dir
     if(xdir < 0 && Side == 0)XCorr = moveX;//'track' moving in -ve x dir
     if(xdir < 0 && Side != 0)XCorr = -moveX;//'track' moving in -ve x dir
     		   
-    const float moveY(fabs(delY));
+    const float moveY(std::abs(delY));
     if(ydir > 0 && Side == 0)YCorr = -moveY;//'track' moving in +ve y dir
     if(ydir > 0 && Side != 0)YCorr = moveY;//'track' moving in +ve y dir
     if(ydir < 0 && Side == 0)YCorr = moveY;//'track' moving in -ve y dir

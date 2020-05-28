@@ -49,6 +49,7 @@
 #include "Math/ProbFuncMathCore.h"
 
 #include <array>
+#include <cmath>
 
 using namespace SCT_CalibAlgs;
 using namespace std;
@@ -2255,7 +2256,7 @@ StatusCode SCTCalib::getLorentzAngle ATLAS_NOT_THREAD_SAFE () {
             double err_B{err_par[2]};
             double err_sigma{err_par[3]};
             float MCW{static_cast<float>(LAfit->Eval(LA, 0, 0, 0))}; //Min-cluster-width
-            float err_MCW{static_cast<float>(LAfit->Eval(fabs(err_par[1]), 0, 0, 0))}; //Min-cluster-width
+            float err_MCW{static_cast<float>(LAfit->Eval(std::abs(err_par[1]), 0, 0, 0))}; //Min-cluster-width
 
             A_BarrelSide[iLayer][iSide][iModule] = A;
             LA_BarrelSide[iLayer][iSide][iModule] = LA;

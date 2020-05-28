@@ -1,8 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
+
+#include "InDetIdentifier/SCT_ID.h"
+#include "SiDigitization/SiHelper.h"
+#include "SCT_Digitization/ISCT_Amp.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Random number
 #include "CLHEP/Random/RandFlat.h"
@@ -10,16 +16,9 @@
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-#include "SiDigitization/SiHelper.h"
-#include "SCT_Digitization/ISCT_Amp.h"
-
-#include "InDetIdentifier/SCT_ID.h"
-
-#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
-
 // C++ Standard Library
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 // #define SCT_DIG_DEBUG
@@ -124,7 +123,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   float sinfi = sqrt(x1);
   float cosfi = sqrt(1.0 - x1);
 
-  sinfi = sinfi * m_OGcorr / fabs(m_OGcorr);
+  sinfi = sinfi * m_OGcorr / std::abs(m_OGcorr);
   float S = m_GainRMS * m_GainRMS + m_Ospread * m_Ospread;
   float D = (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread) / (cosfi * cosfi - sinfi * sinfi);
   float S1 = sqrt((S + D) * 0.5);
@@ -279,7 +278,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
     float x1 = (A - sqrt(A)) / (2.0 * A);
     sinfi[i] = sqrt(x1);
     cosfi[i] = sqrt(1.0 - x1);
-    sinfi[i] = sinfi[i] * m_OGcorr / fabs(m_OGcorr);
+    sinfi[i] = sinfi[i] * m_OGcorr / std::abs(m_OGcorr);
     float S = gainRMS * gainRMS + offsetRMS * offsetRMS;
     float D = (gainRMS * gainRMS - offsetRMS * offsetRMS) / (cosfi[i] * cosfi[i] - sinfi[i] * sinfi[i]);
     S1[i] = sqrt((S + D) / 2.0);

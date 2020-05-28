@@ -306,7 +306,7 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   double posStripphiP = atan2(posStripyP, posStripxP);
   int strip, row;
   getStripRow(cellId, &strip, &row);
-  return fabs(posphiP - posStripphiP) / m_pitch[row];
+  return std::abs(posphiP - posStripphiP) / m_pitch[row];
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.

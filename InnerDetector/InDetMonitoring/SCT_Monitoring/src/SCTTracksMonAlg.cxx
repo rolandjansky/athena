@@ -19,11 +19,11 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
+#include <cmath>
 
 using namespace std;
 using SCT_Monitoring::N_REGIONS;
 using SCT_Monitoring::bec2Index;
-
 
 namespace {
   // some possible parameter key values
@@ -132,7 +132,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     fill("SCTTracksMonitor", trk_etaAcc); 
 
     if (track->perigeeParameters()->parameters()[Trk::qOverP] != 0.) {
-        auto trk_ptAcc{Monitored::Scalar<float>("trk_pt", fabs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)))};
+        auto trk_ptAcc{Monitored::Scalar<float>("trk_pt", std::abs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)))};
         fill("SCTTracksMonitor", trk_ptAcc);
     }
     auto trk_d0Acc{Monitored::Scalar<float>("trk_d0", track->perigeeParameters()->parameters()[Trk::d0])};

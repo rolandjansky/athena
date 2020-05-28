@@ -19,8 +19,6 @@
 
 namespace InDetDD {
 
-using std::abs;
-
 // Constructor with parameters:
 SCT_BarrelModuleSideDesign::SCT_BarrelModuleSideDesign(const double thickness,
 						       const int crystals,
@@ -75,8 +73,8 @@ SCT_BarrelModuleSideDesign::distanceToDetectorEdge(const SiLocalPosition & local
 						   double & etaDist, double & phiDist) const
 { 
   // As the calculation is symmetric around 0,0 we only have to test it for one side.
-  double xEta = abs(localPosition.xEta() - m_xEtaStripPatternCentre);
-  double xPhi = abs(localPosition.xPhi() - m_xPhiStripPatternCentre);
+  double xEta = std::abs(localPosition.xEta() - m_xEtaStripPatternCentre);
+  double xPhi = std::abs(localPosition.xPhi() - m_xPhiStripPatternCentre);
 
   double xEtaEdge = 0.5 * length();
   double xPhiEdge = 0.5 * width();
@@ -94,7 +92,7 @@ bool SCT_BarrelModuleSideDesign::nearBondGap(const SiLocalPosition & localPositi
 {
   // Symmetric around xEta = 0 so we can use absolute value.
   if (m_totalDeadLength==0) return false; 
-  return ( abs(localPosition.xEta()) < 0.5*m_totalDeadLength + etaTol);
+  return ( std::abs(localPosition.xEta()) < 0.5*m_totalDeadLength + etaTol);
 }
 
 // check if the position is in active area
@@ -102,10 +100,10 @@ bool SCT_BarrelModuleSideDesign::inActiveArea(const SiLocalPosition &chargePos,
 					      bool checkBondGap) const 
 {
   // in Phi
-  if (abs(chargePos.xPhi()-m_xPhiStripPatternCentre) > m_xPhiAbsSize) return false;
+  if (std::abs(chargePos.xPhi()-m_xPhiStripPatternCentre) > m_xPhiAbsSize) return false;
 
   // in Eta
-  double relEta = fabs(chargePos.xEta() - m_xEtaStripPatternCentre);
+  double relEta = std::abs(chargePos.xEta() - m_xEtaStripPatternCentre);
   if (relEta > m_xEtaAbsSizeHigh) return false;
 
   // bond gap
@@ -119,11 +117,11 @@ bool SCT_BarrelModuleSideDesign::inActiveArea(const SiLocalPosition &chargePos,
 // an active area check, done in the Generator anyway, is removed here
 double SCT_BarrelModuleSideDesign::scaledDistanceToNearestDiode(const SiLocalPosition &chargePos) const
 {
-    double dstrip=fabs(chargePos.xPhi()-m_xPhiStripPatternCentre)/m_stripPitch;
+    double dstrip=std::abs(chargePos.xPhi()-m_xPhiStripPatternCentre)/m_stripPitch;
     dstrip=dstrip-static_cast<double>(int(dstrip))-0.5;
     // the above -0.5 is because we have an even number of strips, centre of detector
     // is in the middle of an interstrip gap
-    return fabs(dstrip);
+    return std::abs(dstrip);
 }
 
 std::pair<SiLocalPosition,SiLocalPosition> SCT_BarrelModuleSideDesign::endsOfStrip(const SiLocalPosition &position) const
