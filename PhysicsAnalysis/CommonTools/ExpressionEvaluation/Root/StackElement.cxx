@@ -388,7 +388,9 @@ namespace ExpressionParsing {
 
       if( ! m_determinedVariableType ) {
          m_variableType = m_proxyLoader->variableTypeFromString( m_varName );
-         m_determinedVariableType = true;
+         if ( m_variableType != IProxyLoader::VT_VECEMPTY) {
+            m_determinedVariableType = true;
+         }
       }
 
       switch( m_variableType ) {
@@ -409,6 +411,9 @@ namespace ExpressionParsing {
          tmp = m_proxyLoader->loadVecDoubleVariableFromString( m_varName );
          break;
 
+      case IProxyLoader::VT_VECEMPTY:
+         tmp=std::vector<double>();
+         break;
       case IProxyLoader::VT_UNK:
       default:
          throw std::runtime_error( "Got VT_UNK - unknown identifier: " +
