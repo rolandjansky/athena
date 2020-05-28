@@ -95,7 +95,7 @@ case $ArtProcess in
       AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
       AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
     rec_tf_exit_code=$?
-    echo "art-result: $rec_tf_exit_code reco_${ArtInFile}"
+    echo "art-result: $rec_tf_exit_code reco_${file}"
     if [ $rec_tf_exit_code -ne 0 ]  ;then
       success_run=$rec_tf_exit_code
     fi
