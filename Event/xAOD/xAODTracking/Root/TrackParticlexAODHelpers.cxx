@@ -14,7 +14,9 @@ namespace xAOD {
     if (!tp) {
       throw std::runtime_error("Invalid TrackParticle pointer.");
     }
-    if( tp->definingParametersCovMatrixFilled() != xAOD::FullCovMatrixAvailable ) {
+    SG::AuxElement::ConstAccessor< std::vector<float> > accDiag( "definingParametersCovMatrixDiag" );
+    SG::AuxElement::ConstAccessor< std::vector<float> > accOffDiag( "definingParametersCovMatrixOffDiag" );
+    if( !(accDiag.isAvailable( *tp ) && accOffDiag.isAvailable( *tp )) ) {
       throw std::runtime_error("TrackParticle without covariance matrix for the defining parameters.");
     }
   }
