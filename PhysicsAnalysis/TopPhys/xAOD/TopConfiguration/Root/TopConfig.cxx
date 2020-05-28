@@ -233,6 +233,7 @@ namespace top {
     m_softmuonQuality("SetMe"),
     m_softmuonUseMVALowPt(false),
     m_softmuonDRJetcut(0.4),
+    m_softmuonDRJetcutUseRapidity(false),
     m_softmuonAdditionalTruthInfo(false),
     m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
     m_softmuonAdditionalTruthInfoDoVerbose(false),
@@ -1198,12 +1199,10 @@ namespace top {
     }
     this->softmuonUseMVALowPt(softmuonUseMVALowPtSoftMuon);
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
-    if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
-    else this->softmuonAdditionalTruthInfo(false);
-    if (settings->value("SoftMuonAdditionalTruthInfoCheckPartonOrigin") == "True") this->softmuonAdditionalTruthInfoCheckPartonOrigin(true);
-    else this->softmuonAdditionalTruthInfoCheckPartonOrigin(false);
-    if (settings->value("SoftMuonAdditionalTruthInfoDoVerbose") == "True") this->softmuonAdditionalTruthInfoDoVerbose(true);
-    else this->softmuonAdditionalTruthInfoDoVerbose(false);
+    this->softmuonDRJetcutUseRapidity(settings->retrieve("SoftMuonDRJetUseRapidity"));
+    this->softmuonAdditionalTruthInfo(settings->retrieve("SoftMuonAdditionalTruthInfo"));
+    this->softmuonAdditionalTruthInfoCheckPartonOrigin(settings->retrieve("SoftMuonAdditionalTruthInfoCheckPartonOrigin"));
+    this->softmuonAdditionalTruthInfoDoVerbose(settings->retrieve("SoftMuonAdditionalTruthInfoDoVerbose") );
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));

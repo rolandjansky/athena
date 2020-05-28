@@ -26,6 +26,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AssociationUtils/IOverlapRemovalTool.h"
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
@@ -296,12 +297,17 @@ namespace top {
     // do decorate the jets with the b-tagging flags
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_trkjet_btagSelTools;
-
+    
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
+    
+    //helper OR tool for soft muons
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_PFjets;
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_Alljets;
+
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
-    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets);
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity=false);
   };
 }
 #endif

@@ -30,7 +30,6 @@ namespace top {
   TopObjectSelection::TopObjectSelection(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-
     m_electronSelection(nullptr),
     m_fwdElectronSelection(nullptr),
     m_muonSelection(nullptr),
@@ -40,18 +39,17 @@ namespace top {
     m_photonSelection(nullptr),
     m_largeJetSelection(nullptr),
     m_trackJetSelection(nullptr),
-
     m_overlapRemovalToolPostSelection(nullptr),
-
     m_electronInJetSubtractor(nullptr),
-
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose"),
     // the following two are used to give failing JVT jets a lower priority in the OR
     m_ORToolDecoration("ORToolDecoration"),
     m_ORToolDecorationLoose("ORToolDecorationLoose"),
-
-    m_doLooseCuts(false) {
+    m_doLooseCuts(false),
+    m_overlapRemovalTool_softMuons_PFjets("OverlapRemovalTool_softMuons_PFjets"),
+    m_overlapRemovalTool_softMuons_Alljets("OverlapRemovalTool_softMuons_Alljets")
+  {
     declareProperty("config", m_config);
   }
 
@@ -72,6 +70,9 @@ namespace top {
     //         - The top recommendation is that you do OR on tight objects
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
+    
+    top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
+    top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
 
     if (!m_config->isMC()) m_doLooseCuts = true;
 
@@ -773,6 +774,13 @@ namespace top {
 
     // for the time being the only OR performed on soft muons is wrt prompt muons
     if (xaod_softmu) {
+      
+      if(m_config->useJets())
+      {
+        top::check(m_overlapRemovalTool_softMuons_Alljets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - all jets");
+        if(m_config->useParticleFlowJets())top::check(m_overlapRemovalTool_softMuons_PFjets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - PFlow jets");
+      }
+      
       int i(0);
       std::string passTopCuts = "passPreORSelection";
 
@@ -791,7 +799,7 @@ namespace top {
         }
 
         float dRmin = 100; //nearest jet dR
-        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets);
+        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets, m_config->softmuonDRJetcutUseRapidity());
 
         if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && (!m_config->useJets() || dRmin < m_config->softmuonDRJetcut()))
         {
@@ -915,7 +923,7 @@ namespace top {
     }
   }
 
-  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets) {
+  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity) {
     
     float dRMin = 100.0;
     
@@ -923,10 +931,13 @@ namespace top {
     for (auto iJet : goodJets) {
       const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
       if(jetPtr->isAvailable<char>("passJVT") && !(jetPtr->auxdataConst<char>("passJVT") )) continue; //at this level we still have jets not passing the JVT cut in the ntuple
-      float dR = mu.p4().DeltaR(jetPtr->p4());
-      if (dR < dRMin) dRMin = dR;
+      float dR = xAOD::P4Helpers::deltaR(mu,*jetPtr,useRapidity);
+      if (dR < dRMin) 
+      {
+        dRMin = dR;
+      }
     }
-
+    
     return dRMin;
   }
 
