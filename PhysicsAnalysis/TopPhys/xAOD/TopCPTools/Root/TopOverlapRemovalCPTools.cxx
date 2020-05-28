@@ -263,7 +263,42 @@ namespace top {
     top::check(m_ORtoolBox_Loose.initialize(),
                "Failed to initialize loose overlap removal tools");
     m_overlapRemovalTool_Loose = std::move(m_ORtoolBox_Loose.masterTool);
-
+    
+    ATH_MSG_INFO("Setting up special OR tools for soft muons");
+    ORUtils::ORFlags OR_flags_sm_PFjets("OverlapRemovalTool_softMuons_PFjets","ORToolDecoration", "AT_fail_softMuons_OR_PFjets");
+    OR_flags_sm_PFjets.doElectrons = false;
+    OR_flags_sm_PFjets.doMuons = true;
+    OR_flags_sm_PFjets.doJets = false;
+    OR_flags_sm_PFjets.doTaus = false;
+    OR_flags_sm_PFjets.doPhotons = false;
+    OR_flags_sm_PFjets.boostedLeptons = false;
+    OR_flags_sm_PFjets.doFatJets = false;
+    OR_flags_sm_PFjets.doMuPFJetOR = true;
+    
+    top::check(ORUtils::recommendedTools(OR_flags_sm_PFjets, m_ORtoolBox_softMuons_PFjets), "Failed to setup OR Tool box for soft muons-PFjets");
+    for (auto&& tool : m_ORtoolBox_softMuons_PFjets.getOverlapTools()) {
+      top::check(tool->setProperty("EnableUserPriority", true), "Failed to set EnableUserPriority");
+    }
+    top::check(m_ORtoolBox_softMuons_PFjets.initialize(),"Failed to initialize soft muons overlap removal tools");
+    m_overlapRemovalTool_softMuons_PFjets = std::move(m_ORtoolBox_softMuons_PFjets.masterTool);
+    
+    ORUtils::ORFlags OR_flags_sm_Alljets("OverlapRemovalTool_softMuons_Alljets","ORToolDecoration", "AT_fail_softMuons_OR_Alljets");
+    OR_flags_sm_Alljets.doElectrons = false;
+    OR_flags_sm_Alljets.doMuons = true;
+    OR_flags_sm_Alljets.doJets = true;
+    OR_flags_sm_Alljets.doTaus = false;
+    OR_flags_sm_Alljets.doPhotons = false;
+    OR_flags_sm_Alljets.boostedLeptons = false;
+    OR_flags_sm_Alljets.doFatJets = false;
+    OR_flags_sm_Alljets.doMuPFJetOR = false;
+    
+    top::check(ORUtils::recommendedTools(OR_flags_sm_Alljets, m_ORtoolBox_softMuons_Alljets), "Failed to setup OR Tool box for soft muons-Alljets");
+    for (auto&& tool : m_ORtoolBox_softMuons_Alljets.getOverlapTools()) {
+      top::check(tool->setProperty("EnableUserPriority", true), "Failed to set EnableUserPriority");
+    }
+    top::check(m_ORtoolBox_softMuons_Alljets.initialize(),"Failed to initialize soft muons overlap removal tools");
+    m_overlapRemovalTool_softMuons_Alljets = std::move(m_ORtoolBox_softMuons_Alljets.masterTool);      
+    
     return StatusCode::SUCCESS;
   }
 }  // namespace top

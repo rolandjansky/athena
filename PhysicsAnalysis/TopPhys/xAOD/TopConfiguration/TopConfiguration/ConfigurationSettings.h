@@ -43,6 +43,11 @@ namespace top {
      * Note: an attempt to retrieve a key with a non-boolean values raises an exception.
      */
     void retrieve(std::string const& key, bool& value) const;
+    
+    /**
+     * same as above, but directly returning the boolean
+     */    
+    bool retrieve(std::string const& key) const;
 
     /**
      * @brief Have the configuration settings been read from a file?

@@ -981,15 +981,21 @@ namespace top {
       }
     }
 
-    void softmuonUseMVALowPt(const bool& UseMVALowPtSoftMuon) {
+    void softmuonUseMVALowPt(const bool UseMVALowPtSoftMuon) {
       if (!m_configFixed) {
-	m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
+        m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
       }
     }
 
     inline virtual void softmuonDRJetcut(const float DRJet) {
       if (!m_configFixed) {
         m_softmuonDRJetcut = DRJet;
+      }
+    }
+    
+    inline virtual void softmuonDRJetcutUseRapidity(const bool in) {
+      if (!m_configFixed) {
+        m_softmuonDRJetcutUseRapidity = in;
       }
     }
     
@@ -1016,6 +1022,7 @@ namespace top {
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
+    inline virtual bool softmuonDRJetcutUseRapidity() const {return m_softmuonDRJetcutUseRapidity;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
     inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
     inline virtual bool softmuonAdditionalTruthInfoDoVerbose() const { return m_softmuonAdditionalTruthInfoDoVerbose;}
@@ -2066,6 +2073,7 @@ namespace top {
     std::string m_softmuonQuality; // soft muon quality used in object selection
     bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
+    bool m_softmuonDRJetcutUseRapidity; // true -> use rapidity for DR(jet,mu) matching; false -> use pseudorapidity
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoDoVerbose; //to help debugging the above options

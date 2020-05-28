@@ -146,6 +146,9 @@ namespace top {
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
+    registerParameter("SoftMuonDRJetUseRapidity",
+                      "How to calculate DR(soft muon,jet) for the SoftMuonDRJet cut: True -> use rapidity; False -> use pseudorapidity. Default False",
+                      "False");
     registerParameter("SoftMuonAdditionalTruthInfo",
                       "Experimental: store additional truth information on soft muons particle-level origin: True or False (default)",
                       "False");
@@ -874,6 +877,12 @@ namespace top {
       return;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
+  }
+  
+  bool ConfigurationSettings::retrieve(std::string const& key) const {
+    bool result=false;
+    retrieve(key,result);
+    return result;
   }
 
   bool ConfigurationSettings::feature(std::string const& name) const {
