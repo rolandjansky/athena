@@ -8,6 +8,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -17,18 +18,10 @@
 #include "PATCore/AcceptData.h"
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 
-
-//  END OF HEADER FILES INCLUDE
-
-/////////////////////////////////////////////////////////////////
-
-//  CONSTRUCTOR:
-    
 egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_timingProfile("ChronoStatSvc", name)
+  AthReentrantAlgorithm(name, pSvcLocator)
 { 
 } 
 
@@ -36,20 +29,11 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 // ================================================================
 egammaForwardBuilder::~egammaForwardBuilder()
 { 
-  //
-  // destructor
-  //
 }
 
 // =================================================================
 StatusCode egammaForwardBuilder::initialize()
 {
-  //
-  // initialize method
-  //
-
-  ATH_MSG_DEBUG(" Initializing egammaForwardBuilder ");
-  
   // the data handle keys
   ATH_CHECK(m_topoClusterKey.initialize());
   ATH_CHECK(m_electronOutputKey.initialize());
@@ -61,7 +45,6 @@ StatusCode egammaForwardBuilder::initialize()
   if (!m_objectQualityTool.empty()) {
     ATH_CHECK(m_objectQualityTool.retrieve());
   } else {
-    ATH_MSG_DEBUG("egammaOQFlagsBuilder is disabled");
     m_objectQualityTool.disable();
   }
 
@@ -78,31 +61,25 @@ StatusCode egammaForwardBuilder::initialize()
     ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");
     return StatusCode::FAILURE;
   }
-  
-  if (m_doChrono) ATH_CHECK( m_timingProfile.retrieve() );
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
 StatusCode egammaForwardBuilder::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-// ======================================================================
 StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
 {
-  ATH_MSG_DEBUG("Executing egammaForwardBuilder ");
 
   // create an egamma container and register it
   SG::WriteHandle<xAOD::ElectronContainer> xaodFrwd(m_electronOutputKey, ctx);
   ATH_CHECK(xaodFrwd.record(std::make_unique<xAOD::ElectronContainer>(),
 			    std::make_unique<xAOD::ElectronAuxContainer>()));
 
-  ATH_MSG_DEBUG( "Recorded Electrons with key: " << m_electronOutputKey.key() );
 
   //cluster
   SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(m_outClusterContainerKey, ctx);
@@ -120,7 +97,6 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container"); 
     return StatusCode::FAILURE;
   }
-
 
   //loop over cluster container
   xAOD::CaloClusterContainer::const_iterator  clus_begin = cluster->begin();
@@ -171,7 +147,6 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     }
   }
   
-
   // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
   // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
   //    data handles, either. 
@@ -180,8 +155,6 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     cl->setLink(outClusterContainerCellLink.ptr(), sg);
   }
 
-  ATH_MSG_VERBOSE("egammaForward execute completed successfully");
-  
   return StatusCode::SUCCESS;
 }  
   
@@ -194,19 +167,11 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, 
   // protection in case tool is not available
   // return success as algorithm may be able to run without it 
   // in degraded mode
-
   if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
 
-  // setup chrono for this tool
-  std::string chronoName=this->name()+"_"+m_objectQualityTool->name() ;
-  if (m_doChrono) m_timingProfile->chronoStart(chronoName);
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
 
   // execute the tool
-  StatusCode sc = m_objectQualityTool->execute(ctx, eg);
-  if ( sc.isFailure() ) {
-    ATH_MSG_DEBUG("failure returned by object quality tool"); 
-  }
-  if (m_doChrono) m_timingProfile->chronoStop(chronoName);
-
-  return sc;
+  return m_objectQualityTool->execute(ctx, *calodetdescrmgr,*eg);
 }
