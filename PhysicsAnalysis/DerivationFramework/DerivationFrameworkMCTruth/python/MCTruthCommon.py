@@ -25,15 +25,16 @@ if DerivationFrameworkIsMonteCarlo:
             DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
         dfInputIsEVNT = True
     # If it isn't available, make a truth meta data object (will hold MC Event Weights)
-    if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
-        # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
-        from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-        DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
-                                                                    AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
-                                                                     )
+    #if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
+    #    # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
+    #    from AthenaCommon.AppMgr import ToolSvc
+    #    ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
+    #    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    #    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+    #    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
+    #                                                                AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
+    #                                                                 )
+
     # Add in some jets - global config if we are running on EVNT
     if dfInputIsEVNT:
         from JetRec.JetRecFlags import jetFlags
@@ -104,8 +105,8 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") and not hasattr(kernel,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20'):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
-                       algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
+        #addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
+        #               algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
 
 def addTruthJetsAOD(kernel=None, decorationDressing=None):
     # Ensure that we are adding it to something
@@ -116,14 +117,14 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets,addAntiKt4TruthWZJets,addAntiKt10TruthJets
     addAntiKt4TruthJets(kernel,"TRUTH") # Ignore the output list
     addAntiKt4TruthWZJets(kernel,"TRUTH")
-    if decorationDressing is not None:
-        from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
-        addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
+    #if decorationDressing is not None:
+    #    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
+    #    addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
-                       algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
+        #addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
+        #               algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
     elif not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets"):
         addAntiKt10TruthJets(kernel,"TRUTH")
 
@@ -145,9 +146,9 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if not 'truthpartdressedwz' in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
                                           MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                          IncludePromptLeptons=False,IncludePromptPhotons=False,
-                                          IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
-                                          FSRPhotonCone=-1., DressingDecorationName=decorationDressing
+                                          #IncludePromptLeptons=False,#IncludePromptPhotons=False,
+                                          #IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
+                                          #FSRPhotonCone=-1. #, DressingDecorationName=decorationDressing
                                          )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
@@ -180,8 +181,8 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if not 'truthpartcharged' in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
                                          MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                         ChargedParticlesOnly=True,
-                                         BarCodeFromMetadata=barCodeFromMetadata
+                                         #ChargedParticlesOnly=True,
+                                         #BarCodeFromMetadata=barCodeFromMetadata
                                         )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
@@ -269,23 +270,24 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
 
     # Tau collections are built separately
     # truth tau matching needs truth jets, truth electrons and truth muons
-    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-    scheduleTauTruthTools(kernel)
-    augmentationToolsList = [ DFCommonTruthTauDressingTool ]
+    #from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    #scheduleTauTruthTools(kernel)
+    #augmentationToolsList = [ DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-    from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
+    #from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    augmentationToolsList += [ DFCommonTruthGenFilter,
-                              DFCommonTruthQGLabelTool]
-    if decorationDressing is not None:
-        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
-        DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
-                                                                  JetCollection = "AntiKt4TruthDressedWZJets")
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += DFCommonTruthDressedWZQGLabelTool
-        augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
+    #augmentationToolsList += [ DFCommonTruthGenFilter,
+    #                          DFCommonTruthQGLabelTool]
+    augmentationToolsList = []
+    #if decorationDressing is not None:
+    #    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
+    #    DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
+    #                                                              JetCollection = "AntiKt4TruthDressedWZJets")
+    #    from AthenaCommon.AppMgr import ToolSvc
+    #    ToolSvc += DFCommonTruthDressedWZQGLabelTool
+    #    augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
     # SUSY signal decorations
     from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
     if IsSUSYSignal():
@@ -308,7 +310,7 @@ def addStandardTruthContents(kernel=None,
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc.DFCommonTruthTauDressingTool.decorationName=decorationDressing
     # Jets and MET
-    addTruthJets(kernel, decorationDressing)
+    #addTruthJets(kernel, decorationDressing)
     addTruthMET(kernel)
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
@@ -316,7 +318,7 @@ def addStandardTruthContents(kernel=None,
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"], prefix=prefix)
     # Some more additions for standard TRUTH3
     addBosonsAndDownstreamParticles(kernel)
-    addLargeRJetD2(kernel)
+    #addLargeRJetD2(kernel)
     # Special collection for BSM particles
     addBSMAndDownstreamParticles(kernel)
     # Special collection for Born leptons
@@ -324,7 +326,7 @@ def addStandardTruthContents(kernel=None,
     # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
     addHardScatterCollection(kernel,2)
     # Energy density for isolation corrections
-    addTruthEnergyDensity(kernel)
+    #addTruthEnergyDensity(kernel)
 
 
 def addParentAndDownstreamParticles(kernel=None,
