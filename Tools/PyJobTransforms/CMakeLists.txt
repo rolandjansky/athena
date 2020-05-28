@@ -36,6 +36,10 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
         SCRIPT test/test_${test}.py
      )
   endforeach()
+
+  atlas_add_test( HelloWorldTrf
+        SCRIPT test/test_HelloWorldTrf.sh
+	)	
 endif()
 
 #The following tests currently fail in master and should be revised
