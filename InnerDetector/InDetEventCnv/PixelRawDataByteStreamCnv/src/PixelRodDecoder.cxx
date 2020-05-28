@@ -11,11 +11,11 @@
 #include "PixelByteStreamModuleMask.h"
 #include "eformat/SourceIdentifier.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include <fstream>
 #include <iostream>
 #include <string>
-#include <fstream>
-
-#include "xAODEventInfo/EventInfo.h"
 
 //#define PIXEL_DEBUG ;
 
@@ -233,7 +233,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   // Store length of module fragments, for monitoring
   uint32_t nwords_in_module_fragment = 0;
 
-
+  // To check duplicated pixels
+  Identifier previousPixelId;
 
   // ============== ============== ============== ============== ============== ============== ============== ============== //
   // loop over the data in the fragment
@@ -734,8 +735,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 		if (hitDiscCnfg == 2 && IBLtot[0] == 2) IBLtot[0] = 16;
 		if (hitDiscCnfg == 2 && IBLtot[1] == 2) IBLtot[1] = 16;
 
-		// Insert the first part of the ToT info in the collection
-		coll->push_back(new RDO(pixelId, IBLtot[0], mBCID,mLVL1ID,mLVL1A));
+		if (not m_checkDuplicatedPixel or
+		    (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+		  // Insert the first part of the ToT info in the collection
+		  coll->push_back(new RDO(pixelId, IBLtot[0], mBCID, mLVL1ID, mLVL1A));
+		  previousPixelId = pixelId;
+		}
 
 
 #ifdef PIXEL_DEBUG
@@ -782,7 +787,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 		      continue;
 		    }
 
-		    coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
+		    if (not m_checkDuplicatedPixel or
+			(m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+		      coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
+		      previousPixelId = pixelId;
+		    }
 
 #ifdef PIXEL_DEBUG
 		    ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
@@ -816,7 +825,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 	  }
 	  // Now the Collection is there for sure. Create RDO and push it into Collection.
 
-	  coll->push_back(new RDO(pixelId, mToT, mBCID,mLVL1ID,mLVL1A));
+          if (not m_checkDuplicatedPixel or 
+              (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+            coll->push_back(new RDO(pixelId, mToT, mBCID, mLVL1ID, mLVL1A));
+            previousPixelId = pixelId;
+          }
 #ifdef PIXEL_DEBUG
 	  ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
 #endif
