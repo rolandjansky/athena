@@ -184,7 +184,6 @@
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
 + Tools/JobTransforms
-+ Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PyJobTransforms
