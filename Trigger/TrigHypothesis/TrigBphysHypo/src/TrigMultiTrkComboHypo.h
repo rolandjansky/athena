@@ -4,7 +4,7 @@
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkHypo.h
+ **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkComboHypo.h
  **
  **   Description: multi-track hypothesis algorithm
  **
@@ -12,8 +12,8 @@
  **
  **************************************************************************/
 
-#ifndef TRIG_TrigMultiTrkHypo_H
-#define TRIG_TrigMultiTrkHypo_H
+#ifndef TRIG_TrigMultiTrkComboHypo_H
+#define TRIG_TrigMultiTrkComboHypo_H
 
 #include <string>
 #include <vector>
@@ -22,13 +22,14 @@
 #include "GaudiKernel/Property.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "DecisionHandling/HypoBase.h"
+#include "DecisionHandling/ComboHypo.h"
 
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
@@ -36,13 +37,13 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include "TrigMultiTrkHypoTool.h"
+#include "TrigMultiTrkComboHypoTool.h"
 
 
-class TrigMultiTrkHypo: public ::HypoBase {
+class TrigMultiTrkComboHypo: public ::ComboHypo {
  public:
-  TrigMultiTrkHypo(const std::string& name, ISvcLocator* pSvcLocator);
-  TrigMultiTrkHypo() = delete;
+  TrigMultiTrkComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
+  TrigMultiTrkComboHypo() = delete;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
@@ -53,14 +54,14 @@ class TrigMultiTrkHypo: public ::HypoBase {
   bool isReEntrant() const override { return false; }
 
  private:
-
+  StatusCode executeL2(const EventContext& context) const;
+  StatusCode executeEF(const EventContext& context) const;
   xAOD::TrigBphys* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist) const;
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isInMassRange(double mass) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
     m_trackParticleContainerKey {this, "TrackCollectionKey", "Tracks", "input TrackParticle container name"};
-
 
   SG::ReadHandleKey<xAOD::MuonContainer>
     m_muonContainerKey {this, "MuonCollectionKey", "CBCombinedMuon", "input EF Muon container name"};
@@ -80,9 +81,10 @@ class TrigMultiTrkHypo: public ::HypoBase {
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this, "VertexPointEstimator", "", "tool to find starting point for the vertex fitter"};
   ToolHandle<Trk::TrkVKalVrtFitter> m_vertexFitter {this, "VertexFitter", "", "VKalVrtFitter tool to fit tracks into the common vertex"};
 
-  ToolHandleArray<TrigMultiTrkHypoTool> m_hypoTools {this, "HypoTools", {}, "tools to perform selection"};
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "monitoring tool"};
+
+  TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
 };
 
-#endif  // TRIG_TrigMultiTrkHypo_H
+#endif  // TRIG_TrigMultiTrkComboHypo_H
