@@ -21,7 +21,6 @@
 
 #include <cmath>
 
-using namespace std;
 using SCT_Monitoring::N_REGIONS;
 using SCT_Monitoring::bec2Index;
 
@@ -74,7 +73,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
 
-  bitset<N_TRIGGER_TYPES> firedTriggers{0};
+  std::bitset<N_TRIGGER_TYPES> firedTriggers{0};
   if (m_doTrigger and (not checkTriggers(firedTriggers).isSuccess())) {
     ATH_MSG_WARNING("Triggers not found!");
   }
@@ -173,7 +172,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
             const unsigned int subsystemIndex{bec2Index(bec)};
             const bool doThisDetector{doThisSubsystem[subsystemIndex]};
             hasHits[subsystemIndex] = true;
-            unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
+            std::unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
             const Trk::TrackParameters* trkParam{tsos->trackParameters()};
             const Trk::RIO_OnTrack* rio{dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack())};
             if (rio) {
@@ -198,7 +197,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (not m_residualPullCalculator.empty()) {
-                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
+                std::unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
                                                                       m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased)};
                 if (not residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
@@ -258,7 +257,7 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 }
 
 StatusCode
-SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonAlg::checkTriggers(std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
@@ -271,6 +270,6 @@ SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
 }
 
 bool
-SCTTracksMonAlg::hasTriggerFired(const unsigned int trigger, const bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonAlg::hasTriggerFired(const unsigned int trigger, const std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
   return ((trigger < N_TRIGGER_TYPES) ? firedTriggers.test(trigger) : false);
 }

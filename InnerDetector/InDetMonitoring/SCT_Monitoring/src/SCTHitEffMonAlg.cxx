@@ -45,15 +45,14 @@
 // #include "TRandom.h" // Only for Testing
 
 using namespace SCT_Monitoring;
-using namespace std;
 
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline{false};
 
-  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
+  static const std::string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  static const string histogramPathRe[N_REGIONS] = {
+  static const std::string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -245,7 +244,7 @@ int SCTHitEffMonAlg::previousChip(double xl, int side, bool swap) const {
   return chipPos;
 }
 
-StatusCode SCTHitEffMonAlg::failCut(bool value, string name) const {
+StatusCode SCTHitEffMonAlg::failCut(bool value, std::string name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
