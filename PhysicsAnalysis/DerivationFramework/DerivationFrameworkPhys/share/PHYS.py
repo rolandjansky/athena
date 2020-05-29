@@ -33,6 +33,47 @@ AugmentationTools   = []
 SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
 
 #====================================================================
+# MONTE CARLO TRUTH
+#====================================================================
+if (DerivationFrameworkIsMonteCarlo):
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
+   #import DerivationFrameworkHiggs.TruthCategories
+   # Add charm quark collection
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
+   PHYSTruthCharmTool = DerivationFramework__TruthCollectionMaker(name                    = "PHYSTruthCharmTool",
+                                                                  NewCollectionName       = "TruthCharm",
+                                                                  KeepNavigationInfo      = False,
+                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
+                                                                  Do_Compress             = True)
+   ToolSvc += PHYSTruthCharmTool
+   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+   SeqPHYS += CfgMgr.DerivationFramework__CommonAugmentation("PHYSTruthCharmKernel",AugmentationTools=[PHYSTruthCharmTool])
+   # Add HF particles
+   addHFAndDownstreamParticles(SeqPHYS)
+   # Add standard truth
+   addStandardTruthContents(SeqPHYS,prefix='PHYS_')
+   # Update to include charm quarks and HF particles - require a separate instance to be train safe
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
+          #InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+   ToolSvc += PHYSTruthNavigationDecorator
+   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
+   # Re-point links on reco objects
+   addMiniTruthCollectionLinks(SeqPHYS)
+   addPVCollection(SeqPHYS)
+   # Set appropriate truth jet collection for tau truth matching
+   #ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # SUSY signal
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+   if IsSUSYSignal():
+      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+   # Add sumOfWeights metadata for LHE3 multiweights =======
+   #from DerivationFrameworkCore.LHE3WeightMetadata import *
+
+
+
+#====================================================================
 # TRIGGER CONTENT   
 #====================================================================
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
@@ -292,9 +333,9 @@ if DerivationFrameworkIsMonteCarlo:
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                            }
 
-   # from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
-   # addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
-   # PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+   addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
