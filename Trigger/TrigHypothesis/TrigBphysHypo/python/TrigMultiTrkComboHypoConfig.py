@@ -1,29 +1,48 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkHypo, TrigMultiTrkHypoTool
-from TrigBphysHypo.TrigMultiTrkHypoMonitoringConfig import TrigMultiTrkHypoMonitoring, TrigMultiTrkHypoToolMonitoring
+from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkComboHypo, TrigMultiTrkComboHypoTool
+from TrigBphysHypo.TrigMultiTrkComboHypoMonitoringConfig import TrigMultiTrkComboHypoMonitoring, TrigMultiTrkComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigMultiTrkHypoConfig')
+log = logging.getLogger('TrigMultiTrkComboHypoConfig')
 
+def DimuL2ComboHypoCfg(name):
+    log.debug('DimuL2ComboHypoCfg.name = %s ', name)
 
-def TrigMultiTrkHypoToolFromDict(chainDict):
-    config = TrigMultiTrkHypoConfig()
-    tool = config.ConfigurationHypoTool(chainDict)
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        trigSequenceName = 'Dimu',
+        trigLevel = 'L2',
+        trackCollection='HLT_IDTrack_Muon_FTF')
+    return hypo
+
+def DimuEFComboHypoCfg(name):
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
+    log.debug('DimuEFComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        trigSequenceName = 'Dimu',
+        trigLevel = 'EF',
+        muonCollection = muonNames().getNames('RoI').EFCBName)
+    return hypo
+
+def TrigMultiTrkComboHypoToolFromDict(chainDict):
+    config = TrigMultiTrkComboHypoConfig()
+    tool = config.ConfigurationComboHypoTool(chainDict)
     return tool
 
+class TrigMultiTrkComboHypoConfig(object):
 
-class TrigMultiTrkHypoConfig(object):
-
-    def ConfigurationHypo(self, trigSequenceName='Dimu', trigLevel='L2', trackCollection='', muonCollection=''):
+    def ConfigurationComboHypo(self, trigSequenceName='Dimu', trigLevel='L2', trackCollection='', muonCollection=''):
 
         trigLevelDict = {'L2':0, 'EF':1}
 
         try:
             value = trigLevelDict[trigLevel]
-            log.debug('TrigMultiTrkHypo.trigLevel = %s ', value)
+            log.debug('TrigMultiTrkComboHypo.trigLevel = %s ', value)
         except KeyError:
-            log.error('TrigMultiTrkHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
+            log.error('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
@@ -41,26 +60,29 @@ class TrigMultiTrkHypoConfig(object):
             MaxPhi    = [ 10000.,  10000.,  10000.],
             MaxChi2OfVtxEstimation = 2000.)
 
-        tool = TrigMultiTrkHypo(
-            name = trigSequenceName+'HypoAlg'+trigLevel,
+        tool = TrigMultiTrkComboHypo(
+            name = trigSequenceName+trigLevel+'ComboHypo',
             trigLevel = trigLevel,
             nTracks = 2,
             massRanges = [ (100., 20000.) ],
             TrackCollectionKey = trackCollection,
             MuonCollectionKey = muonCollection,
-            TrigBphysCollectionKey = ('TrigBphys' if trigLevel == 'L2' else 'TrigBphysEF') + trigSequenceName,
             VertexFitter = VertexFitter,
             VertexPointEstimator = VertexPointEstimator,
-            MonTool = TrigMultiTrkHypoMonitoring('TrigMultiTrkHypoMonitoring_'+trigSequenceName+trigLevel))
+            CheckMultiplicityMap = False,
+            MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+trigSequenceName+trigLevel))
+
+        if trigLevel == 'EF':
+            tool.TrigBphysCollectionKey = 'HLT_'+trigSequenceName+trigLevel
 
         return tool
 
-    def ConfigurationHypoTool(self, chainDict):
+    def ConfigurationComboHypoTool(self, chainDict):
 
         topoAlgs = chainDict['chainName']
         log.debug("Set for algorithm %s", topoAlgs)
 
-        tool = TrigMultiTrkHypoTool(topoAlgs)
+        tool = TrigMultiTrkComboHypoTool(topoAlgs)
 
         if 'nocut' in topoAlgs:
             tool.AcceptAll = True
@@ -71,7 +93,6 @@ class TrigMultiTrkHypoConfig(object):
         tool.ApplyUpperMassCut = True
         tool.ApplyChi2Cut = True
         tool.Chi2VtxCut = 20
-        tool.nBphysObjects = 1
         tool.trkPtThresholds = getBphysThresholds(chainDict)
 
         if 'bJpsimumu' in topoAlgs:
@@ -91,7 +112,7 @@ class TrigMultiTrkHypoConfig(object):
             tool.LowerMassCut =   100 #MeV
             tool.UpperMassCut = 14000 #MeV
 
-        tool.MonTool = TrigMultiTrkHypoToolMonitoring('MonTool')
+        tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool
 
 

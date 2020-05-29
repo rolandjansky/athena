@@ -6,40 +6,22 @@
  **
  **   File: Trigger/TrigHypothesis/TrigBPhysHypo/TrigMultiTrkHypoTool.cxx
  **
- **   Description: Multi-track hypothesis tool for bphys triggers
+ **   Description: multi-track hypothesis tool for bphys triggers
  **
- **   Author: H. Russell
+ **   Author: Heather Russell
  **
  **************************************************************************/
 
-#include "TrigMultiTrkHypoTool.h"
+#include "TrigMultiTrkComboHypoTool.h"
 
-#include <math.h>
-
-// additions of xAOD objects
-#include "xAODTracking/TrackParticle.h"
-
-#include "xAODTrigBphys/TrigBphys.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-
-#include "AthenaMonitoringKernel/Monitored.h"
-
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
-
-class ISvcLocator;
+#include <cmath>
 
 
-TrigMultiTrkHypoTool::TrigMultiTrkHypoTool(const std::string & type,
-                                     const std::string & name,
-                                     const IInterface* parent )
-   : AthAlgTool( type, name, parent ),
-     m_decisionId( HLT::Identifier::fromToolName( name ) )
-{}
+TrigMultiTrkComboHypoTool::TrigMultiTrkComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
+    : ComboHypoToolBase(type, name, parent) {}
 
-TrigMultiTrkHypoTool::~TrigMultiTrkHypoTool()
-{ }
 
-StatusCode TrigMultiTrkHypoTool::initialize()
+StatusCode TrigMultiTrkComboHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll            = " << (m_acceptAll==true ? "True" : "False") );
   if(m_TotChargeCut >=0)ATH_MSG_DEBUG("Total Charge Cut     = " << m_TotChargeCut);
@@ -70,8 +52,7 @@ StatusCode TrigMultiTrkHypoTool::initialize()
 }
 
 
-//-------------------------------------------------------------------------------------
-bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphys, size_t  ) const{
+bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
 
   using namespace Monitored;
 
@@ -125,7 +106,7 @@ bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphy
           trackPts.push_back(tp->pt());
       }
       mon_totCharge = totq;
-      thisPassedChargeCut = m_TotChargeCut <= -1 || (std::abs(totq) !=  m_TotChargeCut);
+      thisPassedChargeCut = m_TotChargeCut <= -1 || (std::abs(totq) == m_TotChargeCut);
       if(thisPassedChargeCut){
       	ATH_MSG_DEBUG("Passed charge cut with " << totq);
       }
@@ -172,40 +153,25 @@ bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphy
   return result;
 }
 
-StatusCode TrigMultiTrkHypoTool::inclusiveSelection(std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo>& toolInput) const{
 
-  for ( auto& i: toolInput ) {
-   //should this be configured to do something slightly differently? maybe we don't want the previous decision to pass this way??
-   ATH_MSG_DEBUG("what is this? " << m_decisionId.numeric()); //hashing of the chain name
+StatusCode TrigMultiTrkComboHypoTool::decideOnSingleObject(Decision* decision, const std::vector<DecisionIDContainer*>& previousDecisionIDs) const {
 
-   //Make sure that BOTH tracks come from a previous muon that passed (for this chain)
-   //How could this not happen? no idea!
-   if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs0 ) &&
-   		TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs1 ) ) {
-         if ( decideOnSingleObject( i.trigBphys, 0 )==true ) {
-            ATH_MSG_DEBUG("Passed through selection, decisionID:" << m_decisionId );
-            TrigCompositeUtils::addDecisionID(m_decisionId, i.decision);
-         } else {
-            ATH_MSG_DEBUG("Didn't pass through selection, decisionID:" << m_decisionId );
-         }
-      } else {
-         ATH_MSG_DEBUG("Didn't pass previous decision, decisionID:" << m_decisionId );
-      }
+  ATH_CHECK( decision->hasObjectLink(TrigCompositeUtils::featureString()) );
+
+  auto trigBphysEL = decision->objectLink<xAOD::TrigBphysContainer>(TrigCompositeUtils::featureString());
+  ATH_CHECK( trigBphysEL.isValid() );
+
+  ATH_CHECK( previousDecisionIDs.size() == legDecisionIds().size() );
+  for (size_t i = 0; i < previousDecisionIDs.size(); ++i) {
+    if (!TrigCompositeUtils::passed(legDecisionId(i).numeric(), *previousDecisionIDs[i])) {
+      ATH_MSG_DEBUG( "Didn't pass previous decision: " << legDecisionId(i) );
+      return StatusCode::SUCCESS;
+    }
   }
+
+  if (passed(*trigBphysEL)) {
+    TrigCompositeUtils::addDecisionID(decisionId(), decision);
+  }
+
   return StatusCode::SUCCESS;
 }
-
-StatusCode TrigMultiTrkHypoTool::decide( std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo> &input) const {
-
-  if ( m_nBphysObjects == 1 ) {
-    return inclusiveSelection( input );
-  } else {
-    ATH_MSG_WARNING("TrigMultiTrkHypoTool is not configured to do multiple dimuon objects selection.");
-    ATH_MSG_WARNING("Clever overlap removal needed to ensure that dimuon objectss do not contain identical RoIs!");
-    ATH_MSG_WARNING("I'm returning the inclusive selection result!");
-    return inclusiveSelection( input );
-
-  }
-
-}
-

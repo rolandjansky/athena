@@ -5,7 +5,7 @@
 #define DECISIONHANDLING_COMBOHYPOTOOLBASE_H
 
 // Package includes
-#include "IComboHypoTool.h"
+#include "DecisionHandling/IComboHypoTool.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -14,6 +14,7 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 /**
  * @class ComboHypoToolBase
@@ -34,12 +35,16 @@ public:
   **/  
   virtual StatusCode decide(LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const override;
   
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<TrigCompositeUtils::DecisionIDContainer*>&) const { return StatusCode::SUCCESS; }
   
   /**
    * @brief retrieves this decision Id
    **/
-  virtual HLT::Identifier decisionId() const { return m_decisionId; } 
+  virtual HLT::Identifier decisionId() const { return m_decisionId; }
 
+  void setLegDecisionIds(const std::vector<HLT::Identifier>& legDecisionIds) { m_legDecisionIds = legDecisionIds; }
+  HLT::Identifier legDecisionId(size_t i) const { return m_legDecisionIds.at(i); }
+  const std::vector<HLT::Identifier>& legDecisionIds() const { return m_legDecisionIds; }
     
  protected:
 
@@ -105,8 +110,8 @@ public:
   
 private:
 
-    HLT::Identifier m_decisionId;
-    
+  HLT::Identifier m_decisionId;
+  std::vector<HLT::Identifier> m_legDecisionIds;
 
 };
 

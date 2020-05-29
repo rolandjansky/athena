@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ComboHypo.h"
+#include "DecisionHandling/ComboHypo.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -57,12 +57,14 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_multiplicitiesReqMap.size() != 0 );
 
   bool errorOccured = false;
-  for ( const auto& m : m_multiplicitiesReqMap ) {
-    if ( m.second.size() != maxMult )  {
-      errorOccured =  true;
-      ATH_MSG_ERROR( "Chain " << m.first 
-        << " configured with input multiplicity " << m.second.size() << " like this: " <<  m.second 
-        << " which is lower than for this chain " << maxMultEl->first <<  " " << maxMult);
+  if (m_checkMultiplicityMap) {
+    for ( const auto& m : m_multiplicitiesReqMap ) {
+      if ( m.second.size() != maxMult )  {
+        errorOccured =  true;
+        ATH_MSG_ERROR( "Chain " << m.first
+          << " configured with input multiplicity " << m.second.size() << " like this: " << m.second
+          << " which is lower than for this chain " << maxMultEl->first << " " << maxMult);
+      }
     }
   }
 
