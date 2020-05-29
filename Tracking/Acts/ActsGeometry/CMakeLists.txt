@@ -9,9 +9,9 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			                    InnerDetector/InDetDetDescr/PixelReadoutGeometry
-			                    InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-			                    InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry	
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           Control/AthenaBaseComps
                           AthenaKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
@@ -72,7 +72,6 @@ atlas_add_component( ActsGeometry
                      src/ActsTrackingGeometryTool.cxx
                      src/ActsPropStepRootWriterSvc.cxx
                      src/ActsCaloTrackingVolumeBuilder.cxx
-                     src/MaterialStepToActsMaterialTrack.cxx
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
