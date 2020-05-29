@@ -9,8 +9,6 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "GeoModelKernel/Units.h"
 
-using namespace std;
-
 namespace InDetDD {
 StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const SiDetectorDesign::Axis thicknessDirection,
@@ -88,13 +86,13 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 //
 //    Find the row
 //
-    int strip = (int) floor(pos.xPhi() / m_pitch) + m_nStrips / 2;
+    int strip = static_cast<int>(std::floor(pos.xPhi() / m_pitch) + m_nStrips / 2);
     if (strip < 0 || strip >= m_nStrips) {
 
         return SiCellId(); // return an invalid id
     }
 
-    int row = (int) floor(pos.xEta() / m_length) + m_nRows / 2; 
+    int row = static_cast<int>(std::floor(pos.xEta() / m_length) + m_nRows / 2);
     if (row < 0 || row >= m_nRows) {
 
         return SiCellId(); // return an invalid id
@@ -149,7 +147,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(
     SiLocalPosition end1(etaStart, phi, 0.0);
     SiLocalPosition end2(etaEnd, phi, 0.0);
 
-    return pair<SiLocalPosition, SiLocalPosition>(end1, end2);
+    return std::pair<SiLocalPosition, SiLocalPosition>(end1, end2);
 }
 
 bool StripBoxDesign::inActiveArea(SiLocalPosition const &pos,

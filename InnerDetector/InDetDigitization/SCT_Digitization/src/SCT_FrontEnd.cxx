@@ -23,7 +23,6 @@
 
 // #define SCT_DIG_DEBUG
 
-using namespace std;
 using namespace InDetDD;
 
 // constructor
