@@ -111,7 +111,7 @@ int PdfAnalysis::Process(HepMC::GenEvent *event)
   double weight;
   weight = MC::get_weight(event, 0 );
 
-  HepMC::GenPdfInfoPtr pdf = nullptr;
+  HepMC::PdfInfo* pdf = nullptr;
   pdf = event->pdf_info();
 
   if(pdf != 0){

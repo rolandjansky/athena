@@ -35,8 +35,8 @@ class ParticleContentAnalysis: public baseAnalysis
 
   void InitPlots();
 
-  inline double getCosTheta(const HepMC::GenParticlePtr charged_pion, const HepMC::GenParticlePtr  tau);
-  inline double getChargedEnergyFraction(const HepMC::GenParticlePtr charged_pion, const HepMC::GenParticlePtr uncharged_pion);
+  inline double getCosTheta(const HepMC::GenParticle* charged_pion, const HepMC::GenParticle*  tau);
+  inline double getChargedEnergyFraction(const HepMC::GenParticle* charged_pion, const HepMC::GenParticle* uncharged_pion);
 
   TH1D *m_evtnr;
   TH1D *m_evtweight;

@@ -373,12 +373,12 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 
   double weight;
 
-  HepMC::GenVertexPtr decay_vertex;
+  HepMC::GenVertex* decay_vertex;
 
-  HepMC::GenParticlePtr tau = nullptr;
-  HepMC::GenParticlePtr charged_pion = nullptr;
-  HepMC::GenParticlePtr uncharged_pion = nullptr;
-  HepMC::GenParticlePtr tau_neutrino = nullptr;
+  HepMC::GenParticle* tau = nullptr;
+  HepMC::GenParticle* charged_pion = nullptr;
+  HepMC::GenParticle* uncharged_pion = nullptr;
+  HepMC::GenParticle* tau_neutrino = nullptr;
 
   //tight b-hadron cuts
   double tight_bottom_pt = 5;
@@ -581,11 +581,11 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 } //end Process
 
 
-inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticlePtr  charged_pion, const HepMC::GenParticlePtr   tau){
+inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticle*  charged_pion, const HepMC::GenParticle*   tau){
 
   //make a copy of charged_pion
   //(maybe you need charge_pion later in your code again, therefore you do not want to boost it)
-  const HepMC::GenParticlePtr  copy_of_charged_pion = charged_pion;
+  const HepMC::GenParticle*  copy_of_charged_pion = charged_pion;
 
   CLHEP::HepLorentzVector charged_pion_vector(0,0,0,0);
   CLHEP::HepLorentzVector tau_vector(0,0,0,0);
@@ -610,7 +610,7 @@ inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticlePtr  
   return cos_theta;
 }
 
-inline double ParticleContentAnalysis::getChargedEnergyFraction(const HepMC::GenParticlePtr  charged_pion, const HepMC::GenParticlePtr  uncharged_pion){
+inline double ParticleContentAnalysis::getChargedEnergyFraction(const HepMC::GenParticle*  charged_pion, const HepMC::GenParticle*  uncharged_pion){
 
   //calculate charged energy fraction
   double charged_energy_fraction;
