@@ -577,6 +577,21 @@ class athenaLogFileReportTests(unittest.TestCase):
 18:16:06 Caught signal 11(Segmentation fault). Details:
         '''
 
+        testKnowledgeFile = '''
+10:38:58  PYTHIA Abort from Pythia::next: reached end of Les Houches Events File
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8             ERROR Exceeded the max number of consecutive event failures.
+10:38:58 Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator()
+        '''
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
@@ -602,7 +617,13 @@ class athenaLogFileReportTests(unittest.TestCase):
         with open('file11', 'w') as f11:
             print >> f11, testCoreDumpAbNormalLine
         with open('file12', 'w') as f12:
+<<<<<<< HEAD
             print >> f12, testCoreDumpAbnormalPattern
+=======
+            print(testCoreDumpAbnormalPattern, file=f12)
+        with open('file13', 'w') as f13:
+            print(testKnowledgeFile, file=f13)
+>>>>>>> a3481ff028d... Reporting non-standard errors
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -616,9 +637,10 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport10 = athenaLogFileReport('file10')
         self.myFileReport11 = athenaLogFileReport('file11')
         self.myFileReport12 = athenaLogFileReport('file12')
+        self.myFileReport13 = athenaLogFileReport('file13')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12',\
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12', 'file13',\
                  'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)
