@@ -180,7 +180,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		// StripsResponse stuff...
 		MM_StripsResponseSimulation *m_StripsResponseSimulation;
 
-		int m_gasMixtureMode;
 		float m_qThreshold;
 		float m_driftGapWidth;
 		float m_driftVelocity;
