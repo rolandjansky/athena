@@ -46,8 +46,8 @@ namespace ISF {
     class ISFParticle;
 }
 
-class MM_SimIdToOfflineId;
-class sTgcSimIdToOfflineId;
+struct MM_SimIdToOfflineId;
+struct sTgcSimIdToOfflineId;
 
 namespace iFatras 
 {
