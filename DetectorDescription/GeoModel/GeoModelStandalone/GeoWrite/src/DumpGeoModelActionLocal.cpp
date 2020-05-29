@@ -6,6 +6,7 @@
 // major updates: 
 // - Aug 2018 - Riccardo Maria BIANCHI
 // - Sep 2018 - Riccardo Maria BIANCHI
+// - May 2020 - J. Boudreau (write out GeoUnidentifiedShape
 
 // local includes
 #include "GeoWrite/DumpGeoModelActionLocal.h"
@@ -32,7 +33,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-
+#include "GeoModelKernel/GeoUnidentifiedShape.h"
 // Qt includes
 #include <QSqlQuery>
 #include <QSqlError>
@@ -1022,6 +1023,13 @@ QString DumpGeoModelActionLocal::getShapeParameters(const GeoShape* shape)
 		pars << "opB=" + QString::number( shapeIdB.toUInt() ) ;
 		shapePars = pars.join(";");
 	}
+	else if (shapeType=="UnidentifiedShape") {
+	  QStringList pars;
+	  const GeoUnidentifiedShape *shapeIn=dynamic_cast<const GeoUnidentifiedShape*>(shape);
+	  pars << "asciiData="+QString::fromStdString(shapeIn->asciiData());
+	  shapePars=pars.join(";");
+	}
+
 	else {
 		qDebug() << "WARNING!!! - Shape '" << shapeType << "' needs to be customized!!";
 	}
