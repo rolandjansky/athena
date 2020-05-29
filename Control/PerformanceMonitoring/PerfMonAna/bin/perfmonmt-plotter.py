@@ -8,7 +8,6 @@ __author__  = "Hasan Ozturk <haozturk@cern.ch"
 __doc__     = "A python module which parses the PerfMonMTSvc results and makes plots"
 
 
-import sys
 import json
 
 import matplotlib
@@ -18,7 +17,13 @@ import numpy as np
 
 import operator
 import argparse
-from collections import OrderedDict
+
+colors = { "dCPU" : "tab:blue", "dWall" : "tab:orange",
+           "dVmem" : "tab:blue", "dPss" : "tab:green",
+           "dRss" : "tab:orange", "dSwap" : "tab:red",
+           "cpuTime" : "tab:blue", "malloc" : "tab:orange",
+           "vmem" : "tab:blue", "pss" : "tab:green",
+           "rss" : "tab:orange", "swap" : "tab:red" }
 
 def plotBarChart(params):
 
@@ -27,7 +32,8 @@ def plotBarChart(params):
   offset = 1 - len(params["vals"])
   for metric in params["vals"]:
     vals = params["vals"][metric]
-    rects = ax.barh(params["index"] + (offset/2)*params["width"], vals, params["width"], alpha=0.8, label = metric)
+    ax.barh(params["index"] + (offset*0.5)*params["width"], vals, params["width"],
+            color = colors[metric], alpha=0.8, label = metric)
     offset += 2
 
   ax.set_xlabel(params["xlabel"], fontsize=params['xlabelFontSize'])
@@ -44,16 +50,13 @@ def plotLineChart(params):
   ax = params['ax']
 
   for label, metric in params['yVals'].items():
-
-    ax.plot(params['xVals'], metric, label=label)
+    ax.plot(params['xVals'], metric, color = colors[label], label = label)
 
   ax.set_xlabel(params['xlabel'])
   ax.set_ylabel(params['ylabel'])
 
-  index = np.arange(len(params['xVals']))
-
-  ax.set_xticklabels(params['xVals'], rotation='vertical')
-  ax.tick_params(axis='x', labelsize=3)
+  ax.set_xticklabels(params['xVals'])
+  ax.tick_params(axis='both', which='major', labelsize=10)
   ax.set_title(params['title'])
   ax.legend()
   ax.grid(linestyle=':',linewidth=0.1)
@@ -90,7 +93,8 @@ def plotSnapshotLevel(snapshotData, plotname):
 
   # Collect data
   stepNames, dCPUVals, dWallVals, dVmemVals, dRssVals, dPssVals, dSwapVals = [],[],[],[],[],[],[]
-  for step, meas in snapshotData.items():
+  for step in ['Finalize', 'Execute', 'Initialize', 'Configure']:
+    meas = snapshotData[step]
     
     # Show in seconds
     dCPU = meas["dCPU"] * 0.001
@@ -156,9 +160,7 @@ def plotSnapshotLevel(snapshotData, plotname):
     "xlabelFontSize": 40,
     "ylabelFontSize": 40,
     "legendFontSize": 30
-
   }
-
   
 
   plotBarChart(timeMonParams)
@@ -220,14 +222,12 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       "vals": sortedTimeMonVals,
       "yTickLabels": sortedTimeMonCompNames,
       "xlabel": "Time [sec]",
-      "ylabel": "Steps",
+      "ylabel": "Components",
       "title": step,
       "titleFontSize": 70,
       "xlabelFontSize": 50,
       "ylabelFontSize": 50,
       "legendFontSize": 30
-
-
     }
 
     memMonParams = {
@@ -237,14 +237,12 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       "vals": sortedMemMonVals,
       "yTickLabels": sortedCompNamesMem,
       "xlabel": "Memory [MB]",
-      "ylabel": "Steps",
+      "ylabel": "Components",
       "title": step,
       "titleFontSize": 70,
       "xlabelFontSize": 50,
       "ylabelFontSize": 50,
       "legendFontSize": 30
-
-
     }
 
     plotBarChart(timeMonParams)
