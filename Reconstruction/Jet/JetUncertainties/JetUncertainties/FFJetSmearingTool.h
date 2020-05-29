@@ -62,10 +62,36 @@
 
 
 
+namespace FFAllowedMassDef{
+    enum TypeEnum
+    {
+        UNKNOWN=0,
+        Calo, //Calorimeter
+        TA,   //Track Assisted
+        Comb, //Combined
+    };
+    inline TypeEnum stringToEnum(const TString& name)
+    {
+        if (name.EqualTo("Calo",TString::kIgnoreCase))
+            return Calo;
+        if (name.EqualTo("TA",TString::kIgnoreCase))
+            return TA;
+        if (name.EqualTo("Comb",TString::kIgnoreCase))
+            return Comb;
+        return UNKNOWN;
+    }
+    inline TString enumToString(const TypeEnum type)
+    {
+        switch (type)
+        {
+            case Calo:         return "Calo";
+            case TA:           return "TA";
+            case Comb:         return "Comb";
+            default:           return "";
+        }
+    } 
 
-
-
-
+}
 
 class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool 
 {
@@ -111,7 +137,7 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
 
         StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-        StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass, std::string CALO_or_TA,std::string jetTopology, double& JMS_err, double& JMR_err);
+        StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass,  FFAllowedMassDef::TypeEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
 
         StatusCode getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology);
 
@@ -129,7 +155,8 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
         float m_MassRange;
         float m_PtRange;
         TString m_histFileName;
-        TString m_MassDef;
+        TString m_MassDef_string;
+        FFAllowedMassDef::TypeEnum m_MassDef;
         std::string m_configFile;
         std::string m_calibArea;
         std::string m_path;

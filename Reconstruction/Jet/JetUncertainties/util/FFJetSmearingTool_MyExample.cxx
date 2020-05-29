@@ -432,7 +432,7 @@ int main(int argc, char* argv[]){
             //Give a TruthLabel to the jets. We will need it in the FFSmearingTool to apply the uncertainties of one jet topology or another
             m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
-            std::cout << "I am passed the modify function " << std::endl;
+            std::cout << "Start the loop over the jets " << std::endl;
 
             bool lead_jet = true;//to fill the histogram
 
