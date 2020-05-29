@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSMATERIALSTEPCONVERTERTOOL_H
@@ -16,8 +16,6 @@
 #include "ActsGeometry/ActsAlignmentStore.h" // ReadCondHandleKey wants complete type
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometryInterfaces/IActsMaterialStepConverterTool.h"
-
-// ACTS
 
 class ActsMaterialStepConverterTool : public extends<AthAlgTool, IActsMaterialStepConverterTool>
 {

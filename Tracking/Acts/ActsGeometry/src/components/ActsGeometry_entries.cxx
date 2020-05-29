@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
@@ -25,8 +25,6 @@
 #include "ActsGeometry/ActsMaterialStepConverterTool.h"
 #include "ActsGeometry/ActsMaterialJsonWriterTool.h"
 
-#include "ActsGeometry/MaterialStepToActsMaterialTrack.h"
-
 DECLARE_COMPONENT( ActsExtrapolationAlg )
 DECLARE_COMPONENT( ActsWriteTrackingGeometry )
 DECLARE_COMPONENT( ActsWriteTrackingGeometryTransforms )
@@ -49,5 +47,3 @@ DECLARE_COMPONENT( ActsTrackingGeometryTool )
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
 DECLARE_COMPONENT( ActsAlignmentCondAlg )
 DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )
-
-DECLARE_COMPONENT( MaterialStepToActsMaterialTrack )
