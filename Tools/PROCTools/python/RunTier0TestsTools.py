@@ -13,10 +13,10 @@
 # Format is "test-branch" : "version"
 ciRefFileMap = {
                 # qTestsTier0_required-test
-                'q221-21.0'            : 'v1',
+                'q221-21.0'            : 'v2',
                 'q431-21.0'            : 'v1',
-                'q221-21.3'            : 'v14',
-                'q431-21.3'            : 'v12',
+                'q221-21.3'            : 'v15',
+                'q431-21.3'            : 'v13',
                 # SimulationTier0Test_required-test
                 's3126-21.0'           : 'v2',
                 's3126-21.3'           : 'v2',
