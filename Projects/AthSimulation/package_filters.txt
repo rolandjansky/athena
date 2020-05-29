@@ -329,7 +329,6 @@
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
 + Tools/FilePeeker
-+ Tools/JobTransforms
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PROCTools

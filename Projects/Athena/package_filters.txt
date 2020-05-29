@@ -58,6 +58,7 @@
 # obsolete packages to be removed in a second step
 - Tools/KitValidation
 - Tracking/TrkTools/TrkSegmentConverter
+- Tools/JobTransforms
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
