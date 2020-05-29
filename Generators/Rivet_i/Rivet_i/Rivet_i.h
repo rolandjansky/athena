@@ -112,6 +112,12 @@ private:
   ///Skip variation weights and only run nominal
   bool m_skipweights;
   
+  /// String of weight names (or regex) to select multiweights
+  std::string m_matchWeights;
+
+  /// String of weight names (or regex) to veto multiweights
+  std::string m_unmatchWeights;
+
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
 

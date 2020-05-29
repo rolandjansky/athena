@@ -58,6 +58,8 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
   declareProperty("DoRootHistos", m_doRootHistos=true);
   declareProperty("SkipWeights", m_skipweights=false);
+  declareProperty("MatchWeights", m_matchWeights="");
+  declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
@@ -134,7 +136,9 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler = new Rivet::AnalysisHandler(m_runname);
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
-  m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  m_analysisHandler->skipMultiWeights(m_skipweights); //< Only run on the nominal weight
+  m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
+  m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
   if(m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
