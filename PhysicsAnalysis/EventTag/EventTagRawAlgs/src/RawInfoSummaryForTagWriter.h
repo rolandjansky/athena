@@ -67,12 +67,12 @@ class RawInfoSummaryForTagWriter : public AthAlgorithm
   SG::ReadHandleKey<MBTSCollisionTime> m_MBTSCollTimeKey;
   SG::ReadHandleKey<SpacePointContainer> m_sctSpacePointName;
   SG::ReadHandleKey<SpacePointContainer> m_pixSpacePointName;
-  SG::ReadHandleKey<BCM_RDO_Container> m_bcmRDOName;
   SG::ReadHandleKey<TileCellContainer> m_mbtsName;
   SG::ReadHandleKey<LArCollisionTime> m_larCollTimeName;
   SG::ReadHandleKey<ComTime> m_trtPhaseName;
+  SG::ReadHandleKey<BCM_RDO_Container> m_bcmRDOName{
+      this, "BCM_RDOKey", "BCM_RDOs", "SG key for BCM RDOs"};
   SG::WriteHandleKey<RawInfoSummaryForTag> m_RISFTKey;
-
 
   bool m_doClusterSums;//!< turn on/off the cluster sum in the tag (as it crashes if Tile is off)
   

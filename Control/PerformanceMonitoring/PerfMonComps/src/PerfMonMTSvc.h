@@ -86,10 +86,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   /// Report to the JSON File
   void report2JsonFile();
   void report2JsonFile_Summary(nlohmann::json& j) const;
-  void report2JsonFile_ComponentLevel_Time(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Time(nlohmann::json& j) const;
-  void report2JsonFile_ComponentLevel_Mem(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Mem(nlohmann::json& j);
+  void report2JsonFile_ComponentLevel(nlohmann::json& j) const;
+  void report2JsonFile_EventLevel(nlohmann::json& j) const;
 
   /// A few helper functions
   bool isPower(uint64_t input, uint64_t base);  // check if input is power of base or not

@@ -78,6 +78,8 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     } else {
       ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     }
+  } else {
+    m_pixelCondSummaryTool.disable();
   }
 
   // Get SctConditionsSummaryTool

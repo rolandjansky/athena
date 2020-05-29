@@ -129,7 +129,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    { _time_ cmake ${BUILDTOOLTYPE} --graphviz=${BINARY_TAG}/packages.dot \
+    { _time_ cmake ${BUILDTOOLTYPE} --graphviz=packages.dot \
         -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${EXTRACMAKE[@]} \

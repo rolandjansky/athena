@@ -1,6 +1,5 @@
 <!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
-
    <!-- xAOD::PFO interface type(s). -->
    <class name="xAOD::PFO_v1" />
    <class name="xAOD::PFOContainer_v1"
@@ -25,6 +24,21 @@
           id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
    <typedef name="xAOD::TrackCaloClusterAuxContainer" />
 
+
+  <!-- FlowElement interface type(s): -->
+  <class name="xAOD::FlowElement_v1" />
+  <class name="xAOD::FlowElementContainer_v1"
+         id="68F99A1F-96F4-4339-BEB7-46A6E7A5E351"/>
+
+  <typedef name="xAOD::FlowElement" />
+  <typedef name="xAOD::FlowElementContainer" />
+  
+  <!-- FlowElement interface type(s): -->
+  <class name="xAOD::FlowElementAuxContainer_v1"
+         id="5015F3F7-901A-44FD-9FF2-93EEA1DAE686"/>
+  <typedef name="xAOD::FlowElementAuxContainer" />
+   
+   
    <!-- Other type(s). -->
    <enum pattern="xAOD::PFODetails::*" />
 

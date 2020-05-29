@@ -59,5 +59,9 @@ lcg_generate_env(
 install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/packages.dot
+   DESTINATION . OPTIONAL )
+
 # Set up the release packaging:
 atlas_cpack_setup()

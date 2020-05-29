@@ -207,11 +207,8 @@ tit.TrackSelectionTool.CutLevel      = "Loose"
 if not useVertices:
   tit.VertexLocation = ''
 
-import ROOT, cppyy
-# Need to be sure base dict is loaded first.
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 
 # In fact the default isolations are the same for eg and muons : prepare the list here
 IsoTypes =  [

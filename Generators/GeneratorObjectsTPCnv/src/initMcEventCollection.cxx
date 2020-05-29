@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 
@@ -19,9 +19,9 @@
 #include "TestTools/initGaudi.h"
 
 namespace Athena_test {
-  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticlePtr>& genPartList)
+  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticlePtr>& genPartList, const bool initGaudi)
   {
-    if (!Athena_test::initGaudi(pSvcLoc)) {
+    if (initGaudi && !Athena_test::initGaudi(pSvcLoc)) {
       std::cerr << "This test can not be run" << std::endl;
       return false;
     }

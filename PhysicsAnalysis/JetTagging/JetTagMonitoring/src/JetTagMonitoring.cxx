@@ -189,6 +189,10 @@ StatusCode JetTagMonitoring::initialize() {
     ATH_MSG_INFO("Analysis::TrackSelector not used");
   }
 
+  if (!m_use_trigdectool) {
+    m_trigDecTool.disable();
+  }
+
   if ( m_switch_off )
     ATH_MSG_WARNING("Switching off JetTagMonitoring::fillHistograms()");
 

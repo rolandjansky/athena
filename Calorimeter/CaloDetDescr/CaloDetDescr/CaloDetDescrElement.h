@@ -72,10 +72,11 @@ class CaloDetDescrElement : public Identifiable
       @param onl2 [IN] online identifier for Tile (2)
       @param descriptor [IN] descriptor object
    */
-  CaloDetDescrElement(const IdentifierHash subcaloHash,
-		      const IdentifierHash onl1,
-		      const IdentifierHash onl2,
-		      const CaloDetDescriptor* descriptor);
+   CaloDetDescrElement(const IdentifierHash subcaloHash,
+                       const IdentifierHash onl1,
+                       const IdentifierHash onl2,
+                       const CaloDetDescriptor* descriptor);
+
  public:
   /** @brief virtual destructor
    */
@@ -166,8 +167,7 @@ class CaloDetDescrElement : public Identifiable
   void set_volume(double volume);
   /** @brief set cell online identifiers (Tile)
    */
-  void set_online(const IdentifierHash onl1,
-		  const IdentifierHash onl2);
+  void set_online(const IdentifierHash onl1, const IdentifierHash onl2);
 
   /** @brief cell identifier
    */
@@ -322,7 +322,10 @@ class CaloDetDescrElement : public Identifiable
    */
   float m_dz;
   
-
+  /** @bried the sampling for this element 
+   */
+  CaloCell_ID::CaloSample m_sample=CaloCell_ID::Unknown;
+  
   /** @brief Tiles need 2 online hashed id
    */
   IdentifierHash m_onl1;    
@@ -387,6 +390,12 @@ inline float CaloDetDescrElement::sinPhi() const
 { return m_sinPhi;}
 inline float CaloDetDescrElement::cosPhi() const
 { return m_cosPhi;}
+
+inline CaloCell_ID::CaloSample
+CaloDetDescrElement::getSampling() const
+{
+  return m_sample;
+}
 
 inline void CaloDetDescrElement::set_volume(double volume)
 { m_volume = static_cast<float> (volume);}

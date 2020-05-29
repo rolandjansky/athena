@@ -45,6 +45,15 @@ StatusCode DerivationFramework::TauTrackParticleThinning::initialize()
         return StatusCode::FAILURE;
     } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_tauKey.key() << " will be retained in this format with the rest being thinned away");}
     ATH_CHECK(m_tauKey.initialize());
+    if (m_doTauTracksThinning) {
+       if (m_tauTracksSGKey.key().empty()) { 
+           ATH_MSG_FATAL("No tau tracks collection provided for thinning, despite this option being requested.");
+           return StatusCode::FAILURE;   
+       } else {
+           ATH_MSG_INFO("Tau track thinning requested; tau tracks with the SG key " << m_tauTracksSGKey.key() << " will be thinned if not associated with objects in " << m_tauKey.key());
+           ATH_CHECK( m_tauTracksSGKey.initialize (m_streamName) ); 
+       }
+    }
 
     // Set up the text-parsing machinery for selectiong the tau directly according to user cuts
     if (!m_selectionString.empty()) {
@@ -114,24 +123,16 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
 	    for (xAOD::TauJetContainer::const_iterator tauIt=importedTaus->begin(); tauIt!=importedTaus->end(); ++tauIt) {
                 if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the tau if req'd
             	for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-		  int index = (*tauIt)->trackLinks().at(i).index();
-#else
 		  int index = xAOD::TauHelpers::trackParticleLinks(*tauIt, xAOD::TauJetParameters::TauTrackFlag::classifiedCharged).at(i).index();
-#endif
-                	mask[index] = true;
+                  mask[index] = true;
             	}
 	    }
     } else { // check only taus passing user selection string
         for (std::vector<const xAOD::TauJet*>::iterator tauIt = tauToCheck.begin(); tauIt!=tauToCheck.end(); ++tauIt) {
             if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the tau if req'd	
             for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-	      int index = (*tauIt)->trackLinks().at(i).index();
-#else
 	      int index = xAOD::TauHelpers::trackParticleLinks(*tauIt, xAOD::TauJetParameters::TauTrackFlag::classifiedCharged).at(i).index();
-#endif
-                mask[index] = true;
+              mask[index] = true;
             }
         }
     }
@@ -143,9 +144,45 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
     }
     m_npass += n_pass;
 
-    // Execute the thinning service based on the mask. Finish.
+    // Execute the thinning service based on the mask. 
     importedTrackParticles.keep (mask);
 
-    return StatusCode::SUCCESS;
+   // Apply thinning to tau track collection if requested
+   if( m_doTauTracksThinning ) {
+      SG::ThinningHandle<xAOD::TauTrackContainer> importedTauTracks
+      (m_tauTracksSGKey, ctx);
+      if( importedTauTracks->size() == 0 ) {
+         return StatusCode::SUCCESS;
+      }    
+      std::vector< bool > mask_tautracks( importedTauTracks->size(), false );
+      
+      for( const xAOD::TauJet* tau : tauToCheck ) {
+         // Get all the associated charged tau tracks:
+	 auto ttLinks = tau->tauTrackLinks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged );
+	 // Process the links:
+	 for( const auto& ttLink : ttLinks ) {
+            if( ! ttLink.isValid() ) {
+               continue;
+            }
+            if( ttLink.dataID() != m_tauTracksSGKey.key() ) {
+               ATH_MSG_FATAL( "Charged tau track does not come from "
+                              "container \"" << m_tauTracksSGKey << "\"" );
+               return StatusCode::FAILURE;
+            }
+            // If it is, set the mask for it:
+            mask_tautracks.at( ttLink.index() ) = true;
+         }
+         // Select the tau tracks in a cone if it was requested (NOT RECOMMENDED):
+	 if( m_coneSize > 0.0 ) {
+	    trIC.select( tau, m_coneSize, importedTauTracks.cptr(), mask_tautracks );
+	 }
+       }
+
+       importedTauTracks.keep(mask_tautracks);
+	
+   }
+ 
+   return StatusCode::SUCCESS;
+
 }
 

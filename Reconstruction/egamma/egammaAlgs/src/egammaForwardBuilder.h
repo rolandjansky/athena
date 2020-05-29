@@ -24,7 +24,6 @@
 //
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -39,6 +38,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 
+#include "egammaInterfaces/IegammaOQFlagsBuilder.h" 
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
@@ -69,7 +69,7 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   StatusCode ExecObjectQualityTool(const EventContext &ctx, xAOD::Egamma *eg) const; 
 
   /** @brief Tool to perform object quality*/
-  ToolHandle<IegammaBaseTool> m_objectQualityTool {this,
+  ToolHandle<IegammaOQFlagsBuilder> m_objectQualityTool {this,
       "ObjectQualityTool", "",
       "Name of the object quality tool (empty tool name ignored)"};
 
@@ -102,11 +102,6 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   /** @brief eta cut */
   Gaudi::Property<double> m_etacut {this, "EtaCut", 2.5, "eta cut"};
 
-  /** @brief do chrono service  */
-  Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"}; 
-
-  // to measure speed of the algorithm
-  ServiceHandle<IChronoStatSvc> m_timingProfile;
  protected:
   /** Handle to the selectors */
   ToolHandleArray<IAsgForwardElectronIsEMSelector> m_forwardElectronIsEMSelectors {this,
