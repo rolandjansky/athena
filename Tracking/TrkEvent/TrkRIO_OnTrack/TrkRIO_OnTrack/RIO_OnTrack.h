@@ -48,6 +48,16 @@ namespace Trk {
   @author Andreas.Salzburger@cern.ch
  */
 
+  namespace RIO_OnTrackType{
+    enum Type{
+        SiCluster=0,
+        TRT_DriftCircle=1,
+        MdtDriftCircle=2,
+        MuonCluster=3,
+        PlanarCluster=4
+    };
+  }
+
   class RIO_OnTrack : public MeasurementBase {
     
     friend class ITrkEventCnvTool;
@@ -86,6 +96,9 @@ namespace Trk {
        virtual bool type(MeasurementBaseType::Type type) const override {
          return (type==MeasurementBaseType::RIO_OnTrack);
        }
+
+      /** Method checking the Rio On Track type*/
+      virtual bool rioType(RIO_OnTrackType::Type type) const = 0;
 
       /**returns the some information about this RIO_OnTrack. */
       virtual MsgStream&    dump( MsgStream& out ) const override;  
