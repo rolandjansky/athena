@@ -94,7 +94,7 @@ atlas_add_library( SUSYToolsLib
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
    AssociationUtilsLib PATInterfaces TrigDecisionToolLib 
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
-   AnaAlgorithmLib
+   ParticleJetToolsLib AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives BoostedJetTaggersLib EgammaAnalysisInterfacesLib
