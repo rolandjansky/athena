@@ -270,9 +270,9 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
 
     # Tau collections are built separately
     # truth tau matching needs truth jets, truth electrons and truth muons
-    #from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-    #scheduleTauTruthTools(kernel)
-    #augmentationToolsList = [ DFCommonTruthTauDressingTool ]
+    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    scheduleTauTruthTools(kernel)
+    augmentationToolsList = [ DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
     #from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
