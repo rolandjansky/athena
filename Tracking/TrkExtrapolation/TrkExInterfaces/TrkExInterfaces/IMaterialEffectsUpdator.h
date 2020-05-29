@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ public:
    * doing non-local MaterialEffectsUpdates for different models
    * Optional
    */
-  virtual void modelAction(const TrackParameters* parm = 0) const = 0;
+  virtual void modelAction(const TrackParameters* parm = nullptr) const = 0;
 
   /** Interfaces for clients using  a local cache.*/
 
@@ -168,7 +168,7 @@ public:
   virtual void validationAction(ICache& icache) const = 0;
 
   /** Model Action:*/
-  virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const = 0;
+  virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const = 0;
 };
 
 } // end of namespace
