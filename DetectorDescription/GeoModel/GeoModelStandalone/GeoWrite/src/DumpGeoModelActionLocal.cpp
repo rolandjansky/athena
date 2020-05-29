@@ -1026,6 +1026,7 @@ QString DumpGeoModelActionLocal::getShapeParameters(const GeoShape* shape)
 	else if (shapeType=="UnidentifiedShape") {
 	  QStringList pars;
 	  const GeoUnidentifiedShape *shapeIn=dynamic_cast<const GeoUnidentifiedShape*>(shape);
+          pars << "name="+QString::fromStdString(shapeIn->name());
 	  pars << "asciiData="+QString::fromStdString(shapeIn->asciiData());
 	  shapePars=pars.join(";");
 	}
