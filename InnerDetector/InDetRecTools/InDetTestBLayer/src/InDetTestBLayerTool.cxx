@@ -17,7 +17,6 @@
 
 #include "TrkGeometry/Layer.h"
 
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -47,15 +46,11 @@ namespace InDet {
   InDetTestBLayerTool::InDetTestBLayerTool(const std::string& name,
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
-    m_extrapolator(""),
-    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
     m_configured(false)
   {
     declareInterface<IInDetTestBLayerTool>(this);
-    declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
     declareProperty("CheckAtLeastNearestNeighbors", m_checkAtLeastNearestNeighbors = false);
@@ -106,11 +101,11 @@ namespace InDet {
       m_configured=false;
     }
     else{
-      if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
-	return StatusCode::FAILURE;
+      if (m_pixelCondSummaryTool.retrieve().isFailure() ) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
+        return StatusCode::FAILURE;
       } else {
-	ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
+        ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
       }
     }
 
