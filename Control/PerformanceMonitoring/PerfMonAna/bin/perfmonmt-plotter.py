@@ -18,6 +18,7 @@ import numpy as np
 
 import operator
 import argparse
+from collections import OrderedDict
 
 def plotBarChart(params):
 
@@ -165,10 +166,10 @@ def plotSnapshotLevel(snapshotData, plotname):
 
 
   timeMonFig.set_tight_layout( True )
-  timeMonFig.savefig("Snaphot Level Time") 
+  timeMonFig.savefig("Snaphot_Level_Time")
 
   memMonFig.set_tight_layout(True)
-  memMonFig.savefig("Snapshot Level Memory")
+  memMonFig.savefig("Snapshot_Level_Memory")
 
 
 def plotComponentLevel(componentLevelData, compCountPerPlot):
@@ -250,10 +251,10 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
     plotBarChart(memMonParams)
 
   timeMonFig.set_tight_layout( True )
-  timeMonFig.savefig("Component Level Time")
+  timeMonFig.savefig("Component_Level_Time")
 
   memMonFig.set_tight_layout( True )
-  memMonFig.savefig("Component Level Memory")
+  memMonFig.savefig("Component_Level_Memory")
 
 
 def plotEventLevel(eventLevelData):
@@ -313,27 +314,29 @@ def plotEventLevel(eventLevelData):
   plotLineChart(memMonParams)
 
   timeMonFig.set_tight_layout(True)
-  timeMonFig.savefig("Event Level Time")
+  timeMonFig.savefig("Event_Level_Time")
 
   memMonFig.set_tight_layout(True)
-  memMonFig.savefig("Event Level Memory")
+  memMonFig.savefig("Event_Level_Memory")
   
 def main():
+    ''' Main function for producing plots from PerfMonMT JSON file.'''
 
     parser = argparse.ArgumentParser()
 
-    defaultJsonResultFile = 'PerfMonMTSvc_result.json'
-    compCountPerPlot = 20   
-
-    parser.add_argument("--pathToJsonResultFile", default=defaultJsonResultFile)
-    parser.add_argument("--compCountPerPlot", default=compCountPerPlot)
+    parser.add_argument("-i", "--inFile", dest = "inFile",
+                        default = 'PerfMonMTSvc_result.json',
+                        help = 'The input JSON file')
+    parser.add_argument("-n", "--numberOfCompsPerPlot",
+                        dest = "numberOfCompsPerPlot", default = 20,
+                        help = "The number of components to be plotted")
 
     args = parser.parse_args()
 
-    jsonResultFileDirpath = args.jsonResultFileDirpath
-    compCountPerPlot = args.compCountPerPlot
+    inFile = args.inFile
+    numberOfCompsPerPlot = args.numberOfCompsPerPlot
 
-    with open( jsonResultFileDirpath ) as jsonFile:
+    with open( inFile ) as jsonFile:
 
       data = json.load(jsonFile)
 
@@ -343,7 +346,7 @@ def main():
 
       if "componentLevel" in data:
         componentLevelData = data["componentLevel"]
-        plotComponentLevel(componentLevelData, int(compCountPerPlot))
+        plotComponentLevel(componentLevelData, int(numberOfCompsPerPlot))
 
       if "eventLevel" in data:
         eventLevelData = data["eventLevel"]
