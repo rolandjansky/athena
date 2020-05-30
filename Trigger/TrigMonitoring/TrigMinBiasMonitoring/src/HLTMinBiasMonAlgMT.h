@@ -42,6 +42,7 @@ private:
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
 
+  Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{"HLT_mb_sptrk_L1RD0_FILLED"}, "Add triggers to this to be monitored"};
   StatusCode monitorPurities(const EventContext& context) const;
   StatusCode monitorSPCounts(const EventContext& context) const;
   StatusCode monitorTrkCounts(const EventContext& context) const;

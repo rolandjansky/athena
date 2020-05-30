@@ -74,7 +74,7 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
       if(m_trigDecTool->isPassed(trig)) {ATH_MSG_INFO("Chain "<<trig <<" is passed: YES");}
       else ATH_MSG_INFO("Chain "<<trig <<" is passed: NO");
 
-      if (m_trigDecTool->getPrescale(trig)) {
+      if (cg->getPrescale()) {
         auto pixelSPLow  = Scalar( "PixelSPLow", spCountsHandle->at(0)->getDetail<int>("totNumPixSP") );
         auto pixelSPHigh = Scalar( "PixelSPHigh", spCountsHandle->at(0)->getDetail<int>("totNumPixSP") );
         auto PixBarr_SP  = Scalar( "PixBarr_SP", spCountsHandle->at(0)->getDetail<int>("pixClBarrel") );
@@ -121,13 +121,16 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
       ATH_CHECK( trkCountsHandle->size() == 1 ); // if object is present then it should have size == 1
 
       using namespace Monitored;
-      auto chaingroup = m_trigDecTool->getChainGroup("HLT_mb.*");//checking if this works ;
+      auto chaingroup = m_trigDecTool->getChainGroup("HLT_mb_sptrk_L1.*");//checking if this works ;
+      long unsigned int counter = 0;
       for(auto &trig : chaingroup->getListOfTriggers()) {
-        auto pass_HLT = Monitored::Scalar<float>("pass_HLT",0.0);
-        auto cg = m_trigDecTool->getChainGroup(trig);
         std::string thisTrig = trig;
-        ATH_MSG_INFO (thisTrig << " chain prescale = " << cg->getPrescale());
-
+        if(thisTrig!=m_triggerList[counter]) {
+          ATH_MSG_DEBUG("Trigger Names or Ordering Don't match");
+          ATH_MSG_DEBUG ("trig in Alg = "<<thisTrig << " trig in List = " << m_triggerList[counter]);
+        return StatusCode::SUCCESS;
+      }
+        auto pass_HLT = Monitored::Scalar<float>("pass_HLT",0.0);
         if (m_trigDecTool->isPassed(trig)) pass_HLT = 1.0;
         ATH_MSG_DEBUG("pass " << trig << " = " << pass_HLT);
 
@@ -156,6 +159,7 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           auto PurityPassed = Scalar<int>("PurityPassed", m_trigDecTool->isPassed(trig) ? 1 : 0);
           fill("EffAll",PurityPassed,whichTrigger);
         }
+        if(counter<m_triggerList.size())counter++;
       }
       return StatusCode::SUCCESS;
     }
