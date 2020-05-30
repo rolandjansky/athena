@@ -60,5 +60,5 @@ private:
 };
 
 }
-
+#include "TrkExUtils/ExtrapolationCache.icc"
 #endif
