@@ -29,17 +29,15 @@ public:
   // Constructor
   //
   ExtrapolationCache()=default;
-  ExtrapolationCache(const ExtrapolationCache&) =default; 
-  operator=(const ExtrapolationCache&)=default;
-  ExtrapolationCache(ExtrapolationCache&&)=default;
-  operator=(ExtrapolationCache&&)=default;
+  ExtrapolationCache(const ExtrapolationCache& other) = default;
+  ExtrapolationCache(ExtrapolationCache&& other) = default;
+  ExtrapolationCache& operator=(const ExtrapolationCache& other)=default;
+  ExtrapolationCache& operator=(ExtrapolationCache&& other) = default;
 
   ExtrapolationCache(double x0tot);
   ExtrapolationCache(double x0tot, EnergyLoss* eloss);
   ~ExtrapolationCache() = default;
   
-  //! Copy constructor
-  ExtrapolationCache(const ExtrapolationCache& cache);
   //! Destructor 
   ExtrapolationCache* clone() const;
 

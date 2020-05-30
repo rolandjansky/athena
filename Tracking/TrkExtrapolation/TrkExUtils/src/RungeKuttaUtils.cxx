@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -642,7 +642,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
     
     int j = (*i).second;
     Trk::DistanceSolution ds = SU[j].first->straightLineDistanceEstimate(pos,dir,SU[j].second);
-    LD.emplace_back(ds.currentDistance(false)+W,j);
+    LD.push_back(std::make_pair(ds.currentDistance(false)+W,j));
     
     int  n = ds.numberOfSolutions(); if(!n) continue;
     
@@ -682,7 +682,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
       //if(sa < So    ) {next = true; return std::make_pair(s,N);}
       next = true; return std::make_pair(s,N);
     }
-    if(sa < Sm ) {
+    else if(sa < Sm ) {
       Sm = s; next = true;
     }
     /*
