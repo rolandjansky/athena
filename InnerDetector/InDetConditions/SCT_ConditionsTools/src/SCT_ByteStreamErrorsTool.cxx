@@ -17,27 +17,27 @@
 #include "StoreGate/ReadHandle.h"
 
 /** Constructor */
-SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
+SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent)
 {
 }
 
 /** Initialize */
-StatusCode 
+StatusCode
 SCT_ByteStreamErrorsTool::initialize() {
   StatusCode sc = detStore()->retrieve(m_sct_id, "SCT_ID") ;
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Cannot retrieve SCT ID helper!");
     return StatusCode::FAILURE;
-  } 
+  }
   m_cntx_sct = m_sct_id->wafer_context();
 
   sc = m_config.retrieve();
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsTool!");
     return StatusCode::FAILURE;
-  } 
-  
+  }
+
   // Read (Cond)Handle Keys
   ATH_CHECK(m_bsIDCErrContainerName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
@@ -57,18 +57,18 @@ SCT_ByteStreamErrorsTool::finalize() {
  * detector element.
  * In principle we could report about modules and/or strips too, and
  * use the id helper to navigate up or down the hierarchy to the wafer,
- * but in practice we don't want to do the time-consuming isGood() for 
+ * but in practice we don't want to do the time-consuming isGood() for
  * every strip, so lets only report about wafers..
  */
 
-bool 
+bool
 SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_CHIP);
 }
 
 const IDCInDetBSErrContainer* SCT_ByteStreamErrorsTool::getContainer(const EventContext& ctx) const {
   SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont(m_bsIDCErrContainerName, ctx);
-  /** When running over ESD files without BSErr container stored, don't 
+  /** When running over ESD files without BSErr container stored, don't
    * want to flood the user with error messages. Should just have a bunch
    * of empty sets, and keep quiet.
    */
@@ -103,11 +103,11 @@ SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry
   return cacheEntry;
 }
 
-/** this is the principle method which can be accessed via 
+/** this is the principle method which can be accessed via
  * the ConditionsSummaryTool to decide if a wafer is good - in this
- * case we want to return false if the wafer has an error that would 
+ * case we want to return false if the wafer has an error that would
  * result in bad hits or no hits for that event */
-bool 
+bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   {
     std::lock_guard<std::mutex> lock{m_cacheMutex};
@@ -119,7 +119,7 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
     }
 
     auto errorCode = idcCachePtr->retrieve(elementIdHash);
-  
+
     for(auto badError : SCT_ByteStreamErrors::BadErrors) {
       if(errorCode == badError) {
 	ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << errorCode  << " for ID " << elementIdHash );
@@ -127,16 +127,17 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
       }
     }
   } // end of cache operations protection via m_cacheMutex, following code has own protection
-  
-  // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
-  const Identifier wafer_id{m_sct_id->wafer_id(elementIdHash)};
-  const Identifier module_id{m_sct_id->module_id(wafer_id)};
-  unsigned int badChips{m_config->badChips(module_id, ctx)};
-  unsigned int abcdErrorChips2{abcdErrorChips(module_id, ctx)};
-  unsigned int tempMaskedChips2{tempMaskedChips(module_id, ctx)};
+
+  // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one.
+  const Identifier wafer_id = m_sct_id->wafer_id(elementIdHash);
+  const Identifier module_id = m_sct_id->module_id(wafer_id);
+  const unsigned int badChips = m_config->badChips(module_id, ctx);
+  const unsigned int abcdErrorChips2 = abcdErrorChips(module_id, ctx);
+  unsigned int tempMaskedChips2 = tempMaskedChips(module_id, ctx);
   const int side{m_sct_id->side(wafer_id)};
   bool allChipsBad{true};
   const int idMax{static_cast<short>(side==0 ? 6 : 12)};
+
   for (int id{idMax-6}; id<idMax; id++) {
     bool issueABCDError{((abcdErrorChips2 >> id) & 0x1) != 0};
     bool isBadChip{((badChips >> id) & 0x1) != 0};
@@ -145,7 +146,7 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
     if (not allChipsBad) break;
   }
   if (allChipsBad) return false;
-  
+
   return true;
 }
 
@@ -156,10 +157,10 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   return isGood(elementIdHash, ctx);
 }
 
-bool 
+bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
-  
+
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
     return isGood(elementIdHash, ctx);
@@ -263,7 +264,7 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-/** The accessor method that can be used by clients to 
+/** The accessor method that can be used by clients to
  * retrieve a set of IdHashes of wafers with a given type of error.
  * e.g. for monitoring plots.
  */
@@ -286,7 +287,7 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
   return result;
 }
 
-std::set<IdentifierHash> 
+std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getErrorSet(errorType, ctx);
@@ -294,7 +295,7 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
 
 ////////////////////////////////////////////////////////////////////////
 
-/** this function is used to populate the data of this tool from 
+/** this function is used to populate the data of this tool from
  * the InDetBSErrContainer in StoreGate
  */
 
@@ -320,16 +321,24 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
-
-    if ( errCode == idcErrCont->emptyValue() ) continue; // not filled == all was ok in deciding
+    if ( errCode == uint64_t{0} ) {
+      cacheEntry->abcdErrorChips[module_id] |= 0;
+      cacheEntry->tempMaskedChips[module_id] |= 0;
+      continue;
+    }
 
     ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id  << " ec " << errCode );
 
     int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
-    if ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) {
-      cacheEntry->abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
-    } else if (errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()) {
-      cacheEntry->tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
+
+    const unsigned int abcdError = ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) >> SCT_ByteStreamErrors::ABCDError_Chip0;
+    if ( abcdError != 0 ) {
+      cacheEntry->abcdErrorChips[module_id] |= abcdError << (side * 6);
+    }
+
+    const unsigned int tempMasked = ( errCode & SCT_ByteStreamErrors::TempMaskedChipsMask() ) >> SCT_ByteStreamErrors::TempMaskedChip0;
+    if ( tempMasked ) {
+      cacheEntry->tempMaskedChips[module_id] |= tempMasked << (side * 6);
     }
 
   }
