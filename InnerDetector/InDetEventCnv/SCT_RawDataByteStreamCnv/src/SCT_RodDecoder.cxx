@@ -17,11 +17,6 @@
 #include <array>
 #include <utility>
 
-union RawWord {
-  uint32_t word32;
-  uint16_t word16[2];
-};
-
 // Constructor
 
 SCT_RodDecoder::SCT_RodDecoder(const std::string& type, const std::string& name,
@@ -228,8 +223,6 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
   std::array<bool, N_STRIPS_PER_SIDE*N_SIDES> saved;
   saved.fill(false);
-  RawWord robData;
-  robData.word32=0;
   int errors{0}; // Encodes the errors on the header (bit 4: error in condensed mode 1st hit, bit 5: error in condensed mode 2nd hit)
 
   // These are for the trigger
@@ -304,11 +297,10 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
   // Loop over header, hit element, flagged ABCD error, raw data, trailer words
   for (unsigned long int i{0}; i<vecROBDataSize; i++) {
-    robData.word32 = vecROBData[i];
     // The data is 16-bits wide packed to a 32-bit word (rob_it1). So we unpack it here.
     uint16_t data16[2];
-    data16[1] = robData.word16[0];
-    data16[0] = robData.word16[1];
+    data16[0] = ((vecROBData[i] >> 16) & 0xFFFF);
+    data16[1] = ( vecROBData[i]        & 0xFFFF);
     
     for (int n{0}; n<2; n++) {
       // Header
