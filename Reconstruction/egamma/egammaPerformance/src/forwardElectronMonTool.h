@@ -11,7 +11,7 @@
 #ifndef forwardElectronMonTool_H
 #define forwardElectronMonTool_H
 
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "egammaMonToolBase.h"
 
 class forwardElectronMonTool : public egammaMonToolBase
 {
@@ -21,14 +21,15 @@ class forwardElectronMonTool : public egammaMonToolBase
   
   virtual ~forwardElectronMonTool();
   
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
      
  private:
 
  protected:
   // Properties
-  std::string m_ForwardElectronContainer; // Container name for forwardElectrons
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ForwardElectronContainer{this, "ForwardElectronContainer", "egammaForwardCollection", "Name of the forward electron collection"}; // Container name for forwardElectrons
 
   // Loose electrons histograms
   TH1 * m_hN;       // Histogram for number of electrons

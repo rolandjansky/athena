@@ -31,10 +31,10 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   
   virtual ~egammaMonToolBase();
   
-  virtual StatusCode initialize();
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
+  virtual StatusCode procHistograms() override;
 
  protected:
 
@@ -52,6 +52,7 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   void fillTH2FperRegion(std::vector<TH2*> &vhist, unsigned int ir, float x, float y);
   void fillEfficiencies(TH1* h, TH1* href);
   bool hasGoodTrigger(const std::string& comment);
+  unsigned int getCurrentLB();
 
   // Data members
   StoreGateSvc * m_storeGate;
@@ -63,6 +64,7 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   std::string m_GroupExtension;
 
   unsigned int  m_currentLB;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
 
  private:
   std::vector<std::string> m_region;

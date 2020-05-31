@@ -23,13 +23,14 @@ class LUCID_HitsMoniTool: public ManagedMonitorToolBase {
   
   virtual ~LUCID_HitsMoniTool();
   
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
+  virtual StatusCode procHistograms() override;
   
  protected:
 
-  const LUCID_RawDataContainer* m_LUCID_RawDataContainer;
+  SG::ReadHandleKey<LUCID_RawDataContainer> m_LUCID_RawDataContainerKey{this, "RawDataKey", "Lucid_RawData"};
   
   std::vector<TH1F*> m_LUCID_Histos;
 
