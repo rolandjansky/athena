@@ -213,8 +213,12 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "AntiKt8EMPFlowJets",
                                         "AntiKt8EMPFlowExKt2SubJets",
                                         "AntiKt8EMPFlowExKt3SubJets",
+                                        "AntiKt8EMPFlowExKt2GASubJets",
+                                        "AntiKt8EMPFlowExKt3GASubJets",
                                         "BTagging_AntiKt8EMPFlowExKt2Sub",
                                         "BTagging_AntiKt8EMPFlowExKt3Sub",
+                                        "BTagging_AntiKt8EMPFlowExKt2GASub",
+                                        "BTagging_AntiKt8EMPFlowExKt3GASub",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert",
                                         ]
 
@@ -328,7 +332,15 @@ FTAG2SlimmingHelper.AppendToDictionary = {
   "AntiKt8EMPFlowExKt3SubJets"                      :   "xAOD::JetContainer"        ,
   "AntiKt8EMPFlowExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt8EMPFlowExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt8EMPFlowExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
+  "BTagging_AntiKt8EMPFlowExKt3SubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMPFlowExKt2GASubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMPFlowExKt2GASubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMPFlowExKt2GASub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMPFlowExKt2GASubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMPFlowExKt3GASubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMPFlowExKt3GASubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMPFlowExKt3GASub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMPFlowExKt3GASubAux"              :   "xAOD::BTaggingAuxContainer"
 }
 
 #----------------------------------------------------------------------
