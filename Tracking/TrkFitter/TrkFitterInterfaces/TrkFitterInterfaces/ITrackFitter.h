@@ -25,7 +25,6 @@ namespace Trk {
 
   static const InterfaceID IID_ITrackFitter("ITrackFitter",1,0);
 
-
   /** @class ITrackFitter
 
       provides the abstract interface for track fitting in the common
@@ -38,16 +37,18 @@ namespace Trk {
       Regarding athena, it is implemented using the IAlgTool inheritance,
       so fitter implementations should be a component_library.
 
-      Athena MT notes, there are 2 sets of methods 
+      Athena MT notes:
+      There are 2 sets of methods
       1. EventContext aware returning unique_ptr
       2. Without EventContext returning plain ptr.
 
-      By default the ones set call the other, so a client needs
-      to implement only one of the 2.
-      This is needed to facilitate migration
+      By default the methods of the one set call the methods of the other.
+      So a Fitter implementation needs to implement only one of the two sets. 
+      A client can use any of the two.
+      For MT it might be preferable to migrate to the EventContext aware.
 
       @author M. Elsing, W. Liebig <http://consult.cern.ch/xwho>
-      @author C. Anastopoulos (Athena MT)      
+      @author C. Anastopoulos (Athena MT)
   */
 
   class ITrackFitter : virtual public IAlgTool { 
