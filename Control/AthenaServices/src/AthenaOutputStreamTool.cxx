@@ -305,11 +305,10 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode AthenaOutputStreamTool::commitOutput() {
+StatusCode AthenaOutputStreamTool::commitOutput(bool doCommit) {
    ATH_MSG_DEBUG("In commitOutput");
-   m_outputName.setValue(m_outputName.value().substr(0, m_outputName.value().find("[")));
    // Connect the output file to the service
-   if (m_conversionSvc->commitOutput(m_outputName.value(), false).isFailure()) {
+   if (m_conversionSvc->commitOutput(m_outputName.value(), doCommit).isFailure()) {
       ATH_MSG_ERROR("Unable to commit output " << m_outputName.value());
       return(StatusCode::FAILURE);
    }
