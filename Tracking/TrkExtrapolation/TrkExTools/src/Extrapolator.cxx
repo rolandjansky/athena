@@ -415,7 +415,8 @@ Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle &xnParticle,
 }
 
 const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const xAOD::TrackParticle &xtParticle,
+Trk::Extrapolator::extrapolate(const EventContext& ctx,
+                               const xAOD::TrackParticle &xtParticle,
                                const Surface &sf,
                                PropDirection dir,
                                const BoundaryCheck&  bcheck,
@@ -425,7 +426,7 @@ Trk::Extrapolator::extrapolate(const xAOD::TrackParticle &xtParticle,
   // !< @TODO: search for closest parameter in on new curvilinear 
   // x/y/z and surface distance ...
   // ... for the moment ... take the perigee
-  return extrapolate(tPerigee, sf, dir, bcheck, particle, matupmode);
+  return extrapolate(ctx, tPerigee, sf, dir, bcheck, particle, matupmode);
 }
 
 const Trk::NeutralParameters *
@@ -2044,15 +2045,14 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
 // Configured AlgTool extrapolation methods
 // ---------------------------------------------------------------------------------------/
 const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const TrackParameters &parm,
+Trk::Extrapolator::extrapolate(const EventContext& ctx,
+                               const TrackParameters &parm,
                                const Surface &sf,
                                PropDirection dir,
                                const BoundaryCheck&  bcheck,
                                ParticleHypothesis particle,
                                MaterialUpdateMode matupmode,
                                Trk::ExtrapolationCache *extrapolationCache) const {
-
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   Cache cache{};
   return extrapolateImpl(ctx,
                          cache,
@@ -2068,13 +2068,13 @@ Trk::Extrapolator::extrapolate(const TrackParameters &parm,
 
 Trk::TrackParametersUVector
 Trk::Extrapolator::extrapolateStepwise(
+  const EventContext& ctx,    
   const Trk::TrackParameters &parm,
   const Trk::Surface &sf,
   Trk::PropDirection dir,
   const Trk::BoundaryCheck&  bcheck,
   Trk::ParticleHypothesis particle) const {
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // set propagator to the sticky one, will be adopted if m_stickyConfiguration == false
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
@@ -2089,6 +2089,7 @@ Trk::Extrapolator::extrapolateStepwise(
 
 const Trk::TrackParameters*
 Trk::Extrapolator::extrapolate(
+  const EventContext& ctx,    
   const Trk::Track& trk,
   const Trk::Surface& sf,
   Trk::PropDirection dir,
@@ -2105,11 +2106,11 @@ Trk::Extrapolator::extrapolate(
 
   const Trk::TrackParameters *closestTrackParameters = m_navigator->closestParameters(trk, sf, searchProp);
   if (closestTrackParameters) {
-    return(extrapolate(*closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
+    return(extrapolate(ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
   } else {
     closestTrackParameters = *(trk.trackParameters()->begin());
     if (closestTrackParameters) {
-      return(extrapolate(*closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
+      return(extrapolate(ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
     }
   }
 
@@ -2117,13 +2118,14 @@ Trk::Extrapolator::extrapolate(
 }
 
 Trk::TrackParametersUVector
-Trk::Extrapolator::extrapolateBlindly(const Trk::TrackParameters& parm,
-                                      Trk::PropDirection dir,
-                                      const Trk::BoundaryCheck& bcheck,
-                                      Trk::ParticleHypothesis particle,
-                                      const Trk::Volume* boundaryVol) const
+Trk::Extrapolator::extrapolateBlindly(
+    const EventContext& ctx,    
+    const Trk::TrackParameters& parm,
+    Trk::PropDirection dir,
+    const Trk::BoundaryCheck& bcheck,
+    Trk::ParticleHypothesis particle,
+    const Trk::Volume* boundaryVol) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // set propagator to the global one
     const IPropagator* currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
@@ -2145,13 +2147,14 @@ Trk::Extrapolator::extrapolateBlindly(const Trk::TrackParameters& parm,
 }
 
 Trk::TrackParameters *
-Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
-                                       const Trk::Surface &sf,
-                                       Trk::PropDirection dir,
-                                       const Trk::BoundaryCheck&  bcheck,
-                                       Trk::ParticleHypothesis particle) const {
+Trk::Extrapolator::extrapolateDirectly(
+    const EventContext& ctx,
+    const Trk::TrackParameters &parm,
+    const Trk::Surface &sf,
+    Trk::PropDirection dir,
+    const Trk::BoundaryCheck&  bcheck,
+    Trk::ParticleHypothesis particle) const {
    
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // set propagator to the global one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
@@ -2165,26 +2168,27 @@ Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
 }
 
 Trk::TrackParameters *
-Trk::Extrapolator::extrapolateDirectly(const IPropagator& prop,
-                                       const Trk::TrackParameters &parm,
-                                       const Trk::Surface &sf,
-                                       Trk::PropDirection dir,
-                                       const Trk::BoundaryCheck&  bcheck,
-                                       Trk::ParticleHypothesis particle) const {
+Trk::Extrapolator::extrapolateDirectly(
+    const EventContext& ctx,
+    const IPropagator& prop,
+    const Trk::TrackParameters &parm,
+    const Trk::Surface &sf,
+    Trk::PropDirection dir,
+    const Trk::BoundaryCheck&  bcheck,
+    Trk::ParticleHypothesis particle) const {
   
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   return extrapolateDirectlyImpl(ctx, prop, parm, sf, dir, bcheck, particle);
 }
 
 std::pair<const Trk::TrackParameters*, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayer(
-  const TrackParameters& parm,
-  PropDirection dir,
-  const BoundaryCheck& bcheck,
-  ParticleHypothesis particle,
-  MaterialUpdateMode matupmode) const
+    const EventContext& ctx,
+    const TrackParameters& parm,
+    PropDirection dir,
+    const BoundaryCheck& bcheck,
+    ParticleHypothesis particle,
+    MaterialUpdateMode matupmode) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
@@ -2198,14 +2202,15 @@ Trk::Extrapolator::extrapolateToNextActiveLayer(
 }
 
 std::pair<const Trk::TrackParameters*, const Trk::Layer*>
-Trk::Extrapolator::extrapolateToNextActiveLayerM(const TrackParameters& parm,
-                                                 PropDirection dir,
-                                                 const BoundaryCheck& bcheck,
-                                                 std::vector<const Trk::TrackStateOnSurface*>& material,
-                                                 ParticleHypothesis particle,
-                                                 MaterialUpdateMode matupmode) const
+Trk::Extrapolator::extrapolateToNextActiveLayerM(
+    const EventContext& ctx,
+    const TrackParameters& parm,
+    PropDirection dir,
+    const BoundaryCheck& bcheck,
+    std::vector<const Trk::TrackStateOnSurface*>& material,
+    ParticleHypothesis particle,
+    MaterialUpdateMode matupmode) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
     // set propagator to the MS one - can be reset inside the next methode (once volume information is there)
@@ -2226,12 +2231,13 @@ Trk::Extrapolator::extrapolateToNextActiveLayerM(const TrackParameters& parm,
 }
 
 const Trk::TrackParameters *
-Trk::Extrapolator::extrapolateToVolume(const Trk::TrackParameters &parm,
-                                       const Trk::TrackingVolume &vol,
-                                       PropDirection dir,
-                                       ParticleHypothesis particle) const {
+Trk::Extrapolator::extrapolateToVolume(
+    const EventContext& ctx,
+    const Trk::TrackParameters &parm,
+    const Trk::TrackingVolume &vol,
+    PropDirection dir,
+    ParticleHypothesis particle) const {
   
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (m_configurationLevel < 10) {
     // take the volume signatrue to define the right propagator
     const IPropagator* currentPropagator =
@@ -2247,15 +2253,15 @@ Trk::Extrapolator::extrapolateToVolume(const Trk::TrackParameters &parm,
 
 std::vector<const Trk::TrackStateOnSurface*>*
 Trk::Extrapolator::extrapolateM(
-  const TrackParameters& parm,
-  const Surface& sf,
-  PropDirection dir,
-  const BoundaryCheck& bcheck,
-  ParticleHypothesis particle,
-  Trk::ExtrapolationCache* extrapolationCache) const
+    const EventContext& ctx,
+    const TrackParameters& parm,
+    const Surface& sf,
+    PropDirection dir,
+    const BoundaryCheck& bcheck,
+    ParticleHypothesis particle,
+    Trk::ExtrapolationCache* extrapolationCache) const
 {
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   Cache cache{};
   ATH_MSG_DEBUG("C-[" << cache.m_methodSequence << "] extrapolateM()");
   // create a new vector for the material to be collected
@@ -2306,14 +2312,16 @@ Trk::Extrapolator::extrapolateM(
 }
 
 std::vector<const Trk::TrackParameters *> *
-Trk::Extrapolator::extrapolateM(const TrackParameters &,
-                                const Surface &,
-                                PropDirection,
-                                const BoundaryCheck& ,
-                                std::vector<MaterialEffectsOnTrack> &,
-                                std::vector<Trk::TransportJacobian *> &,
-                                ParticleHypothesis,
-                                Trk::ExtrapolationCache *) const {
+Trk::Extrapolator::extrapolateM(
+    const EventContext& /*ctx*/,
+    const TrackParameters &,
+    const Surface &,
+    PropDirection,
+    const BoundaryCheck& ,
+    std::vector<MaterialEffectsOnTrack> &,
+    std::vector<Trk::TransportJacobian *> &,
+    ParticleHypothesis,
+    Trk::ExtrapolationCache *) const {
   ATH_MSG_DEBUG("C-[?] extrapolateM(..) with jacobian collection - Not implemented yet.");
   return nullptr;
 }
@@ -2339,15 +2347,16 @@ Trk::Extrapolator::validationAction() const {
  */
 
 Trk::ManagedTrackParmPtr
-Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
-                                   Cache& cache,
-                                   const IPropagator& prop,
-                                   TrackParmPtr parm_ref,
-                                   const Trk::Surface& sf,
-                                   Trk::PropDirection dir,
-                                   const Trk::BoundaryCheck& bcheck,
-                                   Trk::ParticleHypothesis particle,
-                                   MaterialUpdateMode matupmode) const
+Trk::Extrapolator::extrapolateImpl(
+    const EventContext& ctx,
+    Cache& cache,
+    const IPropagator& prop,
+    TrackParmPtr parm_ref,
+    const Trk::Surface& sf,
+    Trk::PropDirection dir,
+    const Trk::BoundaryCheck& bcheck,
+    Trk::ParticleHypothesis particle,
+    MaterialUpdateMode matupmode) const
 {
   // set the model action of the material effects updaters
   for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
@@ -2384,7 +2393,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
   ManagedTrackParmPtr nextParameters(parm);
 
   // initialize Navigation (calls as well initialize on garbe collection) -------------------------------------
-  Trk::PropDirection navDir = initializeNavigation(cache,
+  Trk::PropDirection navDir = initializeNavigation(ctx,
+                                                   cache,
                                                    prop,
                                                    nextParameters.index(),
                                                    sf,
@@ -2492,7 +2502,8 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
     }
     // re-initialize (will only overwrite destVolume)
     if (nextVolume->redoNavigation()) {
-      dir = initializeNavigation(cache,
+      dir = initializeNavigation(ctx,
+                                 cache,
                                  *currentPropagator,
                                  nextParameters.index(),
                                  sf,
@@ -3401,7 +3412,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       }
       // collect the material : either for extrapolateM or for the valdiation
       if (nextParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
-        addMaterialEffectsOnTrack(cache,prop, nextParameters.index(), *associatedLayer, tvol, dir, particle);
+        addMaterialEffectsOnTrack(ctx, cache,prop, nextParameters.index(), *associatedLayer, tvol, dir, particle);
       }
       if (nextParameters && nextParameters.get() != parm.get()) {
       } else if (!m_stopWithUpdateZero) {         // re-assign the start parameters
@@ -3649,7 +3660,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       }
       // collect the material
       if (bParameters && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
-         addMaterialEffectsOnTrack(cache,prop, bParameters.index(),
+        addMaterialEffectsOnTrack(ctx, cache,prop, bParameters.index(),
                                   *(bParameters->associatedSurface().materialLayer()), tvol, dir, particle);
       }
 
@@ -3876,7 +3887,7 @@ Trk::Extrapolator::extrapolateToDestinationLayer(
   // collect the material : either for extrapolateM or for the valdiation
   if ((cache.m_matstates || m_materialEffectsOnTrackValidation) && preUpdatedParameters && currentUpdator &&
       !startIsDestLayer && lay.preUpdateMaterialFactor(*destParameters, dir) >= 0.01) {
-    addMaterialEffectsOnTrack(cache,prop, preUpdatedParameters.index(), lay, tvol, dir, particle);
+    addMaterialEffectsOnTrack(ctx, cache,prop, preUpdatedParameters.index(), lay, tvol, dir, particle);
   }
 
   // call the overlap search on the destination parameters - we are at the surface already
@@ -3982,7 +3993,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
     ATH_MSG_DEBUG("  [!] Perpendicular direction of track has changed -- checking");
     // reset the nextParameters if the radial change is not allowed
     //  resetting is ok - since the parameters are in the garbage bin already
-    if (!radialDirectionCheck(prop, *parm, *parsOnLayer, tvol, dir, particle)) {
+    if (!radialDirectionCheck(ctx, prop, *parm, *parsOnLayer, tvol, dir, particle)) {
       ATH_MSG_DEBUG("  [+] Perpendicular direction check cancelled this layer intersection.");
       return std::make_pair(ManagedTrackParmPtr(),false);
     }
@@ -4036,7 +4047,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
   if (parsOnLayer
       && lay.layerMaterialProperties()
       && (cache.m_matstates || m_materialEffectsOnTrackValidation)) {
-    addMaterialEffectsOnTrack(cache,prop, parsOnLayer.index(), lay, tvol, dir, particle);
+    addMaterialEffectsOnTrack(ctx, cache,prop, parsOnLayer.index(), lay, tvol, dir, particle);
   }
   // kill the track if the update killed the track
   // -----------------------------------------------------------------------
@@ -4232,19 +4243,20 @@ Trk::Extrapolator::propagatorType(const Trk::TrackingVolume &tvol) const {
 
 // ----------------------- The Initialization -------------------------------------------------
 Trk::PropDirection
-Trk::Extrapolator::initializeNavigation(Cache& cache,
-                                        const IPropagator& prop,
-                                        TrackParmPtr parm_ref,
-                                        const Surface& sf,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle,
-                                        ManagedTrackParmPtr& refParameters,
-                                        const Layer*& associatedLayer,
-                                        const TrackingVolume*& associatedVolume,
-                                        const TrackingVolume*& destVolume) const
+Trk::Extrapolator::initializeNavigation(
+    const EventContext& ctx,
+    Cache& cache,
+    const IPropagator& prop,
+    TrackParmPtr parm_ref,
+    const Surface& sf,
+    PropDirection dir,
+    ParticleHypothesis particle,
+    ManagedTrackParmPtr& refParameters,
+    const Layer*& associatedLayer,
+    const TrackingVolume*& associatedVolume,
+    const TrackingVolume*& destVolume) const
 {
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ManagedTrackParmPtr parm(cache.manage(parm_ref));
    // @TODO parm shared ?
   // output for initializeNavigation should be an eye-catcher
@@ -4439,15 +4451,16 @@ Trk::Extrapolator::radialDirection(const Trk::TrackParameters &pars, PropDirecti
 }
 
 bool
-Trk::Extrapolator::radialDirectionCheck(const IPropagator& prop,
-                                        const TrackParameters& startParm,
-                                        const TrackParameters& parsOnLayer,
-                                        const TrackingVolume& tvol,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle) const
+Trk::Extrapolator::radialDirectionCheck(
+    const EventContext& ctx,
+    const IPropagator& prop,
+    const TrackParameters& startParm,
+    const TrackParameters& parsOnLayer,
+    const TrackingVolume& tvol,
+    PropDirection dir,
+    ParticleHypothesis particle) const
 {
    
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Amg::Vector3D &startPosition = startParm.position();
   const Amg::Vector3D &onLayerPosition = parsOnLayer.position();
 
@@ -4515,16 +4528,16 @@ Trk::Extrapolator::momentumOutput(const Amg::Vector3D &mom) const {
 
 void
 Trk::Extrapolator::addMaterialEffectsOnTrack(
-  Cache& cache,
-  const Trk::IPropagator& prop,
-  TrackParmPtr parm_ref,
-  const Trk::Layer& lay,
-  const Trk::TrackingVolume& /*tvol*/,
-  Trk::PropDirection propDir,
-  Trk::ParticleHypothesis particle) const
+    const EventContext& ctx,
+    Cache& cache,
+    const Trk::IPropagator& prop,
+    TrackParmPtr parm_ref,
+    const Trk::Layer& lay,
+    const Trk::TrackingVolume& /*tvol*/,
+    Trk::PropDirection propDir,
+    Trk::ParticleHypothesis particle) const
 {
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ManagedTrackParmPtr parms(cache.manage(parm_ref));
   ATH_MSG_VERBOSE("  [+] addMaterialEffectsOnTrack()  - at " << positionOutput(parms->position()));
   // statistics counter Fw/Bw
@@ -4696,17 +4709,17 @@ Trk::Extrapolator::checkCache(Cache& cache,const std:: string& txt) const {
 
 const std::vector<std::pair<const Trk::TrackParameters*, int>>*
 Trk::Extrapolator::extrapolate(
-  const Trk::TrackParameters& parm,
-  Trk::PropDirection dir,
-  Trk::ParticleHypothesis particle,
-  std::vector<const Trk::TrackStateOnSurface*>*& material,
-  int destination) const
+    const EventContext& ctx,
+    const Trk::TrackParameters& parm,
+    Trk::PropDirection dir,
+    Trk::ParticleHypothesis particle,
+    std::vector<const Trk::TrackStateOnSurface*>*& material,
+    int destination) const
 {
 
 
   // extrapolation method intended for collection of intersections with active layers/volumes
   // extrapolation stops at indicated geoID subdetector exit
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   Cache cache{};
   ++cache.m_methodSequence;
   ATH_MSG_DEBUG("M-[" << cache.m_methodSequence << "] extrapolate(through active volumes), from " << parm.position());
@@ -4747,14 +4760,15 @@ Trk::Extrapolator::extrapolate(
 
 const Trk::TrackParameters*
 Trk::Extrapolator::extrapolateWithPathLimit(
-  const Trk::TrackParameters& parm,
-  double& pathLim,
-  Trk::PropDirection dir,
-  Trk::ParticleHypothesis particle,
-  std::vector<const Trk::TrackParameters*>*& parmOnSf,
-  std::vector<const Trk::TrackStateOnSurface*>*& material,
-  const Trk::TrackingVolume* boundaryVol,
-  MaterialUpdateMode matupmod) const
+    const EventContext& ctx,
+    const Trk::TrackParameters& parm,
+    double& pathLim,
+    Trk::PropDirection dir,
+    Trk::ParticleHypothesis particle,
+    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<const Trk::TrackStateOnSurface*>*& material,
+    const Trk::TrackingVolume* boundaryVol,
+    MaterialUpdateMode matupmod) const
 {
   // extrapolation method intended for simulation of particle decay; collects
   // intersections with active layers possible outcomes:1/ returns curvilinear
@@ -4762,7 +4776,6 @@ Trk::Extrapolator::extrapolateWithPathLimit(
   //                   2/ returns parameters at destination volume boundary
   //                   3/ returns 0 ( particle stopped ) but keeps vector of
   //                   hits
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG(
     "M-["
     << 1 /* should be ++cache.m_methodSequence but cache not yet created */
@@ -5418,7 +5431,8 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
               ATH_MSG_VERBOSE(
                 " Update energy loss:" << nextPar->momentum().mag() - pIn << "at position:" << nextPar->position());
               if (cache.m_matstates) {
-                addMaterialEffectsOnTrack(cache,
+                addMaterialEffectsOnTrack(ctx,
+                                          cache,
                                           *m_stepPropagator,
                                           nextPar.index(),
                                           *mb,
@@ -5571,7 +5585,8 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
             }
           }
           if (cache.m_matstates) {
-            addMaterialEffectsOnTrack(cache,
+            addMaterialEffectsOnTrack(ctx,
+                                      cache,
                                       *m_stepPropagator,
                                       nextPar.index(),
                                       *nextLayer,

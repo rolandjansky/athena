@@ -116,6 +116,9 @@ namespace Trk {
         /////////////////////////////////////////////////////////////////////////////////
 
     public:
+        /** This following "using" statements can be removed after the methods in IPropagator.h for the
+         * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+         * used throughout the sw */
         using IPropagator::intersect;
         using IPropagator::propagate;
         using IPropagator::propagateParameters;
