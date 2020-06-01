@@ -14,6 +14,7 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaPython.PyAthenaComps import Alg, StatusCode
 from AthenaConfiguration.ComponentFactory import CompFactory
+import sys
 import ROOT
 
 
@@ -31,6 +32,7 @@ class TestAlg (Alg):
         ctx = self.getContext()
         print (ctx.eventID().run_number(), ctx.eventID().lumi_block(),
                ctx.eventID().time_stamp())
+        sys.stdout.flush()
         self.tool1.execute (ctx).ignore()
         self.tool2.execute (ctx).ignore()
 
@@ -45,6 +47,7 @@ class TestAlg (Alg):
         tc = ROOT.CaloRec.ToolConstants()
         assert self.tool1.mergeConstants (tc, ctx).isSuccess()
         print ('testMerge: ', tc.clsname(), tc.version(), tc.toString (''))
+        sys.stdout.flush()
 
         tc = ROOT.CaloRec.ToolConstants()
         tc.clsname ('foofoo')
