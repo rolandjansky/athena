@@ -781,6 +781,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
             ATH_MSG_DEBUG("ABCD error and online ID have different side information for hash " << currentLinkIDHash << ". "
                           << sideABCDError << " from ABCD error and " << currentLinkIDHash.value()%2 << " from online ID");
             currentLinkIDHash = (currentLinkIDHash.value()/2)*2+sideABCDError;
+	    errs.noerror(currentLinkIDHash);
           }
           // Chip should be 0-5 or 8-13.
           if (chip%8>=N_CHIPS_PER_SIDE) {
