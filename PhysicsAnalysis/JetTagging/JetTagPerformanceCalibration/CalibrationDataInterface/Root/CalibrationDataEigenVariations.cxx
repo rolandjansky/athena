@@ -1120,8 +1120,8 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
 
   // get eigen vectors of scale factors. Note that this is not the original eigen-vector.
   int nEigen = getNumberOfEigenVariations();
-  TH1* up = 0;
-  TH1* down = 0;
+  TH1* up = nullptr;
+  TH1* down = nullptr;
   for (int i = 0; i < nEigen; i++){
     if (!getEigenvectorVariation(i, up, down)){
        std::cerr<<"EigenVectorRecomposition: Error on retrieving eigenvector "<<i<<std::endl;
