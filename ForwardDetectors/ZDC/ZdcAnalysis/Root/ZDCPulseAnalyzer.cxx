@@ -95,9 +95,11 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::st
   m_peak2ndDerivMinTolerance(1),
   m_peak2ndDerivMinThreshLG(peak2ndDerivMinThreshLG),
   m_peak2ndDerivMinThreshHG(peak2ndDerivMinThreshHG),
+  m_useDelayed(false), 
+  m_enableRepass(false), 
   m_haveTimingCorrections(false), m_haveNonlinCorr(false), m_initializedFits(false),
   m_defaultFitWrapper(0), m_prePulseFitWrapper(0),
-  m_useDelayed(false), m_delayedHist(0), m_prePulseCombinedFitter(0), m_defaultCombinedFitter(0),
+  m_delayedHist(0), m_prePulseCombinedFitter(0), m_defaultCombinedFitter(0),
   m_ADCSamplesHGSub(Nsample, 0), m_ADCSamplesLGSub(Nsample, 0),
   m_ADCSSampSigHG(Nsample, 1), m_ADCSSampSigLG(Nsample, 1), // By default the ADC uncertainties are set to one
   m_samplesSub(Nsample, 0)
@@ -144,6 +146,13 @@ void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fix
   m_ADCSamplesHGSub.assign(2 * m_Nsample, 0);
 }
 
+void ZDCPulseAnalyzer::EnableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG)
+{
+  m_enableRepass = true;
+  m_peak2ndDerivMinRepassHG = peak2ndDerivMinRepassHG;
+  m_peak2ndDerivMinRepassLG = peak2ndDerivMinRepassLG;
+}
+
 void ZDCPulseAnalyzer::SetDefaults()
 {
   m_nominalTau1 = 4;
@@ -174,6 +183,12 @@ void ZDCPulseAnalyzer::SetDefaults()
   m_defaultT0Max = m_deltaTSample * (m_peak2ndDerivMinSample + m_peak2ndDerivMinTolerance + 1);
   m_defaultT0Min = m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance + 1);
 
+  m_fitAmpMinHG = 5;
+  m_fitAmpMinLG = 2;
+
+  m_fitAmpMaxHG = 1500;
+  m_fitAmpMaxLG = 1500;
+
   m_initialPrePulseT0  = -10;
   m_initialPrePulseAmp = 5;
 
@@ -185,22 +200,49 @@ void ZDCPulseAnalyzer::SetDefaults()
   s_fitOptions = "s";
 }
 
-void ZDCPulseAnalyzer::Reset()
+void ZDCPulseAnalyzer::Reset(bool repass)
 {
-  m_haveData  = false;
+  if (!repass) {
+    m_haveData  = false;
+    
+    m_useLowGain = false;
+    m_fail       = false;
+    m_HGOverflow = false;
+    
+    m_HGUnderflow       = false;
+    m_PSHGOverUnderflow = false;
+    m_LGOverflow        = false;
+    m_LGUnderflow       = false;
+    
+    m_ExcludeEarly = false;
+    m_ExcludeLate  = false;
+    
+    m_adjTimeRangeEvent = false;
+    m_backToHG_pre  = false;
+    m_fixPrePulse  = false;
+    
+    int sampleVecSize = m_Nsample;
+    if (m_useDelayed) sampleVecSize *= 2;
+    
+    m_ADCSamplesHGSub.assign(sampleVecSize, 0);
+    m_ADCSamplesLGSub.assign(sampleVecSize, 0);
+    
+    m_minSampleEvt = 0;
+    m_maxSampleEvt = (m_useDelayed ? 2 * m_Nsample - 1 : m_Nsample - 1);
+    
+    m_usedPresampIdx = 0;
 
+    m_fitTMax = m_defaultFitTMax;
+    m_fitTMin = m_defaultFitTMin;
+    
+    m_lastHGOverFlowSample  = -999;
+    m_firstHGOverFlowSample = 999;
+  }
+  
   // -----------------------
   // Statuses
   //
   m_havePulse  = false;
-  m_useLowGain = false;
-  m_fail       = false;
-  m_HGOverflow = false;
-
-  m_HGUnderflow       = false;
-  m_PSHGOverUnderflow = false;
-  m_LGOverflow        = false;
-  m_LGUnderflow       = false;
 
   m_prePulse  = false;
   m_postPulse = false;
@@ -208,11 +250,11 @@ void ZDCPulseAnalyzer::Reset()
   m_badChisq  = false;
 
   m_badT0        = false;
-  m_ExcludeEarly = false;
-  m_ExcludeLate  = false;
   m_preExpTail   = false;
+  m_repassPulse = false;
 
-  m_fixPrePulse  = false;
+  m_fitMinAmp = false;
+
   // -----------------------
 
   m_delayedBaselineShift = 0;
@@ -239,17 +281,6 @@ void ZDCPulseAnalyzer::Reset()
   m_expAmplitude    = 0;  // bill
   m_bkgdMaxFraction = 0;
 
-  m_minSampleEvt = 0;
-  m_maxSampleEvt = (m_useDelayed ? 2 * m_Nsample - 1 : m_Nsample - 1);
-
-  m_fitTMax = m_defaultFitTMax;
-  m_fitTMin = m_defaultFitTMin;
-
-  m_adjTimeRangeEvent = false;
-
-  m_backToHG_pre  = false;
-  m_lastHGOverFlowSample  = -999;
-  m_firstHGOverFlowSample = 999;
 
   m_initialPrePulseT0  = -10;
   m_initialPrePulseAmp = 5;
@@ -262,12 +293,15 @@ void ZDCPulseAnalyzer::Reset()
   m_samplesSub.clear();
   m_samplesDeriv.clear();
   m_samplesDeriv2nd.clear();
+}
 
-  int sampleVecSize = m_Nsample;
-  if (m_useDelayed) sampleVecSize *= 2;
-
-  m_ADCSamplesHGSub.assign(sampleVecSize, 0);
-  m_ADCSamplesLGSub.assign(sampleVecSize, 0);
+void ZDCPulseAnalyzer::SetFitMinMaxAmp(float minAmpHG, float minAmpLG, float maxAmpHG, float maxAmpLG)
+{
+  m_fitAmpMinHG = minAmpHG;
+  m_fitAmpMinLG = minAmpLG;
+  
+  m_fitAmpMaxHG = maxAmpHG;
+  m_fitAmpMaxLG = maxAmpLG;
 }
 
 void ZDCPulseAnalyzer::SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, float tau2, float t0HG, float t0LG)
@@ -394,7 +428,7 @@ void ZDCPulseAnalyzer::SetupFitFunctions()
   m_initializedFits = true;
 }
 
-bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float>  ADCSamplesLG)
+bool ZDCPulseAnalyzer::LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>&  ADCSamplesLG)
 {
   if (m_useDelayed) {
     (*m_msgFunc_p)(ZDCMsg::Fatal, "ZDCPulseAnalyzer::LoadAndAnalyzeData:: Wrong LoadAndAnalyzeData called -- expecting both delayed and undelayed samples");
@@ -404,7 +438,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
 
   // Clear any transient data
   //
-  Reset();
+  Reset(false);
 
   // Make sure we have the right number of samples. Should never fail. necessry?
   //
@@ -412,6 +446,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
     m_fail = true;
     return false;
   }
+
 
   // Now do pedestal subtraction and check for overflows
   //
@@ -452,53 +487,55 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
   // Now we actually do the analysis using the high or low gain samples as determined
   //  on the basis of the above analysis
   //
-  m_useLowGain = m_HGUnderflow || m_HGOverflow || m_forceLG;
+  // m_useLowGain = m_HGUnderflow || m_HGOverflow || m_forceLG;
 
-  if (m_useLowGain) {
-    bool result = AnalyzeData(m_Nsample, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, m_chisqDivAmpCutLG,
-                              m_T0CutLowLG, m_T0CutHighLG, m_peak2ndDerivMinThreshLG);
-    if (result) {
-      //
-      // Multiply amplitude by gain factor
-      //
-      m_amplitude = m_fitAmplitude * m_gainHG;
-      m_ampError = m_fitAmpError * m_gainHG;
-      m_preSampleAmp = m_preSample * m_gainHG;
-      m_preAmplitude  = m_fitPreAmp    * m_gainHG;  // bill
-      m_postAmplitude = m_fitPostAmp   * m_gainHG;  // bill
-      m_expAmplitude  = m_fitExpAmp    * m_gainHG;  // bill
-    }
+  // if (m_useLowGain) {
+  //   bool result = AnalyzeData(m_Nsample, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, m_chisqDivAmpCutLG,
+  //                             m_T0CutLowLG, m_T0CutHighLG, m_peak2ndDerivMinThreshLG);
+  //   if (result) {
+  //     //
+  //     // Multiply amplitude by gain factor
+  //     //
+  //     m_amplitude = m_fitAmplitude * m_gainHG;
+  //     m_ampError = m_fitAmpError * m_gainHG;
+  //     m_preSampleAmp = m_preSample * m_gainHG;
+  //     m_preAmplitude  = m_fitPreAmp    * m_gainHG;  // bill
+  //     m_postAmplitude = m_fitPostAmp   * m_gainHG;  // bill
+  //     m_expAmplitude  = m_fitExpAmp    * m_gainHG;  // bill
+  //   }
 
-    return result;
-  }
-  else {
-    bool result = AnalyzeData(m_Nsample, m_preSampleIdx, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
-                              m_T0CutLowHG, m_T0CutHighHG, m_peak2ndDerivMinThreshHG);
-    if (result) {
-      m_preSampleAmp = m_preSample;
-      m_amplitude = m_fitAmplitude;
-      m_ampError = m_fitAmpError;
-      m_preAmplitude  = m_fitPreAmp;  // bill
-      m_postAmplitude = m_fitPostAmp;  // bill
-      m_expAmplitude  = m_fitExpAmp;  // bill
+  //   return result;
+  // }
+  // else {
+  //   bool result = AnalyzeData(m_Nsample, m_preSampleIdx, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
+  //                             m_T0CutLowHG, m_T0CutHighHG, m_peak2ndDerivMinThreshHG);
+  //   if (result) {
+  //     m_preSampleAmp = m_preSample;
+  //     m_amplitude = m_fitAmplitude;
+  //     m_ampError = m_fitAmpError;
+  //     m_preAmplitude  = m_fitPreAmp;  // bill
+  //     m_postAmplitude = m_fitPostAmp;  // bill
+  //     m_expAmplitude  = m_fitExpAmp;  // bill
 
-      //  If we have a non-linear correction, apply it here
-      //
-      if (m_haveNonlinCorr) {
-        float ampCorrFact = m_amplitude / 1000. - 0.5;
-        float corrFactor = 1. / (1. + m_nonLinCorrParams[0] * ampCorrFact + m_nonLinCorrParams[1] * ampCorrFact * ampCorrFact);
+  //     //  If we have a non-linear correction, apply it here
+  //     //
+  //     if (m_haveNonlinCorr) {
+  //       float ampCorrFact = m_amplitude / 1000. - 0.5;
+  //       float corrFactor = 1. / (1. + m_nonLinCorrParams[0] * ampCorrFact + m_nonLinCorrParams[1] * ampCorrFact * ampCorrFact);
 
-        m_amplitude *= corrFactor;
-        m_ampError *= corrFactor;
-      }
-    }
+  //       m_amplitude *= corrFactor;
+  //       m_ampError *= corrFactor;
+  //     }
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
+
+  return DoAnalysis(false);
 }
 
-bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float>  ADCSamplesLG,
-    std::vector<float> ADCSamplesHGDelayed, std::vector<float> ADCSamplesLGDelayed)
+bool ZDCPulseAnalyzer::LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>&  ADCSamplesLG,
+					  const std::vector<float>& ADCSamplesHGDelayed, const std::vector<float>& ADCSamplesLGDelayed)
 {
   if (!m_useDelayed) {
     (*m_msgFunc_p)(ZDCMsg::Fatal, "ZDCPulseAnalyzer::LoadAndAnalyzeData:: Wrong LoadAndAnalyzeData called -- expecting only undelayed samples");
@@ -591,7 +628,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
     if (m_lastHGOverFlowSample < 2 && m_lastHGOverFlowSample > -1) {
       m_HGOverflow = false;
       m_minSampleEvt = m_lastHGOverFlowSample + 1;
-      m_fitTMin = std::max(m_fitTMin, m_deltaTSample * (m_lastHGOverFlowSample + 1) + m_deltaTSample / 2);
+      //      m_fitTMin = std::max(m_fitTMin, m_deltaTSample * m_minSampleEvt  + m_deltaTSample / 2);
       m_adjTimeRangeEvent = true;
       m_backToHG_pre = true;
       m_ExcludeEarly = true;
@@ -603,7 +640,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
       //
       if (m_ADCSamplesLGSub[0] > 100) {
         m_minSampleEvt = 2;
-        m_fitTMin = std::max(m_fitTMin, m_deltaTSample * 2 - m_deltaTSample / 2);
+	//        m_fitTMin = std::max(m_fitTMin, m_deltaTSample * 2 + m_deltaTSample / 2);
         m_adjTimeRangeEvent = true;
         m_ExcludeEarly = true;
       }
@@ -611,22 +648,22 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
   }
   else {
     //
-    // Test to see with the sample just before we measure could have overflowed
+    // Test to see whether one or two samples just before we measure could have overflowed
     //
-    float backExtrapolate = m_ADCSamplesHGSub[0] + m_pedestal + m_ADCSamplesHGSub[0] - m_ADCSamplesHGSub[1];
+    float backExtrapolate = m_ADCSamplesHGSub[0] + m_pedestal + 2*(m_ADCSamplesHGSub[0] - m_ADCSamplesHGSub[1]);
     if (backExtrapolate > m_HGOverflowADC) {
       m_minSampleEvt = 1;
-      m_fitTMin = std::max(m_fitTMin, m_deltaTSample - m_deltaTSample / 2);
+      //      m_fitTMin = std::max(m_fitTMin, m_deltaTSample + m_deltaTSample / 2);
       m_adjTimeRangeEvent = true;
       m_ExcludeEarly = true;
 
       m_fixPrePulse = true; // new 2020/01/27
     }
   }
-  if (m_firstHGOverFlowSample > 11 && m_firstHGOverFlowSample < 14) {
-    m_maxSampleEvt = m_firstHGOverFlowSample;
+  if (m_firstHGOverFlowSample >= 2*m_Nsample - 3 ) {
+    m_maxSampleEvt = m_firstHGOverFlowSample - 1;
     m_HGOverflow = false;
-    m_fitTMax = std::min(m_fitTMax, m_deltaTSample * m_firstHGOverFlowSample - m_deltaTSample / 2);
+    //m_fitTMax = std::min(m_fitTMax, m_deltaTSample * m_firstHGOverFlowSample - m_deltaTSample / 2);
     m_adjTimeRangeEvent = true;
     m_ExcludeLate = false;
   }
@@ -641,13 +678,99 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
   // Now we actually do the analysis using the high or low gain samples as determined
   //  on the basis of the above analysis
   //
-  m_useLowGain = m_HGUnderflow || m_HGOverflow || m_forceLG;
+  // m_useLowGain = m_HGUnderflow || m_HGOverflow || m_forceLG;
 
+  // if (m_useLowGain) {
+
+  //   bool result = AnalyzeData(m_Nsample * 2, m_preSampleIdx * 2, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, m_chisqDivAmpCutLG,
+  //                             m_T0CutLowLG, m_T0CutHighLG, m_peak2ndDerivMinThreshLG);
+  //   if (result) {
+  //     //
+  //     // Multiply amplitude by gain factor
+  //     //
+  //     m_amplitude     = m_fitAmplitude * m_gainHG;
+  //     m_ampError      = m_fitAmpError  * m_gainHG;
+  //     m_preSampleAmp  = m_preSample    * m_gainHG;
+  //     m_preAmplitude  = m_fitPreAmp    * m_gainHG;  // bill
+  //     m_postAmplitude = m_fitPostAmp   * m_gainHG;  // bill
+  //     m_expAmplitude  = m_fitExpAmp    * m_gainHG;  // bill
+  //   }
+
+  //   return result;
+  // }
+  // else {
+  //   bool result = AnalyzeData(m_Nsample * 2, m_preSampleIdx * 2, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
+  //                             m_T0CutLowHG, m_T0CutHighHG, m_peak2ndDerivMinThreshHG);
+  //   if (result) {
+  //     m_preSampleAmp = m_preSample;
+  //     m_amplitude = m_fitAmplitude;
+  //     m_ampError = m_fitAmpError;
+  //     m_preAmplitude  = m_fitPreAmp;  // bill
+  //     m_postAmplitude = m_fitPostAmp;  // bill
+  //     m_expAmplitude  = m_fitExpAmp;  // bill
+
+  //     //  If we have a non-linear correction, apply it here
+  //     //
+  //     if (m_haveNonlinCorr) {
+  //       float ampCorrFact = m_amplitude / 1000. - 0.5;
+  //       float corrFactor = 1. / (1. + m_nonLinCorrParams[0] * ampCorrFact + m_nonLinCorrParams[1] * ampCorrFact * ampCorrFact);
+
+  //       m_amplitude *= corrFactor;
+  //       m_ampError *= corrFactor;
+  //     }
+  //   }
+
+  //   return result;
+  // }
+
+  return DoAnalysis(false);
+}
+
+bool ZDCPulseAnalyzer::ReanalyzeData()
+{
+  Reset(true);
+
+  bool result = DoAnalysis(true);
+  if (result && HavePulse()) {
+    m_repassPulse = true;
+  }  
+
+  return result;
+}
+
+bool ZDCPulseAnalyzer::DoAnalysis(bool repass)
+{
+  int nSampleScale = m_useDelayed ? 2 : 1;
+  
+  float deriv2ndThreshHG = 0;
+  float deriv2ndThreshLG = 0;
+  
+  if (!repass) {
+    deriv2ndThreshHG = m_peak2ndDerivMinThreshHG;
+    deriv2ndThreshLG = m_peak2ndDerivMinThreshLG;
+  }
+  else {
+    deriv2ndThreshHG = m_peak2ndDerivMinRepassHG;  
+    deriv2ndThreshLG = m_peak2ndDerivMinRepassLG;
+  }
+  
+  m_useLowGain = m_HGUnderflow || m_HGOverflow || m_forceLG;   
   if (m_useLowGain) {
-
-    bool result = AnalyzeData(m_Nsample * 2, m_preSampleIdx * 2, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, m_chisqDivAmpCutLG,
-                              m_T0CutLowLG, m_T0CutHighLG, m_peak2ndDerivMinThreshLG);
+    bool result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, m_chisqDivAmpCutLG,
+			      m_T0CutLowLG, m_T0CutHighLG, deriv2ndThreshLG);
     if (result) {
+      if (BadChisq()) {
+	if (!m_ExcludeEarly && m_fitPreAmp > 2*m_fitAmplitude) {
+	  m_adjTimeRangeEvent = true;
+	  m_ExcludeEarly = true;
+	  m_minSampleEvt = 1;
+
+	  Reset(true);
+	  bool result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams, 
+				    m_chisqDivAmpCutLG, m_T0CutLowLG, m_T0CutHighLG, deriv2ndThreshLG);
+	}
+      }
+
       //
       // Multiply amplitude by gain factor
       //
@@ -657,21 +780,37 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
       m_preAmplitude  = m_fitPreAmp    * m_gainHG;  // bill
       m_postAmplitude = m_fitPostAmp   * m_gainHG;  // bill
       m_expAmplitude  = m_fitExpAmp    * m_gainHG;  // bill
-    }
 
+      // BAC: also scale up the 2nd derivative so low and high gain can be treated on the same footing
+      //
+      m_minDeriv2nd *= m_gainHG;
+    }
+    
     return result;
   }
   else {
-    bool result = AnalyzeData(m_Nsample * 2, m_preSampleIdx * 2, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
-                              m_T0CutLowHG, m_T0CutHighHG, m_peak2ndDerivMinThreshHG);
+    bool result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
+                              m_T0CutLowHG, m_T0CutHighHG, deriv2ndThreshHG);
     if (result) {
+      if (BadChisq()) {
+	if (!m_ExcludeEarly && m_fitPreAmp > 2*m_fitAmplitude) {
+	  m_adjTimeRangeEvent = true;
+	  m_ExcludeEarly = true;
+	  m_minSampleEvt = 1;
+
+	  Reset(true);
+	  result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesHGSub, m_ADCSSampSigHG, m_HGT0CorrParams, m_chisqDivAmpCutHG,
+			       m_T0CutLowHG, m_T0CutHighHG, deriv2ndThreshHG);
+	}
+      }
+      
       m_preSampleAmp = m_preSample;
       m_amplitude = m_fitAmplitude;
       m_ampError = m_fitAmpError;
       m_preAmplitude  = m_fitPreAmp;  // bill
       m_postAmplitude = m_fitPostAmp;  // bill
       m_expAmplitude  = m_fitExpAmp;  // bill
-
+      
       //  If we have a non-linear correction, apply it here
       //
       if (m_haveNonlinCorr) {
@@ -682,11 +821,11 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
         m_ampError *= corrFactor;
       }
     }
-
+    
     return result;
   }
 }
-
+  
 bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
                                    const std::vector<float>& samples,        // The samples used for this event
                                    const std::vector<float>& samplesSig,     // The "resolution" on the ADC value
@@ -696,15 +835,20 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
                                    float peak2ndDerivMinThresh
                                   )
 {
-  //  Do the presample subtraction using a lambda function
+ 
+  // We keep track of which sample we used to do the subtraction sepaate from m_minSampleEvt
+  //  because the corresponding time is the reference time we provide to the fit function when
+  //  we have pre-pulses and in case we change the m_minSampleEvt after doing the subtraction
   //
-  int usedPresample = preSampleIdx;
+  //    e.g. our refit when the chisquare cuts fails
+  //
+  m_usedPresampIdx = preSampleIdx;
 
   if (m_adjTimeRangeEvent) {
-    usedPresample = m_minSampleEvt + 1;
+    m_usedPresampIdx = m_minSampleEvt; /// BAC -- why +1 here? Answer: should be no +1 -- removed
   }
 
-  m_preSample = samples[usedPresample];
+  m_preSample = samples[m_usedPresampIdx];
 
   m_samplesSub = samples;
 
@@ -721,19 +865,24 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
       float slope1 = m_samplesSub[2] - m_samplesSub[0] + 1e-3;
       float slope2 = m_samplesSub[3] - m_samplesSub[1] + 1e-3;
       float slope12Ratio = slope1 / slope2;
-      bool badEarly = (std::abs(slope1) > 5 || std::abs(slope2) > 5) && (slope12Ratio < 0 || std::abs(slope12Ratio - 1) > 1);
+      bool badEarly = ((std::abs(slope1) > 5 || std::abs(slope2) > 5) && (slope12Ratio < 0 || std::abs(slope12Ratio - 1) > 1)) ||
+	              (std::abs(slope1) > 40 || std::abs(slope2) > 40) ;
 
       size_t n = m_samplesSub.size();
       float slope3 = m_samplesSub[n - 3] - m_samplesSub[n - 1] + 1e-3;
       float slope4 = m_samplesSub[n - 4] - m_samplesSub[n - 2] + 1e-3;
       float slope34Ratio = slope3 / slope4;
-      bool badLate = (std::abs(slope3) > 5 || std::abs(slope4) > 5) && ( slope34Ratio < 0 || std::abs(slope34Ratio - 1) > 1);
+      bool badLate = ((std::abs(slope3) > 5 || std::abs(slope4) > 5) && ( slope34Ratio < 0 || std::abs(slope34Ratio - 1) > 1)) ||
+	             (std::abs(slope3) > 20 || std::abs(slope4) > 20);
 
       int baselineFlag = 0; // default to use nominal pedestal difference
 
       if (!badEarly && std::abs(slope1 / slope3) < 2) baselineFlag = -1; // use early
       else if (!badLate && (badEarly || std::abs(slope1 / slope3) > 2)) baselineFlag = 1; // use late
       else if (!badEarly) baselineFlag = -1; // use early
+      
+      //      std::cout << "slope1, slope2, slope3, slope4 = " << slope1 << ", " << slope2 << ", " << slope3 << ", " << slope4 << std::endl; 
+      // std::cout <<"ZDCPulseAnalyzer:: badEarly, badLate = " << badEarly << ", " << badLate << ", using baselineflag = " << baselineFlag << std::endl;
 
       if (baselineFlag < 0) {
         //
@@ -953,7 +1102,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
       if (m_samplesDeriv2nd[isampl] > 0 && std::abs(deriv2ndTest) > 1.5) {  // the start of the post pulse, +3 to get at least 3 points into the fit
         m_postPulse = true;
         m_maxSampleEvt = std::min(isampl + 1, m_maxSampleEvt);
-        m_fitTMax = m_deltaTSample * (isampl + 3) + m_deltaTSample / 2;
+        //m_fitTMax = m_deltaTSample * (isampl + 3) + m_deltaTSample / 2;
         m_adjTimeRangeEvent = true;
         m_initialPostPulseT0 = m_deltaTSample * (isampl);
         break;
@@ -961,7 +1110,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
       else if ((m_samplesDeriv2nd[isampl] < 0 && std::abs(deriv2ndTest) > 0.5)) { // the middle of the post pulse, +2 to get at least 3 points into the fit
         m_postPulse = true;
         m_maxSampleEvt = std::min(isampl, m_maxSampleEvt);
-        m_fitTMax = m_deltaTSample * (isampl + 2) + m_deltaTSample / 2;
+        //m_fitTMax = m_deltaTSample * (isampl + 2) + m_deltaTSample / 2;
         m_adjTimeRangeEvent = true;
         m_initialPostPulseT0 = m_deltaTSample * (isampl + 1);
         break;
@@ -993,14 +1142,14 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
       if (m_samplesDeriv2nd[isampl] > 0 && std::abs(deriv2ndTest) > 1.5) {
         m_postPulse = true;
         m_maxSampleEvt = std::min(isampl + 1, m_maxSampleEvt);
-        m_fitTMax = std::min(m_fitTMax, m_deltaTSample * (isampl + 1) + m_deltaTSample / 2);
+	// m_fitTMax = std::min(m_fitTMax, m_deltaTSample * (isampl + 1) + m_deltaTSample / 2);
         m_adjTimeRangeEvent = true;
         break;
       }
       else if ((m_samplesDeriv2nd[isampl] < 0 && std::abs(deriv2ndTest) > 0.5)) {
         m_postPulse = true;
         m_maxSampleEvt = std::min(isampl, m_maxSampleEvt);
-        m_fitTMax = std::min(m_fitTMax, m_deltaTSample * (isampl) + m_deltaTSample / 2);
+        // m_fitTMax = std::min(m_fitTMax, m_deltaTSample * (isampl) + m_deltaTSample / 2);
         m_adjTimeRangeEvent = true;
         break;
       }
@@ -1016,6 +1165,24 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
 
   if (!m_useDelayed) DoFit();
   else DoFitCombined();
+
+  // Before proceeding, if the chisq cut is failed and there is a substantial pre-pulse and no samples have been skipped,
+  //   skip one sample and retry the fit
+  //
+  // if (m_fitChisq / (m_fitAmplitude + 1.0e-6) > maxChisqDivAmp && PrePulse()) {
+  //   if (!m_ExcludeEarly && m_fitPreAmp > 2*m_fitAmplitude) {
+  //     m_adjTimeRangeEvent = true;
+  //     m_ExcludeEarly = true;
+  //     m_minSampleEvt = 1;
+
+  //     //      m_fitTMin = std::max(m_fitTMin, m_deltaTSample *m_minSampleEvt  - m_deltaTSample / 2);
+
+  //     // Now re-do the fit
+  //     //
+  //     if (!m_useDelayed) DoFit();
+  //     else DoFitCombined();
+  //   }
+  // }
 
   if (FitFailed()) {
     m_fail = true;
@@ -1042,22 +1209,27 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
     if (m_fitTimeCorr < minT0Corr || m_fitTimeCorr > maxT0Corr) m_badT0 = true;
   }
 
+
+
   return !m_fitFailed;
 }
 
 void ZDCPulseAnalyzer::DoFit()
 {
+  float fitAmpMin = (m_useLowGain ? m_fitAmpMinLG : m_fitAmpMinHG);
+  float fitAmpMax = (m_useLowGain ? m_fitAmpMaxLG : m_fitAmpMaxHG);
+
   // Set the initial values
   //
   float ampInitial = m_maxADCValue - m_minADCValue;   // ???   sometime it is smaller than 5???? why
   float t0Initial = (m_useLowGain ? m_nominalT0LG : m_nominalT0HG);
 
-  if (ampInitial < 5) ampInitial = 10;
+  if (ampInitial < fitAmpMin) ampInitial = fitAmpMin*1.5;
 
   ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
   if (PrePulse()) fitWrapper = m_prePulseFitWrapper;
 
-  fitWrapper->Initialize(ampInitial, t0Initial);
+  fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax);
   if (PrePulse()) {
     //
     //
@@ -1108,10 +1280,15 @@ void ZDCPulseAnalyzer::DoFit()
 
 void ZDCPulseAnalyzer::DoFitCombined()
 {
+  float fitAmpMin = (m_useLowGain ? m_fitAmpMinLG : m_fitAmpMinHG);
+  float fitAmpMax = (m_useLowGain ? m_fitAmpMaxLG : m_fitAmpMaxHG);
+
   // Set the initial values
   //
   float ampInitial = m_maxADCValue - m_minADCValue;
   float t0Initial = (m_useLowGain ? m_nominalT0LG : m_nominalT0HG);
+
+  if (ampInitial < fitAmpMin) ampInitial = fitAmpMin*1.5;
 
   ZDCFitWrapper* fitWrapper = m_defaultFitWrapper;
   if (PrePulse() || PostPulse()) fitWrapper = m_prePulseFitWrapper;
@@ -1120,10 +1297,15 @@ void ZDCPulseAnalyzer::DoFitCombined()
   //   per-event fit range if necessary
   //
   if (m_adjTimeRangeEvent) {
-    fitWrapper->Initialize(ampInitial, t0Initial, m_fitTMin, m_fitTMax);
+    m_fitTMin = std::max(m_fitTMin, m_deltaTSample*m_minSampleEvt - m_deltaTSample / 2);
+    m_fitTMax = std::min(m_fitTMax, m_deltaTSample*m_maxSampleEvt + m_deltaTSample / 2);
+
+    float fitTReference = m_deltaTSample*m_usedPresampIdx;
+
+    fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax, m_fitTMin, m_fitTMax, fitTReference);
   }
   else {
-    fitWrapper->Initialize(ampInitial, t0Initial);
+    fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax);
   }
 
   if (PrePulse() || PostPulse()) {
@@ -1206,37 +1388,56 @@ void ZDCPulseAnalyzer::DoFitCombined()
   int status = theFitter->ExecuteCommand("MIGRAD", arglist, 2);
 
   double fitAmp = theFitter->GetParameter(1);
-  if (status || fitAmp < 1) {
+  if (status || fitAmp < fitAmpMin*1.01) {
 
-    // We first fit with no baseline adjust
+    // We first retry the fit with no baseline adjust
     //
     theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -100, 100);
     theFitter->FixParameter(0);
 
-    if (fitAmp < 1) {
+    if (fitAmp < fitAmpMin*1.01) {
       if (m_adjTimeRangeEvent) {
-        fitWrapper->Initialize(ampInitial, t0Initial, m_fitTMin, m_fitTMax);
+	float fitTReference = m_deltaTSample*m_usedPresampIdx;
+        fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax, m_fitTMin, m_fitTMax, fitTReference);
       }
       else {
-        fitWrapper->Initialize(ampInitial, t0Initial);
+        fitWrapper->Initialize(ampInitial, t0Initial, fitAmpMin, fitAmpMax);
       }
     }
 
     status = theFitter->ExecuteCommand("MIGRAD", arglist, 2);
     if (status != 0) {
+      //
+      // Fit failed event with no baseline adust, so be it
+      //
       theFitter->ReleaseParameter(0);
       m_fitFailed = true;
     }
     else {
+      //
+      // The fit succeeded with no baseline adjust, re-fit allowing for baseline adjust using 
+      //  the parameters from previous fit as the starting point
+      //
       theFitter->ReleaseParameter(0);
       status = theFitter->ExecuteCommand("MIGRAD", arglist, 2);
-      fitAmp = theFitter->GetParameter(1);
 
-      if (status || fitAmp < 1) m_fitFailed = true;
-      else m_fitFailed = false;
+      if (status) {
+	// Since we know the fit can succeed without the baseline adjust, go back to it 
+	//
+	theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -100, 100);
+	theFitter->FixParameter(0);
+	status = theFitter->ExecuteCommand("MIGRAD", arglist, 2);
+      }
     }
   }
   else m_fitFailed = false;
+
+  // Check to see if the fit forced the amplitude to the minimum, if so set the corresponding status bit
+  //
+  fitAmp = theFitter->GetParameter(1);
+  if (fitAmp < fitAmpMin*1.01) {
+    m_fitMinAmp = true;
+  }
 
   if (!s_quietFits) theFitter->GetMinuit()->fISW[4] = -1;
 
@@ -1434,6 +1635,8 @@ unsigned int ZDCPulseAnalyzer::GetStatusMask() const
   if (ExcludeEarlyLG()) statusMask |= 1 << ExcludeEarlyLGBit;
   if (ExcludeLateLG())  statusMask |= 1 << ExcludeLateLGBit;
   if (preExpTail())     statusMask |= 1 << preExpTailBit;
+  if (fitMinimumAmplitude()) statusMask |= 1 << FitMinAmpBit;
+  if (repassPulse()) statusMask |= 1 << RepassPulseBit;
 
   return statusMask;
 }

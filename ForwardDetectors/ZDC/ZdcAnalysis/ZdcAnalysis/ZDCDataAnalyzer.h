@@ -27,6 +27,8 @@ private:
   std::string m_fitFunction;
   bool m_forceLG;
 
+  bool m_repassEnabled;
+
   std::array<std::array<int, 4>, 2> m_delayedOrder;
 
   ZDCModuleBoolArray m_moduleDisabled;
@@ -85,6 +87,8 @@ public:
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
   void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
+  void EnableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG);
+
   unsigned int GetModuleMask() const {return m_moduleMask;}
 
   float GetModuleSum(size_t side) const {return m_moduleSum.at(side);}
@@ -124,6 +128,9 @@ public:
   void SetTauT0Values(const ZDCModuleBoolArray& fxiTau1, const ZDCModuleBoolArray& fxiTau2,
                       const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
                       const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
+
+  void SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
+			     const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG);
 
   void SetCutValues(const ZDCModuleFloatArray& chisqDivAmpCutHG, const ZDCModuleFloatArray& chisqDivAmpCutLG,
                     const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG,

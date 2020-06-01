@@ -18,6 +18,9 @@ class ZDCFitWrapper
   float m_tmin;
   float m_tmax;
 
+  float m_ampMin;
+  float m_ampMax;
+
   float m_t0Min;
   float m_t0Max;
 
@@ -26,6 +29,7 @@ class ZDCFitWrapper
 
 public:
   ZDCFitWrapper(TF1* wrapperTF1) : m_wrapperTF1(wrapperTF1), //m_t0Min(t0Min), m_t0Max(t0Max)
+    m_ampMin(0),
     m_adjTLimitsEvent(true)  // true here forces a setting of T0 par limits on first event
   {
     m_tmin = m_wrapperTF1->GetXmin();
@@ -37,16 +41,22 @@ public:
 
   virtual ~ZDCFitWrapper() {delete m_wrapperTF1;}
 
-  void Initialize(float initialAmp, float initialT0);
-  void Initialize(float initialAmp, float initialT0, float fitTmin, float fitTmax);
+  void Initialize(float initialAmp, float initialT0, float ampMin, float ampMax);
+  void Initialize(float initialAmp, float initialT0, float ampMin, float ampMax, float fitTmin, float fitTmax, float fitTRef);
 
   // Performs the class-specific event initialization
   //
-  virtual void DoInitialize(float initialAmp, float initialT0) = 0;
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax) = 0;
 
   // Actually sets the t0 parameter limits in the fit function
   //
   virtual void SetT0FitLimits(float tMin, float tMax) = 0;
+
+  void SetAmpMinMax(float minAmp, float maxAmp) 
+  { 
+    m_ampMin = minAmp;
+    m_ampMax = maxAmp;
+  }
 
   void SetT0Range(float t0Min, float t0Max)
   {
@@ -61,6 +71,9 @@ public:
   virtual float GetTime() const = 0;
   virtual float GetTau1() const = 0;
   virtual float GetTau2() const = 0;
+
+  float GetMinAmp() const {return m_ampMin;}
+  float GetMaxAmp() const {return m_ampMax;}
 
   float GetTMin() const {return m_tmin;}
   float GetTMax() const {return m_tmax;}
@@ -113,7 +126,7 @@ public:
 
   ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2);
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
@@ -179,7 +192,7 @@ public:
     delete m_expFermiFunc;
   }
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
@@ -239,7 +252,7 @@ class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
@@ -363,7 +376,7 @@ public:
   virtual TF1* GetWrapperTF1() {return m_fitFunc;}
   virtual const TF1* GetWrapperTF1() const {return m_fitFunc;}
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual float GetAmplitude() const {return m_fitFunc->GetParameter(0); }
@@ -437,7 +450,7 @@ public:
     delete m_expFermiFunc;
   }
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
@@ -498,7 +511,7 @@ class ZDCFitExpFermiLinearPrePulse : public ZDCPrePulseFitWrapper
 public:
   ZDCFitExpFermiLinearPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
@@ -589,8 +602,6 @@ public:
     double deltaT = t - t0;
     double deltaTPre = t - preT0;
 
-    double bckgd = linSlope * t + p[5];
-
     // We subtract off the  value of the pre-pulse at the minimum time (nominally 0,
     //   but can change if we exclude early samples) to account for the subtraction of the pre-sample
     //
@@ -599,6 +610,8 @@ public:
     double pulse1 =  amp * m_norm * m_expFermiFunc->operator()(deltaT);
     double pulse2 =  preAmp * m_norm * (m_expFermiFunc->operator()(deltaTPre) -
                                         m_expFermiFunc->operator()(deltaPresamp));
+
+    double bckgd = linSlope * (t - deltaPresamp) + p[5];
 
     return pulse1 + pulse2 + bckgd;
   }
@@ -618,7 +631,7 @@ class ZDCFitComplexPrePulse : public ZDCPrePulseFitWrapper
 public:
   ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
@@ -721,7 +734,7 @@ public:
     double pulse1 =  amp    * m_norm *  m_expFermiFunc->operator()(deltaT);
     double pulse2 =  preAmp * m_norm * (m_expFermiFunc->operator()(deltaTPre) - m_expFermiFunc->operator()(deltaPresamp));
 
-    double linBG = linSlope * t + linConst;
+    double linBG = linSlope * (t - deltaPresamp) + linConst;
     double expBG = expamp * std::exp(-(t) / m_tau2) - expamp;  // deltaPresamp
 
     return pulse1 + pulse2 + linBG + expBG;
@@ -741,7 +754,7 @@ class ZDCFitGeneralPulse : public ZDCPrePulseFitWrapper
 public:
   ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
-  virtual void DoInitialize(float initialAmp, float initialT0);
+  virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
   virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {

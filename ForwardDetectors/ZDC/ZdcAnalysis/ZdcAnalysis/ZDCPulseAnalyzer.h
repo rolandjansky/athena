@@ -40,8 +40,12 @@ public:
         BadT0Bit              = 12, //  &4096
         ExcludeEarlyLGBit     = 13, //  &8192
         ExcludeLateLGBit      = 14, //  &16384
-        preExpTailBit         = 15  //  &32768
-       };
+        preExpTailBit         = 15,  // &32768
+	//
+	FitMinAmpBit          = 16,   // 0x10000
+	RepassPulseBit        = 17,    // 0x20000
+	ArmSumIncludeBit      = 18,
+ };
 
 private:
   typedef std::vector<float>::const_iterator SampleCIter;
@@ -77,13 +81,14 @@ private:
   float m_peak2ndDerivMinThreshLG;
   float m_peak2ndDerivMinThreshHG;
 
+  bool m_useDelayed;
+
+  bool m_enableRepass;
+  float m_peak2ndDerivMinRepassLG;
+  float m_peak2ndDerivMinRepassHG;  
+
   // Default fit values and cuts that can be set via modifier methods
   //
-  bool m_adjTimeRangeEvent; // indicates whether we adjust the time range for this specific event
-
-  int m_minSampleEvt;
-  int m_maxSampleEvt;
-
   int m_HGOverflowADC;
   int m_HGUnderflowADC;
   int m_LGOverflowADC;
@@ -112,6 +117,13 @@ private:
   float m_defaultT0Max;   // Upper limit on pulse t0
   float m_defaultT0Min;   // Lower limit on pulse t0
 
+  float m_fitAmpMinHG;      // Minimum amplitude in the fit
+  float m_fitAmpMinLG;      // Minimum amplitude in the fit
+	              
+  float m_fitAmpMaxHG;      // Minimum amplitude in the fit
+  float m_fitAmpMaxLG;      // Minimum amplitude in the fit
+
+  //
   bool m_haveTimingCorrections;
   std::vector<float> m_LGT0CorrParams; // Parameters used to correct the fit LG times
   std::vector<float> m_HGT0CorrParams; // Parameters used to correct the fit HG times
@@ -127,9 +139,15 @@ private:
   ZDCFitWrapper* m_defaultFitWrapper;
   ZDCPrePulseFitWrapper* m_prePulseFitWrapper;
 
+  // Members to keep track of adjustments to time range used in analysis/fit
+  //
+  bool m_adjTimeRangeEvent; // indicates whether we adjust the time range for this specific event
+
+  int m_minSampleEvt;
+  int m_maxSampleEvt;
+
   // Delayed pulse members
   //
-  bool  m_useDelayed;
   bool  m_useFixedBaseline;
   float m_delayedDeltaT;
   float m_delayedPedestalDiff;
@@ -167,6 +185,9 @@ private:
   bool m_preExpTail;
 
   bool m_fixPrePulse;
+  bool m_fitMinAmp;
+  bool m_repassPulse;
+
   // -----------------------
 
   bool  m_backToHG_pre;
@@ -174,6 +195,7 @@ private:
 
   // Pulse analysis
   //
+  int m_usedPresampIdx;
   float m_preSample;
 
   float m_maxADCValue;
@@ -238,9 +260,11 @@ private:
 
   // Private methods
   //
-  void Reset();
+  void Reset(bool reanalyze = false);
   void SetDefaults();
   void SetupFitFunctions();
+
+  bool DoAnalysis(bool repass);
 
   bool AnalyzeData(size_t nSamples, size_t preSample,
                    const std::vector<float>& samples,        // The samples used for this event
@@ -301,6 +325,8 @@ public:
 
   void EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);
 
+  void EnableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG);
+
   void SetPeak2ndDerivMinTolerance(size_t tolerance) {m_peak2ndDerivMinTolerance = tolerance;}
 
   void SetForceLG(bool forceLG) {m_forceLG = forceLG;}
@@ -309,6 +335,8 @@ public:
   void SetCutValues(float chisqDivAmpCutHG, float chisqDivAmpCutLG,
                     float deltaT0MinHG, float deltaT0MaxHG,
                     float deltaT0MinLG, float deltaT0MaxLG) ;
+
+  void SetFitMinMaxAmp(float minAmpHG, float minAmpLG, float maxAmpHG, float maxAmpLG);
 
   void SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, float tau2, float t0HG, float t0LG);
 
@@ -338,10 +366,12 @@ public:
     m_haveNonlinCorr = true;
   }
 
-  bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG);
+  bool LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>& ADCSamplesLG);
 
-  bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG,
-                          std::vector<float> ADCSamplesHGDelayed, std::vector<float> ADCSamplesLGDelayed);
+  bool LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG, const std::vector<float>& ADCSamplesLG,
+                          const std::vector<float>& ADCSamplesHGDelayed, const std::vector<float>& ADCSamplesLGDelayed);
+
+  bool ReanalyzeData();
 
   bool HaveData() const {return m_haveData;}
 
@@ -367,6 +397,10 @@ public:
   bool ExcludeEarlyLG() const {return m_ExcludeEarly;}
   bool ExcludeLateLG()  const {return m_ExcludeLate;}
   bool preExpTail()     const {return m_preExpTail;}
+  bool fitMinimumAmplitude() const {return m_fitMinAmp;}
+  bool repassPulse() const {return m_repassPulse;}
+  bool ArmSumInclude() const {return HavePulse() && !(FitFailed() || BadChisq() || BadT0() || fitMinimumAmplitude());}
+
   // ------------------------------------------------------------
 
 

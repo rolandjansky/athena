@@ -4,7 +4,7 @@
 
 #include "ZdcAnalysis/ZDCFitWrapper.h"
 
-void ZDCFitWrapper::Initialize(float initialAmp, float initialT0)
+void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   // If we adjusted the time range on the previous event, restore to default
   //
@@ -15,22 +15,25 @@ void ZDCFitWrapper::Initialize(float initialAmp, float initialT0)
     m_tminAdjust = 0;
   }
 
-  DoInitialize(initialAmp, initialT0);
+  SetAmpMinMax(ampMin, ampMax); 
+
+  DoInitialize(initialAmp, initialT0, ampMin, ampMax);
 }
 
-void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float fitTmin, float fitTmax)
+void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, float ampMax, float fitTmin, float fitTmax, float fitTRef)
 {
   m_adjTLimitsEvent = true;
   float newTmin = std::max(fitTmin, m_tmin);
 
-  m_tminAdjust = newTmin - m_tmin;
+  m_tminAdjust = fitTRef;
 
   float newT0Min = std::max(m_t0Min, fitTmin);
   float newT0Max = std::min(m_t0Max, fitTmax);
 
+  SetAmpMinMax(ampMin, ampMax); 
   SetT0FitLimits(newT0Min, newT0Max);
 
-  DoInitialize(initialAmp, initialT0);
+  DoInitialize(initialAmp, initialT0, ampMin, ampMax);
 }
 
 ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2) :
@@ -45,7 +48,7 @@ ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tm
   theTF1->SetParName(3, "#tau_{2}");
   //theTF1->SetParName(4, "s_{b}");
 
-  theTF1->SetParLimits(0, 5, 2048);
+  //  theTF1->SetParLimits(0, GetM, GetMaxAmp()); // BAC, now done in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
   theTF1->SetParLimits(2, 2.5, 6);
   theTF1->SetParLimits(3, 10, 60);
@@ -55,12 +58,14 @@ ZDCFitExpFermiVariableTaus::ZDCFitExpFermiVariableTaus(std::string tag, float tm
   if (m_fixTau2) theTF1->FixParameter(3, m_tau2);
 }
 
-void ZDCFitExpFermiVariableTaus::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiVariableTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
   theTF1->SetParameter(0, initialAmp);
   theTF1->SetParameter(1, initialT0);
+
+  theTF1->SetParLimits(0, ampMin, ampMax);
 
   if (!m_fixTau1) theTF1->SetParameter(2, m_tau1);
   if (!m_fixTau2) theTF1->SetParameter(3, m_tau2);
@@ -80,7 +85,7 @@ ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, fl
 {
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0, 5, 2048);
+  //  theTF1->SetParLimits(0, GetMinAmp(), GetMaxAmp()); // BAC, now done in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
 
   theTF1->SetParName(0, "Amp");
@@ -102,10 +107,12 @@ ZDCFitExpFermiFixedTaus::ZDCFitExpFermiFixedTaus(std::string tag, float tmin, fl
   m_timeCorr = m_tau1 * std::log(m_tau2 / m_tau1 - 1.0);
 }
 
-void ZDCFitExpFermiFixedTaus::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiFixedTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 }
 
 void ZDCFitExpFermiFixedTaus::SetT0FitLimits(float t0Min, float t0Max)
@@ -136,9 +143,9 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
   //
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0, 5, 2048);
+  //  theTF1->SetParLimits(0, 5, 2048); // BAC, now done in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2, 1, 2048);
+  theTF1->SetParLimits(2, 1, 4096);
   theTF1->SetParLimits(3, -20, 10);
 
   theTF1->SetParName(0, "Amp");
@@ -158,12 +165,14 @@ void ZDCFitExpFermiPrePulse::SetPrePulseT0Range(float tmin, float tmax)
   }
 }
 
-void ZDCFitExpFermiPrePulse::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
   GetWrapperTF1()->SetParameter(2, 5);
   GetWrapperTF1()->SetParameter(3, 0);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 }
 
 void ZDCFitExpFermiPrePulse::SetT0FitLimits(float t0Min, float t0Max)
@@ -221,7 +230,7 @@ ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(std::string tag, float 
   }
 }
 
-void ZDCFitExpFermiPulseSequence::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiPulseSequence::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   m_fitFunc->SetParameter(0, initialAmp);
   m_fitFunc->SetParameter(1, initialT0);
@@ -229,6 +238,9 @@ void ZDCFitExpFermiPulseSequence::DoInitialize(float initialAmp, float initialT0
   for (size_t ipulse = 0; ipulse < m_numPulses - 1; ipulse++) {
     m_fitFunc->SetParameter(ipulse + 2, 0);
   }
+
+
+  m_fitFunc->SetParLimits(0, ampMin, ampMax);
 }
 
 void ZDCFitExpFermiPulseSequence::SetT0FitLimits(float t0Min, float t0Max)
@@ -273,7 +285,7 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
 {
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0, 5, 2048);
+  //  theTF1->SetParLimits(0, 5, 2048); // BAC, now done in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
 
   theTF1->SetParName(0, "Amp");
@@ -296,10 +308,10 @@ ZDCFitExpFermiLinearFixedTaus::ZDCFitExpFermiLinearFixedTaus(std::string tag, fl
   m_timeCorr = m_tau1 * std::log(m_tau2 / m_tau1 - 1.0);
 }
 
-void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   float _slope = 0.1 * initialAmp / initialT0;
-  float _const = 0.05 * initialAmp;
+  float _const = 0.1 * initialAmp;
   GetWrapperTF1()->SetParLimits(2, -_slope, _slope);
   GetWrapperTF1()->SetParLimits(3, -_const, _const);
 
@@ -307,6 +319,8 @@ void ZDCFitExpFermiLinearFixedTaus::DoInitialize(float initialAmp, float initial
   GetWrapperTF1()->SetParameter(1, initialT0);
   GetWrapperTF1()->SetParameter(2, 0);
   GetWrapperTF1()->SetParameter(3, 0);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 }
 
 void ZDCFitExpFermiLinearFixedTaus::SetT0FitLimits(float t0Min, float t0Max)
@@ -339,9 +353,9 @@ ZDCFitExpFermiLinearPrePulse::ZDCFitExpFermiLinearPrePulse(std::string tag, floa
   //
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
 
-  theTF1->SetParLimits(0, 5, 2048);
+  //  theTF1->SetParLimits(0, 5, 2048); // BAC, now done in DoInitialize
   theTF1->SetParLimits(1, tmin, tmax);
-  theTF1->SetParLimits(2, 1, 2048);
+  theTF1->SetParLimits(2, 1, 4096);
   theTF1->SetParLimits(3, -20, 10);
 
   theTF1->SetParName(0, "Amp");
@@ -363,12 +377,14 @@ void ZDCFitExpFermiLinearPrePulse::SetPrePulseT0Range(float tmin, float tmax)
   }
 }
 
-void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   float _slope = initialAmp / initialT0;  // to be studied more ??? limit 0.1 0.05
-  float _const = 0.25 * initialAmp;
+  float _const = 0.5 * initialAmp;
   GetWrapperTF1()->SetParLimits(4, -_slope, _slope);
   GetWrapperTF1()->SetParLimits(5, -_const, _const);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
@@ -443,12 +459,14 @@ void ZDCFitComplexPrePulse::SetPrePulseT0Range(float tmin, float tmax)
   }
 }
 
-void ZDCFitComplexPrePulse::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitComplexPrePulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   float _slope = abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
   float _const = abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
   GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
   GetWrapperTF1()->SetParLimits(5, -_const, _const);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
@@ -529,12 +547,14 @@ void ZDCFitGeneralPulse::SetPostPulseT0Range(float tmin, float tmax, float initi
   GetWrapperTF1()->SetParameter(8, iniPostT0); // bill
 }
 
-void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0)
+void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax)
 {
   float _slope = abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
   float _const = abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
   GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
   GetWrapperTF1()->SetParLimits(5, -_const, _const);
+
+  GetWrapperTF1()->SetParLimits(0, ampMin, ampMax);
 
   GetWrapperTF1()->SetParameter(0, initialAmp);
   GetWrapperTF1()->SetParameter(1, initialT0);
