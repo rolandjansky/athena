@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -462,6 +462,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // - the error strategy, currently
   //    0: Cluster Width/sqrt(12.)
   //    1: Set to a different values for one and two-strip clusters (def.)
+  // The scale factors were derived by the study reported on 25th September 2006.
+  // https://indico.cern.ch/event/430391/contributions/1066157/attachments/929942/1317007/SCTSoft_25Sept06_clusters.pdf
 
 SCT_Cluster* ClusterMakerTool::sctCluster(
                          const Identifier& clusterID,
