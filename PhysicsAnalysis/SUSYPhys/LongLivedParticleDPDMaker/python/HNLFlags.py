@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        HNLFlags.py
@@ -18,10 +18,10 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
 import AthenaCommon.SystemOfUnits as Units
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
+from xAODPrimitives.xAODIso import xAODIso
+import ROOT
 
+from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import jobproperties
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
 class doHnlElMu(JobProperty):
@@ -116,7 +116,7 @@ class promptElectronIsoTypeHnl(JobProperty):
     # isolation type for prompt electrons
     statusOn = True
     allowedTypes = ["int"]
-    StoredValue = ROOT.xAOD.Iso.ptcone30
+    StoredValue = xAODIso.ptcone30
     pass
 primRPVLLDESDM.add_JobProperty(promptElectronIsoTypeHnl)
 
@@ -124,7 +124,7 @@ class displacedElectronIsoTypeHnl(JobProperty):
     # isolation type for displaced electrons
     statusOn = True
     allowedTypes = ["int"]
-    StoredValue = ROOT.xAOD.Iso.ptcone30
+    StoredValue = xAODIso.ptcone30
     pass
 primRPVLLDESDM.add_JobProperty(displacedElectronIsoTypeHnl)
 
@@ -132,7 +132,7 @@ class promptMuonTypesHnl(JobProperty):
     # allowed types of prompt muons
     statusOn = True
     allowedTypes = ["list"]
-    StoredValue = [ROOT.xAOD.Muon_v1.Combined]
+    StoredValue = [ROOT.xAOD.Muon.Combined]
     pass
 primRPVLLDESDM.add_JobProperty(promptMuonTypesHnl)
 
@@ -140,8 +140,8 @@ class displacedMuonTypesHnl(JobProperty):
     # allowed types of displaced muons
     statusOn = True
     allowedTypes = ["list"]
-    StoredValue = [ROOT.xAOD.Muon_v1.Combined,
-                   ROOT.xAOD.Muon_v1.MuonStandAlone]
+    StoredValue = [ROOT.xAOD.Muon.Combined,
+                   ROOT.xAOD.Muon.MuonStandAlone]
     pass
 primRPVLLDESDM.add_JobProperty(displacedMuonTypesHnl)
 

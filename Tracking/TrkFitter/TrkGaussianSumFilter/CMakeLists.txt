@@ -69,3 +69,6 @@ atlas_add_test(ut_GSF_testFindMinimumIndex
 atlas_add_test(ut_GSF_testAlignedDynArray
 	SCRIPT GSF_testAlignedDynArray)
 
+atlas_add_test(ut_GSF_testMergeComponents
+	SCRIPT GSF_testMergeComponents)
+

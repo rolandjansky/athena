@@ -26,6 +26,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
@@ -83,12 +84,13 @@ class BphysTrigDiMuDecoratorTool :
   /// Default constructor: 
   BphysTrigDiMuDecoratorTool();
 
-    ToolHandle < Trk::V0Tools > m_V0Tools; /// For lxy etc
+  ToolHandle < Trk::V0Tools > m_V0Tools{this, "V0Tools", "Trk::V0Tools"}; /// For lxy etc
     
   // Containers
-    std::string m_pvCandidatesKey; //m_JpsiCandidatesKey
+  SG::ReadHandleKey<xAOD::VertexContainer> m_pvCandidatesKey{this, "PVContainerName", "PrimaryVertices"};
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData"};
 
-    double m_trackMass;
+  Gaudi::Property<double> m_trackMass{this, "TrackMass", 105.6583715};
 }; 
 
 // I/O operators

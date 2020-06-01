@@ -61,6 +61,8 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
         if jobproperties.PerfMonFlags.doFullMonMT():
             handle.doComponentLevelMonitoring = True
 
+        handle.reportResultsToJSON = True
+
         return
 
     pass # class PerfMonMTSvc

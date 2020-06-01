@@ -112,8 +112,8 @@ if __name__ == "__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg(ConfigFlags)
 
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg(ConfigFlags) )
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg(ConfigFlags, ["TileRawChannelContainer/TileRawChannelCnt"]) )
 
     acc.merge( TileRawChannelToL2OutputCfg(ConfigFlags, streamName = 'ESD') )
     acc.getService('StoreGateSvc').Dump = True

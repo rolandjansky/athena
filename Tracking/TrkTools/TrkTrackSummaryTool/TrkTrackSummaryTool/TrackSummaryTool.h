@@ -20,8 +20,6 @@
 
 
 #include <vector>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
 class AtlasDetectorID;
@@ -124,9 +122,13 @@ public:
   Because it is taken from the track the ownership stays with the track */
   virtual void updateTrack(Track& track) const override { updateTrack(track, nullptr); }
 
-  /** method which can be used to update the track and add a summary to it,without doing the tedious hole search.
-      This can be used to add a summary to a track and then retrieve it from it without the need to clone. */
-  virtual void updateTrackNoHoleSearch(Track& track) const override { updateTrackNoHoleSearch(track, nullptr); }
+  /** method which can be used to update a refitted track and add a summary to
+   * it, without doing shard hit/ or hole search. Adds a summary to a track and
+   * then retrieve it from it without the need to clone. */
+  virtual void updateRefittedTrack(Track& track) const override
+  {
+    updateTrackNoHoleSearch(track, nullptr);
+  }
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary of the given track.
@@ -279,5 +281,4 @@ private:
 };
 
 }
-#pragma GCC diagnostic pop
 #endif

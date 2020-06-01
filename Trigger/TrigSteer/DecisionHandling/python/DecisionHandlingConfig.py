@@ -26,3 +26,8 @@ def TriggerSummaryAlg( name ):
                                    xbins=100, xmin=0, xmax=3.5e3   )
     alg.MonTool = monTool
     return alg
+
+def ComboHypoCfg( name ):
+    from DecisionHandling.DecisionHandlingConf import ComboHypo
+    alg = ComboHypo( name )
+    return alg

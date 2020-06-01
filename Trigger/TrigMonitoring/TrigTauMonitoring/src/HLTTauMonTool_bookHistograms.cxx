@@ -611,16 +611,10 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     {
         const int nbin_pt = 11;
         double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.};
-        
-        for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
+        for ( const auto& item: m_trigItemsZtt )         
           {
-            std::string trigItemShort;
-            if(m_trigItemsZtt[i].find("tau25")!=string::npos){
-              size_t posit=m_trigItemsZtt[i].rfind("_");
-              if(posit<31)trigItemShort=m_trigItemsZtt[i].substr(0,posit);
-            }
-            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort,run) );
-            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort);
+            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+item,run) );
+            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+item);
             //addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttL1PtNum","L1 vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));

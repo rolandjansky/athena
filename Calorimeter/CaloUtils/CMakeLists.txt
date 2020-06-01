@@ -81,6 +81,10 @@ atlas_add_test( CaloVertexedCluster_test
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
+atlas_add_test( exceptions_test
+   SOURCES test/exceptions_test.cxx
+   LINK_LIBRARIES CaloUtilsLib )
+
 atlas_add_test( CaloTowerStore_test
    SCRIPT test/CaloTowerStore_test.sh
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
@@ -91,6 +95,10 @@ atlas_add_test( CaloTowerBuilderTool_test
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
    ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-11"
    PROPERTIES TIMEOUT 500 )
+
+atlas_add_test( ToolWithConstants_test
+   SCRIPT test/ToolWithConstants_test.py
+   LOG_IGNORE_PATTERN "no dictionary for|by peeking into|Current filenames:" )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

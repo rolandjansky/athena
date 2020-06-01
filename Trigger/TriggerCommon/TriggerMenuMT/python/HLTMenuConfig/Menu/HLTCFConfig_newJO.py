@@ -1,15 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from collections import defaultdict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeSummary
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
-    stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isInputMakerBase, isHypoBase
-from AthenaCommon.CFElements import parOR, seqAND, findAlgorithm, findAllAlgorithms
+from AthenaCommon.CFElements import parOR, seqAND, findAllAlgorithms
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -169,7 +165,6 @@ def generateDecisionTree(chains):
                     im.InputMakerInputDecisions = addAndAssureUniqness( im.InputMakerInputDecisions,  filterOutputName, "{} input".format( im.name ) )
                 imOutputName = CFNaming.inputMakerOutName( im.name )
                 im.InputMakerOutputDecisions = assureUnsetOrTheSame( im.InputMakerOutputDecisions, imOutputName, "{} IM output".format( im.name ) )
-
                 # Hypo linking
                 hypoAlg = findHypoAlg( stepCounter, step.name )
                 hypoAlg.HypoInputDecisions = assureUnsetOrTheSame( hypoAlg.HypoInputDecisions, im.InputMakerOutputDecisions,
@@ -191,7 +186,6 @@ def generateDecisionTree(chains):
             hypoAlg = findHypoAlg( stepCounter, step.name )
             log.info("HypoAlg {} Inputs {} Outputs {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ) )
 
-    #kaboom
     return acc
 
 

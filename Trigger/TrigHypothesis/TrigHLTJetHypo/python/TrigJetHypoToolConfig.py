@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -30,7 +30,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
-    log.info(visitor.report())
+    log.debug(visitor.report())
 
     # tell the child nodes who their parent is.
     tree.set_ids(node_id=0, parent_id=0)
@@ -67,7 +67,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
             toolSetter = ConditionsToolSetterTree(chain_name)
             tool = tree.tool
 
-    log.info(visitor.report())
+    log.debug(visitor.report())
 
     return tool
 
@@ -117,8 +117,8 @@ def  trigJetHypoToolFromDict(chain_dict):
     # controls whether debug visitor is sent to helper tool
     debug = False  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
+    log.debug('%s', tool)
 
-    #log.info('%s', str(tool))
     return tool
 
 

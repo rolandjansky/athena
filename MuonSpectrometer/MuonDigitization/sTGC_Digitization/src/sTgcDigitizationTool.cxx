@@ -439,7 +439,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       else {
           msg(MSG::DEBUG) << "This hit came from the in time bunch." << endmsg;
       }
-      sTgcSimIdToOfflineId simToOffline(m_idHelperSvc->stgcIdHelper());
+      sTgcSimIdToOfflineId simToOffline(&m_idHelperSvc->stgcIdHelper());
       const int idHit = hit.sTGCId();
       ATH_MSG_VERBOSE("Hit ID " << idHit );
       Identifier layid = simToOffline.convert(idHit);

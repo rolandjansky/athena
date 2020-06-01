@@ -7,10 +7,6 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
-    AgreeHelperTool,
-)
-
 from collections import defaultdict
 
 class ConditionsToolSetterTree(object):

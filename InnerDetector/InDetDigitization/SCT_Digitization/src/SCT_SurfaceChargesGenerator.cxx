@@ -24,14 +24,12 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// STL
+// C++ Standard Library
 #include <cmath>
 
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
-
-using namespace std;
 
 // constructor
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type,
@@ -403,7 +401,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
     float t_drift{driftTime(zReadout, element)};  // !< t_drift: perpandicular drift time
     if (t_drift>-2.0000002 and t_drift<-1.9999998) {
       ATH_MSG_DEBUG("Checking for rounding errors in compression");
-      if ((fabs(z1) - 0.5 * thickness) < 0.000010) {
+      if ((std::abs(z1) - 0.5 * thickness) < 0.000010) {
         ATH_MSG_DEBUG("Rounding error found attempting to correct it. z1 = " << std::fixed << std::setprecision(8) << z1);
         if (z1 < 0.0) {
           z1 = 0.0000005 - 0.5 * thickness;

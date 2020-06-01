@@ -53,14 +53,14 @@ TrigSignatureMoniMT                                 INFO HLT_j45_L1J20 #12473361
 TrigSignatureMoniMT                                 INFO -- #1247336154 Events         0          0          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1247336154 Features                             -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20 #4088855158
-TrigSignatureMoniMT                                 INFO -- #4088855158 Events         0          0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #4088855158 Features                             0          0          0          -          -          
+TrigSignatureMoniMT                                 INFO -- #4088855158 Events         0          0          0          0          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #4088855158 Features                             0          0          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 #991419339
-TrigSignatureMoniMT                                 INFO -- #991419339 Events          0          0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #991419339 Features                              0          0          0          -          -          
+TrigSignatureMoniMT                                 INFO -- #991419339 Events          0          0          0          0          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #991419339 Features                              0          0          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 #1961149049
-TrigSignatureMoniMT                                 INFO -- #1961149049 Events         0          0          0          0          0          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #1961149049 Features                             0          0          0          -          -          
+TrigSignatureMoniMT                                 INFO -- #1961149049 Events         0          0          0          0          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #1961149049 Features                             0          0          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J20 #215408633
 TrigSignatureMoniMT                                 INFO -- #215408633 Events          0          0          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #215408633 Features                              -          -          -          -          -          
