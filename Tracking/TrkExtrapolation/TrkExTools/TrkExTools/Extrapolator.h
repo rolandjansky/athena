@@ -142,6 +142,9 @@ VERBOSE : Method call sequence with values
   virtual public IExtrapolator {
   public:
 
+    /** This following "using" statements can be removed after the methods in IExtrapolator.h for the
+     * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+     * used throughout the sw */
     using IExtrapolator::extrapolate;
     using IExtrapolator::extrapolateStepwise;
     using IExtrapolator::extrapolateDirectly;
