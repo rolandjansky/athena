@@ -21,7 +21,7 @@ namespace Trk
 class IIntersector;
 class TrackSurfaceIntersection;
 
-class IntersectorWrapper: public AthAlgTool,
+class IntersectorWrapper final: public AthAlgTool,
   virtual public IPropagator
   {
 
@@ -57,14 +57,15 @@ class IntersectorWrapper: public AthAlgTool,
       is responsible for the underlying logic of which surface to go to.
       */
     /// implemented
-    virtual  TrackParameters*      propagate( const TrackParameters& parm,
-                                              const Surface& sf,
-                                              PropDirection dir,
-                                              const BoundaryCheck&  bcheck,
+    virtual  TrackParameters*      propagate( const EventContext&     ctx,
+                                              const TrackParameters&  parm,
+                                              const Surface&          sf,
+                                              PropDirection           dir,
+                                              const BoundaryCheck&    bcheck,
                                               const MagneticFieldProperties& mprop,
-                                              ParticleHypothesis particle,
-                                              bool returnCurv,
-                                              const TrackingVolume*) const override;
+                                              ParticleHypothesis             particle,
+                                              bool                           returnCurv,
+                                              const TrackingVolume*) const   override final;
 
 
     /** Propagation interface:
@@ -72,32 +73,34 @@ class IntersectorWrapper: public AthAlgTool,
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface.
       */
-    virtual TrackParameters* propagate( const TrackParameters&,
-                                      std::vector<DestSurf>&,
-                                      PropDirection,
-                                      const MagneticFieldProperties&,
-                                      ParticleHypothesis,
-                                      std::vector<unsigned int>&,
-                                      double&,
-                                      bool,
-                                      bool,
-                                      const TrackingVolume*) const override{ return nullptr; }
+    virtual TrackParameters* propagate( const EventContext&,
+                                        const TrackParameters&,
+                                        std::vector<DestSurf>&,
+                                        PropDirection,
+                                        const MagneticFieldProperties&,
+                                        ParticleHypothesis,
+                                        std::vector<unsigned int>&,
+                                        double&,
+                                        bool,
+                                        bool,
+                                        const TrackingVolume*) const override{ return 0; }
 
     /** Propagation interface:
 
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface. Timing included.
       */
-    virtual  TrackParameters* propagateT( const TrackParameters&,
-                                       std::vector<DestSurf>&,
-                                       PropDirection,
-                                       const MagneticFieldProperties&,
-                                       ParticleHypothesis,
-                                       std::vector<unsigned int>&,
-                                       PathLimit&, TimeLimit&,
-                                       bool,
-                                       const TrackingVolume*,
-                                       std::vector<Trk::HitInfo>*&) const override{ return nullptr; }
+    virtual  TrackParameters* propagateT( const EventContext&,
+                                          const TrackParameters&,
+                                          std::vector<DestSurf>&,
+                                          PropDirection,
+                                          const MagneticFieldProperties&,
+                                          ParticleHypothesis,
+                                          std::vector<unsigned int>&,
+                                          PathLimit&, TimeLimit&,
+                                          bool,
+                                          const TrackingVolume*,
+                                          std::vector<Trk::HitInfo>*&) const override{ return 0; }
 
 
     /** Propagation interface:
@@ -106,41 +109,44 @@ class IntersectorWrapper: public AthAlgTool,
 
 */
     /// implemented
-    virtual  TrackParameters*      propagate( const TrackParameters&,
-                                           const Surface&,
-                                           PropDirection,
-                                           const BoundaryCheck& ,
-                                           const MagneticFieldProperties&,
-                                           TransportJacobian*&,
-                                           double&,
-                                           ParticleHypothesis,
-                                           bool,
-                                           const TrackingVolume*) const override;
-
+    virtual  TrackParameters*      propagate( const EventContext&          ctx,
+                                              const TrackParameters&,
+                                              const Surface&,
+                                              PropDirection,
+                                              const BoundaryCheck& ,
+                                              const MagneticFieldProperties&,
+                                              TransportJacobian*&,
+                                              double&,
+                                              ParticleHypothesis,
+                                              bool,
+                                              const TrackingVolume*) const override;
 
     /** Propagation interface without Covariance matrix propagation
       the pathlength has to be returned for eventual following propagateCovariance
       */
     /// implemented
-    virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
-                                                     const Surface& sf,
-                                                     PropDirection dir,
-                                                     const BoundaryCheck&  bcheck,
-                                                     const MagneticFieldProperties& mprop,
-                                                     ParticleHypothesis particle=pion,
-                                                     bool returnCurv = false,
-                                                     const TrackingVolume* tVol=nullptr) const override;
+    using Trk::IPropagator::propagateParameters;
+    virtual  TrackParameters*      propagateParameters( const EventContext&            ctx,
+                                                        const TrackParameters&         parm,
+                                                        const Surface&                 sf,
+                                                        PropDirection                  dir,
+                                                        const BoundaryCheck&           bcheck,
+                                                        const MagneticFieldProperties& mprop,
+                                                        ParticleHypothesis             particle   = pion,
+                                                        bool                           returnCurv = false,
+                                                        const TrackingVolume*          tVol       = nullptr) const override;
 
     /// implemented
-    virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
-                                                     const Surface& sf,
-                                                     PropDirection dir,
-                                                     const BoundaryCheck&  bcheck,
-                                                     const MagneticFieldProperties& mprop,
-                                                     TransportJacobian*&,
-                                                     ParticleHypothesis particle=pion,
-                                                     bool returnCurv = false,
-                                                     const TrackingVolume* tVol=nullptr) const override;
+    virtual  TrackParameters*      propagateParameters( const EventContext&            ctx,
+                                                        const TrackParameters&         parm,
+                                                        const Surface&                 sf,
+                                                        PropDirection                  dir,
+                                                        const BoundaryCheck&           bcheck,
+                                                        const MagneticFieldProperties& mprop,
+                                                        TransportJacobian*&,
+                                                        ParticleHypothesis             particle   = pion,
+                                                        bool                           returnCurv = false,
+                                                        const TrackingVolume*          tVol       = nullptr) const override;
 
 
     /** Intersection interface:
@@ -148,11 +154,13 @@ class IntersectorWrapper: public AthAlgTool,
       The intersection interface might be used by the material service as well to estimate
       the surfaces (sensitive and nonesensitive) while propagation
       */
-    virtual IntersectionSolution* intersect( const TrackParameters& parm,
-                                             const Surface& sf,
-                                             const MagneticFieldProperties& mprop,
-                                             ParticleHypothesis particle=pion,
-                                             const TrackingVolume* tVol=nullptr) const override;
+    using Trk::IPropagator::intersect;
+    virtual const IntersectionSolution* intersect( const EventContext&            ctx,
+                                                   const TrackParameters&         parm,
+                                                   const Surface&                 sf,
+                                                   const MagneticFieldProperties& mprop,
+                                                   ParticleHypothesis             particle = pion,
+                                                   const TrackingVolume*          tVol     = nullptr) const override;
 
     /** GlobalPositions list interface:
       This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
@@ -162,20 +170,24 @@ class IntersectorWrapper: public AthAlgTool,
       filling of the positions list, the list of GlobalPositions is given by reference through the signature and a void
       method has been chosen.
       */
-    virtual void globalPositions(std::list<Amg::Vector3D>& positionslist, 
-                         const TrackParameters& parm,
-                         const MagneticFieldProperties& mprop,
-                         const CylinderBounds& cylbo,
-                         double stepSize,
-                         ParticleHypothesis particle=pion,
-                         const TrackingVolume* tVol=nullptr) const override;
+    using Trk::IPropagator::globalPositions;
+    virtual void globalPositions(const EventContext&            ctx,
+                                 std::list<Amg::Vector3D>&      positionslist, 
+                                 const TrackParameters&         parm,
+                                 const MagneticFieldProperties& mprop,
+                                 const CylinderBounds&          cylbo,
+                                 double                         stepSize,
+                                 ParticleHypothesis             particle = pion,
+                                 const TrackingVolume*          tVol     = nullptr) const override;
 
     //placeholder for compatibility with new interface                                                                                                                        
-    virtual TrackSurfaceIntersection* intersectSurface(const Surface&,
-                                                       const TrackSurfaceIntersection*,
-                                                       const double,
-                                                       const MagneticFieldProperties&,
-                                                       ParticleHypothesis) const override{return nullptr;}
+    using Trk::IPropagator::intersectSurface;
+    virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&,
+                                                             const Surface&,
+                                                             const TrackSurfaceIntersection*,
+                                                             const double,
+                                                             const MagneticFieldProperties&,
+                                                             ParticleHypothesis) const override{return nullptr;}
 
     /** Validation Action:
       Can be implemented optionally, outside access to internal validation steps */

@@ -39,6 +39,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "TrigNavigation/NavigationCore.icc"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -293,21 +294,21 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  vertices = m_zvertexmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, *roi);
+          vertices = m_zvertexmaker->newRegion(Gaudi::Hive::currentContext(), seedEventData, listOfPixIds, listOfSCTIds, *roi);
 	}
 	else {
-	  vertices = m_zvertexmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds);
+	  vertices = m_zvertexmaker->newRegion(Gaudi::Hive::currentContext(), seedEventData, listOfPixIds, listOfSCTIds);
 	}
       }
       else{
-	vertices = m_zvertexmaker->newEvent(seedEventData);
+	vertices = m_zvertexmaker->newEvent(Gaudi::Hive::currentContext(), seedEventData);
       }
       
       if(doTiming()) m_timerZVertexTool->stop();
       
       if(doTiming()) m_timerSeedsMaker->start();
       
-      m_seedsmaker->find3Sp(seedEventData, vertices);
+      m_seedsmaker->find3Sp(Gaudi::Hive::currentContext(), seedEventData, vertices);
       
       if(doTiming()) m_timerSeedsMaker->stop();
       
@@ -320,18 +321,18 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       if(doTiming()) m_timerSeedsMaker->start();
       if(!m_doFullScan){
 	if (m_fastTracking){
-	  m_seedsmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds, *roi);
+	  m_seedsmaker->newRegion(Gaudi::Hive::currentContext(), seedEventData, listOfPixIds, listOfSCTIds, *roi);
 	} else {
-	  m_seedsmaker->newRegion(seedEventData, listOfPixIds, listOfSCTIds);
+	  m_seedsmaker->newRegion(Gaudi::Hive::currentContext(), seedEventData, listOfPixIds, listOfSCTIds);
 	}
 
       }
       else{
-	m_seedsmaker->newEvent(seedEventData);
+	m_seedsmaker->newEvent(Gaudi::Hive::currentContext(), seedEventData);
       }
       
       std::list<Trk::Vertex> VZ;
-      m_seedsmaker->find3Sp(seedEventData, VZ);
+      m_seedsmaker->find3Sp(Gaudi::Hive::currentContext(), seedEventData, VZ);
       if(doTiming()) m_timerSeedsMaker->stop();
     }
   }
@@ -343,10 +344,10 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
   InDet::ExtendedSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap);
   if(doTiming()) m_timerTrackMaker->start();
   if (m_fastTracking){
-    m_trackmaker->newTrigEvent(trackEventData, PIX, SCT);
+    m_trackmaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
     //m_trackmaker->newEvent(trackEventData, PIX, SCT);
   } else {
-    m_trackmaker->newEvent(trackEventData, PIX, SCT);
+    m_trackmaker->newEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
   }
 
   // Loop through all seeds and reconsrtucted tracks collection preparation
@@ -377,7 +378,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     int nseedwithtrack(0);
     ///////////////////////////////////////
     
-    while((seed = m_seedsmaker->next(seedEventData))) {
+    while((seed = m_seedsmaker->next(Gaudi::Hive::currentContext(), seedEventData))) {
       if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
 	      ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	      delete foundTracks;
@@ -385,7 +386,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       if(doTiming()) m_timerSeedProcessing->start();
       ++m_nseeds;
-      std::list<Trk::Track*> T = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
+      std::list<Trk::Track*> T = m_trackmaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, seed->spacePoints());
       
       if (m_fastTracking){
 	      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
@@ -395,7 +396,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if (msgLvl() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE << "Using 3SPs seed with ====> " << endmsg; 
-	for(std::list<const Trk::SpacePoint*>::const_iterator it=seed->spacePoints().begin(); it != seed->spacePoints().end(); it++) {
+	for(std::vector<const Trk::SpacePoint*>::const_iterator it=seed->spacePoints().begin(); it != seed->spacePoints().end(); it++) {
 	  msg() << MSG::VERBOSE << "Using SP with :::: " << endmsg; 
 	  msg() << " :: r :: " << (*it)->globalPosition().mag() 
 		<< " :: perp :: " << (*it)->globalPosition().perp() 
@@ -573,7 +574,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       }
       
 	  
-      std::list<Trk::Track*> T = m_trackmaker->getTracks(trackEventData, *perig, gpList);//dummyp); //
+      std::list<Trk::Track*> T = m_trackmaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, *perig, gpList);//dummyp); //
 	  
 	  
 	if(doTiming()){

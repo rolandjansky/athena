@@ -7,10 +7,6 @@
 
 #include "baseAnalysis.h"
 
-// forward declarations
-namespace HepMC {
-  class GenEvent;
-}
 class TH1D;
 
 class LeptonJetAnalysis: public baseAnalysis

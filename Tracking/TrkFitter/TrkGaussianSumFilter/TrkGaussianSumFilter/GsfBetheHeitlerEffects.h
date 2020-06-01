@@ -2,14 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfBetheHeitlerEffects.h  -  description
-      -----------------------------------------
-begin                : Friday 18th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Bethe-Heitler material effects for the GSF
-*********************************************************************************/
+/**
+ * @file   GsfBetheHeitlerEffects.h
+ * @date   Friday 18th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Bethe-Heitler material effects for electrons, used in the GSF 
+ */
 
 #ifndef Trk_GsfBetheHeitlerEffects_H
 #define Trk_GsfBetheHeitlerEffects_H
@@ -36,7 +34,8 @@ private:
     // Default constructor
     Polynomial() = default;
 
-    /** Constructor from a vector of coefficients (in decreasing order of powers of x */
+    /** Constructor from a vector of coefficients (in decreasing order of powers
+     * of x */
     Polynomial(const std::vector<double>& coefficients)
       : m_coefficients(coefficients){};
 
@@ -46,8 +45,9 @@ private:
       double sum(0.);
       std::vector<double>::const_iterator coefficient = m_coefficients.begin();
 
-      for (; coefficient != m_coefficients.end(); ++coefficient)
+      for (; coefficient != m_coefficients.end(); ++coefficient) {
         sum = t * sum + (*coefficient);
+      }
 
       return sum;
     }
@@ -58,13 +58,28 @@ private:
 
   struct ComponentValues
   {
+    // Default ctors/dtor/assignment operators
+    ComponentValues() = default;
+    ~ComponentValues() = default;
+    ComponentValues(const ComponentValues&) = default;
+    ComponentValues& operator=(const ComponentValues&) = default;
+    ComponentValues(ComponentValues&&) = default;
+    ComponentValues& operator=(ComponentValues&&) = default;
+    // Constructor with arguments
+    ComponentValues(double aWeight, double aMean, double aVariance)
+      : weight(aWeight)
+      , mean(aMean)
+      , variance(aVariance)
+    {}
     double weight;
     double mean;
     double variance;
   };
 
 public:
-  GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);
+  GsfBetheHeitlerEffects(const std::string&,
+                         const std::string&,
+                         const IInterface*);
 
   virtual ~GsfBetheHeitlerEffects() = default;
 
@@ -79,7 +94,8 @@ public:
                        const MaterialProperties&,
                        double,
                        PropDirection direction = anyDirection,
-                       ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+                       ParticleHypothesis particleHypothesis =
+                         nonInteracting) const override final;
 
 private:
   typedef std::vector<ComponentValues> MixtureParameters;
@@ -106,13 +122,22 @@ private:
   double correctedFirstVariance(const double, const MixtureParameters&) const;
 
   // Logistic function - needed for transformation of weight and mean
-  inline double logisticFunction(const double x) const { return (double)1. / (1. + exp(-x)); }
+  inline double logisticFunction(const double x) const
+  {
+    return (double)1. / (1. + exp(-x));
+  }
 
   // First moment of the Bethe-Heitler distribution
-  inline double betheHeitlerMean(const double r) const { return (double)exp(-r); }
+  inline double betheHeitlerMean(const double r) const
+  {
+    return (double)exp(-r);
+  }
 
   // Second moment of the Bethe-Heitler distribution
-  inline double betheHeitlerVariance(const double r) const { return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r); }
+  inline double betheHeitlerVariance(const double r) const
+  {
+    return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r);
+  }
 
 private:
   std::string m_parameterisationFileName;

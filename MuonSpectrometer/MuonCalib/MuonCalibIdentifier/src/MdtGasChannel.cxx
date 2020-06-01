@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibIdentifier/MdtGasChannel.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibIdentifier/OfflineOnlineIdConversion.h"
 #include "PathResolver/PathResolver.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -47,10 +50,8 @@ bool MdtGasChannel::readFile()
 		GasChannel c;
 		chanstr>>c.first;
 		chanstr>>c.second;
-//		std::cout<<"Channel: "<<c.first<<" "<<c.second<<std::endl;
 		while((pos=stations.find(","))!=std::string::npos)
 			{
-//			std::cout<<pos<<std::endl;
 			stations[pos]=' ';
 			}
 		std::istringstream st_stream(stations);
@@ -59,18 +60,16 @@ bool MdtGasChannel::readFile()
 			{
 			if(st_stream.eof()) break;
 			st_stream>>station;
-//			std::cout<<station<<std::endl;
 			MuonFixedId ml=OnlineToOffline(station);
 			if(!ml.isValid()) continue;
-			//std::cout<<ml.stationNameString()<<",phi="<<ml.phi()<<",eta="<<ml.eta()<<std::endl;
 			m_channel_map[ml]=c;
 		//treat connected chambers
-			if(ml.stationName()==15 && abs(ml.eta())==5 && (ml.phi()==1 || ml.phi()==5))
+			if(ml.stationName()==15 && std::abs(ml.eta())==5 && (ml.phi()==1 || ml.phi()==5))
 				{
 				ml.setStationEta(ml.eta()==-5?-4:4);
 				m_channel_map[ml]=c;
 				}
-			else if (ml.stationName()==15 && abs(ml.eta())==2)
+			else if (ml.stationName()==15 && std::abs(ml.eta())==2)
 				{
 				ml.setStationEta(ml.eta()==-2?-3:3);
 				m_channel_map[ml]=c;
@@ -85,16 +84,14 @@ const  MdtGasChannel::GasChannel & MdtGasChannel::GetGasChannel(const MuonFixedI
 	std::map<MuonFixedId, GasChannel>::const_iterator it=m_channel_map.find(id);
 	if(it==m_channel_map.end())
 		{
-		if(m_warning_printed.find(id)==m_warning_printed.end())
-			{
-			std::cerr<<"WARNING: Invalid Gas channel for "<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<" "<<id.mdtMultilayer()<<std::endl;
+		if(m_warning_printed.find(id)==m_warning_printed.end()) {
+			MsgStream log(Athena::getMessageSvc(),"MdtGasChannel");
+			log<<MSG::WARNING<<"Invalid Gas channel for "<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<" "<<id.mdtMultilayer()<<endmsg;
 			m_warning_printed.insert(id);
-			}
+		}
 		return INVALID_CHANNEL;
 		}
 	return it->second;
 	}
-
-
 
 }

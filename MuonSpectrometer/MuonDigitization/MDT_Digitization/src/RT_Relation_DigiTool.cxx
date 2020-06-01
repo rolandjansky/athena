@@ -1,21 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Digitization/MdtDigiToolInput.h"
-
 #include "MDT_Digitization/RT_Relation_DigiTool.h"
-
 #include "PathResolver/PathResolver.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 
 #include <iostream>
 
 using namespace MuonGM;
-using namespace std;
 
 #define RT_DATA "ArCO2.rt"
 

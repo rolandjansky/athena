@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,16 +17,17 @@
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MagFieldServices/AtlasFieldSvcTLS.h"
-#include "MagFieldServices/BFieldCache.h"
-#include "MagFieldServices/BFieldCacheZR.h"
-#include "MagFieldServices/BFieldCond.h"
-#include "MagFieldServices/BFieldZone.h"
-#include "MagFieldServices/BFieldMeshZR.h"
-// #include "MagFieldInterfaces/IMagFieldManipulator.h"
+#include "MagFieldElements/BFieldCache.h"
+#include "MagFieldElements/BFieldCacheZR.h"
+#include "MagFieldElements/BFieldCond.h"
+#include "MagFieldElements/BFieldZone.h"
+#include "MagFieldElements/BFieldMeshZR.h"
 
 // STL includes
 #include <vector>
 #include <iostream>
+
+#include "CxxUtils/checker_macros.h"
 
 // forward declarations
 class CondAttrListCollection;
@@ -44,23 +45,23 @@ namespace MagField {
     public:
 
       //** Constructor with parameters */
-      AtlasFieldSvc( const std::string& name, ISvcLocator* pSvcLocator );
+      AtlasFieldSvc( const std::string& name, ISvcLocator* pSvcLocator )  ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Destructor */
-      virtual ~AtlasFieldSvc();
+      virtual ~AtlasFieldSvc()  ATLAS_CTORDTOR_NOT_THREAD_SAFE ;
 
       /** Athena algorithm's interface methods */
-      virtual StatusCode  initialize() override;
+      virtual StatusCode  initialize  ATLAS_NOT_THREAD_SAFE () override;
       virtual StatusCode  finalize() override;
 
       /** Read **/
       virtual void handle(const Incident& runIncident) override;
 
       /** Call back for possible magnet current update **/
-      StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
+      StatusCode updateCurrent ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
 
       /** Call back for possible magnet filename update **/
-      StatusCode updateMapFilenames(IOVSVC_CALLBACK_ARGS);
+      StatusCode updateMapFilenames ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
 
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
@@ -215,7 +216,7 @@ MagField::AtlasFieldSvc::findZone( double z, double r, double phi ) const
     // use LUT to get the zone
     return m_zoneLUT[(iz*m_nr+ir)*m_nphi+iphi];
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -225,7 +226,7 @@ MagField::AtlasFieldSvc::fillFieldCache(double z, double r, double phi, AtlasFie
 {
   // search for the zone
   const BFieldZone* zone = findZone( z, r, phi );
-  if ( zone == 0 ) {
+  if ( zone == nullptr ) {
       // outsize all zones
       return false;
   }

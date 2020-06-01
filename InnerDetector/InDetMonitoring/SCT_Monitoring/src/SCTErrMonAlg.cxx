@@ -9,11 +9,16 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/ReadHandle.h"
 
-using namespace std;
 using namespace SCT_Monitoring;
 
 SCTErrMonAlg::SCTErrMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
   :AthMonitorAlgorithm(name,pSvcLocator) {
+  for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
+    m_nMaskedLinks[reg] = 0;
+  }
+  for (int lb{0}; lb<=NBINS_LBs; lb++) {
+    m_firstEventOfLB[lb].store(true, std::memory_order_relaxed);
+  }
 }
 
 StatusCode SCTErrMonAlg::initialize() {
@@ -23,6 +28,7 @@ StatusCode SCTErrMonAlg::initialize() {
   if (m_useDCS) ATH_CHECK(m_dcsTool.retrieve());
   else m_dcsTool.disable();
   ATH_CHECK(m_pSummaryTool.retrieve());
+  ATH_CHECK(m_flaggedTool.retrieve());
 
   // Retrieve geometrical information
   const InDetDD::SCT_DetectorManager* sctManager{nullptr};
@@ -63,13 +69,32 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
   auto sctFlagAcc{Monitored::Scalar<bool>("sctFlag", sctFlag)};
   fill("SCTErrMonitor", lumiBlockAcc, is1DAcc, sctFlagAcc);
 
+  // Check wafers with many fired strips (event dependent) using SCT_FlaggedConditionTool.
+  std::array<int, N_REGIONS_INC_GENERAL> flaggedWafersIndices
+    {ENDCAP_C_INDEX, BARREL_INDEX, ENDCAP_A_INDEX, GENERAL_INDEX};
+  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers;
+  nFlaggedWafers.fill(0);
+  const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
+  for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {
+    const IdentifierHash hash{iHash};
+    if (not m_flaggedTool->isGood(hash)) {
+      const Identifier wafer_id{m_pSCTHelper->wafer_id(hash)};
+      const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+      nFlaggedWafers[barrel_ec]++;
+      nFlaggedWafers[GENERAL_INDEX]++;
+    }
+  }
+  auto flaggedWwafersIndicesAcc{Monitored::Collection("flaggedWafersIndices", flaggedWafersIndices)};
+  auto nFlaggedWafersAcc{Monitored::Collection("nFlaggedWafers", nFlaggedWafers)};
+  fill("SCTErrMonitor", flaggedWwafersIndicesAcc, nFlaggedWafersAcc);
+
   if (sctFlag) {
     return StatusCode::SUCCESS;
   }
 
   // The numbers of disabled modules, links, strips do not change during a run.
   if (m_isFirstConfigurationDetails) {
-    std::lock_guard{m_mutex};
+    std::lock_guard<std::mutex> glock{m_mutex};
     if (m_isFirstConfigurationDetails) {
       ATH_CHECK(fillConfigurationDetails(ctx));
       m_isFirstConfigurationDetails = false;
@@ -101,13 +126,24 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
 }
 
 StatusCode
+SCTErrMonAlg::stop() {
+  /// Fill /SCT/GENERAL/errors/Masked Links only for last event ///
+  std::array<int, N_REGIONS_INC_GENERAL> maskedLinksBin{ENDCAP_C_INDEX, BARREL_INDEX, ENDCAP_A_INDEX, GENERAL_INDEX};
+  auto maskedLinksBinAcc{Monitored::Collection("maskedLinksBin", maskedLinksBin)};
+  auto maskedLinksAcc{Monitored::Collection("maskedLinks", m_nMaskedLinks)};
+  fill("SCTErrMonitor", maskedLinksBinAcc, maskedLinksAcc);
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
 SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
   ATH_MSG_DEBUG("Inside fillConfigurationDetails()");
   unsigned int nBadMods{static_cast<unsigned int>(m_configurationTool->badModules()->size())}; // bad modules
-  const map<IdentifierHash, pair<bool, bool>>* badLinks{m_configurationTool->badLinks(ctx)}; // bad links
+  const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configurationTool->badLinks(ctx)}; // bad links
   unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
-  for (const pair<IdentifierHash, pair<bool, bool>>& link: *badLinks) {
-    pair<bool, bool> status{link.second};
+  for (const std::pair<IdentifierHash, std::pair<bool, bool>>& link: *badLinks) {
+    std::pair<bool, bool> status{link.second};
     if ((status.first == false) and (status.second == true)) {
       ++nBadLink0;
     }
@@ -119,20 +155,20 @@ SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
     }
   }
 
-  const map<Identifier, unsigned int>* badChips{m_configurationTool->badChips(ctx)}; // bad chips
+  const std::map<Identifier, unsigned int>* badChips{m_configurationTool->badChips(ctx)}; // bad chips
   unsigned int nBadChips{0};
-  for (const pair<Identifier, unsigned int>& chip : *badChips) {
+  for (const std::pair<Identifier, unsigned int>& chip : *badChips) {
     unsigned int status{chip.second};
     for (unsigned int i{0}; i < CHIPS_PER_MODULE; i++) {
       nBadChips += ((status & (1 << i)) == 0 ? 0 : 1);
     }
   }
 
-  set<Identifier> badStripsAll; // bad strips
+  std::set<Identifier> badStripsAll; // bad strips
   m_configurationTool->badStrips(badStripsAll, ctx);
   unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
 
-  set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
+  std::set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
   m_configurationTool->badStrips(badStripsExclusive, ctx, true, true);
   int nBadStripsExclusive{static_cast<int>(badStripsExclusive.size())};
   int nBadStripsExclusiveBEC[N_REGIONS] = {
@@ -144,17 +180,19 @@ SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
   }
 
   /// Fill /SCT/GENERAL/Conf/SCTConfDetails ///
-  auto detailedConfBinAcc{Monitored::Scalar<int>("detailedConfBin")};
-  auto nBadAcc{Monitored::Scalar<double>("nBad")};
+  std::vector<int> vDetailedConfBin(ConfbinsDetailed);
+  std::vector<double> vNBad(ConfbinsDetailed);
   for (unsigned int i{0}; i<ConfbinsDetailed; i++) {
-    detailedConfBinAcc = i;
-    if (i==0) nBadAcc = nBadMods;
-    else if (i==1) nBadAcc = nBadLink0;
-    else if (i==2) nBadAcc = nBadLink1;
-    else if (i==3) nBadAcc = nBadChips;
-    else if (i==4) nBadAcc = static_cast<double>(nBadStripsExclusive) / 100.;
-    fill("SCTErrMonitor", detailedConfBinAcc, nBadAcc);
+    vDetailedConfBin[i] = i;
+    if (i==0) vNBad[i] = nBadMods;
+    else if (i==1) vNBad[i] = nBadLink0;
+    else if (i==2) vNBad[i] = nBadLink1;
+    else if (i==3) vNBad[i] = nBadChips;
+    else if (i==4) vNBad[i] = static_cast<double>(nBadStripsExclusive) / 100.;
   }
+  auto detailedConfBinAcc{Monitored::Collection("detailedConfBin", vDetailedConfBin)};
+  auto nBadAcc{Monitored::Collection("nBad", vNBad)};
+  fill("SCTErrMonitor", detailedConfBinAcc, nBadAcc);
 
   ATH_MSG_DEBUG("-----------------------------------------------------------------------");
   ATH_MSG_DEBUG("Number of bad modules                          = " << nBadMods);
@@ -188,14 +226,19 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType), nBSErrors);
     /// Fill /SCT/GENERAL/Conf/SCT_*VsLbs ///
     auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
-    auto nBSErrorsAcc{Monitored::Scalar<int>("n_"+SCT_ByteStreamErrors::errorTypesDescription[errType], nBSErrors)};
+    auto nBSErrorsAcc{Monitored::Scalar<int>("n_"+SCT_ByteStreamErrors::ErrorTypeDescription[errType], nBSErrors)};
     fill("SCTErrMonitor", lumiBlockAcc, nBSErrorsAcc);
   }
 
   categoryErrorMap_t categoryErrorMap;
   int total_errors{0};
+  std::array<int, N_REGIONS_INC_GENERAL> nMaskedLinks;
+  nMaskedLinks.fill(0);
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap, nMaskedLinks);
+  }
+  for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
+    m_nMaskedLinks[reg] = nMaskedLinks[reg];
   }
   /// Fill /SCT/GENERAL/errors/SCT_LinksWith*VsLbs ///
   std::vector<int> vEta;
@@ -230,15 +273,17 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
         }
         auto etaAcc{Monitored::Collection("eta", vEta)};
         auto phiAcc{Monitored::Collection("phi", vPhi)};
-        auto hasErrorAcc{Monitored::Collection("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[iReg].Data()+"_"+to_string(iLay/2)+"_"+to_string(iLay%2),
+        auto hasErrorAcc{Monitored::Collection("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[iReg].Data()+"_"+std::to_string(iLay/2)+"_"+std::to_string(iLay%2),
                                                vHasError)};
         fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
       }
     }
   }
   
-  if (m_coverageCheck) {
-    ATH_MSG_INFO("Detector Coverage calculation starts" );
+  // Coverage check is time consuming and run at the first event of each lumi block.
+  if (m_coverageCheck and m_firstEventOfLB[pEvent->lumiBlock()]) {
+    m_firstEventOfLB[pEvent->lumiBlock()] = false;
+    ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 
     static const std::string names[numberOfProblemForCoverage] = {
       "SCT_AllRegion", // All
@@ -259,12 +304,22 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
       "Map of Links with Any Bad Problem" // Summary
     };
 
-    std::vector<TH2F> mapSCT; // TODO: Check if we need to record these histograms
-    for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      mapSCT.push_back(TH2F(names[iProblem].c_str(), titles[iProblem].c_str(),
-                            s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI));
-      mapSCT[iProblem].GetXaxis()->SetTitle("#eta");
-      mapSCT[iProblem].GetYaxis()->SetTitle("#phi");
+    std::lock_guard<std::mutex> lock{m_mutex};
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt!=ctx.evt()) { // New event in this slot
+      if (ent->m_mapSCT.empty()) { // First event
+        for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
+          ent->m_mapSCT.push_back(TH2F(names[iProblem].c_str(), titles[iProblem].c_str(),
+                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI));
+          ent->m_mapSCT[iProblem].GetXaxis()->SetTitle("#eta");
+          ent->m_mapSCT[iProblem].GetYaxis()->SetTitle("#phi");
+        }
+      } else {
+        for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
+          ent->m_mapSCT[iProblem].Reset(); // Initialize histograms every event
+        }
+      }
+      ent->m_evt = ctx.evt();
     }
 
     std::set<IdentifierHash> sctHash[numberOfProblemForCoverage]{{}};
@@ -276,12 +331,12 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
 
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
       for (const IdentifierHash& hash: sctHash[iProblem]) {
-        fillWafer(m_geo[hash], mapSCT[iProblem]);
+        fillWafer(m_geo[hash], ent->m_mapSCT[iProblem]);
       }
 
       if (iProblem==allRegion) continue;
 
-      double detector_coverage{calculateDetectorCoverage(mapSCT[iProblem], mapSCT[allRegion])};
+      double detector_coverage{calculateDetectorCoverage(ent->m_mapSCT[iProblem], ent->m_mapSCT[allRegion])};
       /// Fill /SCT/DetectorCoverage/SCT_Coverage*VsLbs ///
       auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
       auto detectorCoverageAcc{Monitored::Scalar<double>("detectorCoverage"+coverageVarNames[iProblem], detector_coverage)};
@@ -299,9 +354,10 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
 }
 
 int
-SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
+SCTErrMonAlg::fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
                                          int err_type,
-                                         categoryErrorMap_t& categoryErrorMap) const {
+                                         categoryErrorMap_t& categoryErrorMap,
+                                         std::array<int, N_REGIONS_INC_GENERAL>& nMaskedLinks) const {
   //--- Check categories of the BS error
   std::array<bool, CategoryErrors::N_ERRCATEGORY> b_category;
   b_category.fill(false);
@@ -312,7 +368,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   b_category[CategoryErrors::SUMMARY] = true;
 
   b_category[CategoryErrors::BADERR] = false;
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     if (err_type == tmpBadError) {
       b_category[CategoryErrors::BADERR] = true;
       break;
@@ -320,7 +376,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::LINKLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
     if (err_type == linkLevelError) {
       b_category[CategoryErrors::LINKLEVEL] = true;
       break;
@@ -328,7 +384,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::RODLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
     if (err_type == rodLevelError) {
       b_category[CategoryErrors::RODLEVEL] = true;
       break;
@@ -350,7 +406,6 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 
   //--- Count BS errors
   int nerrors{0};
-  int nMaskedLinks[N_REGIONS_INC_GENERAL]{0, 0, 0, 0};
   for (const auto& hash: errors) {
     nerrors++;
     if (not hash.is_valid()) continue;
@@ -390,29 +445,41 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     }
   }
 
-  /// Fill /SCT/GENERAL/errors/Masked Links ///
-  // TODO: reset the histogram every event
-  for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
-    auto maskedLinksBinAcc{Monitored::Scalar<int>("maskedLinksBin", reg)};
-    auto maskedLinksAcc{Monitored::Scalar<int>("maskedLinks", nMaskedLinks[reg])};
-    fill("SCTErrMonitor", maskedLinksBinAcc, maskedLinksAcc);
-  }
-
   if (m_doPerLumiErrors) {
+    std::size_t size{static_cast<size_t>(N_REGIONS*n_layers[ENDCAP_C_INDEX]*N_SIDES)};
+    std::vector<int> vErrorType;
+    std::vector<int> vLayerSide;
+    std::vector<float> vErrorFraction;
+    std::vector<bool> vIsEC;
+    std::vector<bool> vIsB;
+    std::vector<bool> vIsEA;
+    vErrorType.reserve(size);
+    vLayerSide.reserve(size);
+    vErrorFraction.reserve(size);
+    vIsEC.reserve(size);
+    vIsB.reserve(size);
+    vIsEA.reserve(size);
     for (int reg{0}; reg<N_REGIONS; reg++) {
-      const int nLayers{n_layers[reg]*2};
+      const int nLayers{n_layers[reg]*N_SIDES};
       for (int layerSide{0}; layerSide<nLayers; layerSide++) {
         float num_modules{static_cast<float>(getNumModules(index2Bec(reg), layerSide))};
-        /// Fill /run_x/lb_y/SCT/SCT*/RateErrorsPerLumi ///
-        auto errorTypeAcc{Monitored::Scalar<int>("errorType", err_type)};
-        auto layerSideAcc{Monitored::Scalar<int>("layerSide", layerSide)};
-        auto errorFractionAcc{Monitored::Scalar<float>("errorFraction", static_cast<float>(numErrorsPerLumi[reg][layerSide])/num_modules)};
-        auto isECAcc{Monitored::Scalar<bool>("isEC", reg==ENDCAP_C_INDEX)};
-        auto isBAcc{Monitored::Scalar<bool>("isB", reg==BARREL_INDEX)};
-        auto isEAAcc{Monitored::Scalar<bool>("isEA", reg==ENDCAP_A_INDEX)};
-        fill("SCTErrMonitor", errorTypeAcc, layerSideAcc, errorFractionAcc, isECAcc, isBAcc, isEAAcc);
+        if (num_modules==0.) continue;
+        vErrorType.push_back(err_type);
+        vLayerSide.push_back(layerSide);
+        vErrorFraction.push_back(static_cast<float>(numErrorsPerLumi[reg][layerSide])/num_modules);
+        vIsEC.push_back(reg==ENDCAP_C_INDEX);
+        vIsB.push_back(reg==BARREL_INDEX);
+        vIsEA.push_back(reg==ENDCAP_A_INDEX);
       }
     }
+    /// Fill /run_x/lb_y/SCT/SCT*/RateErrorsPerLumi ///
+    auto errorTypeAcc{Monitored::Collection("errorType", vErrorType)};
+    auto layerSideAcc{Monitored::Collection("layerSide", vLayerSide)};
+    auto errorFractionAcc{Monitored::Collection("errorFraction", vErrorFraction)};
+    auto isECAcc{Monitored::Collection("isEC", vIsEC)};
+    auto isBAcc{Monitored::Collection("isB", vIsB)};
+    auto isEAAcc{Monitored::Collection("isEA", vIsEA)};
+    fill("SCTErrMonitor", errorTypeAcc, layerSideAcc, errorFractionAcc, isECAcc, isBAcc, isEAAcc);
   }
 
   if (b_category[CategoryErrors::SUMMARY]) return nerrors;
@@ -420,7 +487,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 }
 
 void
-SCTErrMonAlg::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot) const {
+SCTErrMonAlg::numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const {
   for (const auto& fit: errors) {
     if (fit.is_valid()) {
       ntot++;
@@ -428,10 +495,10 @@ SCTErrMonAlg::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot) 
   }
 }
 
-bool SCTErrMonAlg::disabledSCT(set<IdentifierHash>& sctHashDisabled) const {
+bool SCTErrMonAlg::disabledSCT(std::set<IdentifierHash>& sctHashDisabled) const {
   bool altered{false};
   sctHashDisabled.clear();
-  const set<Identifier>* badModules{m_configurationTool->badModules()};
+  const std::set<Identifier>* badModules{m_configurationTool->badModules()};
 
   for (const Identifier& badModule: *badModules) {
     altered = true;
@@ -444,32 +511,32 @@ bool SCTErrMonAlg::disabledSCT(set<IdentifierHash>& sctHashDisabled) const {
   return altered;
 }
 
-bool SCTErrMonAlg::errorSCT(set<IdentifierHash>& sctHashBadLinkError,
-                            set<IdentifierHash>& sctHashBadRODError,
-                            set<IdentifierHash>& sctHashBadError) const {
+bool SCTErrMonAlg::errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
+                            std::set<IdentifierHash>& sctHashBadRODError,
+                            std::set<IdentifierHash>& sctHashBadError) const {
   sctHashBadLinkError.clear();
   sctHashBadRODError.clear();
   sctHashBadError.clear();
  
   //BadLinkLevelError
-  for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
+  for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
     }
   }
 
   //BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
+  for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadRODError.insert(waferHash);
     }
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadError.insert(waferHash);
     }
@@ -478,7 +545,7 @@ bool SCTErrMonAlg::errorSCT(set<IdentifierHash>& sctHashBadLinkError,
 }
 
 // Total (SCT_ConditionsSummaryTool)
-bool SCTErrMonAlg::summarySCT(set<IdentifierHash>& sctHashAll, set<IdentifierHash>& sctHashSummary) const  {
+bool SCTErrMonAlg::summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<IdentifierHash>& sctHashSummary) const  {
   bool altered{false};
   sctHashAll.clear();//All
   sctHashSummary.clear();
@@ -495,7 +562,7 @@ bool SCTErrMonAlg::summarySCT(set<IdentifierHash>& sctHashAll, set<IdentifierHas
 }
 
 // Power supply trip (SCT_DCSConditionsTool)
-bool SCTErrMonAlg::psTripDCSSCT(set<IdentifierHash>& sctHashPSTripDCS, float& psTripModules) const {
+bool SCTErrMonAlg::psTripDCSSCT(std::set<IdentifierHash>& sctHashPSTripDCS, float& psTripModules) const {
   bool altered{false};
   sctHashPSTripDCS.clear();
 

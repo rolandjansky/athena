@@ -145,6 +145,7 @@
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
@@ -169,7 +170,6 @@
 + InnerDetector/InDetConditions/InDetConditionsSummaryService
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
 + InnerDetector/InDetConditions/PixelConditionsData
-+ InnerDetector/InDetConditions/PixelConditionsTools
 + InnerDetector/InDetConditions/PixelCoralClientUtils
 + InnerDetector/InDetConditions/SCT_ConditionsData
 + InnerDetector/InDetConditions/TRT_ConditionsAlgs
@@ -237,6 +237,8 @@
 + MagneticField/MagFieldInterfaces
 + MagneticField/MagFieldServices
 + MagneticField/MagFieldUtils
++ MagneticField/MagFieldConditions
++ MagneticField/MagFieldElements
 + MuonSpectrometer/MuonAlignment/MuonAlignmentData
 + MuonSpectrometer/MuonCnv/MuonIdCnv
 + MuonSpectrometer/MuonCnv/MuonSimEventAthenaPool
@@ -327,8 +329,6 @@
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
 + Tools/FilePeeker
-+ Tools/JobTransforms
-+ Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PROCTools

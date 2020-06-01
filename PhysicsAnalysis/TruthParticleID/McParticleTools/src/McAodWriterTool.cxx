@@ -17,7 +17,7 @@
 // FrameWork includes
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // McParticleEvent includes
 #include "McParticleEvent/TruthParticleContainer.h"

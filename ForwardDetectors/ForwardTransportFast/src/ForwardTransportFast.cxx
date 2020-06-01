@@ -4,7 +4,7 @@
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "ForwardTransportFast/ForwardTransportFast.h"
 #include "ForwardTracker/Particle.h"

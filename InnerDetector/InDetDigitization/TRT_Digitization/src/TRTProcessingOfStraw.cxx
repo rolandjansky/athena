@@ -41,9 +41,6 @@
 #include <cmath>
 #include <cstdlib> //Always include this when including cmath!
 
-// For magneticfield
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 // Logging
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -52,7 +49,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const InDetDD::TRT_DetectorManager* detmgr,
                                            ITRT_PAITool* paitoolXe,
                                            ITRT_SimDriftTimeTool* simdrifttool,
-                                           MagField::IMagFieldSvc * magfieldsvc,
                                            TRTElectronicsProcessing * ep,
                                            TRTNoise * noise,
                                            TRTDigCondBase* digcond,
@@ -76,7 +72,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
   m_pDigConditions(digcond),
   m_pParticleTable(pdt),
   m_alreadywarnedagainstpdg0(false),
-  m_magneticfieldsvc(magfieldsvc),
   m_msg("TRTProcessingOfStraw"),
   m_id_helper(trt_id)
 
@@ -207,6 +202,7 @@ void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
         }
     }
 
+
   ATH_MSG_VERBOSE ( "Initialization done" );
 
   return;
@@ -260,7 +256,8 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
+void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
+                                          hitCollConstIter i,
                                           hitCollConstIter e,
                                           TRTDigit& outdigit,
                                           bool & alreadyPrintedPDGcodeWarning,
@@ -520,8 +517,9 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   //////////////////////////////////////////////////////////
 
   m_depositList.clear();
-  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
+  ClustersToDeposits(fieldCache, hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -557,11 +555,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
-                                               const std::vector<cluster>& clusters,
-                                               std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-                                               Amg::Vector3D TRThitGlobalPos,
-                                               double cosmicEventPhase, // was const ComTime* m_ComTime,
+void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldCache, const int& hitID,
+					       const std::vector<cluster>& clusters,
+					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+					       Amg::Vector3D TRThitGlobalPos,
+					       double cosmicEventPhase, // was const ComTime* m_ComTime,
                                                int strawGasType,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
@@ -605,7 +603,10 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       globalPosition[0]=TRThitGlobalPos[0]*CLHEP::mm;
       globalPosition[1]=TRThitGlobalPos[1]*CLHEP::mm;
       globalPosition[2]=TRThitGlobalPos[2]*CLHEP::mm;
-      m_magneticfieldsvc->getField(&globalPosition, &mField);
+
+      // MT Field cache is stored in cache
+      fieldCache.getField         (globalPosition.data(), mField.data());
+
       map_x2 = mField.x()*mField.x(); // would be zero for a uniform field
       map_y2 = mField.y()*mField.y(); // would be zero for a uniform field
       map_z2 = mField.z()*mField.z(); // would be m_solenoidfieldstrength^2 for uniform field

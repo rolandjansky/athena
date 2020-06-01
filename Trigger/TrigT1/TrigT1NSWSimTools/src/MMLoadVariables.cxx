@@ -1,34 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// local includes
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
+
 #include "TrigT1NSWSimTools/MMT_Finder.h"
 #include "TrigT1NSWSimTools/MMT_Fitter.h"
-
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
-
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
-
-// //Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-//
 #include "StoreGate/StoreGateSvc.h"
+#include "MuonIdHelpers/MmIdHelper.h"
+
 #include "TVector3.h"
 #include <cmath>
-
 
 using std::map;
 using std::vector;
 using std::string;
-
 
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par):
       m_msg("MMLoadVariables"){
@@ -36,9 +31,6 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       m_evtStore = evtStore;
       m_detManager = detManager;
       m_MmIdHelper = idhelper;
-}
-
-MMLoadVariables::~MMLoadVariables() {
 }
 
     void MMLoadVariables::getMMDigitsInfo(vector<digitWrapper>& entries, map<hitData_key,hitData_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
@@ -237,7 +229,7 @@ MMLoadVariables::~MMLoadVariables() {
 
 
             MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
-            MM_SimIdToOfflineId simToOffline(*m_MmIdHelper);
+            MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
             for( auto it2 : *nswContainer ) { //get hit variables
               const MMSimHit hit = it2;
               fillVars.NSWMM_globalTime.push_back(hit.globalTime());

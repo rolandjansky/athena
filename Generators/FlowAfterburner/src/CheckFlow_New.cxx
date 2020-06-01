@@ -286,12 +286,12 @@ StatusCode CheckFlow_New::execute() {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
     return stat;
   }
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
-    int    pid    = (*pitr)->pdg_id();
-    int    p_stat = (*pitr)->status();
-    double pt     = (*pitr)->momentum().perp();
-    double rapid  = (*pitr)->momentum().pseudoRapidity();
-    double phi    = (*pitr)->momentum().phi();
+  for (auto pitr: particles) {
+    int    pid    = pitr->pdg_id();
+    int    p_stat = pitr->status();
+    double pt     = pitr->momentum().perp();
+    double rapid  = pitr->momentum().pseudoRapidity();
+    double phi    = pitr->momentum().phi();
     msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi<< endmsg;
@@ -385,10 +385,10 @@ StatusCode CheckFlow_New::execute() {
   for(int ihar=0;ihar<6;ihar++){
     m_profile_resolution->Fill( ihar+1,  cos(  (ihar+1) * (Psi_n_reco_pos[ihar] - Psi_n_reco_neg[ihar]) ) );
   }
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
-    double pt     = (*pitr)->momentum().perp();
-    double rapid  = (*pitr)->momentum().pseudoRapidity();
-    double phi    = (*pitr)->momentum().phi();
+  for (auto pitr: particles) {
+    double pt     = pitr->momentum().perp();
+    double rapid  = pitr->momentum().pseudoRapidity();
+    double phi    = pitr->momentum().phi();
     if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
 	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
 

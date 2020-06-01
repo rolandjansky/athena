@@ -1,24 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.04.2007, AUTHOR: I. POTRAP AND O. KORTNER
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef NtupleSimpleResolutionToolH
 #define NtupleSimpleResolutionToolH
 
-//////////////////
-// HEADER FILES //
-//////////////////
-
-//this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-//c - c++
+
 #include "string"
 #include "vector"
 
@@ -26,22 +17,16 @@
 
 /* ROOT */
 class TFile;
-class TH1F;
 class TH2F;
 class TF1;
 class TGraphErrors;
-class TTree;
-
 
 class MdtCalibInputSvc;
+
 namespace MuonCalib {
 
-/** MuonCalib **/
 class MuonCalibSegment;
 class IRtRelation;
-
-class NtupleStationId;
-
 
 class NtupleSimpleResolutionTool :  public AthAlgTool, virtual public NtupleCalibrationTool
 	{
@@ -49,17 +34,10 @@ public:
 /** Constructors **/
 	NtupleSimpleResolutionTool(const std::string& t, const std::string& n, const IInterface* p);
 
-	inline virtual ~NtupleSimpleResolutionTool(void) {
-		destruct();
-		}
+	virtual ~NtupleSimpleResolutionTool()=default;
 
 /** Tool initialize **/
 	StatusCode initialize();
-/** Tool finalize **/
-	inline StatusCode finalize()
-		{
-		return StatusCode :: SUCCESS;
-		}
 
 /** Is called at the end of the analysis - The argumet is only there to overload the interface function*/
 	StatusCode analyseSegments(const std::vector<MuonCalibSegment *> & segemnts);
@@ -129,7 +107,6 @@ private:
 /* is true if initialize is called - needed for genvonf */
 	bool m_is_initialized;
 
-/*	TFile *m_sfile; // ROOT file */
 	TFile *m_outfile;
 
 	TH2F *m_residual;
@@ -144,13 +121,6 @@ private:
 	TF1 *m_sprfun_r; //
 	TGraphErrors *m_sprgr;
 	TGraphErrors *m_sprgr_r;
-/*
-	TTree *m_ntuple; // ntuple for debug purposes
-// Declaration of Ntuple variables
-	int hit_st_name, hit_eta, hit_phi, hit_layer, hit_number_hits;
-	double hit_drift_time, hit_drift_radius, hit_sigma_drift_radius, hit_sigma_distance_to_track;
-	double hit_radial_residual, hit_track_direction, hit_signed_distance;	
-*/
 
 /* private methods */
 	void destruct(void); /* destruction routine */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9,29 +9,15 @@
 //                      be requested; bug fix in integral calculation.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/LegendrePolynomial.h"
 #include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "cmath"
 
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS BFieldCorFunc ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //*****************************************************************************
 
@@ -43,8 +29,6 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
 ////////////////
 // PARAMETERS //
 ////////////////
-  MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
-
   m_quality = quality;
   m_param = params;
 
@@ -52,6 +36,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
 // CONSISTENCY CHECK //
 ///////////////////////
   if (m_param.size()!=2) {
+    MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
     log<<MSG::ERROR<< "Wrong number of parameters!"<<endmsg;
     m_Legendre=NULL;
     return;	
@@ -87,7 +72,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
     m_step_size = 0.12;
   }
 // sample points for the integral factor in the correction function
-  vector<SamplePoint> sample_points(nb_points);
+  std::vector<SamplePoint> sample_points(nb_points);
 
 ////////////////////////////////////////////////////////////
 // CALCULATE THE INTEGRAL PART OF THE CORRECTION FUNCTION //
@@ -99,6 +84,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
   m_r_min = 0.025*CLHEP::mm;     // minimum radius
   m_r_max = rt->radius(m_t_max); // maximum radius
   if (m_r_max>17.0 || m_r_max <m_r_min) {
+    MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
     log<<MSG::INFO<< "UNPHYSICAL MAXIMUM DRIFT RADIUS OF " << m_r_max
        << ", WILL BE SET TO 17.0!"<<endmsg;
     m_r_max = 17.0;
@@ -121,6 +107,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
 	
 // perform the fit //
   if (fitter.fit_parameters(sample_points, 1, nb_points, &legendre)) {
+    MsgStream log(Athena::getMessageSvc(), "BFieldCorFunc");
     log<<MSG::WARNING<<"Unable to fit the integral in the correction!"<<endmsg;
     m_Legendre=NULL;
     return;	
@@ -165,7 +152,7 @@ double BFieldCorFunc::t_from_r(const double &r, const IRtRelation *rt) const {
       r_min=r_guess;
       t_min=t_guess;
     }
-  } while( t_max-t_min>0.1 && fabs(r_guess-r)>precision );
+  } while( t_max-t_min>0.1 && std::abs(r_guess-r)>precision );
   return t_guess;
 }  //end BFieldCorFunc::t_from_r
 
@@ -183,7 +170,7 @@ double BFieldCorFunc::integral(const double &r_min, const double &r_max, const I
 ///////////////
 // VARIABLES //
 ///////////////
-  double E0(m_param[0]/log(m_r_max/m_r_min)); // E(r)=E0/r
+  double E0(m_param[0]/std::log(m_r_max/m_r_min)); // E(r)=E0/r
   double radius(r_max), rp(r_min); // auxiliary radius variables
   double integ(0.0); // current value of the integral
 // 	double step(0.010); // integration step size [mm]
@@ -207,7 +194,7 @@ double BFieldCorFunc::integral(const double &r_min, const double &r_max, const I
   while (rp<radius) {
     time = t_from_r(rp, rt);
     if (rp+step>radius) delta=radius-rp;
-    integ = integ + 1.0e-3*delta*std::pow(fabs(rt->driftvelocity(time))*1.0e6,
+    integ = integ + 1.0e-3*delta*std::pow(std::abs(rt->driftvelocity(time))*1.0e6,
 	             1.0-m_param[1])/std::pow(E0/(rp*1.0e-3), 2.0-m_param[1]);
     rp = rp+step;
   }
@@ -250,8 +237,8 @@ void BFieldCorFunc::setRtRelationship(const IRtRelation &rt) {
 //:::::::::::::::::
 //:: METHOD name ::
 //:::::::::::::::::
-string BFieldCorFunc::name() const {
-  return string("BFieldCorFunc");
+std::string BFieldCorFunc::name() const {
+  return std::string("BFieldCorFunc");
 }
 
 //*****************************************************************************
@@ -267,7 +254,7 @@ double BFieldCorFunc::correction(double t, double B_wire, double B_mu) const {
 ///////////////
 // VARIABLES //
 ///////////////
-  double B_perp(sqrt(B_wire*B_wire+B_mu*B_mu)); // B orthogonal to the
+  double B_perp(std::hypot(B_wire, B_mu)); // B orthogonal to the
 	                                        // electron drift path
   double B_factor(std::pow(B_perp, 2.0-m_param[1]));
   double precision(0.1); // precision of the correction in ns
@@ -322,7 +309,7 @@ double BFieldCorFunc::correction_to_B(
 // VARIABLES //
 ///////////////
   if (B_factor<0) {
-    double B_perp(sqrt(B_wire*B_wire+B_mu*B_mu)); 
+    double B_perp(std::hypot(B_wire, B_mu)); 
     // B orthogonal to the electron drift path
     B_factor=std::pow(B_perp, 2.0-m_param[1]);
   }

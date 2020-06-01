@@ -30,12 +30,12 @@ atlas_add_library( SiPropertiesToolLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier InDetIdentifier )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier InDetIdentifier InDetConditionsSummaryService )
 
 atlas_add_component( SiPropertiesTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesToolLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesToolLib InDetConditionsSummaryService )
 
 # Run tests:
 atlas_add_test( TestSCTProperties

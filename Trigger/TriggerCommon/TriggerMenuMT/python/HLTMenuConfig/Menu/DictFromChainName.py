@@ -362,6 +362,23 @@ def analyseChainName(chainName, L1thresholds, L1item):
                         chainProperties[prop] = part
                     matchedparts.append(part)
 
+        # ----- at this point we can figure out if the chain is a bJet chain and update defaults accordingly
+        if chainProperties['signature']=='Jet' and chainProperties['bTag'] != '':
+            log.debug('Setting b-jet chain defaults')
+            # b-jet chain, so we now use the bJet defaults if they have not already been overriden
+            bJetDefaultValues, allowedbJetPropertiesAndValues = getSignatureInformation('Bjet')
+            for prop, value in bJetDefaultValues.items():
+                propSet=False
+                for value in allowedbJetPropertiesAndValues[prop]:
+                    if value in matchedparts:
+                        propSet=True
+                        break
+
+                # if the property was not set already, then set if according to the b-jet defaults
+                if propSet is False:
+                    log.debug('Changing %s from %s to %s', prop, str(chainProperties[prop]), str(bJetDefaultValues[prop]))
+                    chainProperties[prop] = bJetDefaultValues[prop]
+
         log.debug("matched parts %s", matchedparts)
         leftoverparts = set(parts)-set(matchedparts)
         log.debug('leftoverparts %s', leftoverparts)

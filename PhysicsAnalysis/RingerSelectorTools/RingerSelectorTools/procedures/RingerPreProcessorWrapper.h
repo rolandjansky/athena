@@ -10,6 +10,8 @@
 #include "RingerProcedureWrapper.h"
 #undef RINGER_PROCEDURE_INCLUDE
 
+#include <type_traits>
+
 //#undef NDEBUG
 
 /**
@@ -78,7 +80,7 @@ class IRingerProcedureWrapper< PreProcessing::IPreProcessor > :
     /**
      * @brief Returns this wrapper name
      **/
-    virtual const char* name() const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE {
+    virtual const char* name() const final override {
       return wrapName;
     }
 
@@ -96,11 +98,7 @@ class IRingerProcedureWrapper< PreProcessing::IPreProcessor > :
         TDirectory *configDir,
         unsigned version);
 
-#if RINGER_USE_NEW_CPP_FEATURES
     static constexpr const char* wrapName = "RingerPreProcessorWrapper";
-#else
-    static const char* wrapName;
-#endif
 
     /** Ensure virtual destructor */
     virtual ~IRingerProcedureWrapper(){;}
@@ -138,8 +136,8 @@ class RingerProcedureWrapper<
     public IPreProcWrapper,
     public RedirectMsgStream
 {
-    RINGER_STATIC_ASSERT(
-        (Ringer::is_base_of<VariableDependency,procedure_t>::value),
+    static_assert(
+        (std::is_base_of<VariableDependency,procedure_t>::value),
         "RingerProcedureWrapper procedure_t type must have IVariableDependecy inheritance.");
   public:
     /// RingerProcedureWrapper for Threshold procedures typedefs:
@@ -187,7 +185,7 @@ class RingerProcedureWrapper<
         const DepVarStruct &depVar,
         const xAOD::CaloRings *clrings,
         const TrackPatternsHolder *trackPat,
-        std::vector<float> &transformVec) const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE;
+        std::vector<float> &transformVec) const final override;
 
 #endif
 
@@ -199,7 +197,7 @@ class RingerProcedureWrapper<
      **/
     virtual void applyPreProcessing(
         const DepVarStruct &depVar,
-        std::vector<float> &transformVec) const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE;
+        std::vector<float> &transformVec) const final override;
     /// @}
 
     /// Other utilities
@@ -209,8 +207,7 @@ class RingerProcedureWrapper<
      * @brief Set the holden CaloRings raw configuration collection.
      **/
     virtual void setRawConfCol(
-        const xAOD::RingSetConf::RawConfCollection *crRawConfCol)
-      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+        const xAOD::RingSetConf::RawConfCollection *crRawConfCol) final override
     {
       m_rsRawConfCol = crRawConfCol;
       m_nRings = xAOD::RingSetConf::totalNumberOfRings( *crRawConfCol );
@@ -220,8 +217,7 @@ class RingerProcedureWrapper<
      * @brief Get the holden CaloRings raw configuration collection.
      **/
     virtual void getRawConfCol(
-        const xAOD::RingSetConf::RawConfCollection *&crRawConfCol) const
-      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+        const xAOD::RingSetConf::RawConfCollection *&crRawConfCol) const final override
     {
       crRawConfCol = m_rsRawConfCol;
     }
@@ -230,8 +226,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Get segmentation type for this pre-processor
      **/
-    virtual SegmentationType getSegType() const
-      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+    virtual SegmentationType getSegType() const final override
     {
       return static_cast<SegmentationType>(segType);
     }
@@ -239,7 +234,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Returns whether holden interface collection is empty.
      **/
-    virtual bool empty() const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+    virtual bool empty() const final override
     {
       return m_ppCol.empty();
     }
@@ -247,8 +242,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Returns eta dependecy for this wrapper
      **/
-    EtaDependency etaDep() const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
+    EtaDependency etaDep() const override final
     {
       return static_cast<EtaDependency>(etaDependency);
     }
@@ -256,8 +250,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Returns et dependecy for this wrapper
      **/
-    EtDependency etDep() const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
+    EtDependency etDep() const override final
     {
       return static_cast<EtDependency>(etDependency);
     }
@@ -265,14 +258,13 @@ class RingerProcedureWrapper<
     /**
      * @brief Release all holden pointer memory
      **/
-    void releaseMemory() ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    void releaseMemory() override final;
 
 
     /**
      * @brief Overloads the setMsgStream from RedirectMsgStream.
      **/
-    virtual void setMsgStream(MsgStream *msg) const ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL;
+    virtual void setMsgStream(MsgStream *msg) const override final;
 
     /**
      * @brief Get full wrapper name, static method
@@ -282,19 +274,17 @@ class RingerProcedureWrapper<
     /**
      * @brief Get full wrapper name
      **/
-    std::string fullName() const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    std::string fullName() const override final;
 
     /**
      * @brief Print wrapper content
      **/
-    void print(MSG::Level lvl = MSG::DEBUG) const ATH_RINGER_OVERRIDE
-      ATH_RINGER_FINAL;
+    void print(MSG::Level lvl = MSG::DEBUG) const override final;
 
     /**
      * @brief Write collection to TDirectory
      **/
-    void write(TDirectory *baseDir, const char *idxStr = "") const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    void write(TDirectory *baseDir, const char *idxStr = "") const override final;
 
     /**
      * @brief Read collection from TDirectory

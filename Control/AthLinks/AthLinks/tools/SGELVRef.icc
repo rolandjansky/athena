@@ -1,15 +1,15 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include <cassert>
 
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 /* #define __ELVDEBUG */
 
@@ -70,15 +70,7 @@ SG::ELVRef<DOBJ>::toPersistent
     return false;
 
   // Transfer the index.
-  index_type index;
-  try {
-    index = this->m_link.index();
-  }
-  catch (const SG::ExcElementNotFound&)
-  {
-    index = IThinningSvc::generateRemovedIdx<index_type>();
-  }
-  m_index = index;
+  m_index = this->m_link.index();
 
   // Calculate the distance in DataLinkVector
   typename DataLinkVector::const_iterator iHost(owner.findHostDObj(m_link));
@@ -118,16 +110,16 @@ SG::ELVRef<DOBJ>::toTransient
 {
   bool success = true;
 
+  // locate DataLink
+  typename DataLinkVector::const_iterator iHost(owner.beginHostDObjs());
+
   // handle thinned-away/null elements
-  if ( IThinningSvc::isThinned (m_shortRef) ||
+  if ( m_shortRef == SG::ThinningDecisionBase::RemovedIdx ||
        !IndexingPolicy::isValid(m_index))
   {
     m_link = ElemLink();
     return success;
   }
-
-  // locate DataLink
-  typename DataLinkVector::const_iterator iHost(owner.beginHostDObjs());
 
   if (m_shortRef >= (unsigned)(owner.endHostDObjs() - iHost)) {
     MsgStream log(Athena::getMessageSvc(), "ElementLinkVector");
@@ -156,14 +148,7 @@ SG::ELVRef<DOBJ>::doRemap()
   index_type new_index;
   if (this->m_link.isDefault())
     return false;
-  index_type index;
-  try {
-    index = this->m_link.index();
-  }
-  catch (const SG::ExcElementNotFound&)
-  {
-    index = IThinningSvc::generateRemovedIdx<index_type>();
-  }
+  index_type index = this->m_link.index();
 
   if (SG_detail::checkForRemap (this->m_link.source(),
                                 this->m_link.key(),

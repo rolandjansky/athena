@@ -26,11 +26,9 @@
 class ITruthIsolationTool;
 class McEventCollection;
 class TruthEtIsolationsContainer;
-namespace HepMC {
-  class GenEvent;
-  class GenVertex;
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 
 namespace D3PD {

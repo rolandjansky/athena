@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -84,7 +84,7 @@ public:
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of
       the subevts loop. Not able to access SubEvents */
-  virtual StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
 
   /** When being run from PileUpToolsAlgs, this method is called for each active
       bunch-crossing to process current SubEvents bunchXing is in ns */
@@ -98,18 +98,18 @@ public:
 
   /** When being run from PileUpToolsAlgs, this method is called at the end of
       the subevts loop. Not (necessarily) able to access SubEvents */
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
       all the required SubEvents. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
 private:
 
   /** Get next event and extract collection of hit collections: */
-  StatusCode getNextEvent();
+  StatusCode getNextEvent(const EventContext& ctx);
   /** Digitization functionality shared with RPC_PileUpTool */
-  StatusCode doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+  StatusCode doDigitization(const EventContext& ctx, RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
   /** */
   StatusCode fillTagInfo()    const;
   /** */
@@ -124,7 +124,7 @@ private:
   /** Cluster simulation: first step.
       The impact point of the particle across the strip is used
       to decide whether the cluster size should be 1 or 2 */
-  std::vector<int> PhysicalClusterSize(const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine);
+  std::vector<int> PhysicalClusterSize(const EventContext& ctx, const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine);
   /** Cluster simulation: second step.
       Additional strips are turned on in order to reproduce the
       observed cluster size distribution */
@@ -157,12 +157,12 @@ private:
   /** Average calibration methods and parameters */
   StatusCode  PrintCalibrationVector();
   /** Evaluate detection efficiency */
-  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit);
+  StatusCode DetectionEfficiency(const EventContext& ctx, const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const HepMcParticleLink& trkParticle);
   double FCPEfficiency(const HepMC::GenParticle* genParticle);
   /** */
-  int ClusterSizeEvaluation(const Identifier* id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);
+  int ClusterSizeEvaluation(const EventContext& ctx, const Identifier* id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);
   /** CoolDB */
-  StatusCode DumpRPCCalibFromCoolDB();
+  StatusCode DumpRPCCalibFromCoolDB(const EventContext& ctx);
 
   const MuonGM::MuonDetectorManager*  m_GMmgr{};
   const RpcIdHelper*          m_idHelper{};

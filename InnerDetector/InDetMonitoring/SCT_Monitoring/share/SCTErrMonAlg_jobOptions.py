@@ -87,9 +87,9 @@ myMonGroup.defineHistogram(varname = "moduleOutBin, moduleOut;SCTConfOutM",
 # Fiiled in fillByteStreamErrors
 from ROOT import SCT_ByteStreamErrors
 for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES):
-    myMonGroup.defineHistogram(varname = "lumiBlock, n_"+SCT_ByteStreamErrors.errorTypesDescription[i]+";SCT_"+SCT_ByteStreamErrors.errorTypesDescription[i]+"VsLbs",
+    myMonGroup.defineHistogram(varname = "lumiBlock, n_"+SCT_ByteStreamErrors.ErrorTypeDescription[i]+";SCT_"+SCT_ByteStreamErrors.ErrorTypeDescription[i]+"VsLbs",
                                type = "TProfile",
-                               title = "Ave. "+SCT_ByteStreamErrors.errorTypesDescription[i]+" per LB in All Region;LumiBlock;Num of "+SCT_ByteStreamErrors.errorTypesDescription[i],
+                               title = "Ave. "+SCT_ByteStreamErrors.ErrorTypeDescription[i]+" per LB in All Region;LumiBlock;Num of "+SCT_ByteStreamErrors.ErrorTypeDescription[i],
                                path = "GENERAL/Conf",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,
@@ -132,6 +132,16 @@ myMonGroup.defineHistogram(varname = "maskedLinksBin;Masked Links",
                            xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
                            xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
 
+# Filled in fillHistograms
+myMonGroup.defineHistogram(varname = "flaggedWafersIndices, nFlaggedWafers;FlaggedWafers",
+                           type = "TProfile",
+                           title = "Number of flagged wafers for SCT,ECA,B,ECC",
+                           path = "GENERAL/errors",
+                           xbins = sctMon.N_REGIONS_INC_GENERAL,
+                           xmin = -0.5,
+                           xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
+                           xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
+
 # Filled in fillByteStreamErrors
 coverageTitles = [
     "", # All (not used)
@@ -163,7 +173,7 @@ myMonGroup.defineHistogram(varname = "lumiBlock, psTripModules;SCT_ModulesWithPS
 # Filled in fillByteStreamErrorsHelper
 xlabels = []
 for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES):
-    xlabels.append(SCT_ByteStreamErrors.errorTypesDescription[i])
+    xlabels.append(SCT_ByteStreamErrors.ErrorTypeDescription[i])
 for reg in range(sctMon.N_REGIONS):
     nLayers = sctMon.n_layers[reg]*2
     ylabels = []

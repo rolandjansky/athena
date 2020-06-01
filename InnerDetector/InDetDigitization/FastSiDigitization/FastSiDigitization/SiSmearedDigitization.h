@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSIDIGITIZATION_SISMEAREDDIGITIZATION_H
@@ -8,7 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class ISiSmearedDigitizationTool;
+class IPileUpTool;
 
 /** Top algorithm class for Pixel digitization */
 class SiSmearedDigitization : public AthAlgorithm {
@@ -19,12 +19,11 @@ class SiSmearedDigitization : public AthAlgorithm {
   SiSmearedDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-  ToolHandle<ISiSmearedDigitizationTool> m_smearTool;
+  ToolHandle<IPileUpTool> m_smearTool{this, "DigitizationTool", "SiSmearedDigitizationTool", "AthAlgTool which performs the Pixel or SCT smearing"};
 };
 
 #endif // FASTSIDIGITIZATION_SISMEAREDDIGITIZATION_H

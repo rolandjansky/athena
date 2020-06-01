@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -73,7 +73,7 @@ bool SCT_TdaqEnabledCondData::isNoneBad() const
 // Check if a module is good
 bool SCT_TdaqEnabledCondData::isGood(const IdentifierHash& hashId) const
 {
-  if(m_noneBad) return true;
+  if (m_noneBad) return true;
   return (m_goodIds.find(hashId)!=m_goodIds.end());
 }
 

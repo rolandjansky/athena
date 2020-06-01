@@ -30,28 +30,31 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
+#include "CxxUtils/checker_macros.h"
 
   class CaloCellNoiseAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator) 
+      ATLAS_CTORDTOR_NOT_THREAD_SAFE;//Due to Data Handle not thread safe
     /** Default Destructor */
-    ~CaloCellNoiseAlg();
+    ~CaloCellNoiseAlg() 
+      ATLAS_CTORDTOR_NOT_THREAD_SAFE; //Due to DataHandle not thread safe
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    StatusCode          initialize ATLAS_NOT_THREAD_SAFE(); //StoreGateSvc::regHandle(const DataHandle<H>& ... not safe
     /** standard Athena-Algorithm method */
     StatusCode          execute();
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    StatusCode          stop ATLAS_NOT_THREAD_SAFE(); //Due tof fitNoise, so also due to DataHandle not thread safe
     
   private:
 
     StatusCode         fillNtuple();
-    StatusCode         fitNoise();
+    StatusCode         fitNoise ATLAS_NOT_THREAD_SAFE(); //Due to DataHandle not thread safe
     StatusCode         readNtuple();
     float              getLuminosity();
 
@@ -62,8 +65,8 @@
 
   const CaloDetDescrManager* m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
-  const DataHandle<ILArNoise> m_dd_noise;
-  const DataHandle<ILArPedestal> m_dd_pedestal;
+  const DataHandle<ILArNoise> m_dd_noise; /* Data Handle is marked as not thread safe*/
+  const DataHandle<ILArPedestal> m_dd_pedestal; /* Data Handle is marked as not thread safe*/ 
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
 
   // list of cell energies

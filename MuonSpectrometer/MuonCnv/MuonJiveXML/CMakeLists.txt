@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
+                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent )
 
 # External dependencies:
@@ -27,7 +28,7 @@ atlas_add_component( MuonJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps MuonReadoutGeometry JiveXMLLib GaudiKernel RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO MuonPrepRawData AnalysisTriggerEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps MuonReadoutGeometry JiveXMLLib GaudiKernel RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO MuonPrepRawData AnalysisTriggerEvent RPC_CondCablingLib)
 
 # Install files from the package:
 atlas_install_headers( MuonJiveXML )

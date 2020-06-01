@@ -24,9 +24,9 @@ def TrigCaloMonConfig(inputFlags):
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
 
-    # Get BunchCrossingTool
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-
+    # Get BunchCrossingCondAlg
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result=BunchCrossingCondAlgCfg(inputFlags)
 
 
     ################################
@@ -48,7 +48,6 @@ def TrigCaloMonConfig(inputFlags):
     L2CaloEMClustersMonAlg.HLTMinET = -1.0
     L2CaloEMClustersMonAlg.OFFMinET = -1.0
     L2CaloEMClustersMonAlg.MaxDeltaR = 0.04
-    L2CaloEMClustersMonAlg.BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
 
     # Add group
     L2CaloEMClustersMonGroup = helper.addGroup(L2CaloEMClustersMonAlg,'TrigCaloMonitor','HLT/HLTCalo')
@@ -258,7 +257,6 @@ def TrigCaloMonConfig(inputFlags):
         algs[i].OFFMinET = 500.0
         algs[i].MatchType = False
         algs[i].MaxDeltaR = 0.04
-	algs[i].BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
 
         # Add group
         TopoCaloClustersMonGroup.append(helper.addGroup(algs[i], 'TrigCaloMonitor','HLT/HLTCalo'))
@@ -471,8 +469,8 @@ def TrigCaloMonConfig(inputFlags):
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_no_HLT_match_et_vs_BC',cutmask='OFF_no_HLT_match',title='OFF Clusters E_{T} (No HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=21,xmin=-0.5,xmax=20.5)
 
-
-    return helper.result()
+    result.merge(helper.result())
+    return result
     
 if __name__=='__main__':
     # Setup the Run III behavior
@@ -498,9 +496,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigCaloMonitorAcc = TrigCaloMonConfig(ConfigFlags)

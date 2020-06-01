@@ -14,7 +14,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
-// CLHEP/HepMC includes
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenInteracting.h"
 

@@ -26,6 +26,11 @@ find_package( COOL COMPONENTS CoolKernel )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
+atlas_add_library( RegistrationServicesLib
+                   INTERFACE
+                   PUBLIC_HEADERS RegistrationServices
+                   LINK_LIBRARIES GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( RegistrationServices
                      src/RegistrationStream.cxx
@@ -35,7 +40,7 @@ atlas_add_component( RegistrationServices
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests CollectionBase FileCatalog AthenaPoolUtilities DBDataModel PersistentDataModel )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests CollectionBase FileCatalog AthenaPoolUtilities DBDataModel PersistentDataModel PoolSvcLib IOVDbSvcLib )
 
 # Install files from the package:
 atlas_install_headers( RegistrationServices )

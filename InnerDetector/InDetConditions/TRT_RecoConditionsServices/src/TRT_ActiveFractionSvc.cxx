@@ -11,7 +11,7 @@
 
 // Header Includes
 #include "TRT_ActiveFractionSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -27,7 +27,7 @@ TRT_ActiveFractionSvc::TRT_ActiveFractionSvc( const std::string& name,
   AthService( name, pSvcLocator ),
   m_incSvc("IncidentSvc",name),
   m_detStore("DetectorStore",name),
-  m_deadStrawSvc("TRT_StrawStatusSummarySvc",name),
+  m_deadStrawTool("TRT_StrawStatusSummaryTool",this),
   m_nBinsPhi(96)
 {
   // Get properties from job options
@@ -61,14 +61,10 @@ TRT_ActiveFractionSvc::~TRT_ActiveFractionSvc() {}
 StatusCode TRT_ActiveFractionSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "TRT_ActiveFractionSvc:initialize()" << endmsg;
+  ATH_MSG_INFO( "TRT_ActiveFractionSvc:initialize()" );
 
   // Get the TRT_StrawStatusSummarySvc
-  sc = m_deadStrawSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't get " << m_deadStrawSvc );
-    return sc;
-  }
+  ATH_CHECK( m_deadStrawTool.retrieve());
 
   // Register a callback to create the active fraction table at "BeginRun"
   sc = m_incSvc.retrieve();
@@ -156,7 +152,7 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         // Make sure it is a straw_layer id
         Identifier strawLayerId = TRTHelper->layer_id(id);
         IdentifierHash hashId = TRTHelper->straw_layer_hash(strawLayerId);
-        bool status = m_deadStrawSvc->get_status(id);
+        bool status = m_deadStrawTool->get_status(id);
         countAll++; if (status) countDead++;
 
         const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);

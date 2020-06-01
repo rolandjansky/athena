@@ -207,7 +207,7 @@ def GetReleaseSetup(isCImode=False):
     release_head=os.environ['AtlasVersion']
     platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
-    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'_'+project+'_'+platform+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
     # suggest to use latest opt over dbg
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)

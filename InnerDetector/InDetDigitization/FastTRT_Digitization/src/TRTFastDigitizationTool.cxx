@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -82,7 +82,6 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trtHighProbabilityBoostBkg(1.), 
     m_trtHighProbabilityBoostEle(1.)
 {
-  declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
   declareProperty( "TRT_ElectronPidTool",         m_trtElectronPidTool );
   declareProperty( "TRT_StrawStatusSummaryTool",   m_trtStrawStatusSummaryTool );
@@ -145,7 +144,7 @@ StatusCode TRTFastDigitizationTool::initialize()
 }
 
 
-StatusCode TRTFastDigitizationTool::prepareEvent( unsigned int )
+StatusCode TRTFastDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int )
 {
   m_trtHitCollList.clear();
   m_thpctrt = new TimedHitCollection< TRTUncompressedHit >();
@@ -292,11 +291,11 @@ StatusCode TRTFastDigitizationTool::setNumericalConstants() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode TRTFastDigitizationTool::produceDriftCircles() {
+StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx) {
   
   if(m_useEventInfo){
 
-     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey);
+     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey, ctx);
      if(eventInfoContainer.isValid()){
        m_NCollPerEvent = (float) eventInfoContainer->averageInteractionsPerCrossing();
      }
@@ -445,7 +444,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 }
 
 
-StatusCode TRTFastDigitizationTool::processAllSubEvents() {
+StatusCode TRTFastDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::processAllSubEvents()" );
 
@@ -475,7 +474,7 @@ StatusCode TRTFastDigitizationTool::processAllSubEvents() {
   m_thpctrt = &timedHitCollection;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  CHECK( this->produceDriftCircles() );
+  CHECK( this->produceDriftCircles(ctx) );
 
   CHECK( this->createAndStoreRIOs() );
   ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
@@ -512,7 +511,7 @@ StatusCode TRTFastDigitizationTool::createOutputContainers() {
 }
 
 
-StatusCode TRTFastDigitizationTool::mergeEvent() {
+StatusCode TRTFastDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::mergeEvent()" );
 
@@ -520,7 +519,7 @@ StatusCode TRTFastDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
   if ( m_thpctrt != 0 ) {
-    CHECK( this->produceDriftCircles() );
+    CHECK( this->produceDriftCircles(ctx) );
   }
 
   // Clean up temporary containers

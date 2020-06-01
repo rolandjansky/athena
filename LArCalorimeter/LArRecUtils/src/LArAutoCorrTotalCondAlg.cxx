@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrTotalCondAlg.h"
@@ -8,10 +8,6 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-
-#include "GaudiKernel/EventIDRange.h"
-
-//#include <cmath>
 
 LArAutoCorrTotalCondAlg::LArAutoCorrTotalCondAlg(const std::string &name,
                                                  ISvcLocator *pSvcLocator)
@@ -147,25 +143,16 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
   }
 
   // Get pointers to inputs
-  // Retrieve validity ranges and determine their intersection
-  // //FIXME use new style of intersection checking, see twiki
-  EventIDRange rangeShape, rangeAutoCorr;
-
   SG::ReadCondHandle<ILArShape> ShapeHdl{ m_LArShapeObjKey };
   // FIXME: should check if handle is properly created and/or check if handle is
   // properly retrieved
   // operator star of a ReadCondHandle returns a const pointer to type T
   const ILArShape *larShape{ *ShapeHdl };
-  if (!ShapeHdl.range(rangeShape)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << ShapeHdl.key());
-  }
+  writeHandle.addDependency(ShapeHdl);
 
   SG::ReadCondHandle<ILArAutoCorr> AutoCorrHdl{ m_LArAutoCorrObjKey };
   const ILArAutoCorr *larAutoCorr{ *AutoCorrHdl };
-  if (!AutoCorrHdl.range(rangeAutoCorr)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for "
-                  << AutoCorrHdl.key());
-  }
+  writeHandle.addDependency(AutoCorrHdl);
 
   SG::ReadCondHandle<LArADC2MeV> ADC2MeVHdl{ m_LArADC2MeVObjKey };
   const LArADC2MeV *larADC2MeV = nullptr;
@@ -173,14 +160,7 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
   if (larADC2MeV == nullptr) {
     ATH_MSG_ERROR("Failed to retrieve LArADC2MeV object");
   }
-
-  // Determine intersection of the two required objects
-  EventIDRange rangeIntersection =
-      EventIDRange::intersect(rangeShape, rangeAutoCorr);
-  // if ( rangeIntersection.start() > rangeIntersection.stop() ) {
-  // ATH_MSG_ERROR( "Invalid intersection range: " << rangeIntersection);
-  // return StatusCode::FAILURE;
-  //}
+  writeHandle.addDependency(ADC2MeVHdl);
 
   // Consider the determinstic objects
   // checking isMC and NoPile again seems very clumsy. How to check if key has
@@ -192,52 +172,26 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
 
   if (!m_NoPile) {
     if (m_isMC) {
-      EventIDRange rangeNoise;
       SG::ReadCondHandle<ILArNoise> NoiseHdl{ m_LArNoiseObjKey };
       larNoise = *NoiseHdl;
-      if (!NoiseHdl.range(rangeNoise)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for "
-                      << NoiseHdl.key());
-      }
-      rangeIntersection.intersect(rangeIntersection, rangeNoise);
+      writeHandle.addDependency(NoiseHdl);
     } else {
-      EventIDRange rangePedestal;
       SG::ReadCondHandle<ILArPedestal> PedestalHdl{ m_LArPedestalObjKey };
       larPedestal = *PedestalHdl;
-      if (!PedestalHdl.range(rangePedestal)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for "
-                      << PedestalHdl.key());
-      }
-      rangeIntersection.intersect(rangeIntersection, rangePedestal);
+      writeHandle.addDependency(PedestalHdl);
     }
 
-    EventIDRange rangefSampl;
     SG::ReadCondHandle<ILArfSampl> fSamplHdl{ m_LArfSamplObjKey };
     larfSampl = *fSamplHdl;
-    if (!fSamplHdl.range(rangefSampl)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for "
-                    << fSamplHdl.key());
-    }
-    rangeIntersection.intersect(rangeIntersection, rangefSampl);
+    writeHandle.addDependency(fSamplHdl);
 
-    EventIDRange rangeMinBias;
     SG::ReadCondHandle<ILArMinBias> MinBiasHdl{ m_LArMinBiasObjKey };
     larMinBias = *MinBiasHdl;
-    if (!MinBiasHdl.range(rangeMinBias)) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for "
-                    << MinBiasHdl.key());
-    }
-    rangeIntersection.intersect(rangeIntersection, rangeMinBias);
-  }
-
-  // Check sanity of final range
-  if (rangeIntersection.start() > rangeIntersection.stop()) {
-    ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
-    return StatusCode::FAILURE;
+    writeHandle.addDependency(MinBiasHdl);
   }
 
   ATH_MSG_INFO("IOV found from intersection for AutoCorrTotal object: "
-               << rangeIntersection);
+               << writeHandle.getRange());
 
   // make output object
   // dimensions: number of gains x number of channel IDs x elements of
@@ -390,7 +344,7 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
   }
 
 
-  ATH_CHECK(writeHandle.record(rangeIntersection,larAutoCorrTotal.release()));
+  ATH_CHECK(writeHandle.record(std::move(larAutoCorrTotal)));
 
   ATH_MSG_INFO("LArAutoCorrTotal Ncell " << count);
   // ATH_MSG_INFO( "LArAutoCorrTotal Nsymcell " << count2  );

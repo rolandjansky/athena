@@ -110,7 +110,6 @@ if DetFlags.pixel_on():
                                       UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
                                       UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
                                       UseTDAQConditions=athenaCommonFlags.isOnline(),
-                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                       UseCalibConditions=True,
                                       UseCablingConditions=useCablingConditions,
                                       CablingMapFileName=IdMappingDat)
@@ -417,11 +416,8 @@ if DetFlags.haveRIO.TRT_on():
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
             conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
-    # Calibration constants
-    # Block folders if they are to be read from or written to text files
-    #conddb.blockFolder("/TRT/Calib/RT")
-    #conddb.blockFolder("/TRT/Calib/T0")
 
+# Rt calibration coinstants
     if not conddb.folderRequested('/TRT/Calib/RT'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
 
@@ -433,20 +429,6 @@ if DetFlags.haveRIO.TRT_on():
 
     if not conddb.folderRequested('/TRT/Calib/slopes'):
         TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
-
-    if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
-
-    if not conddb.folderRequested('/TRT/Calib/HTCalib'):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
-
-
-    # Calibration DB Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    InDetTRTCalDbSvc = TRT_CalDbSvc()
-    ServiceMgr += InDetTRTCalDbSvc
-    if(InDetFlags.doPrintConfigurables()):
-        printfunc (InDetTRTCalDbSvc)
 
 
     # Dead/Noisy Straw Lists
@@ -461,17 +443,6 @@ if DetFlags.haveRIO.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
     # TRT PID tools        
-    if not conddb.folderRequested( "/TRT/Calib/PID" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID","/TRT/Calib/PID")
-    if not conddb.folderRequested( "/TRT/Calib/PID_RToT" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
-    # TRT PID tools        
-    if not conddb.folderRequested( "/TRT/Calib/PIDver_New" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PIDver_New","/TRT/Calib/PIDver_New")
-    if not conddb.folderRequested( "/TRT/Calib/PID_RToTver_New" ):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToTver_New","/TRT/Calib/PID_RToTver_New")
-
-		# Added for run2. Clean the unsed ones!!!
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector",className='CondAttrListVec')
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
@@ -508,13 +479,6 @@ if DetFlags.haveRIO.TRT_on():
     topSequence = AlgSequence()
     if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
          useOldStyle = True
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
-                                                              isGEANT4 = useOldStyle)
-    ServiceMgr += InDetTRTStrawStatusSummarySvc
-    if (InDetFlags.doPrintConfigurables()):
-        printfunc (InDetTRTStrawStatusSummarySvc)
-    InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
 
     # Straw status tool
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool

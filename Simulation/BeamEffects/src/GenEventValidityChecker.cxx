@@ -10,7 +10,7 @@
 #include "GenEventValidityChecker.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // CLHEP includes
 #include "CLHEP/Geometry/Point3D.h"

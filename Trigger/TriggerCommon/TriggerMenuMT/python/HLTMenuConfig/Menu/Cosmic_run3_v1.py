@@ -38,7 +38,16 @@ def setupMenu():
     TriggerFlags.MinBiasSlice.signatures   = []
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = []
+    TriggerFlags.StreamingSlice.signatures = [
+
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
+
+        ChainProp(name='HLT_noalg_cosmicmuons_L1MU4_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1MU11_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
+
+
+]
     TriggerFlags.MonitorSlice.signatures   = []
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigNavigationAuxInfoCnv.cxx 710840 2015-11-26 08:45:42Z will $
@@ -11,7 +11,10 @@
 #include "AthenaKernel/IThinningSvc.h"
 
 #ifndef XAOD_ANALYSIS
-#include "TrigNavTools/ITrigNavigationThinningSvc.h" //thinning only possible in full athena
+#include "AthenaKernel/ITrigNavigationThinningSvc.h" //thinning only possible in full athena
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #endif
 
 // EDM include(s):
@@ -29,16 +32,6 @@ xAODTrigNavigationAuxInfoCnv( ISvcLocator* svcLoc )
 
 }
 
-#ifndef XAOD_ANALYSIS
-ITrigNavigationThinningSvc* iface_cast(IThinningSvc* base)  {
-  ITrigNavigationThinningSvc* isvc(0);
-  if ( base->queryInterface(ITrigNavigationThinningSvc::interfaceID(), (void**)&isvc).isFailure() ) {
-    return 0;
-  }
-  return isvc;
-}
-#endif
-
 xAOD::TrigNavigationAuxInfo*
 xAODTrigNavigationAuxInfoCnv::
 createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
@@ -47,19 +40,27 @@ createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
   // see if the ThinningSvc implements an interface capable of slimming the navation 
   xAOD::TrigNavigationAuxInfo* result = new xAOD::TrigNavigationAuxInfo();
 #ifndef XAOD_ANALYSIS
-  ITrigNavigationThinningSvc* thinningSvc = dynamic_cast<ITrigNavigationThinningSvc*>(IThinningSvc::instance());//iface_cast(IThinningSvc::instance());
+  const ITrigNavigationThinningSvc* thinningSvc = nullptr;
+  if (const SG::ThinningCache* cache = SG::getThinningCache()) {
+    thinningSvc = cache->trigNavigationThinningSvc();
+  }
+  if (!thinningSvc) {
+    thinningSvc = 
+      dynamic_cast<const ITrigNavigationThinningSvc*>(IThinningSvc::instance());
+  }
   if ( thinningSvc ) {
-    ATH_MSG_DEBUG("ThinningSvc is o type TrigNavigationThinningSvc, will request slimmed navigation from it");
+    ATH_MSG_DEBUG("Doing TrigNavigation slimming");
     xAOD::TrigNavigation wrapper;
     wrapper.setStore(result);
     std::vector< unsigned int > temp;
-     if ( thinningSvc->doSlimming(temp).isFailure() ) {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+     if ( thinningSvc->doSlimming(ctx, temp).isFailure() ) {
        ATH_MSG_WARNING("Failed to slim and store Trigger Navigation data in the output xAODTrigNavigation object");
      }
      wrapper.setSerialized(temp);
      wrapper.setStore((const SG::IConstAuxStore*)nullptr);
   } else {
-    ATH_MSG_DEBUG("Default ThinningSvc, just copy");
+    ATH_MSG_DEBUG("No TrigNavigation slimming");
     *result = *trans;
   }
 #else

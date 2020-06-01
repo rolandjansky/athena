@@ -51,6 +51,7 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthVertexContainer.h"
@@ -274,7 +275,8 @@ StatusCode HLTTauMonTool::book()
     std::string trigItem=m_trigItems[i];
     if(m_trigItems[i].find("tau25")!=string::npos && m_trigItems[i].find("L1TAU")!=string::npos){
       size_t posit=m_trigItems[i].rfind("_");
-      trigItem=m_trigItems[i].substr(0,posit);
+      ATH_MSG_DEBUG("Size is: "<< posit);
+      if(posit<31)trigItem=m_trigItems[i].substr(0,posit);
     }
     ATH_MSG_DEBUG("This is the token: "<<trigItem);
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem,run));
@@ -351,33 +353,40 @@ StatusCode HLTTauMonTool::fill() {
       //return StatusCode::FAILURE;     
    }
    else{
-     xAOD::TruthParticleContainer::const_iterator truthItr,truth_cont_end = truth_cont->end();
-     for (truthItr=truth_cont->begin(); truthItr != truth_cont_end; ++truthItr){
-      if(abs((*truthItr)->pdgId()) == 15) ATH_MSG_DEBUG("Tau with status " << (*truthItr)->status() << " and charge " << (*truthItr)->charge());
-        if(abs((*truthItr)->pdgId()) == 15  && (*truthItr)->status() == 2) // || (*truthItr)->status() == 10902))
-        {
-          examineTruthTau(**truthItr);
-          float pt  = (*truthItr)->auxdata<float>("pt_vis");
-          float eta = (*truthItr)->auxdata<float>("eta_vis");
-          float phi = (*truthItr)->auxdata<float>("phi_vis");
-          float m   = (*truthItr)->auxdata<float>("m_vis");
-          bool lep = (*truthItr)->auxdata<bool>("IsLeptonicTau");
-          int ntracks = (*truthItr)->auxdata<int>("nTracks");
-          if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
-          if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
-          if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
-          if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
-          if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
-          if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
-          if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
-          if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
-          if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
-          TLorentzVector TruthTauTLV;
-          TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
-          m_true_taus.push_back(TruthTauTLV);
-          m_true_taus_nprong.push_back(ntracks);
-        }
-      }// end if_else sc.isSuccess
+
+     for (auto xTruthParticle : *truth_cont)
+       {
+         if ( xTruthParticle->isTau() )
+           {
+             xAOD::TruthParticle* xTruthTau = new xAOD::TruthParticle();
+             xTruthTau->makePrivateStore( *xTruthParticle );
+
+             if(examineTruthTau(*xTruthTau).isFailure()){
+               delete xTruthTau;
+               continue;
+             }
+             float pt  = xTruthTau->auxdata<double>("pt_vis");
+             float eta = xTruthTau->auxdata<double>("eta_vis");
+             float phi = xTruthTau->auxdata<double>("phi_vis");
+             float m   = xTruthTau->auxdata<double>("m_vis");
+             bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
+             int ntracks = xTruthTau->auxdata<int>("nTracks");
+             if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
+             if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
+             if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
+             if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
+             if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
+             if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
+             if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
+             if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
+             if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
+             TLorentzVector TruthTauTLV;
+             TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
+             m_true_taus.push_back(TruthTauTLV);
+             m_true_taus_nprong.push_back(ntracks);
+             delete xTruthTau;
+           }
+       }
     }//end if(truth_cont)
   }// end if(m_truth)
 
@@ -674,7 +683,8 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
       size_t posit=trigItem.rfind("_");
-      trigItemShort=trigItem.substr(0,posit);
+      ATH_MSG_DEBUG("Size is: "<< posit);
+      if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
 
     for(; itEMTau!=itEMTau_e; ++itEMTau){
@@ -682,6 +692,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
       ATH_CHECK(fillL1Tau(*itEMTau)); 
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1VsOffline");
+      ATH_MSG_DEBUG("Check if L1VsOffline group exists");
       ATH_CHECK(fillL1TauVsOffline(*itEMTau, goodTauRefType));
     }
     const xAOD::TauJetContainer * tauJetCont = 0;
@@ -823,7 +834,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
           size_t posit=trigItem.rfind("_");
-          trigItemShort=trigItem.substr(0,posit);
+          if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
          // L1 Histograms, but looking only at RoIs seeding events passing HLT. Otherwise we are biased to events accepted by other chains
@@ -1002,7 +1013,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
           size_t posit=trigItem.rfind("_");
-          trigItemShort=trigItem.substr(0,posit);
+          if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresPreselect
@@ -1198,10 +1209,15 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_DEBUG("Check01");
   hist("hL1RoIEta")->Fill(aL1Tau->eta());
+  ATH_MSG_DEBUG("Check02");
   hist("hL1RoIPhi")->Fill(aL1Tau->phi());
+  ATH_MSG_DEBUG("Check03");
   hist2("hL1EtaVsPhi")->Fill(aL1Tau->eta(),aL1Tau->phi());
+  ATH_MSG_DEBUG("Check04");
   hist("hL1RoIeT")->Fill(aL1Tau->eT()/GeV);
+  ATH_MSG_DEBUG("Check05");
 
   uint8_t isoBit = aL1Tau->isol();
   if(isoBit/128) hist("hL1RoIisol")->Fill(8);
@@ -1212,14 +1228,22 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   if((isoBit/4)%2) hist("hL1RoIisol")->Fill(3);
   if((isoBit/2)%2) hist("hL1RoIisol")->Fill(2);
   if((isoBit/1)%2) hist("hL1RoIisol")->Fill(1);
+  ATH_MSG_DEBUG("Check06");
   hist("hL1RoITauClus")->Fill(aL1Tau->tauClus()/GeV);
+  ATH_MSG_DEBUG("Check07");
   //hist("hL1RoITauClus2")->Fill(aL1Tau->tauClus()/GeV);
   hist("hL1RoIEMIso")->Fill(aL1Tau->emIsol()/GeV);
+  ATH_MSG_DEBUG("Check08");
   hist("hL1RoIHadCore")->Fill(aL1Tau->hadCore()/GeV);
+  ATH_MSG_DEBUG("Check09");
   hist("hL1RoIHadIsol")->Fill(aL1Tau->hadIsol()/GeV);
+  ATH_MSG_DEBUG("Check10");
   hist2("hL1RoITauClusEMIso")->Fill(aL1Tau->tauClus()/GeV,aL1Tau->emIsol()/GeV);
+  ATH_MSG_DEBUG("Check11");
   hist2("hL1EtVsPhi")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->phi());
+  ATH_MSG_DEBUG("Check12");
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
+  ATH_MSG_DEBUG("Check13");
 
   const xAOD::JetRoIContainer *l1jets = 0;
   if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
@@ -1235,11 +1259,16 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
    float dPhi = deltaPhi(aL1Tau->phi(),(*itL1Jet)->phi());
    if(deltaR(aL1Tau->eta(), (*itL1Jet)->eta(), aL1Tau->phi(), (*itL1Jet)->phi()) > 0.3) continue;
    hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
+   ATH_MSG_DEBUG("Check014");
    if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
   hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
+  ATH_MSG_DEBUG("Check015");
   hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
+  ATH_MSG_DEBUG("Check016");
    } 
   }
+
+  ATH_MSG_DEBUG("Exit from fillL1Tau");
 
   return StatusCode::SUCCESS;
 
@@ -1367,7 +1396,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(BDTinput_type == "basicVars")
@@ -2014,7 +2043,7 @@ StatusCode HLTTauMonTool::fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(truthPt>0.){
@@ -2131,7 +2160,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(BDTinput_type == "basicVars")
@@ -2777,51 +2806,61 @@ bool HLTTauMonTool::Selection(const xAOD::EmTauRoI *aTau=NULL){
 // Turn On Curve Methods
 //=================================
 
-void HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const
+StatusCode HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthTau) const
 {
-    xTruthParticle.auxdecor<bool>("IsLeptonicTau") = false;
+
+    if(!xTruthTau.hasDecayVtx()) return StatusCode::FAILURE;
+
+    xTruthTau.auxdecor<char>("IsLeptonicTau") = false;
     
     TLorentzVector VisSumTLV;
-    xTruthParticle.auxdecor<float>("pt_vis") = 0;
-    xTruthParticle.auxdecor<float>("eta_vis") = 0;
-    xTruthParticle.auxdecor<float>("phi_vis") = 0;
-    xTruthParticle.auxdecor<float>("m_vis") = 0;
-    xTruthParticle.auxdecor<int>("childChargeSum") = 0;
-    xTruthParticle.auxdecor<int>("nTracks") = 0;
-   
-    if(!xTruthParticle.hasDecayVtx()) return;
+    xTruthTau.auxdecor<double>("pt_vis") = 0;
+    xTruthTau.auxdecor<double>("eta_vis") = 0;
+    xTruthTau.auxdecor<double>("phi_vis") = 0;
+    xTruthTau.auxdecor<double>("m_vis") = 0;
+    xTruthTau.auxdecor<int>("childChargeSum") = 0;
+    xTruthTau.auxdecor<int>("nTracks") = 0;
+  
     
-    const xAOD::TruthVertex* decayvtx = xTruthParticle.decayVtx();
+    const xAOD::TruthVertex* decayvtx = xTruthTau.decayVtx();
     if(decayvtx)
     {
         const std::size_t nChildren = decayvtx->nOutgoingParticles();
         for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
         {
             const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-      if((abs(child->pdgId()) == 12 || abs(child->pdgId()) == 14 || abs(child->pdgId()) == 16)) continue;
-      if(child->status()==3) continue;
-      ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
-            if ((abs(child->pdgId()) == 11 || abs(child->pdgId()) == 13 || abs(child->pdgId()) == 15)) xTruthParticle.auxdecor<bool>("IsLeptonicTau") = true;
-            VisSumTLV += child->p4();
-            xTruthParticle.auxdecor<int>("childChargeSum") += child->charge();
-      xTruthParticle.auxdecor<int>("nTracks") += abs(child->charge());
+            if( ( abs(child->pdgId()) == 12 || 
+                  abs(child->pdgId()) == 14 || 
+                  abs(child->pdgId()) == 16 ) ) continue;
+                  if(child->status()==3) continue;
+                  ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+                  if ( ( abs(child->pdgId()) == 11 || 
+                         abs(child->pdgId()) == 13 || 
+                         abs(child->pdgId()) == 15 ) ) xTruthTau.auxdecor<char>("IsLeptonicTau") = true;
+                     VisSumTLV += child->p4();
+                     xTruthTau.auxdecor<int>("childChargeSum") += child->charge();
+                     xTruthTau.auxdecor<int>("nTracks") += abs(child->charge());
         }
     }
 
-    xTruthParticle.auxdecor<float>("pt_vis")  = (float)VisSumTLV.Pt();
-    xTruthParticle.auxdecor<float>("eta_vis") = (float)VisSumTLV.Eta();
-    xTruthParticle.auxdecor<float>("phi_vis") = (float)VisSumTLV.Phi();
-    xTruthParticle.auxdecor<float>("m_vis")   = (float)VisSumTLV.M();
-    if(xTruthParticle.auxdecor<int>("childChargeSum")!=xTruthParticle.charge() || xTruthParticle.auxdecor<int>("nTracks")%2==0)
-      { 
-  ATH_MSG_WARNING("Strange tau: charge " << xTruthParticle.auxdecor<int>("childChargeSum") << " and " << xTruthParticle.auxdecor<int>("nTracks")  << " tracks");
-  const std::size_t nChildren = decayvtx->nOutgoingParticles();
-  for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
-    {
-      const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-      ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+    xTruthTau.auxdecor<double>("pt_vis")  = VisSumTLV.Pt();
+    xTruthTau.auxdecor<double>("eta_vis") = VisSumTLV.Eta();
+    xTruthTau.auxdecor<double>("phi_vis") = VisSumTLV.Phi();
+    xTruthTau.auxdecor<double>("m_vis")   = VisSumTLV.M();
+
+    if(xTruthTau.auxdecor<int>("childChargeSum")!=xTruthTau.charge() || xTruthTau.auxdecor<int>("nTracks")%2==0)
+    { 
+        ATH_MSG_WARNING("Strange tau: charge " << xTruthTau.auxdecor<int>("childChargeSum") << " and " 
+                                               << xTruthTau.auxdecor<int>("nTracks")  << " tracks");
+        const std::size_t nChildren = decayvtx->nOutgoingParticles();
+        for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
+        {
+            const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
+            ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+        }
     }
-      }
+
+    return StatusCode::SUCCESS;
 }
 
 
@@ -2942,7 +2981,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   // loop over taus in denominator and match with L1 and HLT taus:
@@ -3521,7 +3560,7 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
       size_t posit=trigItem.rfind("_");
-      trigItemShort=trigItem.substr(0,posit);
+      if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
     
     if(TauCont_type == "Truth")
@@ -3869,14 +3908,7 @@ int HLTTauMonTool::PrimaryVertices(){
 }
 
 float HLTTauMonTool::Pileup(){
-  float Pileup(0.);
-  const xAOD::EventInfo* evtInfo = 0;
-  if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
-    ATH_MSG_DEBUG("Failed to retrieve EventInfo container, returning -1!");
-    return -1;
-    }
-  Pileup = evtInfo->averageInteractionsPerCrossing();
-  return Pileup;
+  return lbAverageInteractionsPerCrossing();
 }
 
 

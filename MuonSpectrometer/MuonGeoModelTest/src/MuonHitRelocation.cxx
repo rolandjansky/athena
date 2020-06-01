@@ -161,9 +161,9 @@ StatusCode MuonHitRelocation::execute() {
     for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin();
 	 p!= (**e).particles_end(); p++) {
 
-        float xv = (**p).production_vertex()->point3d().x();
-        float yv = (**p).production_vertex()->point3d().y();
-        float zv = (**p).production_vertex()->point3d().z();
+        float xv = (**p).production_vertex()->position().x();
+        float yv = (**p).production_vertex()->position().y();
+        float zv = (**p).production_vertex()->position().z();
  	float xd = (**p).momentum().px();
  	float yd = (**p).momentum().py();
  	float zd = (**p).momentum().pz();
@@ -564,13 +564,6 @@ StatusCode MuonHitRelocation::execute() {
   }
   
   //-------------------------------------------------------------------------------------------------------
-  return StatusCode::SUCCESS;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode MuonHitRelocation::finalize() {
-
-  ATH_MSG_INFO( "GOODBYE from MuonHitRelocation"  );
   return StatusCode::SUCCESS;
 }
 

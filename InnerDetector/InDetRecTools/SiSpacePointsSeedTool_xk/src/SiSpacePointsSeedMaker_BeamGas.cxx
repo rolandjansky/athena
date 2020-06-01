@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,13 +44,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::initialize()
   //
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  // Get magnetic field service
-  //
-  if ( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
 
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
@@ -87,7 +81,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(const EventContext& ctx, EventData& data, int) const
 {
   if (!m_pixel && !m_sct) return;
 
@@ -98,8 +92,19 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
 
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+  MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_BeamGas: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP,f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5. );
@@ -113,7 +118,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -124,7 +129,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
   //
   if (m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -148,7 +153,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
   //
   if (m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -171,7 +176,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
     //
     if (m_useOverlap) {
 
-      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap};
+      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap, ctx};
       if (spacepointsOverlap.isValid()) {
 
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
@@ -198,7 +203,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   if (!m_pixel && !m_sct) return;
@@ -210,8 +215,19 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+  MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_BeamGas: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP,f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5. );
@@ -224,7 +240,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -235,7 +251,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
   //
   if (m_pixel && vPixel.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -263,7 +279,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
   //
   if (m_sct && vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
 
@@ -295,10 +311,10 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT, const IRoiDescriptor&) const
 {
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -337,7 +353,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::find2Sp(EventData& data, const std::
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -362,9 +378,9 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(EventData& data, const std::
     dump(data, msg(MSG::DEBUG));
   }
 }
-void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(data, lv);
+  find3Sp(ctx, data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -373,7 +389,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::find3Sp(EventData& data, const std::
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::findVSp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -1088,7 +1104,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_BeamGas::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_BeamGas::next(const EventContext&, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 

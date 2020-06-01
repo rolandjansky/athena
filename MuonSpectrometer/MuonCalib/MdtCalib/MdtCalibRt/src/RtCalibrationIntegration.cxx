@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -15,33 +15,20 @@
 //                         
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS RtCalibrationIntegration ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 
-// MuonCalib //
 #include "MdtCalibRt/RtCalibrationIntegration.h"
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MdtCalibData/RtFromPoints.h"
 #include "MdtCalibRt/RtParabolicExtrapolation.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
-//root//
 #include "TF1.h"
 #include "TList.h"
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
 
-using namespace std;
 using namespace MuonCalib;
 
 inline Double_t slope_function_C(Double_t *x, Double_t *par) {
@@ -50,7 +37,7 @@ inline Double_t slope_function_C(Double_t *x, Double_t *par) {
     &b(par[1]),
     &t_0(par[2]),
     &back(par[3]);
-  return back + exp(a+b*(t-t_0));
+  return back + std::exp(a+b*(t-t_0));
 }
 
 inline void update_parameter_on_mttmax(TH1 * h, TF1 *f, const float &b, const float & T, const T0MTSettingsTMax &tmax_settings) {
@@ -65,9 +52,6 @@ inline void update_parameter_on_mttmax(TH1 * h, TF1 *f, const float &b, const fl
   f->FixParameter(T0MTHistos::TMAX_PAR_NR_A, slope_function->GetParameter(0));
   f->FixParameter(T0MTHistos::TMAX_PAR_NR_B, b);
   f->FixParameter(T0MTHistos::TMAX_PAR_NR_T, T);
-//	std::cout<<"LLllLL "<<slope_function->GetParameter(0)<<" "<<b<<std::endl;
-//	std::cout<<"LLllLL "<<f->GetParameter(T0MTHistos::TMAX_PAR_NR_A)<<" "<<f->GetParameter(T0MTHistos::TMAX_PAR_NR_B)<<std::endl;
-	
 }
 
 //*****************************************************************************
@@ -194,7 +178,7 @@ bool RtCalibrationIntegration::analyse(void) {
   // used in the integration procedure
   unsigned int nb_bins(100); // number of integration bins
   double bin_content; // number of entries per bin
-  vector<SamplePoint> point(nb_bins+1); // (t, r) points
+  std::vector<SamplePoint> point(nb_bins+1); // (t, r) points
   double radius(0.0); // r(t)
   double scf=0.; // scale factor (r_max/number of used hits)
   RtFromPoints rt_from_points; // r-t converter
@@ -204,11 +188,8 @@ bool RtCalibrationIntegration::analyse(void) {
   ///////////////////////////////////////////////////////////////////////////
 
   if (m_t_drift.size()<2000) {
-    cerr << endl
-	 << "Class RtCalibrationIntegration, method analyse: "
-	 << "FAILURE!\n"
-	 << "Less than 2000 drift-time entries! No r-t "
-	 << "relationship will be determined!\n";
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationIntegration");
+    log<<MSG::WARNING<< "analyse() - Less than 2000 drift-time entries! No r-t relationship will be determined!"<<endmsg;
     return false;
   }
 
@@ -241,22 +222,16 @@ bool RtCalibrationIntegration::analyse(void) {
   // t0 and tmax fits //
  
   if (!drift_time_spec.FitT0() || !drift_time_spec.T0Ok()) {
-    cerr << endl
-	 << "Class RtCalibrationIntegration, method analyse: "
-	 << "FAILURE!\n"
-	 << "t0 fit not successful, no r-t relationship will be "
-	 << "calculated!\n";
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationIntegration");
+    log<<MSG::WARNING<< "analyse() - t0 fit not successful, no r-t relationship will be calculated!"<<endmsg;
     return false;
   }
   t0 = drift_time_spec.GetT0Function()->GetParameter(
 						     T0MTHistos::T0_PAR_NR_T0);
  
   if (!drift_time_spec.FitTmax() || !drift_time_spec.TmaxOk()) {
-    cerr << endl
-	 << "Class RtCalibrationIntegration, method analyse: "
-	 << "FAILURE!\n"
-	 << "tmax fit not successful, no r-t relationship will "
-	 << "be calculated!\n";
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationIntegration");
+    log<<MSG::WARNING<< "analyse() - tmax fit not successful, no r-t relationship will be calculated!"<<endmsg;
     return false;
   }
   tmax = drift_time_spec.GetTMaxFunction()->GetParameter(
@@ -298,21 +273,13 @@ bool RtCalibrationIntegration::analyse(void) {
   point[nb_bins].set_x2(m_r_max);
   point[nb_bins].set_error(1.);
 
-
-  /*//dump points
-    for(unsigned int i=0; i<point.size(); i++)
-    {
-    std::cout<<i<<" "<<point[i].x1()<<" "<<point[i].x2()<<" "<<point[i].error()<<std::endl;
-    }*/
-
   // get the r-t relationship //
   m_rt = new RtChebyshev(rt_from_points.getRtChebyshev(point, 15));
-  //	m_rt = new RtRelationLookUp(rt_from_points.getRtRelationLookUp(point));
 
   ///////////////////////////////////////////////////
   // PARABOLIC EXTRAPOLATION FOR LARGE DRIFT RADII //
   ///////////////////////////////////////////////////
-  vector<SamplePoint> add_fit_point; // additional r-t points for r(t_max)
+  std::vector<SamplePoint> add_fit_point; // additional r-t points for r(t_max)
   add_fit_point.push_back(SamplePoint(tmax,m_r_max, 1.0));
   RtParabolicExtrapolation rt_extrapolated;
   RtRelationLookUp tmp_rt( rt_extrapolated.getRtWithParabolicExtrapolation(
@@ -355,8 +322,6 @@ bool RtCalibrationIntegration::analyse(void) {
 		{
 		int refit=static_cast<int>((b[1] + 1.33717e-03)>(b[0] + 1.33717e-03));
 		int norefit=static_cast<bool>(refit)?0:1;
-//		std::cout<<"HHhhHH "<<refit<<" "<<norefit<<std::endl;
-//		std::cout<<"HHhhHH "<<b[norefit]<<std::endl;
 		TF1 *fixfun=drift_time_spec_ml[refit].GetTMaxFunctionNC();
 		fixfun->FixParameter(T0MTHistos::TMAX_PAR_NR_B, b[norefit]);
 		update_parameter_on_mttmax(drift_time_spec_ml[refit].GetTSpec(), fixfun, b[norefit], T[norefit],*t0_setting.TMaxSettings());

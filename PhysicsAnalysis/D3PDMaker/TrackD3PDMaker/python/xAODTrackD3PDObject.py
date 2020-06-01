@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import TrackD3PDMaker
 import D3PDMakerCoreComps
@@ -95,7 +95,6 @@ def xAODTrackD3PDObject(_label='trkTrack',
         varsTable = [
             # ID hits
             [IDHits,          'nBLHits',        'numberOfInnermostPixelLayerHits'],
-            [IDHits,          'nNIPixHits',     'numberOfNextToInnermostPixelLayerHits'],
             [IDHits + HitSum, 'nPixHits',       'numberOfPixelHits' ],
             [IDHits + HitSum, 'nSCTHits',       'numberOfSCTHits' ],
             [IDHits + HitSum, 'nTRTHits',       'numberOfTRTHits' ],
@@ -111,16 +110,13 @@ def xAODTrackD3PDObject(_label='trkTrack',
 
             # ID shared & Split hits
             [IDSharedHits,      'nBLSharedHits',     'numberOfInnermostPixelLayerSharedHits'],
-            [IDSharedHits,      'nNIPixSharedHits',  'numberOfNextToInnermostPixelLayerSharedHits'],
             [IDSharedHits,      'nPixSharedHits',    'numberOfPixelSharedHits'],
             [IDSharedHits,      'nSCTSharedHits',    'numberOfSCTSharedHits'],
             [IDSharedHits,      'nBLayerSplitHits',  'numberOfInnermostPixelLayerSplitHits'],
-            [IDSharedHits,      'nNIPixSplitHits',   'numberOfNextToInnermostPixelLayerSplitHits'],
             [IDSharedHits,      'nPixSplitHits',     'numberOfPixelSplitHits'],
 
             # ID outliers                                              
             [IDOutliers,        'nBLayerOutliers',   'numberOfInnermostPixelLayerOutliers' ],
-            [IDOutliers,        'nNIPixOutliers',   'numberOfNextToInnermostPixelLayerOutliers' ],
             [IDOutliers,        'nPixelOutliers',    'numberOfPixelOutliers' ],
             [IDOutliers,        'nSCTOutliers',      'numberOfSCTOutliers' ],
             [IDOutliers,        'nTRTOutliers',      'numberOfTRTOutliers'],
@@ -148,7 +144,6 @@ def xAODTrackD3PDObject(_label='trkTrack',
 
             # Expect BLayer hit                                        
             [ExpectBLayer,      'expectInnermostPixelLayerHit'],
-            [ExpectBLayer,      'expectNextToInnermostPixelLayerHit'],
 
             # Muon hits
             [MuonHits + HitSum, 'numberOfPrecisionLayers'],
@@ -157,9 +152,6 @@ def xAODTrackD3PDObject(_label='trkTrack',
             [MuonHits + HitSum, 'numberOfPhiHoleLayers'],
             [MuonHits + HitSum, 'numberOfTriggerEtaLayers'],
             [MuonHits + HitSum, 'numberOfTriggerEtaHoleLayers'],
-
-            # DBM hits
-            [DBMHits + HitSum,  'numberOfDBMHits'],
         ]
 
 

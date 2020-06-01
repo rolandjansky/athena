@@ -156,4 +156,4 @@ if rec.doHeavyIon:
 
 ### Finally, print setup if in debug mode
 if AtlantisMsgLvl <= DEBUG:
-  print "\n\n\t Atlantis setup\n",AlgoJiveXML,"\n\n"
+  printfunc ("\n\n\t Atlantis setup\n",AlgoJiveXML,"\n\n")

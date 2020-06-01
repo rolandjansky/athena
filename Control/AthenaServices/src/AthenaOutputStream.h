@@ -76,11 +76,13 @@ protected:
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
   
    /// Vector of item names
-  StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","Set<std::string>"};
+   StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","Set<std::string>"};
    /// Vector of item names
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
+   /// Number of commits after which to do a flush when using in memory files
+   IntegerProperty m_autoSend{this,"AutoSend",-1};
    /// Vector of item names
    StringArrayProperty      m_compressionListHigh;
    /// Vector of item names
@@ -196,6 +198,9 @@ private:
 
    /// Try to match a DataProxy to a vector of strings
    bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
+
+   /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
+   void writeMetaData( const std::string outputFN="" );
 
 };
 

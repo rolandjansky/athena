@@ -24,6 +24,9 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Sherpa COMPONENTS SherpaTools )
 
+# Sherpa is linked against HepMC3, so set that up for the runtime environment.
+find_package( hepmc3 )
+
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
 

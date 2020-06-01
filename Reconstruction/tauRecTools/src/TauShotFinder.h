@@ -9,10 +9,10 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "CaloInterface/IHadronicCalibrationTool.h"
 
 class CaloDetDescrManager;
 class CaloCell_ID;
-class IHadronicCalibrationTool;
 
 class TauShotFinder : public TauRecToolBase {
 public:
@@ -20,18 +20,18 @@ public:
     ASG_TOOL_CLASS2(TauShotFinder, TauRecToolBase, ITauToolBase);
     virtual ~TauShotFinder();
 
-    virtual StatusCode initialize();
-    virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer);
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer) override;
+    virtual StatusCode finalize() override;
 
 private:
 
     /** @brief tool handles */
-    ToolHandle<IHadronicCalibrationTool> m_caloWeightTool;
+    ToolHandle<IHadronicCalibrationTool> m_caloWeightTool {this, "CaloWeightTool", "H1WeightToolCSC12Generic"};
     
     /** @brief new shot PFO container and name */
     /** @brief calo cell navigation */
-    const CaloCell_ID* m_calo_id;
+    const CaloCell_ID* m_calo_id = NULL;
 
     /** @brief Thanks C++ for ruining my day */
     struct ptSort
@@ -61,33 +61,10 @@ private:
                       float /*seedEnergy*/);
 
     // number of cells in eta
-    int m_nCellsInEta;
-
-    // cut values
-    std::vector<float> m_minPtCut;
-    std::vector<float> m_autoDoubleShotCut;
-    std::vector<float> m_mergedBDTScoreCut;
+    Gaudi::Property<int> m_nCellsInEta {this, "NCellsInEta"};
+    Gaudi::Property<std::vector<float>> m_minPtCut {this, "MinPtCut"};
+    Gaudi::Property<std::vector<float>> m_autoDoubleShotCut {this, "AutoDoubleShotCut"};
   
-    // BDT input variables
-    float m_pt1;
-    float m_pt3;
-    float m_pt5;
-    /*
-    float m_ws5;
-    float m_sdevEta5_WRTmean;
-    float m_sdevEta5_WRTmode;
-    float m_sdevPt5;
-    float m_deltaPt12_min;
-    float m_Fside_3not1;
-    float m_Fside_5not1;
-    float m_Fside_5not3;
-    float m_fracSide_3not1;
-    float m_fracSide_5not1;
-    float m_fracSide_5not3;
-    float m_pt1OverPt3;
-    float m_pt3OverPt5;
-    */
-
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
     SG::WriteHandleKey<xAOD::PFOContainer> m_tauPFOOutputContainer{this,"Key_tauPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "FastSiDigitization/ISiSmearedDigitizationTool.h"
 #include <string>
 
 #include "HitManagement/TimedHitCollection.h"
@@ -69,8 +68,7 @@ namespace Trk {
 
 }
 
-class SiSmearedDigitizationTool : virtual public PileUpToolBase,
-  virtual public ISiSmearedDigitizationTool
+class SiSmearedDigitizationTool : virtual public PileUpToolBase
 {
 
 public:
@@ -84,12 +82,12 @@ public:
 
 
   StatusCode initialize();
-  StatusCode prepareEvent(unsigned int);
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int);
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode processAllSubEvents();
-  StatusCode mergeEvent();
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode mergeEvent(const EventContext& ctx);
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, iFatras::PlanarCluster*> Planar_detElement_RIO_map;
@@ -98,8 +96,8 @@ public:
   StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);
 
-  StatusCode digitize();
-  StatusCode createAndStoreRIOs();
+  StatusCode digitize(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
   StatusCode retrieveTruth();
   StatusCode finalize();
 

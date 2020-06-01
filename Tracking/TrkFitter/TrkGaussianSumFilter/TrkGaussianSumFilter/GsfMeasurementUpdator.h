@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfMeasurementUpdator.h  -  description
-      ---------------------------------------
-begin                : Friday 25th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class for performing updates on multi-component states for
-                       the gaussian-sum filter. Now an AlgTool
-*********************************************************************************/
+/**
+ * @file   GsfMeasurementUpdator.h
+ * @date   Friday 25th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class for performing updates on multi-component states for the
+ * gaussian-sum filter.
+ */
 
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H
@@ -36,16 +34,19 @@ class GsfMeasurementUpdator
 {
 
 private:
-  /** Private typedef for calling the correct updator member function depending of direction of
-   * fitting */
-  typedef Trk::TrackParameters* (Trk::IUpdator::*Updator)(const Trk::TrackParameters&,
-                                                          const LocalParameters&,
-                                                          const Amg::MatrixX&,
-                                                          FitQualityOnSurface*&)const;
+  /** Private typedef for calling the correct updator member function depending
+   * of direction of fitting */
+  typedef Trk::TrackParameters* (Trk::IUpdator::*Updator)(
+    const Trk::TrackParameters&,
+    const LocalParameters&,
+    const Amg::MatrixX&,
+    FitQualityOnSurface*&)const;
 
 public:
   /** Constructor with parameters to be passed to AlgTool */
-  GsfMeasurementUpdator(const std::string&, const std::string&, const IInterface*);
+  GsfMeasurementUpdator(const std::string&,
+                        const std::string&,
+                        const IInterface*);
 
   /** Virtual destructor */
   virtual ~GsfMeasurementUpdator() = default;
@@ -57,39 +58,49 @@ public:
   StatusCode finalize() override;
 
   /** Method for updating the multi-state with a new measurement */
-  virtual std::unique_ptr<MultiComponentState> update(MultiComponentState&&,
-                                                      const MeasurementBase&) const override final;
+  virtual MultiComponentState update(
+    MultiComponentState&&,
+    const MeasurementBase&) const override final;
 
-  /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at
-   * the same time*/
-  virtual std::unique_ptr<MultiComponentState> update(
+  /** Method for updating the multi-state with a new measurement and calculate
+   * the fit qaulity at the same time*/
+  virtual MultiComponentState update(
     Trk::MultiComponentState&&,
     const Trk::MeasurementBase&,
     std::unique_ptr<FitQualityOnSurface>& fitQoS) const override final;
 
-  /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
-  virtual std::unique_ptr<MultiComponentState> getUnbiasedTrackParameters(MultiComponentState&&,
-                                                                          const MeasurementBase&) const override final;
+  /** Method for GSF smoother to calculate unbiased parameters of the
+   * multi-component state */
+  virtual MultiComponentState getUnbiasedTrackParameters(
+    MultiComponentState&&,
+    const MeasurementBase&) const override final;
 
-  /** Method for determining the chi2 of the multi-component state and the number of degrees of
-   * freedom */
-  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const override;
+  /** Method for determining the chi2 of the multi-component state and the
+   * number of degrees of freedom */
+  virtual const FitQualityOnSurface* fitQuality(
+    const MultiComponentState&,
+    const MeasurementBase&) const override;
 
 private:
-  std::unique_ptr<MultiComponentState> calculateFilterStep(MultiComponentState&&,
-                                                           const MeasurementBase&,
-                                                           const Updator) const;
+  MultiComponentState calculateFilterStep(MultiComponentState&&,
+                                          const MeasurementBase&,
+                                          const Updator) const;
 
-  std::unique_ptr<MultiComponentState> calculateFilterStep(MultiComponentState&&,
-                                                           const MeasurementBase&,
-                                                           std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
+  MultiComponentState calculateFilterStep(
+    MultiComponentState&&,
+    const MeasurementBase&,
+    std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
 
   bool invalidComponent(const Trk::TrackParameters* trackParameters) const;
 
-  std::unique_ptr<MultiComponentState> rebuildState(Trk::MultiComponentState&& stateBeforeUpdate) const;
+  MultiComponentState rebuildState(
+    Trk::MultiComponentState&& stateBeforeUpdate) const;
 
 private:
-  ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };
+  ToolHandle<IUpdator> m_updator{ this,
+                                  "Updator",
+                                  "Trk::KalmanUpdator/KalmanUpdator",
+                                  "" };
 };
 }
 

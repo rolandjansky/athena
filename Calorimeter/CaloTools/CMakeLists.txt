@@ -57,7 +57,7 @@ atlas_add_component( CaloTools
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
    CxxUtils CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
-   TileIdentifier LArRawConditions )
+   TileIdentifier LArRawConditions CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_headers( CaloTools )

@@ -30,9 +30,8 @@ atlas_add_component( ISF_ParSimTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel xAODTracking GaudiKernel ISF_Interfaces TrkExInterfaces ISF_Event PathResolver TrkParameters )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel BeamSpotConditionsData xAODTracking GaudiKernel ISF_InterfacesLib TrkExInterfaces ISF_Event ISF_ParSimInterfacesLib PathResolver TrkParameters )
 
 # Install files from the package:
-atlas_install_headers( ISF_ParSimTools )
 atlas_install_runtime( Data/*.txt Data/*.root )
 

@@ -89,7 +89,7 @@ TEST_F ( CSCSensitiveDetectorCosmicstest, ProcessHits )
   ASSERT_EQ(a->begin()->particleLink(), plink);
   ASSERT_EQ(a->begin()->kineticEnergy(), 1.5);
 
-  ASSERT_EQ(a->size(), 1); //test the current size of the Hit container
+  ASSERT_EQ(a->size(), 1u); //test the current size of the Hit container
 
 }
 

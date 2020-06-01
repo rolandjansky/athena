@@ -4,9 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
-# import the TrackToVertexIPEstimator configurable
-Reco__TrackToVertex=CompFactory.Reco__TrackToVertex
-
 def BTagTrackToVertexToolCfg(flags, name = 'BTagTrackToVertexTool', useBTagFlagsDefaults = True, **options ):
     """Sets up a BTagTrackToVertexTool tool and returns it.
 
@@ -25,6 +22,6 @@ def BTagTrackToVertexToolCfg(flags, name = 'BTagTrackToVertexTool', useBTagFlags
         acc.merge(accExtrapolator)
         options.setdefault('Extrapolator', atlasExtrapolator)
     options['name'] = name
-    acc.setPrivateTools(Reco__TrackToVertex( **options)) 
+    acc.setPrivateTools(CompFactory.Reco.TrackToVertex( **options)) 
 
     return acc

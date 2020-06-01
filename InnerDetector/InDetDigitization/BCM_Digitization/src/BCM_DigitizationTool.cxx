@@ -67,10 +67,10 @@ StatusCode BCM_DigitizationTool::initialize()
 //----------------------------------------------------------------------
 // createOutpuContainers method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::createOutputContainers()
+StatusCode BCM_DigitizationTool::createOutputContainers(const EventContext& ctx)
 {
   // Creating output RDO container
-  SG::WriteHandle<BCM_RDO_Container> outputContainer(m_outputKey);
+  SG::WriteHandle<BCM_RDO_Container> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<BCM_RDO_Container>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output BCM RDO container " << outputContainer.name() << " to store " << outputContainer.store());
@@ -81,7 +81,7 @@ StatusCode BCM_DigitizationTool::createOutputContainers()
   m_rdoContainer = outputContainer.ptr();
 
   // Creating output SDO collection container
-  SG::WriteHandle<InDetSimDataCollection> outputSDOContainer(m_outputSDOKey);
+  SG::WriteHandle<InDetSimDataCollection> outputSDOContainer(m_outputSDOKey, ctx);
   ATH_CHECK(outputSDOContainer.record(std::make_unique<InDetSimDataCollection>()));
   if (!outputSDOContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output BCM SDO container " << outputSDOContainer.name() << " to store " << outputSDOContainer.store());
@@ -114,7 +114,9 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   m_enerVect[moduleNo].push_back(enerDep);
   m_timeVect[moduleNo].push_back(hitTime);
   // Create new deposit and add to vector
-  HepMcParticleLink particleLink(currentHit.trackNumber(), evtIndex);
+  const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  const HepMcParticleLink::PositionFlag idxFlag = (evtIndex==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+  const HepMcParticleLink particleLink{HepMcParticleLink(currentHit.trackNumber(), evtIndex, evColl, idxFlag)};
   const int barcode = particleLink.barcode();
   if (barcode == 0 || barcode == 10001){
     return;
@@ -126,17 +128,17 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
 //----------------------------------------------------------------------
 // createRDOs method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::createRDOsAndSDOs()
+void BCM_DigitizationTool::createRDOsAndSDOs(const EventContext& ctx)
 {
   // Set the RNG to use for this event.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( name(), ctx );
 
   // Digitize hit info and create RDO for each module
   for (int iMod=0; iMod<8; ++iMod) {
     if (m_depositVect[iMod].size()) m_simDataCollMap->insert(std::make_pair(Identifier(iMod), InDetSimData(m_depositVect[iMod])));
     std::vector<float> analog = createAnalog(iMod,m_enerVect[iMod],m_timeVect[iMod]);
-    addNoise(iMod,analog, *rngWrapper);
+    addNoise(iMod,analog, rngWrapper->getEngine(ctx));
     for (int iGain=0; iGain<2; ++iGain) {
       std::bitset<64> digital = applyThreshold(iGain*8+iMod,analog);
       int p1x,p1w,p2x,p2w;
@@ -151,11 +153,11 @@ void BCM_DigitizationTool::createRDOsAndSDOs()
 //----------------------------------------------------------------------
 // PrepareEvent method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::prepareEvent(unsigned int nInputEvents)
+StatusCode BCM_DigitizationTool::prepareEvent(const EventContext& ctx, unsigned int nInputEvents)
 {
   ATH_MSG_DEBUG ( "prepareEvent() called for " << nInputEvents << " input events" );
 
-  CHECK(createOutputContainers());
+  CHECK(createOutputContainers(ctx));
 
   return StatusCode::SUCCESS;
 }
@@ -163,15 +165,15 @@ StatusCode BCM_DigitizationTool::prepareEvent(unsigned int nInputEvents)
 //----------------------------------------------------------------------//
 // Digitize method:                                                     //
 //----------------------------------------------------------------------//
-StatusCode BCM_DigitizationTool::processAllSubEvents()
+StatusCode BCM_DigitizationTool::processAllSubEvents(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ( "processAllSubEvents()" );
 
-  ATH_CHECK(createOutputContainers());
+  ATH_CHECK(createOutputContainers(ctx));
 
   // Fetch SiHitCollections for this bunch crossing
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get BCM SiHitCollection container " << hitCollection.name() <<
                     " from store " << hitCollection.store());
@@ -211,7 +213,7 @@ StatusCode BCM_DigitizationTool::processAllSubEvents()
     }
   }
 
-  createRDOsAndSDOs();
+  createRDOsAndSDOs(ctx);
 
   return StatusCode::SUCCESS;
 }
@@ -251,11 +253,11 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
 //----------------------------------------------------------------------
 // MergeEvent method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::mergeEvent()
+StatusCode BCM_DigitizationTool::mergeEvent(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ( "mergeEvent()" );
 
-  createRDOsAndSDOs();
+  createRDOsAndSDOs(ctx);
 
   return StatusCode::SUCCESS;
 }

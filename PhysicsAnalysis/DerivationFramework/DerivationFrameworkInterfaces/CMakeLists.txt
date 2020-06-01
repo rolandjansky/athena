@@ -6,8 +6,11 @@
 atlas_subdir( DerivationFrameworkInterfaces )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
+atlas_depends_on_subdirs(
+   PUBLIC
+   GaudiKernel
+   Control/StoreGate
+   PhysicsAnalysis/CommonTools/ExpressionEvaluation )
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkInterfaces
@@ -16,7 +19,9 @@ atlas_add_library( DerivationFrameworkInterfaces
    PUBLIC_HEADERS DerivationFrameworkInterfaces
    LINK_LIBRARIES GaudiKernel )
 
+
 atlas_add_dictionary( DerivationFrameworkInterfacesDict
    DerivationFrameworkInterfaces/DerivationFrameworkInterfacesDict.h
    DerivationFrameworkInterfaces/selection.xml
    LINK_LIBRARIES DerivationFrameworkInterfaces )
+

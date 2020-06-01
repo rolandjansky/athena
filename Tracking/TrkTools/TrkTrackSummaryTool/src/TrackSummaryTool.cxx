@@ -331,13 +331,14 @@ void Trk::TrackSummaryTool::updateTrack(Track& track,const Trk::PRDtoTrackMap *p
   computeAndReplaceTrackSummary(track,prd_to_track_map,false /*DO NOT suppress hole search*/);
 }
 
-void Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const
+void
+Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track,
+                                               const Trk::PRDtoTrackMap* prd_to_track_map) const
 {
   // first check if track has summary already.
-  computeAndReplaceTrackSummary(track,prd_to_track_map,true /*suppress hole search*/);
-  m_idTool->updateExpectedHitInfo(track,  *track.m_trackSummary); // @TODO why ? 
+  computeAndReplaceTrackSummary(track, prd_to_track_map, true /*suppress hole search*/);
+  m_idTool->updateExpectedHitInfo(track, *track.m_trackSummary); /*Needed for expected B-Layer*/
 }
-
 
 void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
 {

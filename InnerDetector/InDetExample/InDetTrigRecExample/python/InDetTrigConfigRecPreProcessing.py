@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -19,7 +19,7 @@ from __future__ import print_function
 
 EF_PixRDOKey="PixelRDOs_EF"
 EF_SCTRDOKey="SCT_RDOs_EF"
-EF_TRTRDOKey="TRT_RDOs_EF"
+EF_TRTRDOKey="TRT_RDOs_TRIG"
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 if not TriggerFlags.doTransientByteStream():
    EF_PixRDOKey="PixelRDOs"
@@ -46,6 +46,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
       InDetTrigPixelRodDecoder = PixelRodDecoder(name = "InDetTrigPixelRodDecoder")
       #InDetTrigPixelRodDecoder.OutputLevel=2
+      # Disable duplcated pixel check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigPixelRodDecoder.CheckDuplicatedPixel=False
       ToolSvc += InDetTrigPixelRodDecoder
 
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
@@ -80,6 +84,11 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
                                                            MaximalSplitSize = 49,
                                                            MinimalSplitProbability = 0,
                                                            )
+      # Enable duplcated RDO check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigMergedPixelsTool.CheckDuplicatedRDO = True
+
       ToolSvc += InDetTrigMergedPixelsTool
 
       # PixelGangedAmbiguitiesFinder tool (public)

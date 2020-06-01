@@ -41,7 +41,6 @@ from AthenaCommon.Constants import *
 preconfig = "AthenaCommon"
 ### Athena configuration -----------------------------------------------------
 theApp = iService( "ApplicationMgr" )       # proxy
-theApp.StatusCodeCheck = True
 theApp.Dlls += [ 'AthenaServices' ]
 include( "%s/Bootstrap.py" % preconfig )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -64,8 +64,8 @@ m_FitterValidationTool(""),
 m_doValidation(false),
 m_haveValidationTool(false),
 m_option_callValidationToolForFailedFitsOnly(false),
-m_tparScaleSetter(0),
-m_utility(0),
+m_tparScaleSetter(nullptr),
+m_utility(nullptr),
 //m_inputPreparator(0),
 m_directionToPerigee(Trk::oppositeMomentum),
 m_fitStatistics(0),
@@ -186,17 +186,17 @@ StatusCode Trk::DeterministicAnnealingFilter::initialize() {
     }
 
     // configure ForwardKalmanFitter
-    sc = m_forwardFitter->configureWithTools((m_extrapolator?(&(*m_extrapolator)):0),
+    sc = m_forwardFitter->configureWithTools((m_extrapolator?(&(*m_extrapolator)):nullptr),
                                              &(*m_updator),
-                                             0,  // no ROT creator needed!
-                                             (!m_dna.empty()?(&(*m_dna)):0),  // dynamic noise adjustment tool
-                                             0); // no alignable Surface Provider
+                                             nullptr,  // no ROT creator needed!
+                                             (!m_dna.empty()?(&(*m_dna)):nullptr),  // dynamic noise adjustment tool
+                                             nullptr); // no alignable Surface Provider
     if(sc.isFailure()) return sc;
     // configure KalmanSmoother
-    sc = m_smoother->configureWithTools( (m_extrapolator?(&(*m_extrapolator)):0),
+    sc = m_smoother->configureWithTools( (m_extrapolator?(&(*m_extrapolator)):nullptr),
                                          &(*m_updator),
-                                         (!m_dna.empty()?(&(*m_dna)):0),  // dynamic noise adjustment tool
-                                         0,       // no alignable Surface Provider
+                                         (!m_dna.empty()?(&(*m_dna)):nullptr),  // dynamic noise adjustment tool
+                                         nullptr,       // no alignable Surface Provider
                                          true,    // always do smoothing
                                          false);  // no creation of FitQualityOnSurface objects, because the Kalman smoother
                                         //    does not take assignment probabilities into account,
@@ -233,7 +233,7 @@ StatusCode Trk::DeterministicAnnealingFilter::initialize() {
 
     if (msgLvl(MSG::DEBUG)) {
         // Set up ATLAS ID helper to be able to identify the measurement's det-subsystem.
-        const AtlasDetectorID* idHelper = 0;
+        const AtlasDetectorID* idHelper = nullptr;
         if (detStore()->retrieve(idHelper, "AtlasID").isFailure()) {
           ATH_MSG_ERROR ("Could not get AtlasDetectorID helper");
           return StatusCode::FAILURE;
@@ -264,14 +264,14 @@ StatusCode Trk::DeterministicAnnealingFilter::finalize() {
         std::cout << "-------------------------------------------------------------------------------" << std::endl;
         std::cout << "  track fits by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
         std::vector<std::string> statusNames(0);
-        statusNames.push_back("  Number of fitter calls          :");
-        statusNames.push_back("  Number of successful track fits :");
-        statusNames.push_back("  Number of calls with bad input  :");
-        statusNames.push_back("  Number of extrapolation failures:");
-        statusNames.push_back("  fits with failed forward filter :");
-        statusNames.push_back("  fits with failed smoother       :");
-        statusNames.push_back("  fits w/ failed outlier strategy :");
-        statusNames.push_back("  fits w/ failed perigee making   :");
+        statusNames.emplace_back("  Number of fitter calls          :");
+        statusNames.emplace_back("  Number of successful track fits :");
+        statusNames.emplace_back("  Number of calls with bad input  :");
+        statusNames.emplace_back("  Number of extrapolation failures:");
+        statusNames.emplace_back("  fits with failed forward filter :");
+        statusNames.emplace_back("  fits with failed smoother       :");
+        statusNames.emplace_back("  fits w/ failed outlier strategy :");
+        statusNames.emplace_back("  fits w/ failed perigee making   :");
         for (unsigned int i=0; i<statusNames.size(); i++) {
             std::cout << (statusNames[i]) << std::setiosflags(std::ios::dec) << std::setw(iw)
                     << (m_fitStatistics[i])[iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
@@ -308,14 +308,14 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const Trk::Track&  inputTrack
         ATH_MSG_FATAL( "need estimated track parameters near origin, reject fit" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     // protection against not having measurements on the input track
     if (!inputTrack.trackStateOnSurfaces() || inputTrack.trackStateOnSurfaces()->size() < 2) {
         ATH_MSG_WARNING( "called to refit empty track or track with too little information, reject fit" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
 
     //  determine the Track Parameter which is the start of the trajectory,
@@ -382,7 +382,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const Trk::Track&  inputTrack
     // ------------------------
     // start the DAF procedure:
 
-    Track* theTrack = 0;
+    Track* theTrack = nullptr;
     if (minPar) {
         ATH_MSG_VERBOSE( "got track parameters near origine" );
         // do the DAF fit
@@ -420,7 +420,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const Trk::PrepRawDataSet&  ,
 
     //bool verbose  = (m_log.level() <= MSG::VERBOSE);
     ATH_MSG_ERROR( "fit(PRDset, , ) not implemented" );
-    return 0;
+    return nullptr;
 }
 
 //////////////////////////////////////////////
@@ -435,7 +435,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit( const Trk::MeasurementSet&  
     if ( inputMeasSet.empty() ) {
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     //monitorTrackFits( Call, estimatedStartParameters.eta() );
 
@@ -516,7 +516,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const Track&,
         const ParticleHypothesis) const {
     //bool verbose  = (m_log.level() <= MSG::VERBOSE);
     ATH_MSG_ERROR( "fit(Track, PRDset, , ) not implemented" );
-    return 0;
+    return nullptr;
 }
 
 //////////////////////////////////////////////
@@ -538,21 +538,21 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit( const Trk::Track&           
         ATH_MSG_ERROR( "need estimated track parameters near origine, reject fit" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     // protection against not having Measurements
     if (inputTrack.measurementsOnTrack()->empty()) {
         ATH_MSG_ERROR( "try to fit track+vec<MB> with an empty track, reject fit" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     // protection, if empty MeasurementSet
     if (addMeasColl.empty()) {
         ATH_MSG_ERROR( "try to add an empty MeasurementSet to the track, reject fit" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     
 
@@ -602,7 +602,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit( const Trk::Track&           
         ATH_MSG_WARNING( "Cannot get valid track parameters from input track, reject fit!" );
         monitorTrackFits( Call, 100. );
         monitorTrackFits( BadInput, 100. );
-        return 0;
+        return nullptr;
     }
     // fit set of MeasurementBase using main method,
     //    start with first TrkParameter in inputTrack
@@ -633,7 +633,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const SpacePointSet&,
 
     //bool verbose  = (m_log.level() <= MSG::VERBOSE);
     ATH_MSG_ERROR( "fit(SpacePointSet, , , ) does not make sense for the Deterministic Annealing Filter, return NULL" );
-    return 0;
+    return nullptr;
 }
 ///////////////////////////////////////
 // combined fit of two tracks
@@ -643,7 +643,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit( const Trk::Track&,
                                                     const Trk::RunOutlierRemoval,
                                                     const Trk::ParticleHypothesis ) const {
     ATH_MSG_ERROR( "fit(Track, Track, ...) not implemented yet, return NULL pointer" );
-    return 0;
+    return nullptr;
 }
 
 /////////////////////////////////
@@ -757,8 +757,8 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
 
     ATH_MSG_VERBOSE( "-----> enter DeterministicAnnealingFilter::doDAFfit()" );
     const TrackParameters* estimatedStartParameters = &trkPar;
-    const TrackParameters* clonedParameters = 0;
-    FitQuality* fitQual  = 0;
+    const TrackParameters* clonedParameters = nullptr;
+    FitQuality* fitQual  = nullptr;
     KalmanMatEffectsController controlledMatEff(matEffects, !m_dna.empty());
 
     //----------------------------------
@@ -801,7 +801,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
                         // extrapolate previous track parameters to the surface of the outlier:
 
                         // TODO search of the next valid TrackParameters can be coded more elegantly:
-                        const Trk::TrackParameters* previousTrkPar = 0;
+                        const Trk::TrackParameters* previousTrkPar = nullptr;
                         Trk::PropDirection direction = Trk::alongMomentum;
                         Trajectory::const_iterator it2 = it;
                         while (!previousTrkPar) {
@@ -842,7 +842,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
                                 CompetingRIOsOnTrack* newCompROT = compROT->clone();
                                 m_compROTcreator->updateCompetingROT(*newCompROT, *extrapolatedTrkPar, m_option_annealingScheme[annealingIteration]);
                                 delete extrapolatedTrkPar;
-                                extrapolatedTrkPar = 0;
+                                extrapolatedTrkPar = nullptr;
                                 it->replaceMeasurement(newCompROT);
                                 compROT = newCompROT;
                             }
@@ -889,7 +889,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
             }
             //m_smoother->clearFitResultsAfterOutlier(m_trajectory,fitQual,1);
             delete fitQual;
-            fitQual = 0;
+            fitQual = nullptr;
             ATH_MSG_VERBOSE( endmsg << "********** call forward kalman filter, iteration #"<< annealingIteration << " **********" << endmsg );
         } // end if(annealingIteration > 0 )
 
@@ -906,7 +906,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
             ATH_MSG_DEBUG( "forward fitter #" << annealingIteration << " rejected fit" << endmsg << endmsg );
             monitorTrackFits( ForwardFilterFailure, estimatedStartParameters->eta(), annealingIteration);
             if (m_doValidation) callValidation(annealingIteration, matEffects, fitstatus);
-            return 0;
+            return nullptr;
         }
         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg
                                     << "********** Forward fit passed, now call smoother #"
@@ -921,7 +921,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
         if (fitstatus.isFailure()) {
             ATH_MSG_DEBUG( "smoother #" << annealingIteration << " rejected fit" << endmsg << endmsg );
             monitorTrackFits( SmootherFailure, estimatedStartParameters->eta(), annealingIteration );
-            return 0;
+            return nullptr;
         }
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << endmsg
@@ -932,12 +932,12 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
         //if (m_option_doValidationAction) m_extrapolator->validationAction();
 
         delete clonedParameters;
-        clonedParameters = 0;
+        clonedParameters = nullptr;
     } // end for: annealing iteration loop
     // FitQuality is calculate in makeTrack() to take assignment probabilties into account, delete the one
     // made by the smoother
     delete fitQual;
-    fitQual = 0;
+    fitQual = nullptr;
     return makeTrack(matEffects);
 }
 
@@ -1103,7 +1103,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::makeTrack(const Trk::ParticleHypo
 const Trk::TrackStateOnSurface* Trk::DeterministicAnnealingFilter::internallyMakePerigee(
                                                                         const Trk::PerigeeSurface&     perSurf,
                                                                         const Trk::ParticleHypothesis  matEffects) const {
-    const Trk::TrackParameters* nearestParam   = 0;
+    const Trk::TrackParameters* nearestParam   = nullptr;
     Trajectory::const_iterator it = m_trajectory.begin();
     while (!nearestParam) { // FIXME this can be coded more elegantly
         if (!it->isOutlier() && (it->smoothedTrackParameters())) {
@@ -1111,7 +1111,7 @@ const Trk::TrackStateOnSurface* Trk::DeterministicAnnealingFilter::internallyMak
         } else {
             if (it == m_trajectory.end()) {
                 ATH_MSG_ERROR( "Perigee-making failed: no useful parameters on track!" );
-                return 0;
+                return nullptr;
             }
         }
         ++it;
@@ -1121,13 +1121,13 @@ const Trk::TrackStateOnSurface* Trk::DeterministicAnnealingFilter::internallyMak
                                                                   m_directionToPerigee, false, matEffects);
     if (!per) {
         ATH_MSG_WARNING( "Perigee-making failed: extrapolation did not succeed." );
-        return 0;
+        return nullptr;
     } else {
         ATH_MSG_VERBOSE( "Perigee parameters have been made." );
     }
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern; 
     typePattern.set(Trk::TrackStateOnSurface::Perigee); 
-    TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(0, per, 0, 0, typePattern); 
+    TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern); 
     return tsos;
 }
 
@@ -1216,22 +1216,22 @@ void Trk::DeterministicAnnealingFilter::addToTrajectory(const MeasurementBase* m
 
 
 const Trk::TrackStateOnSurface* Trk::DeterministicAnnealingFilter::createStateFromProtoState(ProtoTrackStateOnSurface& protoState) const {
-    if (!(protoState.measurement())) return 0;
+    if (!(protoState.measurement())) return nullptr;
     // set correct TrackStateOnSurfaceType
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     // create the TrackStateOnSurface
     const Trk::MaterialEffectsBase* mefot = protoState.dnaMaterialEffects() ?
-      protoState.dnaMaterialEffects()->makeMEFOT() : 0;
+      protoState.dnaMaterialEffects()->makeMEFOT() : nullptr;
     if (protoState.isOutlier()) {
         typePattern.set(TrackStateOnSurface::Outlier);
         // do not use the track parameters for outliers
         return new TrackStateOnSurface( protoState.checkoutMeasurement(),
-                                          0,0,0,typePattern );
+                                          nullptr,nullptr,nullptr,typePattern );
     } else {
         typePattern.set(TrackStateOnSurface::Measurement);
         return new TrackStateOnSurface( protoState.checkoutMeasurement(),   // the measurement
                                         protoState.checkoutSmoothedPar(),   // smoothed track parameter
-                                        0,                                  // no fit quality
+                                        nullptr,                                  // no fit quality
                                         mefot,                              // no material effects
                                         typePattern );                      // type pattern
     }
@@ -1263,7 +1263,7 @@ void Trk::DeterministicAnnealingFilter::callValidation( int iterationIndex,
     ATH_MSG_DEBUG( "call validation for track iteration " << iterationIndex << "with status " << fitStatCode.getCode() << "/" << fitStatCode );
     // extrapolate to perigee at origin for validation data
     const Trk::PerigeeSurface   perSurf; // default perigee at origin
-    const Trk::TrackParameters* nearestParam   = 0;
+    const Trk::TrackParameters* nearestParam   = nullptr;
     Trajectory::const_iterator it = m_trajectory.begin();
     for ( ; it != m_trajectory.end(); it++ ) { // FIXME this can be coded more elegantly
         if (!it->isOutlier() && (it->smoothedTrackParameters())) {
@@ -1279,8 +1279,8 @@ void Trk::DeterministicAnnealingFilter::callValidation( int iterationIndex,
             }
         }
     }
-    const Trk::Perigee* per = 0;
-    const Trk::TrackParameters* perPar = 0;
+    const Trk::Perigee* per = nullptr;
+    const Trk::TrackParameters* perPar = nullptr;
     if (nearestParam) {
         // extrapolate to perigee
         perPar = m_extrapolator->extrapolate(   *nearestParam, perSurf,

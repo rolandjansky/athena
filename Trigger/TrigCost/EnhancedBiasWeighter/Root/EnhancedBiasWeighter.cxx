@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnhancedBiasWeighter includes
@@ -55,7 +55,7 @@ StatusCode EnhancedBiasWeighter::initialize()
 
     } else { // isData
 
-      if (m_runNumber == 0) {
+      if (m_runNumber == 0u) {
         ATH_MSG_FATAL("calculateWeightingData is TRUE, but the RunNumber property has not been set. This must be set such that we can read in the correct data.");
         return StatusCode::FAILURE;
       }

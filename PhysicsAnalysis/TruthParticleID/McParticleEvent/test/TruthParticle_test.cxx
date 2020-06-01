@@ -23,12 +23,14 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IService.h"
 
+#include "StoreGate/WriteHandle.h"
+
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
@@ -85,7 +87,7 @@ make_map_t_pair(const HepMC::GenParticle &p,
                 const TruthParticle &tp)
 {
   const std::size_t genEventIdx = 0;
-  HepMcParticleLink link(p.barcode(), genEventIdx);
+  HepMcParticleLink link(p.barcode(), genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   return Map_t::value_type(link.compress(), &tp);
 }
 
@@ -192,8 +194,10 @@ TruthParticleTest* makeTestData()
 			       21, 2 );
   vtx->add_particle_out( g2 );
 
-  McEventCollection * genEvt = new McEventCollection;
-  genEvt->push_back( evt );
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_AOD"};
+  inputTestDataHandle = std::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back( evt );
+  McEventCollection * genEvt = &*inputTestDataHandle;
 
   // filling Data test members
   test->m_evt        = evt;

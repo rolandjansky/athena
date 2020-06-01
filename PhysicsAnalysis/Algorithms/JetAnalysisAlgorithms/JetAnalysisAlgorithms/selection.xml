@@ -1,0 +1,11 @@
+<lcgdict>
+
+   <class name="CP::JetCalibrationAlg" />
+   <class name="CP::JetGhostMuonAssociationAlg" />
+   <class name="CP::JetModifierAlg" />
+   <class name="CP::JetSelectionAlg" />
+   <class name="CP::JetUncertaintiesAlg" />
+   <class name="CP::JvtEfficiencyAlg" />
+   <class name="CP::JvtUpdateAlg" />
+   
+</lcgdict>

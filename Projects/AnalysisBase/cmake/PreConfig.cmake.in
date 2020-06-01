@@ -1,0 +1,17 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# File setting up imported targets needed by the exported targets of
+# @CMAKE_PROJECT_NAME@.
+#
+
+# Figure out whether to use QUIET in the find_package call(s).
+set( _quietFlag )
+if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )
+  set( _quietFlag QUIET )
+endif()
+
+# Imported target(s) used by the project.
+find_package( Threads ${_quietFlag} )
+
+# Clean up.
+unset( _quietFlag )

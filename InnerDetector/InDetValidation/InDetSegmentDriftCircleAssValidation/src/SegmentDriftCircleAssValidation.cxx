@@ -15,7 +15,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "InDetSegmentDriftCircleAssValidation/SegmentDriftCircleAssValidation.h"
 
 // ReadHandle
@@ -528,9 +528,9 @@ std::list<int> InDet::SegmentDriftCircleAssValidation::kine
 
     // Radius cut
     //
-    Point3D<double>   v(pa->production_vertex()->point3d().x(),
-		       pa->production_vertex()->point3d().y(),
-		       pa->production_vertex()->point3d().z());
+    Point3D<double>   v(pa->production_vertex()->position().x(),
+		       pa->production_vertex()->position().y(),
+		       pa->production_vertex()->position().z());
     double           r = sqrt(v.x()*v.x()+v.y()*v.y());
     if( r < m_rmin || r > m_rmax) continue;
     
@@ -585,9 +585,9 @@ std::list<PRD_MultiTruthCollection::const_iterator> InDet::SegmentDriftCircleAss
 
     // Radius cut
     //
-    Point3D<double>   v(pa->production_vertex()->point3d().x(),
-		       pa->production_vertex()->point3d().y(),
-		       pa->production_vertex()->point3d().z());
+    Point3D<double>   v(pa->production_vertex()->position().x(),
+		       pa->production_vertex()->position().y(),
+		       pa->production_vertex()->position().z());
     double           r = sqrt(v.x()*v.x()+v.y()*v.y());
     if( r < m_rmin || r > m_rmax) continue;
 

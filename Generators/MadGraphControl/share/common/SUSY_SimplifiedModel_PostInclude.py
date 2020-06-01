@@ -94,7 +94,8 @@ check_reset_proc_number(opts)
 
 # Pythia8 setup for matching if necessary
 njets=max([l.count('j') for l in process.split('\n')])
-if njets>0 and hasattr(genSeq,'Pythia8'):
+njets_min=min([l.count('j') for l in process.split('\n') if 'generate ' in l or 'add process' in l])
+if njets>0 and njets!=njets_min and hasattr(genSeq,'Pythia8'):
     genSeq.Pythia8.Commands += ["Merging:mayRemoveDecayProducts = on",
                                 "Merging:nJetMax = "+str(njets),
                                 "Merging:doKTMerging = on",

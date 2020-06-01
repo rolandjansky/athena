@@ -1,13 +1,12 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: SystematicsTool.h 638687 2015-01-10 20:31:47Z sfarrell $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
 #ifndef PATINTERFACES_SYSTEMATICS_TOOL_H
 #define PATINTERFACES_SYSTEMATICS_TOOL_H
-
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
 
 // System include(s):
 #include <unordered_map>

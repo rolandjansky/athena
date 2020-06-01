@@ -23,7 +23,6 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( TruthHelper
                    src/*.cxx
                    PUBLIC_HEADERS TruthHelper
-                   INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AtlasHepMCLib GaudiKernel GeneratorObjects StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel TruthUtils )

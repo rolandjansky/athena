@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetCosmicsEventPhase/ITRT_TrackTimingTool.h"
 #include "TrkTrack/Track.h"
@@ -27,7 +26,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "InDetCosmicsEventPhase/IInDetCosmicsEventPhaseTool.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class AtlasDetectorID;
@@ -73,7 +72,7 @@ class TRT_TrackTimingTool : virtual public ITRT_TrackTimingTool, public AthAlgTo
     ToolHandle<Trk::ITrackFitter>    m_ITrackFitter; // refit the ID track if measurements on track are not available
     ToolHandle<InDet::IInDetCosmicsEventPhaseTool> m_eventPhaseTool; //<! Cosmics Event Phase tool
 
-    ServiceHandle<ITRT_CalDbSvc> m_caldbsvc ;//!< TRT Calibration DB tool
+    ToolHandle<ITRT_CalDbTool> m_caldbtool ;//!< TRT Calibration DB tool
 
     bool m_doEtaCorrection;
     bool m_debug;

@@ -24,7 +24,6 @@ atlas_add_library( FastCaloSimAthenaPool
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities AthenaPoolCnvSvcLib )
 
 atlas_add_poolcnv_library( FastCaloSimAthenaPoolPoolCnv
-                           src/*.cxx
                            FILES FastCaloSimAthenaPool/FastShowerInfoContainer.h FastCaloSimAthenaPool/FastShowerInfo.h
                            INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                            LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities AthenaPoolCnvSvcLib FastCaloSimAthenaPool )

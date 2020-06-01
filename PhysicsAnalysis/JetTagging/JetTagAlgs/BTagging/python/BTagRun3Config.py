@@ -29,7 +29,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
       #IP3D
       #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
 
-      JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+      JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
       jettagcalibcondalg = "JetTagCalibCondAlg"
       readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
       connSchema = "GLOBAL_OFL"
@@ -168,10 +168,15 @@ def BTagCfg(inputFlags,**kwargs):
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
-    from AthenaCommon import CfgGetter
-    result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( inputFlags ))
+
+    # get standard config for magnetic field - map and cache
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg( inputFlags ))
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+    
     #load folders needed for Run2 ID alignment
     result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
@@ -334,13 +339,10 @@ if __name__=="__main__":
         cfgFlags.Scheduler.ShowDataFlow = True
         cfgFlags.Scheduler.ShowControlFlow = True
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-        acc=MainServicesThreadedCfg(cfgFlags)
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
-    else:
-        from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-        acc=MainServicesSerialCfg()
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
+    
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    acc=MainServicesCfg(cfgFlags)
+    acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
 
     # Prevent the flags from being modified
     cfgFlags.lock()

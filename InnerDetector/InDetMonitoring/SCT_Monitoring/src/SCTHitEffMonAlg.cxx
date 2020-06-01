@@ -20,6 +20,9 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
+
+#include "MagFieldElements/AtlasFieldCache.h"
+
 // Track
 #include "TrkSurfaces/Surface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -42,15 +45,14 @@
 // #include "TRandom.h" // Only for Testing
 
 using namespace SCT_Monitoring;
-using namespace std;
 
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline{false};
 
-  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
+  static const std::string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  static const string histogramPathRe[N_REGIONS] = {
+  static const std::string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -103,9 +105,7 @@ StatusCode SCTHitEffMonAlg::initialize() {
   ATH_CHECK(m_rotcreator.retrieve());
 
   ATH_MSG_INFO("Retrieved tool " << m_rotcreator);
-  ATH_CHECK(m_fieldServiceHandle.retrieve());
-  ATH_CHECK(m_bunchCrossingTool.retrieve());
-  ATH_MSG_INFO("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+  ATH_CHECK( m_bunchCrossingKey.initialize());
   ATH_CHECK(m_configConditions.retrieve());
 
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
@@ -128,6 +128,7 @@ StatusCode SCTHitEffMonAlg::initialize() {
   ATH_CHECK( m_sctContainerName.initialize() );
 
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -144,6 +145,24 @@ int SCTHitEffMonAlg::becIdxLayer2Index(const int becIdx, const int layer) const 
   default:
     return -1;
   }
+}
+
+int SCTHitEffMonAlg::getWaferIndex(const int barrel_ec, const int layer_disk, const int side) const {
+  int waferIndex = -1;
+  if (barrel_ec == BARREL) {
+    // corresponds to the waferIndex of B3 side0
+    waferIndex = 0; 
+  } else if (barrel_ec == ENDCAP_A) {
+    // corresponds to the waferIndex of EA0 side0
+    waferIndex = N_BARRELS*N_SIDES;
+  } else if (barrel_ec == ENDCAP_C) {
+    // corresponds to the waferIndex of EC0 side0
+    waferIndex = N_BARRELS*N_SIDES + N_ENDCAPS*N_SIDES;
+  } else {
+    ATH_MSG_WARNING("The barrel_bc index" << barrel_ec << " is not defined.");
+    return waferIndex;
+  }
+  return waferIndex + layer_disk * N_SIDES + side;
 }
 
 double SCTHitEffMonAlg::getResidual(const Identifier& surfaceID,
@@ -225,7 +244,7 @@ int SCTHitEffMonAlg::previousChip(double xl, int side, bool swap) const {
   return chipPos;
 }
 
-StatusCode SCTHitEffMonAlg::failCut(bool value, string name) const {
+StatusCode SCTHitEffMonAlg::failCut(bool value, std::string name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
@@ -256,7 +275,23 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
   // If we are going to use TRT phase in anger, need run-dependent corrections.
   const EventIDBase& pEvent{ctx.eventID()};
   unsigned BCID{pEvent.bunch_crossing_id()};
-  int BCIDpos{m_bunchCrossingTool->distanceFromFront(BCID)};
+  SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+  if (!bcidHdl.isValid()) {
+     ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+     return StatusCode::FAILURE;
+  }
+  const BunchCrossingCondData* bcData{*bcidHdl};
+  int BCIDpos{bcData->distanceFromFront(BCID, BunchCrossingCondData::BunchCrossings)};
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*fieldHandle};
+  if (fieldCondObj==nullptr) {
+    ATH_MSG_ERROR("AtlasFieldCacheCondObj cannot be retrieved.");
+    return StatusCode::RECOVERABLE;
+  }
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache(fieldCache);
+  const bool solenoidOn{fieldCache.solenoidOn()};
 
   // ---- First try if m_tracksName is a TrackCollection
   SG::ReadHandle<TrackCollection>tracks{m_TrackName, ctx};
@@ -314,13 +349,13 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
     const double z0{perigeeParameters[Trk::z0]};
     const double perigeeTheta{perigeeParameters[Trk::theta]};
 
-    if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
+    if (solenoidOn and failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
     nTrkGood++;
@@ -328,6 +363,8 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
 
   // Loop over original track collection
   for (const Trk::Track* pthisTrack: *tracks) {
+
+    // First, go through all cuts in this block
     ATH_MSG_VERBOSE("Starting new track");
     if (pthisTrack==nullptr) {
       continue;
@@ -353,10 +390,10 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
     if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
 
@@ -377,7 +414,17 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       0, 0, 0
     };
     int pixelNHits{0};
+    int pixelNHoles{0};
     int trtNHits{0};
+
+    int sctNHitsPerRegion[N_LAYERS_TOTAL*N_SIDES] = {0};
+    int sctNHolesPerRegion[N_LAYERS_TOTAL*N_SIDES] = {0};
+    // Above two variables hold the number of hits for each SCT disk / layer.
+    // [N_LAYERS_TOTAL*N_SIDES(= 44)] indicates the waferIndex defined as below.
+    //  0- 7: B3 side0, B3 side1, B4 side0, ... B6 side1
+    //  8-25: EA0 side0, EA1 side1, ... EA8 side1
+    // 26-43: EC0 side0, EC1 side1, ... EC8 side1
+
     std::map < Identifier, double > mapOfTrackHitResiduals;
     double zmin = std::numeric_limits<float>::max();
     double zmax = -std::numeric_limits<float>::max();
@@ -387,13 +434,23 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
     float max_layerSide{-1.};
     Identifier surfaceID;
 
-    // loop over all hits on track
+    // Loop over all TSOS (track state on surface) on track to check number of hits / holes on Pixel, SCT and TRT
     for (const Trk::TrackStateOnSurface* tsos: *(trackWithHoles->trackStateOnSurfaces())) {
       surfaceID = surfaceOnTrackIdentifier(tsos);
 
       if (not surfaceID.is_valid()) {
         continue;
       }
+      
+      // Check waferIndex; if the default value of -1 is kept, the corresponding TSOS is not associated with SCT.
+      int waferIndex = -1;
+      // Calculate waferIndex
+      if (m_sctId->is_sct(surfaceID)) {
+        waferIndex = getWaferIndex(m_sctId->barrel_ec(surfaceID),
+                                   m_sctId->layer_disk(surfaceID),
+                                   m_sctId->side(surfaceID));
+      }
+      
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier)) {
         if (m_pixelId->is_pixel(surfaceID)) {
           pixelNHits++;
@@ -404,6 +461,13 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
         if (m_sctId->is_sct(surfaceID)) {
           NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
           mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, tsos->trackParameters(), &*p_sctclcontainer);
+          sctNHitsPerRegion[waferIndex]++;
+        }
+      } else if (tsos->type(Trk::TrackStateOnSurface::Hole)) {
+        if (m_pixelId->is_pixel(surfaceID)) {
+          pixelNHoles++;
+        } else if (m_sctId->is_sct(surfaceID)) {
+          sctNHolesPerRegion[waferIndex]++;
         }
       }
 
@@ -442,6 +506,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       layersCrossedByTrack[i].resize(n_layers[i] * 2, false);
     }
 
+    // Loop over all TSOS again; this time, to extract SCT-related hits and holes.
     for (const Trk::TrackStateOnSurface* tsos: *(trackWithHoles->trackStateOnSurfaces())) {
       ATH_MSG_VERBOSE("Starting new hit");
       surfaceID = surfaceOnTrackIdentifier(tsos);
@@ -450,11 +515,38 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
         continue;
       }
 
-      unsigned int isub{bec2Index(m_sctId->barrel_ec(surfaceID))};
-      ATH_MSG_VERBOSE("New SCT candidate: " << m_sctId->print_to_string(surfaceID));
 
       int side{m_sctId->side(surfaceID)};
       int layer{m_sctId->layer_disk(surfaceID)};
+      int bec{m_sctId->barrel_ec(surfaceID)};
+      unsigned int isub{bec2Index(bec)};
+      ATH_MSG_VERBOSE("New SCT candidate: " << m_sctId->print_to_string(surfaceID));
+
+      int waferIndex = getWaferIndex(bec, layer, side);
+
+      Int_t sctNHitsExceptThisWafer{0};
+      Int_t sctNHolesExceptThisWafer{0};
+
+      for (Int_t i=0; i<N_LAYERS_TOTAL*N_SIDES; i++) {
+        if (i != waferIndex) {
+          sctNHitsExceptThisWafer  += sctNHitsPerRegion[i];
+          sctNHolesExceptThisWafer += sctNHolesPerRegion[i];
+        }
+      }
+
+      // The track is required to satisfy:
+      // - Number of Si hits to be >= 8
+      // - Number of Si holes to be <= 1
+      // without counting on this TSOS object. (avoid tracking bias.)
+      if ((unsigned int)(sctNHitsExceptThisWafer + pixelNHits) < m_minSiHits) {
+        ATH_MSG_VERBOSE("This track is rejected due to the number of hits: " << sctNHitsExceptThisWafer * pixelNHits);
+        continue;
+      }
+      if ((unsigned int)(sctNHolesExceptThisWafer + pixelNHoles) > m_maxSiHoles) {
+        ATH_MSG_VERBOSE("This track is rejected due to the number of holes: " << sctNHolesExceptThisWafer * pixelNHoles);
+        continue;
+      }
+
       std::string etaPhiSuffix = "_" + std::to_string(layer) + "_" + std::to_string(side);
       const int detIndex{becIdxLayer2Index(isub, layer)};
       if (detIndex == -1) {
@@ -468,12 +560,12 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       float dedicated_layerPlusHalfSide{static_cast<float>(layer) + static_cast<float>((side + 1) % 2) * 0.5f};
       const Trk::TrackParameters* trkParamOnSurface{tsos->trackParameters()};
       double trackHitResidual{getResidual(surfaceID, trkParamOnSurface, &*p_sctclcontainer)};
-
+      
       float distCut{m_effdistcut};
 
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier)) {
         eff = 1.;
-      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (fabs(trackHitResidual) < distCut)) {
+      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (std::abs(trackHitResidual) < distCut)) {
         eff = 1.;
       }
 
@@ -561,7 +653,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       int ndf{trackWithHoles->fitQuality()->numberDoF()};
       double chi2_div_ndf{ndf > 0. ? chi2 / ndf : -1.};
 
-      if (failCut(fabs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
+      if (failCut(std::abs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
         continue;
       }
 
@@ -661,3 +753,4 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
   
   return StatusCode::SUCCESS;
 }
+

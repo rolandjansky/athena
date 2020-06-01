@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -14,10 +14,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterInterfaces/IForwardKalmanFitter.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
-#include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 
 /////////////////////// Forward Declarations ///////////////////////////////////
@@ -36,8 +34,7 @@ namespace Trk {
   class TrackStateOnSurface;
   class DNA_MaterialEffects;      //!< dna data for logging method
   class ProtoTrajectoryUtility;   //!< helper class for analysing PTSoS vector.
-  class IExtrapolationEngine;     //!< Extrapolation Engine
-
+  class FitterStatusCode;
 }
 		
 namespace Trk {
@@ -70,10 +67,10 @@ public:
     */
     virtual StatusCode configureWithTools(const Trk::IExtrapolator*, const Trk::IUpdator*,
                                           const Trk::IRIO_OnTrackCreator*,
-                                          const Trk::IDynamicNoiseAdjustor* = 0,
-                                          const Trk::IAlignableSurfaceProvider* = 0,
-                                          const Trk::IMeasurementRecalibrator* = 0,
-                                          const Trk::IKalmanPiecewiseAnnealingFilter* = 0);
+                                          const Trk::IDynamicNoiseAdjustor* = nullptr,
+                                          const Trk::IAlignableSurfaceProvider* = nullptr,
+                                          const Trk::IMeasurementRecalibrator* = nullptr,
+                                          const Trk::IKalmanPiecewiseAnnealingFilter* = nullptr);
 				
     //! standard athena AlgTool initialize
     StatusCode initialize();
@@ -134,7 +131,7 @@ private:
     //! internal method printing the current state
     void printGlobalParams(int istate, std::string ptype,
                            const TrackParameters*,
-                           const DNA_MaterialEffects* = 0) const;
+                           const DNA_MaterialEffects* = nullptr) const;
 
     // all toolhandles are passed in through a configure method, for reasons of
     // consistency among the KF-subtools and to avoid recursive tool retrieval

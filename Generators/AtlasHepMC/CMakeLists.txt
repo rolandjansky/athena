@@ -11,11 +11,11 @@ atlas_add_library( AtlasHepMCLib
    INTERFACE
    PUBLIC_HEADERS AtlasHepMC
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${HepMC_HepMC_LIBRARY} )
+   LINK_LIBRARIES ${_HEPMC_HepMC_library} )
 
 atlas_add_library( AtlasHepMCfioLib
    AtlasHepMC/*.h
    INTERFACE
    PUBLIC_HEADERS AtlasHepMC
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${HepMC_HepMCfio_LIBRARY} )
+   LINK_LIBRARIES ${_HEPMC_HepMCfio_library} )

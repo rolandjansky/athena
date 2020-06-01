@@ -1,24 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentElectrons=[
-    "Electrons.etcone20",
-    "Electrons.etcone30",
-    "Electrons.etcone40",
-    "Electrons.ptcone20",
-    "Electrons.ptcone30",
-    "Electrons.ptcone40",
     "Electrons.Loose",
     "Electrons.Medium",
     "Electrons.Tight",
-    "Electrons.DFCommonElectronsLHLoose",
-    "Electrons.DFCommonElectronsLHMedium",
-    "Electrons.DFCommonElectronsLHTight",
-    "Electrons.DFCommonElectronsML",
-    "Electrons.author",
-    "Electrons.OQ"
     ]
+
 ExtraElectronsTruth=[
     "Electrons.truthOrigin",
     "Electrons.truthType",
@@ -77,22 +66,6 @@ ExtraContentHLTPhotons=[
 	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex.calE.calEta.calPhi.calM.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME"
 ]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#	ExtraContentPhotons.append("Photons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#	ExtraContentElectrons.append("Electrons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentElectrons.append("Electrons."+cell+layer)
-#
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
@@ -114,30 +87,39 @@ ExtraContainersTruth=["TruthEvents",
 
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
-                        "egammaClusters"
+                        "egammaClusters",
+                        "NewSwPhotons", # only if DoCellReweighting is ON                        
+                        "MaxVarSwPhotons", # if variations are ON
+                        "MinVarSwPhotons"  # if variations are ON
                         ]
 
-# for trigger studies
+# for trigger studies and for trigger matching
 ExtraContainersTrigger=[
-	# to access the HLT egamma xAOD collections
-	"HLT_xAOD__ElectronContainer_egamma_Electrons",
+	"HLT_xAOD__MuonContainer_MuonEFInfo",
+	"HLT_xAOD__MuonContainer_MuonEFInfoAux.",
+        "HLT_xAOD__MuonContainer_MuonEFInfo_FullScan",
+        "HLT_xAOD__MuonContainer_MuonEFInfo_FullScanAux.",
 	"HLT_xAOD__PhotonContainer_egamma_Photons",
-	"HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+	"HLT_xAOD__PhotonContainer_egamma_PhotonsAux.",
+        "HLT_xAOD__PhotonContainer_egamma_Iso_Photons",
+        "HLT_xAOD__PhotonContainer_egamma_Iso_PhotonsAux.",
 	"HLT_xAOD__TrigPhotonContainer_L2PhotonFex",
-	# to access information about EF clusters and tracks
+	"HLT_xAOD__TrigPhotonContainer_L2PhotonFexAux.",
 	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFID",
-	# for L1 studies
+	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFexAux.",
 	"LVL1EmTauRoIs",
+	"LVL1EmTauRoIsAux.",
 	"HLT_TrigPassBitsCollection_passbits",
+	"HLT_TrigPassBitsCollection_passbitsAux.",
 	"HLT_TrigPassFlagsCollection_passflags",
-	"HLT_TrigRoiDescriptorCollection_initialRoI"
-	]
+	"HLT_TrigPassFlagsCollection_passflagsAux.",
+	"HLT_TrigRoiDescriptorCollection_initialRoI",
+	"HLT_TrigRoiDescriptorCollection_initialRoIAux."
+        ]
 
 ExtraContainersTriggerDataOnly=[
 	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",
+	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgammaAux.",
 	"HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_FTF",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_L2ID",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig"
+	"HLT_xAOD__CaloClusterContainer_TrigCaloClusterMakerAux."
 	]

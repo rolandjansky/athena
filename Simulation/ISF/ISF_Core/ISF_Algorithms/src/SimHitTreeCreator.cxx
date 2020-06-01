@@ -10,7 +10,7 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // ROOT includes
 #include "TTree.h"

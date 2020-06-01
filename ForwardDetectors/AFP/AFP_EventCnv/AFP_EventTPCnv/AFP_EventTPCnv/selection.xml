@@ -23,10 +23,4 @@
 	<class name="std::vector<AFP_SIDLocRecoEvent_p1>" /> 
 	<class name="AFP_SIDLocRecoEvCollection_p1" id="D0C144F2-E82E-44B3-84BC-22C7D10F262E" />	
 
-  <class name="AFP_RawDataContainer_p1" id = "229CCDDE-6686-49A2-BC5D-431FEA055EC8"/>
-  <class name="std::vector<AFP_RawDataCollection_p1>" />
-  <class name="AFP_RawDataCollection_p1" />
-  <class name="std::vector<AFP_RawData_p1>" />
-  <class name="AFP_RawData_p1" />
-	
 </lcgdict>

@@ -42,142 +42,28 @@ namespace MissingETBase
     {
       /*! @name Numerical constants */
       /*!@{*/
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double precision  = 0.00001;      /*!< @brief Maximum numerical distance up to which two double precision variables are considered to be identical. */
+      static constexpr double precision  = 0.00001;      /*!< @brief Maximum numerical distance up to which two double precision variables are considered to be identical. */
 
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      size_t invalidIndex = size_t(-1); /*!< @brief Invalid index indicator */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      size_t unknownIndex = size_t(-1); /*!< @brief Unknown index indicator */
+      static constexpr size_t invalidIndex = size_t(-1); /*!< @brief Invalid index indicator */
+      static constexpr size_t unknownIndex = size_t(-1); /*!< @brief Unknown index indicator */
 
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wpxDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{x} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wpyDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{y} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wetDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{\rm T} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wpxError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{x} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wpyError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{y} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double wetError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{\rm T} @f$ */
+      static const constexpr double wpxDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{x} @f$ */
+      static constexpr double wpyDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{y} @f$ */
+      static constexpr double wetDefault = 1.0;          /*!< @brief Default kinematic weight @f$ w_{\rm T} @f$ */
+      static constexpr double wpxError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{x} @f$ */
+      static constexpr double wpyError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{y} @f$ */
+      static constexpr double wetError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{\rm T} @f$ */
 
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpxDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{x} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpyDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{y} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpzDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{z} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double ceDefault = 0.0;           /*!< @brief Default constituent vector @f$ E @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double sumptDefault = 0.0;           /*!< @brief Default constituent sumpt */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpxError = -9999999;          /*!< @brief Error constituent vector @f$ P_{x} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpyError = -9999999;          /*!< @brief Error constituent vector @f$ P_{y} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double cpzError = -9999999;          /*!< @brief Error constituent vector @f$ P_{z} @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double ceError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
-      static
-#if __cplusplus < 201100
-      const
-#else
-      constexpr
-#endif // C++11
-      double sumptError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
+      static const constexpr double cpxDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{x} @f$ */
+      static constexpr double cpyDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{y} @f$ */
+      static constexpr double cpzDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{z} @f$ */
+      static constexpr double ceDefault = 0.0;           /*!< @brief Default constituent vector @f$ E @f$ */
+      static constexpr double sumptDefault = 0.0;           /*!< @brief Default constituent sumpt */
+      static constexpr double cpxError = -9999999;          /*!< @brief Error constituent vector @f$ P_{x} @f$ */
+      static constexpr double cpyError = -9999999;          /*!< @brief Error constituent vector @f$ P_{y} @f$ */
+      static constexpr double cpzError = -9999999;          /*!< @brief Error constituent vector @f$ P_{z} @f$ */
+      static constexpr double ceError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
+      static constexpr double sumptError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
 
       /*!@}*/
       /*! @name String constants */

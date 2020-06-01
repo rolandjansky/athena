@@ -30,7 +30,7 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "TMath.h" // for TMath::Landau
+#include "TMath.h" // for TMath::Landau()
 #include <cmath>
 
 #include <iostream>

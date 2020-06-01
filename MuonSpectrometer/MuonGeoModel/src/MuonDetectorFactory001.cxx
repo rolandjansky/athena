@@ -163,6 +163,8 @@ namespace MuonGM {
     m_manager->setCachingFlag(m_caching);
     m_manager->setCacheFillingFlag(m_cacheFillingFlag);
     m_manager->setControlAlinesFlag(m_controlAlines);
+    m_manager->setNSWABLinesAsciiSideA(m_NSWABLinesSideA);
+    m_manager->setNSWABLinesAsciiSideC(m_NSWABLinesSideC);
     // set here the flag defining the geometry granularity
     // minimalgeo = 1 => The geo tree is built up to the Detector Level (Full PhysVol)
     //                     no internal structure of the Detector is built
@@ -618,7 +620,7 @@ namespace MuonGM {
         }
 
         mst->setTransform(xf);
-        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*CLHEP::deg)*GeoTrf::RotateY3D(-90*CLHEP::deg);
+        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*Gaudi::Units::degree)*GeoTrf::RotateY3D(-90*Gaudi::Units::degree);
 
         mst->setNativeToAmdbLRS(
           Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame( (*pit).second ))

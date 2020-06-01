@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file RootUtils/TSMethodCall.h
  * @author scott snyder <snyder@bnl.gov>
@@ -41,6 +40,9 @@ public:
 
   // Assignment.
   TSMethodCall& operator= (const TSMethodCall& other);
+
+  // Destructor.
+  ~TSMethodCall();
 
     
   /**
@@ -79,7 +81,11 @@ private:
   /// to change the object state to make a call (registering the
   /// arguments), this is not thread-safe.  Instead, we use the
   /// thread-specific instances accessed through @c m_tsMeth.
-  TMethodCall m_meth;
+  ///
+  /// Held by pointer rather than value to work around a ROOT problem
+  /// where the TMethodCall destructor will crash if gCling has already
+  /// been destroyed.
+  std::unique_ptr<TMethodCall> m_meth;
 
   /// Flag whether or not m_meth has been initialized.
   /// We don't want to do that before we actually need it,

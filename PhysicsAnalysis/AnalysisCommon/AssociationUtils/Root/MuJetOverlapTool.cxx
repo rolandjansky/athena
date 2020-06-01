@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
 // System includes
 #include <typeinfo>
 
@@ -64,21 +65,21 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode MuJetOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty()) {
       ATH_MSG_DEBUG("Configuring btag-aware OR with btag label: " << m_bJetLabel);
-      m_bJetHelper = make_unique<BJetHelper>(m_bJetLabel);
+      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
     }
 
     // Initialize the matcher for the 'inner' cone.
     if(m_useGhostAssociation) {
-      ATH_MSG_DEBUG("Configuring ghost association + dR matching for jet-mu OR");
-      m_dRMatchCone1 = make_unique<MuJetGhostDRMatcher>(m_innerDR, m_useRapidity);
+      ATH_MSG_DEBUG("Configuring ghost association + dR matching for jet-mu OR "
+                    "with inner cone size " << m_innerDR);
+      m_dRMatchCone1 = std::make_unique<MuJetGhostDRMatcher>(m_innerDR, m_useRapidity);
     }
     else {
-      m_dRMatchCone1 = make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
+      ATH_MSG_DEBUG("Configuring mu-jet inner cone size " << m_innerDR);
+      m_dRMatchCone1 = std::make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
     }
 
     // Use sliding dR or flat dR for the 'outer' cone.
@@ -87,12 +88,26 @@ namespace ORUtils
                     "constants C1 = " << m_slidingDRC1 << ", C2 = " <<
                     m_slidingDRC2 << ", MaxCone = " << m_slidingDRMaxCone);
       m_dRMatchCone2 =
-        make_unique<SlidingDeltaRMatcher>
+        std::make_unique<SlidingDeltaRMatcher>
           (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
     }
     else {
-      m_dRMatchCone2 = make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
+      ATH_MSG_DEBUG("Configuring mu-jet outer cone size " << m_outerDR);
+      m_dRMatchCone2 = std::make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
     }
+
+    // Additional config printouts
+    ATH_MSG_DEBUG("Mu-jet matching config: NumJetTrk " << m_numJetTrk <<
+                  " ApplyRelPt " << m_applyRelPt <<
+                  " MuJetPtRatio " << m_muJetPtRatio <<
+                  " MuJetTrkPtRatio " << m_muJetTrkPtRatio);
+    if(!m_jetNumTrkDec.empty()) {
+      ATH_MSG_DEBUG("Using user-defined JetNumTrackDecoration " << m_jetNumTrkDec);
+    }
+    if(!m_jetSumTrkPtDec.empty()) {
+      ATH_MSG_DEBUG("Using user-defined JetSumTrackPTDecoration " << m_jetSumTrkPtDec);
+    }
+
     return StatusCode::SUCCESS;
   }
 

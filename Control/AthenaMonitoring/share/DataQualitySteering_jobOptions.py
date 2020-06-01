@@ -124,12 +124,6 @@ if DQMonFlags.doMonitoring():
    # LAr monitoring   #
    #------------------#
    if DQMonFlags.doLArMon():
-      # FIXME: don't use global flags here
-      if 'doLArCollisionTimeMon' not in dir():
-         doLArCollisionTimeMon=True
-      if doLArCollisionTimeMon:
-         include ("LArCellRec/LArCollisionTime_jobOptions.py")
-         include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
       try:
          LArMon = AthenaMonManager(name="LArMonManager",
                           FileKey             = DQMonFlags.monManFileKey(),
@@ -250,6 +244,13 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    # Post-setup configuration #
    #--------------------------#
+   # force conditions update because the converter can't do it
+   if DQMonFlags.monManEnvironment in ('tier0ESD', 'AOD'):
+      from AthenaCommon.AlgSequence import AthSequencer
+      from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+      asq = AthSequencer("AthBeginSeq") 
+      asq += [ForceIDConditionsAlg()]
+
    if rec.triggerStream()=='express':
       include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    local_logger.debug('DQ Post-Setup Configuration')
@@ -262,6 +263,18 @@ if DQMonFlags.doMonitoring():
    for _ in topSequence:
       if isinstance(_, AthenaMonManager):
          toolset.update(_.AthenaMonTools)
+
+         # in MT the initialization can be in random order ... force all managers to have common setup
+         _.FileKey             = DQMonFlags.monManFileKey()
+         _.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+         _.DataType            = DQMonFlags.monManDataType()
+         _.Environment         = DQMonFlags.monManEnvironment()
+         _.LBsInLowStatInterval = DQMonFlags.monManLBsInLowStatInterval()
+         _.LBsInMediumStatInterval = DQMonFlags.monManLBsInMediumStatInterval()
+         _.LBsInHighStatInterval = DQMonFlags.monManLBsInHighStatInterval()
+         _.ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup()
+         _.Run                 = DQMonFlags.monManRun()
+         _.LumiBlock           = DQMonFlags.monManLumiBlock()
 
    for tool in toolset:
       # stop lumi access if we're in MC or enableLumiAccess == False

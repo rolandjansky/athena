@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -11,17 +11,6 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-using namespace std;
-
-//----------------------------------------------------------------------
-//constructor
-MdtDeadChamberStatus::MdtDeadChamberStatus()
-{}
-
-//----------------------------------------------------------------------
-//destructor
-MdtDeadChamberStatus::~MdtDeadChamberStatus()
-{ }
 
 //----------------------------------------------------------------------
 // Add map entries of Mdt data
@@ -48,7 +37,7 @@ MdtDeadChamberStatus::MdtMultilayerData MdtDeadChamberStatus::findChamber(const 
 // Method to print the map - useful debug tool
 std::string MdtDeadChamberStatus::str()
 {
-  ostringstream txt;
+  std::ostringstream txt;
   if (m_dataMap.empty()){
     txt<<"No dead chambers are in the  MdtDeadChamber data map.\n";
   } else {
@@ -64,20 +53,20 @@ std::string MdtDeadChamberStatus::str()
 // Print data for one module
 std::string MdtDeadChamberStatus::chamberText( const std::string & chamberId ){
   MdtMultilayerData thisMultilayerData = findChamber( chamberId );
-  ostringstream txt;
-  ostringstream tmp;
+  std::ostringstream txt;
+  std::ostringstream tmp;
 
   if ( thisMultilayerData.empty() ){
     txt << "The MdtDeadChamberStatus data map is empty for chamber " << chamberId <<".\n";
   } else {
-    txt << setw(10) << "Multilayer" 
-        << setw(10) << "Layer" << setw(20) << "Tube" << "\n";
+    txt << std::setw(10) << "Multilayer" 
+        << std::setw(10) << "Layer" << std::setw(20) << "Tube" << "\n";
     MdtMultilayerData::const_iterator MdtMultilayerItr(thisMultilayerData.begin());
     for (; MdtMultilayerItr not_eq thisMultilayerData.end(); ++MdtMultilayerItr){
       std::vector<std::vector<int> > MdtLayerValues =MdtMultilayerItr->second;
       for ( unsigned int iLayer = 0; iLayer < MdtLayerValues.size(); iLayer++){
-	txt << setw(10) << MdtMultilayerItr->first 
-	    << setw(10) << iLayer +1 << setw(10) ;
+	txt << std::setw(10) << MdtMultilayerItr->first 
+	    << std::setw(10) << iLayer +1 << std::setw(10) ;
 	for ( unsigned int iTube = 0; iTube < MdtLayerValues.at(iLayer).size(); iTube++){
 	   txt << MdtLayerValues.at(iLayer).at(iTube) << ", ";
 	}  

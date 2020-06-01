@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -10,15 +10,9 @@
   Re-adapted by Michela Biglietti for Mdt Rods
 */
 
-//#include <strstream>
-//#include <cassert>
-
 #include "MuonByteStreamCnvTest/ReadMdtDigit.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
-
-using namespace std;
-
 
 static const int maxColl =   1200;
 static const int maxDig =    5000;
@@ -29,8 +23,6 @@ ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
   m_activeStore("ActiveStoreSvc", name)
 {
-  // Declare the properties
-
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple", m_mdtNtuple = false);
 }
@@ -41,7 +33,7 @@ StatusCode ReadMdtDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
  
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
@@ -94,9 +86,9 @@ StatusCode ReadMdtDigit::execute()
 	m_tdc[m_nDig] = (*dig)->tdc();
 	m_adc[m_nDig] = (*dig)->adc();
 
-	m_multi[m_nDig] = m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id); 
-	m_layer[m_nDig] = m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id);
-	m_wire[m_nDig]  = m_muonIdHelperTool->mdtIdHelper().tube(dig_id); 
+	m_multi[m_nDig] = m_idHelperSvc->mdtIdHelper().multilayer(dig_id); 
+	m_layer[m_nDig] = m_idHelperSvc->mdtIdHelper().tubeLayer(dig_id);
+	m_wire[m_nDig]  = m_idHelperSvc->mdtIdHelper().tube(dig_id); 
 	++m_nDig;
         ATH_MSG_DEBUG( " Digit number  " << m_nDig );
 
@@ -126,13 +118,6 @@ StatusCode ReadMdtDigit::execute()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode ReadMdtDigit::finalize()
-{
-  ATH_MSG_INFO( "in finalize()"  );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode ReadMdtDigit::accessNtuple()
 {

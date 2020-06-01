@@ -131,8 +131,6 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doLowPt        = False
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doSingleSpBackTracking = True
@@ -219,9 +217,6 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from AthenaCommon.AppMgr import ServiceMgr
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -353,6 +348,7 @@ conddb.addFolderWithTag('TRT_OFL','/TRT/Calib/errors','TrtCalibErrors-ErrorVal-0
                                         
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
 				       Max_ntrk		   = 10000,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'TRTCalibTracks' ],
@@ -386,8 +382,7 @@ conddb.addFolderWithTag('TRT_OFL','/TRT/Calib/errors','TrtCalibErrors-00')
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalibDBSvc.calibTextFile="%s"\n' % (calibconstants)
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
-    ostring+='TRTCalibDBSvc.StreamTool=TRTCondStream'
     return ostring
 

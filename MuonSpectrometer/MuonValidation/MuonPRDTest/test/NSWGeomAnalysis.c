@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TROOT.h"
@@ -9,9 +9,6 @@
 #include <stdint.h>
 #include <string>
 #include <map>
-
-
-using namespace std;
 
 void setup() {
     // setup the relevant path and load the relevant libraries

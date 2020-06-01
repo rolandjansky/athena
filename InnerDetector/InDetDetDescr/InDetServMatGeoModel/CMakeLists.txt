@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeometryDBSvc )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( Eigen )
 find_package( GeoModelCore )
@@ -31,8 +30,8 @@ find_package( GeoModelCore )
 atlas_add_component( InDetServMatGeoModel
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests )
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests GeometryDBSvcLib )
 
 # Install files from the package:
 atlas_install_headers( InDetServMatGeoModel )

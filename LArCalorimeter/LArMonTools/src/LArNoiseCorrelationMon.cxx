@@ -160,6 +160,9 @@ LArNoiseCorrelationMon::initialize()
   /** Retrieve pedestals container*/
   ATH_CHECK(m_keyPedestal.initialize());
 
+  /** Configure event info */
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   /** get the trigger list from the 'm_triggerChainProp'*/
   m_triggers.clear();
   if(m_isCalibrationRun) {
@@ -236,8 +239,12 @@ LArNoiseCorrelationMon::fillHistograms()
   bool passTrig = m_isCalibrationRun;
   if(!m_isCalibrationRun) { 
      /**EventID is a part of EventInfo, search event informations:*/
-     const xAOD::EventInfo* thisEvent;
-     ATH_CHECK(evtStore()->retrieve(thisEvent));
+     SG::ReadHandle<xAOD::EventInfo> thisEvent{m_eventInfoKey};
+
+     if (!thisEvent.isValid()) {
+       ATH_MSG_ERROR("xAOD::EventInfo retrieval failed");
+       return StatusCode::FAILURE;
+     }
   
      m_evtId = thisEvent->eventNumber();
      ATH_MSG_DEBUG("Event nb " << m_evtId );  

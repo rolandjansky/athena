@@ -27,13 +27,9 @@ public:
   CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
     
   //function where variables are computed and decorated
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
         
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return static_cast<const CombinedP4FromRecoTaus*>(this)->execute(xTau);
-  } 
-  StatusCode execute(xAOD::TauJet& xTau) const;
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
 
   bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
 
@@ -116,10 +112,10 @@ private:
   /// size of m_modeNames
   std::vector<std::unique_ptr<TH1F>> m_correlationHists;
 
-  Gaudi::Property<bool> m_addCalibrationResultVariables{this, "addCalibrationResultVariables", false};
-  Gaudi::Property<bool> m_addUseCaloPtFlag{this, "addUseCaloPtFlag", false};
-    
-  Gaudi::Property<std::string> m_sWeightFileName{this, "WeightFileName", ""};
+  bool m_addCalibrationResultVariables;
+  bool m_addUseCaloPtFlag;
+  std::string m_sWeightFileName;
+  
   std::unique_ptr<TF1> m_Nsigma_compatibility;
 };
 

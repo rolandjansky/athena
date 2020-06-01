@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #ifndef XAOD_ANALYSIS
 // #include "GaudiKernel/ToolHandle.h"

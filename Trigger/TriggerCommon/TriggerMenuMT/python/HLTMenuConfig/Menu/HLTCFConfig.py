@@ -35,6 +35,7 @@ from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+from AthenaCommon.Configurable import Configurable
 
 
 from AthenaCommon.Logging import logging
@@ -124,8 +125,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    #add the L1Upcacking
-    #    TopHLTRootSeq += L1UnpackingSeq
 
     # connect to L1Decoder
     l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
@@ -152,7 +151,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for step in finalDecisions:
         flatDecisions.extend (step)
 
-    summary= makeSummary("TriggerSummaryFinal", flatDecisions)
+    summary= makeSummary("Final", flatDecisions)
     hltTop += summary
 
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
@@ -160,28 +159,29 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
         triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior+=1
+
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
+    Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
-    hltTop += summaryAlg
-    summaryAcc.appendToGlobals()
+    Configurable.configurableRun3Behavior=0
+    hltTop += conf2toConfigurable( summaryAlg )
+    appendCAtoAthena( summaryAcc )
     decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
-
+    Configurable.configurableRun3Behavior=1
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
-    monAcc.appendToGlobals()
-    hltTop += monAlg
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+    Configurable.configurableRun3Behavior=0
+    hltTop += conf2toConfigurable( monAlg )
+    appendCAtoAthena( monAcc )
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
-    hltTop += edmAlg
 
-    Configurable.configurableRun3Behavior-=1
-
+    hltTop += conf2toConfigurable(edmAlg)
     topSequence += hltTop
 
     # Test the configuration
@@ -208,7 +208,7 @@ def matrixDisplayOld( allCFSeq ):
                 else:
                     return s.step.sequences[0].hypo.tools
             else:
-                return list(s.step.combo.getChains().keys())
+                return list(s.step.combo.getChains())
         return []
    
 
@@ -239,10 +239,7 @@ def matrixDisplay( allCFSeq ):
 
     def __getHyposOfStep( step ):
         if len(step.sequences):
-            if len(step.sequences)==1:
-                return step.sequences[0].getTools()
-            else:
-                return list(step.combo.getChains().keys())
+            step.getChainNames()           
         return []
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
@@ -366,7 +363,7 @@ def createDataFlow(chains, allDicts):
             # add chains to the filter:
             chainLegs = chain.getChainLegs()
             for leg in chainLegs:
-                sequenceFilter.setChains(leg)
+                sequenceFilter.addChain(leg)
                 log.debug("Adding chain %s to %s", leg, sequenceFilter.Alg.name())
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
 
@@ -510,7 +507,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
                 stepDecisions += sequence.outputs
 
             for chain in chainsInCell:
-                sfilter.setChains(chain.name)
+                sfilter.addChain(chain.name)
 
         allSequences.append(CFsequences)
 

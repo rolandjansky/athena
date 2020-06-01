@@ -2,20 +2,18 @@
 
 # art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job) + stdReco_fastSim_fullDigi
 # art-type: grid
-# art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
 # art-output: dcube-rdo-truth
 # art-output: dcube-id
+# art-html: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_stdReco_fastSim_fullDigi"
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
-art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
-dcubeName="stdReco_fastSim_fullDigi"
-dcubeXmlID="${inputXmlDir}/dcube_ID.xml"
-dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
+dcubeXmlID="${inputXmlDir}/physval-stdReco_fastSim_fullDigi.xml"
+dcubeRefID="${inputRefDir}/physval-stdReco_fastSim_fullDigi.root"
 dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
@@ -42,42 +40,42 @@ echo "art-result: ${rc1} EVNTtoRDO"
 rc2=-9999
 if [ ${rc1} -eq 0 ]
 then
-    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
+    # Histogram comparison with DCube
+    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+    -p -x dcube-rdo-truth \
+    -c ${dcubeXmlRDO} -r ${dcubeRefRDO} RDO_truth.root
     rc2=$?
-    if [ -d "dcube" ]
-    then
-       mv "dcube" "dcube-rdo-truth"
-    fi
 fi
 echo "art-result: ${rc2} dcubeRDO"
 
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
- --outputAODFile=AOD_fastSim_fullDigi.pool.root \
+    --outputAODFile=AOD_fastSim_fullDigi.pool.root \
     --autoConfiguration=everything \
     --maxEvents 100 \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
+    --outputNTUP_PHYSVALFile 'physval-stdReco_fastSim_fullDigi.root' \
+    --validationFlags 'doInDet' \
+    --valid 'True' \
     --imf False
-
 rc3=$?
+
 rc4=-9999
 rc5=-9999
-if [ ${rc3} -eq 0 ]
+if [ ${rc1} -eq 0 ]
 then
     # Regression test
     ArtPackage=$1
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc4=$?
-
-    # Histogram comparison with DCube
-    bash ${art_dcube} ${dcubeName} InDetStandardPlots.root ${dcubeXmlID} ${dcubeRefID}
-    rc5=$?
-    if [ -d "dcube" ]
-    then
-       mv "dcube" "dcube-id"
-    fi
 fi
+# Histogram comparison with DCube
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+-p -x dcube-id \
+-c ${dcubeXmlID} -r ${dcubeRefID} physval-stdReco_fastSim_fullDigi.root
+rc5=$?
+
 echo  "art-result: $rc3 RDOtoAOD"
 echo  "art-result: $rc4 regression"
 echo  "art-result: $rc5 dcubeID"

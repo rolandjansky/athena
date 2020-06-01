@@ -11,10 +11,14 @@
 
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_FlaggedConditionTool.h"
+
+#include "TH2F.h"
 
 #include <array>
 #include <atomic>
@@ -30,6 +34,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   virtual ~SCTErrMonAlg() = default;
   virtual StatusCode initialize() override final;
   virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
+  virtual StatusCode stop() override final;
 
  private:
   // First pair is eta and second pair is phi.
@@ -66,6 +71,11 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
     }
   };
 
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+    std::vector<TH2F> m_mapSCT;
+  };
+
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
   static const unsigned int s_nBinsPhi;
@@ -75,6 +85,10 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
 
   mutable std::atomic_bool m_isFirstConfigurationDetails{true};
   mutable std::mutex m_mutex{};
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::array<std::atomic_int, SCT_Monitoring::N_REGIONS_INC_GENERAL> m_nMaskedLinks ATLAS_THREAD_SAFE;
+  // For coverage check because it is time consuming and run at the first event of each lumi block.
+  mutable std::array<std::atomic_bool, SCT_Monitoring::NBINS_LBs+1> m_firstEventOfLB ATLAS_THREAD_SAFE;
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
@@ -85,6 +99,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configurationTool{this, "conditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool/InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+  ToolHandle<ISCT_FlaggedConditionTool> m_flaggedTool{this, "SCT_FlaggedConditionTool", "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool", "Tool to retrieve bad wafers with many fired strips"};
 
   const SCT_ID* m_pSCTHelper{nullptr};
 
@@ -94,7 +109,8 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   /// Used in fillByteStreamErrors()
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
                                  int err_type,
-                                 categoryErrorMap_t& categoryErrorMap) const;
+                                 categoryErrorMap_t& categoryErrorMap,
+                                 std::array<int, SCT_Monitoring::N_REGIONS_INC_GENERAL>& nMaskedLinks) const;
   void numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const;
   bool disabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
   bool errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,

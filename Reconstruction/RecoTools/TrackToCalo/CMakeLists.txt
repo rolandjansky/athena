@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/RecoTools/ITrackToVertex
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers
+			  Tracking/TrkExtrapolation/TrkExUtils
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 			  PRIVATE
@@ -43,7 +44,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces 
+                          Tracking/TrkTools/TrkToolInterfaces
 			  Control/CxxUtils )
 
 # External dependencies:

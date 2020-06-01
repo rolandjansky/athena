@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //r22 header
@@ -153,7 +153,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   //////////////////////
 
   auto mu = Monitored::Scalar<float>("mu",0);
-  mu = GetEventInfo(ctx)->actualInteractionsPerCrossing();
+  mu = lbInteractionsPerCrossing(ctx);
   fill(tool,mu); 
 
   //////////////////////
@@ -480,6 +480,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   auto jet_phi_jvt = Monitored::Scalar<float>("jet_phi_jvt",0.0);
   auto jet_eta_overlap = Monitored::Scalar<float>("jet_eta_overlap",0.0);
   auto jet_phi_overlap = Monitored::Scalar<float>("jet_phi_overlap",0.0);
+  auto jet_pT_good = Monitored::Scalar<float>("jet_pT_good",0.0);//extra
+  auto passGood = Monitored::Scalar<bool>("passGood",false);//extra
   auto jet_eta_good = Monitored::Scalar<float>("jet_eta_good",0.0);
   auto jet_phi_good = Monitored::Scalar<float>("jet_phi_good",0.0);
   auto jet_eta_suspect = Monitored::Scalar<float>("jet_eta_suspect",0.0);
@@ -611,13 +613,19 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
  
     Jet_t taggabilityLabel = getTaggabilityLabel(jetItr); // check if jet is taggable (defined as goodJet or suspectJet or badJet)
 
+      // Fill variable for 2D fraction plot
+      passGood = taggabilityLabel == goodJet;
+      fill(tool,passGood,jet_eta_all,jet_phi_all);//fill 2D fraction plot (good jets / all jets before selection)
+
     if ( taggabilityLabel == goodJet ) {
       Jet_CutFlow = 5;
       fill(tool,Jet_CutFlow);
+
+      jet_pT_good = jetItr->pt() / Gaudi::Units::GeV;
       jet_eta_good = jetItr->eta();
       jet_phi_good = jetItr->phi();
-      fill(tool,jet_eta_good,jet_phi_good);//fill 2D plot
-
+      fill(tool,jet_eta_good,jet_phi_good,jet_pT_good);//fill 2D plot & pT distribution of good jets
+      
       fillGoodJetHistos(jetItr); //fill good jet histograms, also with b-tagging information
 
       //Fill MV plots vs <mu>
@@ -926,7 +934,7 @@ void JetTagMonitorAlgorithm::fillGoodJetHistos(const xAOD::Jet *jet) const {
   auto tool = getGroup("JetTagMonitor");
 
   auto jet_MV_good = Monitored::Scalar<float>("jet_MV_good",0);
-  
+
   jet_MV_good = mv;
   fill(tool,jet_MV_good);
 
@@ -1054,7 +1062,7 @@ void JetTagMonitorAlgorithm::fillGoodJetHistos(const xAOD::Jet *jet) const {
   auto pass70e = Monitored::Scalar<bool>("pass70e",false);
   auto pass60e = Monitored::Scalar<bool>("pass60e",false);
   pass85e = mv > m_mv_85_weight_cut;
-  pass77e= mv > m_mv_77_weight_cut;
+  pass77e = mv > m_mv_77_weight_cut;
   pass70e = mv > m_mv_70_weight_cut;
   pass60e = mv > m_mv_60_weight_cut;
   fill(tool,jet_eta,pass85e,pass77e,pass70e,pass60e);

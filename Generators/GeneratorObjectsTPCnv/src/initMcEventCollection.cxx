@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
@@ -19,9 +19,9 @@
 #include "TestTools/initGaudi.h"
 
 namespace Athena_test {
-  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticle*>& genPartList)
+  bool initMcEventCollection(ISvcLocator*& pSvcLoc, std::vector<HepMC::GenParticle*>& genPartList, const bool initGaudi)
   {
-    if (!Athena_test::initGaudi(pSvcLoc)) {
+    if (initGaudi && !Athena_test::initGaudi(pSvcLoc)) {
       std::cerr << "This test can not be run" << std::endl;
       return false;
     }
@@ -29,6 +29,12 @@ namespace Athena_test {
     // HepMcParticleLink knows about
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"TruthEvent"};
     inputTestDataHandle = std::make_unique<McEventCollection>();
+
+    // create a dummy EventContext
+    EventContext ctx;
+    ctx.setExtension( Atlas::ExtendedEventContext( SG::CurrentEventStore::store() ) );
+    Gaudi::Hive::setCurrentContext( ctx );
+
     // Add a dummy GenEvent
     const int process_id1(20);
     const int event_number1(17);

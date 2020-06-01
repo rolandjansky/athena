@@ -8,10 +8,11 @@ project( AthGeneration VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
+                               --ignore ATL238,ATL9,E701,E702,E704,E741
+                               --enable-extensions ATL902
    CACHE STRING "Default flake8 command" )
-
-set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Find the ATLAS CMake code:
@@ -42,18 +43,10 @@ set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
 
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()
@@ -64,10 +57,6 @@ atlas_ctest_setup()
 # Set up the "ATLAS project".
 atlas_project( USE AthGenerationExternals ${AthGenerationExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
-
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -94,10 +83,18 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
-   ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/packages.dot
+   DESTINATION . OPTIONAL )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

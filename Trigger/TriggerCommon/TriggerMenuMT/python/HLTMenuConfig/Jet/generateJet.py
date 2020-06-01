@@ -3,6 +3,9 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+import pprint
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def generateChains( flags, chainDict ):
 
@@ -25,16 +28,20 @@ def generateChains( flags, chainDict ):
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
 
-    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-    cellmaker=HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs="FSJETRoI"
-    cellmaker.TrigDataAccessMT=cdaSvc
-    cellmaker.CellsName=cellsname
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
+    cellmaker.RoIs = "FSJETRoI"
+    cellmaker.TrigDataAccessMT = cdaSvc
+    cellmaker.CellsName = cellsname
 
     inEventReco.addRecoAlg(cellmaker)
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    inEventReco.mergeReco( CaloTopoClusterCfg(flags,cellsname=cellsname,clustersname=clustersname,doLCCalib=False,sequenceName=inEventReco.recoSeq.name()) )
+    inEventReco.mergeReco( CaloTopoClusterCfg( flags,
+                                    cellsname = cellsname,
+                                    clustersname = clustersname,
+                                    doLCCalib = False,
+                                    sequenceName = inEventReco.recoSeq.name) )
 
     #sequencing of actual jet reconstruction
     from JetRecConfig import JetRecConfig
@@ -58,9 +65,8 @@ def generateChains( flags, chainDict ):
     acc.merge(inEventReco,stepReco.getName())
 
     #hypo
-    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
+    hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = jetprefix+TrigAntiKt4EMTopoSubJES.basename+jetsuffix+"Jets"
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo)
@@ -77,8 +83,7 @@ def generateChains( flags, chainDict ):
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
 
-    import pprint
-    pprint.pprint(chainDict)
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     acc.printConfig()
 

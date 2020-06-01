@@ -18,7 +18,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 namespace D3PD {

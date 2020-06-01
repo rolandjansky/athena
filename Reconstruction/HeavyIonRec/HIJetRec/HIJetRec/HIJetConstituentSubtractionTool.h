@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetConstituentSubtractionTool.h
 
-#ifndef __HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H__
-#define __HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H__
+#ifndef HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H
+#define HIJETREC_HIJETCONSTITUENTSUBTRACTIONTOOL_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -28,10 +28,16 @@
 
 #include <string>
 #include "JetRec/JetModifierBase.h"
+#include "HIJetRec/HIJetRecDefs.h"
 #include "HIJetRec/IHISubtractorTool.h"
 #include "HIJetRec/IHIUEModulatorTool.h"
 #include "AsgTools/ToolHandle.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 class HIJetConstituentSubtractionTool : public JetModifierBase
 {
@@ -39,45 +45,57 @@ class HIJetConstituentSubtractionTool : public JetModifierBase
   ASG_TOOL_CLASS0(HIJetConstituentSubtractionTool);
 
 public:
-    
+
   HIJetConstituentSubtractionTool(const std::string& t);
-  
+
+  virtual StatusCode initialize() override;
+
   /// \brief Implementing abstract methods from base
-  StatusCode modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const override;
 
   /// \brief Implementing abstract methods from base, not used
-  int modifyJet(xAOD::Jet&) const {return 1;};
+  virtual int modifyJet(xAOD::Jet&) const override {return 1;};
 
 private:
 
+  // Migration to data handles
   /// \brief Name of HIEventShapeContainer
-  std::string m_event_shape_key;
-  std::string m_modulation_key;
-  /// \brief Subtracted jet kinematics are stored 
+  SG::ReadHandleKey< xAOD::HIEventShapeContainer > m_eventShapeKey { this, "EventShapeKey", "", "The input HI Event Shape"};
+
+  SG::ReadHandleKey< xAOD::VertexContainer > m_vertexContainer { this, "VertexContainer", "PrimaryVertices", "Vertex container for primary vertices"};
+
+  //That looks useless. commented out for the moment
+  //std::string m_modulation_key;
+  /// \brief Subtracted jet kinematics are stored
   /// using this string like a signal state/moment
   /// Jet::setJetP4 ( std::string, JetFourMom_t)
-  std::string m_moment_name;
+  /// not a key - but we bring it
+  Gaudi::Property< std::string > m_momentName { this, "MomentName", HIJetRec::subtractedJetState(), "Subtracted Jet Kineamtics are stored using this string like a signal/state moment" }  ;
 
-  /// \brief if this flag is set, the primary jet 
+  /// \brief if this flag is set, the primary jet
   /// kinematics are also set to reflect this subtraction
   /// eventually do this w/ a signal state
-  bool m_moment_only;
+  Gaudi::Property< bool > m_momentOnly { this, "SetMomentOnly", true,
+          "If this flag is set, the primary jet kinematics are also set to reflect this subtraction eventually do this w/ a signal state" }  ;
   /// \brief handle to IHISubtractorTool that determines the
   /// subtracted kinematics for each constituent
-  ToolHandle<IHISubtractorTool> m_subtractor_tool;
-  ToolHandle<IHIUEModulatorTool> m_modulator_tool;
+  ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetClusterSubtractorTool", "" };
+  ToolHandle<IHIUEModulatorTool> m_modulatorTool { this, "Modulator" , "HIUEModulatorTool ", "" };
+
+  Gaudi::Property< bool > m_originCorrection { this, "ApplyOriginCorrection", false, "Apply Origin Correction boolean switch"};
 
 protected:
   /// \brief Protected set/get functions provide access to private data
   /// members in derived classes
-  inline std::string EventShapeKey() const {return m_event_shape_key;};
-  inline std::string ModulationKey() const {return m_modulation_key;};
-  inline std::string MomentName() const {return m_moment_name;};
-  inline bool MomentOnly() const {return m_moment_only;};
+  inline SG::ReadHandleKey< xAOD::HIEventShapeContainer > EventShapeKey()  { return m_eventShapeKey; };
+  //That looks useless. commented out for the moment
+  //inline std::string ModulationKey() const {return m_modulation_key;};
+  inline std::string momentName() const { return m_momentName; };
+  inline bool momentOnly() const { return m_momentOnly; };
 
-  inline void SetEventShapeKey(std::string key) {m_event_shape_key=key;};
-  inline void SetMomentName(std::string key) {m_moment_name=key;};
-  inline void SetMomentOnly(bool x) {m_moment_only=x;};
+  inline void setEventShapeKey( SG::ReadHandleKey< xAOD::HIEventShapeContainer > key ) { m_eventShapeKey=key; };
+  inline void setMomentName(std::string key) { m_momentName=key; };
+  inline void setMomentOnly(bool x) { m_momentOnly=x; };
 
 };
 

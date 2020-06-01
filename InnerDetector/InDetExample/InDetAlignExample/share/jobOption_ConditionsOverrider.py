@@ -154,9 +154,8 @@ printfunc (InDetRotErrorScalingTool)
 # Correct TRT calibration for cosmics
 if loadInDetRec_Options["TRTCalibTextFile"] and loadInDetRec_Options["Cosmics"]:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
   
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )
@@ -166,12 +165,6 @@ if loadInDetRec_Options["TRTCalibT0TagCos"]:
   conddb.addOverride('/TRT/Calib/T0',loadInDetRec_Options["TRTCalibT0TagCos"])
 if loadInDetRec_Options["TRTCalibRtTagCos"]:
   conddb.addOverride('/TRT/Calib/RT',loadInDetRec_Options["TRTCalibRtTagCos"])
-
-#Trying to fix the Database problem
-if loadInDetRec_Options["globalTag"] == "OFLCOND-RUN12-SDR-14":    
-  conddb.addOverride('/PIXEL/PixdEdx','PixdEdx_January2011_mc-000-00')
-  from AthenaCommon.CfgGetter import getService
-  getService("AtlasFieldSvc").UseDCS = False
 
 doJiveXML=False  
 if doJiveXML:

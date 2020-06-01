@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 //
 
 #include "DerivationFrameworkInDet/TrackStateOnSurfaceDecorator.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 #include "xAODTracking/TrackStateValidationContainer.h"
@@ -36,10 +35,8 @@
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
-#include "xAODEventInfo/EventInfo.h"
-#include "CommissionEvent/ComTime.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -51,6 +48,11 @@
 
 #include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"  
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "DerivationFrameworkInDet/DecoratorUtils.h"
 
 #include <vector>
 #include <string>
@@ -69,9 +71,8 @@ namespace DerivationFramework {
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx"),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_trtcaldbTool("TRT_CalDbTool",this),
+    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -87,43 +88,31 @@ namespace DerivationFramework {
     declareProperty("AddPRD",                 m_addPRD =true);
     declareProperty("AddExtraEventInfo",      m_addExtraEventInfo=true);
 
-    // --- Configuration keys
-    declareProperty("DecorationPrefix",       m_sgName="IDDET1_");
-    declareProperty("ContainerName",          m_containerName="InDetTrackParticles");
-    declareProperty("PixelMapName",           m_pixelMapName = "PixelClustersOffsets");
-    declareProperty("SctMapName",             m_sctMapName = "SCT_ClustersOffsets");
-    declareProperty("TrtMapName",             m_trtMapName = "TRT_DriftCirclesOffsets");
-    declareProperty("PixelClustersName",      m_pixelClustersName = "PixelClusters");
-    declareProperty("SctClustersName",        m_sctClustersName = "SCT_Clusters");
-    declareProperty("TrtDriftCirclesName",    m_trtDCName = "TRT_DriftCircles");
-    declareProperty("PixelMsosName",          m_pixelMsosName = "PixelMSOSs");
-    declareProperty("SctMsosName",            m_sctMsosName = "SCT_MSOSs");
-    declareProperty("TrtMsosName",            m_trtMsosName = "TRT_MSOSs");    
-
     // -- Tools 
-    declareProperty("Updator",                m_updator);    
+    declareProperty("Updator",                m_updator);   
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
-    declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
+    declareProperty("TRT_CalDbTool",           m_trtcaldbTool);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
     declareProperty("TrackExtrapolator",      m_extrapolator);
-    declareProperty("AssociationTool",        m_assoTool);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
   {
     ATH_MSG_DEBUG("Initialize");
 
-    if (m_sgName=="") {
+    if (m_sgName.empty()) {
       ATH_MSG_WARNING("No decoration prefix name provided for the output of TrackStateOnSurfaceDecorator!");
     }
     ATH_MSG_DEBUG("Prefix for decoration: " << m_sgName);
-    
-    if (m_containerName=="") {
+
+    ATH_CHECK(m_eventInfoKey.initialize( m_addExtraEventInfo ));
+    if (m_containerName.key().empty()) {
       ATH_MSG_ERROR("No TrackParticle collection provided for TrackStateOnSurfaceDecorator!");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG("Input TrackParticle container: " << m_containerName);
+    ATH_MSG_DEBUG("Input TrackParticle container: " << m_containerName.key());
+    ATH_CHECK( m_containerName.initialize() );
 
     // need Atlas id-helpers to identify sub-detectors, take them from detStore
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
@@ -144,34 +133,68 @@ namespace DerivationFramework {
     if( m_storeTRT && detStore()->retrieve(m_trtId,"TRT_ID").isFailure() ){
       ATH_MSG_ERROR("Could not retrieve TRT helper");
       return StatusCode::FAILURE; 
-    } 
-    
-    if( m_storeTRT){
-      CHECK(m_trtcaldbSvc.retrieve());
-      CHECK(m_assoTool.retrieve());
     }
 
-    if( m_addPulls ){
-      CHECK(m_updator.retrieve());
-      CHECK(m_residualPullCalculator.retrieve());
+    ATH_CHECK( m_trtcaldbTool.retrieve(DisableTool{ !m_storeTRT }));
+    ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() && m_storeTRT) );
+
+    ATH_CHECK( m_updator.retrieve(DisableTool{ !m_addPulls }));
+    ATH_CHECK( m_residualPullCalculator.retrieve(DisableTool{ !m_addPulls }));
+
+    ATH_CHECK( m_holeSearchTool.retrieve( DisableTool{ !m_storeHoles}) );
+
+    ATH_CHECK( m_TRTdEdxTool.retrieve( DisableTool{!m_storeTRT || m_TRTdEdxTool.empty()}) );
+
+    ATH_CHECK(m_extrapolator.retrieve());
+
+
+    ATH_CHECK( m_SCTDetEleCollKey.initialize( m_storeSCT ));
+
+    if (m_addExtraEventInfo) {
+       std::vector<std::string> decor_names{"TrtPhaseTime"};
+       std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > decor_key_out;
+       createDecoratorKeys(*this,m_eventInfoKey, m_sgName, decor_names,m_trtPhaseDecorKey);
+       assert(m_trtPhaseDecorKey.size() == 1);
     }
-    
-    if( m_storeHoles ) {
-      CHECK( m_holeSearchTool.retrieve() );
+    if (m_storeTRT && m_TRTdEdxTool.isEnabled()) {
+       std::vector<std::string> names;
+       names.resize(kNTRTFloatDecor);
+       names[kTRTdEdxDecor]="ToT_dEdx";
+       names[kTRTusedHitsDecor]="ToT_usedHits";
+       names[kTRTdEdx_noHT_divByLDecor]="ToT_dEdx_noHT_divByL";
+       names[kTRTusedHits_noHT_divByLDecor]="ToT_usedHits_noHT_divByL";
+       createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackTRTFloatDecorKeys);
     }
+    ATH_CHECK( m_trtPhaseKey.initialize() );
+    ATH_CHECK( m_containerName.initialize() );
+    ATH_CHECK( m_pixelMapName.initialize() );
+    ATH_CHECK( m_sctMapName.initialize() );
+    ATH_CHECK( m_trtMapName.initialize() );
 
-    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
-      CHECK( m_TRTdEdxTool.retrieve() );
-    }
+    ATH_CHECK( m_pixelClustersName.initialize() );
+    ATH_CHECK( m_sctClustersName.initialize() );
+    ATH_CHECK( m_trtDCName.initialize() );
 
-    CHECK(m_extrapolator.retrieve());
+    ATH_CHECK( m_pixelMsosName.initialize() );
+    ATH_CHECK( m_sctMsosName.initialize() );
+    ATH_CHECK( m_trtMsosName.initialize() );
 
-    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
-      CHECK( m_TRTdEdxTool.retrieve() );
-	}
-
-    if (m_storeSCT) {
-      CHECK( m_SCTDetEleCollKey.initialize() );
+    {
+       std::vector<std::string> names;
+       names.resize(kNPixFloatDecor);
+       names[kTrkIBLXDecor]="TrkIBLX";
+       names[kTrkIBLYDecor]="TrkIBLY";
+       names[kTrkIBLZDecor]="TrkIBLZ";
+       names[kTrkBLXDecor]="TrkBLX";
+       names[kTrkBLYDecor]="TrkBLY";
+       names[kTrkBLZDecor]="TrkBLZ";
+       names[kTrkL1XDecor]="TrkL1X";
+       names[kTrkL1YDecor]="TrkL1Y";
+       names[kTrkL1ZDecor]="TrkL1Z";
+       names[kTrkL2XDecor]="TrkL2X";
+       names[kTrkL2YDecor]="TrkL2Y";
+       names[kTrkL2ZDecor]="TrkL2Z";
+       createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackPixFloatDecorKeys);
     }
 
     ATH_MSG_DEBUG("Initialization finished.");
@@ -187,33 +210,32 @@ namespace DerivationFramework {
 
   StatusCode TrackStateOnSurfaceDecorator::addBranches() const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("Adding TSOS decorations the track particles");
 
     static SG::AuxElement::Decorator< std::vector< ElementLink< xAOD::TrackStateValidationContainer > > >  dectsos_msosLink(m_sgName+"msosLink");
 
- 
     // --- Retrieve track container (absolutely needed for decoration)
-    const xAOD::TrackParticleContainer* tracks=0;
-    CHECK( evtStore()->retrieve( tracks, m_containerName ) );
-    if( ! tracks ) {
-        ATH_MSG_ERROR ("Couldn't retrieve TrackParticles with key: " << m_containerName );
+    SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_containerName,ctx);
+    if( ! tracks.isValid() ) {
+        ATH_MSG_ERROR ("Couldn't retrieve TrackParticles with key: " << m_containerName.key() );
         return StatusCode::FAILURE;
     }
     
     
-    const std::vector<unsigned int>*  pixelClusterOffsets(0);
-    const std::vector<unsigned int>*  sctClusterOffsets(0);
-    const std::vector<unsigned int>*  trtClusterOffsets(0);
+    SG::ReadHandle<std::vector<unsigned int> > pixelClusterOffsets;
+    SG::ReadHandle<std::vector<unsigned int> > sctClusterOffsets;
+    SG::ReadHandle<std::vector<unsigned int> > trtDCOffsets;
     
-    const xAOD::TrackMeasurementValidationContainer* pixelClusters(0);
-    const xAOD::TrackMeasurementValidationContainer* sctClusters(0);
-    const xAOD::TrackMeasurementValidationContainer* trtDCs(0);
+    SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> pixelClusters;
+    SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> sctClusters;
+    SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> trtDCs;
  
     
     // Create the xAOD container and its auxiliary store
-    xAOD::TrackStateValidationContainer*    msosPixel=0; 
-    xAOD::TrackStateValidationContainer*    msosSCT=0; 
-    xAOD::TrackStateValidationContainer*    msosTRT=0;
+    SG::WriteHandle<xAOD::TrackStateValidationContainer>    msosPixel;
+    SG::WriteHandle<xAOD::TrackStateValidationContainer>    msosSCT;
+    SG::WriteHandle<xAOD::TrackStateValidationContainer>    msosTRT;
 
     int nPixelMSOS(0);
     int nSCT_MSOS(0);
@@ -222,68 +244,83 @@ namespace DerivationFramework {
     // --- Add event-level information
     if (m_addExtraEventInfo) {
       ATH_MSG_DEBUG("Adding EventInfo decorations");
-      const xAOD::EventInfo* eventInfo = 0;
-      if (evtStore()->retrieve(eventInfo).isFailure()) {
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,ctx);
+      if (!eventInfo.isValid()) {
         ATH_MSG_ERROR(" Cannot access to event info.");
         return StatusCode::FAILURE;
       }
 
       //Add TRT event phase
-      const ComTime *trtPhase = 0;
-      float trtPhase_time=0.0;
-      if ( evtStore()->contains<ComTime>("TRT_Phase") ){
-        StatusCode sc = evtStore()->retrieve(trtPhase, "TRT_Phase");  
-        if (sc.isFailure() || !trtPhase) {
-          //do not throw errors, since it could not be there
-          ATH_MSG_DEBUG("Failed to retrieve TRT phase information.");
-        } else {
-          trtPhase_time = trtPhase->getTime();
-        } 
+      SG::ReadHandle<ComTime> trtPhase(m_trtPhaseKey, ctx);
+      float trtPhase_time=0.;
+      if (!trtPhase.isValid()) {
+         ATH_MSG_DEBUG("Failed to retrieve TRT phase information.");
+      } else {
+         trtPhase_time = trtPhase->getTime();
       } //TRT phase
-      eventInfo->auxdecor<float>(m_sgName+"TrtPhaseTime") = trtPhase_time;
-      
+      SG::WriteDecorHandle<xAOD::EventInfo,float> decorTRTPhase(*(m_trtPhaseDecorKey.begin()),ctx);
+      decorTRTPhase(*eventInfo) = trtPhase_time;
     } //extra event info
 
-    
+
     // --- Add track states containers
     if(m_addPRD){
       // Get clusters and the mapping between xAOD::PRD and Trk::PRD
       // Store the MSOS's in a conatiner based on the type of the detector 
       if(m_storePixel){
         ATH_MSG_DEBUG("Creating Pixel track state container");
-        CHECK( evtStore()->retrieve( pixelClusterOffsets, m_pixelMapName ) );
-        CHECK( evtStore()->retrieve( pixelClusters, m_pixelClustersName ) );
-      
-        msosPixel = new xAOD::TrackStateValidationContainer();
-        xAOD::TrackStateValidationAuxContainer* aux = new xAOD::TrackStateValidationAuxContainer();
-        CHECK( evtStore()->record( msosPixel, m_pixelMsosName ) );
-        CHECK( evtStore()->record( aux, m_pixelMsosName + "Aux." ) );
-        msosPixel->setStore( aux );
+        pixelClusterOffsets=SG::ReadHandle<std::vector<unsigned int> >(m_pixelMapName,ctx);
+        pixelClusters=SG::ReadHandle<xAOD::TrackMeasurementValidationContainer >(m_pixelClustersName,ctx);
+
+        msosPixel = SG::WriteHandle<xAOD::TrackStateValidationContainer>(m_pixelMsosName,ctx);
+        if (msosPixel.record(std::make_unique<xAOD::TrackStateValidationContainer>(),
+                             std::make_unique<xAOD::TrackStateValidationAuxContainer>()).isFailure()) {
+           ATH_MSG_ERROR("Failed to record " << m_pixelMsosName.key() );
+           return StatusCode::FAILURE;
+        }
       }
       if(m_storeSCT){
         ATH_MSG_DEBUG("Creating SCT track state container");
-        CHECK( evtStore()->retrieve( sctClusterOffsets, m_sctMapName ) );
-        CHECK( evtStore()->retrieve( sctClusters, m_sctClustersName ) );
+        sctClusterOffsets=SG::ReadHandle<std::vector<unsigned int> >(m_sctMapName,ctx);
+        sctClusters=SG::ReadHandle<xAOD::TrackMeasurementValidationContainer >(m_sctClustersName,ctx);
 
-        msosSCT = new xAOD::TrackStateValidationContainer();
-        xAOD::TrackStateValidationAuxContainer* aux = new xAOD::TrackStateValidationAuxContainer();
-        CHECK( evtStore()->record( msosSCT, m_sctMsosName ) );
-        CHECK( evtStore()->record( aux, m_sctMsosName + "Aux." ) );
-        msosSCT->setStore( aux );
+        msosSCT = SG::WriteHandle<xAOD::TrackStateValidationContainer>(m_sctMsosName,ctx);
+        if (msosSCT.record(std::make_unique<xAOD::TrackStateValidationContainer>(),
+                             std::make_unique<xAOD::TrackStateValidationAuxContainer>()).isFailure()) {
+           ATH_MSG_ERROR("Failed to record " << m_sctMsosName.key() );
+           return StatusCode::FAILURE;
+        }
       }
       if(m_storeTRT){
         ATH_MSG_DEBUG("Creating TRT track state container");
-        CHECK( evtStore()->retrieve( trtClusterOffsets, m_trtMapName ) );    
-        CHECK( evtStore()->retrieve( trtDCs, m_trtDCName ) );
+        trtDCOffsets=SG::ReadHandle<std::vector<unsigned int> >(m_trtMapName,ctx);
+        trtDCs=SG::ReadHandle<xAOD::TrackMeasurementValidationContainer >(m_trtDCName,ctx);
 
-        msosTRT = new xAOD::TrackStateValidationContainer();
-        xAOD::TrackStateValidationAuxContainer* aux = new xAOD::TrackStateValidationAuxContainer();
-        CHECK( evtStore()->record( msosTRT, m_trtMsosName ) );
-        CHECK( evtStore()->record( aux, m_trtMsosName + "Aux." ) );
-        msosTRT->setStore( aux );
+        msosTRT = SG::WriteHandle<xAOD::TrackStateValidationContainer>(m_trtMsosName,ctx);
+        if (msosTRT.record(std::make_unique<xAOD::TrackStateValidationContainer>(),
+                             std::make_unique<xAOD::TrackStateValidationAuxContainer>()).isFailure()) {
+           ATH_MSG_ERROR("Failed to record " << m_trtMsosName.key() );
+           return StatusCode::FAILURE;
+        }
       }
     }
 
+    SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+    const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+    if (!m_prdToTrackMap.key().empty()) {
+       prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+       if (!prd_to_track_map.isValid()) {
+          ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+       }
+       prd_to_track_map_cptr = prd_to_track_map.cptr();
+    }
+
+    std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > trackTRTFloatDecorators;
+    if (m_storeTRT && m_TRTdEdxTool.isEnabled()) {
+       trackTRTFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackTRTFloatDecorKeys,ctx);
+    }
+    std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
+       trackPixFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackPixFloatDecorKeys,ctx);
     // -- Run over each track and decorate it
     for (const auto& track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
@@ -301,21 +338,21 @@ namespace DerivationFramework {
       //  This is the vector in which we will store the element links to the MSOS's
       std::vector< ElementLink< xAOD::TrackStateValidationContainer > > msosLink;
 
-      if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
+      if ( m_storeTRT && m_TRTdEdxTool.isEnabled() ) {
 	// for dEdx studies
-	SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
-	SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");    
-	SG::AuxElement::Decorator< float > decoratorTRTdEdx_noHT_divByL("ToT_dEdx_noHT_divByL");
-	SG::AuxElement::Decorator< float > decoratorTRTusedHits_noHT_divByL("ToT_usedHits_noHT_divByL");    
-	
-        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
-        decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-        decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
+        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
+        trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits( trkTrack, true, true);
+        trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
+        trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
       }
 
       // Track extrapolation
-      std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,(trkTrack->perigeeParameters())->associatedSurface(),Trk::oppositeMomentum,true, Trk::pion, Trk::addNoise));
+      std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,
+                                                                                       (trkTrack->perigeeParameters())->associatedSurface(),
+                                                                                       Trk::oppositeMomentum,
+                                                                                       true,
+                                                                                       Trk::pion,
+                                                                                       Trk::addNoise));
 
       Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
       Trk::CylinderSurface cylSurfBL(50.5,3000.0);
@@ -326,78 +363,50 @@ namespace DerivationFramework {
       std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
       std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
 
-      SG::AuxElement::Decorator<float> decoratorTrkIBLX("TrkIBLX");
-      SG::AuxElement::Decorator<float> decoratorTrkIBLY("TrkIBLY");
-      SG::AuxElement::Decorator<float> decoratorTrkIBLZ("TrkIBLZ");
       if (outputParamsIBL.get()) {
-        decoratorTrkIBLX(*track) = outputParamsIBL->position().x();
-        decoratorTrkIBLY(*track) = outputParamsIBL->position().y();
-        decoratorTrkIBLZ(*track) = outputParamsIBL->position().z();
+        trackPixFloatDecorators[kTrkIBLXDecor](*track) = outputParamsIBL->position().x();
+        trackPixFloatDecorators[kTrkIBLYDecor](*track) = outputParamsIBL->position().y();
+        trackPixFloatDecorators[kTrkIBLZDecor](*track) = outputParamsIBL->position().z();
       }
       else {
-        decoratorTrkIBLX(*track) = 0.0;
-        decoratorTrkIBLY(*track) = 0.0;
-        decoratorTrkIBLZ(*track) = 0.0;
+         trackPixFloatDecorators[kTrkIBLXDecor](*track) = 0.0;
+         trackPixFloatDecorators[kTrkIBLYDecor](*track) = 0.0;
+         trackPixFloatDecorators[kTrkIBLZDecor](*track) = 0.0;
       }
 
-      SG::AuxElement::Decorator<float> decoratorTrkBLX("TrkBLX");
-      SG::AuxElement::Decorator<float> decoratorTrkBLY("TrkBLY");
-      SG::AuxElement::Decorator<float> decoratorTrkBLZ("TrkBLZ");
       if (outputParamsBL.get()) {
-        decoratorTrkBLX(*track) = outputParamsBL->position().x();
-        decoratorTrkBLY(*track) = outputParamsBL->position().y();
-        decoratorTrkBLZ(*track) = outputParamsBL->position().z();
+        trackPixFloatDecorators[kTrkBLXDecor](*track) = outputParamsBL->position().x();
+        trackPixFloatDecorators[kTrkBLYDecor](*track) = outputParamsBL->position().y();
+        trackPixFloatDecorators[kTrkBLZDecor](*track) = outputParamsBL->position().z();
       }
       else {
-        decoratorTrkBLX(*track) = 0.0;
-        decoratorTrkBLY(*track) = 0.0;
-        decoratorTrkBLZ(*track) = 0.0;
+        trackPixFloatDecorators[kTrkBLXDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkBLYDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkBLZDecor](*track) = 0.0;
       }
 
-      SG::AuxElement::Decorator<float> decoratorTrkL1X("TrkL1X");
-      SG::AuxElement::Decorator<float> decoratorTrkL1Y("TrkL1Y");
-      SG::AuxElement::Decorator<float> decoratorTrkL1Z("TrkL1Z");
       if (outputParamsL1.get()) {
-        decoratorTrkL1X(*track) = outputParamsL1->position().x();
-        decoratorTrkL1Y(*track) = outputParamsL1->position().y();
-        decoratorTrkL1Z(*track) = outputParamsL1->position().z();
+        trackPixFloatDecorators[kTrkL1XDecor](*track) = outputParamsL1->position().x();
+        trackPixFloatDecorators[kTrkL1YDecor](*track) = outputParamsL1->position().y();
+        trackPixFloatDecorators[kTrkL1ZDecor](*track) = outputParamsL1->position().z();
       }
       else {
-        decoratorTrkL1X(*track) = 0.0;
-        decoratorTrkL1Y(*track) = 0.0;
-        decoratorTrkL1Z(*track) = 0.0;
+        trackPixFloatDecorators[kTrkL1XDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkL1YDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkL1ZDecor](*track) = 0.0;
       }
 
-      SG::AuxElement::Decorator<float> decoratorTrkL2X("TrkL2X");
-      SG::AuxElement::Decorator<float> decoratorTrkL2Y("TrkL2Y");
-      SG::AuxElement::Decorator<float> decoratorTrkL2Z("TrkL2Z");
       if (outputParamsL2.get()) {
-        decoratorTrkL2X(*track) = outputParamsL2->position().x();
-        decoratorTrkL2Y(*track) = outputParamsL2->position().y();
-        decoratorTrkL2Z(*track) = outputParamsL2->position().z();
+        trackPixFloatDecorators[kTrkL2XDecor](*track) = outputParamsL2->position().x();
+        trackPixFloatDecorators[kTrkL2YDecor](*track) = outputParamsL2->position().y();
+        trackPixFloatDecorators[kTrkL2ZDecor](*track) = outputParamsL2->position().z();
       }
       else {
-        decoratorTrkL2X(*track) = 0.0;
-        decoratorTrkL2Y(*track) = 0.0;
-        decoratorTrkL2Z(*track) = 0.0;
+        trackPixFloatDecorators[kTrkL2XDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkL2YDecor](*track) = 0.0;
+        trackPixFloatDecorators[kTrkL2ZDecor](*track) = 0.0;
       }
 
-
-
-      
-
-      if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
-	// for dEdx studies
-	SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
-	SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");    
-	SG::AuxElement::Decorator< float > decoratorTRTdEdx_noHT_divByL("ToT_dEdx_noHT_divByL");
-	SG::AuxElement::Decorator< float > decoratorTRTusedHits_noHT_divByL("ToT_usedHits_noHT_divByL");    
-
-	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
-	decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
-      }
 
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
@@ -510,6 +519,11 @@ namespace DerivationFramework {
           msosLink.push_back(elink);
           ++nPixelMSOS;
         }
+        else {
+           ATH_MSG_WARNING("NOT a pixel, SCT or TRT track state on surface.");
+           delete msos;
+           continue;
+        }
 
         //fill type
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] ){   
@@ -565,13 +579,15 @@ namespace DerivationFramework {
 	    }
 	  }
 	  msos->setLocalAngles(lTheta, lPhi);
-	  
+
 	  bool isShared=false;
-	  const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
-	  if (hit_trt) {
-	    if ( m_assoTool->isShared(*(hit_trt->prepRawData())) ) isShared=true;
-	    msos->auxdata<bool>("isShared") = isShared;
-	  }
+          if (prd_to_track_map_cptr) {
+             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+             if (hit_trt) {
+                if (prd_to_track_map_cptr->isShared(*(hit_trt->prepRawData())) ) isShared=true;
+                msos->auxdata<bool>("isShared") = isShared;
+             }
+          }
 	}
 
 
@@ -657,11 +673,11 @@ namespace DerivationFramework {
           const Trk::PrepRawData* prd = hit->prepRawData();
           if(prd && prd->getHashAndIndex().isValid() ){            
             if(isTRT){
-              msos->setTrackMeasurementValidationLink( buildElementLink( prd, trtClusterOffsets, trtDCs) );
+              msos->setTrackMeasurementValidationLink( buildElementLink( prd, trtDCOffsets.cptr(), trtDCs.cptr()) );
             }else if(isSCT){
-              msos->setTrackMeasurementValidationLink( buildElementLink( prd, sctClusterOffsets, sctClusters) );
+              msos->setTrackMeasurementValidationLink( buildElementLink( prd, sctClusterOffsets.cptr(), sctClusters.cptr()) );
             }else if(isPixel){
-              msos->setTrackMeasurementValidationLink( buildElementLink( prd, pixelClusterOffsets, pixelClusters) );
+              msos->setTrackMeasurementValidationLink( buildElementLink( prd, pixelClusterOffsets.cptr(), pixelClusters.cptr()) );
             }
           } 
         }
@@ -690,7 +706,7 @@ namespace DerivationFramework {
  
         // Add the drift time for the tracks position -- note the position is biased 
         if (isTRT) {
-          TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
+          TRTCond::RtRelation const *rtr = m_trtcaldbTool->getRtRelation(surfaceID);
           if(rtr) {
             if (tp){
               msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));
@@ -705,24 +721,24 @@ namespace DerivationFramework {
 
         if (m_addPulls) {
 
-          const Trk::ResidualPull *biased = 0;
-          const Trk::ResidualPull *unbiased = 0;
+          std::unique_ptr<const Trk::ResidualPull> biased;
+          std::unique_ptr<const Trk::ResidualPull> unbiased;
           if (tp) { 
-            biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
+            biased.reset(m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased));
 	    if (m_storeTRT) msos->auxdata<float>("TrackError_biased") = sqrt(fabs((*tp->covariance())(Trk::locX,Trk::locX)));
 
 	    if (m_storeTRT) msos->auxdata<float>("TrackError_biased") = sqrt(fabs((*tp->covariance())(Trk::locX,Trk::locX)));
-            std::unique_ptr<const Trk::TrackParameters> unbiasedTp( m_updator->removeFromState(*tp, measurement->localParameters(), measurement->localCovariance()) );   
-	      if(unbiasedTp.get()) {
-	      if (m_storeTRT) msos->auxdata<float>("TrackError_unbiased") = sqrt(fabs((*unbiasedTp.get()->covariance())(Trk::locX,Trk::locX)));
-		unbiased = m_residualPullCalculator->residualPull(measurement, unbiasedTp.get(), Trk::ResidualPull::Unbiased);
-		  }
+            std::unique_ptr<const Trk::TrackParameters> unbiasedTp( m_updator->removeFromState(*tp, measurement->localParameters(), measurement->localCovariance()) );
+            if(unbiasedTp.get()) {
+               if (m_storeTRT) msos->auxdata<float>("TrackError_unbiased") = sqrt(fabs((*unbiasedTp.get()->covariance())(Trk::locX,Trk::locX)));
+               unbiased.reset(m_residualPullCalculator->residualPull(measurement, unbiasedTp.get(), Trk::ResidualPull::Unbiased));
+            }
           }
           else {
             if (extrap.get()) {
 	      if (m_storeTRT) msos->auxdata<float>("TrackError_unbiased") = sqrt(fabs((*extrap.get()->covariance())(Trk::locX,Trk::locX)));
-              biased   = m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Biased);
-              unbiased = m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Unbiased);
+              biased.reset(m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Biased));
+              unbiased.reset(m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Unbiased));
             }
           }
 
@@ -734,7 +750,6 @@ namespace DerivationFramework {
               msos->setBiasedResidual( biased->residual()[Trk::locX], 0 );
               msos->setBiasedPull( biased->pull()[Trk::locX], 0 );            
             }
-            delete biased;
           } 
 
           if (unbiased) {
@@ -745,7 +760,6 @@ namespace DerivationFramework {
               msos->setUnbiasedResidual( unbiased->residual()[Trk::locX], 0 );
               msos->setUnbiasedPull( unbiased->pull()[Trk::locX], 0 );            
             }
-            delete unbiased;
           }
 
         }

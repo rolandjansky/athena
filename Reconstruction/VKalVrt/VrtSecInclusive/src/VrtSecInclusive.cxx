@@ -15,11 +15,6 @@
 //#include  "Particle/TrackParticleContainer.h"
 //#include  "TrkParticleBase/LinkToTrackParticleBase.h"
 #include  "VxVertex/VxTrackAtVertex.h"
-//-----
-//#include "McParticleEvent/TruthParticleContainer.h"
-//#include "ParticleTruth/TrackParticleTruthKey.h"
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "HepMC/SimpleVector.h"
 
 
 //ss, new includes

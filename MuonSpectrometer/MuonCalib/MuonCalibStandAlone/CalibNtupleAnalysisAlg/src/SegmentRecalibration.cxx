@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -96,7 +96,6 @@ void SegmentRecalibration::prepareSegments(const MuonCalibEvent *&event, std::ma
       if(m_time_slwing_numswitch==2) {
 	hit->setSlewingTime(p_ts_corr_func->correction( hit->driftTime(), hit->adcCount()));
 	hit->setDriftTime(hit->driftTime() - hit->slewingTime());
-	//				std::cout<<hit->slewingTime()<<std::endl;
       }
       if(m_rt_scaling_numswitch>0 && hit->TemperatureTime() != MdtCalibHitBase::kNoValue) {
 	hit->setDriftTime(hit->driftTime() + hit->TemperatureTime());
@@ -162,7 +161,7 @@ void SegmentRecalibration::prepareSegments(const MuonCalibEvent *&event, std::ma
 	hit->setDriftRadius( rt_relation->radius(dt), spat_res->resolution(dt));
       } else {
 	//if drift radius is not recalculated re,ove sign from radius
-	hit-> setDriftRadius(std::fabs(hit-> driftRadius()), hit->sigmaDriftRadius());
+	hit-> setDriftRadius(std::abs(hit-> driftRadius()), hit->sigmaDriftRadius());
       }
       if (m_use_true_r)	{
 	double r=9e9;
@@ -175,7 +174,7 @@ void SegmentRecalibration::prepareSegments(const MuonCalibEvent *&event, std::ma
 	  }
 	}
 	if(r<8e8) {
-	  hit->setDriftRadius(std::fabs(r), hit->sigmaDriftRadius());
+	  hit->setDriftRadius(std::abs(r), hit->sigmaDriftRadius());
 	} else {
 	  hit->setDriftRadius(9e9, 9e9);
 	}

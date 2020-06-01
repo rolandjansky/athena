@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/TubeDataFromFile.h"
@@ -8,19 +8,15 @@
 #include <string>
 #include <sstream>
 #include <stdio.h>
+#include <TString.h> // for Form
 
 namespace MuonCalib {
-  TubeDataFromFile::~TubeDataFromFile()
-  {
-    //delete the tube maps 
-//    std::for_each(m_tubeData.begin(),m_tubeData.end(),DeleteObject());
-  }
   
   std::ostream& TubeDataFromFile::write( std::ostream& os) const
   {
     if( m_regions != m_tubeData.size() ){
-      std::cout << "TubeDataFromFile::write ERROR <inconsistent count>" 
-		<< std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+      log<<MSG::WARNING<<"TubeDataFromFile::write: <inconsistent count>"<<endmsg;
     }
 
     os << "v0.0 " << m_regions <<" ";
@@ -49,7 +45,8 @@ namespace MuonCalib {
           is2.str(stnPhi);
           is2 >> phi;
         } else {
-          std::cout<<"TubeDataFromFile: can't unpack string "<<chamberName<<std::endl;
+          MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+          log<<MSG::WARNING<<"TubeDataFromFile: can't unpack string "<<chamberName<<endmsg;
         }
 
         os << datatype <<" "<<implementation<<" "<<i<< " " << nml*nl*nt << std::endl;
@@ -121,8 +118,8 @@ namespace MuonCalib {
     // write out ascii files for Calibration DB //
     //////////////////////////////////////////////
     if( m_regions != m_tubeData.size() ){
-      std::cout << "TubeDataFromFile::write_forDB ERROR <inconsistent count>" 
-              << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+      log<<MSG::WARNING<<"TubeDataFromFile::write_forDB: <inconsistent count>"<<endmsg;
     }
 
     MuonFixedId fixId;
@@ -155,29 +152,23 @@ namespace MuonCalib {
           is2.str(stnPhi);
           is2 >> phi;
         } else {
-          std::cout<<"TubeDataFromFile: can't unpack string "<<chamberName<<std::endl;
+          MsgStream log(Athena::getMessageSvc(),"MdtTubeFitContainer");
+          log<<MSG::WARNING<<"TubeDataFromFile: can't unpack string "<<chamberName<<endmsg;
         }
 
         for (unsigned int km=0; km<nml; ++km){
           for (unsigned int kl=0; kl<nl; ++kl){
             for (unsigned int kt=0; kt<nt; ++kt){
-              const MdtTubeFitContainer::SingleTubeCalib * stc = 
-                                     m_tubeData[i]->getCalib(km,kl,kt);  
-              const MdtTubeFitContainer::SingleTubeFit * stf = 
-                                     m_tubeData[i]->getFit(km,kl,kt);  
-            //              station=stnName.c_str();
-            //              phi=phi;
-            //              eta=eta;
+              const MdtTubeFitContainer::SingleTubeCalib * stc = m_tubeData[i]->getCalib(km,kl,kt);
+              const MdtTubeFitContainer::SingleTubeFit * stf = m_tubeData[i]->getFit(km,kl,kt);
             tech=technology;
             ml=km+1;
             l=kl+1;
             t=kt+1;
 
-            if (!fixId.setTechnology(tech) || !fixId.setStationName(fixId.stationStringToFixedStationNumber(stnName)) || !fixId.setStationEta(eta) || !fixId.setStationPhi(phi) || !fixId.setMdtTube(t) || !fixId.setMdtTubeLayer(l) || !fixId.setMdtMultilayer(ml))
-	    	{
-		std::cerr<<"TubeDataFromFile::write_forDB (171): Setting identifier failed!"<<std::endl;
-		throw(1);
-		}
+            if (!fixId.setTechnology(tech) || !fixId.setStationName(fixId.stationStringToFixedStationNumber(stnName)) || !fixId.setStationEta(eta) || !fixId.setStationPhi(phi) || !fixId.setMdtTube(t) || !fixId.setMdtTubeLayer(l) || !fixId.setMdtMultilayer(ml)) {
+              throw std::runtime_error(Form("File: %s, Line: %d\nTubeDataFromFile::write_forDB() - Setting identifier failed!", __FILE__, __LINE__));
+            }
             tube_id=fixId.getIdInt();
             
             if (stc) {

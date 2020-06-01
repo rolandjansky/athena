@@ -32,8 +32,8 @@ atlas_add_library( LArG4GenShowerLibLib
                    PUBLIC_HEADERS LArG4GenShowerLib
                    PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel G4AtlasToolsLib
-                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GeneratorObjects LArG4Code LArG4ShowerLib )
+                   LINK_LIBRARIES AthenaBaseComps AthContainers AtlasHepMCLib GaudiKernel G4AtlasToolsLib LArG4Code
+                   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GeneratorObjects GeoModelInterfaces LArG4ShowerLib )
 
 atlas_add_component( LArG4GenShowerLib
                      src/components/*.cxx
@@ -47,13 +47,5 @@ atlas_add_dictionary( LArG4GenShowerLibDict
                       LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers GaudiKernel G4AtlasToolsLib GeneratorObjects LArG4Code LArG4ShowerLib LArG4GenShowerLibLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( share/*.py )
-
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )

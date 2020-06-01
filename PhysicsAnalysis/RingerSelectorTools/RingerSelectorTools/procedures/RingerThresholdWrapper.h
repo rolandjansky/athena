@@ -10,6 +10,8 @@
 #include "RingerProcedureWrapper.h"
 #undef RINGER_PROCEDURE_INCLUDE
 
+#include <type_traits>
+
 //#undef NDEBUG
 
 /**
@@ -43,20 +45,16 @@ class IRingerProcedureWrapper< Discrimination::IThreshold > :
     /**
      * @brief Returns whether holden interface collection is empty.
      **/
-    virtual bool empty() const ATH_RINGER_OVERRIDE = 0;
+    virtual bool empty() const override = 0;
 
     /**
      * @brief Returns this wrapper name
      **/
-    virtual const char* name() const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE {
+    virtual const char* name() const final override {
       return wrapName;
     }
 
-#if RINGER_USE_NEW_CPP_FEATURES
     static constexpr const char* wrapName = "RingerThresholdWrapper";
-#else
-    static const char* wrapName;
-#endif
 
     /** Ensure virtual destructor */
     virtual ~IRingerProcedureWrapper(){;}
@@ -106,8 +104,8 @@ class RingerProcedureWrapper<
     public IThresWrapper,
     public RedirectMsgStream
 {
-    RINGER_STATIC_ASSERT(
-        (Ringer::is_base_of<VariableDependency,procedure_t>::value),
+    static_assert(
+        (std::is_base_of<VariableDependency,procedure_t>::value),
         "RingerProcedureWrapper procedure_t type must have IVariableDependecy inheritance.");
   public:
     /// RingerProcedureWrapper for Threshold procedures typedefs:
@@ -145,7 +143,7 @@ class RingerProcedureWrapper<
     virtual void getOutput(
         const DepVarStruct &depVar,
         const std::vector<float> &discrOutput,
-        std::vector<bool> &decision) const ATH_RINGER_OVERRIDE;
+        std::vector<bool> &decision) const override;
     /// @}
 
 
@@ -154,23 +152,23 @@ class RingerProcedureWrapper<
     /**
      * @brief Returns whether holden interface collection is empty.
      **/
-    virtual bool empty() const ATH_RINGER_OVERRIDE { return m_thresCol.empty();}
+    virtual bool empty() const override { return m_thresCol.empty();}
 
     /**
      * @brief Overloads the setMsgStream from RedirectMsgStream.
      **/
-    virtual void setMsgStream(MsgStream *msg) const ATH_RINGER_OVERRIDE;
+    virtual void setMsgStream(MsgStream *msg) const override;
 
     /**
      * @brief Release all holden pointer memory
      **/
-    void releaseMemory() ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    void releaseMemory() override final;
 
     /**
      * @brief Returns eta dependecy for this wrapper
      **/
     EtaDependency etaDep() const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
+      override final
     {
       return static_cast<EtaDependency>(etaDependency);
     }
@@ -179,7 +177,7 @@ class RingerProcedureWrapper<
      * @brief Returns et dependecy for this wrapper
      **/
     EtDependency etDep() const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
+      override final
     {
       return static_cast<EtDependency>(etDependency);
     }
@@ -192,18 +190,17 @@ class RingerProcedureWrapper<
     /**
      * @brief Get full wrapper name
      **/
-    std::string fullName() const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    std::string fullName() const override final;
 
     /**
      * @brief Print wrapper content
      **/
-    void print(MSG::Level lvl = MSG::DEBUG) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    void print(MSG::Level lvl = MSG::DEBUG) const override final;
 
     /**
      * @brief Write wrapper to TDirectory
      **/
-    void write(TDirectory *baseDir, const char *idxStr = "") const
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+    void write(TDirectory *baseDir, const char *idxStr = "") const override final;
 
     /**
      * @brief Read wrapper from TDirectory

@@ -69,9 +69,12 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
     *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
   static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc =
     *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);      
+  static const xAOD::JetAttributeAccessor::AccessorWrapper<float>& psFracAcc =
+    *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::PSFrac);
   
   emFracAcc(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling );
   hecFracAcc(jet) = jet::JetCaloQualityUtils::hecF( &jet );
+  psFracAcc(jet) = jet::JetCaloQualityUtils::presamplerFraction( &jet );
 }
 
 #define FillESamplingPFO( LAYERNAME )					\

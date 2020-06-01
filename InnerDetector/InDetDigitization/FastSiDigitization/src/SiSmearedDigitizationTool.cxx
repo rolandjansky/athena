@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_useCustomGeometry(false)
 {
-  declareInterface<ISiSmearedDigitizationTool>(this);
   declareProperty("RndmSvc",                      m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
   declareProperty("RndmEngine",                   m_randomEngineName, "Random engine name");
   declareProperty("InputObjectName",              m_inputObjectName="PixelHits", "Input Object name" );
@@ -301,7 +300,7 @@ StatusCode SiSmearedDigitizationTool::finalize()
 
 }
 
-StatusCode SiSmearedDigitizationTool::prepareEvent(unsigned int)
+StatusCode SiSmearedDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int)
 {
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel prepareEvent() ---" );
@@ -356,7 +355,7 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
 }
 
 
-StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
+StatusCode SiSmearedDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel processAllSubEvents() ---" );
 
@@ -493,18 +492,18 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
   m_thpcsi = &thpcsi;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if(this->digitize().isFailure()) {
+  if(this->digitize(ctx).isFailure()) {
     ATH_MSG_FATAL ( "digitize method failed!" );
     return StatusCode::FAILURE;
   }
 
   if (m_merge)
-    if(this->mergeEvent().isFailure()) {
+    if(this->mergeEvent(ctx).isFailure()) {
       ATH_MSG_FATAL ( "merge method failed!" );
       return StatusCode::FAILURE;
     }
 
-  if (createAndStoreRIOs().isFailure()) {
+  if (createAndStoreRIOs(ctx).isFailure()) {
     ATH_MSG_FATAL ( "createAndStoreRIOs() failed!" );
     return StatusCode::FAILURE;
   }
@@ -588,7 +587,7 @@ StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * ma
   return StatusCode::SUCCESS;
 }
 
-StatusCode SiSmearedDigitizationTool::mergeEvent(){
+StatusCode SiSmearedDigitizationTool::mergeEvent(const EventContext& /*ctx*/){
 
   if (m_useCustomGeometry)
     return mergeClusters(m_planarClusterMap);
@@ -889,7 +888,7 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Planar_detElement_RIO_map * 
   return StatusCode::SUCCESS;
 }
 
-StatusCode SiSmearedDigitizationTool::digitize()
+StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
 {
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in SiSmearedDigizationTool::digitize() ---" );
 
@@ -914,7 +913,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
   // Get PixelDetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsPixel = nullptr;
   if ((not m_useCustomGeometry) and m_SmearPixel) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey, ctx);
     elementsPixel = pixelDetEle.retrieve();
     if (elementsPixel==nullptr) {
       ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
@@ -924,7 +923,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
   // Get SCT_DetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
   if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
     elementsSCT = sctDetEle.retrieve();
     if (elementsSCT==nullptr) {
       ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -1619,12 +1618,12 @@ StatusCode SiSmearedDigitizationTool::digitize()
 }
 
 
-StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
+StatusCode SiSmearedDigitizationTool::createAndStoreRIOs(const EventContext& ctx)
 {
   // Get PixelDetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsPixel = nullptr;
   if ((not m_useCustomGeometry) and m_SmearPixel) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey, ctx);
     elementsPixel = pixelDetEle.retrieve();
     if (elementsPixel==nullptr) {
       ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
@@ -1634,7 +1633,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
   // Get SCT_DetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
   if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
     elementsSCT = sctDetEle.retrieve();
     if (elementsSCT==nullptr) {
       ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");

@@ -79,7 +79,7 @@ public:
 
     // copy constructor and assignment operator - have to be explicitly 
     // implemented to control use of the cached AttributeListSpecification
-    CondAttrListCollection(const CondAttrListCollection& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    CondAttrListCollection(const CondAttrListCollection& rhs);
     // no copy with new Gaudi
     CondAttrListCollection& operator=(const CondAttrListCollection& rhs) = delete;
 
@@ -252,9 +252,10 @@ inline CondAttrListCollection::CondAttrListCollection(
       m_spec->extend(aspec.name(),aspec.typeName());
     }
     for (const_iterator itr=rhs.m_attrMap.begin();itr!=rhs.m_attrMap.end();
-       ++itr) {
-      m_attrMap[itr->first]=coral::AttributeList(*m_spec,true);
-      m_attrMap[itr->first].fastCopyData(itr->second);
+       ++itr)
+    {
+      auto newit = m_attrMap.try_emplace (itr->first, *m_spec, true).first;
+      newit->second.fastCopyData(itr->second);
     }
   }
 }

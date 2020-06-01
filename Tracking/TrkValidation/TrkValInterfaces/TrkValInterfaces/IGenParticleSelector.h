@@ -18,9 +18,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 class McEventCollection;
-namespace HepMC {
-class GenParticle; //!< Truth information
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
   static const InterfaceID IID_IGenParticleSelector("IGenParticleSelector",1,0);

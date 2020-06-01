@@ -17,9 +17,7 @@
 #include <iostream>
 #include "GeneratorModules/GenFilter.h"
 
-namespace HepMC{
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 
 /// Filter events based on presence of charged leptons

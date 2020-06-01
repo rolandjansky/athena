@@ -6,6 +6,11 @@
 # Declare the package name:
 atlas_subdir( TruthUtils )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs(
+   PUBLIC
+   Generators/AtlasHepMC )
+
 # External dependencies:
 find_package( Boost )
 find_package( HEPUtils )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthenaServices/test/ThinningCacheTool_test.cxx
@@ -11,11 +11,14 @@
 
 #undef NDEBUG
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthService.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ThinningDecision.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
+#include "AthenaKernel/ITrigNavigationThinningSvc.h"
 #include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -27,6 +30,23 @@
 
 class Test {};
 CLASS_DEF (DataVector<Test>, 29384894, 0)
+
+
+class TestTNThinningSvc
+  : public extends<AthService, ITrigNavigationThinningSvc>
+{
+public:
+  using base_class::base_class;
+
+
+  virtual
+  StatusCode doSlimming (const EventContext& /*ctx*/,
+                         std::vector<uint32_t>& /*slimmed_and_serialized*/) const override
+  {
+    return StatusCode::SUCCESS;
+  }
+};
+DECLARE_COMPONENT (TestTNThinningSvc)
 
 
 void thin (SG::ThinningDecisionBase& dec, unsigned int mask)
@@ -100,9 +120,30 @@ void test1()
   assert (SG::getThinningDecision ("v1")->index (7) == 3);
   assert (SG::getThinningDecision ("v2")->index (7) == 6);
 
+  assert (SG::getThinningCache()->trigNavigationThinningSvc() == nullptr);
+
   assert (tool->postExecute().isSuccess());
   assert (SG::getThinningCache() == nullptr);
 }
+
+
+void test2()
+{
+  std::cout << "test2\n";
+
+  ToolHandle<IAthenaOutputTool> tool ("Athena::ThinningCacheTool/TestCacheTool2");
+  assert (tool.retrieve().isSuccess());
+
+  ServiceHandle<ITrigNavigationThinningSvc> tsvc ("TestTNThinningSvc", "test");
+  assert (tsvc.retrieve().isSuccess());
+
+  assert (tool->preExecute().isSuccess());
+  assert (SG::getThinningCache() != nullptr);
+  assert (SG::getThinningCache()->trigNavigationThinningSvc() == tsvc.get());
+  assert (tool->postExecute().isSuccess());
+  assert (SG::getThinningCache() == nullptr);
+}
+
 
 
 int main()
@@ -120,5 +161,6 @@ int main()
   Gaudi::Hive::setCurrentContext (ctx);
 
   test1();
+  test2();
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,34 +12,20 @@
 // Subject: TGCLV1-->Offline Muon Data Quality/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/DataHandle.h"
+#include "TgcRawDataMonitoring/TgcLv1RawDataValAlg.h"
 
 #include "xAODEventInfo/EventInfo.h"
-
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdoIdHash.h"
-
-// GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
-
-#include "Identifier/Identifier.h"
-
-#include "TgcRawDataMonitoring/TgcLv1RawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
-
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
-
-//for express menu
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // clearVectorsArrays
@@ -143,7 +129,6 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	int ws = (tcd->isStrip());         //isStrip      w:0, s:1 (invalid in case of SL)
 	int phi48 = tcd->phi() -1;//[0:47]MidEnd[0:23]Forward/EIFI
 	if(ef==0) phi48 = phi48*2;//[0:2:46]
-	//int sector = phi2sector(phi48,ef);
 	int pt = tcd->pt();
 	Amg::Vector3D gposout = tcd->globalposOut(); 
 	double eta, phi;
@@ -151,11 +136,11 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	else { eta = gposout.eta();  phi = gposout.phi(); } 
 
 	const Identifier tcdidout = tcd->channelIdOut();
-	int etaout = abs(int(m_muonIdHelperTool->tgcIdHelper().stationEta(tcdidout)));
+	int etaout = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidout)));
 	if(ef==0) etaout = 0;
 
 	const Identifier tcdidin  = tcd->channelIdIn();
-	int etain  = abs(int(m_muonIdHelperTool->tgcIdHelper().stationEta(tcdidin)));
+	int etain  = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidin)));
 	if(ef==0) etain  = 0;
 
 	// Fill vectors for different Coincidence Types
@@ -258,8 +243,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 ///////////////////////////////////////////////////////////////////////////
 // Reads Tgc Coincidence Data from container into vectors for use in filling histograms
 StatusCode
-TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float>* mu_eta,
-					      vector<float>* mu_phi,vector<float>* mu_q){
+TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+					      std::vector<float>* mu_phi,std::vector<float>* mu_q){
   mu_pt->clear();
   mu_eta->clear();
   mu_phi->clear();
@@ -278,9 +263,9 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
     float pt = (*it)->pt();
     float eta = (*it)->eta();
     float phi = (*it)->phi();
-    if( fabs(pt) < ptcut || 
-	fabs(eta) < etamin ||
-	fabs(eta) > etamax ) continue;
+    if( std::abs(pt) < ptcut || 
+	std::abs(eta) < etamin ||
+	std::abs(eta) > etamax ) continue;
 
     bool getvalue = true;
 
@@ -313,7 +298,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
       trtOLfrac = trtOL/(trtHits + trtOL);
 
     bool trt=false;
-    if( fabs(eta) < 1.9 ){
+    if( std::abs(eta) < 1.9 ){
       trt= ( ( trtHits > 5 ) && ( trtOLfrac < 0.9 ) );
     }
     else{
@@ -324,10 +309,6 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
 	trt=true;
       }
     }
-    //int siliconHits = (*it)->numberOfPixelHits() + (*it)->numberOfSCTHits();
-    //int phiHits = (*it)->numberOfRCPPhiHits() + (*it)->numberOfTGCPhiHits();
-    //float matchChi2 = (*it)->matchChi2();
-
     //Muid MCP except phi hits
     if(!( (*it)->combinedTrackParticleLink() &&
 	  sctHits >= 6 &&
@@ -336,23 +317,11 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float
 	  trt 
 	 ) ) continue;
 
-
-    /*
-       if( !(*it)->combinedMuonTrackParticle() ||
-    //( (*it)->numberOfMDTHits() < 5 &&
-    //( (*it)->numberOfCSCEtaHits() < 3 || (*it)->numberOfCSCPhiHits() < 3 ) ) ||
-    //(*it)->numberOfTGCPhiHits() < 1  ||
-    (*it)->numberOfPixelHits() < 1 ||
-    (*it)->numberOfSCTHits() < 6 ||
-    (*it)->matchChi2() > 100 ) continue;
-    */
-
-
     bool overlapped = false;
 
     for(unsigned int itr=0; itr<mu_eta->size(); itr++){
-      float deta = fabs(mu_eta->at(itr) - eta);
-      float dphi = fabs(mu_phi->at(itr) - phi);
+      float deta = std::abs(mu_eta->at(itr) - eta);
+      float dphi = std::abs(mu_phi->at(itr) - phi);
       if(dphi > M_PI) dphi = 2*M_PI - dphi;
       if(sqrt(deta*deta + dphi*dphi) < 0.1){
 	if(pt > mu_pt->at(itr)){
@@ -468,17 +437,6 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
     m_L1Caloetas.push_back((*j_it)->eta());
     m_L1Calophis.push_back((*j_it)->phi());
   }
-
-
-  //*  const xAOD::JetEtRoI* jetetRoIs; 
-  //*  sc = (*m_activeStore)->retrieve(jetetRoIs);
-  //*  if (sc != StatusCode::SUCCESS ) {
-  //*    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endmsg;
-  //*    return sc ;
-  //*  }
-  //*  m_L1TriggerType[3]++;
-  //*  m_L1Caloetas.push_back(50.);//no position of RoI for JetEt trigger
-  //*  m_L1Calophis.push_back(50.);//no position of RoI for JetEt trigger
 
   SG::ReadHandle<xAOD::EnergySumRoI> esumRoIs(m_L1esumRoIName); 
 

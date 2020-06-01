@@ -26,7 +26,7 @@ ByteStreamEmonInputSvc = svcMgr.ByteStreamInputSvc
 # ############################################################
 if not 'Partition' in dir():
   Partition = 'ATLAS'
-print "ByteStreamEmonInputSvc: Setting partition to : %s" % (Partition)
+printfunc ("ByteStreamEmonInputSvc: Setting partition to : %s" % (Partition))
 ByteStreamEmonInputSvc.Partition = Partition
 
 # #########################################
@@ -80,11 +80,11 @@ ByteStreamEmonInputSvc.KeyCount = Nodes
 # ByteStreamEmonInputSvc.Frequency = 5
 
 # #################################
-# Set dispersion flag to false (so other can sample the same event
+# Set GroupName to empty (so others can sample the same event)
 # #################################
-if not 'Dispersion' in dir():
-  Dispersion=False
-ByteStreamEmonInputSvc.Dispersion=Dispersion
+if not 'GroupName' in dir():
+  GroupName=""
+ByteStreamEmonInputSvc.GroupName=GroupName
 
 # #################################
 # Set timeout (in ms?)
@@ -160,4 +160,4 @@ if not 'BSEmonMsgLvl' in dir():
 ByteStreamEmonInputSvc.OutputLevel=BSEmonMsgLvl
 
 if BSEmonMsgLvl <= DEBUG:
-  print "\n\n\t ByteStreamEmonInput setup:\n",ByteStreamEmonInputSvc,"\n\n"
+  printfunc ("\n\n\t ByteStreamEmonInput setup:\n",ByteStreamEmonInputSvc,"\n\n")

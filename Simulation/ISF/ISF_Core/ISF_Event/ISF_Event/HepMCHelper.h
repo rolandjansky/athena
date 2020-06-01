@@ -16,13 +16,11 @@
 #include "ISF_Event/ISFParticle.h"
 
 // HepMC includes
-#include "HepMC/GenRanges.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenRanges.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // forward declarations
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace ISF {
 

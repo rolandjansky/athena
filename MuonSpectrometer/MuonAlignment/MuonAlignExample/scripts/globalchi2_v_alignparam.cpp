@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////
-//
-// globalchi2_v_alignparam_x
-// -------------
-// 
-//////////////////////////////////////////////////////////////////////////////
 
 #include "MuonFixedId.h"
 #include "Tools.h"
@@ -43,7 +36,6 @@
 #include <vector>
 #include <set>
 
-using namespace std;
 using namespace MuonCalib;
 
 void Init(TTree* tree);

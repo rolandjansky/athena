@@ -485,14 +485,14 @@ namespace MuonCalib {
     Identifier cachedId; // Cached Identifier of previous hit (invalid for now)
 
     double chi2check = 0;
-    double thetap = atan2(mdtSeg->direction().y(),mdtSeg->direction().z());
-    double cosin = cos(thetap);
-    double sinus = sin(thetap);
-    double thetan = atan2(mdtSeg->direction().z(),mdtSeg->direction().y());
-    double thetaCheck = atan2(segDirLCheck[2],segDirLCheck[1]);
+    double thetap = std::atan2(mdtSeg->direction().y(),mdtSeg->direction().z());
+    double cosin = std::cos(thetap);
+    double sinus = std::sin(thetap);
+    double thetan = std::atan2(mdtSeg->direction().z(),mdtSeg->direction().y());
+    double thetaCheck = std::atan2(segDirLCheck[2],segDirLCheck[1]);
     ATH_MSG_DEBUG( " MuonSegment TO CalibSegment segment found "  );
     if(msgLvl(MSG::DEBUG)) {
-      if (fabs(thetaCheck-thetan)>0.0001) ATH_MSG_DEBUG( " ALARM angle difference " << thetaCheck-thetan  );
+      if (std::abs(thetaCheck-thetan)>0.0001) ATH_MSG_DEBUG( " ALARM angle difference " << thetaCheck-thetan  );
         ATH_MSG_DEBUG( " segPosL " << segPosL <<  " segPosG " << segPosG << " local angle " << thetan << " thetaCheck " << thetaCheck  );
         ATH_MSG_DEBUG( " segDirL " << segDirL << " segDirG " << segDirG << " phi " << segDirG.phi() <<  " segDirLCheck " << segDirLCheck  );
     }
@@ -601,7 +601,7 @@ namespace MuonCalib {
 
 	ATH_MSG_DEBUG( " standard rtrk " << rtrk << " ImpactParameter " << ImpactParameter  << " diff rtrk " << rtrk-ImpactParameter << " trk_pos " << trk_pos << " OR segPosAtDCA " << segPosAtDCA  );
 
-        if (fabs(rtrk-ImpactParameter) > 0.001)  ATH_MSG_DEBUG( " ALARM Impact parameter difference " <<  rtrk-ImpactParameter   );
+        if (std::abs(rtrk-ImpactParameter) > 0.001)  ATH_MSG_DEBUG( " ALARM Impact parameter difference " <<  rtrk-ImpactParameter   );
 
         //Alternative
         if ( seg.author() == 3 || m_newImpactParameter) {
@@ -697,7 +697,7 @@ namespace MuonCalib {
 	  input.tof += t0Shift; 
 	  ATH_MSG_DEBUG( "t0 shift updated to " << t0Shift  );
 	  
-	  if( fabs( seg.time() - t0Shift ) > 0.01 && fabs(t0Shift) > 0.01 ){ 
+	  if( std::abs( seg.time() - t0Shift ) > 0.01 && std::abs(t0Shift) > 0.01 ){ 
 	    ATH_MSG_INFO( " Inconsistent fitted t0 found: from ROT " << t0Shift << " from segment " << seg.time()  );
 	  } 
 	  
@@ -717,13 +717,13 @@ namespace MuonCalib {
 	  calibHit.setDriftRadius(driftR,sigmaDriftR);
 	}
 
-	if( fabs(timeDif) >= 0.1 && !segment_with_multiple_t0s) {
+	if( std::abs(timeDif) >= 0.1 && !segment_with_multiple_t0s) {
 	  ATH_MSG_WARNING( " Bad T0Shift " << t0Shift << "  cor " << timeDif
                            << " ROT " << mrot->driftRadius()  << " t  " << mrot->driftTime() 
                            << " calib " << calibHit.driftRadius() << " t " << calibHit.driftTime()
                            << " old " << oldDriftTime << " author " << seg.author()  );
 	}
-	if(fabs(mrot->driftRadius() - calibHit.driftRadius()) > 0.01 && !segment_with_multiple_t0s)
+	if(std::abs(mrot->driftRadius() - calibHit.driftRadius()) > 0.01 && !segment_with_multiple_t0s)
 		{
                   ATH_MSG_WARNING( "Detected radius difference> 10 mu. MROT r= " <<mrot->driftRadius()<<" calib r="<<calibHit.driftRadius() );
 		}
@@ -738,7 +738,7 @@ namespace MuonCalib {
 	// convert MdtCalibHit to MdtCalibHitBase and then delete it
 	// add hit to MuonSegment
 
-        double resi = fabs(driftR) - fabs(rtrk);
+        double resi = std::abs(driftR) - std::abs(rtrk);
         if (rtrk < 0) resi = -resi;
         double error2 = rot->localCovariance()(0,0);
         double chi2c = (resi*resi)/error2;
@@ -749,8 +749,8 @@ namespace MuonCalib {
           std::string st = fixid.stationNumberToFixedStationString(fixid.stationName());
           int ml = fixid.mdtMultilayer();
           int la = fixid.mdtTubeLayer();
-          ATH_MSG_DEBUG( " station " << st << " eta " << fixid.eta() << " phi " << fixid.phi() << " ML " << ml << " Layer " << la << " drift R " << driftR  << " MROT drift R " << mrot->driftRadius() << " drift Time " << mrot->driftTime() << " ROT error " << sqrt(error2) << " residual " << resi << " tubePosLoc " << tubePosLoc << " t0 shift " << t0Shift << " chi2c " << chi2c  );
-          if (sqrt(error2) < 1.999 ) ATH_MSG_DEBUG( " ALARM TOO SMALL drift error "  );
+          ATH_MSG_DEBUG( " station " << st << " eta " << fixid.eta() << " phi " << fixid.phi() << " ML " << ml << " Layer " << la << " drift R " << driftR  << " MROT drift R " << mrot->driftRadius() << " drift Time " << mrot->driftTime() << " ROT error " << std::sqrt(error2) << " residual " << resi << " tubePosLoc " << tubePosLoc << " t0 shift " << t0Shift << " chi2c " << chi2c  );
+          if (std::sqrt(error2) < 1.999 ) ATH_MSG_DEBUG( " ALARM TOO SMALL drift error "  );
           if (chi2c > qualityFactor)   ATH_MSG_DEBUG( " ALARM TOO LARGE chi2 single hit "  );
         }  
 	MdtCalibHitBase* basehit = calibHit.hitBase(*m_idToFixedIdTool);
@@ -788,7 +788,7 @@ namespace MuonCalib {
 	
   	  double stripWidth =  detEl->StripWidth( m_idHelperSvc->rpcIdHelper().measuresPhi(id ));
 	  double time = rprd->time();
-	  double error = sqrt( rrot->localCovariance()(0,0) );
+	  double error = std::sqrt( rrot->localCovariance()(0,0) );
 	  Amg::Vector3D rgp = rrot->globalPosition();
 
 	  Amg::Vector3D rlp = gToStation*rgp;
@@ -851,7 +851,7 @@ namespace MuonCalib {
 	    stripWidth = detEl->stripMaxX(gasGap, channel, localPos.y())-detEl->stripMinX(gasGap, channel, localPos.y());
 	  }	 
 
-	  double error = sqrt( trot->localCovariance()(0,0) );
+	  double error = std::sqrt( trot->localCovariance()(0,0) );
 	  Amg::Vector3D tgp = trot->globalPosition();
 
 	  Amg::Vector3D tlp = gToStation*tgp;
@@ -891,7 +891,7 @@ namespace MuonCalib {
 	  double stripWidth   = cprd->detectorElement()->cathodeReadoutPitch( chamberLayer, measuresPhi );
 	  int charge = cprd->charge();
 
-	  double error = sqrt( crot->localCovariance()(0,0) );
+	  double error = std::sqrt( crot->localCovariance()(0,0) );
 	  Amg::Vector3D cgp = crot->globalPosition();
 
   	  Amg::Vector3D clp = gToStation *cgp;

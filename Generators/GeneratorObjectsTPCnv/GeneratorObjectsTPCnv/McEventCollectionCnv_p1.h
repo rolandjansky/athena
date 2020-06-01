@@ -12,17 +12,15 @@
 #define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H
 
 // STL includes
-
-// HepMC / CLHEP includes
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wkeyword-macro"
 #endif
 #define private public
 #define protected public
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

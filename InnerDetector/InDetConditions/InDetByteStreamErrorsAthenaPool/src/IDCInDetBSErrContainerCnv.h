@@ -1,29 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETBYTESTREAMERRORSATHENAPOOL_IDCINDETBSERRCONTAINERCNV_H
-#define INDETBYTESTREAMERRORSATHENAPOOL_IDCINDETBSERRCONTAINERCNV_H
+#ifndef INDETBYTESTREAMERRORSATHENAPOOL_IDCInDetBSErrContainerCnv_H
+#define INDETBYTESTREAMERRORSATHENAPOOL_IDCInDetBSErrContainerCnv_H
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer64_p1.h"
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer_p2.h"
+#include "IDCInDetBSErrContainerCnv_p1.h"
 
+// the latest persistent representation type of DataCollection:
+typedef  InDetBSErrContainer64_p1  IDCBSErrContainer_PERS;
+typedef  T_AthenaPoolCustomCnv<IDCInDetBSErrContainer, IDCBSErrContainer_PERS >   IDCInDetBSErrContainerCnvBase;
+// IDCInDetBSErrContainerCnv
+class IDCInDetBSErrContainerCnv : public IDCInDetBSErrContainerCnvBase {
+public:
+  IDCInDetBSErrContainerCnv (ISvcLocator* svcloc) : IDCInDetBSErrContainerCnvBase(svcloc) {}
 
-class IDCInDetBSErrContainerCnv : public T_AthenaPoolTPCnvBase<IDCInDetBSErrContainer, InDetBSErrContainer_p2>
-{
- public:
-  IDCInDetBSErrContainerCnv() {};
+protected:
+  virtual IDCBSErrContainer_PERS*   createPersistent (IDCInDetBSErrContainer* transCont);
+  virtual IDCInDetBSErrContainer*   createTransient ();
 
-  virtual void persToTrans(const InDetBSErrContainer_p2* persCont,
-                           IDCInDetBSErrContainer* transCont,
-                           MsgStream& log);
-  virtual void transToPers(const IDCInDetBSErrContainer* transCont,
-                           InDetBSErrContainer_p2* persCont,
-                           MsgStream& log);
-  virtual IDCInDetBSErrContainer* createTransient(const InDetBSErrContainer_p2* persObj,
-                                               MsgStream& log);
-
+  IDCInDetBSErrContainerCnv_p1  m_TPConverter;
 };
+
 
 #endif

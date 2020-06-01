@@ -5,8 +5,8 @@
 #ifndef TAUREC_TAUCALIBRATELC_H
 #define TAUREC_TAUCALIBRATELC_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "tauRecTools/TauRecToolBase.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class TH1;
@@ -32,23 +32,22 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
 
 private:
-    std::string m_calibrationFile; //!< energy calibration file
-
     static const int s_nProngBins = 2;
 
     std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
     std::vector<std::unique_ptr<TH1>> m_slopeNPVHist; 
-    std::unique_ptr<TH1> m_etaBinHist=nullptr; 
-    std::unique_ptr<TH1> m_etaCorrectionHist=nullptr; 
+    std::unique_ptr<TH1> m_etaBinHist = nullptr; 
+    std::unique_ptr<TH1> m_etaCorrectionHist = nullptr; 
 
     unsigned int m_minNTrackAtVertex=0;
     int    m_nEtaBins=0;
     double m_averageNPV=0;
 
+    std::string m_calibrationFile; //!< energy calibration file
     bool m_doEnergyCorr; //!< switch for energy correction
     bool m_doPtResponse; //!< switch for pt response vs pt, if false, use E response vs E
     bool m_countOnlyPileupVertices; //!< switch for counting vertices by nTracks or VxType::PileUp

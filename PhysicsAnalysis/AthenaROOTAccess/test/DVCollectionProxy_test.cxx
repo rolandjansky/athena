@@ -63,8 +63,6 @@ void test1()
 
 int main()
 {
-  gInterpreter->EnableAutoLoading();
-
   TClass::GetClass("DataVector<AthenaROOTAccess::DVCollectionProxyDummy>");
   test1();
 

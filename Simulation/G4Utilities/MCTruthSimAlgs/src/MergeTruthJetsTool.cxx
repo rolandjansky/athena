@@ -23,7 +23,7 @@ StatusCode MergeTruthJetsTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeTruthJetsTool::prepareEvent(unsigned int nInputEvents)
+StatusCode MergeTruthJetsTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents)
 {
   ATH_MSG_VERBOSE ( "prepareEvent()" );
   ATH_MSG_DEBUG ( "prepareEvent: there are " << nInputEvents << " subevents in this event." );
@@ -86,7 +86,7 @@ StatusCode MergeTruthJetsTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeTruthJetsTool::mergeEvent()
+StatusCode MergeTruthJetsTool::mergeEvent(const EventContext& /*ctx*/)
 {
   ATH_MSG_VERBOSE ( "mergeEvent" );
 
@@ -141,7 +141,7 @@ StatusCode MergeTruthJetsTool::record(const xAOD::JetContainer* pjets, std::stri
 }
 
 
-StatusCode MergeTruthJetsTool::processAllSubEvents()
+StatusCode MergeTruthJetsTool::processAllSubEvents(const EventContext& /*ctx*/)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
 

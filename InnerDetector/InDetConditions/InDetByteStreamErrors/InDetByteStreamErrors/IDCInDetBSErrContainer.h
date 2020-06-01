@@ -16,9 +16,9 @@
  * TODO, customise implementation further so that we store int rather than int*
  **/
 
-class IDCInDetBSErrContainer : public IdentifiableValueContainer<int>  {
+class IDCInDetBSErrContainer : public IdentifiableValueContainer<uint64_t>  {
 public:
-  typedef int ErrorCode;
+  typedef uint64_t ErrorCode;
   using IdentifiableValueContainer<ErrorCode>::IdentifiableValueContainer;
 };
 

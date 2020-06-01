@@ -357,8 +357,6 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     evt->set_event_number(*(m_internalEventNumbers.begin()));
     m_pythiaToHepMC.fill_next_event(pyev, evt, 1);
     
-    // fill the pdf information
-    //m_pythiaToHepMC.put_pdf_info(evt, m_pythia, false);
     
     // set the randomseeds
     if(useRndmGenSvc() && Pythia8B_i::p_AtRndmGenSvc)
@@ -376,7 +374,6 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     m_BEventBuffer.erase(m_BEventBuffer.begin());
     m_internalEventNumbers.erase(m_internalEventNumbers.begin());
     
-    //HepMC::GenEvent *evtCopy = new HepMC::GenEvent(*evt);
     
     return StatusCode::SUCCESS;
 }

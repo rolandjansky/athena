@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -24,25 +24,19 @@
 //           13.12.2007 by O. Kortner, time-out added.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibFitters/QuasianalyticLineReconstruction.h"
-#include <iostream>
-#include <fstream>
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include "time.h"
+#include <iostream>
+#include <fstream>
 #include <cmath>
-
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
+#include <TString.h> // for Form
 
 using namespace MuonCalib;
-using namespace std;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS ::
@@ -142,12 +136,7 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 //::::::::::::::::::::::::::::::::::::::::::::
 
 	if (r_case<1 || r_case>4) {
-		cerr << endl
-			<< "Class QuasianalyticLineReconstruction, "
-			<< "method tangent: ERROR!\n"
-			<< "Illegal case " << r_case << ", must be 1,2,3, or 4."
-			<< endl;
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nQuasianalyticLineReconstruction::tangent() - Illegal case %i, must be 1,2,3, or 4.", __FILE__, __LINE__, r_case));
 	}
 
 //:::::::::::::::::::::::::::::::::::::
@@ -161,8 +150,8 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 // case 1 and 2 //
 	if (r_case==1 || r_case==2) {
 
-		sinalpha = fabs(r_r2-r_r1)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		sinalpha = std::abs(r_r2-r_r1)/(r_w2-r_w1).mag();
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 1 //
 		if (r_case==1) {
@@ -187,12 +176,10 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 	if (r_case==3  || r_case==4) {
 
 		sinalpha = (r_r1+r_r2)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 3 //
 		if (r_case==3) {
-// 			p1 = r_w1+r_r1*(cosalpha*e2prime-sinalpha*e3prime);
-// 			p2 = r_w2-r_r2*(cosalpha*e2prime-sinalpha*e3prime);
 			p1 = r_w1+r_r1*(cosalpha*e2prime+sinalpha*e3prime);
 			p2 = r_w2-r_r2*(cosalpha*e2prime+sinalpha*e3prime);
 		}
@@ -216,8 +203,8 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 	mx1 = tang.a_x1(); bx2 = tang.b_x1();
 	mx2 = tang.a_x2(); bx2 = tang.b_x2();
 	tang = MTStraightLine(mx1, bx1, mx2, bx2,1.0, 1.0, 
-			sqrt(r_sigma12+r_sigma22)/fabs(p2.z()-p1.z()),
-			sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
+			std::sqrt(r_sigma12+r_sigma22)/std::abs(p2.z()-p1.z()),
+			std::sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
 						std::pow(p2.z()-p1.z(), 2)));
 			// errors in mx1 and bx1 are arbitrary since they are
 			// not used at a later stage.
@@ -238,9 +225,9 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 				const int & r_k_cand,
 				const int & r_l_cand,
 				const int & r_cand_case,
-				vector<Amg::Vector3D> r_w,
-				vector<double> r_r,
-				vector<double> r_sigma2,
+				std::vector<Amg::Vector3D> r_w,
+				std::vector<double> r_r,
+				std::vector<double> r_sigma2,
 				double & r_chi2) const {
 
 //:::::::::::::::
@@ -251,9 +238,9 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 					    // reconstruction
 	int nb_tangents(0); // number of tangents used in the track
 			       // reconstruction
-	vector<double> mx1, bx1, mx2, bx2; // slopes and intercepts of the
+	std::vector<double> mx1, bx1, mx2, bx2; // slopes and intercepts of the
 					      // tangents building the track
-	vector<double> mx1_err, bx1_err, mx2_err, bx2_err; // their errors
+	std::vector<double> mx1_err, bx1_err, mx2_err, bx2_err; // their errors
 	MTStraightLine aux_track; // auxiliary straight line
 	MTStraightLine tang; // tangent to drift circles of a hit pair
 	Amg::Vector3D d1(0.0, 0.0, 0.0), d2(0.0, 0.0, 0.0); // auxiliary distance vectors
@@ -314,8 +301,8 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
    // case 1: candidate tangent passes both wires on the same side //
 		if (d1.dot(d2)>=0) {
 
-			sinalpha = fabs(r_r[l]-r_r[k])/(r_w[l]-r_w[k]).mag();
-			cosalpha = sqrt(1.0-sinalpha*sinalpha);
+			sinalpha = std::abs(r_r[l]-r_r[k])/(r_w[l]-r_w[k]).mag();
+			cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
 			if (d1.dot(e2prime)>=0) {
 				if (r_r[k]<=r_r[l]) {
@@ -361,7 +348,7 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 		if (d1.dot(d2)<0) {
 
 			sinalpha = (r_r[l]+r_r[k])/(r_w[l]-r_w[k]).mag();
-			cosalpha = sqrt(1.0-sinalpha*sinalpha);
+			cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
 	// case 2(a) //
 			if (d1.dot(e2prime)>=0 && d2.dot(e2prime)<=0) {
@@ -438,7 +425,7 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 	}
 
 	aux_track = MTStraightLine(0.0, 0.0, sum[0]/sum[1], sum[2]/sum[3],
-				0.0, 1.0, sqrt(1.0/sum[1]), sqrt(1.0/sum[3]));
+				0.0, 1.0, std::sqrt(1.0/sum[1]), std::sqrt(1.0/sum[3]));
 
 	r_chi2 = 0.0;
 	for (int k=0; k<nb_hits; k++) {
@@ -483,7 +470,7 @@ unsigned int QuasianalyticLineReconstruction::numberOfTrackHits(void) const {
 //:: METHOD trackHits ::
 //::::::::::::::::::::::
 
-const vector<const MdtCalibHitBase*> & QuasianalyticLineReconstruction::trackHits(void) const {
+const std::vector<const MdtCalibHitBase*> & QuasianalyticLineReconstruction::trackHits(void) const {
 
 	return m_track_hits;
 
@@ -542,7 +529,7 @@ MTStraightLine QuasianalyticLineReconstruction::track(void) const {
 void QuasianalyticLineReconstruction::setRoadWidth(
 					const double & r_road_width) {
 
-	m_road_width = fabs(r_road_width);
+	m_road_width = std::abs(r_road_width);
 	return;
 
 }
@@ -602,29 +589,29 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 	time(&start);
 	double diff; // difference of start and end time (needed for time-out)
 	unsigned int nb_selected_hits(0); // number of selected hits
-	vector<const MdtCalibHitBase*> selected_hits; // vector of pointers to the
+	std::vector<const MdtCalibHitBase*> selected_hits; // vector of pointers to the
 	                                        // selected hits
-	vector<unsigned> selected_hits_index(r_selection.size());
+	std::vector<unsigned> selected_hits_index(r_selection.size());
 	                                      // vector containing the indices
 	                                      // of the selected hits (needed
 	                                      // a requested refit)
-	vector<Amg::Vector3D> w; // wire coordinates
-	vector<double> r; // drift CLHEP::radii of the selected hits
-	vector<double> sigma2; // sigma(r)^2 (spatial resolution in r)
+	std::vector<Amg::Vector3D> w; // wire coordinates
+	std::vector<double> r; // drift CLHEP::radii of the selected hits
+	std::vector<double> sigma2; // sigma(r)^2 (spatial resolution in r)
 	int counter1, counter2, counter3; // auxiliary counters
 	int max_cand_hits; // the maximum number of hits on a track candidate
 	                      // found so far
 	int max_cand_HOTs; // the maximum number of hit tubes on a track
 			      // candidate found so far
 	int nb_candidates; // number of candidate tracks
-	vector<int> k_cand, l_cand; // candidate track index
-	vector<int> cand_case; // tangent case for the candidate
-	vector<int> nb_HOTs; // number of hits on a candidate
+	std::vector<int> k_cand, l_cand; // candidate track index
+	std::vector<int> cand_case; // tangent case for the candidate
+	std::vector<int> nb_HOTs; // number of hits on a candidate
 	int candidate; // index of the candidate which becomes the track
 	IndexSet aux_set; // auxiliary index set
-	vector<IndexSet> index_set; // index set for the storage of the hits
+	std::vector<IndexSet> index_set; // index set for the storage of the hits
 	                            // forming a track
-	vector<double> intercept; // intercepts of track candidates
+	std::vector<double> intercept; // intercepts of track candidates
 	MTStraightLine tangents[4]; // the four tangents to the drift circles of a
 	                            // hit pair
 	MTStraightLine aux_track; // auxiliary track
@@ -640,12 +627,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 // GET THE NUMBER OF SELECTED HITS //
 /////////////////////////////////////
 	if (r_segment.mdtHitsOnTrack() != r_selection.size()) {
-		cerr << "\n"
-			<< "Class QuasianalyticLineReconstruction, "
-			<< "METHOD fit(., .): WARNING!\n"
-			<< "Vector with selected hits unequal to the number "
-			<< "of hits on the segment!\n"
-			<< "The user selection will be ignored!\n";
+		MsgStream log(Athena::getMessageSvc(), "QuasianalyticLineReconstruction");
+		log<< MSG::WARNING << "Class QuasianalyticLineReconstruction, method fit: Vector with selected hits unequal to the number of hits on the segment! The user selection will be ignored!"<<endmsg;
 		r_selection.clear();
 		r_selection.assign(r_segment.hitsOnTrack(), 0);
 	} else {
@@ -674,10 +657,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 ///////////////////////////////////////////////////////////////////////////
 
 	if (nb_selected_hits<3) {
-		cerr << "\n"
-			<< "Class QuasianalyticLineReconstruction, "
-			<< "METHOD fit(., .): WARNING!\n"
-			<< "Too few hits for the track reconstructions!\n";
+		MsgStream log(Athena::getMessageSvc(), "QuasianalyticLineReconstruction");
+		log<< MSG::WARNING << "Class QuasianalyticLineReconstruction, method fit: Too few hits for the track reconstructions!"<<endmsg;
 		return false;
 	}
 
@@ -702,11 +683,11 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		}
 
    // copy the hit information into local vectors //
-		selected_hits.push_back(hit);//[counter2] = hit;
-		selected_hits_index.push_back(k);//[counter2] = k;
-		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));//[counter2] = Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z());
-		r.push_back(fabs(hit->driftRadius()));//[counter2] = fabs(hit->driftRadius());
-		sigma2.push_back(hit->sigma2DriftRadius());//[counter2] = hit->sigma2DriftRadius();
+		selected_hits.push_back(hit);
+		selected_hits_index.push_back(k);
+		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));
+		r.push_back(std::abs(hit->driftRadius()));
+		sigma2.push_back(hit->sigma2DriftRadius());
    // if the spatial resolution has not been set, set it to 0.1 CLHEP::mm //
 		if (sigma2[counter2] == 0) {
 			sigma2[counter2] = std::pow(0.1*CLHEP::mm, 2);
@@ -734,11 +715,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		time (&end);
   		diff = difftime (end,start);
 		if (diff>m_time_out) {
-			cerr << endl
-				<< "Class QuasianalyticLineReconstruction: "
-				<< "time-out for track finding after "
-				<< m_time_out
-				<< " seconds!\n";
+			MsgStream log(Athena::getMessageSvc(), "QuasianalyticLineReconstruction");
+			log<< MSG::WARNING << "Class QuasianalyticLineReconstruction, method fit: time-out for track finding after "<<m_time_out<<" seconds!"<<endmsg;
 			return false;
 		}
 
@@ -754,15 +732,15 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 			bool same(false);
 			counter1 = 0;
 			counter3 = 0;
-			vector<int> indices; // indices of the hits forming a
+			std::vector<int> indices; // indices of the hits forming a
 					     // track
 			for (unsigned int n=0; n<nb_selected_hits; n++) {
 				MTStraightLine aux_line(w[n], xhat, null, null);
-				if (fabs(fabs(tangents[r_case-1].signDistFrom(
+				if (std::abs(std::abs(tangents[r_case-1].signDistFrom(
 						aux_line))-r[n])<m_r_max) {
 					counter3++;
 				}
-				if (fabs(fabs(tangents[r_case-1].signDistFrom(
+				if (std::abs(std::abs(tangents[r_case-1].signDistFrom(
 						aux_line))-
 					r[n])<=m_road_width) {
 					counter1 = counter1+1;
@@ -774,7 +752,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 				aux_set.sort();
 				for (int ca=0; ca<nb_candidates; ca++) {
 					if (aux_set==index_set[ca] &&
-						fabs(intercept[ca]-
+						std::abs(intercept[ca]-
 						tangents[r_case-1].b_x2())
 						<m_road_width) {
 						same = true;
@@ -846,7 +824,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 			m_track.positionVector(), m_track.directionVector());
 
 
-	vector<unsigned int> refit_hit_selection(r_selection.size(), 1);
+	std::vector<unsigned int> refit_hit_selection(r_selection.size(), 1);
 	for (int k=0; k<m_nb_track_hits; k++) {
 		refit_hit_selection[selected_hits_index[
 					index_set[candidate][k]]] = 0;
@@ -886,7 +864,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					m_track_hits[k]->localPosition().y(),
 					m_track_hits[k]->localPosition().z()),
 					xhat, null, null);
-				double d(fabs(m_track.signDistFrom(wire)));
+				double d(std::abs(m_track.signDistFrom(wire)));
 				m_chi2 = m_chi2+
 					std::pow(d-m_track_hits[k]->driftRadius(),
 						2)/
@@ -916,10 +894,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					(hit.localPosition()).z());
 					// wire position
 		MTStraightLine aux_line(pos, xhat, null, null);
-// 		double dist(fabs(m_track.signDistFrom(aux_line))); // track distance
 		double dist(m_track.signDistFrom(aux_line)); // track distance
-		double dist_err(sqrt(std::pow(pos.z()*m_track.a_x2_error(), 2)+
-				std::pow(m_track.b_x2_error(), 2)));
+		double dist_err(std::hypot(pos.z()*m_track.a_x2_error(), m_track.b_x2_error()));
 				// approximate error of the track distance
 		hit.setDistanceToTrack(dist, dist_err);
     
@@ -927,21 +903,5 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 	}
 
 	return true;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD printLevel ::
-//:::::::::::::::::::::::
-
-void QuasianalyticLineReconstruction::printLevel(int level) {
-
-	cerr << "\n"
-		<< "Class QuasianalyticLineReconstruction, "
-		<< "method printLevel: WARNING!\n"
-		<< "Print level " << level << " is ignored.\n";
-	return;
 
 }

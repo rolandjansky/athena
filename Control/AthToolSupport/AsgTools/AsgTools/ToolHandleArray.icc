@@ -11,8 +11,6 @@ ToolHandleArray< T >::ToolHandleArray()
 
 }
 
-#if __cplusplus >= 201100
-
 template< class T >
 ToolHandleArray< T >::
 ToolHandleArray( const std::initializer_list< ToolHandle< T > >& l )
@@ -31,7 +29,13 @@ ToolHandleArray( const std::initializer_list< std::string >& l )
    }
 }
 
-#endif // C++11
+template< class T > template< typename Parent >
+ToolHandleArray< T >::
+ToolHandleArray( Parent *parent, const std::string& name, const std::initializer_list< std::string >& l, const std::string& description )
+   : ToolHandleArray (l) {
+
+   parent->declareProperty (name, *this, description);
+}
 
 template< class T >
 StatusCode ToolHandleArray< T >::retrieve() const {

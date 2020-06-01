@@ -40,28 +40,28 @@ def TileRawChannelMakerCfg(flags, **kwargs):
         tileRawChannelBuilderFitFilter = acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(flags) )
         tileRawChannelBuilder += [tileRawChannelBuilderFitFilter]
         mlog.info(" adding now TileRawChannelBuilderFitFilter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderFitFilter.name(), name)
+                  tileRawChannelBuilderFitFilter.name, name)
 
     if flags.Tile.doOF1:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOF1Cfg
         tileRawChannelBuilderOF1 = acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(flags) )
         tileRawChannelBuilder += [tileRawChannelBuilderOF1]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOF1.name(), name)
+                  tileRawChannelBuilderOF1.name, name)
 
     if flags.Tile.doOpt2:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOpt2Cfg
         tileRawChannelBuilderOpt2 = acc.popToolsAndMerge( TileRawChannelBuilderOpt2Cfg(flags) )
         tileRawChannelBuilder += [tileRawChannelBuilderOpt2]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOpt2.name(), name)
+                  tileRawChannelBuilderOpt2.name, name)
 
     if flags.Tile.doOptATLAS:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOptATLASCfg
         tileRawChannelBuilderOptATLAS = acc.popToolsAndMerge( TileRawChannelBuilderOptATLASCfg(flags) )
         tileRawChannelBuilder += [tileRawChannelBuilderOptATLAS]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOptATLAS.name(), name)
+                  tileRawChannelBuilderOptATLAS.name, name)
 
     kwargs.setdefault('TileRawChannelBuilder', tileRawChannelBuilder)
 
@@ -167,12 +167,11 @@ if __name__ == "__main__":
 
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg(ConfigFlags) )
-    acc.getService('ByteStreamAddressProviderSvc').TypeNames += ['TileDigitsContainer/TileDigitsCnt']
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg(ConfigFlags, ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']) )
 
     acc.merge( TileRawChannelMakerOutputCfg(ConfigFlags) )
 

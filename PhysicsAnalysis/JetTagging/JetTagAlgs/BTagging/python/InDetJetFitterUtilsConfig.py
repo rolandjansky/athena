@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # importi the FullLinearizedTrackFactory configurable
-InDet__InDetJetFitterUtils=CompFactory.InDet__InDetJetFitterUtils
+InDet__InDetJetFitterUtils=CompFactory.InDet.InDetJetFitterUtils
 
 
 def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = True, options = {}):

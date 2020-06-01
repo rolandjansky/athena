@@ -40,7 +40,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
   if(!rpcPrepDataHandle.isPresent()) {
     firstTimeInTheEvent = true;
 
-    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
 
     if (status.isFailure() || !rpcPrepDataHandle.isValid() ) 	{
       ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key());
@@ -53,7 +53,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
     if (m_producePRDfromTriggerWords){
       /// create an empty RPC trigger hit container for filling
       SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
-      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_idHelperSvc->rpcIdHelper().module_hash_max()));
 
       if (status.isFailure() || !rpcCoinDataHandle.isValid() ) 	{
         ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcCoinDataContainerKey.key());

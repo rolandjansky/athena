@@ -8,9 +8,9 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
     def __init__ (self, name, doResMon=False):
-        self.name = "TrigFastTrackFinder_" + name
-        super(TrigFastTrackFinderMonitoring, self).__init__( self.name )
-        self.HistPath = self.name
+        name = "TrigFastTrackFinder_" + name
+        super(TrigFastTrackFinderMonitoring, self).__init__(name)
+        self.HistPath = name
         self.addSPHistograms(name)
         self.addDataErrorHistograms()
         self.addTimingHistograms(name)
@@ -36,7 +36,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
     def addDataErrorHistograms(self):
         self.defineHistogram('roi_lastStageExecuted',path='EXPERT',type='TH1F',title="Last Step Successfully Executed", xbins = 8 , xmin=-0.5, xmax=7.5,
-                             labels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
+                             xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
     def addTimingHistograms(self, name):
         if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
@@ -159,7 +159,8 @@ remap  = {
     "BeamSpot" : "beamSpot",
     "Bphysics" : "bphysics",
     "Cosmic"   : "cosmics",
-    "MinBias"  : "minBias400"
+    "MinBias"  : "minBias400",
+    "minBias"  : "minBias400"
 }
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
@@ -168,6 +169,10 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         TrigFastTrackFinder.__init__(self,name)
         remapped_type = remap[type]
         assert(remapped_type is not None)
+
+        #Global keys/names for collections 
+        from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys, TrigSCTKeys
+
 
         self.useNewLayerNumberScheme = True
         
@@ -202,6 +207,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
         spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         spTool.UseBeamTilt = False
+        spTool.PixelSP_ContainerName = TrigPixelKeys.SpacePoints
+        spTool.SCT_SP_ContainerName  = TrigSCTKeys.SpacePoints
         spTool.layerNumberTool = numberingTool
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
@@ -306,12 +313,19 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
         if (self.doZFinder):
           from IDScanZFinder.IDScanZFinderConf import TrigZFinder
-          theTrigZFinder = TrigZFinder()
+          theTrigZFinder = TrigZFinder( name="TrigZFinder_"+remapped_type )
           theTrigZFinder.NumberOfPeaks = 3
           theTrigZFinder.LayerNumberTool=numberingTool
           
+          if remapped_type == "beamSpot" : 
+            theTrigZFinder.TripletMode = 1
+            theTrigZFinder.TripletDZ   = 1
+            theTrigZFinder.PhiBinSize  = 0.1
+            theTrigZFinder.UseOnlyPixels = True
+            theTrigZFinder.MaxLayer      = 3
+
           theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
-          ToolSvc += theTrigZFinder
+
           self.trigZFinder = theTrigZFinder
           self.doFastZVertexSeeding = True
           self.zVertexResolution = 1
@@ -369,4 +383,3 @@ class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MinBias"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")
-

@@ -37,10 +37,11 @@ print(acc.getService("ProxyProviderSvc"))
 svc = acc.getService("AddressRemappingSvc")
 print(svc)
 
-assert(svc.TypeKeyRenameMaps == [
-    "Type1#from->to",
-    "Type2#a->b",
-    "Foo#foo->bar",
-    "Foo#foo.d1->bar.x1",
-    "FromType#fromName->ToType#toName",
-])
+ref=['Type1#from->to', 
+     'Type2#a->b', 
+     'Foo#foo->bar', 
+     'Foo#foo.d1->bar.x1', 
+     'FromType#fromName->ToType#toName'
+    ]
+
+assert(set(svc.TypeKeyRenameMaps) == set(ref))

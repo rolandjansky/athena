@@ -10,7 +10,7 @@
 #include "GenParticleInteractingFilter.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // Helper function
 #include "TruthUtils/HepMCHelpers.h"

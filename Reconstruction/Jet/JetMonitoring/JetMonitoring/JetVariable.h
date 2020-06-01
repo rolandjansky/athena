@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETVARIABLE_H
@@ -72,7 +72,7 @@ namespace JetVar {
 
     /// create and return a new Variable of a given name & type. If type is a vector an index 
     /// can be specified : the variable will behave as a non-vector Variable corresponding to the value at the given index
-    static Variable* create(const std::string & name, const std::string &type="float", int index=-1);
+    static std::unique_ptr<Variable> create(const std::string & name, const std::string &type="float", int index=-1);
 
     std::string m_name;
     float m_scale = 1;
@@ -158,13 +158,50 @@ namespace JetVar {
     virtual float value(const xAOD::Jet & j) const { return j.rapidity();}    
   };
   
-  
   struct AbsEtaVar : public Variable {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { return fabs(j.eta());}    
   };
 
+  struct EtVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
+  };
   
+  struct EM3FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
+      if( status ) return (samplingFrac[3]+samplingFrac[7])/constitScaleEnergy;
+      else return 0.;
+    } 
+  };
+
+  struct Tile0FracVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const {
+      float constitScaleEnergy = 0.;
+      std::vector<float> samplingFrac;
+      xAOD::JetFourMom_t fourVec;
+      bool status = false;
+
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
+      else return 0.;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
+      if( status ) return (samplingFrac[12]+samplingFrac[18])/constitScaleEnergy;
+      else return 0.;
+    } 
+  };
+
 }
 
 #endif

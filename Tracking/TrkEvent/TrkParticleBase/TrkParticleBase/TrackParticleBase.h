@@ -268,7 +268,8 @@ namespace Trk
   inline 
   void TrackParticleBase::setTrackLink ( const TrackCollection *  cont, const Track * track) 
   {
-     if ( m_originalTrack.isValid() ) m_originalTrack.reset();
+     if ( m_originalTrack.isValid() ) { m_originalTrack.reset();
+}
      m_originalTrack.toContainedElement( *cont, track);
   }
   

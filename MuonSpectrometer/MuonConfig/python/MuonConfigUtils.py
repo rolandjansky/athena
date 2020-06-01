@@ -52,8 +52,8 @@ def SetupMuonStandaloneConfigFlags(args):
 def SetupMuonStandaloneCA(args,ConfigFlags):
     # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
     if args.run:
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+        cfg = MainServicesCfg(ConfigFlags)
         msgService = cfg.getService('MessageSvc')
         msgService.Format = "S:%s E:%e % F%78W%S%7W%R%T  %0W%M"
     else:
@@ -72,7 +72,7 @@ def SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord):
     outstream.ForceRead = True
 
     # Fix for ATLASRECTS-5151
-    Trk__EventCnvSuperTool = CompFactory.Trk__EventCnvSuperTool
+    Trk__EventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool
     cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
     cnvTool.MuonCnvTool.FixTGCs = True 
     cfg.addPublicTool(cnvTool)

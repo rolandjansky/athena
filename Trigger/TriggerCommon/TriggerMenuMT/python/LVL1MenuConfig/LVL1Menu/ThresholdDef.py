@@ -302,7 +302,7 @@ class ThresholdDef(object):
         for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
-	 # Restricted range TE |eta|<4.9
+        # Restricted range TE |eta|<4.9
         etamax = 49
         for thrV in [500, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)

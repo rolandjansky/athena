@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -138,8 +138,9 @@ protected:
 
 inline CompetingRIOsOnTrack::AssignmentProb CompetingRIOsOnTrack::assignmentProbability(unsigned int indx) const {
     assert ( indx < numberOfContainedROTs() );
-    if (indx < numberOfContainedROTs() )
+    if (indx < numberOfContainedROTs() ) {
         return m_assignProb->operator[](indx);
+    }
     return 0; // could consider throwing an exception here - EJWM
 }
 

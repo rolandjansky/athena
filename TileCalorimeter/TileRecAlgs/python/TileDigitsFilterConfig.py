@@ -34,18 +34,18 @@ def TileDigitsFilterOutputCfg(flags, streamName = 'ESD', **kwargs):
 
     outputItemList = []
 
-    if 'OutputDigitsContainer' in tileDigitsFilter.getValuedProperties():
-        digitsContainer = tileDigitsFilter.getValuedProperties()['OutputDigitsContainer']
+    if 'OutputDigitsContainer' in tileDigitsFilter._properties:
+        digitsContainer = tileDigitsFilter._properties['OutputDigitsContainer']
     else:
-        digitsContainer = tileDigitsFilter.getDefaultProperty('OutputDigitsContainer')
+        digitsContainer = tileDigitsFilter._descriptors['OutputDigitsContainer'].default
 
     if digitsContainer != '':
         outputItemList += ['TileDigitsContainer#' + digitsContainer]
 
-    if 'OutputRawChannelContainer' in tileDigitsFilter.getValuedProperties():
-        rawChannelContainer = tileDigitsFilter.getValuedProperties()['OutputRawChannelContainer']
+    if 'OutputRawChannelContainer' in tileDigitsFilter._properties:
+        rawChannelContainer = tileDigitsFilter._properties['OutputRawChannelContainer']
     else:
-        rawChannelContainer = tileDigitsFilter.getDefaultProperty('OutputRawChannelContainer')
+        rawChannelContainer = tileDigitsFilter._descriptors['OutputRawChannelContainer'].default
 
     if rawChannelContainer != '':
         outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
@@ -73,8 +73,8 @@ if __name__ == "__main__":
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']

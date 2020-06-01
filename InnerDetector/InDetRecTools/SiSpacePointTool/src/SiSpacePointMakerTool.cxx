@@ -39,7 +39,7 @@ namespace InDet {
   StatusCode SiSpacePointMakerTool::initialize()  {
     // Get the SCT Helper
     ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
-    m_SCTgapParameter = std::fabs(m_SCTgapParameter);
+    m_SCTgapParameter = std::abs(m_SCTgapParameter);
     if (m_SCTgapParameter > 0.002) m_SCTgapParameter = 0.002;
     return StatusCode::SUCCESS;
   }
@@ -100,19 +100,27 @@ namespace InDet {
 
     Amg::Vector3D point;
 
-    bool ok(true);  
+    bool ok(true);
+    const double limit = 1. + m_stripLengthTolerance;
+
     if (m_usePerpProj) {
-      /* a simple hack for the case the origin of the particle is completely unknown:
-         The closest approach of element1 to element2 is used (perpendicular projection)
-         to determine the position of the SpacePoint on element 1. 
-         This option is especially aimed at the use with cosmics data.
-      */
-      Amg::Vector3D mab(endStrip2 - endStrip1);
-      const double eaTeb = strip1Direction.dot(strip2Direction);
-      const double denom = 1. - eaTeb*eaTeb;
-      if (std::fabs(denom)>10e-7){
-        const double lambda0 = (mab.dot(strip1Direction) - mab.dot(strip2Direction)*eaTeb)/denom;
-        point = endStrip1+lambda0 * strip1Direction;    
+      /** This is simple hack for the case the origin of the particle is completely unknown:
+          The closest approach of element1 to element2 is used (perpendicular projection)
+          to determine the position of the SpacePoint on element 1. 
+          This option is especially aimed at the use with cosmics data.
+          Ref. https://its.cern.ch/jira/browse/ATLASRECTS-5394.
+        */
+      
+      const double denom = Amg::Vector3D(strip1Direction.cross(strip2Direction)).z();
+      if (std::abs(denom)>10e-7){
+        Amg::Vector3D s(endStrip1+startStrip1);
+        Amg::Vector3D t(endStrip2+startStrip2);
+        const double lambda0 = strip2Direction.cross(Amg::Vector3D(strip1Direction-t)).z()/denom;
+        if (std::abs(lambda0)>limit){
+          ATH_MSG_WARNING("Intersection is outside strip bounds");
+          ok = false;
+        }
+        point = (s + lambda0 * strip1Direction) * 0.5;    
         ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  endStrip1.x() << " , " << endStrip1.y() << " , " << endStrip1.z() << " )   to   (" << startStrip1.x() << " , " << startStrip1.y() << " , " << startStrip1.z() << " ) " );
         ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  endStrip2.x() << " , " << endStrip2.y() << " , " << endStrip2.z() << " )   to   (" << startStrip2.x() << " , " << startStrip2.y() << " , " << startStrip2.z() << " )  " );
         ATH_MSG_VERBOSE( "Intersection: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );
@@ -132,21 +140,20 @@ namespace InDet {
       // us to recover space-points from tracks pointing back to an interaction
       // point up to around z = +- 20 cm
 
-      double limit = 1. + m_stripLengthTolerance;
-
-      if      (std::fabs(            m             ) > limit) ok = false;
-      else if (std::fabs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
+      
+      if      (std::abs(            m             ) > limit) ok = false;
+      else if (std::abs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
  
       if ((not ok) and (stripLengthGapTolerance != 0.)) {
 
         const double qm     = strip1Direction.mag()                             ;
         const double limitn = limit+(stripLengthGapTolerance/qm);
 
-        if (std::fabs(m) <= limitn)  {
+        if (std::abs(m) <= limitn)  {
    
           if (n==0.) n = -(midpoint2x2.dot(qs)/strip2Direction.dot(qs));
 
-          if (std::fabs(n) <= limitn) {
+          if (std::abs(n) <= limitn) {
             double mn  = strip1Direction.dot(strip2Direction)/(qm*qm);
             if ((m >  1.) or (n >  1.)) {
               double dm = (m-1.)   ;
@@ -163,7 +170,7 @@ namespace InDet {
               m += sm;
               n += (sm*mn);
             }
-            if (std::fabs(m) < limit and std::fabs(n) < limit) ok = true;
+            if (std::abs(m) < limit and std::abs(n) < limit) ok = true;
           }
         }
       }
@@ -439,10 +446,10 @@ namespace InDet {
     double r   = std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
-    double dm  = (m_SCTgapParameter*r)*std::fabs(s*x12);
+    double dm  = (m_SCTgapParameter*r)*std::abs(s*x12);
     double d   = dm/std::sqrt((1.-x12)*(1.+x12));
     
-    if (std::fabs(T1(2,2)) > 0.7) d*=(r/std::fabs(T1(2,3))); // endcap d = d*R/Z
+    if (std::abs(T1(2,2)) > 0.7) d*=(r/std::abs(T1(2,3))); // endcap d = d*R/Z
 
     stripLengthGapTolerance = d; 
     
@@ -702,13 +709,13 @@ namespace InDet {
     double b  = In0.strip_direction().dot(In1.normal());
     double l0 = In0.oneOverStrip()*slimit+limit ;
 
-    if(std::fabs(a) > (std::fabs(b)*l0)) return nullptr;
+    if(std::abs(a) > (std::abs(b)*l0)) return nullptr;
 
     double c  =-In1.traj_direction().dot(In0.normal());
     double d  = In1.strip_direction().dot(In0.normal()); 
     double l1 = In1.oneOverStrip()*slimit+limit ;
 
-    if(std::fabs(c) > (std::fabs(d)*l1)) return nullptr;
+    if(std::abs(c) > (std::abs(d)*l1)) return nullptr;
 
     double m = a/b;
 
@@ -723,7 +730,7 @@ namespace InDet {
         double dmn = (n-1.)*cs; 
         if(dmn > dm) dm = dmn;
         m-=dm; n-=(dm/cs);
-        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
+        if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
       } else if(m < -limit || n < -limit) {
         
         double cs  = In0.strip_direction().dot(In1.strip_direction())*(In0.oneOverStrip()*In0.oneOverStrip());
@@ -731,7 +738,7 @@ namespace InDet {
         double dmn = -(1.+n)*cs; 
         if(dmn > dm) dm = dmn;
         m+=dm; n+=(dm/cs);
-        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
+        if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
       }
     }
     Amg::Vector3D point(In0.position(m));

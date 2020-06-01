@@ -1,77 +1,11 @@
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/af41e7f170b] -- built on [2019-09-20T1552]
+Py:Athena            INFO using release [WorkDir-22.0.13] [x86_64-centos7-gcc8-opt] [atlas-work3g/4a25c3a12f4d] -- built on [2020-05-01T0612]
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
 Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
 Py:TileInfoLoaderCfg    INFO Adjusting TileInfo to return cell noise for Opt.Filter without iterations
 Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
 Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
 Py:ComponentAccumulator    INFO Condition Algorithms
-ComponentAccumulator: /***** Private AlgTool CaloEstimatedGainTool/CaloEstimatedGainTool *********************************
-|-ADC2MeVKey              = 'LArADC2MeV'  (default: 'ConditionStore+LArADC2MeV')
-|-AuditFinalize           = False
-|-AuditInitialize         = False
-|-AuditReinitialize       = False
-|-AuditRestart            = False
-|-AuditStart              = False
-|-AuditStop               = False
-|-AuditTools              = False
-|-DetStore                = ServiceHandle('StoreGateSvc/DetectorStore')
-|-EvtStore                = ServiceHandle('StoreGateSvc')
-|-ExtraInputs             = []  (default: [])
-|-ExtraOutputs            = []  (default: [])
-|-MonitorService          = 'MonitorSvc'
-|-OutputLevel             = 0
-|-TileCondIdTransforms    = PrivateToolHandle('TileCondIdTransforms/TileCondIdTransforms')
-|-TileCondToolEmscale     = PrivateToolHandle('TileCondToolEmscale/TileCondToolEmscale')
-|-TileCondToolNoiseSample = PrivateToolHandle('TileCondToolNoiseSample/TileCondToolNoiseSample')
-|=/***** Private AlgTool TileCondIdTransforms/TileCondIdTransforms ***********************************
-| |-AuditFinalize     = False
-| |-AuditInitialize   = False
-| |-AuditReinitialize = False
-| |-AuditRestart      = False
-| |-AuditStart        = False
-| |-AuditStop         = False
-| |-AuditTools        = False
-| |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-EvtStore          = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs       = []  (default: [])
-| |-ExtraOutputs      = []  (default: [])
-| |-MonitorService    = 'MonitorSvc'
-| |-OutputLevel       = 0
-| \----- (End of Private AlgTool TileCondIdTransforms/TileCondIdTransforms) --------------------------
-|=/***** Private AlgTool TileCondToolEmscale/TileCondToolEmscale *************************************
-| |-AuditFinalize     = False
-| |-AuditInitialize   = False
-| |-AuditReinitialize = False
-| |-AuditRestart      = False
-| |-AuditStart        = False
-| |-AuditStop         = False
-| |-AuditTools        = False
-| |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-EvtStore          = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs       = []  (default: [])
-| |-ExtraOutputs      = []  (default: [])
-| |-MonitorService    = 'MonitorSvc'
-| |-OutputLevel       = 0
-| |-TileEMScale       = 'TileEMScale'  (default: 'ConditionStore+TileEMScale')
-| \----- (End of Private AlgTool TileCondToolEmscale/TileCondToolEmscale) ----------------------------
-|=/***** Private AlgTool TileCondToolNoiseSample/TileCondToolNoiseSample *****************************
-| |-AuditFinalize         = False
-| |-AuditInitialize       = False
-| |-AuditReinitialize     = False
-| |-AuditRestart          = False
-| |-AuditStart            = False
-| |-AuditStop             = False
-| |-AuditTools            = False
-| |-DetStore              = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-EvtStore              = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs           = []  (default: [])
-| |-ExtraOutputs          = []  (default: [])
-| |-MonitorService        = 'MonitorSvc'
-| |-OutputLevel           = 0
-| |-TileEMScale           = 'ConditionStore+TileEMScale'
-| |-TileOnlineSampleNoise = ''  (default: 'ConditionStore+TileOnlineSampleNoise')
-| |-TileSampleNoise       = 'TileSampleNoise'  (default: 'ConditionStore+TileSampleNoise')
-| \----- (End of Private AlgTool TileCondToolNoiseSample/TileCondToolNoiseSample) --------------------
-\----- (End of Private AlgTool CaloEstimatedGainTool/CaloEstimatedGainTool) ------------------------
+ComponentAccumulator: CaloEstimatedGainTool(CaloEstimatedGainTool, ADC2MeVKey='LArADC2MeV', TileCondIdTransforms='TileCondIdTransforms(TileCondIdTransforms)', TileCondToolEmscale="TileCondToolEmscale(TileCondToolEmscale, TileEMScale='TileEMScale')", TileCondToolNoiseSample="TileCondToolNoiseSample(TileCondToolNoiseSample, TileOnlineSampleNoise='', TileSampleNoise='TileSampleNoise')")

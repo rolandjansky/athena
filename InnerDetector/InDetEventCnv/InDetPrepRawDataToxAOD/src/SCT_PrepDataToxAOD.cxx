@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,9 +17,11 @@
 #include "StoreGate/WriteHandle.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "CLHEP/Geometry/Point3D.h"
+
+#include <cmath>
 
 #define AUXDATA(OBJ, TYP, NAME)                                         \
   static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
@@ -377,7 +379,7 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
     for (const auto& hitIdentifier: prd->rdoList()) {
       ATH_MSG_DEBUG("Truth Strip " <<  diode.phiIndex() << " Cluster Strip " << m_SCTHelper->strip(hitIdentifier));
 
-      if (abs(static_cast<int>(diode.phiIndex()) - m_SCTHelper->strip(hitIdentifier))<=1) {
+      if (std::abs(static_cast<int>(diode.phiIndex()) - m_SCTHelper->strip(hitIdentifier))<=1) {
         multiMatchingHits.push_back(siHit);
         break;
       }
@@ -407,16 +409,16 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
 
       const double maxDiff{0.00005};
       // Check to see if the SiHits are compatible with each other.
-      if (fabs((highestXPos->localEndPosition().x()-(*siHitIter2)->localStartPosition().x()))<maxDiff and
-          fabs((highestXPos->localEndPosition().y()-(*siHitIter2)->localStartPosition().y()))<maxDiff and
-          fabs((highestXPos->localEndPosition().z()-(*siHitIter2)->localStartPosition().z()))<maxDiff) {
+      if (std::abs((highestXPos->localEndPosition().x()-(*siHitIter2)->localStartPosition().x()))<maxDiff and
+          std::abs((highestXPos->localEndPosition().y()-(*siHitIter2)->localStartPosition().y()))<maxDiff and
+          std::abs((highestXPos->localEndPosition().z()-(*siHitIter2)->localStartPosition().z()))<maxDiff) {
         highestXPos = *siHitIter2;
         ajoiningHits.push_back(*siHitIter2);
         // Dont use hit  more than once
         siHitIter2 = multiMatchingHits.erase(siHitIter2);
-      } else if (fabs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<maxDiff and
-                 fabs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<maxDiff and
-                 fabs((lowestXPos->localStartPosition().z()-(*siHitIter2)->localEndPosition().z()))<maxDiff) {
+      } else if (std::abs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<maxDiff and
+                 std::abs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<maxDiff and
+                 std::abs((lowestXPos->localStartPosition().z()-(*siHitIter2)->localEndPosition().z()))<maxDiff) {
         lowestXPos = *siHitIter2;
         ajoiningHits.push_back(*siHitIter2);
         // Dont use hit  more than once

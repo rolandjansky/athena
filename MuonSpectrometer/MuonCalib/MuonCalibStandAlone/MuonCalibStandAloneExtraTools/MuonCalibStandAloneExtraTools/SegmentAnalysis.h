@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_SegmentAnalysisH
@@ -13,7 +13,6 @@
 #include <iomanip>  
 #include <sstream> 
 
-// MuonCalib //
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
@@ -22,8 +21,6 @@
 
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
-//using namespace std;
 
 namespace MuonCalib{
 

@@ -66,6 +66,8 @@ class opt:
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
@@ -122,6 +124,7 @@ import TriggerJobOpts.Modifiers
 
 # Auto-configuration for athena
 if len(athenaCommonFlags.FilesInput())>0:
+    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
     import PyUtils.AthFile as athFile
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
@@ -200,6 +203,7 @@ if globalflags.DataSource.is_geant4():  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
                      'BFieldAutoConfig',
+                     'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'UseBeamSpotFlagForBjet',
@@ -331,9 +335,16 @@ if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
-        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-        xAODEventInfoCnvAlgDefault(sequence=topSequence)
+    if objKeyStore.isInInput("xAOD::EventInfo"):
+        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    else:
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg"):
+            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+            xAODEventInfoCnvAlgDefault(sequence=condSeq)
+else:
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -347,6 +358,8 @@ from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 svcMgr += RegSelSvcDefault()
 
 if TriggerFlags.doID():
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     include( "InDetRecExample/InDetRecCabling.py" )
 
 if TriggerFlags.doCalo():
@@ -376,6 +389,8 @@ if TriggerFlags.doID:
 
 
 
+isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -392,18 +407,14 @@ if globalflags.InputFormat.is_pool():
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif globalflags.InputFormat.is_bytestream():
-
-    # This is only needed running athena (as opposed to athenaHLT)
-    if not hasattr(svcMgr,"ByteStreamCnvSvc"):
-        from ByteStreamCnvSvc import ReadByteStream   # noqa
-        # Define the input
-        svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
-        theApp.ExtSvc += [ "ByteStreamCnvSvc"]
-
-    # Online specific setup of BS converters
-    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
-
+elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.isPartition:
+    if hasattr(svcMgr, "MetaDataSvc"):
+        # Need to set this property to ensure correct merging with MetaDataSvc from AthenaPoolCnvSvc/AthenaPool.py
+        # May be removed when the merging is fixed (or AthenaPool.py sets this property)
+        svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
+    # Set up ByteStream reading services
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
 
 # ---------------------------------------------------------------
 # Trigger config
@@ -416,8 +427,9 @@ from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFile
 generateL1Menu()
 createL1PrescalesFileFromMenu()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-svcMgr += getL1ConfigSvc()
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc,L1ConfigSvcCfg
+CAtoGlobalWrapper(L1ConfigSvcCfg,None)
+#svcMgr += getL1ConfigSvc()
 
 
 # ---------------------------------------------------------------
@@ -426,6 +438,8 @@ svcMgr += getL1ConfigSvc()
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
+
+
 
 
 # ---------------------------------------------------------------
@@ -444,8 +458,8 @@ if opt.doL1Unpacking:
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if opt.decodePhaseIL1:
-            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
-            topSequence += L1TriggerResultMaker()
+            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
         else:
             l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
@@ -454,7 +468,7 @@ if opt.doL1Unpacking:
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]
 
-        topSequence += l1decoder
+        topSequence += conf2toConfigurable(l1decoder)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
@@ -488,7 +502,7 @@ if not opt.createHLTMenuExternally:
 
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
-svcMgr += getHLTConfigSvc()
+svcMgr += conf2toConfigurable( getHLTConfigSvc() )
 setupHLTPrescaleCondAlg()
 
 if not opt.createHLTMenuExternally:
@@ -533,12 +547,8 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
 # Use parts of NewJO
 #-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior+=1
-from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Output flags
-isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
 if opt.doWriteRDOTrigger:
     if isPartition:
         log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
@@ -552,10 +562,12 @@ if opt.doWriteBS:
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 # ID Cache Creators
 ConfigFlags.lock()
-triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-Configurable.configurableRun3Behavior-=1
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
+
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:
@@ -577,11 +589,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
-
-    Configurable.configurableRun3Behavior+=1
-    acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
-    Configurable.configurableRun3Behavior-=1
-    acc.appendToGlobals()
+    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
@@ -605,6 +613,11 @@ if opt.reverseViews or opt.filterViews:
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------
 include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-------------------------------------------------------------
 # Print top sequence

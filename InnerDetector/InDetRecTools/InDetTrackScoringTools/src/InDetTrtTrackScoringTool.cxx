@@ -14,7 +14,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "TMath.h"
 #include <vector>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -31,8 +30,7 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   m_maxTrtFittedRatio(-1),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_trkSummaryTool("Trk::TrackSummaryTool"),
-  m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_selectortool("InDet::InDetTrtDriftCircleCutTool")
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -50,7 +48,6 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   declareProperty("UseParameterization",     m_parameterization = true);
   declareProperty("OldTransitionLogic" ,     m_oldLogic         = false);
   declareProperty("minTRTPrecisionFraction", m_minTRTprecision  = 0.5);
-  declareProperty("MagFieldSvc",             m_magFieldSvc);
   m_summaryTypeScore[Trk::numberOfTRTHits]	        =   1;  // 10 straws ~ 1 SCT
   m_summaryTypeScore[Trk::numberOfTRTHighThresholdHits] =   0;  // addition for being TR
     
@@ -87,15 +84,6 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
     msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
-  sc =  m_magFieldSvc.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
-  }
-
   sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
@@ -103,6 +91,9 @@ StatusCode InDet::InDetTrtTrackScoringTool::initialize()
   }
 
   if(m_useAmbigFcn) setupTRT_ScoreModifiers();
+
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -163,7 +154,18 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::simpleScore( const Trk::Track& 
   const Trk::TrackParameters* input = track.trackParameters()->front();
 
   ///Reject track below the pT cut
-  if (m_magFieldSvc->solenoidOn()) {
+
+  EventContext ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("simpleScore: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return Trk::TrackScore(0);
+  }
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()){//B field
     if(input->pT() < m_ptmin) {
       ATH_MSG_DEBUG( "Reject track below Pt cut !");
       return Trk::TrackScore(0);

@@ -16,7 +16,7 @@
 
 InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 (const std::string& name,ISvcLocator* pSvcLocator) :
-	AthAlgorithm(name, pSvcLocator) {
+	AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -38,11 +38,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TRT_TrackExtensionAlg::execute() {
-  return execute_r( Gaudi::Hive::currentContext() );
-}
-
-StatusCode InDet::TRT_TrackExtensionAlg::execute_r(const EventContext& ctx) const {
+StatusCode InDet::TRT_TrackExtensionAlg::execute(const EventContext& ctx) const {
         Counter_t counter;
 
 	// Get input tracks collection
@@ -53,7 +49,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute_r(const EventContext& ctx) cons
 	}
 
         std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
-           event_data_p( m_trtExtension->newEvent() );
+           event_data_p( m_trtExtension->newEvent(ctx) );
 
 	// Loop through all input track and output tracks collection production
 	SG::WriteHandle<TrackExtensionMap> outputTracks(m_outputTracksKey,ctx);
@@ -64,7 +60,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute_r(const EventContext& ctx) cons
 		if ( !(*trk) ) continue;
 		++counter.m_nTracks;
 
-		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(*(*trk), *event_data_p);
+		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(ctx, *(*trk), *event_data_p);
 		if( !trkExt.size() ) continue;
 
 		outputTracks->insert( std::make_pair((*trk), trkExt) ); 

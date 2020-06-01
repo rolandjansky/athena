@@ -133,4 +133,8 @@ def createDetectorConfigFlags():
                                                              prevFlags.Detector.OverlaysTGC or prevFlags.Detector.OverlayMM))
     dcf.addFlag('Detector.Overlay',      lambda prevFlags : (prevFlags.Detector.OverlayID or prevFlags.Detector.OverlayCalo or
                                                              prevFlags.Detector.OverlayMuon))
+    # flag to generally turn off the Pixel detector
+    # TODO: can these replace other (more fine-grained) flags that only turned off subdetector systems for certain tasks (e.g. DCS)?
+    dcf.addFlag('Detector.PixelOn', True)
+    dcf.addFlag('Detector.SCTOn', True)
     return dcf

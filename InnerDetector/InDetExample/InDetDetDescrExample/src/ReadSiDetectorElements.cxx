@@ -660,11 +660,10 @@ ReadSiDetectorElements::testElement(const Identifier & id,
 
 std::string 
 ReadSiDetectorElements::printElementId(const SiDetectorElement * element) const{
-  static const std::string noElementString("NONE");
   if (element) {
     return element->getIdHelper()->show_to_string(element->identify());
   } else {
-    return noElementString;
+    return "NONE";
   }
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

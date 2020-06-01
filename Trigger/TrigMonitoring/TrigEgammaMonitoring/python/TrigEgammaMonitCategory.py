@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+
+
+
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
 primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e28_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e80_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']

@@ -31,7 +31,6 @@ class cscIdHelper;
 class TFile;
 class IdentifierHash;
 class CscCondDbData;
-//class ICscCalibTool;
 
 namespace Muon {
   class ICSC_RDO_Decoder;
@@ -54,7 +53,7 @@ namespace MuonCalib{
   {
     public:
       CscCalcPed(const std::string& name, ISvcLocator* pSvcLocator);
-      ~CscCalcPed(void);
+      ~CscCalcPed()=default;
 
       /**basic required functions*/
       StatusCode initialize(void);

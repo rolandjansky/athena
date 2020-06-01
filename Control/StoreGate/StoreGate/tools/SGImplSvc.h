@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_SGIMPLSVC_H
@@ -30,7 +30,7 @@
 
 #include <cstddef>                     // for size_t
 #include <list>
-#include <memory>                       /* auto_ptr */
+#include <memory>                     
 #include <string>
 #include <sys/types.h>                  // for off_t
 #include <vector>                       

@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraUtils/MuonCalibSLPropagator.h"
 #include "MuonCalibExtraUtils/MuonCalibSimpleGeometry.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 
 namespace MuonCalib {
@@ -13,7 +16,7 @@ namespace MuonCalib {
 							       const Amg::Vector3D& planePos, const Amg::Vector3D& planeNormal ) const {
     
     double denom = dir.dot(planeNormal);
-    if( fabs(denom) < 0.00001 ) denom = 0.00001;
+    if( std::abs(denom) < 0.00001 ) denom = 0.00001;
     double u = (planeNormal.dot(planePos - pos))/(denom);
     return pos + u * dir;
   }
@@ -32,7 +35,7 @@ namespace MuonCalib {
     double sinThsqinv	= 1./dir.perp2();
     double stepLength	= (-pos.x()*dir.x() - pos.y()*dir.y())* sinThsqinv;
     double deltaRSq	= (radiusCylinder*radiusCylinder - pos.perp2())*sinThsqinv + stepLength*stepLength;
-    if (deltaRSq > 0.)  stepLength += sqrt(deltaRSq);
+    if (deltaRSq > 0.)  stepLength += std::sqrt(deltaRSq);
 
     return pos + dir*stepLength;
   }
@@ -68,8 +71,8 @@ namespace MuonCalib {
 
     const MuonCalibCylinder* cylinder = dynamic_cast<const MuonCalibCylinder*>(&surf);
     if( cylinder ) return propagate(pos,dir,*cylinder);
-    
-    std::cout << " propagation failed, unkown surface type" << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"MuonCalibSLPropagator");
+    log<<MSG::WARNING<<"propagation failed, unkown surface type"<<endmsg;
     return Amg::Vector3D(0.,0.,0.);
   }
 

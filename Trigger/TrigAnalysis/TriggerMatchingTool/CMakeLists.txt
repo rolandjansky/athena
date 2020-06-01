@@ -19,9 +19,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Trigger/TrigAnalysis/TrigDecisionTool
    Trigger/TrigEvent/TrigNavStructure
-   Trigger/TrigEvent/TrigDecisionInterface
    PRIVATE
    Event/FourMomUtils
+   Event/xAOD/xAODTrigger
    ${extra_deps} )
 
 # External dependencies:
@@ -34,8 +34,7 @@ atlas_add_library( TriggerMatchingToolLib
    PUBLIC_HEADERS TriggerMatchingTool
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODBase TrigNavStructure TrigDecisionToolLib
-   TrigDecisionInterface
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} FourMomUtils xAODTrigger )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TriggerMatchingTool

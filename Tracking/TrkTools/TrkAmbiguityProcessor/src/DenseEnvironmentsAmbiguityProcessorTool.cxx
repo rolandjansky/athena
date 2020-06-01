@@ -6,7 +6,6 @@
 #include "TrackScoringTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -16,17 +15,16 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
-#include <map>
-#include <ext/functional>
 #include <iterator>
 #include "TString.h"
 
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetIdentifier/PixelID.h"
+#include <cmath>
 
 //TODO: to be improved
-bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack( const Trk::Track *track) const {
 	  if (!track )return true;
 	
 	  bool error=false;
@@ -36,7 +34,7 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track
 	      if (param && param->covariance() && param->covariance()->determinant() < 0) {
 	        ATH_MSG_DEBUG( " negative determinant for track param " << counter << " "
 	                       << *(param)  << " cov=" << *(param->covariance())
-	                       << std::endl
+	                       << "\n"
 	                       << " det=" << param->covariance()->determinant() );
 	        error=true;
 	      }
@@ -115,20 +113,8 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
    }
 
   ATH_CHECK( m_extrapolatorTool.retrieve());
-  
-  sc = detStore()->retrieve(m_pixelId, "PixelID");
-  if (sc.isFailure())
-  {
-    ATH_MSG_FATAL( "Could not get PixelID helper !" );
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore()->retrieve(m_idHelper, "AtlasID");
-  if (sc.isFailure())
-  {
-    ATH_MSG_FATAL( "Could not get AtlasDetectorID helper" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_pixelId, "PixelID"));
+  ATH_CHECK( detStore()->retrieve(m_idHelper, "AtlasID"));
   
   // Configuration of the material effects
   Trk::ParticleSwitcher particleSwitch;
@@ -163,32 +149,41 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
 {
   if (msgLvl(MSG::INFO)) {
      MsgStream &out=msg(MSG::INFO);
-     out << " -- statistics " << std::endl;
+     out << " -- statistics \n";
      std::lock_guard<std::mutex> lock( m_statMutex );
      m_stat.dump(out, m_tryBremFit);
      out << endmsg;
   }
-  }
+}
 
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
+   auto parseFileName=[](const std::string & fullname){
+    auto dotPosition = fullname.rfind(".");
+    auto slashPosition = fullname.rfind("/");
+    auto stringLength = dotPosition - slashPosition;
+    return fullname.substr(slashPosition, stringLength);
+   };
    // @TODO restore ios
-   std::streamsize ss = std::cout.precision();
+   std::streamsize ss = out.precision();
    int iw=9;
-   out << "------------------------------------------------------------------------------------" << std::endl;
-   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << std::endl;
+   out << "Output from ";
+   out << parseFileName(__FILE__);
+   out << "::";
+   out << __func__;
+   out << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
+   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << "\n";
    if (m_globalCounter[kNInvalidTracks]>0) {
-      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << std::endl;
+      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << "\n";
    }
    if (m_globalCounter[kNTracksWithoutParam]>0) {
-      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << std::endl;
+      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << "\n";
    }
-   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of candidates at input   :",    kNcandidates,iw);
-   //   dumpStatType(out, "  - candidates rejected score 0   :",    kNcandScoreZero,iw);
-   //   dumpStatType(out, "  - candidates rejected as double :",    kNcandDouble,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  candidates with good score      :",    kNscoreOk,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  + recovered after brem refit    :", kNscoreZeroBremRefit,iw);
@@ -198,28 +193,28 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &ou
       dumpStatType(out, "  + m refit                       :", kNscoreZeroBremRefitFailed,iw);
       dumpStatType(out, "  + rejected brem refit score 0   :", kNscoreZeroBremRefitScoreZero,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  number of normal fits           :" ,   kNfits,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  + 2nd brem fit for failed fit   :", kNrecoveryBremFits,iw);
       dumpStatType(out, "  normal brem fits for electrons  :", kNbremFits,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  sum of succesful fits           :",    kNgoodFits,iw);
    dumpStatType(out, "  sum of failed fits              :",    kNfailedFits,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of subtracks created     :",    kNsubTrack,iw);
    dumpStatType(out, "  Number of candidates excluded   :",    kNnoSubTrack,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of tracks accepted       :",    kNaccepted,iw);
    if (try_brem_fit) {
       dumpStatType(out, "  including number of brem fits   :", kNacceptedBrem,iw);
    }
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
        << "    definition: ( 0.0 < Barrel < " << (*m_etabounds)[iBarrel-1] << " < Transition < " << (*m_etabounds)[iTransi-1]
-       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
   }
 
@@ -297,80 +292,55 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
 
   // @TODO create track summary for track
   score = m_scoringTool->score( *track, suppressHoleSearch );
-
   // do we accept the track ?
-  if (score!=0)
-  {
+  if (score!=0){
     ATH_MSG_DEBUG ("Track  ("<< track <<") has score "<<score);
     // add track to map, map is sorted small to big !
     scoreTrackFitflagMap.emplace(-score, TrackPtr(track, fitted) );
     return;
   }
-
   // do we try to recover the track ?
-  if (score==0 && fitted && m_tryBremFit &&
+  if ( fitted && m_tryBremFit &&
       !track->info().trackProperties(Trk::TrackInfo::BremFit) &&
       track->trackParameters()->front()->pT() > m_pTminBrem &&
       (!m_caloSeededBrem || track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
   {
-
     ATH_MSG_DEBUG ("Track score is zero, try to recover it via brem fit");
     // run track fit using electron hypothesis
     Trk::Track* bremTrack = fit(*track,true,Trk::electron);
-
-    if (!bremTrack)
-    {
+    if (!bremTrack){
       ATH_MSG_DEBUG ("Brem refit failed, drop track");
       stat.increment_by_eta(TrackStat::kNscoreZeroBremRefitFailed,track);
       stat.increment_by_eta(TrackStat::kNfailedFits,track);
-
       // clean up
       cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
       track=nullptr;
-      
-    }
-    else
-    {
+    } else {
       if (m_trackSummaryTool.isEnabled()) {
-         m_trackSummaryTool->computeAndReplaceTrackSummary(*bremTrack,
-                                                           &prd_to_track_map,
-                                                           m_suppressHoleSearch);
+         m_trackSummaryTool->computeAndReplaceTrackSummary(*bremTrack,&prd_to_track_map,m_suppressHoleSearch);
       }
-
       stat.increment_by_eta(TrackStat::kNgoodFits,bremTrack);
-
       // rerun score
       score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
-
       cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
       track=nullptr;
-
       // do we accept the track ?
-      if (score!=0)
-      {
+      if (score!=0){
         ATH_MSG_DEBUG ("Brem refit successful, recovered track  ("<< track <<") has score "<<score);
         stat.increment_by_eta(TrackStat::kNscoreZeroBremRefit,bremTrack);
-
         // add track to map, map is sorted small to big !
         scoreTrackFitflagMap.emplace( -score, TrackPtr(bremTrack, true) );
         return;
-      }
-      else
-      {
+      } else {
         ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
         stat.increment_by_eta(TrackStat::kNscoreZeroBremRefitScoreZero,bremTrack);
-
         // clean up
         cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(bremTrack) );
       }
     }
-  }
-  else  
-  {
+  } else {
     ATH_MSG_DEBUG ("Track score is zero, reject it");
-
     stat.increment_by_eta(TrackStat::kNscoreZero,track);
-
     // @TODO can delete this track ?
     cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
   }
@@ -408,7 +378,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
     std::unique_ptr<Trk::Track> cleanedTrack;
     auto [cleanedTrack_tmp, keep_orig] = m_selectionTool->getCleanedOutTrack( atrack.track() , -ascore, prd_to_track_map);
     cleanedTrack.reset(cleanedTrack_tmp);
-    ATH_MSG_DEBUG ("--- cleand next track "<< cleanedTrack.get());
+    ATH_MSG_DEBUG ("--- cleaned next track "<< cleanedTrack.get());
 
 
     // cleaned track is input track and fitted
@@ -696,8 +666,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
   } else{
     ATH_MSG_VERBOSE("Distance dR map recorded as '" << m_dRMap.key() <<"'.");
   }
-
-  for (auto track : tracks){
+  constexpr double twoPi = 2.*M_PI;
+  for (const auto & track : tracks){
       bool refit = false;
       const DataVector<const TrackStateOnSurface>* tsosVec = track->trackStateOnSurfaces();  
       if(!tsosVec){
@@ -705,17 +675,16 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
         continue;   
       }  
       ATH_MSG_VERBOSE("---> Looping over TSOS's to allow  for cluster updates: "<< tsosVec->size() );
-      for(auto tsos : *tsosVec){
+      for(const auto & tsos : *tsosVec){
           const MeasurementBase* measurement = tsos->measurementOnTrack(); 
           if(!measurement || ! tsos->trackParameters()){
             ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << tsos->trackParameters() );
             continue;           
           }
-          
           if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) {continue;}
-          
           auto globalPosition = measurement->globalPosition();
-          double radius = sqrt(globalPosition[0]*globalPosition[0]+globalPosition[1]*globalPosition[1]);
+          const double radius = std::sqrt(globalPosition[0]*globalPosition[0]+globalPosition[1]*globalPosition[1]);
+          const double invRadius{1./radius};
           // get the associated prd
           const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*> ( measurement );
           if(!rio){
@@ -731,37 +700,35 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
           
           double yOnPix = trackParams->position().y();
           double zOnPix = trackParams->position().z();
-          
-          double Pi = acos(0);
-          double twoPi = 2.*Pi;
-          
+
           // now, find closest track  
-          double dr = 0.; 
           double mindR = 99999999.;
           double mindX = 99999999.;
           double mindZ = 99999999.;
-          
-          for (auto track2 : tracks){
+          //
+          const double eta1{track->perigeeParameters()->momentum().eta()};
+          const double phi1{track->perigeeParameters()->momentum().phi()};
+          for (const auto & track2 : tracks){
               if(track==track2) continue;
-              float dEta = track->perigeeParameters()->momentum().eta() - track2->perigeeParameters()->momentum().eta();
-              float dPhi2 = track->perigeeParameters()->momentum().phi() - track2->perigeeParameters()->momentum().phi();
-              dr =  sqrtf(dEta*dEta + dPhi2*dPhi2);
+              float dEta = eta1 - track2->perigeeParameters()->momentum().eta();
+              float dPhi2 = phi1 - track2->perigeeParameters()->momentum().phi();
+              double dr =  std::sqrt(dEta*dEta + dPhi2*dPhi2);
               if(dr>0.4) continue;
               
               //extrapolation to pixel hit radius
               const TrackParameters * track2Params = m_extrapolatorTool->extrapolate(*track2,iblSurface);
           
-              double y2OnPix = track2Params->position().y();
-              double z2OnPix = track2Params->position().z();
+              const double y2OnPix = track2Params->position().y();
+              const double z2OnPix = track2Params->position().z();
               
-              float dPhi = asin(yOnPix/radius) -asin(y2OnPix/radius);
-              if (dPhi >= Pi) dPhi -= twoPi;
-              if (dPhi < -Pi) dPhi += twoPi;
+              float dPhi = std::asin(yOnPix*invRadius) - std::asin(y2OnPix*invRadius);
+              if (dPhi >= M_PI) dPhi -= twoPi;
+              if (dPhi < -M_PI) dPhi += twoPi;
               
-              double dx = fabs(radius*dPhi);
-              double dz = fabs(zOnPix - z2OnPix);
+              const double dx = std::abs(radius*dPhi);
+              const double dz = std::abs(zOnPix - z2OnPix);
               if(dx>mindX && dz>mindZ) continue;
-              dr = sqrt(dx*dx + dz*dz);
+              dr = std::sqrt(dx*dx + dz*dz);
               
               if(dr<mindR && dr > 1.e-4){
                   mindR = dr;
@@ -775,9 +742,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
          ret = dRMapHandle->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
          // if we already have a dR for this prd, we update it, if current value is smaller
          if (!ret.second) {
-            InDet::DRMap::iterator it;
-            it = dRMapHandle->find(pixel);
-            if(sqrt(pow((*it).second.first,2)+pow((*it).second.second,2)) > (float)mindR) {
+            InDet::DRMap::iterator it{dRMapHandle->find(pixel)};
+            if(std::sqrt(std::pow((*it).second.first,2)+std::pow((*it).second.second,2)) > (float)mindR) {
                 (*it).second.first  = (float)mindX;
                 (*it).second.second = (float)mindZ;
 	        }
@@ -824,14 +790,13 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::isHadCaloCompatible(const Trk
   double E = Tp.eta();
   
   for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if(df > pi        ) df = fabs(pi2-df);
+    double df = std::abs(F-(*f));
+    if(df > pi        ) df = std::abs(pi2-df);
     if(df < m_phiWidth) {
       //Correct eta of cluster to take into account the z postion of the track
       double newZ   = *z - Tp.position().z();
-      double newEta =  atanh( newZ / sqrt( (*r) * (*r) + newZ*newZ ) );
-  
-      double de = fabs(E-newEta);
+      double newEta =  std::atanh( newZ / std::sqrt( (*r) * (*r) + newZ*newZ ) );
+      double de = std::abs(E-newEta);
       if(de < m_etaWidth) return true;
     }
     ++e;

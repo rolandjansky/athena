@@ -9,6 +9,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "AsgTools/ToolHandleArray.h"
 
@@ -30,13 +32,13 @@ namespace CP {
             MuonEfficiencyCorrections_TestAlg(const std::string& name, ISvcLocator* svcLoc);
 
             /// Function initialising the algorithm
-            virtual StatusCode initialize();
+            StatusCode initialize() override;
             /// Function executing the algorithm
-            virtual StatusCode execute();
-            virtual ~MuonEfficiencyCorrections_TestAlg() {
-            }
+            StatusCode execute() override;
+            virtual ~MuonEfficiencyCorrections_TestAlg() = default;
 
         private:
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
             /// muon container
             std::string m_sgKey;
             ServiceHandle<ITHistSvc> m_histSvc;

@@ -6,18 +6,12 @@ from TrigT2MinBias.TrigT2MinBiasConf import T2MbtsFex, T2MbtsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePoints, TrigCountSpacePointsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountTrtHits, TrigCountTrtHitsHypo
 
-#from TrigOnlineSpacePointTool.TrigOnlineSpacePointTool_Config import ConfiguredOnlineSpacePointProviderTool
-from TrigOfflineDriftCircleTool.TrigOfflineDriftCircleTool_Config import ConfiguredTrigTRT_DriftCircleProviderTool
-
 # Monitoring
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
 # Properties for histogram dimensions
 from TrigT2MinBias.TrigT2MinBiasProperties import trigT2MinBiasProperties
-
-#ospTool = ConfiguredOnlineSpacePointProviderTool()
-trtTool = ConfiguredTrigTRT_DriftCircleProviderTool
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -1029,72 +1023,6 @@ hypos["L2MbSpMhNoPixHypo_hip_4400"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_h
 hypos["L2MbSpMhNoPixHypo_hip_4600"] = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_4600", 4600.)
 
 
-
-
-#-----------------------------------------------------------------------
-# TRT algos configurable
-
-class MbTrtFex ( TrigCountTrtHits ) :
-    __slots__ = []
-    def __init__ (self, name="MbTrtFex"):
-        super(MbTrtFex, self).__init__(name)
-
-        # Set the histogram dimensions from TrigT2MinBiasProperties.
-        self.TotBins = trigT2MinBiasProperties.trtHitTotBins()
-        self.TotMin = trigT2MinBiasProperties.trtHitTotMin()
-        self.TotMax = trigT2MinBiasProperties.trtHitTotMax()
-
-        self.TrtDataProviderTool =  trtTool
-
-        time = TrigTimeHistToolConfig("MbTrtFexTimers")
-        time.NumberOfHistBins = 100
-        time.TimerHistLimits = [0, 500]
-        self.AthenaMonTools += [ MbTrtFexMonitoring(), time]
-
-fexes["L2MbTrtFex"] = MbTrtFex("L2MbTrtFex")
-
-MbTrtFex_1 = MbTrtFex # remove once cosmic clice migrated
-
-
-class MbTrtHypo ( TrigCountTrtHitsHypo ):
-    __slots__ = []
-    def __init__ (self, name="MbTrtHypo"):
-        super(MbTrtHypo, self).__init__(name)
-
-        time = TrigTimeHistToolConfig("MbTrtHypoTimers")
-        time.NumberOfHistBins = 100
-        time.TimerHistLimits = [0, 100]
-        self.AthenaMonTools += [ MbTrtHypoMonitoring(), time]
-
-MbTrtHypo_1 = MbTrtHypo # remove once cosmic clice migrated
-
-
-#Trt hypo configurables
-L2MbTrtHypo =  MbTrtHypo("L2MbTrtHypo")
-L2MbTrtHypo.AcceptAll = False
-L2MbTrtHypo.TimeOverThresholdCut = 18
-L2MbTrtHypo.TrtHitsEndcaps = 60.
-L2MbTrtHypo.TotalTrtHits = -1.
-
-hypos["L2MbTrtHypo"] = L2MbTrtHypo
-
-#...PT version
-L2MbTrtHypo_PT = MbTrtHypo("L2MbTrtHypo_PT") # Pass through
-L2MbTrtHypo_PT.AcceptAll = True
-del L2MbTrtHypo_PT.AthenaMonTools["MbTrtHypoTimers"]  # remove timing tools
-
-hypos["L2MbTrtHypo_PT"] = L2MbTrtHypo_PT
-
-# ...cos version
-L2MbTrtHypo_cos =  MbTrtHypo("L2MbTrtHypo_cos")
-L2MbTrtHypo_cos.AcceptAll = False
-L2MbTrtHypo_cos.TimeOverThresholdCut = 18
-L2MbTrtHypo_cos.TrtHitsEndcaps = 7500.
-L2MbTrtHypo_cos.TotalTrtHits = -1.
-del L2MbTrtHypo_cos.AthenaMonTools["MbTrtHypoTimers"]  # remove timing tools
-
-
-hypos["L2MbTrtHypo_cos"] = L2MbTrtHypo_cos
 
 
 #-----------------------------------------------------------------------

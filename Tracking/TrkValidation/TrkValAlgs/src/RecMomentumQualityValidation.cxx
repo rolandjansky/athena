@@ -11,7 +11,7 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkParameters/TrackParameters.h"
 //#include "TrkParameters/Perigee.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"

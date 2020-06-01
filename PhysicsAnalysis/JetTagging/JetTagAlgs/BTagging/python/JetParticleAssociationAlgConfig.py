@@ -6,7 +6,7 @@ from BTagging.JetParticleAssociationConfig import JetParticleAssociationCfg
 from BTagging.BTagTrackToJetAssociatorConfig import BTagTrackToJetAssociatorCfg
 
 # import the JetBTaggerAlg configurable
-Analysis__JetParticleAssociationAlg=CompFactory.Analysis__JetParticleAssociationAlg
+Analysis__JetParticleAssociationAlg=CompFactory.Analysis.JetParticleAssociationAlg
 
 def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", ParticleCollection="", AssociationName="", **options):
 

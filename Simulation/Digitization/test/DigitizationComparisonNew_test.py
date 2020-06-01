@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG, WARNING
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
@@ -49,12 +49,13 @@ ConfigFlags.Digitization.TruthOutput = True
 ConfigFlags.Digitization.RandomSeedOffset = 170
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Concurrency.NumConcurrentEvents = 1
 ConfigFlags.Tile.BestPhaseFromCOOL = False
 ConfigFlags.Tile.correctTime = False
 ConfigFlags.lock()
 
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PoolWriteCfg(ConfigFlags))
 acc.merge(writeDigitizationMetadata(ConfigFlags))
@@ -80,17 +81,20 @@ acc.merge(CSC_DigitizationDigitToRDOCfg(ConfigFlags))
 acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
 
 # FIXME hack to match to buggy behaviour in old style configuration
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["EventInfo#*"]
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
+OutputStreamRDO = acc.getEventAlgo("OutputStreamRDO")
+OutputStreamRDO.ItemList += ["EventInfo#*"]
+OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
+OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
 # FIXME this is marked "# Temporary for debugging MBTSHits" in DigiOutput.py
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
+OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
 # for Tile
 # new style configures these, but they are left default in old config
-acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMaxForAmpCorrection = 25.
-acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMinForAmpCorrection = -25.
-acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMaxForAmpCorrection = 25.
-acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMinForAmpCorrection = -25.
+TilePulseForTileMuonReceiver = acc.getEventAlgo("TilePulseForTileMuonReceiver")
+TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMaxForAmpCorrection = 25.
+TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMinForAmpCorrection = -25.
+TileRChMaker = acc.getEventAlgo("TileRChMaker")
+TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMaxForAmpCorrection = 25.
+TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMinForAmpCorrection = -25.
 
 # Dump config
 acc.merge(JobOptsDumperCfg(ConfigFlags))

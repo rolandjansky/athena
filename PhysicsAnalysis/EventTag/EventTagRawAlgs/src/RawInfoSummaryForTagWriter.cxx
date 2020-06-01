@@ -22,8 +22,7 @@
 
 RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
                                  ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_fieldServiceHandle("AtlasFieldSvc",name)
+  AthAlgorithm(name,pSvcLocator)
 {
   declareProperty("IDTrackKey",m_sgKeyIDtrack);
   declareProperty("CaloCellContKey", m_cellContKey="AllCalo");
@@ -33,12 +32,10 @@ RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
   declareProperty("TRT_DriftCircleContainerName", m_TRT_DriftCircleName="TRT_DriftCircles");
   declareProperty("SCT_SpacePointName",m_sctSpacePointName="SCT_SpacePoints");
   declareProperty("Pixel_SpacePointName",m_pixSpacePointName="PixelSpacePoints");
-  declareProperty("BCM_RDOName", m_bcmRDOName="BCM_RDOs");
   declareProperty("TRT_PhaseName", m_trtPhaseName="");//"TRT_Phase");
   declareProperty("MBTSName",m_mbtsName="MBTSContainer");
   declareProperty("MBTSCollTimeKey",m_MBTSCollTimeKey="MBTSCollisionTime");
   declareProperty("MBTS_Threshold",  m_mbts_threshold = 40.0/222.0 );  // Value in pC
-  declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
   declareProperty("OutputKey", m_RISFTKey="RawInfoSummaryForTag");
 }
 
@@ -63,7 +60,6 @@ StatusCode RawInfoSummaryForTagWriter::initialize()
     return StatusCode::FAILURE;
   }
   
-  ATH_CHECK(m_fieldServiceHandle.retrieve());
   ATH_CHECK(m_sgKeyIDtrack.initialize());
   ATH_CHECK(m_cellContKey.initialize());
   if(m_doClusterSums)  {
@@ -75,13 +71,14 @@ StatusCode RawInfoSummaryForTagWriter::initialize()
   ATH_CHECK(m_MBTSCollTimeKey.initialize());
   ATH_CHECK(m_sctSpacePointName.initialize());
   ATH_CHECK(m_pixSpacePointName.initialize());
-  ATH_CHECK(m_bcmRDOName.initialize());
   ATH_CHECK(m_mbtsName.initialize());
   ATH_CHECK(m_larCollTimeName.initialize());
   if (!m_trtPhaseName.key().empty()) {
     ATH_CHECK(m_trtPhaseName.initialize());
   }
+  ATH_CHECK(m_bcmRDOName.initialize(!m_bcmRDOName.key().empty()));
   ATH_CHECK(m_RISFTKey.initialize());
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   return StatusCode::SUCCESS;  
 }
 
@@ -115,6 +112,17 @@ StatusCode RawInfoSummaryForTagWriter::execute()
    // input Track Collection
    int totNPixHits(0),totNSCTHits(0),totNTRTHits(0);
    
+   MagField::AtlasFieldCache    fieldCache;
+   // Get field cache object
+   EventContext ctx = Gaudi::Hive::currentContext();
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  
+   if (fieldCondObj == nullptr) {
+     ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+     return StatusCode::FAILURE;
+   }
+   fieldCondObj->getInitializedCache (fieldCache);
 
    SG::ReadHandle<TrackCollection> tracks{m_sgKeyIDtrack};
    for (const Trk::Track* track : *tracks) {
@@ -128,7 +136,7 @@ StatusCode RawInfoSummaryForTagWriter::execute()
      if (nSCTHits>0) totNSCTHits++;
      if (nTRTHits>0) totNTRTHits++;
 
-     if(m_fieldServiceHandle->solenoidOn()){
+     if(fieldCache.solenoidOn()){
        const Trk::Perigee* perigee = track->perigeeParameters(); 
        if(!perigee) continue;
        if(perigee->parameters()[Trk::qOverP]!=0){
@@ -336,26 +344,28 @@ StatusCode RawInfoSummaryForTagWriter::execute()
    // BCM tag bit
 
    unsigned int bcmHit=0;
-
-   SG::ReadHandle<BCM_RDO_Container> bcmRDO(m_bcmRDOName);
-   int num_collect = bcmRDO->size();
-   if ( num_collect != 16 ){
-     ATH_MSG_WARNING (" Number of collections: " << num_collect);
-   }
    
-   BCM_RDO_Container::const_iterator chan_itr = bcmRDO->begin();
-   BCM_RDO_Container::const_iterator chan_itr_end = bcmRDO->end();  
-   for (; chan_itr != chan_itr_end; chan_itr++) {
-     // Loop over all BCM hits in this collection
-     BCM_RDO_Collection::const_iterator bcm_itr = (*chan_itr)->begin();
-     BCM_RDO_Collection::const_iterator bcm_itr_end = (*chan_itr)->end();
-       
-     for (; bcm_itr != bcm_itr_end; bcm_itr++) {
-       if ((*bcm_itr)->getPulse1Width() != 0 || (*bcm_itr)->getPulse2Width() != 0) {
-	 bcmHit++;
-       }
-     } // end of loop over raw data
-   } // end of loop over collections
+   if (!m_bcmRDOName.key().empty()) {
+       SG::ReadHandle<BCM_RDO_Container> bcmRDO(m_bcmRDOName);
+    int num_collect = bcmRDO->size();
+    if ( num_collect != 16 ){
+       ATH_MSG_WARNING (" Number of collections: " << num_collect);
+    }
+
+    BCM_RDO_Container::const_iterator chan_itr = bcmRDO->begin();
+    BCM_RDO_Container::const_iterator chan_itr_end = bcmRDO->end();  
+    for (; chan_itr != chan_itr_end; chan_itr++) {
+       // Loop over all BCM hits in this collection
+       BCM_RDO_Collection::const_iterator bcm_itr = (*chan_itr)->begin();
+       BCM_RDO_Collection::const_iterator bcm_itr_end = (*chan_itr)->end();
+
+       for (; bcm_itr != bcm_itr_end; bcm_itr++) {
+        if ((*bcm_itr)->getPulse1Width() != 0 || (*bcm_itr)->getPulse2Width() != 0) {
+	  bcmHit++;
+        }
+       } // end of loop over raw data
+    } // end of loop over collections
+   }
    RISFTobject->setBCMHit(bcmHit);
 
 

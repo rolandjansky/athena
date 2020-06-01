@@ -216,7 +216,6 @@ bool fillFromScalarIndependentScopes( ToolHandle<GenericMonitoringTool>& monTool
 
 bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-
   auto fill = [&]() {
     //! [fill2D_correct]
     // For 2D histogram to be filled the two histogrammed variables need to be grouped.
@@ -266,6 +265,29 @@ bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
   return true;
 }
+
+
+bool fillProfile( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+
+  auto fill = [&]() {
+    auto pt = Monitored::Scalar<double>( "pt", 3.0 );
+    auto eta = Monitored::Scalar( "Eta", 0.2 );
+    auto group = Monitored::Group( monTool, eta, pt );
+    return 1;
+  };
+
+  auto check = [&](size_t N) {
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 1 ) ) EXPECTED( 0 );
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 2 ) ) EXPECTED( 3 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta" )->GetEntries() ) EXPECTED( N );
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
 
 bool fillExplicitly( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
@@ -429,7 +451,7 @@ bool fillFromNonTrivialSources( ToolHandle<GenericMonitoringTool>& monTool, ITHi
   {
     //! [fillFromNonTrivialSources_collection]
     std::vector<float> eta( {0.2, 0.1} );
-    std::set<double> phi( {-1, 1} ) ;
+    std::vector<double> phi( {-1, 1} ) ;
     auto vectorT   = Monitored::Collection( "Eta", eta );
     auto setT      = Monitored::Collection( "Phi", phi );
     auto group = Monitored::Group( monTool, vectorT, setT );
@@ -524,7 +546,7 @@ bool timerFilling( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
   double t1_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetMean();
   double t2_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetMean();
-  assert( 9000 < t1_value && t1_value < 11000 );
+  assert( 8000 < t1_value && t1_value < 12000 );
   assert( 8 < t2_value && t2_value < 12 );
 
   // Test scoped timer
@@ -726,6 +748,8 @@ int main() {
   assert( fillFromScalarIndependentScopes( validMon, histSvc ) );
   log << MSG::DEBUG << "fill2D" << endmsg;
   assert( fill2D( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillProfile" << endmsg;
+  assert( fillProfile( validMon, histSvc ) );
   log << MSG::DEBUG << "fillExplicitly" << endmsg;
   assert( fillExplicitly( validMon, histSvc ) );
   log << MSG::DEBUG << "fillWithCutMask" << endmsg;

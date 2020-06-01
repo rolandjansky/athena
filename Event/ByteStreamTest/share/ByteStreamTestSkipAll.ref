@@ -2,8 +2,6 @@ AthAlgSeq            INFO Member list: StoreDump
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-39
 ByteStreamInputSvc  DEBUG Property update for OutputLevel : new value = 2
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-39
-ByteStreamAttLi...  DEBUG Property update for OutputLevel : new value = 2
-ByteStreamAttLi...  DEBUG ByteStreamAttListMetadataSvc::initialize()
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore

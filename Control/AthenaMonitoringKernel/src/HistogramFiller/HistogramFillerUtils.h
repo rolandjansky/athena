@@ -5,9 +5,15 @@
 #ifndef AthenaMonitoringKernel_HistogramFillerUtils_h
 #define AthenaMonitoringKernel_HistogramFillerUtils_h
 
+#include <algorithm>
+#include <utility>
+
+#include "AthenaMonitoringKernel/IMonitoredVariable.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "TH1.h"
+#include "TProfile.h"
 #include "THashList.h"
 
 namespace Monitored {
@@ -17,22 +23,42 @@ namespace Monitored {
 
   namespace detail {
 
-    /** Default cuts and weights used in fillers */
-    auto noWeight = [](size_t){ return 1.0; };
-    auto noCut = [](size_t){ return true; };
+    auto noWeight = [](size_t){ return 1.0; }; ///< no weight for filling
+    auto noCut = [](size_t){ return true; };   ///< no cut for filling
 
     /** Convert axis to ROOT-compatible character */
     constexpr std::array axis_name{"X", "Y", "Z"};
     constexpr std::array axis_bit{TH1::kXaxis, TH1::kYaxis, TH1::kZaxis};
 
     /**
-     * Helper to get corresponding TAxis selected by Monitored::Axis
+     * Helper to get corresponding TAxis selected by Monitored::Axis.
+     * (works for const/non-const TAxis/TH1 thanks to auto return type)
      */
-    template<typename H, Axis AXIS>
-    constexpr TAxis* getAxis(H* hist) {
+    template<Axis AXIS, typename H>
+    constexpr auto getAxis(H* hist) {
       if constexpr (AXIS==Axis::X) return hist->GetXaxis();
       else if constexpr (AXIS==Axis::Y) return hist->GetYaxis();
       else return hist->GetZaxis();
+    }
+
+    /**
+     * Return value for filling i'th entry of var into AXIS for hist.
+     * If var is string-valued performs a bin lookup first.
+     *
+     * @tparam AXIS    Histograms axis
+     * @param  hist    Histogram
+     * @param  var     MonitoredVariable for value lookup
+     * @param  i       index for IMonitoredVariable value lookup
+     */
+    template<Axis AXIS, typename H>
+    double getFillValue(const H* hist, const IMonitoredVariable& var, size_t i) {
+      if ( var.hasStringRepresentation() ) {
+        const TAxis* axis = getAxis<AXIS>(hist);
+        const int binNumber = axis->FindFixBin( var.getString(i).c_str() );
+        return axis->GetBinCenter(binNumber);
+      } else {
+        return var.get(i);
+      }
     }
 
     /**
@@ -60,7 +86,7 @@ namespace Monitored {
     template<Axis AXIS, typename H>
     void rebinHistogram(H* hist, const double value) {
       hist->SetCanExtend(axis_bit[AXIS]);
-      TAxis* a = getAxis<H,AXIS>(hist);
+      TAxis* a = getAxis<AXIS>(hist);
 
       // Rebinning requires to take OH lock in online (no-op offline)
       oh_scoped_lock_histogram lock;
@@ -104,6 +130,61 @@ namespace Monitored {
       return true;
     }
 
+    // gcc bug #94505
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wparentheses"
+    /**
+     * Check if any of the histogram axes will be rebinned
+     *
+     * @param hist  histogram to check
+     * @param a...     integer sequence of axes to check (0, 1, ...)
+     * @param v...     x, y, ... values to fill
+     */
+    template<typename H, typename T, T... a, typename ...Vs>
+    bool fillWillRebinHistogram(H* hist, std::integer_sequence<T, a...>, const Vs&... v) {
+      // First check if axis is extensible, then if value would be outside of range
+      return (... || (getAxis<static_cast<Axis>(a)>(hist)->CanExtend() and
+                      detail::fillWillRebinHistogram(getAxis<static_cast<Axis>(a)>(hist), v)));
+    }
+    #pragma GCC diagnostic pop
+
+
+    /**
+     * Perform (arbitrary dimension) histogram fill with weight
+     *
+     * @param hist     histogram to fill
+     * @param weight   weight accessor
+     * @param i        IMonitoredVariable entry to fill
+     * @param m1,m...  IMonitoredVariable list to fill from
+     */
+    template<typename H, typename W, typename M, typename ...Ms>
+    void doFill(H* hist, W weight, size_t i, const M& m1, const Ms&... m) {
+
+      // Template magic: Recursively convert all M to double or string
+      if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
+        // For >=2D: If one variable has a single entry, do repeated fills with that value
+        const size_t j = m1.size()==1 ? 0 : i;
+        if (not m1.hasStringRepresentation())
+          doFill(hist, weight, i, m..., m1.get(j));
+        else
+          doFill(hist, weight, i, m..., m1.getString(j).c_str());
+      } else {
+        // In case re-binning occurs need to take the OH lock for online (no-op offline)
+        if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<M, Ms...>{},
+                                                 m1, m...)) ){
+          oh_scoped_lock_histogram lock;
+          hist->Fill(m1, m..., weight(i));
+        }
+        else hist->Fill(m1, m..., weight(i));
+      }
+    }
+
+    // TProfile does not support string as y-value.
+    // (this terminates the above pack expansion)
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const double&, const char* const&) {}
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const char* const&, const char* const&) {}
   }
 }
 

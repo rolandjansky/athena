@@ -4,24 +4,22 @@
 #ifndef NSWCalibTool_h
 #define NSWCalibTool_h
 
+#include <map>
+#include <string>
+
 #include "NSWCalibTools/INSWCalibTool.h"
 
-
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonRDO/MM_RawData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "TRandom3.h"
 #include "TTree.h"
-#include "TF1.h"
-#include <vector>
 
 namespace Muon {
 
@@ -33,27 +31,33 @@ namespace Muon {
 
     virtual ~NSWCalibTool() = default;
     
-    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, double& dist_drift, double& distRes_drift, double& calib_charge);
+    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const;
+
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
+    StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const override;
   private:
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-   
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
+    StatusCode initializeGasProperties();
 
     TF1* m_lorentzAngleFunction;
- 
-    float m_mmBFieldX;
-    float m_mmBFieldY;
-    float m_mmBFieldZ;
     
     float m_vDrift;
     float m_timeRes;
+    float m_longDiff;
+    float m_transDiff;
+    float m_interactionDensitySigma;
+    float m_interactionDensityMean;
+    float m_ionUncertainty;
+    double m_timeOffset;
+
+    std::string m_gasMixture;
   };
-  
-}
+
+
+}  // namespace Muon
 
 #endif

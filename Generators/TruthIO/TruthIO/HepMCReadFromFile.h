@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTHIO_HEPMCREADFROMFILE_H
 #define TRUTHIO_HEPMCREADFROMFILE_H
 
 #include "GeneratorModules/GenBase.h"
-#include "HepMC/IO_GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
 #include <memory>
 
 class StoreGateSvc;
@@ -25,7 +25,7 @@ private:
   
   StoreGateSvc* m_sgSvc;
 
-  std::auto_ptr<HepMC::IO_GenEvent> m_hepmcio;
+  std::unique_ptr<HepMC::IO_GenEvent> m_hepmcio;
 };
 
 #endif

@@ -8,8 +8,14 @@ from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+import pprint
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
+
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def generateChains( flags, chainDict ):
@@ -52,6 +58,8 @@ def generateChains( flags, chainDict ):
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
     muonflags.Muon.useTGCPriorNextBC=True
     muonflags.Muon.enableErrorTuning=False
+    muonflags.Muon.MuonTrigger=True
+    muonflags.Muon.SAMuonTrigger=True
     muonflags.lock()
 
     accMS = ComponentAccumulator()
@@ -68,10 +76,15 @@ def generateChains( flags, chainDict ):
     trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
     recoMS.mergeReco(trkCfg)
 
+    #The MuonCandidateAlg is not quite fully working yet
+    #from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
+    #candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
+    #recoMS.mergeReco(candCfg)
+
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 
     # TODO remove once full step is in place
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+    HLTTest__TestHypoTool=CompFactory.HLTTest.TestHypoTool
     fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
     def makeFakeHypoTool(chainDict, cfg=None):
         return HLTTest__TestHypoTool(chainDict['chainName'])
@@ -92,8 +105,8 @@ def generateChains( flags, chainDict ):
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
     
-    import pprint
-    pprint.pprint(chainDict)
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
+
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
 

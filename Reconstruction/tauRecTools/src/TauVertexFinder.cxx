@@ -16,19 +16,7 @@
 #include "xAODTau/TauJet.h"
 
 TauVertexFinder::TauVertexFinder(const std::string& name ) :
-  TauRecToolBase(name),
-  m_TrackSelectionToolForTJVA(""),
-  m_assocTracksName("")
-{
-  declareProperty("UseTJVA", m_useTJVA=true);
-  declareProperty("AssociatedTracks",m_assocTracksName);
-  declareProperty("InDetTrackSelectionToolForTJVA",m_TrackSelectionToolForTJVA);
- 
-  // online ATR-15665 
-  declareProperty("OnlineMaxTransverseDistance",m_transDistMax=10e6);
-  declareProperty("OnlineMaxLongitudinalDistance",m_longDistMax=10e6);
-  declareProperty("OnlineMaxZ0SinTheta",m_maxZ0SinTheta=10e6);
-
+  TauRecToolBase(name) {
 }
 
 TauVertexFinder::~TauVertexFinder() {
@@ -37,7 +25,7 @@ TauVertexFinder::~TauVertexFinder() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::initialize() {
   ATH_CHECK( m_vertexInputContainer.initialize(SG::AllowEmpty) );
-  if (m_in_trigger)
+  if (inTrigger())
     ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_jetTrackVtxAssoc.initialize() );
   
@@ -55,7 +43,7 @@ StatusCode TauVertexFinder::finalize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau, 
                                                 const xAOD::VertexContainer* vertexContainer, 
-                                                const xAOD::TrackParticleContainer* trackContainer) {
+                                                const xAOD::TrackParticleContainer* trackContainer) const {
   
   const xAOD::VertexContainer * vxContainer = 0;
     
@@ -85,7 +73,7 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
   // code adapted from 
   // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
   const xAOD::Vertex* primaryVertex = 0;
-  if ( m_in_trigger) { // trigger: find default PrimaryVertex (highest sum pt^2)
+  if (inTrigger()) { // trigger: find default PrimaryVertex (highest sum pt^2)
     primaryVertex = (*vxContainer)[0];
   }
   else { // offline: the first and only primary vertex candidate is picked
@@ -129,19 +117,19 @@ ElementLink<xAOD::VertexContainer>
 TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
                             const xAOD::VertexContainer& vertices,
                             const xAOD::TrackParticleContainer * trackContainer,
-                            float& maxJVF)
+                            float& maxJVF) const
 {
   const xAOD::Jet* pJetSeed = (*pTau.jetLink());
   std::vector<const xAOD::TrackParticle*> tracksForTJVA;
   const double dDeltaRMax(0.2);
 
-  m_matchedVertexOnline.clear(); 
+  std::vector<const xAOD::Vertex*> matchedVertexOnline;
   // the implementation follows closely the example given in modifyJet(...) in https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/Jet/JetMomentTools/trunk/Root/JetVertexFractionTool.cxx#15
   
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
   std::vector<const xAOD::TrackParticle*> assocTracks;
   
-  if (m_in_trigger) {
+  if (inTrigger()) {
     if (!m_trackPartInputContainer.empty()) {
       SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
       if (!trackPartInHandle.isValid()) {
@@ -185,14 +173,14 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   const jet::TrackVertexAssociation* tva = NULL;
  
   // ATR-15665 for trigger: reimplementation of TrackVertexAssociationTool::buildTrackVertexAssociation_custom
-  if(m_in_trigger){ 
+  if(inTrigger()){ 
       if(tracksForTJVA.size()==0){ATH_MSG_DEBUG("No tracks survived selection"); return ElementLink<xAOD::VertexContainer>();}
       else ATH_MSG_DEBUG("Selected tracks with size " << tracksForTJVA.size());
 
       ATH_MSG_DEBUG("Creating online TJVA"); 
       ATH_MSG_DEBUG("Building online track-vertex association trk size="<< tracksForTJVA.size()
                       << "  vtx size="<< vertices.size());
-      m_matchedVertexOnline.resize(tracksForTJVA.size(), 0 );
+      matchedVertexOnline.resize(tracksForTJVA.size(), 0 );
 
       for (size_t iTrack = 0; iTrack < tracksForTJVA.size(); ++iTrack)
       {
@@ -233,7 +221,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
           
           // If we matched a vertex, then associate that vertex to the track
           if (foundMatch)
-              m_matchedVertexOnline[ iTrack ] = vertices.at(matchedIndex);
+              matchedVertexOnline[ iTrack ] = vertices.at(matchedIndex);
       }
   } else {
 
@@ -254,8 +242,8 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   size_t maxIndex = 0;
   for (const xAOD::Vertex* vert : vertices) {
     float jvf = 0;
-    if(!m_in_trigger) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
-    else jvf = getJetVertexFraction(vert,tracksForTJVA);
+    if(!inTrigger()) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
+    else jvf = getJetVertexFraction(vert,tracksForTJVA,matchedVertexOnline);
     if (jvf > maxJVF) {
       maxJVF = jvf;
       max_vert = vert;
@@ -290,13 +278,15 @@ float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex, const st
   return sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0;
 }
 // for online ATR-15665: reimplementation needed for online because the tva doesn't work. The size of the track collection from TE is not the same as the max track index
-float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const
+float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex,
+                                            const std::vector<const xAOD::TrackParticle*>& tracks,
+                                            const std::vector<const xAOD::Vertex*>& matchedVertexOnline) const
 {
   float sumTrackPV = 0;
   float sumTrackAll = 0;
   for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
     {
-      const xAOD::Vertex* ptvtx = m_matchedVertexOnline[iTrack];
+      const xAOD::Vertex* ptvtx = matchedVertexOnline[iTrack];
       if (ptvtx != nullptr) {  // C++11 feature
         if (ptvtx->index() == vertex->index()) sumTrackPV += tracks.at(iTrack)->pt();
       }

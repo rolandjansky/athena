@@ -5,6 +5,9 @@
 # Declare the package name:
 atlas_subdir( MuonCalibStl )
 
-# Install files from the package:
-atlas_install_headers( MuonCalibStl )
+atlas_add_library( MuonCalibStl
+                   MuonCalibStl/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonCalibStl )
+
 

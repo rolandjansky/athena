@@ -173,13 +173,20 @@ else:
 #                     "CaloCalibrationHitContainer#TileCalibHitInactiveCell",
 #                     "CaloCalibrationHitContainer#TileCalibHitDeadMaterial" ]
 #CSC
-Stream1.ItemList+=["CSCSimHitCollection#CSC_Hits"]
+if DetFlags.detdescr.CSC_on():
+    Stream1.ItemList+=["CSCSimHitCollection#CSC_Hits"]
 #MDT
 Stream1.ItemList+=["MDTSimHitCollection#MDT_Hits"]
 #RPC
 Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 #TGC
 Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
+#STGC
+if DetFlags.detdescr.sTGC_on():
+    Stream1.ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+#MM
+if DetFlags.detdescr.Micromegas_on():
+    Stream1.ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
 
 
 #--------------------------------------------------------------
@@ -229,6 +236,8 @@ if hasattr(runArgs,'TruthReductionScheme'):
         AddressRemappingSvc.addInputRename("MDTSimHitCollection","MDT_Hits","MDT_HitsOLD")
         AddressRemappingSvc.addInputRename("RPCSimHitCollection","RPC_Hits","RPC_HitsOLD")
         AddressRemappingSvc.addInputRename("TGCSimHitCollection","TGC_Hits","TGC_HitsOLD")
+        AddressRemappingSvc.addInputRename("sTGCSimHitCollection","sTGCSensitiveDetector","sTGCSensitiveDetectorOLD")
+        AddressRemappingSvc.addInputRename("MMSimHitCollection","MicromegasSensitiveDetector","MicromegasSensitiveDetectorOLD")
     except:
         pass
 
@@ -244,6 +253,22 @@ if hasattr(runArgs,'TruthReductionScheme'):
             McEventCollectionFilter.UseTRTHits = False
         except:
             filterHitLog.error('Trying to run on upgrade samples (no TRT) with an old tag of McEventCollectionFilter - job will fail.')
+    if not DetFlags.detdescr.CSC_on():
+        try:
+            McEventCollectionFilter.UseCSCHits = False
+        except:
+            filterHitLog.error('Trying to run on upgrade samples (no CSC) with an old tag of McEventCollectionFilter - job will fail.')
+    ## For RUN3 geometries, turn on the NSW technologies.
+    if DetFlags.detdescr.sTGC_on():
+        try:
+            McEventCollectionFilter.UseSTGCHits = True
+        except:
+            filterHitLog.error('Failed to add sTGC Hits to McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.Micromegas_on():
+        try:
+            McEventCollectionFilter.UseMMHits = True
+        except:
+            filterHitLog.error('Failed to add Micromega Hits to McEventCollectionFilter - job will fail.')
     topSequence += McEventCollectionFilter
 
 

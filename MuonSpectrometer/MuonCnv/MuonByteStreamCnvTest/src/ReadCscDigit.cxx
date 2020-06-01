@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadCscDigit.h"
@@ -26,7 +26,7 @@ StatusCode ReadCscDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_cscNtuple) return StatusCode::SUCCESS;
 
@@ -80,15 +80,15 @@ StatusCode ReadCscDigit::execute()
 	    Identifier id = (*dig)->identify();
 
 	    // ID information
-	    m_stationName[m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationName(id);
-	    m_stationEta [m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationEta(id);
-	    m_stationPhi [m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationPhi(id);
-	    m_chamberLayer[m_nDig] = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
-	    m_wireLayer[m_nDig]    = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
-	    m_measuresPhi[m_nDig]  = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
-	    m_strip[m_nDig]        = m_muonIdHelperTool->cscIdHelper().strip(id); 
+	    m_stationName[m_nDig]  = m_idHelperSvc->cscIdHelper().stationName(id);
+	    m_stationEta [m_nDig]  = m_idHelperSvc->cscIdHelper().stationEta(id);
+	    m_stationPhi [m_nDig]  = m_idHelperSvc->cscIdHelper().stationPhi(id);
+	    m_chamberLayer[m_nDig] = m_idHelperSvc->cscIdHelper().chamberLayer(id);
+	    m_wireLayer[m_nDig]    = m_idHelperSvc->cscIdHelper().wireLayer(id);
+	    m_measuresPhi[m_nDig]  = m_idHelperSvc->cscIdHelper().measuresPhi(id);
+	    m_strip[m_nDig]        = m_idHelperSvc->cscIdHelper().strip(id); 
 	    m_charge[m_nDig]       = (*dig)->charge(); 
-            ATH_MSG_DEBUG( "Digit = " << m_muonIdHelperTool->cscIdHelper().show_to_string(id) << " charge = " 
+            ATH_MSG_DEBUG( "Digit = " << m_idHelperSvc->cscIdHelper().show_to_string(id) << " charge = " 
                            << m_charge[m_nDig]  );
 	    ++m_nDig;
 	  }

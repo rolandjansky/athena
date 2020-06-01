@@ -1,17 +1,13 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-/********************************************************************
-NAME:     EMBremCollectionBuilder
-PACKAGE:  offline/Reconstruction/egamma/egammaTrackTools/EMBremCollectionBuilder
+/**
+  @class EMBremCollectionBuilder
+  @brief Implementation file for EMBremCollectionBuilder
+  @author Christos Anastopoulos,Anthony Morley
+  */
 
-AUTHORS:  Anastopoulos
-CREATED:  
-
-PURPOSE:  Performs Brem refit for silicon tracks, copies over TRT-standalone
-UPDATE :
- **********************************************************************/
 #include "EMBremCollectionBuilder.h"
 //
 #include "TrkTrack/Track.h"
@@ -34,10 +30,9 @@ UPDATE :
 #include <algorithm>
 #include <memory>
 
-
-EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name, 
-                                                 ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
+                                                 ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -47,6 +42,8 @@ StatusCode EMBremCollectionBuilder::initialize() {
   ATH_CHECK(m_trackParticleContainerKey.initialize());
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
   ATH_CHECK(m_OutputTrackContainerKey.initialize());
+  ATH_CHECK(m_TruthParticlesLinkKey.initialize(m_doTruth));
+  
   /* retrieve the track refitter tool*/
   ATH_CHECK(m_trkRefitTool.retrieve());
   /* Get the particle creation tool */
@@ -102,9 +99,9 @@ StatusCode EMBremCollectionBuilder::execute()
    * For the TRT we can get all the info already
    */
   std::vector<const xAOD::TrackParticle*> siliconTrkTracks;
-  siliconTrkTracks.reserve(8); 
+  siliconTrkTracks.reserve(16); 
   std::vector<TrackWithIndex> trtAloneTrkTracks;
-  trtAloneTrkTracks.reserve(8); 
+  trtAloneTrkTracks.reserve(16); 
   for(const xAOD::TrackParticle* track : *selectedTracks){
     const Trk::Track* trktrack{nullptr};
     if (  track->trackLink().isValid() ){ 
@@ -300,7 +297,7 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info,
                                              const xAOD::TrackParticleContainer* AllTracks) const {
 
   //update the summary of the non-const track without hole search
-  m_summaryTool->updateTrackNoHoleSearch(*(Info.track));
+  m_summaryTool->updateRefittedTrack(*(Info.track));
   //Get the summary so as to add info to it
   Trk::TrackSummary* summary = Info.track->trackSummary();
 

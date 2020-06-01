@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibTools/MdtCalibTool.h"
@@ -40,45 +40,15 @@ namespace MuonCalib {
 
   StatusCode MdtCalibTool::initialize()
   {
-    MsgStream log(msgSvc(), name());
-
-    StatusCode sc = m_mdtCalibTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_mdtCalibTool << endmsg;
-      return sc;
-    } else {
-      log << MSG::INFO << "Retrieved" << m_mdtCalibTool << endmsg;
-    }
-  
-    sc = m_segmentSelectorTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_segmentSelectorTool << endmsg;
-      return sc;
-    } else {
-      log << MSG::INFO << "Retrieved" << m_segmentSelectorTool << endmsg;
-    }
+    ATH_CHECK(AthAlgTool::initialize());
+    ATH_CHECK(m_mdtCalibTool.retrieve());
+    ATH_MSG_DEBUG("Retrieved" << m_mdtCalibTool);
+    ATH_CHECK(m_segmentSelectorTool.retrieve());
+    ATH_MSG_DEBUG("Retrieved" << m_segmentSelectorTool);
     m_segmentSelector = m_segmentSelectorTool->getImp();
-
-    sc = m_regionSelector.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_regionSelector << endmsg;
-      return sc;
-    } else {
-      log << MSG::INFO << "Retrieved" << m_regionSelector << endmsg;
-    }
-
+    ATH_CHECK(m_regionSelector.retrieve());
+    ATH_MSG_DEBUG("Retrieved" << m_regionSelector);
     ATH_CHECK(m_idHelperSvc.retrieve());
-
-    log << MSG::INFO << "Initialization ended     " << endmsg;
-    return StatusCode::SUCCESS;
-  
-  }
-
-
-  StatusCode MdtCalibTool::finalize()
-  {
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize " << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -88,8 +58,7 @@ namespace MuonCalib {
     std::vector<MuonCalibSegment *> selected_segment;
     bool segment_found;
     bool segment_rejected;
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "handleEvent(events) with patSize " << event->numberOfPatterns() << endmsg;
+    ATH_MSG_DEBUG("handleEvent(events) with patSize " << event->numberOfPatterns());
 
     // loop over patterns
     MuonCalibEvent::MCPVecCit pat_it     = event->patternBegin();
@@ -97,15 +66,15 @@ namespace MuonCalib {
     for( ;pat_it!=pat_it_end; ++pat_it ){
       // loop over segments in pattern
 
-      log << MSG::DEBUG << "New pattern with segments " << (*pat_it)->muonSegments() << endmsg;
+      ATH_MSG_DEBUG("New pattern with segments " << (*pat_it)->muonSegments());
 
       MuonCalibPattern::MuonSegCit seg_it     = (*pat_it)->muonSegBegin();
       MuonCalibPattern::MuonSegCit seg_it_end = (*pat_it)->muonSegEnd();
       for( ;seg_it!=seg_it_end;++seg_it ){
         MuonCalibSegment* seg = *seg_it;
 	// protect against null pointer
-	if ( seg == 0 ) {
-	  log << MSG::WARNING  << "Got Segment NULL pointer" << endmsg;
+	if (!seg) {
+	  ATH_MSG_WARNING("Got Segment nullptr");
 	  continue;
 	}
 	// Only process segments with MDT hits
@@ -114,7 +83,7 @@ namespace MuonCalib {
 	}
 
 // if no internal selection is requested, pass the segment to the algorithm //
-        if (m_SelectorSwitch==0 && seg != 0) {
+        if (m_SelectorSwitch==0 && seg) {
 		handleMuonSegment( seg );
 		continue;
 	}
@@ -178,16 +147,13 @@ namespace MuonCalib {
 
   bool MdtCalibTool::analyse()
   {
-    MsgStream log(msgSvc(), name());
-
     // loop over all regions
-    log << MSG::INFO << "Performing loop over regions: " << m_segmentsPerRegion.size() << endmsg;
+    ATH_MSG_INFO("Performing loop over regions: " << m_segmentsPerRegion.size());
 
     RegionEventMap::iterator it     = m_segmentsPerRegion.begin();
     RegionEventMap::iterator it_end = m_segmentsPerRegion.end();
     for( ; it!=it_end; ++it ){
-      log << MSG::DEBUG << "Performing analysis for region " 
-	  << endmsg;
+      ATH_MSG_DEBUG("Performing analysis for region ");
  
       // create new calibration instance
       IMdtCalibration* calibImp = m_mdtCalibTool->getImp( it->first );
@@ -205,19 +171,16 @@ namespace MuonCalib {
       m_mdtCalibTool->writeToDb( result, it->first );
     }
 
-    log << MSG::INFO << "End of calibration started     " << endmsg;
+    ATH_MSG_INFO("End of calibration started     ");
     return true;
   }
 
   void MdtCalibTool::handleMuonSegment( const MuonCalibSegment* seg )
-  {
-    MsgStream log(msgSvc(), name());
- 
+  { 
     // subdivide segment into regions and get key 
     IRegionSelectorTool::RegionVec rvec = m_regionSelector->splitIntoRegions( seg );  
 
-    log << MSG::VERBOSE << "RegionSelector produced " << rvec.size() 
-	<< " subregions for segment " << endmsg;
+    ATH_MSG_VERBOSE("RegionSelector produced " << rvec.size() << " subregions for segment ");
   
     // loop over different region 
     IRegionSelectorTool::RegionVec::iterator it = rvec.begin();
@@ -230,7 +193,7 @@ namespace MuonCalib {
       IRegionSelectorTool::RegionKey key = it->second;
 
       if( !m_segmentSelector->select(*sseg) ){
-	log << MSG::VERBOSE << " ssegment rejected by selector " << endmsg;
+        ATH_MSG_VERBOSE(" ssegment rejected by selector ");
 	// return; this prevents the second ML from being accepted!
         continue;
       }
@@ -238,7 +201,7 @@ namespace MuonCalib {
       // check if region should be calibrated
       if( m_regionSelector->useRegion( key ) ){
   
-	log << MSG::VERBOSE << "handleMuonSegment with region key " << key << endmsg;
+	ATH_MSG_VERBOSE("handleMuonSegment with region key " << key);
 	
 	// pointer to current event loop
 	MdtCalibEventLoop* loop = getEventLoopForRegion( key );
@@ -246,7 +209,7 @@ namespace MuonCalib {
 	// fill current ssegment into event loop
 	loop->handleSegment( sseg );
       }else{
-	log << MSG::VERBOSE << "MuonSegment not selected by RegionSelector " << key << std::endl;
+	ATH_MSG_VERBOSE("MuonSegment not selected by RegionSelector " << key);
       }
     }
   }
@@ -254,25 +217,20 @@ namespace MuonCalib {
 
   IRegionSelectorTool::RegionKey MdtCalibTool::keyFromIdentifier( const IRegionSelectorTool::id_type& id ) const
   {
-    MsgStream log(msgSvc(), name());
-    log << MSG::VERBOSE << " keyFromIdentifier " << endmsg;
-
+    ATH_MSG_VERBOSE(" keyFromIdentifier ");
     return m_regionSelector->getRegionKey(id);
   }
 
 
   MdtCalibEventLoop* MdtCalibTool::getEventLoopForRegion( const IRegionSelectorTool::RegionKey& key )
-  {
-    MsgStream log(msgSvc(), name());
-  
-    MdtCalibEventLoop* loop = 0;
-
+  {  
+    MdtCalibEventLoop* loop = nullptr;
     // look up key in map
     RegionEventMap::iterator sit = m_segmentsPerRegion.find(key);
       
     // if not found create new entry in map
     if( sit == m_segmentsPerRegion.end() ){
-      log << MSG::VERBOSE << "created new entry in region map for key " << key << std::endl;
+      ATH_MSG_VERBOSE("created new entry in region map for key " << key);
       
       // create new event loop
       loop = new MdtCalibEventLoop( key );

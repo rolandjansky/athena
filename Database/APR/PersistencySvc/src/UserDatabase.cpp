@@ -168,7 +168,7 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  // register in the catalog 
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
-	  m_catalog.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
+	  m_catalog.registerPFN( m_the_pfn.substr(0, m_the_pfn.find("?")), dbTypeMajor.storageName(), m_the_fid );
           DbPrint log("PersistencySvc::UserDB::connectForWrite()" );
           log << DbPrintLvl::Debug << "registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endmsg;
 	  dbRegistered = true;
@@ -289,7 +289,13 @@ pool::PersistencySvc::UserDatabase::fid() const
               }
               pool::PersistencySvc::MicroSessionManager& sessionManager = m_technologyDispatcher.microSessionManager( m_technology );
               m_the_fid = sessionManager.fidForPfn( m_name );
-              if ( ! m_the_fid.empty() ) {
+              if( ! m_the_fid.empty() ) {
+                 // sanity check - verify that the FID is not registered in PFC under a different name
+                 std::string  pfn, tech;
+                 m_catalog.getFirstPFN( m_the_fid, pfn, tech );
+                 if( !pfn.empty() ) {
+                    log << DbPrintLvl::Warning << "Opening file '" << m_name << "' which is already registered in the Catalog as '" << pfn <<"' (GUID " << m_the_fid << ") - this is not supported and may even lead to a crash!" << endmsg;
+                 }
                  m_the_pfn = m_name;
                  m_alreadyConnected = true;
               }

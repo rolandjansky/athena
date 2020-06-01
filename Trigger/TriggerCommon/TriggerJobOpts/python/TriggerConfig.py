@@ -3,13 +3,14 @@
 
 from collections import OrderedDict
 from builtins import str
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences
+from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
-
 import six
+def __isCombo(alg):
+    return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
 
 def collectHypos( steps ):
     """
@@ -18,52 +19,63 @@ def collectHypos( steps ):
     Returned is a map with the step name and list of all instances of hypos in that step.
     Input is top HLT sequencer.
     """
-    __log.info("Collecting hypos")
+    __log.info("Collecting hypos from steps")
     from collections import defaultdict
     hypos = defaultdict( list )
 
-    for stepSeq in steps.getChildren():
-        if "filter" in stepSeq.name():
-            __log.info("Skipping filtering steps " +stepSeq.name() )
+    for stepSeq in getSequenceChildren( steps ):
+        if not isSequence( stepSeq ):
+            continue
+        
+        if "filter" in stepSeq.getName():
+            __log.info("Skipping filtering steps " +stepSeq.getName() )
             continue
 
-        __log.info( "collecting hypos from step " + stepSeq.name() )
+        __log.info( "collecting hypos from step " + stepSeq.getName() )
 #        start = {}
         for seq,algs in six.iteritems (flatAlgorithmSequences( stepSeq )):
-
             for alg in algs:
+                if isSequence( alg ):
+                    continue
                 # will replace by function once dependencies are sorted
-                if 'HypoInputDecisions'  in alg.getProperties():
-                    __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
-                    if alg.getType() == 'ComboHypo':
-                        __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.name() for  tool in alg.ComboHypoTools])))
-                    hypos[stepSeq.name()].append( alg )
+                if hasProp( alg, 'HypoInputDecisions'):
+                    __log.info( "found hypo " + alg.getName() + " in " +stepSeq.getName() )
+                    if __isCombo( alg ) and len(alg.ComboHypoTools):
+                        __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.getName() for  tool in alg.ComboHypoTools])))
+                    hypos[stepSeq.getName()].append( alg )
                 else:
-                    __log.verbose("Not a hypo" + alg.name())
+                    __log.verbose("Not a hypo" + alg.getName())
 
     return hypos
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    if hypo.getType() == 'ComboHypo':
+    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
-        return [ t.name() for t in hypo.HypoTools if not isLegId(t.name())], hypo.HypoOutputDecisions
+        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
 
+def __getSequenceChildrenIfIsSequence( s ):
+    if isSequence( s ):
+        return getSequenceChildren( s )
+    return []
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
     makers = [] # map with name, instance and encompasing recoSequence
-    for stepSeq in steps.getChildren():
-        for recoSeq in stepSeq.getChildren():
+    for stepSeq in __getSequenceChildrenIfIsSequence( steps ):
+        for recoSeq in __getSequenceChildrenIfIsSequence( stepSeq ):
+            if not isSequence( recoSeq ):
+                continue
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
-                    if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
+                    if "EventViewCreator" in alg.getFullJobOptName(): # TODO base it on checking types of write handles once available
                         if alg not in makers:
                             makers.append(alg)
-    __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
+    __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.getName() for maker in makers ]) ))
     return makers
 
 
@@ -79,10 +91,10 @@ def collectFilters( steps ):
     from collections import defaultdict
     filters = defaultdict( list )
 
-    for stepSeq in steps.getChildren():
-        if "filter" in stepSeq.name():
-            filters[stepSeq.name()] = stepSeq.getChildren()
-            __log.info("Found Filters in Step {} : {}".format(stepSeq.name(), stepSeq.getChildren()))
+    for stepSeq in getSequenceChildren( steps ):
+        if "filter" in stepSeq.getName():
+            filters[stepSeq.getName()] = getSequenceChildren( stepSeq )
+            __log.info("Found Filters in Step {} : {}".format(stepSeq.getName(), getSequenceChildren( stepSeq )))
 
     return filters
 
@@ -101,7 +113,7 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     for step, stepHypos in six.iteritems (hypos):
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
-                         hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
+                         hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
                 if inputs:
                     [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
@@ -161,8 +173,11 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = OrderedDict()
 
+    
     for stepName, stepHypos in sorted( hypos.items() ):
-        for hypo in stepHypos:
+        # order hypos so that ComboHypos are last ones
+        orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))  
+        for hypo in orderedStepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
 
@@ -178,6 +193,7 @@ def triggerSummaryCfg(flags, hypos):
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.debug("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+
 
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
@@ -211,12 +227,12 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             allChains.update( hypoChains )
 
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
-        __log.debug( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
+        __log.debug( "The step monitoring decisions in " + dcTool.getName() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
 
     #mon.FinalChainStep = allChains
-    mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
+    mon.L1Decisions  = getProp( l1Decoder, 'L1DecoderSummaryKey' )
 
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
@@ -270,7 +286,7 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
         # For now use old svcMgr interface as this service is not available from acc.getService()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = acc.popPrivateTools()
+        hltEventLoopMgr.ResultMaker.MakerTools = [conf2toConfigurable(t) for t in acc.popPrivateTools()]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
@@ -294,16 +310,16 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     offline - if true CA contains algorithms that needs to be merged to output stream sequence,
               if false the CA contains a tool that needs to be added to HLT EventLoopMgr
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+    from TrigEDMConfig import DataScoutingInfo
     from TrigEDMConfig.TriggerEDM import getRun3BSList
 
     # handle the collectiosn defined in the EDM config
-    collectionsToBS = getRun3BSList( ["BS"]+ list(EventBuildingInfo.DataScoutingIdentifiers.keys()) )
+    collectionsToBS = getRun3BSList( ["BS"]+ DataScoutingInfo.getAllDataScoutingIdentifiers() )
 
     ItemModuleDict = OrderedDict()
     for typekey, bsfragments in collectionsToBS:
         # translate readable frament names like BS, CostMonDS names to ROB fragment IDs 0 - for the BS, 1,...- for DS fragments
-        moduleIDs = [ EventBuildingInfo.getFullHLTResultID() if f == 'BS' else EventBuildingInfo.getDataScoutingResultID(f)
+        moduleIDs = [ DataScoutingInfo.getFullHLTResultID() if f == 'BS' else DataScoutingInfo.getDataScoutingResultID(f)
                       for f in bsfragments ]
         ItemModuleDict[typekey] = moduleIDs
 
@@ -315,9 +331,9 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID()]
         if typeNameAux not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeNameAux] = [EventBuildingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID()]
 
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
@@ -332,8 +348,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
-    stmaker.PEBDecisionKeys = pebDecisionKeys
+    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -348,19 +363,18 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        #decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
         acc.addEventAlgo( decmaker )
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage", "StreamBSFileOutput")
-        StreamBSFileOutput.ItemList += [ "HLT::HLTResultMT#HLTResultMT" ]
-        StreamBSFileOutput.ExtraInputs = [
+        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
-        acc.addEventAlgo( StreamBSFileOutput )
-
+        acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc
@@ -402,18 +416,15 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
       ("xAOD::TrigConfKeys", "TrigConfKeys")]
 
     # Produce the trigger bits
-    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
-    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+    #from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
+    #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+    bitsmaker = CompFactory.TriggerBitsMakerTool()
+    decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT", BitsMakerTool = bitsmaker)
 
-    bitsmaker = TriggerBitsMakerToolCfg()
-    decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
-
-    decmaker.BitsMakerTool = bitsmaker
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    TrigConf__xAODMenuWriterMT=CompFactory.TrigConf__xAODMenuWriterMT
-    menuwriter = TrigConf__xAODMenuWriterMT()
+    menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
     acc.addEventAlgo( menuwriter )
@@ -431,30 +442,23 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     # configure views merging
     needMerging = [x for x in TriggerHLTListRun3 if len(x) >= 4 and x[3].startswith("inViews:")]
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
-    # group by the view collection name/(the view maker algorithm in practice)
-    from collections import defaultdict
-    groupedByView = defaultdict(list)
-    [ groupedByView[c[3]].append( c ) for c in needMerging ]
-
-    for view, colls in six.iteritems (groupedByView):
-        viewCollName = view.split(":")[1]
-        tool = HLTEDMCreator( "{}Merger".format( viewCollName ) )
-        for coll in colls:  # see the content in TrigEDMConfigRun3
-            collType, collName = coll[0].split("#")
-            collType = collType.split(":")[-1]
-            viewsColl = coll[3].split(":")[-1]
-            # Get existing property, or return empty list if not set.
-            attrView = getattr(tool, collType+"Views", [])
-            attrInView = getattr(tool, collType+"InViews", [])
-            attrName = getattr(tool, collType, [])
+    mergingTool = HLTEDMCreator( "ViewsMergingTool")
+    for coll in needMerging:
+        collType, collName = coll[0].split("#")
+        collType = collType.split(":")[-1]
+        possibleViews = coll[3].split(":")[-1].split(",")
+        for viewsColl in possibleViews:
+            attrView = getattr(mergingTool, collType+"Views", [])
+            attrInView = getattr(mergingTool, collType+"InViews", [])
+            attrName = getattr(mergingTool, collType, [])
             #
             attrView.append( viewsColl )
             attrInView.append( collName )
             attrName.append( collName )
             #
-            setattr(tool, collType+"Views", attrView )
-            setattr(tool, collType+"InViews", attrInView )
-            setattr(tool, collType, attrName )
+            setattr(mergingTool, collType+"Views", attrView )
+            setattr(mergingTool, collType+"InViews", attrInView )
+            setattr(mergingTool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
                 __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( str(coll) ) )
@@ -462,9 +466,9 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             if len(producer) > 1:
                 for pr in producer[1:]:
                     if pr != producer[0]:
-                        __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.name() for p in producer ]) ) )
+                        __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.getName() for p in producer ]) ) )
                         continue
-        alg.OutputTools += [ tool ]
+    alg.OutputTools += [mergingTool]
 
     tool = HLTEDMCreator( "GapFiller" )
     if len(edmSet) != 0:
@@ -509,6 +513,7 @@ def triggerRunCfg( flags, menu=None ):
 
     # L1ConfigSvc needed for L1Decoder
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+
     acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
@@ -522,7 +527,7 @@ def triggerRunCfg( flags, menu=None ):
     if menu:
         menuAcc = menu( flags )
         HLTSteps = menuAcc.getSequence( "HLTAllSteps" )
-        __log.info( "Configured menu with "+ str( len(HLTSteps.getChildren()) ) +" steps" )
+        __log.info( "Configured menu with "+ str( len(HLTSteps.Members) ) +" steps" )
 
 
     # collect hypothesis algorithms from all sequence
@@ -575,7 +580,7 @@ def triggerIDCCacheCreatorsCfg(flags):
     from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
     acc.merge( MuonPrdCacheCfg() )
 
-    from TrigInDetConfig.InDetConfig import InDetIDCCacheCreatorCfg
+    from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg() )
 
     return acc
@@ -605,8 +610,13 @@ if __name__ == "__main__":
         menuCA.addSequence( seqAND("HLTAllSteps") )
         return menuCA
 
+        
     acc = triggerRunCfg( ConfigFlags, testMenu )
+    Configurable.configurableRun3Behavior=0
+    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+    appendCAtoAthena( acc )
 
+    
     f=open("TriggerRunConf.pkl","wb")
     acc.store(f)
     f.close()
