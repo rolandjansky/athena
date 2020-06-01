@@ -56,7 +56,7 @@ StatusCode GenModule::execute() {
   CHECK(this->callGenerator());
 
   // Create the MC event and send the GeneratorEvent stored in it to fillEvt
-  HepMC::GenEvent* evt = new HepMC::GenEvent(1,1);
+  HepMC::GenEvent* evt = HepMC::newGenEvent(1,1);
   CHECK(this->fillEvt(evt));
 
   // Add the event to the MC event collection

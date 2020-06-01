@@ -278,7 +278,7 @@ StatusCode TestHepMC::execute() {
     vector<int> undisplaceds;
 
     // Check beams and work out per-event beam energy
-    const pair<HepMC::GenParticle*, HepMC::GenParticle*> beams = evt->beam_particles();
+    const pair<HepMC::GenParticlePtr, HepMC::GenParticlePtr> beams = evt->beam_particles();
     double cmenergy = m_cm_energy;
     if (!evt->valid_beam_particles()) {
       ATH_MSG_WARNING("Invalid beam particle pointers -- this generator interface should be fixed");

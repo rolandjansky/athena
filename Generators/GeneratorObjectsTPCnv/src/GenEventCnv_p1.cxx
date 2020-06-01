@@ -98,7 +98,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   // set the signal process vertex
   const int sigProcVtx = persObj->m_signalProcessVtx;
   if ( sigProcVtx != 0 ) {
-    transObj->set_signal_process_vertex( transObj->barcode_to_vertex( sigProcVtx ) );
+    HepMC::set_signal_process_vertex(transObj, HepMC::barcode_to_vertex(transObj,sigProcVtx ) );
   }
 
   // connect particles to their end vertices
@@ -106,7 +106,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
   for ( ParticlesMap_t::iterator p = partToEndVtx.begin(); 
 	p != endItr; 
 	++p ) {
-    auto decayVtx = transObj->barcode_to_vertex( p->second );
+    auto decayVtx = HepMC::barcode_to_vertex(transObj, p->second );
     if ( decayVtx ) {
       decayVtx->add_particle_in( p->first );
     } else {
@@ -142,12 +142,12 @@ void GenEventCnv_p1::transToPers( const HepMC::GenEvent*,
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-HepMC::GenVertex* 
+HepMC::GenVertexPtr 
 GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 				 const GenVertex_p1& persVtx,
 				 ParticlesMap_t& partToEndVtx ) const
 {
-  HepMC::GenVertex * vtx = m_pool->vtx.nextElementPtr();
+  HepMC::GenVertexPtr vtx = m_pool->vtx.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -176,13 +176,13 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
   return vtx;
 }
 
-HepMC::GenParticle* 
+HepMC::GenParticlePtr 
 GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
 				   ParticlesMap_t& partToEndVtx ) const
 {
 
 
-  HepMC::GenParticle* p = m_pool->part.nextElementPtr();
+  HepMC::GenParticlePtr p = m_pool->part.nextElementPtr();
   p->m_momentum.setPx( persPart.m_px  );
   p->m_momentum.setPy( persPart.m_py  );
   p->m_momentum.setPz( persPart.m_pz  );
