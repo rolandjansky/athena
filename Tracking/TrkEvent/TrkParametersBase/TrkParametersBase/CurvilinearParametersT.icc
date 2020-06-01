@@ -133,18 +133,6 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   }
 }
 
-// Move constructor
-template<int DIM, class T, class S>
-CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
-  CurvilinearParametersT<DIM, T, S>&& rhs)
-  : ParametersBase<DIM, T>(std::move(rhs))
-  , m_surface(std::move(rhs.m_surface))
-  , m_cIdentifier(std::move(rhs.m_cIdentifier))
-{
-  // False positive:
-  // cppcheck-suppress useInitializationList
-}
-
 // assignment operator
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>&
@@ -163,20 +151,6 @@ CurvilinearParametersT<DIM, T, S>::operator=(
                       : rhs.m_surface.get());
     m_chargeDef = rhs.m_chargeDef;
     m_cIdentifier = rhs.m_cIdentifier;
-  }
-  return *this;
-}
-
-// Move assignment
-template<int DIM, class T, class S>
-CurvilinearParametersT<DIM, T, S>&
-CurvilinearParametersT<DIM, T, S>::operator=(
-  CurvilinearParametersT<DIM, T, S>&& rhs)
-{
-  if (this != &rhs) {
-    ParametersBase<DIM, T>::operator=(std::move(rhs));
-    m_surface = std::move(rhs.m_surface);
-    m_cIdentifier = std::move(rhs.m_cIdentifier);
   }
   return *this;
 }
