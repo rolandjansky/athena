@@ -41,8 +41,8 @@ if recAlgs.doEFlow() :
                                        name = "PFlowObjectsInConeTool")
 
   from JetRec.JetRecStandard import jtm
-  from JetRec.JetRecConf import PseudoJetGetter
-  emnpflowget = PseudoJetGetter(
+  from JetRec.JetRecConf import PseudoJetAlgorithm
+  emnpflowget = PseudoJetAlgorithm(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
     InputContainer = "CHSNeutralParticleFlowObjects",
@@ -50,13 +50,11 @@ if recAlgs.doEFlow() :
     SkipNegativeEnergy = True,
     )
   jtm += emnpflowget
-  # PseudoJetGetters are now run in their own dedicated algs
-  from JetRec.JetRecConf import PseudoJetAlgorithm
   # EMTopo (non-origin corrected) clusters
-  if not hasattr(topSequence, "pjalg_"+jtm.emget.Label):
-    topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
+  if not hasattr(topSequence, jtm.emget.name()):
+    topSequence += jtm.emget
   # EM Neutral PFOs
-  topSequence += PseudoJetAlgorithm("pjalg_"+emnpflowget.Label,PJGetter=emnpflowget)
+  topSequence += emnpflowget
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
@@ -87,13 +85,12 @@ def configureEDCorrection(tool):
   try:
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
-    from JetRec.JetRecConf import PseudoJetAlgorithm
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     # EMTopo (non-origin corrected) clusters
-    if not hasattr(topSequence, "pjalg_"+jtm.emget.Label):
-      topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
+    if not hasattr(topSequence, jtm.emget.name()):
+      topSequence += jtm.emget
     if not hasattr(topSequence,'EDtpIsoCentralAlg'):
       tccc = configEventDensityTool("EDtpIsoCentralTool",
                                     inputlabel = jtm.emget.Label,

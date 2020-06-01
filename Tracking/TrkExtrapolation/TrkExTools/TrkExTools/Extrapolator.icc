@@ -48,7 +48,7 @@ Extrapolator::subMaterialEffectsUpdatorCache(Cache& cache,
 
 
 inline void
-Extrapolator::fillMaterialEffectsUpdatorCache(Cache& cache) const
+Extrapolator::populateMatEffUpdatorCache(Cache& cache) const
 {
   size_t numUpdaters=m_subupdaters.size();
   cache.m_MaterialUpCache.reserve(numUpdaters);

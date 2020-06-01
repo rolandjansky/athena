@@ -86,7 +86,7 @@ def TrigJetMonConfig(inputFlags):
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
-  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+  for chain,jetcoll in Chain2L1JetCollDict.items():
     l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
     l1chainconf.toAlg(helper)
 
@@ -103,7 +103,7 @@ def TrigJetMonConfig(inputFlags):
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 
@@ -371,7 +371,7 @@ if __name__=='__main__':
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
-  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+  for chain,jetcoll in Chain2L1JetCollDict.items():
     l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
     l1chainconf.toAlg(helper)
 
@@ -388,7 +388,7 @@ if __name__=='__main__':
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 

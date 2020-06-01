@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -166,7 +166,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
     m_inactive = new GeoPhysVol(inactiveLog);
     m_inactive->ref();
   } else {
-    m_inactive = NULL;
+    m_inactive = nullptr;
   }
 
   // Make the moduleside design for this sensor
