@@ -322,8 +322,12 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
     if ( errCode == uint64_t{0} ) {
-      cacheEntry->abcdErrorChips[module_id] |= 0;
-      cacheEntry->tempMaskedChips[module_id] |= 0;
+      // That means this hashId was decoded but had no error
+      // In such case we want to fill the cache also with zero so we do not have to fill the cache again for a given view
+      // (see logic in: getErrorCodeWithCacheUpdate)
+      // Note: invocation of the [] operator on the map will create missing entry and set the value to default (here 0)
+      cacheEntry->abcdErrorChips[module_id];
+      cacheEntry->tempMaskedChips[module_id];
       continue;
     }
 
