@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 #ifndef CALOMONITORING_LARCELLMONTOOL_H
 #define CALOMONITORING_LARCELLMONTOOL_H
 
-#include "CaloMonitoring/CaloMonToolBase.h"
+#include "CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -25,7 +25,7 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "CaloMonitoring/LArCellBinning.h"
+#include "LArCellBinning.h"
           
 #include <vector>
 #include <string>
@@ -155,7 +155,7 @@ private:
 
   //Job Properties and other private variables
   bool m_oncePerJobHistosDone=false;
-  std::string m_cellContainerName;
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerName { this, "CaloCellContainer", "AllCalo", "SG key of the input cell container" };
 
   bool m_useElectronicNoiseOnly;
   ICalorimeterNoiseTool::CalorimeterNoiseType m_noiseType=ICalorimeterNoiseTool::TOTALNOISE;

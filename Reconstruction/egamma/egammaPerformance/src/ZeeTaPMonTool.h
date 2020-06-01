@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef ZeeTaPMonTool_H
 #define ZeeTaPMonTool_H
 
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "egammaMonToolBase.h"
 #include "xAODEgamma/Electron.h"
 
 class ZeeTaPMonTool : public egammaMonToolBase
@@ -23,9 +23,10 @@ class ZeeTaPMonTool : public egammaMonToolBase
   
   virtual ~ZeeTaPMonTool();
   
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
+  virtual StatusCode procHistograms() override;
      
  private:
   void fillElectronProbe(const xAOD::Electron *el, bool isTight, bool isIso, double mass);
@@ -33,7 +34,7 @@ class ZeeTaPMonTool : public egammaMonToolBase
  protected:
 
   // Properties
-  std::string m_ElectronContainer; // Container name for electrons
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronContainer{this, "ElectronContainer", "Electrons", "Name of the electron collection"}; // Container name for electrons
   float m_MassPeak;
   float m_ElectronEtCut;
   float m_MassLowerCut;

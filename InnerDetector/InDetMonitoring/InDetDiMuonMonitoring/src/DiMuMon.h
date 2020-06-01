@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DiMuMon_H
@@ -12,6 +12,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 
 class TH1F;
@@ -62,7 +63,7 @@ class DiMuMon : public ManagedMonitorToolBase
 
   std::string m_resonName{};
   std::string m_triggerChainName{};
-  std::string m_muonCollection{};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonCollection{this, "muonCollection", "Muons"};
 
   bool m_doFits{};
   bool m_doSaveFits{};

@@ -26,7 +26,14 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "JetTagTools/TrackSelector.h"
 
-#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"   
+#include "xAODTracking/TrackParticleContainer.h"    
+#include "xAODTracking/VertexContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
+// #include "xAODJet/Jet.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
 
 class TH1F_LW;
@@ -93,8 +100,6 @@ private:
     Jet_t getTaggabilityLabel(const xAOD::Jet *jet);
     bool isTopEvent(); // added by SARA
 
-    ServiceHandle<StoreGateSvc> m_storeGate;
-
 
     ToolHandle< Analysis::TrackSelector > m_trackSelectorTool{this, "TrackSelectorTool", "Analysis::TrackSelector"};
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
@@ -106,15 +111,18 @@ private:
     const xAOD::Vertex* m_priVtx = nullptr;
 
     /** @brief String to retrieve JetContainer from StoreGate. */
-    std::string m_jetName;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetName {this, "JetContainer", "AntiKt4EMTopoJets"};
     /** @brief String to retrieve TrackParticleContainer from StoreGate. */
-    std::string m_trackParticleName;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleName {this, "TrackParticleContainer", "InDetTrackParticles"};
     /** @brief String to retrieve PrimaryVertexContainer from StoreGate. */
-    std::string m_primaryVertexName;
+    SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVertexName {this, "PrimaryVertexContainer", "PrimaryVertices"};
     /** @brief String to retrieve ElectronContainer from StoreGate. */
-    std::string m_electronName; // added by SARA
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronName {this, "ElectronContainer", "Electrons"}; // added by SARA
     /** @brief String to retrieve MuonContainer from StoreGate. */
-    std::string m_muonName; // added by SARA
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonName {this, "MuonContainer", "Muons"}; // added by SARA
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this, "EventInfoKey", "EventInfo"};
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_jetBtagKey;
     /** @brief DQ cuts switcher. */
     bool m_do_cuts;
     double m_trk_d0_min_cut;

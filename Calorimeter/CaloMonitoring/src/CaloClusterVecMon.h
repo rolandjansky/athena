@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,7 +16,7 @@
 #ifndef CALOClusterVecMon_H
 #define CALOClusterVecMon_H
 
-#include "CaloMonitoring/CaloMonToolBase.h"
+#include "CaloMonToolBase.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -90,7 +90,7 @@ class CaloClusterVecMon : public CaloMonToolBase {
    };
 
    // CaloClusterContainer name 
-   std::string m_clusterContainerName;
+   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{ this, "CaloClusterContainer", "CaloCalTopoClusters" };
 
    // Time granularity  
    std::string m_timeGran;
