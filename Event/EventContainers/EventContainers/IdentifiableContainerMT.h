@@ -23,7 +23,6 @@
 #include "EventContainers/IDC_WriteHandleBase.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "EventContainers/IdentifiableCache.h"
-#include "EventContainers/InternalOffline.h"
 
 template < class T>
 class IdentifiableContainerMT : public DataObject, public EventContainers::IdentifiableContainerBase, public EventContainers::IIdentifiableCont<T>
@@ -143,10 +142,12 @@ public:
     /// constructor initializes the collection the hashmax, OFFLINE usages pattern
     IdentifiableContainerMT(IdentifierHash hashMax);
 
+    IdentifiableContainerMT(IdentifierHash hashMax, EventContainers::Mode);
+
     /// constructor initializes with a link to a cache, ONLINE usage pattern
     IdentifiableContainerMT(ICACHE *cache);
 
-    ~IdentifiableContainerMT() { if(!m_OnlineMode) static_cast<EventContainers::InternalOffline*>(m_link.get())->cleanUp(void_unique_ptr::Deleter<T>::deleter); }
+    ~IdentifiableContainerMT() { m_link->destructor(void_unique_ptr::Deleter<T>::deleter); }
 
     virtual bool hasExternalCache() const override final { return m_OnlineMode; }
 
@@ -215,7 +216,7 @@ public:
     const std::vector < std::pair<IdentifierHash::value_type, const T*> >& GetAllHashPtrPair() const{
         static_assert(sizeof(const T*) == sizeof(const void*) && std::is_pointer<const T*>::value);
         return reinterpret_cast<const std::vector < std::pair<IdentifierHash::value_type, const T*> >&>
-                (m_link->GetAllHashPtrPair());
+                (m_link->getAllHashPtrPair());
     }
     
     ///Returns a collection of all hashes availiable in this IDC.
@@ -260,6 +261,12 @@ IdentifiableContainerMT<T>::removeCollection( IdentifierHash hashId )
 // Constructor for OFFLINE style IDC
 template < class T>
 IdentifiableContainerMT<T>::IdentifiableContainerMT(IdentifierHash maxHash) :  IdentifiableContainerBase(maxHash)
+{
+}
+
+template < class T>
+IdentifiableContainerMT<T>::IdentifiableContainerMT(IdentifierHash maxHash, EventContainers::Mode mode) :
+     IdentifiableContainerBase(maxHash, mode)
 {
 }
 
@@ -327,7 +334,7 @@ IdentifiableContainerMT<T>::naughtyRetrieve(IdentifierHash hashId, T* &collToRet
 {
    if(ATH_UNLIKELY(m_OnlineMode)) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
    else {
-      auto p = reinterpret_cast<const T* > (static_cast<EventContainers::InternalOffline*>(m_link.get())->FindIndexPtr(hashId));//collToRetrieve can be null on success
+      auto p = reinterpret_cast<const T* > (m_link->findIndexPtr(hashId));//collToRetrieve can be null on success
       collToRetrieve = const_cast<T*>(p);
       return StatusCode::SUCCESS;
    }
