@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "eformat/SourceIdentifier.h"
 
 #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
@@ -156,6 +155,11 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     //!< adds given ErrorCode to all hasIDs for given ROB
     void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
 
+    //! checks status word in ROD for truncations and similar, returns success or recoverable errors, fills errors container at the same time
+    StatusCode checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const;
+
+    //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption
+    bool checkDataWordsCorruption( uint32_t word ) const;
 };
 
 inline void PixelRodDecoder::setDet( const eformat::SubDetector det )

@@ -60,7 +60,8 @@ public:
 
     // prepare the binned Array
     if (steeringBinGen1D) {
-      m_array.resize(steeringBinGen1D->bins(), {});
+      m_array =
+        std::vector<std::vector<SharedObject<T>>>(steeringBinGen1D->bins());
       for (size_t i = 0; i < steeringBinGen1D->bins(); ++i) {
         size_t sizeOfSubBin = ((*m_singleBinUtilities)[i])->bins();
         m_array[i] = std::vector<SharedObject<T>>(sizeOfSubBin);
@@ -105,7 +106,8 @@ public:
     // prepare the binned Array
     if (m_steeringBinUtility && !m_singleBinUtilities->empty()) {
       // prepare the array
-      m_array.resize(m_steeringBinUtility->bins(0));
+      m_array = std::vector<std::vector<SharedObject<T>>>(
+        m_steeringBinUtility->bins(0));
       for (size_t i = 0; i < m_steeringBinUtility->bins(0); ++i) {
         size_t sizeOfSubBin = ((*m_singleBinUtilities)[i])->bins(0);
         m_array[i] = std::vector<SharedObject<T>>(sizeOfSubBin, nullptr);
@@ -147,7 +149,7 @@ public:
       // prepare the binned Array
       if (m_steeringBinUtility && m_singleBinUtilities->size()) {
         // prepare the array
-        m_array.resize(m_steeringBinUtility->bins(0));
+        m_array=std::vector<std::vector<SharedObject<T>>>(m_steeringBinUtility->bins(0));
         for (int i = 0; i < m_steeringBinUtility->bins(0); ++i) {
           unsigned int sizeOfSubBin = ((*m_singleBinUtilities)[i])->bins(0);
           m_array[i] = std::vector<SharedObject<T>>(sizeOfSubBin);

@@ -260,6 +260,7 @@ Trk::Extrapolator::initialize() {
   auto extractNameFromTool = [] (const auto & toolHndl ){return toolHndl->name();};
   std::transform(m_propagators.begin(), m_propagators.end(), fullPropagatorNames.begin(), extractNameFromTool );
   std::transform(m_updaters.begin(), m_updaters.end(), fullUpdatorNames.begin(), extractNameFromTool );
+
   // -----------------------------------------------------------
   // Sanity check 1
   if (m_propNames.empty() && not m_propagators.empty()) {
@@ -4041,7 +4042,9 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
 
   // return the full-updated ones - may create a new object
   if (lay.layerMaterialProperties() && currentUpdator) {
-     parsOnLayer = ManagedTrackParmPtr::recapture(parsOnLayer, currentUpdator->update(parsOnLayer.get(), lay, dir, particle, matupmode));
+    parsOnLayer = ManagedTrackParmPtr::recapture(
+      parsOnLayer,
+      currentUpdator->update(parsOnLayer.get(), lay, dir, particle, matupmode));
   }
   // there are layers that have a surfaceArray but no material properties
   if (parsOnLayer

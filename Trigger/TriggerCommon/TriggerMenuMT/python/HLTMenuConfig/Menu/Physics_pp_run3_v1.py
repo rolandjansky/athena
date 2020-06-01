@@ -107,11 +107,12 @@ def setupMenu():
         #ATR-20049
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
     ]
-    # TimM temporary disable due to !31039
     TriggerFlags.BphysicsSlice.signatures = [
         #ATR-20049
-        # ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10',     groups=BphysicsGroup),
-        # ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10',     groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = [
         ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
