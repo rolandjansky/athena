@@ -390,7 +390,7 @@ namespace MuonCombined {
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
    
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);
@@ -402,7 +402,7 @@ namespace MuonCombined {
 
     const xAOD::Vertex* matchedVertex { nullptr };
     if(!m_vertexKey.empty()){
-      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey, ctx };
       if ( vertices.isValid() )
 	{
 	  for (const auto& vx : *vertices)
