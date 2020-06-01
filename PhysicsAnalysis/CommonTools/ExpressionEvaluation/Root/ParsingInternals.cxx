@@ -17,18 +17,27 @@
 
 #define VM_CASE_BINARY(OP) case op_ ## OP: { \
           assert( stack.size() >= 2); \
-          std::vector<ExpressionParsing::StackElement>::const_iterator last_elm = stack.end()-1; \
+          std::vector<ExpressionParsing::StackElement>::iterator last_elm = stack.end()-1; \
           std::vector<ExpressionParsing::StackElement>::iterator second_last_elm = stack.end()-2; \
           *second_last_elm =second_last_elm->_ ## OP(*last_elm); \
           stack.pop_back(); \
           } \
           break
 
+
 #define VISITOR_UNARY(OP) else if (x.operator_ == #OP) code.push_back(op_ ## OP)
 
 std::atomic<std::size_t> g_maxStackSize=0;
 
 namespace ExpressionParsing {
+   template <class T_func>
+   void bin_op( std::vector<StackElement> &stack, T_func a_func) {
+      assert( stack.size() >= 2);
+      std::vector<ExpressionParsing::StackElement>::iterator last_elm = stack.end()-1;
+      std::vector<ExpressionParsing::StackElement>::iterator second_last_elm = stack.end()-2;
+      a_func(*second_last_elm, *last_elm);
+      stack.pop_back();
+   }
 
   StackElement VirtualMachine::execute(std::vector<StackElement> const& code) const
   {
@@ -73,18 +82,18 @@ namespace ExpressionParsing {
         VM_CASE_UNARY(log);
         VM_CASE_UNARY(exp);
 
-        VM_CASE_BINARY(and);
-        VM_CASE_BINARY(or);
-        VM_CASE_BINARY(eq);
-        VM_CASE_BINARY(neq);
-        VM_CASE_BINARY(gt);
-        VM_CASE_BINARY(gte);
-        VM_CASE_BINARY(lt);
-        VM_CASE_BINARY(lte);
+        case op_and: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._and(b); }); break;
+        case op_or:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._or(b); });  break;
+        case op_eq:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._eq(b); });  break;
+        case op_neq: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._neq(b); }); break;
+        case op_gt:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._gt(b); });  break;
+        case op_gte: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._gte(b); }); break;
+        case op_lt:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lt(b); });  break;
+        case op_lte: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lte(b); }); break;
 
         case op_add: {
           assert( stack.size() >= 2);
-          std::vector<StackElement>::const_iterator last_elm = stack.end()-1;
+          std::vector<StackElement>::iterator last_elm = stack.end()-1;
           std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
           *second_last_elm += *last_elm;
           stack.pop_back();
@@ -93,7 +102,7 @@ namespace ExpressionParsing {
 
         case op_sub: {
           assert( stack.size() >= 2);
-          std::vector<StackElement>::const_iterator last_elm = stack.end()-1;
+          std::vector<StackElement>::iterator last_elm = stack.end()-1;
           std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
           *second_last_elm -= *last_elm;
           stack.pop_back();
@@ -104,7 +113,7 @@ namespace ExpressionParsing {
 
         case op_mul: {
           assert( stack.size() >= 2);
-          std::vector<StackElement>::const_iterator last_elm = stack.end()-1;
+          std::vector<StackElement>::iterator last_elm = stack.end()-1;
           std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
           *second_last_elm *= *last_elm;
           stack.pop_back();
@@ -113,7 +122,7 @@ namespace ExpressionParsing {
 
         case op_div: {
           assert( stack.size() >= 2);
-          std::vector<StackElement>::const_iterator last_elm = stack.end()-1;
+          std::vector<StackElement>::iterator last_elm = stack.end()-1;
           std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
           *second_last_elm /= *last_elm;
           stack.pop_back();

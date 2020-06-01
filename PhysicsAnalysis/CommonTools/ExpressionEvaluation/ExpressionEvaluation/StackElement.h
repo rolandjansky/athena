@@ -37,6 +37,10 @@ namespace ExpressionParsing {
    /// A vector of such objects is used to describe a full text expression.
    /// As such, it's able to perform all the operations that can be described
    /// in a text expression.
+   /// Most operations are destructive i.e. vector content will be modified and
+   /// moved on operations. This is to reduce the number of vector copy operations.
+   /// Thus, if the content should be preserved, a copy needs to be created and
+   /// the operation should be applied to the copy.
    ///
    /// @author Thomas Gillam (thomas.gillam@cern.ch)
    ///
@@ -63,20 +67,24 @@ namespace ExpressionParsing {
       /// @{
 
       /// Default constructor
-      StackElement();
+      StackElement() {};
       /// Constructor creating the object with an unsigned integer value
-      StackElement( unsigned int val );
+      StackElement( unsigned int val ) : m_type( SE_INT ), m_intVal(static_cast<unsigned int>(val)) {}
       /// Constructor creating the object with a signed integer value
-      StackElement( int val );
+      StackElement( int val )  : m_type( SE_INT ), m_intVal(val) {}
       /// Constructor creating the object with a double value
-      StackElement( double val );
+      StackElement( double val ) : m_type( SE_DOUBLE ), m_doubleVal( val ) {}
       /// Constructor creating the object with a vector of integers value
-      StackElement( const std::vector< int >& val );
+      StackElement( const std::vector< int >& val ) : m_type( SE_VECINT ), m_vecIntVal(val) {}
       /// Constructor creating the object with a vector of doubles value
-      StackElement( const std::vector< double >& val );
+      StackElement( const std::vector< double >& val ) : m_type( SE_VECDOUBLE ), m_vecDoubleVal( val ) {}
+      /// Constructor creating the object with a vector of integers value
+      StackElement( std::vector< int >&& val ) : m_type( SE_VECINT ), m_vecIntVal(std::move(val)) {}
+      /// Constructor creating the object with a vector of doubles value
+      StackElement( std::vector< double >&& val ) : m_type( SE_VECDOUBLE ), m_vecDoubleVal( std::move(val) ) {}
       /// Constructor creating the object from a text expression
-      StackElement( const std::string& val, IProxyLoader* proxyLoader );
-
+      StackElement( const std::string& val, IProxyLoader* proxyLoader ) : /*m_type( SE_UNK ), */m_varName( val ), m_proxyLoader( proxyLoader ) {}
+;
       StackElement(const StackElement &a);
       StackElement(StackElement &&a);
       /// @}
@@ -103,35 +111,10 @@ namespace ExpressionParsing {
       /// @name Comparison and logical operators
       /// @{
 
-      /// Equality comparison
-      template< typename T >
-      bool operator==( const T& other ) const;
-      /// Non-equality comparison
-      template< typename T >
-      bool operator!=( const T& other ) const;
-      /// AND comparison
-      template< typename T >
-      bool operator&&( const T& other ) const;
-      /// OR comparison
-      template< typename T >
-      bool operator||( const T& other ) const;
-      /// Larger-than comparison
-      template< typename T >
-      bool operator>( const T& other ) const;
-      /// Larger-or-equal comparison
-      template< typename T >
-      bool operator>=( const T& other ) const;
-      /// Lower-than comparison
-      template< typename T >
-      bool operator<( const T& other ) const;
-      /// Lower-or-equal comparison
-      template< typename T >
-      bool operator<=( const T& other ) const;
-
       /// NOT operator
-      StackElement operator!() const;
+      StackElement operator!();
       /// Inverse operator
-      StackElement operator-() const;
+      StackElement operator-();
 
       /// @}
 
@@ -139,24 +122,28 @@ namespace ExpressionParsing {
       /// @{
 
       /// Subtract a scalar type from the object
+      StackElement& operator-=( StackElement& rhs );
       template< typename T >
       StackElement& operator-=( const T& rhs );
       /// Subtract a vector type from the object
       template< typename T >
       StackElement& operator-=( const std::vector< T >& rhs );
       /// Add a scalar type to the object
+      StackElement& operator+=( StackElement& rhs );
       template< typename T >
       StackElement& operator+=( const T& rhs );
       /// Add a vector type to the object
       template< typename T >
       StackElement& operator+=( const std::vector< T >& rhs );
       /// Multiply the object by a scalar type
+      StackElement& operator*=( StackElement& rhs );
       template< typename T >
       StackElement& operator*=( const T& rhs );
       /// Multiply the object by a vector type
       template< typename T >
       StackElement& operator*=( const std::vector< T >& rhs );
       /// Divide the object by a scalar type
+      StackElement& operator/=( StackElement& rhs );
       template< typename T >
       StackElement& operator/=( const T& rhs );
       /// Divide the object by a vector type
@@ -164,17 +151,21 @@ namespace ExpressionParsing {
       StackElement& operator/=( const std::vector< T >& rhs );
 
       /// Operator subtracting a value from the object
+      StackElement operator-( StackElement& rhs );
       template< typename T >
-      StackElement operator-( const T& rhs ) const;
+      StackElement operator-( const T& rhs );
       /// Operator adding a value to the object
+      StackElement operator+( StackElement& rhs );
       template< typename T >
-      StackElement operator+( const T& rhs ) const;
+      StackElement operator+( const T& rhs );
       /// Operator multiplying the object by a value
+      StackElement operator*( StackElement& rhs );
       template< typename T >
-      StackElement operator*( const T& rhs ) const;
+      StackElement operator*( const T& rhs );
       /// Operator dividing the object by a value
+      StackElement operator/( StackElement& rhs );
       template< typename T >
-      StackElement operator/( const T& rhs ) const;
+      StackElement operator/( const T& rhs );
 
       /// @}
 
@@ -200,7 +191,7 @@ namespace ExpressionParsing {
       T scalarValue() const;
       /// Evaluate the value of the object into the requested vector type
       template< typename T >
-      std::vector< T > vectorValue( std::size_t sizeIfScalar = 0 ) const;
+      std::vector< T > vectorValue( std::size_t sizeIfScalar = 0 );
 
       /// @}
 
@@ -220,24 +211,20 @@ namespace ExpressionParsing {
       StackElement valueFromProxy() const;
       /// @}
 
-/// Helper macro for defining the signature of the internal comparison functions
-#define DEFINE_BINARY_COMPARISON_OP( OP )                               \
-      template< typename T >                                            \
-      StackElement OP( const T& other ) const;                          \
-      template< typename T >                                            \
-      StackElement OP( const std::vector< T>& other ) const
-
       /// @name Internal functions evaluating binary comparisons
       /// @{
-
-      DEFINE_BINARY_COMPARISON_OP( _eq );
-      DEFINE_BINARY_COMPARISON_OP( _neq );
-      DEFINE_BINARY_COMPARISON_OP( _and );
-      DEFINE_BINARY_COMPARISON_OP( _or );
-      DEFINE_BINARY_COMPARISON_OP( _gt );
-      DEFINE_BINARY_COMPARISON_OP( _gte );
-      DEFINE_BINARY_COMPARISON_OP( _lt );
-      DEFINE_BINARY_COMPARISON_OP( _lte );
+   private:
+      template <class T_CompHelper>
+      StackElement _comparisonOp(StackElement &other, T_CompHelper comp_helper);
+   public:
+      StackElement _eq(StackElement &other);
+      StackElement _neq(StackElement &other);
+      StackElement _and(StackElement &other);
+      StackElement _or(StackElement &other);
+      StackElement _gt(StackElement &other);
+      StackElement _gte(StackElement &other);
+      StackElement _lt(StackElement &other);
+      StackElement _lte(StackElement &other);
 
       /// @}
 
@@ -249,45 +236,45 @@ namespace ExpressionParsing {
 
       /// Function raising the object's value to the n'th power
       template< typename T >
-      StackElement _pow( const T& n ) const;
+      StackElement _pow( const T& n );
       /// Function calculating a sum value
-      StackElement _sum() const;
+      StackElement _sum();
       /// Function counting elements
-      StackElement _count() const;
+      StackElement _count();
       /// Function taking the absolute value of the object
-      StackElement _abs() const;
+      StackElement _abs();
       /// Function taking the square root of the object
-      StackElement _sqrt() const;
+      StackElement _sqrt();
       /// Function taking the cubic root of the object
-      StackElement _cbrt() const;
+      StackElement _cbrt();
       /// Function taking the sinus value of the object
-      StackElement _sin() const;
+      StackElement _sin();
       /// Function taking the cosine value of the object
-      StackElement _cos() const;
+      StackElement _cos();
       /// Function taking the tangent value of the object
-      StackElement _tan() const;
+      StackElement _tan();
       /// Function taking the arc sinus value of the object
-      StackElement _asin() const;
+      StackElement _asin();
       /// Function taking the arc cosine value of the object
-      StackElement _acos() const;
+      StackElement _acos();
       /// Function taking the arc tangent value of the object
-      StackElement _atan() const;
+      StackElement _atan();
       /// Function taking the sinus hyperbolic value of the object
-      StackElement _sinh() const;
+      StackElement _sinh();
       /// Function taking the cosine hyperbolic value of the object
-      StackElement _cosh() const;
+      StackElement _cosh();
       /// Function taking the tangent hyperbolic value of the object
-      StackElement _tanh() const;
+      StackElement _tanh();
       /// Function taking the arc sinus hyperbolic value of the object
-      StackElement _asinh() const;
+      StackElement _asinh();
       /// Function taking the arc cosine hyperbolic value of the object
-      StackElement _acosh() const;
+      StackElement _acosh();
       /// Function taking the arc tangent hyperbolic value of the object
-      StackElement _atanh() const;
+      StackElement _atanh();
       /// Function taking the logarithm of the object
-      StackElement _log() const;
+      StackElement _log();
       /// Function taking the natural exponent of the object
-      StackElement _exp() const;
+      StackElement _exp();
 
       /// @}
 
@@ -315,12 +302,12 @@ namespace ExpressionParsing {
       /// @}
  
       /// The type of the variable held by the object
-      ElementType m_type;
+      ElementType m_type = SE_UNK;
 
       /// The value of the object represented as an integer
-      int m_intVal;
+      int m_intVal = 0;
       /// The value of the object represented as a double
-      double m_doubleVal;
+      double m_doubleVal = 0.;
       /// The value of the object represented as a vector of integers
       std::vector< int > m_vecIntVal;
       /// The value of the object represented as a vector of doubles
@@ -329,12 +316,13 @@ namespace ExpressionParsing {
       /// The name/definition of the variable
       std::string m_varName;
       /// Loader for the described variable
-      IProxyLoader* m_proxyLoader;
+      IProxyLoader* m_proxyLoader = nullptr;
       /// Type of the variable provided by the proxy loader
-      mutable std::atomic<IProxyLoader::VariableType> m_variableType;
+      mutable std::atomic<IProxyLoader::VariableType> m_variableType = IProxyLoader::VT_UNK;
       /// Internal flag showing whether the type of the variable was already
       /// determined
-      mutable std::atomic<bool> m_determinedVariableType;
+      mutable std::atomic<bool> m_determinedVariableType = false;
+      mutable std::atomic<bool> m_moved = false;
 
    }; // class StackElement
 
