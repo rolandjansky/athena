@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONPATTERNCOLLECTION_H
 #define MUON_MUONPATTERNCOLLECTION_H
 
 #include "AthContainers/DataVector.h"
-#include "MuonPattern/MuonPattern.h"
 #include "MuonPattern/MuonPrdPattern.h"
 #include "AthenaKernel/CLASS_DEF.h"
 

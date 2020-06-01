@@ -1,18 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////
-// MuonCurvedSegmentCombiner.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner.h"
-
-#include <iostream>
-#include <sstream>
-#include <vector>
-
-#include "Identifier/Identifier.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
@@ -20,31 +10,20 @@
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkPrepRawData/PrepRawData.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 //================ Constructor =================================================
 
-Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t,
-    const std::string& n,
-    const IInterface*  p )
-    :
+Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
 {
@@ -57,10 +36,8 @@ Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t,
 
     declareProperty("DoCosmics",m_doCosmics = false);
 
-
   // ATLAS default use Csc segments
   // Cosmics default no do NOT use Csc segments
-
     declareProperty( "UseCscSegments",m_useCscSegments = true );
 
     declareProperty( "AddAll2DCscs",m_addAll2DCscs = true);
@@ -79,40 +56,14 @@ Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t,
 
 }
 
-//================ Destructor =================================================
-
-Muon::MuonCurvedSegmentCombiner::~MuonCurvedSegmentCombiner()
-    {}
-
-
 //================ Initialisation =================================================
 
 StatusCode Muon::MuonCurvedSegmentCombiner::initialize()
 {
-
-    StatusCode sc = AlgTool::initialize();
-    if (sc.isFailure()) return sc;
-
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-    sc = m_printer.retrieve();
-    if (sc.isSuccess()){
-        ATH_MSG_DEBUG("Retrieved " << m_printer );
-    }else{
-        ATH_MSG_FATAL("Could not get " << m_printer ); 
-        return sc;
-    }
-    
-    ATH_MSG_INFO("initialize() successful in " << name() );
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_MSG_DEBUG("initialize() successful in " << name() );
     return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::MuonCurvedSegmentCombiner::finalize()
-{
-    StatusCode sc = AlgTool::finalize();
-    return sc;
 }
 
 //============================================================================================
@@ -222,8 +173,8 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 	    if(m_debug) std::cout << " Store Mdt segment " << si << " pointer " << segs[si].get() << " Rios " << segs[si]->numberOfContainedROTs() << std::endl; 
 	    bool is_mdt=true;
 	    for (unsigned int ri=0;ri<segs[si]->numberOfContainedROTs(); ri++){
-	      if (m_muonIdHelperTool->mdtIdHelper().is_mdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
-	      if (m_muonIdHelperTool->cscIdHelper().is_csc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
+	      if (m_idHelperSvc->isMdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
+	      if (m_idHelperSvc->isCsc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
 	    }
 	    if (is_mdt == false) continue; 
 	    std::map<Muon::MuonSegment*, const MuonPatternCombination* >::iterator it = m_segAssoMap.find(segs[si].get());
@@ -407,8 +358,8 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 	      if(m_debug) std::cout << " Store Mdt segment " << si << " pointer " << segs[si].get() << " Rios " << segs[si]->numberOfContainedROTs() << std::endl; 
 	      bool is_mdt=true;
 	      for (unsigned int ri=0;ri<segs[si]->numberOfContainedROTs(); ri++){
-		if (m_muonIdHelperTool->mdtIdHelper().is_mdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
-		if (m_muonIdHelperTool->cscIdHelper().is_csc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
+		if (m_idHelperSvc->isMdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
+		if (m_idHelperSvc->isCsc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
 	      }
 	      if (is_mdt == false)continue; 
 	      
@@ -433,8 +384,8 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 	      if(m_debug) std::cout << " Store Mdt segment " << si << " pointer " << segs[si].get() << " Rios " << segs[si]->numberOfContainedROTs() << std::endl; 
 	      bool is_mdt=true;
 	      for (unsigned int ri=0;ri<segs[si]->numberOfContainedROTs(); ri++){
-		if (m_muonIdHelperTool->mdtIdHelper().is_mdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
-		if (m_muonIdHelperTool->cscIdHelper().is_csc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
+		if (m_idHelperSvc->isMdt(segs[si]->rioOnTrack(ri)->identify()) == true) break;
+		if (m_idHelperSvc->isCsc(segs[si]->rioOnTrack(ri)->identify()) == true) {is_mdt = false; break;}
 	      }
 	      if (is_mdt == false)continue; 
 	      std::map<Muon::MuonSegment*, const MuonPatternCombination* >::iterator it = m_segAssoMap.find(segs[si].get());
@@ -495,7 +446,7 @@ Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegm
                     if(m_debug) std::cout << " Store Csc segment " << si << std::endl; 
                     bool is_csc = false;
                     for (unsigned int ri=0;ri<segs[si]->numberOfContainedROTs(); ri++){
-                        if (m_muonIdHelperTool->cscIdHelper().is_csc(segs[si]->rioOnTrack(ri)->identify())) { 
+                        if (m_idHelperSvc->isCsc(segs[si]->rioOnTrack(ri)->identify())) { 
                             is_csc = true;
                             m_cscIdSet.insert(segs[si]->rioOnTrack(ri)->identify());
                             if (m_debug) std::cout << " csc hits on 4d segment " << m_cscIdSet.size() << std::endl;
@@ -545,7 +496,7 @@ Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection( const MuonSe
 	    int ncsc = 0;
 	    int ncscmatched = 0;
 	    for (unsigned int ri=0;ri<segs[si]->numberOfContainedROTs(); ri++){
-	      if (m_muonIdHelperTool->cscIdHelper().is_csc(segs[si]->rioOnTrack(ri)->identify()) && ! m_muonIdHelperTool->cscIdHelper().measuresPhi(segs[si]->rioOnTrack(ri)->identify()) ) {
+	      if (m_idHelperSvc->isCsc(segs[si]->rioOnTrack(ri)->identify()) && ! m_idHelperSvc->cscIdHelper().measuresPhi(segs[si]->rioOnTrack(ri)->identify()) ) {
 		is_csc = true; 
 		ncsc++; 
 		if (m_cscIdSet.find(segs[si]->rioOnTrack(ri)->identify())!=m_cscIdSet.end()) ncscmatched++;
@@ -1338,15 +1289,15 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
       }	
       if (rot)  idr = rot->identify();
       if (!rot) continue; 
-      if(m_muonIdHelperTool->cscIdHelper().is_csc(idr)){
+      if(m_idHelperSvc->isCsc(idr)){
         id = idr; 
       }
-      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(idr)){
+      if(m_idHelperSvc->isMdt(idr)){
 	
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*mit);
 	if( mdt ){
-	  int lay = m_muonIdHelperTool->mdtIdHelper().tubeLayer(mdt->identify());
-	  int tube = m_muonIdHelperTool->mdtIdHelper().tube(mdt->identify());
+	  int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(mdt->identify());
+	  int tube = m_idHelperSvc->mdtIdHelper().tube(mdt->identify());
 	  double tubelen = mdt->prepRawData()->detectorElement()->getActiveTubeLength(lay,tube);
 	  if( tubelen < shortestTube ){
 	    mdtShortest = mdt;
@@ -1371,15 +1322,15 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
       ATH_MSG_WARNING(" shorest tube not set ");
     }
     
-    ATH_MSG_DEBUG(" new seg in " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id));
+    ATH_MSG_DEBUG(" new seg in " << m_idHelperSvc->mdtIdHelper().print_to_string(id));
     // MDT or CSC segment
     info.nCsc = 0;
     info.nMissedHits = closeToChamberEdge ? 0 : missedHits(seg);
      
-    int stName = m_muonIdHelperTool->mdtIdHelper().stationName( id );
-    name = m_muonIdHelperTool->mdtIdHelper().stationNameString( stName );
-    int stEta = m_muonIdHelperTool->mdtIdHelper().stationEta( id );
-    int stPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi( id );
+    int stName = m_idHelperSvc->mdtIdHelper().stationName( id );
+    name = m_idHelperSvc->mdtIdHelper().stationNameString( stName );
+    int stEta = m_idHelperSvc->mdtIdHelper().stationEta( id );
+    int stPhi = m_idHelperSvc->mdtIdHelper().stationPhi( id );
     code = stName*1000+100*stPhi+stEta;
 
     int nMult1 = 0;
@@ -1396,23 +1347,23 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
       if (rot)  idr = rot->identify();
       if (!rot) continue; 
 
-      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(idr)){
-	if( m_muonIdHelperTool->mdtIdHelper().multilayer(idr) == 1 ) nMult1++;
-	if( m_muonIdHelperTool->mdtIdHelper().multilayer(idr) == 2 ) nMult2++;   
+      if(m_idHelperSvc->isMdt(idr)){
+	if( m_idHelperSvc->mdtIdHelper().multilayer(idr) == 1 ) nMult1++;
+	if( m_idHelperSvc->mdtIdHelper().multilayer(idr) == 2 ) nMult2++;   
 	nHots++;
       }
       int layerCode = 0;
-      if(m_muonIdHelperTool->rpcIdHelper().is_rpc(idr)){
-        layerCode = 1000000*(m_muonIdHelperTool->rpcIdHelper().stationName(idr))+10000*(m_muonIdHelperTool->rpcIdHelper().stationPhi(idr))+ 100* ((m_muonIdHelperTool->rpcIdHelper().stationEta(idr))+10);
-        layerCode = layerCode + 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(idr))-1)+16*((m_muonIdHelperTool->rpcIdHelper().gasGap(idr))-1);
-        if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(idr)) layerCode += 100;
+      if(m_idHelperSvc->isRpc(idr)){
+        layerCode = 1000000*(m_idHelperSvc->rpcIdHelper().stationName(idr))+10000*(m_idHelperSvc->rpcIdHelper().stationPhi(idr))+ 100* ((m_idHelperSvc->rpcIdHelper().stationEta(idr))+10);
+        layerCode = layerCode + 2*((m_idHelperSvc->rpcIdHelper().doubletR(idr))-1)+16*((m_idHelperSvc->rpcIdHelper().gasGap(idr))-1);
+        if (m_idHelperSvc->rpcIdHelper().measuresPhi(idr)) layerCode += 100;
         triggerLayers[layerCode] = 1;
-        ATH_MSG_DEBUG(" RPC hit phi" << m_muonIdHelperTool->rpcIdHelper().measuresPhi(idr) << " R " << m_muonIdHelperTool->rpcIdHelper().doubletR(idr) << " gas " << m_muonIdHelperTool->rpcIdHelper().gasGap(idr));
+        ATH_MSG_DEBUG(" RPC hit phi" << m_idHelperSvc->rpcIdHelper().measuresPhi(idr) << " R " << m_idHelperSvc->rpcIdHelper().doubletR(idr) << " gas " << m_idHelperSvc->rpcIdHelper().gasGap(idr));
       }
-      if (m_muonIdHelperTool->tgcIdHelper().is_tgc( idr )) {
-        layerCode = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(idr))+10000*(m_muonIdHelperTool->tgcIdHelper().stationPhi(idr))+ 100* ((m_muonIdHelperTool->tgcIdHelper().stationEta(idr))+10);
-        layerCode = layerCode + m_muonIdHelperTool->tgcIdHelper().gasGap(idr);
-        if (m_muonIdHelperTool->tgcIdHelper().isStrip(idr)) layerCode += 100;
+      if (m_idHelperSvc->isTgc( idr )) {
+        layerCode = 1000000*(m_idHelperSvc->tgcIdHelper().stationName(idr))+10000*(m_idHelperSvc->tgcIdHelper().stationPhi(idr))+ 100* ((m_idHelperSvc->tgcIdHelper().stationEta(idr))+10);
+        layerCode = layerCode + m_idHelperSvc->tgcIdHelper().gasGap(idr);
+        if (m_idHelperSvc->tgcIdHelper().isStrip(idr)) layerCode += 100;
         triggerLayers[layerCode] = 1;
       }
     } 
@@ -1466,12 +1417,12 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
     info.nMult1 = nMult1;
     info.nMult2 = nMult2;
 
-  } else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
-    ATH_MSG_DEBUG(" new seg in " << m_muonIdHelperTool->cscIdHelper().print_to_string(id));
+  } else if (m_idHelperSvc->isCsc(id)) {
+    ATH_MSG_DEBUG(" new seg in " << m_idHelperSvc->cscIdHelper().print_to_string(id));
     info.nCsc = 1;
-    int stName = m_muonIdHelperTool->cscIdHelper().stationName( id );
-    name = m_muonIdHelperTool->cscIdHelper().stationNameString( stName );
-    int steta = m_muonIdHelperTool->cscIdHelper().stationEta( id );
+    int stName = m_idHelperSvc->cscIdHelper().stationName( id );
+    name = m_idHelperSvc->cscIdHelper().stationNameString( stName );
+    int steta = m_idHelperSvc->cscIdHelper().stationEta( id );
     code = stName*1000+steta;
     mit = mbs.begin();
     for (;mit!=mit_end;++mit) {
@@ -1483,7 +1434,7 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
       }	
       if (rot)  idr = rot->identify();
       if (!rot) continue; 
-      if(m_muonIdHelperTool->cscIdHelper().is_csc(idr)) {
+      if(m_idHelperSvc->isCsc(idr)) {
 	nHots++;
       }
     }
@@ -1512,7 +1463,6 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
                patternMomentum = perigee->momentum().mag();
                patternPhi = perigee->momentum().phi();
                patternTheta = perigee->momentum().theta();
-//               if (m_debug) std::cout << " Associated Pattern Momentum " << perigee->momentum().mag() << std::endl;
              }
          }
 // Count phi hits
@@ -1522,14 +1472,13 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
            for (; pit!=(*it).prepRawDataVec().end(); ++pit) {
              const Trk::PrepRawData* hit = *pit ;
              nall++; 
-//             if (m_debug) std::cout << " Prep data on pattern " << std::endl; 
              Identifier id = hit->identify() ;
-             if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) ) {
-               if( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) nphi++;
-             } else if( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) ) {
-               if( m_muonIdHelperTool->tgcIdHelper().isStrip(id)  ) nphi++;
-             } else if( m_muonIdHelperTool->cscIdHelper().is_csc(id) ) {
-               if( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ) nphi++;
+             if ( m_idHelperSvc->isRpc(id) ) {
+               if( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) nphi++;
+             } else if( m_idHelperSvc->isTgc(id) ) {
+               if( m_idHelperSvc->tgcIdHelper().isStrip(id)  ) nphi++;
+             } else if( m_idHelperSvc->isCsc(id) ) {
+               if( m_idHelperSvc->cscIdHelper().measuresPhi(id) ) nphi++;
              }
            }
          }

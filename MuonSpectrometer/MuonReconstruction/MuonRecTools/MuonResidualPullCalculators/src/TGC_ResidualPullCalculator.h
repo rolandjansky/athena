@@ -1,27 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TGC_ResidualPullCalculator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// W. Liebig <http://consult.cern.ch/xwho/people/54608>
-// muon version adapted from S. Fleischmann's SCT tool
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGC_RESIDUALPULLCALCULATOR_H
 #define MUONTGC_RESIDUALPULLCALCULATOR_H
 
-// interfaces
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-// edm
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ResidualPull.h"
-
-namespace Muon {  class MuonIdHelperTool; }
 
 namespace Muon 
 {
@@ -41,16 +31,11 @@ namespace Muon
   class TGC_ResidualPullCalculator : virtual public Trk::IResidualPullCalculator, public AthAlgTool
     {
     public:
-      //! standard AlgTool constructor
       TGC_ResidualPullCalculator(const std::string&,const std::string&,const IInterface*);
 
-      //! default destructor
-      virtual ~TGC_ResidualPullCalculator ();
+      virtual ~TGC_ResidualPullCalculator()=default;
       
-      //! standard Athena-Algorithm method
       virtual StatusCode initialize() override;
-      //! standard Athena-Algorithm method
-      virtual StatusCode finalize  () override;
       
       using IResidualPullCalculator::residualPull;
       /** @brief This function returns (creates!) a Trk::ResidualPull
@@ -82,8 +67,7 @@ namespace Muon
 
     private:
       
-    //! MuonIdHelper
-    ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       //! internal structuring: common code for calculating hit pulls
       double calcPull(const double residual,
