@@ -731,6 +731,7 @@ class ComponentAccumulator(object):
             pt.name="ToolSvc."+pt.name
             addCompToJos(pt)
             pass
+        sys.stdout.flush()
 
         return app
 
