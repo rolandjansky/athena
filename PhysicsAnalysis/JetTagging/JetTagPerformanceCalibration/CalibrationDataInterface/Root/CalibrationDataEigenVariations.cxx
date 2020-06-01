@@ -1147,11 +1147,11 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
   }
 
   // Sanity check:
-  TMatrixD O = matEigen;
-  TMatrixD T = matEigen;
-  T = T.T();
-  TMatrixD OT = O*T;
-  TMatrixD matEigenInvert = T*OT.Invert();
+  TMatrixD matEigenOriginal = matEigen;
+  TMatrixD matEigenTranspose = matEigen;
+  matEigenTranspose = matEigenTranspose.T();
+  TMatrixD matOriginalTimesTranspose = matOriginal*matTranspose;
+  TMatrixD matEigenInvert = matTranspose*matOriginalTimesTranspose.Invert();
   //(O*matEigenInvert).DrawClone("colz"); // This should give us an identity matrix
 
   TMatrixD matCoeff = matSF*matEigenInvert;
