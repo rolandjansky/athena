@@ -154,6 +154,10 @@ def MergedPixelsToolCfg(flags, **kwargs) :
       kwargs.setdefault("MinimalSplitProbability", 0 )
       kwargs.setdefault("DoIBLSplitting", True )
 
+      # Enable duplcated RDO check for data15 because duplication mechanism was used.
+      if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
+          kwargs.setdefault("CheckDuplicatedRDO", True )
+
       InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "InDetMergedPixelsTool", **kwargs)
      
       acc.addPublicTool(InDetMergedPixelsTool, primary=True)

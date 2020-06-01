@@ -11,7 +11,7 @@
 // STL includes
 #include <string>
 #include <utility>  
-#include "ComboHypoToolBase.h"
+#include "DecisionHandling/ComboHypoToolBase.h"
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -26,7 +26,7 @@
 
 
 class ComboHypo : public ::AthReentrantAlgorithm {
-public:
+ public:
   ComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~ComboHypo() override;
 
@@ -34,7 +34,15 @@ public:
   virtual StatusCode execute(const EventContext& context) const override;
   virtual StatusCode finalize() override;
 
-private:
+ protected:
+  const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsInput() const { return m_inputs; }
+  const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsOutput() const { return m_outputs; }
+  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
+  const MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
+  ToolHandleArray<ComboHypoToolBase>& hypoTools() { return m_hypoTools; }
+  const ToolHandleArray<ComboHypoToolBase>& hypoTools() const { return m_hypoTools; }
+
+ private:
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "HypoInputDecisions", {}, "Input Decisions" };
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Ouput Decisions" };
@@ -42,9 +50,11 @@ private:
   Gaudi::Property<bool> m_requireUniqueROI {this, "RequireUniqueROI", false,
     "Require each Feature in each leg of the combination to come from a unique L1 seeding ROI."};
 
-  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
   Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, 
     "Map from the chain name to multiplicities required at each input"};
+
+  Gaudi::Property<bool> m_checkMultiplicityMap { this, "CheckMultiplicityMap", true,
+    "Perform a consistency check of the MultiplicitiesMap"};
 
   /**
   * @brief iterates over the inputs and for every object (no filtering) crates output object linked to input moving 

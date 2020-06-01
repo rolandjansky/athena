@@ -98,7 +98,7 @@ private:
 
     ToolHandle< Analysis::TrackSelector > m_trackSelectorTool{this, "TrackSelectorTool", "Analysis::TrackSelector"};
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
-    PublicToolHandle< Trig::TrigDecisionTool > m_trigDecTool{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; // added by SARA
+    PublicToolHandle< Trig::TrigDecisionTool > m_trigDecTool{this, "JTMTrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; // added by SARA
     /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 

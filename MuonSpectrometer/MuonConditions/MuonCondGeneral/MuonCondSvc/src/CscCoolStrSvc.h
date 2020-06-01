@@ -1,37 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCOOLSTRSVC_H
 #define MUONCONDSVC_CSCCOOLSTRSVC_H
-/**CscCoolStrSvc - Class with methods for reading and writing to cool databae*/ 
+
+#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeListSpecification.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCondData/CscCondDataContainer.h"
+#include "MuonCondData/CscCondDataCollection.h"
+
 #include <vector>
 #include <string>
 #include <sstream>
 #include <fstream>
 
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGate.h"
-#include "AthenaBaseComps/AthService.h"
+template <class TYPE> class SvcFactory;
 
-//Added for attribute list declarations (might not need all of these)
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeListSpecification.h"
-
-//Added to use CscIdHelper
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-//Calib conditions data classes
-#include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondData/CscCondDataCollection.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
-
-    template <class TYPE> class SvcFactory;
 namespace MuonCalib {
 
   /**
@@ -55,9 +47,7 @@ namespace MuonCalib {
 
     virtual const InterfaceID& type() const;
 
-
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     /**mergeAndSubmitCondDataContainer merges the data in newCont with what is currently cached from COOL.
       Then, it submits the new merged data for entry to cool (as of this writing the final write is done
@@ -180,18 +170,7 @@ namespace MuonCalib {
     /**p_detstore hold a pointer to the transient data storage*/
     StoreGateSvc* p_detstore;
 
-    /**m_log used for sending messages*/
-    mutable MsgStream m_log;
-
-    /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
-      requirement on CscIdHelper*/
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-    //      const MuonGM::MuonDetectorManager * m_muonMgr;
-
-    /// Conditions Attribute List collections used for getting datahandles for callback functions*/
-    // const CondAttrListCollection* m_runAtrColl;
-    // const CondAttrListCollection* m_pulserAtrColl;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     //maximum channel and chamber hashes (num of each -1). These are set
     //with a const_cast from the id helper
@@ -217,7 +196,6 @@ namespace MuonCalib {
     /**Flags*/
     bool m_preCache;
 
-    bool m_debug, m_verbose;
     mutable int m_numFailedRequests;
     int m_maxFailedRequests;
 

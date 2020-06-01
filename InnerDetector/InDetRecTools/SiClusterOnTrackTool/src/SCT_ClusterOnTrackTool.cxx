@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -286,7 +286,7 @@ InDet::SCT_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
   };
 
   // Phi bins have 1 degree width, and cover 0-30 degrees
-  int phiBin = int(std::fabs(phi) / deg);
+  int phiBin = static_cast<int>(std::abs(phi) / deg);
 
   float correction(0.);
 
@@ -350,7 +350,7 @@ InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
   };
 
   // Phi bins have 1 degree width, and cover 0-60 degrees
-  int phiBin = int(std::fabs(phi) / deg);
+  int phiBin = static_cast<int>(std::abs(phi) / deg);
 
   float sigma(0.);
 

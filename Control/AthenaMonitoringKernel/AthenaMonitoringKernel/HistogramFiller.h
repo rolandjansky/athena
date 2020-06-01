@@ -17,8 +17,12 @@ namespace Monitored {
 
   // Forward declare generic histogram filler (see HistogramFillerUtils.h)
   namespace detail {
-    template<typename H, typename W, typename C, typename ...Vs>
-    unsigned fill(H* hist, W weight, C cut, const Vs&... v);
+    template<typename H, typename W, typename M, typename ...Ms>
+    void doFill(H* hist, W weight, size_t i, const M& m1, const Ms&... m);
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const double&, const char* const&);
+    template<typename W>
+    void doFill(TProfile*, W, size_t, const char* const&, const char* const&);
   }
 
   /**
@@ -107,16 +111,15 @@ namespace Monitored {
       std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
       if ( m_monCutMask != nullptr ) {
-        const std::vector<double> cutMaskVector{m_monCutMask->getVectorRepresentation()};
-        maskSize = cutMaskVector.size();
+        maskSize = m_monCutMask->size();
         if (maskSize == 1) {
-          if (!cutMaskVector[0]) {
+          if (!m_monCutMask->get(0)) {
             // globally fails cut; zero first argument is a signal that one can abort
             return std::make_pair(0, [](size_t){ return false; });
             // otherwise, default cutMaskValue is sufficient
           }
         } else {
-          return std::make_pair(maskSize, [cutMaskVector=std::move(cutMaskVector)](size_t i){ return bool(cutMaskVector[i]); });
+          return std::make_pair(maskSize, [this](size_t i){ return static_cast<bool>(m_monCutMask->get(i)); });
         }
       }
       return std::make_pair(maskSize, cutMaskValue);
@@ -130,20 +133,19 @@ namespace Monitored {
      * @tparam H        histogram type (TH1, TH2, ...)
      * @param  weight   weight accessor (use detail::noWeight if not needed)
      * @param  cut      cut mask accessor (use detail::noCut if not needed)
-     * @param  m1,m...  IMonitoredVariable list to fill from
+     * @param  m...     IMonitoredVariable list to fill from
      */
-    template<class H, typename W, typename C, typename M, typename ...Ms>
-    unsigned fill(W weight, C cut, const M& m1, const Ms&... m) const {
-      // Template magic: Recursively convert all M to std::vector
-      if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
-        if (not m1.hasStringRepresentation())
-          return fill<H>(weight, cut, m..., m1.getVectorRepresentation());
-        else
-          return fill<H>(weight, cut, m..., m1.getStringVectorRepresentation());
-      } else {
-        // All IMonitoreVariables have been converted to vector<double/string>
-        return detail::fill(this->histogram<H>(), weight, cut, m1, m...);
+    template<class H, typename W, typename C, typename ...Ms>
+    unsigned fill(W weight, C cut, const Ms&... m) const {
+      auto hist = this->histogram<H>();
+
+      size_t i = 0;
+      for (; i < std::max({m.size()...}); ++i ) {
+        if ( cut(i) ) {
+          detail::doFill(hist, weight, i, m...);
+        }
       }
+      return i;
     }
 
     std::shared_ptr<HistogramDef> m_histDef;

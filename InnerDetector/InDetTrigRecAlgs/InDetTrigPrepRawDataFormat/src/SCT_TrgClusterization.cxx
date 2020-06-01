@@ -36,6 +36,8 @@
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
+#include <cmath>
+
 namespace InDet{
 
   using namespace InDet;
@@ -321,7 +323,7 @@ namespace InDet{
     if ( RoiPhiWidth<-M_PI ) RoiPhiWidth += 1e-7;
 
     if (!roi->isFullscan()){
-      if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
+      if( std::abs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
 	ATH_MSG_DEBUG( "ROI range is different from configuration: " );
 	ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
 	ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
