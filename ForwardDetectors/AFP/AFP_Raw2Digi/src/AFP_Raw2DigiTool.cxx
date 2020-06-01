@@ -22,17 +22,17 @@ AFP_Raw2DigiTool::AFP_Raw2DigiTool(const std::string &type,
 				   const IInterface *parent)
   : base_class(type, name, parent),
     m_totToChargeTransformation ("totToChargeTransformation", "1909 + x*363 + x*x*141")
-{
-  declareProperty( "rawDataContainerName", m_rawDataContainerName = "AFP_RawData");
-  declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
-  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );
-}		
+{}		
 
 AFP_Raw2DigiTool::~AFP_Raw2DigiTool() {}
 
 StatusCode AFP_Raw2DigiTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << "...");
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
+
+  ATH_CHECK( m_rawDataContainerName.initialize() );
+  ATH_CHECK( m_AFPSiHitsContainerName.initialize() );
+  ATH_CHECK( m_AFPHitsContainerNameToF.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -50,15 +50,13 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
   ATH_MSG_DEBUG("AFP_Raw2DigiTool recoSiHits ");
 
   // create output containers
-  xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
-  ATH_CHECK( evtStore()->record(siHitContainer, m_AFPSiHitsContainerName) );
-  xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
-  ATH_CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
-  siHitContainer->setStore(siHitAuxContainer);
+  auto siHitContainer = std::make_unique<xAOD::AFPSiHitContainer>();
+  auto siHitAuxContainer = std::make_unique<xAOD::AFPSiHitAuxContainer>();
+  siHitContainer->setStore(siHitAuxContainer.get());
 
   // retrieve raw data
-  const AFP_RawContainer *container = nullptr;
-  if (evtStore()->retrieve(container, m_rawDataContainerName).isFailure()) {
+  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName};
+  if (!container.isValid()) {
     ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
     return StatusCode::SUCCESS;
   }
@@ -67,7 +65,10 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
 
   for (const AFP_SiRawCollection& collection: container->collectionsSi())
     for (const AFP_SiRawData& data : collection.dataRecords())
-      newXAODHitSi (siHitContainer, collection, data);
+      newXAODHitSi (siHitContainer.get(), collection, data);
+
+  SG::WriteHandle<xAOD::AFPSiHitContainer> writeHandle{m_AFPSiHitsContainerName};
+  ATH_CHECK( writeHandle.record(std::move(siHitContainer), std::move(siHitAuxContainer)) );
 
   return StatusCode::SUCCESS;
 }
@@ -77,15 +78,13 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
   ATH_MSG_DEBUG("AFP_Raw2DigiTool recoToFHits ");
 
   // create output containers
-  xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
-  ATH_CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
-  xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
-  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
-  tofHitContainer->setStore(tofHitAuxContainer);
+  auto tofHitContainer = std::make_unique<xAOD::AFPToFHitContainer>();
+  auto tofHitAuxContainer = std::make_unique<xAOD::AFPToFHitAuxContainer>();
+  tofHitContainer->setStore(tofHitAuxContainer.get());
 
   // retrieve raw data
-  const AFP_RawContainer *container = nullptr;
-  if (evtStore()->retrieve(container, m_rawDataContainerName).isFailure()) {
+  SG::ReadHandle<AFP_RawContainer> container{m_rawDataContainerName};
+  if (!container.isValid()) {
     ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
     return StatusCode::SUCCESS;
   }
@@ -95,7 +94,10 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
   for (const AFP_ToFRawCollection& collection: container->collectionsToF())
     for (const AFP_ToFRawData& data : collection.dataRecords())
       if (data.hitDiscConfig() == 3 && data.header() == 2) 
-	newXAODHitToF (tofHitContainer, collection, data);
+	newXAODHitToF (tofHitContainer.get(), collection, data);
+
+  SG::WriteHandle<xAOD::AFPToFHitContainer> writeHandle{m_AFPHitsContainerNameToF};
+  ATH_CHECK( writeHandle.record(std::move(tofHitContainer), std::move(tofHitAuxContainer)) );
 
   return StatusCode::SUCCESS;
 }
