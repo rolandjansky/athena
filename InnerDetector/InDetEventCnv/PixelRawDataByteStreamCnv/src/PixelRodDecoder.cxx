@@ -1150,7 +1150,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 }
 
 StatusCode PixelRodDecoder::StoreBSError() const {
-  ATH_CHECK(m_errors->recordData());
+// STSTST  ATH_CHECK(m_errors->recordData());
   return StatusCode::SUCCESS;
 }
 

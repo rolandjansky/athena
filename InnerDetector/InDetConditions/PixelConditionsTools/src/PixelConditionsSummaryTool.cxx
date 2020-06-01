@@ -62,7 +62,8 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash & moduleHash) const {
+// STSTST bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) const {
   if (!m_useByteStream) {
      return false;
   }
@@ -71,6 +72,9 @@ bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash
     ATH_MSG_ERROR("BSErrContainer is not valid!");
     return true;
   }
+
+  std::cout << "STSTST PixelConditionsSummaryTool::isBSError OK1" << std::endl;
+
   if (m_pixelID->wafer_hash_max()==2048) {   // RUN-2 setup
     if ((m_pixelID->barrel_ec(m_pixelID->wafer_id(moduleHash))==0 && m_pixelID->layer_disk(m_pixelID->wafer_id(moduleHash))==0) 
         || m_pixelID->is_dbm(m_pixelID->wafer_id(moduleHash))) {
@@ -100,11 +104,14 @@ bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash
   return true;
 }
 
-bool PixelConditionsSummaryTool::isBSActive([[maybe_unused]] const IdentifierHash & moduleHash) const {
+// STSTST bool PixelConditionsSummaryTool::isBSActive([[maybe_unused]] const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash) const {
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   for (const auto* elt : *errCont) {
     IdentifierHash myHash=elt->first;
-    if (myHash-m_pixelID->wafer_hash_max()==moduleHash) { return false; }
+    if (myHash-m_pixelID->wafer_hash_max()==moduleHash) { 
+      std::cout << "STSTST PixelConditionsSummaryTool::isBSActive FALSE " << moduleHash << std::endl;
+      return false; }
   }
   return true;
 }

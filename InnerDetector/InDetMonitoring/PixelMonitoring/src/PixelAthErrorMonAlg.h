@@ -134,7 +134,7 @@ class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
 
  private:
 
-  ToolHandle<IPixelByteStreamErrorsTool> m_pixelErrorTool{this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool to retrieve PixelByteStreamErrors"};
+// STSTST  ToolHandle<IPixelByteStreamErrorsTool> m_pixelErrorTool{this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool to retrieve PixelByteStreamErrors"};
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const PixelID* m_pixelid;
