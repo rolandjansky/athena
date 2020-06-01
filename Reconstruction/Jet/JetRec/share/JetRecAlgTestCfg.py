@@ -77,32 +77,25 @@ def JetInputCfg(ConfigFlags):
     # Add the alg to the sequence in the ComponentAccumulator
     inputcfg.addEventAlgo(jetmodalg,sequencename)
 
-    # Create a PseudoJetGetter & corresponding algorithm
-    constitgetter = CompFactory.PseudoJetGetter(
-        "pjg_LCTopo",
+    # Create a PseudoJetAlgorithm
+
+    constitpjgalg = CompFactory.PseudoJetAlgorithm(
+        "pjgalg_LCTopo",
         InputContainer = "LCOriginTopoClusters",
         OutputContainer = "PseudoJetLCTopo",
         Label = "LCTopo",
         SkipNegativeEnergy=True,
         GhostScale=0.)
 
-    constitpjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_LCTopo",
-        PJGetter = constitgetter)
-
-    ghostgetter = CompFactory.PseudoJetGetter(
-        "pjg_Truth",
+    ghostpjgalg = CompFactory.PseudoJetAlgorithm(
+        "pjgalg_Truth",
         InputContainer = "TruthParticles",
         OutputContainer = "PseudoJetTruth",
         Label = "Truth",
         SkipNegativeEnergy=True,
         GhostScale=0.)
 
-    ghostpjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_Truth",
-        PJGetter = ghostgetter)
-
-    pjcs = [constitgetter.OutputContainer,ghostgetter.OutputContainer]
+    pjcs = [constitpjgalg.OutputContainer,ghostpjgalg.OutputContainer]
 
     # Add the algs to the sequence in the ComponentAccumulator
     inputcfg.addEventAlgo(constitpjgalg,sequencename)
@@ -125,14 +118,10 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     buildcfg.merge(inputcfg)
 
     # Create a merger to build the PseudoJetContainer for this specific jet collection
-    pjmerger = CompFactory.PseudoJetMerger(
-        "pjmerge_"+buildjetsname,
+    mergepjalg = CompFactory.PseudoJetMerger(
+        "pjmergealg_"+buildjetsname,
         InputPJContainers = pjcs,
         OutputContainer = "PseudoJetMerged_"+buildjetsname)
-
-    mergepjalg = CompFactory.PseudoJetAlgorithm(
-        "pjmergealg_"+buildjetsname,
-        PJGetter = pjmerger)
 
     buildcfg.addEventAlgo(mergepjalg)
 
