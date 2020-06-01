@@ -95,7 +95,7 @@ StatusCode TRTRawDataProvider::initialize() {
 StatusCode TRTRawDataProvider::execute() 
 {
   SG::WriteHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = std::make_unique<TRT_RDO_Container>(m_trt_id->straw_hash_max()); 
+  rdoContainer = std::make_unique<TRT_RDO_Container>(m_trt_id->straw_hash_max(), EventContainers::Mode::OfflineFast); 
   ATH_CHECK(rdoContainer.isValid());
 
   
