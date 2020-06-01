@@ -39,8 +39,8 @@
 JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string & name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_histogramsCreated(false),
-  m_switch_off(false),
-  m_jetBtagKey(this, "JetBtagKey", m_jetName.key()+".btaggingLink")
+  m_jetBtagKey(this, "JetBtagKey", m_jetName.key()+".btaggingLink"),
+  m_switch_off(false)
 {
   declareProperty("DQcuts", m_do_cuts = true);
 
