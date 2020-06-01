@@ -1,61 +1,45 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTHITSUMMARYTOOL_H
 #define MUON_MUONSEGMENTHITSUMMARYTOOL_H
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-class MsgStream;
-class MdtIdHelper;
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  
 }
 
 namespace Muon {
-  
-
   /**
      @brief tool to calculate muon segment hit summary
   */
   class MuonSegmentHitSummaryTool : virtual public IMuonSegmentHitSummaryTool, public AthAlgTool {
   public:
-    /** @brief constructor */
     MuonSegmentHitSummaryTool(const std::string&,const std::string&,const IInterface*);
 
-    /** @brief destructor */
-    virtual ~MuonSegmentHitSummaryTool ();
+    virtual ~MuonSegmentHitSummaryTool()=default;
     
-    /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
 
     /** @brief calculate segment hit counts */
     virtual HitCounts getHitCounts( const MuonSegment& seg ) const;
     
   private:
-
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer;          //!< EDM printer tool
 
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
 	"MuonDetectorManager", 

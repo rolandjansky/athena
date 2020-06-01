@@ -1,28 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_TimingTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-
 namespace Muon {
 
-  RPC_TimingTool::RPC_TimingTool(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t,n,p), m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool") {
+  RPC_TimingTool::RPC_TimingTool(const std::string& t, const std::string& n, const IInterface* p) :
+      AthAlgTool(t,n,p) {
     declareInterface<IMuonHitTimingTool>(this);
   }
 
-  RPC_TimingTool::~RPC_TimingTool() {}
-
   StatusCode RPC_TimingTool::initialize() {
-    ATH_CHECK( m_idHelper.retrieve() );
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode RPC_TimingTool::finalize() {
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -43,7 +35,7 @@ namespace Muon {
       const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(hit);
       if( !rpc ) continue;
       int bin = invbinwidth*(rpc->time()-minTime);
-      ATH_MSG_DEBUG(m_idHelper->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
+      ATH_MSG_DEBUG(m_idHelperSvc->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
       if( bin < 0 || bin >= (int)histogram.size() ) continue;
       ++histogram[bin];
     }
@@ -64,7 +56,7 @@ namespace Muon {
         const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(hit);
         if( !rpc ) continue;
         int bin = invbinwidth*(rpc->time()-minTime);
-        ATH_MSG_DEBUG(m_idHelper->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
+        ATH_MSG_DEBUG(m_idHelperSvc->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
         // select hits in the max bin or the two neighbouring ones
         if( bin > maxbin+1 || bin < maxbin-1 ) continue;
         time += rpc->time();
@@ -84,8 +76,8 @@ namespace Muon {
     // https://indico.cern.ch/getFile.py/access?contribId=6&resId=0&materialId=slides&confId=147791
     // ... no calibration offline yet, no correction for signal propagation time)
     Identifier id = rpcRIO.identify();
-    int measPhi = m_idHelper->measuresPhi(id);
-    MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    int measPhi = m_idHelperSvc->measuresPhi(id);
+    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
     if( stIndex == MuonStationIndex::BO) {
       // outer layer station => high pt 
       if (measPhi==1) return 5.10;

@@ -138,31 +138,26 @@ if what=="tgc":
 
 from AthenaCommon.CfgGetter import getPublicTool
 
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-MuonIdHelperTool = Muon__MuonIdHelperTool("Muon::MuonIdHelperTool")
-ToolSvc += MuonIdHelperTool
-#MuonIdHelperTool.OutputLevel = DEBUG
-
 ## MDT
 if what=="mdt":
 	from MuonCondAlg.MuonCondAlgConf import MdtCondDbAlg
-	alg = MdtCondDbAlg("MdtCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+	alg = MdtCondDbAlg("MdtCondDbAlg")
 	if run=="dataR1": alg.useRun1SetPoints = False
 
 ## CSC
 if what=="csc":
 	from MuonCondAlg.MuonCondAlgConf import CscCondDbAlg
-	alg = CscCondDbAlg("CscCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+	alg = CscCondDbAlg("CscCondDbAlg")
 
 ## RPC
 if what=="rpc":
 	from MuonCondAlg.MuonCondAlgConf import RpcCondDbAlg
-	alg = RpcCondDbAlg("RpcCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+	alg = RpcCondDbAlg("RpcCondDbAlg")
 
 ## TGC
 if what=="tgc":
 	from MuonCondAlg.MuonCondAlgConf import TgcCondDbAlg
-	alg = TgcCondDbAlg("CscCondDbAlg", IdHelper=getPublicTool("Muon::MuonIdHelperTool"))
+	alg = TgcCondDbAlg("CscCondDbAlg")
 
 ## append to sequence
 if run=="mc":

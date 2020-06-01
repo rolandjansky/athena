@@ -102,7 +102,6 @@ def MuonSegmentFittingToolCfg(flags, **kwargs):
     # declareProperty("SLFitter",       m_slTrackFitter);
     # declareProperty("CurvedFitter",   m_curvedTrackFitter);
     # declareProperty("TrackCleaner",   m_trackCleaner);
-    # declareProperty("IdHelper",       m_idHelperTool);
     # declareProperty("UpdatePrecisionCoordinate", m_updatePrecisionCoordinate = false );
     result=ComponentAccumulator()
     # FIXME! Add this.
@@ -535,7 +534,6 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     #declareProperty("SLFitter",            m_slTrackFitter);
     #declareProperty("SegmentAmbiguityTool",m_ambiTool);
     #declareProperty("TrackToSegmentTool",  m_trackToSegmentTool);
-    #declareProperty("IdHelper",            m_idHelperTool);
     #declareProperty("TrackCleaner",        m_trackCleaner);
     result=ComponentAccumulator()
 
