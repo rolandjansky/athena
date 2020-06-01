@@ -71,7 +71,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         rcJetDef.modifiers = rcModList
 
         rcConstitPJAlg = getConstitPJGAlg( rcJetDef.inputdef )
-        rcConstitPJKey = rcConstitPJAlg.PJGetter.OutputContainer
+        rcConstitPJKey = rcConstitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
         rcPJs = [rcConstitPJKey]
@@ -144,7 +144,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
-        constitPJKey = constitPJAlg.PJGetter.OutputContainer
+        constitPJKey = constitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( constitPJAlg )
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired
