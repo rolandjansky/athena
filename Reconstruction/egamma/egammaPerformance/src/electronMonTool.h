@@ -18,7 +18,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "egammaMonToolBase.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
@@ -126,20 +126,20 @@ class electronMonTool : public egammaMonToolBase
 
   virtual ~electronMonTool();
   
-  virtual StatusCode bookHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
   virtual StatusCode bookHistogramsForOneElectronType(electronHist& myHist);
 
-  virtual StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
   virtual StatusCode fillHistogramsForOneElectron(xAOD::ElectronContainer::const_iterator e_iter,
 						  electronHist& myHist);
-  virtual StatusCode procHistograms();
 
  private:
 
  protected:
   // Properties
 
-  std::string m_ElectronContainer; // Container name for electrons
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronContainer{this, "ElectronContainer", "Electrons", "Name of the electron collection"}; // Container name for electrons
 
   // LH Loose electrons histograms
   electronHist *m_LhLooseElectrons;

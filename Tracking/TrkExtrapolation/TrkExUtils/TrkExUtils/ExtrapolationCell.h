@@ -557,5 +557,5 @@ namespace Trk {
 
 } // end of namespace
 
-#endif // TRKEXUTILS_SOLUTIONSELECTOR_H
+#endif // TRKEXUTILS_EXTRAPOLATIONCELL_H
 

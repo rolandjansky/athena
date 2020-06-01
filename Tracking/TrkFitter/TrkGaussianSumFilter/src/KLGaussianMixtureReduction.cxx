@@ -206,13 +206,14 @@ findMerges(componentPtrRestrict componentsIn,
   std::vector<std::pair<int32_t, int32_t>> merges;
   merges.reserve(inputSize - reducedSize);
   // initial distance calculation
-  calculateAllDistances(components, distances, n);
+  calculateAllDistances(components, distances.buffer(), n);
 
   // merge loop
   int32_t numberOfComponentsLeft = n;
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
-    const std::pair<int32_t, float> minDis = findMinimumIndex(distances, nn2);
+    const std::pair<int32_t, float> minDis =
+      findMinimumIndex(distances.buffer(), nn2);
     const int32_t minIndex = minDis.first;
     const triangularToIJ conversion = convert[minIndex];
     const int32_t mini = conversion.I;
@@ -220,15 +221,16 @@ findMerges(componentPtrRestrict componentsIn,
     // Combine the 2 components
     combine(components[mini], components[minj]);
     // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances, mini, n);
+    recalculateDistances(components, distances.buffer(), mini, n);
     // Reset old weights wrt the  minj position
-    resetDistances(distances, minj, n);
+    resetDistances(distances.buffer(), minj, n);
     // keep track and decrement
     merges.emplace_back(mini, minj);
     --numberOfComponentsLeft;
   } // end of merge while
   return merges;
 }
+
 /**
  * findMinimumIndex
  *

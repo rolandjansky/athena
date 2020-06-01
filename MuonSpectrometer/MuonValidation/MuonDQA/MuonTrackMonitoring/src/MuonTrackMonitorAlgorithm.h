@@ -28,6 +28,7 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
   private:
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey { this, "MuonContainerKey", "Muons", "Key for Muon Containers" };
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonIsoDecorKey { this, "MuonIsoDecorKey", "Muons.ptcone30" };
 
     // Toolds
     /// Fills data-quality information (e.g. pt, eta, phi..) to histograms for given selection of muons

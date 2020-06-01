@@ -33,6 +33,8 @@ _all_streams = [
     StreamInfo('IDCosmic','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
+    # MONITORING STREAM
+    StreamInfo('IDMonitoring','monitoring', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),

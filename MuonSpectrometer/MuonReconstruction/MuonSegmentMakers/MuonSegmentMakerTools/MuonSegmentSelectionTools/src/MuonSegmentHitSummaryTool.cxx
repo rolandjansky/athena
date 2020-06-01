@@ -1,70 +1,32 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentHitSummaryTool.h"
  
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonSegment/MuonSegmentQuality.h"
+
 #include <map>
-
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 
 namespace Muon {
 
-  MuonSegmentHitSummaryTool::MuonSegmentHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-  {
+  MuonSegmentHitSummaryTool::MuonSegmentHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa) :
+      AthAlgTool(ty,na,pa),
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool") {
     declareInterface<IMuonSegmentHitSummaryTool>(this);
-
     declareProperty("PositionAlongTubeCut",m_positionAlongTubeCut = -200., "Cut on distance from tube end used for holes, negative value means in the tube");
     declareProperty("MinimumADCValue",m_lowerADCBound = 70. );
   }
 
-
-  MuonSegmentHitSummaryTool::~MuonSegmentHitSummaryTool(){}
-
-
   StatusCode MuonSegmentHitSummaryTool::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
     ATH_CHECK(m_DetectorManagerKey.initialize());
-
-    if(m_edmHelperSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
-      return StatusCode::FAILURE;
-    }
-
-    if(m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer);
-      return StatusCode::FAILURE;
-    }
-    
-    if(m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool);
-      return StatusCode::FAILURE;
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentHitSummaryTool::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -89,8 +51,8 @@ namespace Muon {
     double dxdy = 1.;
 
     Identifier chid = m_edmHelperSvc->chamberId(seg);
-    MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chid);
-    if( (!m_idHelperTool->isCsc(chid) && stIndex == MuonStationIndex::EI) || 
+    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chid);
+    if( (!m_idHelperSvc->isCsc(chid) && stIndex == MuonStationIndex::EI) || 
 	stIndex == MuonStationIndex::BO )       hitCounts.nexpectedTrigHitLayers = 1;
     else if( stIndex == MuonStationIndex::BM )  hitCounts.nexpectedTrigHitLayers = 2;
     else if( stIndex == MuonStationIndex::EM )  hitCounts.nexpectedTrigHitLayers = 3;
@@ -102,14 +64,14 @@ namespace Muon {
       
       // get id and check that it is a muon hit id
       Identifier id = m_edmHelperSvc->getIdentifier(**mit);
-      if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
 
       // check if MDT is so increase ml counter
-      if( m_idHelperTool->isMdt(id) ){
+      if( m_idHelperSvc->isMdt(id) ){
 	// get layer index
-	int ml  = m_idHelperTool->mdtIdHelper().multilayer(id);
-	int lay = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-	int tube = m_idHelperTool->mdtIdHelper().tube(id); 
+	int ml  = m_idHelperSvc->mdtIdHelper().multilayer(id);
+	int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+	int tube = m_idHelperSvc->mdtIdHelper().tube(id); 
 	int layIndex = 4*(ml-1) + (lay-1); // start at 0 rather than at 1
 	MdtLayerIntersect& layIntersect = hitCounts.mdtHitHolePerLayerCounts[layIndex];
 	++layIntersect.nhits;
@@ -119,7 +81,7 @@ namespace Muon {
 
 	  const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
 	  if( !detEl ){
-	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperTool->toString(id));
+	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperSvc->toString(id));
 	    continue;
 	  }
 	  
@@ -129,7 +91,7 @@ namespace Muon {
 	    gToAMDB = detEl->GlobalToAmdbLRSTransform();
 	    lpos = gToAMDB*seg.globalPosition();
 	    ldir = (gToAMDB*seg.globalDirection()).unit();
-	    dxdy = fabs(ldir.y()) > 0.001 ? ldir.x()/ldir.y() : 1000.;
+	    dxdy = std::abs(ldir.y()) > 0.001 ? ldir.x()/ldir.y() : 1000.;
 	    transformIsSet = true;
 	  }
 	  if( !mdtShortest || tubeLen < shortestTube ){
@@ -137,7 +99,7 @@ namespace Muon {
 	    shortestTube = tubeLen;
 	  }
 	}
-	if( m_idHelperTool->mdtIdHelper().multilayer(id) == 1 ) ++hitCounts.nmdtHitsMl1; 
+	if( m_idHelperSvc->mdtIdHelper().multilayer(id) == 1 ) ++hitCounts.nmdtHitsMl1; 
 	else                                                    ++hitCounts.nmdtHitsMl2;
 
 	if (mdt){
@@ -148,14 +110,14 @@ namespace Muon {
 	}
         }
 
-      }else if( m_idHelperTool->isTrigger(id) ){
+      }else if( m_idHelperSvc->isTrigger(id) ){
 	// get gasgap ID (same for eta/phi projection)
-	Identifier gasGapId = m_idHelperTool->gasGapId(id);
-	bool measuresPhi = m_idHelperTool->measuresPhi(id);
+	Identifier gasGapId = m_idHelperSvc->gasGapId(id);
+	bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	if( measuresPhi ) ++hitCounts.hitCountsPerLayer[gasGapId].nphiHits;
 	else              ++hitCounts.hitCountsPerLayer[gasGapId].netaHits;
       }else{
-	bool measuresPhi = m_idHelperTool->measuresPhi(id);
+	bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	if( measuresPhi ) ++hitCounts.ncscHitsPhi;
 	else              ++hitCounts.ncscHitsEta;
       }
@@ -169,9 +131,9 @@ namespace Muon {
 
 	const Identifier& id = *hit;
 	// get layer index
-	int ml  = m_idHelperTool->mdtIdHelper().multilayer(id);
-	int lay = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-	int tube = m_idHelperTool->mdtIdHelper().tube(id);
+	int ml  = m_idHelperSvc->mdtIdHelper().multilayer(id);
+	int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+	int tube = m_idHelperSvc->mdtIdHelper().tube(id);
 	int layIndex = 4*(ml-1) + (lay-1); // subtract 1 as fields start with 1 instead of 0
 	MdtLayerIntersect& layIntersect = hitCounts.mdtHitHolePerLayerCounts[layIndex];
 	++layIntersect.nholes;
@@ -179,7 +141,7 @@ namespace Muon {
 	if( transformIsSet ){
 	  const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
 	  if( !detEl ){
-	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperTool->toString(id));
+	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperSvc->toString(id));
 	    continue;
 	  }
 	  double tubeLen = detEl->getActiveTubeLength(lay,tube);
@@ -220,7 +182,7 @@ namespace Muon {
       if( lit->second.nhits == 0 ){
 	++currentEnclosedHoles;
 	// count holes within chamber bounds
-	if( fabs(lit->second.distFromTubeEnd) - 0.5*lit->second.tubeLength < m_positionAlongTubeCut ) ++hitCounts.nmdtHolesInChamber;
+	if( std::abs(lit->second.distFromTubeEnd) - 0.5*lit->second.tubeLength < m_positionAlongTubeCut ) ++hitCounts.nmdtHolesInChamber;
       }else{
 	if( firstLayerWithHits ) hitCounts.nmdtEnclosedHoles += currentEnclosedHoles;
 	currentEnclosedHoles = 0;
@@ -230,7 +192,7 @@ namespace Muon {
 
     if( mdtShortest ){
       double posAlongTube = (mdtShortest->associatedSurface().transform().inverse()*seg.globalPosition()).z();
-      if( 0.5*shortestTube - fabs(posAlongTube) < 100. ) hitCounts.closeToChamberEdge = true;
+      if( 0.5*shortestTube - std::abs(posAlongTube) < 100. ) hitCounts.closeToChamberEdge = true;
     }
 
     if( seg.fitQuality() ){

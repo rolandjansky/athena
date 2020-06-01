@@ -1,3 +1,3 @@
-#include "InDetDiMuonMonitoring/DiMuMon.h"
+#include "../DiMuMon.h"
 DECLARE_COMPONENT( DiMuMon )
 

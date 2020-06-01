@@ -9,7 +9,6 @@
  * @brief  AlignedDynArray implementation
  */
 
-
 namespace GSFUtils {
 
 template<typename T, size_t Alignment>
@@ -33,7 +32,8 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(size_t n, const T& value)
 }
 
 template<typename T, size_t Alignment>
-inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
+inline AlignedDynArray<T, Alignment>::AlignedDynArray(
+  AlignedDynArray&& other) noexcept
   : m_buffer(nullptr)
   , m_size(0)
 {
@@ -47,19 +47,17 @@ inline AlignedDynArray<T, Alignment>::AlignedDynArray(AlignedDynArray&& other)
 
 template<typename T, size_t Alignment>
 inline AlignedDynArray<T, Alignment>&
-AlignedDynArray<T, Alignment>::operator=(AlignedDynArray&& other)
+AlignedDynArray<T, Alignment>::operator=(AlignedDynArray&& other) noexcept
 {
+  // cleanup this object
+  cleanup();
+  // copy over other
+  m_buffer = other.m_buffer;
+  m_size = other.m_size;
+  // set other to invalid
+  other.m_buffer = nullptr;
+  other.m_size = 0;
 
-  if (this != &other) {
-    // cleanup this object
-    cleanup();
-    // copy over other
-    m_buffer = other.m_buffer;
-    m_size = other.m_size;
-    // set other to invalid
-    other.m_buffer = nullptr;
-    other.m_size = 0;
-  }
   return *this;
 }
 
@@ -70,40 +68,43 @@ inline AlignedDynArray<T, Alignment>::~AlignedDynArray()
 }
 
 template<typename T, size_t Alignment>
-inline AlignedDynArray<T, Alignment>::operator T*()
+inline T*
+AlignedDynArray<T, Alignment>::buffer() noexcept
 {
   return m_buffer;
 }
 
 template<typename T, size_t Alignment>
-inline AlignedDynArray<T, Alignment>::operator const T*() const
+inline const T*
+AlignedDynArray<T, Alignment>::buffer() const noexcept
 {
   return m_buffer;
 }
 
 template<typename T, size_t Alignment>
-inline T& AlignedDynArray<T, Alignment>::operator[](const std::size_t pos)
+inline T& AlignedDynArray<T, Alignment>::operator[](
+  const std::size_t pos) noexcept
 {
   return m_buffer[pos];
 }
 
 template<typename T, size_t Alignment>
 inline const T& AlignedDynArray<T, Alignment>::operator[](
-  const std::size_t pos) const
+  const std::size_t pos) const noexcept
 {
   return m_buffer[pos];
 }
 
 template<typename T, size_t Alignment>
 inline std::size_t
-AlignedDynArray<T, Alignment>::size() const
+AlignedDynArray<T, Alignment>::size() const noexcept
 {
   return m_size;
 }
 
 template<typename T, size_t Alignment>
 inline void
-AlignedDynArray<T, Alignment>::cleanup()
+AlignedDynArray<T, Alignment>::cleanup() noexcept
 {
   if (m_buffer) {
     for (std::size_t pos = 0; pos < m_size; ++pos) {

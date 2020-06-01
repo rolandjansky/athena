@@ -28,10 +28,10 @@ from .Decorators import memoize
 
 ### functions -----------------------------------------------------------------
 # Set buffer size, in bytes.
-# The argument to SetSize is in elements, not bytes.
+# The argument to reshape is in elements, not bytes.
 def _set_byte_size (buf, sz):
     eltsz = array(buf.typecode).itemsize
-    buf.SetSize (sz // eltsz)
+    buf.reshape ((sz // eltsz,))
     return
 
 def import_root(batch=True):

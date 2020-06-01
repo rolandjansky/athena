@@ -1,13 +1,13 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONTOOL_H
 #define TILEMONTOOL_H
 
-#include "CaloMonitoring/CaloMonToolBase.h"
+#include "CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
 
@@ -47,7 +47,7 @@ private:
   void getRMSdevNoise(TProfile *t1, TProfile *t2, TH1F *t3);
 
   //Job Properties and other private variables
-  std::string m_cellContainerName;
+  SG::ReadHandleKey<CaloCellContainer> m_cellContainerName { this, "CaloCellContainer", "AllCalo", "SG key of the input cell container" };
 
   bool m_useElectronicNoiseOnly;
   bool m_useTwoGaus;

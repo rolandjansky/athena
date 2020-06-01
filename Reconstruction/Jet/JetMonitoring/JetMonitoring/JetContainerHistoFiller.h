@@ -57,7 +57,7 @@ protected:
   /// The list of histogramming tools
   ToolHandleArray<JetHistoBase> m_histoTools;
   /// the jet container to build histos from
-  std::string m_jetContainerName;
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this, "JetContainer", ""};
 
 };
 #endif

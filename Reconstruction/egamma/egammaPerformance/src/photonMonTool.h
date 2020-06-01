@@ -18,7 +18,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "egammaMonToolBase.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
@@ -178,19 +178,19 @@ class photonMonTool : public egammaMonToolBase
   photonMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
   virtual ~photonMonTool();
   
-  virtual StatusCode bookHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode bookHistograms() override;
   virtual StatusCode bookHistogramsForOnePhotonType(photonHist& myHist);
 
-  virtual StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
   virtual StatusCode fillHistogramsForOnePhoton(xAOD::PhotonContainer::const_iterator g_iter, photonHist& myHist);
-  virtual StatusCode procHistograms();
 
  private:
 
  protected:
   // Properties
 
-  std::string m_PhotonContainer; // Container name for photons
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_PhotonContainer{this, "PhotonContainer", "PhotonCollection", "Name of the photon collection"}; // Container name for photons
 
   // Loose cut based photons histograms
   photonHist *m_CbLoosePhotons;

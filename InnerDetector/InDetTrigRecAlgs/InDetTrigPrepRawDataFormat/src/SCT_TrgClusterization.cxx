@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -93,7 +93,7 @@ namespace InDet{
     declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
     
 
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
 
     // error strategy
     //
@@ -233,7 +233,7 @@ namespace InDet{
     //initialisation of monitored quantities
     m_numSctIds = 0;
     m_numSctClusters = 0;
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
     m_listOfSctIds.clear();
     m_ClusHashId.clear();
     m_SctBSErr.clear();
@@ -309,7 +309,7 @@ namespace InDet{
     }
     
     if (!roi){
-      ATH_MSG_WARNING( "Received NULL RoI" );
+      ATH_MSG_WARNING( "Received nullptr RoI" );
       return HLT::NAV_ERROR;
     }
     

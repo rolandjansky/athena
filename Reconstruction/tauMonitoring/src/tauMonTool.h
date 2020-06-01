@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUMONTOOL_H
@@ -18,7 +18,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "xAODTau/TauDefs.h"
-#include "xAODTau/TauJet.h"
+#include "xAODTau/TauJetContainer.h"
 
 class tauMonTool : public ManagedMonitorToolBase {
 
@@ -28,14 +28,16 @@ public:
 	// destructor
 	virtual ~tauMonTool();
 
-	StatusCode bookHistograms();
-	StatusCode fillHistograms();
-	StatusCode procHistograms();
+	StatusCode initialize() override;
+	StatusCode bookHistograms() override;
+	StatusCode fillHistograms() override;
+	StatusCode procHistograms() override;
 	StatusCode Book1DHist(TH1 ** hist, MonGroup * monName, std::string histName, std::string histTitle, int NBins, double lowBin, double highBin);
 	StatusCode Book2DHist(TH2 ** hist, MonGroup * monName, std::string histName, std::string histTitle, int NXBins, double lowXBin, double highXBin, int NYBins, double lowYBin, double highYBin);
 
 protected:
-	std::string m_tauJetKey;
+	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauJetKey{this, "tauJetKey", "TauJets"};
+	SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
 	bool        m_doTrigger;
 
 	int  m_maxNLB;
