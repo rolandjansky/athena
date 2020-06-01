@@ -38,7 +38,7 @@ public:
 
 class EventHistoVarTool : public AthAlgTool, virtual public IEventHistoVarTool {
 public:
-  EventHistoVarTool(const std::string & name, const IInterface* parent);
+  EventHistoVarTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~EventHistoVarTool(){}
 
   virtual StatusCode initialize() ;  

@@ -22,7 +22,11 @@ knownVar = dict(
 )
 
 
-
+knownEventVar = dict(    
+    # These always are of type 'float'
+    avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Variable='averageInteractionsPerCrossing'),
+    actMu = ToolSpec('EventHistoVarTool', 'actMu', Variable='actualInteractionsPerCrossing'),
+)
 
 # ***************************************
 # The list of standard jet histograms.
@@ -94,8 +98,10 @@ _knownHistos = [
 
     HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);', ),
     HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);', ),
-    HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);', ),
-    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV[0]:SumPt(p_{T}>0.5 GeV)[0];', ),
+    HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);', ),
+    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV[0]:SumPtTrk(p_{T}>0.5 GeV)[0];', ),
+    HistoSpec('SumPtChargedPFOPt500:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);', ),
+    HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV[0]:SumPtChargedPFO(p_{T}>0.5 GeV)[0];', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),

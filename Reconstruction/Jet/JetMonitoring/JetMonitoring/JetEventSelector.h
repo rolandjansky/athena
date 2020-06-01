@@ -12,10 +12,6 @@
 #include "JetMonitoring/EventHistoVarTool.h"
 
 
-namespace EventVar {
-  class Variable;
-}
-
 class JetEventSelector : public asg::AsgTool , virtual public IJetEventSelector
  { 
    ASG_TOOL_CLASS(JetEventSelector,IJetEventSelector)

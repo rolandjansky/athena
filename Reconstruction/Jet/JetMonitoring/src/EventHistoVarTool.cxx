@@ -5,8 +5,8 @@
 #include "JetMonitoring/EventHistoVarTool.h"
 
 
-EventHistoVarTool::EventHistoVarTool(const std::string & name ,const IInterface* parent):
-  AthAlgTool( "float", name, parent )
+EventHistoVarTool::EventHistoVarTool(const std::string & type, const std::string & name ,const IInterface* parent):
+  AthAlgTool( type, name, parent )
 
 {
   declareInterface<IEventHistoVarTool>(this);
