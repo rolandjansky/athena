@@ -22,6 +22,7 @@
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
@@ -312,9 +313,9 @@ namespace InDet {
   class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
   {
   public:
-    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
       if (!key.key().empty()) {
-        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
         if (!m_prdToTrackMap.isValid()) {
           throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
         }
@@ -356,8 +357,9 @@ namespace InDet {
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+  auto ctx = getContext();
   //RoI preparation/update 
-  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
   ATH_CHECK(roiCollection.isValid());
   TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
   TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
@@ -368,11 +370,11 @@ StatusCode TrigFastTrackFinder::execute() {
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
 
-  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
+  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
   outputTracks = std::make_unique<TrackCollection>();
 
-  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
-  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks));
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
+  ATH_CHECK(findTracks(ctx, trackEventData, internalRoI, *outputTracks));
   
   return StatusCode::SUCCESS;
 }
@@ -388,7 +390,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
   }
   TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
-  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks);
+
+  StatusCode sc = findTracks(getContext(), trackEventData, *internalRoI, *outputTracks);
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
     delete outputTracks;
@@ -405,7 +408,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 }
 
 
-StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
+StatusCode TrigFastTrackFinder::findTracks(const EventContext& ctx,
+                                           InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
                                            TrackCollection& outputTracks) const {
   // Run3 monitoring ---------->
@@ -433,7 +437,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
-  ATH_CHECK(m_spacePointTool->getSpacePoints( roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT));
+  ATH_CHECK(m_spacePointTool->getSpacePoints(ctx, roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT));
 
   mnt_timer_SpacePointConversion.stop();
   mnt_roi_nSPs    = mnt_roi_nSPsPIX + mnt_roi_nSPsSCT;
@@ -541,7 +545,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
-  m_trackMaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
+  m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -566,7 +570,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(ctx, trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {

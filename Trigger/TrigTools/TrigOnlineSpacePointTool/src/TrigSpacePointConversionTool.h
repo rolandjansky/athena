@@ -39,7 +39,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
 
   //concrete implementations
 
-  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) const override final;
+  virtual StatusCode getSpacePoints(const EventContext& ctx, const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) const override final;
 
  protected:
 

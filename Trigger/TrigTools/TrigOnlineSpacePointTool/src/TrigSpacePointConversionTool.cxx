@@ -102,15 +102,15 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 }
 
 
-StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
+StatusCode TrigSpacePointConversionTool::getSpacePoints(const EventContext& ctx, const IRoiDescriptor& internalRoI, 
 							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) const {
 
   output.clear();
   
 
-  SG::ReadHandle<SpacePointContainer> pixelSpacePointsContainer(m_pixelSpacePointsContainerKey);
+  SG::ReadHandle<SpacePointContainer> pixelSpacePointsContainer(m_pixelSpacePointsContainerKey, ctx);
   ATH_CHECK(pixelSpacePointsContainer.isValid());
-  SG::ReadHandle<SpacePointContainer> sctSpacePointsContainer(m_sctSpacePointsContainerKey);
+  SG::ReadHandle<SpacePointContainer> sctSpacePointsContainer(m_sctSpacePointsContainerKey, ctx);
   ATH_CHECK(sctSpacePointsContainer.isValid());
 
   std::vector<IdentifierHash> listOfPixIds;

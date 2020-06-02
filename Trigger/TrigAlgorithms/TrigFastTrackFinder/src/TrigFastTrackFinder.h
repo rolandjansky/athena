@@ -76,15 +76,13 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE) override;
 
-  StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
+  StatusCode findTracks(const EventContext& ctx,
+                        InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
                         TrackCollection& outputTracks) const;
 
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
-
-  virtual bool isClonable() const override { return true; }
-  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
 
 protected: 
 
