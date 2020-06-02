@@ -67,35 +67,6 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     return StatusCode::FAILURE;
   }
 
-  const xAOD::Vertex* primVertex=nullptr;
-  const xAOD::VertexContainer* vertices=nullptr;
-
-  //Introduction of a read handle for the HIShapeContainer
-  SG::ReadHandle<xAOD::VertexContainer>  readHandleVertexContainer ( m_vertexContainer );
-
-  if(m_originCorrection)
-  {
-    if(!readHandleVertexContainer.isValid())
-    {
-      ATH_MSG_ERROR("Could not retrieve VertexContainer " << m_vertexContainer.key());
-      return StatusCode::FAILURE;
-    }
-    vertices = readHandleVertexContainer.get();
-    for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex )
-    {
-      if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx)
-      {
-        	primVertex=vertices->at(iVertex);
-        	break;
-      }
-    }
-    if(!primVertex)
-    {
-      ATH_MSG_WARNING("No primary vertices found, using first in container");
-      primVertex=vertices->at(0);
-    }
-  }
-
   const xAOD::HIEventShape* eshape = nullptr;
   if(m_modulatorTool->getShape(eshape).isFailure())
   {
@@ -117,53 +88,11 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
     xAOD::IParticle::FourMom_t p4_unsubtr;
-    const xAOD::Vertex* origin=nullptr;
-    if(m_originCorrection)
-    {
-      if( !(*ijet)->getAssociatedObject<xAOD::Vertex>("OriginVertex", origin) )
-      {
-      	origin=primVertex;
-      	ATH_MSG_DEBUG("Jet has no associated vertex, using PV from container");
-      }
-    }
 
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr)
     {
       m_subtractorTool->subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulatorTool, eshape); //modifies p4_cl to be constituent 4-vector AFTER subtraction
-      if(m_originCorrection)
-      {
-      	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-      	float mag = 0;
-      	if(cl->isAvailable<float>("HIMag")) mag=cl->auxdataConst<float>("HIMag");
-      	else
-      	{
-      	  double cm_mag=0;
-      	  if(cl->retrieveMoment (xAOD::CaloCluster::CENTER_MAG, cm_mag)) mag=cm_mag;
-      	}
-      	if(mag!=0.)
-      	{
-      	  float eta0=cl->eta0();
-      	  float phi0=cl->phi0();
-      	  float radius=mag/std::cosh(eta0);
-      	  xAOD::IParticle::FourMom_t p4_pos;
-      	  p4_pos.SetX(radius*std::cos(phi0)-origin->x());
-      	  p4_pos.SetY(radius*std::sin(phi0)-origin->y());
-      	  p4_pos.SetZ(radius*std::sinh(eta0)-origin->z());
-
-      	  double deta=p4_pos.Eta()-eta0;
-      	  double dphi=p4_pos.Phi()-phi0;
-      	  //adjust in case eta/phi are flipped in case of neg E clusters
-      	  //this method is agnostic wrt convention
-      	  if(p4_cl.Eta()*eta0 <0.) deta*=-1;
-
-      	  double eta_prime=p4_cl.Eta()+deta;
-      	  double phi_prime=p4_cl.Phi()+dphi;
-      	  double e_subtr=p4_cl.E();
-      	  p4_cl.SetPtEtaPhiE(e_subtr/std::cosh(eta_prime),eta_prime,phi_prime,e_subtr);
-      	}
-      	else missingMoment=true;
-      }
 
       p4_subtr+=p4_cl;
       if( msgLvl(MSG::DEBUG) )
@@ -219,7 +148,6 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
       (*ijet)->setConstituentsSignalState(HIJetRec::subtractedConstitState());
     }
   }
-  if(missingMoment) ATH_MSG_WARNING("No origin correction applied, CENTERMAG missing");
-  //Fix from conflict beetween d1493284 (master) and 5af8a733 (21.0)
+
     return StatusCode::SUCCESS;
 }
