@@ -56,11 +56,6 @@ download.artpackage = 'TrigAnalysisTest'
 download.artjobname = 'test_trigAna_PhysValWeb_grid.py'
 test.check_steps.append(download)
 
-refdir=' '
-for fname in os.listdir('.'):
-    if fname.startswith('ref-'): 
-        refdir = fname
-
 
 if not os.path.exists('PHYSVAL_WEB'):
     os.mkdir('PHYSVAL_WEB')
