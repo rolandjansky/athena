@@ -16,6 +16,7 @@
 
 #include "JetRec/JetModifierBase.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "HIJetRec/IHISubtractorTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -36,7 +37,8 @@ class HIJetConstituentModifierTool : public JetModifierBase {
  private:
    /// \brief Name of input cluster container
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clusterKey { this, "ClusterKey", "ClusterKey", "Name of the input Cluster Container"};
-
+  /// \brief handle to IHISubtractorTool that determines the subtracted kinematics for each constituent
+  ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetSubtractorToolBase", "" };
 };
 
 #endif

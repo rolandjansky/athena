@@ -19,15 +19,14 @@ HIJetConstituentModifierTool::HIJetConstituentModifierTool(const std::string& my
 StatusCode HIJetConstituentModifierTool::initialize(){
 
   ATH_MSG_INFO("Initializing HIJetConstituentModifierTool");
-  //Shallow copy key automatically built from the cluster key
-	//m_clusterKey += ".shallowCopy";
   ATH_CHECK( m_clusterKey.initialize() );
-
   return StatusCode::SUCCESS;
+
 }
 
 int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
 
+    float E_min=m_subtractorTool->minEnergyForMoments();
     const xAOD::JetConstituentVector constituents = jet.getConstituents();
     std::vector<size_t> cluster_indices;
     cluster_indices.reserve(constituents.size());
@@ -46,6 +45,8 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    if( constituentWeightAcc.isAvailable(jet) ) constituentWeightAcc( jet ).resize(0);
 
    //save unsubtracted kinematics as moment if they don’t exist already...
+   xAOD::IParticle::FourMom_t unsubtrP4;
+   unsubtrP4 = jet.p4();
    jet.setJetP4(HIJetRec::unsubtractedJetState(),jet.jetP4());
 
    xAOD::IParticle::FourMom_t subtrP4;
@@ -60,6 +61,12 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
      auto cl=ccl->at(index);
      jet.addConstituent(cl);
      subtrP4+=cl->p4(HIJetRec::subtractedClusterState());
+   }
+
+   if(subtrP4.E()/std::cosh(subtrP4.Eta()) < E_min)
+   {
+     subtrP4=unsubtrP4;
+     subtrP4*=1e-7;//ghost scale
    }
    jet4vec.SetCoordinates(subtrP4.Pt(),subtrP4.Eta(),subtrP4.Phi(),subtrP4.M());
    jet.setJetP4(jet4vec);
