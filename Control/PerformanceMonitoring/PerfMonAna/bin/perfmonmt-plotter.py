@@ -41,7 +41,8 @@ def plotBarChart(params):
   ax.set_title(params["title"], fontsize=params['titleFontSize'], fontweight='bold')
   ax.set_yticks(params["index"])
   ax.set_yticklabels(params["yTickLabels"])
-  ax.legend(prop={'size': params['legendFontSize']})
+  handles, labels = ax.get_legend_handles_labels()
+  ax.legend(reversed(handles), reversed(labels), prop={'size': params['legendFontSize']})
   ax.tick_params(axis='both', which='major', labelsize=30)
   ax.grid(linestyle=':',linewidth=0.1)
 
