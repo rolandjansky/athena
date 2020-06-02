@@ -70,6 +70,7 @@ public:
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
+  inline bool deregisterOldLBNHistograms() const { return m_deregisterOldLBNHistograms; }
 private:
 
   
@@ -79,6 +80,7 @@ private:
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   Gaudi::Property<bool> m_failOnEmpty { this, "FailOnEmpty", true, "Fail in initialize() if no histograms defined" };
+  Gaudi::Property<bool> m_deregisterOldLBNHistograms { this, "DeregisterOldLBNHistograms", false, "Set special behaviors for online running" };
 
   std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
   mutable std::mutex m_fillMutex;
