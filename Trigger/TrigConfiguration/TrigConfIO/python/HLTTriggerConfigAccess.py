@@ -83,7 +83,7 @@ class HLTJobOptionsAccess(TriggerConfigAccess):
         super(HLTJobOptionsAccess,self).__init__( ConfigType.HLTJO, mainkey = "properties",
                                                   filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT JO.HST_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_SETUP JO WHERE JO.HST_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT JO.HJO_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_JOBOPTIONS JO WHERE JO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
             "SELECT JO.JO_CONTENT FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID=SMT.SMT_JO_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
