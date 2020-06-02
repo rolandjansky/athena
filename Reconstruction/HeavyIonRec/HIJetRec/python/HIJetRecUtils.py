@@ -145,6 +145,9 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
+    if 'output_cluster_key' in kwargs.keys() : output_cluster_key=kwargs['output_cluster_key']
+    else : cluster_key=cluster_key+".deepCopy"
+
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
@@ -154,19 +157,23 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
     else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
 
+    do_cluster_moments=False
+    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
+
     HIClusterSubtraction=CompFactory.HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
+
     theAlg=HIClusterSubtraction(toolName)
     theAlg.ClusterKey=cluster_key
+    theAlg.OutClusterKey=output_cluster_key
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
     theAlg.UpdateOnly=update_only
+    theAlg.SetMoments=do_cluster_moments
     theAlg.ApplyOriginCorrection=apply_origin_correction
 
-    do_cluster_moments=False
-    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -215,13 +222,14 @@ def GetConstituentsModifierTool(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
-    print ('Cluster Key %s' % cluster_key)
     HIJetConstituentModifierTool=CompFactory.HIJetConstituentModifierTool
     toolName='HIJetConstituentModifierTool'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
-    print ('Toolname ConstModif %s' % toolName)
+
     cmod=HIJetConstituentModifierTool(toolName)
-    cmod.ClusterKey=cluster_key+'.shallowCopy'
+    cmod.ClusterKey=cluster_key
+    cmod.Subtractor=GetSubtractorTool(**kwargs)
+
     jtm.add(cmod)
     return cmod
 

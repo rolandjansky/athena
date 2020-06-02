@@ -172,15 +172,17 @@ if not HIJetFlags.DoCellBasedSubtraction():
     cell_level_shape_key=iter_egamma.OutputEventShapeKey
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
+cluster_key_eGamma_deep=ClusterKey+"_eGamma_deep"
+cluster_key_final_deep=cluster_key_eGamma_deep+"_Cluster_deep"
 #Subtraction for egamma and to get layers
-#ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, output_cluster_key=cluster_key_eGamma_deep, modulator=modulator1, CalculateMoments=True, useClusters=False, apply_origin_correction=False)
 #Cluster subtraction for jets
-ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=cluster_key_eGamma_deep, output_cluster_key=cluster_key_final_deep, modulator=modulator1, CalculateMoments=False, useClusters=True, apply_origin_correction=True)
 
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]
 hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
-hi_tools+=[GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=ClusterKey)]
+hi_tools+=[GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=cluster_key_final_deep)]
 
 ###
 #subtracted algorithms
