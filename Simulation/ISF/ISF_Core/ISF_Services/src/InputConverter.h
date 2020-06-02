@@ -27,10 +27,9 @@ namespace Barcode {
 namespace HepPDT {
   class ParticleDataTable;
 }
-namespace HepMC {
-  class GenParticle;
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
+
 class IPartPropSvc;
 class McEventCollection;
 namespace ISFTesting {
@@ -78,7 +77,7 @@ namespace ISF {
                                              EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const override final;
 
     /** Converts vector of ISF::ISFParticles to G4Event */
-    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;
+    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent, bool useHepMC=false) const override final;
 
   private:
 
@@ -86,9 +85,9 @@ namespace ISF {
 
     G4PrimaryParticle* getG4PrimaryParticle(const HepMC::GenParticle& gp) const;
 
-    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp, bool useHepMC) const;
 
-    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
+    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp, bool useHepMC) const;
 
     /** Tests whether the given ISFParticle is within the Geant4 world volume */
     bool isInsideG4WorldVolume(const ISF::ISFParticle& isp, const G4VSolid* worldSolid) const;

@@ -70,6 +70,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of common parameters
   //declareProperty("foobar",     m_foobar=false);
   //  declareProperty("MuonSelectorTool",m_muonSelectorTool);  // YY added -> removed
+  declareProperty("TriggerStreamOfFile", m_triggerStreamOfFile="");
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigPhotonContainerCnv.h"
@@ -43,18 +43,18 @@ TrigPhotonContainer * TrigPhotonContainerCnv::createTransient()
   static pool::Guid p0_guid( "CB04DF3E-C363-49E3-9BE1-AD25230AB1EA" );
 
   if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigPhotonContainer_p3 > col_vect( poolReadObject< TrigPhotonContainer_p3 >() );
+         std::unique_ptr< TrigPhotonContainer_p3 > col_vect( poolReadObject< TrigPhotonContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if( compareClassGuid( tlp2_guid ) )     
     {
-      std::auto_ptr< TrigPhotonContainer_tlp2 > col_vect( poolReadObject< TrigPhotonContainer_tlp2 >() );
+      std::unique_ptr< TrigPhotonContainer_tlp2 > col_vect( poolReadObject< TrigPhotonContainer_tlp2 >() );
       return TPConverter_tlp2.createTransient( col_vect.get(), mlog );
     }   
   else if( compareClassGuid( tlp1_guid ) )     
     {
-      std::auto_ptr< TrigPhotonContainer_tlp1 > col_vect( poolReadObject< TrigPhotonContainer_tlp1 >() );
+      std::unique_ptr< TrigPhotonContainer_tlp1 > col_vect( poolReadObject< TrigPhotonContainer_tlp1 >() );
       return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
     }
   else if( compareClassGuid( p0_guid ) || compareClassGuid( p0_guid2 ) ){

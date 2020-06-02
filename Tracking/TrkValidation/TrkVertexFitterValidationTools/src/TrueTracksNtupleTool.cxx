@@ -22,9 +22,9 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 //CLHEP
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // constructor
 Trk::TrueTracksNtupleTool::TrueTracksNtupleTool(

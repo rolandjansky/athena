@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 // Subject: RPCLV1--> Efficiency Offline Muon Data Quality
 // RPCLv1 Sector Hits vs LB
 /////////////////////////////////////////////////////////////////////////
-      
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/DataHandle.h"
  
@@ -29,28 +27,18 @@
 
 #include <sstream>
 
-using namespace std;
-
-
-
 //================================================================================================================================
 RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type, 
 						  const std::string & name, 
-						  const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent )
+						  const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent )
 {
-  declareProperty("isMC"                        , m_isMC                       = false  );
-}
-
-//================================================================================================================================
-RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
-{
-  ATH_MSG_INFO( " Deleting RpcLv1RawDataEfficiency "  );
+  declareProperty("isMC", m_isMC=false);
 }
 
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::initialize()
 {
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
   ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
   
@@ -77,7 +65,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   m_rpclv1_sectorhits_C[5]  = 0 ;  	
   m_rpclv1_sectorhits_all[5]= 0 ;
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
   ATH_MSG_DEBUG( "Found the MuonDetectorManager from detector store."  );
@@ -85,10 +73,6 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   ATH_CHECK(m_rpcCoinKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
   ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
-
-  // Ignore the checking code
-  ManagedMonitorToolBase::initialize().ignore();
-  
   return StatusCode::SUCCESS;
 }
 
@@ -124,24 +108,24 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
       coindata->SetThresholdLowHigh(int((*it_collection)->threshold()), int((*it_collection)->isLowPtCoin()), int((*it_collection)->isHighPtCoin()));
       prdcoll_id   = (*it_collection)->identify();
       descriptor_Atl = MuonDetMgr->getRpcReadoutElement( prdcoll_id );
-      irpcstationEta = int(m_muonIdHelperTool->rpcIdHelper().stationEta(prdcoll_id));
+      irpcstationEta = int(m_idHelperSvc->rpcIdHelper().stationEta(prdcoll_id));
       x_atlas = descriptor_Atl->stripPos(prdcoll_id ).x();
       y_atlas = descriptor_Atl->stripPos(prdcoll_id ).y();
       z_atlas = descriptor_Atl->stripPos(prdcoll_id ).z();
       //obtaining phi coordinate:
       if ( x_atlas > 0 ) {
-	phi_atlas = atan ( y_atlas / x_atlas );
+	phi_atlas = std::atan ( y_atlas / x_atlas );
       }
       else if ( x_atlas == 0 ){
 	if (y_atlas > 0) phi_atlas =  CLHEP::pi/2;
 	else             phi_atlas = -CLHEP::pi/2;
       }
       else{
-	if (y_atlas > 0) phi_atlas = atan ( y_atlas / x_atlas ) + CLHEP::pi ;
-	else             phi_atlas = -CLHEP::pi + atan ( y_atlas / x_atlas ) ;
+	if (y_atlas > 0) phi_atlas = std::atan ( y_atlas / x_atlas ) + CLHEP::pi ;
+	else             phi_atlas = -CLHEP::pi + std::atan ( y_atlas / x_atlas ) ;
       }
       // obtaining  pseudorapidity coordinate
-      if ( z_atlas!=0  ) eta_atlas = -log( abs( tan( 0.5 * atan(sqrt(pow(x_atlas,2.)+pow(y_atlas,2.))/ z_atlas )) ) );
+      if ( z_atlas!=0  ) eta_atlas = -std::log( std::abs( std::tan( 0.5 * std::atan(std::hypot(x_atlas, y_atlas)/ z_atlas )) ) );
       else eta_atlas = 0;
       if ( irpcstationEta<0 ) eta_atlas = -eta_atlas;
       coindata->SetEtaPhi( eta_atlas, phi_atlas );
@@ -251,26 +235,5 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 	  }
       }
   }
-  return StatusCode::SUCCESS;
-}
-
-//================================================================================================================================
-// Proc histograms
-//================================================================================================================================
-StatusCode RpcLv1RawDataEfficiency::procHistograms()
-{
-  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
-
-  return StatusCode::SUCCESS;
-}
-
-
-
-//================================================================================================================================
-// Finalizing
-//================================================================================================================================
-StatusCode RpcLv1RawDataEfficiency::finalize() 
-{
-  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
   return StatusCode::SUCCESS;
 }

@@ -3,6 +3,8 @@
 from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 import json
 
 def getHLTPrescaleFolderName():
@@ -50,6 +52,21 @@ def getHLTPrescalesSetFileName( flags=None ):
     else:
         hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return hltPrescalesSetFileName
+
+# L1 Bunchgroups set json file name
+def getBunchGroupSetFileName( flags=None ):
+    if flags is None:
+        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+        bunchGroupSetFileName = 'BunchGroupSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
+    else:
+        bunchGroupSetFileName = 'BunchGroupSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+    return bunchGroupSetFileName
+
+
+# HLT Job options json file name
+def getHLTJobOptionsFileName( flags=None ):
+    return 'HLTJobOptions.json'
+
 
 # Creates an L1 Prescale file from the menu
 # this is a temporary solution, in the final version the L1PrescalesSet file should come from the menu
@@ -104,28 +121,28 @@ def createHLTPrescalesFileFromMenu( flags=None ):
 
 def getTrigConfigFromFlag( flags=None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    if flags is None:
+    if flags is None: # old-style TriggerFlags
         from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tcflag = tf.triggerConfig()
-        log.info("Parsing TriggerFlags.triggerConfig %s", tcflag)
+        tcflag = tf.triggerConfig() if tf.triggerConfig.statusOn else None
+        log.info("Parsing old-style trigger flags 'triggerConfig': %s", tcflag)
     else:
         tcflag = flags.Trigger.triggerConfig
-        log.info("Parsing flags.Trigger.triggerConfig %s", tcflag)
+        log.info("Parsing new-style trigger flag 'triggerConfig': %s", tcflag)
     if tcflag is None:
         tcflag = "FILE"
     source, dbconn, keys = (tcflag+":::").split(":")[:3]
-    smk,l1psk,hltpsk,bgk = (keys+",,,").split(",")[:4]
+    smk,l1psk,hltpsk,bgsk = (keys+",,,").split(",")[:4]
     smk = int(smk) if smk != "" else None
     l1psk = int(l1psk) if l1psk!="" else None
     hltpsk = int(hltpsk) if hltpsk!="" else None
-    bgk = int(bgk) if bgk!="" else None
+    bgsk = int(bgsk) if bgsk!="" else None
     tcdict = {
         "source" : source.upper(),  # DB, FILE, COOL
         "dbconn" : dbconn, # db connection (if origin==DB or COOL) or "JOSVC" if connection is to be taken from TrigConf::IJobOptionsSvc 
         "smk"    : smk,
         "l1psk"  : l1psk,
         "hltpsk" : hltpsk,
-        "bgk"    : bgk
+        "bgsk"   : bgsk
     }
     # this is for backward compatibility
     if tcdict["source"] == "MCRECO":
@@ -158,12 +175,14 @@ def getL1ConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-    from AthenaCommon.AppMgr import theApp
+    from AthenaCommon.Configurable import Configurable
+    print("HERE importing as {}".format(Configurable.configurableRun3Behavior))
     # generate menu file
     generatedFile = generateL1Menu( flags=flags )
 
     # configure config svc
+
+    TrigConf__LVL1ConfigSvc = CompFactory.getComp("TrigConf::LVL1ConfigSvc")
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
 
     l1ConfigSvc.ConfigSource = "XML"
@@ -186,6 +205,7 @@ def getL1ConfigSvc( flags = None ):
         l1ConfigSvc.JsonFileName = l1JsonFileName
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
 
+    from AthenaCommon.AppMgr import theApp
     theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
@@ -194,16 +214,17 @@ def getL1ConfigSvc( flags = None ):
 @memoize
 def getHLTConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from AthenaCommon.Logging import log
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTConfigSvc
-    from AthenaCommon.AppMgr import theApp
-    hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
+    HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
+    hltConfigSvc = HLTConfigSvc("HLTConfigSvc")
+
     hltXMLFile = "None"
     hltConfigSvc.ConfigSource = "None"
     hltConfigSvc.XMLMenuFile = hltXMLFile
     hltConfigSvc.InputType = "file"
     hltJsonFileName = getHLTMenuFileName( flags )
     hltConfigSvc.JsonFileName = hltJsonFileName
+    # TODO revisit if needed    
+    from AthenaCommon.AppMgr import theApp
     theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
     log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
     log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
@@ -214,7 +235,7 @@ def getHLTConfigSvc( flags = None ):
 @memoize
 def setupHLTPrescaleCondAlg( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTPrescaleCondAlg
+    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
     hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg( "HLTPrescaleCondAlg" )
 
     tc = getTrigConfigFromFlag( flags )
@@ -239,14 +260,13 @@ def setupHLTPrescaleCondAlg( flags = None ):
     if flags is None: # old style config
         from AthenaCommon.AlgSequence import AthSequencer
         condSequence = AthSequencer("AthCondSeq")
-        condSequence += hltPrescaleCondAlg
+        condSequence += conf2toConfigurable( hltPrescaleCondAlg )
         log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
     return hltPrescaleCondAlg
 
 
 # provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     acc.addService( getL1ConfigSvc( flags ) )
     return acc
@@ -281,9 +301,6 @@ def HLTPrescaleCondAlgCfg( flags ):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True    
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     acc = TrigConfigSvcCfg( ConfigFlags )

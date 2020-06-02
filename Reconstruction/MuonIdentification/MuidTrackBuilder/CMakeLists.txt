@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
 			  Event/EventPrimitives
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
@@ -41,7 +40,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExUtils
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkFitter/TrkiPatFitterUtils
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -55,7 +57,7 @@ atlas_add_component( MuidTrackBuilder
                      src/OutwardsCombinedMuonTrackBuilder.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkGeometry TrkParameters TrkTrack InDetRIO_OnTrack MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonRecHelperToolsLib MuonRecToolInterfaces MuonCombinedToolInterfaces muonEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkiPatFitterUtils TrkToolInterfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AtlasDetDescr GaudiKernel MuidInterfaces TrkDetDescrInterfaces TrkGeometry TrkParameters TrkTrack InDetRIO_OnTrack MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonRecHelperToolsLib MuonRecToolInterfaces MuonCombinedToolInterfaces muonEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkiPatFitterUtils TrkToolInterfaces MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_headers( MuidTrackBuilder )

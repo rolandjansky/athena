@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,6 +21,9 @@
 
 #include <iostream>
 
+// to get AmgMatrix plugin:
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "TrkJetVxFitter/JetFitterRoutines.h"
 #include "VxVertex/RecVertex.h"
 #include "VxJetVertex/VxJetCandidate.h"
@@ -41,6 +44,7 @@
 
 #include <TMath.h>
 #include <cmath>
+#include <sstream>
 
 #include "TrkJetVxFitter/TrkDistanceFinderNeutralCharged.h"
 #include "TrkJetVxFitter/TrkDistanceFinderNeutralNeutral.h"
@@ -89,7 +93,8 @@ namespace Trk
   StatusCode JetFitterRoutines::initialize() {
     
     AthAlgTool::initialize().ignore();
-    
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
     //retrieving the udator itself 	 
     ATH_CHECK( m_helper.retrieve()  );    
 
@@ -151,6 +156,15 @@ namespace Trk
     const std::vector<VxVertexOnJetAxis*>::const_iterator VtxEnd=associatedVertices.end();
     
     if (associatedVertices.empty()) {//Was that your intention? to be checked... 15.03.2007
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (!readHandle.isValid()) {
+         std::stringstream msg;
+         msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+         throw std::runtime_error(msg.str());
+      }
+      MagField::AtlasFieldCache fieldCache;
+      fieldCondObj->getInitializedCache (fieldCache);
       for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
         VxVertexOnJetAxis* myVertex=(*VtxIter);
         if (myVertex!=0) {
@@ -178,7 +192,7 @@ namespace Trk
               double distOnAxis=-999.;
               std::pair<Amg::Vector3D,double> result;
               try {
-                result=m_minDistanceFinder->getPointAndDistance(myJetAxis,*ptr,distOnAxis);
+                result=m_minDistanceFinder->getPointAndDistance(myJetAxis,*ptr,distOnAxis, fieldCache);
 
                 double R=distOnAxis*sinRecJetTheta;
                 double Z=distOnAxis*cosRecJetTheta;

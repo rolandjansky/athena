@@ -152,13 +152,23 @@ StatusCode TrigSignatureMoniMT::stop() {
 
   // retrieve information whether chain was active in Step
   std::map<std::string, std::set<std::string>> chainToSteps;
+  std::map<std::string, std::set<int>> chainToStepsId;
   for ( const TrigConf::Chain& chain: *hltMenuHandle ){
+    int nstep=1; //let's start from step=1
     for ( const auto& seq : chain.getList("sequencers", true) ){
       // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
       const std::string seqName = seq.getValue();
-      std::smatch stepName;
-      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
-      chainToSteps[chain.name()].insert( stepName[0] );
+      std::smatch stepNameMatch;
+      std::regex_search(seqName.begin(), seqName.end(), stepNameMatch, std::regex("[Ss]tep[0-9]+"));
+
+      std::string stepName = stepNameMatch[0];
+      stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
+      chainToSteps[chain.name()].insert( stepName );
+      chainToStepsId[chain.name()].insert( nstep );
+      //check that the step name is set with the same position in the execution
+      if ("Step"+std::to_string(nstep) != stepName)
+	ATH_MSG_INFO("Sequence "<<seqName<<" (step "<<stepName<<") used at step "<<nstep<<" in chain "<<chain.name());
+      nstep++;
     }
   }
 
@@ -170,8 +180,8 @@ StatusCode TrigSignatureMoniMT::stop() {
         // skip steps where chain wasn't active
         // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
         const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
-        ybin < 3 || ybin > stepsSize + 2 || chainToSteps[chainName].find("Step" + std::to_string(ybin - 2)) != chainToSteps[chainName].end() ?
-          v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
+        ybin < 3 || ybin > stepsSize + 2 || chainToStepsId[chainName].find(ybin - 2) != chainToStepsId[chainName].end() ?
+	  v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
           : v += fixedWidth( "-", 11 );
       } else {
         v += fixedWidth( " ", 11 );

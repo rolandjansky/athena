@@ -14,10 +14,10 @@
 #include "CommissionEvent/ComTime.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -26,7 +26,6 @@
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 //STL
 #include <string>
@@ -69,6 +68,7 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
   ///Convert a layer/disk number (0-21) to a layer number (0-8 for endcaps, 0-3 for barrel)
   int layerIndex2layer(const int index) const;
   int becIdxLayer2Index(const int becIdx, const int layer) const;
+  int getWaferIndex(const int barrel_bc, const int layer_disk, const int side) const;
 
   std::string m_path;
 
@@ -76,9 +76,8 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
   SG::ReadHandleKey<TrackCollection> m_TrackName{this, "TrackName", "CombinedInDetTracks"};
   SG::ReadHandleKey<ComTime> m_comTimeName{this, "ComTimeKey", "TRT_Phase"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool{this, "BunchCrossingTool", "Trig::BunchCrossingTool/BunchCrossingTool"};
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   
   ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator{this, "ResPullCalc", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
   ToolHandle<Trk::IRIO_OnTrackCreator> m_rotcreator{this, "ROTCreator", "InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"};
@@ -101,9 +100,11 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
   FloatProperty m_maxChi2{this, "MaxChi2", 3.};
   FloatProperty m_maxD0{this, "Maxd0", 10., "mm of D0"};
   FloatProperty m_minPt{this, "MinPt", 1000., "minimu pt in MeV/c"};
-  FloatProperty m_effdistcut{this, "effDistanceCut", 2., "mm"};
+  FloatProperty m_effdistcut{this, "effDistanceCut", 0.2, "mm"};
   FloatProperty m_maxZ0sinTheta{this, "MaxZ0sinTheta", 0.};
   UnsignedIntegerProperty m_maxTracks{this, "MaxTracks", 500};
+  UnsignedIntegerProperty m_minSiHits{this, "MinimumNumberOfSiHits", 8, "Threshold for number of Si hits. Count Si hits excluding hits in the wafer under investigation to reduce track selection bias"};
+  UnsignedIntegerProperty m_maxSiHoles{this, "MaximumNumberOfSiHoles", 1, "Threshold for number of Si holes. Count Si holes excluding holes in the wafer under investigation to reduce track selection bias"};
 
   BooleanProperty m_insideOutOnly{this, "InsideOutOnly", false};
   BooleanProperty m_isCosmic{this, "IsCosmic", false};
@@ -114,6 +115,7 @@ class SCTHitEffMonAlg : public AthMonitorAlgorithm {
   BooleanProperty m_requireGuardRing{this, "RequireGuardRing", false, "should be returned to true"};
   BooleanProperty m_vetoBadChips{this, "VetoBadChips", true};
   BooleanProperty m_useIDGlobal{this, "useIDGlobal", false};  
+  
 };
 
 #endif // SCTHITEFFMONALG_H

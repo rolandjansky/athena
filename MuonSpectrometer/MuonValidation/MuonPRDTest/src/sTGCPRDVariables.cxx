@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCPRDVariables.h"
@@ -8,13 +8,12 @@
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 #include "TTree.h"
-
+#include <TString.h> // for Form
 
 StatusCode sTGCPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG("do fillNSWsTGCPRDVariables()");
   ATH_MSG_VERBOSE("MuonDetectorManager from Conditions Store accessed" << MuonDetMgr);
-
   CHECK( this->clearVariables() );
 
   const Muon::sTgcPrepDataContainer *nsw_sTgcPrepDataContainer = nullptr; 
@@ -35,6 +34,8 @@ StatusCode sTGCPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
       int gas_gap          = m_sTgcIdHelper->gasGap(Id);
       int channel_type     = m_sTgcIdHelper->channelType(Id);
       int channel          = m_sTgcIdHelper->channel(Id);
+      int charge           = prd->charge();
+      uint16_t bcTag      = prd->getBcBitMap();
 
       ATH_MSG_DEBUG(     "sTGC PRD Offline id:  Station Name [" << stName << "]"
                       << " Station Eta ["  << stationEta      << "]"
@@ -51,8 +52,11 @@ StatusCode sTGCPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
       m_NSWsTGC_prd_gas_gap->push_back(gas_gap);
       m_NSWsTGC_prd_channel_type->push_back(channel_type);
       m_NSWsTGC_prd_channel->push_back(channel);
+      m_NSWsTGC_prd_charge->push_back(charge);
+      m_NSWsTGC_prd_bcTag->push_back(bcTag);
 
       const MuonGM::sTgcReadoutElement* det = prd->detectorElement();
+      if (!det) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCPRDVariables::fillVariables() - no associated detectorElement", __FILE__, __LINE__));
       Amg::Vector3D pos = prd->globalPosition();
       Amg::Vector2D loc_pos(0., 0.);
        det->surface(Id).globalToLocal(pos, Amg::Vector3D(0., 0., 0.), loc_pos);
@@ -92,6 +96,8 @@ void sTGCPRDVariables::deleteVariables()
   delete m_NSWsTGC_prd_gas_gap;
   delete m_NSWsTGC_prd_channel_type;
   delete m_NSWsTGC_prd_channel;
+  delete m_NSWsTGC_prd_charge;
+  delete m_NSWsTGC_prd_bcTag;
 
   delete m_NSWsTGC_prd_globalPosX;
   delete m_NSWsTGC_prd_globalPosY;
@@ -110,6 +116,8 @@ void sTGCPRDVariables::deleteVariables()
   m_NSWsTGC_prd_gas_gap       = nullptr;
   m_NSWsTGC_prd_channel_type  = nullptr;
   m_NSWsTGC_prd_channel       = nullptr;
+  m_NSWsTGC_prd_charge       = nullptr;
+  m_NSWsTGC_prd_bcTag       = nullptr;
 
   m_NSWsTGC_prd_globalPosX    = nullptr;
   m_NSWsTGC_prd_globalPosY    = nullptr;
@@ -135,6 +143,8 @@ StatusCode sTGCPRDVariables::clearVariables()
   m_NSWsTGC_prd_gas_gap    ->clear();
   m_NSWsTGC_prd_channel_type->clear();
   m_NSWsTGC_prd_channel    ->clear();
+  m_NSWsTGC_prd_charge    ->clear();
+  m_NSWsTGC_prd_bcTag    ->clear();
 
   m_NSWsTGC_prd_globalPosX ->clear();
   m_NSWsTGC_prd_globalPosY ->clear();
@@ -159,6 +169,8 @@ StatusCode sTGCPRDVariables::initializeVariables()
   m_NSWsTGC_prd_gas_gap       = new std::vector<int>;
   m_NSWsTGC_prd_channel_type  = new std::vector<int>;
   m_NSWsTGC_prd_channel       = new std::vector<int>;
+  m_NSWsTGC_prd_charge       = new std::vector<int>;
+  m_NSWsTGC_prd_bcTag       = new std::vector<uint16_t>;
 
   m_NSWsTGC_prd_globalPosX    = new std::vector<double>;
   m_NSWsTGC_prd_globalPosY    = new std::vector<double>;
@@ -178,6 +190,8 @@ StatusCode sTGCPRDVariables::initializeVariables()
     m_tree->Branch("PRD_sTGC_gas_gap",     &m_NSWsTGC_prd_gas_gap);
     m_tree->Branch("PRD_sTGC_channel_type",&m_NSWsTGC_prd_channel_type);
     m_tree->Branch("PRD_sTGC_channel",     &m_NSWsTGC_prd_channel);
+    m_tree->Branch("PRD_sTGC_charge",     &m_NSWsTGC_prd_charge);
+    m_tree->Branch("PRD_sTGC_bcTag",     &m_NSWsTGC_prd_bcTag);
 
     m_tree->Branch("PRD_sTGC_globalPosX",  &m_NSWsTGC_prd_globalPosX);
     m_tree->Branch("PRD_sTGC_globalPosY",  &m_NSWsTGC_prd_globalPosY);

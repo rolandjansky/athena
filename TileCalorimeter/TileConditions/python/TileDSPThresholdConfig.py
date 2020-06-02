@@ -34,7 +34,7 @@ def TileDSP_ThresholdCondAlgCfg(flags, **kwargs):
         else:
             raise(Exception("No Tile DSP threshold folder in %s" % flags.IOVDb.DatabaseInstancea))
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         dspThresholdProxy = TileCondProxyCoolFlt('TileCondProxyCool_DspThreshold', Source = dspThresholdFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -42,12 +42,12 @@ def TileDSP_ThresholdCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         dspThresholdProxy  = TileCondProxyFileFlt('TileCondProxyFile_DspThreshold', Source = 'TileDefault.dspThreshold')
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     dspThresholdCondAlg = TileCalibFltCondAlg( name = name,
                                                ConditionsProxy = dspThresholdProxy,
                                                TileCalibData = dspThreshold)

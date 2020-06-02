@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "InDetRawData/PixelRDO_Container.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "ByteStreamData/RawEvent.h" 
 
 class IPixelRodDecoder : virtual public IAlgTool{
@@ -18,7 +19,10 @@ class IPixelRodDecoder : virtual public IAlgTool{
     // destructor 
     virtual ~IPixelRodDecoder(){}; 
 
-    virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, std::vector<IdentifierHash>* vecHash = NULL) const = 0;
+    virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag,
+					IPixelRDO_Container* rdoIdc,
+					IDCInDetBSErrContainer& decodingErrors,
+					std::vector<IdentifierHash>* vecHash = NULL) const = 0;
 
     virtual StatusCode StoreBSError() const =0;
 };

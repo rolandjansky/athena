@@ -54,7 +54,7 @@ StatusCode LArDigitMaker::initialize()
 StatusCode LArDigitMaker::execute()
 {
 
-  if (m_LArPileUpTool->processAllSubEvents().isFailure()) {
+  if (m_LArPileUpTool->processAllSubEvents(Gaudi::Hive::currentContext()).isFailure()) {
        ATH_MSG_ERROR(" error in LArPileupTool::processAllSubEvents");
        return StatusCode::FAILURE;
   }

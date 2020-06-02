@@ -11,6 +11,10 @@
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRawConditions/LArDSPThresholdsComplete.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
+#include "LArRawEvent/LArFebErrorSummary.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -20,7 +24,6 @@
 
 #include<mutex>
 
-class LArFebErrorSummary;
 class TTree;
 
 class LArFEBMonAlg : public AthMonitorAlgorithm {
@@ -37,10 +40,15 @@ public:
 private:
   
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MissingFEBKey", "LArBadFeb", "SG key for missing FEBs"};
+  SG::ReadCondHandleKey<LArDSPThresholdsComplete> m_run1DSPThresholdsKey
+  {this, "Run1DSPThresholdsKey", "", "SG key for DSP thresholds, run1"};
+  SG::ReadCondHandleKey<AthenaAttributeList> m_run2DSPThresholdsKey
+  {this, "Run2DSPThresholdsKey", "", "SG key for DSP thresholds, run2"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
+  SG::ReadHandleKey<LArFebErrorSummary> m_lArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
   Gaudi::Property<bool> m_ignoreMissingHeaderEMB{this, "IgnoreMissingHeaderEMB", false};
   Gaudi::Property<bool> m_ignoreMissingHeaderPS{this, "IgnoreMissingHeaderPS", false};
   Gaudi::Property<int> m_nFEBnominal{this,"NominalFEBNumber",1524};
-  Gaudi::Property<std::string> m_keyDSPThresholds{this, "keyDSPThresholds","LArDSPThresholds", "DSP thresholds container key"};
   Gaudi::Property<std::vector<std::string> > m_excoscalo{this,"ExcludeInCosmicCalo",{}, "Triggers excluded in CosmicCalo stream"};
   Gaudi::Property<std::vector<std::string> > m_streams{this, "Streams", {}, "Which streams to monitor, if empty, only simple profile per partition (offline case)"};
   Gaudi::Property<std::vector<std::string> > m_partitions {this, "PartitionNames", {} };

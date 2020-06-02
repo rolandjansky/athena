@@ -149,16 +149,12 @@ StatusCode AlignCondAthTest::finalize() {
 
 StatusCode AlignCondAthTest::checkALines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout) 
 {
-
-  const ALineMapContainer*  alineDataTemp = manager->ALineContainer();
-  for (auto aline : *alineDataTemp) {
-    Identifier ALineId = aline.first;
-    const ALinePar* ALine = aline.second;
+  for (const auto& [ALineId, ALine] : *manager->ALineContainer()) {
     std::string stationType;
     int jff,jzz,job;
-    ALine->getAmdbId(stationType,jff,jzz,job);
+    ALine.getAmdbId(stationType,jff,jzz,job);
     float s,z,t,ths,thz,tht;
-    ALine->getParameters(s,z,t,ths,thz,tht);
+    ALine.getParameters(s,z,t,ths,thz,tht);
     
     (*fout) << "A " << std::setiosflags(std::ios::fixed|std::ios::right)
 	    << std::setw(4) << stationType  <<" " 
@@ -171,7 +167,7 @@ StatusCode AlignCondAthTest::checkALines(const MuonGM::MuonDetectorManager* mana
 	    << std::setw(6) << std::setprecision(6) << ths  <<" " 
 	    << std::setw(6) << std::setprecision(6) << thz  <<" " 
 	    << std::setw(6) << std::setprecision(6) << tht  <<" "
-	    << ALineId << std::endl;
+	    << &ALineId << std::endl;
 
   }
 
@@ -180,16 +176,12 @@ StatusCode AlignCondAthTest::checkALines(const MuonGM::MuonDetectorManager* mana
 
 StatusCode AlignCondAthTest::checkBLines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout) 
 {
-
-  const BLineMapContainer*  blineDataTemp = manager->BLineContainer();
-  for (auto bline : *blineDataTemp) {
-    Identifier BLineId = bline.first;
-    BLinePar* BLine = bline.second;
+  for (const auto& [BLineId, BLine] : *manager->BLineContainer()) {
     std::string stationType;
     int jff,jzz,job;
-    BLine->getAmdbId(stationType,jff,jzz,job);
+    BLine.getAmdbId(stationType,jff,jzz,job);
     float bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en;
-    BLine->getParameters(bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en);
+    BLine.getParameters(bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en);
     
     (*fout) << "B " << std::setiosflags(std::ios::fixed|std::ios::right)
 	    << std::setw(4) << stationType  <<" " 

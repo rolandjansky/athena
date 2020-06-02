@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMACALOTOOLS_EGAMMAISO_H
@@ -9,13 +9,9 @@
 /// @brief {Tool to estimate the hadronic energy behind the electromagnetic cluster, the 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-
-class CaloCellList; 
-class ICalorimeterNoiseTool;
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include <vector>
 #include "egammaInterfaces/IegammaIso.h"
+#include <vector>
 
 class egammaIso : public AthAlgTool, virtual public IegammaIso {
 
@@ -34,8 +30,10 @@ class egammaIso : public AthAlgTool, virtual public IegammaIso {
   /** @brief finalize method*/
   StatusCode finalize() override;
   /** @brief  Method to just calculate hadronic leakage*/
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had,Info& info) const override final;
- private:
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                             const CaloDetDescrManager& cmgr,                                                           
+                             const CaloCellContainer& cellcoll,
+                             Info& info) const override final;
  
 };
 

@@ -8,13 +8,12 @@
 #include "CalibratedMuonsProvider.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
-#include "xAODEventInfo/EventInfo.h"
 
 namespace CP {
 static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
  
 CalibratedMuonsProvider::CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc ):
-       AthAlgorithm( name, svcLoc ),
+         AthAlgorithm( name, svcLoc ),
          m_tool( "CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool"),
          m_prwTool(""),
          m_useRndNumber(false) {
@@ -22,19 +21,17 @@ CalibratedMuonsProvider::CalibratedMuonsProvider( const std::string& name, ISvcL
       declareProperty( "Output", m_outputKey = "CalibratedMuons"); 
       declareProperty( "Tool", m_tool );
       declareProperty( "prwTool", m_prwTool );
-      
-
-
 }
 
 StatusCode CalibratedMuonsProvider::initialize() {
-      ATH_CHECK( m_tool.retrieve() );
-      if (!m_prwTool.empty()){
-         m_useRndNumber = true;
-         ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
-         ATH_CHECK(m_prwTool.retrieve());
-      }
-      return StatusCode::SUCCESS;
+    ATH_CHECK(m_eventInfo.initialize());
+    ATH_CHECK(m_tool.retrieve() );
+    if (!m_prwTool.empty()){
+        m_useRndNumber = true;
+        ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
+        ATH_CHECK(m_prwTool.retrieve());
+    }
+    return StatusCode::SUCCESS;
 }
 
 StatusCode CalibratedMuonsProvider::execute() {
@@ -60,8 +57,7 @@ StatusCode CalibratedMuonsProvider::execute() {
          }  
       }
       if (m_useRndNumber) {
-            const xAOD::EventInfo* evInfo = nullptr;
-            ATH_CHECK(evtStore()->retrieve(evInfo, "EventInfo"));
+            SG::ReadHandle<xAOD::EventInfo> evInfo(m_eventInfo);
             if (!evInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
                 m_useRndNumber = false;
                 ATH_MSG_DEBUG("On data no random run number is needed.");

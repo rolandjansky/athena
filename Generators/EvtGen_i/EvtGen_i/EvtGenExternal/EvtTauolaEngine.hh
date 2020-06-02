@@ -27,8 +27,8 @@
 #include "EvtGenBase/EvtDecayBase.hh"
 #include "EvtGenBase/EvtVector4R.hh"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <vector>
 #include <map>

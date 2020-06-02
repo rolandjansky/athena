@@ -18,11 +18,10 @@
 #include "GaudiKernel/IAlgTool.h"
 
 // Forward declaration(s):
-namespace HepMC{
-   class GenParticle;
-   class GenEvent;
-   class GenVertex;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
+
 class McEventCollection;
 
 /// Interface ID for this tool type

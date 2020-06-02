@@ -28,7 +28,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <functional>
 #include <ostream>
 
 #include "TrackPtr.h"
@@ -199,7 +198,7 @@ namespace Trk {
       			const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
       template<typename... Args>
       Trk::Track *fit(const Track &track, Args... args) const;
-      bool _checkTrack(const Trk::Track *) const;
+      bool checkTrack(const Trk::Track *) const;
     
       // private data members
 
@@ -288,7 +287,7 @@ namespace Trk {
               delete new_track;
               new_track=nullptr;
               new_track =  a_fitter->fit(raw, param, flag,hypo);
-              if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+              if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(new_track)) {
                           return new_track;
               }
               ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
@@ -312,7 +311,7 @@ namespace Trk {
            delete new_track;
            new_track=nullptr;
            new_track =  a_fitter->fit(measurements, param, flag, hypo);
-           if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+           if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(new_track)) {
               return new_track;
            }
            ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
@@ -334,7 +333,7 @@ namespace Trk {
             delete new_track;
             new_track=nullptr;
             new_track =  a_fitter->fit(track,args...);
-            if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+            if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(new_track)) {
                return new_track;
             }
             ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
@@ -382,7 +381,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dumpStatType(MsgSt
    for (unsigned region_i=0; region_i<kNStatRegions; ++region_i) {
       out << std::setw(iw) << m_counter[type][region_i].value();
    }
-   out << std::endl;
+   out << "\n";
 }
 
 #endif // TrackAmbiguityProcessorTool_H

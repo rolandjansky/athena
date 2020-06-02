@@ -25,8 +25,8 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileEvent/TileCell.h"
-
-#include <string>
+#include "TileConditions/TileEMScale.h"
+#include "TileConditions/TileBadChannels.h"
 
 class TrigCaloDataAccessSvc;
 
@@ -41,6 +41,8 @@ public:
 private:
   SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBitsKey{this,"t2MbtsBitsKey","MbtsBitsContainer"," "};
   SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
+  SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this, "TileEMScale", "TileEMScale", "Input Tile EMS calibration constants"};
+  SG::ReadCondHandleKey<TileBadChannels> m_badChannelsKey{this, "TileBadChannels", "TileBadChannels", "Input Tile bad channel status"};
   ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc{ this, "TrigDataAccessMT", "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", "Data Access for LVL2 Calo Algorithms in MT" };
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFeatureDetailsContainerCnv.h"
@@ -31,12 +31,12 @@ MuonFeatureDetailsContainer * MuonFeatureDetailsContainerCnv::createTransient() 
     static pool::Guid p2_guid( "95327E52-C8B2-45E4-9EAF-C65A17AB27F5" );
     
     if( compareClassGuid( p2_guid ) ){
-         std::auto_ptr< MuonFeatureDetailsContainer_p2 > col_vect( poolReadObject< MuonFeatureDetailsContainer_p2 >() );
+         std::unique_ptr< MuonFeatureDetailsContainer_p2 > col_vect( poolReadObject< MuonFeatureDetailsContainer_p2 >() );
          // std::cout << "Reading MFDC p2" << std::endl; 
          return TPconverter.createTransient( col_vect.get(), mlog ) ;
     }
     else if( compareClassGuid( tlp1_guid ) ){
-         std::auto_ptr< MuonFeatureDetailsContainer_tlp1 > col_vect( poolReadObject< MuonFeatureDetailsContainer_tlp1 >() );
+         std::unique_ptr< MuonFeatureDetailsContainer_tlp1 > col_vect( poolReadObject< MuonFeatureDetailsContainer_tlp1 >() );
          // std::cout << "Reading MFDC tlp1" << std::endl; 
          return TLPconverter1.createTransient( col_vect.get(), mlog );
         

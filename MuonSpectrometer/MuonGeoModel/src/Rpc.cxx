@@ -27,6 +27,13 @@
 
 #define skip_rpc false
 
+namespace {
+    // make a const array holding all amdb RPC names corresponding to BIS RPCs
+    const static std::array<std::string, 7> bisRpcs = {"RPC26", "RPC27", "RPC28", "RPC29", "RPC30", "RPC31", "RPC32"};
+    static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
+    static constexpr double const& rpc3GapMaxThickness = 36.0; // min 35.4 (11.8x3) - max 40.0 mm (tolerance from design)
+}
+
 namespace MuonGM {
 
 
@@ -41,6 +48,9 @@ Rpc::Rpc(Component* ss): DetectorElement(ss->name)
    m_component = s;
    idiv = s->ndivy;
    jdiv = s->ndivz;
+   m_nlayers = 2;
+   // the BIS RPCs are the only ones with 3 gas gaps
+   if (std::find(std::begin(bisRpcs), std::end(bisRpcs), ss->name) != std::end(bisRpcs)) m_nlayers = 3;
 }
 
 
@@ -61,10 +71,24 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
   std::string geometry_version = mysql->getGeometryVersion();
   RPC* r = (RPC*)mysql->GetTechnology(name);
 
+  // Retrieve geometrical information, these are for middle and outer alyers ("standard" RPCs)
   double thickness = r->maxThickness;
   width = width/idiv;
   longWidth = longWidth/idiv;
   length = length/jdiv;
+
+  double extSupThick = r->externalSupPanelThickness;
+  double extAlSupThick = r->externalAlSupPanelThickness;
+  double rpcLayerThickness = r->rpcLayerThickness;
+  double centSupThick = r->centralSupPanelThickness;
+  double centAlSupThick = r->centralAlSupPanelThickness;
+
+  // Geometrical information to be overwritten for BIS chambers (having 3 gas gaps)
+  if (m_nlayers==3) {
+     // width, longWidth, length are taken from geometry DB
+     thickness = rpc3GapMaxThickness;
+     rpcLayerThickness = rpc3GapLayerThickness;
+  }
 
   if (RPCprint) {
     log << MSG::VERBOSE
@@ -109,10 +133,8 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
 
     // here the bottom/external/pre-bent support panel
     // shape of the al skin of the support panel
-    double extSupThick = r->externalSupPanelThickness;
     GeoTrd* slpan = new GeoTrd(extSupThick/2, extSupThick/2,
                               width/2, longWidth/2, length/2);
-    double extAlSupThick = r->externalAlSupPanelThickness;
     GeoTrd* sholpan = new GeoTrd(extSupThick/2 - extAlSupThick,
                                 extSupThick/2 - extAlSupThick,
                                 width/2 - extAlSupThick,
@@ -148,7 +170,8 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       }
     }
 
-    newpos += r->externalSupPanelThickness/2.;
+     if (m_nlayers==2) { // only to be done for standard (non-BIS) RPCs
+       newpos += extSupThick/2.;
     GeoTransform* tlpan = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
     if (RPCprint) {
       log << MSG::VERBOSE
@@ -160,8 +183,11 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       prpc->add(pallpan);
     }
 
+       // The first layer is support for RPCs with 2 gaps, is a layer for 3 gaps (BIS chambers, no supports)
+       newpos += extSupThick/2.;
+     }
+
     // bottom RpcLayer
-    newpos += r->externalSupPanelThickness/2.;
     RpcLayer* rl = new RpcLayer(name,this);
     GeoVPhysVol* plowergg;
     if (cutoutson && vcutdef.size() > 0) {
@@ -170,7 +196,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       plowergg = rl->build();
     }
 
-    newpos += r->rpcLayerThickness/2.;
+    newpos += rpcLayerThickness/2.;
     GeoTransform* tlgg = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
     if (RPCprint) {
       log << MSG::VERBOSE
@@ -184,11 +210,9 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
     }
 
     // central support panel
-    newpos += r->rpcLayerThickness/2.;
-    double centSupThick = r->centralSupPanelThickness;
+    newpos += rpcLayerThickness/2.;
     GeoTrd* scpan = new GeoTrd(centSupThick/2, centSupThick/2,
                               width/2, longWidth/2, length/2);
-    double centAlSupThick = r->centralAlSupPanelThickness;
     GeoTrd* shocpan = new GeoTrd(centSupThick/2 - centAlSupThick,
                                 centSupThick/2 - centAlSupThick,
                                 width/2 - centAlSupThick,
@@ -224,7 +248,8 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       }
     }
 
-    newpos += r->centralSupPanelThickness/2.;
+    if (m_nlayers==2) { // only to be done for standard (non-BIS) RPCs
+       newpos += centSupThick/2.;
     GeoTransform* tcpan = new GeoTransform(GeoTrf::TranslateX3D( newpos ));
     if (RPCprint) {
       log << MSG::VERBOSE
@@ -235,9 +260,10 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       prpc->add(tcpan);
       prpc->add(palcpan);
     }
+    newpos += centSupThick/2.;
+  }
 
     // top RpcLayer
-    newpos += r->centralSupPanelThickness/2.;
     RpcLayer* ru = new RpcLayer(name,this);
     GeoVPhysVol* puppergg;
     if (cutoutson && vcutdef.size() > 0) {
@@ -284,7 +310,7 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
       puppergg = ru->build();
     }
 
-    newpos += r->rpcLayerThickness/2.;
+    newpos += rpcLayerThickness/2.;
     GeoTransform* tugg = new GeoTransform(GeoTrf::TranslateX3D(newpos) );
     if (RPCprint) {
       log << MSG::VERBOSE
@@ -295,9 +321,33 @@ GeoFullPhysVol* Rpc::build(int minimalgeo, int cutoutson,
     if (!skip_rpc) {
       prpc->add(new GeoIdentifierTag(2));
       prpc->add(tugg);
-      prpc->add(rugg);
+      if (m_nlayers==2) prpc->add(rugg); // only to be done for standard (non-BIS) RPCs
       prpc->add(puppergg);
     }
+
+    // additional RpcLayer for BIS (3 gaps)
+    if (m_nlayers==3) {
+       newpos += rpcLayerThickness/2.;
+       RpcLayer* rthird = new RpcLayer(name,this);
+       GeoVPhysVol* pthirdgg;
+       if (cutoutson && vcutdef.size() > 0) {
+         pthirdgg = rthird->build(cutoutson, vcutdef);
+       } else {
+         pthirdgg = rthird->build();
+       }
+
+       newpos += rpcLayerThickness/2.;
+       GeoTransform* tthirdgg = new GeoTransform(GeoTrf::TranslateX3D(newpos) );
+       if (RPCprint) log << MSG::VERBOSE
+          << " Rpc:: put upper RPC layer at " << newpos
+          << " from centre " << endmsg;
+       if (!skip_rpc) {
+          prpc->add(new GeoIdentifierTag(3));
+          prpc->add(tthirdgg);
+          prpc->add(pthirdgg);
+       }
+     }
+
 
     // release memory allocated for the builders
     delete ru;

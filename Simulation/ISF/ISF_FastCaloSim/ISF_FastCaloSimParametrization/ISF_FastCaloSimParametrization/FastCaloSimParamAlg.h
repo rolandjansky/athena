@@ -29,9 +29,7 @@ namespace ISF_FCS_Parametrization {
   class FCS_StepInfo;
   typedef std::list<FCS_StepInfo*> FCS_StepInfoList;
 }
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
   /**
    *

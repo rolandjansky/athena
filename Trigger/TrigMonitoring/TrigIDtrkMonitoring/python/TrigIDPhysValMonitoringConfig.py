@@ -84,7 +84,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF"
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:
       chainnames = [
@@ -101,7 +103,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF"
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:      
       chainnames = [
@@ -118,7 +122,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon"
       ]
     else:
       chainnames = [
@@ -136,7 +141,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon"
       ]
     else:
       chainnames = [
@@ -154,6 +160,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
@@ -176,6 +183,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
@@ -186,6 +194,32 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
       ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
+
+    ############### Bjets ###############
+    name = "Bjet_offline"
+    pdgid = 5
+    useHighestPT = False
+    cosmic=False
+    useOffline=True
+    if mt_chains:
+      chainnames = [
+        ":key=HLT_IDTrack_FS_FTF",
+        "HLT_j.*b.*perf_split:key=HLT_IDTrack_Bjet_FTF",
+        "HLT_j.*b.*perf_split:key=HLT_IDTrack_Bjet_IDTrig"
+      ]
+    else:
+      chainnames = [
+        "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+        "HLT_mu.*b.*perf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
+      ]
+      
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
+      
+
 
     if not mt_chains:
       ############### Bjets ###############
@@ -201,22 +235,6 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
       ]
       outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
-      
-      ############### Bjets ###############
-      name = "Bjet_offline"
-      pdgid = 5
-      useHighestPT = False
-      cosmic=False
-      useOffline=True
-      chainnames = [
-        "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-        "HLT_mu.*b.*perf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
-      ]
-      outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
       
       ############### Bphys ###############
       name = "Bphys"

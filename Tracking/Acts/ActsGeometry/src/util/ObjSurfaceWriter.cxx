@@ -17,9 +17,37 @@
 #include "Acts/Surfaces/SurfaceBounds.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 
-#include "Acts/Surfaces/PolyhedronRepresentation.hpp"
+#include "Acts/Geometry/Polyhedron.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/StrawSurface.hpp"
+
+namespace {
+	// this method went away in acts 0.19.0. Porting over this code to use IVisualization seems
+	// to be not worth, so porting this (relatively simple) method here.
+	std::string objString(const Acts::Polyhedron& polyhedron, size_t vtxOffset) {
+		std::stringstream sstr;
+
+		for (const auto& vtx : polyhedron.vertices) {
+			sstr << "v " << vtx.x() << " " << vtx.y() << " " << vtx.z() << std::endl;
+
+		}
+		for (const auto& face : polyhedron.faces) {
+			sstr << "f";
+			for (const auto& idx : face) {
+				sstr << " " << (vtxOffset + idx + 1);
+
+			}
+			sstr << std::endl;
+
+		}
+		return sstr.str();
+
+	}
+}
+
+
+
+
 Acts::ObjSurfaceWriter::ObjSurfaceWriter(
     const ObjSurfaceWriter::Config& cfg)
   : m_cfg(cfg)
@@ -113,17 +141,17 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
       
       auto cylinderSurface = dynamic_cast<const Acts::CylinderSurface*>(&surface);
 
-      Acts::PolyhedronRepresentation ph =
-          cylinderSurface->polyhedronRepresentation(gctx);
-      (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
+      Acts::Polyhedron ph =
+          cylinderSurface->polyhedronRepresentation(gctx, 10);
+      (*(m_cfg.outputStream)) << objString(ph, m_vtnCounter.vcounter);
       m_vtnCounter.vcounter += ph.vertices.size();
 
     }
     else if(strawSurface) {
 
-      Acts::PolyhedronRepresentation ph =
-          strawSurface->polyhedronRepresentation(gctx);
-      (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
+      Acts::Polyhedron ph =
+          strawSurface->polyhedronRepresentation(gctx, 10);
+      (*(m_cfg.outputStream)) << objString(ph, m_vtnCounter.vcounter);
       m_vtnCounter.vcounter += ph.vertices.size();
 
     }
@@ -136,7 +164,7 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
   // dynamic cast to CylinderBounds work the same
   if (cylinderBounds && m_cfg.outputLayerSurface) {
     ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = "
-                 << cylinderBounds->r());
+                 << cylinderBounds->get(Acts::CylinderBounds::eR));
     // name the object
     auto layerID = surface.geoID().layer();
     (*(m_cfg.outputStream))
@@ -147,8 +175,8 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
                            scalor,
                            m_cfg.outputPhiSegments,
                            sTransform,
-                           cylinderBounds->r(),
-                           cylinderBounds->halflengthZ(),
+                           cylinderBounds->get(Acts::CylinderBounds::eR),
+                           cylinderBounds->get(Acts::CylinderBounds::eHalfLengthZ),
                            m_cfg.outputThickness);
     (*(m_cfg.outputStream)) << '\n';
   }

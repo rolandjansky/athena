@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_RTRESOLUTIONLOOKUP_H
 #define MUONCALIB_RTRESOLUTIONLOOKUP_H
 
 #include "MdtCalibData/IRtResolution.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 
 namespace MuonCalib{
@@ -20,13 +23,14 @@ namespace MuonCalib{
 class RtResolutionLookUp : public IRtResolution {
   public:
     explicit RtResolutionLookUp( const ParVec& vec ) : IRtResolution(vec)  {
-      if( vec.size() < 4 ){ 
-	std::cout << "RtResolutionLookUp ERROR <to few parameters> " << std::endl;
-	m_t_min=9e9;
-	m_bin_size=1.0; //will be always out of range	
-      }else{
-	m_t_min = par(0);
-	m_bin_size = par(1);
+      if( vec.size() < 4 ){
+        MsgStream log(Athena::getMessageSvc(),"RtResolutionLookUp");
+        log<<MSG::WARNING<<"<to few parameters>"<<endmsg;
+        m_t_min=9e9;
+        m_bin_size=1.0; //will be always out of range	
+      } else {
+        m_t_min = par(0);
+        m_bin_size = par(1);
       }
     }
     

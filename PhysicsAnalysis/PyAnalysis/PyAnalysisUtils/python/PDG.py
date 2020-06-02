@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: PDG.py,v 1.5 2009-01-26 03:05:43 ssnyder Exp $
@@ -6,6 +6,8 @@
 # Created: sss, Mar 2005
 # Purpose: Define PDG ID codes.
 #
+
+from __future__ import print_function
 
 """
 This module contains names for the various PDG particle ID codes.
@@ -28,7 +30,8 @@ def pdgid_to_name (id):
     """Convert a PDG ID to a printable string.
     """
     name = pdgid_names.get(id)
-    if not name: name = `id`
+    if not name:
+        name = str(id)
     return name
 
 
@@ -36,7 +39,8 @@ def pdgid_to_root_name (id):
     """Convert a PDG ID to a string with root markup.
     """
     name = root_names.get(id)
-    if not name: name = `id`
+    if not name:
+        name = str(id)
     return name
 
 
@@ -603,17 +607,19 @@ def _fill_dicts():
     import string
     pdgid_names.clear()
     root_names.clear()
+    global _pdgtable
     for line in _pdgtable.split ('\n'):
         line = line.strip()
-        if len(line) == 0 or line[0] == '#': continue
+        if len(line) == 0 or line[0] == '#':
+            continue
         ll = line.split('=', 1)
         if len(ll) < 2:
-            print 'bad line', line
+            print ('bad line', line)
             continue
         mname = string.strip(ll[0])
         ll = ll[1].split()
         if len(ll) < 1:
-            print 'bad line', line
+            print ('bad line', line)
             continue
         id = ll[0]
         pname = None
@@ -626,19 +632,19 @@ def _fill_dicts():
             id = int(id)
         except ValueError:
             id = globals().get(id)
-            if id == None:
-                print 'bad line', line
+            if id is None:
+                print ('bad line', line)
                 continue
 
-        if pname == None:
+        if pname is None:
             pname = mname
-        if rname == None:
+        if rname is None:
             rname = pname
 
         globals()[mname] = id
-        if not pdgid_names.has_key(id):
+        if id not in pdgid_names:
             pdgid_names[id] = pname
-        if not root_names.has_key(id):
+        if id not in root_names:
             root_names[id] = rname
     return
 

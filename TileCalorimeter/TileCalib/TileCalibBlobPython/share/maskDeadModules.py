@@ -29,7 +29,7 @@ folder = "/TILE/OFL02/STATUS/ADC"
 tag = "clean"
 instance="OFLP200"
 
-#.. Parsing arguments 
+#.. Parsing arguments
 
 import sys
 ros=int(sys.argv[1])

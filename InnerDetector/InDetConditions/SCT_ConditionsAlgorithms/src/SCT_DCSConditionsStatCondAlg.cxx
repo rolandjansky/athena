@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DCSConditionsStatCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -75,14 +73,10 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
     ATH_MSG_FATAL("Null pointer to the read conditions object (state)");
     return StatusCode::FAILURE;
   }
-  // Get the validitiy range (state)
-  EventIDRange rangeState;
-  if (not readHandleState.range(rangeState)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandleState);
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleState.fullKey() << " readCdo->size()= " << readCdoState->size());
-  ATH_MSG_INFO("Range of state input is " << rangeState);
+  ATH_MSG_INFO("Range of state input is " << readHandleState.getRange());
   
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_DCSStatCondData> writeCdoState{std::make_unique<SCT_DCSStatCondData>()};
@@ -120,23 +114,11 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
       ATH_MSG_FATAL("Null pointer to the read conditions object (HV)");
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range (HV)
-    EventIDRange rangeHV;
-    if (not readHandleHV.range(rangeHV)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-      return StatusCode::FAILURE;
-    }
+    // Add dependency
+    writeHandle.addDependency(readHandleHV);
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleHV.fullKey() << " readCdo->size()= " << readCdoHV->size());
-    ATH_MSG_INFO("Range of HV input is " << rangeHV);
+    ATH_MSG_INFO("Range of HV input is " << readHandleHV.getRange());
 
-    // Combined the validity ranges of state and range
-    EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
-    if (rangeIntersection.stop().isValid() and rangeIntersection.start()>rangeIntersection.stop()) {
-      ATH_MSG_FATAL("Invalid intersection range: " << rangeIntersection);
-      return StatusCode::FAILURE;
-    }
-    rangeState = rangeIntersection;
-  
     std::string paramHV{"HVCHVOLT_RECV"};
     CondAttrListCollection::const_iterator attrListHV{readCdoHV->begin()};
     CondAttrListCollection::const_iterator endHV{readCdoHV->end()};
@@ -159,13 +141,13 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeState, std::move(writeCdoState)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdoState)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSStatCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeState
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeState << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_remap_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -35,24 +33,18 @@ int main() {
    xAOD::TEvent event;
 
    // Declare some name remappings:
-   RETURN_CHECK( APP_NAME, event.addNameRemap( "ElectronCollection",
-                                               "Electrons" ) );
-   RETURN_CHECK( APP_NAME, event.addNameRemap( "TauJetCollection", "Taus" ) );
+   RETURN_CHECK( APP_NAME, event.addNameRemap( "Muons",
+                                               "MyMuons" ) );
+   RETURN_CHECK( APP_NAME, event.addNameRemap( "Taus", "MyTaus" ) );
 
    // Print the definitions:
    event.printNameRemap();
 
    // Connect the TEvent object to an input file:
-   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
-   std::string FPATH =
-     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   std::string INFILE = FPATH + "/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000098.pool.root.1";
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( INFILE.c_str(), "READ" ) );
+   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), INFILE.c_str() );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), FNAME );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
@@ -60,14 +52,14 @@ int main() {
    // Load the first event:
    if( event.getEntry( 0 ) < 0 ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't load event 0 from file %s" ),
-               INFILE.c_str() );
+               FNAME );
       return 1;
    }
 
    // Retrieve a DataVector using an alias, and the actual name:
    const SG::AuxVectorBase* vec = 0;
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "Electrons" ) );
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "ElectronCollection" ) );
+   RETURN_CHECK( APP_NAME, event.retrieve( vec, "Muons" ) );
+   RETURN_CHECK( APP_NAME, event.retrieve( vec, "MyMuons" ) );
 
    // Create a dummy, temporary file to test the object copying:
    TUUID uuid;
@@ -83,7 +75,7 @@ int main() {
    RETURN_CHECK( APP_NAME, event.writeTo( ofile.get() ) );
 
    // Copy the electrons to the output:
-   RETURN_CHECK( APP_NAME, event.copy( "Electrons" ) );
+   RETURN_CHECK( APP_NAME, event.copy( "MyMuons" ) );
 
    // Write the event:
    if( event.fill() < 0 ) {
@@ -114,10 +106,10 @@ int main() {
    }
 
    // Retrieve a DataVector using the actual name this time:
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "Electrons" ) );
+   RETURN_CHECK( APP_NAME, event.retrieve( vec, "MyMuons" ) );
 
    // And this should fail:
-   if( event.retrieve( vec, "ElectronCollection" ).isSuccess() ) {
+   if( event.retrieve( vec, "Muons" ).isSuccess() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Failure is retrieval logic" ) );
       return 1;
    }

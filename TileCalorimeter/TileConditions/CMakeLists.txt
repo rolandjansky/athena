@@ -90,7 +90,7 @@ atlas_add_test( TileDCSComponents_test
 
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileDefault.* share/TileNo*.* share/dleak*.dat share/dsleak*.dat share/leak*.dat share/dpulse*.dat share/pulse*.dat share/noise*.dat share/ai_lo*.dat share/ai_hi*.dat share/bi_lo*.dat share/bi_hi*.dat share/ci_lo*.dat share/ci_hi*.dat share/DCS*.dat share/BadHVChannels.dat share/wiener*.dat)
 
@@ -126,10 +126,3 @@ if( NOT SIMULATIONBASE )
                    POST_EXEC_SCRIPT nopost.sh)
 
 endif()
-
-
-# Check python syntax:
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
-                POST_EXEC_SCRIPT nopost.sh )
-

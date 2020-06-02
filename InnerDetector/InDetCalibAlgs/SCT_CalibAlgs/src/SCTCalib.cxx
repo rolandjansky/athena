@@ -48,8 +48,7 @@
 #include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
 
-//STL, boost
-#include <boost/lexical_cast.hpp>
+#include <array>
 
 using namespace SCT_CalibAlgs;
 using namespace std;
@@ -1762,20 +1761,20 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
    typedef std::map<int, std::string> IntStringMap;
    IntStringMap ErrMap_C, ErrMap;
    const int numberOfErrorTypes{12};
-   boost::array<std::string, numberOfErrorTypes> errorNames = {{
+   std::array<std::string, numberOfErrorTypes> errorNames = {{
          "ByteStreamParseError","TimeOutError","BCIDError","LVL1IDError","PreambleError","FormatterError",
          "ABCDError","RawError","MaskedLink","RODClockError",
          "TruncatedROD","ROBFragmentError"
       }
    };
    //
-   boost::array<std::string, numberOfErrorTypes> errorNames_C = {{
+   std::array<std::string, numberOfErrorTypes> errorNames_C = {{
          "ByteStreamParseError","TimeOutError","BCIDError","LVL1IDError","PreambleError","FormatterError",
          "ABCDError","RawError","MaskedLink","RODClockError",
          "TruncatedROD","ROBFragmentError"
       }
    };
-   boost::array<int, numberOfErrorTypes> errorValues = {{0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14}};
+   std::array<int, numberOfErrorTypes> errorValues = {{0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14}};
    //should do compile time check to ensure the sizes are equal.
    ErrMap_C.clear();
    for (int indx{0}; indx!=numberOfErrorTypes; ++indx) {
@@ -1788,10 +1787,10 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
 
    //--- Directory in HIST
    const int N_ENDCAPS{2};
-   boost::array<std::string, N_ENDCAPS> detectorStems = {{"/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTEC/errors/", "/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTEA/errors/"}}; //barrel stem unused here
-   boost::array<IntStringMap::iterator, N_ENDCAPS> detectorIterators = {{ErrMap_C.begin(), ErrMap.begin()}};
-   boost::array<IntStringMap::iterator, N_ENDCAPS> detectorIteratorsE = {{ErrMap_C.end(), ErrMap.end()}};
-   boost::array<std::string, N_ENDCAPS> detectorParts = {{"EC", "EA"}};
+   std::array<std::string, N_ENDCAPS> detectorStems = {{"/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTEC/errors/", "/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTEA/errors/"}}; //barrel stem unused here
+   std::array<IntStringMap::iterator, N_ENDCAPS> detectorIterators = {{ErrMap_C.begin(), ErrMap.begin()}};
+   std::array<IntStringMap::iterator, N_ENDCAPS> detectorIteratorsE = {{ErrMap_C.end(), ErrMap.end()}};
+   std::array<std::string, N_ENDCAPS> detectorParts = {{"EC", "EA"}};
    std::string defecttype{""};
    std::string n_defect{""};
    int n_errorLink{0};

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITRIGEGAMMAMATCHINGTOOL_H_
-#define ITRIGEGAMMAMATCHINGTOOL_H_
+#ifndef ITrigEgammaMatchingTool_H
+#define ITrigEgammaMatchingTool_H
 
 #include "AsgTools/IAsgTool.h"
 #include "TrigConfHLTData/HLTFrame.h"
@@ -30,13 +30,11 @@ namespace Trig{
         ASG_TOOL_INTERFACE( Trig::ITrigEgammaMatchingTool )
 
         public:
-            virtual StatusCode initialize(void) = 0;
-            virtual StatusCode execute()=0;
-            virtual StatusCode finalize()=0;
-            virtual bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&)=0;
-            virtual bool match(const xAOD::Egamma *,const std::string)=0;
-            virtual bool matchHLT(const xAOD::Egamma *,const std::string)=0;
-            virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string)=0;
+            virtual StatusCode initialize() = 0;
+            virtual bool match(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&)=0;
+            virtual bool match(const xAOD::Egamma *,const std::string&)=0;
+            virtual bool matchHLT(const xAOD::Egamma *,const std::string&)=0;
+            virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string&)=0;
         protected:
 
         private:

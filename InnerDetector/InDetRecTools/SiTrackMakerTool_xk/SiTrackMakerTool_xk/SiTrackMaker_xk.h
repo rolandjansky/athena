@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,12 +20,16 @@
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <array>
 #include <iosfwd>
@@ -79,13 +83,13 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       virtual std::list<Trk::Track*>
-      getTracks(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const override;
+      getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const override;
 
       virtual std::list<Trk::Track*>
-      getTracks(SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const override;
+      getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const override;
 
-      virtual void newEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
-      virtual void newTrigEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
+      virtual void newEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
+      virtual void newTrigEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const override;
 
       virtual void endEvent(SiTrackMakerEventData_xk& data) const override;
       //@}
@@ -110,9 +114,8 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      /// @name Service and tool handles
+      /// @name Tool handles
       //@{
-      ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
       ToolHandle<InDet::ISiDetElementsRoadMaker> m_roadmaker{this, "RoadTool", "InDet::SiDetElementsRoadMaker_xk"};
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder{this, "CombinatorialTrackFinder", "InDet::SiCombinatorialTrackFinder_xk"};
       ToolHandle<InDet::ISeedToTrackConversionTool> m_seedtrack{this, "SeedToTrackConversion", "InDet::SeedToTrackConversionTool"};
@@ -121,6 +124,7 @@ namespace InDet{
       /// @name Data handles
       //@{
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster{this, "InputClusterContainerName", "InDetCaloClusterROIs"};
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
       //@}
@@ -169,24 +173,24 @@ namespace InDet{
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      const Trk::TrackParameters* getAtaPlane(SiTrackMakerEventData_xk& data,
+      const Trk::TrackParameters* getAtaPlane(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
                                               bool sss,
-                                              const std::list<const Trk::SpacePoint*>& SP) const;
-      const Trk::TrackParameters* getAtaPlaneDBM(SiTrackMakerEventData_xk& data,
-                                                 const std::list<const Trk::SpacePoint*>& SP) const;
+                                              const std::vector<const Trk::SpacePoint*>& SP) const;
+      const Trk::TrackParameters* getAtaPlaneDBM(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
+                                                 const std::vector<const Trk::SpacePoint*>& SP) const;
 
-      bool globalPositions(const Trk::SpacePoint* s0,
-                           const Trk::SpacePoint* s1,
-                           const Trk::SpacePoint* s2,
+      bool globalPositions(const Trk::SpacePoint& s0,
+                           const Trk::SpacePoint& s1,
+                           const Trk::SpacePoint& s2,
                            double* p0,
                            double* p1,
                            double* p2) const;
-      bool globalPosition(const Trk::SpacePoint* sp, double* dir, double* p) const;
+      bool globalPosition(const Trk::SpacePoint& sp, double* dir, double* p) const;
       void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
       void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
-      bool newSeed(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const;
+      bool newSeed(SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const;
       bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
       bool isCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 import AthenaCommon.AtlasUnixStandardJob
 
 from AthenaCommon.AppMgr import theApp
@@ -88,7 +90,7 @@ else:
 
 job+=RpcReadWriteCoolStr
 
-print ServiceMgr
+printfunc (ServiceMgr)
 
 theApp.EvtMax=1
 

@@ -16,13 +16,14 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
 			                    Trigger/TrigEvent/TrigSteeringEvent
 			                    DetectorDescription/IRegionSelector 
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData)
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData)
 
 # Component(s) in the package:
 atlas_add_component( MuonRdoToPrepData
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests Identifier TrigSteeringEvent IRegionSelector MuonPrepRawData AthViews)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests Identifier TrigSteeringEvent IRegionSelector MuonPrepRawData MuonTrigCoinData AthViews)
 
 # Install files from the package:
 atlas_install_headers( MuonRdoToPrepData )

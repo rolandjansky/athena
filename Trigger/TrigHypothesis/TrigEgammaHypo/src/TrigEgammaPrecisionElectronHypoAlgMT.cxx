@@ -95,7 +95,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 
    
   for ( auto& tool: m_hypoTools ) {
-    ATH_CHECK( tool->decide( toolInput ) );
+    ATH_CHECK( tool->decide( toolInput, context ) );
   }
  
   ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );

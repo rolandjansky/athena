@@ -14,8 +14,8 @@
 #include "TrkTruthData/DetailedSegmentTruth.h"
 #include "TrkTruthData/TruthTrajectory.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "AthContainers/DataVector.h"
@@ -60,7 +60,7 @@
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonSegment/MuonSegment.h"
 // HepMC
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"

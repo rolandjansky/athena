@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
-# $Id$
-#
 # @file AthenaROOTAccess/python/transientTree.py
 # @author Paolo Calafiura, sss
 # @date May 2007
 # @brief Set up the transient tree for AthenaROOTAccess.
 #
+
+from __future__ import print_function
 
 """The entry point here is the makeTree function.  Given a (persistent)
 Root tree containing Atlas Pool-format data, this will return a new
@@ -20,7 +20,6 @@ the persistent data as well.
 Importing this module also does everything else needed to initialize
 AthenaROOTAccess.
 """
-from __future__ import print_function
 
 from builtins import zip
 from builtins import object
@@ -125,8 +124,8 @@ def _do_extcnv (br, cnvs):
             try:
                 cnv = getattr (cnv, ll)
             except AttributeError:
-                print("ERROR: Can't find ext converter %s for branch %s" % \
-                      (cnvname, br.GetName()))
+                print ("ERROR: Can't find ext converter %s for branch %s" % \
+                       (cnvname, br.GetName()))
                 return
         cnv = cnv()
         br.addExtCnv (guid, cnv)
@@ -168,8 +167,8 @@ def _add_to_trans_tree (trans_branch_name,
               pers_branch_name = pers_branch_name[i+2:]
               pers_br = pers_tree.GetBranch (pers_branch_name)
       if not pers_br:
-          print("ERROR: Can't find branch", pers_branch_name,\
-                "in tree", pers_tree.GetName())
+          print ("ERROR: Can't find branch", pers_branch_name,
+                 "in tree", pers_tree.GetName())
 
       
       # Make the branch.
@@ -285,7 +284,7 @@ def _handle_aux_tree (elem, file, trans_tree, pers_type, pers_tree):
     # Find its transient type.
     trans_type = persTypeToTransType (pers_type)
     if not ROOT.gROOT.GetClass (trans_type):
-        print("Warning: Can't find transient class", trans_type, "for persistent class", pers_type)
+        print ("Warning: Can't find transient class", trans_type, "for persistent class", pers_type)
         return
 
     # Nothing to do if no conversion required.
@@ -295,7 +294,7 @@ def _handle_aux_tree (elem, file, trans_tree, pers_type, pers_tree):
     # Find the external tree.
     aux_pers_tree = file.Get ('POOLContainer_' + pers_type)
     if not aux_pers_tree:
-        print('Warning: Cannot find persistent tree POOLContainer_' + pers_type)
+        print ('Warning: Cannot find persistent tree POOLContainer_' + pers_type)
         return
 
     # The directory in which to create the new aux tree.
@@ -483,7 +482,7 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
        
 
     if not ROOT.gROOT.GetClass (trans_type):
-        print("Warning: Can't find transient class", trans_type, "for persistent type", pers_type)
+        print ("Warning: Can't find transient class", trans_type, "for persistent type", pers_type)
         return
 
     # The persistent branch name,
@@ -513,7 +512,7 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
         if pers_type.find ('_p') >= 0 or pers_type.find ('_tlp') >= 0:
             # But there should have been one --- give up.
             if pers_type not in _skipPers:
-               print("Warning: Cannot find transient class for", pers_type)
+               print ("Warning: Cannot find transient class for", pers_type)
             else:
                br = pers_tree.GetBranch (pers_branch_name)
                if not br.GetClass().HasInterpreterInfo():
@@ -529,7 +528,7 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
 
         # Test for excluded branches.
         if name in _skipBranches:
-            #print "Warning: branch", trans_branch_name, "not working yet; skipped"
+            #print ("Warning: branch", trans_branch_name, "not working yet; skipped")
             return
 
         # Make a branch using the SG key name, for ease of use.
@@ -564,7 +563,7 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
 
     # Test for excluded branches.
     if trans_branch_name in _skipBranches:
-        #print "Warning: branch", trans_branch_name, "not working yet; skipped"
+        #print ("Warning: branch", trans_branch_name, "not working yet; skipped")
         return
 
     # If this guy requires detector description, skip it if the
@@ -583,7 +582,7 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
             if not trans_tree.GetBranch (trans_branch_name):
                 print (("Warning: Branch %s renamed to %s to avoid duplicate" +
                         " name") % (oldname, trans_branch_name))
-                print("  Types: %s %s" % (oldtype, trans_type))
+                print ("  Types: %s %s" % (oldtype, trans_type))
                 break
             i = i + 1
 
@@ -671,7 +670,7 @@ def _makeAddAliases (tree):
     
 
 def _errfunc (s):
-    print("ERROR: ", s)
+    print ("ERROR: ", s)
     return
 
 
@@ -703,7 +702,7 @@ The DataHeader tree and branch names may optionally be overridden."""
                 pass
             if dh: break
         if not dh:
-            print("ERROR: Can't find DataHeader branch")
+            print ("ERROR: Can't find DataHeader branch")
     if dh.__class__.__name__ == 'DataHeader_p5':
         dh = get_DataHeader_p5 (dh_tree)
     return dh
@@ -870,7 +869,7 @@ will cause crashes if dereferenced.
         pread=PyUserDataAraReader(trans_tree)
         ud=pread.getUserDataTree()
         if ud!=0:
-            print("Adding UserData...")
+            print ("Adding UserData...")
             trans_tree.UD_Available=True
             
             trans_tree.UD_help=pread.getHelp
@@ -915,7 +914,7 @@ def dumpDH(f,
     dhTree.GetEntry(ent)
     dh = getattr( dhTree, dhBranchName )
     for elem in dh.elements() :
-        print(elem.key(), elem.token(), elem.pClid())
+        print (elem.key(), elem.token(), elem.pClid())
     return
 
 
@@ -965,7 +964,7 @@ def get_DataHeader_p5 (dh_tree):
     token = dhp.dhFormToken()
     m = dhp5_cnt_pattern.search (token)
     if not m:
-        print("ERROR: Can't find DataHeaderForm tree name from token!")
+        print ("ERROR: Can't find DataHeaderForm tree name from token!")
         return None
 
     formtree = m.groups()[0]
@@ -981,14 +980,14 @@ def get_DataHeader_p5 (dh_tree):
     f = dh_tree.GetTree().GetDirectory()
     formt = f.Get(formtree)
     if not formt:
-        print("ERROR: Can't find DataHeaderForm tree!")
+        print ("ERROR: Can't find DataHeaderForm tree!")
         return None
     formt.GetEntry(0)
 
     try:
         dhform = getattr (formt, formbranch)
     except AttributeError:
-        print("ERROR: Can't find DataHeaderForm branch", formbranch)
+        print ("ERROR: Can't find DataHeaderForm branch", formbranch)
         return None
 
     dhp.setDhForm (dhform)

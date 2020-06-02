@@ -54,7 +54,7 @@ void BLinePar::getParameters( float& bz,
 			      float& tr,
 			      float& eg,
 			      float& ep,
-			      float& en )
+			      float& en ) const
 {
   bz = m_bz;
   bp = m_bp;

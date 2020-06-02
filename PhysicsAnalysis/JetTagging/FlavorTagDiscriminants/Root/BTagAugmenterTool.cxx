@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagAugmenterTool.h"
@@ -18,11 +18,8 @@ namespace FlavorTagDiscriminants {
 
   StatusCode BTagAugmenterTool::initialize() {
     m_aug.reset(
-      new BTagJetAugmenter(
+      new BTagJetAugmenter("BTagTrackToJetAssociator",
         flipTagConfigFromString(m_flipTagConfig)));
-    return StatusCode::SUCCESS;
-  }
-  StatusCode BTagAugmenterTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

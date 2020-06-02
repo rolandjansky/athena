@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -19,9 +19,6 @@
 
 #include "MuonByteStreamCnvTest/ReadMdtRDO.h"
 
-using namespace std;
-
-
 static const int maxCsm =   1200;//?????
 static const int maxAmt =   5000;//?????
 
@@ -31,7 +28,6 @@ ReadMdtRDO::ReadMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
   m_activeStore("ActiveStoreSvc", name)
 {
-  // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple",m_mdtNtuple = false);
 }

@@ -157,11 +157,6 @@ StatusCode TileHitsTestTool::processEvent() {
       m_mbts_sidetaphi->Fill((ieta+1)*side,iphi);
     }
   }
-  // const HepMC::GenParticle *primary = getPrimary();
-  // if (primary) {
-  //   m_etot_eta->Fill(primary->momentum().eta(),etot);
-  //   m_etot_phi->Fill(primary->momentum().phi(),etot);
-  // }
   m_etot->Fill(etot);
 
 

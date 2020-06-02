@@ -1,6 +1,11 @@
 #
 # Package filtering rules for the AthGeneration project build.
 #
+
+# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
+- Generators/Rivet_i
+
++ AsgExternal/Asg_Test
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloCondBlobObjs
@@ -14,6 +19,7 @@
 + Control/AthContainersInterfaces
 + Control/AthContainersRoot
 + Control/AthLinks
++ Control/AthToolSupport/AsgDataHandles
 + Control/AthToolSupport/AsgMessaging
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
@@ -72,7 +78,7 @@
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
 + Database/AthenaRoot/RootAuxDynIO
-#+ Database/AtlasSTLAddReflex
++ Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 + Database/ConnectionManagement/AtlasAuthentication
@@ -126,6 +132,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
@@ -158,7 +165,6 @@
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
-+ PhysicsAnalysis/POOLRootAccess
 #+ Projects/AthGeneration
 #+ Projects/AthGeneration/.*
 #+ Reconstruction/eflowRec
@@ -168,7 +174,6 @@
 + Reconstruction/Jet/JetInterface
 + Reconstruction/Jet/JetRec
 #+ Reconstruction/Jet/JetRecConfig
-+ Reconstruction/MissingETEvent
 + Reconstruction/Particle
 #+ Reconstruction/RecAlgs
 #+ Reconstruction/RecEvent

@@ -101,13 +101,6 @@ if rec.doESDReconstruction():
     from RecAlgs.RecAlgsConf import EventInfoUnlocker
     topSequence+=EventInfoUnlocker("UnlockEventInfo")
 
-try:
-    if rec.abortOnUncheckedStatusCode():
-      svcMgr.StatusCodeSvc.AbortOnError=True
-      logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")
-except Exception:
-    logRecExCommon_topOptions.info("Did not enable aboort on unchecked status code")
-
 if rec.readESD():
     rec.readRDO = False
 
@@ -146,7 +139,7 @@ if rec.doFileMetaData():
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
-                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "beam_energy": str(int(jobproperties.Beam.energy())),
                                             "triggerStreamOfFile": str(rec.triggerStream()),
                                             "project_name": str(rec.projectName()),
                                             "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
@@ -159,11 +152,13 @@ try:
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
-# append new if previous exists otherwise take the new alone 
-if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
+# append new tag if previous exists and is not the same otherwise take the new alone 
+if amitag != "" and amitag != rec.AMITag():
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
+    printfunc ("Adding AMITag ", amitag, " _ ", rec.AMITag())
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    printfunc ("Adding AMITag ", rec.AMITag())
 
 
 
@@ -477,51 +472,13 @@ if globalflags.InputFormat.is_bytestream():
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
-        if rec.readTAG():
-            # FIXME need cleaner merger between ReadAthenaPool.py and ReadByteStream.py
+        from ByteStreamCnvSvc import ReadByteStream
 
-            # for EventType
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-            svcMgr += ByteStreamCnvSvc()
-            #EventPersistencySvc = svcMgr.EventPersistencySvc
-            svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-            # ByteStreamAddressProviderSvc
-            from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-            svcMgr += ByteStreamAddressProviderSvc()
-            ByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-
-            # proxy provider
-            from SGComps.SGCompsConf import ProxyProviderSvc
-            svcMgr += ProxyProviderSvc()
-
-            #specific for tag
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamNavigationProviderSvc
-            svcMgr += ByteStreamNavigationProviderSvc( "ByteStreamNavigationProviderSvc" )
-
-            import AthenaPoolCnvSvc.ReadAthenaPool
-
-            svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamNavigationProviderSvc" ]
-
-            EventSelector = svcMgr.EventSelector
-            # List of input collections:
-            EventSelector.InputCollections = athenaCommonFlags.FilesInput()
-            # Type of input collections:
-            EventSelector.CollectionType = "ExplicitROOT"
-            # Query applied to event tag collection metadata:
-            EventSelector.Query = athenaCommonFlags.PoolInputQuery()
-            EventSelector.RefName = "StreamRAW"
-
-
-        else: #Regular offline case:
-            from ByteStreamCnvSvc import ReadByteStream
-
-
-            # Specify input file
-            if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
-            elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+        # Specify input file
+        if len(athenaCommonFlags.FilesInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+        elif len(athenaCommonFlags.BSRDOInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")
@@ -637,8 +594,22 @@ if globalflags.InputFormat.is_bytestream():
         pass
     pass
 
-### Writing of mu values to xAOD::EventInfo is done in the converter step;
-### It's no longer necessary to write it in the old EventInfo
+### write mu values into xAOD::EventInfo
+if rec.doESD() and rec.readRDO():
+    if globalflags.DataSource()=='geant4':
+        include_muwriter = (globalflags.InputFormat.is_bytestream() or
+                            hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
+                            objKeyStore.isInInput( "xAOD::EventInfo"))
+    else:
+        include_muwriter = not athenaCommonFlags.isOnline()
+
+    if include_muwriter:
+        try:
+            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+        except Exception:
+            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
+            pass
+        pass
 
 if rec.doMonitoring():
     try:

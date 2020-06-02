@@ -56,7 +56,7 @@ StatusCode TauCommonCalcVars::finalize() {
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
-StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
+StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
 
     /////////////////////////////////////////////////
     // Calculate variables that are always valid   
@@ -143,7 +143,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 
         for (const xAOD::TauTrack* tauTrk : tauTracks){
 
-          double deltaR = Tau1P3PKineUtils::deltaR( ( m_in_trigger ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
+          double deltaR = Tau1P3PKineUtils::deltaR( ( inTrigger() ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
 	
 	  ptSum += tauTrk->pt();
 	  sumWeightedDR += deltaR * (tauTrk->pt());

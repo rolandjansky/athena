@@ -1,5 +1,6 @@
+// emacs: this is -*- c++ -*- 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGSELECTORHASHMAP_H
@@ -10,6 +11,9 @@
 #include "RegionSelectorLUT.h"
 #include "RegionSelector/RegSelEnums.h"
 #include "GaudiKernel/StatusCode.h"
+
+#include "IRegionSelector/IRegSelLUT.h"
+
 #include <vector>
 #include <list>
 #include <set>
@@ -33,9 +37,26 @@ struct equals{
 
 
 // Class RegSelectorHashMap ----------------------------------------------------
-class RegSelectorHashMap{
+class RegSelectorHashMap : virtual public IRegSelLUT {
 
- public:
+public: 
+
+  /// implementation of the IRegSelUT interface
+  
+  /// hash id methods
+
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  /// rob methods
+  
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;  
+
+  virtual ~RegSelectorHashMap() override = default;  
+public:
 
   double etaminValue() const ;
   double etamaxValue() const ;
@@ -123,7 +144,7 @@ class RegSelectorHashMap{
   void populateMatrix(int iPage,IdentifierHash value);
   void populateMatrixRobId(int iPage, uint32_t value);
   void initMatrix(void);
-  void writeLine(const int& layer, const IdentifierHash& hashId, std::vector<uint32_t> robId, const double& emin,
+  void writeLine(const int& layer, const IdentifierHash& hashId, const std::vector<uint32_t>& robId, const double& emin,
 				    const double& emax, const double& pmin, const double& pmax, const int& samp);					
   int MyRound(double pdValue);
   void regionSelectorIN(const int& sampling, const double& etaminIn, 

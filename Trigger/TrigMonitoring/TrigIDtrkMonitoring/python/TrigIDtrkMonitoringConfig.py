@@ -23,28 +23,36 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 # Cosmic instances
                 ##############################################################
 
-                if not mt_chains:
+                # Cosmic Expert instance
                 
+                tidacos = TrigTestBase(name = "IDCosmicTool",
+                                       histoPathBase = "/Trigger/HLT")
+                tidacos.AnalysisConfig = "Tier0"
+                tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
+                # tidacos.OutputLevel = DEBUG
+                tidacos.pixHitsOffline=-1
+                tidacos.sctHitsOffline=-1
+                tidacos.siHitsOffline=-1
 
-                        # Cosmic Expert instance
-                        
-                        tidacos = TrigTestBase(name = "IDCosmicTool",
-                                               histoPathBase = "/Trigger/HLT")
-                        tidacos.AnalysisConfig = "Tier0"
-                        tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
-                        # tidacos.OutputLevel = DEBUG
-                        tidacos.pixHitsOffline=-1
-                        tidacos.sctHitsOffline=-1
-                        tidacos.siHitsOffline=-1
+                if mt_chains: 
+                        tidacos.ntupleChainNames += [
+                                "Offline",
+                                "HLT_.*_cosmic.*:HLT_IDTrack_FTF",
+                                "HLT_.*_cosmic.*:HLT_IDTrack_EFID"
+                        ]
+                else:
                         tidacos.ntupleChainNames += [
                                 "Offline",
                                 "HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
                                 "HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
                         ]
 
-                        list += [ tidacos ]
+                list += [ tidacos ]
                         
-                        
+
+
+                if not mt_chains:
+                                        
                         # Cosmic Shifter instance
                         
                         tidacosshift = TrigTestBase(name = "IDCosmicShifterTool",
@@ -81,6 +89,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         tidaegamma.ntupleChainNames += [
                                 "Offline",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
                                 "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles"
                         ]
                 else:
@@ -168,7 +177,11 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidamuon.ntupleChainNames += [
                                 "Offline",
-                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonIso_FTF",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonIso_IDTrig",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_MuonLate_IDTrig"
                         ]
                 else:
                         tidamuon.ntupleChainNames += [
@@ -245,7 +258,8 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "Offline",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_TAURoI",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI"
                         ]
                 else:
                         tidatau.ntupleChainNames += [
@@ -258,6 +272,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         ]
 
                 list += [ tidatau ]
+
 
 
 
@@ -301,16 +316,28 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         list += [ tidataupurity ]
                         
                         
+
+
+
+                
+                ##############################################################
+                # Bjet instances - check track collection names
+                ##############################################################
                         
-                        ##############################################################
-                        # Bjet instances - check track collection names
-                        ##############################################################
-                        
-                        # Expert instances
-                        tidabjet = TrigTestBase(name = "IDBjetTool",
-                                                histoPathBase = "/Trigger/HLT")
-                        tidabjet.AnalysisConfig = "Tier0"
-                        tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
+                # Expert instances
+                tidabjet = TrigTestBase(name = "IDBjetTool",
+                                        histoPathBase = "/Trigger/HLT")
+                tidabjet.AnalysisConfig = "Tier0"
+                tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
+
+                if mt_chains:
+                        tidabjet.ntupleChainNames += [
+                                "Offline",
+                                ":key=HLT_IDTrack_FS_FTF",
+                                "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
+                                "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"
+                        ]
+                else:
                         tidabjet.ntupleChainNames += [
                                 "Offline",
                                 # jet based chains
@@ -323,10 +350,12 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
                                 "HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig"
                         ]
+                
+                list += [ tidabjet ]
 
-                        list += [ tidabjet ]
                         
-                        
+                if not mt_chains:
+
                         # Shifter instances
                         tidabjetshift = TrigTestBase(name = "IDBjetShifterTool",
                                                      histoPathBase = "/Trigger/HLT")

@@ -13,7 +13,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "GaudiKernel/IInterface.h"

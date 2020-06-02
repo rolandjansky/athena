@@ -1,4 +1,4 @@
-/*
+#/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -6,6 +6,7 @@
 #define TAURECTOOLS_HELPERFUNCTIONS_H
 
 #include "MVAUtils/BDT.h"
+#include "AsgMessaging/MessageCheck.h"
 
 #include <vector>
 #include <map>
@@ -19,9 +20,10 @@
 
 namespace tauRecTools
 {
+  ANA_MSG_HEADER(msgHelperFunction)
 
-  const StatusCode GetJetConstCluster(xAOD::JetConstituentVector::iterator it, const xAOD::CaloCluster* &cluster);
-  
+    const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted, TLorentzVector dRVector = TLorentzVector(0.,0.,0.,0.), double dRCut = -1);
+
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 

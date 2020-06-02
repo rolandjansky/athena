@@ -31,8 +31,10 @@ atlas_depends_on_subdirs(
    Calorimeter/CaloIdentifier
    Calorimeter/CaloInterface
    Calorimeter/CaloUtils
+   Calorimeter/CaloLumiConditions
    LArCalorimeter/LArTools
    LArCalorimeter/LArElecCalib
+   LArCalorimeter/LArIdentifier
    LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
    Control/AthenaMonitoringKernel )
@@ -57,12 +59,13 @@ atlas_add_library( CaloRecLib
    Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloUtilsLib
    StoreGateLib LArToolsLib LumiBlockCompsLib AthenaMonitoringKernelLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
-   ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel
+   ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel CaloLumiConditions
+   LArRawConditions
    FourMom NavFourMom )
 
 atlas_add_component( CaloRec
    src/components/*.cxx
-   LINK_LIBRARIES CaloRecLib )
+   LINK_LIBRARIES CaloRecLib CaloLumiConditions )
 
 # Test(s) in the package:
 atlas_add_test( CaloClusterProcessor_test
@@ -80,13 +83,31 @@ atlas_add_test( CaloCellContainerFromClusterTool_test
    LINK_LIBRARIES CaloRecLib 
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( CaloBCIDCoeffsCondAlg_test
+   SOURCES test/CaloBCIDCoeffsCondAlg_test.cxx
+   LINK_LIBRARIES CaloRecLib CaloLumiConditions LArRawConditions IdDictParser TestTools )
+
+atlas_add_test( CaloBCIDLumiCondAlg_test
+   SOURCES test/CaloBCIDLumiCondAlg_test.cxx
+   LINK_LIBRARIES CaloRecLib CaloLumiConditions LArRawConditions IdDictParser TestTools )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.py share/*.txt )
 
 
 atlas_add_test( CaloBCIDAvgAlgConfig_test
                 SCRIPT python -m CaloRec.CaloBCIDAvgAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+
+atlas_add_test( CaloBCIDCoeffsCondAlgConfig_test
+                SCRIPT python -m CaloRec.CaloBCIDCoeffsCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+
+atlas_add_test( CaloBCIDLumiCondAlgConfig_test
+                SCRIPT python -m CaloRec.CaloBCIDLumiCondAlgConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 
@@ -104,13 +125,13 @@ atlas_add_test( CaloCellContainerAliasAlg_test
 
 atlas_add_test( CaloThinCellsBySamplingAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
 
 
 atlas_add_test( CaloThinCellsByClusterAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
 
 

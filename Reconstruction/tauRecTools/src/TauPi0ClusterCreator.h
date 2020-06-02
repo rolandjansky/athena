@@ -10,7 +10,7 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 /**
  * @brief Creates Pi0 clusters (Pi0 Finder).
@@ -63,8 +63,10 @@ private:
     bool setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronicClusterContainer);
 
     /** @brief pt threshold for pi0 candidate clusters */
-    double m_clusterEtCut;
+    Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
     
+    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
+
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
 
 };

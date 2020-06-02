@@ -76,9 +76,6 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
 
   if (m_usepix) {
-    // Get PixelConditionsSummaryTool
-    ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     // Get InDetPixelLayerTool from ToolService
     ATH_CHECK(m_pixelLayerTool.retrieve());
     ATH_MSG_INFO("Retrieved tool " << m_pixelLayerTool);
@@ -218,34 +215,6 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
   return;
 }
 
-namespace {
-   class TrackParmVectorPtr
-   {
-   public:
-      TrackParmVectorPtr(const TrackParmVectorPtr &)            = delete;
-      TrackParmVectorPtr &operator=(const TrackParmVectorPtr &) = delete;
-
-      TrackParmVectorPtr(std::vector<const Trk::TrackParameters*> *track_parm_vec)       : m_trackParmVector(track_parm_vec) {}
-
-      ~TrackParmVectorPtr() {
-        if (m_trackParmVector) {
-          for (const Trk::TrackParameters *elm : *m_trackParmVector) {
-            delete elm;
-          }
-          delete m_trackParmVector;
-          m_trackParmVector = nullptr;
-        }
-      }
-
-      operator bool () const { return m_trackParmVector; }
-      //      std::vector<const Trk::TrackParameters*> &operator* ()       { assert( m_trackParmVector): return *m_trackParmVector; }
-      std::vector<const Trk::TrackParameters*> *operator->()       { assert( m_trackParmVector); return  m_trackParmVector; }
-
-   private:
-      std::vector<const Trk::TrackParameters*> *m_trackParmVector {};
-   };
-}
-
 // ====================================================================================================================
 bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track, 
                                                    const Trk::ParticleHypothesis partHyp,
@@ -371,12 +340,15 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       }
-      // extrapolate track to disk
-      startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
-                                                        *trtDisc,
-                                                        Trk::oppositeMomentum,
-                                                        true,
-                                                        partHyp));
+
+      if (trtDisc) {
+        // extrapolate track to disk
+        startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
+                                                          *trtDisc,
+                                                          Trk::oppositeMomentum,
+                                                          true,
+                                                          partHyp));
+      }
     }
   } else {  // no cosmics
     
@@ -466,31 +438,21 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
         
         // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
 
-        // In this particular use case the ownership over the returned constant
-        // track parameters vector is transferred to the caller there is no
-        // reason why the vector should be const.
-        // The const-ness is removed, to allow "releasing" track parameters from
-        // this vector and avoid cloning.
-        TrackParmVectorPtr paramList ATLAS_THREAD_SAFE  (const_cast<std::vector<const Trk::TrackParameters *> *>(
+        std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
           m_extrapolator->extrapolateStepwise(*startParameters,
                                               *surf,
                                               Trk::alongMomentum,
-                                              false, partHyp)));
+                                              false, partHyp);
 
-        if (!paramList) {
+        if (paramList.empty()) {
           ATH_MSG_VERBOSE("--> Did not manage to extrapolate to surface!!!");
           continue;
         }
 
-        ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList->size());
+        ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
         
         // loop over the predictons and analyze them
-        for (std::vector<const Trk::TrackParameters*>::iterator it = paramList->begin();
-             it != paramList->end(); ++it) {
-          // copy pointer
-
-          std::unique_ptr<const Trk::TrackParameters> thisParameters(*it);
-          *it=nullptr;
+        for (std::unique_ptr<const Trk::TrackParameters>& thisParameters : paramList) {
           ATH_MSG_VERBOSE("extrapolated pos: " << thisParameters->position() << "   r: " << 
                           sqrt(pow(thisParameters->position().x(),2)+pow(thisParameters->position().y(),2)));
       
@@ -579,28 +541,18 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     Trk::Volume* boundaryVol = new Trk::Volume(0, cylinderBounds); 
     // extrapolate this parameter blindly to search for more Si hits (not very fast, I know)
 
-    // In this particular use case the ownership over the returned constant
-    // track parameters vector is transferred to the caller there is no
-    // reason why the vector should be const.
-    // The const-ness is removed, to allow "releasing" track parameters from
-    // this vector and avoid cloning.
-    TrackParmVectorPtr paramList ATLAS_THREAD_SAFE ( const_cast<std::vector<const Trk::TrackParameters *> *>(
-                                     m_extrapolator->extrapolateBlindly(*startParameters,
-                                                                        Trk::alongMomentum,
-                                                                        false, partHyp,
-                                                                        boundaryVol)));
-    if (!paramList) {
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
+      m_extrapolator->extrapolateBlindly(*startParameters,
+                                         Trk::alongMomentum,
+                                         false, partHyp,
+                                         boundaryVol);
+if (paramList.empty()) {
       ATH_MSG_VERBOSE("--> Did not manage to extrapolate to another surface, break loop");
     } else {    
-      ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList->size());
+      ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
   
       // loop over the predictions and analyze them
-      for (std::vector<const Trk::TrackParameters*>::iterator it = paramList->begin();
-           it != paramList->end(); ++it) {
-        // copy pointer
-         std::unique_ptr<const Trk::TrackParameters> thisParameter(*it);
-         *it=nullptr;
-      
+      for (std::unique_ptr<const Trk::TrackParameters>& thisParameter : paramList) {
         // check if surface has identifer !
         Identifier id2;
         if (thisParameter->associatedSurface().associatedDetectorElement() != nullptr &&
@@ -850,7 +802,6 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   if (m_atlasId->is_pixel(id)) { 
     if (m_usepix) {
       ATH_MSG_VERBOSE("Found element is a Pixel module without a hit, see if it might be dead");
-      isgood=m_pixelCondSummaryTool->isGood(idHash);
       isgood=m_pixelLayerTool->expectHit(parameters);
       if (isgood) {
         // this detElement is only cosidered as hole if the extrapolation of

@@ -7,13 +7,18 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTracking/TrackParticle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TRandom1.h"
 #include <string>
 #include <memory>
+#include <tuple>
 
 
 class MuonMatchingTool : public AthAlgTool {
@@ -40,21 +45,35 @@ class MuonMatchingTool : public AthAlgTool {
 
 
   StatusCode matchL1(const xAOD::Muon *mu, SG::ReadHandle<xAOD::MuonRoIContainer> &murois, std::string trigger, bool &pass) const;
-  StatusCode matchL1(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
   StatusCode matchSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
   StatusCode matchCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
   StatusCode matchEF(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
+  const Trk::TrackParameters* extTrackToPivot(const xAOD::TrackParticle *track) const;
+  const Trk::TrackParameters* extTrackToTGC(const xAOD::TrackParticle *track) const;
+  const Trk::TrackParameters* extTrackToRPC(const xAOD::TrackParticle *track) const;
+
+  static double reqdRL1byPt(double mupt);
 
 
  private:
+  // private methods
+  // Template methods that perform different matching schemes for T=xAOD::L2StandAloneMuon, xAOD::L2CombinedMuon and xAOD::Muon (EF).
+  // See MuonMatchingTool.cxx for specialization and MuonMatchingTool.icc for implementation
+  template<class T> inline std::tuple<double,double> trigPosForMatch(const T *trig) const;
+  template<class T> inline std::tuple<double,double> offlinePosForMatch(const xAOD::Muon *mu) const;
   template<class T> StatusCode match(const xAOD::Muon *mu, std::string trigger, double reqdR, bool &pass) const;
   double FermiFunction(double x, double x0, double w) const;
 
-  ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-  std::unique_ptr<TRandom1> m_rndm;
-  bool m_ToyDecision;
 
+  // properties
+  Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to enable the extrapolator for matching offline and trigger muons"};
+
+  // tools
+  PublicToolHandle<Trig::TrigDecisionTool> m_trigDec {this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool", "TrigDecisionTool"};
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator {"Trk::Extrapolator/AtlasExtrapolator"};
+  //The extrapolator is currently not available. Once it gets available, initialize it with the following, which attempts to retrieve:
+  //{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator", "Track extrapolator"}; 
 };
 
 #include "MuonMatchingTool.icc"

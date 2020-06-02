@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "STGC_DigitToRDO.h"
@@ -15,10 +15,9 @@ STGC_DigitToRDO::STGC_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocat
 StatusCode STGC_DigitToRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK( m_rdoContainer.initialize() );
   ATH_CHECK( m_digitContainer.initialize() );
-  ATH_CHECK ( detStore()->retrieve(m_idHelper, "STGCIDHELPER") );
-
   return StatusCode::SUCCESS;
 }
 
@@ -28,7 +27,7 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "in execute()"  );
   SG::WriteHandle<STGC_RawDataContainer> rdos (m_rdoContainer, ctx);
   SG::ReadHandle<sTgcDigitContainer> digits (m_digitContainer, ctx);
-  ATH_CHECK( rdos.record(std::make_unique<STGC_RawDataContainer>(m_idHelper->module_hash_max())) );
+  ATH_CHECK( rdos.record(std::make_unique<STGC_RawDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())) );
 
   if (digits.isValid() ) {
     for (const sTgcDigitCollection* digitColl : *digits ) {
@@ -37,7 +36,7 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
       // module Id hash
       Identifier digitId = digitColl->identify();
       IdentifierHash hash;
-      int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
+      int getRdoCollHash = m_idHelperSvc->stgcIdHelper().get_module_hash(digitId,hash);
       if ( getRdoCollHash !=0 ) {
         ATH_MSG_ERROR("Could not get the module hash Id");
         return StatusCode::FAILURE;

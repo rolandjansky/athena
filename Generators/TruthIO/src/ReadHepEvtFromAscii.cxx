@@ -6,20 +6,70 @@
 
 #include "TruthIO/ReadHepEvtFromAscii.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/HEPEVT_Wrapper.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/IO_HEPEVT.h"
+#include "AtlasHepMC/HEPEVT_Wrapper.h"
 
 #include "GaudiKernel/DataSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
-extern "C" {
-  void openfile_(int & ifile, const char* filename, int);
-  void readevt_(int& ifile);
-  void closefile_(int& ifile);
-}
 
+
+bool ReadHepEvtFromAscii::read_hepevt_event_header()
+{
+    const size_t       max_e_buffer_size=512;
+    char buf_e[max_e_buffer_size];
+    bool eventline=false;
+    int im=0, pm=0;
+    while(!eventline)
+    {
+        m_file.getline(buf_e,max_e_buffer_size);
+        if( strlen(buf_e) == 0 ) return false;
+        std::stringstream st_e(buf_e);
+        char attr=' ';
+        eventline=false;
+        while (!eventline)
+        {
+            if (!(st_e>>attr)) break;
+            if (attr==' ') continue;
+            else eventline=false;
+            if (attr=='E')
+            {
+                eventline=static_cast<bool>(st_e>>im>>pm);
+            }
+        }
+    }
+    HepMC::HEPEVT_Wrapper::set_event_number(im);
+    HepMC::HEPEVT_Wrapper::set_number_entries(pm);
+    return eventline;
+}
+bool ReadHepEvtFromAscii::read_hepevt_particle( int i)
+{
+    const size_t       max_p_buffer_size=512;
+    const size_t       max_v_buffer_size=512;
+    char buf_p[max_p_buffer_size];
+    char buf_v[max_v_buffer_size];
+    int   intcodes[6];
+    double fltcodes1[5];
+    double fltcodes2[4];
+    m_file.getline(buf_p,max_p_buffer_size);
+    if( strlen(buf_p) == 0 ) return false;
+    m_file.getline(buf_v,max_v_buffer_size);
+    if( strlen(buf_v) == 0 ) return false;
+    std::stringstream st_p(buf_p);
+    std::stringstream st_v(buf_v);
+    if (!static_cast<bool>(st_p>>intcodes[0]>>intcodes[1]>>intcodes[2]>>intcodes[3]>>intcodes[4]>>intcodes[5]>>fltcodes1[0]>>fltcodes1[1]>>fltcodes1[2]>>fltcodes1[3]>>fltcodes1[4])) {     return false;}
+    if (!static_cast<bool>(st_v>>fltcodes2[0]>>fltcodes2[1]>>fltcodes2[2]>>fltcodes2[3])) { return false;}
+    HepMC::HEPEVT_Wrapper::set_status(i,intcodes[0]);
+    HepMC::HEPEVT_Wrapper::set_id(i,intcodes[1]);
+    HepMC::HEPEVT_Wrapper::set_parents(i,intcodes[2],std::max(intcodes[2],intcodes[3]));/* Pythia writes second mother 0*/
+    HepMC::HEPEVT_Wrapper::set_children(i,intcodes[4],intcodes[5]);
+    HepMC::HEPEVT_Wrapper::set_momentum(i,fltcodes1[0],fltcodes1[1],fltcodes1[2],fltcodes1[3]);
+    HepMC::HEPEVT_Wrapper::set_mass(i,fltcodes1[4]);
+    HepMC::HEPEVT_Wrapper::set_position(i,fltcodes2[0],fltcodes2[1],fltcodes2[2],fltcodes2[3]);
+    return true;
+}
 
 ReadHepEvtFromAscii::ReadHepEvtFromAscii(const std::string& name, ISvcLocator* pSvcLocator) 
   :  AthAlgorithm(name, pSvcLocator),
@@ -46,10 +96,8 @@ StatusCode ReadHepEvtFromAscii::initialize(){
   HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
   
   // Initialize input file
-  int ifile=5;
-  closefile_(ifile);
-  openfile_(ifile,m_input_file.c_str(),m_input_file.size());
-
+  m_file=std::ifstream(m_input_file.c_str());
+  if( !m_file.is_open() ) return StatusCode::FAILURE;
   // Initialization terminated
   return StatusCode::SUCCESS;
 }
@@ -73,8 +121,10 @@ StatusCode ReadHepEvtFromAscii::execute() {
   }
 
   HepMC::GenEvent* evt = new HepMC::GenEvent(); 
-  int ifile=5; 
-  readevt_(ifile);
+  HepMC::HEPEVT_Wrapper::zero_everything();
+  bool fileok=read_hepevt_event_header();
+  for (int i=1; (i<=HepMC::HEPEVT_Wrapper::number_entries())&&fileok; i++) fileok=read_hepevt_particle(i);
+  if (!fileok) return StatusCode::FAILURE;
 
   HepMC::IO_HEPEVT hepio;
   hepio.set_print_inconsistency_errors(0);
@@ -100,8 +150,7 @@ StatusCode ReadHepEvtFromAscii::finalize() {
 
   msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from finalize" << endmsg;
 
-  int ifile=5;
-  closefile_(ifile);
+  if(m_file.is_open()) m_file.close();
   // End of finalization step
   return StatusCode::SUCCESS;
 

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
 			  Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           Reconstruction/MuonIdentification/muonEvent
@@ -29,24 +30,24 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
-                          Trigger/TrigSteer/TrigCompositeUtils )
+                          Trigger/TrigSteer/TrigCompositeUtils 
+                          )
 
 # External dependencies:
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TrigInDetAnalysisExampleLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetAnalysisExample
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib TrigCompositeUtilsLib 
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib TrigCompositeUtilsLib 
                    PRIVATE_LINK_LIBRARIES GaudiKernel TrkParameters TrkTrack )
 
 atlas_add_component( TrigInDetAnalysisExample
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigDecisionToolLib TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigHLTMonitoringLib AthenaMonitoringLib GaudiKernel TrkParameters TrkTrack TrigInDetAnalysisExampleLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigDecisionToolLib TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigHLTMonitoringLib AthenaMonitoringLib GaudiKernel TrkParameters TrkTrack TrigInDetAnalysisExampleLib )
 
 # Disable naming convention checker.
 # FIXME: This should be fixed properly once run2 is finished.

@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/RDBAccessSvc )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Install files from the package:

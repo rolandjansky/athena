@@ -11,7 +11,7 @@ Python helper module for managing COOL DB connections and CaloCondBlobs.
 import os
 import cppyy
 from PyCool import cool
-import time, types, re
+import time, re
 g = cppyy.gbl
 
 
@@ -209,11 +209,11 @@ def getCoolValidityKey(pointInTime, isSince=True):
     validityKey = None
 
     #=== string: convert to unix time and treat as latter
-    if isinstance(pointInTime, types.StringType):
+    if isinstance(pointInTime, str):
         pointInTime = decodeTimeString(pointInTime)
 
     #=== integer: unix time stamp
-    if isinstance(pointInTime, types.IntType):
+    if isinstance(pointInTime, int):
         if pointInTime >=0:
             validityKey = pointInTime * UNIX2COOL
         else:
@@ -222,7 +222,7 @@ def getCoolValidityKey(pointInTime, isSince=True):
             else      :
                 validityKey = cool.ValidityKeyMax
     #=== run-lumi tuple
-    elif isinstance(pointInTime, types.TupleType):
+    elif isinstance(pointInTime, tuple):
         validityKey = iovFromRunLumi(pointInTime[0],pointInTime[1])
     #=== catch other types
     else:
@@ -458,15 +458,15 @@ class CaloBlobWriter(CaloCondLogger):
 
         #=== build IOV string
         iovString = ""       
-        if isinstance(since, types.TupleType):
+        if isinstance(since, tuple):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
-            sinceInfo = time.localtime( sinceCool / UNIX2COOL )
-            untilInfo = time.localtime(min(UNIXTMAX, (untilCool/UNIX2COOL)))
+            sinceInfo = time.localtime( sinceCool//UNIX2COOL )
+            untilInfo = time.localtime(min(UNIXTMAX, (untilCool//UNIX2COOL)))
             untilStr = "<infinity>"
             if untilCool<cool.ValidityKeyMax:
                 untilStr = time.asctime(untilInfo)
-                if (untilCool/UNIX2COOL)>UNIXTMAX:
+                if (untilCool//UNIX2COOL)>UNIXTMAX:
                     untilStr = " > "+untilStr
             iovString = "[%s] - [%s]" % (time.asctime(sinceInfo), untilStr)
 

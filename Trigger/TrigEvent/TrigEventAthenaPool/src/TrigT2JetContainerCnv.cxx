@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT2JetContainerCnv.h"
@@ -41,11 +41,11 @@ TrigT2JetContainer * TrigT2JetContainerCnv::createTransient()
 
 
   if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigT2JetContainer_p3 > col_vect( poolReadObject< TrigT2JetContainer_p3 >() );
+         std::unique_ptr< TrigT2JetContainer_p3 > col_vect( poolReadObject< TrigT2JetContainer_p3 >() );
          //std::cout << "Reading TTCC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
-         std::auto_ptr< TrigT2JetContainer_tlp1 > col_vect( poolReadObject< TrigT2JetContainer_tlp1 >() );
+         std::unique_ptr< TrigT2JetContainer_tlp1 > col_vect( poolReadObject< TrigT2JetContainer_tlp1 >() );
          //std::cout << "Reading TTC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else  throw std::runtime_error( "Unsupported persistent version of TrigT2JetContainer" );

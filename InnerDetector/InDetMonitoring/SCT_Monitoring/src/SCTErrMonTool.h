@@ -23,6 +23,7 @@
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_FlaggedConditionTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -127,6 +128,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+  ToolHandle<ISCT_FlaggedConditionTool> m_flaggedTool{this, "SCT_FlaggedConditionTool", "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool", "Tool to retrieve bad wafers with many fired strips"};
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper{nullptr};
@@ -141,12 +143,13 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   TProfile_LW* m_FractionOfSCTFlagErrorsPerLB{}; // Filled in fillHistograms
   TH1F_LW* m_NumberOfSCTFlagErrorsVsLB{}; // Filled in fillHistograms
   TH1F_LW* m_NumberOfEventsVsLB{}; // Filled in fillHistograms
-  TH1I* m_MaskedAllLinks{}; // Filled in fillByteStreamErrorsHelper.
+  TH1I* m_MaskedAllLinks{}; // Filled in fillByteStreamErrorsHelper
+  TProfile* m_flaggedWafers{}; // Filled in fillHistograms
   // maskedLinks or maskedRODs
   // Unnecessary but necessary to fill necessary m_ConfNew
   /// Under LB directories
   // total number of errors
-  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_allErrsCate and m_summaryErrsRecent
+  TH2F_LW* m_pallErrsCate[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_allErrsCate and m_summaryErrsRecent
   // Default histos to print per lumi block
   TH2F_LW* m_numErrorsPerLumi[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_rateErrorsPerLumi
   /// Detector coverage
@@ -158,7 +161,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   TProfile_LW* m_ConfNew{}; // Filled in fillCondDBMaps using m_MaskedAllLinks and m_allErrsCate. Noise plots are also used.
   TProfile_LW* m_LinksWithCategorisedErrorsVsLB[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY]{}; // Fillded in fillByteStreamErrors using m_pallErrsCate
   /// Under LB directories
-  TProfile2D_LW* m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Rate of errors. Filled in fillByteStreamErrors. Used to fill necessary m_ConfNew
+  TProfile2D_LW* m_allErrsCate[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Rate of errors. Filled in fillByteStreamErrors. Used to fill necessary m_ConfNew
   TProfile2D_LW* m_rateErrorsPerLumi[SCT_Monitoring::N_REGIONS]{}; // Filled in checkRateHists using m_numErrorsPerLumi
   /// Only online
   TProfile_LW* m_ConfOnline[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Filled in fillCondDBMaps using m_MaskedAllLinks and m_allErrsCate

@@ -23,7 +23,8 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "IRegionSelector/RegSelLUTCondData.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
+#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <string>
 
@@ -50,7 +51,7 @@ public:
     { this, "Cabling", "MuonMDT_CablingMap", "Key of output MDT cabling map" };
 
   /// Output conditions object
-  SG::WriteCondHandleKey<RegSelLUTCondData> m_tableKey  
+  SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
 
 

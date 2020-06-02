@@ -48,8 +48,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
     # Edit properties of a algorithm
     myMonAlg.TriggerChain = ''
 
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    myMonAlg.BunchCrossingTool = BunchCrossingTool()
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result.merge(BunchCrossingCondAlgCfg(inputFlags))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
@@ -242,9 +242,9 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg

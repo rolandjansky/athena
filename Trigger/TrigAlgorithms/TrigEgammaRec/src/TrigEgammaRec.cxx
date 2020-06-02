@@ -1265,8 +1265,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 if (!tbsc && m_doTopoIsolation && flav =="topoetcone") {
                     ATH_MSG_WARNING("Call to CaloTopoIsolationTool failed for flavour " << flav);
 		}
-		ATH_MSG_DEBUG(" REGTEST: etcone       " << flav <<  " =   " <<  CaloIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
-		ATH_MSG_DEBUG(" REGTEST: topoetcone40 " << flav <<  " =   " <<  TopoIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
+		if (bsc) ATH_MSG_DEBUG(" REGTEST: etcone       " << flav <<  " =   " <<  CaloIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
+		if (tbsc) ATH_MSG_DEBUG(" REGTEST: topoetcone40 " << flav <<  " =   " <<  TopoIsoResult.etcones[std::distance(m_egCaloIso.begin(), itc)]);
 	    }
 
             if (timerSvc()) m_timerIsoTool2->stop(); //timer

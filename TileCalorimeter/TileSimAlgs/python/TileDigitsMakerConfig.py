@@ -31,17 +31,17 @@ def TileDigitsMakerCfg(flags, **kwargs):
     infoLoader = infoLoaderAcc.getPrimary()
     acc.merge( infoLoaderAcc )
 
-    infoLoaderProperties = infoLoader.getValuedProperties()
+    infoLoaderProperties = infoLoader._properties.items()
 
     if 'TileNoise' in infoLoaderProperties:
         tileNoise = infoLoaderProperties['TileNoise']
     else:
-        tileNoise = infoLoader.getDefaultProperty('TileNoise')
+        tileNoise = infoLoader._descriptors['TileNoise'].default
 
     if 'TileCoherNoise' in infoLoaderProperties:
         tileCoherNoise = infoLoaderProperties['TileCoherNoise']
     else:
-        tileCoherNoise = infoLoader.getDefaultProperty('TileCoherNoise')
+        tileCoherNoise = infoLoader._descriptors['TileCoherNoise'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -186,8 +186,8 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))

@@ -26,11 +26,11 @@ atlas_add_library( RegionSelectorLib
                    src/*.cxx
                    PUBLIC_HEADERS RegionSelector
                    LINK_LIBRARIES AthenaKernel IRegionSelector Identifier GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities RegSelLUT PathResolver )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities RegSelLUT PathResolver SCT_CablingLib GeoModelInterfaces InDetConditionsSummaryService )
 
 atlas_add_component( RegionSelector
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaKernel IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver RegionSelectorLib  )
+                     LINK_LIBRARIES AthenaKernel IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver RegionSelectorLib SCT_CablingLib GeoModelInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from GoodRunsLists.GoodRunsListConfig import GoodRunsListConfig
@@ -23,19 +23,19 @@ class WZcommon(GoodRunsListConfig):
     self.querydict['ptag'] = ["data10_7TeV"]
 
     ## See http://atlas-runquery.cern.ch for more user examples.
-    dqflagsquery = [ 	'ATLGL LBSUMM#DetStatus-v03-repro04-01 g', 
-			'L1CTP LBSUMM#DetStatus-v03-repro04-01 g', 
-			'ATLSOL LBSUMM#DetStatus-v03-repro04-01 g', 
-			'ATLTOR LBSUMM#DetStatus-v03-repro04-01 g',
-                     	'L1CAL LBSUMM#DetStatus-v03-repro04-01 g', 
-			'L1MUE LBSUMM#DetStatus-v03-repro04-01 g', 
-			'L1MUB LBSUMM#DetStatus-v03-repro04-01 g', 
-			'cp_eg_electron_endcap LBSUMM#DetStatus-v03-repro04-01 g',
-			'cp_eg_electron_barrel LBSUMM#DetStatus-v03-repro04-01 g',
-			'cp_mu_mmuidcb LBSUMM#DetStatus-v03-repro04-01 g',
-			'cp_mu_mstaco LBSUMM#DetStatus-v03-repro04-01 g',
-			'cp_met LBSUMM#DetStatus-v03-repro04-01 g',
-		   ]
+    dqflagsquery = [    'ATLGL LBSUMM#DetStatus-v03-repro04-01 g',
+                        'L1CTP LBSUMM#DetStatus-v03-repro04-01 g',
+                        'ATLSOL LBSUMM#DetStatus-v03-repro04-01 g',
+                        'ATLTOR LBSUMM#DetStatus-v03-repro04-01 g',
+                        'L1CAL LBSUMM#DetStatus-v03-repro04-01 g',
+                        'L1MUE LBSUMM#DetStatus-v03-repro04-01 g',
+                        'L1MUB LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_eg_electron_endcap LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_eg_electron_barrel LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_mu_mmuidcb LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_mu_mstaco LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_met LBSUMM#DetStatus-v03-repro04-01 g',
+                   ]
 
     ## Set the dqflags query
     self.querydict['dq'] = dqflagsquery

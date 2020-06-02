@@ -13,6 +13,10 @@ doDumpProperties=True
 #Turn of TAG
 rec.doWriteTAG.set_Value_and_Lock(False)
 
+#Disables PFO Thnning - these cotnainers do not exist, unless you run jet finding
+from ParticleBuilderOptions.AODFlags import AODFlags
+AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
+
 athenaCommonFlags.EvtMax=-1
 
 #Run btagging 

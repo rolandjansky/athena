@@ -79,10 +79,10 @@ def TileRawChannelToL2OutputCfg(flags, streamName = 'RDO', **kwargs):
     acc = TileRawChannelToL2Cfg(flags, **kwargs)
     tileRawChanToL2Alg = acc.getPrimary()
 
-    if 'TileL2Container' in tileRawChanToL2Alg.getValuedProperties():
-        tileL2Container = tileRawChanToL2Alg.getValuedProperties()['TileL2Container']
+    if 'TileL2Container' in tileRawChanToL2Alg._properties:
+        tileL2Container = tileRawChanToL2Alg._properties['TileL2Container']
     else:
-        tileL2Container = tileRawChanToL2Alg.getDefaultProperty('TileL2Container')
+        tileL2Container = tileRawChanToL2Alg._descriptors['TileL2Container'].default
 
     if flags.Output.doWriteRDO:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
@@ -109,11 +109,11 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg(ConfigFlags) )
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg(ConfigFlags, ["TileRawChannelContainer/TileRawChannelCnt"]) )
 
     acc.merge( TileRawChannelToL2OutputCfg(ConfigFlags, streamName = 'ESD') )
     acc.getService('StoreGateSvc').Dump = True

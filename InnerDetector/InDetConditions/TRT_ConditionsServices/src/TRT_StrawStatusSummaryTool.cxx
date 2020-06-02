@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_StrawStatusSummaryTool.cxx
@@ -56,7 +56,7 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
 
 StatusCode TRT_StrawStatusSummaryTool::finalize()
 {
-  msg(MSG::INFO) << " in finalize() " << endmsg;
+  ATH_MSG_INFO(" in finalize() ");
   return StatusCode::SUCCESS;
 }
 
@@ -106,6 +106,20 @@ int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID, const EventCon
   }
 
  return int((*strawstatusHTcontainer).get(id).getstatus());
+}
+
+const TRTCond::StrawStatusMultChanContainer* TRT_StrawStatusSummaryTool::getStrawStatusHTContainer() const{
+
+  const StrawStatusContainer* strawstatusHTcontainer;
+  if(m_isGEANT4) {
+     strawstatusHTcontainer=m_strawstatusHTG4.cptr();
+  }
+  else {
+    SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,Gaudi::Hive::currentContext());
+    strawstatusHTcontainer=(*rht);
+  }
+
+ return strawstatusHTcontainer;
 }
 
 

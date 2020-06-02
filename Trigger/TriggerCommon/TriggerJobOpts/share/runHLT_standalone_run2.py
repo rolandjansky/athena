@@ -559,3 +559,8 @@ if not TriggerFlags.Online.doValidation():  # Suppress this printout in ATN test
     jobproperties.print_JobProperties('tree&value')
     print(AlgSequence)
     print(ServiceMgr)
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")

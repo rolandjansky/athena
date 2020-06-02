@@ -45,7 +45,7 @@ INav4MomLinkContainer* INav4MomLinkContainerCnv::createTransient()
 
   if( compareClassGuid(p1_guid) )
     {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< INav4MomLinkContainer_PERS > col_vect( poolReadObject< INav4MomLinkContainer_PERS >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
     }

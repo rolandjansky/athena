@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( EventContainers 
    src/*.cxx
    PUBLIC_HEADERS EventContainers
-   LINK_LIBRARIES AthenaKernel GaudiKernel )
+   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel )
 
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
@@ -37,4 +37,9 @@ atlas_add_test( IDStressTest SOURCES test/IDC_Realistic_Test.cxx
 atlas_add_test( IDCValueTest SOURCES test/IDCValueTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
+              )
+atlas_add_test( IDBenchTest SOURCES test/IDC_Benchmark.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
+                LOG_IGNORE_PATTERN "time"
               )

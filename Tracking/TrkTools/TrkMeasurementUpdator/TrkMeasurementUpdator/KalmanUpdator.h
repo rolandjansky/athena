@@ -22,6 +22,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include <cmath>
 
 
 namespace Trk {
@@ -206,21 +207,19 @@ private:
 };
 
  inline bool KalmanUpdator::thetaPhiWithinRange (const Amg::VectorX& V, const int key) const {   
-   static const double pihalf = 0.5*M_PI;
    if (! (key&4 || key&8)) return true; // in case no angles measured.
-   if (key == 31) return ( (fabs(V[Trk::phi]) <= M_PI) && (V[Trk::theta]>=0.0) && (V[Trk::theta] <= M_PI) );
-   
+   if (key == 31) return ( (std::abs(V[Trk::phi]) <= M_PI) && (V[Trk::theta]>=0.0) && (V[Trk::theta] <= M_PI) );
    else { // if vector is compressed (i.e. localParameters) need to extract phi,theta first.
      bool okay = true;
      if (key & 4) { // phi is being measured
        int jphi = 0;
        for (int itag = 0, ipos=1; itag<Trk::phi; ++itag, ipos*=2) if (key & ipos) ++jphi;
-       okay = okay && (fabs(V[jphi]) <= M_PI);
+       okay = okay && (std::abs(V[jphi]) <= M_PI);
      }
      if (key & 8) { // theta is being measured
        int jtheta = 0;
        for (int itag = 0, ipos=1; itag<=Trk::theta; ++itag, ipos*=2) if (key & ipos) ++jtheta;
-       okay = okay && (fabs(V[jtheta]-pihalf)<=pihalf);
+       okay = okay && (std::abs(V[jtheta]-M_PI_2)<=M_PI_2);
      }
      return okay;
    }
@@ -231,19 +230,19 @@ private:
  // theta differences should be smaller than pi but can be negative => other constraint than absolute theta.
  inline bool KalmanUpdator::diffThetaPhiWithinRange (const Amg::VectorX& V, const int key) const {
    if (! (key&4 || key&8)) return true; // in case no angles measured.
-   if (key == 31) return ( (fabs(V[Trk::phi]) <= M_PI) && (V[Trk::theta]>=-M_PI) && (V[Trk::theta] <= M_PI) );
+   if (key == 31) return ( (std::abs(V[Trk::phi]) <= M_PI) && (V[Trk::theta]>=-M_PI) && (V[Trk::theta] <= M_PI) );
    
    else { // if vector is compressed (i.e. localParameters) need to extract phi,theta first.
      bool okay = true;
      if (key & 4) { // phi is being measured
        int jphi = 0;
        for (int itag = 0, ipos=1; itag<Trk::phi; ++itag, ipos*=2) if (key & ipos) ++jphi;
-       okay = okay && (fabs(V[jphi]) <= M_PI);
+       okay = okay && (std::abs(V[jphi]) <= M_PI);
      }
      if (key & 8) { // theta is being measured
        int jtheta = 0;
        for (int itag = 0, ipos=1; itag<=Trk::theta; ++itag, ipos*=2) if (key & ipos) ++jtheta;
-       okay = okay && (fabs(V[jtheta])<=M_PI);
+       okay = okay && (std::abs(V[jtheta])<=M_PI);
      }
      return okay;
    }

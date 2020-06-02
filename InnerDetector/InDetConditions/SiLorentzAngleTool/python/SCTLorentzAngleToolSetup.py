@@ -49,7 +49,7 @@ class SCTLorentzAngleToolSetup:
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                                 SiConditionsTool = sctSiliconConditionsTool,
-                                                UseMagFieldSvc = True,
+                                                UseMagFieldCache = True,
                                                 UseMagFieldDcs = (not athenaCommonFlags.isOnline()),
                                                 UseGeoModel = forceUseGeoModel)
         sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
@@ -62,7 +62,7 @@ class SCTLorentzAngleToolSetup:
         # Pass the silicon conditions tool to the Lorentz angle tool
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
-        sctLorentzAngleTool.UseMagFieldSvc = True
+        sctLorentzAngleTool.UseMagFieldCache = True
         self.SCTLorentzAngleTool = sctLorentzAngleTool
 
     # Force the Lorentz angle tool to use SiliconConditions service (which are assumed to use the DB)

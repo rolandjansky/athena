@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: IProxyDict.h 791122 2016-12-27 13:55:49Z ssnyder $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_IPROXYDICT_H
 #define XAODROOTACCESS_TOOLS_IPROXYDICT_H
 
@@ -43,9 +40,6 @@ struct InterfaceID {};
 /// a simple emulation of this offline class.
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-///
-/// $Revision: 791122 $
-/// $Date: 2016-12-27 14:55:49 +0100 (Tue, 27 Dec 2016) $
 ///
 class IProxyDict {
 
@@ -110,7 +104,7 @@ public:
 
 #else
 
-// If we're in an offline build, just take the declaration from SGTools:
+// If we're in an offline build, just take the declaration from AthenaKernel.
 #include "AthenaKernel/IProxyDict.h"
 
 #endif // XAOD_STANDALONE

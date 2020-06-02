@@ -27,7 +27,7 @@ void CscInternalAlignmentPar::setParameters(float s, float z, float t,
 }
 
 void CscInternalAlignmentPar::getParameters(float& s, float& z, float& t, 
-			     float& rotS, float& rotZ, float& rotT)
+			     float& rotS, float& rotZ, float& rotT) const
 {
   s    = m_S;
   z    = m_Z;
@@ -48,7 +48,7 @@ void CscInternalAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int 
   return;
 }
 
-void CscInternalAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer) 
+void CscInternalAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer)  const
 {
   type = m_Type;
   jff  = m_Jff;

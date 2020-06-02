@@ -36,8 +36,7 @@ private:
   int m_nVHtoVV;
   int m_nGoodVHtoVV;
 
-  void findAncestor(const HepMC::GenVertex::particle_iterator& firstAncestor,
-                    const HepMC::GenVertex::particle_iterator& endAncestor,
+  void findAncestor(const HepMC::GenVertex* searchvertex,
                     int targetPDGID, int& n_okPDGChild);
 
 };

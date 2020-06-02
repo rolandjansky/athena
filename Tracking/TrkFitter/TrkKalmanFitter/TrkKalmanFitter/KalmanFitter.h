@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@
 #include "TrkFitterInterfaces/IKalmanPiecewiseAnnealingFilter.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <array>
 
 class AtlasDetectorID;            //!< to identify measurements
 
@@ -71,56 +72,61 @@ namespace Trk {
     virtual ~KalmanFitter();
 
     // standard Athena methods
-    StatusCode initialize();
-    StatusCode finalize();
-   
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+
     //! refit a track
     virtual Track* fit(const Track&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! fit a set of PrepRawData objects
     virtual Track* fit(const PrepRawDataSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
     
     //! fit a set of MeasurementBase objects
     virtual Track* fit(const MeasurementSet&,
                        const TrackParameters&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
     
     //! extend a track fit including a new set of PrepRawData objects
     virtual Track* fit(const Track&,
                        const PrepRawDataSet&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! extend a track fit including a new set of MeasurementBase objects
     virtual Track* fit(const Track&,
                        const MeasurementSet&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     //! combined track fit
     virtual Track* fit(const Track&,
                        const Track&,
                        const RunOutlierRemoval  runOutlier=false,
                        const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+                       ) const override;
 
     /** @brief retrieve statuscode of last fit.
 
         particularly designed for accessing a more detailed reason for
         failed fits, which otherwise are indicated only by the returned
         NULL pointer. */
-    virtual Trk::FitterStatusCode statusCodeOfLastFit() const;
+    virtual Trk::FitterStatusCode statusCodeOfLastFit() const override;
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
@@ -177,7 +183,6 @@ private:
   // Private data:
   ///////////////////////////////////////////////////////////////////
     mutable MsgStream             m_log;         //!< msgstream as private member (-> speed)
-    int                           m_outputlevel; //!< private member to control debug messages
 
     //! extrapolation tool: does propagation and applies material effects
     ToolHandle< IExtrapolator >             m_extrapolator;
@@ -214,7 +219,6 @@ private:
     bool                          m_option_reintegrateOutliers;
     bool                          m_option_doValidationAction;
     bool                          m_option_callValidationToolForFailedFitsOnly;
-    // bool                          m_useReferenceTrack;
     std::vector<double>           m_option_sortingRefPoint;
 
     mutable bool                  m_callValidationTool;
@@ -240,7 +244,7 @@ private:
 			     MinimalTrackFailure, PerigeeMakingFailure, BadInput, nFitStatsCodes};
     mutable std::vector< std::vector<int> > m_fitStatistics;
     enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, nStatIndex = 4};
-    mutable std::vector<double> m_chiSquaredAfb, m_chiSquaredAfbNontriviality;
+    mutable std::array<double, nStatIndex> m_chiSquaredAfb, m_chiSquaredAfbNontriviality;
 
     //! methods to do bookkeeping about fitter calls, error situations and chiSquared
     void monitorTrackFits(FitStatisticsCode, const double&) const;

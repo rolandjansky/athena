@@ -1,44 +1,22 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigGenericAlgs.TrigGenericAlgsConf import OverlapRemoval, MergeTopoStarts, L1CorrelationAlgo, DetectorTimingAlgo, AcceptL1TopoMonitor
-from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-class OverlapRemovalConfig(OverlapRemoval):
-    def __init__(self, name="OverlapRemovalDefault", **kwargs):
-        super(OverlapRemovalConfig , self ).__init__(name)
-        self.SuccessfulCombinationsLimit = 1
-        for n,v in kwargs.items():
-            setattr(self, n, v)
-    
 
-class MergeTopoStartsConfig(MergeTopoStarts):
-    def __init__(self, name="MergeTopoStartsDefault", **kwargs):
-        super(MergeTopoStartsConfig , self ).__init__(name)
-        monitoring = TrigGenericMonitoringToolConfig(name+"Monitoring")
-        monitoring.Histograms += [ defineHistogram('reductionWrt1', type='TH1F', title="Combinations reduction wrt topo TE 1", xbins=20, xmin=0.0, xmax=1.0) ]
-        monitoring.Histograms += [ defineHistogram('reductionWrt2', type='TH1F', title="Combinations reduction wrt topo TE 2", xbins=20, xmin=0.0, xmax=1.0) ]
-        monitoring.defineTarget(["Validation", "Online"])
-        
-        self.AthenaMonTools = [monitoring]
-    
+class TimeBurnerCfg(CompFactory.TimeBurner):
+    def __init__(self, name="TimeBurner", **kwargs):
+        super(TimeBurnerCfg, self).__init__(name, **kwargs)
+        # Decorate the Configurable with a HypoTools property which is only required
+        # by the menu and python configuration framework, but has no use in C++ TimeBurner
+        self.HypoTools = []
 
-class L1CorrelationAlgoConfig(L1CorrelationAlgo):
-    def __init__(self, name="L1CorrelationAlgoDefault", **kwargs):
-        super(L1CorrelationAlgoConfig , self ).__init__(name)
 
-        from TrigGenericAlgs.TrigGenericAlgsMonitoring import L1CorrelationAlgoMonitoring
+def TimeBurnerHypoToolGen(chainDict):
+    # Dummy HypoTool implementing only the functions used by the menu and python configuration framework
+    class DummyHypo:
+        def __init__(self, name):
+            self.name = name
+        def getName(self):
+            return self.name
 
-        validationMon = L1CorrelationAlgoMonitoring()
-        self.AthenaMonTools = [ validationMon ]
-
-class DetectorTimingAlgoConfig(DetectorTimingAlgo):
-    def __init__(self, name="DetectorTimingAlgoDefault", **kwargs):
-        super(DetectorTimingAlgoConfig , self ).__init__(name)
-
-        from TrigGenericAlgs.TrigGenericAlgsMonitoring import DetectorTimingAlgoMonitoring
-        validationMon = DetectorTimingAlgoMonitoring()
-        self.AthenaMonTools = [ validationMon ]
-
-class AcceptL1TopoMonitorConfig(AcceptL1TopoMonitor):
-    def __init__(self, name="AcceptL1TopoMonitorDefault", **kwargs):
-        super(AcceptL1TopoMonitorConfig , self ).__init__(name)
+    return DummyHypo(chainDict['chainName'])

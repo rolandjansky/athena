@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string.hpp>
@@ -11,9 +11,8 @@
 #include "HistogramFiller1D.h"
 #include "HistogramFillerEfficiency.h"
 #include "CumulativeHistogramFiller1D.h"
-#include "HistogramFillerRebinable1D.h"
+#include "HistogramFillerRebinable.h"
 #include "VecHistogramFiller1D.h"
-#include "VecHistogramFiller1DWithOverflows.h"
 #include "HistogramFillerProfile.h"
 #include "HistogramFiller2D.h"
 #include "HistogramFiller2DProfile.h"
@@ -31,17 +30,23 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
       return new CumulativeHistogramFiller1D(def, histogramProvider);
     } else if (def.kAddBinsDynamically || def.kRebinAxes) {
       return new HistogramFillerRebinable1D(def, histogramProvider);
-    } else if (def.kVecUO) {
-      return new VecHistogramFiller1DWithOverflows(def, histogramProvider);
-    } else if (def.kVec) {
+    } else if (def.kVec || def.kVecUO) {
       return new VecHistogramFiller1D(def, histogramProvider);
     } else {
       return new HistogramFiller1D(def, histogramProvider);
     }
   } else if (boost::starts_with(def.type, "TH2")) {
-    return new HistogramFiller2D(def, histogramProvider);
+    if (def.kAddBinsDynamically || def.kRebinAxes) {
+      return new HistogramFillerRebinable2D(def, histogramProvider);
+    } else {
+      return new HistogramFiller2D(def, histogramProvider);
+    }
   } else if (def.type == "TProfile") {
-    return new HistogramFillerProfile(def, histogramProvider);
+    if (def.kAddBinsDynamically || def.kRebinAxes) {
+      return new HistogramFillerProfileRebinable(def, histogramProvider);
+    } else {
+      return new HistogramFillerProfile(def, histogramProvider);
+    }
   } else if (def.type == "TProfile2D") {
     return new HistogramFiller2DProfile(def, histogramProvider);
   } else if (def.type == "TEfficiency") {

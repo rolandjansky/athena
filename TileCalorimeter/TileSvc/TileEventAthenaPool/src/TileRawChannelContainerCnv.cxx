@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileTPCnv/TileRawChannelContainerCnv_p1.h"
@@ -24,7 +24,7 @@ TileRawChannelContainer* TileRawChannelContainerCnv::createTransient() {
     static const pool::Guid   p0_guid("E18095F6-01D9-4E8B-AD51-A8628F92E7FF");
 
     if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< TileRawChannelContainer_p1 >   cont( this->poolReadObject< TileRawChannelContainer_p1 >() );
+        std::unique_ptr< TileRawChannelContainer_p1 >   cont( this->poolReadObject< TileRawChannelContainer_p1 >() );
         trans_cont = converter_p1.createTransient( cont.get(), mlog );
     }
     else if( this->compareClassGuid(p0_guid)) {

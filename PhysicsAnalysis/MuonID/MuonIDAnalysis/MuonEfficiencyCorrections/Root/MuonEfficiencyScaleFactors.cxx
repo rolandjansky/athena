@@ -6,6 +6,7 @@
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
@@ -30,8 +31,9 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("200202_Precision_r21"),
+                m_calibration_version("200513_Precision_r21"),
                 m_lowpt_threshold(15.e3),
+                m_iso_jet_dR("dRJet"),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
                 m_init(false),
@@ -65,13 +67,17 @@ namespace CP {
         declareProperty("LowPtThreshold", m_lowpt_threshold);
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
+        /// Name of the decorator carrying the information the distance to the
+        /// next what ever jet (AntiKt4EMTopo,....)
+        declareProperty("CloseJetDRDecorator", m_iso_jet_dR);
     }
-
-    MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
+    std::string MuonEfficiencyScaleFactors::close_by_jet_decoration() const{
+        return m_iso_jet_dR;
     }
     float MuonEfficiencyScaleFactors::lowPtTransition() const{
         return m_lowpt_threshold;
     }
+    bool MuonEfficiencyScaleFactors::uncorrelate_sys() const { return m_seperateSystBins; }
     CP::MuonEfficiencyType MuonEfficiencyScaleFactors::measurement() const{
         return m_Type;
     }
@@ -133,6 +139,7 @@ namespace CP {
         } else {
             ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << m_lowpt_threshold / 1000. << " GeV!");
         }
+       
         std::set<std::string> decorations{
             sf_decoration() ,
             data_effi_decoration(),
@@ -145,6 +152,8 @@ namespace CP {
             ATH_MSG_FATAL("At least one of the decoration names for scale-factor/ data-efficiency / mc-efficiency is not uniquely defined... Please check your properties");
             return StatusCode::FAILURE;
         }
+
+        ATH_CHECK(m_eventInfo.initialize());
         
         if (!m_custom_dir.empty()) ATH_MSG_WARNING("Note: setting up with user specified input file location " << m_custom_dir << " - this is not encouraged!");
         if (!m_custom_file_Calo.empty()) ATH_MSG_WARNING("Note: setting up with user specified CaloTag input file " << m_custom_file_Calo << " - this is not encouraged!");
@@ -176,9 +185,13 @@ namespace CP {
         return StatusCode::SUCCESS;
     }
     unsigned int MuonEfficiencyScaleFactors::getRandomRunNumber(const xAOD::EventInfo* info) const {
-        if (!info && !evtStore()->retrieve(info, "EventInfo")) {
-            ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
-            return 999999;
+        if (!info) {
+            SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
+            info = evtInfo.operator->();
+            if (!info) {
+                ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
+                return 999999;
+            }
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
@@ -526,7 +539,7 @@ namespace CP {
         m_current_sf = itr->second;
         
         if (m_seperateSystBins && !itr->first.name().empty()){
-            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+            for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
                     // First entry corresponds to the bin number and
                     // the second entry to the position in which the map is ordered
@@ -544,7 +557,7 @@ namespace CP {
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
-          throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
+           throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
            ATH_MSG_FATAL("No systematic has been loaded. Cannot return any syst-bin");
           
         }        

@@ -414,10 +414,6 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 			 m_MDT_SiHitAdc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
 			      	} 
 		   								}
-		// counter++;
-	//	 						}
-		// if(counter>1) cout<<"Error, some tube was record over two times !!"<<endl;
-
   										} //end raw Mdthit loop
 
 
@@ -433,8 +429,6 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
      	for (unsigned int l=0; l<segment_fitter->numberOfTrackHits();l++) 	{
 				Int_t adcCount = (segment_fitter->trackHits())[l]->adcCount();
 				if(adcCount<50) continue;
-				//Double_t distX=(segment_fitter->trackHits())[l]->distanceToReadout();
-				//Int_t tdcCount = (segment_fitter->trackHits())[l]->tdcCount();
                                 Double_t r = (segment_fitter->trackHits())[l]->driftRadius();
 			        Double_t d = (segment_fitter->trackHits())[l]->signedDistanceToTrack();
 			        Double_t t = (segment_fitter->trackHits())[l]->driftTime() ;
@@ -609,7 +603,7 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 	std::string file_dir(id.stationNumberToFixedStationString(id.stationName())
 		+"_"+tostring(id.phi())+"_"+tostring(id.eta()));
    std::string tempside=(id.eta()>0)?"A":"C";
-   std::string tempeta=tostring(abs(id.eta()));
+   std::string tempeta=std::to_string(std::abs(id.eta()));
    int tempphi=(file_dir.substr(2,1)=="L")?(2*(id.phi())-1):(2*(id.phi()));
    char sphi[4];
    snprintf(sphi,sizeof(sphi),"%02d",tempphi);

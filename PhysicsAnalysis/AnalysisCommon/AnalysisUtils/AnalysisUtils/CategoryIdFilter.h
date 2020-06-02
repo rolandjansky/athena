@@ -21,7 +21,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
 #include "HepPDT/ParticleData.hh"
 
 // Gaudi includes

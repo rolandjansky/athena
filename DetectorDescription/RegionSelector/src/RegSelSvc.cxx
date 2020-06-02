@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -223,9 +223,9 @@ StatusCode RegSelSvc::initialize() {
      
   bool errorFlag=false; // true indicates an error occured somewhere
   
-  m_newpixel = NULL;
-  m_newsct   = NULL;
-  m_newtrt   = NULL;
+  m_newpixel = nullptr;
+  m_newsct   = nullptr;
+  m_newtrt   = nullptr;
 
 
 
@@ -513,7 +513,7 @@ bool RegSelSvc::handleID() {
     ATH_MSG_WARNING( " could not disable requested detector elements " );
   }
 
-  m_enabledDetectors.push_back("Inner");
+  m_enabledDetectors.emplace_back("Inner");
   
   m_errorFlag |= errorFlag; 
 
@@ -651,7 +651,7 @@ bool RegSelSvc::handleMuon() {
 
 
   
-  m_enabledDetectors.push_back("Muon");
+  m_enabledDetectors.emplace_back("Muon");
 
   m_errorFlag |= errorFlag; 
 
@@ -759,7 +759,7 @@ bool RegSelSvc::handleCalo() {
       errorFlag = true;
     }
   }
-  m_enabledDetectors.push_back("Calorimeter");
+  m_enabledDetectors.emplace_back("Calorimeter");
   
   
   if (m_dumpTable) {
@@ -1653,7 +1653,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 // Some internal helper methods
 //
 
-StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string lutName){
+StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName )
+{
   // Use generic tool to create LUT - instance set via ToolHandle property
   if (!p_lutCreatorTool) {
     ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
@@ -1676,8 +1677,6 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorToo
   }
   return StatusCode::SUCCESS;
 }
-
-
 
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionIDLUT_Creator> p_lutCreatorTool,  RegSelSiLUT*& detRSlut){
   // Use generic tool to create LUT - instance set via ToolHandle property
@@ -2046,7 +2045,7 @@ void RegSelSvc::getFilenames(const std::string& detTypeStr, std::vector<std::str
   std::string tmp;
   unsigned int i;
   
-  std::string::size_type pos = m_roiFileName.value().find (".",0);
+  std::string::size_type pos = m_roiFileName.value().find ('.',0);
   getDetname(detTypeStr, detName);
   if( pos != 0 ){
     for( i = 0; i < detName.size(); i++){
@@ -2067,25 +2066,25 @@ void RegSelSvc::getFilenames(const std::string& detTypeStr, std::vector<std::str
 void RegSelSvc::getDetname(const std::string& detTypeStr, std::vector<std::string>& detName){
   
   if(detTypeStr == "Inner"){
-    detName.push_back("PIXEL");
-    detName.push_back("SCT");
-    detName.push_back("TRT");
+    detName.emplace_back("PIXEL");
+    detName.emplace_back("SCT");
+    detName.emplace_back("TRT");
   }
   else if(detTypeStr == "Calorimeter"){
-    detName.push_back("LAR");
-    detName.push_back("TTEM");
-    detName.push_back("TTHEC");
-    detName.push_back("FCALEM");
-    detName.push_back("FCALHAD");
-    detName.push_back("Tile");
+    detName.emplace_back("LAR");
+    detName.emplace_back("TTEM");
+    detName.emplace_back("TTHEC");
+    detName.emplace_back("FCALEM");
+    detName.emplace_back("FCALHAD");
+    detName.emplace_back("Tile");
   }
   else if(detTypeStr == "Muon"){
-    detName.push_back("MDT");
-    detName.push_back("RPC");
-    detName.push_back("TGC");
-    detName.push_back("CSC");
-    detName.push_back("MM");
-    detName.push_back("sTGC");
+    detName.emplace_back("MDT");
+    detName.emplace_back("RPC");
+    detName.emplace_back("TGC");
+    detName.emplace_back("CSC");
+    detName.emplace_back("MM");
+    detName.emplace_back("sTGC");
   }
 }
 
@@ -2188,7 +2187,7 @@ void RegSelSvc::DisablePixelHashList(const std::vector<unsigned int>& HashList) 
     
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
 
     if ( m_newpixel ) m_newpixel->disableModuleList(hashlist);
   } 
@@ -2201,7 +2200,7 @@ void RegSelSvc::DisableSCTHashList(const std::vector<unsigned int>& HashList) {
     // trying to disable the modules from them
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     if ( m_newsct )   m_newsct->disableModuleList(hashlist);
   } 
 }
@@ -2214,7 +2213,7 @@ void RegSelSvc::DisableTRTHashList(const std::vector<unsigned int>& HashList) {
     // trying to disable the modules from them
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     if ( m_newtrt )   m_newtrt->disableModuleList(hashlist);
   } 
 }
@@ -2296,7 +2295,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deletePixelHashList.begin()) ; 
-	  hptr!=m_deletePixelHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deletePixelHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deletePixelHashList.size() ) m_newpixel->disableModuleList(hashlist);    
   }
@@ -2314,7 +2313,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deleteSCTHashList.begin()) ; 
-	  hptr!=m_deleteSCTHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deleteSCTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deleteSCTHashList.size() ) m_newsct->disableModuleList(hashlist);
   }
@@ -2333,7 +2332,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deleteTRTHashList.begin()) ; 
-	  hptr!=m_deleteTRTHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deleteTRTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deleteTRTHashList.size() ) m_newtrt->disableModuleList(hashlist);
   }

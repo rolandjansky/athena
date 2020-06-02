@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigDecisionCnv.h"
@@ -44,24 +44,24 @@ TrigDec::TrigDecision* TrigDecisionCnv::createTransient()
   static pool::Guid p5_guid("DA3DEF39-2401-4A8E-ACD2-851B0DF10AFA");
 
   if ( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< TrigDec::TrigDecision_p1 > col_vect( poolReadObject< TrigDec::TrigDecision_p1 >() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr< TrigDec::TrigDecision_p1 > col_vect( poolReadObject< TrigDec::TrigDecision_p1 >() );
     TrigDec::TrigDecisionCnv_p1 converter;
     return converter.createTransient( col_vect.get(), log );
   } else if ( compareClassGuid(p2_guid) ) {
-    std::auto_ptr< TrigDec::TrigDecision_p2 > col_vect( poolReadObject< TrigDec::TrigDecision_p2 >() );
+    std::unique_ptr< TrigDec::TrigDecision_p2 > col_vect( poolReadObject< TrigDec::TrigDecision_p2 >() );
     TrigDec::TrigDecisionCnv_p2 converter;
     return converter.createTransient( col_vect.get(), log );
   } else if ( compareClassGuid(p3_guid) ) {
-    std::auto_ptr< TrigDec::TrigDecision_p3 > col_vect( poolReadObject< TrigDec::TrigDecision_p3 >() );
+    std::unique_ptr< TrigDec::TrigDecision_p3 > col_vect( poolReadObject< TrigDec::TrigDecision_p3 >() );
     TrigDec::TrigDecisionCnv_p3 converter;
     return converter.createTransient( col_vect.get(), log );
   } else if ( compareClassGuid(p4_guid) ) {
-    std::auto_ptr< TrigDec::TrigDecision_p4 > col_vect( poolReadObject< TrigDec::TrigDecision_p4 >() );
+    std::unique_ptr< TrigDec::TrigDecision_p4 > col_vect( poolReadObject< TrigDec::TrigDecision_p4 >() );
     TrigDec::TrigDecisionCnv_p4 converter;
     return converter.createTransient( col_vect.get(), log );
   } else if ( compareClassGuid(p5_guid) ) {
-    std::auto_ptr< TrigDec::TrigDecision_p5 > col_vect( poolReadObject< TrigDec::TrigDecision_p5 >() );
+    std::unique_ptr< TrigDec::TrigDecision_p5 > col_vect( poolReadObject< TrigDec::TrigDecision_p5 >() );
     TrigDec::TrigDecisionCnv_p5 converter;
     return converter.createTransient( col_vect.get(), log );
   }

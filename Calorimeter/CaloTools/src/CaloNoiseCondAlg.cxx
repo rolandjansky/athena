@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloNoiseCondAlg.h" 
@@ -132,19 +132,10 @@ StatusCode CaloNoiseCondAlg::execute() {
     return StatusCode::SUCCESS;
   }
 
-  //Start with a range covering 0 - inf, then narrow down
-  EventIDRange rangeOut=IOVInfiniteRange::infiniteMixed();
-  EventIDRange rangeIn;
-
-  ATH_MSG_DEBUG("Initial range " << rangeOut);
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
-  if (!cablingHdl.range(rangeIn)){ 
-    ATH_MSG_ERROR("Failed to retrieve validity range of LArCabling CDO with key " << m_larNoiseKey.key());
-    return StatusCode::FAILURE;
-  }  
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-  ATH_MSG_DEBUG("Range of LArCabling " << rangeIn << ", intersection:" << rangeOut);
+  writeHandle.addDependency(cablingHdl);
+  ATH_MSG_DEBUG("Range of LArCabling " << cablingHdl.getRange() << ", intersection:" << writeHandle.getRange());
   //Obtain AttrListsCollections for all possible folders (LAr,Tile,Calo) 
   std::vector<const CondAttrListCollection*> attrListNoise;
 
@@ -152,34 +143,22 @@ StatusCode CaloNoiseCondAlg::execute() {
     //Separete LAr/Tile folder
     SG::ReadCondHandle<CondAttrListCollection> larNoiseHdl{m_larNoiseKey};
     attrListNoise.push_back(*larNoiseHdl);
-    if (!larNoiseHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range for LArNoise CondAttrList with " << m_larNoiseKey.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    ATH_MSG_DEBUG("Range of LArNoise " << rangeIn << ", intersection:" << rangeOut);
+    writeHandle.addDependency(larNoiseHdl);
+    ATH_MSG_DEBUG("Range of LArNoise " << larNoiseHdl.getRange() << ", intersection:" << writeHandle.getRange());
   }
 
   if (!m_tileNoiseKey.key().empty()) {
     SG::ReadCondHandle<CondAttrListCollection> tileNoiseHdl{m_tileNoiseKey};
     attrListNoise.push_back(*tileNoiseHdl);
-    if (!tileNoiseHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range for TileNoise CondAttrList with " << m_tileNoiseKey.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    ATH_MSG_DEBUG("Range of TileNoise " << rangeIn << ", intersection:" << rangeOut);
+     writeHandle.addDependency(tileNoiseHdl);
+     ATH_MSG_DEBUG("Range of TileNoise " << tileNoiseHdl.getRange() << ", intersection:" <<  writeHandle.getRange());
   }
 
   if (!m_caloNoiseKey.key().empty()) {
     SG::ReadCondHandle<CondAttrListCollection> caloNoiseHdl{m_caloNoiseKey};
     attrListNoise.push_back(*caloNoiseHdl);
-    if (!caloNoiseHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_caloNoiseKey.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    ATH_MSG_DEBUG("Range of CaloNoise " << rangeIn << ", intersection:" << rangeOut);
+    writeHandle.addDependency(caloNoiseHdl);
+    ATH_MSG_DEBUG("Range of CaloNoise " << caloNoiseHdl.getRange() << ", intersection:" << writeHandle.getRange());
   }
   
   //Get noise-blobs out of all COOL-channels in all COOL Folders we know about:
@@ -201,12 +180,8 @@ StatusCode CaloNoiseCondAlg::execute() {
   if (m_useHVCorr) {
     SG::ReadCondHandle<ILArHVScaleCorr> larHVCorrHdl{m_hvCorrKey};
     larHVCorr=*larHVCorrHdl;
-    if (!larHVCorrHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_hvCorrKey.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    ATH_MSG_DEBUG("Range of LArHVScale " << rangeIn << ", intersection:" << rangeOut);
+     writeHandle.addDependency(larHVCorrHdl);
+     ATH_MSG_DEBUG("Range of LArHVScale " << larHVCorrHdl.getRange() << ", intersection:" << writeHandle.getRange());
   }
 
   //Get Luminosity:
@@ -214,12 +189,8 @@ StatusCode CaloNoiseCondAlg::execute() {
   if (m_lumi0<0) {    
     SG::ReadCondHandle<CondAttrListCollection> lumiHdl{m_lumiFolderKey};
     const CondAttrListCollection* lumiAttrListColl=*lumiHdl;
-    if (!lumiHdl.range(rangeIn)){ 
-      ATH_MSG_ERROR("Failed to retrieve validity range for CaloNoise CondAttrList with " << m_lumiFolderKey.key());
-      return StatusCode::FAILURE;
-    }
-    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-    ATH_MSG_DEBUG("Range of Luminosity " << rangeIn << ", intersection:" << rangeOut);
+    writeHandle.addDependency(lumiHdl);
+    ATH_MSG_DEBUG("Range of Luminosity " << lumiHdl.getRange() << ", intersection:" << writeHandle.getRange() );
     const coral::AttributeList& attrList = lumiAttrListColl->attributeList(0); //Get lumi from COOL channel 0
     if (attrList["LBAvInstLumi"].isNull()) {
       ATH_MSG_WARNING( " NULL Luminosity information in database ... set it to 0 "  );
@@ -315,8 +286,8 @@ StatusCode CaloNoiseCondAlg::execute() {
   }
 
   //Create output object  
-  ATH_CHECK(writeHandle.record(rangeOut,caloNoiseObj.release()));
-  ATH_MSG_INFO("recorded new CaloNoise object with key " << writeHandle.key() << " and range " << rangeOut);
-
+  ATH_CHECK(writeHandle.record(std::move(caloNoiseObj)));
+  ATH_MSG_INFO("recorded new CaloNoise object with key " << writeHandle.key() << " and range " << writeHandle.getRange());
+  
   return StatusCode::SUCCESS;
 }

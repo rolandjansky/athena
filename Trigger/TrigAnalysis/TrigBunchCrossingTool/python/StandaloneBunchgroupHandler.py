@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # BunchgroupHandler
 #
@@ -14,9 +14,6 @@ from __future__ import print_function
 from builtins import range
 from builtins import object
 import sys
-import math
-import types
-import numpy
 
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
@@ -112,7 +109,7 @@ class BunchgroupHandler(object):
 
     def closeDB(self):
         # Close the database
-        if self.trigProdDb != None:
+        if self.trigProdDb is not None:
             self.trigProdDb.closeDatabase()
         self.trigProdDb = None
 
@@ -208,7 +205,7 @@ class BunchgroupHandler(object):
 
 if __name__ == '__main__':
     
-    import sys,getopt,os, math
+    import getopt
 
     def usage():
         print("%s" % sys.argv[0])
@@ -220,7 +217,7 @@ if __name__ == '__main__':
     try:
         longopts=['run=','bcid=','lb=','help']
         opts,args=getopt.getopt(sys.argv[1:],'',longopts)
-    except getopt.GetoptError as e:
+    except getopt.GetoptError:
         usage()
         sys.exit(2)
 

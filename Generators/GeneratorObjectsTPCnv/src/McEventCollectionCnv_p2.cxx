@@ -144,7 +144,7 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
     for ( ParticlesMap_t::iterator p = partToEndVtx.begin();
           p != endItr;
           ++p ) {
-      HepMC::GenVertex* decayVtx = genEvt->barcode_to_vertex( p->second );
+      auto decayVtx = genEvt->barcode_to_vertex( p->second );
       if ( decayVtx ) {
         decayVtx->add_particle_in( p->first );
       } else {

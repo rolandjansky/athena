@@ -42,7 +42,7 @@ StatusCode DecayLengthFilter::filterEvent() {
     // now look for displaced vertices
     if((*vtx_iter)->particles_in_size()!=1) continue; // chi decays have only one in particle (the chi)
     if((*vtx_iter)->particles_out_size()<2) continue; // we don't want replication entries
-    if((*vtx_iter)->point3d().x()==0 && (*vtx_iter)->point3d().y()==0 && (*vtx_iter)->point3d().z()==0) continue;
+    if((*vtx_iter)->position().x()==0 && (*vtx_iter)->position().y()==0 && (*vtx_iter)->position().z()==0) continue;
 
     HepMC::GenVertex::particles_in_const_iterator inParticle = (*vtx_iter)->particles_in_const_begin();
     if((*inParticle)->pdg_id()!=m_particle_id) continue;
@@ -58,8 +58,8 @@ StatusCode DecayLengthFilter::filterEvent() {
     HepMC::GenVertex* decayVertex = *vtx_iter;
     HepMC::GenVertex* creationVertex = (*inParticle)->production_vertex();
 
-    float distR = sqrt( pow(creationVertex->point3d().x() - decayVertex->point3d().x(),2) + pow(creationVertex->point3d().y() - decayVertex->point3d().y(),2) );
-    float distZ = creationVertex->point3d().z() - decayVertex->point3d().z();
+    float distR = sqrt( pow(creationVertex->position().x() - decayVertex->position().x(),2) + pow(creationVertex->position().y() - decayVertex->position().y(),2) );
+    float distZ = creationVertex->position().z() - decayVertex->position().z();
     ATH_MSG_DEBUG("distR " << distR << ", distZ " << distZ);
 
     //accept all events with at least one of the two decays in the orimeter

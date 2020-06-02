@@ -39,6 +39,7 @@
 #include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -73,29 +74,12 @@ TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
 
 StatusCode TrigInDetTrackFitter::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  
-	ATH_MSG_INFO("Using Athena magnetic field service");
-	sc = m_MagFieldSvc.retrieve();
-	if(sc.isFailure()) 
-	{
-		ATH_MSG_ERROR("Unable to retrieve Athena MagFieldService");
-		return StatusCode::FAILURE;
-	}
-  sc=m_trackMaker.retrieve();
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker);
-      return sc;
-    }
+	ATH_CHECK(m_MagFieldSvc.retrieve());
+  ATH_CHECK(m_trackMaker.retrieve());
   if (m_correctClusterPos) {
-    sc = m_ROTcreator.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not get ROTcreator "<<m_ROTcreator);
-      return sc;
-    }
+    ATH_CHECK(m_ROTcreator.retrieve());
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigInDetTrackFitter::finalize()

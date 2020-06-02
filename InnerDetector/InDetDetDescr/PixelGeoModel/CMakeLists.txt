@@ -39,12 +39,12 @@ atlas_add_library( PixelGeoModelLib
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry PixelReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
-   InDetIdentifier
+   InDetIdentifier GeometryDBSvcLib
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
 
 atlas_add_component( PixelGeoModel
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel PixelGeoModelLib )
+   LINK_LIBRARIES GaudiKernel PixelGeoModelLib  GeometryDBSvcLib )
 
 atlas_add_test( PixelGMConfig_test
                 SCRIPT test/PixelGMConfig_test.py

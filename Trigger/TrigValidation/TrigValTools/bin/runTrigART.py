@@ -199,7 +199,7 @@ def main():
             'export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"',
             'source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet',
             'lsetup -q art']
-        art_cmd = 'art.py run -q --max-jobs={:d} --type={:s} . results'.format(args.maxJobs, args.artType)
+        art_cmd = 'art.py run --max-jobs={:d} {:s} . results'.format(args.maxJobs, '' if args.verbose else '-q')
         commands.append(art_cmd)
         cmd = ' && '.join(commands)
         logging.info("Executing ART command: %s", art_cmd)

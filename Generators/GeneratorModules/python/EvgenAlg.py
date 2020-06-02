@@ -28,14 +28,15 @@ class EvgenAlg(PyAthena.Alg):
 
     def initialize(self):
         import McParticleEvent.Pythonizations
-        self.msg.debug("Initializing [%s]", self.name())
+        self.msg.debug("Initializing [%s]"% self.getName())
+
         return self.genInitialize()
 
 
     def execute(self):
         from AthenaPython.PyAthena import McEventCollection, HepMC
 
-        self.msg.debug("Executing [%s]", self.name())
+        self.msg.debug("Executing [%s]"% self.getName())
 
         ## Retrieve MC event collection or create a new one
         mcevts = None

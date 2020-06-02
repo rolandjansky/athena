@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
@@ -24,15 +24,9 @@
 #endif
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-//#include "TruthHelper/IsGenStable.h"
-//#include "TruthHelper/IsGenerator.h"
-//#include "TruthHelper/IsGenInteracting.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
-//#include "TruthHelper/IsGenSimulStable.h"
-//#include "FastCaloSim/FastCaloSimIsGenSimulStable.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+
 
 #include "PathResolver/PathResolver.h"
 #include "AthenaKernel/RNGWrapper.h"
@@ -41,10 +35,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 
-//#include "AtlfastAlgs/GlobalEventData.h"
-//#include "AtlfastUtils/TesIO.h"
-//#include "AtlfastUtils/HepMC_helper/IMCselector.h"
-//#include "AtlfastEvent/MCparticleCollection.h"
 
 //extrapolation
 #include "CaloDetDescr/CaloDepthTool.h"
@@ -54,7 +44,6 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-//#include "TruthHelper/PileUpType.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
@@ -1374,7 +1363,6 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
   // Process Muon info from Fatras
   //////////////////////////////
   if(abs(pdgid)==13) {
-    // std::pair<BarcodeEnergyDepositMap::iterator,BarcodeEnergyDepositMap::iterator> range=MuonEnergyMap->equal_range(part->barcode());
     p.fcal_tot=0;
     for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
       p.E_layer[i]=0;
@@ -2103,7 +2091,6 @@ void MC_init_particle_simul_state(MCdo_simul_state& do_simul_state,const MCparti
 void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,HepMC::GenVertex* ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
-    //    if(do_simul_state[ver->barcode()]<=0) return;
     do_simul_state[ver->barcode()]=simul_state;
     for(HepMC::GenVertex::particles_out_const_iterator pout=ver->particles_out_const_begin();pout!=ver->particles_out_const_end();++pout) {
       const HepMC::GenParticle* par=*pout;
@@ -2118,7 +2105,6 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
 {
   if(ver) {
     if(do_simul_state[ver->barcode()]==simul_state) {
-      //log << MSG::DEBUG<<"ver: bc="<<ver->barcode()<<" : loop in MC_recursive_remove_in_particles, returning"<<endmsg;
       return;
     }
     do_simul_state[ver->barcode()]=simul_state;
@@ -2131,72 +2117,6 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Ge
   }
 }
 
-/*
-  void print_MC_info(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles,MsgStream& log)
-  {
-  log << MSG::VERBOSE <<"print_MC_info: begin"<< endmsg;
-  MCparticleCollectionCIter ip;
-  for(ip=particles.begin();ip<particles.end();++ip){
-  const HepMC::GenParticle* par=*ip;
-
-  if(log.level()<=MSG::DEBUG) {
-  std::string reason="---";
-  if(do_simul_state[par->barcode()]<=0) {
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::out_of_ID) reason="-ID";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::non_EM_vertex) reason="-EM";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::heavy_ion) reason="-HI";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::pdg_id_unkown) reason="-PI";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::invisibleArray) reason="-IA";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::invisibleTruthHelper) reason="-IT";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::mother_particle) reason="-MO";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::v14_truth_brems) reason="-BR";
-  if(do_simul_state[par->barcode()]==FastShowerCellBuilderTool::v14_truth_conv) reason="-CO";
-  } else {
-  reason="+OK";
-  }
-  log << MSG::DEBUG<<reason;
-
-  log <<": "<<"bc="<<par->barcode()<<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi();
-  HepMC::GenVertex*  inver =par->production_vertex();
-  HepMC::GenVertex* outver =par->end_vertex();
-  if(inver) {
-  double inr=inver->position().perp();
-  double inz=inver->position().z();
-  log<<" ; r="<<inr<<" z="<<inz<<" phi="<<inver->position().phi()<<" ; ";
-  bool sep=false;
-  for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
-  const HepMC::GenParticle* invpar=*pin;
-  if(invpar) {
-  if(sep) log<<",";
-  log<<invpar->barcode();
-  if(do_simul_state[invpar->barcode()]<=0) log<<"-";
-  else log<<"+";
-  sep=true;
-  }
-  }
-  }
-  log<<"->"<<par->barcode();
-  if(outver) {
-  log<<"->";
-  bool sep=false;
-  for(HepMC::GenVertex::particles_out_const_iterator pout=outver->particles_out_const_begin();pout!=outver->particles_out_const_end();++pout) {
-  const HepMC::GenParticle* outpar=*pout;
-  if(outpar) {
-  if(sep) log<<",";
-  log<<outpar->barcode();
-  if(do_simul_state[outpar->barcode()]<=0) log<<"-";
-  else log<<"+";
-  sep=true;
-  }
-  }
-  }
-  log<<endmsg;
-  }
-  }
-
-  log << MSG::VERBOSE <<"print_MC_info: end"<< endmsg;
-  }
-*/
 
 void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
@@ -2347,14 +2267,8 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
   SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollectionKey, ctx);
 
-  // initialize a pileup type helper object
-  //PileUpType pileupType( mcCollptr );
 
   ATH_MSG_DEBUG("Start getting particles");
-
-  // pileupType.signal_particles(particles, isStable);
-  //pileupType.signal_particles(particles, ifs);
-  //ZH 28.07.2014 Try using TruthUtils instead:
 
   if (mcCollptr->size() >0)
     {
@@ -2362,7 +2276,6 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       HepMC::GenEvent::particle_const_iterator iend   = mcCollptr->at(0)->particles_end();
       for ( ; istart!= iend; ++istart)
         {
-          //std::cout <<" ("<< FastCaloSimIsGenSimulStable(*istart)<<"/"<<(*istart)->barcode()<<","<<(*istart)->status()<<"/"<<ifs(*istart)<<") ";
           particles.push_back(*istart);
         }
       //std::cout <<std::endl;
@@ -2370,11 +2283,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
   particles = MC::filter_keep(particles, FastCaloSimIsGenSimulStable);
 
 
-  //sc = m_gentesIO->getMC(particles, &ifs, m_mcLocation );
-  //if ( sc.isFailure() ) {
-  //  log << MSG::ERROR << "getMC from "<<m_mcLocation<<" failed "<< endmsg;
-  //  return StatusCode::FAILURE;
-  //}
+
 
   const BarcodeEnergyDepositMap* MuonEnergyMap=0;
   if (!m_MuonEnergyInCaloContainerKey.key().empty()) {
@@ -2407,13 +2316,11 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
     for(unsigned int i=0;i<m_invisibles.size();++i) {
       if(abs(par->pdg_id())==m_invisibles[i]) {
         do_simul_state[par->barcode()]=invisibleArray;
-        //log << MSG::DEBUG <<"INVISIBLE by ARRAY: id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<endmsg;
         break;
       }
       if(m_invisibles[i]==0) {
         if(MC::isNonInteracting(par)) {
           do_simul_state[par->barcode()]=invisibleTruthHelper;
-          //log << MSG::DEBUG <<"INVISIBLE by TruthHelper: id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<endmsg;
           break;
         }
       }
@@ -2737,8 +2644,8 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
 
   if (m_caloEntrance && m_caloEntrance->inside(pos,0.001) &&
       !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001)) {
-
-    std::vector<Trk::HitInfo>*     dummyHitVector = 0;
+    ATH_MSG_DEBUG("Inside calo entrace extrapolation");
+    std::vector<Trk::HitInfo>*     dummyHitVector = nullptr;
     if ( charge==0 ) {
 
       caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,
@@ -2749,16 +2656,24 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
       caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,
                                                            Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
     }
-  } else caloEntry=&inputPar;
+  } else {
+    caloEntry=&inputPar;
+  }  
+  
+  if(caloEntry==&inputPar) {
+    ATH_MSG_DEBUG("Use clone of inputPar as caloEntry");
+    caloEntry=inputPar.clone();
+  }
 
   if ( caloEntry ) {
+    ATH_MSG_DEBUG("caloEntry="<<caloEntry<<" nextGeoID="<<nextGeoID<<" charge="<<charge);
 
     const Trk::TrackParameters* eParameters = 0;
 
     // save Calo entry hit (fallback info)
-    hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
+    hitVector->push_back(Trk::HitInfo(caloEntry,timeLim.time,nextGeoID,0.));
 
-    ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position "<< pos );
+    ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position "<< pos<<" charge="<<charge );
 
     if ( charge==0 ) {
 

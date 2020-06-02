@@ -14,6 +14,11 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/AGDD/AGDDHandlers )
 
+atlas_add_library ( AGDD2GeoSvcLib
+                    INTERFACE
+                    PUBLIC_HEADERS AGDD2GeoSvc
+                    LINK_LIBRARIES GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( AGDD2GeoSvc
                      src/*.cxx

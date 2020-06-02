@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibDataCondAlg.h"
+
+#include "FillFromStringUtility.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-
-#include "GaudiKernel/EventIDRange.h"
-
-// Include boost stuff
-#include "boost/lexical_cast.hpp"
-#include "boost/tokenizer.hpp"
 
 // Include STL stuff
 #include <limits>
@@ -23,24 +19,6 @@ using namespace SCT_ConditionsData;
 
 // Utility functions
 namespace {
-  template <typename C> 
-  bool fillFromString(const std::string& source, C& userContainer) {
-    typedef typename C::value_type V_t;
-    V_t errVal{0};
-    boost::char_separator<char> sep{" "};
-    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-    Tokenizer tok{source, sep};
-    bool noNan{true};
-    for (Tokenizer::iterator i{tok.begin()}; i!=tok.end(); ++i) {
-      try {
-	userContainer.push_back(boost::lexical_cast<V_t>(*i));
-      } catch (const boost::bad_lexical_cast&) {
-	userContainer.push_back(errVal);
-	noNan=false;
-      }
-    }
-    return noNan;
-  }
   float coerceToFloatRange(const double value) {
     const float maxfloat{std::numeric_limits<float>::max()};
     if (value>maxfloat) return maxfloat;
@@ -163,19 +141,16 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle[NFEATURES]{{m_readKeyGain, ctx}, {m_readKeyNoise, ctx}};
   const CondAttrListCollection* readCdo[NFEATURES]{*readHandle[GAIN], *readHandle[NOISE]};
-  EventIDRange rangeR[NFEATURES];
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
     if (readCdo[i]==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object " << readHandle[i].key());
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range
-    if (not readHandle[i].range(rangeR[i])) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle[i].key());
-      return StatusCode::FAILURE;
-    }
+    // Add dependency
+    writeHandleData[i].addDependency(readHandle[i]);
+    writeHandleInfo.addDependency(readHandle[i]);
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle[i].fullKey() << " readCdo->size()= " << readCdo[i]->size());
-    ATH_MSG_INFO("Range of input is " << rangeR[i]);
+    ATH_MSG_INFO("Range of input is " << readHandle[i].getRange());
   }
 
   // Get SCT_DetectorElementCollection
@@ -185,18 +160,10 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeDetEle;
-  if (not sctDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
-    return StatusCode::FAILURE;
+  for (unsigned int i{GAIN}; i<NFEATURES; i++) {
+    writeHandleData[i].addDependency(sctDetEle);
   }
-
-  // Set range of output
-  EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE], rangeDetEle)};
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-    return StatusCode::FAILURE;
-  }
+  writeHandleInfo.addDependency(sctDetEle);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CalibDefectData> writeCdoData[NFEATURES]{nullptr, nullptr};
@@ -249,13 +216,13 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
 
       // Convert the defect strings to vectors
       std::vector<unsigned int> gaindefectbvec;
-      fillFromString(gaindefectb, gaindefectbvec);
+      fillEmptyVectorFromString(gaindefectb, gaindefectbvec);
       std::vector<unsigned int> gaindefectevec;
-      fillFromString(gaindefecte, gaindefectevec);
+      fillEmptyVectorFromString(gaindefecte, gaindefectevec);
       std::vector<unsigned int> defectTypevec;
-      fillFromString(defectType, defectTypevec);
+      fillEmptyVectorFromString(defectType, defectTypevec);
       std::vector<double> parValuevec;
-      fillFromString(parValue, parValuevec);
+      fillEmptyVectorFromString(parValue, parValuevec);
 
       // Fill the Calib defect objects
       long unsigned int gainvec_size{gaindefectbvec.size()};
@@ -334,20 +301,20 @@ StatusCode SCT_ReadCalibDataCondAlg::execute(const EventContext& ctx) const {
 
   //  Record the output cond objects
   ATH_MSG_DEBUG("There are " << writeCdoInfo->size() << " elements in " << writeHandleInfo.key());
-  if (writeHandleInfo.record(rangeW, std::move(writeCdoInfo)).isFailure()) {
+  if (writeHandleInfo.record(std::move(writeCdoInfo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_AllGoodStripInfo " << writeHandleInfo.key() 
-                  << " with EventRange " << rangeW << " into Conditions Store");
+                  << " with EventRange " << writeHandleInfo.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandleInfo.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandleInfo.key() << " with range " << writeHandleInfo.getRange() << " into Conditions Store");
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
     ATH_MSG_DEBUG("There are " << writeCdoData[i]->size() << " elements in " << writeHandleData[i].key());
-    if (writeHandleData[i].record(rangeW, std::move(writeCdoData[i])).isFailure()) {
+    if (writeHandleData[i].record(std::move(writeCdoData[i])).isFailure()) {
       ATH_MSG_FATAL("Could not record SCT_CalibDefectData " << writeHandleData[i].key()
-                    << " with EventRange " << rangeW << " into Conditions Store");
+                    << " with EventRange " << writeHandleData[i].getRange() << " into Conditions Store");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("recorded new CDO " << writeHandleData[i].key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_INFO("recorded new CDO " << writeHandleData[i].key() << " with range " << writeHandleData[i].getRange() << " into Conditions Store");
   }
 
   return StatusCode::SUCCESS;

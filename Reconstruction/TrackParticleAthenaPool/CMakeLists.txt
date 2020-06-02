@@ -1,22 +1,7 @@
-# $Id: CMakeLists.txt 749568 2016-05-25 04:49:18Z krasznaa $
-################################################################################
-# Package: TrackParticleAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackParticleAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolUtilities
-   PRIVATE
-   AtlasTest/TestTools
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   GaudiKernel
-   Reconstruction/Particle
-   Reconstruction/TrackParticleTPCnv )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( TrackParticleAthenaPoolPoolCnv
@@ -30,10 +15,6 @@ atlas_add_poolcnv_library( TrackParticleAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( TRACKPARTICLEATHENAPOOL_REFERENCE_TAG
@@ -45,5 +26,6 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
    run_tpcnv_legacy_test( TrackParticleTPCnv_18.0.0   AOD-18.0.0-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()

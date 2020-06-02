@@ -6,7 +6,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
-Analysis__JetSecVtxFindingAlg=CompFactory.Analysis__JetSecVtxFindingAlg
+Analysis__JetSecVtxFindingAlg=CompFactory.Analysis.JetSecVtxFindingAlg
 
 def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -36,7 +36,7 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SV
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
     options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
-    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
+    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo_' + JetCollection
     options['name'] = (jetcol + '_' + SVFinder + '_secvtxfinding').lower()
 
     # -- create the association algorithm

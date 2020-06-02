@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-# $Id: GenerateDVIterators.py 728645 2016-03-09 12:19:46Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Module used to generate proper Python iterators for all the known
 # DataVector container types.

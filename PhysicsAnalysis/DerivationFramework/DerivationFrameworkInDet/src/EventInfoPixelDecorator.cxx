@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,13 +9,11 @@
 // Decorator tool to store per-module summary information for pixel clusters
 
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
+#include "DerivationFrameworkInDet/DecoratorUtils.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include <vector>
 #include <string>
@@ -25,53 +23,51 @@ namespace DerivationFramework {
   EventInfoPixelDecorator::EventInfoPixelDecorator(const std::string& type,
       const std::string& name,
       const IInterface* parent) : 
-    AthAlgTool(type,name,parent),  
-    m_parser(0),
-    m_selectionString(""),
-    m_ntot(0),
-    m_npass(0),
-    m_eventInfoKey(""),
-    m_decorationPrefix(""),
-    m_pixelKey("")
+    AthAlgTool(type,name,parent)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("DecorationPrefix",       m_decorationPrefix);
-    declareProperty("EventInfoKey",           m_eventInfoKey="EventInfo");
-    declareProperty("SelectionString", m_selectionString);
-    declareProperty("TrackMeasurementValidationKey", m_pixelKey="PixelClusters");
   }
 
   StatusCode EventInfoPixelDecorator::initialize()
   {
     ATH_MSG_VERBOSE("initialize() ...");
 
-    if (m_selectionString=="") {
+    if (m_selectionString.empty()) {
         ATH_MSG_FATAL("No inner detector track selection string provided!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Selection string for the per-module pixel cluster decoration: " << m_selectionString);}
 
-    if (m_decorationPrefix=="") {
+    if (m_decorationPrefix.empty()) {
       ATH_MSG_WARNING("No decoration prefix name provided for the output of EventInfoPixelDecorator!");
     }
     
-    if (m_eventInfoKey=="") {
+    if (m_eventInfoKey.key().empty()) {
       ATH_MSG_ERROR("No collection provided for EventInfoPixelDecorator!");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK(m_eventInfoKey.initialize());
 
     //check xAOD::TrackMeasurementValidation collection
-    if (m_pixelKey=="") {
-        ATH_MSG_FATAL("No track measurement validation collection provided for EventInfoPixelDecorator.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_pixelKey << " as the source collection for EventInfoPixelDecorator.");}
+    ATH_CHECK(m_pixelKey.initialize());
+    ATH_MSG_INFO("Using " << m_pixelKey.key() << " as the source collection for EventInfoPixelDecorator.");
 
     // Set up the text-parsing machinery
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
+    }
+
+    {
+       std::vector<std::string> names;
+       names.resize(kNIntDecor);
+       names[kperModuleMultiplicity] ="perModuleMultiplicity";
+       names[klayer]                 ="layer";
+       names[keta_module]            ="eta_module";
+       names[kphi_module]            ="phi_module";
+       createDecoratorKeys(*this,m_eventInfoKey,m_decorationPrefix.value()+"_",names, m_intDecorKeys);
     }
 
     return StatusCode::SUCCESS;
@@ -81,24 +77,22 @@ namespace DerivationFramework {
   {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" measurements, "<< m_npass<< " were used for the per-module summary");
-    if (m_parser) {
-        delete m_parser;
-        m_parser = 0;
-    }
+    m_parser.reset();
     return StatusCode::SUCCESS;
   }
 
   StatusCode EventInfoPixelDecorator::addBranches() const
   {
     ATH_MSG_DEBUG("Adding per-module information to EventInfo");
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
-    const xAOD::EventInfo* eventInfo;
-    CHECK( evtStore()->retrieve( eventInfo, m_eventInfoKey ) );
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
+    CHECK( eventInfo.isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
 
     // Get the cluster container
-    const xAOD::TrackMeasurementValidationContainer* clusters;
-    if (evtStore()->retrieve(clusters, m_pixelKey).isFailure()) {
-      ATH_MSG_ERROR ("Couldn't retrieve TrackMeasurementValidationContainer with key" << m_pixelKey);
+    SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> clusters(m_pixelKey, ctx);
+    if (!clusters.isValid()) {
+       ATH_MSG_ERROR ("Couldn't retrieve TrackMeasurementValidationContainer with key" << m_pixelKey.key());
       return StatusCode::FAILURE;
     }
 
@@ -125,15 +119,14 @@ namespace DerivationFramework {
         }
     }
     // Count the mask
+    unsigned int n_pass=0;
     for (unsigned int i=0; i<nClusters; ++i) {
-        if (mask[i]) ++m_npass;
+        if (mask[i]) ++n_pass;
     }
- 
+    m_npass += n_pass;
+
     // fill the per-module information
-    std::vector<int> perModuleMultiplicity;
-    std::vector<int> layer;
-    std::vector<int> eta_module;
-    std::vector<int> phi_module;
+    std::array<std::vector<int>,kNIntDecor> vec;
 
     unsigned int i=0;
     std::vector<int> keys;
@@ -157,21 +150,22 @@ namespace DerivationFramework {
         }
       if( index == 9999 ){
         keys.push_back( key );
-        layer.push_back( clus_layer );
-        eta_module.push_back( clus_eta_module );
-        phi_module.push_back( clus_phi_module );
-        perModuleMultiplicity.push_back( 1 );
+        vec[klayer].push_back( clus_layer );
+        vec[keta_module].push_back( clus_eta_module );
+        vec[kphi_module].push_back( clus_phi_module );
+        vec[kperModuleMultiplicity].push_back( 1 );
       } else {
-        perModuleMultiplicity[index]++;
+        assert(index < vec[kperModuleMultiplicity].size());
+        vec[kperModuleMultiplicity][index]++;
       }
     }
 
-    // decorate per-layer multiplicity
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_perModuleMultiplicity") = perModuleMultiplicity;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_layer")                 = layer;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_eta_module")            = eta_module;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_phi_module")            = phi_module;
-    
+    std::vector<SG::WriteDecorHandle<xAOD::EventInfo,std::vector<int> > >   int_decor_handles(createDecorators<xAOD::EventInfo,std::vector<int> >(m_intDecorKeys,ctx));
+    assert(int_decor_handles.size() == kNIntDecor);
+    for(unsigned int decorate_i=0; decorate_i<int_decor_handles.size(); ++decorate_i) {
+       int_decor_handles[decorate_i](*eventInfo) = std::move(vec[decorate_i]);
+    }
+
     return StatusCode::SUCCESS;
   }  
   

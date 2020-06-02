@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
@@ -15,17 +15,20 @@
 
 #include "TRTElectronicsProcessing.h"
 
-// #include "CommissionEvent/ComTime.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-//#include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class TRTDigit;
 class TRTTimeCorrection;
@@ -35,8 +38,6 @@ class TRTDigCondBase;
 class TRTUncompressedHit;
 class ITRT_PAITool;
 class ITRT_SimDriftTimeTool;
-
-namespace MagField { class IMagFieldSvc; }
 
 namespace InDetDD { class TRT_DetectorManager; }
 
@@ -54,14 +55,14 @@ public:
                         const InDetDD::TRT_DetectorManager*,
                         ITRT_PAITool*,
                         ITRT_SimDriftTimeTool*,
-                        MagField::IMagFieldSvc * magfieldsvc,
                         TRTElectronicsProcessing * ep,
                         TRTNoise * noise,
                         TRTDigCondBase* digcond,
                         const HepPDT::ParticleDataTable*,
                         const TRT_ID*,
                         ITRT_PAITool* = NULL,
-                        ITRT_PAITool* = NULL);
+                        ITRT_PAITool* = NULL,
+                        const ITRT_CalDbTool* = NULL);
   /** Destructor */
   ~TRTProcessingOfStraw();
 
@@ -87,11 +88,12 @@ public:
    * @param outdigit: The 27 bit digit
    * (bits: 8 low + 1 high + 8 low + 1 high + 8 low + 1 high)
    */
-  void ProcessStraw (hitCollConstIter i,
-                     hitCollConstIter e,
-                     TRTDigit& outdigit,
-                     bool & m_alreadyPrintedPDGcodeWarning,
-                     double m_cosmicEventPhase, //const ComTime* m_ComTime,
+  void ProcessStraw (MagField::AtlasFieldCache& fieldCache,
+                     hitCollConstIter i,
+		     hitCollConstIter e,
+		     TRTDigit& outdigit,
+		     bool & m_alreadyPrintedPDGcodeWarning,
+		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
                      bool emulationArflag,
                      bool emulationKrflag,
@@ -110,7 +112,7 @@ private:
   TRTProcessingOfStraw& operator= (const TRTProcessingOfStraw&);
 
   /** Initialize */
-  void Initialize();
+  void Initialize(const ITRT_CalDbTool *);
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
@@ -138,14 +140,12 @@ private:
   double m_maxCrossingTime;
   double m_minCrossingTime;
   double m_shiftOfZeroPoint;
-  // double m_time_y_eq_zero;
 
   double m_innerRadiusOfStraw;
   double m_outerRadiusOfWire;
 
   double m_solenoidFieldStrength;
 
-  // const ComTime* m_ComTime;
 
   TRTTimeCorrection*        m_pTimeCorrection;
   TRTElectronicsProcessing* m_pElectronicsProcessing;
@@ -218,10 +218,10 @@ private:
    * @param clusters: ionisation clusters along particle trajectory
    * @param deposits: energy deposits on wire
    */
-  void ClustersToDeposits (const int& hitID,
-                           const std::vector<cluster>& clusters,
-                           std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-                           Amg::Vector3D TRThitGlobalPos,
+  void ClustersToDeposits (MagField::AtlasFieldCache& fieldCache, const int& hitID,
+			   const std::vector<cluster>& clusters,
+			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+			   Amg::Vector3D TRThitGlobalPos,
                            double m_cosmicEventPhase, // const ComTime* m_ComTime
                            int strawGasType,
                            CLHEP::HepRandomEngine* rndmEngine);
@@ -234,8 +234,6 @@ private:
 
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
-  //Magnetic field stuff
-  MagField::IMagFieldSvc* m_magneticfieldsvc;
   mutable Athena::MsgStreamMember m_msg;
 
 protected:

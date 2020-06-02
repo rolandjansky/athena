@@ -26,8 +26,6 @@
 #include "RingerSelectorTools/tools/RingerIOVarDepObj.h"
 #include "RingerSelectorTools/tools/VariableDependency.h"
 #include "RingerSelectorTools/tools/RedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
 
 /**
  * @brief Namespace dedicated for Ringer utilities
@@ -57,8 +55,7 @@ class Norm1 : virtual public IPreProcessor,
   public:
     Norm1(){;}
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     Norm1(Norm1&&);
@@ -78,8 +75,7 @@ class Norm2 : public virtual IPreProcessor,
   public:
     Norm2(){;}
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     Norm2(Norm2&&);
@@ -99,8 +95,7 @@ class Sqrt : public virtual IPreProcessor,
   public:
     Sqrt(){};
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     Sqrt(Sqrt&&);
@@ -131,8 +126,7 @@ class ConstantValue : public virtual IPreProcessor,
       }
     }
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     ConstantValue(ConstantValue&&);
@@ -162,8 +156,7 @@ class Sequential : public virtual IPreProcessor,
       : m_stopEnergy(stopEnergy),
         m_energyThres(energyThres){;}
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     Sequential(Sequential&&);
@@ -192,8 +185,7 @@ class Spherization : public virtual IPreProcessor,
         const std::vector<float> &dataMean,
         const std::vector<float> &dataStd);
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     Spherization(Spherization&&);
@@ -223,8 +215,7 @@ class MinMax : public virtual IPreProcessor,
         const std::vector<float> min,
         const std::vector<float> max);
 
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
 
   private:
     MinMax(MinMax&&);
@@ -303,8 +294,7 @@ class ExtraPatternsNorm : public virtual IPreProcessor,
      * This normalization does not applies to the input space, but rather to
      * special components of the input space
      **/
-    virtual void execute(std::vector<float> &inputSpace) const ATH_RINGER_FINAL
-      ATH_RINGER_OVERRIDE;
+    virtual void execute(std::vector<float> &inputSpace) const final override;
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(ExtraDescriptionPatterns,0)
 };

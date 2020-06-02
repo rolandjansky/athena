@@ -247,7 +247,7 @@ class GenerateMenuMT(object):
                 import traceback
                 traceback.print_exc()
 
-        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
+        log.debug('Available signature(s) for chain generation: %s', self.availableSignatures)
 
         import pprint
         pp = pprint.PrettyPrinter(indent=4, depth=8)
@@ -304,7 +304,7 @@ class GenerateMenuMT(object):
 
         elif len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
-                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict, mainChainDict["mergingStrategy"], mainChainDict["mergingOffset"])
+                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
 
                 # This needs to be added for topological chains - needs implementation
                 #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]

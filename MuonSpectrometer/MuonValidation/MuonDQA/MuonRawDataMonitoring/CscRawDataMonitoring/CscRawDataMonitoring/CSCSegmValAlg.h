@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -19,65 +19,38 @@
 #ifndef CSCSegmValAlg_H
 #define CSCSegmValAlg_H
 
-// Gaudi Tools
-#include "GaudiKernel/StatusCode.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 
-// Athena Monitoring 
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-
-// Muon Segment 
 #include "MuonSegment/MuonSegment.h"
 #include "TrkSegment/SegmentCollection.h"
-
-// Muon Track 
-#include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 
-//TDT
 #include "TrigDecisionTool/TrigDecisionTool.h"
-
 #include "StoreGate/ReadHandleKey.h"
-
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-// STL
 #include <vector>
 #include <string>
-#include <map>
 #include <memory>
 
 class TH1;
 class TH1F;
 class TH2F;
-class CscIdHelper;
-class TgcIdHelper;
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
-
 
 namespace Trk {
-  class IUpdator;
-  class RIO_OnTrack;
-  class Track;
-  class TrackStateOnSurface;
   class MeasurementBase;
 }
- 
+
 class CSCSegmValAlg : public ManagedMonitorToolBase {
 
  public:
   /** Constructor */
   CSCSegmValAlg( const std::string & type, const std::string & name, const IInterface* parent ); 
   /** Destructor */
-  virtual ~CSCSegmValAlg();
+  virtual ~CSCSegmValAlg()=default;
   /** Histogram booking method */
   virtual StatusCode bookHistograms();
   /** Histogram filling method */
@@ -85,7 +58,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();
 
   StatusCode initialize();
-  StatusCode finalize(); 
 
  private:
 
@@ -129,7 +101,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   TH2F* m_h2CSC_Segm_NumOfSegs_EA;
   TH2F* m_h2CSC_Segm_NumOfSegs_EC;
 
-  //unsigned int m_ncoll;
   std::vector<std::string> m_clusStatWord;
   std::vector<std::string> m_NClusWord;
 
@@ -186,12 +157,10 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA;
   TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
 
-  // Tool handles
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 #endif

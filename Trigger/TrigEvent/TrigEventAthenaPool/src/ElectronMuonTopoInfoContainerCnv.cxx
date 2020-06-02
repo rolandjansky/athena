@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronMuonTopoInfoContainerCnv.h"
@@ -30,7 +30,7 @@ ElectronMuonTopoInfoContainer * ElectronMuonTopoInfoContainerCnv::createTransien
   static pool::Guid p1_guid( "0A775717-3FC9-4FF4-A18B-3F520B2D4DAC" );
 
  if( compareClassGuid( p1_guid ) ){
-   std::auto_ptr< ElectronMuonTopoInfoContainer_p1 > col_vect( poolReadObject< ElectronMuonTopoInfoContainer_p1 >() );
+   std::unique_ptr< ElectronMuonTopoInfoContainer_p1 > col_vect( poolReadObject< ElectronMuonTopoInfoContainer_p1 >() );
    return TPConverter.createTransient( col_vect.get(), mlog ) ;
  } else { throw std::runtime_error( "Unsupported persistent version of ElectronMuonTopoInfoContainer" ); }
    

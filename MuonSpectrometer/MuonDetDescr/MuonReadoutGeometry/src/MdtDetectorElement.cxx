@@ -115,14 +115,15 @@ const Amg::Vector3D&
 MdtDetectorElement::normal(const Identifier& id) const
   {return m_mdtRE[0]->normal(id);}
 
-const std::vector<const Trk::Surface*>&  MdtDetectorElement::surfaces() const
+std::vector<const Trk::Surface*>  MdtDetectorElement::surfaces() const
 {
    // needs to be created each time because there's no clearCache() method
-   m_detectorSurfaces.clear();
+   std::vector<const Trk::Surface*> detectorSurfaces;
    for (unsigned int i=0; i<maxMdtREinDE; ++i) {
-     m_detectorSurfaces.insert(m_detectorSurfaces.end(),m_mdtRE[i]->surfaces().begin(),m_mdtRE[i]->surfaces().end());
+     std::vector<const Trk::Surface*> resurf = m_mdtRE[i]->surfaces();
+     detectorSurfaces.insert(detectorSurfaces.end(),resurf.begin(),resurf.end());
    }
-   return m_detectorSurfaces;
+   return detectorSurfaces;
 }
 
 }

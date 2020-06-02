@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,7 @@ LVL1_ROI* LVL1_ROICnv::createTransient() {
 
   if( this->compareClassGuid( p1_guid ) ) {
 
-    std::auto_ptr< LVL1_ROI_p1 > pers_ref( this->poolReadObject< LVL1_ROI_p1 >() );
+    std::unique_ptr< LVL1_ROI_p1 > pers_ref( this->poolReadObject< LVL1_ROI_p1 >() );
     MsgStream log( this->msgSvc(), "LVL1_ROICnv" );
     return TPConverter.createTransient( pers_ref.get(), log );
 

@@ -1,14 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
+#include "RPCcablingInterface/CablingRPCBase.h"
 
-RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling, const Muon::MuonIdHelperTool * muonIdHelperTool, MsgStream* log) :
+namespace {
+  static constexpr unsigned int const& rpcRawHitWordLength = 7;
+}
+
+RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const RpcCablingCondData* readCdo, const RpcIdHelper* rpcId, MsgStream* log) :
   m_bytestream(p_bytestream),
-  m_cabling(p_cabling),
-  m_muonIdHelperTool(muonIdHelperTool)
+  m_cabling(readCdo),
+  m_rpcIdHelper(rpcId)
 { 
   m_rpcpads = new std::vector<RpcPad*>;
   m_log = log;
@@ -19,7 +23,6 @@ RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, c
     m_debug   = false;
     m_verbose = false; 
   }
-  
 }
 
 RpcByteStreamDecoder::~RpcByteStreamDecoder()
@@ -91,9 +94,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
   // Build the pad offline identifier
   bool check = true;
   bool valid = false;
-  Identifier id = m_muonIdHelperTool->rpcIdHelper().padID(name, eta, phi, doublet_r, 
-			     		doublet_z, doublet_phi,
-                                        check, &valid);
+  Identifier id = m_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi, check, &valid);
 
   if ( m_log && !valid ) {
     *m_log << MSG::ERROR << "Invalid pad offline indices " << endmsg;
@@ -168,14 +169,14 @@ RpcCoinMatrix* RpcByteStreamDecoder::decodeMatrix(MatrixReadOut* matrix, Identif
       assert(cm_hit.isBody());
       RpcFiredChannel* firedChannel=0;
 
-      if (cm_hit.ijk() < 7 )
+      if (cm_hit.ijk() < rpcRawHitWordLength )
 	{
 	  firedChannel = new RpcFiredChannel(cm_hit.bcid(),
 					     cm_hit.time(),
 					     cm_hit.ijk(),
 					     cm_hit.channel());
 	}
-      else if (cm_hit.ijk() == 7 )
+      else if (cm_hit.ijk() == rpcRawHitWordLength )
 	{
 	  firedChannel = new RpcFiredChannel(cm_hit.bcid(),
 					     cm_hit.time(),

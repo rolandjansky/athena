@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of MadGraph steering executables
 #    written by Zach Marshall <zach.marshall@cern.ch>
@@ -1149,18 +1149,18 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
         else:
             rwgt_name_match=re.match(name_expression,line.strip())
             rwgt_info_match=re.match(info_expression,line.strip())
-            if rwgt_name_match==None and rwgt_info_match==None:
+            if rwgt_name_match is None and rwgt_info_match is None:
                 raise RuntimeError('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Line to fix: '+line)
             for match in [rwgt_info_match,rwgt_name_match]:
-                if match==None:
+                if match is None:
                     continue
                 if len(match.groups())!=1:
                     raise RuntimeError('Unexpected format of reweight card in line: '+line)
                 if not re.match(goodname_expression,match.group(1)):
                     raise RuntimeError('No special character in reweighting info/name, only allowing '+goodname_expression)
-            if rwgt_info_match!=None:
+            if rwgt_info_match is not None:
                 newcard.write(line)
-            elif rwgt_name_match!=None:
+            elif rwgt_name_match is not None:
                 newcard.write(line.strip()+' --rwgt_info={0}\n'.format(rwgt_name_match.group(1)))
                 changed=True
     if changed:
@@ -1414,6 +1414,21 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
     return lhe_file_new_tmp
 
 
+def find_key_and_update(akey,dictionary):
+    """ Helper function when looking at param cards
+    In some cases it's tricky to match keys - they may differ
+    only in white space. This tries to sort out when we have
+    a match, and then uses the one in blockParams afterwards.
+    In the case of no match, it returns the original key.
+    """
+    test_key = ' '.join(akey.strip().replace('\t',' ').split())
+    for key in dictionary:
+        mod_key = ' '.join(key.strip().replace('\t',' ').split())
+        if mod_key==test_key:
+            return key
+    return akey
+
+
 def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
@@ -1463,7 +1478,13 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
-            akey = line.strip().split()[0]
+            # The line is already without the comment.
+            # In the case of mixing matrices this is a bit tricky
+            if len(line.split())==2:
+                akey = line.upper().strip().split()[0]
+            else:
+                # Take everything but the last word
+                akey = line.upper().strip()[:line.strip().rfind(' ')].strip()
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
         if akey is None:
@@ -1475,6 +1496,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
            newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
+        # Check the spacing in the key
+        akey = find_key_and_update(akey,blockParams)
 
         # look for a string key, which would follow a #
         stringkey = None

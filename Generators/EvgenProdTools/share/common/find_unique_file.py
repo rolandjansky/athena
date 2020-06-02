@@ -1,3 +1,4 @@
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## Helper functions for input file handling
 def find_unique_file(pattern):
     "Return a matching file, provided it is unique"

@@ -1,29 +1,14 @@
 /*
-  Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// std
-#include <fstream>
-#include <string>
-// other packages
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// this package
-#include "MuonCalibEvent/MdtCalibHit.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
-
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
-// this package
 #include "MdtCalibSvc/MdtCalibrationTool.h"
+
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
-
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtRtRelation.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
@@ -37,12 +22,10 @@
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/RtScaleFunction.h"
-
 #include "MdtCalibInterfaces/IShiftMapTools.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/PhysicalConstants.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+#include "MuonCalibEvent/MdtCalibHit.h"
 
 //
 // private helper functions
@@ -58,26 +41,20 @@ public:
     return m_muonGeoManager->getMdtReadoutElement( id );
   }
 
-  double applyCorrections( MdtCalibHit &hit,
+  double applyCorrections( MagField::AtlasFieldCache& fieldCache,
+                           MdtCalibHit &hit,
 			   const MdtCalibrationSvcInput &input,
 			   const MdtCalibrationSvcSettings &settings,
 			   double adcCal,
 			   const MuonCalib::MdtCorFuncSet *corrections,
-			   const MuonCalib::IRtRelation *rt ) const;
+			   const MuonCalib::IRtRelation *rt,
+         MsgStream* msgStr, const MdtIdHelper *idHelp) const;
 
   const MuonGM::MuonDetectorManager *m_muonGeoManager;
-  const MdtIdHelper                 *m_mdtIdHelper;
   MdtCalibrationSvcSettings          settings;
 
   double m_inverseSpeedOfLight;      // in ns/mm
   double m_inversePropagationSpeed;  // in ns/mm
-
-  MsgStream *m_log; //!< Pointer to MsgStream - MdtCalibrationTool now owns this
-  bool m_verbose;   //!< True if we should print MSG::VERBOSE messages
-  bool m_debug;     //!< True if we should print MSG::DEBUG messages
-
-  //handle of b-field service - job option
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
   /* T0 Shift Service -- Per-tube offsets of t0 value */
   ServiceHandle<MuonCalib::IShiftMapTools> m_t0ShiftSvc;
@@ -97,14 +74,9 @@ public:
 };
 
 MdtCalibrationTool::Imp::Imp(std::string name) :
-  m_muonGeoManager(0),
-  m_mdtIdHelper(0),
+  m_muonGeoManager(nullptr),
   m_inverseSpeedOfLight(1./Gaudi::Units::c_light),
   m_inversePropagationSpeed(m_inverseSpeedOfLight/0.85),
-  m_log(0),
-  m_verbose(false),
-  m_debug(false),
-  m_magFieldSvc("AtlasFieldSvc", name),
   m_t0ShiftSvc("MdtCalibrationT0ShiftSvc", name),
   m_tMaxShiftSvc("MdtCalibrationTMaxShiftSvc", name),
   m_doT0Shift(false),
@@ -134,7 +106,6 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   declareProperty("DoSlewingCorrection",m_imp->settings.doSlew );
   declareProperty("DoBackgroundCorrection",m_imp->settings.doBkg );
   declareProperty("ResolutionTwinTube",   m_imp->m_resTwin = 1.05, "Twin Tube resolution");
-  declareProperty("MagFieldSvc", m_imp->m_magFieldSvc);
   declareProperty("UpperBoundHitRadius", m_imp->m_unphysicalHitRadiusUpperBound = 20. );
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
   declareProperty("DoT0Shift", m_imp->m_doT0Shift = false );
@@ -150,34 +121,24 @@ StatusCode MdtCalibrationTool::initialize() {
   ATH_MSG_DEBUG( "Initializing" );
 
   m_imp->settings.initialize();
-  // initialize the MdtIdHelper
-  if ( detStore()->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
-    ATH_MSG_FATAL( "Can't retrieve MdtIdHelper" );
-    return StatusCode::FAILURE;
-  }
+
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
+
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   // assign BMG identifier
-  m_imp->m_BMGpresent = m_imp->m_mdtIdHelper->stationNameIndex("BMG") != -1;
+  m_imp->m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_imp->m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_imp->m_BMGid = m_imp->m_mdtIdHelper->stationNameIndex("BMG");
+    m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
   }
   // initialise MuonGeoModel access
-  if ( detStore()->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
-    ATH_MSG_FATAL( "Can't retrieve MuonDetectorManager" );
-    return StatusCode::FAILURE;
-  }
-  if ( m_imp->m_magFieldSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Could not find MagFieldSvc" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
 
   if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftSvc.retrieve() );
 
   if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftSvc.retrieve() );
-
-  m_imp->m_log = &msg();
-  m_imp->m_verbose = msgLvl(MSG::VERBOSE);
-  m_imp->m_debug = msgLvl(MSG::DEBUG);
 
   ATH_MSG_DEBUG("Settings:");
   ATH_MSG_DEBUG("  Time window: lower bound " << m_imp->settings.timeWindowLowerBound()
@@ -256,7 +217,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // on the other hand it should be rare that a tube does not have an RT
   if( !rtRelation ) {
     ATH_MSG_WARNING( "no rtRelation found, cannot calibrate tube" );
-    hit.setDriftRadius( 0., 2*14.6/sqrt(12) ); // treat the tube as a 'strip' measurement
+    hit.setDriftRadius( 0., 2*14.6/std::sqrt(12) ); // treat the tube as a 'strip' measurement
     return false;
   }
   double t0(0.);
@@ -266,9 +227,9 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // access t0 for the given tube
   if ( data.tubeCalib ) {
 
-    const int ml    = m_imp->m_mdtIdHelper->multilayer(id)-1;
-    const int layer = m_imp->m_mdtIdHelper->tubeLayer(id)-1;
-    const int tube  = m_imp->m_mdtIdHelper->tube(id)-1;
+    const int ml    = m_idHelperSvc->mdtIdHelper().multilayer(id)-1;
+    const int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1;
+    const int tube  = m_idHelperSvc->mdtIdHelper().tube(id)-1;
 
     if ( ml<0 || layer<0 || tube<0 ){
       ATH_MSG_WARNING( "Oops negative index....." );
@@ -297,7 +258,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
   } else {
     ATH_MSG_WARNING("MdtTubeCalibContainer not found for "
-		      << m_imp->m_mdtIdHelper->print_to_string( id ));
+		      << m_idHelperSvc->mdtIdHelper().print_to_string( id ));
     ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
     return false;
   }
@@ -336,8 +297,21 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // apply corrections
   double corTime(0.);
   if ( settings.doCorrections() ) {
-    corTime = m_imp->applyCorrections( hit, inputData, settings,
-				       adcCal, data.corrections, rtRelation->rt());
+
+    MagField::AtlasFieldCache fieldCache;
+    if (settings.doField) {
+      // 
+      // For the moment, use Gaudi Hive for the event context - would need to be passed in from clients
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("driftRadiusFromTime: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return false;
+      }
+      fieldCondObj->getInitializedCache (fieldCache);
+    }
+    corTime = m_imp->applyCorrections( fieldCache, hit, inputData, settings,
+				       adcCal, data.corrections, rtRelation->rt(), &msg(), &m_idHelperSvc->mdtIdHelper());
   }
 
   // calculate drift radius + error
@@ -395,7 +369,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
       reso = rtRelation->rtRes()->resolution( t_inrange );
     } else {
       bool out_of_bound_flag;
-      reso = rtRelation->rtRes()->resolution(rtRelation->tr()->tFromR(fabs(hit.signedDistanceToTrack()),
+      reso = rtRelation->rtRes()->resolution(rtRelation->tr()->tFromR(std::abs(hit.signedDistanceToTrack()),
 								      out_of_bound_flag) );
     }
   }else{
@@ -404,7 +378,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   hit.setDriftRadius( r, reso );
 
   // summary
-  ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_imp->m_mdtIdHelper->print_to_string(id)
+  ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_idHelperSvc->mdtIdHelper().print_to_string(id)
 		 << (calibOk ? " OK" : "FAILED") );
   ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize(id)
 		 << " TriggerOffset " << inputData.triggerOffset << endmsg
@@ -479,9 +453,9 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   // access t0 for the give tube
   if( data.tubeCalib ){
 
-    const int ml    = m_imp->m_mdtIdHelper->multilayer(id)-1;
-    const int layer = m_imp->m_mdtIdHelper->tubeLayer(id)-1;
-    const int tube  = m_imp->m_mdtIdHelper->tube(id)-1;
+    const int ml    = m_idHelperSvc->mdtIdHelper().multilayer(id)-1;
+    const int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1;
+    const int tube  = m_idHelperSvc->mdtIdHelper().tube(id)-1;
 
     if( ml<0 || layer<0 || tube<0 ){
       ATH_MSG_WARNING( "Oops negative index....." );
@@ -504,16 +478,16 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
     }
   } else {
     ATH_MSG_WARNING( "MdtTubeCalibContainer not found for "
-		     << m_imp->m_mdtIdHelper->print_to_string( id ) );
+		     << m_idHelperSvc->mdtIdHelper().print_to_string( id ) );
     ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
     return false;
   }
 
   // access t0 for the given second tube
   if ( dataSecond.tubeCalib ){
-    const int mlSecond    = m_imp->m_mdtIdHelper->multilayer(idSecond)-1;
-    const int layerSecond = m_imp->m_mdtIdHelper->tubeLayer(idSecond)-1;
-    const int tubeSecond  = m_imp->m_mdtIdHelper->tube(idSecond)-1;
+    const int mlSecond    = m_idHelperSvc->mdtIdHelper().multilayer(idSecond)-1;
+    const int layerSecond = m_idHelperSvc->mdtIdHelper().tubeLayer(idSecond)-1;
+    const int tubeSecond  = m_idHelperSvc->mdtIdHelper().tube(idSecond)-1;
 
     if( mlSecond<0 || layerSecond<0 || tubeSecond<0 ){
       ATH_MSG_WARNING( "Oops negative index for second tube....." );
@@ -536,7 +510,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
     }
   } else {
     ATH_MSG_WARNING( "MdtTubeCalibContainer not found for "
-		     << m_imp->m_mdtIdHelper->print_to_string( idSecond ) );
+		     << m_idHelperSvc->mdtIdHelper().print_to_string( idSecond ) );
     ATH_MSG_WARNING( "Second tube cannot be calibrated!!!" );
     return false;
   }
@@ -581,7 +555,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
        || twin_timedif > (tubelength*inversePropSpeed
 			  + tubelength*inversePropSpeedSecond
 			  + HVdelay + 5.*m_imp->m_resTwin)){
-    if ( m_imp->m_debug ) {
+    if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG( " TIME DIFFERENCE OF TWIN PAIR OUT OF RANGE("
 		     << (HVdelay - 5.*m_imp->m_resTwin)
 		     << "-"
@@ -605,7 +579,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
 
     // Put twin hit always inside acceptance
     if (z_hit_sign_from_twin < -tubelength/2.) {
-      if ( m_imp->m_debug ) {
+      if (msgLvl(MSG::DEBUG)) {
 	ATH_MSG_DEBUG( " TWIN HIT outside acceptance with time difference "
 		       <<  twin_timedif
 		       << " Z local hit " <<  z_hit_sign_from_twin
@@ -623,10 +597,10 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
     zTwin = z_hit_geo_from_twin;
     errZTwin = m_imp->m_resTwin*inversePropSpeed;
 
-    if ( m_imp->m_verbose ){
+    if (msgLvl(MSG::VERBOSE)) {
       ATH_MSG_VERBOSE( " TWIN TUBE "
-		     << " tube: " << m_imp->m_mdtIdHelper->print_to_string(id)
-		     << " twintube: " << m_imp->m_mdtIdHelper->print_to_string(idSecond)
+		     << " tube: " << m_idHelperSvc->mdtIdHelper().print_to_string(id)
+		     << " twintube: " << m_idHelperSvc->mdtIdHelper().print_to_string(idSecond)
 		     );
       ATH_MSG_VERBOSE( " prompthit tdc = " << prompthit_tdc//*TDCbinsize
 		     << "  twinhit tdc = " << twinhit_tdc// *TDCbinsize
@@ -644,7 +618,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   } // end  if(twin_timedif < (tubelength*inversePropSpeed + tubelength*inversePropSpeedSecond + HVdelay + 10.*m_imp->m_resTwin)){
   else {
 
-    if ( m_imp->m_verbose ){
+    if (msgLvl(MSG::VERBOSE)) {
       ATH_MSG_VERBOSE( " TIME DIFFERENCE OF TWIN PAIR UNPHYSICAL OUT OF RANGE("
 		     << (HVdelay - 5*m_imp->m_resTwin) << "-"
 		     << (2*tubelength*inversePropSpeed + HVdelay + 5*m_imp->m_resTwin)
@@ -665,27 +639,23 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
 
 double MdtCalibrationTool::tdcBinSize(const Identifier &id) const {
 //BMG which uses HPTDC instead of AMT, and has 0.2ns TDC ticksize
-  //if( m_imp->m_mdtIdHelper->stationName(id) == 54 )  //BMG
-    //return 0.2;
-// Alternative method if you don't like hardcoding BMG stationName (54)
- // don't do string comparisons!
- //if( m_imp->m_mdtIdHelper->stationNameString( m_imp->m_mdtIdHelper->stationName(id) ) == "BMG" )
-  if( m_imp->m_mdtIdHelper->stationName(id) == m_imp->m_BMGid && m_imp->m_BMGpresent)
+  if( m_idHelperSvc->mdtIdHelper().stationName(id) == m_imp->m_BMGid && m_imp->m_BMGpresent)
     return 0.1953125; // 25/128
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0
 }
 
-double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
-                                                const MdtCalibrationSvcInput &inputData,
-						const MdtCalibrationSvcSettings &settings,
-						double /*adcCal*/,
-                                                const MuonCalib::MdtCorFuncSet *corrections, const MuonCalib::IRtRelation *rt) const {
+double MdtCalibrationTool::Imp::applyCorrections(MagField::AtlasFieldCache& fieldCache,
+                                                 MdtCalibHit &hit,
+                                                 const MdtCalibrationSvcInput &inputData,
+                                                 const MdtCalibrationSvcSettings &settings,
+                                                 double /*adcCal*/,
+                                                 const MuonCalib::MdtCorFuncSet *corrections, const MuonCalib::IRtRelation *rt, MsgStream *msgStr, const MdtIdHelper *idHelp) const {
 
   double corTime(0.);
   // apply corrections
   if ( corrections ){
 
-    if (m_verbose) *m_log << MSG::VERBOSE << "There are correction functions." << endmsg;
+    if (msgStr->level()<=MSG::VERBOSE) *msgStr << MSG::VERBOSE << "There are correction functions." << endmsg;
 
     // slewing corrections
     if ( settings.doSlew && corrections->slewing() ){
@@ -701,7 +671,8 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
 	double xyz[3] = { (*inputData.pointOfClosestApproach)(0),
 			  (*inputData.pointOfClosestApproach)(1),
 			  (*inputData.pointOfClosestApproach)(2) };
-        m_magFieldSvc->getField(xyz, BGXYZ);
+        fieldCache.getField(xyz, BGXYZ);
+        
 	for (int i=0; i<3; i++) BGXYZ[i] *= 1000.; // convert kT to Tesla
         Amg::Vector3D B_global(BGXYZ[0], BGXYZ[1], BGXYZ[2]);
         Amg::Vector3D B_loc(gToStation.linear()*B_global);
@@ -711,7 +682,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
         double Bper = B_loc.dot(dir.unit());
         hit.setBFieldPerp(Bper);
         hit.setBFieldPara(Bpar);
-        if( m_verbose ) *m_log << MSG::VERBOSE << "doing b-field correction" << endmsg;
+        if(msgStr->level()<=MSG::VERBOSE) *msgStr << MSG::VERBOSE << "doing b-field correction" << endmsg;
         if(hit.bFieldPara() != MdtCalibHit::kNoValue && hit.bFieldPerp() != MdtCalibHit::kNoValue) {
 	  hit.setLorentzTime(corrections->bField()->correction( hit.driftTime(), hit.bFieldPara(),  hit.bFieldPerp() ));
 	} else {
@@ -737,7 +708,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
 
     // Scale RT function from Tmax difference
     if( settings.doTemp && rt && rt->HasTmaxDiff()) {
-      float scle_time=MuonCalib::RtScaleFunction(hit.driftTime(), m_mdtIdHelper->multilayer(hit.identify())==2, *rt);
+      float scle_time=MuonCalib::RtScaleFunction(hit.driftTime(), idHelp->multilayer(hit.identify())==2, *rt);
       hit.setTemperatureTime(scle_time);
       corTime-=scle_time;
     } else {
@@ -752,43 +723,43 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
 
     // wire sag corrections
     // First some debug output
-    if (m_verbose) {
+    if (msgStr->level()<=MSG::VERBOSE) {
       if ( settings.doWireSag ){
-	*m_log << MSG::VERBOSE << "settings.doWireSag == TRUE" << endmsg;
+        *msgStr << MSG::VERBOSE << "settings.doWireSag == TRUE" << endmsg;
       } else {
-	*m_log << MSG::VERBOSE << "settings.doWireSag == FALSE" << endmsg;
+        *msgStr << MSG::VERBOSE << "settings.doWireSag == FALSE" << endmsg;
       }
       if ( corrections->wireSag() ){
-	*m_log << MSG::VERBOSE << "corrections->wireSag() == TRUE" << endmsg;
+        *msgStr << MSG::VERBOSE << "corrections->wireSag() == TRUE" << endmsg;
       } else {
-	*m_log << MSG::VERBOSE << "corrections->wireSag() == FALSE" << endmsg;
+        *msgStr << MSG::VERBOSE << "corrections->wireSag() == FALSE" << endmsg;
       }
     }
     // Wire sag corrections
     if ( settings.doWireSag && corrections->wireSag() ){
 
-      if (m_verbose) {
-	*m_log << MSG::VERBOSE << "Performing Rt Corrections due to Wire Sag." << endmsg;
+      if (msgStr->level()<=MSG::VERBOSE) {
+        *msgStr << MSG::VERBOSE << "Performing Rt Corrections due to Wire Sag." << endmsg;
 
 	if (inputData.pointOfClosestApproach) {
-	  *m_log << MSG::VERBOSE << "Have a point of closest approach." << endmsg;
+        *msgStr << MSG::VERBOSE << "Have a point of closest approach." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No point of closest approach!" << endmsg;
+        *msgStr << MSG::VERBOSE << "No point of closest approach!" << endmsg;
 	}
 	if (inputData.trackDirection) {
-	  *m_log << MSG::VERBOSE << "Have a track direction." << endmsg;
+        *msgStr << MSG::VERBOSE << "Have a track direction." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No track direction!" << endmsg;
+        *msgStr << MSG::VERBOSE << "No track direction!" << endmsg;
 	}
 	if (inputData.nominalWireSurface) {
-	  *m_log << MSG::VERBOSE << "Have a nominal wire surface." << endmsg;
+        *msgStr << MSG::VERBOSE << "Have a nominal wire surface." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No nominal wire surface!" << endmsg;
+        *msgStr << MSG::VERBOSE << "No nominal wire surface!" << endmsg;
 	}
 	if (inputData.wireSurface) {
-	  *m_log << MSG::VERBOSE << "Have a sagged wire surface." << endmsg;
+        *msgStr << MSG::VERBOSE << "Have a sagged wire surface." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No sagged wire surface!" << endmsg;
+        *msgStr << MSG::VERBOSE << "No sagged wire surface!" << endmsg;
 	}
       }
 
@@ -799,23 +770,22 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
 
       // check whether all input data is there
       if ( !pointOfClosestApproach || !trackDirection || !nominalWireSurface ){
-	*m_log << MSG::WARNING << " cannot perform wire sag correction: ";
-        if( !pointOfClosestApproach ) *m_log << " no pointOfClosestApproach ";
-        if( !trackDirection )         *m_log << " no trackDirection ";
-        if( !nominalWireSurface )     *m_log << " no nominalWireSurface ";
-        *m_log << endmsg;
+        *msgStr << MSG::WARNING << " cannot perform wire sag correction: " << endmsg;
+        if( !pointOfClosestApproach ) *msgStr << MSG::WARNING << " no pointOfClosestApproach " << endmsg;
+        if( !trackDirection )         *msgStr << MSG::WARNING << " no trackDirection " << endmsg;
+        if( !nominalWireSurface )     *msgStr << MSG::WARNING << " no nominalWireSurface " << endmsg;
       } else {
 
-	if (m_verbose) {
-	  *m_log << MSG::VERBOSE << "All Necessary Wire Sag data available: " << endmsg;
-	  *m_log << MSG::VERBOSE << "  pCA = ("
+	if (msgStr->level()<=MSG::VERBOSE) {
+        *msgStr << MSG::VERBOSE << "All Necessary Wire Sag data available: " << endmsg;
+        *msgStr << MSG::VERBOSE << "  pCA = ("
 		 << pointOfClosestApproach->x() << ", "
 		 << pointOfClosestApproach->y() << ", "
 		 << pointOfClosestApproach->z() << ")" << endmsg;
 	}
 
         // store pointer to sagged surface as we get ownership if we recalculate it
-        const Trk::StraightLineSurface *tempSaggedSurface = 0;
+        const Trk::StraightLineSurface *tempSaggedSurface = nullptr;
 
         // if wire surface is missing, calculate sagged wire position
         if ( !wireSurface ){
@@ -825,7 +795,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
             // used for wire sag treatment
             const Amg::Vector2D *tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
             if ( !tempLocOnWire ){
-              *m_log << MSG::WARNING << "globalToLocal failed! " << endmsg;
+              *msgStr << MSG::WARNING << "globalToLocal failed! " << endmsg;
             } else {
               // sagged surface
               wireSurface = nominalSurf->correctedSurface(*tempLocOnWire);
@@ -833,16 +803,13 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
               delete tempLocOnWire;
             }
           } else {
-            *m_log << MSG::WARNING
-		   << "Nominal wire surface not a SaggedLineSurface,"
+            *msgStr << MSG::WARNING << "Nominal wire surface not a SaggedLineSurface,"
 		   << " cannot perform wire sag correction" << endmsg;
           }
         }
 
         if ( !wireSurface ){
-          *m_log << MSG::WARNING
-		 << " cannot perform wire sag correction: no sagged wire surface "
-		 << endmsg;
+          *msgStr << MSG::WARNING << " cannot perform wire sag correction: no sagged wire surface " << endmsg;
         } else {
 
           // get to transformation matrix from global into the tube frame
@@ -879,7 +846,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
           // sign of drift radius (for sag calculation) is +/- of track passes
           // above/below wire
 
-          double signedDriftRadius = fabs(hit.driftRadius())*deltaY/fabs(deltaY);
+          double signedDriftRadius = deltaY*(std::abs(hit.driftRadius()/deltaY));
 
           // calculate the magnitude of the wire sag
 
@@ -912,13 +879,13 @@ Muon::MdtDriftCircleStatus MdtCalibrationTool::driftTimeStatus( double driftTime
   if( rtRelation && rtRelation->rt() ) {
     if( driftTime < rtRelation->rt()->tLower() - settings.timeWindowLowerBound() ) {
       // Will this produce too much output from ROT creators?
-      if ( m_imp->m_verbose )
+      if (msgLvl(MSG::VERBOSE))
 	ATH_MSG_VERBOSE( " drift time outside time window "
 			 << driftTime << ". Mininum time = "
 			 << rtRelation->rt()->tLower() - settings.timeWindowLowerBound() );
       return Muon::MdtStatusBeforeSpectrum;
     } else if( driftTime > rtRelation->rt()->tUpper() + settings.timeWindowUpperBound()  ) {
-      if ( m_imp->m_verbose )
+      if (msgLvl(MSG::VERBOSE))
 	ATH_MSG_VERBOSE( " drift time outside time window "
 			 << driftTime << ". Maximum time  = "
 			 << rtRelation->rt()->tUpper() + settings.timeWindowUpperBound() );

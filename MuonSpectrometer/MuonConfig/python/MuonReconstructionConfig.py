@@ -51,7 +51,7 @@ if __name__=="__main__":
     cfg.addService(ars)
 
     # This is a temporary fix! Should be private!
-    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     cfg.addService( muon_edm_helper_svc )
 
@@ -59,7 +59,7 @@ if __name__=="__main__":
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    cfg.printConfig(withDetails = True)
               
     f=open("MuonReconstruction.pkl","wb")
     cfg.store(f)

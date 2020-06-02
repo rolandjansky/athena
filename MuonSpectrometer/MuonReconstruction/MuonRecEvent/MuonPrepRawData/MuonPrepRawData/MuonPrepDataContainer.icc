@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ MuonPrepDataContainer< CollectionT>::MuonPrepDataContainer(unsigned int max) :
 
 template< class CollectionT>
 // Constructor with IdentifiableCache:
-MuonPrepDataContainer<CollectionT>::MuonPrepDataContainer(EventContainers::IdentifiableCache< Muon::MuonPrepDataCollection <CollectionT> >* cache):
+MuonPrepDataContainer<CollectionT>::MuonPrepDataContainer(EventContainers::IdentifiableCache<CollectionT> * cache):
   IdentifiableContainer<CollectionT>(cache)
 {}
 

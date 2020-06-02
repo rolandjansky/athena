@@ -61,7 +61,6 @@ StatusCode MuonRPC_CablingSvc::initialize()
     StoreGateSvc * detStore=nullptr;
     ATH_CHECK(service("DetectorStore",detStore));
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_MSG_DEBUG("Found the MuonIdHelperTool");
     RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
     
     bool tryRecoveringByReadingFromFile = false;

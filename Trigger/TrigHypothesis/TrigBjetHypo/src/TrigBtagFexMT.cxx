@@ -43,7 +43,8 @@
 
 
 TrigBtagFexMT::TrigBtagFexMT(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {}
+  AthAlgorithm(name, pSvcLocator) {
+}
 
 
 // ----------------------------------------------------------------------------------------------------------------- 
@@ -77,8 +78,6 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_CHECK( m_trkContainerKey.initialize() );
 
   ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
-  //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
-  //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -98,11 +97,9 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " jets" );
 
-  for ( const xAOD::Jet *jet : *jetContainer )
-    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 <<
-		   " eta=" << jet->eta() <<
-		   " phi=" << jet->phi() );
-
+  for ( const xAOD::Jet* jet : *jetContainer ) {
+    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->pt() << " eta=" << jet->eta() << " phi=" << jet->phi() );
+  }
 
 
   // Test retrieval of Track Particles
@@ -112,11 +109,9 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
   ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
 
-  for ( const xAOD::TrackParticle *trk : *trkContainer ) 
-    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 <<
-		   " eta=" << trk->eta() <<
-		   " phi=" << trk->phi() );
-
+  for ( const xAOD::TrackParticle *trk : *trkContainer ) {
+    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 << " eta=" << trk->eta() << " phi=" << trk->phi() );
+  }
 
   // Test retrieval of VertexContainer
   ATH_MSG_DEBUG( "Attempting to retrieve VertexContainer with key " << m_VertexContainerKey.key() );
@@ -125,11 +120,9 @@ StatusCode TrigBtagFexMT::execute() {
   const xAOD::VertexContainer* vxContainer = vxContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << vxContainer->size() <<" vertices..." );
 
-  for ( const xAOD::Vertex *pv : *vxContainer )
-    ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<<
-		   " y=" << pv->y() <<
-		   " z=" << pv->z() );
-
+  for ( const xAOD::Vertex *pv : *vxContainer ) {
+    ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<< " y=" << pv->y() << " z=" << pv->z() );
+  }
 
   // Creating dummy B-Tagging container in order to avoid
   // warnings from the SGInputLoader
@@ -137,10 +130,12 @@ StatusCode TrigBtagFexMT::execute() {
   std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
   outputBtagging->setStore( outputBtaggingAux.get() );
 
+  xAOD::BTagging *toAdd = new xAOD::BTagging();
+  outputBtagging->push_back( toAdd );
+
   SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
   CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
   ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
-
 
   return StatusCode::SUCCESS;
 }

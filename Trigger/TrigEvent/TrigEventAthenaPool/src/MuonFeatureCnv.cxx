@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFeatureCnv.h"
@@ -33,14 +33,14 @@ MuonFeature* MuonFeatureCnv::createTransient() {
 
     if( compareClassGuid(p1_guid) ) {
 
-      std::auto_ptr< MuonFeature_p1 > col_vect( poolReadObject< MuonFeature_p1 >() );
+      std::unique_ptr< MuonFeature_p1 > col_vect( poolReadObject< MuonFeature_p1 >() );
       MuonFeatureCnv_p1 converter;
       return converter.createTransient( col_vect.get(), mlog );
 
     }
     else if( compareClassGuid(p2_guid) ) {
 
-      std::auto_ptr< MuonFeature_p2 > col_vect( poolReadObject< MuonFeature_p2 >() );
+      std::unique_ptr< MuonFeature_p2 > col_vect( poolReadObject< MuonFeature_p2 >() );
       MuonFeatureCnv_p2 converter;
       return converter.createTransient( col_vect.get(), mlog );
 

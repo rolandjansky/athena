@@ -186,33 +186,11 @@ StatusCode MetaDataSvc::finalize() {
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
    ATH_MSG_DEBUG("MetaDataSvc::stop()");
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-   if (!joSvc.retrieve().isSuccess()) {
-      ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
-   } else {
-      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != nullptr) {
-         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
-                         last = evtselProps->end(); iter != last; iter++) {
-            if ((*iter)->name() == "InputCollections") {
-               // Get EventSelector to fire End...File incidents.
-               ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
-               IEvtSelector::Context* ctxt(nullptr);
-               if (!evtsel->releaseContext(ctxt).isSuccess()) {
-                  ATH_MSG_WARNING("Cannot release context on EventSelector.");
-               }
-            }
-         }
-      }
-   }
 
-   // Set to be listener for end of event
+   // Fire metaDataStopIncident 
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
    
-   // finalizing tools via metaDataStop
-   //ATH_CHECK(this->prepareOutput());
-       
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -343,6 +321,27 @@ StatusCode MetaDataSvc::prepareOutput()
    return rc;
 }
 
+// like prepareOutput() but for parallel streams
+StatusCode MetaDataSvc::prepareOutput(const std::string& outputName)
+{
+   // default to the serial implementation if no output name given
+   if( outputName.empty() ) return prepareOutput();
+   ATH_MSG_DEBUG( "prepareOutput('" << outputName << "')" );
+   
+   StatusCode rc = StatusCode::SUCCESS;
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG("  calling metaDataStop for " << (*it)->name());
+      // planning to replace the call below with  (*it)->prepareOutput(outputName)
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+         rc = StatusCode::FAILURE;
+      }
+   }
+   // MN: not releasing tools here - revisit when clear what happens on new file open
+   return rc;
+}
+
+
 StatusCode MetaDataSvc::shmProxy(const std::string& filename)
 {
    if (!m_clearedInputDataStore) {
@@ -396,9 +395,8 @@ void MetaDataSvc::handle(const Incident& inc) {
    } 
 }
 //__________________________________________________________________________
-StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
-   // Allow MetaDataStop only on Input file transitions
-   if (!m_allowMetaDataStop && !ignoreInputFile) {
+StatusCode MetaDataSvc::transitionMetaDataFile() {
+   if( !m_allowMetaDataStop ) {
       return(StatusCode::FAILURE);
    }
    // Make sure metadata is ready for writing
@@ -491,6 +489,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
          ToolHandle<IMetaDataTool> metadataTool(toolInstName);
          m_metaDataTools.push_back(metadataTool);
+         ATH_MSG_DEBUG("Added new MetadDataTool: " << metadataTool->name());
          if (!metadataTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);

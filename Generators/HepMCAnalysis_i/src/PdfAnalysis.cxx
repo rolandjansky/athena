@@ -5,32 +5,13 @@
 // ----------------------------------------------------------------------
 
 #include <iostream>
-
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/IO_AsciiParticles.h"
-#include "HepMC/SimpleVector.h"
-#include "HepMC/WeightContainer.h"
-#include "CLHEP/Vector/LorentzVector.h"
-
-
 #include "TH1.h"
 #include "TMath.h"
-#include "TLorentzVector.h"
-
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/ClusterSequence.hh"
-#include "fastjet/JetDefinition.hh"
-#include "fastjet/SISConePlugin.hh"
-
-// #include "TruthUtils/HepMCUtils.h"
-#include "TruthUtils/HepMCHelpers.h"
-
+#include "MCUtils/HepMCEventUtils.h"
 #include "../HepMCAnalysis_i/PdfAnalysis.h"
-
-using namespace std;
+namespace MC {
+using MCUtils::get_weight;
+}
 
 // ----------------------------------------------------------------------
 PdfAnalysis::PdfAnalysis()

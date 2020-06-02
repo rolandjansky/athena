@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCBYTESTREAMDECODER_H
@@ -10,9 +10,9 @@
 
 #include "TrigT1RPClogic/RPCbytestream.h"
 #include "TrigT1RPChardware/MatrixReadOutStructure.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonRDO/RpcPad.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 
 // Decode a RPCbytestream object and build the bare RPC RDO's
 // Stefano Rosati
@@ -26,8 +26,7 @@ class RpcByteStreamDecoder {
 
  public:
   // Constructor and destructor
-  RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling,
-		  const Muon::MuonIdHelperTool * muonIdHelperTool, MsgStream* log=0);
+  RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const RpcCablingCondData* readCdo, const RpcIdHelper* rpcId, MsgStream* log=nullptr);
   ~RpcByteStreamDecoder();
 
   // Decode the bytestream coming from the LVL1 simulation
@@ -47,8 +46,8 @@ class RpcByteStreamDecoder {
 
   // Data members
   const RPCbytestream* m_bytestream;
-  const IRPCcablingSvc* m_cabling;
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+  const RpcCablingCondData* m_cabling;
+  const RpcIdHelper* m_rpcIdHelper;
   std::vector<RpcPad*>* m_rpcpads;
 
   MsgStream* m_log;

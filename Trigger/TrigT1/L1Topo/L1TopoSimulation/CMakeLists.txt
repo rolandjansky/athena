@@ -33,7 +33,7 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( L1TopoSimulationLib
-   L1TopoSimulation/*.h
+   L1TopoSimulation/*.h Root/*.cxx
    INTERFACE
    PUBLIC_HEADERS L1TopoSimulation
    LINK_LIBRARIES GaudiKernel )
@@ -43,9 +43,14 @@ atlas_add_component( L1TopoSimulation
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib
    TrigInterfacesLib TrigT1CaloEventLib TrigT1CaloUtilsLib
-   AthenaBaseComps GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
+   AthenaBaseComps GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig L1TopoSimulationLib
    L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms TrigT1Interfaces
    TrigT1Result TrigConfInterfaces )
+
+atlas_add_component( L1TopoSimulationTest
+   src/test/*.h src/test/*.cxx src/test/components/*.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms L1TopoSimulationLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

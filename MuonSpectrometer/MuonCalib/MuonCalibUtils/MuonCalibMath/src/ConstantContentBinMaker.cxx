@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 08.06.2008, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MuonCalibMath/ConstantContentBinMaker.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 #include <iostream>
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
 
 using namespace MuonCalib;
-using namespace std;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS ConstantContentBinMaker ::
@@ -35,7 +26,7 @@ ConstantContentBinMaker::ConstantContentBinMaker(
 
     m_points = points;
     m_bins.clear();
-    m_epsilon = fabs(epsilon);
+    m_epsilon = std::abs(epsilon);
 
 }
 
@@ -61,9 +52,9 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 ///////////////
 
     unsigned int n_bins(static_cast<unsigned int>(
-                        log(m_points.size()/static_cast<double>(bin_content))
-																	/log(2.0)));
-    vector<unsigned int> splitting_axis(ref_coord);
+                        std::log(m_points.size()/static_cast<double>(bin_content))
+																	/std::log(2.0)));
+    std::vector<unsigned int> splitting_axis(ref_coord);
     unsigned int axis_counter(0);
 
 ///////////
@@ -78,9 +69,8 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 /////////////////////////////////////////////////
 
     if (m_points.size()==0 || n_bins<2) {
-        cerr << endl
-             << "Class ConstantContentBinMaker, method binDataPoints: WARNING!"
-             << "\nToo few data points for binning!\n";
+        MsgStream log(Athena::getMessageSvc(), "ConstantContentBinMaker");
+        log<< MSG::WARNING << "Class ConstantContentBinMaker, method binDataPoints: Too few data points for binning!"<<endmsg;
         return false;
     }
 
@@ -89,7 +79,7 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 ////////////////////////////////
 
     if (ref_coord.size()==0) {
-        splitting_axis = vector<unsigned int>(
+        splitting_axis = std::vector<unsigned int>(
                                         m_points[0].dataVector().rows());
         for (unsigned int k=0; k<splitting_axis.size(); k++) {
             splitting_axis[k] = k;

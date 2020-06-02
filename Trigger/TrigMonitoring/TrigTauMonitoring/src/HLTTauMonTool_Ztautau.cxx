@@ -20,9 +20,19 @@ using namespace std;
 using Athena::Units::GeV;
 
 //--------------------------------------------------------------------------------------
-StatusCode HLTTauMonTool::RealZTauTauEfficiency()
+StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefType)
 {
   ATH_MSG_DEBUG("Real ZTauTau Efficiency");  
+
+  std::vector<const xAOD::TauJet *> taus_here;
+  std::vector<std::string> trigItemsZtt_here;
+  if (goodTauRefType == "RNN") {
+    taus_here = m_taus_RNN;
+    trigItemsZtt_here = m_trigItemsZtt_RNN;
+  } else {
+    taus_here = m_taus_BDT;
+    trigItemsZtt_here = m_trigItemsZtt_BDT;
+  }
 
   // compute eff only for events passing single muon triggers
   if(! ( getTDT()->isPassed("HLT_mu20_iloose_L1MU15") 
@@ -121,13 +131,18 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
     }
 
   //Tau Selection
-  for(auto recoTau : m_taus)
+  for(auto recoTau : taus_here)
     {
     TLorentzVector TauTLV = recoTau->p4();
     double pt_Tau     = TauTLV.Pt();
     double eta_Tau    = TauTLV.Eta();
     int    ntrack_Tau = recoTau->nTracks();
-    bool   good_Tau   = recoTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+    bool   good_Tau(false);
+    if (goodTauRefType == "RNN") {
+      good_Tau = recoTau->isTau(xAOD::TauJetParameters::JetRNNSigLoose);
+    } else {
+      good_Tau = recoTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+    }
     float  charge_Tau = recoTau->charge();
         
     if(pt_Tau<20000.)                  continue;
@@ -206,12 +221,11 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
      //ltau_dR > 2.9         &&
      ltau_vismass > 45000. && ltau_vismass < 85000.)
     {
-      for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
-	{
-	  std::string l1_chain(LowerChain("HLT_"+m_trigItemsZtt[i]));
-	  std::string hlt_chain = "HLT_"+m_trigItemsZtt[i];
+      for ( const auto& item: m_trigItemsZtt ) {
+	  std::string l1_chain(LowerChain("HLT_"+item));
+	  std::string hlt_chain = "HLT_"+item;
 
-	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+m_trigItemsZtt[i]);
+	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+item);
 	  //hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/GeV);
 
 	  //L1

@@ -28,6 +28,8 @@ if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC
 if muonRecFlags.doMDTs() and DetFlags.makeRIO.MDT_on() and (DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on()):
     topSequence += getAlgorithm("MdtRdoToMdtPrepData", tryDefaultConfigurable=True)
     topSequence.MdtRdoToMdtPrepData.DecodingTool = MdtPrepDataProviderTool()
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+    topSequence.MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
 
 if muonRecFlags.doRPCs() and DetFlags.makeRIO.RPC_on() and (DetFlags.haveRDO.RPC_on() or DetFlags.digitize.RPC_on()):
     topSequence += getAlgorithm("RpcRdoToRpcPrepData", tryDefaultConfigurable=True )

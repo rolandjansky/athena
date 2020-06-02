@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #define FASTSIDIGITIZATION_PIXELFASTDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
-#include "FastSiDigitization/IPixelFastDigitizationTool.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimEvent/SiHitCollection.h" // cannot fwd declare
@@ -58,7 +57,7 @@ namespace InDet {
 }
 
 class PixelFastDigitizationTool :
-  virtual public PileUpToolBase, virtual public IPixelFastDigitizationTool
+  virtual public PileUpToolBase
 {
 
 public:
@@ -73,14 +72,14 @@ public:
   ~PixelFastDigitizationTool();
 
   StatusCode initialize();
-  StatusCode prepareEvent(unsigned int);
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int);
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode processAllSubEvents();
-  StatusCode mergeEvent();
-  StatusCode digitize();
-  StatusCode createAndStoreRIOs();
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode mergeEvent(const EventContext& ctx);
+  StatusCode digitize(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
 
 
 

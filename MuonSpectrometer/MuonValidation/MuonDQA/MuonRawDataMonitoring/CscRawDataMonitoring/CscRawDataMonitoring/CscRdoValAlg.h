@@ -1,22 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscRdoValAlg_H
 #define CscRdoValAlg_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonRDO/CscRawDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 
 class TH1F;
 class TH2F;
-
-namespace Muon {
-    class ICSC_RDO_Decoder;
-}
 
 class CscRdoValAlg: public ManagedMonitorToolBase  
 {
@@ -32,7 +30,7 @@ class CscRdoValAlg: public ManagedMonitorToolBase
 
   StatusCode bookHistograms();
   StatusCode fillHistograms();
-  StatusCode procHistograms();
+  StatusCode procHistograms(){return StatusCode::SUCCESS;}
   StatusCode checkHists(bool fromFinalise);
 
  private:
@@ -46,8 +44,7 @@ class CscRdoValAlg: public ManagedMonitorToolBase
   size_t m_cscNoiseCut;
   SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this,"CSCRawDataKey","CSCRDO","CSC RDO"};
   std::string m_cscRDOPath, m_cscGenPath;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // CSC RDO Decoder
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;

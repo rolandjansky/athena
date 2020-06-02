@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/ExtraTreeTrackFillerTool.h"
@@ -68,10 +68,6 @@ StatusCode ExtraTreeTrackFillerTool::initialize() {
     ATH_MSG_FATAL("Retrieve Tools failed!");
     return StatusCode::FAILURE;
   }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ExtraTreeTrackFillerTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
@@ -186,7 +182,7 @@ inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBas
     if (!trackPars) return;
     const Muon::MdtDriftCircleOnTrack* mdtROT = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(measurement);
     if(mdtROT) {
-      double radialResidual = fabs(mdtROT->localParameters()[Trk::locR])-fabs(trackPars->parameters()[Trk::locR]);
+      double radialResidual = std::abs(mdtROT->localParameters()[Trk::locR])-std::abs(trackPars->parameters()[Trk::locR]);
       if( radialResidual < 0. ) {
 	type = 4 ;
 	ATH_MSG_DEBUG(" out of time  ");
@@ -264,7 +260,7 @@ inline bool ExtraTreeTrackFillerTool::storeTrack(const Trk::Track *track, int au
   bool succes = true;
   const Trk::Surface* persurf = &(perigee->associatedSurface());
   if(persurf) { 
-    if (author == 0 && fabs(persurf->center().perp()) < 10.) {
+    if (author == 0 && std::abs(persurf->center().perp()) < 10.) {
       //    Look for Muon Entry
       succes = false;  
       const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
@@ -340,10 +336,6 @@ inline bool ExtraTreeTrackFillerTool::storeTrack(const Trk::Track *track, int au
     cov34 = (*(mpp->covariance()))(3,4);
     cov44 = (*(mpp->covariance()))(4,4);
   }
-/* if(m_pvertex&&m_extrapolateToPrimVtx&&author!=0) {
-   ATH_MSG_DEBUG(" extrapolation to primary vertex author " << author);
-   d0z0Vertex(perigee, d0, z0);
-   } */
   ATH_MSG_DEBUG(" Track position " << pos << " d0 " << d0 << " z0 " << z0 
 		<< " x " << pos.x() << " y " << pos.y() << " z " << pos.z() 
 		<< " theta Per " << theta << " theta " << direction.theta() 
@@ -352,24 +344,8 @@ inline bool ExtraTreeTrackFillerTool::storeTrack(const Trk::Track *track, int au
   if(qOverP!=0) p = 0.001/(qOverP); 
   ATH_MSG_DEBUG(" Track charge * mom perigee " << p); 
 
-//      int authort = author;
-//      //std::cout << " MuonCalibExtraTreeAlg trk author " << author << " Track author"  << track->author() << std::endl; 
-//      if (author == 40) {
-//        if (track->author() == 5) authort = 40; //  MuidCB  
-//        if (track->author() == 9) authort = 41; //  Muonboy 
-//        if (track->author() == 24) authort = 41; //  Globalchi2 = MoMu = MooreSA   
-//        if (track->author() == 14) authort = 41; // MuidStandAlone 
-//        if (track->author() == 17 ) authort = 42;  // StacoLowPt = MuTag/IMO
-//        if (track->author() == 15 ) authort = 42; // MuidLowPt MuGirl?
-//      }  
-
-/*      if(m_extrapolateToPrimVtx&&author!=0) { 
-        const MuonCalibTrack_E muonTrack(-d0*sin(phi),d0*cos(phi), z0, phi, theta, qOverP, author, cov00, cov01, cov02, cov03, cov04, cov11, cov12, cov13, cov14, cov22, cov23, cov24, cov33, cov34, cov44, chi2, ndof);
-        m_trackBranch.fillBranch( muonTrack );
-      } else {*/
   const MuonCalibTrack_E muonTrack(pos.x(), pos.y(), pos.z(), phi, theta, qOverP, author, cov00, cov01, cov02, cov03, cov04, cov11, cov12, cov13, cov14, cov22, cov23, cov24, cov33, cov34, cov44, chi2, ndof);
   m_trackBranch->fillBranch( muonTrack );
-      //}	  
 // Segment on track search 
   ATH_MSG_DEBUG(" trkSeg: seg_authors.size()=" << seg_authors.size());
   if(m_segmentOnTrackSelector) ATH_MSG_DEBUG( "m_segmentOnTrackSelector is empty? " << m_segmentOnTrackSelector->empty() ); 
@@ -393,13 +369,12 @@ inline double ExtraTreeTrackFillerTool::errorCompetingRot( const Trk::CompetingR
     Er(1, 1) = rotc->localCovariance()(1,1);
     Er(1, 0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);
     sincoschi[0] = scchi.sn;
     sincoschi[1] = scchi.cs;
-////       sincos(chi,&sincoschi[0],&sincoschi[1]);
     AmgMatrix(2,2) Rot; Rot.setZero();
     Rot(0, 0) = sincoschi[1];
     Rot(1, 1) = Rot(0,0);
@@ -409,7 +384,7 @@ inline double ExtraTreeTrackFillerTool::errorCompetingRot( const Trk::CompetingR
     ATH_MSG_DEBUG(" Diagonalized error matrix " << D << " er " << Er);
     error = D(0, 0) < D(1, 1) ? D(0,0) : D(1, 1);
   }
-  return sqrt(fabs(error)); 
+  return std::sqrt(std::abs(error)); 
 }  //end ExtraTreeTrackFillerTool::errorCompetingRot
 
 inline double ExtraTreeTrackFillerTool::errorRot( const Trk::RIO_OnTrack* rot) {
@@ -423,13 +398,12 @@ inline double ExtraTreeTrackFillerTool::errorRot( const Trk::RIO_OnTrack* rot) {
     Er(1,1) = rot->localCovariance()(2,2);
     Er(1,0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);
     sincoschi[0] = scchi.sn;
     sincoschi[1] = scchi.cs;
-    ////       sincos(chi,&sincoschi[0],&sincoschi[1]);
  
     AmgMatrix(2,2) Rot; Rot.setZero();
     Rot(0,0) = sincoschi[1];
@@ -440,7 +414,7 @@ inline double ExtraTreeTrackFillerTool::errorRot( const Trk::RIO_OnTrack* rot) {
     ATH_MSG_DEBUG(" Diagonalized error matrix " << D << " er " << Er);
     error = D(0,0) < D(1,1) ? D(0,0) : D(1,1);
   }
-  return sqrt(fabs(error)); 
+  return std::sqrt(std::abs(error)); 
 }  //end ExtraTreeTrackFillerTool::errorRot
   
 inline void ExtraTreeTrackFillerTool::storeHole(const Trk::TrackStateOnSurface *tsos, const unsigned int &index) {

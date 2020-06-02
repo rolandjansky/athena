@@ -75,7 +75,6 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
-        job.InDetTRTStrawStatusSummarySvc  = InDetTRTStrawStatusSummarySvc 
         
         if overlayFlags.isDataOverlay():
             job.InDetTRTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+TRT_RDOs"

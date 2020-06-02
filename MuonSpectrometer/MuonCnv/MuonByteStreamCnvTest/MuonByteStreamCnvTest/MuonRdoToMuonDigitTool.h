@@ -1,25 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
 #define MUONRDOTOMUONDIGITTOOL_H 
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-//#include "CscCalibTools/CscCalibTool.h"
-#include "CscCalibTools/ICscCalibTool.h"
-
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "CscCalibTools/ICscCalibTool.h"
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class ITGCcablingSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
+#include "MuonTGC_CnvTools/ITGC_RDO_Decoder.h"
+#include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
+#include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
+#include "TGCcablingInterface/ITGCcablingSvc.h"
 
 class MdtDigitContainer;
 class CscDigitContainer;
@@ -46,15 +51,6 @@ class MM_RawDataCollection;
 class MM_RawDataContainer;
 class MM_RawData;
 
-namespace Muon {
-  class IMDT_RDO_Decoder;
-  class ICSC_RDO_Decoder;
-  class IRPC_RDO_Decoder;
-  class ITGC_RDO_Decoder;
-  class ISTGC_RDO_Decoder;
-  class IMM_RDO_Decoder;
-  class MuonIdHelperTool;
-}
 // Author: Ketevi A. Assamagan
 // BNL, January 24, 2004
 
@@ -70,31 +66,31 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  public:
 
   MuonRdoToMuonDigitTool(const std::string& type, const std::string& name, const IInterface* pIID);
-  ~MuonRdoToMuonDigitTool();
+  ~MuonRdoToMuonDigitTool()=default;
     
   virtual StatusCode initialize() override;
-  virtual StatusCode digitize()   override;
+  virtual StatusCode digitize(const EventContext& ctx)   override;
 
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO(MdtDigitContainer*);
+  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*); 
   StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
 
-  StatusCode decodeCscRDO(CscDigitContainer*);
+  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*);
   //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
   StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
 
-  StatusCode decodeRpcRDO(RpcDigitContainer*);
+  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*);
   StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
  
-  StatusCode decodeTgcRDO(TgcDigitContainer*);
+  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*);
   StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
 
-  StatusCode decodeSTGC_RDO(sTgcDigitContainer*);
+  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*);
   StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
 
-  StatusCode decodeMM_RDO(MmDigitContainer*);
+  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*);
   StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
 
   StatusCode getTgcCabling();
@@ -110,12 +106,10 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
   ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
   ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // cabling service
-  //  const MDTcablingSvc  * m_mdtCabling;
-  const ITGCcablingSvc * m_tgcCabling;
+  const ITGCcablingSvc* m_tgcCabling;
 
   // algorithm properties
   bool m_decodeMdtRDO;

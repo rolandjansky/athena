@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H
@@ -31,11 +31,9 @@ namespace Muon {
     
     /** destructor 
      */ 
-    virtual ~CscRdoToCscPrepDataTool();
+    virtual ~CscRdoToCscPrepDataTool()=default;
     
     virtual StatusCode initialize() override;
-    
-    virtual StatusCode finalize() override;
     
     using CscRdoToCscPrepDataToolCore::decode;
     

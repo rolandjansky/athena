@@ -21,7 +21,7 @@ atlas_add_library( XMLCoreParser
                    src/ExpatCoreParser.cxx
                    PUBLIC_HEADERS XMLCoreParser
                    PRIVATE_INCLUDE_DIRS ${EXPAT_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools )
+                   PRIVATE_LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools CxxUtils )
 
 atlas_add_test( example1_test
                 SOURCES
@@ -47,5 +47,5 @@ atlas_add_executable( texpat
                       src/DOMNode.cxx
                       src/ExpatCoreParser.cxx
                       INCLUDE_DIRS ${EXPAT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser )
+                      LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser  CxxUtils )
 

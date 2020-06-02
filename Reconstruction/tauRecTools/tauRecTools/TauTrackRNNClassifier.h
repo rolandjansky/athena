@@ -53,12 +53,10 @@ public:
   // retrieve all track classifier sub tools
   virtual StatusCode initialize() override;
  // pass all tracks in the tau cone to all track classifier sub tools
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
 private:
-  ToolHandleArray<TrackRNN> m_vClassifier;
-  std::vector<std::string> m_vClassifierNames;//optional
-
+  ToolHandleArray<TrackRNN> m_vClassifier {this, "Classifiers", {}};
 }; // class TauTrackRNNClassifier
   
 //______________________________________________________________________________

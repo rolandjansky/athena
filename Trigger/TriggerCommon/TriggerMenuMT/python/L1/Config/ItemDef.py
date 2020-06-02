@@ -9,7 +9,7 @@ from collections import defaultdict as ddict
 import re, sys
 import traceback
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from ..Base.L1MenuFlags import L1MenuFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('Menu.L1.Config.ItemDef')
 
@@ -32,16 +32,16 @@ class ItemDef:
 
 
     @staticmethod
-    def registerItems(tc):
+    def registerItems(tc, menuName):
         """Register L1 items for further use"""
 
         # define local flag for menu version
-        isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
-        isV7 = '_v7' in TriggerFlags.triggerMenuSetup()
-        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'run3_v1' in TriggerFlags.triggerMenuSetup()
-        isHI = '_HI' in TriggerFlags.triggerMenuSetup()
-        isHIV5 = 'HI_v5' in TriggerFlags.triggerMenuSetup()
-        isPhaseII = '_PhaseII' in TriggerFlags.triggerMenuSetup()
+        isV6 = '_v6' in menuName
+        isV7 = '_v7' in menuName
+        isV8 = '_v8' in menuName or 'LS2_v1'==menuName or 'run3_v1' in menuName
+        isHI = '_HI' in menuName and 'HI_run3_v1' not in menuName
+        isHIV5 = 'HI_v5' in menuName
+        isPhaseII = '_PhaseII' in menuName
 
         class d: pass
 
@@ -712,7 +712,7 @@ class ItemDef:
         MenuItem('L1_3jJ15.0ETA25_gXERHO40' ).setLogic( d.jJ150ETA25.x(3) & d.gXERHO40 & physcond).setTriggerType(TT.calo)
 
 #        MenuItem('L1_ZB_J20').setLogic(d.ZB_EM15 & d.J20 & physcond).setTriggerType(TT.zerobs)
-        if ('Physics_HI_v' in TriggerFlags.triggerMenuSetup() or 'MC_HI_v' in TriggerFlags.triggerMenuSetup()):
+        if ('Physics_HI_v' in menuName or 'MC_HI_v' in menuName):
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_J75 & physcond).setTriggerType(TT.zerobs)
         else:
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_EM15 & physcond).setTriggerType(TT.zerobs)

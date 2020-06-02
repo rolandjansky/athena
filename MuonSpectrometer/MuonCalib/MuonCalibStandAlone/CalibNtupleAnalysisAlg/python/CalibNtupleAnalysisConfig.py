@@ -1,18 +1,28 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from CalibNtupleAnalysisAlg.CalibNtupleAnalysisAlgConf import *
-from MuonCalibStandAloneBase.MuonCalibStandAloneBaseConf import *
-from MdtCalibIOSvc.MdtCalibIOSvcConf import *
-from MuonCalibStandAloneTools.MuonCalibStandAloneToolsConf import *
-from MuonCalibStandAloneTools.MuonCalibStandAloneToolsConfig import *
+from __future__ import print_function
+
+from CalibNtupleAnalysisAlg.CalibNtupleAnalysisAlgConf import (MuonCalib__ApplyRawTimes,
+                                                               MuonCalib__CalibNtupleAnalysisAlg2,
+                                                               MuonCalib__CalibNtupleLoader,
+                                                               MuonCalib__UpdateBField,
+                                                               MuonCalib__GoodRunListFilter,
+                                                               MuonCalib__InitialDqFilter,
+                                                               MuonCalib__BarrelSecondCoordinatePreparationTool,
+                                                               MuonCalib__SegmentRawdataSelector,
+                                                               MuonCalib__SegmentRefitter,
+                                                               MuonCalib__SegmentRecalibration,
+                                                               MuonCalib__SegmentRegionSelector)
+
+from MuonCalibStandAloneBase.MuonCalibStandAloneBaseConf import MuonCalib__CalibrationTeeIOTool, RegionSelectionSvc
+from MdtCalibIOSvc.MdtCalibIOSvcConf import MdtCalibOutputDbSvc, MdtCalibInputSvc, MuonCalib__CalibrationFileIOTool
 from MuonCalibDbOperations.MuonCalibDbOperationsConf import MuonCalib__CalibrationDbIOTool
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence 
-from CalibNtupleAnalysisAlg.CalibNtupleMetaData import *
+from CalibNtupleAnalysisAlg.CalibNtupleMetaData import CalibNtupleMetaData
+import MuonCalibStandAloneTools.MuonCalibStandAloneToolsConfig as calibtools
 
 import sys
-
-#ToolSvc = Service( "ToolSvc" )
 
 class CalibNtupleAnalysisConfig:
 
@@ -29,9 +39,9 @@ class CalibNtupleAnalysisConfig:
 #	event display                   Display
 #	rpc timing                      RpcTiming
 #   control histograms              ControlHistograms
-	
+
   CalibrationAlgorithm = "RunScan"
-	
+
 #file list
   FileList="fl.txt"
 
@@ -47,7 +57,7 @@ class CalibNtupleAnalysisConfig:
 
 #select segment author - 3=MuonBoy 4=Moore - Unused if SegmentsFromRawdata=True
   SegmentAuthor=4
-	
+
 #first and last event to analyse
   FirstEvent=0
   LastEvent=-1
@@ -69,7 +79,7 @@ class CalibNtupleAnalysisConfig:
   MaxSegmentHits = -1
 
 #perform a segment refit - not for algorithms likr MTT0, Integration, RunScan..
-  SegmentRefit=False;
+  SegmentRefit=False
 
 #segment refit parameters	
   RefineT0=False
@@ -78,7 +88,7 @@ class CalibNtupleAnalysisConfig:
   RefitTimeOut=2
   RefitMinSegmentHits=4
   RefitMaxSegmentHits=-1
-	
+
 #calibrate with b-field
   BFieldCorrection=False
 
@@ -101,25 +111,25 @@ class CalibNtupleAnalysisConfig:
 
 #output to database - MP/RM/MI/NONE
   CalibDB=None
-	
+
 #initial data quality list - suppress Tubes
   InitialDQList = None	
-	
+
 #if set to true no segment recalibraiton will be done, independent on the tool
   SuppressRecalibration=False	
-	
+
 #use good run list to filter events
   GoodRunList=None
-	
+
 #apply time slewing corrections
   ApplyTimeSlewingCorrections=False	
-	
+
 #apply multilayer rt-scaling
   ApplyRtScaling=True
 
   sToolSvc= ToolSvc
   sServiceMgr = ServiceMgr
-	
+
   SegmentRecalibration={}
   SegmentRefitter={}
 
@@ -149,6 +159,7 @@ class CalibNtupleAnalysisConfig:
     self._initial_DQ_list()
   #apply RPC Timing Correction
     if self.RPCTimingCorr:
+      from CalibNtupleAnalysisAlg.CalibNtupleAnalysisAlgConf import MuonCalib__RpcTimingCorr
       self.RpcTiming=MuonCalib__RpcTimingCorr()
       self.sToolSvc += self.RpcTiming
       self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append(self.RpcTiming)	
@@ -170,13 +181,13 @@ class CalibNtupleAnalysisConfig:
     self._config_calibIO()
   #create tool
     self._create_calib_tool()
-		
+
 #-----------------------protected functions------------------------------------
   def _create_CalibNtupleAnalysisAlg(self):
     topSequence = AlgSequence()
     self.CalibNtupleAnalysisAlg = MuonCalib__CalibNtupleAnalysisAlg2()
     self.CalibNtupleAnalysisAlg.NumberOfSegments = self.NumberOfSegments
-    if self.CalibrationAlgorithm in LimitSegmentsFor:
+    if self.CalibrationAlgorithm in calibtools.LimitSegmentsFor:
       self.CalibNtupleAnalysisAlg.NumberOfSegments = self.AutoLimitSegments
     topSequence += self.CalibNtupleAnalysisAlg
 
@@ -193,7 +204,7 @@ class CalibNtupleAnalysisConfig:
     self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append( self.__good_run_list_filter )
 #		self.__good_run_list_tool.EventSelectorMode = True
     self.__good_run_list_tool.PassThrough = False
-		
+
   def _initial_DQ_list(self):
     if self.InitialDQList:
       if self.InitialDQList.upper()=="NONE":
@@ -202,7 +213,7 @@ class CalibNtupleAnalysisConfig:
       self.InitialDqFilter.InitialDqFile = self.InitialDQList
       self.sToolSvc += self.InitialDqFilter
       self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append( self.InitialDqFilter)
-							
+
   def _region_selection(self):
     if self.SegmentsFromRawdata:
       self.RegionSelection = MuonCalib__SegmentRawdataSelector()
@@ -224,10 +235,10 @@ class CalibNtupleAnalysisConfig:
       self.BarrelSecondCoordinatePreparationTool = MuonCalib__BarrelSecondCoordinatePreparationTool()
       self.sToolSvc += self.BarrelSecondCoordinatePreparationTool
       self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append( self.BarrelSecondCoordinatePreparationTool)
-			
+
   def _configure_segment_recalibration(self, ToolName=""):
   #tools that do not need segment recalibration
-    if self.CalibrationAlgorithm in NoRecalibration:
+    if self.CalibrationAlgorithm in calibtools.NoRecalibration:
       return
     if ToolName:
       self.SegmentRecalibration[ToolName] = MuonCalib__SegmentRecalibration(ToolName)
@@ -241,39 +252,39 @@ class CalibNtupleAnalysisConfig:
     else:
       self.SegmentRecalibration[ToolName].TimeSlewingSwitch='UNAPPLY'
   #tools that revert all calibrations
-    if self.CalibrationAlgorithm in RevertT0:
+    if self.CalibrationAlgorithm in calibtools.RevertT0:
       self.SegmentRecalibration[ToolName].T0Switch = "UNAPPLY"
       self.SegmentRecalibration[ToolName].BSwitch = "LEAVE"
       self.SegmentRecalibration[ToolName].RecalcR = False
-    if self.CalibrationAlgorithm in RecalibT0 :
+    if self.CalibrationAlgorithm in calibtools.RecalibT0 :
       self.SegmentRecalibration[ToolName].T0Switch = "FILE"
       self.SegmentRecalibration[ToolName].BSwitch = "LEAVE"
       self.SegmentRecalibration[ToolName].RecalcR = False
-    if self.CalibrationAlgorithm in RecalibAll:
+    if self.CalibrationAlgorithm in calibtools.RecalibAll:
       self.SegmentRecalibration[ToolName].T0Switch = "FILE"
       self.SegmentRecalibration[ToolName].BSwitch = "LEAVE"
       self.SegmentRecalibration[ToolName].RecalcR = True
   #id b-field should be corrected, set BSwitch either to "UNAPPLY" or to "FILE"
-    if self.CalibrationAlgorithm in RevertRtScaling:
+    if self.CalibrationAlgorithm in calibtools.RevertRtScaling:
       self.SegmentRecalibration[ToolName].RtMultilayerScaling = "UNAPPLY"
-    if self.CalibrationAlgorithm in ApplRtScaling and self.ApplyRtScaling:
+    if self.CalibrationAlgorithm in calibtools.ApplRtScaling and self.ApplyRtScaling:
       self.SegmentRecalibration[ToolName].RtMultilayerScaling = "FILE"
     if self.BFieldCorrection:
       if self.SegmentRecalibration[ToolName].RecalcR:
         self.SegmentRecalibration[ToolName].BSwitch = "FILE"
 #     else:
 #	self.SegmentRecalibration[ToolName].BSwitch = "UNAPPLY"
-								
+
   def _config_UpdateBField(self):
-    if self.UpdateBField in NoSegmentRefit:
+    if self.UpdateBField in calibtools.NoSegmentRefit:
       self.UpdateBField = None
       return
     self.UpdateBField = 	MuonCalib__UpdateBField()
     self.sToolSvc += self.UpdateBField
     self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append(  self.UpdateBField )
-								
+
   def _config_segment_refitter(self, ToolName=""):
-    if self.CalibrationAlgorithm in NoSegmentRefit:
+    if self.CalibrationAlgorithm in calibtools.NoSegmentRefit:
       return
     if ToolName:
       self.SegmentRefitter[ToolName] = MuonCalib__SegmentRefitter(ToolName)
@@ -288,7 +299,7 @@ class CalibNtupleAnalysisConfig:
     self.SegmentRefitter[ToolName].TimeOut = self.RefitTimeOut
     self.SegmentRefitter[ToolName].MinSegmentHits = self.RefitMinSegmentHits
     self.SegmentRefitter[ToolName].MaxSegmentHits = self.RefitMaxSegmentHits
-						
+
   def _config_calibIO(self):
     if self.CalibDir:
       self.CalibrationFileIOTool = MuonCalib__CalibrationFileIOTool()
@@ -298,9 +309,9 @@ class CalibNtupleAnalysisConfig:
       self.DbIoTool = MuonCalib__CalibrationDbIOTool()
       self.sToolSvc += MuonCalib__CalibrationDbIOTool()
       if not self.__set_db():
-        print "Unknown database location " + str(self.CalibOutputDB)
+        print ("Unknown database location " + str(self.CalibOutputDB))
         sys.exit(1)
-		
+
     self.MdtCalibOutputDbSvc = MdtCalibOutputDbSvc()
     self.MdtCalibOutputDbSvc.PostprocessCalibration = True
     self.sServiceMgr += self.MdtCalibOutputDbSvc
@@ -320,26 +331,26 @@ class CalibNtupleAnalysisConfig:
     self.sServiceMgr += self.MdtCalibInputSvc
     if self.CalibInputFromDB:
       if not self.DbIoTool:
-        print "Set calibratino database location!"
+        print ("Set calibratino database location!")
         sys.exit(1)
       self.MdtCalibInputSvc.CalibrationInputTool = self.DbIoTool
     if self.CalibInputFromFile:
       if not self.CalibrationFileIOTool:
-        print "give a calibdir!"
+        print ("give a calibdir!")
         sys.exit(1)
       self.MdtCalibInputSvc.CalibrationInputTool = self.CalibrationFileIOTool
 
   def _create_calib_tool(self):
-    self.CalibrationTool=CreateCalibTool(self.CalibrationAlgorithm)
+    self.CalibrationTool=calibtools.CreateCalibTool(self.CalibrationAlgorithm)
     if self.CalibrationTool:
       self.sToolSvc += self.CalibrationTool
     self.CalibNtupleAnalysisAlg.CalibrationTool = self.CalibrationTool	
-		
+
 #------------------------------------------------------------
   def __set_db(self):
     self.DbIoTool.SiteName  = self.CalibDB
-    self.DbIoTool.UseValidaedT0 = self.CalibrationAlgorithm in ValidatedT0
-    self.DbIoTool.UseValidaedRt = self.CalibrationAlgorithm in ValidatedRt
+    self.DbIoTool.UseValidaedT0 = self.CalibrationAlgorithm in calibtools.ValidatedT0
+    self.DbIoTool.UseValidaedRt = self.CalibrationAlgorithm in calibtools.ValidatedRt
     if (self.CalibDB == "MP"):
       self.DbIoTool.ConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/ATLAS_MUONCALIB_MPI"
       self.DbIoTool.WorkingSchema = "ATLAS_MUONCALIB_MPI"

@@ -14,8 +14,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
-//Magnetic field tool
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 using Amg::Vector3D;
 using CLHEP::mm;
@@ -31,7 +29,6 @@ namespace InDet {
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
-    m_magFieldSvc("AtlasFieldSvc", name),
     m_trtId(nullptr)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
@@ -49,9 +46,6 @@ namespace InDet {
     declareProperty("RefitterTool"               ,m_fitterTool        ); //Track refit tool
     declareProperty("Extrapolator"               ,m_extrapolator      ); //Extrapolator tool
     declareProperty("ScoringTool"                ,m_scoringTool       ); //Track scoring tool
-
-    declareProperty( "MagFieldSvc"              ,m_magFieldSvc      ); //Magnetic field tool
-
   }
 
   TRT_SegmentToTrackTool::~TRT_SegmentToTrackTool()
@@ -82,9 +76,10 @@ namespace InDet {
     //
     ATH_CHECK( m_scoringTool.retrieve() );
 
-    ATH_CHECK( m_magFieldSvc.retrieve() );
-
     ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
+    ////////////////////////////////////////////////////////////////////////////////
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize());
+    ////////////////////////////////////////////////////////////////////////////////
 
     // Get output print level
     //
@@ -151,7 +146,7 @@ namespace InDet {
   }
 
 
-  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const Trk::TrackSegment& tS) const {
+  Trk::Track* TRT_SegmentToTrackTool::segToTrack(const EventContext& ctx, const Trk::TrackSegment& tS) const {
 
 
     ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
@@ -161,7 +156,7 @@ namespace InDet {
     //
     if (!tS.fitQuality()) {
       ATH_MSG_DEBUG ("Segment has no fit quality ! Discard...");
-      return 0;
+      return nullptr;
     }
     const Trk::FitQuality* fq = tS.fitQuality()->clone();
 
@@ -183,7 +178,7 @@ namespace InDet {
       // clean up
       delete fq; fq = 0;
       delete ep; ep = 0;
-      return 0;
+      return nullptr;
     }
 
     // --- create new track state on surface vector
@@ -208,7 +203,7 @@ namespace InDet {
 	delete ntsos; ntsos = 0;
 	delete segPar; segPar = 0;
 	delete fq; fq = 0;
-	return 0;
+	return nullptr;
       }
 
       // now create a perigee TSOS
@@ -292,7 +287,6 @@ namespace InDet {
 	  }
 	  // remember oldphi
 	  oldphi=tmpphi;
-	  //std::cout << "oldphi: " << oldphi << " tmpphi: " << tmpphi << std::endl;
 	
 	  // copy the points
 	  points.push_back(std::make_pair(tS.measurement(it)->associatedSurface().center().z(),tmpphi));
@@ -349,7 +343,7 @@ namespace InDet {
 	  ATH_MSG_DEBUG ("Could not produce perigee");
 	  delete newTrack; newTrack = 0;
 	  delete segPar; segPar = 0;
-	  return 0;
+	  return nullptr;
 	}
       
 	// keep some values
@@ -404,7 +398,6 @@ namespace InDet {
 	d             = (points.size()*sxx-sx*sx);
 	double dphidz = ((points.size()*sxy-sy*sx)/d);
 	myqoverp      = (fabs(pseudotheta)>1e-6) ? -dphidz/(0.6*tan(pseudotheta)) : 1000.;
-	// std::cout << "pt: " << sin(pseudotheta)/myqoverp << std::endl;    
 
 	// some geometry stuff to estimate further paramters...
 	double halfz  = 200.;
@@ -423,7 +416,6 @@ namespace InDet {
 	// ME: this is hardcoding, not nice and should be fixed
 	if (fabs(lastsurf->center().z())<2650*mm) {
 	  pos2 = lastsurf->center()+halfz2*strawdir2;
-	  //std::cout << "pos2: " << pos2 << std::endl;
 	  if (nbarrel==0){
 	    double dr = fabs(tan(pseudotheta)*(lastsurf->center().z()-firstsurf->center().z()));
 	    pos1      = firstsurf->center()+(halfz-dr)*strawdir1; 
@@ -458,7 +450,21 @@ namespace InDet {
 	}
 
 	Amg::Vector3D field1;
-	m_magFieldSvc->getField(Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+
+        MagField::AtlasFieldCache    fieldCache;
+
+        // Get field cache object
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("segToTrack: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return nullptr;
+        }
+        fieldCondObj->getInitializedCache (fieldCache);
+
+        //   MT version uses cache
+        fieldCache.getField    (Amg::Vector3D(.5*(pos1+pos2)).data(),field1.data());
+
 	field1 *= m_fieldUnitConversion; // field in Tesla
 
 	double phideflection = -.3*(pos2-pos1).perp()*field1.z()*myqoverp/sin(pseudotheta);
@@ -478,7 +484,6 @@ namespace InDet {
 	Trk::AtaStraightLine ataline(((nbarrel==0) ? pos1 : pos2),precisephi,precisetheta,myqoverp,*surfforpar);
 	Trk::PerigeeSurface persurf;
 	const Trk::TrackParameters *extrappar=m_extrapolator->extrapolateDirectly(ataline,persurf);
-	//std::cout << "ataline: " << ataline << " extrap par: " << *extrappar << std::endl;
 
 	// now get parameters
 	if (extrappar){
@@ -536,7 +541,7 @@ namespace InDet {
 
       if(!fitTrack){
 	ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-	return 0;
+	return nullptr;
       }
 
       //
@@ -556,7 +561,7 @@ namespace InDet {
 
       if (!perTrack || !perTrack->covariance() ){
 	ATH_MSG_ERROR ("Cast of perigee fails, should never happen !");
-	return 0;
+	return nullptr;
       }else {
 	ATH_MSG_VERBOSE ("Perigee after refit with fudges to make it converge : " << (*perTrack) );
 
@@ -611,7 +616,7 @@ namespace InDet {
 	    const AmgSymMatrix(5)& CM = *perTrack->covariance();
 	    if( CM(1,1)==0.||CM(3,3)==0. ) {
 	      ATH_MSG_DEBUG ("Hacked perigee covariance is CRAP, reject track");
-	      delete fitTrack; return 0;
+	      delete fitTrack; return nullptr;
 	    } else {
 	      ATH_MSG_VERBOSE ("Perigee after fit with scaled covariance matrix : " << *perTrack);
 	    }

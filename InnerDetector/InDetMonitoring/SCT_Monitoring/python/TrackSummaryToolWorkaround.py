@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrackingConfigurationWorkaround.py
@@ -38,57 +38,56 @@ def TrackSummaryToolWorkaround(flags):
     result.merge(trackGeomCfg)
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(flags))
-    AtlasNavigator = CompFactory.Trk__Navigator(name = 'AtlasNavigator')
+    AtlasNavigator = CompFactory.Trk.Navigator(name = 'AtlasNavigator')
     AtlasNavigator.TrackingGeometrySvc = geom_svc
     result.addPublicTool(AtlasNavigator) 
 
     # Taken from InnerDetector/InDetExample/InDetRecExample/share/InDetRecLoadTools.py
-    InDetPropagator = CompFactory.Trk__RungeKuttaPropagator(name = 'InDetPropagator')
+    InDetPropagator = CompFactory.Trk.RungeKuttaPropagator(name = 'InDetPropagator')
     InDetPropagator.AccuracyParameter = 0.0001
     InDetPropagator.MaxStraightLineStep = .004
     result.addPublicTool(InDetPropagator)
-    InDetMaterialUpdator = CompFactory.Trk__MaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator")
+    InDetMaterialUpdator = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator")
     result.addPublicTool(InDetMaterialUpdator)
     InDetSubPropagators = []
     InDetSubUpdators    = []
     # -------------------- set it depending on the geometry ----------------------------------------------------
     # default for ID is (Rk,Mat)
-    InDetSubPropagators += [ InDetPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    InDetSubPropagators += [ InDetPropagator.name ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
     # default for Calo is (Rk,MatLandau)
-    InDetSubPropagators += [ InDetPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    InDetSubPropagators += [ InDetPropagator.name ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
     # default for MS is (STEP,Mat)
-    #InDetSubPropagators += [ InDetStepPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    #InDetSubPropagators += [ InDetStepPropagator.name ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name ]
     #from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-    InDetExtrapolator = CompFactory.Trk__Extrapolator(name                    = 'InDetExtrapolator',
+    InDetExtrapolator = CompFactory.Trk.Extrapolator(name                    = 'InDetExtrapolator',
                                           Propagators             = [ InDetPropagator ],
                                           MaterialEffectsUpdators = [ InDetMaterialUpdator ],
                                           Navigator               = AtlasNavigator,
                                           SubPropagators          = InDetSubPropagators,
                                           SubMEUpdators           = InDetSubUpdators)
     result.addPublicTool(InDetExtrapolator)
-    InDetTestPixelLayerTool = CompFactory.InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
+    InDetTestPixelLayerTool = CompFactory.InDet.InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
                                                              PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                              CheckActiveAreas=True,
                                                              CheckDeadRegions=True,
                                                              CheckDisabledFEs=True)
     result.addPublicTool(InDetTestPixelLayerTool)
-    InDetHoleSearchTool = CompFactory.InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
+    InDetHoleSearchTool = CompFactory.InDet.InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
-                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                           usePixel      = flags.Detector.GeometryPixel,
                                                           useSCT        = flags.Detector.GeometrySCT,
                                                           CountDeadModulesAfterLastHit = True,
                                                           PixelLayerTool = InDetTestPixelLayerTool)
     result.addPublicTool(InDetHoleSearchTool)
-    InDetPrdAssociationTool = CompFactory.InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+    InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
                                                                           PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
                                                                           SetupCorrect                   = True,
                                                                           addTRToutliers                 = True)
     result.addPublicTool(InDetPrdAssociationTool)
-    InDetTrackSummaryHelperTool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
+    InDetTrackSummaryHelperTool = CompFactory.InDet.InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
                                                                      AssoTool        = InDetPrdAssociationTool,
                                                                      PixelToTPIDTool = None,
                                                                      TestBLayerTool  = None,
@@ -98,7 +97,7 @@ def TrackSummaryToolWorkaround(flags):
                                                                      usePixel        = flags.Detector.GeometryPixel,
                                                                      useSCT          = flags.Detector.GeometrySCT,
                                                                      useTRT          = flags.Detector.GeometryTRT)
-    InDetTrackSummaryTool = CompFactory.Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
+    InDetTrackSummaryTool = CompFactory.Trk.TrackSummaryTool(name = "InDetTrackSummaryTool",
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,
                                                   doHolesInDet           = True,
@@ -107,4 +106,12 @@ def TrackSummaryToolWorkaround(flags):
                                                   PixelToTPIDTool        = None)
     result.setPrivateTools(InDetTrackSummaryTool)
     ############################## WORKAROUND (END) ############################
+
+    # To run job only with ID
+    if hasattr(flags, "Detector") and hasattr(flags.Detector, "GeometryMuon") and hasattr(flags.Detector, "GeometryID"):
+        TrkEventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool(name = "EventCnvSuperTool",
+                                                                 DoMuons = flags.Detector.GeometryMuon,
+                                                                 DoID = flags.Detector.GeometryID)
+        result.addPublicTool(TrkEventCnvSuperTool)
+
     return result

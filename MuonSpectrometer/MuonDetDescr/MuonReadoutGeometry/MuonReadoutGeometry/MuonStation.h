@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonStation_H
@@ -83,6 +83,7 @@ public:
    void setBlineFixedPointInAmdbLRS(double s0, double z0, double t0);
    HepGeom::Point3D<double>  getBlineFixedPointInAmdbLRS() const;
    HepGeom::Point3D<double>  getUpdatedBlineFixedPointInAmdbLRS() const;
+   void updateBlineFixedPointInAmdbLRS();
    inline void setNativeToAmdbLRS(HepGeom::Transform3D xf);
    void setNominalAmdbLRSToGlobal(HepGeom::Transform3D xf);
    void setDeltaAmdbLRS(HepGeom::Transform3D xf);
@@ -94,21 +95,22 @@ public:
 
    //inline void addMuonReadoutElement(const MuonReadoutElement* a);
    //inline void addMuonReadoutElement(const MuonReadoutElement* a, int jobIndex);
-   void addMuonReadoutElementWithAlTransf(const MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex);
+   void addMuonReadoutElementWithAlTransf(MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex);
    const MuonReadoutElement* getMuonReadoutElement(int jobIndex) const;
+   MuonReadoutElement* getMuonReadoutElement(int jobIndex);
    GeoAlignableTransform*    getComponentAlTransf(int jobIndex) const;
    inline int nMuonReadoutElements() const;
-   void clearCache() const;
-   void refreshCache() const;
-   void fillCache() const;
-   void clearBLineCache() const;
-   void fillBLineCache() const;
-   void setBline(BLinePar * bline);
+   void clearCache();
+   void refreshCache();
+   void fillCache();
+   void clearBLineCache();
+   void fillBLineCache();
+   void setBline(const BLinePar * bline);
    inline GeoAlignableTransform* getGeoTransform() const;
    inline HepGeom::Transform3D  getTransform() const;
-   inline HepGeom::Transform3D* getNativeToAmdbLRS() const;
+   inline const HepGeom::Transform3D* getNativeToAmdbLRS() const;
    inline HepGeom::Transform3D  getAmdbLRSToGlobal() const;
-   inline HepGeom::Transform3D* getNominalAmdbLRSToGlobal() const;
+   inline const HepGeom::Transform3D* getNominalAmdbLRSToGlobal() const;
    inline double getALine_tras() const;
    inline double getALine_traz() const;
    inline double getALine_trat() const;
@@ -118,13 +120,13 @@ public:
    inline bool hasALines() const;	
    inline bool hasBLines() const;
    inline bool hasMdtAsBuiltParams() const;
-   MdtAsBuiltPar* getMdtAsBuiltParams() const;
-   void setMdtAsBuiltParams(MdtAsBuiltPar* xtomo);
+   const MdtAsBuiltPar* getMdtAsBuiltParams() const;
+   void setMdtAsBuiltParams(const MdtAsBuiltPar* xtomo);
  
 private:
 
   //Declaring private message stream member.
-   mutable bool m_firstRequestBlineFixedP;
+   bool m_firstRequestBlineFixedP;
 
    std::string m_statname;
    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize, m_xAmdbCRO;
@@ -142,12 +144,12 @@ private:
    double m_rott;  
    bool m_hasALines;
    bool m_hasBLines;
-   mutable HepGeom::Point3D<double> m_BlineFixedPointInAmdbLRS;
-   MdtAsBuiltPar* m_XTomoData;
+   HepGeom::Point3D<double> m_BlineFixedPointInAmdbLRS;
+   const MdtAsBuiltPar* m_XTomoData;
 
 
    //std::map< int, const MuonReadoutElement* > *m_REinStation;  //!< keep track of the REs in this station 
-   typedef std::pair<const MuonReadoutElement*, GeoAlignableTransform*>  pairRE_AlignTransf;
+   typedef std::pair<MuonReadoutElement*, GeoAlignableTransform*>  pairRE_AlignTransf;
    std::map< int, pairRE_AlignTransf > *m_REwithAlTransfInStation;  //!< keep track of the REs in this station  
    //std::vector<const MuonReadoutElement *> * m_REinStation;  //!< keep track of the REs in this station  
 
@@ -206,11 +208,11 @@ void MuonStation::setNativeToAmdbLRS(HepGeom::Transform3D xf)
     else  *m_native_to_amdbl = xf; 
   }
 
-HepGeom::Transform3D*
+const HepGeom::Transform3D*
 MuonStation::getNativeToAmdbLRS() const
   {return m_native_to_amdbl;}
 
-HepGeom::Transform3D*
+const HepGeom::Transform3D*
 MuonStation::getNominalAmdbLRSToGlobal() const
   {return m_amdbl_to_global;}
 

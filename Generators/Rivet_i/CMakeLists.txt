@@ -6,7 +6,6 @@ atlas_subdir( Rivet_i )
 # External dependencies:
 find_package( FastJet )
 find_package( FastJetContrib )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Hist )
 find_package( Rivet )
 find_package( YODA )
@@ -18,8 +17,8 @@ atlas_disable_as_needed()
 atlas_add_component( Rivet_i
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   ${HEPMC_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
-   LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES}
+    ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
+   LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib
    ${RIVET_LIBRARIES} ${YODA_LIBRARIES} AthenaBaseComps GaudiKernel
    AthenaKernel GeneratorObjects PathResolver EventInfo )
 

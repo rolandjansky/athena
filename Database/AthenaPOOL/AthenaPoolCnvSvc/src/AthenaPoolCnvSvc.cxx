@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolCnvSvc.cxx
@@ -11,22 +11,20 @@
 
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/IChronoStatSvc.h"
+
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/AttribStringParser.h"
 
-#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IMetadataTransition.h"
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
-#include "PoolSvc/IPoolSvc.h"
+
 
 #include "StorageSvc/DbReflex.h"
 
@@ -388,12 +386,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    std::string fileName;
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
-      auto streamingTool = m_outputStreamingTool[m_streamServer];
+      auto& streamingTool = m_outputStreamingTool[m_streamServer];
       // Clear object to get Placements for all objects in a Stream
       char* placementStr = nullptr;
       int num = -1;
       StatusCode sc = streamingTool->clearObject(&placementStr, num);
-      if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 0 && num > 0) {
+      if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 6 && num > 0) {
          fileName = strstr(placementStr, "[FILE=");
          fileName = fileName.substr(6, fileName.find(']') - 6);
          if (!this->connectOutput(fileName).isSuccess()) {
@@ -417,7 +415,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             contName = contName.substr(6, contName.find(']') - 6);
             std::string className = strstr(placementStr, "[PNAME=");
             className = className.substr(7, className.find(']') - 7);
-            RootType classDesc = RootType::ByName(className);
+            RootType classDesc = RootType::ByNameNoQuiet(className);
             void* obj = nullptr;
             std::ostringstream oss2;
             oss2 << std::dec << num;
@@ -460,7 +458,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                      return abortSharedWrClients(num);
                   }
                   tokenStr = token->toString();
-
                   if (className == "DataHeader_p6") {
                      // Found DataHeader
                      GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
@@ -500,6 +497,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             }
             // Send Token back to Client
             sc = streamingTool->lockObject(tokenStr.c_str(), num);
+            while (sc.isRecoverable()) {
+               sc = streamingTool->lockObject(tokenStr.c_str(), num);
+            }
             if (!sc.isSuccess()) {
                ATH_MSG_ERROR("Failed to lock Data for " << tokenStr);
                return abortSharedWrClients(-1);
@@ -525,6 +525,8 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             }
          }
          placementStr = nullptr;
+      } else if (sc.isSuccess() && placementStr != nullptr && strncmp(placementStr, "stop", 4) == 0) {
+         return(StatusCode::RECOVERABLE);
       } else if (sc.isRecoverable() || num == -1) {
          return(StatusCode::RECOVERABLE);
       }
@@ -808,7 +810,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
                std::string className = token->auxString();
                className = className.substr(className.find("[PNAME="));
                className = className.substr(7, className.find(']') - 7);
-               RootType cltype(RootType::ByName(className));
+               RootType cltype(RootType::ByNameNoQuiet(className));
                obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
             }
             AuxDiscoverySvc auxDiscover;
@@ -877,7 +879,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
       token->setAuxString("[PNAME=" + par[2] + "]");
-      RootType classDesc = RootType::ByName(par[2]);
+      RootType classDesc = RootType::ByNameNoQuiet(par[2]);
       token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
@@ -1141,32 +1143,10 @@ void AthenaPoolCnvSvc::handle(const Incident& incident) {
 //______________________________________________________________________________
 AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
-	m_dbType(pool::ROOTTREEINDEX_StorageType),
-	m_lastInputFileName(),
-	m_poolSvc("PoolSvc", name),
-	m_chronoStatSvc("ChronoStatSvc", name),
-	m_clidSvc("ClassIDSvc", name),
-	m_serializeSvc("AthenaRootSerializeSvc", name),
-	m_inputStreamingTool("", this),
-	m_outputStreamingTool(this),
-	m_streamServer(0),
-	m_metadataClient(0),
-	m_domainMaxFileSize(15000000000LL),
-	m_doChronoStat(true) {
-   declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
-   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREEINDEX:CollectionTree");
-   declareProperty("TopLevelContainerName", m_containerNameHintProp = "");
-   declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
-   declareProperty("PoolAttributes", m_poolAttr);
-   declareProperty("InputPoolAttributes", m_inputPoolAttr);
-   declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
-   declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
-   declareProperty("MaxFileSizes", m_maxFileSizes);
-   declareProperty("PersSvcPerOutput", m_persSvcPerOutput = true);
-   declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
+	m_outputStreamingTool(this)
+{
    declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
-   declareProperty("OutputMetadataContainer", m_metadataContainerProp);
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {

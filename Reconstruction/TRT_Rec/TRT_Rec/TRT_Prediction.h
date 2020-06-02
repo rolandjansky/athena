@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,10 +9,11 @@
 #ifndef TRTREC_TRTPREDICTION_H
 # define TRTREC_TRTPREDICTION_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/IdentifierHash.h"
+#include <cmath>  //for cos, sin in inline methods
+#include <string>
 
 namespace InDetDD
 {
@@ -24,7 +25,6 @@ namespace Trk
     class Surface;
 }
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class TRT_Prediction
 {
@@ -39,8 +39,12 @@ public:
     
     // destructor
     ~TRT_Prediction(void);
+    // void cct, copy, assignment: delete
+    TRT_Prediction (void) = delete;
     // forbidden copy constructor
+    TRT_Prediction (const TRT_Prediction&) = delete;
     // forbidden assignment operator
+    TRT_Prediction& operator= (const TRT_Prediction&) = delete;
 
     // data access and query methods
     const InDetDD::TRT_BarrelElement*	barrelElement (void) const;
@@ -67,7 +71,7 @@ public:
     void				boundary (void);
     void				discard (void);
     void				layer (int value);
-    void				print (void) const;
+    std::string				to_string (void) const;
     void				setDriftRoad (double rPhiRoad);
     void				setExpectedStraws (double expected);
     void				setPhiRange (double deltaPhiElectron,
@@ -105,21 +109,13 @@ private:
     double				m_rRoad;
     double				m_strawTolerance;
     double				m_z;
-    
-    // void cct, copy, assignment: no semantics, no implementation
-    TRT_Prediction (void);
-    TRT_Prediction (const TRT_Prediction&);
-    TRT_Prediction& operator= (const TRT_Prediction&);
-    
 };
 
-//<<<<<< INLINE CLASS STRUCTURE INITIALIZATION                          >>>>>>
 
 inline
 TRT_Prediction::~TRT_Prediction(void)
 {}
 
-//<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
 
 inline const InDetDD::TRT_BarrelElement*
 TRT_Prediction::barrelElement (void) const
@@ -222,7 +218,7 @@ TRT_Prediction::setPhiRange (double deltaPhiElectron,
 			     double rRoadVertex)
 {
     if (deltaPhiElectron < 0.) m_deltaPhiElectronSign = -1.;
-    m_deltaPhiElectron	= fabs(deltaPhiElectron);
+    m_deltaPhiElectron	= std::fabs(deltaPhiElectron);
     m_deltaPhiNarrow	= deltaPhiNarrow;
     m_rPhiRoad		= rPhiRoad;
     m_rRoad		= m_r - rRoadVertex;
@@ -237,7 +233,7 @@ TRT_Prediction::setPosition (double			phi,
     m_phi		= phi;
     m_r			= r;
     m_z			= z;
-    m_position		= Amg::Vector3D(r*cos(phi), r*sin(phi), z);
+    m_position		= Amg::Vector3D(r*std::cos(phi), r*std::sin(phi), z);
     m_projectionFactor	= (m_position.x()*direction.x() + m_position.y()*direction.y()) /
 			  (r*direction.perp());
 }
@@ -248,13 +244,13 @@ TRT_Prediction::OutwardsOrder::operator() (const TRT_Prediction* p,
 {
     if (p->barrelElement())
     {
-	if (! q->barrelElement())	return true;
-	return (p->r() < q->r());
+      if (! q->barrelElement())	return true;
+      return (p->r() < q->r());
     }
     else
     {
-	if (q->barrelElement())		return false;
-	return (std::abs(p->z()) < std::abs(q->z()));
+      if (q->barrelElement())		return false;
+      return (std::abs(p->z()) < std::abs(q->z()));
     }
 }
 

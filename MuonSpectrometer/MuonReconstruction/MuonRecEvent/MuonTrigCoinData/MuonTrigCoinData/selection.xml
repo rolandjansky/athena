@@ -34,4 +34,7 @@
     <field name="m_last"   transient="true" />
     <field name="m_vect"   transient="true" />
   </class>
+
+  <class name="RpcCoinDataCollection_Cache" />
+  <class name="TgcCoinDataCollection_Cache" />
 </lcgdict>

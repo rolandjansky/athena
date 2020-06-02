@@ -1,12 +1,15 @@
 /*
  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
+
 #ifndef MUONTRIGGERSCALEFACTORS_H_
 #define MUONTRIGGERSCALEFACTORS_H_
 
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include <stdexcept>
@@ -15,22 +18,11 @@
 #include <sstream>
 #include <memory>
 
-// ROOT classes we need
-#include "TTree.h"
-#include "TLorentzVector.h"
-#include "TFile.h"
-#include "TSystem.h"
-#include "TROOT.h"
-#include "TRandom.h"
 #include "TDirectory.h"
-#include "TH2.h"
-#include "TKey.h"
-class TLorentzVector;
-class TH2;
-class TFile;
-class TDirectory;
 
 #include <unordered_map>
+
+class TH1;
 
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;
@@ -62,8 +54,6 @@ namespace CP {
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
             virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const;
-      
-            virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
             virtual int getReplica_index(std::string sysBaseName, const std::string trigStr) const;
       
@@ -113,6 +103,8 @@ namespace CP {
             std::string getDataPeriod(unsigned int run) const;
             std::string getDataPeriod(unsigned int runNumber, unsigned int year) const;
        private:
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+
             TDirectory* getTemporaryDirectory(void) const;
 
             //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution
@@ -132,7 +124,6 @@ namespace CP {
             std::string m_calibration_version;
             std::string m_custom_dir;
             std::string m_binning;
-            std::string m_eventInfoContName;
             bool m_allowZeroSF;
             bool m_experimental;
             bool m_useRel207;

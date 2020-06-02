@@ -24,6 +24,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "JetTagTools/TrackSelector.h"
 
 #include "xAODJet/Jet.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
@@ -36,9 +37,6 @@ class LWHist;
 
 namespace Trk {
   class VxCandidate;
-}
-namespace Analysis {
-  class TrackSelector;
 }
 
 /**
@@ -91,15 +89,16 @@ private:
     //void fillBadZone(int zone, double w);
     bool passJetQualityCuts(const xAOD::Jet *jet);
     bool passKinematicCuts(const xAOD::Jet *jet);
+    bool passJVTCuts(const xAOD::Jet *jet);
     Jet_t getTaggabilityLabel(const xAOD::Jet *jet);
     bool isTopEvent(); // added by SARA
 
     ServiceHandle<StoreGateSvc> m_storeGate;
 
 
-    ToolHandle< Analysis::TrackSelector > m_trackSelectorTool;
-    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-    ToolHandle< Trig::TrigDecisionTool > m_trigDecTool; // added by SARA
+    ToolHandle< Analysis::TrackSelector > m_trackSelectorTool{this, "TrackSelectorTool", "Analysis::TrackSelector"};
+    ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
+    PublicToolHandle< Trig::TrigDecisionTool > m_trigDecTool{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; // added by SARA
     /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 
@@ -140,12 +139,15 @@ private:
     double m_ElectronPtVarCone20Cut; // added by SARA
     double m_MuonTopoEtCone20Cut; // added by SARA
     double m_MuonPtVarCone20Cut; // added by SARA
+    double m_MuonPtVarCone30Cut; // added by SARA
     std::string m_ElectronTrigger_2016; // added by SARA
     std::string m_MuonTrigger_2016; // added by SARA
     std::string m_JetTrigger_2016; // added by SARA
     std::string m_ElectronTrigger_2017; // added by SARA
     std::string m_MuonTrigger_2017; // added by SARA
     std::string m_JetTrigger_2017; // added by SARA
+    std::string m_ElectronTrigger_201X; //Wildcard trigger naming HLT_e*
+    std::string m_MuonTrigger_201X; //Wildcard trigger naming HLT_mu*
 
     /** @brief Master kill if no tools found. */
     bool m_switch_off;
@@ -382,6 +384,7 @@ private:
     TH2F_LW* m_jet_2D_all = nullptr;
     TH2F_LW* m_jet_2D_good = nullptr;
     TH2F_LW* m_jet_2D_kinematic = nullptr;
+    TH2F_LW* m_jet_2D_jvt = nullptr;
     TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
     TH2F_LW* m_jet_2D_quality = nullptr;
     TH2F_LW* m_jet_2D_suspect = nullptr;
@@ -447,9 +450,17 @@ private:
     TH2F_LW* m_tracks_fitProb_2D_LS = nullptr;
     TH2F_LW* m_tracks_fitChi2OnNdfMax_2D_LS = nullptr;
 
+    /** NEW 2018: jets taggers in pileup bins histograms */
+    TH1F_LW* m_n_mu = nullptr;
+    TH1F_LW* m_tag_mv_w_mu0_30 = nullptr;
+    TH1F_LW* m_tag_mv_w_mu30_50 = nullptr;
+    TH1F_LW* m_tag_mv_w_mu50_70 = nullptr;
+    
     TH1F_LW* m_efficiency = nullptr;
 
     unsigned int m_lumiBlockNum = 0;
+    double m_mu = 0.; 
+    unsigned int m_runNumber = 0;
 
     MonGroup* m_monGr_shift = nullptr;
     MonGroup* m_monGr_LowStat = nullptr;

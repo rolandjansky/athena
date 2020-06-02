@@ -62,13 +62,13 @@ from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
 MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "MuonCscRawDataProviderTool",
                                                            Decoder = CscRodDecoder)
 ToolSvc += MuonCscRawDataProviderTool
-print      MuonCscRawDataProviderTool
+printfunc (MuonCscRawDataProviderTool)
 
 # load the CscRawDataProvider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
 topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
                                     ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
-print          topSequence.MuonCscRawDataProvider
+printfunc (topSequence.MuonCscRawDataProvider)
 
 
 #from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
@@ -100,8 +100,8 @@ include ( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
 if('inputFiles' not in dir()):
   inputFiles = defInputFiles
   
-print 'the input files are: '  
-print inputFiles
+printfunc ('the input files are: '  )
+printfunc (inputFiles)
 ServiceMgr.ByteStreamInputSvc.FullFileName= inputFiles 
 
 include ("CscCalibTools/CscCalibTool_jobOptions.py")

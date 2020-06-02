@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
-Trk__JetFitterInitializationHelper=CompFactory.Trk__JetFitterInitializationHelper
+Trk__JetFitterInitializationHelper=CompFactory.Trk.JetFitterInitializationHelper
 
 def ImprovedJetFitterInitializationHelperCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterInitializationHelper tool and returns it.
@@ -18,8 +18,7 @@ def ImprovedJetFitterInitializationHelperCfg(name, useBTagFlagsDefaults = True, 
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
         jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(JetFitterFullLinearizedTrackFactoryCfg('JFFullLinearizedTrackFactory'))
-        defaults = {
-		     'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory}
+        defaults = {'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory}
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

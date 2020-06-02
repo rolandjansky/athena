@@ -1,21 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 #include <iostream>
 #include <string>
 #include <tuple>
-using namespace std;
-
 
 //returns ADDC, MMFE, VMM
-
-int electronics::elec(int stripNumber, string tech, int off_stationEta, int chMax)
+int electronics::elec(int stripNumber, std::string tech, int off_stationEta, int chMax)
 {
 
-        off_stationEta = abs(off_stationEta);
+        off_stationEta = std::abs(off_stationEta);
 
         int MMFE_total = off_stationEta == 1 ? 10 : 6;
         int MMFE_size = chMax/MMFE_total;
@@ -37,7 +35,8 @@ if      (tech[0]=='A') return ADDC;
 else if (tech[0]=='M') return MMFE;
 else if (tech[0]=='V') return VMM;
 
-std::cout << "ERROR in MMStripVmmMappingTool: something went wrong" << std::endl;
+MsgStream log(Athena::getMessageSvc(), "electronics");
+log<<MSG::WARNING<<"elec() - MMStripVmmMappingTool: something went wrong"<<endmsg;
 
 return 0;
 

@@ -60,6 +60,9 @@ namespace InDet{
 	  {this, "SCTBSErrCacheKey", ""};
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey
           {this, "PixRDOCacheKey", ""};
+	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache>  m_PixBSErrCacheKey
+	  {this, "PixBSErrCacheKey", ""};
+
         BooleanProperty m_disableTRT{this, "disableTRT", false};
         BooleanProperty m_disableWarning{this, "DisableViewWarning", false};
         mutable std::atomic_bool m_disableWarningCheck;

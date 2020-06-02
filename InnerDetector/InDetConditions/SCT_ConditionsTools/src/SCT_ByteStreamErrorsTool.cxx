@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -275,9 +275,9 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     auto idcErrCont = getContainer( ctx );
     if ( idcErrCont != nullptr  ) {
-      const std::vector<std::pair<size_t, int>> errorcodesforView = idcErrCont->getAll();
+      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
       for (const auto& [hashId, errCode] : errorcodesforView) {
-	if (errCode == errorType) {
+	if (  SCT_ByteStreamErrors::hasError( errCode, static_cast<SCT_ByteStreamErrors::ErrorType>( errorType ) ) ) {
 	  result.insert(hashId);
 	}
       }
@@ -314,7 +314,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
    * over it to populate the sets of errors owned by this Tool.
    */
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool size of error container is " << idcErrCont->maxSize());
-  const std::vector<std::pair<size_t, int>> errorcodesforView = idcErrCont->getAll();
+  const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
 
   for (const auto& [ hashId, errCode ] : errorcodesforView) {
 
@@ -326,30 +326,10 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id  << " ec " << errCode );
 
     int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
-
-    if ((errCode >= SCT_ByteStreamErrors::ABCDError_Chip0 and
-         errCode<= SCT_ByteStreamErrors::ABCDError_Chip5)) {
+    if ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) {
       cacheEntry->abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
-    } else if (errCode>= SCT_ByteStreamErrors::TempMaskedChip0 and
-               errCode<= SCT_ByteStreamErrors::TempMaskedChip5) {
+    } else if (errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()) {
       cacheEntry->tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
-    } else {
-      // for the moment this is dead code
-      std::pair<bool, bool> badLinks{m_config->badLinks(hashId, ctx)};
-      bool result{(side == 0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
-      if (result) {
-        /// error in a module using RX redundancy - add an error for the other
-        /// link as well!!
-        /// However, ABCDError_Chip0-ABCDError_Chip5 and
-        /// TempMaskedChip0-TempMaskedChip5 are not common for two links.
-        if (side == 0) {
-          IdentifierHash otherSide{IdentifierHash(hashId + 1)};
-          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
-        } else if (side == 1) {
-          IdentifierHash otherSide{IdentifierHash(hashId - 1)};
-          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
-        }
-      }
     }
 
   }

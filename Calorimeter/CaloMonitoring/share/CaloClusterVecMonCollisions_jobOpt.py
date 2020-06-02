@@ -12,7 +12,7 @@
 
 from CaloMonitoring.CaloMonitoringConf import CaloClusterVecMon
 
-if not 'rec' in dir():
+if 'rec' not in dir():
    from RecExConfig.RecFlags import rec
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags

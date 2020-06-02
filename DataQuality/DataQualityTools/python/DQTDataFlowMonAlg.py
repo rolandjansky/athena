@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 def DQTDataFlowMonAlgConfig(flags):
@@ -49,11 +49,11 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                           ybins=3,
                           ymin=-0.5,
                           ymax=2.5,
-                          labels=(["Pixel", "SCT", "TRT", "LAr", "Tile",
-                                   "Muon", "ForwardDet", "Core", 
-                                   "Background", "Lumi", "All"]
-                                  + ["OK", "Warning", "Error"])
-                          )
+                          xlabels=["Pixel", "SCT", "TRT", "LAr", "Tile",
+                                   "Muon", "ForwardDet", "Core",
+                                   "Background", "Lumi", "All"],
+                          ylabels=["OK", "Warning", "Error"]
+    )
 
     # generate release string
     import os
@@ -69,9 +69,9 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                           xbins=7,
                           xmin=-0.5,
                           xmax=6.5,
-                          labels=[_+'-'+releaseString for _ in 
-                                  ["user", "online", "tier0", "tier0Raw",
-                                   "tier0ESD", "AOD", "altprod"]]
+                          xlabels=[_+'-'+releaseString for _ in
+                                   ["user", "online", "tier0", "tier0Raw",
+                                    "tier0ESD", "AOD", "altprod"]]
     )
     
     group.defineHistogram("environment;events_lb",
@@ -80,7 +80,7 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                           xbins=7,
                           xmin=-0.5,
                           xmax=6.5,
-                          labels=["user", "online", "tier0", "tier0Raw",
-                                  "tier0ESD", "AOD", "altprod"],
+                          xlabels=["user", "online", "tier0", "tier0Raw",
+                                   "tier0ESD", "AOD", "altprod"],
                           duration='lb',
     )

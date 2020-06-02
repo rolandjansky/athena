@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # utils to set systematics according to base fragment
 
 # use some helper functions from MadGraphUtils
 import ast
-from MadGraphControl.MadGraphUtilsHelpers import is_version_or_newer,checkSetting,checkSettingExists
+from MadGraphControl.MadGraphUtilsHelpers import checkSetting,checkSettingExists
 from MadGraphControl.MadGraphUtils import get_lhapdf_id_and_name
 
 from AthenaCommon import Logging
@@ -151,7 +151,6 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
 
     new_settings=get_pdf_and_systematic_settings(the_base_fragment,isNLO)
     ### backup extras (user set parameters for run_card)
-    user_set_extras=dict(extras)
     for s in new_settings:
         if s is not None:
             extras[s]=new_settings[s]
@@ -159,13 +158,10 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
     ### Make sure everything has been set
     mgsyslog.info('PDF and scale settings were set as follows:')
     for p in systematics_run_card_options(isNLO):
-        user_set='not set'
-        if p in user_set_extras:
-            user_set=str(user_set_extras[p])
         new_value='not set'
         if p in extras:
             new_value=str(extras[p])   
-        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
+        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'"')
 
 
 #==================================================================================

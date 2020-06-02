@@ -43,7 +43,7 @@ namespace MuonGM {
 
     m_hasALines = false;
     m_hasBLines = false;
-    m_delta = NULL;
+    m_delta = Amg::Transform3D::Identity();
     m_ml = mL;
     
     // get the setting of the caching flag from the manager
@@ -374,7 +374,7 @@ namespace MuonGM {
 
   }
 
-  void sTgcReadoutElement::fillCache() const
+  void sTgcReadoutElement::fillCache()
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
@@ -471,7 +471,7 @@ namespace MuonGM {
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 
       // update the padDesign info
-      const MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
+      MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
       if (padDesign) padDesign->setR(m_surfaceData->m_layerCenters.back().perp());
 
     }
@@ -508,7 +508,8 @@ namespace MuonGM {
       log << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
     }
 #endif
-    return absTransform()*locP;
+    Amg::Vector3D gVec = absTransform()*locP;
+    return m_delta*gVec;
   }
 
   void sTgcReadoutElement::setDelta(double tras, double traz, double trat,
@@ -527,9 +528,33 @@ namespace MuonGM {
                     HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
        m_hasALines = true;
     }
+    Amg::Transform3D deltaToAmg = Amg::CLHEPTransformToEigen(delta);
+    m_delta = deltaToAmg;
   }
 
-  void sTgcReadoutElement::setBLinePar(BLinePar* bLine) const
+  void sTgcReadoutElement::setDelta(MuonDetectorManager* mgr)
+  {
+    const ALineMapContainer* alineMap = mgr->ALineContainer();
+    Identifier id = mgr->stgcIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
+    Identifier idMult = mgr->stgcIdHelper()->multilayerID(id, m_ml);
+    if( alineMap->find(idMult) == alineMap->cend())
+    {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      if(log.level()<=MSG::DEBUG)
+      {
+        log << MSG::DEBUG << "m_aLineMapContainer does not contain any ALine for sTGC" << endmsg;
+      }
+    }
+    else
+    {
+      ALinePar aline = alineMap->find(idMult)->second;
+      float s, z, t, rots, rotz, rott;
+      aline.getParameters(s, z, t, rots, rotz, rott);
+      setDelta(s, z, t, rots, rotz, rott);
+    }
+  }
+
+  void sTgcReadoutElement::setBLinePar(BLinePar* bLine)
   {
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");

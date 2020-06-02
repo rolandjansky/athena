@@ -24,8 +24,6 @@
 #include <stdlib.h>
 #include <cmath>
 
-using namespace std;
-
 const bool USETGCETA=true;
 
 //const string outputdir=(USETGCETA)?"align_withTGCEta":"align_noTGCEta";

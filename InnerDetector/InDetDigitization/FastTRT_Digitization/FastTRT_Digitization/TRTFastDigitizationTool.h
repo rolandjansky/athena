@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H
@@ -12,7 +12,6 @@
 
 #include "EventInfo/PileUpEventInfo.h"
 #include "PileUpTools/PileUpToolBase.h"
-#include "FastTRT_Digitization/ITRTFastDigitizationTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -60,13 +59,13 @@ class StoreGateSvc;
 class ITRT_DriftFunctionTool;
 
 
-class TRTFastDigitizationTool : public PileUpToolBase, virtual public ITRTFastDigitizationTool {
+class TRTFastDigitizationTool : public PileUpToolBase {
 public:
   TRTFastDigitizationTool( const std::string &type, const std::string &name, const IInterface *parent );
 
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  StatusCode mergeEvent();
+  StatusCode mergeEvent(const EventContext& ctx);
 
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
@@ -78,11 +77,11 @@ public:
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
-  StatusCode prepareEvent( const unsigned int /*nInputEvents*/ );
+  StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/ );
 
   ///alternative interface which uses the PileUpMergeSvc to obtain all
   ///the required SubEvents.
-  StatusCode processAllSubEvents();
+  StatusCode processAllSubEvents(const EventContext& ctx);
 
   /** Initialize */
   virtual StatusCode initialize();
@@ -95,7 +94,7 @@ private:
   StatusCode initializeNumericalConstants();    // once per run 
   StatusCode setNumericalConstants();    // once per event (pileup-dependent constants) 
 
-  StatusCode produceDriftCircles();
+  StatusCode produceDriftCircles(const EventContext& ctx);
   StatusCode createOutputContainers();
 
   Identifier getIdentifier( int hitID, IdentifierHash &hash, Identifier &layer_id, bool &status ) const;
@@ -152,6 +151,8 @@ private:
   // numerical constants. Might wish to move these to a DB in the future
   double m_trtTailFraction;            // fraction in tails 
   double m_trtSigmaDriftRadiusTail;    // sigma of one TRT straw in R
+  double m_trtHighProbabilityBoostBkg;
+  double m_trtHighProbabilityBoostEle;
   double m_cFit[ 8 ][ 5 ];             // efficiency and resolution
 
 };

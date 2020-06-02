@@ -37,6 +37,12 @@ if __name__ == "__main__":
                        dest = "verbose",
                        default = False,
                        help = "Switch to activate verbose printout" )
+    parser.add_option( "-s",
+                       "--strict",
+                       action  = "store_true",
+                       dest = "strict",
+                       default = False,
+                       help = "Compare both memSize and diskSize" )
 
 
     (options, args) = parser.parse_args()
@@ -60,6 +66,8 @@ if __name__ == "__main__":
     import PyUtils.PoolFile as PF
     diff = PF.DiffFiles( refFileName = refFileName,
                          chkFileName = chkFileName,
-                         verbose = options.verbose )
+                         verbose = options.verbose,
+                         strict = options.strict )
+    
     diff.printSummary()
     sys.exit(diff.status())

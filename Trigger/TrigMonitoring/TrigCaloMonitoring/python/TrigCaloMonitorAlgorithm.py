@@ -24,6 +24,9 @@ def TrigCaloMonConfig(inputFlags):
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
 
+    # Get BunchCrossingCondAlg
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result=BunchCrossingCondAlgCfg(inputFlags)
 
 
     ################################
@@ -67,6 +70,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
                                 path=hist_path,xbins=91,xmin=-10.0,xmax=1810.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,HLT_et;HLT_et_vs_BC',title='HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     # Declare high-ET HLT histograms
     L2CaloEMClustersMonGroup.defineHistogram('HLT_barrel_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
@@ -81,6 +86,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_size;HLT_barrel_high_et_size',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster Size; Number of Cells; Entries',
                                 path=hist_path,xbins=91,xmin=-10.0,xmax=1810.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,HLT_et;HLT_barrel_high_et_vs_BC',cutmask="HLT_barrel_high_et",title='hight-E_{T} HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     ########################
     #     OFF_Clusters     #
@@ -100,6 +107,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_type',title='OFF Cluster Type; Size Enum; Entries',
                                 path=hist_path,xbins=16,xmin=0.5,xmax=16.5)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,OFF_et;OFF_et_vs_BC',title='OFF Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     ########################
     #  HLT matched to OFF  #
@@ -139,6 +148,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=50,xmin=-5.0,xmax=5.0)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_phi;HLT_with_OFF_match_phi',cutmask='HLT_with_OFF_match',title='HLT Cluster #phi (With OFF Matches); #phi; Entries',
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,HLT_et;HLT_with_OFF_match_et_vs_BC',cutmask='HLT_with_OFF_match',title='HLT Clusters E_{T} (With OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     # Declare OFF histograms without HLT matches
     L2CaloEMClustersMonGroup.defineHistogram('HLT_no_OFF_match_num',title='Number of HLT Clusters (No OFF Matches); Num Clusters; Entries',
@@ -151,6 +162,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=50,xmin=-5.0,xmax=5.0)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_phi;HLT_no_OFF_match_phi',cutmask='HLT_no_OFF_match',title='HLT Cluster #phi (No OFF Matches); #phi; Entries',
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,HLT_et;HLT_no_OFF_match_et_vs_BC',cutmask='HLT_no_OFF_match',title='HLT Clusters E_{T} (No OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     ########################
     #  OFF matched to HLT  #
@@ -192,6 +205,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_type;OFF_with_HLT_match_type',cutmask='OFF_with_HLT_match',title='OFF Cluster Type (With HLT Matches); Size Enum; Entries',
                                 path=hist_path,xbins=16,xmin=0.5,xmax=16.5)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,OFF_et;OFF_with_HLT_match_et_vs_BC',cutmask='OFF_with_HLT_match',title='OFF Clusters E_{T} (With HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
     # Declare OFF histograms without HLT matches
     L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_num',title='Number of OFF Clusters (No HLT Matches); Num Clusters; Entries',
@@ -206,6 +221,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_type;OFF_no_HLT_match_type',cutmask='OFF_no_HLT_match',title='OFF Cluster Type (No HLT Matches); Size Enum; Entries',
                                 path=hist_path,xbins=16,xmin=0.5,xmax=16.5)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_bc,OFF_et;OFF_no_HLT_match_et_vs_BC',cutmask='OFF_no_HLT_match',title='OFF Clusters E_{T} (No HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=hist_path,xbins=21,xmin=-0.5,xmax=20.5)
 
 
 
@@ -267,6 +284,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_et_vs_BC',title='HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare high-ET HLT histograms
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_barrel_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
@@ -287,6 +306,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_size;HLT_barrel_high_et_size',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster Size; Number of Cells; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_barrel_high_et_vs_BC',cutmask="HLT_barrel_high_et",title='hight-E_{T} HLT Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #     OFF_Clusters     #
@@ -309,6 +330,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Clusters',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type',title='HLT Cluster Type; Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Clusters',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_et_vs_BC',title='OFF Clusters E_{T} vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Clusters',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #  HLT matched to OFF  #
@@ -355,6 +378,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type;HLT_with_OFF_match_type',cutmask='HLT_with_OFF_match',title='HLT Cluster Type (With OFF Matches); Size Enum; Entries',
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_with_OFF_match_et_vs_BC',cutmask='HLT_with_OFF_match',title='HLT Clusters E_{T} (With OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Matched_to_OFF',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare HLT histograms without OFF matches
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_no_OFF_match_num',title='Number of HLT Clusters (No OFF Matches); Num Clusters; Entries',
@@ -373,6 +398,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type;HLT_no_OFF_match_type',cutmask='HLT_no_OFF_match',title='HLT Cluster Type (No OFF Matches); Size Enum; Entries',
                                 path=path_names[i]+'/HLT_Matched_to_OFF',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,HLT_et;HLT_no_OFF_match_et_vs_BC',cutmask='HLT_no_OFF_match',title='HLT Clusters E_{T} (No OFF Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/HLT_Matched_to_OFF',xbins=21,xmin=-0.5,xmax=20.5)
 
         ########################
         #  OFF matched to HLT  #
@@ -419,6 +446,8 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type;OFF_with_HLT_match_type',cutmask='OFF_with_HLT_match',title='OFF Cluster Type (With HLT Matches); Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_with_HLT_match_et_vs_BC',cutmask='OFF_with_HLT_match',title='OFF Clusters E_{T} (With HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Matched_to_HLT',xbins=21,xmin=-0.5,xmax=20.5)
 
         # Declare OFF histograms without HLT matches
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_num',title='Number of OFF Clusters (No HLT Matches); Num Clusters; Entries',
@@ -437,9 +466,11 @@ def TrigCaloMonConfig(inputFlags):
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=50,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type;OFF_no_HLT_match_type',cutmask='OFF_no_HLT_match',title='OFF Cluster Type (No HLT Matches); Size Enum; Entries',
                                 path=path_names[i]+'/OFF_Matched_to_HLT',xbins=16,xmin=0.5,xmax=16.5)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_bc,OFF_et;OFF_no_HLT_match_et_vs_BC',cutmask='OFF_no_HLT_match',title='OFF Clusters E_{T} (No HLT Matches) vs BC; BCs from front of bunch train; <E_{T}> [GeV]', type='TProfile',
+                                path=path_names[i]+'/OFF_Matched_to_HLT',xbins=21,xmin=-0.5,xmax=20.5)
 
-
-    return helper.result()
+    result.merge(helper.result())
+    return result
     
 if __name__=='__main__':
     # Setup the Run III behavior
@@ -465,9 +496,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigCaloMonitorAcc = TrigCaloMonConfig(ConfigFlags)

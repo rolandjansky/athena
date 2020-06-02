@@ -23,7 +23,7 @@
 #include "McParticleKernel/IIOHepMcTool.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 //namespace McAod { class IO_BaseClass; }
 
 class HepMcFloatWriterTool : virtual public IIOHepMcTool,

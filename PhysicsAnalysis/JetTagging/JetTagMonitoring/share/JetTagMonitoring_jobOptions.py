@@ -79,6 +79,8 @@ jetTagMonTool.JetTrigger_2016 = "HLT_j15"; # added by SARA
 jetTagMonTool.ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose"; # added by SARA
 jetTagMonTool.MuonTrigger_2017 = "HLT_mu26_ivarmedium"; # added by SARA
 jetTagMonTool.JetTrigger_2017 = "HLT_j15"; # added by SARA
+jetTagMonTool.ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*"; # electrons 20-99 GeV
+jetTagMonTool.MuonTrigger_201X = "HLT_mu.*"; # muons *all* GeV
 
 #ToolSvc += jetTagMonTool
 monManJetTag.AthenaMonTools += [ jetTagMonTool ]

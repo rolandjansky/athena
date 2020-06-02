@@ -1,21 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCROADDEFINER_H
 #define  TRIGL2MUONSA_RPCROADDEFINER_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RpcPatFinder.h"
 #include "TrigL2MuonSA/MuonRoad.h"
@@ -23,8 +17,10 @@
 #include "TrigL2MuonSA/RpcFitResult.h"
 #include "TrigL2MuonSA/BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
 #include "RegionSelector/IRegSelSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 
 namespace TrigL2MuonSA {
 
@@ -39,7 +35,7 @@ class RpcRoadDefiner: public AthAlgTool
   RpcRoadDefiner(const std::string& type,
                  const std::string& name,
                  const IInterface*  parent);
-  ~RpcRoadDefiner(void);
+  ~RpcRoadDefiner()=default;
 
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
@@ -55,8 +51,7 @@ class RpcRoadDefiner: public AthAlgTool
 			double                       roiEtaMinHigh,
 			double                       roiEtaMaxHigh);
 
-  void setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                       const Muon::MuonIdHelperTool* muonIdHelperTool);
+  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
   void setRpcGeometry(bool use_rpc);
 
@@ -71,7 +66,7 @@ class RpcRoadDefiner: public AthAlgTool
   bool m_use_rpc;
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 // --------------------------------------------------------------------------------

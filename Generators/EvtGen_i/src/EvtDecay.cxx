@@ -30,9 +30,9 @@
 #include "EvtGen/EvtGen.hh"
 
 // Framework Related Headers:-
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -418,7 +418,6 @@ double EvtCLHepRandom::random() {
 
 void EvtDecay::MeVToGeV (HepMC::GenEvent* evt) {
 	for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-//		std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
 	        HepMC::FourVector newMomentum(0.,0.,0.,0.);
 		newMomentum.setPx( (*p)->momentum().px() / 1000. );
 		newMomentum.setPy( (*p)->momentum().py() / 1000. );
@@ -430,7 +429,6 @@ void EvtDecay::MeVToGeV (HepMC::GenEvent* evt) {
 
 void EvtDecay::GeVToMeV (HepMC::GenEvent* evt) {
 	for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-//		std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
        	        HepMC::FourVector newMomentum(0.,0.,0.,0.);
 		newMomentum.setPx( (*p)->momentum().px() * 1000. );
 		newMomentum.setPy( (*p)->momentum().py() * 1000. );

@@ -7,8 +7,6 @@ StreamBSFileOutput  DEBUG End initialize
 StreamBSFileOutput  DEBUG In initialize
 StreamBSFileOutput  DEBUG Found StoreGateSvc store.
 ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-00-00-00
-ByteStreamAttLi...  DEBUG Property update for OutputLevel : new value = 2
-ByteStreamAttLi...  DEBUG ByteStreamAttListMetadataSvc::initialize()
 ByteStreamEvent...   INFO eformat version to use: "current"
 ByteStreamEvent...   INFO event storage (BS) version to use: "current"
 ByteStreamEvent...   INFO Reinitialization...
@@ -28,12 +26,6 @@ StoreDump            INFO AttributeList has size 2
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
  flags: (  valid, UNLOCKED,  reset) --- data: 0x157b22d0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
-ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
-ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore
-ByteStreamAttLi...  DEBUG  name RunNumber type unsigned int value 88
-ByteStreamAttLi...   INFO About to push back RunNumber, 88
-ByteStreamAttLi...  DEBUG  name EventNumber type unsigned int value 99
-ByteStreamAttLi...   INFO About to push back EventNumber, 99
 StreamBSFileOutput  DEBUG handle() incident type: MetaDataStop
 StreamBSFileOutput  DEBUG Leaving handle
 StreamBSFileOutput  DEBUG finalize: Optimize output

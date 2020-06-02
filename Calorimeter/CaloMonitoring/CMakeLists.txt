@@ -51,10 +51,13 @@ atlas_add_component( CaloMonitoring
    RecBackgroundEvent )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-# Install files from the package:
-atlas_install_python_modules( python/*.py 
-  POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# Tests:
+atlas_add_test( flake8_rootMacros
+                SCRIPT ${ATLAS_FLAKE8} ${CMAKE_CURRENT_SOURCE_DIR}/rootMacros
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( TileCaloCellMonAlg_test
                 SCRIPT python -m CaloMonitoring.TileCalCellMonAlg

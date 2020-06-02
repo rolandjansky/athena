@@ -19,7 +19,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "InDetLowBetaInfo/InDetLowBetaCandidate.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
@@ -42,8 +42,7 @@ namespace InDet
     m_mcswitch(false),
     m_trackParticleCollection("InDetTrackParticles"),
     m_InDetLowBetaOutputName("InDetLowBetaCandidates"),
-    m_trtconddbsvc("TRT_CalDbSvc",name),
-    m_fieldServiceHandle("AtlasFieldSvc",name),
+    m_trtconddbTool("TRT_CalDbTool",this),
     m_TrtTool(0),
     m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
@@ -58,23 +57,24 @@ namespace InDet
     declareProperty("CSMP_TimingOffset",      m_TimingOffset);
     declareProperty("InDetLowBetaOutputName", m_InDetLowBetaOutputName);
     declareProperty("MC_flag", m_mcswitch);
-    declareProperty("AtlasFieldSvc", m_fieldServiceHandle, "Magnet Field used by this algorithm");
-    declareProperty("TRTCalDbSvc", m_trtconddbsvc);
+    declareProperty("TRTCalDbTool", m_trtconddbTool);
     declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
     
   }
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::initialize(){
 
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
     ATH_CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
     m_TrtToolInitSuccess = !(initializeTrtToolBetaLiklihood().isFailure());
 
     ATH_CHECK(m_TRTdEdxTool.retrieve( EnableTool{ !m_TRTdEdxTool.name().empty() } ) );
-
+    ATH_CHECK(m_trtconddbTool.retrieve());
     ATH_CHECK( m_trackParticleCollection.initialize() );
     ATH_CHECK( m_UnslimmedTracksContainerName.initialize() );
     ATH_CHECK( m_InDetLowBetaOutputName.initialize() );
+    // Read handle for AtlasFieldCacheCondObj
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    
     return StatusCode::SUCCESS;
   }
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -87,7 +87,17 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    if (m_fieldServiceHandle->solenoidOn()){//B field
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return StatusCode::FAILURE;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (fieldCache.solenoidOn()){//B field
 
       if (!m_trackParticleCollection.key().empty()){
 
@@ -399,7 +409,7 @@ namespace InDet
 	      
 	      //get TRT calibration from DB:
 	      Identifier TRTlocal =m_trtId->straw_id(bec, phimod, layer, strawlayer, str);
-	      double t0 = m_trtconddbsvc->getT0(TRTlocal);
+	      double t0 = m_trtconddbTool->getT0(TRTlocal);
 
 	      // Get bit pattern and bits over threshold:
 	      for (int j=0; j < 27; j++) {

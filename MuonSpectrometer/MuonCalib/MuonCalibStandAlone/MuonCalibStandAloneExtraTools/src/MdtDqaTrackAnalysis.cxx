@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_TrackAnalysisCXX
@@ -10,8 +10,6 @@
 #include "TH1.h"
 #include "TProfile.h"
 
-using namespace std;
-
 namespace MuonCalib {
 
 MdtDqaTrackAnalysis::MdtDqaTrackAnalysis(RegionSelectionSvc *punt, int trkauthor, HistogramManager *histoman, bool verbose) {
@@ -19,19 +17,11 @@ MdtDqaTrackAnalysis::MdtDqaTrackAnalysis(RegionSelectionSvc *punt, int trkauthor
   m_histoManager=histoman;
   p_reg_sel_svc=punt;
   m_verbose=verbose;
-  //  if(m_TrkAuthor==0) cout<<"tracking with MuID algorithm"<<endl;
-  //  if(m_TrkAuthor==100) cout<<"tracking with STACO algorithm"<<endl;
 }
 
 void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position) {
 
-  // SERVE QUESTO ????
-  //  if( !p_reg_sel_svc){
-  //  std::cout << "Region Selection Service NOT INITIALIZED " << std::endl;
-  //  return;
-  //  }
- 
-  string histoType;
+  std::string histoType;
 
   const MuonCalibEvent_E& extra_event(dynamic_cast<const MuonCalibEvent_E&>(event));
 
@@ -126,17 +116,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   /*:::::::::::::StacoMuonCombined <-> MuidCB:::::::::::::::::::::::::::::::*/
   /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
   /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/    
-  
-  //  bool DEBUG_DEVEL = false;
 
-  //  if (DEBUG_DEVEL) {
-  //    cout << " " << std::endl;
-  //    cout << "===== Handling Event " << extra_event.eventInfo().eventNumber() << " " 
-  //         << extra_event.eventInfo().tag() << " =====" << endl;
-  //    cout << " Nr of PhiPattern: " << extra_event.nrPhiPat() << endl;
-  //    cout << " Nr of Tracks (all authors) : " << extra_event.nrTracks() << endl;
-  //    cout << " Nr of MBTS hits : " << extra_event.nrMBTS() << endl;
-  //  }
   MuonCalibEvent_E::TrackVec::const_iterator trk=extra_event.beginTrack();
   MuonCalibEvent_E::TrackVec::const_iterator trk_end=extra_event.endTrack();
   
@@ -147,8 +127,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   MuonCalibSelector::TrackVec trk_inner = EventHandler.extendedTracks(1000);
   MuonCalibSelector::TrkCit track_it = trk_selected.begin();
   MuonCalibSelector::TrkCit track_it_end = trk_selected.end();
-  //    MuonCalibSelector::TrkCit track_inner = trk_inner.begin();
-  //    MuonCalibSelector::TrkCit track_inner_end = trk_inner.end();
  
   int Id_TrackID = 1000 ;   // ID Track
   int Id_TrackSA    = 0 ;   // Moore     (Moore - Default)
@@ -192,9 +170,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   
   MuonCalibSelector::TrkCit trk_SAIP_it3 = trk_SA_IP.begin();
   MuonCalibSelector::TrkCit trk_SAIP_end3 = trk_SA_IP.end();
-  
-  //    MuonCalibTriggerInfo bunch;
-  //    if( bunch.bcIndex() >0) cout << bunch.bcIndex() << endl;
 
   int i_trk_sel = 0;
     
@@ -291,8 +266,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
 
   if (h1trkIDmult) h1trkIDmult->Fill(trk_ID.size());
   
-  //  if (DEBUG_DEVEL) cout << " DEBUG ID momenta : " << endl;
-
   /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
   /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
   /*:::::::::::::::::::::::ALGORITHM DEPENDENT (MUID or STACO)::::::::::::::::::::*/
@@ -434,7 +407,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     double p   = 0;
 
     phi = (*trk_CB_it2)->phi();
-    eta = -log(tan((*trk_CB_it2)->theta()/2.));
+    eta = -std::log(std::tan((*trk_CB_it2)->theta()/2.));
     pt  = (*trk_CB_it2)->pt()/1000;
     p   = (*trk_CB_it2)->p()/1000;      
     int CB_npixel = 0;
@@ -488,20 +461,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
 						  ( (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->p() - (*trk_SAIP_it3)->p())/1000.  );
       }
     }
-// 	cout <<"--------------------------------------------------------------------------------------------"<< endl;	
-//  	cout <<"COMBINED"<<' '<< "x " << (*trk_CB_it2)->x0() << "  y" << (*trk_CB_it2)->y0() << "  z " << (*trk_CB_it2)->z0() 
-//  	     << "  p " << (*trk_CB_it2)->p() <<  "  pt " << (*trk_CB_it2)->pt() << endl;
-// 	cout <<"ASSO TAG"<<' '<< "x " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->x0() << "  y" << (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->y0() 
-//  	       << "  z " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->z0() 
-//  	       << "  p " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->p() <<  "  pt " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackTag)->pt() << endl;
-// 	if((*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)){
-// 	  cout <<"ASSO SA"<<' '<< "x " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)->x0() << "  y" << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)->y0() 
-//  	       << "  z " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)->z0() 
-//  	       << "  p " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)->p() <<  "  pt " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA)->pt() << endl;}
-// 	if((*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)){
-// 	  cout <<"ASSO SA_IP"<<' '<< "x " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)->x0() << "  y" << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)->y0() 
-//  	       << "  z " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)->z0() 
-// 	       << "  p " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)->p() <<  "  pt " << (*trk_CB_it2)->getAssociatedTrack(Id_TrackSA_IP)->pt() << endl;}
 
   }
   
@@ -516,8 +475,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
       if(h2_cutflow) h2_cutflow->Fill(1,i);
     }
     if(ID_HasCutLevel>1 && IsCombined){ 
-      // 	cout <<"ID"<<' '<< "x " << (*trk_ID_it2)->x0() << "  y " << (*trk_ID_it2)->y0() << "  z " << (*trk_ID_it2)->z0() 
-      // 	     << "  p " << (*trk_ID_it2)->p() <<  "  pt " << (*trk_ID_it2)->pt() << endl;
     }
   }
   
@@ -532,10 +489,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     for(int i =0;i<=SA_HasCutLevel;i++){
       if(h2_cutflow) h2_cutflow->Fill(2,i);
     }
-    if(SA_HasCutLevel>1 && IsCombined){ 
-//  	cout <<"SA"<<' '<< "x " << (*trk_SA_it2)->x0() << "  y " << (*trk_SA_it2)->y0() << "  z " << (*trk_SA_it2)->z0() 
-//  	     << "  p " << (*trk_SA_it2)->p() <<  "  pt " << (*trk_SA_it2)->pt() << endl;
-    }
   } 
   
   for(; trk_SAIP_it2 != trk_SAIP_end2; ++trk_SAIP_it2 ){
@@ -548,10 +501,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     for(int i =0;i<=SAIP_HasCutLevel;i++){
       if(h2_cutflow) h2_cutflow->Fill(3,i);
     }
-    if(SAIP_HasCutLevel>1 && IsCombined){ 
-      //  	cout <<"SAIP"<<' '<< "x " << (*trk_SAIP_it2)->x0() << "  y " << (*trk_SAIP_it2)->y0() << "  z " << (*trk_SAIP_it2)->z0() 
-      //  	     << "  p " << (*trk_SAIP_it2)->p() <<  "  pt " << (*trk_SAIP_it2)->pt() << endl;
-    }
   } 
     
   for(; trk_Tag_it2 != trk_Tag_end2; ++trk_Tag_it2 ) {
@@ -563,10 +512,6 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     Tag_HasCutLevel = cutflow( trk_Tag_it2, dTimeMBTS, Ev_ngoodtrack, Ev_pveto, Tag_npixel, Tag_nsct);
     for(int i =0;i<=Tag_HasCutLevel;i++){
       if(h2_cutflow) h2_cutflow->Fill(4,i);
-    }
-    if(Tag_HasCutLevel>1 && IsCombined){ 
-//  	cout <<"TAG"<<' '<< "x " << (*trk_Tag_it2)->x0() << "  y " << (*trk_Tag_it2)->y0() << "  z " << (*trk_Tag_it2)->z0() 
-//  	     << "  p " << (*trk_Tag_it2)->p() <<  "  pt " << (*trk_Tag_it2)->pt() << endl;
     }
   }
 
@@ -583,7 +528,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   // MODIFICATIONS INTRODUCED FOR MUON VETO ANALYSIS WITH SEGMENTS refitted-t0
 
   bool CollisionEvent = false;
-  if(abs(dTimeMBTS)<10 && Ev_ngoodtrack>2 && Ev_pveto>0 ) CollisionEvent=true;
+  if(std::abs(dTimeMBTS)<10 && Ev_ngoodtrack>2 && Ev_pveto>0 ) CollisionEvent=true;
 
   // ----------- Choose datacards here according to your analysis -----
   // HERE DECIDE WHETHER THE EVENT MUST BE A COLLISION CANDIDATE OR NOT :
@@ -591,11 +536,8 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   goodEvent = CollisionEvent;   // IN CASE YOU WANT ALL EVENTS, just COMMENT THIS LINE
 
   // HERE SELECT THE TRACK TYPE
-  string TrackMDTtime_selection = "SA";
-  // string TrackMDTtime_selection = "SA_IP";
-  // string TrackMDTtime_selection = "Tag";
-  // string TrackMDTtime_selection = "CB";
-  // string TrackMDTtime_selection = "NONE";
+  std::string TrackMDTtime_selection = "SA";
+
   
   // HERE SELECT THE CUT THE TRACK MUST PASS
   // int PASSEDCUT = 0;  // if goodEvent = CollisionEvent is enables 
@@ -634,17 +576,10 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     
       for (unsigned int k=position; k<segments.size(); k++) {    // LOOP OVER SEGMENTS 
 	MuonCalibSegment *segment(segments[k]);
-	// int autore = segment->author();
-	// int fitOK = 0;
-	// if (segment->hasFittedT0() ) fitOK = 1;
-	// cout << " DEBUG DEBUG : autore, fitOK, t0, chi2 " 
-	//      <<autore<<" "<<fitOK<<" "<<segment->fittedT0()<<" "<<segment->chi2() <<endl;
 
 	const MuonCalibExtendedSegment *segext = (const MuonCalibExtendedSegment* ) segment;
 	segs.push_back(segext);
       }
-      //       int iallSegMDTtime = -99;
-      //if (segs.size()>0) iallSegMDTtime = MDTtiming(segs);
 
     } else {
       for(;trkMDTtime_it!=trkMDTtime_it_end;++trkMDTtime_it){
@@ -657,32 +592,23 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
 	int TRACK_HasCutLevel = -10;
 	TRACK_HasCutLevel = cutflow( trkMDTtime_it, dTimeMBTS, Ev_ngoodtrack, Ev_pveto, TRACK_npixel, TRACK_nsct);
 	if (TRACK_HasCutLevel<PASSEDCUT) {
-	  //cout << "DEBUG DEBUG DEBUG : TRACK_HasCutLevel = "<< TRACK_HasCutLevel << endl;
 	  continue;
 	}
 	const std::vector<const MuonCalibExtendedSegment*> assoSegments = (*trkMDTtime_it)->associatedSegments();
 	bool additionalCut = true;
-	// additionalCut = (*trkMDTtime_it)->z0ip()>2800. && (*trkMDTtime_it)->z0ip()<3800.;
 	if (assoSegments.size()>0 && additionalCut ) iMDTtime = MDTtiming(assoSegments);
-	// cout << " DEBUG DEBUG iMDTtime = "<<iMDTtime<<endl;
 	if (iMDTtime==1) {
-	  // cout << " debug filling 1 " << endl;
 	  if (h2d0VSz0_goodT) {
-	    // cout << " debug filling 1 " << endl;
 	    h2d0VSz0_goodT->Fill( (*trkMDTtime_it)->z0ip(), (*trkMDTtime_it)->d0());
 	  }
 	}
 	if (iMDTtime==0) {
-	  // cout << " debug filling 0 " << endl;
 	  if (h2d0VSz0_badT) {
-	    // cout << " debug filling 0 " << endl;
 	    h2d0VSz0_badT->Fill( (*trkMDTtime_it)->z0ip(), (*trkMDTtime_it)->d0());
 	  }
 	}
 	if (iMDTtime==-1) {
-	  // cout << " debug filling -1 " << endl;
 	  if (h2d0VSz0_noSeg) {
-	    // cout << " debug filling -1 " << endl;
 	    h2d0VSz0_noSeg->Fill( (*trkMDTtime_it)->z0ip(), (*trkMDTtime_it)->d0());
 	  }
 	}
@@ -697,7 +623,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   /*::::::::::::::::::::::::::::::::::::::::::::::*/
   for(;track_it!=track_it_end;++track_it) {
       
-    double eta = -log ( tan ( (*track_it)->theta()/2));
+    double eta = -std::log ( std::tan ( (*track_it)->theta()/2));
 
     i_trk_sel++;
 
@@ -787,7 +713,7 @@ int MdtDqaTrackAnalysis::number_IDhits(MuonCalibSelector::TrackVec::const_iterat
     } else if ((*it_hit)->position().perp() < 1100.) {
       ntrt++;
       if(detector ==3) nhit++; 
-      if(fabs((*it_hit)->position().z()) < 750.){
+      if(std::abs((*it_hit)->position().z()) < 750.){
 	ntrtb++;
 	if(detector ==4) nhit++; 
       }
@@ -803,19 +729,19 @@ int MdtDqaTrackAnalysis::cutflow(MuonCalibSelector::TrackVec::const_iterator tra
   double eta = 0;
   double pt  = 0;
   double p  = 0;
-  eta = -log(tan((*track)->theta()/2.));
+  eta = -std::log(std::tan((*track)->theta()/2.));
   pt  = (*track)->pt()/1000;
   p   = (*track)->p()/1000; 
 
   HasPassedLevel = 0;    
   HasPassedLevel = 1; 
-  if(HasPassedLevel == 1 && abs(dTimeMBTS)<10)                                     HasPassedLevel = 2; 
-  if(HasPassedLevel == 2 && Ev_ngoodtrack>2)                                       HasPassedLevel = 3; 
-  if(HasPassedLevel == 3 && Ev_pveto>0)                                            HasPassedLevel = 4;  
-  if(HasPassedLevel == 4)                                                          HasPassedLevel = 5;     
-  if(HasPassedLevel == 5 && abs(eta)<2.5 && pt>2.5)                                HasPassedLevel = 6;
-  if(HasPassedLevel == 6 && p>4.)                                                  HasPassedLevel = 7;
-  if(HasPassedLevel == 7 && npixel>0 && nsct>5)                                    HasPassedLevel = 8;
+  if(HasPassedLevel == 1 && std::abs(dTimeMBTS)<10) HasPassedLevel = 2; 
+  if(HasPassedLevel == 2 && Ev_ngoodtrack>2) HasPassedLevel = 3; 
+  if(HasPassedLevel == 3 && Ev_pveto>0) HasPassedLevel = 4;  
+  if(HasPassedLevel == 4) HasPassedLevel = 5;     
+  if(HasPassedLevel == 5 && std::abs(eta)<2.5 && pt>2.5) HasPassedLevel = 6;
+  if(HasPassedLevel == 6 && p>4.) HasPassedLevel = 7;
+  if(HasPassedLevel == 7 && npixel>0 && nsct>5) HasPassedLevel = 8;
   
   return HasPassedLevel;
 }  //end MdtDqaTrackAnalysis::cutflow
@@ -824,7 +750,7 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
   //
   // MODIFICATIONS INTRODUCED FOR MUON VETO ANALYSIS WITH SEGMENTS refitted-t0
   //
-  string histoType;
+  std::string histoType;
   histoType="nSegPerTrack"; TH1F *h1_nSegAll = (TH1F*) m_histoManager->GetHisto("DEBUG",histoType);
   histoType="nSegPerTrack_HitCut"; TH2F *h2_nSegHitCut = (TH2F*) m_histoManager->GetHisto("DEBUG",histoType);
 
@@ -872,15 +798,11 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
   
   unsigned int MINNUMHITS = 5;
   int nseg_hitCut = 0;
-  //  if(debug_seg) cout << " -------------   Start loop on Segments. Number of segments:  " << segments.size() << endl;
   std::vector<const MuonCalibExtendedSegment*>::const_iterator seg_it;
   for (seg_it = segments.begin(); seg_it!=segments.end(); seg_it++) {   // START LOOP ON SEGMENTS
-//          unsigned int nMDThits = (*seg_it)->mdtHitsOnTrack();
     if ((*seg_it)->mdtHitsOnTrack() >= MINNUMHITS) {  // IF segment has >= MINNUMHITS
       nseg_hitCut++;
       if ( nseg_hitCut >=NSEGMAX ) {
-	//	cout << " WARNING : Number of segments in the same layer (inner/mid/out) GREATER THAN "<<NSEGMAX 
-	//	     << " segment skipped " << endl;
 	continue;
       }
 
@@ -892,7 +814,7 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
                 
       if (t0refit!= 0.) {
 	int hitCount(0);
-	string chamberName_firstHit;
+	std::string chamberName_firstHit;
 	int chamberEta_firstHit(0);
 	bool sameChamber = true;
 	bool adjacentChamber = false;
@@ -901,7 +823,7 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
 	  hitCount++;
 	  MuonFixedId id = (*aHit_it)->identify();
 	  MDTName chamb(id);
-	  string chamberName = chamb.getOnlineName();
+	  std::string chamberName = chamb.getOnlineName();
 	  if (hitCount==1) { 
 	    chamberName_firstHit = chamberName;
 	    chamberEta_firstHit = chamb.getOnlineEta();
@@ -917,14 +839,9 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
               
 	    }
 	  }
-	  //	  if (debug_seg) {
-	  //	    cout << chamberName << " ML "<< id.mdtMultilayer()<< " Layer "<<id.mdtTubeLayer()
-	  //		 <<" tube " << id.mdtTube() << " tube t0 "<< (*aHit_it)->tubeT0() << endl;
-	  //	  }
 	} // end loop over hits
 
 	if (sameChamber || adjacentChamber)  { // IF all hits are in the same or adjacent Chamber
-	  // if (sameChamber && chamberEta_firstHit==2)   // THIS IS TO STUDY WITH MC THE t0 RESOLUTION
 	  t0acceptedSeg[nAcceptedSeg]=t0refit;
 	  nAcceptedSeg++;
 	  if (chamberName_firstHit.substr(0,2) == "BI") {
@@ -966,32 +883,26 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
   for (int i=0;i<17;i++) sectorWithSegments[i]=0;
 
   for (int n=0;n<nseg_BI;n++) {
-    //    if(debug_seg) cout <<" t0refit_BI, sector " <<t0refit_BI[n][0]<<" "<<t0refit_BI[n][1]<<endl;
     h2_t0BI->Fill(t0refit_BI[n][1],t0refit_BI[n][0]);
     sectorWithSegments[(int)t0refit_BI[n][1]]++;
   }
   for (int n=0;n<nseg_BM;n++) {
-    //    if(debug_seg) cout <<" t0refit_BM, sector " <<t0refit_BM[n][0]<<" "<<t0refit_BM[n][1]<<endl;
     h2_t0BM->Fill(t0refit_BM[n][1],t0refit_BM[n][0]);
     sectorWithSegments[(int)t0refit_BM[n][1]]++;
   }
   for (int n=0;n<nseg_BO;n++) {
-    //    if(debug_seg) cout <<" t0refit_BO, sector " <<t0refit_BO[n][0]<<" "<<t0refit_BO[n][1]<<endl;
     h2_t0BO->Fill(t0refit_BO[n][1],t0refit_BO[n][0]);
     sectorWithSegments[(int)t0refit_BO[n][1]]++;
   }
   for (int n=0;n<nseg_EI;n++) {
-    //    if(debug_seg) cout <<" t0refit_EI, sector " <<t0refit_EI[n][0]<<" "<<t0refit_EI[n][1]<<endl;
     h2_t0EI->Fill(t0refit_EI[n][1],t0refit_EI[n][0]);
     sectorWithSegments[(int)t0refit_EI[n][1]]++;
   }
   for (int n=0;n<nseg_EM;n++) {
-    //    if(debug_seg) cout <<" t0refit_EM, sector " <<t0refit_EM[n][0]<<" "<<t0refit_EM[n][1]<<endl;
     h2_t0EM->Fill(t0refit_EM[n][1],t0refit_EM[n][0]);
     sectorWithSegments[(int)t0refit_EM[n][1]]++;
   }
   for (int n=0;n<nseg_EO;n++) {
-    //    if(debug_seg) cout <<" t0refit_EO, sector " <<t0refit_EO[n][0]<<" "<<t0refit_EO[n][1]<<endl;
     h2_t0EO->Fill(t0refit_EO[n][1],t0refit_EO[n][0]);
     sectorWithSegments[(int)t0refit_EO[n][1]]++;
   }
@@ -1004,12 +915,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       sectorWithHighestNseg = i;
     }
   }
-  //  if(debug_seg) {
-  //    cout << " nseg_BI,BM,BO,EI,EM,EO : "<<nseg_BI<<" "<<nseg_BM<<" "<<nseg_BO<<" "
-  //	 <<nseg_EI<<" "<<nseg_EM<<" "<<nseg_EO<<endl;
-  //    cout << " Sector with Highest Number of Segments : " <<sectorWithHighestNseg
-  //	 << " Nsegments : "<<topnSegInSector<< endl;
-  //  }
   h2_nSegHitCut->Fill( (float)sectorWithHighestNseg, (float)topnSegInSector );
   if (topnSegInSector>1) {
     // look for combinations BO-BM
@@ -1017,7 +922,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_BM;n2++) {
 	if (t0refit_BO[n1][1]==(float)sectorWithHighestNseg && t0refit_BM[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_BOBM = t0refit_BO[n1][0]-t0refit_BM[n2][0];
-	  //	  if(debug_seg) cout << " Found BO-BM = " << deltat0_BOBM <<endl;
 	  h2_t0BOBM->Fill((float)sectorWithHighestNseg,deltat0_BOBM);
 	}
       }
@@ -1027,7 +931,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_BI;n2++) {
 	if (t0refit_BO[n1][1]==(float)sectorWithHighestNseg && t0refit_BI[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_BOBI = t0refit_BO[n1][0]-t0refit_BI[n2][0];
-	  //	  if(debug_seg) cout << " Found BO-BI = " << deltat0_BOBI <<endl ;
 	  h2_t0BOBI->Fill((float)sectorWithHighestNseg,deltat0_BOBI);
 	}
       }
@@ -1037,7 +940,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_BI;n2++) {
 	if (t0refit_BM[n1][1]==(float)sectorWithHighestNseg && t0refit_BI[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_BMBI = t0refit_BM[n1][0]-t0refit_BI[n2][0];
-	  //	  if(debug_seg) cout << " Found BM-BI = " << deltat0_BMBI <<endl ;
 	  h2_t0BMBI->Fill((float)sectorWithHighestNseg,deltat0_BMBI);
 	}
       }
@@ -1048,7 +950,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_EM;n2++) {
 	if (t0refit_EO[n1][1]==(float)sectorWithHighestNseg && t0refit_EM[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_EOEM = t0refit_EO[n1][0]-t0refit_EM[n2][0];
-	  //	  if(debug_seg) cout << " Found EO-EM = " << deltat0_EOEM <<endl;
 	  h2_t0EOEM->Fill((float)sectorWithHighestNseg,deltat0_EOEM);
 	}
       }
@@ -1058,7 +959,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_EI;n2++) {
 	if (t0refit_EO[n1][1]==(float)sectorWithHighestNseg && t0refit_EI[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_EOEI = t0refit_EO[n1][0]-t0refit_EI[n2][0];
-	  //	  if(debug_seg) cout << " Found EO-EI = " << deltat0_EOEI <<endl ;
 	  h2_t0EOEI->Fill((float)sectorWithHighestNseg,deltat0_EOEI);
 	}
       }
@@ -1068,7 +968,6 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       for (int n2=0;n2<nseg_EI;n2++) {
 	if (t0refit_EM[n1][1]==(float)sectorWithHighestNseg && t0refit_EI[n2][1]==(float)sectorWithHighestNseg) {
 	  float deltat0_EMEI = t0refit_EM[n1][0]-t0refit_EI[n2][0];
-	  //	  if(debug_seg) cout << " Found EM-EI = " << deltat0_EMEI <<endl ;
 	  h2_t0EMEI->Fill((float)sectorWithHighestNseg,deltat0_EMEI);
 	}
       }
@@ -1083,9 +982,7 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
   }
   if (nAcceptedSeg>0 && nacc==nAcceptedSeg) iMDTtime = 1;  // THIS CONDITION is verified if ALL segments are good !
   if (nAcceptedSeg>0 && nacc<nAcceptedSeg) iMDTtime = 0;
-  
-  // cout << " DEBUG DEBUG iMDTtime in the class  = "<<iMDTtime<<endl;
-  
+    
   return iMDTtime;
 }  //end MdtDqaTrackAnalysis::MDTtiming
 

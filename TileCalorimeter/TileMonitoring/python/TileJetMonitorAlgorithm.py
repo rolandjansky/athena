@@ -12,9 +12,6 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileJetMonitorAlgorithm algorithm in the monitoring system.'''
 
-
-    from AthenaCommon import CfgMgr
-
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -47,19 +44,20 @@ def TileJetMonitoringConfig(flags, **kwargs):
     for k, v in kwargs.items():
         setattr(tileJetMonAlg, k, v)
 
-    DoEnergyProfiles = kwargs.get('DoEnergyProfiles', tileJetMonAlg.getDefaultProperty('DoEnergyProfiles'))
-    Do1DHistograms = kwargs.get('Do1DHistograms', tileJetMonAlg.getDefaultProperty('Do1DHistograms'))
-    DoEnergyDiffHistograms  = kwargs.get('DoEnergyDiffHistograms', tileJetMonAlg.getDefaultProperty('DoEnergyDiffHistograms'))
+    DoEnergyProfiles = kwargs.get('DoEnergyProfiles', tileJetMonAlg._descriptors['DoEnergyProfiles'].default)
+
+    Do1DHistograms = kwargs.get('Do1DHistograms', tileJetMonAlg._descriptors['Do1DHistograms'].default)
+    DoEnergyDiffHistograms  = kwargs.get('DoEnergyDiffHistograms', tileJetMonAlg._descriptors['DoEnergyDiffHistograms'].default)
 
 
     if not flags.DQ.DataType == 'heavyioncollision':
 
-        jvtTool = CfgMgr.JetVertexTaggerTool()
-        jetContainer = kwargs.get('JetContainer', tileJetMonAlg.getDefaultProperty('JetContainer'))
+        jvtTool = CompFactory.JetVertexTaggerTool()
+        jetContainer = kwargs.get('JetContainer', tileJetMonAlg._descriptors['JetContainer'].default)
         jvtTool.JetContainer = jetContainer
         tileJetMonAlg.JVT = jvtTool
 
-        jetCleaningTool = CfgMgr.JetCleaningTool()
+        jetCleaningTool = CompFactory.JetCleaningTool()
         jetCleaningTool.CutLevel = "LooseBad"
         jetCleaningTool.DoUgly = False
 
@@ -68,7 +66,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
         jetPtMin = 20000
         jetTrackingEtaLimit = 2.4
-        eventCleaningTool = CfgMgr.ECUtils__EventCleaningTool()
+        eventCleaningTool = CompFactory.ECUtils.EventCleaningTool()
         eventCleaningTool.JetCleaningTool = jetCleaningTool
         eventCleaningTool.PtCut = jetPtMin
         eventCleaningTool.EtaCut = jetTrackingEtaLimit
@@ -256,16 +254,16 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags, 
                                                          Do1DHistograms = True, 
                                                          DoEnergyDiffHistograms = True)
     cfg.merge(tileJetMonitorAccumulator)
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    #cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
     cfg.store( open('TileJetMonitorAlgorithm.pkl','wb') )

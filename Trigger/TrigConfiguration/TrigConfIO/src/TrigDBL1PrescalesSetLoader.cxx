@@ -1,32 +1,7 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+#include "./TrigDBHelper.h"
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
-
-#include "CoralBase/Exception.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/Blob.h"
-
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ITransaction.h"
-
-
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-#include "boost/iostreams/stream.hpp"
-
-#include <memory>
-#include <exception>
 
 TrigConf::TrigDBL1PrescalesSetLoader::TrigDBL1PrescalesSetLoader(const std::string & connection) : 
    TrigDBLoader("TrigDBL1PrescalesSetLoader", connection)
@@ -35,54 +10,61 @@ TrigConf::TrigDBL1PrescalesSetLoader::TrigDBL1PrescalesSetLoader(const std::stri
 TrigConf::TrigDBL1PrescalesSetLoader::~TrigDBL1PrescalesSetLoader()
 {}
 
+namespace {
+   std::vector<TrigConf::QueryDefinition>
+   getQueryDefinitions() {
+      std::vector<TrigConf::QueryDefinition> queries;
+      { // query for table dev1 and dev2
+         queries.emplace_back();
+         auto & q = queries.back();
+         // tables
+         q.addToTableList ( "L1_PRESCALE_SET" );
+         // bind vars
+         q.extendBinding<int>("key");
+         // conditions
+         q.extendCondition("L1PS_ID = :key");
+         // attributes
+         q.extendOutput<coral::Blob>( "L1PS_DATA" );
+         // the field with the data
+         q.setDataName("L1PS_DATA");
+      }
+      return queries;
+   }
+}
 
 bool
-TrigConf::TrigDBL1PrescalesSetLoader::loadL1Prescales ( unsigned int l1psk,
-                                                        TrigConf::L1PrescalesSet & l1pss ) const
+TrigConf::TrigDBL1PrescalesSetLoader::loadL1Prescales ( unsigned int psk, TrigConf::L1PrescalesSet & pss,
+                                                        const std::string & outFileName ) const
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-
-   std::unique_ptr<coral::IQuery> query( session->nominalSchema().tableHandle("L1_PRESCALE_SET").newQuery() );
-   query->setRowCacheSize( 5 );
-   
-   // bind list
-   coral::AttributeList bindList;
-   bindList.extend<int>("l1psk");
-   bindList[0].data<int>() = l1psk;
-
-   // condition clause
-   std::string theCondition = "L1PS_ID = :l1psk";
-   query->setCondition( theCondition, bindList );
-
-   // output data and types
-   coral::AttributeList attList;
-   attList.extend<std::string>( "L1PS_NAME" );
-   attList.extend<int>        ( "L1PS_VERSION" );
-   attList.extend<std::string>( "L1PS_COMMENT" );
-   attList.extend<coral::Blob>( "L1PS_DATA" );
-   query->defineOutput(attList);
-   for( const coral::Attribute & attr : attList) {
-      query->addToOutputList(attr.specification().name());
+   bool querySuccess { false };
+   for( auto & qdef : getQueryDefinitions() ) {
+      try {
+         qdef.setBoundValue<int>("key", psk);
+         auto q = qdef.createQuery( session.get() );
+         auto & cursor = q->execute();
+         querySuccess = true;
+         if ( ! cursor.next() ) {
+            throw std::runtime_error( "TrigDBL1PrescalesSetLoader: L1 presale key " + std::to_string(psk) + " not available" );
+         }
+         const coral::AttributeList& row = cursor.currentRow();
+         const coral::Blob& dataBlob = row[qdef.dataName()].data<coral::Blob>();
+         writeRawFile( dataBlob, outFileName );
+         boost::property_tree::ptree pt;
+         blobToPtree( dataBlob, pt );
+         pss.setData(std::move(pt));
+         pss.setPSK(psk);
+         break;
+      }
+      catch(coral::QueryException & ex) {
+         continue;
+      }
    }
-
-   coral::ICursor& cursor = query->execute();
-
-   if ( ! cursor.next() ) {
-      throw std::runtime_error( "TrigDBL1PrescalesSetLoader: L1 PSK " + std::to_string(l1psk) + " not available" );
+   if( ! querySuccess ) {
+      TRG_MSG_ERROR("Could not read the L1 prescale set data data from the database, all query attempts failed");
+      return false;
    }
-	
-   const coral::AttributeList& row = cursor.currentRow();
-
-   const coral::Blob& l1psBlob = row["L1PS_DATA"].data<coral::Blob>();
-   boost::iostreams::stream<boost::iostreams::array_source> stream( static_cast<const char*> ( l1psBlob.startingAddress()), l1psBlob.size());
-
-   boost::property_tree::ptree l1pss_pt;
-   boost::property_tree::read_json(stream, l1pss_pt);
-   l1pss.setData(std::move(l1pss_pt));
-   l1pss.setPSK(l1psk);
-
-   session->transaction().commit();
 
    return true;
 }

@@ -5,7 +5,7 @@
 #ifndef MUONGEOMODEL_MUONDETECTORCONDALG_H
 #define MUONGEOMODEL_MUONDETECTORCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
 
-class MuonDetectorCondAlg : public AthAlgorithm {
+class MuonDetectorCondAlg : public AthReentrantAlgorithm {
 
 public:
 
@@ -25,7 +25,7 @@ public:
   virtual ~MuonDetectorCondAlg() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
   virtual StatusCode finalize() override final;
 
 

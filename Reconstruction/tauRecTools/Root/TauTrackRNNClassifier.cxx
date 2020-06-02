@@ -24,10 +24,7 @@ using namespace tauRecTools;
 
 //______________________________________________________________________________
 TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& sName)
-  : TauRecToolBase(sName)
-{
-  declareProperty("Classifiers", m_vClassifier );
-  declareProperty("ClassifierNames", m_vClassifierNames );
+  : TauRecToolBase(sName) {
 }
 
 //______________________________________________________________________________
@@ -49,7 +46,7 @@ StatusCode TauTrackRNNClassifier::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau)
+StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau) const
 {
   // Get track container via link from tau - instead of using read handle (not written to store yet) 
   // Check that size > 0

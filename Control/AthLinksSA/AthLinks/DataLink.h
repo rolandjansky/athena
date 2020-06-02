@@ -160,34 +160,17 @@ private:
  */
 ENTER_ROOT_SELECTION_NS
 template< class STORABLE >
-class DataLink
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 0, 2 )
-   : public SelectNoInstance
-#endif // ROOT_VERSION
+class DataLink : public SelectNoInstance
 {
 
 public:
    /// Convenience declaration of this structure's type
    typedef DataLink< STORABLE > self;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-   /// Do not generate such dictionaries automatically
-   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dummy;
-
-   /// Declare m_object as transient
-   ROOT_SELECTION_NS::TRANSIENT m_object;
-   /// Declare m_event as transient
-   ROOT_SELECTION_NS::TRANSIENT m_event;
-
-#else
-
    /// Declare m_object as transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_object;
    /// Declare m_event as transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_event;
-
-#endif // ROOT_VERSION
 
 };
 EXIT_ROOT_SELECTION_NS

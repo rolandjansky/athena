@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,14 +40,12 @@ SolenoidalIntersector::SolenoidalIntersector (const std::string&	type,
 					      const std::string&	name, 
 					      const IInterface*		parent)
     :	base_class			(type, name, parent),
-	m_magFieldSvc			("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
 	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
 	m_deltaPhiTolerance		(0.01),	// upper limit for small angle approx
 	m_surfaceTolerance		(2.0*Gaudi::Units::micrometer),
 	m_countExtrapolations		(0),
 	m_countRKSwitches		(0)
 {
-    declareProperty("MagFieldSvc",		m_magFieldSvc );
     declareProperty("RungeKuttaIntersector",	m_rungeKuttaIntersector);
     declareProperty("SurfaceTolerance",		m_surfaceTolerance);
 }
@@ -57,30 +55,8 @@ SolenoidalIntersector::initialize()
 {
     // print name and package version
     ATH_MSG_INFO( "SolenoidalIntersector::initialize() - package version " << PACKAGE_VERSION );
-
-    if (! m_magFieldSvc.empty())
-    {
-	if (m_magFieldSvc.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvc );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
-	}
-    }
-
-    if (m_rungeKuttaIntersector.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_rungeKuttaIntersector );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_rungeKuttaIntersector );
-    }
-
+    ATH_CHECK( m_solenoidParametrizationKey.initialize() );
+    ATH_CHECK(m_rungeKuttaIntersector.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -91,55 +67,6 @@ SolenoidalIntersector::finalize()
 		  << m_countRKSwitches << " switches to RK integration");
 
     return StatusCode::SUCCESS;
-}
-
-
-const SolenoidParametrization*
-SolenoidalIntersector::getSolenoidParametrization() const
-{
-  double current = m_magFieldSvc->solenoidCurrent();
-
-  // Check to see if the last one we used is ok.
-  const SolenoidParametrization* lastpar = m_lastSolenoidParametrization.get();
-  if (lastpar && lastpar->currentMatches (current)) {
-    return lastpar;
-  }
-
-  std::lock_guard<std::mutex> lock (m_mutex);
-
-  // Search for a new one, and release the reference count on the old one.
-  const SolenoidParametrization* thispar = nullptr;
-  Parmlist_t::iterator todel = m_solenoidParametrizations.end();
-  for (Parmlist_t::iterator it = m_solenoidParametrizations.begin();
-       it != m_solenoidParametrizations.end() && (lastpar || !thispar);
-       ++it)
-  {
-    if (&it->first == lastpar) {
-      lastpar = nullptr;
-      if (--it->second <= 0) {
-        todel = it;
-      }
-    }
-    else if (!thispar && it->first.currentMatches (current)) {
-      thispar = &it->first;
-      ++it->second;
-    }
-  }
-
-  if (todel != m_solenoidParametrizations.end()) {
-    m_solenoidParametrizations.erase (todel);
-  }
-
-  if (!thispar) {
-    // Didn't find one; make a new one.
-    m_solenoidParametrizations.emplace_back (&*m_magFieldSvc, 1);
-    thispar = &m_solenoidParametrizations.back().first;
-  }
-
-  // Remember which one we used last.
-  m_lastSolenoidParametrization.set (thispar);
-
-  return thispar;
 }
 
 
@@ -313,7 +240,8 @@ SolenoidalIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
 
 /**IIntersector interface method to check validity of parametrization within extrapolation range */
 bool
-SolenoidalIntersector::isValid (Amg::Vector3D startPosition, Amg::Vector3D endPosition) const
+SolenoidalIntersector::isValid (Amg::Vector3D startPosition,
+                                Amg::Vector3D endPosition) const
 {
     const SolenoidParametrization* solenoidParametrization =
       getSolenoidParametrization();
@@ -324,12 +252,10 @@ SolenoidalIntersector::isValid (Amg::Vector3D startPosition, Amg::Vector3D endPo
 	&& endPosition.perp()		< solenoidParametrization->maximumR()
 	&& getSolenoidParametrization()->validOrigin(startPosition))
     {
-	// ATH_MSG_INFO("  choose solenoidal");
 	
 	return true;
     }
     
-    // ATH_MSG_INFO("  choose rungeKutta");
 	
     return false;
 }
@@ -342,21 +268,18 @@ SolenoidalIntersector::validationAction() const
       getSolenoidParametrization();
 
     // validate parametrization
-    if (solenoidParametrization)
-    {
-	for (int ieta = 0; ieta != 27; ++ieta)
-	{
-	    double eta	= 0.05 + 0.1*static_cast<double>(ieta);
-	    solenoidParametrization->printParametersForEtaLine(+eta,0.);
-	    solenoidParametrization->printParametersForEtaLine(-eta,0.);
-	}
-	for (int ieta = 0; ieta != 27; ++ieta)
-	{
-	    double eta	= 0.05 + 0.1*static_cast<double>(ieta);
-	    solenoidParametrization->printResidualForEtaLine(+eta,0.);
-	    solenoidParametrization->printResidualForEtaLine(-eta,0.);
-	}
-	solenoidParametrization->printFieldIntegrals();
+    if (solenoidParametrization){
+      for (int ieta = 0; ieta != 27; ++ieta){
+          double eta	= 0.05 + 0.1*static_cast<double>(ieta);
+          solenoidParametrization->printParametersForEtaLine(+eta,0., msg());
+          solenoidParametrization->printParametersForEtaLine(-eta,0., msg());
+      }
+      for (int ieta = 0; ieta != 27; ++ieta){
+          double eta	= 0.05 + 0.1*static_cast<double>(ieta);
+          solenoidParametrization->printResidualForEtaLine(+eta,0., msg());
+          solenoidParametrization->printResidualForEtaLine(-eta,0., msg());
+      }
+      solenoidParametrization->printFieldIntegrals(msg());
     }
 }
 
@@ -371,9 +294,6 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
 {
     Amg::Vector3D& pos = isect.position();
     Amg::Vector3D& dir = isect.direction();
-
-    // ATH_MSG_INFO(" extrapolateToR  endR " << endR << " from " << pos.z()
-    // 		 << "   r " << sqrt(radius2) << "  cotTheta " << com.m_cotTheta);
     
     double	fieldComponent	= com.m_solPar.fieldComponent(pos.z(), com.m_solParams);
     double	curvature	= fieldComponent*com.m_qOverPt;
@@ -416,8 +336,7 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
 	if (std::abs(arcLength) > m_surfaceTolerance)
 	{
 	    double sinDPhi	= 0.5*arcLength*curvature;
-	    double cosDPhi	= 1. - 0.5*sinDPhi*sinDPhi *
-				  (1.0+0.25*sinDPhi*sinDPhi);
+	    double cosDPhi	= 1. - 0.5*sinDPhi*sinDPhi * (1.0+0.25*sinDPhi*sinDPhi);
 	    double temp		= cosPhi;
 	    cosPhi 		= temp*cosDPhi - sinPhi*sinDPhi;
 	    sinPhi 		= temp*sinDPhi + sinPhi*cosDPhi;
@@ -435,7 +354,7 @@ SolenoidalIntersector::extrapolateToR(TrackSurfaceIntersection& isect,
     {
         extrapolateToZ(isect, com, pos.z() + deltaZ);
         radius2 = pos.perp2();
-	if (std::abs(endR - sqrt(radius2)) > m_surfaceTolerance)
+	if (std::abs(endR - std::sqrt(radius2)) > m_surfaceTolerance)
 	{
             deltaZ	= linearArcLength(isect, com, radius2, endR) * com.m_cotTheta;
 	    extrapolateToZ(isect, com, pos.z() + deltaZ);
@@ -461,8 +380,6 @@ SolenoidalIntersector::extrapolateToZ(TrackSurfaceIntersection& isect,
                                 pos.z(),
                                 endZ,
                                 com.m_solParams);
-    // ATH_MSG_INFO(" extrapolateToZ  firstIntegral, secondIntegral " << 1.E6*firstIntegral
-    // 		 << ", " << 1.E6*secondIntegral);
     double 	DFiMax 		= 0.1;
     double	cosPhi		= dir.x()*com.m_oneOverSinTheta;
     double	sinPhi		= dir.y()*com.m_oneOverSinTheta;
@@ -537,5 +454,10 @@ SolenoidalIntersector::newIntersection (const TrackSurfaceIntersection& isect,
   return newIsect;
 }
 
+void SolenoidalIntersector::throwMissingCondData() const {
+   std::stringstream msg;
+   msg << "Invalid read handle for SolenoidParametrization  " << m_solenoidParametrizationKey.key();
+   throw std::logic_error(msg.str());
+}
 
 } // end of namespace

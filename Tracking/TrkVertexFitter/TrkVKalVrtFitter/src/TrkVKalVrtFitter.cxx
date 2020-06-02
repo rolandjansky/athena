@@ -38,11 +38,11 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_IDsizeZ(3000.),
     m_extPropagator(this),                   // Internal propagator
     // m_extPropagator("Trk::Extrapolator/InDetExtrapolator"),  // External propagator
-    // m_magFieldAthenaSvc("MagFieldAthenaSvc",name),           //Athena magnetic field---old version
-    m_magFieldAthenaSvc("AtlasFieldSvc", name),                 //Athena magnetic field
+    //m_magFieldAthenaSvc("AtlasFieldSvc", name),                 //Athena magnetic field
     m_firstMeasuredPoint(false),
     m_firstMeasuredPointLimit(false),
     m_makeExtendedVertex(false),
+    m_useFixedField(false),
     m_useAprioriVertex(false),
     m_useThetaCnst(false),
     m_usePhiCnst(false),
@@ -76,7 +76,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("CovVrtForConstraint",  m_c_CovVrtForConstraint);
     declareProperty("InputParticleMasses",  m_c_MassInputParticles, "List of masses of input particles (pions assumed if this list is absent)" );
     declareProperty("Extrapolator",         m_extPropagator);
-    declareProperty("AtlasMagFieldSvc",     m_magFieldAthenaSvc);
+    declareProperty("useFixedField",        m_useFixedField, " Use fixed magnetic field instead of exact Atlas one");
     declareProperty("FirstMeasuredPoint",   m_firstMeasuredPoint);
     declareProperty("FirstMeasuredPointLimit",   m_firstMeasuredPointLimit);
     declareProperty("MakeExtendedVertex",   m_makeExtendedVertex, "VKalVrt returns VxCandidate with full covariance matrix");
@@ -147,12 +147,17 @@ StatusCode TrkVKalVrtFitter::initialize()
 //    if( m_Constraint == 12) { m_usePhiCnst = true; m_useThetaCnst = true;}
 //    setCnstType((int)m_Constraint);
 
-    StatusCode sc=m_magFieldAthenaSvc.retrieve();
-    if (sc.isFailure() ){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Could not find MagFieldAthenaSvc"<< endmsg;
-    }else{
-	m_isAtlasField = true;
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is retrieved" << endmsg;  
+    if(!m_useFixedField){
+      // Read handle for AtlasFieldCacheCondObj
+      if (!m_fieldCacheCondObjInputKey.key().empty()){
+        if( (m_fieldCacheCondObjInputKey.initialize()).isSuccess() ){
+           m_isAtlasField = true;
+           ATH_MSG_DEBUG( "Found AtlasFieldCacheCondObj with key ="<< m_fieldCacheCondObjInputKey.key());
+        }else{
+           ATH_MSG_INFO( "No AtlasFieldCacheCondObj with key ="<< m_fieldCacheCondObjInputKey.key());
+           ATH_MSG_INFO( "Use fixed magnetic field instead");
+        }
+      }
     }
 //
 // Only here the VKalVrtFitter propagator object is created if ATHENA propagator is provided (see setAthenaPropagator)
@@ -221,10 +226,17 @@ void TrkVKalVrtFitter::initState (State& state) const
   //  VKalVrtFitter must set up Core BEFORE any call required propagation!!!
   //
   if (m_isAtlasField) {
-    state.m_fitField.setAtlasField( m_magFieldAthenaSvc.get() );
-  }
-  else {
-    state.m_fitField.setAtlasField(m_BMAG);
+     // For the moment, use Gaudi Hive for the event context - would need to be passed in from clients
+     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+     if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return;
+     }
+     fieldCondObj->getInitializedCache (state.m_fieldCache);
+     state.m_fitField.setAtlasField(&state.m_fieldCache);
+  } else {
+     state.m_fitField.setAtlasField(m_BMAG);
   }
 
   state.m_vkalFitControl.vk_objProp = m_fitPropagator;

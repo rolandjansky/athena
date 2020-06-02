@@ -28,7 +28,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGa
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const bool getTRTBadChannel)
+InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const EventContext& ctx, const bool getTRTBadChannel) const
 {
 
   //Initialise a new TRT_DriftCircleCollection
@@ -194,7 +194,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     return rio;
   }
 
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey, ctx);
   const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
   if (not trtDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
@@ -203,7 +203,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
   float mu = 0;
   if (!m_lumiDataKey.empty()) {
-     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey);
+     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey, ctx);
      mu = lumiData->lbAverageInteractionsPerCrossing();
   }
 

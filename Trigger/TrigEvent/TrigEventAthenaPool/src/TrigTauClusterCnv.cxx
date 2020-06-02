@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauClusterCnv.h"
@@ -53,14 +53,14 @@ TrigTauCluster* TrigTauClusterCnv::createTransient()
   if( compareClassGuid(tlp2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp2 persistent object" << endmsg;
-    std::auto_ptr< TrigTauCluster_tlp2 >   col_vect( this->poolReadObject< TrigTauCluster_tlp2 >() );
+    std::unique_ptr< TrigTauCluster_tlp2 >   col_vect( this->poolReadObject< TrigTauCluster_tlp2 >() );
     trans_cont = m_impl->m_TPConverter2.createTransient( col_vect.get(), mlog );
 
   }
   else if( compareClassGuid(tlp1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigTauCluster_tlp1 >   col_vect( this->poolReadObject< TrigTauCluster_tlp1 >() );
+    std::unique_ptr< TrigTauCluster_tlp1 >   col_vect( this->poolReadObject< TrigTauCluster_tlp1 >() );
     trans_cont = m_impl->m_TPConverter1.createTransient( col_vect.get(), mlog );
 
   }

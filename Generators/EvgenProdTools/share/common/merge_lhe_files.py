@@ -1,8 +1,9 @@
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # This function merges a list of input LHE file to make one outputFile.  The header is taken from the first
 # file, but the number of events is updated to equal the total number of events in all the input files
 def merge_lhe_files(listOfFiles,outputFile):
     if(os.path.exists(outputFile)):
-      print "outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
+      printfunc ("outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD")
       os.rename(outputFile,outputFile+".OLD")
     output = open(outputFile,'w')
     holdHeader = ""
@@ -14,7 +15,7 @@ def merge_lhe_files(listOfFiles,outputFile):
     for file in listOfFiles:
        inHeader = True
        header = ""
-       print "*** Starting file ",file
+       printfunc ("*** Starting file ",file)
        for line in open(file,"r"):
 ##        Reading first event signals that we are done with all the header information
 ##        Using this approach means the script will properly handle any metadata stored

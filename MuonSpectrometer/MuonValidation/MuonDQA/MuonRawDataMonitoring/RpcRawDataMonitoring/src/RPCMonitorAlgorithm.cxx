@@ -4,8 +4,6 @@
 
 #include "RpcRawDataMonitoring/RPCMonitorAlgorithm.h"
 
-using namespace std;
-
 //========================================================================================================
 RPCMonitorAlgorithm::RPCMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
   :AthMonitorAlgorithm(name,pSvcLocator),
@@ -115,7 +113,7 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
 
     xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*muon);
 
-    if(fabs(pt) < m_minPt || fabs(eta) < m_minEta || fabs(eta) > m_maxEta) {
+    if(std::abs(pt) < m_minPt || std::abs(eta) < m_minEta || std::abs(eta) > m_maxEta) {
       continue;
     }
     if(!(quality <= m_quality)) {

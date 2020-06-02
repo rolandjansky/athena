@@ -19,8 +19,17 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 #include <iomanip>
-// for cutouts:
-#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include <TString.h> // for Form
+#include "GeoModelKernel/GeoShapeSubtraction.h" // for cutouts
+
+namespace {
+  static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
+  static constexpr double const& rpc3GapStrPanThickness = 3.5;
+  static constexpr double const& rpc3GapStrPanCopThickness = 0.3;
+  static constexpr double const& rpc3GapBakelThickness = 1.2;
+  static constexpr double const& rpc3GapGThickness = 1.0;
+  static constexpr double const& rpc3GapTotAirThickness = 0.52; // corresponds to PET+glue, which are not simulated?
+}
 
 namespace MuonGM {
 
@@ -50,7 +59,10 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
   MYSQL* mysql = MYSQL::GetPointer();
   RPC* r = (RPC*)mysql->GetTechnology(name);
 
+  if (m->nGasGaps()==3 && r->NstripPanels_in_s!=1) throw std::runtime_error(Form("File: %s, Line: %d\nRpcLayer::build() - NstripPanels_in_s = %d for BIS RPC, not possible", __FILE__, __LINE__, r->NstripPanels_in_s));
+
   double thickness = r->rpcLayerThickness - tol;
+  if (m->nGasGaps()==3) thickness = rpc3GapLayerThickness - tol; // for BIS RPCs
   double length = m->length;
   double width  = m->width;
 
@@ -71,6 +83,11 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
 
   // phi strip panel(s)
   double strpanThickness = r->stripPanelThickness - tol;
+  double strpanCopperThickness = r->stripPanelCopperSkinThickness;
+  if (m->nGasGaps()==3) { // for BIS RPCs
+    strpanThickness = rpc3GapStrPanThickness - tol;
+    strpanCopperThickness = rpc3GapStrPanCopThickness;
+  }
   double strpanLength = length/r->NstripPanels_in_z;
   double strpanWidth = width /r->NstripPanels_in_s - eps;
   if (RPCprint) {
@@ -89,11 +106,11 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
   GeoTrd* sstrpan = new GeoTrd (strpanThickness/2., strpanThickness/2.,
                                 strpanWidth/2., strpanWidth/2., strpanLength/2.);
 
-  GeoTrd* sfoamstrpan = new GeoTrd (strpanThickness/2.-r->stripPanelCopperSkinThickness,
-                                    strpanThickness/2.-r->stripPanelCopperSkinThickness,
-                                    strpanWidth/2.-r->stripPanelCopperSkinThickness,
-                                    strpanWidth/2.-r->stripPanelCopperSkinThickness,
-                                    strpanLength/2.-r->stripPanelCopperSkinThickness);
+  GeoTrd* sfoamstrpan = new GeoTrd (strpanThickness/2.-strpanCopperThickness,
+                                    strpanThickness/2.-strpanCopperThickness,
+                                    strpanWidth/2.-strpanCopperThickness,
+                                    strpanWidth/2.-strpanCopperThickness,
+                                    strpanLength/2.-strpanCopperThickness);
   const GeoShape* scustrpan = sstrpan;
   GeoLogVol* lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan,
                                         getMaterialManager()->getMaterial("std::Copper"));
@@ -161,7 +178,16 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
   }
 
   newpos += strpanThickness/2.;
-  double ggThickness = 2.*r->bakeliteThickness + r->gasThickness + r->totalAirThickness;
+  double bakelThickness = r->bakeliteThickness;
+  double gThickness = r->gasThickness;
+  double totAirThickness = r->totalAirThickness;
+  if (m->nGasGaps()==3) { // for BIS RPCs
+    bakelThickness = rpc3GapBakelThickness;
+    gThickness = rpc3GapGThickness;
+    totAirThickness = rpc3GapTotAirThickness;
+  }
+
+  double ggThickness = 2.*bakelThickness + gThickness + totAirThickness;
   newpos += ggThickness/2.;
   // this brings to the center of the gas gap
 
@@ -169,6 +195,33 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
   double ggWidth     = width/r->NGasGaps_in_s-eps;
   double gasLength   = ggLength - 2.*r->bakeliteframesize;
   double gasWidth    = ggWidth- 2.*r->bakeliteframesize;
+
+  double y_translation;
+  double z_translation;
+  if (m->nGasGaps()==3) { // for BIS RPCs
+    if (name == "RPC26" ) { //big RPC7
+      gasLength   = ggLength - 93.25; // ggLength - deadframesizeEta
+      gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
+      y_translation = -45.715;
+      z_translation = -37.85;
+    } else if (name == "RPC27" ){//small RPC7
+      gasLength   = ggLength - 93.12; // ggLength - deadframesizeEta
+      gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
+      y_translation = -45.715;
+      z_translation = -37.63;
+    } else if (name == "RPC28"){//big RPC8
+      gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
+      gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
+      y_translation = -26.99;
+      z_translation = -37.64;
+    } else if (name == "RPC29"){//small RPC8
+      gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
+      gasWidth    = ggWidth - 109.2; // ggWidth - deadframesizePhi
+      y_translation = -45.8;
+      z_translation = -37.64;
+    }
+  }
+
   if (RPCprint) {
     log << MSG::VERBOSE
         << "RpcLayer:: Building the gasgap:: " << r->NGasGaps_in_s << " in s direction"
@@ -178,13 +231,13 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
         << endmsg;
     log << MSG::VERBOSE
         << "RpcLayer:: Building the gas:: w,l,t " << gasWidth << " "
-        << gasLength << " " << r->gasThickness
+        << gasLength << " " << gThickness
         << endmsg;
   }
   GeoTrd *sgg  = new GeoTrd (ggThickness/2., ggThickness/2.,
                               ggWidth/2.,     ggWidth/2.,
                               ggLength/2.);
-  GeoTrd *sgas = new GeoTrd (r->gasThickness/2., r->gasThickness/2.,
+  GeoTrd *sgas = new GeoTrd (gThickness/2., gThickness/2.,
                               gasWidth/2., gasWidth/2.,
                               gasLength/2.);
   const GeoShape *sbak = sgg;
@@ -227,6 +280,12 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     pbak2->add(pgas2);
   } else if (r->NGasGaps_in_s == 1) {
     prpcl->add(tx);
+    if (m->nGasGaps()==3) { // for BIS RPCs
+      GeoTransform* ty = new GeoTransform(GeoTrf::TranslateY3D(y_translation));
+      GeoTransform* tz = new GeoTransform(GeoTrf::TranslateZ3D(z_translation));
+      prpcl->add(ty);
+      prpcl->add(tz);
+    }
     prpcl->add(new GeoIdentifierTag(0));
     prpcl->add(pbak1);
     if (RPCprint) {

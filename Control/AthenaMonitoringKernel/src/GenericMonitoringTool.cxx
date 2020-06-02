@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -85,7 +85,7 @@ StatusCode GenericMonitoringTool::book() {
     ATH_MSG_DEBUG( "Monitoring for variable " << def.name << " prepared" );
   }
 
-  if ( fillers.empty() ) {
+  if ( fillers.empty() && m_failOnEmpty ) {
     std::string hists;
     for (const auto &h : m_histograms) hists += (h+",");
     ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<
@@ -110,33 +110,32 @@ namespace Monitored {
     }
 }
 
-std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredVariables) const {
 
+void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const {
 
   // stage 1: get candidate fillers (assume generally we get only a few variables)
-  std::vector<const HistogramFiller*> candidates;
+  std::vector<HistogramFiller*> candidates;
   for (const auto& monValue : monitoredVariables) {
     const auto& match = m_fillerMap.find(monValue.get().name());
     if (match != m_fillerMap.end()) {
+      candidates.reserve(candidates.size() + match->second.size());
       for (const auto& i : match->second) {
         candidates.push_back(i.get());
       }
     }
-  } 
-  // dedup vector
+  }
+  // dedup vector (yes, this is faster than using std::set above)
   std::sort(candidates.begin(), candidates.end());
   candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
-
   // stage 2: refine for fillers that have all variables set
-  std::vector<std::shared_ptr<HistogramFiller>> result;
-  result.reserve(candidates.size());
+  std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
+  variables.reserve(3); // enough for all current fillers
+
   for (const auto& filler : candidates) {
     // Find the associated monitored variable for each histogram's variable(s)
     const auto& fillerVariables = filler->histogramVariablesNames();
 
-    std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
-    variables.reserve(3); // enough for all current fillers
-
+    variables.clear();
     for (const auto& fillerVariable : fillerVariables) {
       for (const auto& monValue : monitoredVariables) {
         if (fillerVariable.compare(monValue.get().name()) == 0) {
@@ -160,8 +159,8 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
 
     // Find the cutMask variable in the list of monitored variables
     const auto& fillerCutMask = filler->histogramCutMaskName();
-    Monitored::IMonitoredVariable* cutmask = nullptr;
-    if ( fillerCutMask != "" ) {
+    Monitored::IMonitoredVariable* cutmask(nullptr);
+    if ( not fillerCutMask.empty() ) {
       for (const auto& monValue : monitoredVariables) {
         if (fillerCutMask.compare(monValue.get().name()) == 0) {
           cutmask = &monValue.get();
@@ -189,14 +188,13 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
                     << "\n  Asked to fill from mon. vars: " << monitoredVariables);
       continue;
     }
-    HistogramFiller* fillerCopy(filler->clone());
-    fillerCopy->setMonitoredVariables(std::move(variables));
-    fillerCopy->setMonitoredWeight(weight);
-    fillerCopy->setMonitoredCutMask(cutmask);
-    result.emplace_back(fillerCopy);
-  }
-
-  return result;
+    
+    std::scoped_lock guard(m_fillMutex);
+    filler->setMonitoredVariables(std::move(variables));
+    filler->setMonitoredWeight(weight);
+    filler->setMonitoredCutMask(cutmask);
+    filler->fill();    
+  }  
 }
 
 uint32_t GenericMonitoringTool::runNumber() {

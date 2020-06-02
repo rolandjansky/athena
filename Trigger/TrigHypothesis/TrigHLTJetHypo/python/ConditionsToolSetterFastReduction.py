@@ -29,6 +29,8 @@ from collections import defaultdict
 
 import copy
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'ConditionsToolSetterFastReduction' )
 
 def is_leaf(node):
     return node.scenario in  ('simple', 'etaet', 'dijet', 'qjet')
@@ -376,7 +378,7 @@ class ConditionsToolSetterFastReduction(object):
         tree_map = {}
         self._fill_tree_map(root, tree_map)
         for k, v in tree_map.items():
-            print ("Tree map debug %s %s", str(k), str(v))
+            log.debug("Tree map debug %s %s", str(k), str(v))
             
         self.treeVec = self._map_2_vec(tree_map)
 

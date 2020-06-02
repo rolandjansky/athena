@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRdoContByteStreamTool.h"
 #include "CscROD_Encoder.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 
 #include "StoreGate/StoreGate.h"
 #include "AthenaKernel/CLASS_DEF.h"
@@ -14,71 +13,41 @@
 #include <map> 
 
 // contructor
-Muon::CscRdoContByteStreamTool::CscRdoContByteStreamTool
-(const std::string& type, const std::string& name, const IInterface* parent)
-  :  AthAlgTool(type,name,parent) 
+Muon::CscRdoContByteStreamTool::CscRdoContByteStreamTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type,name,parent) 
 {
-  //  declareInterface<Muon::CscRdoContByteStreamTool>(this);
   declareInterface<Muon::ICSC_RDOtoByteStreamTool>(this);
-  
   declareProperty("EventType", m_eventType=0x0);
   declareProperty("RODVersion", m_rodVersion=0x0200);
   declareProperty("IsCosmicData", m_isCosmic=false);
   declareProperty("IsOldCosmicData", m_isOldCosmic=false);
-
 }
-
-
-// destructor 
-Muon::CscRdoContByteStreamTool::~CscRdoContByteStreamTool()
-{}
-
 
 // initialize 
 StatusCode Muon::CscRdoContByteStreamTool::initialize()
 {
-  //   StatusCode status = AthAlgTool::initialize(); 
-   ATH_MSG_DEBUG ("Muon::CscRdoContByteStreamTool::initialize()");  
+  ATH_CHECK(AthAlgTool::initialize()); 
+  ATH_MSG_DEBUG ("Muon::CscRdoContByteStreamTool::initialize()");  
 
   // get the cabling service
-  if (StatusCode::SUCCESS != serviceLocator()->service("CSCcablingSvc", m_cabling)) {
-    ATH_MSG_ERROR ( "Can't get CSCcablingSvc " );
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_muonIdHelperTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
-  }
+  ATH_CHECK(serviceLocator()->service("CSCcablingSvc", m_cabling));
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
   // create CSC RDO ID to source ID mapper
-  m_hid2re.set( m_cabling, m_muonIdHelperTool.get() );
+  m_hid2re.set(m_cabling, &m_idHelperSvc->cscIdHelper());
   if ( m_isCosmic ) { 
     m_hid2re.set_isCosmic();
     if ( m_isOldCosmic ) m_hid2re.set_isOldCosmic();
   }
-  
   return StatusCode::SUCCESS;
 }
-
- 
-// finalize
-StatusCode Muon::CscRdoContByteStreamTool::finalize()
-{
-  //  return AthAlgTool::finalize();
-  return StatusCode::SUCCESS;
-}
-
 
 // convert CSC RDO to ByteStream
 StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEventWrite* re, 
 					     MsgStream& log)
 {
   m_fea.clear();
-  m_fea.idMap().set( m_cabling, m_muonIdHelperTool.get() );
+  m_fea.idMap().set(m_cabling, &m_idHelperSvc->cscIdHelper());
   if(m_cabling->nROD()==16) m_fea.setRodMinorVersion(0x400);
   else m_fea.setRodMinorVersion(m_rodVersion);
 
@@ -109,7 +78,7 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
 
       // map the RDO onto Encoder
       mapEncoder[rodId].setRdo(*it_col);
-      mapEncoder[rodId].setIdHelper(m_muonIdHelperTool.get());
+      mapEncoder[rodId].setIdHelper(&m_idHelperSvc->cscIdHelper());
     } 
 
   // loop over map and fill all ROD Data Blocks

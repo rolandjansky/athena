@@ -78,7 +78,7 @@ StatusCode BoostEvent::execute()
 			<< std::setw(10) << momentum.phi()
 			<< endmsg;
 
-      (*particleItr)->set_momentum( momentum );
+      (*particleItr)->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
     }
   }
 

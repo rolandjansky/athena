@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxVectorFactory.h 793319 2017-01-21 16:21:46Z ssnyder $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 
@@ -31,9 +28,6 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793319 $
-   /// $Date: 2017-01-21 17:21:46 +0100 (Sat, 21 Jan 2017) $
-   ///
    class TAuxVectorFactory : public SG::IAuxTypeVectorFactory {
 
    public:
@@ -46,35 +40,38 @@ namespace xAOD {
       /// @{
 
       /// Create a new vector in memory with the requested size and capacity
-      virtual
-      std::unique_ptr<SG::IAuxTypeVector> create( size_t size, size_t capacity ) const;
+      virtual std::unique_ptr< SG::IAuxTypeVector >
+      create( size_t size, size_t capacity ) const override;
 
-      std::unique_ptr<SG::IAuxTypeVector>
-      createFromData( void* /*data*/, bool /*isPacked*/, bool ) const;
-
-      /// Copy one element from one location to another
-      virtual void copy( void* dst,        size_t dst_index,
-                         const void* src,  size_t src_index ) const;
+      /// Create a vector object of this type from a data blob
+      virtual std::unique_ptr< SG::IAuxTypeVector >
+      createFromData( void* data, bool isPacked,
+                      bool ownFlag ) const override;
 
       /// Copy one element from one location to another
-      virtual void copyForOutput( void* dst,        size_t dst_index,
-                                  const void* src,  size_t src_index ) const;
+      virtual void copy( void* dst,       size_t dst_index,
+                         const void* src, size_t src_index ) const override;
+
+      /// Copy one element from one location to another
+      virtual void
+      copyForOutput( void* dst,       size_t dst_index,
+                     const void* src, size_t src_index ) const override;
 
       /// Swap the payload of two elements in memory
       virtual void swap( void* a, size_t aindex,
-                         void* b, size_t bindex ) const;
+                         void* b, size_t bindex ) const override;
 
       /// Clear the payload of a given range inside a vector
-      virtual void clear( void* dst, size_t dst_index ) const;
+      virtual void clear( void* dst, size_t dst_index ) const override;
 
       /// Size of the elements inside the vector type
-      virtual size_t getEltSize() const;
+      virtual size_t getEltSize() const override;
 
       /// Type info of the vector type handled by the factory object
-      virtual const std::type_info* tiVec() const;
+      virtual const std::type_info* tiVec() const override;
 
       /// Type of the factory
-      virtual bool isDynamic() const { return true; }
+      virtual bool isDynamic() const override { return true; }
 
       /// @}
 
@@ -84,7 +81,7 @@ namespace xAOD {
       /// ROOT's description of the vector type
       ::TVirtualCollectionProxy* m_proxy;
       /// Assignment operator
-      mutable ::TMethodCall m_assign;
+      mutable ::TMethodCall* m_assign = nullptr;
       /// Pointer to a default element object in memory
       mutable void* m_defElt;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
@@ -29,6 +29,8 @@ _all_streams = [
     # PHYSICS STREAMS
     StreamInfo('Main', 'physics', True, True),
     StreamInfo('CosmicMuons','physics',True,True),
+    StreamInfo('CosmicCalo','physics',True,True),
+    StreamInfo('IDCosmic','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # CALIBRATION STREAMS
@@ -36,7 +38,13 @@ _all_streams = [
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring','calibration', False, False),
-    StreamInfo('SCTNoise','calibration',False,False)
+    StreamInfo('SCTNoise','calibration',False,False),
+    StreamInfo('Tile','calibration',False,False),
+    # HI STREAMS
+    StreamInfo('HardProbes', 'physics', True, True),
+    StreamInfo('MinBias', 'physics', True, True),
+    # Special stream to be used only for special chains rejecting all events like timeburner
+    StreamInfo('DISCARD', 'unknown', False, False)
 ]
 
 

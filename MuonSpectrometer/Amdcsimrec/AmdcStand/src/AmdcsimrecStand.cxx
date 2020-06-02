@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcStand/AmdcsimrecStand.h"
@@ -1211,8 +1211,8 @@ void         AmdcsimrecStand::TestHardSoftStuff  ()
         if (  
                  GetSOFTNAME(iHardEntries) == "BML"  
              &&  GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 13
-             &&  abs( iHardSignedIz ) >= 5 
-             &&  ( abs(iHardSignedIz) - abs(GetSOFTIZ(iHardEntries)) ) == 1 
+             &&  std::abs( iHardSignedIz ) >= 5 
+             &&  ( std::abs(iHardSignedIz) - std::abs(GetSOFTIZ(iHardEntries)) ) == 1 
            ) {
           IOK = 1;
           TheComment = "<========BUT THIS IS OK" ;
@@ -1223,7 +1223,7 @@ void         AmdcsimrecStand::TestHardSoftStuff  ()
                      GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 12
                   || GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 14 
                  )
-             &&  ( abs(iHardSignedIz) - 2*abs(GetSOFTIZ(iHardEntries)) ) == 0 
+             &&  ( std::abs(iHardSignedIz) - 2*std::abs(GetSOFTIZ(iHardEntries)) ) == 0 
            ) {
           IOK = 1;
           TheComment = "<========BUT THIS IS OK" ;
@@ -1234,7 +1234,7 @@ void         AmdcsimrecStand::TestHardSoftStuff  ()
                      GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 12
                   || GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 14 
                  )
-             &&  ( abs(iHardSignedIz) + 1 - 2*abs(GetSOFTIZ(iHardEntries)) ) == 0
+             &&  ( std::abs(iHardSignedIz) + 1 - 2*std::abs(GetSOFTIZ(iHardEntries)) ) == 0
            ) {
           IOK = 1;
           TheComment = "<========BUT THIS IS OK" ;
@@ -1247,8 +1247,8 @@ void         AmdcsimrecStand::TestHardSoftStuff  ()
                   || GetHARDSector  ( GetHARDNAME(iHardEntries), ierr) == 9 
                  )
              &&  ( 
-                     ( abs(iHardSignedIz) == 4 && abs(GetSOFTIZ(iHardEntries)) == 5 )
-                  || ( abs(iHardSignedIz) == 5 && abs(GetSOFTIZ(iHardEntries)) == 4 )
+                     ( std::abs(iHardSignedIz) == 4 && std::abs(GetSOFTIZ(iHardEntries)) == 5 )
+                  || ( std::abs(iHardSignedIz) == 5 && std::abs(GetSOFTIZ(iHardEntries)) == 4 )
                  )
            ) {
           IOK = 1;

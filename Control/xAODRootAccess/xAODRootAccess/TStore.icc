@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TStore.icc 663791 2015-04-29 13:08:06Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TSTORE_ICC
 #define XAODROOTACCESS_TSTORE_ICC
 
@@ -12,7 +9,6 @@
 #include <TError.h>
 
 // EDM include(s):
-#include "AthContainers/ClassName.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 
 // Local include(s):
@@ -75,7 +71,8 @@ namespace xAOD {
    TReturnCode TStore::record( T* obj, const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj, key, ClassName< T >::name() );
+      TReturnCode result = record( obj, key,
+                                   SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
       if( ! result.isRecoverable() ) {
@@ -97,7 +94,8 @@ namespace xAOD {
                                const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj.get(), key, ClassName< T >::name() );
+      TReturnCode result = record( obj.get(), key,
+                                   SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
       if( ! result.isRecoverable() ) {

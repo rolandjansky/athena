@@ -30,7 +30,7 @@ namespace Monitored {
       return new HistogramFillerTree( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       // handling of the cutmask
       auto cutMaskValuePair = getCutMaskFunc();
       if (cutMaskValuePair.first == 0) { return 0; }
@@ -50,7 +50,6 @@ namespace Monitored {
       }
 
       auto cutMaskAccessor = cutMaskValuePair.second;
-      std::scoped_lock<std::mutex> lock(*(this->m_mutex));
 
       auto tree = this->histogram<TTree>();
       if (tree->GetListOfBranches()->GetEntries() == 0) {

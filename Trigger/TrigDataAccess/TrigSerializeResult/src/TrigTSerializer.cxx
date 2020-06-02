@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -16,11 +16,7 @@
 #include "SerializeCommon.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "TROOT.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,17,6)
 #include "TBufferFile.h"
-#else
-#include "TBuffer.h"
-#endif
 #include "TClass.h"
 #include "TError.h"
 #include "TMethodCall.h"
@@ -258,7 +254,6 @@ StatusCode TrigTSerializer::finalize(){
   }
   if (!reported)
     ATH_MSG_INFO( name() << " no problems encountered" );
-
   return StatusCode::SUCCESS;
 }
 
@@ -268,8 +263,8 @@ void TrigTSerializer::add_previous_streamerinfos(){
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFile );
   TFile f(extFile.c_str());
-  TList *a = f.GetStreamerInfoList();
-  TIter nextinfo(a);
+  TList* streamersList = f.GetStreamerInfoList();
+  TIter nextinfo(streamersList);
   while (TObject* obj = nextinfo()) {
     TStreamerInfo *inf = dynamic_cast<TStreamerInfo*> (obj);
     if (!inf) continue;
@@ -287,6 +282,9 @@ void TrigTSerializer::add_previous_streamerinfos(){
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
+  streamersList->SetOwner(false);
+  streamersList->Clear("nodelete");
+  f.Close();
 }
 
 
@@ -362,11 +360,7 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
 
   //  do_persistify(noc, instance);
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,17,6)
   TBufferFile *buff = new TBufferFile(TBuffer::kWrite);
-#else
-  TBuffer *buff = new TBuffer(TBuffer::kWrite);
-#endif
 
   //std::vector<uint32_t> serialized;
 
@@ -537,12 +531,7 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, const std::ve
   */
 
   //common part
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,17,6)
   TBufferFile *buff = new TBufferFile(TBuffer::kRead, bufsiz, pbuf, kTRUE);
-#else
-  TBuffer *buff = new TBuffer(TBuffer::kRead, bufsiz, pbuf, kTRUE);
-#endif
-
   
   std::string noc= TrigSerializeResult::remapToDictName(nameOfClass);
   TClass *pclass = gROOT->GetClass(noc.c_str());

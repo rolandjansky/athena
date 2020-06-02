@@ -11,6 +11,7 @@ from __future__ import print_function
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
 from math import pi
 import ROOT
@@ -123,7 +124,7 @@ def testCfg (configFlags):
 
     result.addEventAlgo (CreateDataAlg ('CreateDataAlg'))
 
-    from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
+    CaloThinCellsByClusterAlg=CompFactory.CaloThinCellsByClusterAlg
     result.addEventAlgo (CaloThinCellsByClusterAlg ('thinAlg',
                                                     StreamName = 'StreamAOD',
                                                     Clusters = 'Clusters',
@@ -146,8 +147,8 @@ ConfigFlags.needFlagsCategory('Tile')
 ConfigFlags.needFlagsCategory('LAr')
 
 ConfigFlags.lock()
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-acc=MainServicesSerialCfg()
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+acc=MainServicesCfg(ConfigFlags)
 
 from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
 acc.merge (McEventSelectorCfg (ConfigFlags))

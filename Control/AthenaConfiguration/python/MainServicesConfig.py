@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.AlgSequence import AthSequencer
+AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
@@ -21,17 +21,8 @@ def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'
     cfg.setAppProperty('PrintAlgsSequence', True)
     return cfg
 
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
-def MainServicesSerialCfg():
-    serialflags=AthConfigFlags()
-    serialflags.addFlag('Concurrency.NumProcs', 0)
-    serialflags.addFlag('Concurrency.NumThreads', 0)
-    serialflags.addFlag('Concurrency.NumConcurrentEvents', 0)
-    return MainServicesThreadedCfg(serialflags)
-
-def MainServicesThreadedCfg(cfgFlags):
-
+def MainServicesCfg(cfgFlags):
     # Run a serial job for threads=0
     LoopMgr = 'AthenaEventLoopMgr'
     if cfgFlags.Concurrency.NumThreads>0:
@@ -86,7 +77,7 @@ def MainServicesThreadedCfg(cfgFlags):
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
-    cfg.addService( StoreGateSvc("ConditionStore") )
+    cfg.addService(StoreGateSvc("ConditionStore"))
     
     CoreDumpSvc=CompFactory.CoreDumpSvc
     #438 is the logical or of  FATAL_ON_QUIT, FATAL_ON_INT, FATAL_DUMP_SIG, FATAL_DUMP_STACK, FATAL_DUMP_CONTEXT, FATAL_AUTO_EXIT
@@ -95,25 +86,26 @@ def MainServicesThreadedCfg(cfgFlags):
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 
+    cfg.setAppProperty('EvtMax',cfgFlags.Exec.MaxEvents)
+
+    msgsvc=CompFactory.MessageSvc()
+    msgsvc.OutputLevel=cfgFlags.Exec.OutputLevel
+    cfg.addService(msgsvc)
+
+    if cfgFlags.Exec.DebugStage != "":
+        cfg.setDebugStage(cfgFlags.Exec.DebugStage)
+
+
     ########################################################################
     # Additional components needed for threaded jobs only
     if cfgFlags.Concurrency.NumThreads>0:
 
         # Migrated code from AtlasThreadedJob.py
-        MessageSvc=CompFactory.MessageSvc
-        StatusCodeSvc, AuditorSvc=CompFactory.getComps("StatusCodeSvc","AuditorSvc",)
-
-        msgsvc = MessageSvc()
+        AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
         msgsvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
-        cfg.addService(msgsvc)
 
-        scsvc = StatusCodeSvc()
-        scsvc.AbortOnError = False
-        cfg.addService(scsvc)
-        cfg.setAppProperty('StatusCodeCheck',False)
-
-        SG__HiveMgrSvc=CompFactory.SG__HiveMgrSvc
+        SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
         hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
         cfg.addService( hivesvc )
@@ -155,11 +147,8 @@ def MainServicesThreadedCfg(cfgFlags):
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
-
-        auditorsvc = AuditorSvc()
         SGCommitAuditor=CompFactory.SGCommitAuditor
-        auditorsvc += SGCommitAuditor()
-        cfg.addService( auditorsvc )
+        cfg.addService( AuditorSvc(Auditors=[SGCommitAuditor().getFullJobOptName(),]))
         cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg

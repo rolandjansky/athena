@@ -7,7 +7,7 @@
 #include "Rivet_i.h"
 #include "LogLevels.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"
@@ -24,10 +24,7 @@
 #include "Rivet/Analysis.hh"
 #include "Rivet/Tools/RivetYODA.hh"
 
-//#include "TH1D.h"
-//#include "TGraphAsymmErrors.h"
 
-//#include "YODA/ROOTCnv.h"
 
 #include <cstdlib>
 #include <memory>
@@ -40,7 +37,6 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  //m_histSvc("THistSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -58,8 +54,6 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("DoRootHistos", m_doRootHistos=false);
   declareProperty("SkipWeights", m_skipweights=false);
   declareProperty("WeightCap", m_weightcap=-1.0);
-  // Service handles
-  //declareProperty("THistSvc", m_histSvc);
 }
 
 string getenv_str(const string& key) {
@@ -72,11 +66,6 @@ StatusCode Rivet_i::initialize() {
   ATH_MSG_DEBUG("Rivet_i initializing");
   ATH_MSG_INFO("Using Rivet version " << Rivet::version());
 
-  // Get histo service
-  //if (m_doRootHistos && m_histSvc.retrieve().isFailure()) {
-  //  ATH_MSG_FATAL("Failed to retrieve service " << m_histSvc);
-  //  return StatusCode::FAILURE;
-  //}
 
   // Set RIVET_ANALYSIS_PATH based on alg setup
 
@@ -224,49 +213,7 @@ StatusCode Rivet_i::finalize() {
   // Call Rivet finalize
   m_analysisHandler->finalize();
 
-  // Convert YODA-->ROOT
-  /*if (m_doRootHistos) {
-    for (const Rivet::AnalysisObjectPtr ao : m_analysisHandler->getData()) {
-      // Normalize path name to be usable by ROOT
-      string path = string(ao->path());
-      std::replace(path.begin(), path.end(), '-', '_');
-      const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
-      // Convert YODA histos to heap-allocated ROOT objects and register
-      /// @todo Convert Counter... as what?
-      if (ao->type() == "Histo1D") {
-        TH1* h = (TH1*) YODA::toTH1D(*dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone(basename.c_str());
-        CHECK(m_histSvc->regHist(m_stream + path, h));
-        ATH_MSG_INFO("TH1D " + path + " created from YODA::Histo1D");
-      } else if (ao->type() == "Histo2D") {
-        TH2* h = (TH2*) YODA::toTH2D(*dynamic_pointer_cast<YODA::Histo2D>(ao)).Clone(basename.c_str());
-        CHECK(m_histSvc->regHist(m_stream + path, h));
-        ATH_MSG_INFO("TH2 " + path + " created from YODA::Histo2D");
-      // } else if (ao->type() == "Profile2D") {
-      //   TProfile2D* h = (TProfile2D*) YODA::toTProfile2D(*boost::dynamic_pointer_cast<YODA::Profile2D>(ao)).Clone(basename.c_str());
-      //   CHECK(m_histSvc->regHist(m_stream + path, h));
-      //   ATH_MSG_INFO("TProfile2D " + path + " created from YODA::Profile2D");
-      } else if (ao->type() == "Profile1D") {
-        TH1* h = (TH1*) YODA::toTProfile(*dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone(basename.c_str());
-        CHECK(m_histSvc->regHist(m_stream + path, h));
-        ATH_MSG_INFO("TProfile " + path + " created from YODA::Profile1D");
-      // } else if (ao->type() == "Scatter1D") {
-      //   TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter1D>(ao)).Clone(basename.c_str());
-      //   CHECK(m_histSvc->regGraph(m_stream + path, g));
-      //   ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
-      } else if (ao->type() == "Scatter2D") {
-        TGraph* g = (TGraph*) YODA::toTGraph(*dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone(basename.c_str());
-        CHECK(m_histSvc->regGraph(m_stream + path, g));
-        ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
-      // } else if (ao->type() == "Scatter3D") {
-      //   TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter3D>(ao)).Clone(basename.c_str());
-      //   CHECK(m_histSvc->regGraph(m_stream + path, g));
-      //   ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
-      } else {
-        ATH_MSG_WARNING("Couldn't convert YODA histo " + path + " to ROOT: unsupported data type " + ao->type());
-      }
-    }
-  }*/
 
   // Write out YODA file (add .yoda suffix if missing)
   if (m_file.find(".yoda") == string::npos) m_file += ".yoda";
@@ -304,47 +251,51 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   }
 
   // weight-name cleaning
-  vector<pair<string,string> > w_subs = {
-    {" nominal ",""},
-    {" set = ","_"},
-    {" = ","_"},
-    {"=",""},
-    {",",""},
-    {".",""},
-    {":",""},
-    {" ","_"},
-    {"#","num"},
-    {"\n","_"},
-    {"/","over"}
-  };
-
   const HepMC::WeightContainer& old_wc = event->weights();
-  HepMC::WeightContainer& new_wc = modEvent->weights();
-  new_wc.clear();
   std::ostringstream stream;
   old_wc.print(stream);
   string str =  stream.str();
-  std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
-  for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
-       i != std::sregex_iterator(); ++i ) {
-    std::smatch m = *i;
-    vector<string> temp = ::split(m.str(), "[,]");
-    if (temp.size() == 2 || temp.size() == 3) {
-      string wname = temp[0];
-      if (temp.size() == 3)  wname += "," + temp[1];
-      double value = old_wc[wname];
-      for (const auto& sub : w_subs) {
-        size_t start_pos = wname.find(sub.first);
-        while (start_pos != std::string::npos) {
-          wname.replace(start_pos, sub.first.length(), sub.second);
-          start_pos = wname.find(sub.first);
+  // if it only has one element, 
+  // then it doesn't use named weights
+  // --> no need for weight-name cleaning
+  if (str.size() > 1) {
+    HepMC::WeightContainer& new_wc = modEvent->weights();
+    new_wc.clear();
+    vector<pair<string,string> > w_subs = {
+      {" nominal ",""},
+      {" set = ","_"},
+      {" = ","_"},
+      {"=",""},
+      {",",""},
+      {".",""},
+      {":",""},
+      {" ","_"},
+      {"#","num"},
+      {"\n","_"},
+      {"/","over"}
+    };
+    std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+         i != std::sregex_iterator(); ++i ) {
+      std::smatch m = *i;
+      vector<string> temp = ::split(m.str(), "[,]");
+      if (temp.size() == 2 || temp.size() == 3) {
+        string wname = temp[0];
+        if (temp.size() == 3)  wname += "," + temp[1];
+        double value = old_wc[wname];
+        for (const auto& sub : w_subs) {
+          size_t start_pos = wname.find(sub.first);
+          while (start_pos != std::string::npos) {
+            wname.replace(start_pos, sub.first.length(), sub.second);
+            start_pos = wname.find(sub.first);
+          }
         }
+        new_wc[wname];
+        new_wc.back() = value;
       }
-      new_wc[wname];
-      new_wc.back() = value;
     }
+    // end of weight-name cleaning
   }
-  // end of weight-name cleaning
 
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {

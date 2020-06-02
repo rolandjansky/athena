@@ -73,10 +73,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
       return StatusCode::FAILURE;  
     }
     
-    const std::vector<const Property*>* byteStreamNavProps
-        = (jobOptionsSvc)?  jobOptionsSvc->getProperties("ByteStreamNavigationProviderSvc") : 0;
-
-    
     const std::vector<const Property*>* dataFlowProps 
         = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
 
@@ -85,7 +81,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
                      TrigConfSvc->getProperties("EventSelector"); 
     
     if     ( dataFlowProps != 0 ) has_bytestream = true;
-        if( byteStreamNavProps != 0 ) has_bytestream = true;
     else if( eventSelProps != 0 )
     {
         for (std::vector<const Property*>::const_iterator 

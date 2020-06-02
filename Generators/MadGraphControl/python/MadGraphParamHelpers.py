@@ -64,6 +64,7 @@ def set_top_params(process_dir,mTop=172.5,FourFS=False):
 '25' : """DECAY  25   6.382339e-03""",
         },
     }
-    if FourFS: param_card_settings['mass']['5']="4.950000e+00"
+    if FourFS:
+        param_card_settings['mass']['5']="4.950000e+00"
     from MadGraphControl.MadGraphUtils import modify_param_card
     modify_param_card(process_dir=process_dir,params=param_card_settings)

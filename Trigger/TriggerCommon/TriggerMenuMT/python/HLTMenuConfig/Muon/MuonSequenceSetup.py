@@ -24,7 +24,9 @@ muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
 muonRecFlags.enableErrorTuning = False
 
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool, ViewCreatorPreviousROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, \
+  ViewCreatorInitialROITool, ViewCreatorPreviousROITool, ViewCreatorNamedROITool, \
+  ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool, ViewCreatorFetchFromViewROITool
 
 #muon container names (for RoI based sequences)
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
@@ -36,11 +38,14 @@ def muFastAlgSequence(ConfigFlags):
 
     ### set the EVCreator ###
     l2MuViewsMaker = EventViewCreatorAlgorithm("IMl2Mu")
-    l2MuViewsMaker.ViewFallThrough = True
-    l2MuViewsMaker.RoIsLink = "initialRoI"
-    l2MuViewsMaker.RoITool = ViewCreatorInitialROITool()
-    l2MuViewsMaker.InViewRoIs = "MURoIs"
+    #
+    l2MuViewsMaker.RoIsLink = "initialRoI" # ROI is from L1
+    l2MuViewsMaker.RoITool = ViewCreatorInitialROITool() # ROI is from L1
+    #
     l2MuViewsMaker.Views = "MUViewRoIs"
+    l2MuViewsMaker.InViewRoIs = "MURoIs"
+    #
+    l2MuViewsMaker.ViewFallThrough = True
 
     ### get muFast reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence, makeMuonPrepDataAlgs
@@ -60,7 +65,6 @@ def muFastSequence():
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
-    trigMufastHypo.forIDFromMuFastAlg = "HLT_forID" 
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
@@ -78,7 +82,6 @@ def muFastOvlpRmSequence():
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
-    trigMufastHypo.forIDFromMuFastAlg = "HLT_forID" 
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
@@ -99,20 +102,27 @@ def muFastOvlpRmSequence():
 ### ************* Step2  ************* ###
 #-----------------------------------------------------#
 def muCombAlgSequence(ConfigFlags):
-
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     ### set the EVCreator ###
     l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
-    l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # setting to RoI updated L2MuonSA. Used in merging to determin identical Decision objects
-    l2muCombViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use the "roi" link from the previous step when spawning new view
-    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
+    newRoITool = ViewCreatorFetchFromViewROITool()
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon") #RoI collection recorded to EDM
+    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
+
+    #
+    l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
+    l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
+    #
     l2muCombViewsMaker.Views = "MUCombViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View.
+    #
     l2muCombViewsMaker.RequireParentView = True
+    l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
 
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
     muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "")
-    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
+    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
     from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
@@ -184,13 +194,16 @@ def muCombOvlpRmSequence():
 def muEFSAAlgSequence(ConfigFlags):
 
     efsaViewsMaker = EventViewCreatorAlgorithm("IMefsa")
-    efsaViewsMaker.ViewFallThrough = True
-    efsaViewsMaker.RoIsLink = "initialRoI" # Note: This is for L1-seeded muons, can use the "initialRoI" for input maker merging
-    efsaViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use "roi" link to spawn views
-    efsaViewsMaker.InViewRoIs = "MUEFSARoIs"
+    #
+    efsaViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
+    efsaViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    #
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
+    efsaViewsMaker.InViewRoIs = "MUEFSARoIs"
+    #
     efsaViewsMaker.RequireParentView = True
-   
+    efsaViewsMaker.ViewFallThrough = True
+
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
     muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI' )
@@ -206,8 +219,8 @@ def muEFSASequence():
     (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
 
     # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
-    trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg" )
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
@@ -224,8 +237,8 @@ def muEFMSSequence():
     (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
 
     # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
-    trigMuonEFSAHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFMSonlyHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFMSonlyHypoAlg" )
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
@@ -247,12 +260,15 @@ def muEFCBAlgSequence(ConfigFlags):
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
-    efcbViewsMaker.ViewFallThrough = True
-    efcbViewsMaker.RoIsLink = "roi"
-    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Use "roi" link to spawn views
-    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
+    #
+    efcbViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
+    efcbViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    #
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
+    efcbViewsMaker.InViewRoIs = "MUEFCBRoIs"
+    #
     efcbViewsMaker.RequireParentView = True
+    efcbViewsMaker.ViewFallThrough = True
 
     #outside-in reco sequence
     muEFCBRecoSequence, sequenceOutCB = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
@@ -289,8 +305,8 @@ def muEFCBSequence():
     (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
-    trigMuonEFCBHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFCombinerHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlg" )
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
     
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
@@ -310,20 +326,22 @@ def muEFCBInvMassSequence():
     invMassRecoSequence = parOR("muInvMViewNode")
     
     invMViewsMaker = EventViewCreatorAlgorithm("IMmuinvm")
-    invMViewsMaker.ViewFallThrough = True
-    invMViewsMaker.RoIsLink = "initialRoI"
-    invMViewsMaker.RoITool = ViewCreatorInitialROITool()
-    invMViewsMaker.InViewRoIs = "muInvMRoIs"
+    #
+    invMViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
+    invMViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    #
     invMViewsMaker.Views = "muInvMViewRoIs"
-    invMViewsMaker.ViewNodeName = invMassRecoSequence.name()
+    invMViewsMaker.InViewRoIs = "muInvMRoIs"
+    #
     invMViewsMaker.RequireParentView = True
-   
+    invMViewsMaker.ViewFallThrough = True
     
     ViewVerifyEFCB = CfgMgr.AthViews__ViewDataVerifier("muInvMViewDataVerifier")
     ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+'+muNames.EFCBName )]
     invMassRecoSequence += ViewVerifyEFCB
     invMassSequence = seqAND( "muInvMSequence", [invMViewsMaker, invMassRecoSequence] )
 
+    invMViewsMaker.ViewNodeName = invMassRecoSequence.name()
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoToolFromDict
 
@@ -339,14 +357,17 @@ def muEFCBInvMassSequence():
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
-    efsafsInputMaker.InViewRoIs = "MUFSRoIs"
-    efsafsInputMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
+    efsafsInputMaker = EventViewCreatorAlgorithm("IMMuonFS")
+    fsRoiTool = ViewCreatorFSROITool()
+    fsRoiTool.RoisWriteHandleKey = "MuonFS_RoIs"
+    #
+    efsafsInputMaker.RoIsLink = "initialRoI" # Only expect to get in one FS RI
+    efsafsInputMaker.RoITool = fsRoiTool # Use new FS roi (note: the ViewCreatorInitialROITool should work excactly the same here)
+    #
     efsafsInputMaker.Views = "MUFSViewRoI"
+    efsafsInputMaker.InViewRoIs = "MUFSRoIs"
+    #
     efsafsInputMaker.ViewFallThrough=True
-    efsafsInputMaker.CreateFSRoI=True
-    efsafsInputMaker.RoisWriteHandleKey="MuonFS_RoIs"
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
@@ -365,8 +386,8 @@ def muEFSAFSSequence():
     (muonEFSAFSSequence, efsafsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAFSAlgSequence, ConfigFlags)
 
     # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoAlg
-    trigMuonEFSAFSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAFSHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
     
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
@@ -380,19 +401,22 @@ def muEFSAFSSequence():
 ### EF CB full scan ###
 ######################
 def muEFCBFSAlgSequence(ConfigFlags):
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("IMEFCBFS") 
-    efcbfsInputMaker.ViewFallThrough = True
+    efcbfsInputMaker = EventViewCreatorAlgorithm("IMEFCBFS")
+    newRoITool = ViewCreatorCentredOnIParticleROITool()
+    newRoITool.RoisWriteHandleKey = "MuonCandidates_FS_ROIs"
+    #
     efcbfsInputMaker.mergeUsingFeature = True
+    efcbfsInputMaker.RoITool = newRoITool
+    #
     efcbfsInputMaker.Views = "MUCBFSViews"
     efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
-    efcbfsInputMaker.RoIsLink = "initialRoI"
-    efcbfsInputMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
-    efcbfsInputMaker.InViewMuons = "InViewMuons"
-    efcbfsInputMaker.MuonsLink = "feature"
+    #
     efcbfsInputMaker.RequireParentView = True
+    efcbfsInputMaker.ViewFallThrough = True
+    # Muon specific
+    efcbfsInputMaker.PlaceMuonInView = True
+    efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.InViewMuonCandidates = "MuonCandidates_FS"
-    efcbfsInputMaker.RoisWriteHandleKey = "MuonCandidates_FS_ROIs"
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBFSRecoSequence, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
@@ -408,8 +432,8 @@ def muEFCBFSSequence():
     (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBFSAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
-    trigMuonEFCBFSHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
     trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
@@ -423,13 +447,15 @@ def efLateMuRoIAlgSequence(ConfigFlags):
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import efLateMuRoISequence
     
-    eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemuroi")
-    eflateViewsMaker.ViewFallThrough = True
+    eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemuroi") 
+    #
     eflateViewsMaker.RoIsLink = "initialRoI"
     eflateViewsMaker.RoITool = ViewCreatorInitialROITool()
-    eflateViewsMaker.InViewRoIs = "MULATERoIs"
+    #
     eflateViewsMaker.Views = "MULATEViewRoIs"
-
+    eflateViewsMaker.InViewRoIs = "MULATERoIs"
+    #
+    eflateViewsMaker.ViewFallThrough = True
 
     #Get Late Muon RoIs
     efLateMuRoISequence, sequenceOut = efLateMuRoISequence()
@@ -460,16 +486,17 @@ def efLateMuRoISequence():
 def efLateMuAlgSequence(ConfigFlags):
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence, makeMuonPrepDataAlgs, muonIDFastTrackingSequence
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    eflateViewsMaker = EventViewCreatorAlgorithmWithMuons("IMeflatemu")
-    eflateViewsMaker.ViewFallThrough = True
-    eflateViewsMaker.RoIsLink = "initialRoI"
-    eflateViewsMaker.InViewRoIs = "MUEFLATERoIs"
-    eflateViewsMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
+    eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemu")
+    roiTool = ViewCreatorNamedROITool() # Use an existing ROI which is linked to the navigation with a custom name.
+    roiTool.ROILinkName = "feature" # The ROI is actually linked as Step 1's feature. So the custom name is "feature".
+    #
+    eflateViewsMaker.mergeUsingFeature = True # Expect to have efLateMuRoIAlgSequence produce one Decision Object per lateROI, keep these distinct in the merging 
+    eflateViewsMaker.RoITool = roiTool
+    #
     eflateViewsMaker.Views = "MUEFLATEViewRoIs"
-    eflateViewsMaker.DoLateMu = True
-    eflateViewsMaker.LateRoIsLink = "feature"
-    eflateViewsMaker.RoisWriteHandleKey = "LateMuRoIs"
+    eflateViewsMaker.InViewRoIs = "MUEFLATERoIs"
+    #
+    eflateViewsMaker.ViewFallThrough = True
 
     #decode data in these RoIs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=eflateViewsMaker.InViewRoIs)
@@ -491,8 +518,8 @@ def efLateMuSequence():
     (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuAlgSequence, ConfigFlags)
 
     # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
-    trigMuonEFLateHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFCombinerLateMuHypoAlg" )
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
+    trigMuonEFLateHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerLateMuHypoAlg" )
     trigMuonEFLateHypo.MuonDecisions = sequenceOut
     
     from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
@@ -510,12 +537,15 @@ def efLateMuSequence():
 def muIsoAlgSequence(ConfigFlags):
 
     l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
-    l2muIsoViewsMaker.ViewFallThrough = True
-    l2muIsoViewsMaker.RoIsLink = "initialRoI"
-    l2muIsoViewsMaker.RoITool = ViewCreatorInitialROITool()
-    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs"
+    #
+    l2muIsoViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
+    l2muIsoViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
+    #
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
+    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs"
+    #
     l2muIsoViewsMaker.RequireParentView = True
+    l2muIsoViewsMaker.ViewFallThrough = True
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import l2muisoRecoSequence
@@ -550,20 +580,25 @@ def muIsoSequence():
 ### efMuiso step ###
 ######################
 def muEFIsoAlgSequence(ConfigFlags):
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("IMefmuIso")
-    efmuIsoViewsMaker.ViewFallThrough = True
-    efmuIsoViewsMaker.RoIsLink = "initialRoI"
-    efmuIsoViewsMaker.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithMuons -> EventViewCreatorAlgorithm
-    efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs"
-    efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
-    efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"
-    efmuIsoViewsMaker.MuonsLink = "feature"
-    efmuIsoViewsMaker.RoIEtaWidth=0.15
-    efmuIsoViewsMaker.RoIPhiWidth=0.15
+    efmuIsoViewsMaker = EventViewCreatorAlgorithm("IMefmuIso")
+    newRoITool = ViewCreatorCentredOnIParticleROITool()
+    newRoITool.RoIEtaWidth=0.15
+    newRoITool.RoIPhiWidth=0.15
+    newRoITool.RoisWriteHandleKey = "IsoMuRoIs"
+    #
     efmuIsoViewsMaker.mergeUsingFeature = True
-    efmuIsoViewsMaker.RoisWriteHandleKey = "IsoMuRoIs"
+    efmuIsoViewsMaker.RoITool = newRoITool
+    #
+    efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
+    efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs"
+    #
+    efmuIsoViewsMaker.ViewFallThrough = True
+    # Muon specific
+    # TODO - this should be deprecated here and removed in the future, now that we mergeUsingFeature, each parent View should only have one muon.
+    # therefore the xAOD::Muon should be got via ViewFallThrough, rather than being copied in here as "IsoViewMuons"
+    efmuIsoViewsMaker.PlaceMuonInView = True
     efmuIsoViewsMaker.InViewMuonCandidates = "IsoMuonCandidates"
+    efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence

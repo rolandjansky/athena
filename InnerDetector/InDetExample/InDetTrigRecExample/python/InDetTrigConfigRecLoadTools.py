@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from __future__ import print_function
@@ -674,7 +674,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                             Extrapolator = InDetTrigExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                             SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )
@@ -728,12 +727,7 @@ if InDetTrigFlags.loadSummaryTool():
   # Configurable version of TRT_ElectronPidTools
   #
   from IOVDbSvc.CondDB import conddb
-  if not (conddb.folderRequested("/TRT/Calib/PID") or \
-            conddb.folderRequested("/TRT/Onl/Calib/PID")):
-     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID","/TRT/Calib/PID")
-  if not (conddb.folderRequested("/TRT/Calib/PID_RToT") or \
-            conddb.folderRequested("/TRT/Onl/Calib/PID_RToT")):
-     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
+
   if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
             conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector",className='CondAttrListVec')
@@ -744,21 +738,29 @@ if InDetTrigFlags.loadSummaryTool():
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
-
+  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
+  TRT_RDO_Key = "TRT_RDOs"
+  if globalflags.DataSource == 'data':
+      TRT_RDO_Key = TrigTRTKeys.RDOs
+      
+
   InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
                                                           isTrigger = True,
-                                                          TRT_RDOContainerName="TRT_RDOs_EF",
+                                                          TRT_RDOContainerName = TRT_RDO_Key,
+                                                          TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
                                                           TRTCalDbTool = InDetTRTCalDbTool,
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
+                                       AssociationTool = InDetTrigPrdAssociationTool,
                                        TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
                                        TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
   ToolSvc += InDetTrigTRT_ToT_dEdx

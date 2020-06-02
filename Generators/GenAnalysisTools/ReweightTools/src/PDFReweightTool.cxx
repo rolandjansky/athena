@@ -20,8 +20,8 @@
 #include "AthContainers/DataVector.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/PdfInfo.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/PdfInfo.h"
 #include "ReweightTools/PDFReweightTool.h"
 
 #include <math.h>
@@ -270,7 +270,6 @@ StatusCode PDFReweightTool::execute() {
 	
 
 	
-//StatusCode PDFReweightTool::Reweight(const HepMC::GenEvent* evt_orig) {
 StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			
 	msg(MSG::DEBUG) << " Reweight PDF " << endmsg;	
@@ -283,7 +282,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 	        return StatusCode::SUCCESS;	
 	}
 
-	HepMC::PdfInfo* pdf_info = evt->pdf_info();
+	auto pdf_info = evt->pdf_info();
 	
 	//safety check
 	if (pdf_info) {

@@ -114,7 +114,7 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   return StatusCode::SUCCESS;
 }
 
-double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) {
+double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) const {
   double newscore = 1. - eff_lo - (score - cut_lo)/(cut_hi - cut_lo) * (eff_hi - eff_lo);
   return newscore;
 }
@@ -143,7 +143,7 @@ StatusCode TauWPDecorator::initialize() {
 }
 
 /********************************************************************/
-StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
+StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const
 { 
 
   float mu = 0;
@@ -180,7 +180,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   double y_var = 0.0;
   if(m_electronMode) {
      const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-     y_var = std::fabs(acc_absEta(pTau));
+     y_var = std::abs(acc_absEta(pTau));
   } else {
      y_var = mu;
   }
@@ -189,8 +189,8 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   ATH_MSG_VERBOSE("mu before " << y_var);
 
   // Implement limits
-  pt = TMath::Min(m_xmax[nProng], TMath::Max(m_xmin[nProng], pt));
-  y_var = TMath::Min(m_ymax[nProng], TMath::Max(m_ymin[nProng], y_var));
+  pt = TMath::Min(m_xmax.at(nProng), TMath::Max(m_xmin.at(nProng), pt));
+  y_var = TMath::Min(m_ymax.at(nProng), TMath::Max(m_ymin.at(nProng), y_var));
   
   ATH_MSG_VERBOSE("pT after " << pt);
   ATH_MSG_VERBOSE("mu after " << y_var);
@@ -207,13 +207,13 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
     double myCut = myHist->Interpolate(pt, y_var);
     
     // Find upper and lower cuts
-    if(myCut <= score && ((!gotLow) || fabs(myCut-score) < fabs(cuts[0]-score))) {
+    if(myCut <= score && ((!gotLow) || std::abs(myCut-score) < std::abs(cuts[0]-score))) {
       gotLow = true;
       effs[0] = histArray->at(i).first;
       cuts[0] = myCut;
     }
       
-    else if(myCut > score && ((!gotHigh) || fabs(myCut-score) < fabs(cuts[1]-score))) {
+    else if(myCut > score && ((!gotHigh) || std::abs(myCut-score) < std::abs(cuts[1]-score))) {
       gotHigh = true;
       effs[1] = histArray->at(i).first;
       cuts[1] = myCut;

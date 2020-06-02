@@ -19,8 +19,8 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 /** Constructor **/
 iFatras::PRD_PlanarTruthTrajectoryBuilder::PRD_PlanarTruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
@@ -167,7 +167,6 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::
     std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
     std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
-    //std::cout << "sorting, barcode: " << prdTruthTrajIter->first->barcode() << std::endl;
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<Trk::IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<Trk::IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();

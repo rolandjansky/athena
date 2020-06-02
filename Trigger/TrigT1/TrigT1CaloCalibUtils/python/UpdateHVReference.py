@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ROOT import *
 import sys
@@ -23,7 +25,7 @@ class HVRefUpdator:
          self.UNIX2COOL = 1000000000
 
      def read_forced_list(self,forced_file_name):
-         print " Loading forced file", forced_file_name
+         print (" Loading forced file", forced_file_name)
 
          new_hv = []
          myfile = open(forced_file_name,'r')
@@ -37,20 +39,20 @@ class HVRefUpdator:
            new_hv      = [float(line_cont[iii]) for iii in range(2,6)]
          
            self.forced_HV[rec_chan]=new_hv
-           print "updating channel ", rec_chan, " to HV  ", new_hv 
+           print ("updating channel ", rec_chan, " to HV  ", new_hv )
 
          return
 
      def read_HV_reference(self,ref_file_name):
-         print " Loading reference HV file", ref_file_name
+         print (" Loading reference HV file", ref_file_name)
       # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
          dbString='sqlite://;schema='+ref_file_name+';dbname=L1CALO'
          try:
            db = dbSvc.openDatabase(dbString, False)        
-         except Exception, e:
-           print 'Error: Problem opening database', e
+         except Exception as e:
+           print ('Error: Problem opening database', e)
            sys.exit(1)
 
          folder_name = '/TRIGGER/L1Calo/V1/Results/HVCorrections'
@@ -65,8 +67,8 @@ class HVRefUpdator:
 
          try:
            itr=folder.browseObjects(startValKey, endValKey, chsel)
-         except Exception, e:
-           print e
+         except Exception as e:
+           print (e)
            sys.exit(1)
      
          for row in itr:
@@ -90,10 +92,10 @@ class HVRefUpdator:
            self.reference_HV[CoolId]            =  HV_corrections
             
 #         for iii in self.reference_AffectedCells.keys():
-# 	   print iii,"  ",self.reference_AffectedCells[iii] 
+# 	   print (iii,"  ",self.reference_AffectedCells[iii] )
 
 #         for iii in self.reference_HV.keys():
-# 	   print iii,"  ",self.reference_HV[iii] 
+# 	   print (iii,"  ",self.reference_HV[iii] )
       
       # close database
          db.closeDatabase()
@@ -102,15 +104,15 @@ class HVRefUpdator:
 
 
      def read_HV_geometry(self,ref_file_name):
-         print " Reading HV geometry from file", ref_file_name
+         print (" Reading HV geometry from file", ref_file_name)
       # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
          dbString='sqlite://;schema='+ref_file_name+';dbname=L1CALO'
          try:
            db = dbSvc.openDatabase(dbString, False)        
-         except Exception, e:
-           print 'Error: Problem opening database', e
+         except Exception as e:
+           print ('Error: Problem opening database', e)
            sys.exit(1)
 
          folder_name = '/TRIGGER/L1Calo/V1/Results/RxLayers'
@@ -125,8 +127,8 @@ class HVRefUpdator:
 
          try:
            itr=folder.browseObjects(startValKey, endValKey, chsel)
-         except Exception, e:
-           print e
+         except Exception as e:
+           print (e)
            sys.exit(1)
      
          for row in itr:
@@ -153,7 +155,7 @@ class HVRefUpdator:
             
 
 #         for iii in self.NLayers.keys():
-# 	   print iii," NLayers: ",self.NLayers[iii], " Names: ",self.LayerName[iii], "  NCells: ",self.NCells[iii]
+# 	   print (iii," NLayers: ",self.NLayers[iii], " Names: ",self.LayerName[iii], "  NCells: ",self.NCells[iii])
 
 
       # close database
@@ -165,7 +167,7 @@ class HVRefUpdator:
 
      def update_HV(self):
 
-         print " Updating internal HV list"
+         print (" Updating internal HV list")
          
          for iii in self.forced_HV.keys():
 
@@ -185,22 +187,22 @@ class HVRefUpdator:
              self.reference_AffectedCells[iii] = [99,99,99,99]    # don't know what to put there, hope this is OK
            
 
-#         print "***************************************************************"
-#         print " Now changed HV dictionary"
-#         print "***************************************************************"
+#         print ("***************************************************************")
+#         print (" Now changed HV dictionary")
+#         print ("***************************************************************")
 #         for iii in self.reference_HV.keys():
-# 	   print iii,"  ",self.reference_HV[iii] 
+# 	   print (iii,"  ",self.reference_HV[iii] )
 
          return 
 
      def write_geometry(self,new_file_name):
-         print " Writing geometry to file " , new_file_name
+         print (" Writing geometry to file " , new_file_name)
 
          dbSvc = cool.DatabaseSvcFactory.databaseService()
          connectString = 'sqlite://;schema='+new_file_name+';dbname=L1CALO'
 
 
-         print 'Writing into database file',new_file_name
+         print ('Writing into database file',new_file_name)
          db = dbSvc.openDatabase(connectString, False)
 
          spec = cool.RecordSpecification()
@@ -248,12 +250,12 @@ class HVRefUpdator:
 
      def write_new_file(self,new_file_name):
 
-         print " Writing output to file " , new_file_name
+         print (" Writing output to file " , new_file_name)
 
          dbSvc = cool.DatabaseSvcFactory.databaseService()
          connectString = 'sqlite://;schema='+new_file_name+';dbname=L1CALO'
 
-         print 'recreating database file',new_file_name
+         print ('recreating database file',new_file_name)
          dbSvc.dropDatabase( connectString )
          db = dbSvc.createDatabase( connectString )
 
@@ -319,7 +321,7 @@ class HVRefUpdator:
 
 if __name__ == "__main__":
 
-  print "Starting UpdateHVReference"
+  print ("Starting UpdateHVReference")
 
   parser = OptionParser()
  
@@ -335,7 +337,7 @@ if __name__ == "__main__":
   if options.forced_file:
     HVUpdatingTool.read_forced_list(options.forced_file)
   else:
-    print "No forced channel list given, run python UpdateHVReference.py -h for more information"
+    print ("No forced channel list given, run python UpdateHVReference.py -h for more information")
     sys.exit(1)
 
 
@@ -343,18 +345,18 @@ if __name__ == "__main__":
     HVUpdatingTool.read_HV_reference(options.reference_file)
     HVUpdatingTool.read_HV_geometry(options.reference_file)
   else:
-    print "No HV reference file given, run python UpdateHVReference.py -h for more information"
+    print ("No HV reference file given, run python UpdateHVReference.py -h for more information")
     sys.exit(1)
 
   HVUpdatingTool.update_HV()
 
   if options.output_file:
-    print "Writing output into file ", options.output_file
+    print ("Writing output into file ", options.output_file)
     HVUpdatingTool.write_new_file(options.output_file)
     HVUpdatingTool.write_geometry(options.output_file)
   else:
-    print "Writing output into file new_hv_ref.sqlite"   
+    print ("Writing output into file new_hv_ref.sqlite"   )
     HVUpdatingTool.write_new_file("new_hv_ref.sqlite")
     HVUpdatingTool.write_geometry("new_hv_ref.sqlite")
 
-  print "Done!"
+  print ("Done!")

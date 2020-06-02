@@ -1,3 +1,5 @@
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
 def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
@@ -22,7 +24,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
     MuContainer = job.CalibratedMuonsProvider.Output
 
 
-  from AthenaCommon.Constants import INFO,DEBUG,WARNING
+  from AthenaCommon.Constants import WARNING
   from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
   ExampleJpsiFinder = Analysis__JpsiFinder(name                        = prefix+"JpsiFinderName",
                                            muAndMu                     = False,
@@ -46,6 +48,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
                                            useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                            TrkVertexFitterTool         = ToolSvc.VKalVrtFitterName,        # VKalVrt vertex fitter
                                            TrackSelectorTool           = ToolSvc.InDetDetailedTrackSelectorTool,
+                                           ConversionFinderHelperTool  = ToolSvc.InDetConversionFinderUtils,
                                            VertexPointEstimator        = ToolSvc.VtxPointEstimator,
                                            useMCPCuts                  = True, 
                                            OutputLevel                 = WARNING)

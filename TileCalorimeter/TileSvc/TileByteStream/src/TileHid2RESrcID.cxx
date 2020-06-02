@@ -46,17 +46,6 @@ void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID, uint32_t runnum)
   }
 }
 
-void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum)
-{
-  if ( m_tileHWID != tileHWID ||  m_TileMuRcvRunnum != runnum) {
-    m_tileHWID = tileHWID;
-    if (m_tileHWID) {
-      // make internal maps
-      initializeMuRcv(runnum);
-    }
-  }
-}
-
 void TileHid2RESrcID::initialize(uint32_t runnum)
 {
   m_runnum = runnum;

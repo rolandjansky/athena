@@ -14,6 +14,8 @@ MbtsFexMT::~MbtsFexMT()
 }
 StatusCode MbtsFexMT::initialize()
 {
+  ATH_CHECK( m_emScaleKey.initialize() );
+  ATH_CHECK( m_badChannelsKey.initialize() );
   ATH_CHECK( m_TileHelperKey.initialize() );
   ATH_CHECK( m_dataAccessSvc.retrieve() );
   ATH_CHECK(m_t2MbtsBitsKey.initialize());

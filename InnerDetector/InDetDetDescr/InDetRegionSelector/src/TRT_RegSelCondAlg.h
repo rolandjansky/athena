@@ -26,7 +26,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "IRegionSelector/RegSelLUTCondData.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
 
 #include <string>
 
@@ -56,7 +56,7 @@ public:
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
   /// Output conditions object
-  SG::WriteCondHandleKey<RegSelLUTCondData> m_tableKey  
+  SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
 
 };

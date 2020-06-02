@@ -5,42 +5,68 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 import json
 import six
+
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
+    from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
+else:
+    from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
 
 class GenericMonitoringTool(_GenericMonitoringTool):
     """Configurable of a GenericMonitoringTool"""
 
-    def __init__(self, name=Configurable.DefaultName, *args, **kwargs):
+    __slots__ = ['_convention', '_defaultDuration']
+
+    def __init__(self, name=None, *args, **kwargs):
+        self._convention = ''
+        self._defaultDuration = kwargs.pop('defaultDuration', None)
         super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-        self.convention = ''
 
-    def __new__( cls, *args, **kwargs ):
-        # GenericMonitoringTool is always private. To avoid the user having
-        # to ensure a unique instance name, always create a new instance.
+    if not isRun3Cfg():
+        def __new__( cls, name=None, *args, **kwargs ):
+            if not Configurable.configurableRun3Behavior:
+                if name is None: name = cls.__name__
 
-        b = Configurable.configurableRun3Behavior
-        Configurable.configurableRun3Behavior = 1
-        try:
-            conf = Configurable.__new__( cls, *args, **kwargs )
-        finally:
-            Configurable.configurableRun3Behavior = b
+            # GenericMonitoringTool is always private. To avoid the user having
+            # to ensure a unique instance name, always create a new instance.
+            b = Configurable.configurableRun3Behavior
+            Configurable.configurableRun3Behavior = 1
+            try:
+                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
+            finally:
+                Configurable.configurableRun3Behavior = b
 
-        return conf
+            return conf
+
+    @property
+    def convention(self):
+        return self._convention
+
+    @convention.setter
+    def convention(self, value):
+        self._convention = value
+
+    @property
+    def defaultDuration(self):
+        return self._defaultDuration
+
+    @defaultDuration.setter
+    def defaultDuration(self, value):
+        self._defaultDuration = value
 
     def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
         else:
-            if 'duration' in kwargs:
-                kwargs['convention'] = self.convention + ':' + kwargs['duration']
-                del kwargs['duration']
-            elif hasattr(self, 'defaultDuration'):
-                kwargs['convention'] = self.convention + ':' + self.defaultDuration
+            duration = kwargs.pop('duration', self.defaultDuration)
+            if duration is not None:
+                kwargs['convention'] = self.convention + ':' + duration
         self.Histograms.append(deffunc(*args, **kwargs))
 
     def defineHistogram(self, *args, **kwargs):
@@ -52,11 +78,10 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
-        self.Tools, self.Accessors = {}, {}
-        self.Postfixes = GenericMonitoringArray._postfixes(dimensions)
+        self.Tools = {}
+        self.Postfixes, self.Accessors = GenericMonitoringArray._postfixes(dimensions)
         for postfix in self.Postfixes:
             self.Tools[postfix] = GenericMonitoringTool(name+postfix,**kwargs)
-            self.Accessors[postfix] = postfix.split('_')[1:]
 
     def __getitem__(self,index):
         '''Forward operator[] on class to the list of tools'''
@@ -75,17 +100,37 @@ class GenericMonitoringArray:
         for tool in self.toolList():
             setattr(tool,member,value)
 
-    def defineHistogram(self, varname, title=None, path=None, **kwargs):
-        '''Propogate defineHistogram to each tool, adding a unique tag.'''
+    def defineHistogram(self, varname, title=None, path=None, pattern=None, **kwargs):
+        '''Propogate defineHistogram to each tool, adding a unique tag.
+        
+        Arguments:
+        pattern -- if specified, list of n-tuples of indices for plots to create
+        '''
         unAliased = varname.split(';')[0]
         _, aliasBase = _alias(varname)
         if aliasBase is None:
             return
+        if pattern is not None:
+            import six
+            try:
+                iter(pattern)
+            except TypeError:
+                raise ValueError('Argument to GenericMonitoringArray.defineHistogram must be iterable')
+            if not isinstance(pattern, list):
+                pattern = list(pattern)
+            if len(pattern) == 0: # nothing to do
+                return
+            if isinstance(pattern[0], six.string_types + six.integer_types):
+                # assume we have list of strings or ints; convert to list of 1-element tuples
+                pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
             aliased = unAliased+';'+aliasBase+postfix
 
             try:
                 accessors = tuple(self.Accessors[postfix])
+                if pattern is not None:
+                    if accessors not in pattern:
+                        continue
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:
@@ -101,28 +146,38 @@ class GenericMonitoringArray:
 
     @staticmethod
     def _postfixes(dimensions, previous=''):
-        '''Generates a list of subscripts to add to the name of each tool.
+        '''Generates a list of subscripts to add to the name of each tool
 
         Arguments:
         dimensions -- List containing the lengths of each side of the array off tools
         previous -- Strings appended from the other dimensions of the array
         '''
+        import collections
         assert isinstance(dimensions,list) and len(dimensions)>0, \
             'GenericMonitoringArray must have list of dimensions.'
         if dimensions==[1]:
-            return ['']
+            return [''], {'': ['']}
         postList = []
+        accessorDict = collections.OrderedDict()
         first = dimensions[0]
         if isinstance(first,list):
             iterable = first
         elif isinstance(first,int):
             iterable = range(first)
+        else:
+            #Assume GaudiConfig2.semantics._ListHelper
+            iterable = list(first)
+            #print("Type of first:",type(first))
         for i in iterable:
             if len(dimensions)==1:
-                 postList.append(previous+'_'+str(i))
+                postList.append(previous+'_'+str(i))
+                accessorDict[previous+'_'+str(i)]=[str(i)]
             else:
-                postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
-        return postList
+                postfixes, accessors = GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i))
+                postList.extend(postfixes)
+                for acckey, accval in accessors.items():
+                    accessorDict[acckey] = [str(i)] + accval
+        return postList, accessorDict
 
 ## Generate an alias for a set of variables
 #
@@ -149,14 +204,14 @@ def _alias(varname):
 def _options(opt):
     # Set the default dictionary of options
     settings = {
-        'Sumw2': False,
-        'kLBNHistoryDepth': 0,
-        'kAddBinsDynamically': False,
-        'kRebinAxes': False,
-        'kCanRebin': False,
-        'kVec': False,
-        'kVecUO': False,
-        'kCumulative': False,
+        'Sumw2': False,                 # store sum of squares of weights
+        'kLBNHistoryDepth': 0,          # length of lumiblock history
+        'kAddBinsDynamically': False,   # add new bins if fill is outside axis range
+        'kRebinAxes': False,            # increase axis range without adding new bins
+        'kCanRebin': False,             # allow all axes to be rebinned
+        'kVec': False,                  # add content to each bin from each element of a vector
+        'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
+        'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -194,8 +249,7 @@ def _options(opt):
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
-#  @param opt      String or dictionary of histogram options
-#  @param labels   Deprecated. Copies value to xlabels and/or ylabels.
+#  @param opt      String or dictionary of histogram options (see _options())
 #  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
@@ -207,7 +261,7 @@ def defineHistogram(varname, type='TH1F', path=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
-                    opt=None, labels=None, convention=None, cutmask=None,
+                    opt=None, convention=None, cutmask=None,
                     treedef=None, merge=None):
 
     # All of these fields default to an empty string
@@ -310,23 +364,6 @@ def defineHistogram(varname, type='TH1F', path=None,
     if zmax is not None:
         settings['zmax'] = zmax
 
-    # Bin labels
-    # First, handle the deprecated labels argument
-    if labels is not None:
-        assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
-        depricated "labels" argument with [xyz]labels arguments.'
-        log.warning('Histogram %s configured with deprecated "labels" argument. Please use "xlabels" and "ylabels" instead.', 
-                    settings['title'])
-        nLabels = len(labels)
-        if nLabels==xbins:
-            xlabels = labels
-        elif nLabels>xbins:
-            nybins = 0 if ybins is None else ybins
-            if nLabels > xbins+nybins:
-                log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
-                            settings['title'], nLabels, xbins, nybins)
-            xlabels = labels[:xbins]
-            ylabels = labels[xbins:xbins+nybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'

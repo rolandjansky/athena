@@ -28,8 +28,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "StoreGate/ReadHandle.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -629,9 +629,9 @@ namespace MyAnalysis {
                              e_true << " " << eta_true << " " << phi_true  );
                HepMC::GenVertex* vertex = part->end_vertex();
                if (vertex) {
-                  m_xconv = vertex->point3d().x();
-                  m_yconv = vertex->point3d().y();
-                  m_zconv = vertex->point3d().z();
+                  m_xconv = vertex->position().x();
+                  m_yconv = vertex->position().y();
+                  m_zconv = vertex->position().z();
                }
                else {
                   m_xconv=9999.;
@@ -640,9 +640,9 @@ namespace MyAnalysis {
                }
                vertex = part->production_vertex();
                if (vertex) { 
-                  m_xvert = vertex->point3d().x();
-                  m_yvert = vertex->point3d().y();
-                  m_zvert = vertex->point3d().z();
+                  m_xvert = vertex->position().x();
+                  m_yvert = vertex->position().y();
+                  m_zvert = vertex->position().z();
                }
                else {
                   m_xvert=9999.;

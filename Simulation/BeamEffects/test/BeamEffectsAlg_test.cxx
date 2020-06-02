@@ -21,7 +21,9 @@
 // #include "gmock/gmock.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"

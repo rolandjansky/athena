@@ -23,12 +23,12 @@ EventBookkeeperCollection* EventBookkeeperCollectionCnv::createTransient() {
   static pool::Guid   p1_guid("461506EA-7376-448C-A4AF-640654D313C3");
   static pool::Guid   p2_guid("4CB34AE0-ECE5-404B-8CB7-B2E20F509DBE");
   if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< EventBookkeeperCollection_p1 > col_vect( poolReadObject< EventBookkeeperCollection_p1 >() );
     return m_TPConverterP1.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p2_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< EventBookkeeperCollection_p2 > col_vect( poolReadObject< EventBookkeeperCollection_p2 >() );
     return m_TPConverter.createTransient( col_vect.get(), log );
   }

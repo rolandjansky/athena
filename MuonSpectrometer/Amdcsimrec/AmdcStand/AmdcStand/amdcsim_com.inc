@@ -63,7 +63,7 @@
      &               INOCUT(MTYP,MGEO,4),                                  &
      &               NOBCUT(MCUT),     IOBCUT(MCUT,MOCU)
 !----------------------------
-      INTEGER, PARAMETER :: MSTA=30
+      INTEGER, PARAMETER :: MSTA=40
       REAL(8) :: STAX0,STAPP,STARR,STAEE,STAPG,STATT,STAOO
       INTEGER :: NLAZ,NLAS,ISTAMA,IFORMA,IVALIDSTA
       COMMON/AMDCCHASTA/                                                   &

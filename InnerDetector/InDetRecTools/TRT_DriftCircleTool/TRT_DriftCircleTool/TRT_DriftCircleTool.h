@@ -60,7 +60,7 @@ public:
   virtual StatusCode finalize  ();
   /** make the conversion from RDOs to DriftCircles */
   virtual InDet::TRT_DriftCircleCollection*  
-  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels );  
+  convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const EventContext& ctx, const bool CTBBadChannels) const;
   /** test validity gate for corrected drift times */
   virtual bool passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const;
 

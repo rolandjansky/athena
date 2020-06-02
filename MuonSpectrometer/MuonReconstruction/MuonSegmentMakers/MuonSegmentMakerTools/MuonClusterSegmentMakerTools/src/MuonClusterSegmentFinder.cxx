@@ -16,7 +16,7 @@
 // EDM
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // interfaces
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
@@ -411,7 +411,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     unsigned int barcodeCounter(0);
     int barcodeVal(0);
 
-    for(auto sit : sPoints){
+    for(const std::vector<ClusterSeg::SpacePoint>& sit : sPoints){
       if (sit.size() < 2) continue;
       std::vector<const MuonClusterOnTrack*> vec1;
       std::vector<const Trk::MeasurementBase*> vec2;

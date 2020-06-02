@@ -1195,6 +1195,7 @@ GeoVPhysVol* MuonChamber::build(
       det->setMultilayer(ml);
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
+      det->geoInitDone();
 
       if (ml==1) {
         // set fixed point for MDT deformations: s0,z0,t0 for the point at lowest t,z (z,y amdb) and s=x=0
@@ -1225,7 +1226,7 @@ GeoVPhysVol* MuonChamber::build(
       // Select right MdtAsBuilt parameters from map in MuonDetectorManager and assign them to MuonStation
       if(manager->applyMdtAsBuiltParams() ) {
         Identifier AsBuiltId = manager->mdtIdHelper()->elementID(mstat->getStationType(), mstat->getEtaIndex(), mstat->getPhiIndex());
-        MdtAsBuiltPar* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
+        const MdtAsBuiltPar* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
         mstat->setMdtAsBuiltParams(xtomo);
       }
     }
@@ -1484,7 +1485,7 @@ GeoVPhysVol* MuonChamber::build(
             << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
             << geoid << " tagName= " << stag << endmsg;
       }
-
+      if (stName.find("BIS")==0) det->setNumberOfLayers(3); // all BIS RPCs always have 3 gas gaps
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
 
@@ -1561,6 +1562,7 @@ GeoVPhysVol* MuonChamber::build(
     for (size_t i = 0 ; i < vcutdef_todel.size(); i++) delete vcutdef_todel[i];
 
   } // End big loop over components
+  mstat->updateBlineFixedPointInAmdbLRS();
 
   return ptrd;
 }

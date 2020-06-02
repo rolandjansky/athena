@@ -1,6 +1,4 @@
-################################################################################
-# Package: xAODMissingETAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODMissingETAthenaPool )
@@ -14,22 +12,28 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODMissingET
                           GaudiKernel )
 
-atlas_install_joboptions( share/*.py )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODMissingETAthenaPoolPoolCnv
-                           src/*.cxx
-                           FILES xAODMissingET/MissingETContainer.h xAODMissingET/MissingETAuxContainer.h xAODMissingET/MissingETComponentMap.h xAODMissingET/MissingETAuxComponentMap.h xAODMissingET/MissingETAssociationMap.h xAODMissingET/MissingETAuxAssociationMap.h
-                           TYPES_WITH_NAMESPACE xAOD::MissingETContainer xAOD::MissingETAuxContainer xAOD::MissingETComponentMap xAOD::MissingETAuxComponentMap xAOD::MissingETAssociationMap xAOD::MissingETAuxAssociationMap
-                           CNV_PFX xAOD
-                           LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODMissingET GaudiKernel )
+   src/*.h src/*.cxx
+   FILES xAODMissingET/MissingETContainer.h
+         xAODMissingET/MissingETAuxContainer.h
+         xAODMissingET/MissingETComponentMap.h
+         xAODMissingET/MissingETAuxComponentMap.h
+         xAODMissingET/MissingETAssociationMap.h
+         xAODMissingET/MissingETAuxAssociationMap.h
+   TYPES_WITH_NAMESPACE xAOD::MissingETContainer xAOD::MissingETAuxContainer
+                        xAOD::MissingETComponentMap
+                        xAOD::MissingETAuxComponentMap
+                        xAOD::MissingETAssociationMap
+                        xAOD::MissingETAuxAssociationMap
+   CNV_PFX xAOD
+   LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib
+                  AthenaPoolUtilities xAODMissingET GaudiKernel )
 
+# Install files from the package.
+atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
@@ -42,6 +46,6 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
                    REQUIRED_LIBRARIES xAODMissingETAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMISSINGETATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
-                         
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()

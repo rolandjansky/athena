@@ -27,24 +27,18 @@ class TauJetBDTEvaluator
   TauJetBDTEvaluator(const std::string& name="TauJetBDTEvaluator");
   virtual ~TauJetBDTEvaluator() { }
     
-  StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return static_cast<const TauJetBDTEvaluator*>(this)->execute(xTau);
-  }
-  StatusCode execute(xAOD::TauJet& xTau) const;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
+  virtual StatusCode finalize() override;
   
  private:
-
-  Gaudi::Property<std::string> m_weightsFile{this, "weightsFile", ""};
-  Gaudi::Property<std::string> m_outputVarName{this, "outputVarName", "BDTJetScore"};
-
   std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
-  Gaudi::Property<int> m_minNTracks{this, "minNTracks", 0};
-  Gaudi::Property<int> m_maxNTracks{this, "maxNTracks", 999};
-  Gaudi::Property<float> m_minAbsTrackEta{this, "minAbsTrackEta", -1};
-  Gaudi::Property<float> m_maxAbsTrackEta{this, "maxAbsTrackEta", -1};
-  Gaudi::Property<float> m_dummyValue{this, "defaultValue", -1111, "if no weightsFile, then set all taus to this value nTrack/eta ignored"};
+  std::string m_weightsFile;
+  std::string m_outputVarName;
+  int m_minNTracks;
+  int m_maxNTracks;
+  float m_minAbsTrackEta;
+  float m_maxAbsTrackEta;
+  float m_dummyValue;
 };
 #endif

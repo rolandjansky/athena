@@ -18,7 +18,7 @@ import re
 #===
 #==================================================
 #=== Input files with OFCs
-ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-5.3.0.0/TileDSPofc/v4r3p3/share/"
+ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-7.1.0.0/TileDSPofc/share/"
 ofcFiles = [ofcDataPath+'W_OF2_PHYSICS_7s.dat',
             ofcDataPath+'W_OF1_PHYSICS_7s.dat',
             ofcDataPath+'W_OF2_LED_7s.dat',
@@ -76,7 +76,7 @@ for fileName in [ofcFiles[0]]:
 
     #=== loop over all drawers (COOL channels)
     for chan in range(276):
-        
+
         data = cool.Record( spec )
         blob = data['TileCalibBlobOfc']
 
@@ -90,7 +90,7 @@ for fileName in [ofcFiles[0]]:
             for phase in range(-1000,1001):
                 phases.push_back(phase/10.)
             drawerOfc.setPhases(0,0,phases)
-    
+
             #=== read file and fill OFCs
             phase   = -1000
             channel = 0
@@ -130,7 +130,7 @@ for fileName in [ofcFiles[0]]:
                 if sample>6:
                     sample = 0
                     phase += 1
-                    
+
         #=== store blob in folder/channel
         channelId = cool.ChannelId(chan)
         folder.storeObject(iovSince, iovUntil, data, channelId)

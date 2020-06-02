@@ -19,8 +19,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "HepMC/HEPEVT_Wrapper.h"
-#include "HepMC/IO_HEPEVT.h"
+#include "AtlasHepMC/HEPEVT_Wrapper.h"
+#include "AtlasHepMC/IO_HEPEVT.h"
 
 
 #include "Epos_i/Epos.h"
@@ -342,15 +342,6 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   } 
 
   evt->set_beam_particles(beams[0], beams[1]); 
-  /*   std::cout << "beam particles" << std::endl;
-  beams[0]->print();
-  beams[1]->print();
-  std::cout << "general print out " << std::endl;
-    // debug printout
- for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
- {
-   (*p)->print();
-   }*/
 
   // Heavy Ion and Signal ID from Epos to HepMC
 
@@ -388,52 +379,6 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
 
   evt->set_signal_process_id(sig_id);
 
-  //  ATH_MSG_INFO( "Event Information : \n");
-  // std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;
-  /*std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
-  evt->print();
-  std::cout << " print-out done " << std::endl;*/
-
-  //  HeavyIon* hi = evt.heavy_ion();
-  // std::cout << " HI " << hi.spectator_protons() << std::endl;
-
-  /*  boost::format fmt_e ("%1$-5.3e %2%\n");
-  boost::format fmt_d ("%1$-5d %2%\n");
-
-  std::string s;
-  s = boost::str (fmt_d % "Event Parameters:" % "") +
-	  boost::str (fmt_d % cevt_.nevt    % "... error code. 1=valid event, 0=invalid event") +
-	  boost::str (fmt_e % cevt_.bimevt  % "... absolute value of impact parameter") +
-	  boost::str (fmt_e % cevt_.phievt  % "... angle of impact parameter") +
-	  boost::str (fmt_d % cevt_.kolevt  % "... number of collisions") +
-	  boost::str (fmt_d % cevt_.koievt  % "... number of inelastic collisions") +
-	  boost::str (fmt_e % cevt_.pmxevt  % "... reference momentum") +
-	  boost::str (fmt_e % cevt_.egyevt  % "... pp cm energy (hadron) or string energy (lepton)") +
-	  boost::str (fmt_d % cevt_.npjevt  % "... number of primary projectile participants") +
-	  boost::str (fmt_d % cevt_.ntgevt  % "... number of primary target participants") +
-	  boost::str (fmt_d % cevt_.npnevt  % "... number of primary projectile neutron spectators") +
-	  boost::str (fmt_d % cevt_.nppevt  % "... number of primary projectile proton spectators") +
-	  boost::str (fmt_d % cevt_.ntnevt  % "... number of primary target neutron spectators") +
-	  boost::str (fmt_d % cevt_.ntpevt  % "... number of primary target proton spectators") +
-	  boost::str (fmt_d % cevt_.jpnevt  % "... number of absolute projectile neutron spectators") +
-	  boost::str (fmt_d % cevt_.jppevt  % "... number of absolute projectile proton spectators") +
-	  boost::str (fmt_d % cevt_.jtnevt  % "... number of absolute target neutron spectators") +
-	  boost::str (fmt_d % cevt_.jtpevt  % "... number of absolute target proton spectators" ) +
-	  boost::str (fmt_e % cevt_.xbjevt  % "... bjorken x for dis") +
-	  boost::str (fmt_e % cevt_.qsqevt  % "... q**2 for dis") +
-	  boost::str (fmt_d % cevt_.nglevt  % "... number of collisions acc to  Glauber") +
-	  boost::str (fmt_e % cevt_.zppevt  % "... average Z-parton-proj") +
-	  boost::str (fmt_e % cevt_.zptevt  % "... average Z-parton-targ") +
-	  boost::str (fmt_d % c2evt_.ng1evt % "... number of Glauber participants with at least one IAs") +
-	  boost::str (fmt_d % c2evt_.ng2evt % "... number of Glauber participants with at least two IAs") +
-	  boost::str (fmt_d % c2evt_.ikoevt % "... number of elementary parton-parton scatterings") +
-	  boost::str (fmt_d % c2evt_.typevt % "... type of event (1=Non Diff, 2=Double Diff, 3=Single Diff");
-
-  ATH_MSG_INFO(s);
-  */
-    
-  //Make this output from HepMC 
-  //  (*m_ascii_out) << evt; 
 
  return StatusCode::SUCCESS;
 }

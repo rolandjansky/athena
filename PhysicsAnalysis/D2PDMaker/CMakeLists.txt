@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Event/NavFourMom
    GaudiKernel
    Generators/GeneratorObjects
+   Generators/AtlasHepMC
    PhysicsAnalysis/AnalysisCommon/AnalysisUtils
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/ParticleEvent
@@ -40,16 +41,15 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost )
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( D2PDMaker
    D2PDMaker/*.h D2PDMaker/*.icc src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   ${HEPMC_INCLUDE_DIRS}
+   
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
-   ${HEPMC_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers AthLinks
+   AtlasHepMCLib CaloEvent AthenaBaseComps AthenaKernel AthContainers AthLinks
    Navigation StoreGateLib EventKernel NavFourMom GaudiKernel
    GeneratorObjects AnalysisUtilsLib PATCoreLib ParticleEvent AssociationKernel
    McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent VxVertex

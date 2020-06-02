@@ -166,8 +166,9 @@ inline bool Segment::hasContainedMeasurements() const
 }
  
 inline const MeasurementBase* Segment::measurement(unsigned int indx) const
- { if (m_containedMeasBases && indx<m_containedMeasBases->size())
+ { if (m_containedMeasBases && indx<m_containedMeasBases->size()) {
       return m_containedMeasBases->operator[](indx);
+}
    return nullptr;
  }
  

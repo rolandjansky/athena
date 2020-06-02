@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 import math
@@ -26,4 +26,12 @@ def RoIsUnpackingMonitoring( prefix, maxCount, maxEta=3. ):
                         defineHistogram( 'eta, phi', path='EXPERT', type='TH2F', title='RoIs map;eta;phi',
                                         xbins=30, xmin=-maxEta, xmax=maxEta,
                                         ybins=32, ymin=-math.pi, ymax=math.pi ) ]
+    return tool
+
+def PrescalingMonitoring():
+    tool = GenericMonitoringTool('PrescalingMonitoring')
+    tool.HistPath="HLTFramework/L1Decoder"
+    tool.defineHistogram('LB,HLTPSK', path='EXPERT', type='TH2I', opt='kAddBinsDynamically',
+                         title='HLT prescale key used in LB;Lumiblock;HLTPSK',
+                         xbins=100, xmin=0, xmax=100, ybins=5, ymin=0, ymax=5)
     return tool

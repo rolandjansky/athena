@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_TrackAnalysisH
@@ -7,13 +7,12 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>  
-#include <fstream>      
-#include <string> 
-#include <iomanip>  
-#include <sstream> 
+#include <math.h>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <sstream>
 
-// For the Extra Tree Analysis //
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedTrack.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedSegment.h"
 #include "MuonCalibExtraTreeEvent/EventHandler.h"
@@ -26,8 +25,6 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibSelector.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
-// #include "MuonCalibExtraNtuple/NTReaderBase_E.h"
-// MuonCalib //
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
@@ -36,12 +33,9 @@
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibTruthCollection.h"
-
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneExtraTools/SegmentAnalysis.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
-//using namespace std;
 
 namespace MuonCalib{
 

@@ -50,7 +50,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     kwargs.setdefault('name', name)
 
     if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
-        if flags.Tile.RunType == 'PHY':
+        if flags.Tile.RunType == 'PHY' or flags.Tile.TimingType == 'GAP/LAS':
             beamElemContainer = ""
         else:
             beamElemContainer = 'TileBeamElemCnt'
@@ -103,12 +103,11 @@ if __name__ == "__main__":
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    acc = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg(ConfigFlags) )
-    acc.getService('ByteStreamAddressProviderSvc').TypeNames += ['TileDigitsContainer/TileDigitsCnt']
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg(ConfigFlags, ['TileDigitsContainer/TileDigitsCnt']) )
 
     acc.merge( TileDQstatusAlgCfg(ConfigFlags) )
 
