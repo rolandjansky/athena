@@ -611,7 +611,7 @@ StatusCode AthenaOutputStream::write() {
    // lock.unlock();
 
    // Connect the output file to the service
-   if (!streamer->connectOutput(outputFN).isSuccess()) {
+   if (!streamer->connectOutput(connectStr).isSuccess()) {
       ATH_MSG_FATAL("Could not connectOutput");
       return StatusCode::FAILURE;
    }
@@ -626,7 +626,12 @@ StatusCode AthenaOutputStream::write() {
          ATH_MSG_DEBUG("streamObjects failed.");
       }
    }
-   if (!streamer->commitOutput().isSuccess()) {
+   bool doCommit = false;
+   if (m_events % m_autoSend.value() == 0 && outputFN.find("?pmerge=") != std::string::npos) {
+      doCommit = true;
+      ATH_MSG_DEBUG("commitOutput sending data.");
+   }
+   if (!streamer->commitOutput(doCommit).isSuccess()) {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;
    }

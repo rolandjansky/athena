@@ -29,7 +29,6 @@
 #include <cmath>
 #include <type_traits>
 
-using namespace std;
 using namespace SCT_Monitoring;
 
 // ====================================================================================================
@@ -39,7 +38,7 @@ using namespace SCT_Monitoring;
  *  of the filepath for histograms etc
  */
 // ====================================================================================================
-SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name, const IInterface* parent):
+SCTLorentzMonTool::SCTLorentzMonTool(const std::string& type, const std::string& name, const IInterface* parent):
   ManagedMonitorToolBase(type, name, parent) {
 }
 
@@ -174,7 +173,7 @@ SCTLorentzMonTool::fillHistograms() {
               }
             }
             // find cluster size
-            const vector<Identifier>& rdoList{RawDataClus->rdoList()};
+            const std::vector<Identifier>& rdoList{RawDataClus->rdoList()};
             int nStrip{static_cast<int>(rdoList.size())};
             const Trk::TrackParameters* trkp{dynamic_cast<const Trk::TrackParameters*>(tsos->trackParameters())};
             if (trkp==nullptr) {
@@ -255,28 +254,28 @@ SCTLorentzMonTool::checkHists(bool /*fromFinalize*/) {
 // ====================================================================================================
 StatusCode
 SCTLorentzMonTool::bookLorentzHistos() {
-  const string stem{m_path + "/SCT/GENERAL/lorentz/"};
+  const std::string stem{m_path + "/SCT/GENERAL/lorentz/"};
   MonGroup Lorentz{this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED};
 
-  static const string hNum[N_BARRELS] = {
+  static const std::string hNum[N_BARRELS] = {
     "0", "1", "2", "3"
   };
-  static const string hNumS[N_SIDES] = {
+  static const std::string hNumS[N_SIDES] = {
     "0", "1"
   };
   static const int nProfileBins{360};
  
   int success{1};
-  static const string histNames1[nSurfaces]{"_100",   "_111"}; 
-  static const string histNames2[nSurfaces]{"_100_",  "_111_"}; 
-  static const string histTitles[nSurfaces]{"100 - ", "111 - "};
+  static const std::string histNames1[nSurfaces]{"_100",   "_111"}; 
+  static const std::string histNames2[nSurfaces]{"_100_",  "_111_"}; 
+  static const std::string histTitles[nSurfaces]{"100 - ", "111 - "};
   for (int l{0}; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
     for (int side{0}; side < nSides; ++side) {
       for (unsigned int iSurface{0}; iSurface<nSurfaces; iSurface++) {
-        string histName;
+        std::string histName;
         histName = "h_phiVsNstrips" + histNames2[iSurface] + hNum[l] + "Side" + hNumS[side];
-        string histTitle;
+        std::string histTitle;
         histTitle = histTitles[iSurface] + "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side];
         int iflag{0};
         m_phiVsNstrips[l][side][iSurface] = pFactory(histName, histTitle, nProfileBins, -90., 90., Lorentz, iflag);
@@ -293,7 +292,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
 }
 
 TProfile*
-SCTLorentzMonTool::pFactory(const string& name, const string& title, int nbinsx, float xlow, float xhigh,
+SCTLorentzMonTool::pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh,
                             MonGroup& registry, int& iflag) const {
   TProfile* tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
   bool success{registry.regHist(tmp).isSuccess()};
@@ -327,7 +326,7 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], // 3 is for x
     return iflag;
   }
 
-  float cosAlpha{sqrt(1.0f - sinAlpha * sinAlpha)};
+  float cosAlpha{std::sqrt(1.0f - sinAlpha * sinAlpha)};
   double phix{ cosAlpha * element->phiAxis().x() + sinAlpha * element->phiAxis().y()};
   double phiy{-sinAlpha * element->phiAxis().x() + cosAlpha * element->phiAxis().y()};
 

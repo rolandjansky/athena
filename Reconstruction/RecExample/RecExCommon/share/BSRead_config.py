@@ -33,7 +33,7 @@ if rec.doMuon():
 
 if DetFlags.readRDOBS.LAr_on():
     from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg 
-    topSequence+=LArRawDataReadingAlg() #Default config ist fine
+    topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
         
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [

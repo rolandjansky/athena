@@ -1,25 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSELECTIONTOOL_H
 #define MUON_MUONSEGMENTSELECTIONTOOL_H
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-class Identifier;
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 
 namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  class IMuonSegmentHitSummaryTool;
 }
 
 namespace Muon {
@@ -37,17 +33,11 @@ namespace Muon {
   */
   class MuonSegmentSelectionTool : virtual public IMuonSegmentSelectionTool, public AthAlgTool {
   public:
-    /** @brief constructor */
     MuonSegmentSelectionTool(const std::string&,const std::string&,const IInterface*);
 
-    /** @brief destructor */
-    virtual ~MuonSegmentSelectionTool ();
+    virtual ~MuonSegmentSelectionTool ()=default;
     
-    /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief select segment */
     bool select( const MuonSegment& seg, bool ignoreHoles = false, int qualityLevel = 0, bool useEta=true, bool usePhi=true ) const; 
@@ -67,13 +57,12 @@ namespace Muon {
     /** @brief calculate segment quality for NSW segments */
     int nswSegmentQuality( const MuonSegment& seg, const Identifier& chid, bool ignoreHoles ) const;
 
-
-    ToolHandle<MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
-    ToolHandle<MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
-    ToolHandle<IMuonSegmentHitSummaryTool>     m_hitSummaryTool;   //!< hit summary tool
+    ToolHandle<MuonEDMPrinterTool> m_printer;          //!< EDM printer tool
+    ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;   //!< hit summary tool
 
     double m_cutSegmentQuality; //!< cut on the segment quality
     double m_adcFractionCut; //!< cut on fraction of MDT hits above ADC cut

@@ -18,7 +18,7 @@
 #define TRIGHLTJETREC_TRIGGERPSEUDOJETGETTER_H
 
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
-#include "JetRec/PseudoJetGetter.h"
+#include "JetInterface/IPseudoJetGetter.h"
 #include "JetEDM/PseudoJetVector.h"
 #include "AsgTools/AsgTool.h"
 

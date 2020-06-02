@@ -31,8 +31,6 @@ using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
 
-using namespace std;
-
 // constructor
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type,
                                                          const std::string& name,

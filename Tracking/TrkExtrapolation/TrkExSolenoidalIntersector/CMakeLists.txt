@@ -45,7 +45,6 @@ atlas_install_headers( TrkExSolenoidalIntersector )
 atlas_add_test( SolenoidParametrization_test
                 SOURCES test/SolenoidParametrization_test.cxx
                 LINK_LIBRARIES TrkExUtils GaudiKernel TestTools PathResolver MagFieldElements MagFieldConditions
-                LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
@@ -54,7 +53,6 @@ atlas_add_test( SolenoidalIntersector_test
                 SOURCES test/SolenoidalIntersector_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES} MagFieldElements MagFieldConditions PathResolver TrkExSolenoidalIntersectorLib
-                LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

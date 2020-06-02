@@ -56,7 +56,7 @@ def TrigBphysMonConfig(inputFlags):
     #trigBphysMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
     #trigBphysMonAlg.TriggerChain = 'HLT_e24_lhtight_nod0'
     monitored_chains = ['HLT_2mu10_bJpsimumu_L12MU10', 'HLT_2mu10_bUpsimumu_L12MU10']
-    monitored_containers = ['TrigBphysDimu', 'TrigBphysEFDimu']
+    monitored_containers = ['HLT_DimuEF']
     trigBphysMonAlg.MonitoredChains = monitored_chains
     trigBphysMonAlg.MonitoredContainers = monitored_containers
 

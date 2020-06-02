@@ -1,8 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentCleaner/MuonPhiHitSelector.h"
+
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonReadoutGeometry/TgcReadoutElement.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h" 
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
+#include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
+#include "MuonRIO_OnTrack/CscClusterOnTrack.h"
+#include "MuonPrepRawData/MuonCluster.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkPrepRawData/PrepRawData.h"
+#include "CxxUtils/sincos.h"
+
 #include <sstream>
 #include <iostream>
 #include <vector>
@@ -10,36 +27,11 @@
 #include <ctime>
 #include <Eigen/LU>
 
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h" 
-#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-
-#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
-#include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
-#include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-
-#include "MuonPrepRawData/MuonCluster.h"
-
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkPrepRawData/PrepRawData.h"
-//#include "TrkParameters/Perigee.h"
-
-#include "CxxUtils/sincos.h"
-
-MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string& name,const IInterface* parent):AthAlgTool(type,name,parent),m_competingRIOsOnTrackTool ("Muon::MuonCompetingClustersOnTrackCreator/MuonCompetingClustersOnTrackCreator"),m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),m_phi(0)
-				      //,m_cosmics(false),m_debug(false),m_summary(false) 
-{
+MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string& name,const IInterface* parent) :
+    AthAlgTool(type,name,parent),
+    m_competingRIOsOnTrackTool("Muon::MuonCompetingClustersOnTrackCreator/MuonCompetingClustersOnTrackCreator"),
+    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_phi(0) {
   declareInterface<IMuonHitSelector>(this);
 
   m_cosmics = false;
@@ -59,27 +51,13 @@ MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string
   declareProperty("CompetingRios",m_competingRios);
 }
 
-MuonPhiHitSelector::~MuonPhiHitSelector()
-{
-}
-
 StatusCode MuonPhiHitSelector::initialize()
 {
   ATH_MSG_VERBOSE(" MuonPhiHitSelector::Initializing ");
- 
   ATH_CHECK( m_competingRIOsOnTrackTool.retrieve() );
-
   ATH_CHECK( m_clusterCreator.retrieve() );
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_MSG_VERBOSE("End of Initializing");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MuonPhiHitSelector::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -120,42 +98,19 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     Identifier id = prd->identify(); 
     phiId[nphi] = id;  
     Amg::Vector3D gHitPos = (*it)->globalPosition();
-    // RPC code 
-    if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id) ) {
-      //      const Muon::RpcClusterOnTrack* crot = dynamic_cast<const Muon::RpcClusterOnTrack*>(*it);
-      //      if( !crot ) { 
-      //	ATH_MSG_WARNING("This is not a RpcClusterOnTrack!!! ");
-      //	continue;
-      //      }
-      //      gHitPos = crot->globalPosition();
+    if (m_idHelperSvc->isRpc(id) ) {
       phiSelect[nphi] = 1;
     }
-
-    // TGC code 
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) {
-      //      const Muon::TgcClusterOnTrack* crot = dynamic_cast<const Muon::TgcClusterOnTrack*>(*it);
-      //      if( !crot ){
-      //	ATH_MSG_WARNING("This is not a TgcClusterOnTrack!!! ");
-      //	continue;
-      //      }
-      //      gHitPos = crot->globalPosition();
+    else if (m_idHelperSvc->isTgc(id)) {
       phiSelect[nphi] = 2;
     }
-    // CSC code
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
-      //      const Muon::CscClusterOnTrack* crot = dynamic_cast<const Muon::CscClusterOnTrack*>(*it);
-      //      if( !crot ){
-      //	ATH_MSG_WARNING("This is not a CscClusterOnTrack!!! ");
-      //	continue;
-      //      }
-      //      gHitPos = crot->globalPosition();
+    else if (m_idHelperSvc->isCsc(id)) {
       phiSelect[nphi] = 3;
     }
     phiHitx[nphi] = gHitPos.x(); 
     phiHity[nphi] = gHitPos.y(); 
     phiHitz[nphi] = gHitPos.z();  
     
-    //double error = (*it)->localErrorMatrix().covariance().fast(1,1);
     const Amg::MatrixX& cov = (*it)->localCovariance();
     double error = cov(0,0);
     
@@ -200,9 +155,9 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     if (phiMapId.count(id) > 0) continue;
     const Muon::MuonCluster* clus = dynamic_cast<const Muon::MuonCluster*>(*itu);
     if( !clus ) continue;
-    if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id))  phiSelect[nphi] = 1;
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id))  phiSelect[nphi] = 2;
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc(id))  phiSelect[nphi] = 3;
+    if (m_idHelperSvc->isRpc(id))  phiSelect[nphi] = 1;
+    else if (m_idHelperSvc->isTgc(id))  phiSelect[nphi] = 2;
+    else if (m_idHelperSvc->isCsc(id))  phiSelect[nphi] = 3;
     Amg::Vector3D gHitPos = clus->globalPosition();
     phiHitx[nphi] = gHitPos.x(); 
     phiHity[nphi] = gHitPos.y(); 
@@ -223,32 +178,8 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
   
   // Define global track parameters (not used 27-8 JS)
 
-  //   double aver_r = 0.;
-  //   double aver_z = 0.;
-  //   for(int i = 0; i < nphi  ; ++i )  {
-  //     if (phiSelect[i]>0) {
-  //       aver_r += sqrt(phiHitx[i]*phiHitx[i]+phiHity[i]*phiHity[i] );
-  //       aver_z += phiHitz[i];
-  //     }
-  //   } 
-  //   double avtheta = atan2(aver_r,aver_z);
-  //   double sincosm_phi[2];
-  //   sincos(m_phi,&sincosm_phi[0],&sincosm_phi[1]);
-  //   double sincos_avtheta[2];
-  //   sincos(avtheta,&sincos_avtheta[0],&sincos_avtheta[1]);
-  
-  //   const Trk::GlobalMomentum globPatDir = Trk::GlobalMomentum ( pmom*sincosm_phi[1]*sincos_avtheta[0], pmom*sincosm_phi[0]*sincos_avtheta[0], pmom*sincos_avtheta[1] );
-  //   const Trk::GlobalPosition globPatPos = Trk::GlobalPosition (r0*sincosm_phi[0],-r0*sincosm_phi[1],0.);
-
-  //  const Trk::Perigee perigee = Trk::Perigee (globPatPos, globPatDir, 1., Trk::GlobalPosition(0.,0.,0.)); 
-
   for(int i = 0; i < nphi  ; ++i )  {
     if (phiSelect[i]>0) { 
-      //      std::list <const Trk::PrepRawData*> prdList;
-      //      prdList.push_back(phiPrep[i]);
-      //      const Trk::CompetingRIOsOnTrack*  rio = m_competingRIOsOnTrackTool->createBroadCluster(prdList,1.);
-      //      if (m_debug) std::cout << " Make ONE competing rio/cluster per PrepData: number of rios " << prdList.size() << std::endl;
-      //       if (rio) selectedHits->push_back(rio);
       if (phiSelect[i] == 1) {
 	const Muon::RpcPrepData* prd = dynamic_cast <const Muon::RpcPrepData*> (phiPrep[i]);
 	const Amg::Vector3D globalpos(phiHitx[i],phiHity[i],phiHitz[i]);
@@ -430,20 +361,20 @@ void MuonPhiHitSelector::clusterPhi( const std::vector<Identifier> & id,  const 
   for(int i = 0; i < n  ; ++i )  {
     Identifier idi = id[i];
     int code = 0;
-    if (m_muonIdHelperTool->rpcIdHelper().is_rpc( idi )) {
-      int doubZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(idi);
-      int doubPhi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(idi);
-      code = 100000000*(m_muonIdHelperTool->rpcIdHelper().stationName(idi))+1000000*(m_muonIdHelperTool->rpcIdHelper().stationPhi(idi))+ 10000* ((m_muonIdHelperTool->rpcIdHelper().stationEta(idi))+1000);
+    if (m_idHelperSvc->isRpc( idi )) {
+      int doubZ = m_idHelperSvc->rpcIdHelper().doubletZ(idi);
+      int doubPhi = m_idHelperSvc->rpcIdHelper().doubletPhi(idi);
+      code = 100000000*(m_idHelperSvc->rpcIdHelper().stationName(idi))+1000000*(m_idHelperSvc->rpcIdHelper().stationPhi(idi))+ 10000* ((m_idHelperSvc->rpcIdHelper().stationEta(idi))+1000);
       code += 1000*(doubZ-1) + 100*(doubPhi-1);
-      code += 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(idi))-1) + 16*((m_muonIdHelperTool->rpcIdHelper().gasGap(idi))-1) ;
+      code += 2*((m_idHelperSvc->rpcIdHelper().doubletR(idi))-1) + 16*((m_idHelperSvc->rpcIdHelper().gasGap(idi))-1) ;
     }
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc( idi )) {
-      code = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->tgcIdHelper().stationPhi(idi))+ 100* ((m_muonIdHelperTool->tgcIdHelper().stationEta(idi))+10);
-      code = code + m_muonIdHelperTool->tgcIdHelper().gasGap(idi);
+    else if (m_idHelperSvc->isTgc( idi )) {
+      code = 1000000*(m_idHelperSvc->tgcIdHelper().stationName(idi))+10000*(m_idHelperSvc->tgcIdHelper().stationPhi(idi))+ 100* ((m_idHelperSvc->tgcIdHelper().stationEta(idi))+10);
+      code = code + m_idHelperSvc->tgcIdHelper().gasGap(idi);
     }
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc( idi )) {
-      code = 1000000*(m_muonIdHelperTool->cscIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->cscIdHelper().stationPhi(idi))+ 100* ((m_muonIdHelperTool->cscIdHelper().stationEta(idi))+10);
-      code = code + m_muonIdHelperTool->cscIdHelper().wireLayer(idi);
+    else if (m_idHelperSvc->isCsc( idi )) {
+      code = 1000000*(m_idHelperSvc->cscIdHelper().stationName(idi))+10000*(m_idHelperSvc->cscIdHelper().stationPhi(idi))+ 100* ((m_idHelperSvc->cscIdHelper().stationEta(idi))+10);
+      code = code + m_idHelperSvc->cscIdHelper().wireLayer(idi);
     }
     scode[i] = code;
   }   
@@ -499,7 +430,6 @@ void MuonPhiHitSelector::clusterPhi( const std::vector<Identifier> & id,  const 
 	  } 
 	  clusterHits[ic]++; 
 	  if (clusterHits[ic] == 1) clusterCommon2Error[ic]= 0.;
-	  //            error[i]*error[i] - error0[i]*error0[i] ; 
 	}
       }
     } 
@@ -549,31 +479,31 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
     Identifier idi = phiId[i];
     int code = 0;
     int rcode = 0;
-    if (m_muonIdHelperTool->rpcIdHelper().is_rpc( idi )) {
-      code = 1000000*(m_muonIdHelperTool->rpcIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->rpcIdHelper().stationPhi(idi))+ 100* ((m_muonIdHelperTool->rpcIdHelper().stationEta(idi))+10);
-      code = code + 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(idi))-1)+16*((m_muonIdHelperTool->rpcIdHelper().gasGap(idi))-1);
-      rcode = 1000000*(m_muonIdHelperTool->rpcIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->rpcIdHelper().stationPhi(idi))+ 0* ((m_muonIdHelperTool->rpcIdHelper().stationEta(idi))+10);
-      rcode = rcode + 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(idi))-1)+16*((m_muonIdHelperTool->rpcIdHelper().gasGap(idi))-1);
+    if (m_idHelperSvc->isRpc( idi )) {
+      code = 1000000*(m_idHelperSvc->rpcIdHelper().stationName(idi))+10000*(m_idHelperSvc->rpcIdHelper().stationPhi(idi))+ 100* ((m_idHelperSvc->rpcIdHelper().stationEta(idi))+10);
+      code = code + 2*((m_idHelperSvc->rpcIdHelper().doubletR(idi))-1)+16*((m_idHelperSvc->rpcIdHelper().gasGap(idi))-1);
+      rcode = 1000000*(m_idHelperSvc->rpcIdHelper().stationName(idi))+10000*(m_idHelperSvc->rpcIdHelper().stationPhi(idi))+ 0* ((m_idHelperSvc->rpcIdHelper().stationEta(idi))+10);
+      rcode = rcode + 2*((m_idHelperSvc->rpcIdHelper().doubletR(idi))-1)+16*((m_idHelperSvc->rpcIdHelper().gasGap(idi))-1);
     }
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc( idi )) {
-      code = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->tgcIdHelper().stationPhi(idi))+ 100* ((m_muonIdHelperTool->tgcIdHelper().stationEta(idi))+10);
-      code = code + m_muonIdHelperTool->tgcIdHelper().gasGap(idi);
-      rcode = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->tgcIdHelper().stationPhi(idi))+ 0* ((m_muonIdHelperTool->tgcIdHelper().stationEta(idi))+10);
-      rcode = rcode + m_muonIdHelperTool->tgcIdHelper().gasGap(idi);
+    else if (m_idHelperSvc->isTgc( idi )) {
+      code = 1000000*(m_idHelperSvc->tgcIdHelper().stationName(idi))+10000*(m_idHelperSvc->tgcIdHelper().stationPhi(idi))+ 100* ((m_idHelperSvc->tgcIdHelper().stationEta(idi))+10);
+      code = code + m_idHelperSvc->tgcIdHelper().gasGap(idi);
+      rcode = 1000000*(m_idHelperSvc->tgcIdHelper().stationName(idi))+10000*(m_idHelperSvc->tgcIdHelper().stationPhi(idi))+ 0* ((m_idHelperSvc->tgcIdHelper().stationEta(idi))+10);
+      rcode = rcode + m_idHelperSvc->tgcIdHelper().gasGap(idi);
     }
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc( idi )) {
-      code = 1000000*(m_muonIdHelperTool->cscIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->cscIdHelper().stationPhi(idi))+ 100* ((m_muonIdHelperTool->cscIdHelper().stationEta(idi))+10);
-      code = code + m_muonIdHelperTool->cscIdHelper().wireLayer(idi);
-      rcode = 1000000*(m_muonIdHelperTool->cscIdHelper().stationName(idi))+10000*(m_muonIdHelperTool->cscIdHelper().stationPhi(idi))+ 0* ((m_muonIdHelperTool->cscIdHelper().stationEta(idi))+10);
-      rcode = rcode + m_muonIdHelperTool->cscIdHelper().wireLayer(idi);
+    else if (m_idHelperSvc->isCsc( idi )) {
+      code = 1000000*(m_idHelperSvc->cscIdHelper().stationName(idi))+10000*(m_idHelperSvc->cscIdHelper().stationPhi(idi))+ 100* ((m_idHelperSvc->cscIdHelper().stationEta(idi))+10);
+      code = code + m_idHelperSvc->cscIdHelper().wireLayer(idi);
+      rcode = 1000000*(m_idHelperSvc->cscIdHelper().stationName(idi))+10000*(m_idHelperSvc->cscIdHelper().stationPhi(idi))+ 0* ((m_idHelperSvc->cscIdHelper().stationEta(idi))+10);
+      rcode = rcode + m_idHelperSvc->cscIdHelper().wireLayer(idi);
     }
 
     scode[i] = code;
     srcode[i] = rcode;
     int idet = 0;
-    if (m_muonIdHelperTool->rpcIdHelper().is_rpc(idi)) idet = 1;
-    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(idi)) idet = 2;
-    else if (m_muonIdHelperTool->cscIdHelper().is_csc(idi)) idet = 3;
+    if (m_idHelperSvc->isRpc(idi)) idet = 1;
+    else if (m_idHelperSvc->isTgc(idi)) idet = 2;
+    else if (m_idHelperSvc->isCsc(idi)) idet = 3;
     phiSelect[i] = idet;
     phiSelectKeep[i] = idet;
   }
@@ -624,15 +554,14 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       } 
       phiMult[i] = n;
       double fact = 1.;
-      if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) fact = 1.2;
-      else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) n = 1;
-      else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) n = 1;
+      if (m_idHelperSvc->isRpc(id)) fact = 1.2;
+      else if (m_idHelperSvc->isTgc(id)) n = 1;
+      else if (m_idHelperSvc->isCsc(id)) n = 1;
            
       error0[i]=phiError[i]*sqrt(n)*fact;  
       error[i]=phiError[i]*sqrt(n)*fact;  
       double phiHit = atan2 ( phiHity[i], phiHitx[i] );
       if (m_debug) {
-	//	  std::string st = id.stationNumberToFixedStationString(id.stationName());
 	std::cout << i << " Station " << int(scode[i]/1000000) << " Hit x " << phiHitx[i] << " Hit y " << phiHity[i] << " Hit z " << phiHitz[i] << " error " << phiError[i] << " phi Hit " << phiHit << std::endl; 
 	std::cout << " station " << phiSelect[i] << std::endl;
 	std::cout << " code " << scode[i] << " multiplicity " << n << " error " << error0[i] << " quality " << quality[i] << std::endl;
@@ -693,7 +622,6 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
         if (m_debug) std::cout << " select " << phiSelect[i] << " quality " << quality[i] << " error " << error[i] << std::endl;
       }
       if (m_debug) std::cout << " performing outlier removal for pattern hits " << std::endl; 
-//      fitPhiSL(pfit, phiId,  phiHitx,  phiHity,  phiHitz, error, phiSelect, nphi, phiPull, imax, chi2, r0, phi, errorM , true);
       fitPhiSL(pfit, phiId,  phiHitx,  phiHity,  phiHitz, error, phiSelect, nphi, phiPull, imax, chi2, r0, phi, errorM , false);
       for(int i = 0; i < nphi  ; ++i )  {
         if(phiPatSelect[i] == 1) {
@@ -789,9 +717,9 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
 	if ( error[i] != 0 && quality[i] > quacut) {
 	  layersRecoHit[srcode[i]]++;
 	  if (m_debug) {
-	    if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) nrpc++;
-	    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) ntgc++;
-	    else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) ncsc++;
+	    if (m_idHelperSvc->isRpc(id)) nrpc++;
+	    else if (m_idHelperSvc->isTgc(id)) ntgc++;
+	    else if (m_idHelperSvc->isCsc(id)) ncsc++;
 	  }
 	  nfit++;
 	}
@@ -807,25 +735,17 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       }
 
       if (chi2 < 5*(nfit+1) || fabs(phiPull[imax]) < 3.0 ) {
-	// &&  chi2max < 25 ) {
  
 	if (m_debug) std::cout << " Final phi " << phi << " frac " << frac << " chi2 " << chi2 << std::endl; 
 	break;
       } 
 
-      //      quality[imax] = 0;
       phiSelect[imax] = 0;
 
       if (m_debug) { 
 	std::cout << " = Start hit dropping " << imax << " pullmax " << phiPull[imax] << " phi " << phi << " chi2 " << chi2 << std::endl; 
       }
     }
-
-    //      clusterPhi(phiId, phiHitx, phiHity, phiHitz, error, phiPull, phiSelect, nphi, clusterX, clusterY, clusterZ, clusterError, clusterId, clusterHits, clusterSelect, ncl);
-    //      double r0cl; 
-    //      std::vector<double> errorMcl(4);
-    //      double phicl;
-    //      fitPhiSL(pmom, clusterId, clusterX, clusterY, clusterZ, clusterError, clusterSelect, ncl, clusterPull, imax, chi2cl, r0cl, phicl, errorMcl, false);
 
     if (m_debug) { 
       std::cout << " Fit results phi " << phi << " chi2 " << chi2 <<  " ndof " << nfit << std::endl;
@@ -845,11 +765,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
         nshowerdrop++;
         if (m_debug) std::cout << " Drop shower hit i " << i << " with pull " << pull << " iterations " << niter  << " power " << power << std::endl;  
       }
-      if( phiSelect[i] == 0) {
-	//        quality[i] = 0;
-      } else {
-        nacc++;
-      }
+      if( phiSelect[i] != 0) nacc++;
     }
     if(m_debug) std::cout << " phi hits " << nphi << " selected for fit " << nfit << " iqua " << iqua << " iterations " << niter << " accepted hits " << nacc << " nshower drop " << nshowerdrop << std::endl; 
   }
@@ -891,14 +807,8 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
   double ym = 0.;
   double dtot = 0.;
   double em = 0.;
-//   int nrpc = 0;
-//   int ntgc = 0;
-//   int ncsc = 0;
   for(int i = 0; i < n  ; ++i )  {
     if ( error[i] != 0 && select[i] > 0 ) {
-//       if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id[i])) nrpc++;
-//       else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id[i])) ntgc++;
-//       else if (m_muonIdHelperTool->cscIdHelper().is_csc(id[i])) ncsc++;
       double inver2 = 1./(error[i]*error[i]); 
       xm +=  hitx[i]*inver2;
       ym +=  hity[i]*inver2;
@@ -1030,14 +940,11 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     v(i,0) = 0.;
     for(int j = 0; j < nfit ; ++j )  {
       double inver2 = 1./(ef[j]*ef[j]);
-      //        std::cout << " xf[j] " << xf [j] << " yf [j] " << yf[j] << " ef[j] " << ef[j] << std::endl;
       if (i == 0) v(i,0) += yf[j]*inver2;
       else if (i == 1) v(i,0) += yf[j]*xf[j]*inver2;
       else if (i > 1 && j > i-2 ) {
-	//         std::cout << " i " << i << " xf[i-2] " << xf [i-2] << std::endl;
 	v(i,0) += yf[j]*(lf[j]-lf[i-2])*inver2;
       } 
-      //       std::cout << " v[i][0] " << v[i][0] << std::endl;
     }  
   }  
 
@@ -1067,11 +974,6 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
       // Beam spot 
       if ( i == 0 && j == 2*nfit-1) model(i,j) = 1.;
     }
-    //      if (m_debug) {
-    //        for(int j = 0 ; j < 2*nfit ; ++j )  {
-    //         std::cout << " i " << i << " j " << j << " Matrix model i j " << model[i][j] << std::endl; 
-    //        } 
-    //      } 
   }
     
   // Covariance Inverse of Track parameters
@@ -1098,12 +1000,6 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     std::cout << " Don't trust fit result " << t(1,0) << " Keep Old result "  << std::endl;
   }
   if (fabs(t(1,0))> 0.2) return;
-   
-  //  if (m_debug) { 
-    //      for(int i = 0; i < nfit+1 ; ++i )  {
-    //        std::cout << " result i " << i << " parameter t " << t(i,0)  << std::endl; 
-    //      }
-  //}
     
   // calculate residuals and chi2
   std::vector <double> resi(2*nfit); 
