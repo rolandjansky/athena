@@ -697,8 +697,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
       continue;
     }
 
-    nextNavigationCell = m_navigator->nextTrackingVolume(
-      *navigationPropagator, *navigationParameters, direction, trackingVolume);
+    nextNavigationCell = m_navigator->nextTrackingVolume(ctx,
+                                                         *navigationPropagator,
+                                                         *navigationParameters,
+                                                         direction,
+                                                         trackingVolume);
+   
     nextVolume = nextNavigationCell.nextVolume;
     if (navigationPropagatorIndex >= 1) {
       delete navigationParameters;
