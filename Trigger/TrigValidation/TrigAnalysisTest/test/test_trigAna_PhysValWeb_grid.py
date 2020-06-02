@@ -54,6 +54,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 download=CheckSteps.DownloadRefStep()
 download.artpackage = 'TrigAnalysisTest'
 download.artjobname = 'test_trigAna_PhysValWeb_grid.py'
+download.required=True
 test.check_steps.append(download)
 
 
@@ -76,8 +77,8 @@ pv.append(['Egamma','Egamma'])
 for slice in pv:
     name='PhysValWeb'+slice[0]
     sliceweb=CheckSteps.PhysValWebStep(name)
-    sliceweb.refdir=refdir
     sliceweb.sig=slice[1]
+    sliceweb.required=True
     test.check_steps.append(sliceweb)
     
 import sys
