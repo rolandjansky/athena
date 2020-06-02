@@ -3,7 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm, findOwningSequence
 from AthenaCommon.AlgSequence import dumpMasterSequence
@@ -52,7 +52,7 @@ flags.InDet.usePixelDCS=False
 flags.lock()
 
 from AthenaCommon.Constants import INFO,DEBUG,WARNING
-acc = MainServicesThreadedCfg( flags )
+acc = MainServicesCfg( flags )
 
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
 acc.merge(TrigBSReadCfg( flags ))

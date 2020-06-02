@@ -1,10 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaCommon.Logging import logging
+log=logging.getLogger('TriggerConfigFlags')
 
 def createTriggerFlags():
+    flags = AthConfigFlags()    
 
-    flags = AthConfigFlags()
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
 
@@ -31,8 +33,70 @@ def createTriggerFlags():
     flags.addFlag('Trigger.decodePhaseIL1', False)
     
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
-    flags.addFlag('Trigger.EDMDecodingVersion', 3)
+    def EDMDecodingVersion(flags):
+        log.debug("Attempting to determine EDMDecodingVersion.")
+        version = 3
+        if flags.Input.Format=="BS":
+            log.debug("EDMDecodingVersion: Input format is ByteStream")
+            inputFileName = flags.Input.Files[0]
+            if not inputFileName and flags.Common.isOnline():
+                log.debug("EDMDecodingVersion: Online reconstruction, no input file. Return default version, i.e. AthenaMT.")
+                return version
 
+            log.debug("EDMDecodingVersion: Checking ROD version.")
+            import eformat
+            from libpyeformat_helper import SubDetector
+            bs = eformat.istream(inputFileName)
+
+            rodVersionM = -1                                                                                                
+            rodVersionL = -1                                                                                                
+            # Find the first HLT ROBFragment in the first event                                                             
+            for robf in bs[0]:                                                                                              
+                if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT:                                             
+                    rodVersionM = robf.rod_minor_version() >> 8                                                             
+                    rodVersionL = robf.rod_minor_version() & 0xFF                                                           
+                    log.debug("EDMDecodingVersion: HLT ROD minor version from input file is {:d}.{:d}".format(rodVersionM, rodVersionL))
+                    break                                                                                                   
+
+            if rodVersionM >= 1:
+                version = 3
+                return version
+            log.info("EDMDecodingVersion: Could not determine ROD version -- falling back to run-number-based determination")
+
+            # Use run number to determine decoding version
+            runNumber = flags.Input.RunNumber[0]
+            log.debug("EDMDecodingVersion: Read run number {}.".format(runNumber))
+
+            boundary_run12 = 230000
+            boundary_run23 = 368000
+
+            if runNumber <= 0:
+                log.warning("EDMDecodingVersion: Cannot determine decoding version because run number {} is invalid. Leaving the default version.".format(runNumber))
+            elif runNumber < boundary_run12:
+                # Run-1 data
+                version = 1
+            elif runNumber < boundary_run23:
+                # Run-2 data
+                version = 2
+            else:
+                # Run-3 data
+                version = 3
+        else:
+            log.debug("EDMDecodingVersion: Input format is POOL -- determine from input file collections.")
+            # POOL files: decide based on HLT output type present in file
+            if "HLTResult_EF" in flags.Input.Collections:
+                version = 1
+            elif "TrigNavigation" in flags.Input.Collections:
+                version = 2
+            elif "HLTNav_Summary" in flags.Input.Collections:
+                version = 3
+            elif flags.Input.Format == "RDO":
+                # If running Trigger on RDO input (without previous trigger result), choose Run-3
+                version = 3
+        log.info("Determined EDMDecodingVersion to be {}.".format({1:"Run 1", 2:"Run 2", 3:"AthenaMT"}[version]))
+        return version
+    flags.addFlag('Trigger.EDMDecodingVersion', lambda prevFlags: EDMDecodingVersion(prevFlags))
+                     
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
@@ -60,6 +124,9 @@ def createTriggerFlags():
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
+
+    # shortcut to check if job is running in a partition (i.e. partition name is not empty)
+    flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
     
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)

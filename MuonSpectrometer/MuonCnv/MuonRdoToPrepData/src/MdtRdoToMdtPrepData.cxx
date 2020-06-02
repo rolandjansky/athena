@@ -19,7 +19,7 @@ m_print_inputRdo(false),
 m_print_prepData(false),
 m_seededDecoding(false),
 m_roiCollectionKey("OutputRoIs"),
-m_regionSelector("RegSelSvc",name),
+m_regsel_mdt("RegSelTool/RegSelTool_MDT",this),
 m_mdtCollection("MDT_DriftCircles")
 {
     declareProperty("DecodingTool",       m_tool,       "mdt rdo to prep data conversion tool" );
@@ -27,7 +27,7 @@ m_mdtCollection("MDT_DriftCircles")
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
     declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-    declareProperty("RegionSelectionSvc", m_regionSelector, "Region Selector");
+    declareProperty("RegSel_MDT", m_regsel_mdt);
     declareProperty("OutputCollection",   m_mdtCollection);
 }
 
@@ -53,7 +53,7 @@ StatusCode MdtRdoToMdtPrepData::initialize()
     if(m_seededDecoding){
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_mdtCollection.initialize());
-      if (m_regionSelector.retrieve().isFailure()) {
+      if (m_regsel_mdt.retrieve().isFailure()) {
 	ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
 	return StatusCode::FAILURE;
       }
@@ -82,7 +82,7 @@ StatusCode MdtRdoToMdtPrepData::execute()
       else{
 	std::vector<uint32_t> mdtrobs;
 	for(auto roi : *muonRoI){
-	  m_regionSelector->DetROBIDListUint(MDT,*roi,mdtrobs);
+	  m_regsel_mdt->ROBIDList(*roi,mdtrobs);
 	  if(mdtrobs.size()!=0){
 	    ATH_CHECK(m_tool->decode(mdtrobs));
 	    mdtrobs.clear();

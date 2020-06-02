@@ -14,14 +14,17 @@ from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetDefinition')
 
 # Trigger xAODType.ObjectType dict entry loading
-import cppyy
-try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except Exception:
-    pass
-import ROOT
-from ROOT import xAODType
-xAODType.ObjectType
+#import cppyy
+#try:
+#    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+#except Exception:
+#    pass
+#import ROOT
+#from ROOT import xAODType
+#xAODType.ObjectType
+
+from xAODBase.xAODType import xAODType
+
 
 # Code from JetRecUtils
 # define the convention that we write R truncating the decimal point
@@ -348,7 +351,7 @@ class JetModifier(object):
 
     def getGenericModifier(self,**kwargs):
         from AthenaConfiguration.ComponentFactory import CompFactory
-        tool = getattr(CompFactory,self.tooltype)(self.toolname)
+        tool = CompFactory.getComp(self.tooltype)(self.toolname)
         return tool
 
     def getPrereqs(self,modspec="",jetdef=None):

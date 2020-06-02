@@ -39,7 +39,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //-----------------------------------------------------------------
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode execute(xAOD::TauJet& pTau) const override;
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
                                          const xAOD::TrackParticleContainer* trackContainer = nullptr) override;

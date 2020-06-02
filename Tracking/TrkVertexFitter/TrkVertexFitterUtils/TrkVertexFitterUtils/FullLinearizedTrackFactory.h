@@ -14,6 +14,8 @@
 #include "TrkParametersBase/Neutral.h"
 #include "TrkParameters/TrackParameters.h" 
 
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+
  /**
    * @class Trk::FullLinearizedTrackFactory 
    *
@@ -43,10 +45,6 @@
    *   EDM Migration to xAOD - replace Trk::Vertex with Amg::Vector3D
    *
    */
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk
 {
@@ -103,8 +101,9 @@ namespace Trk
   private:
  
     ToolHandle< Trk::IExtrapolator >          m_extrapolator;
-    ServiceHandle<MagField::IMagFieldSvc>     m_magFieldSvc;
-    
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey 
+          {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
   };
 }
 #endif

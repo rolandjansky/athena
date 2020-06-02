@@ -71,10 +71,6 @@ StatusCode ExtraTreeTrackFillerTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ExtraTreeTrackFillerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 StatusCode ExtraTreeTrackFillerTool::writeTracks(unsigned int &index) {
   //retrieve SG container
   const TrackCollection* tracks;
@@ -373,7 +369,7 @@ inline double ExtraTreeTrackFillerTool::errorCompetingRot( const Trk::CompetingR
     Er(1, 1) = rotc->localCovariance()(1,1);
     Er(1, 0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);
@@ -402,7 +398,7 @@ inline double ExtraTreeTrackFillerTool::errorRot( const Trk::RIO_OnTrack* rot) {
     Er(1,1) = rot->localCovariance()(2,2);
     Er(1,0) = Er(0,1);   
       
-    double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+    double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
  
     double sincoschi[2];
     CxxUtils::sincos scchi(chi);

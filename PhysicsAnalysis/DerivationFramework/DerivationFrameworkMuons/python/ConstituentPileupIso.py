@@ -1,9 +1,9 @@
-#Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def ConstituentPileupIso(privateSeq):
   from AthenaCommon.AppMgr import ToolSvc
   from JetRecTools.JetRecToolsConfig import ctm
-  from JetRecTools.JetRecToolsConf import CaloClusterConstituentsOrigin, ConstituentSubtractorTool, ConstitTimeCutTool, SoftKillerWeightTool
+  from JetRecTools.JetRecToolsConf import ConstituentSubtractorTool, ConstitTimeCutTool, SoftKillerWeightTool
   ctm.add( ConstitTimeCutTool("JetConstit_Timing"),
            alias = 'timing' )
   ctm.add( ConstituentSubtractorTool("JetConstit_ConstSub"),
@@ -95,11 +95,11 @@ def ConstituentPileupIso(privateSeq):
   ToolSvc += OrigTimeCSSKCaloClustersInConeTool
   
   from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-  TimePFCSTool = RetrievePFOTool("TimePFCSTool",NeutralInputContainer="TimePFCSNeutralParticleFlowObjects");
+  TimePFCSTool = RetrievePFOTool("TimePFCSTool",NeutralInputContainer="TimePFCSNeutralParticleFlowObjects")
   ToolSvc += TimePFCSTool
-  TimePFSKTool = RetrievePFOTool("TimePFSKTool",NeutralInputContainer="TimePFSKNeutralParticleFlowObjects");
+  TimePFSKTool = RetrievePFOTool("TimePFSKTool",NeutralInputContainer="TimePFSKNeutralParticleFlowObjects")
   ToolSvc += TimePFSKTool
-  TimePFCSSKTool = RetrievePFOTool("TimePFCSSKTool",NeutralInputContainer="TimePFCSSKNeutralParticleFlowObjects");
+  TimePFCSSKTool = RetrievePFOTool("TimePFCSSKTool",NeutralInputContainer="TimePFCSSKNeutralParticleFlowObjects")
   ToolSvc += TimePFCSSKTool
   
   from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
@@ -198,13 +198,10 @@ def ConstituentPileupIso(privateSeq):
                                   UseEMScale                      = True,
                                   addCaloExtensionDecoration      = False)
   ToolSvc += TimePFCSSKCaloIsolationTool
-  
-  import ROOT, cppyy
-  # Need to be sure base dict is loaded first.
-  cppyy.loadDictionary('xAODCoreRflxDict')
-  cppyy.loadDictionary('xAODPrimitivesDict')
-  isoPar = ROOT.xAOD.Iso
-  
+
+  # Import the xAOD isolation parameters.
+  from xAODPrimitives.xAODIso import xAODIso as isoPar
+
   from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
   isoBuilderLC = IsolationBuilder(
                                         name                  = "isoBuilderLC",

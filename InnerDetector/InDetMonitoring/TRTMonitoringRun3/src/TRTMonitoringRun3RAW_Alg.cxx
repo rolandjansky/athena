@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTMonitoringRun3/TRTMonitoringRun3RAW_Alg.h"
@@ -1035,7 +1035,8 @@ HitAWMapC_passed = 1.0;
 
             for (int iside = 0; iside < 2; iside++) {
                 for (int i = 1; i <= numberOfStacks_b[ibe]; i++) {
-                    int index_tmp, modulenum_tmp;
+                    int index_tmp = 0;
+                    int modulenum_tmp = 0;
 
                     if (iside == 0) {
                         index_tmp = i - 1;
@@ -1200,7 +1201,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 			continue;
 		}
 
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -1526,7 +1527,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;

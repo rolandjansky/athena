@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -17,13 +17,13 @@
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "GaudiKernel/EventContext.h"
+#include "TrkTrack/Track.h" 
 namespace Trk {
 
-  class Track;		        //!> ATLAS standard track class
+  class Track;	//!> ATLAS standard track class
 
   static const InterfaceID IID_ITrackFitter("ITrackFitter",1,0);
-
 
   /** @class ITrackFitter
 
@@ -37,7 +37,18 @@ namespace Trk {
       Regarding athena, it is implemented using the IAlgTool inheritance,
       so fitter implementations should be a component_library.
 
+      Athena MT notes:
+      There are 2 sets of methods
+      1. EventContext aware returning unique_ptr
+      2. Without EventContext returning plain ptr.
+
+      By default the methods of the one set call the methods of the other.
+      So a Fitter implementation needs to implement only one of the two sets. 
+      A client can use any of the two.
+      For MT it might be preferable to migrate to the EventContext aware.
+
       @author M. Elsing, W. Liebig <http://consult.cern.ch/xwho>
+      @author C. Anastopoulos (Athena MT)
   */
 
   class ITrackFitter : virtual public IAlgTool { 
@@ -50,22 +61,150 @@ namespace Trk {
       {  return IID_ITrackFitter; }  	
 
 
-    /** RE-FIT A TRACK.
-        Since it is not our but the fitter model's decision if to
-        re-fit on PRD or ROT level, it is made pure virtual. */
-    virtual Track* fit (const Track&,
-                        const RunOutlierRemoval  runOutlier=false,
-                        const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+     /*
+      * First the context aware retun unique_ptr
+      * methods.
+      * If this set is not overloaded , it 
+      * will call the methods without EventContext
+      */
+
+    /** Event context aware (Athena MT) RE-FIT A TRACK. */
+      virtual std::unique_ptr<Track> fit(
+        const EventContext& ctx,
+        const Track& track,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        (void)(ctx);
+        return std::unique_ptr<Track>(fit(track, runOutlier, matEffects));
+      }
+    /** Event context aware (Athena MT) RE-FIT A TRACK, ADDING A PRD SET.
+        this method will disintegrate the track back to PRD
+        and call the fit(PRDset) method.
+    */
+      virtual std::unique_ptr<Track> fit(
+        const EventContext& ctx,
+        const Track& track,
+        const PrepRawDataSet& prepRawSet,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+
+        (void)(ctx);
+        return std::unique_ptr<Track>(
+          fit(track, prepRawSet, runOutlier, matEffects));
+      }
+     /** Event context aware  FIT A TRACK TO A SET OF PrepRawData.
+        Main fit method. The TrackParameters is a first 
+        estimate for the track, represented close to the origin.
+        Use-cases can be thought of that make it necessary
+        to control toggling outlier removal and material effects not
+        via job options (once-per-job) but at each call (toggle
+        within event, large set of fast fit followed by one final full fit).
+    */
+      virtual std::unique_ptr<Track> fit(
+        const EventContext& ctx,
+        const PrepRawDataSet& prepRawSet,
+        const TrackParameters& params,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        (void)(ctx);
+        return std::unique_ptr<Track>(
+          fit(prepRawSet, params, runOutlier, matEffects));
+      }
+
+    /** Event context aware RE-FIT A TRACK, ADDING A FITTABLE MEASUREMENT SET.
+        this method will use the vector of measurements from the
+        existing track and refit adding the new measurements. The code
+        is in this class, but can be overwritten by inheriting classes.
+    */
+      virtual std::unique_ptr<Track> fit(
+        const EventContext& ctx,
+        const Track& track,
+        const MeasurementSet& measSet,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+         (void)(ctx);
+         return std::unique_ptr<Track>(
+           fit(track, measSet, runOutlier, matEffects));
+      }
+
+      /** Event context aware FIT A TRACK TO A SET OF MEASUREMENTBASE.
+          Main fit method. The TrackParameters is a first
+          estimate for the track, represented close to the origin.
+      */
+      virtual std::unique_ptr<Track> fit(
+        const ::EventContext& ctx,
+        const MeasurementSet& measSet,
+        const TrackParameters& params,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        (void)(ctx);
+        return std::unique_ptr<Track>(
+          fit(measSet, params, runOutlier, matEffects));
+      }
+
+      /** Event context aware COMBINE TWO TRACKS BY REFITTING.
+          Specifically designed for combined muon fits, allowing to extract
+          extra informations (ID-exit & MS-entrance parameters, layers, Mefos)
+          from already fitted tracks.
+      */
+      virtual std::unique_ptr<Track> fit(
+        const EventContext& ctx,
+        const Track& track1,
+        const Track& track2,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        (void)(ctx);
+        return std::unique_ptr<Track>(
+          fit(track1, track2, runOutlier, matEffects));
+      }
+
+      /*
+       * Then the context unaware retun unique_ptr
+       * methods.
+       * If this set is not overloaded , it
+       * will call the methods with EventContext
+       */
+
+      /** RE-FIT A TRACK.
+          It is the fitter model's decision if to
+          re-fit on PRD or ROT level*/
+      virtual Track* fit(
+        const Track& track,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        return fit(Gaudi::Hive::currentContext(), 
+                   track, 
+                   runOutlier, 
+                   matEffects).release();
+      }
 
     /** RE-FIT A TRACK, ADDING A PRD SET.
         this method will disintegrate the track back to PRD
         and call the fit(PRDset) method. The code is in this class,
         but can be overwritten by inheriting classes.
     */
-    virtual Track* fit(const Track&,
-                       const PrepRawDataSet&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+      virtual Track* fit(
+        const Track& track,
+        const PrepRawDataSet& prepRawSet,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+
+        return fit(Gaudi::Hive::currentContext(),
+                   track,
+                   prepRawSet,
+                   runOutlier,
+                   matEffects)
+          .release();
+      }
+
     /** FIT A TRACK TO A SET OF PrepRawData.
         Main fit method. The TrackParameters is a first 
         estimate for the track, represented close to the origin.
@@ -74,48 +213,85 @@ namespace Trk {
         via job options (once-per-job) but at each call (toggle
         within event, large set of fast fit followed by one final full fit).
     */
-    virtual Track* fit(const PrepRawDataSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+      virtual Track* fit(
+        const PrepRawDataSet& prepRawSet,
+        const TrackParameters& params,
+        const RunOutlierRemoval runOutlier = false,
+        const ParticleHypothesis matEffects = Trk::nonInteracting) const
+      {
+        return fit(Gaudi::Hive::currentContext(),
+                   prepRawSet,
+                   params,
+                   runOutlier,
+                   matEffects)
+          .release();
+    }
+
     /** RE-FIT A TRACK, ADDING A FITTABLE MEASUREMENT SET.
         this method will use the vector of measurements from the
         existing track and refit adding the new measurements. The code
         is in this class, but can be overwritten by inheriting classes.
     */
-
-    virtual Track* fit(const Track&,
-                       const MeasurementSet&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+    virtual Track* fit(
+      const Track& track,
+      const MeasurementSet& measSet,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const
+    {
+      return fit(Gaudi::Hive::currentContext(),
+                 track,
+                 measSet,
+                 runOutlier,
+                 matEffects)
+        .release();
+    }
 
     /** FIT A TRACK TO A SET OF MEASUREMENTBASE.
         Main fit method. The TrackParameters is a first 
         estimate for the track, represented close to the origin.
     */
-    virtual Track* fit(const MeasurementSet&,
-                       const TrackParameters&,
+    virtual Track* fit(const MeasurementSet& measSet,
+                       const TrackParameters& params,
                        const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+                       const ParticleHypothesis matEffects=Trk::nonInteracting) const
+    {
+
+      return fit(Gaudi::Hive::currentContext(),
+                 measSet,
+                 params,
+                 runOutlier,
+                 matEffects)
+        .release();
+    }
 
     /** COMBINE TWO TRACKS BY REFITTING.
         Specifically designed for combined muon fits, allowing to extract
         extra informations (ID-exit & MS-entrance parameters, layers, Mefos)
         from already fitted tracks.
     */
-    virtual Track* fit(const Track&,
-                       const Track&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
+    virtual Track* fit(
+      const Track& track1,
+      const Track& track2,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const
+    {
+      return fit(Gaudi::Hive::currentContext(),
+                 track1,
+                 track2,
+                 runOutlier,
+                 matEffects)
+        .release();
+    }
+      /** provides way of getting more detailed information about failing fits
+       * than NULL track pointer */
+      virtual FitterStatusCode statusCodeOfLastFit() const;
 
-    /** provides way of getting more detailed information about failing fits than NULL track pointer */
-    virtual FitterStatusCode statusCodeOfLastFit() const;
-
-  }; // end of class
+    }; // end of class
 } // end of namespace
 
 // wait until all fitters have it implemented
-inline Trk::FitterStatusCode Trk::ITrackFitter::statusCodeOfLastFit() const
+inline Trk::FitterStatusCode
+Trk::ITrackFitter::statusCodeOfLastFit() const
 { return Trk::FitterStatusCode::Success; }
 
 

@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_SimEv/AFP_TDSimHit.h"
+
 #include "Identifier/Identifier.h"
 #include "AFP_EventTPCnv/AFP_TDSimHitCnv_p1.h"
 
-void AFP_TDSimHitCnv_p1::persToTrans(const AFP_TDSimHit_p1* persObj, AFP_TDSimHit* transObj, MsgStream &log) const
-{
+void AFP_TDSimHitCnv_p1::persToTrans(const AFP_TDSimHit_p1* persObj, AFP_TDSimHit* transObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::persToTrans called " << endmsg;
 
 	transObj->m_nHitID=persObj->m_nHitID;
@@ -29,8 +30,8 @@ void AFP_TDSimHitCnv_p1::persToTrans(const AFP_TDSimHit_p1* persObj, AFP_TDSimHi
 	transObj->m_nSensitiveElementID=persObj->m_nSensitiveElementID;
 }
 
-void AFP_TDSimHitCnv_p1::transToPers(const AFP_TDSimHit* transObj, AFP_TDSimHit_p1* persObj, MsgStream &log) const
-{
+void AFP_TDSimHitCnv_p1::transToPers(const AFP_TDSimHit* transObj, AFP_TDSimHit_p1* persObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_TDSimHitCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_nHitID=transObj->m_nHitID;

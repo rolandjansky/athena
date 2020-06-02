@@ -14,8 +14,8 @@ class HLTMenuAccess(TriggerConfigAccess):
         super(HLTMenuAccess,self).__init__( ConfigType.HLTMENU, mainkey = "chains",
                                             filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT HTM_DATA FROM {schema}.HLT_MENU WHERE HTM_ID={dbkey}", # for new db schema
-            "SELECT HMT.HMT_MENU FROM {schema}.HLT_MASTER_TABLE HMT WHERE HMT.HMT_ID={dbkey}"  # for current db schema
+            "SELECT HMT.HTM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MENU HMT WHERE HMT.HTM_ID=SMT.SMT_HLT_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT HMT.HMT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MASTER_TABLE HMT WHERE HMT.HMT_ID=SMT.SMT_HLT_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
 
@@ -83,8 +83,8 @@ class HLTJobOptionsAccess(TriggerConfigAccess):
         super(HLTJobOptionsAccess,self).__init__( ConfigType.HLTJO, mainkey = "properties",
                                                   filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT HST_DATA FROM {schema}.HLT_SETUP WHERE HST_ID={dbkey}", # for new db schema
-            "SELECT JO.JO_CONTENT FROM {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID={dbkey}"  # for current db schema
+            "SELECT JO.HST_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_SETUP JO WHERE JO.HST_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT JO.JO_CONTENT FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID=SMT.SMT_JO_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
 

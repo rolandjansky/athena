@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_useCustomGeometry(false)
 {
-  declareInterface<ISiSmearedDigitizationTool>(this);
   declareProperty("RndmSvc",                      m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
   declareProperty("RndmEngine",                   m_randomEngineName, "Random engine name");
   declareProperty("InputObjectName",              m_inputObjectName="PixelHits", "Input Object name" );

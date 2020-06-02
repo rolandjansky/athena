@@ -20,8 +20,6 @@
 // Local include(s):
 #include "xAODCore/tools/TDVCollectionProxy.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 5, 99, 0 )
-
 /// Macro for setting up proxying for a specific DataVector<T> type
 ///
 /// In the xAOD packages that use DataVector classes, one must attach
@@ -77,60 +75,6 @@
    static int _R__UNIQUE_( dummy_##NS##_##TYPE##_Var ) =                \
                         register_##NS##_##TYPE##_CollectionProxy();     \
    R__UseDummy( _R__UNIQUE_( dummy_##NS##_##TYPE##_Var ) )
-
-#else
-
-/// Macro for setting up proxying for a specific DataVector<T> type
-///
-/// In the xAOD packages that use DataVector classes, one must attach
-/// "collection proxies" to the container dictionaries. This collection
-/// proxy describes to ROOT how to navigate the contents of the
-/// DataVector container.
-///
-/// This is set up by adding a file called
-/// "src/dict/CollectionProxies.cxx" to the package (well, all files
-/// under "src/dict/" are taken into account in the end...), and for each
-/// DataVector type defined by a package, adding a line like:
-///
-/// <code>
-///   ADD_DV_PROXY( MySuperContainer );
-/// </code>
-///
-#define ADD_DV_PROXY( TYPE )                                \
-   int register_##TYPE##_CollectionProxy() {                \
-      xAOD::AddDVProxy::add< TYPE >( 0 );                   \
-      return 1;                                             \
-   }                                                        \
-   static int _R__UNIQUE_( dummy_##TYPE##_Var ) =           \
-      register_##TYPE##_CollectionProxy();                  \
-   R__UseDummy( _R__UNIQUE_( dummy_##TYPE##_Var ) )
-
-/// Macro for setting up proxying for a specific namespaced DataVector<T> type
-///
-/// In the xAOD packages that use DataVector classes, one must attach
-/// "collection proxies" to the container dictionaries. This collection
-/// proxy describes to ROOT how to navigate the contents of the
-/// DataVector container.
-///
-/// This is set up by adding a file called
-/// "src/dict/CollectionProxies.cxx" to the package (well, all files
-/// under "src/dict/" are taken into account in the end...), and for each
-/// DataVector type defined by a package, adding a line like:
-///
-/// <code>
-///   ADD_DV_PROXY( xAOD, MySuperContainer );
-/// </code>
-///
-#define ADD_NS_DV_PROXY( NS, TYPE )                              \
-   int register_##NS##_##TYPE##_CollectionProxy() {              \
-      xAOD::AddDVProxy::add< NS::TYPE >( 0 );                    \
-      return 1;                                                  \
-   }                                                             \
-   static int _R__UNIQUE_( dummy_##NS##_##TYPE##_Var ) =         \
-      register_##NS##_##TYPE##_CollectionProxy();                \
-   R__UseDummy( _R__UNIQUE_( dummy_##NS##_##TYPE##_Var ) )
-
-#endif // ROOT_VERSION
 
 namespace xAOD {
 

@@ -17,7 +17,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 
 if not athenaCommonFlags.isOnline() and not rec.readTAG():
     try:
-        #svcMgr.ByteStreamInputSvc.ProcessBadEvent=True
         svcMgr.EventSelector.ProcessBadEvent=True
     except Exception:
         treatException ("could not set svcMgr.EventSelector.ProcessBadEvent=True")
@@ -34,7 +33,7 @@ if rec.doMuon():
 
 if DetFlags.readRDOBS.LAr_on():
     from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg 
-    topSequence+=LArRawDataReadingAlg() #Default config ist fine
+    topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
         
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [

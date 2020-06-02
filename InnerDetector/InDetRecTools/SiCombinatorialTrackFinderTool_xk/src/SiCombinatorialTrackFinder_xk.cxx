@@ -78,6 +78,8 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     } else {
       ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     }
+  } else {
+    m_pixelCondSummaryTool.disable();
   }
 
   // Get SctConditionsSummaryTool
@@ -677,7 +679,9 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
     const InDetDD::SiDetectorElement* de = (*c)->detectorElement();
 
-    for (++(cn=c); cn!=ce; ++cn) {
+    cn = c;
+    ++cn;
+    for (; cn!=ce; ++cn) {
       if (de == (*cn)->detectorElement()) return false;
     }
 

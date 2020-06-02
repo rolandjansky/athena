@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/MdtCalibNtupleMaker.h"
@@ -14,7 +14,6 @@ namespace MuonCalib {
     IMdtCalibration(name), m_ntMaker(name) {
     m_printLevel = 0;
     m_ntMaker.setPrintLevel(0);
-    //std::cout << "MdtCalibNtupleMaker::MdtCalibNtupleMaker" << std::endl;
   }
 
   const IMdtCalibrationOutput* MdtCalibNtupleMaker::analyseSegments( const IMdtCalibration::MuonSegVec &segs ){

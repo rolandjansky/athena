@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reco_tf runs with AMI configTag q122
+# art-athena-mt: 4
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

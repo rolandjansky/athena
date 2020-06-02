@@ -125,8 +125,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    #add the L1Upcacking
-    #    TopHLTRootSeq += L1UnpackingSeq
 
     # connect to L1Decoder
     l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
@@ -153,7 +151,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for step in finalDecisions:
         flatDecisions.extend (step)
 
-    summary= makeSummary("TriggerSummaryFinal", flatDecisions)
+    summary= makeSummary("Final", flatDecisions)
     hltTop += summary
 
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
@@ -210,7 +208,7 @@ def matrixDisplayOld( allCFSeq ):
                 else:
                     return s.step.sequences[0].hypo.tools
             else:
-                return list(s.step.combo.getChains().keys())
+                return list(s.step.combo.getChains())
         return []
    
 
@@ -241,10 +239,7 @@ def matrixDisplay( allCFSeq ):
 
     def __getHyposOfStep( step ):
         if len(step.sequences):
-            if len(step.sequences)==1:
-                return step.sequences[0].getTools()
-            else:
-                return list(step.combo.getChains().keys())
+            step.getChainNames()           
         return []
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)

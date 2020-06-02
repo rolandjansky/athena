@@ -15,6 +15,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODTracking/VertexContainer.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include <vector>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -34,10 +36,6 @@ namespace Trk {
 namespace Muon
 {
   class MuonEDMPrinterTool;
-}
-
-namespace MagField {
-  class IMagFieldSvc;
 }
 
 namespace MuonCombined {
@@ -94,7 +92,8 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuidMuonRecovery>		      m_muonRecovery; 
     ToolHandle<Rec::IMuonMatchQuality>		      m_matchQuality;
     ToolHandle<Trk::ITrackScoringTool>                m_trackScoringTool;
-    ServiceHandle<MagField::IMagFieldSvc>	      m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj>    m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     const AtlasDetectorID *m_DetID;
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };

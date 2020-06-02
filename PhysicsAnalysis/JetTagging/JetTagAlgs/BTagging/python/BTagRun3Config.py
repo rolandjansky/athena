@@ -171,17 +171,12 @@ def BTagCfg(inputFlags,**kwargs):
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     result.merge(PixelGeometryCfg( inputFlags ))
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
-    result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
-    #result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_ONL'))
-    #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
-    result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
-    
-    MagField__AtlasFieldSvc=CompFactory.MagField.AtlasFieldSvc
-    kwargs.setdefault( "UseDCS", True )
-    result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
-    del kwargs['UseDCS']
+    # get standard config for magnetic field - map and cache
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg( inputFlags ))
 
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+    
     #load folders needed for Run2 ID alignment
     result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
@@ -344,13 +339,10 @@ if __name__=="__main__":
         cfgFlags.Scheduler.ShowDataFlow = True
         cfgFlags.Scheduler.ShowControlFlow = True
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-        acc=MainServicesThreadedCfg(cfgFlags)
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
-    else:
-        from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-        acc=MainServicesSerialCfg()
-        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
+    
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    acc=MainServicesCfg(cfgFlags)
+    acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
 
     # Prevent the flags from being modified
     cfgFlags.lock()

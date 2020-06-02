@@ -40,12 +40,13 @@ atlas_add_library( L1DecoderLib
                    xAODTrigger TrigConfHLTData TrigConfData TrigConfL1Data
                    TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib TrigCompositeUtilsLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
+                   PRIVATE_LINK_LIBRARIES TrigConfInterfaces TrigTimeAlgsLib TrigCostMonitorMTLib
                    )
                    
 atlas_add_component( L1Decoder
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES L1DecoderLib ${CLHEP_LIBRARIES}
+                     LINK_LIBRARIES L1DecoderLib TrigTimeAlgsLib TrigConfInterfaces TrigCostMonitorMTLib ${CLHEP_LIBRARIES}
                      )
 
 atlas_install_python_modules( python/*.py

@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Add a track isolation updater tool
+
+from __future__ import print_function
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -36,14 +38,12 @@ CaloIsoTool.addCaloExtensionDecoration = False
 # if hasattr(CaloIsoTool, 'addCaloExtensionDecoration'): ### somehow does not work
 #     CaloIsoTool.addCaloExtensionDecoration = False
 # CaloIsoTool.OutputLevel = 2
-print CaloIsoTool
+print (CaloIsoTool)
 ToolSvc += CaloIsoTool
 
 
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 
 deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30]
 deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone20]

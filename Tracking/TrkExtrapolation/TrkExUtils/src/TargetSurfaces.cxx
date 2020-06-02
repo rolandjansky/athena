@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Trk::ExCellCharged
   }
 
   if ( initFrameVolume(position,direction,fVol) ) return Trk::ExtrapolationCode::InProgress;
-  else   return Trk::ExtrapolationCode::FailureLoop;   // failure navigation?
+    return Trk::ExtrapolationCode::FailureLoop;   // failure navigation?
 
 }
 
@@ -84,7 +84,7 @@ Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Amg::V
   }
 
   if ( initFrameVolume(position,direction,fVol) ) return orderIntersections();
-  else return empty;   // failure navigation?
+  return empty;   // failure navigation?
 
 }
 

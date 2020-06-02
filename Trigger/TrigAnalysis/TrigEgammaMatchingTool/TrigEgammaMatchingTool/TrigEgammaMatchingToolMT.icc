@@ -12,12 +12,11 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
 {
 
   if( !dec ) return false;
-  HLT::Identifier id(trigger);
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
   if( !initRoi.link.isValid() ) 
     return false;
 
-  auto vec =  tdt()->features< T >(trigger,TrigDefs::includeFailedDecisions ,key);
+  auto vec =  tdt()->features< T >(trigger,TrigDefs::Physics ,key);
 
   for( auto &featLinkInfo : vec )
   {                                                       
@@ -25,8 +24,7 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed( const TrigCompositeUtils::
     if( ! roi.isValid()) continue;                                                              
     if( (*roi.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      const auto *fDec = featLinkInfo.source;
-      return  (std::find(fDec->decisions().begin(), fDec->decisions().end(), id.numeric()) != fDec->decisions().end());
+      return true;
     }
   }
   return false;                      
@@ -39,20 +37,18 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed<TrigRoiDescriptorCollection
                                                                                    const std::string trigger, const std::string /*key*/) const
 {
   if( !dec ) return false;
-  HLT::Identifier id(trigger);
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, "initialRoI");
   if( !initRoi.link.isValid() ) 
     return false;
 
-  auto vec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",
+  auto vec =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::Physics,"",
                                                            TrigDefs::allFeaturesOfType,"initialRoI");       
  
   for( auto &featLinkInfo : vec )
   {                                                       
     if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord()) 
     {
-      const auto *fDec = featLinkInfo.source;
-      return  (std::find(fDec->decisions().begin(), fDec->decisions().end(), id.numeric()) != fDec->decisions().end());
+      return true;
     }
   }
   return false;                      

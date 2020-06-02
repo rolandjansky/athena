@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -36,7 +36,7 @@ namespace InDet {
     ATH_MSG_INFO("SCT_Clusterization::initialize()!");
 
     // Get the conditions summary service (continue anyway, just check the pointer 
-    // later and declare everything to be 'good' if it is NULL)
+    // later and declare everything to be 'good' if it is nullptr)
     if (m_checkBadModules.value()) {
       ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
       ATH_CHECK(m_pSummaryTool.retrieve());

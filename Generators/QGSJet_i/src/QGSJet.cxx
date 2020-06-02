@@ -305,12 +305,12 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
-  evt->set_random_states( m_seeds );
+  HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
   GeVToMeV(evt);
   
-  std::vector<HepMC::GenParticle*> beams;
+  std::vector<HepMC::GenParticlePtr> beams;
 
   for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
     if ((*p)->status() == 4) {
@@ -320,8 +320,6 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
 
   evt->set_beam_particles(beams[0], beams[1]); 
 
-  //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
-  // std::cout<<"obecny sig_proc_id " << evt->signal_process_id() << std::endl;
    int sig_id = -1;
    switch (int(c2evt_.typevt))
     {
@@ -336,7 +334,7 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
     default: ATH_MSG_INFO( "Signal ID not recognised for setting HEPEVT \n");
     }
 
-  evt->set_signal_process_id(sig_id);
+  HepMC::set_signal_process_id(evt,sig_id);
    
 
  return StatusCode::SUCCESS;

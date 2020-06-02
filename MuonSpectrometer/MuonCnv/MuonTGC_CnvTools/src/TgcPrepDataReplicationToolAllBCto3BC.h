@@ -1,18 +1,16 @@
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TgcPrepDataReplicationTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOLAllBCto3BC_H
 #define MUONTGC_CNVTOOLS_TGCPREPDATAREPLICATIONTOOLAllBCto3BC_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonTGC_CnvTools/ITgcPrepDataReplicationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon 
 {
@@ -24,7 +22,7 @@ namespace Muon
       TgcPrepDataReplicationToolAllBCto3BC(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~TgcPrepDataReplicationToolAllBCto3BC();
+      virtual ~TgcPrepDataReplicationToolAllBCto3BC()=default;
 
       /** Provide InterfaceID */
       static const InterfaceID& interfaceID() { return ITgcPrepDataReplicationTool::interfaceID(); };
@@ -33,7 +31,6 @@ namespace Muon
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) override;
 
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize() override;
       virtual StatusCode replicate() override;
       StatusCode convertAllBCto3BC();
       
@@ -43,8 +40,7 @@ namespace Muon
     private:
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
 
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       SG::WriteHandleKeyArray<TgcPrepDataContainer> m_3BCKeys;
       SG::ReadHandleKey<TgcPrepDataContainer> m_AllBCKey;

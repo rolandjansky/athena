@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,6 @@
 InDet::TRT_DetElementsRoadMaker_xk::TRT_DetElementsRoadMaker_xk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                          ,
-    m_fieldServiceHandle("AtlasFieldSvc",n), 
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator" )
 {
   m_width       = 10.                        ;
@@ -53,11 +52,10 @@ InDet::TRT_DetElementsRoadMaker_xk::TRT_DetElementsRoadMaker_xk
   declareProperty("MaxStep"              ,m_step       );
   declareProperty("PropagatorTool"       ,m_proptool   );
   declareProperty("MagneticFieldMode"    ,m_fieldmode  );
-  declareProperty("MagFieldSvc"          , m_fieldServiceHandle);
 }
 
 ///////////////////////////////////////////////////////////////////
-// Destructor  
+// Destructor
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_DetElementsRoadMaker_xk::~TRT_DetElementsRoadMaker_xk()
@@ -70,25 +68,13 @@ InDet::TRT_DetElementsRoadMaker_xk::~TRT_DetElementsRoadMaker_xk()
 
 StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
- 
-  // Get magnetic field service
-  //
-  if(m_fieldmode != "NoField" ) {
-    
-    if( !m_fieldServiceHandle.retrieve() ){
-      ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-      return StatusCode::FAILURE;
-    }    
-    ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-    m_fieldService = &*m_fieldServiceHandle;
-  }
+  StatusCode sc = AlgTool::initialize();
+
   if(m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
   else if(m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
   else m_fieldModeEnum = Trk::FullField;
-  
+
   // Get propagator tool
-  //
   if (m_proptool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_proptool);
     return StatusCode::FAILURE;
@@ -97,6 +83,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   }
 
   ATH_CHECK(m_roadDataKey.initialize());
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
   return sc;
 }
@@ -133,10 +120,16 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
 			     "UndefinedField","AthenaField"  , "?????"         };
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldHandle(m_fieldCacheCondObjInputKey);
+  const AtlasFieldCacheCondObj* fieldCondObj{*fieldHandle};
+  if (fieldCondObj) {
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+    if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
+  }
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   int mode = fieldprop.magneticFieldMode();
-  if(mode<0 || mode>8 ) mode = 8; 
+  if(mode<0 || mode>8 ) mode = 8;
 
   n     = 62-fieldmode[mode].size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
@@ -286,7 +279,7 @@ std::ostream& InDet::TRT_DetElementsRoadMaker_xk::dump( std::ostream& out ) cons
 }
 
 ///////////////////////////////////////////////////////////////////
-// Main methods for road builder 
+// Main methods for road builder
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
@@ -296,8 +289,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  std::vector<const InDetDD::TRT_BaseElement*>& R) const
 {
 
-  double qp   = fabs(500.*Tp.parameters()[4]) ; if( qp < 1.e-10  ) qp = 1.e-10; 
-  double S    = m_step/qp                     ; if( S  > 200.    ) S  = 200.  ; if(D<0) S=-S; 
+  double qp   = fabs(500.*Tp.parameters()[4]) ; if( qp < 1.e-10  ) qp = 1.e-10;
+  double S    = m_step/qp                     ; if( S  > 200.    ) S  = 200.  ; if(D<0) S=-S;
 
   Trk::CylinderBounds CB = getBound(fieldCache, Tp);
 
@@ -305,7 +298,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
   if( CB.r() > rminTRT) {
     Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-    if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+    if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
     Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
     std::list<Amg::Vector3D> G;
@@ -313,7 +306,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
     if(G.size() > 1 ) {
       detElementsRoadATL(G,R);
-    }  
+    }
   }
 
   if (msgLvl(MSG::VERBOSE)) {
@@ -324,7 +317,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 }
 
 ///////////////////////////////////////////////////////////////////
-// Main methods for road builder 
+// Main methods for road builder
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
@@ -347,10 +340,10 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  if(r==re) return;
 
  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
- if(!m_fieldService->solenoidOn()) fieldModeEnum = Trk::NoField;
+ if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
- const Trk::TrackParameters* tp0 = 
+ const Trk::TrackParameters* tp0 =
    m_proptool->propagate(ctx, Tp,(*r)->surface(),D,false,fieldprop,Trk::pion);
  if(!tp0) return;
 
@@ -358,8 +351,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  R.push_back(EP0);
 
  for(++r; r!=re; ++r) {
-   
-   const Trk::TrackParameters* tp = 
+
+   const Trk::TrackParameters* tp =
      m_proptool->propagate(ctx, (*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion);
    if(!tp) return;
 
@@ -411,13 +404,13 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     float st = sqrt(dx*dx+dy*dy+dz*dz); if(st <=0.) continue;
     float ds = 1./st;
     float A[3]= {dx*ds,dy*ds,dz*ds};
-   
+
     // Barrel
     //
     if(Pn[3]>Po[3]) {
       for(; n1<(int)layer[1].size(); ++n1) {
 
-	if(Pn[3] < layer[1][n1].r()) break; 
+	if(Pn[3] < layer[1][n1].r()) break;
         assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
 
@@ -425,7 +418,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     }
     else     {
       for(--n1; n1>=0; --n1) {
-	if(Pn[3] > layer[1][n1].r()) break; 
+	if(Pn[3] > layer[1][n1].r()) break;
         assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
      }
@@ -437,36 +430,36 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     if(Pn[2]>Po[2]) {
 
       for(; n2<(int)layer[2].size(); ++n2) {
-	if(Pn[2] < layer[2][n2].z()) break; 
+	if(Pn[2] < layer[2][n2].z()) break;
         assert( used.at(2).size()> static_cast<unsigned int>(n2));
 	layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
     }
     else     {
       for(--n2; n2>=0; --n2) {
-	if(Pn[2] > layer[2][n2].z()) break; 
+	if(Pn[2] > layer[2][n2].z()) break;
         assert( used.at(2).size() > static_cast<unsigned int>(n2));
 	layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
       ++n2;
     }
-    
+
     // Negative endcap
     //
     if(Pn[2]<Po[2]) {
 
       for(; n0<(int)layer[0].size(); ++n0) {
-	if(Pn[2] > layer[0][n0].z()) break; 
+	if(Pn[2] > layer[0][n0].z()) break;
         assert( used.at(0).size() > static_cast<unsigned int>(n0));
 	layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
       }
     }
      else   {
       for(--n0; n0>=0; --n0) {
-	if(Pn[2] < layer[0][n0].z()) break; 
+	if(Pn[2] < layer[0][n0].z()) break;
         assert( used.at(0).size() > static_cast<unsigned int>(n0));
 	layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
-      } 
+      }
       ++n0;
     }
     Po[0] = Pn[0];
@@ -483,10 +476,10 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
   bool nc =true;
   while(nc) {
- 
+
     nc =false; m=l; n=l;
     for(++n; n!=le; ++n) {
-   
+
       if( (*m).second > (*n).second ) {
          std::pair<const InDet::TRT_DetElementLink_xk*,float>  d=(*m); (*m)=(*n); (*n)=d; nc=true;
       }
@@ -545,14 +538,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
     //
     if(Pn[3]>Po[3]) {
       for(; n1<(int)layer[1].size(); ++n1) {
-	if(Pn[3] < layer[1][n1].r()) break; 
+	if(Pn[3] < layer[1][n1].r()) break;
         assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
-	if(Pn[3] > layer[1][n1].r()) break; 
+	if(Pn[3] > layer[1][n1].r()) break;
 	layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
       ++n1;
@@ -569,7 +562,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 
     nc =false; n=l;
     for(++n; n!=le; ++n) {
-   
+
       if( (*l).second > (*n).second ) {
          std::pair<const InDet::TRT_DetElementLink_xk*,float> d = (*l); (*l) = (*n); (*n) = d;
          nc = true;
@@ -608,14 +601,10 @@ Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
   const double cor = 0.8;
 
   double zfield = 0.;
-  if(m_fieldModeEnum!=Trk::NoField && m_fieldService->solenoidOn()) {
+  if(m_fieldModeEnum!=Trk::NoField && fieldCache.solenoidOn()) {
     const Amg::Vector3D& pos = Tp.position();
     double f[3], p[3] ={pos[Amg::x],pos[Amg::y],pos[Amg::z]};
-
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR  (p, f);
-    else                                m_fieldService->getFieldZR(p,f);
-
+    fieldCache.getFieldZR  (p, f);
     zfield =  299.7925*f[2];
   }
 
@@ -624,7 +613,7 @@ Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
   if( fabs(zfield) < .0000001    ) return bounds;
 
   const AmgVector(5)&  Vp = Tp.parameters();
-  
+
   double cur  = zfield*Vp[4]/sin(Vp[3]);
 
   if( fabs(cur)*bounds.r() < cor ) return bounds;

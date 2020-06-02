@@ -1,135 +1,81 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-"""
-Lvl1 menu specific flags
-"""
-
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.Logging import logging
+__doc__="Level 1 specific configuration for L1 Run 3"
 
 from .Limits import Limits
-
-__doc__="Level 1 specific flags for Run 3"
-
-log = logging.getLogger('Menu.L1.Base.L1MenuFlags')
-
-_flags = [] 
+from collections import Iterable, OrderedDict
+import six
 
 
-class CTPVersion(JobProperty):
+class FlagWrapper:
     """
-    Version of the CTP configuration
-    Run 2: version 4 (and 5 for a short period in 2015)
-    Run 3: version 4
+    this is to support the old functionality of calling and setting statusOn for flags
     """
-    statusOn = True
-    allowedTypes = [int]
-    allowedValues = [0,1,2,3,4,5,6]
-    StoredValue = 4
-    Limits.setLimits(4)
+    def __init__(self, name, value, cls):
+        self.name = name
+        self.value = value
+        self.cls = cls
+    def __call__(self):
+        return self.value
+    def statusOn(self):
+        return self.name in self.cls.statusOn
+    def setStatusOn(self, on = True):
+        if on:
+            self.cls.statusOn.add(self.name)
+        else:
+            self.cls.statusOn.remove(self.name)
 
-    def _do_action(self):
-        """Load the limits"""
-        Limits.setLimits(self.get_Value())
+class L1MenuFlagsCont(object):
 
-_flags.append(CTPVersion)
+    class FlagArgs:
+        def __init__( self, val_type, val_default = None, val_check = None, action = None ):
+            self.val_type = val_type
+            self.val_default = val_default
+            self.val_check = val_check
+            self.action = action
+    
+    statusOn = set()
 
+    __slots__ = {
+        "MenuSetup"               :  FlagArgs( six.string_types ),
+        "CTPVersion"              :  FlagArgs( int, 4,   val_check = lambda x: x in range(5), action = lambda x: Limits.setLimits(x) ),
+        "BunchGroupPartitioning"  :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: y not in range(16), x)))==0 ),
+        "BunchGroupNames"         :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, six.string_types), x)))==0),
+        "MenuPartitioning"        :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: y not in range(512), x)))==0 ),
+        "items"                   :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, six.string_types), x)))==0),
+        "boards"                  :  FlagArgs( OrderedDict, OrderedDict() ),
+        "legacyBoards"            :  FlagArgs( OrderedDict, OrderedDict() ),
+        "prescales"               :  FlagArgs( dict, dict() ),
+        "RemapThresholdsAsListed" :  FlagArgs( bool, False ),
+        "CtpIdMap"                :  FlagArgs( dict, dict() ),
+    }
 
-class items(JobProperty):
-    """Names of items enabled in the selected L1 menu"""
-    statusOn=True
-    allowedTypes=['list']
-    StoredValue=[]
+    def __setattr__(self, attr, value):
+        # set the object
+        object.__setattr__(self, attr, value)
+        d = L1MenuFlagsCont.__slots__[attr]
+        # check the type
+        if not isinstance(value, d.val_type):
+            raise TypeError("L1MenuFlags.%s type check failed for %r. Type needs to be '%s'" % ( attr, value, d.valtype.__name__))
+        # check the values
+        if d.val_check and not d.val_check(value):
+            raise ValueError("L1MenuFlags.%s value check failed for %r" % ( attr, value))
 
-_flags.append(items)
+        if d.action:
+            d.action(value)
+        L1MenuFlagsCont.statusOn.add(attr)
 
+    def __getattribute__(self,attr):
+        if attr in L1MenuFlagsCont.__slots__:
+            try:
+                object.__getattribute__(self,attr)
+            except AttributeError:
+                if L1MenuFlagsCont.__slots__[attr].val_default is not None:
+                    object.__setattr__(self, attr, L1MenuFlagsCont.__slots__[attr].val_default)
+            return FlagWrapper(attr, object.__getattribute__(self,attr), L1MenuFlagsCont)
+        else:
+            return object.__getattribute__(self,attr)
 
+        
+L1MenuFlags = L1MenuFlagsCont() 
 
-class boards(JobProperty):
-    from collections import OrderedDict as odict
-    """Names of thresholds enabled in selected L1 menu """
-    statusOn=True
-    allowedTypes=['OrderDict']
-    StoredValue   = odict()
-
-_flags.append(boards)
-
-
-class legacyBoards(JobProperty):
-    from collections import OrderedDict as odict
-    """Names of thresholds enabled in selected L1 menu """
-    statusOn=True
-    allowedTypes=['OrderDict']
-    StoredValue   = odict()
-
-_flags.append(legacyBoards)
-
-
-class prescales(JobProperty):
-    """Maps prescales to items that are different from 1"""
-    statusOn=True
-    allowedTypes=['dict']
-    StoredValue   = {}
-
-_flags.append(prescales)
-
-class RemapThresholdsAsListed(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-
-_flags.append(RemapThresholdsAsListed)
-
-class CtpIdMap(JobProperty):
-    statusOn = True
-    allowedTypes = ['dict']
-    StoredValue = {}
-
-_flags.append(CtpIdMap)
-
-class BunchGroupPartitioning(JobProperty):
-    statusOn = True
-    allowedTypes = ['list']
-    StoredValue = []
-
-_flags.append(BunchGroupPartitioning)
-
-class BunchGroupNames(JobProperty):
-    statusOn = False
-    allowedTypes = ['list']
-    StoredValue = []
-
-_flags.append(BunchGroupNames)
-
-class MenuPartitioning(JobProperty):
-    statusOn = True
-    allowedTypes = ['list']
-    StoredValue = []
-
-_flags.append(MenuPartitioning)
-
-
-
-
-
-
-class L1MenuFlags(JobPropertyContainer):
-    """ L1 flags used in menu generation """
-
-
-# execute
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.add_Container(L1MenuFlags)
-
-for flag in _flags:
-    TriggerFlags.L1MenuFlags.add_JobProperty(flag)
-del _flags
-
-
-# make an alias
-L1MenuFlags = TriggerFlags.L1MenuFlags
-
-
-
-            

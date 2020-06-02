@@ -161,7 +161,7 @@ int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId, const Ev
   const IdentifierHash waferHash{m_pHelper->wafer_hash(m_pHelper->wafer_id(stripId))};
   const InDetDD::SiDetectorElement* pElement{getDetectorElement(waferHash, ctx)};
   if (pElement==nullptr) {
-    ATH_MSG_FATAL("Element pointer is NULL in 'badStrips' method");
+    ATH_MSG_FATAL("Element pointer is nullptr in 'badStrips' method");
     return invalidChipNumber;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? lastStrip - strip: strip;

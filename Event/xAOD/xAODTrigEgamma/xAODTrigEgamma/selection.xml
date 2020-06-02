@@ -1,49 +1,37 @@
-<!-- $Id: selection.xml 705788 2015-11-04 13:06:35Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- TrigPhoton_v1 dictionaries: -->
-  <class name="xAOD::TrigPhoton_v1"/>
+   <!-- xAOD::TrigPhoton interface type(s). -->
+   <class name="xAOD::TrigPhoton_v1"/>
+   <class name="xAOD::TrigPhotonContainer_v1"
+          id="DA2CDAF5-B0E8-4502-89A3-E342DFA9C250" />
+   <typedef name="xAOD::TrigPhoton" />
+   <typedef name="xAOD::TrigPhotonContainer" />
 
-  <class name="xAOD::TrigPhotonContainer_v1"
-         id="DA2CDAF5-B0E8-4502-89A3-E342DFA9C250" />
-  <class name="xAOD::TrigPhotonAuxContainer_v1"
-         id="36B8B9E3-8F5E-4356-9315-EF4FA6959624" />
+   <!-- xAOD::TrigPhoton auxiliary type(s). -->
+   <class name="xAOD::TrigPhotonAuxContainer_v1"
+          id="36B8B9E3-8F5E-4356-9315-EF4FA6959624" />
+   <typedef name="xAOD::TrigPhotonAuxContainer" />
 
-  <class name="DataLink<xAOD::TrigPhotonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrigPhotonContainer_v1> >" />
+    <!-- xAOD::TrigElectron interface type(s). -->
+   <class name="xAOD::TrigElectron_v1" />
+   <class name="xAOD::TrigElectronContainer_v1"
+          id="3492BB27-3ED8-45E3-9A5B-7266949CEDA9" />
+   <typedef name="xAOD::TrigElectron" />
+   <typedef name="xAOD::TrigElectronContainer" />
 
-  <class name="ElementLink<xAOD::TrigPhotonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigPhotonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigPhotonContainer_v1> > >" />
+   <!-- xAOD::TrigElectron auxiliary type(s). -->
+   <class name="xAOD::TrigElectronAuxContainer_v1"
+          id="173425E6-51BB-4015-B960-3F7F83F26B9E" />
+   <typedef name="xAOD::TrigElectronAuxContainer" />
 
-  <!-- TrigElectron_v1 dictionaries: -->
-  <class name="xAOD::TrigElectron_v1" />
+   <!-- xAODEgamma auxiliary type(s). -->
+   <class name="xAOD::ElectronTrigAuxContainer_v1"
+          id="359610D5-3AEA-4DB4-837E-4C93F81014C2" />
+   <typedef name="xAOD::ElectronTrigAuxContainer" />
 
-  <class name="xAOD::TrigElectronContainer_v1"
-         id="3492BB27-3ED8-45E3-9A5B-7266949CEDA9" />
-  <class name="xAOD::TrigElectronAuxContainer_v1"
-         id="173425E6-51BB-4015-B960-3F7F83F26B9E" />
-
-  <class name="DataLink<xAOD::TrigElectronContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrigElectronContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::TrigElectronContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigElectronContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigElectronContainer_v1> > >" />
-
-  <class name="xAOD::ElectronTrigAuxContainer_v1"
-         id="359610D5-3AEA-4DB4-837E-4C93F81014C2" />
-  <class name="xAOD::PhotonTrigAuxContainer_v1"
-         id="863989DB-F18B-4D93-A019-F3CBFF726176" />
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <class name="ElementLink<DataVector<xAOD::TrackParticle_v1> >" />
-    <class name="ElementLink<DataVector<xAOD::TrigEMCluster_v1> >" />
-  </exclusion>
+   <class name="xAOD::PhotonTrigAuxContainer_v1"
+          id="863989DB-F18B-4D93-A019-F3CBFF726176" />
+   <typedef name="xAOD::PhotonTrigAuxContainer" />
 
 </lcgdict>

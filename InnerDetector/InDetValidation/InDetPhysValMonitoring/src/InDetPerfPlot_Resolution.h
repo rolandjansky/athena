@@ -56,15 +56,14 @@ private:
   static const int m_nResHist = 4;
 
   static const int m_nEtaBins = 64;
-  const double  m_etaMin = -4.0;
-  const double  m_etaMax = 4.0;
+  //const double  m_etaMin = -4.0;
+  //const double  m_etaMax = 4.0;
 
 // Settings for log-linear binning in pt (matching previous IDPVM definition)
   static const int m_nPtBins = 49;
   const double  m_ptMin = 0.745;
   const double  m_ptMax = 1000.0;
 
-  float m_EtaBins[m_nEtaBins + 1];
   float m_PtBins[m_nPtBins + 1];
    
   std::string m_paramProp[NPARAMS] = { "d0", "z0", "ptqopt", "theta", "phi", "pt", "z0sin" }; 

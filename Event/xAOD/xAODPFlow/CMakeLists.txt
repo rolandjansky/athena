@@ -1,30 +1,11 @@
-# $Id: CMakeLists.txt 744541 2016-05-03 15:55:30Z krasznaa $
-################################################################################
-# Package: xAODPFlow
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODPFlow )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODTracking )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Physics GenVector)
-
-# Extra dependencies, based on what environment we are in:
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs GenVector )
-    endif()
-endif()
+# External dependencies.
+find_package( ROOT COMPONENTS Core Physics GenVector )
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODPFlow
@@ -32,10 +13,15 @@ atlas_add_library( xAODPFlow
    PUBLIC_HEADERS xAODPFlow
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase
-   xAODCaloEvent xAODCore xAODTracking ${extra_libs} )
+   xAODCaloEvent xAODCore xAODTracking )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODPFlow/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::PFOContainer_v1" "xAOD::TrackCaloClusterContainer_v1" )
 
 atlas_add_dictionary( xAODPFlowDict
    xAODPFlow/xAODPFlowDict.h
-   xAODPFlow/selection.xml
-   LINK_LIBRARIES xAODPFlow
+   ${_selectionFile}
+   LINK_LIBRARIES AthLinks xAODCore xAODPFlow
    EXTRA_FILES Root/dict/*.cxx )

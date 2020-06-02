@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file DQTestingDriver.py
@@ -12,18 +12,22 @@
 
 if __name__=='__main__':
     import sys
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from argparse import ArgumentParser
-    parser = ArgumentParser()
+    parser = ConfigFlags.getArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
     parser.add_argument('--postExec', help='Code to execute after setup')
     parser.add_argument('--dqOffByDefault', action='store_true',
                         help='Set all DQ steering flags to False, user must then switch them on again explicitly')
+    # keep for compatibility reasons
+    parser.add_argument('--inputFiles',
+                        help='Comma-separated list of input files (alias for --filesInput)')
+    # keep for compatibility reasons
     parser.add_argument('--maxEvents', type=int,
-                        help='Maximum number of events to process')
-    parser.add_argument('--loglevel', type=int, default=3,
-                        help='Verbosity level')
-    parser.add_argument('flags', nargs='*', help='Config flag overrides')
-    args = parser.parse_args()
+                        help='Maximum number of events to process (alias for --evtMax)')
+    parser.add_argument('--printDetailedConfig', action='store_true',
+                        help='Print detailed Athena configuration')
+    args, _ = parser.parse_known_args()
 
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -35,15 +39,22 @@ if __name__=='__main__':
     log.setLevel(INFO)
 
     # Set the Athena configuration flags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
     
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root']
+    # default input if nothing specified
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/q431/21.0/f946/myESD.pool.root']
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
     if args.dqOffByDefault:
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
-    ConfigFlags.fillFromArgs(args.flags)
+    ConfigFlags.fillFromArgs(parser=parser)
+    # override Input.Files with result from our own arguments
+    # if --filesInput was specified as well (!) this will override
+    if args.inputFiles is not None:
+        ConfigFlags.Input.Files = args.inputFiles.split(',')
+    # if --evtMax was specified as well this will override
+    if args.maxEvents is not None:
+        ConfigFlags.Exec.MaxEvents = args.maxEvents
     isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'BS')
     if isReadingRaw:
         if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
@@ -63,18 +74,29 @@ if __name__=='__main__':
         log.info('Executing preExec: %s', args.preExec)
         exec(args.preExec)
 
+    if hasattr(ConfigFlags, "DQ") and hasattr(ConfigFlags.DQ, "Steering") and hasattr(ConfigFlags, "Detector"):
+        if hasattr(ConfigFlags.DQ.Steering, "InDet"):
+            if ((ConfigFlags.DQ.Steering.InDet, "doAlignMon") and ConfigFlags.DQ.Steering.InDet.doAlignMon) or \
+               ((ConfigFlags.DQ.Steering.InDet, "doGlobalMon") and ConfigFlags.DQ.Steering.InDet.doGlobalMon) or \
+               ((ConfigFlags.DQ.Steering.InDet, "doPerfMon") and ConfigFlags.DQ.Steering.InDet.doPerfMon):
+                ConfigFlags.Detector.GeometryID = True
+        if hasattr(ConfigFlags.DQ.Steering, "doPixelMon") and ConfigFlags.DQ.Steering.doPixelMon:
+            ConfigFlags.Detector.GeometryPixel = True
+        if hasattr(ConfigFlags.DQ.Steering, "doSCTMon") and ConfigFlags.DQ.Steering.doSCTMon:
+            ConfigFlags.Detector.GeometrySCT = True
+        if hasattr(ConfigFlags.DQ.Steering, "doTRTMon") and ConfigFlags.DQ.Steering.doTRTMon:
+            ConfigFlags.Detector.GeometryTRT = True
+            
     log.info('FINAL CONFIG FLAGS SETTINGS FOLLOW')
     ConfigFlags.dump()
         
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg, MainServicesThreadedCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    if ConfigFlags.Concurrency.NumThreads == 0:
-        cfg = MainServicesSerialCfg()
-    else:
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+    cfg = MainServicesCfg(ConfigFlags)
+
     if isReadingRaw:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg
@@ -102,9 +124,7 @@ if __name__=='__main__':
         log.info('Executing postExec: %s', args.postExec)
         exec(args.postExec)
 
-    # If you want to turn on more detailed messages ...
-    # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
-    cfg.printConfig(withDetails=False) # set True for exhaustive info
+    cfg.printConfig(withDetails=args.printDetailedConfig) # set True for exhaustive info
 
-    sc = cfg.run(args.maxEvents, args.loglevel)
+    sc = cfg.run()
     sys.exit(0 if sc.isSuccess() else 1)

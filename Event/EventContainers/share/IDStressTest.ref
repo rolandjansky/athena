@@ -14,10 +14,11 @@ range 450 to 1450
 30/50
 40/50
 NoLock
-deleted 163825
-countHit 256975
+deleted 144501
+countHit 276299
 fills 500000
 reads 492300
+itreads 492300
 aborted 7700
 0/50
 10/50
@@ -29,8 +30,9 @@ deleted 0
 countHit 427500
 fills 500000
 reads 492300
+itreads 492300
 aborted 7700
 Total elements 500000
 MyDigits left undeleted 0
-no lock time 2.60611
-lock time 1.12183
+no lock time 3.7096
+lock time 0.983746

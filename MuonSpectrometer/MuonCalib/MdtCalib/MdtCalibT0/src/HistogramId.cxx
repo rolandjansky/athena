@@ -2,22 +2,22 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//c - c++
+#include "MdtCalibT0/HistogramId.h"
+#include "MuonCalibIdentifier/MuonFixedId.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <algorithm>
 #include "iostream"
 #include "sstream"
 #include "iomanip"
-
-//athena
-#include "MdtCalibT0/HistogramId.h"
-#include "MuonCalibIdentifier/MuonFixedId.h"
 
 namespace MuonCalib {
 
 std::map<std::pair<int, int>, std::string> HistogramId :: s_histogram_names;
 
 
-void HistogramId :: Initialize(const MuonFixedId &id, int sort_by)
+void HistogramId::Initialize(const MuonFixedId &id, int sort_by)
 	{
    m_id.first=sort_by;
    static const unsigned int kStationNameShift     = 24;
@@ -49,9 +49,6 @@ void HistogramId :: Initialize(const MuonFixedId &id, int sort_by)
 		case MULTILAYER:
 			{
 			m_id.second  = (id.stationNameIndex()<<kStationNameShift) | (id. etaIndex()<<kStationEtaShift) | (id.phiIndex()<<kStationPhiShift) | (id.mdtMultilayerIndex()<<kMdtMultilayerShift);
-//			std::cout<<"name"<<id.stationNameIndex()<<std::endl;
-//			std::cout<<"eta"<<id.etaIndex()<<std::endl;
-//			std::cout<<"ml"<<id.mdtMultilayerIndex()<<std::endl;
 			break;
 			}
 		case CHAMBER:
@@ -67,7 +64,8 @@ void HistogramId :: Initialize(const MuonFixedId &id, int sort_by)
 			}
 		default:
 			{
-			std::cerr<<"HistogramId :: Initialize: sort_by arguemnt is invalid!"<<std::endl;
+				MsgStream log(Athena::getMessageSvc(),"HistogramId");
+				log<<MSG::WARNING<<"HistogramId :: Initialize: sort_by arguemnt is invalid!"<<endmsg;
 			}
 		}
 //create histogram name 
@@ -106,7 +104,8 @@ void HistogramId :: Initialize(const MuonFixedId &id, int sort_by)
 			}
 		//store
 		s_histogram_names[m_id] = os.str();
-		std::cout<<sort_by<<" "<<s_histogram_names[m_id]<<std::endl;	
+		MsgStream log(Athena::getMessageSvc(),"HistogramId");
+		log<<MSG::INFO<<sort_by<<" "<<s_histogram_names[m_id]<<endmsg;
 		}
 	}
 

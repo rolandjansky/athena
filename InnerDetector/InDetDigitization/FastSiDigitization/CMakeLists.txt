@@ -42,7 +42,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/AtlasHepMC )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -50,11 +49,10 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( FastSiDigitization
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkDigEvent TrkGeometry TrkSurfaces TrkExUtils )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkDigEvent TrkDigInterfaces TrkGeometry TrkSurfaces TrkExUtils )
 
 # Install files from the package:
-atlas_install_headers( FastSiDigitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

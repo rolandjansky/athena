@@ -29,7 +29,7 @@ public:
     ASG_TOOL_CLASS2(TauElectronVetoVariables, TauRecToolBase, ITauToolBase);
 
     virtual ~TauElectronVetoVariables();
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 

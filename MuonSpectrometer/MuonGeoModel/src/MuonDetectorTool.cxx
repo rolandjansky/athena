@@ -155,7 +155,8 @@ MuonDetectorTool::create()
       GeoModelExperiment* theExpt = nullptr;
       ATH_CHECK( detStore()->retrieve( theExpt, "ATLAS" ) );
       theExpt->addManager(theFactory.getDetectorManager());
-            
+
+      m_manager = theFactory.getDetectorManager();
     }
     
     if (m_dumpMemoryBreakDown)
@@ -182,7 +183,7 @@ MuonDetectorTool::create()
 }
 
 StatusCode
-MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
+MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory) const
 {
 
   std::ofstream geoModelStats;
@@ -226,6 +227,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
   ATH_MSG_INFO("Keys for Muon Switches are  (key) "  << detectorKey  << " (node) " << detectorNode );
 
+  std::string tempLayout = m_layout;
   std::map<std::string,std::string> altAsciiDBMap = std::map<std::string,std::string>();
   if ( MuonVersion == "CUSTOM" ) 
     ATH_MSG_WARNING("Detector Information coming from a custom configuration !!" );
@@ -238,7 +240,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
       if ((*switchSet).size()==0) return StatusCode::FAILURE;
       const IRDBRecord    *switches   = (*switchSet)[0];
       
-      m_layout                = switches->getString("LAYOUTNAME");
+      // m_layout                = switches->getString("LAYOUTNAME");
+      tempLayout                = switches->getString("LAYOUTNAME");
       //       m_includeInertMaterials = switches->getInt("BUILDINERTMATERIALS");
       //       m_minimalgeo            = switches->getInt("MINIMALGEO");
       if (MuonVersion == "") {
@@ -262,10 +265,12 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   // 
   GeoModelExperiment* theExpt = nullptr;
   ATH_CHECK( detStore()->retrieve( theExpt, "ATLAS" ) );
-  
-  if (!m_useCscIntAlines) m_controlCscIntAlines = 0;
+
+  int tempControlCscIntAlines= m_controlCscIntAlines;
+  if (!m_useCscIntAlines) tempControlCscIntAlines = 0;
   ATH_MSG_INFO("Properties have been set as follows: " <<endmsg
-               <<"    LayoutName                     "<< m_layout.substr(0,1) <<endmsg
+               // <<"    LayoutName                     "<< m_layout.substr(0,1) <<endmsg
+               <<"    LayoutName                     "<< tempLayout.substr(0,1) <<endmsg
                <<"    IncludeCutouts                 "<< m_includeCutouts <<endmsg
                <<"    IncludeCutoutsBog              "<< m_includeCutoutsBog <<endmsg
                <<"    IncludeCtbBis                  "<< m_includeCtbBis <<endmsg
@@ -273,8 +278,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
                <<"    MinimalGeoFlag                 "<< m_minimalGeoFlag <<endmsg
                <<"    EnableCscIntAlignment          "<< m_useCscIntAlines <<endmsg
                <<"    EnableCscIntAlignmentFromGM    "<< m_useCscIntAlinesFromGM );
-  if (m_useCscIntAlines) ATH_MSG_INFO("    ControlCscIntAlines            "<< m_controlCscIntAlines );
-  else ATH_MSG_INFO("    ControlCscIntAlines   reset to "<< m_controlCscIntAlines );
+  if (m_useCscIntAlines) ATH_MSG_INFO("    ControlCscIntAlines            "<< tempControlCscIntAlines );
+  else ATH_MSG_INFO("    ControlCscIntAlines   reset to "<< tempControlCscIntAlines );
   ATH_MSG_INFO("    EnableMdtDeformations          "<< m_enableMdtDeformations );
   ATH_MSG_INFO("    EnableMdtAsBuiltParameters     "<< m_enableMdtAsBuiltParameters );
   
@@ -323,8 +328,11 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     theFactory.setDBMuonVersion(MuonVersion);
     theFactory.setDBkey( detectorKey );
     theFactory.setDBnode(detectorNode);
+    theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
+    theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
     
-    theFactory.setLayout(m_layout);
+    // theFactory.setLayout(m_layout);
+    theFactory.setLayout(tempLayout);
     //theFactory.setIncludeInertMats(m_includeInertMaterials);
     //theFactory.setIdhFromCnv(m_idhfromconverters);
     //theFactory.setMinimalGeoFlag(m_minimalgeo);
@@ -333,8 +341,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     theFactory.setCtbBisFlag(m_includeCtbBis);
     theFactory.setControlAlines(m_controlAlines);
     theFactory.setMinimalGeoFlag(m_minimalGeoFlag);
-    if (!m_useCscIntAlines) m_controlCscIntAlines = 0;
-    theFactory.setControlCscIntAlines(m_controlCscIntAlines);
+    if (!m_useCscIntAlines) tempControlCscIntAlines = 0;
+    theFactory.setControlCscIntAlines(tempControlCscIntAlines);
     theFactory.setDumpMemoryBreakDown(m_dumpMemoryBreakDown);
     theFactory.setCachingFlag(m_cachingFlag);
     theFactory.setCacheFillingFlag(m_fillCache_initTime);
@@ -373,20 +381,20 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
 	cpu = ucpu;
       }
     // Register the MuonDetectorNode instance with the Transient Detector Store
-    m_manager = theFactory.getDetectorManager();
+    MuonGM::MuonDetectorManager* theManager = theFactory.getDetectorManager();
     //Init ABline historical container --- will write there A/B lines from ORACLE / ascii file if any
-    m_manager->initABlineContainers();
-    if ((m_manager->initCSCInternalAlignmentMap()).isFailure()) return StatusCode::FAILURE; // does nothing other then checking the size (map is built while reading data from the primary source)
+    theManager->initABlineContainers();
+    if ((theManager->initCSCInternalAlignmentMap()).isFailure()) return StatusCode::FAILURE; // does nothing other then checking the size (map is built while reading data from the primary source)
 
     if (m_fillCache_initTime) {
-      m_manager->fillCache();
+      theManager->fillCache();
     }
     else
       {
 	// cache for RPC / TGC / CSC must be filled once forever 
-	m_manager->fillRpcCache();
-	m_manager->fillTgcCache();
-	m_manager->fillCscCache();
+	theManager->fillRpcCache();
+	theManager->fillTgcCache();
+	theManager->fillCscCache();
       }
     
     

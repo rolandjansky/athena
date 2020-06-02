@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -67,7 +67,6 @@ StatusCode SegmentRefitter::initialize(void) {
 void SegmentRefitter::prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   std::set<NtupleStationId> dropped_segments;
   for(std::map<NtupleStationId, MuonCalibSegment *>::iterator it=segments.begin(); it!= segments.end(); it++) {
-    //		std::cout<<it->first.regionId()<<std::endl;
     if(m_t0_refine) {
       if(!refine_t0(it->second)) {
 	dropped_segments.insert(it->first);

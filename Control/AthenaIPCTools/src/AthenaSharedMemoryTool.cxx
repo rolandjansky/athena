@@ -65,15 +65,6 @@ StatusCode AthenaSharedMemoryTool::initialize() {
       ATH_MSG_FATAL("Cannot get IncidentSvc");
       return(StatusCode::FAILURE);
    }
-   std::ostringstream pidstr;
-   pidstr << getpid();
-   m_sharedMemory.setValue(m_sharedMemory.value() + std::string("_") + pidstr.str());
-   boost::interprocess::shared_memory_object::remove(m_sharedMemory.value().c_str());
-   ATH_MSG_DEBUG("creating shared memory object with name \"" << m_sharedMemory.value() << "\"");
-   boost::interprocess::shared_memory_object shm(boost::interprocess::create_only,
-	   m_sharedMemory.value().c_str(),
-	   boost::interprocess::read_write);
-   shm.truncate(m_maxSize + m_maxDataClients * sizeof(ShareEventHeader));
    return(StatusCode::SUCCESS);
 }
 
@@ -109,7 +100,6 @@ StatusCode AthenaSharedMemoryTool::finalize() {
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::makeServer(int num) {
-   ATH_MSG_DEBUG("Creating shared memory object for writer.");
    if (m_isServer || m_isClient) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Server.");
       return(StatusCode::FAILURE);
@@ -120,9 +110,12 @@ StatusCode AthenaSharedMemoryTool::makeServer(int num) {
    }
    m_num = num;
    m_isServer = true;
-   boost::interprocess::shared_memory_object shm(boost::interprocess::open_only,
+   ATH_MSG_DEBUG("Creating shared memory object with name \"" << m_sharedMemory.value() << "\"");
+   boost::interprocess::shared_memory_object::remove(m_sharedMemory.value().c_str());
+   boost::interprocess::shared_memory_object shm(boost::interprocess::create_only,
 	   m_sharedMemory.value().c_str(),
 	   boost::interprocess::read_write);
+   shm.truncate(m_maxSize + m_maxDataClients * sizeof(ShareEventHeader));
    m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
    m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize, num * sizeof(ShareEventHeader));
    ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "" };
@@ -139,7 +132,6 @@ bool AthenaSharedMemoryTool::isServer() const {
 
 //___________________________________________________________________________
 StatusCode AthenaSharedMemoryTool::makeClient(int num) {
-   ATH_MSG_DEBUG("Creating shared memory object for Client.");
    if (m_isServer) {
       ATH_MSG_ERROR("Cannot make AthenaSharedMemoryTool a Client.");
       return(StatusCode::FAILURE);
@@ -148,7 +140,8 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
       ATH_MSG_ERROR("Too many clients for AthenaSharedMemoryTool.");
       return(StatusCode::FAILURE);
    }
-   if (m_num > 0 && num <= 0) {
+   if (m_num > 0 && num <= 0) {// stop running client
+      ATH_MSG_DEBUG("Stop AthenaSharedMemoryTool Client.");
       m_num = -1;
       while (lockObject("stop").isRecoverable()) {
          usleep(100);
@@ -157,15 +150,21 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num) {
       while (evtH->evtProcessStatus != ShareEventHeader::UNLOCKED) {
          usleep(100);
       }
+      delete m_payload ; m_payload = nullptr;
+      delete m_status ; m_status = nullptr;
+      m_isClient = false;
+      return(StatusCode::SUCCESS);
    }
-   if (!m_isClient) {
-      m_isClient = true;
-      boost::interprocess::shared_memory_object shm(boost::interprocess::open_only,
-	      m_sharedMemory.value().c_str(),
-	      boost::interprocess::read_write);
-      if (m_payload == nullptr) {
+   while (!m_isClient) {
+      try { // Check whether Server created shared memory object
+         boost::interprocess::shared_memory_object shm(boost::interprocess::open_only,
+	         m_sharedMemory.value().c_str(),
+	         boost::interprocess::read_write);
+         m_isClient = true;
          m_payload = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, 0, m_maxSize);
          m_status = new boost::interprocess::mapped_region(shm, boost::interprocess::read_write, m_maxSize + num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
+      } catch (boost::interprocess::interprocess_exception& e) {
+         usleep(100000);
       }
    }
    if (m_num <= 0 && num > 0) {

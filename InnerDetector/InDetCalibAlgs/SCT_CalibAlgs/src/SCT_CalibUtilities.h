@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,8 +12,8 @@
 #ifndef SCT_CalibAlgs_SCT_CalibUtilities_h
 #define SCT_CalibAlgs_SCT_CalibUtilities_h
 
+#include <sstream>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 class Identifier;
 class SCT_ID;
@@ -35,9 +35,9 @@ std::string xmlValue(const std::string& name, const T value) {
 
 template <class T>
 std::string xmlOpenChannel(const long id, const T since, const T until) {
-   std::string opener=std::string{"  <channel id=\""}+boost::lexical_cast<std::string>(id)+"\"";
-   std::string sinceAttr=std::string{" since=\""}+boost::lexical_cast<std::string>(since)+"\"";
-   std::string untilAttr=std::string{" until=\""}+boost::lexical_cast<std::string>(until)+"\"";
+   std::string opener=std::string{"  <channel id=\""}+std::to_string(id)+"\"";
+   std::string sinceAttr=std::string{" since=\""}+std::to_string(since)+"\"";
+   std::string untilAttr=std::string{" until=\""}+std::to_string(until)+"\"";
    return opener+sinceAttr+untilAttr+">";
 }
 

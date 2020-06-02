@@ -249,7 +249,7 @@ struct MeasurementData {
   int getDeltaMalloc() const { return m_delta_malloc; }
   void add2DeltaMalloc(int val) { m_delta_malloc += val; }
 
-  long getMemMonDeltaMap(std::string mem_stat) { return m_memMon_delta_map[mem_stat]; }
+  long getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
 
   MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
    m_tmp_vmem{0}, m_delta_vmem{0}, m_tmp_malloc{0}, m_delta_malloc{0}, m_offset_wall{0.} {

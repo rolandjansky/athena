@@ -407,6 +407,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
   double coLorentz=sqrt(1+pow(tanLorentz,2));
 
+  const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
@@ -621,8 +624,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
             SiLocalPosition chargePos = Module.hitLocalToLocal( centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi() );
 
             //The following lines are adapted from SiDigitization's Inserter class
-            SiSurfaceCharge scharge_e( chargePos,SiCharge( induced_charge_e,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-            SiSurfaceCharge scharge_h( chargePos,SiCharge( induced_charge_h,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+            SiSurfaceCharge scharge_e( chargePos,SiCharge( induced_charge_e,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag)));
+            SiSurfaceCharge scharge_h( chargePos,SiCharge( induced_charge_h,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag)));
             SiCellId diode = Module.cellIdOfPosition(scharge_e.position());
             SiCharge charge_e = scharge_e.charge();
             SiCharge charge_h = scharge_h.charge();
@@ -664,7 +667,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         }
 
         //The following lines are adapted from SiDigitization's Inserter class
-        SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+        SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag)));
 
         SiCellId diode = Module.cellIdOfPosition(scharge.position());
 

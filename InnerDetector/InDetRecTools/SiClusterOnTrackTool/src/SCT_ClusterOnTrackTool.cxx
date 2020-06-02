@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -173,6 +173,10 @@ InDet::SCT_ClusterOnTrackTool::correct
   // Local position and error matrix production
   //
   // let's start to re-compute cluster error if errorStrategy >=0
+  // These were derived by the studies reported on 25th September 2006
+  // https://indico.cern.ch/event/430391/contributions/1066157/attachments/929942/1317007/SCTSoft_25Sept06_clusters.pdf
+  // and on 4th February 2008
+  // https://indico.cern.ch/event/22934/contributions/485813/attachments/379647/528096/ClusterErrors_04Feb08.pdf
   if (m_option_errorStrategy > -1) {
     Amg::MatrixX mat(2, 2);
     mat.setZero();
@@ -286,7 +290,7 @@ InDet::SCT_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
   };
 
   // Phi bins have 1 degree width, and cover 0-30 degrees
-  int phiBin = int(std::fabs(phi) / deg);
+  int phiBin = static_cast<int>(std::abs(phi) / deg);
 
   float correction(0.);
 
@@ -350,7 +354,7 @@ InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
   };
 
   // Phi bins have 1 degree width, and cover 0-60 degrees
-  int phiBin = int(std::fabs(phi) / deg);
+  int phiBin = static_cast<int>(std::abs(phi) / deg);
 
   float sigma(0.);
 

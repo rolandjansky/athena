@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 02.02.2009, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_BFieldCorrectionUpdateToolH
 #define MuonCalib_BFieldCorrectionUpdateToolH
@@ -42,15 +38,13 @@ class BFieldCorrectionUpdateTool : public AthAlgTool, virtual public CalibSegmen
     BFieldCorrectionUpdateTool(const std::string &t, const std::string &n, const IInterface *p);
     ///< Constructor of the tool.
 
-    ~BFieldCorrectionUpdateTool(void);
+    ~BFieldCorrectionUpdateTool()=default;
     ///< Destructor of the tool.
 
 // Methods //
 // methods required by the base classes //
     StatusCode initialize(void);
-    ///< initialization of the tool
-    StatusCode finalize(void);
-                            ///< finalization of the tool
+
     void prepareSegments(
       const MuonCalibEvent *& /*event*/,
       std::map<NtupleStationId, MuonCalibSegment *> &segments);

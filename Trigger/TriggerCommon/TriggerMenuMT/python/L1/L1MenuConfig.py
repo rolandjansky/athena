@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+6# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import re
 from collections import defaultdict as ddict
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 
 from .Base.L1MenuFlags import L1MenuFlags
@@ -33,12 +32,14 @@ log = logging.getLogger("Menu.L1.L1MenuConfig")
 
 class L1MenuConfig(object):
 
-    def __init__(self, menuName = None, outputFile = None , inputFile = None ):
+    def __init__(self, menuName, inputFile = None ):
 
-        self.menuFullName   = menuName if menuName else TriggerFlags.triggerMenuSetup()
+        L1MenuFlags.MenuSetup = menuName
+
+        self.menuFullName   = L1MenuFlags.MenuSetup()
+
         self.menuName       = self._getMenuBaseName(self.menuFullName)
         self.inputFile      = inputFile
-        self.outputFile     = outputFile if outputFile else TriggerFlags.inputLVL1configFile()
         self.l1menuFromFile = (self.inputFile is not None)
         self.generated      = False
 
@@ -56,6 +57,7 @@ class L1MenuConfig(object):
             self._definedTopoAlgos[cat] = {}
 
         # menu
+        L1MenuFlags.CTPVersion = 4 # this needs to be done here already, since L1Menu depends on it during init
         self.l1menu = L1Menu(self.menuName)
         self.l1menu.setBunchGroupSplitting() # I like this much more, but let's see what the menu group says
 
@@ -329,14 +331,14 @@ class L1MenuConfig(object):
 
         log.info("Reading TriggerMenuMT.Config.ThreholdDef")
         from .Config.ThresholdDef import ThresholdDef
-        ThresholdDef.registerThresholds(self)
+        ThresholdDef.registerThresholds(self, self.menuFullName)
         log.info("... registered %i calo thresholds", self._definedThresholdsStats["calo"])
         log.info("... registered %i muon thresholds", self._definedThresholdsStats["muon"])
         log.info("... registered %i nim thresholds", self._definedThresholdsStats["nim"])
 
         log.info("Reading TriggerMenuMT.Config.ThreholdDefLegacy")
         from .Config.ThresholdDefLegacy import ThresholdDefLegacy
-        ThresholdDefLegacy.registerThresholds(self)
+        ThresholdDefLegacy.registerThresholds(self, self.menuFullName)
         log.info("... registered %i legacy calo thresholds", self._definedThresholdsStats["legacy"])
 
         log.info("Turning topo algo outputs into thresholds (except multiplicity counters)")
@@ -347,7 +349,7 @@ class L1MenuConfig(object):
 
         log.info("Reading TriggerMenuMT.Config.ItemDef")
         from .Config.ItemDef import ItemDef
-        ItemDef.registerItems(self)
+        ItemDef.registerItems(self, self.menuFullName)
         log.info("... registered %i defined items", len(self.registeredItems))
 
 
@@ -486,8 +488,8 @@ class L1MenuConfig(object):
         # ------------------
         # Bunchgroups
         # ------------------
-
-        self.l1menu.ctp.bunchGroupSet.setDefaultBunchGroupDefinition()
+        from .Base.BunchGroupSet import createDefaultBunchGroupSet
+        self.l1menu.ctp.bunchGroupSet = createDefaultBunchGroupSet()
 
 
         # ------------------
@@ -496,6 +498,7 @@ class L1MenuConfig(object):
 
         # build list of items for the menu from the list of requested names
         itemsForMenu = []
+        ctpIdMap = L1MenuFlags.CtpIdMap()
         for itemName in L1MenuFlags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem is None:
@@ -503,8 +506,8 @@ class L1MenuConfig(object):
                 log.error(msg)
                 raise RuntimeError(msg)
 
-            if itemName in L1MenuFlags.CtpIdMap():
-                newCTPID = L1MenuFlags.CtpIdMap()[itemName]
+            if itemName in ctpIdMap:
+                newCTPID = ctpIdMap[itemName]
                 registeredItem.setCtpid(newCTPID)
 
             itemsForMenu += [ registeredItem ]

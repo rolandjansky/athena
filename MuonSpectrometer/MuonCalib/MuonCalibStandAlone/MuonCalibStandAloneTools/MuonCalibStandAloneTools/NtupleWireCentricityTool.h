@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBSTANDALONETOOLS_NTUPLEWIRECENTRICITYTOOL_H
@@ -42,11 +42,7 @@ class NtupleWireCentricityTool : public AthAlgTool, virtual public NtupleCalibra
 		NtupleWireCentricityTool(const std::string& t, const std::string& n, const IInterface* p);
 	/** tool initialization */
 		StatusCode initialize();
-	/** tool finalization */
-		inline StatusCode finalize()
-			{
-			return StatusCode::SUCCESS;
-			}
+
 	/**analyse event - fill hits into specra*/
 		StatusCode handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
 	/** end of events analysis */

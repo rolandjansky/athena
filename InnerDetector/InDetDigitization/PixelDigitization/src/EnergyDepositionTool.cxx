@@ -137,10 +137,12 @@ StatusCode EnergyDepositionTool::finalize() {
 StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine){
 
   ATH_MSG_DEBUG("Deposit energy in sensor volume.");
-  
+
   //Check if simulated particle or delta ray
-  const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
-  const HepMC::GenParticle* genPart= McLink.cptr(); 
+  const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+  const HepMcParticleLink McLink{HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag)};
+  const HepMC::GenParticle* genPart= McLink.cptr();
   bool delta_hit = true;
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();

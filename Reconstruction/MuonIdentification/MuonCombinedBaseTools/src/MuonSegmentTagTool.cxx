@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -10,20 +10,13 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "MuonSegmentTagTool.h"
+
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/SegmentTag.h"
-#include "MuonSegmentTagTool.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
@@ -49,11 +42,9 @@
 #include <stdio.h>
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-  MuonSegmentTagTool::MuonSegmentTagTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
+  MuonSegmentTagTool::MuonSegmentTagTool (const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type, name, parent),
 	m_CutTheta(999.), 
 	m_CutPhi(999.), 
 	m_HitInfoFor2ndCoord(0.),
@@ -61,12 +52,10 @@ namespace MuonCombined {
 	m_doTable(false), 
 	m_doBidirectional(false), 
 	m_doPtDependentPullCut(true),
-
 	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	p_MuTagMatchingTool               ( "MuTagMatchingTool/MuTagMatchingTool"                          ) ,
-	p_MuTagAmbiguitySolverTool        ( "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"             ) ,
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-	m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+	p_MuTagMatchingTool("MuTagMatchingTool/MuTagMatchingTool") ,
+	p_MuTagAmbiguitySolverTool("MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool") ,
+  m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
 	m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
 	m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
 	m_surfaces(0),
@@ -77,44 +66,35 @@ namespace MuonCombined {
 	m_naccepted(0)
   {
     declareInterface<IMuonSegmentTagTool>(this);
-    declareProperty("CutTheta"               , m_CutTheta               = 3.                             ) ;
-    declareProperty("CutPhi"                 , m_CutPhi                 = 3.                             ) ;
-  
+    declareProperty("CutTheta"                        , m_CutTheta = 3.);
+    declareProperty("CutPhi"                          , m_CutPhi = 3.);
     //Option for determination of segment 2nd coordinate measurement
-    declareProperty("HitInfoFor2ndCoord"     , m_HitInfoFor2ndCoord     = 1                              ) ; 
-  
-    declareProperty("DoSegmentsFilter"                , m_doSegmentsFilter = true      ) ;
-    declareProperty("MuTagMatchingTool"               , p_MuTagMatchingTool            ) ;
-    declareProperty("MuTagAmbiguitySolverTool"        , p_MuTagAmbiguitySolverTool     ) ;
-    declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
-
-    declareProperty("DoOverviewTable"                 , m_doTable = false              ) ;
-    declareProperty("DoBidirectionalExtrapolation"    , m_doBidirectional = false      ) ;
-    declareProperty("DoPtDependentPullCut"            , m_doPtDependentPullCut = false ) ;
-    declareProperty("Printer",m_printer );
-    declareProperty( "RemoveLowPLowFieldRegion"       , m_removeLowPLowFieldRegion = false); // remove tracks with momenta below 6 GeV in eta 1.4-17 region (low p and low field)
-    declareProperty("UseIDTrackSegmentPreSelect"      , m_useSegmentPreselection = true );
-    declareProperty("SegmentQualityCut"               , m_segmentQualityCut = 1 );
-    declareProperty("nmdtHits"                        , m_nmdtHits = 4 );
-    declareProperty("nmdtHoles"                       , m_nmdtHoles = 3 );
-    declareProperty("nmdtHitsML"                      , m_nmdtHitsML = 2 );
-    declareProperty("TriggerHitCut"                   , m_triggerHitCut = true );
-    declareProperty("MakeMuons"                       , m_makeMuons = false );
-    declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true );
-
+    declareProperty("HitInfoFor2ndCoord"              , m_HitInfoFor2ndCoord = 1); 
+    declareProperty("DoSegmentsFilter"                , m_doSegmentsFilter = true);
+    declareProperty("MuTagMatchingTool"               , p_MuTagMatchingTool);
+    declareProperty("MuTagAmbiguitySolverTool"        , p_MuTagAmbiguitySolverTool);
+    declareProperty("ParticleCaloExtensionTool"       , m_caloExtensionTool);    
+    declareProperty("DoOverviewTable"                 , m_doTable = false);
+    declareProperty("DoBidirectionalExtrapolation"    , m_doBidirectional = false);
+    declareProperty("DoPtDependentPullCut"            , m_doPtDependentPullCut = false);
+    declareProperty("Printer"                         , m_printer);
+    declareProperty("RemoveLowPLowFieldRegion"        , m_removeLowPLowFieldRegion = false); // remove tracks with momenta below 6 GeV in eta 1.4-17 region (low p and low field)
+    declareProperty("UseIDTrackSegmentPreSelect"      , m_useSegmentPreselection = true);
+    declareProperty("SegmentQualityCut"               , m_segmentQualityCut = 1);
+    declareProperty("nmdtHits"                        , m_nmdtHits = 4);
+    declareProperty("nmdtHoles"                       , m_nmdtHoles = 3);
+    declareProperty("nmdtHitsML"                      , m_nmdtHitsML = 2);
+    declareProperty("TriggerHitCut"                   , m_triggerHitCut = true);
+    declareProperty("MakeMuons"                       , m_makeMuons = false);
+    declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true);
   }
-
-  MuonSegmentTagTool::~MuonSegmentTagTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonSegmentTagTool::initialize() {
 
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(p_MuTagMatchingTool.retrieve());
     ATH_CHECK(p_MuTagAmbiguitySolverTool.retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentSelector.retrieve());
     if( !m_caloExtensionTool.empty() )       ATH_CHECK(m_caloExtensionTool.retrieve());
@@ -129,18 +109,13 @@ namespace MuonCombined {
     ATH_MSG_DEBUG( "= HitInfoFor2ndCoord                       " << m_HitInfoFor2ndCoord    ); 
     ATH_MSG_DEBUG( "================================           "                            );
 
-    if(0!=m_HitInfoFor2ndCoord && 1!=m_HitInfoFor2ndCoord)
-      {
-	ATH_MSG_FATAL( "HitInfoFor2ndCoord=" << m_HitInfoFor2ndCoord 
-		       << " : Unacceptable value. MuTagIMO will not run." );
-	return StatusCode::FAILURE;
-      }
+    if(0!=m_HitInfoFor2ndCoord && 1!=m_HitInfoFor2ndCoord) {
+      ATH_MSG_FATAL( "HitInfoFor2ndCoord=" << m_HitInfoFor2ndCoord << " : Unacceptable value. MuTagIMO will not run.");
+      return StatusCode::FAILURE;
+    }
 
     m_surfaces = new MSSurfaces();
-
     m_doTable= true;
-
-
     return StatusCode::SUCCESS;
   }
 
@@ -153,11 +128,8 @@ namespace MuonCombined {
     ATH_MSG_INFO( "Total number of accepted ID tracks           " << m_naccepted);
     for( unsigned int i=0;i<12;++i ){
       double ratio = m_extrapolated[i] == 0 ? 0 : m_goodExtrapolated[i]/(double)m_extrapolated[i];
-      ATH_MSG_INFO( "Layer " << i << " extrap " << m_extrapolated[i] << " good " << m_goodExtrapolated[i] 
-		    << " ratio " << ratio );
-    
+      ATH_MSG_INFO( "Layer " << i << " extrap " << m_extrapolated[i] << " good " << m_goodExtrapolated[i] << " ratio " << ratio );
     }
-
     return StatusCode::SUCCESS;
   }
 
@@ -206,10 +178,10 @@ namespace MuonCombined {
         } 
 	if( m_segmentQualityCut > 0 ){
 	  Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
-	  Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
+	  Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	  if( !m_triggerHitCut && stIndex == Muon::MuonStationIndex::EM ){
 	    // don't apply the TGC requirement for the first station as it sometimes has not trigger hits due to TGC acceptance
-	    int stationEta = m_idHelper->stationEta(chId);
+	    int stationEta = m_idHelperSvc->stationEta(chId);
 	    if( abs(stationEta) != 1 ){
 	      // remove EM segments without trigger hits
 	      if( hitCounts.nphiTrigHitLayers == 0 && hitCounts.netaTrigHitLayers == 0 ) continue;
@@ -249,13 +221,13 @@ namespace MuonCombined {
 	{
 
 	  Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
-	  Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
+	  Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	  if( stIndex == Muon::MuonStationIndex::BI || 
 	      stIndex == Muon::MuonStationIndex::BE )      hasSeg[0] = true;
 	  else if( stIndex == Muon::MuonStationIndex::BM ) hasSeg[1] = true;
 	  else if( stIndex == Muon::MuonStationIndex::BO ) hasSeg[2] = true;
 	  else{
-	    int stationEta = m_idHelper->stationEta(chId);
+	    int stationEta = m_idHelperSvc->stationEta(chId);
 	    if( stationEta > 0 ){
 	      if(  stIndex == Muon::MuonStationIndex::EI ) hasSeg[4] = true;
 	      if(  stIndex == Muon::MuonStationIndex::EM ) hasSeg[5] = true;
@@ -333,14 +305,14 @@ namespace MuonCombined {
 	    hasAngleMatch = true;
 	    if( pID > 20000*(qID*etaID-2) ) {
 	      Identifier chId = m_edmHelperSvc->chamberId(**itSeg);
-              if( !m_idHelper->isCsc(chId) ) hasMatch = true;
-	      Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
+              if( !m_idHelperSvc->isCsc(chId) ) hasMatch = true;
+	      Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	      if( stIndex == Muon::MuonStationIndex::BI || 
 		  stIndex == Muon::MuonStationIndex::BE )      hasSeg[0] = true;
 	      else if( stIndex == Muon::MuonStationIndex::BM ) hasSeg[1] = true;
 	      else if( stIndex == Muon::MuonStationIndex::BO ) hasSeg[2] = true;
 	      else{
-		int stationEta = m_idHelper->stationEta(chId);
+		int stationEta = m_idHelperSvc->stationEta(chId);
 		if( stationEta > 0 ){
 		  if(  stIndex == Muon::MuonStationIndex::EI ) hasSeg[4] = true;
 		  if(  stIndex == Muon::MuonStationIndex::EM ) hasSeg[5] = true;

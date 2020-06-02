@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -14,7 +14,6 @@
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
-#include "CaloGeoHelpers/CaloPhiRange.h"
 
 
 struct CaloDetDescrDict

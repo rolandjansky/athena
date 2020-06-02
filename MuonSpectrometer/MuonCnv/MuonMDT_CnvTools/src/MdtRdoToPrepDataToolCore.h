@@ -1,38 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataToolCore.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMdtRdoToPrepDataToolCore_H
 #define MUONMdtRdoToPrepDataToolCore_H
 
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
-
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 
 #include <string>
-class AtlasDetectorID;
-class Identifier;
+
 class MdtDigit;
-class MdtCalibrationTool;
 class MdtCalibrationSvcSettings;
 class MdtCalibHit;
-//class MdtRDO_Decoder;
-class MdtCsm;
-
 
 namespace MuonGM
 {    
@@ -40,14 +31,8 @@ namespace MuonGM
   class MdtReadoutElement;
 }
 
-
 namespace Muon 
 {
-
-  class IMuonRawDataProviderTool;
-  class IMDT_RDO_Decoder;
-  class MuonIdHelperTool;
-
   /** @class MdtRdoToPrepDataToolCore 
 
       This is for the Doxygen-Documentation.  
@@ -65,7 +50,7 @@ namespace Muon
     MdtRdoToPrepDataToolCore(const std::string&,const std::string&,const IInterface*);
 
     /** default destructor */
-    virtual ~MdtRdoToPrepDataToolCore ();
+    virtual ~MdtRdoToPrepDataToolCore()=default;
       
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
@@ -115,11 +100,9 @@ namespace Muon
     bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );
   
     /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager * m_muonMgr;
+    const MuonGM::MuonDetectorManager* m_muonMgr;
         
-    /// Tool for MDT identifier helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         
     /// MDT calibration service
     ToolHandle<MdtCalibrationTool> m_calibrationTool;
@@ -139,9 +122,7 @@ namespace Muon
     bool m_decodeData; //!< toggle on/off the decoding of MDT RDO into MdtPrepData
     bool m_sortPrepData; //!< Toggle on/off the sorting of the MdtPrepData
 
-
     ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
     
     //keepTrackOfFullEventDecoding
     bool m_fullEventDone;

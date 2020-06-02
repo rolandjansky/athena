@@ -16,6 +16,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
+#include "EventInfo/TagInfo.h"
 
 // #include "MagFieldInterfaces/IMTMagFieldSvc.h"
 
@@ -92,6 +93,10 @@ namespace MagField {
 
         ServiceHandle<ICondSvc> m_condSvc { this, 
                                             "CondSvc", "CondSvc", "conditions service" };
+
+        // TagInfo object - used to get currents via TagInfoMgr
+        SG::ReadHandleKey<TagInfo> m_tagInfoKey {this,
+                                                 "TagInfo", "DetectorStore+ProcessingTags", "tag info key"};
 
     };
 }

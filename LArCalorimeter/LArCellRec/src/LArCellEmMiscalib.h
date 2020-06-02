@@ -41,7 +41,7 @@ class LArCellEmMiscalib :  public CaloCellCorrection
 		    const std::string& name, 
 		    const IInterface* parent) ;
 
-  virtual ~LArCellEmMiscalib() {};
+  virtual ~LArCellEmMiscalib()=default;
   
   /*! Constructor */
   virtual StatusCode initialize() override;
@@ -55,8 +55,8 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   void smearingPerRegion();
 
   const LArEM_ID*   m_larem_id;
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloIdManager* m_caloIdMgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
 
   IAtRndmGenSvc* m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* m_engine;

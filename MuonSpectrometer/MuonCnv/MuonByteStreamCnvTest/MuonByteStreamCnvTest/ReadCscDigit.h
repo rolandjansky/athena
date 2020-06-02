@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef READCSCDIGIT_H
@@ -14,10 +14,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +40,7 @@ private:
   //Ntuple ID
   std::string     m_NtupleLocID;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   // Define variables in the Ntuple:
 

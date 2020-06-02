@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloMonitoring/CaloMonToolBase.h" 
+#include "CaloMonToolBase.h" 
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRecEvent/LArCollisionTime.h"
 #include "RecBackgroundEvent/BeamBackgroundData.h"

@@ -221,17 +221,11 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
      //ltau_dR > 2.9         &&
      ltau_vismass > 45000. && ltau_vismass < 85000.)
     {
-      for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
-	{
-	  std::string l1_chain(LowerChain("HLT_"+m_trigItemsZtt[i]));
-	  std::string hlt_chain = "HLT_"+m_trigItemsZtt[i];
-          std::string trigItemShort;
-          if(m_trigItemsZtt[i].find("tau25")!=string::npos && m_trigItemsZtt[i].find("L1TAU")!=string::npos){
-            size_t posit=m_trigItemsZtt[i].rfind("_");
-            if(posit<31)trigItemShort=m_trigItemsZtt[i].substr(0,posit);
-          }
+      for ( const auto& item: m_trigItemsZtt ) {
+	  std::string l1_chain(LowerChain("HLT_"+item));
+	  std::string hlt_chain = "HLT_"+item;
 
-	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort);
+	  setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+item);
 	  //hist("hRealZttPtDenom")->Fill(Tau_TLV.Pt()/GeV);
 
 	  //L1

@@ -461,12 +461,12 @@ class CaloBlobWriter(CaloCondLogger):
         if isinstance(since, tuple):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
-            sinceInfo = time.localtime( sinceCool / UNIX2COOL )
-            untilInfo = time.localtime(min(UNIXTMAX, (untilCool/UNIX2COOL)))
+            sinceInfo = time.localtime( sinceCool//UNIX2COOL )
+            untilInfo = time.localtime(min(UNIXTMAX, (untilCool//UNIX2COOL)))
             untilStr = "<infinity>"
             if untilCool<cool.ValidityKeyMax:
                 untilStr = time.asctime(untilInfo)
-                if (untilCool/UNIX2COOL)>UNIXTMAX:
+                if (untilCool//UNIX2COOL)>UNIXTMAX:
                     untilStr = " > "+untilStr
             iovString = "[%s] - [%s]" % (time.asctime(sinceInfo), untilStr)
 

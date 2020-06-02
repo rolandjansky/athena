@@ -79,11 +79,11 @@ class TileRODMonTool: public TileFatherMonTool {
     std::vector<TH1F *> m_TileDspRefTimSummary[4];    // 4 partitions - 8 RODs - 4 DSPs
     std::vector<TProfile *> m_TileDspRefSummary[2];
 
-
+#define N_TILE_ROBS 32
     std::vector<TProfile2D*> m_TdspProfile[4]; //4 partitions
     std::vector<TProfile2D*> m_tileRodFragmentSize; //
     std::vector<TProfile*> m_tileRodFragmentSizeLB; 
-    std::vector<TH1F*> m_tileRodFragmentSize1D[5][16];    // 4 partitions - 16 ROD fragments
+    std::vector<TH1F*> m_tileRodFragmentSize1D[5][N_TILE_ROBS];    // 4 partitions with N_TILE_ROBS fragments
 
     double m_evEref[4][64][48];    //partitions - 64 modules - 48 channels
     double m_evTref[4][64][48];    //partitions - 64 modules - 48 channels
@@ -95,9 +95,10 @@ class TileRODMonTool: public TileFatherMonTool {
     int m_nLumiblocks;
     bool m_fillDetailFragmentSize;
     int m_nEvents4FragmentSize;
+    unsigned int m_nROBs;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
-    float m_rodFragmentSizeSum[5][16][9]; // accumulator of ROD fragment size per trigger
-    float m_lastRodFragmentSize[5][16][9]; // ROD fragment size per trigger in the last event
+    float m_rodFragmentSizeSum[5][N_TILE_ROBS][9]; // accumulator of ROD fragment size per trigger
+    float m_lastRodFragmentSize[5][N_TILE_ROBS][9]; // ROD fragment size per trigger in the last event
 };
 
 #endif

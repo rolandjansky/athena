@@ -25,12 +25,12 @@ def RpcMonitoringConfig(inputFlags):
     myGroup.defineHistogram('run;Run',
                             title='Run Number;run;Events',
                             type='TH1I', 
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=1000000,xmin=-0.5,xmax=999999.5)
     myGroup.defineHistogram('nMu;NMuon',
                             title='Number of Muons;nMuons;Events',
                             type='TH1I',
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=10,xmin=-0.5,xmax=9.5)
     myGroup.defineHistogram('nMuBarrel;NMuonBarrel',
                             title='Number of Barrel Muons;nMuons;Events',
@@ -41,22 +41,22 @@ def RpcMonitoringConfig(inputFlags):
     myGroup.defineHistogram('muPtCollection;MuonPt',
                             title='muon Pt;Pt[MeV];Muons',
                             type='TH1D',
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=200,xmin=0,xmax=1000e3)
     myGroup.defineHistogram('roiEtaCollection;roiEta',
                             title='roi eta;roi #eta;rois',
                             type='TH1D',
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=50,xmin=-2.5,xmax=2.5)
     myGroup.defineHistogram('roiBarrelEtaCollection;roiBarrelEta',
                             title='Barrel roi eta;roi #eta;rois',
                             type='TH1D',
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=50,xmin=-2.5,xmax=2.5)
     myGroup.defineHistogram('roiBarrelThrCollection;roiBarrelThrs',
                             title='Barrel roi threshold;roi threshold;rois',
                             type='TH1I',
-			    path='PlotCand',
+                            path='PlotCand',
                             xbins=6,xmin=0.5,xmax=6.5)
 
     myGroup.defineHistogram('ptDen;Pt', title='muon Pt;Pt[MeV];Muons', type='TH1D', path='TriggerEff/Denominator',
@@ -109,9 +109,9 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     acc = RpcMonitoringConfig(ConfigFlags)

@@ -7,7 +7,7 @@ import sys
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OverlayConfiguration.OverlayTestHelpers import \
@@ -37,7 +37,7 @@ accAlg = EventInfoOverlayCfg(ConfigFlags)
 accAlg.__init__()
 
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
 # Print and run

@@ -40,8 +40,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore
 atlas_add_component( HitAnalysis
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel CaloDetDescrLib CaloIdentifier CaloSimEvent AthenaBaseComps GeoAdaptors EventInfo AFP_SimEv ALFA_SimEv LUCID_SimEvent ZDC_SimEvent GeneratorObjects InDetSimEvent LArSimEvent MuonSimEvent TileDetDescr TileSimEvent )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel CaloDetDescrLib CaloIdentifier CaloSimEvent AthenaBaseComps GeoAdaptors EventInfo AFP_SimEv ALFA_SimEv LUCID_SimEvent ZDC_SimEvent GeneratorObjects InDetSimEvent LArSimEvent MuonSimEvent TileDetDescr TileSimEvent TrackRecordLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

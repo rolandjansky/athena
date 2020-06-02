@@ -28,7 +28,7 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
-# Add a step comparing counts in the log against reference
+# Add a step comparing counts in the log against reference from test_trig_data_v1Dev_build
 refcomp = CheckSteps.RegTestStep("CountRefComp")
 refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
 refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'

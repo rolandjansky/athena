@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ToolConstants.h,v 1.5 2009-04-09 14:41:17 ssnyder Exp $
@@ -77,9 +77,19 @@ public:
 
 
   /**
+   * @brief Set an entry.
+   * @param key The key of the entry to set.
+   * @param rep The value of the new entry.
+   */
+  void setrep (const std::string& key,
+               CxxUtils::Arrayrep&& rep);
+
+
+  /**
    * @brief Test to see if a given key is present.
    */
   bool hasrep (const std::string& key) const;
+
 
   /**
    * @brief Writes out constants in a python-like format
@@ -87,6 +97,13 @@ public:
    * @param name Name of the Maker-Algorithm (used only for output) 
    */
   void writeConstants(std::ostream& stream, const std::string& name) const;
+
+
+  /**
+   * @brief Return the data as a formatted string.
+   * @param name Name of the Maker-Algorithm.
+   */
+  std::string toString (const std::string& name) const;
 
 
   /**
@@ -144,4 +161,8 @@ private:
 
 
 CLASS_DEF(CaloRec::ToolConstants,250904980 ,1)
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( CaloRec::ToolConstants, 274098 );
+
 #endif // not CALOREC_TOOLCONSTANTS_H
