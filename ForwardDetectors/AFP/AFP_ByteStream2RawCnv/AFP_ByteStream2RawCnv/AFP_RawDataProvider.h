@@ -42,10 +42,11 @@ public:
   
 private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-  ToolHandle<AFP_RawDataProviderTool> m_rawDataTool;
+  ToolHandle<AFP_RawDataProviderTool> m_rawDataTool{this, "ProviderTool", "AFP_RawDataProviderTool"};
 
   /// name used to store AFP_RawContainer in StoreGate
-  std::string m_AFP_RawContainerKey;
+  SG::WriteHandleKey<AFP_RawContainer> m_AFP_RawContainerKey{this, "AFP_RawContainerKey", "AFP_RawData",
+      		  "Name under which AFP_RawContainer object will be saved in StoreGate"};
   
   /// vector of robIDs from which data should be processed
   static const std::vector<unsigned int> s_robIDs;
