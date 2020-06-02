@@ -79,7 +79,7 @@ EL::StatusCode JetReclusteringAlgo :: initialize ()
   ANA_CHECK(m_jetReclusteringTool.setProperty("VariableRMassScale",        m_varR_mass));
   ANA_CHECK(m_jetReclusteringTool.setProperty("InputJetPtMin",             m_ptMin_input));
   ANA_CHECK(m_jetReclusteringTool.setProperty("RCJetPtMin",                m_ptMin_rc));
-  ANA_CHECK(m_jetReclusteringTool.setProperty("GroomAlg",                  m_groomAlg));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("GroomingAlg",               m_groomAlg));
   ANA_CHECK(m_jetReclusteringTool.setProperty("TrimPtFrac",                m_trim_ptFrac));
   ANA_CHECK(m_jetReclusteringTool.setProperty("TrimSubjetRadius",          m_trim_subjet_radius));
   ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropZCut",              m_sd_zcut));
