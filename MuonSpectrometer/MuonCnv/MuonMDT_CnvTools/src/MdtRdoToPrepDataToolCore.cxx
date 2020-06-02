@@ -860,11 +860,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     // find the correct twin-pair (tube-1 & tube-3 are twin pair 1, tube-2 & tube-4 are twin pair 2)
     int twinPair = -1;
     if( tube%4 == 1){ twinPair = (tube + 1)/2 ;}
-    if( tube%4 == 3){ twinPair = (tube - 1)/2 ;}
-    if( tube%4 == 2){ twinPair = (tube + 2)/2 ;}
-    if( tube%4 == 0){ twinPair = tube/2 ;}
-
-    
+    else if( tube%4 == 3){ twinPair = (tube - 1)/2 ;}
+    else if( tube%4 == 2){ twinPair = (tube + 2)/2 ;}
+    else { twinPair = tube/2 ;} // tube%4 == 0
 
     // fill the digitColl map
     if( mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
