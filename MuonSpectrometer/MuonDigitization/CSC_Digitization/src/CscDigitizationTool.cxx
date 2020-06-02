@@ -91,14 +91,6 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(m_cscDigitContainerKey.initialize());
   ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
 
-  ATH_MSG_DEBUG("WP Current MSG Level FATAL ? " << msgLvl(MSG::FATAL) );
-  ATH_MSG_DEBUG("WP Current MSG Level ERROR ? " << msgLvl(MSG::ERROR) );
-  ATH_MSG_DEBUG("WP Current MSG Level WARNING ? " << msgLvl(MSG::WARNING) );
-  ATH_MSG_DEBUG("WP Current MSG Level INFO ? " << msgLvl(MSG::INFO) );
-  ATH_MSG_DEBUG("WP Current MSG Level DEBUG ? " << msgLvl(MSG::DEBUG) );
-  ATH_MSG_DEBUG("WP Current MSG Level VERBOSE ? " << msgLvl(MSG::VERBOSE) );
-
-
   return StatusCode::SUCCESS;
 
 }
