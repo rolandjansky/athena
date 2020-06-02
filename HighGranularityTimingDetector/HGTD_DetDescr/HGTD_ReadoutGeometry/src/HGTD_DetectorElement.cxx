@@ -73,7 +73,7 @@ HGTD_DetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
     if (identifier.is_valid()) {
         const HGTD_ID * hgtdIdHelper = static_cast<const HGTD_ID *>(getIdHelper());
         if (hgtdIdHelper) {
-            cellId = SiCellId(hgtdIdHelper->phi_index(identifier), hgtdIdHelper->eta_index(identifier)); // TODO: implement method in HGTD_ID for returning indices (x/y instead of phi/eta?)
+            cellId = SiCellId(hgtdIdHelper->phi_index(identifier), hgtdIdHelper->eta_index(identifier)); // TODO: implement method in HGTD_ID for returning indices
         }
     }
   

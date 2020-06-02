@@ -59,7 +59,7 @@ public:
     //
     ///////////////////////////////////////////////////////////////////
 
-    /// Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
+    /// Identifier from SiCellId (ie pixel eta_index,phi_index)
     Identifier identifierFromCellId(const SiCellId & cellId) const;
     
     /// SiCellId from Identifier
