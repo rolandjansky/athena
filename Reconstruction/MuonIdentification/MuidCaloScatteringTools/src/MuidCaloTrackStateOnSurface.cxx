@@ -159,7 +159,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
    
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return nullptr;
     }
     fieldCondObj->getInitializedCache (fieldCache);

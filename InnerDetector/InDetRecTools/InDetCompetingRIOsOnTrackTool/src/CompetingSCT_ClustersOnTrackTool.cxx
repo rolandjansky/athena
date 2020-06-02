@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -133,10 +133,10 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
     // loop over all given PrepRawData
     std::list<const Trk::PrepRawData*>::const_iterator rioIter = RIO_List.begin();
     for (; rioIter!=RIO_List.end(); ++rioIter) {
-        // check if given pointer is not NULL
+        // check if given pointer is not nullptr
         const InDet::SCT_Cluster* riopointer = dynamic_cast<const InDet::SCT_Cluster*>(*rioIter);
         if (!riopointer) {
-            //ATH_MSG_WARNING("That's mean: given list of PrepRawData* contains a NULL pointer resp. not a SCT_Cluster!");
+            //ATH_MSG_WARNING("That's mean: given list of PrepRawData* contains a nullptr resp. not a SCT_Cluster!");
             ATH_MSG_WARNING("Given list of PrepRawData* contains a non SCT_Cluster!");
             ATH_MSG_WARNING("Entry will therefore be ignored!");
             continue;

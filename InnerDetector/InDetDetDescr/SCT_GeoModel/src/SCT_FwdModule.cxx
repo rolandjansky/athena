@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -181,7 +181,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id)
   // - relative position of component is part of its shape 
   GeoFullPhysVol * module = new GeoFullPhysVol(m_logVolume);
 
-  if (m_connector != NULL) module->add(m_connector->getVolume());
+  if (m_connector != nullptr) module->add(m_connector->getVolume());
   module->add(m_hybrid->getVolume());
   module->add(m_spine->getVolume());
   module->add(m_subspineL->getVolume());

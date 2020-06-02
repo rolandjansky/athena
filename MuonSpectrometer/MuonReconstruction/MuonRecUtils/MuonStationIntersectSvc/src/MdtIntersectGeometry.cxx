@@ -1,27 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
+
 #include "GaudiKernel/MsgStream.h"
-
+#include "AthenaKernel/getMessageSvc.h"
 #include "TrkDriftCircleMath/MdtChamberGeometry.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "GeoModelUtilities/GeoGetIds.h"
-
 #include "MuonCondData/MdtCondDbData.h"
 
 namespace Muon{
 
   
-  MdtIntersectGeometry::MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr,
-					      const MdtCondDbData* dbData,
-                                              MsgStream* msg)
-    : m_chid(chid), m_mdtGeometry(0), m_detMgr(detMgr), m_dbData(dbData)
+  MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg) :
+      m_chid(chid),
+      m_mdtGeometry(nullptr),
+      m_detMgr(detMgr),
+      m_dbData(dbData),
+      m_mdtIdHelper(nullptr)
   {
     init(msg);
   }
@@ -62,16 +62,17 @@ namespace Muon{
 
     MuonStationIntersect intersect;
     if( !m_mdtGeometry ){
-      std::cout << " MdtIntersectGeometry::intersection: WARNING MdtIntersectGeometry not correctly initialized  " << m_mdtIdHelper->print_to_string(m_chid) << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"MdtIntersectGeometry");
+      log<<MSG::WARNING<<"MdtIntersectGeometry::intersection() - MdtIntersectGeometry not correctly initialized "<< m_mdtIdHelper->print_to_string(m_chid)<<endmsg;
       return intersect;
     }
 
     Amg::Vector3D  lpos = transform()*pos;
     Amg::Vector3D ldir = (transform().linear()*dir).unit();
     
-    double dxdy = fabs(ldir.y()) > 0.001 ? ldir.x()/ldir.y() : 1000.;
+    double dxdy = std::abs(ldir.y()) > 0.001 ? ldir.x()/ldir.y() : 1000.;
 
-    double lineAngle = atan2(ldir.z(),ldir.y());
+    double lineAngle = std::atan2(ldir.z(),ldir.y());
     TrkDriftCircleMath::LocPos linePos( lpos.y(),lpos.z() );
 
     TrkDriftCircleMath::Line line( linePos, lineAngle );
@@ -89,7 +90,7 @@ namespace Muon{
         if( std::find( m_deadTubes.begin(), m_deadTubes.end(), tubeid ) != m_deadTubes.end() )
           continue;
       }
-      double distWall = fabs(xint) - 0.5*tubeLength( dit->id().ml(), dit->id().lay(), dit->id().tube() );
+      double distWall = std::abs(xint) - 0.5*tubeLength( dit->id().ml(), dit->id().lay(), dit->id().tube() );
       intersects.push_back( MuonTubeIntersect( tubeid, dit->dr(), distWall ) );
 	
     }
@@ -143,7 +144,7 @@ namespace Muon{
     m_detElMl1 = 0;
     
     if( !m_detElMl0 ) {
-      std::cout<<"MdtIntersectGeometry::init: WARNING failed to get readout element for ML0"<<std::endl;
+      (*msg)<<MSG::WARNING<<"MdtIntersectGeometry::init() - failed to get readout element for ML0"<<endmsg;
       return;
     }
 
@@ -181,7 +182,7 @@ namespace Muon{
       firstIdml0 = firstIdml1;
       firstMlIndex = 2;
     }else if( !goodMl0 && !goodMl1 ) {
-      std::cout<<"MdtIntersectGeometry::init: WARNING neither multilayer is good"<<std::endl;
+      (*msg)<<MSG::WARNING<<"MdtIntersectGeometry::init() - neither multilayer is good"<<endmsg;
       return;
     }
     m_transform = m_detElMl0->GlobalToAmdbLRSTransform();

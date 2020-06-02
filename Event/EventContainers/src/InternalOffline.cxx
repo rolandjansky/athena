@@ -20,11 +20,11 @@ bool InternalOffline::tryAddFromCache(IdentifierHash hash)
     return indexFind(hash) != m_map.cend();//No Cache in offline mode
 }
 
-void InternalOffline::Wait() const {
+void InternalOffline::wait() const {
     //No need to wait in offline, deliberately empty method
 }
 
-std::vector<IdentifierHash> InternalOffline::GetAllCurrentHashes() const {
+std::vector<IdentifierHash> InternalOffline::getAllCurrentHashes() const {
     std::vector<IdentifierHash> ids;
     ids.reserve(m_map.size());
     for(auto &x : m_map) {
@@ -38,7 +38,7 @@ InternalConstItr
     return m_map.cend();
 }
 
-const std::vector < I_InternalIDC::hashPair >& InternalOffline::GetAllHashPtrPair() const{ return m_map; }
+const std::vector < I_InternalIDC::hashPair >& InternalOffline::getAllHashPtrPair() const{ return m_map; }
 
 InternalConstItr
  InternalOffline::cbegin() const {
@@ -75,7 +75,7 @@ bool InternalOffline::insert(IdentifierHash hashId, const void* ptr) {
     return false;
 }
 
-const void* InternalOffline::FindIndexPtr(IdentifierHash hashId) const noexcept{
+const void* InternalOffline::findIndexPtr(IdentifierHash hashId) const noexcept{
     auto itr = indexFind(hashId);
     if(itr != m_map.end()) return itr->second;
     return nullptr;
@@ -108,3 +108,6 @@ StatusCode InternalOffline::fetchOrCreate(const std::vector<IdentifierHash>&)
     throw std::runtime_error("Not implemented in offline mode");
 }
 
+void InternalOffline::destructor(deleter_f* deleter) noexcept {
+    for(const auto& x : m_map)  deleter(x.second);
+}

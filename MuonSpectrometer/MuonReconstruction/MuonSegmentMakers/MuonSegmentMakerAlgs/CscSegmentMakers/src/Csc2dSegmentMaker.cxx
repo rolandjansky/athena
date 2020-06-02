@@ -3,26 +3,22 @@
 */
 
 #include "Csc2dSegmentMaker.h"
-#include <sstream>
-#include <cmath>
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
-
 #include "TrkSegment/Segment.h"
 #include "TrkRoad/TrackRoad.h"
 #include "MuonCondInterface/ICSCConditionsSvc.h"
+
+#include <sstream>
+#include <cmath>
 
 using Muon::CscPrepDataContainer;
 using Muon::CscPrepDataCollection;
@@ -61,9 +57,8 @@ std::string chamber(int istation, int zsec, int phi) {
 
 //******************************************************************************
 
-Csc2dSegmentMaker::
-Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent)
+Csc2dSegmentMaker::Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent)
 {
   declareInterface<ICscSegmentFinder>(this);
 }
@@ -71,27 +66,14 @@ Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInte
 //******************************************************************************
 
 StatusCode Csc2dSegmentMaker::initialize(){
-
   ATH_MSG_DEBUG ( "Initializing " << name() );
   // Show keys.
   ATH_MSG_DEBUG ( "  SegmentTool: " << m_segmentTool.typeAndName() );
   ATH_MSG_DEBUG ( "  Input cscdig key: " << m_cscdig_sg_inkey );
-
   ATH_CHECK(m_idHelperSvc.retrieve());
-  
-  if ( m_segmentTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_segmentTool );
-    return StatusCode::FAILURE;
-  }
-  if ( m_cscClusterOnTrackCreator.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve  " << m_cscClusterOnTrackCreator );
-    return StatusCode::FAILURE;
-  }
-  if ( m_printer.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve MuonEDMPrinterTool" << m_printer );
-    return StatusCode::FAILURE;
-  }  
-
+  ATH_CHECK(m_segmentTool.retrieve());
+  ATH_CHECK(m_cscClusterOnTrackCreator.retrieve());
+  ATH_CHECK(m_printer.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -177,10 +159,8 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       for(int iStrip=0;iStrip<detEl->maxNumberOfStrips(iPhi);iStrip++){
 	ATH_MSG_DEBUG("get strip quality for "<<isPhi<<" layer "<<iLay<<" strip "<<iStrip);
 	Identifier stripId=m_idHelperSvc->cscIdHelper().channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
-	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_idHelperSvc->cscIdHelper().chamberLayer(stripId)<<", wire layer "<<m_idHelperSvc->cscIdHelper().wireLayer(stripId)<<", strip "<<m_idHelperSvc->cscIdHelper().strip(stripId));
 	IdentifierHash hashID;
 	m_idHelperSvc->cscIdHelper().get_channel_hash(stripId,hashID);
-	//ATH_MSG_DEBUG("get strip status with hash "<<hashID);
 	if(!m_segmentTool->isGood(hashID)){
 	  ATH_MSG_DEBUG("bad strip");
 	  nbad++;
@@ -270,7 +250,6 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 
   return pcol;
 }
-
   
 //******************************************************************************
 std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& ) const
@@ -278,12 +257,3 @@ std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const
   return std::unique_ptr<MuonSegmentCombinationCollection>();
 
 }
-
-//******************************************************************************
-
-StatusCode Csc2dSegmentMaker::finalize() {
-
-  ATH_MSG_DEBUG ( "Goodbye" );
-  return StatusCode::SUCCESS;
-}
-

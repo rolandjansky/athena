@@ -5,19 +5,14 @@
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 #define MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <cmath>
-
-namespace MuonGM {
-     class MuonDetectorManager;
-}
-
 
 class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonCombinePatternTool 
 {
@@ -37,15 +32,10 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   typedef IdChMap::iterator                 IdChIt;
 
  public:
-  /** constructor */
   MuonCombinePatternTool(const std::string& type, const std::string& name, const IInterface* parent);
-  /** destructor */
-  virtual ~MuonCombinePatternTool(){};
+  virtual ~MuonCombinePatternTool()=default;
 
-  /** to initiate private members */
   virtual StatusCode initialize(); 
-  /** to delete private members */
-  virtual StatusCode finalize();
 
   /** Combines phi and eta pattern collection into a new combined pattern collection */
   virtual const MuonPrdPatternCollection* combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection,
@@ -149,8 +139,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   unsigned int m_maxSizePhiPatternLoose;
   unsigned int m_maxSizeEtaPatternLoose;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 

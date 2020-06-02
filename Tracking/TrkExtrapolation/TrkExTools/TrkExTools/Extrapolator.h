@@ -796,7 +796,7 @@ VERBOSE : Method call sequence with values
 
     /** Prepare the IMaterialEffectsUpdator::ICache for each
      * Material Effects updator */
-    void fillMaterialEffectsUpdatorCache(Cache& cache) const;
+    void populateMatEffUpdatorCache(Cache& cache) const;
 
    
     /** Private method for setting recall Information */

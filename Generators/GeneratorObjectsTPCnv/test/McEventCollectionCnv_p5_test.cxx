@@ -16,7 +16,6 @@
 #include "AtlasHepMC/GenEvent.h"
 
 // CLHEP includes
-#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p5.h"
@@ -24,7 +23,7 @@
 void compare (const HepMC::GenEvent& p1,
               const HepMC::GenEvent& p2)
 {
-  assert (p1.signal_process_id() == p2.signal_process_id() );
+  assert (HepMC::signal_process_id(p1) == HepMC::signal_process_id(p2) );
   assert (p1.event_number() == p2.event_number() );
   //FIXME Need to loop over GenVertex and GenParticle objects too.
 }
@@ -40,43 +39,43 @@ void compare (const McEventCollection& p1,
 
 void populateGenEvent(HepMC::GenEvent & ge)
 {
-  CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-  HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+  HepMC::FourVector myPos( 0.0, 0.0, 0.0, 0.0);
+  HepMC::GenVertexPtr myVertex = HepMC::newGenVertexPtr( myPos, -1 );
   HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, 2, 10);
+  HepMC::GenParticlePtr inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, 2, 10);
   myVertex->add_particle_in(inParticle1);
   HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, -2, 10);
+  HepMC::GenParticlePtr inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, -2, 10);
   myVertex->add_particle_in(inParticle2);
   HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, 2, 10);
+  HepMC::GenParticlePtr inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, 2, 10);
   myVertex->add_particle_out(inParticle3);
   HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, -2, 10);
+  HepMC::GenParticlePtr inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, -2, 10);
   myVertex->add_particle_out(inParticle4);
   ge.add_vertex( myVertex );
-  ge.set_signal_process_vertex( myVertex );
+  HepMC::set_signal_process_vertex(&ge, myVertex );
   ge.set_beam_particles(inParticle1,inParticle2);
 }
 
 void populateGenEvent2(HepMC::GenEvent & ge)
 {
-  CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-  HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+  HepMC::FourVector myPos( 0.0, 0.0, 0.0, 0.0);
+  HepMC::GenVertexPtr myVertex = HepMC::newGenVertexPtr( myPos, -1 );
   HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, 2, 10);
+  HepMC::GenParticlePtr inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, 2, 10);
   myVertex->add_particle_in(inParticle1);
   HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, -2, 10);
+  HepMC::GenParticlePtr inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, -2, 10);
   myVertex->add_particle_in(inParticle2);
   HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, 2, 10);
+  HepMC::GenParticlePtr inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, 2, 10);
   myVertex->add_particle_out(inParticle3);
   HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-  HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, -2, 10);
+  HepMC::GenParticlePtr inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, -2, 10);
   myVertex->add_particle_out(inParticle4);
   ge.add_vertex( myVertex );
-  ge.set_signal_process_vertex( myVertex );
+  HepMC::set_signal_process_vertex(&ge, myVertex );
   ge.set_beam_particles(inParticle1,inParticle2);
 }
 
@@ -100,13 +99,13 @@ void test1()
   // Add a dummy GenEvent
   const int process_id1(20);
   const int event_number1(17);
-  trans1.push_back(new HepMC::GenEvent(process_id1, event_number1));
+  trans1.push_back(HepMC::newGenEvent(process_id1, event_number1));
   HepMC::GenEvent& ge1 = *(trans1.at(0));
   populateGenEvent(ge1);
   // Add a second dummy GenEvent
   const int process_id2(20);
   const int event_number2(25);
-  trans1.push_back(new HepMC::GenEvent(process_id2, event_number2));
+  trans1.push_back(HepMC::newGenEvent(process_id2, event_number2));
   HepMC::GenEvent& ge2 = *(trans1.at(1));
   populateGenEvent2(ge2);
 

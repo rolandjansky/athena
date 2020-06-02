@@ -84,7 +84,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
 
   // Gather the merges
   const std::vector<std::pair<int32_t, int32_t>> merges =
-    findMerges(components, n, maximumNumberOfComponents);
+    findMerges(components.buffer(), n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {

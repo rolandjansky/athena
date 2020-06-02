@@ -15,7 +15,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "egammaPerformance/ZeeTaPMonTool.h"
+#include "ZeeTaPMonTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -58,7 +58,6 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
      m_hLB_N(nullptr)
 {
   // Name of the electron collection
-  declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
   declareProperty("massPeak", m_MassPeak = 91188, "Resonance peak position" );
   declareProperty("electronEtCut",m_ElectronEtCut = 15*GeV, "Et cut for electrons");
   declareProperty("massLowerCut", m_MassLowerCut = 70*GeV,"Lower mass cut");
@@ -72,6 +71,13 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
 
 ZeeTaPMonTool::~ZeeTaPMonTool()
 {
+}
+
+StatusCode ZeeTaPMonTool::initialize()
+{
+  ATH_CHECK( egammaMonToolBase::initialize() );
+  ATH_CHECK( m_ElectronContainer.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode ZeeTaPMonTool::bookHistograms()
@@ -165,15 +171,8 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   //--------------------
   //figure out current LB
   //--------------------
-  const DataHandle<xAOD::EventInfo> evtInfo;
-  StatusCode sc = m_storeGate->retrieve(evtInfo); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("couldn't retrieve event info");
-    return StatusCode::FAILURE;
-  }
-  
   unsigned int previousLB = m_currentLB;
-  m_currentLB = evtInfo->lumiBlock();
+  m_currentLB = getCurrentLB();
   
   //deal with the change of LB
   if (m_currentLB>previousLB) {
@@ -184,11 +183,10 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   }
   
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=nullptr;
-  sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
-  if(sc.isFailure() || !electron_container){
+  SG::ReadHandle<xAOD::ElectronContainer> electron_container{m_ElectronContainer};
+  if(!electron_container.isValid()){
     ATH_MSG_VERBOSE("no electron container found in TDS");
-    return sc;
+    return StatusCode::FAILURE;
   } 
 
   xAOD::ElectronContainer::const_iterator e_iter = electron_container->begin();

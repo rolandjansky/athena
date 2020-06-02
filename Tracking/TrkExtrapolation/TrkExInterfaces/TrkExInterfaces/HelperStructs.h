@@ -1,11 +1,13 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TRKEXINTERFACES_HELPERSTRUCTS_H
 #define TRKEXINTERFACES_HELPERSTRUCTS_H
-namespace Trk {
 
+#include "TrkParameters/TrackParameters.h"
+
+namespace Trk {
 struct HitInfo 
 {
   const Trk::TrackParameters*  trackParms;    // intersection

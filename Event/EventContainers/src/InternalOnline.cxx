@@ -16,32 +16,32 @@ typedef I_InternalIDC::InternalConstItr InternalConstItr;
 InternalOnline::InternalOnline(EventContainers::IdentifiableCacheBase *cache) : m_cacheLink(cache),
     m_mask(cache->fullSize(), false), m_waitNeeded(false) {}
 
-const std::vector < I_InternalIDC::hashPair >& InternalOnline::GetAllHashPtrPair() const{
-  if(m_waitNeeded) Wait();
+const std::vector < I_InternalIDC::hashPair >& InternalOnline::getAllHashPtrPair() const{
+  if(m_waitNeeded) wait();
   return m_map; 
 }
 
 
 InternalConstItr
  InternalOnline::cend() const {
-    if(m_waitNeeded) Wait();
+    if(m_waitNeeded) wait();
     return m_map.cend();
 }
 
 InternalConstItr
  InternalOnline::cbegin() const {
-    if(m_waitNeeded) Wait();
+    if(m_waitNeeded) wait();
     return m_map.cbegin();
 }
 
 InternalConstItr InternalOnline::indexFind( IdentifierHash hashId ) const{
-  if(m_waitNeeded) Wait();
+  if(m_waitNeeded) wait();
    auto itr = std::lower_bound( m_map.begin(), m_map.end(), hashId.value(), [](hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
    if(itr!= m_map.end() && itr->first==hashId) return itr;
    return m_map.end();
 }
 
-void InternalOnline::Wait() const {
+void InternalOnline::wait() const {
     //lockguard to protect m_waitlist from multiple wait calls
     std::lock_guard lock (m_waitMutex);
     if(m_waitNeeded == false) return;
@@ -87,8 +87,8 @@ bool InternalOnline::tryAddFromCache(IdentifierHash hashId)
     return true;
 }
 
-std::vector<IdentifierHash> InternalOnline::GetAllCurrentHashes() const {
-    if(m_waitNeeded) Wait();
+std::vector<IdentifierHash> InternalOnline::getAllCurrentHashes() const {
+    if(m_waitNeeded) wait();
     std::vector<IdentifierHash> ids;
     ids.reserve(m_map.size());
     for(auto &x : m_map) {
@@ -98,12 +98,12 @@ std::vector<IdentifierHash> InternalOnline::GetAllCurrentHashes() const {
 }
 
 size_t InternalOnline::numberOfCollections() const {
-    if(m_waitNeeded) Wait();
+    if(m_waitNeeded) wait();
     return m_map.size();
 }
 
-void InternalOnline::ResetMask() {
-    if(m_waitNeeded) Wait();
+void InternalOnline::resetMask() {
+    if(m_waitNeeded) wait();
     m_mask.assign(m_cacheLink->fullSize(), false);
     m_map.clear();
     m_waitNeeded.store(true, std::memory_order_relaxed);
@@ -131,7 +131,7 @@ bool InternalOnline::insert(IdentifierHash hashId, const void* ptr) {
     return ptr == cacheinserted.second;
 }
 
-const void* InternalOnline::FindIndexPtr(IdentifierHash hashId) const noexcept {
+const void* InternalOnline::findIndexPtr(IdentifierHash hashId) const noexcept {
     if(hashId < m_mask.size() and m_mask[hashId]) return m_cacheLink->findWait(hashId);
     return nullptr;
 }
@@ -151,4 +151,12 @@ StatusCode InternalOnline::addLock(IdentifierHash hashId, const void* ptr) {
 
 void* InternalOnline::removeCollection( IdentifierHash  ) {
     throw std::runtime_error("Do not remove things from an online IDC");
+}
+
+void InternalOnline::destructor(deleter_f*) noexcept {
+    //deliberately empty
+}
+
+void InternalOnline::cleanUp(deleter_f*) noexcept {
+    resetMask();
 }

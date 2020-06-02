@@ -1,44 +1,32 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef MUON_MUONPATTERNCALIBRATION_H
 #define MUON_MUONPATTERNCALIBRATION_H
+
+#include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonPattern/MuonPatternCombinationCollection.h"
+#include "MuonPattern/MuonPatternCombination.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
-
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-
-#include "MuonPattern/MuonPatternCombinationCollection.h"
-#include "MuonPattern/MuonPatternCombination.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
 class MdtPrepData;
 
-namespace Trk {
-  class RIO_OnTrack;
-  class PrepRawData;
-}
-
 namespace Muon {
-  class MuonPatternCombination;
   class MdtPrepData;
   class MuonClusterOnTrack;
   class MdtDriftCircleOnTrack;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonPatternSegmentAssociationTool;
 
   class MuonPatternCalibration : virtual public IMuonPatternCalibration, public AthAlgTool
   {
@@ -89,7 +77,7 @@ namespace Muon {
   
   public:
     MuonPatternCalibration(const std::string&, const std::string&, const IInterface*);
-    virtual ~MuonPatternCalibration();
+    virtual ~MuonPatternCalibration()=default;
 
     virtual StatusCode initialize();
 

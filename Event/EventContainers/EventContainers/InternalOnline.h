@@ -29,21 +29,23 @@ public:
     virtual InternalConstItr cbegin() const override;
     virtual InternalConstItr cend() const override;
     virtual InternalConstItr indexFind( IdentifierHash hashId ) const override;
-    virtual const std::vector < hashPair >& GetAllHashPtrPair() const override;
+    virtual const std::vector < hashPair >& getAllHashPtrPair() const override;
     virtual ~InternalOnline()=default;
-    virtual void Wait() const override;
+    virtual void wait() const override;
     virtual bool tryAddFromCache(IdentifierHash hashId, EventContainers::IDC_WriteHandleBase &lock) override;
     virtual bool tryAddFromCache(IdentifierHash hashId) override;
-    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const override;
+    virtual std::vector<IdentifierHash> getAllCurrentHashes() const override;
     virtual size_t numberOfCollections() const override;
-    void ResetMask();
+    void resetMask();
     virtual size_t fullSize() const noexcept override { return m_mask.size(); }
     virtual StatusCode fetchOrCreate(IdentifierHash hashId) override;
     virtual StatusCode fetchOrCreate(const std::vector<IdentifierHash> &hashIds) override;
     virtual bool insert(IdentifierHash hashId, const void* ptr) override;
-    virtual const void* FindIndexPtr(IdentifierHash hashId) const noexcept override;
+    virtual const void* findIndexPtr(IdentifierHash hashId) const noexcept override;
     virtual StatusCode addLock(IdentifierHash hashId, const void* ptr) override;
     virtual void* removeCollection( IdentifierHash hashId ) override;
+    virtual void destructor(deleter_f*) noexcept override;
+    virtual void cleanUp(deleter_f*) noexcept override;
 private:
     EventContainers::IdentifiableCacheBase *m_cacheLink;
     mutable std::vector< IdentifierHash > m_waitlist ATLAS_THREAD_SAFE;
