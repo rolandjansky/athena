@@ -54,7 +54,7 @@ StatusCode HepMCTruthReader::execute() {
     if (cntr>0) ATH_MSG_INFO("Printing pileup events...");  
 
     if (cntr==0) {
-      auto signalProcessVtx = genEvt->signal_process_vertex();
+      auto signalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt);
       ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
 		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
            << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)
@@ -87,13 +87,13 @@ void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
 
 // Print method for vertex - mimics the HepMC dump.
 // Particle print method called within here
-void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
+void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
   std::ios::fmtflags f( cout.flags() ); 
   cout << "GenVertex (" << vertex << "):";
-  if (vertex->barcode() != 0) {
+  if (HepMC::barcode(vertex) != 0) {
     if (vertex->position().x() != 0.0 && vertex->position().y() != 0.0 && vertex->position().z() != 0.0) {
       cout.width(9);
-      cout << vertex->barcode();
+      cout <<HepMC::barcode(vertex);
       cout << " ID:";
       cout.width(5);
       cout << vertex->id();
@@ -117,7 +117,7 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
       cout << endl;
     } else {
       cout.width(9);
-      cout << vertex->barcode();
+      cout << HepMC::barcode(vertex);
       cout << " ID:";
       cout.width(5);
       cout << vertex->id();
@@ -194,11 +194,11 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
 
 
 // Print method for particle - mimics the HepMC dump.
-void HepMCTruthReader::printParticle(const HepMC::GenParticle* particle) {
+void HepMCTruthReader::printParticle(const HepMC::GenParticlePtr particle) {
   std::ios::fmtflags f( cout.flags() ); 
   cout << " ";
   cout.width(9);
-  cout << particle->barcode();
+  cout << HepMC::barcode(particle);
   cout.width(9);
   cout << particle->pdg_id() << " ";
   cout.width(9);
@@ -218,11 +218,11 @@ void HepMCTruthReader::printParticle(const HepMC::GenParticle* particle) {
   cout.setf(ios::fmtflags(0), ios::floatfield);
   cout.unsetf(ios_base::showpos);
   if ( particle->has_decayed() ) {
-    if ( particle->end_vertex()->barcode()!=0 ) {
+    if ( HepMC::barcode(particle->end_vertex())!=0 ) {
       cout.width(3);
       cout << particle->status() << " ";
       cout.width(9);
-      cout << particle->end_vertex()->barcode();
+      cout << HepMC::barcode(particle->end_vertex());
     }
   } else {
     cout.width(3);

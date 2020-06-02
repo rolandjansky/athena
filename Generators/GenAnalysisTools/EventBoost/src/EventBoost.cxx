@@ -175,7 +175,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
   HepMC::GenEvent::particle_const_iterator p = genEvt->particles_begin();
   HepMC::GenEvent::particle_const_iterator pEnd = genEvt->particles_end();
 
-  std::vector<HepMC::GenParticle*> particles_needing_modification;
+  std::vector<HepMC::GenParticlePtr> particles_needing_modification;
 
   for(; p != pEnd; ++p ) {
     particles_needing_modification.push_back(*p);
@@ -194,7 +194,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
   
   if ((m_gaussian_vertex_smearing)||(m_flat_vertex_smearing)) {
 
-    std::vector<HepMC::GenVertex*> vertices_needing_modification;
+    std::vector<HepMC::GenVertexPtr> vertices_needing_modification;
 
     HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
@@ -256,7 +256,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 //__________________________________________________________________________
 
 
-bool EventBoost::doModification(HepMC::GenParticle * part, double& pxsum ) {
+bool EventBoost::doModification(HepMC::GenParticlePtr part, double& pxsum ) {
 
   /*    
   From px' = gamma_x*px+beta_x*gamma_x*E
@@ -290,7 +290,7 @@ bool EventBoost::doModification(HepMC::GenParticle * part, double& pxsum ) {
 //__________________________________________________________________________
 
 
-bool EventBoost::doVertexModification(HepMC::GenVertex * ver, double rand_x, double rand_y, double rand_z ) {
+bool EventBoost::doVertexModification(HepMC::GenVertexPtr ver, double rand_x, double rand_y, double rand_z ) {
 
   CLHEP::HepLorentzVector vertex(ver->position().x(),
 			  ver->position().y(),

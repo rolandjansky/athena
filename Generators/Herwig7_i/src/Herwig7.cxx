@@ -186,7 +186,7 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   const long* s = atRndmGenSvc().GetEngine("Herwig7")->getSeeds();
   std::vector<long> seeds(s, s+2);
   ATH_MSG_DEBUG("Random seeds: " << seeds[0] << ", " << seeds[1]);
-  evt->set_random_states(seeds);
+  HepMC::set_random_states(evt,seeds);
 
   // Add a unit entry to the event weight vector if it's currently empty
   if (evt->weights().empty()) {

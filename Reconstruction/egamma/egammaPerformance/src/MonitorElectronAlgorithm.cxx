@@ -5,7 +5,7 @@
   4 May 2020
 */
 
-#include "egammaPerformance/MonitorElectronAlgorithm.h"
+#include "MonitorElectronAlgorithm.h"
 
 MonitorElectronAlgorithm::MonitorElectronAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef ONLINE // This tool is only meant for special online monitoring at Point 1
 
-#include "TRT_Monitoring/TRT_Hits_Monitoring_Tool.h"
+#include "TRT_Hits_Monitoring_Tool.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "StoreGate/ReadHandle.h"

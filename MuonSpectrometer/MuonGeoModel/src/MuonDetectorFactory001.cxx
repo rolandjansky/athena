@@ -620,7 +620,7 @@ namespace MuonGM {
         }
 
         mst->setTransform(xf);
-        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*CLHEP::deg)*GeoTrf::RotateY3D(-90*CLHEP::deg);
+        GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90*Gaudi::Units::degree)*GeoTrf::RotateY3D(-90*Gaudi::Units::degree);
 
         mst->setNativeToAmdbLRS(
           Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame( (*pit).second ))

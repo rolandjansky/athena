@@ -59,7 +59,7 @@ public:
     // prepare the binned Array
     if (bingen) {
       size_t vecsize = tclassvector.size();
-      m_array.resize(vecsize);
+      m_array = std::vector<SharedObject<T>>(vecsize);
       for (size_t ivec = 0; ivec < vecsize; ++ivec) {
         const Amg::Vector3D currentGlobal(((tclassvector[ivec]).second));
         if (bingen->inside(currentGlobal)) {
@@ -81,7 +81,7 @@ public:
   {
     m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : nullptr;
     if (m_binUtility) {
-      m_array.resize(barr.m_array.size());
+      m_array = std::vector<SharedObject<T>>(barr.m_array.size());
       for (unsigned int ient = 0; ient < barr.m_array.size(); ++ient) {
         m_array[ient] = (barr.m_array)[ient];
       }
@@ -98,7 +98,7 @@ public:
       m_binUtility = (barr.m_binUtility) ? barr.m_binUtility->clone() : 0;
 
       if (m_binUtility) {
-        m_array.resize(barr.m_array.size());
+        m_array = std::vector<SharedObject<T>>(barr.m_array.size());
         for (unsigned int ient = 0; ient < barr.m_array.size(); ++ient) {
           m_array[ient] = (barr.m_array)[ient];
         }

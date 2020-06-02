@@ -2261,14 +2261,14 @@ namespace Muon {
 
     }
 
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Printing collections per sector, number of technologies " << m_ntechnologies;
+    if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" Printing collections per sector, number of technologies " << m_ntechnologies);
     for( int sector = 1; sector<=16; ++sector ){
       MuonStationIndex::DetectorRegionIndex currentRegion = MuonStationIndex::DetectorRegionUnknown;
-      if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " sector " << sector;
+      if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" sector " << sector);
       TechnologyRegionHashVec& vec = m_collectionsPerSector[sector-1].technologyRegionHashVecs;
       for( unsigned int hash = 0; hash < nsectorHashMax; ++hash ){
         std::pair<MuonStationIndex::DetectorRegionIndex,MuonStationIndex::LayerIndex> regionLayer = MuonStationIndex::decomposeSectorLayerHash(hash);
-        if( msgLvl(MSG::DEBUG) ) if( regionLayer.first != currentRegion ) msg(MSG::DEBUG) << std::endl << "  " << MuonStationIndex::regionName(regionLayer.first);
+        if( msgLvl(MSG::DEBUG) ) if( regionLayer.first != currentRegion ) ATH_MSG_DEBUG("  " << MuonStationIndex::regionName(regionLayer.first));
         bool first = true;
         currentRegion = regionLayer.first;
         for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
@@ -2276,18 +2276,16 @@ namespace Muon {
           if( !vec[tech][hash].empty() ) {
             if( msgLvl(MSG::DEBUG) ) {
               if( first ) {
-                msg(MSG::DEBUG) << "  " << std::setw(7) << MuonStationIndex::layerName(regionLayer.second);
+                ATH_MSG_DEBUG("  " << std::setw(7) << MuonStationIndex::layerName(regionLayer.second));
                 first = false;
               }
-              msg(MSG::DEBUG) << " " << std::setw(4) << MuonStationIndex::technologyName(static_cast<MuonStationIndex::TechnologyIndex>(tech)) 
-                              << " " << std::setw(4) << vec[tech][hash].size(); 
+              ATH_MSG_DEBUG(" " << std::setw(4) << MuonStationIndex::technologyName(static_cast<MuonStationIndex::TechnologyIndex>(tech)) 
+                              << " " << std::setw(4) << vec[tech][hash].size()); 
             }
           }
         }
       }
-      if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << std::endl;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
   }
 
   void MuonLayerHoughTool::printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const {

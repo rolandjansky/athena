@@ -720,11 +720,11 @@ StatusCode CosmicGenerator::fillEvt(HepMC::GenEvent* event) {
 
       // Create the particle, and specify its polarization.
 
-      HepMC::GenParticle* particle = new HepMC::GenParticle( m_fourMom[v], m_pdgCode[v], 1);
-      particle->set_polarization( m_polarization[v] );
+      HepMC::GenParticlePtr particle =  HepMC::newGenParticlePtr( HepMC::FourVector(m_fourMom[v].px(),m_fourMom[v].py(),m_fourMom[v].pz(),m_fourMom[v].e()), m_pdgCode[v], 1);
+      HepMC::set_polarization(particle, m_polarization[v] );
 
       // Create the vertex, and add the particle to the vertex.
-      HepMC::GenVertex* vertex = new HepMC::GenVertex(m_fourPos[v]);
+      HepMC::GenVertexPtr vertex = HepMC::newGenVertexPtr(HepMC::FourVector(m_fourPos[v].x(),m_fourPos[v].y(),m_fourPos[v].z(),m_fourPos[v].t()));
       vertex->add_particle_out( particle );
 
       // Add the vertex to the event.

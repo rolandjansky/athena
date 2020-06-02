@@ -190,13 +190,13 @@ namespace Muon {
       // extrapolate to next layer
       const Trk::Surface& surface = *it->surfacePtr;
       if( msgLvl(MSG::VERBOSE) ){
-        msg(MSG::VERBOSE) << " startPars: phi pos "  << currentPars->position().phi() << " direction phi " << currentPars->momentum().phi() << " theta pos " << currentPars->position().theta()  << " theta " << currentPars->momentum().theta()
+        ATH_MSG_VERBOSE(" startPars: phi pos "  << currentPars->position().phi() << " direction phi " << currentPars->momentum().phi() << " theta pos " << currentPars->position().theta()  << " theta " << currentPars->momentum().theta()
                           << " r " << currentPars->position().perp() << " z " << currentPars->position().z()  << " momentum " << currentPars->momentum().mag()
-                          << " local " << currentPars->parameters()[Trk::locX] << " " << currentPars->parameters()[Trk::locY];
-        if( currentPars->covariance() ) msg(MSG::VERBOSE) << " err " << Amg::error(*currentPars->covariance(),Trk::locX) << " " << Amg::error(*currentPars->covariance(),Trk::locY);
-        msg(MSG::VERBOSE) << " destination: sector " << it->sector << "  " << MuonStationIndex::regionName(it->regionIndex)
+                          << " local " << currentPars->parameters()[Trk::locX] << " " << currentPars->parameters()[Trk::locY]);
+        if( currentPars->covariance() ) ATH_MSG_VERBOSE(" err " << Amg::error(*currentPars->covariance(),Trk::locX) << " " << Amg::error(*currentPars->covariance(),Trk::locY));
+        ATH_MSG_VERBOSE(" destination: sector " << it->sector << "  " << MuonStationIndex::regionName(it->regionIndex)
                           << "  " << MuonStationIndex::layerName(it->layerIndex) 
-                          << " phi  " << surface.center().phi() << " r " << surface.center().perp() << " z " << surface.center().z() << endmsg;
+                          << " phi  " << surface.center().phi() << " r " << surface.center().perp() << " z " << surface.center().z());
       }
       const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*currentPars,surface,Trk::alongMomentum,false,Trk::muon);
       if( !exPars ){

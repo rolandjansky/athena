@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthDressingTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHDRESSINGTOOL_H
 #define DERIVATIONFRAMEWORK_TRUTHDRESSINGTOOL_H
 
@@ -40,6 +36,8 @@ namespace DerivationFramework {
       std::vector<int> m_listOfPIDs;
       /// Parameter: Use antikT algorithm for dressing?
       bool m_useAntiKt;
+      /// Parameter: Name of the decoration to apply
+      std::string m_decorationName;
   }; 
 }
 

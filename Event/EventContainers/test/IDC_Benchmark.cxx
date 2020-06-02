@@ -61,11 +61,22 @@ int main(){
    auto end2 = std::chrono::steady_clock::now();
    std::chrono::duration<double> onlinefill = end2-start2;
    std::cout << "online fill time " << onlinefill.count() << std::endl;
+
+   auto start3 = std::chrono::steady_clock::now();
+   auto offlinefast = new IdentifiableContainerMT<long unsigned int>(50000, EventContainers::Mode::OfflineFast);
+   for(size_t i =3;i<50000;i+=3){
+      offlinefast->addCollection(new long unsigned int(i) ,i).ignore();
+   }
+   auto end3 = std::chrono::steady_clock::now();
+   std::chrono::duration<double> offlinefillfast = end3-start3;
+   std::cout << "offlinefast fill time " << offlinefillfast.count() << std::endl;
    accessTime("online ", *online);
    accessTime("offline ", *offline);
+   accessTime("offlinefast ", *offlinefast);
    timedelete("onlineCont ", online);
    timedelete("onlineCache ", cache);
    timedelete("offline ", offline);
+   timedelete("offlinefast ", offlinefast);
    std::cout << "Test Successful" << std::endl;
    return 0;
 }

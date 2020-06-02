@@ -427,7 +427,7 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
 
   const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
   if (!pElement) {
-    ATH_MSG_FATAL("Element pointer is NULL in 'getStripId' method");
+    ATH_MSG_FATAL("Element pointer is nullptr in 'getStripId' method");
     return invalidIdentifier;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? (lastStrip-strip) : strip;

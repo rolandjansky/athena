@@ -45,15 +45,14 @@
 // #include "TRandom.h" // Only for Testing
 
 using namespace SCT_Monitoring;
-using namespace std;
 
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline{false};
 
-  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
+  static const std::string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
-  static const string histogramPathRe[N_REGIONS] = {
+  static const std::string histogramPathRe[N_REGIONS] = {
     "SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"
   };
 
@@ -245,7 +244,7 @@ int SCTHitEffMonAlg::previousChip(double xl, int side, bool swap) const {
   return chipPos;
 }
 
-StatusCode SCTHitEffMonAlg::failCut(bool value, string name) const {
+StatusCode SCTHitEffMonAlg::failCut(bool value, std::string name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
@@ -353,10 +352,10 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
     if (solenoidOn and failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
     nTrkGood++;
@@ -391,10 +390,10 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
     if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
 
@@ -566,7 +565,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
 
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier)) {
         eff = 1.;
-      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (fabs(trackHitResidual) < distCut)) {
+      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (std::abs(trackHitResidual) < distCut)) {
         eff = 1.;
       }
 
@@ -654,7 +653,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       int ndf{trackWithHoles->fitQuality()->numberDoF()};
       double chi2_div_ndf{ndf > 0. ? chi2 / ndf : -1.};
 
-      if (failCut(fabs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
+      if (failCut(std::abs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
         continue;
       }
 

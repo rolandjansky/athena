@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventCnvTools/EventCnvSuperTool.h"
@@ -16,7 +16,7 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     const std::string& n,
     const IInterface*  p )
     :
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_detID(0),
     m_haveIdCnvTool(false),   // Will be set to true on retrieval
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
@@ -25,7 +25,6 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     m_errCount(0),
     m_maxErrCount(10)
 {
-    declareInterface<IEventCnvSuperTool>(this);
     declareProperty("DoMuons",m_doMuons, "If true (default), attempt to retrieve Muon helper tool and convert Muon objects.");
     declareProperty("DoID",m_doID, "If true (default), attempt to retrieve Inner Detector helper tool and convert ID objects.");
     declareProperty("MaxErrorCount", m_maxErrCount, "Maximum number of errors that will be reported");
@@ -172,6 +171,20 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
     const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
     if (cnvTool!=0) {
         cnvTool->prepareRIO_OnTrack( RoT );
+    } else {
+        if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
+    }
+    return;
+}
+
+void
+Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
+                                                 ELKey_t& key,
+                                                 ELIndex_t& index ) const
+{
+    const Trk::ITrkEventCnvTool* cnvTool = getCnvTool(RoT->identify());
+    if (cnvTool!=0) {
+        cnvTool->prepareRIO_OnTrackLink ( RoT, key, index );
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
     }

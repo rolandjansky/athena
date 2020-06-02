@@ -53,7 +53,7 @@ StatusCode MuonLayerHoughAlg::execute()
     }else{
       ATH_MSG_DEBUG("Recorded MuonPatternCombinationCollection at MuonLayerHoughCombis: size " << Handle->size());
       if( m_printSummary || msgLvl(MSG::DEBUG) ){
-        msg() << msg().level() << "Number of MuonPatternCombinations  " << Handle->size() << std::endl << m_printer->print(*Handle) << endmsg;
+        ATH_MSG_DEBUG("Number of MuonPatternCombinations  " << Handle->size() << std::endl << m_printer->print(*Handle));
       }
     }
   }

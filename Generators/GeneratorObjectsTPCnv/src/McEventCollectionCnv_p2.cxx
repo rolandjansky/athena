@@ -186,13 +186,13 @@ void McEventCollectionCnv_p2::transToPers( const McEventCollection*,
 // Protected methods:
 ///////////////////////////////////////////////////////////////////
 
-HepMC::GenVertex*
+HepMC::GenVertexPtr
 McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
                                           const GenVertex_p2& persVtx,
                                           ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
 {
   DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertex * vtx = poolOfVertices.nextElementPtr();
+  HepMC::GenVertexPtr vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -225,12 +225,12 @@ McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
   return vtx;
 }
 
-HepMC::GenParticle*
+HepMC::GenParticlePtr
 McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
                                             ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
 {
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
-  HepMC::GenParticle* p    = poolOfParticles.nextElementPtr();
+  HepMC::GenParticlePtr p    = poolOfParticles.nextElementPtr();
   p->m_momentum.setPx( persPart.m_px  );
   p->m_momentum.setPy( persPart.m_py  );
   p->m_momentum.setPz( persPart.m_pz  );

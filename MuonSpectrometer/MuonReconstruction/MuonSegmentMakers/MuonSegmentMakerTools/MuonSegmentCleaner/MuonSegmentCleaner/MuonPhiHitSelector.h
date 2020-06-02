@@ -1,41 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonSegmentCleaner_MuonPhiHitSelector_H
 #define MuonSegmentCleaner_MuonPhiHitSelector_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonHitSelector.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h" 
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class Identifier;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class PrepRawData;
   class RIO_OnTrack;
 }
 
-
 class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelector
 {
  public: 
-  /** constructor */
   MuonPhiHitSelector(const std::string&,const std::string&,const IInterface*);
-  /** destructor */
-  virtual ~MuonPhiHitSelector();
+  virtual ~MuonPhiHitSelector()=default;
 
-  /** to initiate private members */
   virtual StatusCode initialize();
-  /** to delete private members */ 
-  virtual StatusCode finalize();
 
   /** @brief Selects and builds a cleaned vector of RIO 
       fits the associatedHits and build new RIOs, if m_competingRios true then for ambiguous hits competing rios are built
@@ -47,9 +37,8 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
   virtual double getPhi()const;
 
  private:
+  ServiceHandle<Muon::IMuonIdHelperSvc>     m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** Toolhandle to CompetingRIOsOnTrackTool creator */
   ToolHandle<Muon::IMuonCompetingClustersOnTrackCreator>          m_competingRIOsOnTrackTool;
   /** Toolhandle to ClusterOnTrackTool creator */

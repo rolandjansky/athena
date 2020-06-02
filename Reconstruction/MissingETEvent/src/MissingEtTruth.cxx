@@ -48,7 +48,7 @@ MissingEtTruth::~MissingEtTruth()
   this->setup();
 }
 
-void MissingEtTruth::addPart(const HepMC::GenParticle* Part, double etaFull)
+void MissingEtTruth::addPart(const HepMC::GenParticlePtr Part, double etaFull)
 {
   
   double weight = 1.;

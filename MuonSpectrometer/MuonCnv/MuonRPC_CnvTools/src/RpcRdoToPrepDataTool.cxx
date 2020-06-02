@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,21 +16,12 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
 {
 }
 
-Muon::RpcRdoToPrepDataTool::~RpcRdoToPrepDataTool()
-{
-}
-
 StatusCode Muon::RpcRdoToPrepDataTool::initialize() 
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( RpcRdoToPrepDataToolCore::initialize() );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::RpcRdoToPrepDataTool::finalize()
-{   
-  return RpcRdoToPrepDataToolCore::finalize();
 }
 
 StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent)

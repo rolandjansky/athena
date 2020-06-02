@@ -3,11 +3,13 @@ from __future__ import print_function
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
-from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
-from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
+from TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
+from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
-    )
+)
+
+from TrigHLTJetHypo.ConditionsToolSetterHT import ConditionsToolSetterHT
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
@@ -55,7 +57,8 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     else:
 
         if toolSetter.__class__.__name__ in (
-                'ConditionsToolSetterFastReduction',):
+                'ConditionsToolSetterFastReduction',
+                'ConditionsToolSetterHT'):
             toolSetter.mod(tree)
             tool = toolSetter.tool
 
@@ -96,7 +99,12 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     
     chain_name = chain_dict['chainName']
 
-    toolSetter=ConditionsToolSetterFastReduction(chain_name)
+    toolSetter = None
+    if 'HT' in chain_name:
+        toolSetter=ConditionsToolSetterHT(chain_name)
+    else:
+        toolSetter=ConditionsToolSetterFastReduction(chain_name)
+
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
                                           toolSetter)

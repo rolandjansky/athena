@@ -46,6 +46,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
       InDetTrigPixelRodDecoder = PixelRodDecoder(name = "InDetTrigPixelRodDecoder")
       #InDetTrigPixelRodDecoder.OutputLevel=2
+      # Disable duplcated pixel check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigPixelRodDecoder.CheckDuplicatedPixel=False
       ToolSvc += InDetTrigPixelRodDecoder
 
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
@@ -80,6 +84,11 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
                                                            MaximalSplitSize = 49,
                                                            MinimalSplitProbability = 0,
                                                            )
+      # Enable duplcated RDO check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigMergedPixelsTool.CheckDuplicatedRDO = True
+
       ToolSvc += InDetTrigMergedPixelsTool
 
       # PixelGangedAmbiguitiesFinder tool (public)

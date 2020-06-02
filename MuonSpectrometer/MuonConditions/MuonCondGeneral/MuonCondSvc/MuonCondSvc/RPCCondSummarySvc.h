@@ -1,51 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCCONDSUMMARYSVC_H
 #define MUONCONDSVC_RPCCONDSUMMARYSVC_H
-//STL includes
-#include <string>
-#include <set>
-#include <vector>
-//Gaudi includes
+
+#include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
-//Athena includes
-#include "Identifier/Identifier.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
-//local includes
-//#include "MuonCondInterface/IMuonConditionsSvc.h"
 #include "MuonCondSvc/MuonHierarchy.h"
-#include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "MuonCondInterface/IRPC_STATUSConditionsSvc.h"
 #include "MuonCondInterface/IRPC_DCSConditionsSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include <set>
 
 //forward declarations
 template <class TYPE> class SvcFactory;
-class ISvcLocator;
-class IdentifierHash;
-class StatusCode;
-class IRPCConditionsSvc;
-class IRPC_STATUSConditionsSvc;
-class IRPC_DCSConditionsSvc;
 
 class RPCCondSummarySvc: virtual public IRPCConditionsSvc, public AthService{
   friend class SvcFactory<RPCCondSummarySvc>;
 public:
   
   RPCCondSummarySvc( const std::string & name, ISvcLocator* svc);
-  virtual ~RPCCondSummarySvc(){}
+  virtual ~RPCCondSummarySvc()=default;
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   static const InterfaceID & interfaceID();
 
@@ -90,8 +72,7 @@ public:
 private:
   
   ServiceHandleArray<IRPCConditionsSvc> m_reportingServices; //!< list of services to be used
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<IRPC_STATUSConditionsSvc> m_rpc_StatusSvc   ;
   ServiceHandle<IRPC_DCSConditionsSvc>    m_rpc_DCSSvc      ;
@@ -99,9 +80,6 @@ private:
   bool m_noReports;
   std::vector<Identifier> m_emptyId;
   std::vector<std::string> m_empty;
- 
-
-
 
   //compare method for the binary search
   static bool Compare(const Identifier &a, const Identifier &b) {return (a>b);}

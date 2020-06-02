@@ -56,10 +56,6 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 
-static const double mZ = 91.19 * CLHEP::GeV;
-static const int MAX_PARTICLES = 20;
-
-
 ///////////////////////////////////////////////////////////////////////////////
 /// Constructor
 

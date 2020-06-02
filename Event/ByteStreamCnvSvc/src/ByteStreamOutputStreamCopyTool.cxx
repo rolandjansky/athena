@@ -83,7 +83,7 @@ StatusCode ByteStreamOutputStreamCopyTool::connectOutput(const std::string& /*ou
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode ByteStreamOutputStreamCopyTool::commitOutput() {
+StatusCode ByteStreamOutputStreamCopyTool::commitOutput(bool/* doCommit*/) {
    MsgStream log(msgSvc(), name());
    log << MSG::DEBUG << "In commitOutput" << endmsg;
    const RawEvent* re_c = m_inputSvc->currentEvent() ; 

@@ -35,18 +35,16 @@ namespace Monitored {
       }
 
       auto histogram = this->histogram<TH1>();
-      const auto valuesVector{var.getVectorRepresentation()};
       const unsigned offset = m_histDef->kVecUO ? 0 : 1;
-
-      for (unsigned i = 0; i < std::size(valuesVector); ++i) {
+      for (unsigned i = 0; i < var.size(); ++i) {
         if (cutMaskAccessor && cutMaskAccessor(i)) {
-          const double value = valuesVector[i];
+          const double value = var.get(i);
           histogram->AddBinContent(i+offset, value);
           histogram->SetEntries(histogram->GetEntries() + value);
         }
       }
 
-      return std::size(valuesVector);  
+      return var.size();
     }
   };
 }

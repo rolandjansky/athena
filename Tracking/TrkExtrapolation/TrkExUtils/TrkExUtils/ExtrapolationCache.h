@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,12 @@
 #ifndef TRKEXUTILS_EXTRAPOLATIONCACHE_H
 #define TRKEXUTILS_EXTRAPOLATIONCACHE_H
 
-/** Cache for the extrapolator to keep track of the total X0 traversed
-  and the total extended energy loss (Eloss (error) ,Ionization (error), Radiation (error)) */     
+/** 
+ * Cache for the extrapolator to keep track of the total X0 traversed
+  and the total extended energy loss (Eloss (error) ,Ionization (error),
+  Radiation (error)) 
+    
+*/
 
 #include "TrkMaterialOnTrack/EnergyLoss.h" 
 
@@ -24,15 +28,18 @@ public:
   // 
   // Constructor
   //
-  ExtrapolationCache();
+  ExtrapolationCache()=default;
+  ExtrapolationCache(const ExtrapolationCache& other) = default;
+  ExtrapolationCache(ExtrapolationCache&& other) = default;
+  ExtrapolationCache& operator=(const ExtrapolationCache& other)=default;
+  ExtrapolationCache& operator=(ExtrapolationCache&& other) = default;
+
   ExtrapolationCache(double x0tot);
   ExtrapolationCache(double x0tot, EnergyLoss* eloss);
-
-  //! Copy constructor
-  ExtrapolationCache(const ExtrapolationCache& cache);
+  ~ExtrapolationCache() = default;
+  
   //! Destructor 
-  virtual ~ExtrapolationCache() = default;
-  virtual ExtrapolationCache* clone() const;
+  ExtrapolationCache* clone() const;
 
 
   // total X0 
@@ -48,28 +55,10 @@ public:
 
 private:
   double m_x0tot;
-  EnergyLoss* m_eloss;
+  EnergyLoss* m_eloss;//We do not own this ptr
 
-}; 
-
-inline ExtrapolationCache* ExtrapolationCache::clone() const
-{ return new ExtrapolationCache(*this); }
-
-
-inline double ExtrapolationCache::x0tot() const 
-{ return m_x0tot; }
-inline const EnergyLoss* ExtrapolationCache::eloss() const 
-{ return m_eloss; }
-
-inline void ExtrapolationCache::reset()  
-{ m_x0tot = 0.;  m_eloss->update(-m_eloss->meanIoni(),-m_eloss->sigmaIoni(),-m_eloss->meanRad(),-m_eloss->sigmaRad(),false); }
-
-inline void ExtrapolationCache::updateX0(double x0) 
-{ m_x0tot += x0; }
-
-inline void ExtrapolationCache::updateEloss(double ioni, double sigi, double rad, double sigr) 
-{ m_eloss->update(ioni,sigi,rad,sigr,false); } 
+};
 
 }
-
+#include "TrkExUtils/ExtrapolationCache.icc"
 #endif
