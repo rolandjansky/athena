@@ -6,12 +6,12 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
 #include "HIJetRec/HIJetRecDefs.h"
-#include "xAODCore/ShallowAuxContainer.h"
-#include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -26,8 +26,6 @@ HIClusterSubtraction::HIClusterSubtraction(std::string name) : asg::AsgTool(name
 
 StatusCode HIClusterSubtraction::initialize()
 {
-	//New key for the shallow copy automatically built from the cluster key
-	m_outClusterKey = m_inClusterKey.key() + ".shallowCopy";
 	//Keys initialization
 	ATH_CHECK( m_eventShapeKey.initialize() );
 	ATH_CHECK( m_inClusterKey.initialize() );
@@ -88,30 +86,27 @@ int HIClusterSubtraction::execute() const
 	const xAOD::HIEventShapeContainer* shape = 0;
 	SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
   shape = readHandleEvtShape.cptr();
+
   const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex( m_eventShapeKey.key() );
 
   const xAOD::HIEventShape* eshape = nullptr;
   CHECK(m_modulatorTool->getShape(eshape), 1);
-	ATH_MSG_DEBUG("HIClusterSubtraction creating key for ShallowCopy! ");
 
-  //New implementation: make a shallow copy of original HIClusters and apply subtraction to clusters in the new container
+  //New implementation: make a deep copy of original HIClusters and apply subtraction to clusters in the new container
 	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_inClusterKey );
-  std::pair<xAOD::CaloClusterContainer*,xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*readHandleClusters);
-  /// Set whether only the overriden parameters should be written out - default is true
-  //shallowcopy.second->setShallowIO(m_shallowIO);
-  // Now a handle to write the shallow Copy
-  SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleShallowClusters ( m_outClusterKey );
 
+  // Now a handle to write the deep Copy
+  SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleDeepCopyClusters ( m_outClusterKey );
   // Preparing keys and container to perfrom the origin correction
 	const xAOD::Vertex* primVertex=nullptr;
 	const xAOD::VertexContainer* vertices=nullptr;
-	// ReadHandle to retrieve the vertex container
-	SG::ReadHandle<xAOD::VertexContainer>  readHandleVertexContainer ( m_vertexContainer );
   // Boolean to flag that at least a vertex is present in the vertex container
 	bool isOriginPossible = true;
 	// Finding the primary vertex in case origin correction has to be performed
 	if(m_originCorrection)
   {
+		// ReadHandle to retrieve the vertex container
+		SG::ReadHandle<xAOD::VertexContainer>  readHandleVertexContainer ( m_vertexContainer );
     vertices = readHandleVertexContainer.get();
     for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex )
     {
@@ -134,83 +129,77 @@ int HIClusterSubtraction::execute() const
   }
 	bool missingMoment=false;
 
-  if(m_updateMode)
-  {
-    std::unique_ptr<std::vector<float> > subtractedE(new std::vector<float>());
-    subtractedE->reserve(shallowcopy.first->size());
-		//Decoration via SG::AuxElement::Decorator should still work in MT code (that seems from browsing the code)
-    SG::AuxElement::Decorator< float > decorator("HISubtractedE");
+	auto originalCluster = readHandleClusters.cptr();
+	// Create the new container and its auxiliary store.
+	xAOD::CaloClusterContainer* copyClusters = new xAOD::CaloClusterContainer();
+  xAOD::AuxContainerBase* copyClustersAux = new xAOD::AuxContainerBase();
+  copyClusters->setStore(copyClustersAux);
+  copyClusters->reserve (originalCluster->size());
 
-    for(xAOD::CaloClusterContainer::const_iterator itr=shallowcopy.first->begin(); itr!=shallowcopy.first->end(); itr++)
-    {
-      const xAOD::CaloCluster* cl=*itr;
-      xAOD::IParticle::FourMom_t p4;
-      m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
-      subtractedE->push_back(p4.E());
-      decorator(*cl)=p4.E();
-    }
-  }
-  else
-  {
-    for(xAOD::CaloClusterContainer::iterator itr=shallowcopy.first->begin(); itr!=shallowcopy.first->end(); itr++)
-    {
-      xAOD::CaloCluster* cl=*itr;
-			xAOD::IParticle::FourMom_t p4;
+	for (const xAOD::CaloCluster* oldCluster : *originalCluster) {
+	     xAOD::CaloCluster* newClu=new xAOD::CaloCluster();
+	     copyClusters->push_back (newClu);
+	     *newClu=*oldCluster;
+	}
 
-			//Unsubtracted state record done by the subtractor tool functions.
-      if(m_setMoments) {
-				  //This flag is set to false for HIJetClustersSubtractorTool and true for HIJetCellSubtractorTool,
-					// but for the second we don't do origin correction. In principle the code is structured to do the same as the
-					//else for m_setMoments=true and HIJetClustersSubtractorTool, therefore we add the code for origin correction also here
-				  m_subtractorTool->subtractWithMoments(cl, shape, es_index, m_modulatorTool, eshape);
-					if(isOriginPossible && m_originCorrection){
-						missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
-						HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
-					}
+  for(xAOD::CaloClusterContainer::iterator itr=copyClusters->begin(); itr!=copyClusters->end(); itr++)
+  {
+    xAOD::CaloCluster* cl= *itr;
+		xAOD::IParticle::FourMom_t p4;
+		//Unsubtracted state record done by the subtractor tool functions.
+    if(m_setMoments)
+		{
+			//This flag is set to false for HIJetClustersSubtractorTool and true for HIJetCellSubtractorTool,
+			// but for the second we don't do origin correction. In principle the code is structured to do the same as the
+			//else for m_setMoments=true and HIJetClustersSubtractorTool, therefore we add the code for origin correction also here
+			m_subtractorTool->subtractWithMoments(cl, shape, es_index, m_modulatorTool, eshape);
+			if(isOriginPossible && m_originCorrection)
+			{
+				missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
+				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
 			}
-      else
-      {
-					m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
-					HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
-					ATH_MSG_INFO("Applying origin correction"
+		}
+    else
+    {
+			m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
+			HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
+			ATH_MSG_INFO("Applying origin correction"
 						<< std::setw(12) << "Before:"
 						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
 						<< std::setw(10) << std::setprecision(3) << p4.Eta()
 						<< std::setw(10) << std::setprecision(3) << p4.Phi()
 						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
 						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
-					if(isOriginPossible){
-						missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
-					  HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
-					}
-					ATH_MSG_INFO("Applying origin correction"
+			if(isOriginPossible)
+			{
+				missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
+				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
+			}
+			ATH_MSG_INFO("Applying origin correction"
 						<< std::setw(12) << "After:"
 						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
 						<< std::setw(10) << std::setprecision(3) << p4.Eta()
 						<< std::setw(10) << std::setprecision(3) << p4.Phi()
 						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
 						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
-					}
-    }//End of iterator over CaloClusterContainer
+		}
+  }//End of iterator over CaloClusterContainer
 
     for(ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt=m_clusterCorrectionTools.begin();
 	      toolIt != m_clusterCorrectionTools.end(); toolIt++)
     {
       ATH_MSG_INFO(" Applying correction = " << (*toolIt)->name() );
-			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), shallowcopy.first), 1);
+			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), copyClusters), 1);
     }//End loop over correction tools
-  }
+  //}
 	if(missingMoment) ATH_MSG_WARNING("No origin correction applied, CENTERMAG missing");
 
 // Make sure that memory is managed safely
-  std::unique_ptr<xAOD::CaloClusterContainer> outClusters(shallowcopy.first);
-  std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowcopy.second);
+  std::unique_ptr<xAOD::CaloClusterContainer> outClusters(copyClusters);
+  std::unique_ptr<xAOD::AuxContainerBase> deepAux(copyClustersAux);
 
-  // Connect the copied jets to their originals
-  xAOD::setOriginalObjectLink(*readHandleClusters, *outClusters);
-
-	if(writeHandleShallowClusters.record ( std::move(outClusters), std::move(shallowAux)).isFailure() ){
-			ATH_MSG_ERROR("Unable to write Shallow Copy containers for event shape with key: " << m_outClusterKey.key());
+	if(writeHandleDeepCopyClusters.record ( std::move(outClusters), std::move(deepAux)).isFailure() ){
+			ATH_MSG_ERROR("Unable to write DeepCopy Copy containers for event shape with key: " << m_outClusterKey.key());
 			return 1;
 	}
   return 0;

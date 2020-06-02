@@ -53,7 +53,7 @@ private:
   /// \brief Name of input cluster container
 	SG::ReadHandleKey< xAOD::CaloClusterContainer > m_inClusterKey { this, "ClusterKey", "ClusterKey", "Name of the input Cluster Container"};
 	/// |brief New writeHandleKey to store the shallow copy used for new CaloClusterTreatment
-	SG::WriteHandleKey< xAOD::CaloClusterContainer > m_outClusterKey { this, "OutClusterKey", "OutClusterKey", "Name of the input Cluster Container"};
+	SG::WriteHandleKey< xAOD::CaloClusterContainer > m_outClusterKey { this, "OutClusterKey", "OutClusterKey", "Name of the output Cluster Container (deep Copy)"};
   /// \brief Name of HIEventShapeContainer defining background
 	SG::ReadHandleKey< xAOD::HIEventShapeContainer > m_eventShapeKey { this, "EventShapeKey", "EventShapeKey", "Name of HIEventShapeContainer defining background"};
   /// |brief Name of Vertex Container for origin correction
