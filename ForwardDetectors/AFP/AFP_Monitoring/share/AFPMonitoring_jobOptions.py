@@ -97,7 +97,7 @@ ToolSvc += station_3
 
 AFPSiHitsMonTool.stationsMonitors = [station_0, station_1, station_2, station_3]
 
-ToolSvc += AFPSiHitsMonTool
+#ToolSvc += AFPSiHitsMonTool
 AFPMonManager.AthenaMonTools += [ AFPSiHitsMonTool ]
 
 
