@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -371,67 +371,4 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const
 void
 MuonTrackStatisticsTool::storeTruthTracks(void)
 {
-	/*
-	 const McEventCollection* mcCollection = 0;
-	 std::string key = "TruthEvent";
-	 StatusCode sc = evtStore()->retrieve(mcCollection,key);
-	 if (sc.isFailure()) {
-	 *m_log << MSG::ERROR << "Could not find the McEventCollection" << endmsg;
-	 return;
-	 }
-	 
-	 const TrackRecordCollection* recordCollection = 0;
-	 std::string recordKey = "MuonEntryLayer";
-	 if (!(evtStore()->retrieve(recordCollection, recordKey))) {
-	 *m_log << MSG::WARNING << "Could not find the TrackRecordCollection" << endmsg;
-	 }
-	 
-	 m_nkine = 0;
-	 
-	 const HepMC::GenEvent* event = *mcCollection->begin();   
-	 HepMC::GenEvent::particle_const_iterator particle = event->particles_begin();
-	 HepMC::GenEvent::particle_const_iterator particle_end = event->particles_end();
-	 
-	 for ( ; particle != particle_end; ++particle) {	
-	 
-	 // select final-state muons above min calo penetration energy 
-	 // and in MS acceptance
-	 if (abs((*particle)->pdg_id()) != 13) continue;
-	 if ((*particle)->status() != 1) continue;
-	 if ((*particle)->momentum().e() < m_minProductionEnergy) continue;	    
-	 if (fabs((*particle)->momentum().pseudoRapidity()) > m_maxEtaMS) continue;
-	 //    if ((*particle)->barcode() > 10000) continue;
-	 
-	 const Trk::TrackParameters* genPerigee = m_truthToTrack->makePerigeeParameters(*particle);
-	 if( !genPerigee ) continue;
-	 
-	 const Trk::TrackParameters* genEntry = m_edmHelperSvc->extrapolateToMuonEntryRecord(*genPerigee,Trk::muon);
-	 if( !genEntry ){
-	 delete genPerigee;
-	 continue;
-	 }
-	 HepPoint3D  gen_position = genPerigee->position();
-	 HepVector3D	gen_momentum = genPerigee->momentum();
-	 double      gen_charge   = (*particle)->pdg_id() < 0 ? 1. : -1.;
-	 
-	 HepPoint3D  extr_position = genEntry->position();
-	 HepVector3D	extr_momentum = genEntry->momentum();
-	 double      extr_charge   = (*particle)->pdg_id() < 0 ? 1. : -1.;
-	 
-	 ++m_nkine;
-	 
-	 // store the muon generated parameters
-	 m_xvtxg->push_back((*particle)->production_vertex()->point3d().x());
-	 m_yvtxg->push_back((*particle)->production_vertex()->point3d().y());
-	 m_zvtxg->push_back((*particle)->production_vertex()->point3d().z());
-	 m_a0g->push_back(genPerigee->parameters()[Trk::d0]);
-	 m_z0g->push_back(genPerigee->parameters()[Trk::z0]);
-	 m_phig->push_back((*particle)->momentum().phi());
-	 m_thetag->push_back((*particle)->momentum().theta());
-	 m_qpig->push_back(gen_charge/(*particle)->momentum().mag());
-	 m_etag->push_back((*particle)->momentum().pseudoRapidity());
-	 m_barcode->push_back((*particle)->barcode());
-	 m_status->push_back((*particle)->status());
-	 */
-	
 }
