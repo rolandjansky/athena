@@ -506,8 +506,6 @@ namespace ExpressionParsing {
    StackElement StackElement::_lt(StackElement &b)  { return _comparisonOp(b, Helper_lt()); }
    StackElement StackElement::_lte(StackElement &b) { return _comparisonOp(b, Helper_lte()); }
 
-/// The macro is not needed anymore:
-#undef IMPL_BINARY_COMPARISON_OP
 
    template <>
    StackElement StackElement::_pow( const StackElement& n ) {

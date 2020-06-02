@@ -15,14 +15,6 @@
           stack.back() = stack.back()._ ## OP();    \
           break
 
-#define VM_CASE_BINARY(OP) case op_ ## OP: { \
-          assert( stack.size() >= 2); \
-          std::vector<ExpressionParsing::StackElement>::iterator last_elm = stack.end()-1; \
-          std::vector<ExpressionParsing::StackElement>::iterator second_last_elm = stack.end()-2; \
-          *second_last_elm =second_last_elm->_ ## OP(*last_elm); \
-          stack.pop_back(); \
-          } \
-          break
 
 
 #define VISITOR_UNARY(OP) else if (x.operator_ == #OP) code.push_back(op_ ## OP)
@@ -54,8 +46,7 @@ namespace ExpressionParsing {
       switch (pc[-1].asInt())
       {
         case op_neg: {
-          StackElement tmp(std::move(stack.back()));
-          stack.back() = -std::move(tmp);
+          stack.back() = -std::move(stack.back());
           break;
         }
         case op_not:
@@ -91,43 +82,13 @@ namespace ExpressionParsing {
         case op_lt:  bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lt(b); });  break;
         case op_lte: bin_op(stack,[](StackElement &a, StackElement &b) { a=a._lte(b); }); break;
 
-        case op_add: {
-          assert( stack.size() >= 2);
-          std::vector<StackElement>::iterator last_elm = stack.end()-1;
-          std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
-          *second_last_elm += *last_elm;
-          stack.pop_back();
-          break;
-        }
+        case op_add: bin_op(stack,[](StackElement &a, StackElement &b) { a += b; }); break;
+        case op_sub: bin_op(stack,[](StackElement &a, StackElement &b) { a -= b; }); break;
 
-        case op_sub: {
-          assert( stack.size() >= 2);
-          std::vector<StackElement>::iterator last_elm = stack.end()-1;
-          std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
-          *second_last_elm -= *last_elm;
-          stack.pop_back();
-          break;
-        }
+        case op_pow: bin_op(stack,[](StackElement &a, StackElement &b) { a = a._pow(b); }); break;
 
-        VM_CASE_BINARY(pow);
-
-        case op_mul: {
-          assert( stack.size() >= 2);
-          std::vector<StackElement>::iterator last_elm = stack.end()-1;
-          std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
-          *second_last_elm *= *last_elm;
-          stack.pop_back();
-          break;
-        }
-
-        case op_div: {
-          assert( stack.size() >= 2);
-          std::vector<StackElement>::iterator last_elm = stack.end()-1;
-          std::vector<StackElement>::iterator second_last_elm = stack.end()-2;
-          *second_last_elm /= *last_elm;
-          stack.pop_back();
-          break;
-        }
+        case op_mul: bin_op(stack,[](StackElement &a, StackElement &b) { a *= b; }); break;
+        case op_div: bin_op(stack,[](StackElement &a, StackElement &b) { a /= b; }); break;
 
         case op_val:
           if (pc->isProxy()) {

@@ -228,9 +228,6 @@ namespace ExpressionParsing {
 
       /// @}
 
-/// The macro is not needed anymore
-#undef DEFINE_BINARY_COMPARISON_OP
-
       /// @name Internal functions evaluating mathematical operations
       /// @{
 
