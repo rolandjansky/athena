@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfMeasurementUpdator.h  -  description
-      ---------------------------------------
-begin                : Friday 25th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class for performing updates on multi-component states
-for the gaussian-sum filter. Now an AlgTool
-*********************************************************************************/
+/**
+ * @file   GsfMeasurementUpdator.h
+ * @date   Friday 25th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class for performing updates on multi-component states for the
+ * gaussian-sum filter.
+ */
 
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H

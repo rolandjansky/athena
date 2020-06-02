@@ -60,7 +60,6 @@
 
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-namespace std { template<typename _Tp> class auto_ptr; }
 
 MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : AthAlgTool(type, name, pIID),
@@ -124,6 +123,8 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   if (m_decodeTgcRDO) ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
   if (m_decodesTgcRDO) ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
   if (m_decodeMmRDO) ATH_CHECK( m_mmRdoDecoderTool.retrieve() );
+
+  ATH_CHECK(m_rpcReadKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -252,11 +253,14 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpcRDO(const EventContext& ctx, RpcDigi
     ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " RPC RDOs." );
     // now decode RDO into digits
     RpcPadContainer::const_iterator rpcPAD = rdoContainer->begin();
-       
+
+    SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, ctx};
+    const RpcCablingCondData* rpcCabling{*cablingCondData};
+
     for (; rpcPAD!=rdoContainer->end();++rpcPAD)
       {
 	if ( !(*rpcPAD)->empty() ) {
-	  StatusCode status = this->decodeRpc (rpcContainer, *rpcPAD, collection );
+	  StatusCode status = this->decodeRpc(rpcContainer, *rpcPAD, collection, rpcCabling);
 	  if ( status.isFailure() ) return status;
 	}
       }
@@ -510,7 +514,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc(CscDigitContainer* cscContainer, co
       return StatusCode::SUCCESS;
 }
 
-StatusCode MuonRdoToMuonDigitTool::decodeRpc(RpcDigitContainer* rpcContainer, const RpcPad * rdoColl, RpcDigitCollection*& collection ) {
+StatusCode MuonRdoToMuonDigitTool::decodeRpc(RpcDigitContainer* rpcContainer, const RpcPad * rdoColl, RpcDigitCollection*& collection, const RpcCablingCondData* rpcCab) {
 
             IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 
@@ -547,7 +551,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc(RpcDigitContainer* rpcContainer, co
 
                     const RpcFiredChannel * rpcChan = (*itD);
                     std::vector<RpcDigit*>* digitVec = 
-                        m_rpcRdoDecoderTool->getDigit(rpcChan, sectorId, padId, cmaId);
+                        m_rpcRdoDecoderTool->getDigit(rpcChan, sectorId, padId, cmaId, rpcCab);
 	    
                     if (digitVec==NULL) {
                         ATH_MSG_FATAL( "Error in the RPC RDO decoder "  );

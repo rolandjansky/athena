@@ -110,7 +110,6 @@ if DetFlags.pixel_on():
                                       UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
                                       UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
                                       UseTDAQConditions=athenaCommonFlags.isOnline(),
-                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                       UseCalibConditions=True,
                                       UseCablingConditions=useCablingConditions,
                                       CablingMapFileName=IdMappingDat)

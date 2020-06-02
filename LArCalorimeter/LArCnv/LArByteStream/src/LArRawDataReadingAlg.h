@@ -12,6 +12,8 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Event classes
 class LArRawChannelContainer;
@@ -34,6 +36,8 @@ class LArRawDataReadingAlg : public  AthReentrantAlgorithm {
   SG::WriteHandleKey<LArDigitContainer> m_digitKey{this,"LArDigitKey","FREE"};
   SG::WriteHandleKey<LArFebHeaderContainer> m_febHeaderKey{this,"LArFebHeaderKey","LArFebHeader"};
     
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+
   //Service providing the input data
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc{this,"ROBDataProviderSvc","ROBDataProviderSvc"};
   

@@ -25,6 +25,8 @@
 #include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
 #include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class MdtDigitContainer;
 class CscDigitContainer;
@@ -69,7 +71,7 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ~MuonRdoToMuonDigitTool()=default;
     
   virtual StatusCode initialize() override;
-  virtual StatusCode digitize(const EventContext& ctx)   override;
+  virtual StatusCode digitize(const EventContext& ctx) override;
 
  private:
 
@@ -82,7 +84,7 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
 
   StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*);
-  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
+  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*&, const RpcCablingCondData* rpcCab);
  
   StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*);
   StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
@@ -107,6 +109,7 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
   ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   // cabling service
   const ITGCcablingSvc* m_tgcCabling;

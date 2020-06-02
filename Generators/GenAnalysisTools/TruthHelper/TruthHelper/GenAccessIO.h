@@ -37,8 +37,8 @@ namespace TruthHelper {
       }
     }
 
-    StatusCode getMC(std::vector<const HepMC::GenParticle*>& mc, const std::string& key="GEN_EVENT") const;
-    StatusCode getMC(std::vector<const HepMC::GenParticle*>& mc,
+    StatusCode getMC(MCParticleCollection& mc, const std::string& key="GEN_EVENT") const;
+    StatusCode getMC(MCParticleCollection& mc,
                      const GenIMCselector* selector, const std::string& key="GEN_EVENT") const;
 
     StatusCode getDH(const McEventCollection*& dh) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -122,11 +122,27 @@ namespace InDet
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
-    ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
-    ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool
-    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool;
-    SG::ReadCondHandleKey<HTcalculator> m_HTReadKey{this,"HTcalculator","HTcalculator","HTcalculator in-key"};
+    ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool{ this,
+                                             "TRT_ToT_dEdx_Tool",
+                                             {},
+                                             "TRT ToT dEdx Tool"};
+    ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool{
+      this,
+      "TRT_LocalOccupancyTool",
+      {},
+      "TRT Local occupancy tool"
+    };
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{
+      this,
+      "TRTStrawSummaryTool",
+      "InDetTRTStrawStatusSummaryTool",
+      "TRT straw summary tool"
+    };
 
+    SG::ReadCondHandleKey<HTcalculator> m_HTReadKey{ this,
+                                                     "HTcalculator",
+                                                     "HTcalculator",
+                                                     "HTcalculator in-key" };
    }; 
 } // end of namespace
 

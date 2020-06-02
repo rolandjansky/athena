@@ -265,7 +265,6 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
     def __init__(self,name='MuonEDMPrinterTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
-        kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
         getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
@@ -466,7 +465,6 @@ def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwarg
     kwargs.setdefault("SLFitter",     getPrivateTool('MCTBSLFitter') )
     kwargs.setdefault("CurvedFitter", getPrivateTool('MCTBFitter') )
     kwargs.setdefault("TrackCleaner", getPrivateTool('MuonTrackCleaner')  )
-    kwargs.setdefault("IdHelper",     getPublicTool('MuonIdHelperTool') )
     return CfgMgr.Muon__MuonSegmentFittingTool(name,**kwargs)
 
 if DetFlags.detdescr.Muon_on() and rec.doMuon():

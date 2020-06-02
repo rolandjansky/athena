@@ -47,7 +47,7 @@ if __name__ == '__main__':
     import time
     a = time.time()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     import os
 
     # Set up logging and config behaviour
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     ConfigFlags.lock()
 
     ## Initialize a new component accumulator
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))

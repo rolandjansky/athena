@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
-from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
-from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
+from TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
+from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
-    )
+)
+
+from TrigHLTJetHypo.ConditionsToolSetterHT import ConditionsToolSetterHT
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
@@ -30,7 +32,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
-    log.info(visitor.report())
+    log.debug(visitor.report())
 
     # tell the child nodes who their parent is.
     tree.set_ids(node_id=0, parent_id=0)
@@ -55,7 +57,8 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     else:
 
         if toolSetter.__class__.__name__ in (
-                'ConditionsToolSetterFastReduction',):
+                'ConditionsToolSetterFastReduction',
+                'ConditionsToolSetterHT'):
             toolSetter.mod(tree)
             tool = toolSetter.tool
 
@@ -67,7 +70,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
             toolSetter = ConditionsToolSetterTree(chain_name)
             tool = tree.tool
 
-    log.info(visitor.report())
+    log.debug(visitor.report())
 
     return tool
 
@@ -96,7 +99,12 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     
     chain_name = chain_dict['chainName']
 
-    toolSetter=ConditionsToolSetterFastReduction(chain_name)
+    toolSetter = None
+    if 'HT' in chain_name:
+        toolSetter=ConditionsToolSetterHT(chain_name)
+    else:
+        toolSetter=ConditionsToolSetterFastReduction(chain_name)
+
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
                                           toolSetter)
@@ -118,7 +126,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     debug = False  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
     
-    log.info('%s', tool)
+    log.debug('%s', tool)
     return tool
 
 

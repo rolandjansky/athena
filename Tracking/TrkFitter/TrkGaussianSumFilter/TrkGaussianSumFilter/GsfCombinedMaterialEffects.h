@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfCombinedMaterialEffects.h  -  description
-      --------------------------------------------
-begin                : Friday 11th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class definition for consideration of multiple scatter
-and energy loss effects from material simultaneously.
-*********************************************************************************/
+/**
+ * @file   GsfCombinedMaterialEffects.h
+ * @date   Friday 11th January 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * Class definition for consideration of multiple scatter and energy 
+ * loss effects from material simultaneously
+ */
 
 #ifndef TrkGsfCombinedMaterialEffects_H
 #define TrkGsfCombinedMaterialEffects_H

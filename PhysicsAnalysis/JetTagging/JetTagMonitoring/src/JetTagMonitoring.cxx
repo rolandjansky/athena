@@ -2,21 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "ITrackToVertex/ITrackToVertex.h"
-#include "xAODJet/JetContainer.h"   
 #include "xAODJet/JetAttributes.h"
 #include "xAODBTagging/BTagging.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODMuon/MuonContainer.h"
 
-#include "JetTagMonitoring/JetTagMonitoring.h"
-#include "JetTagTools/TrackSelector.h"
+#include "JetTagMonitoring.h"
 
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"    
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
+// #include "xAODTracking/TrackParticle.h"
+// #include "xAODTracking/Vertex.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
@@ -43,44 +35,13 @@
 
 //** --------------------------------------------------------------------------------------------------------------- **//
 
-// Private methods
-
-namespace {
-
-  template< class T >
-  bool retrieveCollection(const ServiceHandle<StoreGateSvc>& sg, const DataHandle<T>& coll, std::string key ) {
-
-    StatusCode sc;
-    sc = sg->retrieve( coll, key );
-
-    if (!sc.isSuccess())
-      return false;
-
-    return true;
-  }
-
-} // unnamed namespace
-
-
-//** --------------------------------------------------------------------------------------------------------------- **//
-
 
 JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string & name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
-  m_storeGate( "StoreGateSvc", name ),
-  m_trackSelectorTool("Analysis::TrackSelector"),
-  m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"), // added by SARA
   m_histogramsCreated(false),
+  m_jetBtagKey(this, "JetBtagKey", m_jetName.key()+".btaggingLink"),
   m_switch_off(false)
 {
-
-  declareProperty("JetContainer",           m_jetName           = "AntiKt4EMTopoJets");
-  declareProperty("TrackParticleContainer", m_trackParticleName = "InDetTrackParticles");
-  declareProperty("PrimaryVertexContainer", m_primaryVertexName = "PrimaryVertices");
-  declareProperty("ElectronContainer",      m_electronName      = "Electrons"); // added by SARA
-  declareProperty("MuonContainer",          m_muonName          = "Muons" ); // added by SARA
-
   declareProperty("DQcuts", m_do_cuts = true);
 
   declareProperty("PriVtxTrkMinCut", m_pri_vtx_trk_min_cut = 4 );
@@ -179,11 +140,12 @@ StatusCode JetTagMonitoring::initialize() {
     return sc;
   }
 
-  sc = m_storeGate.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Unable to retrieve StoreGateSvc handle");
-    m_switch_off = true;
-  }
+  ATH_CHECK(m_jetName.initialize());
+  ATH_CHECK(m_trackParticleName.initialize());
+  ATH_CHECK(m_primaryVertexName.initialize());
+  ATH_CHECK(m_electronName.initialize());
+  ATH_CHECK(m_muonName.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   if ( m_use_trackselector ) {
     if ( m_trackSelectorTool.retrieve().isFailure() ) {
@@ -192,6 +154,10 @@ StatusCode JetTagMonitoring::initialize() {
     }
   } else {
     ATH_MSG_INFO("Analysis::TrackSelector not used");
+  }
+
+  if (!m_use_trigdectool) {
+    m_trigDecTool.disable();
   }
 
   if ( m_switch_off )
@@ -589,9 +555,11 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   m_cutflow->Fill(0.);
 
-  const xAOD::EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo).isFailure())
-    ATH_MSG_WARNING("Cannot retrieve EventInfo");
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo{m_eventInfoKey};
+  if (!thisEventInfo.isValid()) {
+    ATH_MSG_ERROR("Cannot retrieve EventInfo");
+    return StatusCode::FAILURE;
+  }
 
   m_lumiBlockNum = thisEventInfo->lumiBlock();
 
@@ -692,16 +660,13 @@ StatusCode JetTagMonitoring::fillHistograms() {
   unsigned int npv = 0, npv_trk = 0;
   double xpv = 0., ypv = 0., zpv = 0.;
 
-  const xAOD::VertexContainer* vxContainer(0);
-  // const DataHandle<VxContainer> vxContainer;
-  StatusCode foundPrimaryVtx = evtStore()->retrieve(vxContainer, m_primaryVertexName);
-
-  if (!foundPrimaryVtx) {
-    ATH_MSG_WARNING("Unable to retrieve \"" << m_primaryVertexName << "\" from StoreGate");
+  SG::ReadHandle<xAOD::VertexContainer> vxContainer{m_primaryVertexName};
+  if (!vxContainer.isValid()) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_primaryVertexName.key() << "\" from StoreGate");
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG("VxContainer \"" << m_primaryVertexName << "\" found with " << vxContainer->size() << " entries");
+  ATH_MSG_DEBUG("VxContainer \"" << m_primaryVertexName.key() << "\" found with " << vxContainer->size() << " entries");
 
   npv = vxContainer->size();
   m_global_nPrimVtx->Fill((float)npv);
@@ -786,18 +751,14 @@ StatusCode JetTagMonitoring::fillHistograms() {
   ///////////////////////////////
     
     
-  const DataHandle<xAOD::TrackParticleContainer> trackParticles;
-  bool foundTrackPartColl = retrieveCollection(m_storeGate, trackParticles, m_trackParticleName);
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles{m_trackParticleName};
 
-  if (!foundTrackPartColl)  {
-
-    ATH_MSG_WARNING("Unable to retrieve \"" << m_trackParticleName << "\" from StoreGate");
-
+  if (!trackParticles.isValid())  {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_trackParticleName.key() << "\" from StoreGate");
     return StatusCode::SUCCESS;
-
   }
 
-  ATH_MSG_DEBUG("TrackParticleContainer \"" << m_trackParticleName << "\" found with " << trackParticles->size() << " entries");
+  ATH_MSG_DEBUG("TrackParticleContainer \"" << m_trackParticleName.key() << "\" found with " << trackParticles->size() << " entries");
 
   xAOD::TrackParticleContainer::const_iterator trackParticleItr = trackParticles->begin();
   xAOD::TrackParticleContainer::const_iterator trackParticleEnd = trackParticles->end();
@@ -927,29 +888,25 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
   // == 1 isolated muon with pT > m_MuonPtCut (normally 25 GeV)
   // electron and muon of opposite charge
   
-  const DataHandle<xAOD::ElectronContainer> electrons;
-  bool foundElectronColl = retrieveCollection(m_storeGate, electrons, m_electronName);
-
-  if (!foundElectronColl) {
-    ATH_MSG_WARNING("Unable to retrieve \"" << m_electronName << "\" from StoreGate");
+  SG::ReadHandle<xAOD::ElectronContainer> electrons{m_electronName};
+  if (!electrons.isValid()) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_electronName.key() << "\" from StoreGate");
     return false;
   }
   
-  ATH_MSG_DEBUG("ElectronContainer \"" << m_electronName << "\" found with " << electrons->size() << " entries");
+  ATH_MSG_DEBUG("ElectronContainer \"" << m_electronName.key() << "\" found with " << electrons->size() << " entries");
   
   xAOD::ElectronContainer::const_iterator electronItr = electrons->begin();
   xAOD::ElectronContainer::const_iterator electronEnd = electrons->end();
   xAOD::ElectronContainer::const_iterator isoElectronItr = electrons->end();
   
-  const DataHandle<xAOD::MuonContainer> muons;
-  bool foundMuonColl = retrieveCollection(m_storeGate, muons, m_muonName);
-  
-  if (!foundMuonColl) {
-    ATH_MSG_WARNING("Unable to retrieve \"" << m_muonName << "\" from StoreGate");
+  SG::ReadHandle<xAOD::MuonContainer> muons{m_muonName};
+  if (!muons.isValid()) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_muonName.key() << "\" from StoreGate");
     return false;
   }
   
-  ATH_MSG_DEBUG("MuonContainer \"" << m_muonName << "\" found with " << muons->size() << " entries");
+  ATH_MSG_DEBUG("MuonContainer \"" << m_muonName.key() << "\" found with " << muons->size() << " entries");
   
   xAOD::MuonContainer::const_iterator muonItr = muons->begin();
   xAOD::MuonContainer::const_iterator muonEnd = muons->end();
@@ -1126,15 +1083,13 @@ void JetTagMonitoring::fillJetHistograms() {
   //* Jet container *//
   /////////////////////
   
-  const DataHandle<xAOD::JetContainer> jets;
-  bool foundJetColl = retrieveCollection(m_storeGate, jets, m_jetName);
-  
-  if (!foundJetColl) {
-    ATH_MSG_WARNING("Unable to retrieve \"" << m_jetName << "\" from StoreGate");
+  SG::ReadHandle<xAOD::JetContainer> jets{m_jetName};
+  if (!jets.isValid()) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_jetName.key() << "\" from StoreGate");
     return;
   }
   
-  ATH_MSG_DEBUG("JetContainer \"" << m_jetName << "\" found with " << jets->size() << " entries");
+  ATH_MSG_DEBUG("JetContainer \"" << m_jetName.key() << "\" found with " << jets->size() << " entries");
   
   xAOD::JetContainer::const_iterator jetItr = jets->begin();
   xAOD::JetContainer::const_iterator jetEnd = jets->end();
@@ -1600,6 +1555,7 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   const xAOD::BTagging* btag = jet->btagging();
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
+    return;
   }
   double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
   double mv_tmp = 0;

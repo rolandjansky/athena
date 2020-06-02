@@ -33,6 +33,46 @@ AugmentationTools   = []
 SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
 
 #====================================================================
+# MONTE CARLO TRUTH
+#====================================================================
+if (DerivationFrameworkIsMonteCarlo):
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
+   #import DerivationFrameworkHiggs.TruthCategories
+   # Add charm quark collection
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
+   PHYSTruthCharmTool = DerivationFramework__TruthCollectionMaker(name                    = "PHYSTruthCharmTool",
+                                                                  NewCollectionName       = "TruthCharm",
+                                                                  KeepNavigationInfo      = False,
+                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
+                                                                  Do_Compress             = True)
+   ToolSvc += PHYSTruthCharmTool
+   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+   SeqPHYS += CfgMgr.DerivationFramework__CommonAugmentation("PHYSTruthCharmKernel",AugmentationTools=[PHYSTruthCharmTool])
+   # Add HF particles
+   addHFAndDownstreamParticles(SeqPHYS)
+   # Add standard truth
+   addStandardTruthContents(SeqPHYS,prefix='PHYS_')
+   # Update to include charm quarks and HF particles - require a separate instance to be train safe
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
+          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+   ToolSvc += PHYSTruthNavigationDecorator
+   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
+   # Re-point links on reco objects
+   addMiniTruthCollectionLinks(SeqPHYS)
+   addPVCollection(SeqPHYS)
+   # Set appropriate truth jet collection for tau truth matching
+   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # SUSY signal
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+   if IsSUSYSignal():
+      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+   # Add sumOfWeights metadata for LHE3 multiweights =======
+   #from DerivationFrameworkCore.LHE3WeightMetadata import *
+
+
+
+#====================================================================
 # TRIGGER CONTENT   
 #====================================================================
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
@@ -71,8 +111,7 @@ for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
 
 # Inner detector group recommendations for indet tracks in analysis
-#PHYS_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
-PHYS_thinning_expression = "abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
+PHYS_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 PHYSTrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "PHYSTrackParticleThinningTool",
                                                                            StreamName              = PHYSStream.Name, 
@@ -108,9 +147,9 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       StreamName             = PHYSStream.Name,
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = tau_thinning_expression)
-                                                                      #DoTauTracksThinning    = True,
-                                                                      #TauTracksKey           = "TauTracks")
+                                                                      SelectionString        = tau_thinning_expression,
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
 thinningTools.append(PHYSTauTPThinningTool)
 
@@ -157,29 +196,29 @@ DerivationFrameworkJob += SeqPHYS
 #====================================================================
 # Tau   
 #====================================================================
-
+'''
 # Schedule low-pt di-tau reconstruction (needs AntiKt2PV0TrackJets)
-# from DerivationFrameworkTau.TauCommon import addDiTauLowPt
-# addDiTauLowPt()
+from DerivationFrameworkTau.TauCommon import addDiTauLowPt
+addDiTauLowPt()
 
 # Low-pt di-tau thinning
-# from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-# PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
-#                                                                         ThinningService = PHYSThinningHelper.ThinningSvc(),
-#                                                                         ContainerName   = "DiTauJetsLowPt",
-#                                                                         SelectionString = "DiTauJetsLowPt.nSubjets > 1")
-# ToolSvc += PHYSDiTauLowPtThinningTool
-# thinningTools.append(PHYSDiTauLowPtThinningTool)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
+                                                                        ThinningService = PHYSThinningHelper.ThinningSvc(),
+                                                                        ContainerName   = "DiTauJetsLowPt",
+                                                                        SelectionString = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtThinningTool
+thinningTools.append(PHYSDiTauLowPtThinningTool)
 
 # ID tracks associated with low-pt ditau
-# PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauLowPtTPThinningTool",
-#                                                                                ThinningService         = PHYSThinningHelper.ThinningSvc(),
-#                                                                                DiTauKey                = "DiTauJetsLowPt",
-#                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
-# ToolSvc += PHYSDiTauLowPtTPThinningTool
-# thinningTools.append(PHYSDiTauLowPtTPThinningTool)
-
+PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauLowPtTPThinningTool",
+                                                                               ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                               DiTauKey                = "DiTauJetsLowPt",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                               SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtTPThinningTool
+thinningTools.append(PHYSDiTauLowPtTPThinningTool)
+'''
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
@@ -233,7 +272,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        #"MET_Baseline_AntiKt4EMTopo",
                                        #"MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
-                                       #"DiTauJets",
+                                       "DiTauJets",
                                        #"DiTauJetsLowPt",
                                        #"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
@@ -293,9 +332,9 @@ if DerivationFrameworkIsMonteCarlo:
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                            }
 
-   # from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
-   # addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
-   # PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
+   from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+   addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",

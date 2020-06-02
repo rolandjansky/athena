@@ -1,58 +1,55 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/* Class to set what goes in the dictionary  - authors M. Hodgkinson amd M. Janus */
-
 #ifndef XAODPFLOW_XAODPFODICT_H
 #define XAODPFLOW_XAODPFODICT_H
 
-// Needed to successfully generate the dictionary in standalone mode:
-#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
-#   define EIGEN_DONT_VECTORIZE
-#endif // __GCCXML__
-
-// STL include(s):
-#include <vector>
-
-// EDM include(s):
-#include "AthLinks/DataLink.h"
-#include "AthLinks/ElementLink.h"
-
 // Local include(s):
+#include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODPFlow/versions/PFO_v1.h"
 #include "xAODPFlow/versions/PFOContainer_v1.h"
 #include "xAODPFlow/versions/PFOAuxContainer_v1.h"
+
+#include "xAODPFlow/TrackCaloCluster.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h"
+#include "xAODPFlow/versions/TrackCaloCluster_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterContainer_v1.h"
 #include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/versions/FlowElementContainer_v1.h"
+#include "xAODPFlow/versions/FlowElementAuxContainer_v1.h"
+
 #include "xAODPFlow/PFODefs.h"
 
-namespace {
-  struct GCCXML_DUMMY_INSTANTIATION_XAODPFLOW {
-    xAOD::PFOContainer_v1                                                           c1;
-    DataLink< xAOD::PFOContainer_v1 >                                               l1;
-    ElementLink< xAOD::PFOContainer_v1 >                                            l2;
-    std::vector< DataLink< xAOD::PFOContainer_v1 > >                                l4;
-    std::vector< ElementLink< xAOD::PFOContainer_v1 > >                             l5;
-    std::vector< std::vector< ElementLink< xAOD::PFOContainer_v1 > > >              l6;
-                                                                                    
-    xAOD::IParticleContainer                                                        c2;
-    ElementLink< xAOD::IParticleContainer >                                         l8;
-    std::vector< ElementLink<xAOD::IParticleContainer > >                           l9;
-    std::vector< std::vector< ElementLink<xAOD::IParticleContainer > > >            l10;
-    std::vector< xAOD::PFODetails::PFOLeptonType >                                  l11;
-    ElementLink< xAOD::VertexContainer >                                            l12;
-    
-    xAOD::TrackCaloClusterContainer_v1                                              c3;
-    DataLink< xAOD::TrackCaloClusterContainer_v1 >                                  l13;
-    std::vector< DataLink< xAOD::TrackCaloClusterContainer_v1 > >                   l14;
-    ElementLink< xAOD::TrackCaloClusterContainer_v1 >                               l15;
-    std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > >                l16;
-    std::vector< std::vector< ElementLink< xAOD::TrackCaloClusterContainer_v1 > > > l17;
+// EDM include(s).
+#include "xAODCore/tools/DictHelpers.h"
+#include "AthLinks/ElementLink.h"
 
-    std::vector<std::vector<std::pair<ElementLink<DataVector<xAOD::CaloCluster_v1> >,double> > > l18;
-    
+// System include(s).
+#include <utility>
+#include <vector>
+
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODFLOW {
+     // Local type(s).
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, PFOContainer_v1 );
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrackCaloClusterContainer_v1 );
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, FlowElementContainer_v1 );
+     // Type(s) needed for the dictionary generation to succeed.
+     XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, IParticleContainer );
+     // Weird/bad types used by the PFO reconstruction as attributes on
+     // xAOD::PFO objects. :-(
+     std::pair< ElementLink< xAOD::CaloClusterContainer >, double > dummy1;
+     std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > >
+     dummy2;
+     std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > >
+     dummy3;
+     std::vector< xAOD::PFODetails::PFOLeptonType > dummy4;
+
    };
 }
 

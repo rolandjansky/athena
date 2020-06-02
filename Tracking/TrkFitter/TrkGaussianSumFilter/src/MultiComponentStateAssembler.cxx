@@ -3,18 +3,21 @@
 */
 
 /**
- * @file   MultiComponentStateAssembler.h
+ * @file   MultiComponentStateAssembler.cxx
  * @date   Monday 20th December 2004
  * @author Atkinson,Anthony Morley, Christos Anastopoulos
  *
  * Implementation code for MultiComponentStateAssembler
  */
 
-
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
 
 namespace {
+
+using namespace Trk::MultiComponentStateAssembler;
+
+/** @brief Helper for ordering by larger to smaller weight*/
 class SortByLargerSimpleComponentWeight
 {
 public:
@@ -25,6 +28,51 @@ public:
     return firstComponent.second > secondComponent.second;
   }
 };
+
+/** Method to check the validity of of the cached state */
+inline bool
+isStateValid(const Cache& cache)
+{
+  return !cache.multiComponentState.empty();
+}
+
+/** Method to assemble state with correct weightings */
+Trk::MultiComponentState
+doStateAssembly(Cache& cache, const double newWeight)
+{
+  if (!isStateValid(cache)) {
+    return {};
+  }
+  const size_t cacheSize = cache.multiComponentState.size();
+
+  if (cache.validWeightSum <= 0.) {
+    if (!cache.multiComponentState.empty()) {
+      const double fixedWeights = 1. / static_cast<double>(cacheSize);
+      for (auto& component : cache.multiComponentState) {
+        component.second = fixedWeights;
+      }
+    }
+    Trk::MultiComponentState assembledState;
+    assembledState.reserve(cacheSize);
+    for (auto& component : cache.multiComponentState) {
+      assembledState.emplace_back(component.first.release(), component.second);
+    }
+    // Reset the cache before leaving
+    reset(cache);
+    return assembledState;
+  }
+  Trk::MultiComponentState assembledState;
+  assembledState.reserve(cacheSize);
+  const double scalingFactor =
+    cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
+  for (auto& component : cache.multiComponentState) {
+    assembledState.emplace_back(component.first.release(),
+                                component.second * scalingFactor);
+  }
+  // Reset the cache before leaving
+  reset(cache);
+  return assembledState;
+}
 }
 
 void
@@ -100,30 +148,26 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache)
     return true;
   }
 
-  /*
-   * Sort Multi-Component State by weights
-   */
+  // Sort Multi-Component State by weights
   std::sort(cache.multiComponentState.begin(),
             cache.multiComponentState.end(),
             SortByLargerSimpleComponentWeight());
 
   double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
   if (totalWeight != 0.) {
-    /*
-     * All elements where
-     * !comp,!(value>element),element>=value is true
-     * are before the value (i.e ordered descending).
-     * return the 1st element where (element<value)
-     */
+
+    // All elements where
+    //! comp,!(value>element),element>=value is true
+    // are before the value (i.e ordered descending).
+    // return the 1st element where (element<value)
     ComponentParameters dummySmallestWeight(
       nullptr, cache.minimumFractionalWeight * totalWeight);
     auto lower_than = std::upper_bound(cache.multiComponentState.begin(),
                                        cache.multiComponentState.end(),
                                        dummySmallestWeight,
                                        SortByLargerSimpleComponentWeight());
-    /*
-     * reverse iterate , so as to delete removing the last
-     */
+    
+    //reverse iterate , so as to delete removing the last
     auto lower_than_reverse = std::make_reverse_iterator(lower_than);
     for (auto itr = cache.multiComponentState.rbegin();
          itr != lower_than_reverse;
@@ -163,40 +207,3 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache,
   return doStateAssembly(cache, newWeight);
 }
 
-Trk::MultiComponentState
-Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache,
-                                                   const double newWeight)
-{
-  if (!isStateValid(cache)) {
-    return {};
-  }
-  const size_t cacheSize = cache.multiComponentState.size();
-
-  if (cache.validWeightSum <= 0.) {
-    if (!cache.multiComponentState.empty()) {
-      const double fixedWeights = 1. / static_cast<double>(cacheSize);
-      for (auto& component : cache.multiComponentState) {
-        component.second = fixedWeights;
-      }
-    }
-    Trk::MultiComponentState assembledState;
-    assembledState.reserve(cacheSize);
-    for (auto& component : cache.multiComponentState) {
-      assembledState.emplace_back(component.first.release(), component.second);
-    }
-    // Reset the cache before leaving
-    reset(cache);
-    return assembledState;
-  }
-  Trk::MultiComponentState assembledState;
-  assembledState.reserve(cacheSize);
-  const double scalingFactor =
-    cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
-  for (auto& component : cache.multiComponentState) {
-    assembledState.emplace_back(component.first.release(),
-                                component.second * scalingFactor);
-  }
-  // Reset the cache before leaving
-  reset(cache);
-  return assembledState;
-}

@@ -3,7 +3,7 @@
 import os
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from AthenaPoolUtilities.DumperConfig import Dumper, find_file
@@ -48,7 +48,7 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
     ConfigFlags.lock()
 
     # Construct ComponentAccumulator
-    acc = MainServicesSerialCfg()
+    acc = MainServicesCfg(ConfigFlags)
     acc.merge(PoolReadCfg(ConfigFlags))
     if useIOVDbSvc:
         acc.merge(IOVDbSvcCfg(ConfigFlags))

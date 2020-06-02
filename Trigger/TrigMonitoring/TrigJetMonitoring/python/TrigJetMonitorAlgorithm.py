@@ -86,7 +86,7 @@ def TrigJetMonConfig(inputFlags):
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
-  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+  for chain,jetcoll in Chain2L1JetCollDict.items():
     l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
     l1chainconf.toAlg(helper)
 
@@ -103,7 +103,7 @@ def TrigJetMonConfig(inputFlags):
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 
@@ -131,6 +131,7 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     "pt",  
     "m",
     "eta",
+    "phi",
     "e",
     "et",
     # or we can directly add our custom histo specification in the form of a HistoSpec:
@@ -219,7 +220,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    isOnline = True if 'HLT' in jetcoll else False
    conf     = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
    if isOnline:
-     if 'AntiKt4' in jetcoll:
+     if 'AntiKt4' in jetcoll or 'a4tcem' in jetcoll:
        for hist in ExtraSmallROnlineHists: conf.appendHistos(hist)
        if 'ftf' in jetcoll:
          conf.appendHistos("JVFCorr")
@@ -249,6 +250,13 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
      jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
 
+   # Remap Run 2 jet chain name to Run 3 jet chain
+   from TrigJetMonitoring import JetChainRemapping
+   if chain in JetChainRemapping.JetChainRun2ToRun3:
+     chainFolder = JetChainRemapping.JetChainRun2ToRun3[chain]
+   else:
+     chainFolder = chain
+
    # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
    # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
    # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
@@ -258,14 +266,14 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
        # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chain, xbins=100 , xmin=0, xmax=500000. ,)
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
 
    from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
    trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
        chain+"TrigMon",
        JetContainerName = jetcoll,
        TriggerChain = chain,
-       defaultPath = chain,
+       defaultPath = chainFolder,
        topLevelDir="HLT/JetMon/Online/",
        bottomLevelDir=jetcollFolder,
        failureOnMissingContainer=True,
@@ -286,14 +294,14 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
 
    if 'smc' in chain:
      trigConf.appendHistos(
-             SelectSpec( 'm50', '50<m', chain, FillerTools = [
+             SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
                ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
-             SelectSpec( 'et500', '500<et', chain, FillerTools = [
+             SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
                ToolSpec('JetHistoTriggEfficiency', chain,
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
@@ -344,9 +352,9 @@ if __name__=='__main__':
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
   cfg.merge(PoolReadCfg(ConfigFlags))
 
   # The following class will make a sequence, configure algorithms, and link
@@ -363,7 +371,7 @@ if __name__=='__main__':
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
-  for chain,jetcoll in Chain2L1JetCollDict.iteritems():
+  for chain,jetcoll in Chain2L1JetCollDict.items():
     l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
     l1chainconf.toAlg(helper)
 
@@ -380,7 +388,7 @@ if __name__=='__main__':
     monitorConf.toAlg(helper)
 
   # Loop over HLT jet chains
-  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+  for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
 

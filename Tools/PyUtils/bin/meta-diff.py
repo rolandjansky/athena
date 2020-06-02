@@ -16,39 +16,80 @@ import os
 if 'TERM' in os.environ:
     del os.environ['TERM']
 
-msg = logging.getLogger('MetaReaderDiff')
+msg = logging.getLogger('MetaDiff')
 
 from PyUtils.MetaReader import read_metadata
 
-def print_diff(parent_key, obj1, obj2):
-    print('')
-    if parent_key is not None:
-        print('{}:'.format(parent_key))
-    print('> {}'.format(obj1))
-    print('----------')
-    print('< {}'.format(obj2))
-
-def print_diff_type(parent_key, obj1, obj2):
-    print('')
-    if parent_key is not None:
-        print('{}:'.format(parent_key))
-    print('> {} (type: {})'.format(obj1, type(obj1)))
-    print('----------')
-    print('< {} (type: {})'.format(obj2, type(obj2)))
+def print_diff(parent_key, obj1, obj2, diff_format):
     
-def print_diff_dict_keys(parent_key, obj1, obj2):
-    print('')
-    if parent_key is not None:
-        print('{}:'.format(parent_key))
-    print('> ' + ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v) for k,v in sorted(obj1.items())]))
-    print('----------')
-    print('< ' + ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v) for k,v in sorted(obj2.items())]))
+    if diff_format == 'simple':
+        if obj1 is None:
+            print('{} has been inserted'.format(parent_key))
+        elif obj2 is None:
+            print('{} has been deleted'.format(parent_key))
+        else:
+            print('{} has changed from \'{}\' to \'{}\''.format(parent_key, obj1, obj2))
+    else:
+        print('')
+        if parent_key is not None:
+            print('{}:'.format(parent_key))
+        print('> {}'.format(obj1))
+        print('----------')
+        print('< {}'.format(obj2))
 
-def compare(obj1, obj2, parent_key=None, ordered=False):
+def print_diff_type(parent_key, obj1, obj2, diff_format):
+    
+    if diff_format == 'simple':
+        if obj1 is None:
+            print('{} has been inserted'.format(parent_key))
+        elif obj2 is None:
+            print('{} has been deleted'.format(parent_key))
+        else:
+            print('{} has changed changed type from {} (value: \'{}\') to {} (value: \'{}\')'.format(parent_key, type(obj1), obj1,  type(obj2), obj2))
+    else:
+        print('')
+        if parent_key is not None:
+            print('{}:'.format(parent_key))
+        print('> {} (type: {})'.format(obj1, type(obj1)))
+        print('----------')
+        print('< {} (type: {})'.format(obj2, type(obj2)))
+    
+def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
+
+    value1 = None
+    value2 = None
+    
+    if obj1 is not None:
+        value1 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v) for k,v in sorted(obj1.items())])
+        
+    if obj2 is not None:
+        value2 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v) for k,v in sorted(obj2.items())])
+        
+    if diff_format == 'simple':
+        if obj1 is None:
+            print('{}  has been inserted'.format(parent_key))
+        elif obj2 is None:
+            print('{} has been deleted'.format(parent_key))
+        else:
+            print('{} has changed from \'{}\' to \'{}\''.format(parent_key, value1, value2))
+    else:
+        print('')
+        if parent_key is not None:
+            print('{}:'.format(parent_key))
+            
+        print('> ' + value1)
+        print('----------')
+        print('< ' + value2)
+
+def compare(obj1, obj2, parent_key=None, ordered=False, diff_format='simple'):
+    
+ 
+    same = True;
     
     if isinstance(obj1, dict) and isinstance(obj2, dict):
         if sorted(obj1.keys()) != sorted(obj2.keys()):
-            print_diff_dict_keys(parent_key, obj1, obj2)
+            print_diff_dict_keys(parent_key, obj1, obj2, diff_format)
+            same = False
         else:
             for key in sorted(set(obj1.keys() + obj2.keys())):
                 
@@ -57,23 +98,30 @@ def compare(obj1, obj2, parent_key=None, ordered=False):
                     child_key += parent_key + '/'
                 child_key += key
                 
-                compare(obj1[key], obj2[key], child_key, ordered)
+                same &= compare(obj1[key] if key in obj1 else None, obj2[key] if key in obj2 else None, child_key, ordered, diff_format)
                 
     elif  isinstance(obj1, list) and isinstance(obj2, list):
         if ordered:
             if sorted(obj1) != sorted(obj2):
-                print_diff(parent_key, obj1, obj2)
+                print_diff(parent_key, obj1, obj2, diff_format)
+                same = False
         else:
             if obj1 != obj2:
-                print_diff(parent_key, obj1, obj2)      
+                print_diff(parent_key, obj1, obj2, diff_format) 
+                same = False     
     elif  isinstance(obj1, set) and isinstance(obj2, set):
         if obj1 != obj2:
-            print_diff(parent_key, obj1, obj2)
+            print_diff(parent_key, obj1, obj2, diff_format)
+            same = False
     elif type(obj1) == type(obj2):
         if obj1 != obj2:
-            print_diff(parent_key, obj1, obj2)
+            print_diff(parent_key, obj1, obj2, diff_format)
+            same = False
     else:
-        print_diff_type(parent_key, obj1, obj2)
+        print_diff_type(parent_key, obj1, obj2, diff_format)
+        same = False
+        
+    return same
         
     
     
@@ -105,6 +153,12 @@ def _main():
                              "tiny (only those values used in PyJobTransforms), "
                              "lite (same output as dump-athfile) "
                              "and full ( all  available data found) ")
+                             
+    parser.add_argument('-c',
+                    '--check',
+                    action='store_true',
+                    help='If difference are found, produce a non-zero return code')
+                    
     parser.add_argument('-t',
                         '--type',
                         default= None,
@@ -120,24 +174,36 @@ def _main():
                         nargs = '+',
                         type=str,
                         help="The metadata keys to filter. ")
+    parser.add_argument('-d',
+                        '--diff-format',
+                        default= 'simple',
+                        type=str,
+                        choices=['simple', 'diff'],
+                        help="Show 'simple' or 'diff' style differences ")
     parser.add_argument('--promote',
                         default=None,
                         type=bool,
                         help="Force promotion or not of the metadata keys ")
+                        
+            
                         
     parser.add_argument('filename1', help='First file to compare.')
     parser.add_argument('filename2', help='Second file to compare.')
                         
     args = parser.parse_args()
 
+    check = args.check
     verbose = args.verbose
     ordered = args.ordered
     filename1 = args.filename1
     filename2 = args.filename2
     output = args.output
     mode = args.mode
+    diff_format = args.diff_format
     file_type = args.type
     meta_key_filter = args.filter
+    
+   
 
     msg.setLevel(logging.INFO if verbose else logging.WARNING)
     # create a stream handler
@@ -149,15 +215,20 @@ def _main():
     # add the handlers to the logger
     msg.addHandler(handler)
 
-    metadatas = read_metadata([filename1, filename2], file_type, mode=mode, meta_key_filter= meta_key_filter, promote=args.promote)
+    metadatas = read_metadata([filename1, filename2], file_type, mode=mode, meta_key_filter=meta_key_filter, promote=args.promote)
     metadata1 = metadatas[filename1]
     metadata2 = metadatas[filename2]
-    compare(metadata1, metadata2, ordered=ordered)
+    same = compare(metadata1, metadata2, ordered=ordered, diff_format=diff_format)
     
+    
+    if check and not same:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-    _main()
+    res = _main()
+    
+    
 
 
 

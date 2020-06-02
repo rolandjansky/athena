@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="EventContainers::I_InternalIDC"/>
+  <class name="EventContainers::IdentifiableContainerBase">
+    <field name="m_link" transient="true"/>
+  </class>
+</lcgdict>

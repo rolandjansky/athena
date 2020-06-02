@@ -15,12 +15,11 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkParametersBase/SurfaceUniquePtrT.h"
-template<typename T>
-class TrackParametersCovarianceCnv;
-class TrackParametersCnv_p2;
-class MeasuredPerigeeCnv_p1;
-template< class SURFACE_CNV, class ATA_SURFACE >
-class AtaSurfaceCnv_p1;
+
+/*
+ * Needed for persistency 
+ * friends
+ */
 
 namespace Trk
 {
@@ -47,15 +46,16 @@ namespace Trk
      @tparam S type of surface
      
      @author edward.moyse@cern.ch, andreas.salzburger@cern.ch
+     @author Christos Anastopoulos (Athena MT modifications)
   */
   template<int DIM,class T,class S>
   class ParametersT : public ParametersBase<DIM,T>
   {
   public:
     /** 
-     * default constructor ONLY for POOL and derived classes 
+     * default constructor ONLY for POOL
      */
-    ParametersT();
+    ParametersT() = default;
     
     /** Constructor with local arguments - uses global <-> local for parameters */
     ParametersT(double loc1,
@@ -69,7 +69,7 @@ namespace Trk
     /** Constructor with parameters - extract position and momentum */
     ParametersT(const AmgVector(DIM)& parameters,
 		const S& surface,
-		AmgSymMatrix(DIM)* covariance = 0);
+		AmgSymMatrix(DIM)* covariance = nullptr);
   
     /** Constructor with global arguments - uses global <-> local for parameters */
     ParametersT(const Amg::Vector3D& position,
@@ -106,29 +106,29 @@ namespace Trk
     virtual const S& associatedSurface() const override final {return *m_surface;}    
       
     /** equality operator */
-    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override final;
 
     /** Virtual clone */
-    virtual ParametersT<DIM,T,S>* clone() const override {return new ParametersT<DIM,T,S>(*this);}
+    virtual ParametersT<DIM, T, S>* clone() const override final
+    {
+      return new ParametersT<DIM, T, S>(*this);
+    }
 
     /** Return the ParametersType enum */
-    virtual ParametersType type() const override {return Trk::AtaSurface;}
+    virtual ParametersType type() const override final
+    {
+      return Trk::AtaSurface;
+    }
 
     /** Return the measurementFrame of the parameters */
-    virtual Amg::RotationMatrix3D measurementFrame() const override;
-    
-    /** Update parameters and covariance */
-    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
-
-    /** Update parameters  and covariance , passing covariance by ref. A covariance
-     * is created if one does not exist.  Otherwise in place update occurs*/
-    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
+    virtual Amg::RotationMatrix3D measurementFrame() const override final;
 
   private :
     /* Helper to factor in update of parameters*/
-    void updateParametersHelper(const AmgVector(DIM)&);
+    virtual void updateParametersHelper(const AmgVector(DIM)&) override final;
 
   protected:
+   
     /*
      * Add dependent names into scope
      */
@@ -138,26 +138,24 @@ namespace Trk
     using ParametersBase<DIM,T>::m_momentum;
     using ParametersBase<DIM,T>::m_chargeDef;
     SurfaceUniquePtrT<const S> m_surface; //!< surface template
-  
-  protected:
+   
+    /** 
+     * @brief Constructor for persistency
+     */
+    ParametersT (const AmgVector(DIM)& parameters,
+                 const S* surface,
+                 AmgSymMatrix(DIM)* covariance = nullptr);
+    /*
+     * friends needed for Persistency
+     */
     template<typename pars>
     friend class ::TrackParametersCovarianceCnv;
     friend class ::TrackParametersCnv_p2;
     friend class ::MeasuredPerigeeCnv_p1;
     template <class SURFACE_CNV, class ATA_SURFACE>
     friend class ::AtaSurfaceCnv_p1;
-    
-    /** --- Protected constructors : for persistency purpose only */
-    ParametersT (const AmgVector(DIM)& parameters,
-                 const S* surface,
-                 AmgSymMatrix(DIM)* covariance = 0);
-    
-    ParametersT (const Amg::Vector3D& pos,
-                 const Amg::Vector3D& mom,
-                 AmgSymMatrix(DIM)* covariance = 0);
  
     /** DESIGN TO BE REVISITED */
-  protected:
     friend class MaterialEffectsEngine;
   };
 } //end of namespace Trk

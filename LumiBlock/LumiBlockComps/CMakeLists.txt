@@ -32,7 +32,7 @@ atlas_add_library( LumiBlockCompsLib
 
 atlas_add_component( LumiBlockComps
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_dictionary( LumiBlockCompsDict
    LumiBlockComps/LumiBlockCompsDict.h
@@ -57,7 +57,7 @@ atlas_add_test( LBDurationCondAlg_test
 
 atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_test( TrigLiveFractionCondAlg_test
    SOURCES test/TrigLiveFractionCondAlg_test.cxx
@@ -73,6 +73,10 @@ atlas_add_test( LBDurationCondAlgConfig_test
 
 atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( LumiBlockMuWriterConfig_test
+                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 

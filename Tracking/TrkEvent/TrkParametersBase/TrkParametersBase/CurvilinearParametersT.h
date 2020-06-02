@@ -16,7 +16,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 // Tracking includes
-#include "TrkParametersBase/ParametersT.h"
+#include "TrkParametersBase/ParametersBase.h"
+#include "TrkParametersBase/SurfaceUniquePtrT.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
 
 class MsgStream;
@@ -44,7 +45,7 @@ namespace Trk
   */
 
   template<int DIM,class T, class S>
-  class CurvilinearParametersT : public ParametersT<DIM,T,S>
+  class CurvilinearParametersT : public ParametersBase<DIM,T>
   {
   public:
     /** default constructor only for POOL */
@@ -52,86 +53,110 @@ namespace Trk
 
     /** Create CurvilinearParametersT from DIM+2 parameters
         - these are: global position, momentum, charge, extension */
-    CurvilinearParametersT(const AmgVector(DIM+2)& parameters,
-			   AmgSymMatrix(DIM)* covariance = 0,
-			   unsigned int cIdenfier = 0);
-    
+    CurvilinearParametersT(const AmgVector(DIM + 2) & parameters,
+                           AmgSymMatrix(DIM) * covariance = nullptr,
+                           unsigned int cIdenfier = 0);
+
     /**Create CurvilinearParametersT from mixed parameters: pos, local parameters*/
-    CurvilinearParametersT(const Amg::Vector3D& pos, 
-			   double phi, 
-			   double theta, 
-			   double qOverP,
-			   AmgSymMatrix(DIM)* covariance = 0,
-			   unsigned int cIdenfier = 0);
-       
+    CurvilinearParametersT(const Amg::Vector3D& pos,
+                           double phi,
+                           double theta,
+                           double qOverP,
+                           AmgSymMatrix(DIM) * covariance = nullptr,
+                           unsigned int cIdenfier = 0);
+
     /** Create CurvilinearParametersT from global parameters.
-       -- it will throw a GaudiException if the position is not on surface  */     
-    CurvilinearParametersT(const Amg::Vector3D& pos, 
-			   const Amg::Vector3D& mom,
-			   double charge,
-			   AmgSymMatrix(DIM)* covariance = nullptr,
-			   unsigned int cIdenfier = 0);
-        
+       -- it will throw a GaudiException if the position is not on surface  */
+    CurvilinearParametersT(const Amg::Vector3D& pos,
+                           const Amg::Vector3D& mom,
+                           double charge,
+                           AmgSymMatrix(DIM) * covariance = nullptr,
+                           unsigned int cIdenfier = 0);
+
     /** Copy Constructor */
     CurvilinearParametersT(const CurvilinearParametersT<DIM,T,S>&); 
    
     /** Move Constructor */
     CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&&); 
-   
-    /** Destructor */
-    virtual ~CurvilinearParametersT()=default;
-                 
+ 
     /** Assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(const CurvilinearParametersT<DIM,T,S>&);
 
     /** Move assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(CurvilinearParametersT<DIM,T,S>&&);
+  
+    /** Destructor */
+    virtual ~CurvilinearParametersT()=default;
+ 
+    /** the curvilinear parameters identifier */
+    unsigned int cIdentifier() const { return m_cIdentifier; }
+
+    void setcIdentifier(unsigned int cIdentifier)
+    { m_cIdentifier = cIdentifier; }
+    
+    /** Test to see if there's a surface there. */
+    virtual bool hasSurface() const override final
+    {
+      return m_surface != nullptr;
+    }
+
+    /** Access to the Surface method */
+    virtual const S& associatedSurface() const override final
+    {
+      return *m_surface;
+    }
 
     /** equality operator */
     virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override final;
 
-    /** Pseudo constructor */             
-    virtual CurvilinearParametersT<DIM,T,S>* clone() const override final 
-    {return new CurvilinearParametersT<DIM,T,S>(*this);}
-                 
+    /** Virtual clone */
+    virtual CurvilinearParametersT<DIM, T, S>* clone() const override final
+    {
+      return new CurvilinearParametersT<DIM, T, S>(*this);
+    }
+
     /** Return the ParametersType enum */
-    virtual ParametersType type() const override
-    {return Trk::Curvilinear;}
-    
+    virtual ParametersType type() const override final
+    {
+      return Trk::Curvilinear;
+    }
+
     /** Return the measurementFrame of the parameters */
     virtual Amg::RotationMatrix3D measurementFrame() const override final;
-
+    
     /**Dumps relevant information about the track parameters into the ostream.*/
     virtual MsgStream& dump(MsgStream& out) const override;
     virtual std::ostream& dump(std::ostream& out) const override;
 
-    /** Update parameters and covariance */
-    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
-
-    /** Update parameters  and covariance , passing covariance by ref. A covariance
-     * is created if one does not exist.  Otherwise in place update occurs*/
-    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
-
-    /** the curvilinear parameters identifier */
-    unsigned int cIdentifier() const {return m_cIdentifier;}
-
-    void setcIdentifier (unsigned int cIdentifier)
-    { m_cIdentifier = cIdentifier; }
-
-
-    /** DESIGN TO BE REVISITED */
-  protected:
-    friend class MaterialEffectsEngine;
-
   private:
     /* Helper to factor in update of parameters*/
-    void updateParametersHelper(const AmgVector(DIM)&);
+    virtual void updateParametersHelper(const AmgVector(DIM)&) override final;
 
     /** return the curvilinear frame */
     CurvilinearUVT curvilinearFrame() const;
-    
+       
+  protected:
+    /*
+     * Add dependent names into scope
+     */
+    using ParametersBase<DIM,T>::m_parameters;
+    using ParametersBase<DIM,T>::m_covariance;
+    using ParametersBase<DIM,T>::m_position;
+    using ParametersBase<DIM,T>::m_momentum;
+    using ParametersBase<DIM,T>::m_chargeDef;
+    SurfaceUniquePtrT<const S> m_surface; //!< surface template
     /** the curvilinear parameters identifier */
     unsigned int m_cIdentifier=0;
+    /*
+     * friends needed for Persistency
+     */
+    template<typename pars>
+    friend class ::TrackParametersCovarianceCnv;
+    friend class ::TrackParametersCnv_p2;
+    friend class ::MeasuredPerigeeCnv_p1;
+ 
+    /** DESIGN TO BE REVISITED */
+    friend class MaterialEffectsEngine;
   };
 }//end of namespace Trk
 

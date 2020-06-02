@@ -11,6 +11,7 @@
  * all components returning a single set of track
  * parameters with single mean and covariance matrix.
  */
+
 #ifndef MultiComponentStateCombiner_H
 #define MultiComponentStateCombiner_H
 

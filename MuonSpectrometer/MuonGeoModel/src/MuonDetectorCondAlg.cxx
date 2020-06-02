@@ -14,7 +14,7 @@
 #include "AthenaKernel/CondCont.h"
 
 MuonDetectorCondAlg::MuonDetectorCondAlg( const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
 { }
 
@@ -55,14 +55,14 @@ MuonDetectorCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonDetectorCondAlg::execute()
+StatusCode MuonDetectorCondAlg::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "execute " << name() );
 
   // =======================
   // Write ILine Cond Handle
   // =======================
-  SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey};
+  SG::WriteCondHandle<MuonGM::MuonDetectorManager> writeHandle{m_writeDetectorManagerKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
   		  << ". In theory this should not be called, but may happen"
@@ -73,7 +73,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
   // Create the MuonDetectorManager by calling the MuonDetectorFactory001
   // =======================
-  MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
+  const MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
   MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
   if(MuDetTool->createFactory(theFactory).isFailure()){
     ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");
@@ -88,7 +88,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
 
   if (MuonMgrData->applyCscIntAlignment()) {
-    SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey};
+    SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey, ctx};
     const CscInternalAlignmentMapContainer* readILinesCdo{*readILinesHandle};
 
     writeHandle.addDependency( readILinesHandle );
@@ -101,7 +101,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // Update MdtAsBuiltMapContainer if requested BEFORE updating ALINES and BLINES
   // =======================
   if (MuonMgrData->applyMdtAsBuiltParams()) {
-    SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey};
+    SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey, ctx};
     const MdtAsBuiltMapContainer* readAsBuiltCdo{*readAsBuiltHandle};
     writeHandle.addDependency( readAsBuiltHandle );
 
@@ -114,7 +114,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // Update Alignment, ALINES
   // =======================
 
-  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
+  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey, ctx};
   if (MuonMgrData->updateAlignment(**readALinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
   else ATH_MSG_DEBUG("update Alignment DONE" );
 
@@ -122,7 +122,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // Update Deformations, BLINES
   // =======================
 
-  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey};
+  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey, ctx};
 
   writeHandle.addDependency( readALinesHandle, readBLinesHandle );
 

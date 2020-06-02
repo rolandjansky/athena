@@ -55,7 +55,7 @@ public:
 
    /// Commit the output stream after having streamed out objects
    ///   Must commitOutput AFTER streaming
-   StatusCode commitOutput();
+   StatusCode commitOutput(bool doCommit = false);
 
    /// Finalize the output stream after the last commit, e.g. in
    /// finalize

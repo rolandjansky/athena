@@ -124,9 +124,12 @@ if rec.doPerfMon() :
 #######################
 # ChronoStatSvc
 
-#disable
-#if hasattr(svcMgr, 'ChronoStatSvc'):
-#    svcMgr.ChronoStatSvc.AsciiStatsOutputFile = "chrono_"+OutFileName+".txt"
+# Disable LOG printing
+if hasattr(svcMgr, 'ChronoStatSvc'):
+    svcMgr.ChronoStatSvc.ChronoPrintOutTable = False
+    svcMgr.ChronoStatSvc.PrintUserTime       = False
+    svcMgr.ChronoStatSvc.StatPrintOutTable   = False
+    #svcMgr.ChronoStatSvc.AsciiStatsOutputFile = "chrono_"+OutFileName+".txt"
     
 #################
 # Time limit

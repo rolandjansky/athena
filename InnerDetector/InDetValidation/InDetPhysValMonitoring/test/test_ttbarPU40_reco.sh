@@ -43,10 +43,10 @@ run Reco_tf.py \
   AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
   AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
   AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
-rec_tf_exit_code = $?
+rec_tf_exit_code=$?
 echo "art-result: $rec_tf_exit_code reco"
 
-if [ $rec_tf_exit_code  -eq 0 ]  ;then
+if [ $rec_tf_exit_code -eq 0 ]  ;then
   echo "download latest result"
   run art.py download --user=artprod --dst="$lastref_dir" "$ArtPackage" "$ArtJobName"
   run ls -la "$lastref_dir"

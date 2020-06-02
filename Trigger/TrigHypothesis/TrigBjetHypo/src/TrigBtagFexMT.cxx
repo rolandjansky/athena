@@ -130,6 +130,9 @@ StatusCode TrigBtagFexMT::execute() {
   std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
   outputBtagging->setStore( outputBtaggingAux.get() );
 
+  xAOD::BTagging *toAdd = new xAOD::BTagging();
+  outputBtagging->push_back( toAdd );
+
   SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
   CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
   ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );

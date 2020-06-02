@@ -12,26 +12,18 @@ TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name,
 
 StatusCode TrigBjetBtagHypoAlgMT::initialize() {
 
-  ATH_MSG_DEBUG(  "declareProperty review:"   );
-  ATH_MSG_DEBUG(  "   " << m_bTagKey          );
-  ATH_MSG_DEBUG(  "   " << m_trackKey         );
-  ATH_MSG_DEBUG(  "   " << m_inputPrmVtx      );
-  ATH_MSG_DEBUG(  "   " << m_prmVtxLink       );
-
-
   ATH_CHECK( m_hypoTools.retrieve() );
+  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
-  CHECK( m_bTagKey.initialize() );
-  CHECK( m_trackKey.initialize() );
-  CHECK( m_inputPrmVtx.initialize() );
+  ATH_CHECK( m_bTaggedJetKey.initialize() );
+  ATH_CHECK( m_bTagKey.initialize() );
+  ATH_CHECK( m_trackKey.initialize() );
+  ATH_CHECK( m_inputPrmVtx.initialize() );
 
+  renounce( m_bTaggedJetKey );
   renounce( m_bTagKey );
   renounce( m_trackKey );
   renounce( m_inputPrmVtx );
-
-  renounce( m_bTagKey );
-
-  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -49,16 +41,14 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   CHECK( retrievePreviousDecisionContainer( context,prevDecisionContainer ) );
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
-  // Retrieve b-tagging
-  ElementLinkVector< xAOD::BTaggingContainer > btaggingELs;
-  // Retrieve b-tagging here
-
   // Retrive Precision tracks from Event Views. We get them all in this way!
   ElementLinkVector< xAOD::TrackParticleContainer > trackELs;
   CHECK( retrieveObjectFromEventView( context,trackELs,m_trackKey,prevDecisionContainer ) );
   ATH_MSG_DEBUG( "Retrieved " << trackELs.size() << " precision tracks..." );
+
+  // online monitoring for tracks
   auto monitor_for_track_count = Monitored::Scalar( "track_count", trackELs.size() );
-  CHECK( monitor_tracks(trackELs) );
+  CHECK( monitor_tracks( trackELs ) );
 
   for ( const ElementLink< xAOD::TrackParticleContainer >& trackLink : trackELs )
     ATH_MSG_DEBUG( "   * pt=" << (*trackLink)->p4().Et() << 
@@ -68,29 +58,22 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 
   // Retrieve Jets
   ElementLinkVector< xAOD::JetContainer > jetELs;
-  for ( const TrigCompositeUtils::Decision* previousDecision: *prevDecisionContainer ) {
-    const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > jetLinks = 
-      TrigCompositeUtils::findLinks< xAOD::JetContainer >( previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
-
-    for ( size_t linkIndex = 0; linkIndex < jetLinks.size(); linkIndex++ ) {
-      ATH_CHECK( jetLinks.at(linkIndex).isValid() );
-      jetELs.push_back( jetLinks.at(linkIndex).link );
-    }
-  }
+  CHECK( retrieveCollectionFromNavigation( TrigCompositeUtils::featureString(), jetELs, prevDecisionContainer ) );  
   ATH_MSG_DEBUG( "Retrieved " << jetELs.size() << " Jets of key " << TrigCompositeUtils::featureString() );
-  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", jetELs,
-    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->pt(); } );
-  auto monitor_for_jet_eta = Monitored::Collection( "jet_eta", jetELs,
-    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->eta(); } );
+
+  // online monitoring for jets
   auto monitor_for_jet_count = Monitored::Scalar( "jet_count", jetELs.size() );
-  auto monitor_group_for_jets = Monitored::Group( m_monTool, monitor_for_jet_pt, monitor_for_jet_eta );
+  CHECK( monitor_jets( jetELs ) );
 
 
   // Retrieve Vertices
   ElementLinkVector< xAOD::VertexContainer > vertexELs;
   CHECK( retrieveObjectFromStoreGate( context,vertexELs,m_inputPrmVtx ) );
   ATH_MSG_DEBUG( "Retrieved " << vertexELs.size() <<" vertices..." );
+
+  // opnline monitoring for vertex
   auto monitor_for_vertex_count = Monitored::Scalar( "vertex_count", vertexELs.size() );  
+
 
   auto monitor_group_for_events = Monitored::Group( m_monTool, monitor_for_track_count, monitor_for_jet_count, monitor_for_vertex_count );
 
@@ -104,7 +87,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   TrigCompositeUtils::DecisionContainer *outputDecisions = handle.ptr();
 
   // ========================================================================================================================== 
-  //    ** Compute Decisions
+  //    ** Prepare Decisions
   // ========================================================================================================================== 
   
   const unsigned int nDecisions = prevDecisionContainer->size();
@@ -116,18 +99,44 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
     TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
 									     prevDecisionContainer->at(index),
 									     "", context );
+
+    // Attaching links to the output decisions
+    // Retrieved jets from view on which we have run flavour tagging
+    ElementLinkVector< xAOD::JetContainer > bTaggedJetEL;
+    CHECK( retrieveCollectionFromView( context,
+				       bTaggedJetEL,
+				       m_bTaggedJetKey,
+				       prevDecisionContainer->at(index) ) );
+
+    if ( bTaggedJetEL.size() != 1 ) {
+      ATH_MSG_ERROR( "Did not find only 1 b-tagged jet object from View!" );
+      return StatusCode::FAILURE;
+    }
+
+    toAdd->setObjectLink< xAOD::JetContainer >( TrigCompositeUtils::featureString(),bTaggedJetEL.front() );     
+
+
+
+    // Retrieve Flavour Tagging object from view
+    ElementLinkVector< xAOD::BTaggingContainer > bTaggingEL;
+    CHECK( retrieveCollectionFromView( context,
+				       bTaggingEL,
+				       m_bTagKey,
+				       prevDecisionContainer->at(index) ) );
+    
+    if ( bTaggingEL.size() != 1 ) {
+      ATH_MSG_ERROR( "Did not find only 1 b-tagging object from View!" );
+      return StatusCode::FAILURE;
+    }
+
+    toAdd->setObjectLink< xAOD::BTaggingContainer >( m_bTaggingLink.value(),bTaggingEL.front() );
+
+
+
+    // Add to Decision collection
     newDecisions.push_back( toAdd );
   }
 
-  // Adding Links
-  //  CHECK( attachLinkToDecisions( context,newDecisions ) );
-
-  for ( unsigned int index(0); index<nDecisions; index++ ) {
-    // Adding b-tagging links to output decisions // TMP
-    // Adding a dummy-link (a link to self) for now to satisfy validation.
-    ElementLink<TrigCompositeUtils::DecisionContainer> dummyFeatureLink(*outputDecisions, index, context);
-    newDecisions.at( index )->setObjectLink<TrigCompositeUtils::DecisionContainer>(TrigCompositeUtils::featureString(), dummyFeatureLink);
-  }
 
   // ==========================================================================================================================
   //    ** Prepare input to Hypo Tools  
@@ -146,9 +155,24 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
       TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
       TrigCompositeUtils::decisionIDs( previousDecision ).end() };
 
+    
+    // Retrieve PV from navigation
+    ElementLink< xAOD::VertexContainer > vertexEL;
+    CHECK( retrieveObjectFromNavigation(  m_prmVtxLink.value(), vertexEL, previousDecision ) );
+
+    // Retrieve b-tagging code
+    ElementLinkVector< xAOD::BTaggingContainer > bTaggingELs;
+    CHECK( retrieveCollectionFromView< xAOD::BTaggingContainer >( context,
+								  bTaggingELs,
+								  m_bTagKey,
+								  previousDecision ) );
+    CHECK( bTaggingELs.size() == 1 );
+    
+    // Put everything in place
     TrigBjetBtagHypoTool::TrigBjetBtagHypoToolInfo infoToAdd;
     infoToAdd.previousDecisionIDs = previousDecisionIDs;
-    //    infoToAdd.btaggingEL = btaggingELs.at( index ); // TMP
+    infoToAdd.btaggingEL = bTaggingELs.front();
+    infoToAdd.vertexEL = vertexEL;
     infoToAdd.decision = newDecisions.at( index );
     bTagHypoInputs.push_back( infoToAdd );
   }
@@ -168,17 +192,23 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigBjetBtagHypoAlgMT::monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs ) const {
 
-StatusCode TrigBjetBtagHypoAlgMT::attachLinksToDecision( const EventContext&,
-							 TrigCompositeUtils::Decision&,
-							 int, int ) const {
-  
+  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", jetELs,
+    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->pt(); } );
+  auto monitor_for_jet_eta = Monitored::Collection( "jet_eta", jetELs,
+    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->eta(); } );
+  auto monitor_for_jet_phi = Monitored::Collection( "jet_phi", jetELs,
+    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->phi(); } );
+
+  auto monitor_group_for_jets = Monitored::Group( m_monTool, 
+     monitor_for_jet_pt, monitor_for_jet_eta, monitor_for_jet_phi
+  );
+
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( 
-        const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const {
+StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const {
 
   auto monitor_for_track_Et = Monitored::Collection( "track_Et", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) { return (*trackLink)->p4().Et(); } );
@@ -222,6 +252,5 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks(
 
   return StatusCode::SUCCESS;
 }
-
 
 

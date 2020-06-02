@@ -2,15 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        IMultiStateMeasurementUpdator.h  -  description
-                        -----------------------------------------------
-begin                : Friday 25th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Interface class for performing updates on multi-component
-                       state objects
-*********************************************************************************/
+/**
+ * @file   IMultiStateMeasurementUpdator.h
+ * @date   Friday 25th February 2005
+ * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Interface class for performing updates on multi-component state
+ * objects
+ */
+
 
 #ifndef TrkIMultiStateMeasurementUpdator_H
 #define TrkIMultiStateMeasurementUpdator_H

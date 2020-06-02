@@ -73,9 +73,9 @@ if __name__=='__main__':
    ConfigFlags.lock()
 
    # Initialize configuration object, add accumulator, merge, and run.
-   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-   acc = MainServicesSerialCfg()
+   acc = MainServicesCfg(ConfigFlags)
    acc.merge(PoolReadCfg(ConfigFlags))
 
    acc.merge( TileMonitoringCfg(ConfigFlags) )

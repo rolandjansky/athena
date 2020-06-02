@@ -222,14 +222,13 @@ class ByteStreamUnpackGetterRun2(Configured):
             # Configure DataScouting
             #
             from PyUtils.MetaReaderPeeker import metadata
-
-            stream_local = metadata['stream']
-
-            if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
-                if 'calibration' in stream_local and 'DataScouting_' in stream_local:
-                    ds_tag = stream_local[12:27]
-                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
-                    extr.DSResultKeys += [ ds_tag ]
+            if 'stream' in metadata:
+                stream_local = metadata['stream']
+                if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
+                    if 'calibration' in stream_local and 'DataScouting_' in stream_local:
+                        ds_tag = stream_local[12:27]
+                        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                        extr.DSResultKeys += [ ds_tag ]
 
         else:
             #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings

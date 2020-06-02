@@ -29,6 +29,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 // C++ Standard Library
+#include <cmath>
 #include <memory>
 #include <sstream>
 
@@ -420,7 +421,7 @@ bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDio
     TimedHitPtr<SiHit> phit{*i++};
 
     // skip hits which are more than 10us away
-    if (fabs(phit->meanTime()) < 10000. * CLHEP::ns) {
+    if (std::abs(phit->meanTime()) < 10000. * CLHEP::ns) {
       ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(phit->getBarrelEndcap(),
                                                                        phit->getLayerDisk(),
                                                                        phit->getPhiModule(),

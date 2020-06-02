@@ -6,10 +6,14 @@
 #include "cudaMultiply.h"
 
 // CUDA include(s).
-#include <cuda.h>
+#ifdef __CUDACC__
+#   include <cuda.h>
+#endif // __CUDACC__
 
 // System include(s).
 #include <iostream>
+
+#ifdef __CUDACC__
 
 /// Simple macro to run CUDA commands with
 #define CUDA_CHECK( EXP )                                                     \
@@ -37,6 +41,7 @@ namespace AthCUDA {
       return;
    }
 
+   /// GPU implementation of @c cudaMultiply
    void cudaMultiply( std::vector< float >& array, float multiplier ) {
 
       // If no CUDA device is available, complain.
@@ -73,3 +78,19 @@ namespace AthCUDA {
    }
 
 } // namespace AthCUDA
+
+#else
+
+namespace AthCUDA {
+
+   /// CPU implementation of @c cudaMultiply
+   void cudaMultiply( std::vector< float >& array, float multiplier ) {
+
+      for( float& element : array ) {
+         element *= multiplier;
+      }
+   }
+
+} // namespace AthCUDA
+
+#endif // __CUDACC__

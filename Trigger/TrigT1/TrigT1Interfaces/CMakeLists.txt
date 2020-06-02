@@ -37,9 +37,9 @@ atlas_add_dictionary( TrigT1InterfacesDict
 
 atlas_add_test( CPRoIDecoder_test
                 SOURCES test/CPRoIDecoder_test.cxx
-                LINK_LIBRARIES TrigT1Interfaces )
+                LINK_LIBRARIES TrigT1Interfaces TestTools )
 
 
 atlas_add_test( JEPRoIDecoder_test
                 SOURCES test/JEPRoIDecoder_test.cxx
-                LINK_LIBRARIES TrigT1Interfaces )
+                LINK_LIBRARIES TrigT1Interfaces TestTools )

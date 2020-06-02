@@ -44,7 +44,7 @@ atlas_add_library( TileRecUtilsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileSimEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests CxxUtils
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileSimEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests CxxUtils TrigAnalysisInterfaces
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent AthAllocators xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver )
 
 atlas_add_component( TileRecUtils
@@ -53,7 +53,7 @@ atlas_add_component( TileRecUtils
                      LINK_LIBRARIES TileRecUtilsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 atlas_add_dictionary( TileRecUtilsDict
@@ -96,11 +96,7 @@ atlas_add_test( TileDQstatusTool_test
   PROPERTIES TIMEOUT 600
   LOG_IGNORE_PATTERN "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|No RecFlags available" )
 
-# Check python syntax:
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
-                POST_EXEC_SCRIPT nopost.sh )
-
+# Tests:
 atlas_add_test( TileRawChannelBuilderFitConfig_test
                  SCRIPT python -m TileRecUtils.TileRawChannelBuilderFitConfig
                  PROPERTIES TIMEOUT 300

@@ -15,12 +15,11 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-using namespace std;
 using namespace SCT_CalibAlgs;
 
-static const string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
+static const std::string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
 
-static const string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
+static const std::string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
 namespace {
 void
 initQueue(std::queue<int>& q, const int numvals, const int setval) {
@@ -49,11 +48,11 @@ SCT_CalibHvTool::book() {
    bool result{true};
    ATH_MSG_DEBUG("Book HVTrips");
    //now initialize the queues (fill 100 spots with 0):
-   queue<int> qtemp;
+   std::queue<int> qtemp;
    initQueue(qtemp, m_maxq,0);
    // need to keep previous bins lbn 4 deep.
    initQueue(m_prevLBN, 4, 0);
-   vector<pair <int,int>> dummy;
+   std::vector<std::pair <int,int>> dummy;
    //first set num events processed to 0
    m_phvtripProcessedEventsInt.insert(m_phvtripProcessedEventsInt.end(), n_elements, 1);
    m_phvtripRunningTotalInt.insert(m_phvtripRunningTotalInt.end(), n_elements, 0);
@@ -163,11 +162,11 @@ SCT_CalibHvTool::fill(const bool fromData) {
          Identifier waferId{*waferItr};
          IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
          if (m_phvtripHasItTripped_prev[waferHash]>0) {
-            pair<int, int> wp;
+            std::pair<int, int> wp;
             wp.first = (m_phvtripPrevTime - 3*maxtbins);
             wp.second = (m_phvtripPrevTime + maxtbins);
             m_summarytrips[waferHash].push_back(wp);
-            pair<int,int> lbn;
+            std::pair<int,int> lbn;
             lbn.first = m_prevLBN.front();
             lbn.second = m_prevLBN.back();
             m_summarytripslb[waferHash].push_back(lbn);

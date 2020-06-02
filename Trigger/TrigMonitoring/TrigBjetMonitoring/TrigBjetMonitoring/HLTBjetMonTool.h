@@ -71,6 +71,7 @@ class HLTBjetMonTool : public IHLTMonTool {
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_offlineVertexContainerKey {this,"OfflineVertexContainerName","PrimaryVertices","Key of offline primary vertexes"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_EFHistoPrmVtx","Key of online bjet primary vertexes"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_onlineTrackContainerKey {this,"OnlineTrackContainerName","HLT_IDTrack_Bjet_IDTrig","Key of online tracks of bjets"};
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 

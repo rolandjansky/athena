@@ -37,7 +37,7 @@ atlas_add_component( LArConditionsTest
                      src/LArConditionsTestAlg.cxx
                      src/LArCablingTest.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities LArCOOLConditions )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities LArCOOLConditions CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_headers( LArConditionsTest )
