@@ -35,6 +35,8 @@
 //for vertexTool
 #include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+
 // Forward declarations
 class IInterface;
 class TH1I;
@@ -90,6 +92,8 @@ private:
   Prof_t m_phiVsNstrips_Side[4][2];
   Prof_t m_phiVsNstrips_Side_100[4][2];
   Prof_t m_phiVsNstrips_Side_111[4][2];
+
+  ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;
 
   std::string m_stream;
   std::string m_path;
