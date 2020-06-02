@@ -162,11 +162,13 @@ namespace ORUtils
       const float eta2 = clus2.etaBE(layer);
       const float phi1 = clus1.phiBE(layer);
       const float phi2 = clus2.phiBE(layer);
+      
       // Check validity of the eta/phi (no dummy -999 values)
       if(isDummyVal(eta1) || isDummyVal(eta2) ||
          isDummyVal(phi1) || isDummyVal(phi2)) {
         throw DummyValError();
       }
+      
       const float dEta = clus1.etaBE(layer) - clus2.etaBE(layer);
       const float dPhi = deltaPhi(clus1.phiBE(layer), clus2.phiBE(layer));
       
