@@ -16,11 +16,6 @@ StatusCode EventHistoVarTool::initialize() {
 
   if(m_varName=="") m_varName = name();
 
-
-  /*if (! bool(m_v) ) {
-      ATH_MSG_ERROR("Could not access EventInfo variable "<< m_varName );
-      return StatusCode::FAILURE;      
-  }*/
   return StatusCode::SUCCESS;
   
 }
