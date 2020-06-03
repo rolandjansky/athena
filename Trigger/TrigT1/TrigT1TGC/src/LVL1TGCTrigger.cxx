@@ -228,12 +228,10 @@ namespace LVL1TGCTrigger {
 
       // Use NSW trigger output 
       if(doNSW && bc==m_CurrentBunchTag){
-	sc = fillNSW();
-       if (sc.isFailure()) {
-          ATH_MSG_WARNING("Couldn't retrieve NSW trigger output");
-          return sc;
-        }
+	ATH_CHECK(fillNSW());
       }
+
+
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){
         m_bctagInProcess =bc;
         sc=processOneBunch(tgc_container, muctpiinput, muctpiinputPhase1);
@@ -1415,6 +1413,10 @@ namespace LVL1TGCTrigger {
     } 
     */
   
+
+    if(sc.isFailure()){
+      ATH_MSG_WARNING("Couldn't retrieve NSW trigger output");
+    }
     return sc; 
   }
 

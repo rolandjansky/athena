@@ -72,7 +72,7 @@ public:
   const std::vector<int>& getNSWDtheta() const {return m_NSWDtheta_5bit; }
 
   // print methods 
-  const MSG::Level defaultMSGLvl = MSG::DEBUG;
+  const MSG::Level defaultMSGLvl = MSG::INFO;
   bool msgLvl(const MSG::Level lvl) const;
   MsgStream& msg(const MSG::Level lvl) const;
   void print() const;
