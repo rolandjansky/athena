@@ -10,6 +10,24 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
 #====================================================================
+# PV refitting after removing Z->ee tracks, for vertex studies
+#====================================================================
+
+# Creates a vertex container (ZeeRefittedPrimaryVertices) where the type=1 vertex is refitted
+# after removing tracks that are associated with Z->ee decay candidates
+# Tool runs only for data and Zee MC samples (must be defined in the MCSamples list)
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__ZeeVertexRefittingTool
+HIGG1D1_ZeeVertexRefitterTool = DerivationFramework__ZeeVertexRefittingTool( name = "HIGG1D1_ZeeVertexRefitterTool",
+                                    ObjectRequirements="(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 19.*GeV)",
+                                    LowMassCut=50*GeV,
+                                    RefittedPVContainerName="ZeeRefittedPrimaryVertices",                                    
+                                    ElectronContainerName="Electrons",
+                                    PVContainerName="PrimaryVertices",
+                                    MCSamples = [361106] )
+ToolSvc += HIGG1D1_ZeeVertexRefitterTool
+DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("ZeeVertexRefitKernel", AugmentationTools = [HIGG1D1_ZeeVertexRefitterTool])
+
+#====================================================================
 # Diphoton vertex decoration tool
 #====================================================================
 
@@ -216,12 +234,13 @@ HIGG1D1_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(net
 # The name of the kernel  must be unique to this derivation
 HIGG1D1Seq = CfgMgr.AthSequencer("HIGG1D1Sequence")
 
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1Kernel",
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1Kernel", 
                                                                        SkimmingTools = [SkimmingToolHIGG1D1],
                                                                        AugmentationTools = [HIGG1D1_MaxCellDecoratorTool,HIGG1D1_GainDecoratorTool] + HIGG1D1_ClusterEnergyPerLayerDecorators,
                                                                        ThinningTools = thinningTools
@@ -286,6 +305,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 
 HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::ShallowAuxContainer',
+                                            'ZeeRefittedPrimaryVertices': 'xAOD::VertexContainer', 'ZeeRefittedPrimaryVerticesAux': 'xAOD::VertexAuxContainer',
                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthPrimaryVertices': 'xAOD::VertexContainer','TruthPrimaryVerticesAux': 'xAOD::VertexAuxContainer',
@@ -301,7 +321,7 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
-					  "MET_Reference_AntiKt4EMPFlow",
+					                                "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
                                           "AntiKt4EMTopoJets_BTagging201810",
@@ -313,7 +333,7 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
+HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices","ZeeRefittedPrimaryVertices"]
 
 PFlowJetCommonSlimList = "JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex.PileupCorrected.Width.AverageLArQF.CentroidR.ConeExclTausFinal.ECPSFraction.EMFrac.GhostAntiKt2TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTruth.GhostWBosons.GhostZBosons.HECFrac.HECQuality.HighestJVFVtx.ConstituentScale.TrackWidthPt500.DFCommonJets_Jvt"
 
@@ -373,6 +393,8 @@ addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow"])
 HIGG1D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
+HIGG1D1Stream.AddItem("xAOD::VertexContainer#ZeeRefittedPrimaryVertices")
+HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#ZeeRefittedPrimaryVerticesAux.-vxTrackAtVertex")
 
 # Put the truth density computation (done in EGammaCommon) after jetalg (to have the truth jet input particles prepared)
 index = topSequence.getSequence().index('JetAlgorithm/jetalg') 
