@@ -9,12 +9,12 @@
 #ifndef TRKDETDESCRINTERFACES_INAVIGATOR_H
 #define TRKDETDESCRINTERFACES_INAVIGATOR_H
 
-// GeoPrimitives
-
-#include "GaudiKernel/EventContext.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+// GeoPrimitives
+#include "GeoPrimitives/GeoPrimitives.h"
 // Trk
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
@@ -181,5 +181,6 @@ public:
 
 } // end of namespace
 #include "TrkExInterfaces/INavigator.icc"
+
 #endif // TRKDETDESCRINTERFACES_INAVIGATOR_H
 
