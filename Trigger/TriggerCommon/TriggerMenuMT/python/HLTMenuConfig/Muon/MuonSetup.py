@@ -12,6 +12,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
+
 TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF")
 theFTF_name = "FTFTracks_Muons"
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
@@ -228,18 +229,16 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
   MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                RpcContainerCacheKey = MuonCacheNames.RpcCache,
-                                                               WriteOutRpcSectorLogic = False, # we don't need the RPC sector logic when running the trigger and can't write it out if we want to use the IDC cache for the RDOs
+                                                               WriteOutRpcSectorLogic = False, 
+                                                               # we don't need the RPC sector logic when running the trigger and 
+                                                               #can't write it out if we want to use the IDC cache for the RDOs
                                                                Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
-  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-  RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-
-  #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
-  #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                = "RpcRdoToPrepDataTool",
-  #                                                       RpcPrdContainerCacheKey = MuonPrdCacheNames.RpcCache,
-  #                                                       RpcCoinContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
-  #RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
+  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
+  RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                         = "RpcRdoToPrepDataTool",
+                                                         RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache,
+                                                         RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
 
   if athenaCommonFlags.isOnline: 
       RpcRdoToRpcPrepDataTool.ReadKey = ""

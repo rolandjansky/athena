@@ -14,6 +14,8 @@ public:
   RpcRdoToPrepDataTool( const std::string&, const std::string&, const IInterface* );
   virtual ~RpcRdoToPrepDataTool()=default;
   virtual StatusCode initialize() override;
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
 protected:
   virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
