@@ -9,7 +9,6 @@
 // class include
 #include "KinematicSimSelector.h"
 
-#include "GaudiKernel/IPartPropSvc.h"
  
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
@@ -18,7 +17,8 @@
 ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p)
   : BaseSimulationSelector(t,n,p)
   , KinematicParticleCuts()
-{
+  , m_partPropSvc("PartPropSvc", name())
+{  
   declareProperty("MinPosEta",            m_cut_minPosEta  , "Minimum Position Pseudorapidity" );
   declareProperty("MaxPosEta",            m_cut_maxPosEta  , "Maximum Position Pseudorapidity" );
   declareProperty("MinMomEta",            m_cut_minMomEta  , "Minimum Momentum Pseudorapidity" );
@@ -38,18 +38,12 @@ ISF::KinematicSimSelector::~KinematicSimSelector()
 // Athena algtool's Hooks
 StatusCode  ISF::KinematicSimSelector::initialize()
 {
-  ATH_MSG_VERBOSE("Initializing ...");
+   ATH_MSG_VERBOSE("Initializing ...");
 
-  IPartPropSvc* p_PartPropSvc = 0;
+   ATH_CHECK(m_partPropSvc.retrieve()); 
 
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
-   {
-    ATH_MSG_ERROR("could not find PartPropService");
-    return StatusCode::FAILURE;
-    }
-  
    HepPDT::ParticleDataTable* m_particleDataTable; 
-   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
+   m_particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
 
    if(m_particleDataTable == 0) 
    {

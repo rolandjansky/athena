@@ -148,25 +148,31 @@ def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getPionG4FastCaloGeant4Selector(name="ISF_PionG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 150)
+    kwargs.setdefault('MaxEkin'         , 200)
     kwargs.setdefault('ParticlePDG'     , 211)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getProtonG4FastCaloGeant4Selector(name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 600)
+    kwargs.setdefault('MaxEkin'         , 400)
     kwargs.setdefault('ParticlePDG'     , 2212)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
-def getChargedKaonG4FastCaloGeant4Selector(name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 600)
+def getNeutronG4FastCaloGeant4Selector(name="ISF_NeutronG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2112)
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getChargedKaonG4FastCaloGeant4Selector(name="ISF_ChargedKaonG4FastCaloGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
     kwargs.setdefault('ParticlePDG'     , 321)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getKLongG4FastCaloGeant4Selector(name="ISF_KLongG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 600)
+    kwargs.setdefault('MaxEkin'         , 400)
     kwargs.setdefault('ParticlePDG'     , 130)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)

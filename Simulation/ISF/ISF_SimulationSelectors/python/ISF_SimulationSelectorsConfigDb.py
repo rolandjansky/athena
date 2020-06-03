@@ -14,6 +14,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getProtonAFII_QS_
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionAFIIGeant4Selector"               , "ISF_PionAFIIGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionG4FastCaloGeant4Selector"         , "ISF_PionG4FastCaloGeant4Selector"        )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getProtonG4FastCaloGeant4Selector"       , "ISF_ProtonG4FastCaloGeant4Selector"      )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getNeutronG4FastCaloGeant4Selector"      , "ISF_NeutronG4FastCaloGeant4Selector"     )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getChargedKaonG4FastCaloGeant4Selector"  , "ISF_ChargedKaonG4FastCaloGeant4Selector" ) 
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getKLongG4FastCaloGeant4Selector"        , "ISF_KLongG4FastCaloGeant4Selector"       )      
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionAFII_QS_Geant4Selector"           , "ISF_PionAFII_QS_Geant4Selector"          )

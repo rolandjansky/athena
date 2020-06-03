@@ -39,6 +39,7 @@ bool  ISF::KinematicParticleCuts::pass(const ISFParticle& particle) const {
   const float chargeTolerance = 1e-4f;
 
   bool pass = true;
+ 
   pass &= m_cut_pdg ? (abs(particle.pdgCode()) == m_cut_pdg) : true;
   pass &= (m_cut_charge < (ISF_UNDEF_CHARGE+1.)) || fabs(particle.charge()-m_cut_charge)<chargeTolerance;
   pass &= (m_cut_minMom2 < 0.) || (mom2 >= m_cut_minMom2);

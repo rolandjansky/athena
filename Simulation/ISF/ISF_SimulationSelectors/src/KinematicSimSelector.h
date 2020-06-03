@@ -9,14 +9,12 @@
 #ifndef ISF_TOOLS_KINEMATICSIMSELECTOR_H
 #define ISF_TOOLS_KINEMATICSIMSELECTOR_H 1
 
+#include "GaudiKernel/IPartPropSvc.h"
+
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
 #include "BaseSimulationSelector.h"
 
-namespace HepPDT
-{
-  class ParticleData; 
-}
 
 namespace ISF
 {
@@ -29,6 +27,8 @@ namespace ISF
   */
   class KinematicSimSelector final : public BaseSimulationSelector, public KinematicParticleCuts
   {
+
+  ServiceHandle<IPartPropSvc> m_partPropSvc; 
 
   public:
     /** Constructor with parameters */

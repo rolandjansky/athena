@@ -312,6 +312,7 @@ def getKernel_G4FastCalo(name="ISF_Kernel_G4FastCalo", **kwargs):
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
                                                        'ISF_PionG4FastCaloGeant4Selector',
                                                        'ISF_ProtonG4FastCaloGeant4Selector',
+                                                       'ISF_NeutronG4FastCaloGeant4Selector',
                                                        'ISF_ChargedKaonG4FastCaloGeant4Selector',
                                                        'ISF_KLongG4FastCaloGeant4Selector',
                                                        'ISF_DefaultFastCaloSimV2Selector' ] )
