@@ -36,9 +36,10 @@ namespace Tau{
 	Migration(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
 	virtual ~Migration();
 
-	void fill(const xAOD::TauJet& tau,int nProng, int nNeu);
-	
-	//Tau::ParamPlots m_oParamPlots;
+	/* void fill(const xAOD::TauJet& tau,int nProng, int nNeu); */
+	void fill(
+	   const xAOD::TauJet& tau,
+	   xAOD::TauJetParameters::DecayMode trueMode);
 	
 	const char *m_lable[DECAYSIZE] = {
 	    "t10r10",
@@ -64,8 +65,8 @@ namespace Tau{
     private:
 	void initializePlots();
 	std::string m_sTauJetContainerName;
-	void decayModeFill(int trueMode, int recP, int recN,TH1 *histo);
-	void decayModeFill(int trueP,int trueN,int recP, int recN,TH1 *histo);
+	void decayModeFill(int trueMode, int recMode, TH1 *histo);
+	void decayModeFill(int trueMode, int recP, int recN, TH1 *histo);
     };
     
 }

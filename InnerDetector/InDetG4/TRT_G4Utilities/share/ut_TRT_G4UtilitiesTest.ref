@@ -1,0 +1,9 @@
+Running 7 test cases...
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+*** No errors detected

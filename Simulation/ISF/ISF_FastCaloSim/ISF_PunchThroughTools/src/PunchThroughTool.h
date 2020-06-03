@@ -110,31 +110,34 @@ namespace ISF {
      *---------------------------------------------------------------------*/
 
     /** initial particle properties */
-    mutable const ISF::ISFParticle*      m_initPs;         //!< the incoming particle
-    mutable double                       m_initEnergy;     //!< the incoming particle's energy
-    mutable double                       m_initEta;        //!< the incoming particle's eta
-    mutable double                       m_initTheta;      //!< the incoming particle's theta
-    mutable double                       m_initPhi;        //!< the incoming particle's phi
+    mutable const ISF::ISFParticle*      m_initPs{nullptr}; //!< the incoming particle
+    mutable double                       m_initEnergy{0.};  //!< the incoming particle's energy
+    mutable double                       m_initEta{0.};     //!< the incoming particle's eta
+    mutable double                       m_initTheta{0.};   //!< the incoming particle's theta
+    mutable double                       m_initPhi{0.};     //!< the incoming particle's phi
 
     /** calo-MS borders */
-    double                               m_R1, m_R2, m_z1, m_z2;
+    double                               m_R1{0.};
+    double                               m_R2{0.};
+    double                               m_z1{0.};
+    double                               m_z2{0.};
 
     /** the returned vector of ISFParticles */
-    mutable ISF::ISFParticleContainer  *m_isfpCont;
+    mutable ISF::ISFParticleContainer  *m_isfpCont{nullptr};
 
     /** parent event */
-    mutable HepMC::GenEvent*            m_parentGenEvt;    //!< all newly created particles/vertices will have this common parent
+    mutable HepMC::GenEvent*            m_parentGenEvt{nullptr};    //!< all newly created particles/vertices will have this common parent
 
     /** ParticleDataTable needed to get connection pdg_code <-> charge */
-    const HepPDT::ParticleDataTable*    m_particleDataTable;
+    const HepPDT::ParticleDataTable*    m_particleDataTable{nullptr};
 
     /** random generator service */
-    ServiceHandle<IAtRndmGenSvc>        m_randomSvc;                //!< Random Svc
-    std::string                         m_randomEngineName;         //!< Name of the random number stream
-    CLHEP::HepRandomEngine*             m_randomEngine;             //!< Random Engine
+    ServiceHandle<IAtRndmGenSvc>        m_randomSvc;                  //!< Random Svc
+    std::string                         m_randomEngineName{"ISFRnd"}; //!< Name of the random number stream
+    CLHEP::HepRandomEngine*             m_randomEngine{nullptr};      //!< Random Engine
 
     /** ROOT objects */
-    TFile*                              m_fileLookupTable;          //!< the punch-through lookup table file
+    TFile*                              m_fileLookupTable{nullptr};   //!< the punch-through lookup table file
     /** general information of the punch-through particles which will be created */
     mutable std::map<int, bool>         m_doAntiParticleMap;        /*!< stores information, if anti-particles are
                                                                       created for any given PDG id */
@@ -143,16 +146,16 @@ namespace ISF {
 
     /** barcode steering */
 
-    mutable Barcode::PhysicsProcessCode m_processCode;
-    mutable Barcode::ParticleBarcode    m_primBC;
-    mutable Barcode::ParticleBarcode    m_secBC;
+    mutable Barcode::PhysicsProcessCode m_processCode{0};
+    mutable Barcode::ParticleBarcode    m_primBC{0};
+    mutable Barcode::ParticleBarcode    m_secBC{0};
 
     /*---------------------------------------------------------------------
      *  Properties
      *---------------------------------------------------------------------*/
 
     /** Properties */
-    std::string                          m_filenameLookupTable;     //!< holds the filename of the lookup table (property)
+    std::string                          m_filenameLookupTable{"CaloPunchThroughParametrisation.root"};     //!< holds the filename of the lookup table (property)
     std::vector<int>                     m_pdgInitiators;           //!< vector of punch-through initiator pgds
     std::vector<int>                     m_punchThroughParticles;   //!< vector of pdgs of the particles produced in punch-throughs
     std::vector<bool>                    m_doAntiParticles;         //!< vector of bools to determine if anti-particles are created for each punch-through particle type
@@ -175,7 +178,7 @@ namespace ISF {
     ServiceHandle<IEnvelopeDefSvc>       m_envDefSvc;
 
     /** beam pipe radius */
-    double                              m_beamPipe;
+    double                              m_beamPipe{500.};
   };
 }
 

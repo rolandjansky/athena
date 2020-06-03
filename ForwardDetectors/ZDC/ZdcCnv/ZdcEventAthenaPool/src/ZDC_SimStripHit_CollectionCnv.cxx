@@ -15,7 +15,7 @@
 
 ZDC_SimStripHit_Collection_PERS* ZDC_SimStripHit_CollectionCnv::createPersistent(ZDC_SimStripHit_Collection* transCont) {
 
-    MsgStream mlog(messageService(), "ZDC_SimStripHit_CollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZDC_SimStripHit_CollectionConverter" );
     ZDC_SimStripHit_CollectionCnv_p1   converter;
     ZDC_SimStripHit_Collection_PERS *persObj = converter.createPersistent( transCont, mlog );
 
@@ -26,7 +26,7 @@ ZDC_SimStripHit_Collection_PERS* ZDC_SimStripHit_CollectionCnv::createPersistent
 ZDC_SimStripHit_Collection* ZDC_SimStripHit_CollectionCnv::createTransient() {
 
 
-    MsgStream mlog(messageService(), "ZDC_SimStripHit_CollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZDC_SimStripHit_CollectionConverter" );
     ZDC_SimStripHit_CollectionCnv_p1   converter_p1;
 
     ZDC_SimStripHit_Collection       *trans_cont(0);

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # TileBchTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-17
 #
@@ -464,14 +464,14 @@ class TileBchMgr(TileCalibLogger):
                 if nChange==-1:
                     nUpdates += 1
                     self.log().info("Drawer %s reset to GOOD"%(modName)) 
-                    if modName not in comment:
+                    if modName not in comment and not ("ONL" not in folderPath or "syncALL" not in comment):
                         goodComment = False
                         self.log().error("Comment string - '%s' - doesn't contain drawer %s" %(comment,modName)) 
                     writer.zeroBlob(ros,mod)
                 else:
                     nUpdates += 1
                     self.log().info("Applying %2i changes to drawer %s" %(nChange,modName)) 
-                    if modName not in comment:
+                    if modName not in comment and ("ONL" not in folderPath or "syncALL" not in comment):
                         goodComment = False
                         self.log().error("Comment string - '%s' - doesn't contain drawer %s" %(comment,modName)) 
                     drawer = writer.getDrawer(ros,mod)

@@ -1,19 +1,13 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           JetElementKey.h  -  description
                              -------------------
     begin                : Friday Jan 20 2006
-    copyright            : (C) 2006 Alan Watson
     email                : Alan.Watson@cern.ch
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef JetElementKey_H
 #define JetElementKey_H

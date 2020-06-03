@@ -30,10 +30,11 @@
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-//#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
+
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 #include <iostream>
 #include <sstream>
@@ -197,15 +198,12 @@ namespace Overlay {
       if (source==InDetOverlay::MCSource) { // MC
         rdo = mc.begin();
         rdoEnd = mc.end();
-      } else if (source==InDetOverlay::DataSource) { // Data
+      } else { // Data
         rdo = data.begin();
         rdoEnd = data.end();
-      } else {
-        parent->msg(MSG::WARNING) << "Invalid source " << source << " in mergeCollectionsNew for SCT" << endmsg;
-        continue;
-      }
+      } 
       // Loop over all RDOs in the wafer
-      for (; rdo!=rdoEnd; rdo++) {
+      for (; rdo!=rdoEnd; ++rdo) {
         const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
         if (!rdo3) {
           std::ostringstream os;
@@ -284,7 +282,8 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   m_rndmSvc("AtRndmGenSvc",name),
   m_rndmEngineName("InDetOverlay"),
   m_rndmEngine(nullptr),
-  m_TRT_LocalOccupancyTool("TRT_LocalOccupancy")
+  m_TRT_LocalOccupancyTool("TRT_LocalOccupancy"),
+  m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name)
 {
 
   //change via postExec indetovl.do_XXX=True
@@ -306,16 +305,16 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   
   
   declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.160);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.130);
-  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.105);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.080);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.110);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.090);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.06);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.05);
 
   declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
   
   declareProperty("TRT_LocalOccupancyTool", m_TRT_LocalOccupancyTool);
-  
+  declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);  
 }
 
 //================================================================
@@ -348,6 +347,18 @@ StatusCode InDetOverlay::overlayInitialize()
     }
 
     CHECK( m_TRT_LocalOccupancyTool.retrieve() );
+
+
+    if (!m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+      return StatusCode::FAILURE;
+    } else {
+      if ( !m_TRTStrawSummarySvc.empty()) 
+        ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc );
+    }
+
+
 
   } 
   return StatusCode::SUCCESS;
@@ -637,12 +648,23 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
           // the actual merging
           pr1->merge(*pr2);
         
+
           //If the hit is not already a high level hit 
-          if( !(pr1->getWord() & 0x04020100) ) {
+          if( !(pr1->getWord() & 0x04020100)  ) {
+          
+            bool isXenonStraw = false;
+          
+            Identifier rdoId = p_rdo->identify();
             
+            if (!m_TRTStrawSummarySvc.empty()) {
+              if (m_TRTStrawSummarySvc->getStatusHT(rdoId) == TRTCond::StrawStatus::Good) {
+                isXenonStraw = true;
+              }
+            }
+
+           
             //Determine if the hit is from an electron or not
             bool isElectron = false;
-            Identifier rdoId = p_rdo->identify();
             InDetSimDataCollection::const_iterator sdoIter(SDO_Map.find(rdoId));
             if( sdoIter != SDO_Map.end() ){
               const std::vector< InDetSimData::Deposit >& deposits = sdoIter->second.getdeposits();
@@ -667,7 +689,7 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
               HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE; 
             }
 
-            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
+            if( isXenonStraw && ( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) ) 
               newword += 1 << (26-9);
             //
             TRT_LoLumRawData newrdo( pr1->identify(), newword); 

@@ -14,17 +14,13 @@ public:
   TFCSParametrizationEbinChain(const TFCSParametrizationEbinChain& ref):TFCSParametrizationBinnedChain(ref) {};
 
   /// current convention is to start Ebin counting at 1, to be updated to start counting with 0
-  virtual int get_bin(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const {return simulstate.Ebin();};
-  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const;
+  virtual int get_bin(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override {return simulstate.Ebin();};
+  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 private:
 
-  ClassDef(TFCSParametrizationEbinChain,1)  //TFCSParametrizationEbinChain
+  ClassDefOverride(TFCSParametrizationEbinChain,1)  //TFCSParametrizationEbinChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationEbinChain+;
-#endif
 
 #endif

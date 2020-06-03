@@ -374,7 +374,7 @@ class SCTCalib : public AthAlgorithm {
         xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial);
 
         std::string
-        xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial);
+        xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial, const int side);
 
         std::pair<int, bool>
         getNumNoisyStrips( const Identifier& waferId ) const;

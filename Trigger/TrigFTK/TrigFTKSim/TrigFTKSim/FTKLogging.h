@@ -20,7 +20,7 @@
 
 class FTKLogging {
 public:
-   FTKLogging(const std::string &name) : fName(name),fOut(new std::ostream(0)) { }
+   FTKLogging(const std::string &name) : m_name(name),m_out(new std::ostream(0)) { }
    virtual ~FTKLogging();
    std::ostream &Fatal(const char *where) const;
    std::ostream &Error(const char *where) const;
@@ -28,15 +28,15 @@ public:
    std::ostream &Info(const char *where) const;
    std::ostream &Debug(const char *where) const;
    void ShowProgress(const char *text);
-   const std::string &GetName(void) const { return fName; }
+   const std::string &GetName(void) const { return m_name; }
    static void SetPrintLevel(int);
    static void SetAbortLevel(int);
 private:
-   static int sPrintLevel,sAbortLevel;
+   static int s_printLevel,s_abortLevel;
    std::string GetHeader(const char *where) const;
    std::ostream &GetStream(const char *name,int level) const;
-   std::string fName;
-   std::ostream *fOut;
+   std::string m_name;
+   std::ostream *m_out;
 };
 
 class FTKLogger : public std::streambuf {
@@ -60,18 +60,21 @@ public:
    //   }
    static FTKLogger *GetLogger(int type,int printLevel,int abortLevel);
 protected:
-   static FTKLogger *logger;
+   static FTKLogger *s_logger;
 
    FTKLogger(void);
    virtual ~FTKLogger();
    static void SetLogger(FTKLogger *ftkLogger);
    void SetType(int type,int printLevel,int abortLevel);
+   int getLoggerMsgType(void) const { return m_type; }
+   std::string getLoggerMsg(void) const { return m_buffer->str(); }
    //FTKLogger() : fLevel(0) { }
    virtual std::streamsize xsputn ( const char * s, std::streamsize n ); 
    virtual int overflow (int c);
    virtual void PostMessage(void);
-   std::ostringstream *fBuffer;
-   int fType,fAbortLevel,fPrintLevel;
+   std::ostringstream *m_buffer;
+
+   int m_type,m_abortLevel,m_printLevel;
 };
 
 #endif

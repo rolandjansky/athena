@@ -87,6 +87,33 @@ namespace PFODetails
     eflowRec_LAYERENERGY_MINIFCAL2,
     eflowRec_LAYERENERGY_MINIFCAL3,
     eflowRec_EM_PROBABILITY,
+    eflowRec_layerVectorCellOrdering,
+    eflowRec_radiusVectorCellOrdering,
+    eflowRec_avgEdensityVectorCellOrdering,
+    eflowRec_layerHED,
+    eflowRec_ENG_CALIB_TOT,
+    eflowRec_ENG_CALIB_FRAC_EM,
+    eflowRec_ENG_CALIB_FRAC_HAD,
+    eflowRec_ENG_CALIB_FRAC_REST,
+    /* These are all of the DigiTruth attributes */
+    eflowRec_ENERGY_DigiHSTruth,
+    eflowRec_ETA_DigiHSTruth,
+    eflowRec_PHI_DigiHSTruth,
+    eflowRec_SECOND_R_DigiHSTruth,
+    eflowRec_FIRST_ENG_DENS_DigiHSTruth,
+    eflowRec_CENTER_LAMBDA_DigiHSTruth,
+    eflowRec_SECOND_LAMBDA_DigiHSTruth,
+    eflowRec_ISOLATION_DigiHSTruth,
+    eflowRec_ENG_FRAC_MAX_DigiHSTruth,
+    eflowRec_ENG_BAD_CELLS_DigiHSTruth,
+    eflowRec_N_BAD_CELLS_DigiHSTruth,
+    eflowRec_BADLARQ_FRAC_DigiHSTruth,
+    eflowRec_ENG_POS_DigiHSTruth,
+    eflowRec_SIGNIFICANCE_DigiHSTruth,
+    eflowRec_CELL_SIGNIFICANCE_DigiHSTruth,
+    eflowRec_CELL_SIG_SAMPLING_DigiHSTruth,
+    eflowRec_AVG_LAR_Q_DigiHSTruth,
+    eflowRec_AVG_TILE_Q_DigiHSTruth,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
@@ -133,7 +160,7 @@ namespace PFODetails
     tauShots_mergedScore, 
     tauShots_signalScore, 
     tauShots_nPhotons,
-    tauShots_seedHash
+    tauShots_seedHash,
   };
 
   /** This enum is used to label the associated particles to the PFO object */

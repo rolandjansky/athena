@@ -19,7 +19,7 @@ fi
 ###
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
+timeout 1m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
@@ -27,9 +27,9 @@ echo "art-result: ${PIPESTATUS[0]} CheckLog"
 # add check_statuscode.py ${JOB_LOG}
 # RunMsgFinder
 
-# TODO
-# this is RTT and will need some moving
-# timeout 1m PerfMonRunner.py --fileName=ntuple.pmon.gz --options="-f 0.90"
+# Run perfmon
+timeout 1m perfmon.py -f 0.90 ntuple.pmon.gz
+timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
@@ -59,7 +59,8 @@ fi
 
 if [ -f trig_cost.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CostMon"
-  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode > costMon.log 2>&1
+#  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --ratesMode > costMon.log 2>&1
+  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34 > costMon.log 2>&1
 else 
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
@@ -99,6 +100,9 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
+ls -lh
 
 echo  $(date "+%FT%H:%M %Z")"     Finished TrigP1Test post processing"
 

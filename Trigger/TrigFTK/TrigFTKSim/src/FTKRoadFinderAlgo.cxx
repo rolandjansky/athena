@@ -72,8 +72,9 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
   m_AutoDisable(false),
+  m_read_FTKhits_directly(false),
   m_firstEventFTK(-1), 
-  m_read_FTKhits_directly(false)
+  m_AMcompressionMode(0)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -147,6 +148,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DCMatchMethod",m_DCMatchMethod,"Set the DC matching method: 0 through TSP SS organization, 1 direct");
 
   declareProperty("FirstEventFTK",m_firstEventFTK,"First event to run over");
+  declareProperty("AMcompressionMode",m_AMcompressionMode,"compression mode for AM bank");
 }
 
 FTKRoadFinderAlgo::~FTKRoadFinderAlgo()
@@ -466,6 +468,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
           new FTK_CompressedAMBank(regid,subid);
        compressedBank->setSSMapTSP(m_ssmap_tsp);
        curbank=compressedBank;
+       compressedBank->setCompressionScheme(m_AMcompressionMode);
     } else {
       // configure a base AM bank
       curbank = new FTK_AMBank(regid,subid);
@@ -626,10 +629,11 @@ StatusCode FTKRoadFinderAlgo::finalize() {
 }
 
 void FTKRoadFinderAlgo::PostMessage() {
-   if(fType==0)  ATH_MSG_FATAL(fBuffer->str());
-   else if(fType==1)  ATH_MSG_ERROR(fBuffer->str());
-   else if(fType==2)  ATH_MSG_WARNING(fBuffer->str());
-   else if(fType==3)  ATH_MSG_INFO(fBuffer->str());
-   else if(fType==4)  ATH_MSG_DEBUG(fBuffer->str());
+   int fType=getLoggerMsgType();
+   if(fType==0) ATH_MSG_FATAL(getLoggerMsg());
+   else if(fType==1)  ATH_MSG_ERROR(getLoggerMsg());
+   else if(fType==2)  ATH_MSG_WARNING(getLoggerMsg());
+   else if(fType==3)  ATH_MSG_INFO(getLoggerMsg());
+   else if(fType==4)  ATH_MSG_DEBUG(getLoggerMsg());
 }
 

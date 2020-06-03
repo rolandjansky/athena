@@ -9,14 +9,14 @@
 #include "GaudiKernel/MsgStream.h"
 
 ZdcRawChannelCollection_PERS* ZdcRawChannelCollectionCnv::createPersistent(ZdcRawChannelCollection* transCont) {
-    MsgStream mlog(messageService(), "ZdcRawChannelCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZdcRawChannelCollectionConverter" );
     ZdcRawChannelCollectionCnv_p1   converter;
     ZdcRawChannelCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
 }
 
 ZdcRawChannelCollection* ZdcRawChannelCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ZdcRawChannelCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ZdcRawChannelCollectionConverter" );
     ZdcRawChannelCollectionCnv_p1   converter_p1;
 
     ZdcRawChannelCollection       *trans_cont(0);

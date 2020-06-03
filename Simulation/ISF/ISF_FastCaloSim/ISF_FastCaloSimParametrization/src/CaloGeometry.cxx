@@ -24,6 +24,15 @@
 
 using namespace std;
 
+int CaloGeometry_calocol[24]={1,2,3,4, // LAr barrel
+                     1,2,3,4, // LAr EM endcap
+                     1,2,3,4, // Hadronic end cap cal.
+                     1,2,3,   // Tile barrel
+                     -42,-28,6, // Tile gap (ITC & scint)
+                     1,2,3,   // Tile extended barrel
+                     1,2,3    // Forward EM endcap
+                    }; 
+
 const int CaloGeometry::MAX_SAMPLING = CaloCell_ID_FCS::MaxSample; //number of calorimeter layers/samplings
 
 Identifier CaloGeometry::m_debug_identify;
@@ -309,19 +318,10 @@ void CaloGeometry::InitRZmaps()
   } //side
   
   if(DoGraphs()) {
-    int calocol[24]={1,2,3,4, // LAr barrel
-                     1,2,3,4, // LAr EM endcap
-                     1,2,3,4, // Hadronic end cap cal.
-                     1,2,3,   // Tile barrel
-                     6,28,42, // Tile gap (ITC & scint)
-                     1,2,3,   // Tile extended barrel
-                     1,2,3    // Forward EM endcap
-                    }; 
-                   
     for(int sample=0;sample<MAX_SAMPLING;++sample) {
       m_graph_layers[sample]=new TGraphErrors(rz_map_n[0][sample].size()+rz_map_n[1][sample].size());
-      m_graph_layers[sample]->SetMarkerColor(calocol[sample]);
-      m_graph_layers[sample]->SetLineColor(calocol[sample]);
+      m_graph_layers[sample]->SetMarkerColor(TMath::Abs(CaloGeometry_calocol[sample]));
+      m_graph_layers[sample]->SetLineColor(TMath::Abs(CaloGeometry_calocol[sample]));
       int np=0;
       for(int side=0;side<=1;++side) {
         for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter) {
@@ -351,6 +351,94 @@ void CaloGeometry::InitRZmaps()
   }
 }
 
+TGraph* CaloGeometry::DrawGeoSampleForPhi0(int sample, int calocol, bool print)
+{
+  TGraph* firstgr=0;
+  cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
+  int ngr=0;
+  for(t_eta_cellmap::iterator calo_iter=m_cells_in_sampling_for_phi0[sample].begin();calo_iter!=m_cells_in_sampling_for_phi0[sample].end();++calo_iter) {
+    const CaloDetDescrElement* theDDE=(*calo_iter).second;
+    if(theDDE) {
+      TVector3 cv;
+      TGraph* gr=new TGraph(5);
+      gr->SetLineColor(TMath::Abs(calocol));
+      gr->SetFillColor(TMath::Abs(calocol));
+      if(calocol<0) {
+        gr->SetFillStyle(1001);
+      } else {
+        gr->SetFillStyle(0);
+      }
+      gr->SetLineWidth(2);
+      double r=theDDE->r();
+      double dr=theDDE->dr();
+      double x=theDDE->x();
+      double dx=theDDE->dx();
+      double y=theDDE->y();
+      double dy=theDDE->dy();
+      double z=theDDE->z();
+      double dz=theDDE->dz()*2;
+      double eta=theDDE->eta();
+      double deta=theDDE->deta();
+      
+      if(CaloSampling::PreSamplerB<=sample && sample<=CaloSampling::EMB3) {
+       dr*=2;
+      }
+      if(print) {
+        cout<<"sample="<<sample<<" r="<<r<<" dr="<<dr<<" eta="<<eta<<" deta="<<deta<<" x="<<x<<" y="<<y<<" z="<<z<<" dz="<<dz<<endl;
+      }
+      if(isCaloBarrel(sample)) {
+        cv.SetPtEtaPhi(r-dr/2,eta-deta/2,0);
+        gr->SetPoint(0,cv.Z(),cv.Pt());
+        gr->SetPoint(4,cv.Z(),cv.Pt());
+        cv.SetPtEtaPhi(r-dr/2,eta+deta/2,0);
+        gr->SetPoint(1,cv.Z(),cv.Pt());
+        cv.SetPtEtaPhi(r+dr/2,eta+deta/2,0);
+        gr->SetPoint(2,cv.Z(),cv.Pt());
+        cv.SetPtEtaPhi(r+dr/2,eta-deta/2,0);
+        gr->SetPoint(3,cv.Z(),cv.Pt());
+      } else {
+        if(sample<CaloSampling::FCAL0) {
+          cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z-dz/2)/cv.Z();
+          gr->SetPoint(0,cv.Z(),cv.Pt());
+          gr->SetPoint(4,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z-dz/2)/cv.Z();
+          gr->SetPoint(1,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z+dz/2)/cv.Z();
+          gr->SetPoint(2,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z+dz/2)/cv.Z();
+          gr->SetPoint(3,cv.Z(),cv.Pt());
+        } else {
+          double minr=r;
+          double maxr=r;
+          for(double px=x-dx/2;px<=x+dx/2;px+=dx) {
+            for(double py=y-dy/2;py<=y+dy/2;py+=dy) {
+              double pr=TMath::Sqrt(px*px+py*py);
+              minr=TMath::Min(minr,pr);
+              maxr=TMath::Max(maxr,pr);
+            }
+          }
+          cv.SetXYZ(minr,0,z-dz/2);
+          gr->SetPoint(0,cv.Z(),cv.Pt());
+          gr->SetPoint(4,cv.Z(),cv.Pt());
+          cv.SetXYZ(maxr,0,z-dz/2);
+          gr->SetPoint(1,cv.Z(),cv.Pt());
+          cv.SetXYZ(maxr,0,z+dz/2);
+          gr->SetPoint(2,cv.Z(),cv.Pt());
+          cv.SetXYZ(minr,0,z+dz/2);
+          gr->SetPoint(3,cv.Z(),cv.Pt());
+        }  
+      }
+      //if(calocol[sample]>0) gr->Draw("Lsame");
+      // else gr->Draw("LFsame");
+      gr->Draw("LFsame");
+      if(ngr==0) firstgr=gr;
+      ++ngr;
+    }
+  }  
+  cout<<"Done sample "<<sample<<" ("<<SamplingName(sample)<<")="<<ngr<<endl;
+  return firstgr;
+}
+
 TCanvas* CaloGeometry::DrawGeoForPhi0()
 {
   TCanvas* c=new TCanvas("CaloGeoForPhi0","Calo geometry for #phi~0");
@@ -359,15 +447,6 @@ TCanvas* CaloGeometry::DrawGeoForPhi0()
   hcalolayout->SetStats(0);
   hcalolayout->GetYaxis()->SetTitleOffset(1.4);
   
-  int calocol[MAX_SAMPLING]={1,2,3,4, // LAr barrel
-                   1,2,3,4, // LAr EM endcap
-                   1,2,3,4, // Hadronic end cap cal.
-                   1,2,3,   // Tile barrel
-                   -42,-28,-6, // Tile gap (ITC & scint)
-                   1,2,3,   // Tile extended barrel
-                   1,2,3    // Forward EM endcap
-                  }; 
-
   TLegend* leg=new TLegend(0.30,0.13,0.70,0.37);
   leg->SetFillStyle(0);
   leg->SetFillColor(10);
@@ -375,90 +454,12 @@ TCanvas* CaloGeometry::DrawGeoForPhi0()
   leg->SetNColumns(2);
 
   for(int sample=0;sample<MAX_SAMPLING;++sample) {
-//  for(int sample=21;sample<22;++sample) {
-    cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
-    int ngr=0;
-    for(t_eta_cellmap::iterator calo_iter=m_cells_in_sampling_for_phi0[sample].begin();calo_iter!=m_cells_in_sampling_for_phi0[sample].end();++calo_iter) {
-      const CaloDetDescrElement* theDDE=(*calo_iter).second;
-      if(theDDE) {
-        TVector3 cv;
-        TGraph* gr=new TGraph(5);
-        gr->SetLineColor(TMath::Abs(calocol[sample]));
-        gr->SetFillColor(TMath::Abs(calocol[sample]));
-        if(calocol[sample]<0) {
-          gr->SetFillStyle(1001);
-        } else {
-          gr->SetFillStyle(0);
-        }
-        gr->SetLineWidth(2);
-        double r=theDDE->r();
-        double dr=theDDE->dr();
-        double x=theDDE->x();
-        double dx=theDDE->dx();
-        double y=theDDE->y();
-        double dy=theDDE->dy();
-        double z=theDDE->z();
-        double dz=theDDE->dz()*2;
-        double eta=theDDE->eta();
-        double deta=theDDE->deta();
-        if(CaloSampling::PreSamplerB<=sample && sample<=CaloSampling::EMB3) {
-         dr*=2;
-        }
-        
-        if(isCaloBarrel(sample)) {
-          cv.SetPtEtaPhi(r-dr/2,eta-deta/2,0);
-          gr->SetPoint(0,cv.Z(),cv.Pt());
-          gr->SetPoint(4,cv.Z(),cv.Pt());
-          cv.SetPtEtaPhi(r-dr/2,eta+deta/2,0);
-          gr->SetPoint(1,cv.Z(),cv.Pt());
-          cv.SetPtEtaPhi(r+dr/2,eta+deta/2,0);
-          gr->SetPoint(2,cv.Z(),cv.Pt());
-          cv.SetPtEtaPhi(r+dr/2,eta-deta/2,0);
-          gr->SetPoint(3,cv.Z(),cv.Pt());
-        } else {
-          if(sample<CaloSampling::FCAL0) {
-            cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z-dz/2)/cv.Z();
-            gr->SetPoint(0,cv.Z(),cv.Pt());
-            gr->SetPoint(4,cv.Z(),cv.Pt());
-            cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z-dz/2)/cv.Z();
-            gr->SetPoint(1,cv.Z(),cv.Pt());
-            cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z+dz/2)/cv.Z();
-            gr->SetPoint(2,cv.Z(),cv.Pt());
-            cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z+dz/2)/cv.Z();
-            gr->SetPoint(3,cv.Z(),cv.Pt());
-          } else {
-            double minr=r;
-            double maxr=r;
-            for(double px=x-dx/2;px<=x+dx/2;px+=dx) {
-              for(double py=y-dy/2;py<=y+dy/2;py+=dy) {
-                double pr=TMath::Sqrt(px*px+py*py);
-                minr=TMath::Min(minr,pr);
-                maxr=TMath::Max(maxr,pr);
-              }
-            }
-            cv.SetXYZ(minr,0,z-dz/2);
-            gr->SetPoint(0,cv.Z(),cv.Pt());
-            gr->SetPoint(4,cv.Z(),cv.Pt());
-            cv.SetXYZ(maxr,0,z-dz/2);
-            gr->SetPoint(1,cv.Z(),cv.Pt());
-            cv.SetXYZ(maxr,0,z+dz/2);
-            gr->SetPoint(2,cv.Z(),cv.Pt());
-            cv.SetXYZ(minr,0,z+dz/2);
-            gr->SetPoint(3,cv.Z(),cv.Pt());
-          }  
-        }
-        //if(calocol[sample]>0) gr->Draw("Lsame");
-        // else gr->Draw("LFsame");
-        gr->Draw("LFsame");
-        if(ngr==0) {
-          std::string sname=Form("Sampling %2d : ",sample);
-          sname+=SamplingName(sample);
-          leg->AddEntry(gr,sname.c_str(),"LF");
-        }  
-        ++ngr;
-      }
-    }  
-    cout<<"Done sample "<<sample<<" ("<<SamplingName(sample)<<")="<<ngr<<endl;
+    TGraph* gr=DrawGeoSampleForPhi0(sample,CaloGeometry_calocol[sample],(sample==17));
+    if(gr) {
+      std::string sname=Form("Sampling %2d : ",sample);
+      sname+=SamplingName(sample);
+      leg->AddEntry(gr,sname.c_str(),"LF");
+    }
   }
   leg->Draw();
   return c;
@@ -548,25 +549,78 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
   return bestDDE;
 }
 
-const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
-		int isam = sampling - 20;
-		int iphi,ieta;
-		Long64_t mask1[]{0x34,0x34,0x35};
-		Long64_t mask2[]{0x36,0x36,0x37};
-		m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
-		//cout << ieta << ""
-		Long64_t id = (ieta << 5) + 2*iphi;
-		if(isam==2)id+= (8<<8);
-		
-		if(z>0) id+=(mask2[isam-1] << 12);
-		else id+=(mask1[isam-1] << 12);
-		//if(z<0) cout << "CaloGeometry::getFCalDDE: Identifier: " << (id << 44) << " " << m_cells[id << 44]->identify() << endl;
-		id = id << 44; 
-		Identifier identify((unsigned long long)id);
-		return m_cells[identify];
-		//return m_cells_in_sampling[sampling][id << 12];
+const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z,float* distance,int* steps){
+  int isam = sampling - 20;
+  int iphi(-100000),ieta(-100000);
+  Long64_t mask1[]{0x34,0x34,0x35};
+  Long64_t mask2[]{0x36,0x36,0x37};
+  bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
+  if(steps && found) *steps=0;
+  if(!found) {
+    //cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
+    found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi,steps);
+  }
+  if(!found) {
+    cout << "Error: Unable to find the closest FCal cell!" << endl;
+    return nullptr;
+  }
+  
+  
+  //cout << "CaloGeometry::getFCalDDE: x:" << x << " y: " << y << " ieta: " << ieta << " iphi: " << iphi << " cmap->x(): " << m_FCal_ChannelMap.x(isam,ieta,iphi) << " cmap->y(): " << m_FCal_ChannelMap.y(isam,ieta,iphi) << endl;
+  Long64_t id = (ieta << 5) + 2*iphi;
+  if(isam==2)id+= (8<<8);
+  
+  
+  
+  if(z>0) id+=(mask2[isam-1] << 12);
+  else id+=(mask1[isam-1] << 12);
+  
+  id = id << 44; 
+  Identifier identify((unsigned long long)id);
+  
+  const CaloDetDescrElement* foundcell=m_cells[identify];
+  if(distance) {
+    *distance=sqrt(pow(foundcell->x() - x,2) +  pow(foundcell->y() - y,2)  );
+  }
+  
+  return foundcell;
 }
 
+
+bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi,int* steps){
+  
+  double rmin = m_FCal_rmin[sampling-21];
+  double rmax = m_FCal_rmax[sampling-21];
+  int isam=sampling-20;
+  double a=1.;
+  const double b=0.01;
+  const int nmax=100;
+  int i=0;
+  
+  const double r = sqrt(x*x +y*y);
+  if(r==0.) return false;
+  const double r_inverse=1./r;
+  
+  if((r/rmax)>(rmin*r_inverse)){
+    x=x*rmax*r_inverse;
+    y=y*rmax*r_inverse;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      a-=b;
+      i++;
+    }
+  }
+  else {
+    x=x*rmin*r_inverse;
+    y=y*rmin*r_inverse;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      a+=b;
+      i++;
+    }
+    
+  }
+  if(steps)*steps=i+1;
+  return i<nmax ? true : false;
+}
 
 bool CaloGeometry::PostProcessGeometry()
 {
@@ -596,52 +650,94 @@ bool CaloGeometry::PostProcessGeometry()
   return true;
 }
 
-void CaloGeometry::Validate()
+void CaloGeometry::Validate(int nrnd)
 {
   int ntest=0;
   cout<<"start CaloGeometry::Validate()"<<endl;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
     const CaloDetDescrElement* cell=ic->second;
     int sampling=cell->getSampling();
-    if(sampling>=21) continue;
+    //if(sampling>=21) continue;
 
     if(m_debug_identify==cell->identify()) {
       cout<<"CaloGeometry::Validate(), cell "<<ntest<<" id="<<cell->identify()<<endl; 
       m_debug=true;
     }  
     
-    const int nrnd=100;
     for(int irnd=0;irnd<nrnd;++irnd) {
+      std::stringstream pos;
+      std::stringstream cellpos;
+      std::stringstream foundcellpos;
       int steps=0;
-      float eta=cell->eta()+1.5*(gRandom->Rndm()-0.5)*cell->deta();
-      float phi=cell->phi()+1.5*(gRandom->Rndm()-0.5)*cell->dphi();
-      float distance;
-      const CaloDetDescrElement* foundcell=getDDE(sampling,eta,phi,&distance,&steps);
+      float distance=0;
+      bool is_inside;
+      bool is_inside_foundcell=false;
+      const CaloDetDescrElement* foundcell=0;
+      if(sampling<21) {
+        float eta=cell->eta()+1.95*(gRandom->Rndm()-0.5)*cell->deta();
+        float phi=cell->phi()+1.95*(gRandom->Rndm()-0.5)*cell->dphi();
+        foundcell=getDDE(sampling,eta,phi,&distance,&steps);
+        
+        pos<<"eta="<<eta<<" phi="<<phi;
+        cellpos<<"eta="<<cell->eta()<<" eta_raw="<<cell->eta_raw()<<" deta="<<cell->deta()
+               <<" ("<<(cell->eta_raw()-cell->eta())/cell->deta()<<") ; "
+               <<"phi="<<cell->phi()<<" phi_raw="<<cell->phi_raw()<<" dphi="<<cell->dphi()
+               <<" ("<<(cell->phi_raw()-cell->phi())/cell->dphi()<<")";
+        if(foundcell) {
+          foundcellpos<<"eta="<<foundcell->eta()<<" eta_raw="<<foundcell->eta_raw()<<" deta="<<foundcell->deta()
+                      <<" ("<<(foundcell->eta_raw()-foundcell->eta())/foundcell->deta()<<") ; "
+                      <<"phi="<<foundcell->phi()<<" phi_raw="<<foundcell->phi_raw()<<" dphi="<<foundcell->dphi()
+                      <<" ("<<(foundcell->phi_raw()-foundcell->phi())/cell->dphi()<<")";
+          is_inside_foundcell=TMath::Abs( (eta-foundcell->eta())/foundcell->deta() )<0.55 && TMath::Abs( (phi-foundcell->phi())/foundcell->dphi() )<0.55;
+        }
+        is_inside=TMath::Abs( (eta-cell->eta())/cell->deta() )<0.49 && TMath::Abs( (phi-cell->phi())/cell->dphi() )<0.49;
+      } else {
+        float x=cell->x()+1.95*(gRandom->Rndm()-0.5)*cell->dx();
+        float y=cell->y()+1.95*(gRandom->Rndm()-0.5)*cell->dy();
+        float z=cell->z();
+        foundcell=getFCalDDE(sampling,x,y,z);
+        
+        pos<<"x="<<x<<" y="<<y<<" z="<<z;
+        cellpos<<"x="<<cell->x()<<" x_raw="<<cell->x_raw()<<" dx="<<cell->dx()
+               <<" ("<<(cell->x_raw()-cell->x())/cell->dx()<<") ; "
+               <<"y="<<cell->y()<<" y_raw="<<cell->y_raw()<<" dy="<<cell->dy()
+               <<" ("<<(cell->y_raw()-cell->y())/cell->dy()<<")";
+        if(foundcell) {
+          foundcellpos<<"x="<<foundcell->x()<<" x_raw="<<foundcell->x_raw()<<" dx="<<foundcell->dx()
+                      <<" ("<<(foundcell->x_raw()-foundcell->x())/foundcell->dx()<<") ; "
+                      <<"y="<<foundcell->y()<<" y_raw="<<foundcell->y_raw()<<" dy="<<foundcell->dy()
+                      <<" ("<<(foundcell->y_raw()-foundcell->y())/cell->dy()<<")";
+          is_inside_foundcell=TMath::Abs( (x-foundcell->x())/foundcell->dx() )<0.75 && TMath::Abs( (y-foundcell->y())/foundcell->dy() )<0.75;
+        }       
+        is_inside=TMath::Abs( (x-cell->x())/cell->dx() )<0.49 && TMath::Abs( (y-cell->y())/cell->dy() )<0.49;
+        //m_debug=true;
+      }  
+
       if(m_debug && foundcell) {
-        cout<<"CaloGeometry::Validate(), irnd="<<irnd<<", foundcell id="<<foundcell->identify()<<", "<<steps<<" steps"<<endl; 
+        cout<<"CaloGeometry::Validate(), irnd="<<irnd<<": cell id="<<cell->identify()<<", sampling="<<sampling
+                                                     <<", foundcell id="<<foundcell->identify()<<", "<<steps<<" steps"<<endl; 
+        cout<<"  "<<cellpos.str()<<endl;
       }  
       if(cell==foundcell) {
         if(steps>3 && distance<-0.01) { 
-          cout<<"cell id="<<cell->identify()<<", sampling="<<sampling<<" found in "<<steps<<" steps, dist="<<distance<<" eta="<<eta<<" phi="<<phi<<endl;
-          cout<<"  eta="<<cell->eta()<<" eta_raw="<<cell->eta_raw()<<" deta="<<cell->deta()<<" ("<<(cell->eta_raw()-cell->eta())/cell->deta()<<") phi="<<cell->phi()<<" phi_raw="<<cell->phi_raw()<<" dphi="<<cell->dphi()<<" ("<<(cell->phi_raw()-cell->phi())/cell->dphi()<<")"<<endl;
-          //if(steps>3 && distance>0.01) return;
+          cout<<"cell id="<<cell->identify()<<", sampling="<<sampling<<" found in "<<steps<<" steps, dist="<<distance<<" "<<pos.str()<<endl;
+          cout<<"  "<<cellpos.str()<<endl;
         }
       } else {
-        if( TMath::Abs( (eta-cell->eta())/cell->deta() )<0.45 && TMath::Abs( (phi-cell->phi())/cell->dphi() )<0.45 ) {
-          cout<<"cell id="<<cell->identify()<<" not found! Found instead id=";
-          if (foundcell) cout << foundcell->identify();
-          cout <<" in "<<steps<<" steps, dist="<<distance<<" eta="<<eta<<" phi="<<phi<<endl;
-          cout<<"  input sampling="<<sampling<<" eta="<<cell->eta()<<" eta_raw="<<cell->eta_raw()<<" deta="<<cell->deta()<<" ("<<(cell->eta_raw()-cell->eta())/cell->deta()<<") phi="<<cell->phi()<<" phi_raw="<<cell->phi_raw()<<" dphi="<<cell->dphi()<<" ("<<(cell->phi_raw()-cell->phi())/cell->dphi()<<")"<<endl;
-          cout<<" output sampling="<<(foundcell?(foundcell->getSampling()):-1)<<" eta="<<(foundcell?(foundcell->eta()):0)<<" eta_raw="<<(foundcell?(foundcell->eta_raw()):0)<<" deta="<<(foundcell?(foundcell->deta()):0)<<" ("<<(foundcell?((foundcell->eta_raw()-foundcell->eta())/foundcell->deta()):0)<<") phi="<<(foundcell?(foundcell->phi()):0)<<" phi_raw="<<(foundcell?(foundcell->phi_raw()):0)<<" dphi="<<(foundcell?(foundcell->dphi()):0)<<" ("<<(foundcell?((foundcell->phi_raw()-foundcell->phi())/cell->dphi()):0)<<")"<<endl;
+        if(!foundcell) {
+          cout<<"cell id="<<cell->identify()<<" not found!";
+          cout<<" No cell found in "<<steps<<" steps, dist="<<distance<<" "<<pos.str()<<endl;
+          cout<<"  input sampling="<<sampling<<" "<<cellpos.str()<<endl;
+          //return;
+        }
+        if( is_inside && foundcell && !is_inside_foundcell) {
+          cout<<"cell id="<<cell->identify()<<" not found, but inside cell area!";
+          cout<<" Found instead id="<<foundcell->identify()<<" in "<<steps<<" steps, dist="<<distance<<" "<<pos.str()<<endl;
+          cout<<"  input sampling="<<sampling<<" "<<cellpos.str()<<endl;
+          cout<<"  output sampling="<<foundcell->getSampling()<<" "<<foundcellpos.str()<<endl;
           return;
         }  
-        if(!foundcell) {
-          cout<<"nothing found close to cell id="<<cell->identify()<<" in "<<steps<<" steps, dist="<<distance<<" eta="<<eta<<" phi="<<phi<<endl;
-          cout<<"  input sampling="<<sampling<<" eta="<<cell->eta()<<" eta_raw="<<cell->eta_raw()<<" deta="<<cell->deta()<<" ("<<(cell->eta_raw()-cell->eta())/cell->deta()<<") phi="<<cell->phi()<<" phi_raw="<<cell->phi_raw()<<" dphi="<<cell->dphi()<<" ("<<(cell->phi_raw()-cell->phi())/cell->dphi()<<")"<<endl;
-          return;
-        }
       }
-      //if(ntest>60000) break;
     }  
     m_debug=false;
     if(ntest%25000==0) cout<<"Validate cell "<<ntest<<" with "<<nrnd<<" random hits"<<endl;
@@ -803,81 +899,79 @@ std::string CaloGeometry::SamplingName(int sample)
   return CaloSampling::getSamplingName(sample);
 }
 
-void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
-	
-  vector<ifstream*> electrodes(3);
-  
-  electrodes[0]=new ifstream(filename1);
-  electrodes[1]=new ifstream(filename2);
-  electrodes[2]=new ifstream(filename3);
-  
-  
-  int	thisTubeId;
-  int    thisTubeI;
-  int    thisTubeJ;
-  //int    thisTubeID;
-  //int    thisTubeMod;
-  double thisTubeX;
-  double thisTubeY;
-  TString tubeName;
-  
-  //int second_column;
-  string seventh_column;
-  string eight_column;
-  int ninth_column;
-  
-  
-  
-  
-  
-  int i;
-  for(int imodule=1;imodule<=3;imodule++){
-    
-    i=0;
-    //while(i<50){
-    while(1){
-    
-      //cout << electrodes[imodule-1]->eof() << endl;
-      (*electrodes[imodule-1]) >> tubeName;
-      if(electrodes[imodule-1]->eof())break;
-      (*electrodes[imodule-1]) >> thisTubeId; // ?????
-      (*electrodes[imodule-1]) >> thisTubeI;
-      (*electrodes[imodule-1]) >> thisTubeJ;
-      (*electrodes[imodule-1]) >> thisTubeX;
-      (*electrodes[imodule-1]) >> thisTubeY;
-      (*electrodes[imodule-1]) >> seventh_column;
-      (*electrodes[imodule-1]) >> eight_column;
-      (*electrodes[imodule-1]) >> ninth_column;
-      
-      tubeName.ReplaceAll("'","");
-      string tubeNamestring=tubeName.Data();
-      
-      std::istringstream tileStream1(std::string(tubeNamestring,1,1));
-      std::istringstream tileStream2(std::string(tubeNamestring,3,2));
-      std::istringstream tileStream3(std::string(tubeNamestring,6,3));
-      int a1=0,a2=0,a3=0;
-      if (tileStream1) tileStream1 >> a1;
-      if (tileStream2) tileStream2 >> a2;
-      if (tileStream3) tileStream3 >> a3;
-      
-      //unsigned int tileName= (a3 << 16) + a2;
-      stringstream s;
-      
-      
-      m_FCal_ChannelMap.add_tube(tubeNamestring, imodule, thisTubeId, thisTubeI,thisTubeJ, thisTubeX, thisTubeY,seventh_column);
-      
-      
-      
-      //cout << "FCal electrodes: " << tubeName << " " << second_column << " " << thisTubeI << " " << thisTubeJ << " " << thisTubeX << " " << thisTubeY << " " << seventh_column << " " << eight_column << " " << ninth_column << endl;
-      //cout << tileStream1.str() << " " << tileStream2.str() << " " << tileStream3.str() << endl;
-      //cout << a1 << " " << a2 << " " << a3 << " " << tileName << endl;
-      i++;
-    }
-  }
-  
-  
-  m_FCal_ChannelMap.finish(); // Creates maps
-	
-	
+void  CaloGeometry::calculateFCalRminRmax(){
+   
+   m_FCal_rmin.resize(3,FLT_MAX);
+   m_FCal_rmax.resize(3,0.);
+
+   double x(0.),y(0.),r(0.);
+   for(int imap=1;imap<=3;imap++)for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
+      x=it->second.x();
+      y=it->second.y();
+      r=sqrt(x*x+y*y);
+      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
+      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
+   }
+   
 }
+
+
+bool CaloGeometry::checkFCalGeometryConsistency(){
+  
+  unsigned long long phi_index,eta_index;
+  float x,y,dx,dy;
+  long id;
+  
+  long mask1[]{0x34,0x34,0x35};
+  long mask2[]{0x36,0x36,0x37};
+  
+  m_FCal_rmin.resize(3,FLT_MAX);
+  m_FCal_rmax.resize(3,0.);
+  
+  
+  for(int imap=1;imap<=3;imap++){
+    
+    int sampling = imap+20;
+    
+    if((int)m_cells_in_sampling[sampling].size() != 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap))){
+      cout << "Error: Incompatibility between FCalChannel map and GEO file: Different number of cells in m_cells_in_sampling and FCal_ChannelMap" << endl;
+      cout << "m_cells_in_sampling: " << m_cells_in_sampling[sampling].size() << endl;
+      cout << "FCal_ChannelMap: " << 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap)) << endl;
+      return false;
+    }
+
+    for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
+
+
+      phi_index = it->first & 0xffff;
+      eta_index = it->first >> 16;
+      x=it->second.x();
+      y=it->second.y();
+      m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
+
+      id=(mask1[imap-1]<<12) + (eta_index << 5) +2*phi_index;
+
+      if(imap==2) id+= (8<<8);
+
+      Identifier id1((unsigned long long)(id<<44));
+      const CaloDetDescrElement *DDE1 =getDDE(id1);
+
+      id=(mask2[imap-1]<<12) + (eta_index << 5) +2*phi_index;
+      if(imap==2) id+= (8<<8);
+  		Identifier id2((unsigned long long)(id<<44));
+      const CaloDetDescrElement *DDE2=getDDE(id2);
+
+      if(!TMath::AreEqualRel(x, DDE1->x(),1.E-8) || !TMath::AreEqualRel(y, DDE1->y(),1.E-8) || !TMath::AreEqualRel(x, DDE2->x(),1.E-8) || !TMath::AreEqualRel(y, DDE2->y(),1.E-8) ){
+	 cout << "Error: Incompatibility between FCalChannel map and GEO file \n" << x << " " << DDE1->x() << " " << DDE2->x() << y << " " << DDE1->y() << " " << DDE2->y() << endl;
+	 return false;   
+      }
+    }
+
+
+
+  }
+   
+  return true;
+}
+
 

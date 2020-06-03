@@ -65,10 +65,10 @@ class MonitorDef:
         tomonitor = [
         "1MBTS_A0","1MBTS_A1","1MBTS_A2","1MBTS_A3","1MBTS_A4","1MBTS_A5","1MBTS_A6","1MBTS_A7","1MBTS_A8","1MBTS_A9","1MBTS_A10","1MBTS_A11","1MBTS_A12","1MBTS_A13","1MBTS_A14","1MBTS_A15",
         "1MBTS_C0","1MBTS_C1","1MBTS_C2","1MBTS_C3","1MBTS_C4","1MBTS_C5","1MBTS_C6","1MBTS_C7","1MBTS_C8","1MBTS_C9","1MBTS_C10","1MBTS_C11","1MBTS_C12","1MBTS_C13","1MBTS_C14","1MBTS_C15",
-        "1MBTS_A","1MBTS_C","1LUCID_A","1LUCID_C",
+        "1LUCID_C",
         "1AFP_FSA_SIT","1AFP_FSA_TOF","1AFP_FSC_SIT","1AFP_FSC_TOF","1AFP_NSA","1AFP_NSC",
-        "1MU4","2MU4","3MU4","4MU4","5MU4","6MU4","7MU4",
-        "1J20","2J20","3J20","4J20","5J20","6J20","7J20",
+        "1MU4",
+        "1J20",
         "1XE35","1XE60","1TE50",
         "1BPTX0","1BPTX1",
         ]
@@ -165,6 +165,7 @@ class MonitorDef:
             "L1_FTK-J",
             "L1_MJJ-500-NFF",
             "L1_DPHI-2EM3",
+            "L1_KF-XE75",
             "L1_EM18VHI_MJJ-300",
             "L1_2MU4_J20_XE40_DPHI-J20s2XE30",
             "L1_J50_DETA20-J50J",
@@ -181,10 +182,10 @@ class MonitorDef:
 
         monItemsHF[TBP|TAP|TAV] = [
             "L1_BCM_Wide_BGRP0",
-            "L1_BCM_AC_CA_BGRP0",
             "L1_BCM_AC_UNPAIRED_ISO",
             "L1_BCM_CA_UNPAIRED_ISO",
             "L1_J12",
+            "L1_EM12",
             "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             ]
 

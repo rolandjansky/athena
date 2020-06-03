@@ -117,9 +117,6 @@ private:
   // store all ss not just in roads
   bool m_StoreAllSS; 
 
-  // read FTKHits directly from file
-  bool m_read_FTKhits_directly;
-
   // Plane map pointer, to be set during the initialization
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_pmap_unused;
@@ -179,8 +176,12 @@ private:
 
   bool m_AutoDisable; // possibility to avoid internal algorithm execution in particular confitions
 
+  // read FTKHits directly from file
+  bool m_read_FTKhits_directly;
+
   int m_firstEventFTK; // first event to run over
 
+  int m_AMcompressionMode; // compression mode for AM bank
 };
 
 #endif // FTKRoadFinderAlgo_h

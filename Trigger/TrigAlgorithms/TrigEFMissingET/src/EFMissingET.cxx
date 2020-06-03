@@ -27,6 +27,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
 //#include "TrigNavigation/Navigation.h" // Added for "Hack"
 //#include "TrigNavigation/NavigationCore.icc" // Added for "Hack"
 
@@ -51,6 +53,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("DecodeDetMask", m_decodeDetMask = false, "switch on/off DetMask decoding");
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
   declareProperty("doJets", m_doJets = false, "run with or without jets");
+  declareProperty("doJetVeto", m_doJetVeto = false, "run with or without Jet Veto");
   declareProperty("doTracks", m_doTracks = false, "run with or without tracks");
   declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
   declareProperty("ComponentFlags",  m_flags,  "(vector) set to -1 to switch off a component");
@@ -313,8 +316,10 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
   }
 
   if(m_doJets && !foundJets) {
-    ATH_MSG_ERROR( "found jet config but no JetTool .. aborting " );
-    return HLT::ERROR;
+    if (!m_doTopoClusters){
+      ATH_MSG_ERROR( "found jet config but no JetTool .. aborting " );
+      return HLT::ERROR;
+    }
   }
 
 
@@ -524,6 +529,8 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
   if(m_doTopoClusters == false && m_doJets == false && m_doJets == false)
      m_n_sizePers = 25;
+  else if(m_doTopoClusters == true && m_doJets == true && m_doTracks==true)
+    m_n_sizePers = 3;
    else if(m_doJets == true)
      m_n_sizePers = 6;
    else if(m_doPUC == true)
@@ -542,7 +549,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   m_met->defineComponents(vs_aux);
 
   ATH_MSG_DEBUG (" Created pers. object of size " << m_n_sizePers);
-
+  ConstDataVector<xAOD::TrackParticleContainer> m_ttracks (SG::VIEW_ELEMENTS);//Define a track container for Pufit track 
    // fetch topo. clusters for later use
    if (m_doTopoClusters && tes_in.size() > 0) { // safe-guard
       for (const auto& te_in : tes_in.at(0) ) {
@@ -558,7 +565,109 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          }
 
       } // end loop over topoclusters
-   } // fetched all topo. clusters
+
+      if (m_doJetVeto && tes_in.size() > 0) {
+        for (const auto& te_in : tes_in.at(1) ) {
+          HLT::ErrorCode status = getFeature(  te_in , m_jets );
+
+          if(status!=HLT::OK || !m_jets) {
+            ATH_MSG_ERROR( "Failed to get Jets" ); return HLT::NAV_ERROR;
+          } else {
+            if (msgLvl(MSG::DEBUG) ) {
+              ATH_MSG_INFO( "size of jet container " << m_jets->size() );
+              for (const auto& ijet : *m_jets)
+                ATH_MSG_INFO( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
+            }
+          }
+        }
+      }
+
+      if (m_doJets  && m_doTracks && tes_in.size() > 0) {
+	for (const auto& te_in : tes_in.at(1) ) {
+	  HLT::ErrorCode status = getFeature(  te_in , m_jets );
+
+	  if(status!=HLT::OK || !m_jets) {
+            ATH_MSG_ERROR( "Failed to get Jets" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of jet container " << m_jets->size() );
+	      for (const auto& ijet : *m_jets)
+		ATH_MSG_DEBUG( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
+            }
+	  }
+	}
+	if(tes_in.size()>3){
+	  //This section is for 4 tes, like in the case of pufit track 
+	  const xAOD::TrackParticleContainer* tempTracks;
+	  for (const auto& te_in : tes_in.at(2) ) {
+	    HLT::ErrorCode status_trk = getFeature(  te_in , tempTracks); 
+
+	    if(status_trk!=HLT::OK || !tempTracks) {
+	      ATH_MSG_ERROR( "Failed to get tracks" ); return HLT::NAV_ERROR;
+	    } else {
+	      // m_ttracks.push_back(tempTracks);
+	      ATH_MSG_DEBUG( "size of track container " << tempTracks->size() );
+	      for (const auto& itrack : *tempTracks){
+		m_ttracks.push_back(itrack); 
+		ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
+			      << itrack->vertex() << ", " <<  fabs(itrack->z0()) << ", " << itrack->vz() );
+	      }
+	    }//correctly retrived the tracks 
+	  }//retrieve te2 
+	  m_tracks = m_ttracks.asDataVector();
+	  std::vector<const xAOD::TrackParticle*> TracksVec(m_tracks->begin(), m_tracks->end());
+	  ATH_MSG_DEBUG( "num of tracks in datavector: " << TracksVec.size() );
+	  for (const xAOD::TrackParticle* trk : TracksVec){
+	    ATH_MSG_DEBUG("tracks " << trk->pt() << "," << trk->eta() << ","<<trk->phi() );
+	  }
+	  
+	  ATH_MSG_DEBUG( "size of track container" << m_tracks->size()); 
+	  for (const auto& te_in : tes_in.at(3) ) {
+	    HLT::ErrorCode status_vtx = getFeature(  te_in , m_vertices );
+	    if(status_vtx!=HLT::OK || !m_vertices) {
+	      ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
+	    } else {
+	      if (true){
+		ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
+		for (auto& ivtx : *m_vertices)
+		  ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
+				 << ivtx->nTrackParticles() );
+	      }
+	    }//retrieve vertex container
+	  }//retrieve te3 
+	}//more than 3 tes (0-3)
+	else{
+	  //this section is for track mht 
+	for (const auto& te_in : tes_in.at(2) ) {
+	  HLT::ErrorCode status_trk = getFeature(  te_in , m_tracks );
+
+	  if(status_trk!=HLT::OK || !m_tracks) {
+            ATH_MSG_ERROR( "Failed to get tracks" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of track container " << m_tracks->size() );
+	      for (const auto& itrack : *m_tracks)
+		ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
+			       << itrack->vertex() << ", " <<  fabs(itrack->z0()) << ", " << itrack->vz() );
+            }
+	  }
+	  //The vertex container is part of the same TE as the tracks
+	  HLT::ErrorCode status_vtx = getFeature(  te_in , m_vertices );
+
+	  if(status_vtx!=HLT::OK || !m_vertices) {
+            ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
+	      for (auto& ivtx : *m_vertices)
+		ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
+			       << ivtx->nTrackParticles() );
+            }
+	  }
+	}//retrieve te2, this gets tracks and vertex container for track mht  
+	}//only 3 tes, for track mht 
+      }//do jets and tracks 
+   } else { // fetched all topo. clusters
 
    // fetch jets for later use
    if (m_doJets && tes_in.size() > 0) { // safe-guard
@@ -636,7 +745,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
       } // end loop over topoclusters
    } // fetched all topo. clusters
 
-
+   }
 
 
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present

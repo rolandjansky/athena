@@ -15,6 +15,7 @@
 #include "FastCaloSim/EmptyCellBuilderTool.h"
 #include "FastCaloSim/AddNoiseCellBuilderTool.h"
 #include "FastCaloSim/FSStoregateClean.h"
+#include "FastCaloSim/CaloCellContainerFCSFinalizerTool.h"
 //#include "FastCaloSim/FSRedoCBNT.h"
 //#include "FastCaloSim/CBNTAA_DetailedCellInfo.h"
 
@@ -24,6 +25,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( FastCaloSim, FSStoregateClean )
 DECLARE_TOOL_FACTORY( FastShowerCellBuilderTool )
 DECLARE_TOOL_FACTORY( EmptyCellBuilderTool )
 DECLARE_TOOL_FACTORY( AddNoiseCellBuilderTool )
+DECLARE_TOOL_FACTORY( CaloCellContainerFCSFinalizerTool )
 //DECLARE_ALGORITHM_FACTORY( CBNTAA_DetailedCellInfo )
 
 DECLARE_FACTORY_ENTRIES(FastCaloSim) {
@@ -32,5 +34,6 @@ DECLARE_FACTORY_ENTRIES(FastCaloSim) {
     DECLARE_TOOL( FastShowerCellBuilderTool );
     DECLARE_TOOL( EmptyCellBuilderTool );
     DECLARE_TOOL( AddNoiseCellBuilderTool );
+    DECLARE_TOOL( CaloCellContainerFCSFinalizerTool )
 }
 

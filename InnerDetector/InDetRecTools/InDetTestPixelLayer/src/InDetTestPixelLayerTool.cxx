@@ -38,7 +38,13 @@ namespace InDet {
     AthAlgTool(name, n,p),
     m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
     m_pixelCondSummarySvc("PixelConditionsSummarySvc",n),
-    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+    m_idHelper(nullptr),
+    m_pixelId(nullptr),
+    m_configured(false),
+    m_cachedFracGood(-9999),
+    m_cachedTrkParam(nullptr),
+    m_cached_track_residual(nullptr)
   {
     declareInterface<IInDetTestPixelLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);
@@ -50,7 +56,6 @@ namespace InDet {
     declareProperty("PhiRegionSize", m_phiRegionSize = 3.);
     declareProperty("EtaRegionSize", m_etaRegionSize = 3.);
     declareProperty("GoodFracCut", m_goodFracCut = 0.5);
-
   }  
 
   InDetTestPixelLayerTool::~InDetTestPixelLayerTool() {}

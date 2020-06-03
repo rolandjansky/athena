@@ -3,7 +3,6 @@
 # art-description: MinBias slice TriggerTest on MinBias MC
 # art-type: build
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
@@ -19,6 +18,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="slice_minbias_build"
 export SLICE="minbias"

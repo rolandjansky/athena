@@ -35,61 +35,61 @@
 namespace TrigCostRootAnalysis {
   class XMLExport {
   public:
-    XMLExport(std::ostream& _fout) : m_level(0), m_spaces(2), m_minimal(kFALSE) {
-      writeHeader(_fout);
+    XMLExport(std::ostream& fout) : m_level(0), m_spaces(2), m_minimal(kFALSE) {
+      writeHeader(fout);
     }
 
     XMLExport() : m_level(0), m_spaces(2), m_minimal(kFALSE) {
     }
 
-    void setSpaces(UInt_t _n) {
-      m_spaces = _n;
+    void setSpaces(UInt_t n) {
+      m_spaces = n;
     }
 
-    void writeHeader(std::ostream& _fout) {
-      _fout << "<?xml version=\"1.0\" encoding=\"us-ascii\"?>" << std::endl;
+    void writeHeader(std::ostream& fout) {
+      fout << "<?xml version=\"1.0\" encoding=\"us-ascii\"?>" << std::endl;
     }
 
-    void addNode(std::ostream& _fout, std::string _name, std::string _nodeData = "_NONE") { // With or without node data
-      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
+    void addNode(std::ostream& fout, std::string name, std::string nodeData = "_NONE") { // With or without node data
+      if (!m_minimal) fout << std::string(m_level * m_spaces, ' ');
 
-      _fout << "<" << _name << ">";
+      fout << "<" << name << ">";
 
-      if (_nodeData != "_NONE") { // Have data, note that "" may be the 'data' we want to save
-        _fout << _nodeData;
-        _fout << "</" << _name << ">" << std::endl; // Don't have data
+      if (nodeData != "_NONE") { // Have data, note that "" may be the 'data' we want to save
+        fout << nodeData;
+        fout << "</" << name << ">" << std::endl; // Don't have data
       } else {
-        _fout << std::endl;
-        m_nodes.push_back(_name);
+        fout << std::endl;
+        m_nodes.push_back(name);
         ++m_level;
       }
     }
 
-    void addNodeWProperty(std::ostream& _fout, std::string _name,
-                          std::string _p1name, std::string _p1data,
-                          std::string _p2name = "", std::string _p2data = "",
-                          std::string _p3name = "", std::string _p3data = "",
-                          std::string _p4name = "", std::string _p4data = "") { // node with up to 3 properties
-      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
+    void addNodeWProperty(std::ostream& fout, std::string name,
+                          std::string p1name, std::string p1data,
+                          std::string p2name = "", std::string p2data = "",
+                          std::string p3name = "", std::string p3data = "",
+                          std::string p4name = "", std::string p4data = "") { // node with up to 3 properties
+      if (!m_minimal) fout << std::string(m_level * m_spaces, ' ');
 
-      _fout << "<" << _name << " ";
+      fout << "<" << name << " ";
 
-      if (_p1name != Config::config().getStr(kBlankString)) _fout << _p1name << "=\"" << _p1data << "\" ";
-      if (_p2name != Config::config().getStr(kBlankString)) _fout << _p2name << "=\"" << _p2data << "\" ";
-      if (_p3name != Config::config().getStr(kBlankString)) _fout << _p3name << "=\"" << _p3data << "\" ";
-      if (_p4name != Config::config().getStr(kBlankString)) _fout << _p4name << "=\"" << _p4data << "\"";
+      if (p1name != Config::config().getStr(kBlankString)) fout << p1name << "=\"" << p1data << "\" ";
+      if (p2name != Config::config().getStr(kBlankString)) fout << p2name << "=\"" << p2data << "\" ";
+      if (p3name != Config::config().getStr(kBlankString)) fout << p3name << "=\"" << p3data << "\" ";
+      if (p4name != Config::config().getStr(kBlankString)) fout << p4name << "=\"" << p4data << "\"";
 
-      _fout << "/>" << std::endl;
+      fout << "/>" << std::endl;
     }
 
-    void endNode(std::ostream& _fout) {
+    void endNode(std::ostream& fout) {
       if (m_nodes.size() == 0) {
         Error("XMLExporter::endNode", "Node list empty. All nodes already closed.");
         return;
       }
       --m_level;
-      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
-      _fout << "</" << m_nodes.back() << ">" << std::endl;
+      if (!m_minimal) fout << std::string(m_level * m_spaces, ' ');
+      fout << "</" << m_nodes.back() << ">" << std::endl;
       m_nodes.pop_back();
     }
 

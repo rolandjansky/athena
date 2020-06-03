@@ -5,7 +5,6 @@
 /***************************************************************************
  * Muon Calibration Identifiers
  * -----------------------------------------
- * Copyright (C) 2005 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 09 May 2005

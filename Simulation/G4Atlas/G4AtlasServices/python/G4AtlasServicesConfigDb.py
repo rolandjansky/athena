@@ -11,7 +11,6 @@ addService("G4AtlasServices.G4AtlasUserActionConfig.getISFUserActionSvc","G4UA::
 addService("G4AtlasServices.G4AtlasUserActionConfig.getISFFullUserActionSvc","G4UA::ISFFullUserActionSvc")
 addService("G4AtlasServices.G4AtlasUserActionConfig.getISFPassBackUserActionSvc","G4UA::ISFPassBackUserActionSvc")
 addService("G4AtlasServices.G4AtlasUserActionConfig.getISF_AFIIUserActionSvc","G4UA::ISF_AFIIUserActionSvc")
-addService("G4AtlasServices.G4AtlasUserActionConfig.getISFQuasiStableUserActionSvc","G4UA::ISFQuasiStableUserActionSvc")
 addService("G4AtlasServices.G4AtlasUserActionConfig.getCTBUserActionSvc","G4UA::CTBUserActionSvc")
 
 addService("G4AtlasServices.G4AtlasServicesConfig.getStandardFieldSvc","StandardField")

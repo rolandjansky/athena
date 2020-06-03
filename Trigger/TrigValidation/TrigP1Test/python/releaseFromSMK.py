@@ -18,6 +18,7 @@ else:
    array = result[0][3].split("'")
    new_array = [s for s in array if "AthenaP1" in s]
    new_array = new_array[0]
+   new_array = new_array.replace("\\","")
    if "T" in new_array:
       release = new_array.replace("AthenaP1-","r")
    else:

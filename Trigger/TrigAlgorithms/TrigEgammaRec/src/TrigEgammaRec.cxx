@@ -118,6 +118,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("FourMomBuilderTool", m_fourMomBuilder, "Handle to FourMomBuilder");
     // ConversionBuilder 
     declareProperty("ConversionBuilderTool", m_conversionBuilder, "Handle to ConversionBuilder");
+    //BremcollectionBuilder
+    declareProperty("BremCollectionBuilderTool", m_BremCollectionBuilderTool, "Handle of the Brem Collection builder tool"); 
     // TrackMatchBuilder
     declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder, "Handle to TrackMatchBuilder");
     // AmbiguityTool
@@ -147,6 +149,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("doTrackMatching",m_doTrackMatching = false, "run TrackMatchBuilder");
     // Set flag for conversions 
     declareProperty("doConversions",m_doConversions = false, "run ConversionBuilder");
+    /** @brief run GSF refit */
+    declareProperty("doBremCollection",                    m_doBremCollection          = false, "run BremCollection");
 
     // Monitoring
     typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
@@ -294,6 +298,19 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder);
             if (timerSvc()) m_timerTool1 = addTimer("EMTrackMatchBuilder");
         }
+    }
+
+    if(m_doBremCollection){
+      if (m_BremCollectionBuilderTool.empty()){
+	ATH_MSG_ERROR("EMBremCollectionBuilder is empty");
+	return HLT::BAD_JOB_SETUP;
+      }
+      if (m_BremCollectionBuilderTool.retrieve().isFailure()){
+	ATH_MSG_ERROR("Unable to retrieve " << m_BremCollectionBuilderTool);
+	return HLT::BAD_JOB_SETUP;
+      } else {
+	ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);
+      }
     }
 
     if(m_doTrackMatching && m_doConversions){
@@ -530,6 +547,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     ATH_MSG_DEBUG("REGTEST: Do Track Isolation: "   << m_doTrackIsolation);
     ATH_MSG_DEBUG("REGTEST: Do CaloCell Isolation: "<< m_doCaloCellIsolation);
     ATH_MSG_DEBUG("REGTEST: Do TopoIsolation: "     << m_doTopoIsolation);
+    ATH_MSG_DEBUG("REGTEST: run bremBuilding: "     << m_doBremCollection);
     ATH_MSG_DEBUG("REGTEST: Use BremAssoc: "        << m_useBremAssoc);
 
     ATH_MSG_INFO("REGTEST: ElectronContainerName: " << m_electronContainerName );
@@ -662,6 +680,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     std::string electronContSGKey="";
     std::string electronKey="";
     HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
+    ATH_MSG_DEBUG("The electron container SG key created is: " << electronContSGKey);
     if (sc != HLT::OK) {
         msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
         return sc;
@@ -741,6 +760,78 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
     }
 
+
+    //********************************************************************************
+    xAOD::TrackParticleContainer *GSFTrigTrackParticles = new xAOD::TrackParticleContainer();
+    if (m_doBremCollection){ 
+
+      ATH_MSG_DEBUG("In m_doBremCollection");
+      ATH_MSG_DEBUG(" REGTEST: Got " << vectorClusterContainer.size() << " CaloClusterContainers associated to the TE ");
+      if (vectorClusterContainer.size() != 1){
+        ATH_MSG_ERROR("REGTEST: Size of vectorClusterContainer is not 1, it is: "<< vectorClusterContainer.size());
+        return HLT::NAV_ERROR;
+      }
+
+      // Get the last ClusterContainer
+      const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
+      if(!clusContainer){
+	return HLT::OK;
+      }
+      
+      ATH_MSG_DEBUG (clusContainer->size() << " calo clusters in container");
+      
+      
+      std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+      stat = getFeatures(inputTE, vectorTrackParticleContainer);
+      
+      if (stat != HLT::OK) {
+	ATH_MSG_DEBUG(" REGTEST: no TrackParticleContainer from TE, m_doBremCollection ");
+	return HLT::NAV_ERROR;
+      }
+      
+      const xAOD::TrackParticleContainer *tracks = vectorTrackParticleContainer.back();
+      if (!tracks || tracks->size()<1){
+       return HLT::OK;
+      }
+      for (const xAOD::TrackParticle *trk:*tracks) {
+            ATH_MSG_DEBUG("track pt is: " << trk->pt());
+      }
+            
+
+      //output collections
+      TrackCollection *refitTracks = new TrackCollection(0);
+      xAOD::TrackParticleAuxContainer* GSFTPaux = new xAOD::TrackParticleAuxContainer();
+      GSFTrigTrackParticles->setStore(GSFTPaux);
+
+      if (m_BremCollectionBuilderTool->hltExecute(clusContainer,tracks,refitTracks, GSFTrigTrackParticles ).isFailure()){
+	ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
+	return HLT::ERROR;  
+      }
+
+      for (const xAOD::TrackParticle *trk:*GSFTrigTrackParticles) {
+            ATH_MSG_DEBUG("GSFTrigTrackParticles pt is: " << trk->pt());
+      }
+      //Interaction with the navigation
+      /*
+      std::string GSFTrigTracksContSGKey = "TrigGSFTrackParticlesColl";
+      std::string GSFTrigTracksKey = "TrigGSFTrackParticles";
+      HLT::ErrorCode sc = getUniqueKey( GSFTrigTrackParticles, GSFTrigTracksContSGKey, GSFTrigTracksKey);
+      if (sc != HLT::OK) {
+         ATH_MSG_ERROR("Could not retrieve the refitted tracks collection key");
+         return sc;
+      }
+      else {
+        ATH_MSG_DEBUG("GSF Track Collection key is: " << GSFTrigTracksContSGKey);
+      }
+      */
+      
+      if (HLT::OK != attachFeature( outputTE, GSFTrigTrackParticles, "GSFTrigTrackParticles") ){
+        ATH_MSG_ERROR("REGTEST: trigger xAOD::TrackParticleContainer for GSF attach to TE and record into StoreGate failed");
+        return HLT::NAV_ERROR;
+      }
+
+    }
+
     //**********************************************************************
     // If TrackMatchBuilder tool is going to be run 
     // get pointer to TrackParticleContainer from the trigger element and set flag for execution
@@ -765,8 +856,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
 
             } else {
-                // Get the pointer to last TrackParticleContainer 
-                pTrackParticleContainer = vectorTrackParticleContainer.back();
+                // Get the pointer to last TrackParticleContainer
+                if(m_doBremCollection){
+                    pTrackParticleContainer = GSFTrigTrackParticles;
+                } 
+                else pTrackParticleContainer = vectorTrackParticleContainer.back();
                 m_doTrackMatching = true;
                 if(!pTrackParticleContainer){
                     m_doTrackMatching = false;
@@ -786,6 +880,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         float leadTrkpt=0.0;
         const xAOD::TrackParticle *leadTrk=NULL;
         for (const xAOD::TrackParticle *trk:*pTrackParticleContainer) {
+        ATH_MSG_DEBUG("In track matching, track pt: " << trk->pt());
             if(trk->pt() > leadTrkpt) {
                 leadTrkpt = trk->pt();
                 leadTrk=trk;
@@ -884,7 +979,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     }
                 
     ElementLinkVector<xAOD::TrackParticleContainer> trackLinks;
-    stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, trackLinks, "");
+    if(m_doBremCollection){
+        stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (outputTE, trackLinks, "");
+    }
+    else stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, trackLinks, "");
     if ( stat != HLT::OK ) {
         ATH_MSG_ERROR("REGTEST: No TrackParticleLinks retrieved for the trigger element");
             //May need to add ERROR codes for online debugging

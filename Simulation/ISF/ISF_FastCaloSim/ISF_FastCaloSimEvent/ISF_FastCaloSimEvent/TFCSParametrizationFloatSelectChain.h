@@ -14,7 +14,7 @@ public:
 
   virtual int push_back_in_bin(TFCSParametrizationBase* param, float low, float up);
   ///Should not be used unless the bin boundaries are already defined!
-  virtual void push_back_in_bin(TFCSParametrizationBase* param, unsigned int bin);
+  virtual void push_back_in_bin(TFCSParametrizationBase* param, unsigned int bin) override;
 
   //return -1 if outside range
   int val_to_bin(float val) const;
@@ -29,11 +29,7 @@ protected:
 
 private:
 
-  ClassDef(TFCSParametrizationFloatSelectChain,1)  //TFCSParametrizationFloatSelectChain
+  ClassDefOverride(TFCSParametrizationFloatSelectChain,1)  //TFCSParametrizationFloatSelectChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationFloatSelectChain+;
-#endif
 
 #endif

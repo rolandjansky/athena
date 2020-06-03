@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
@@ -16,12 +12,12 @@ IAtRndmGenSvc*  PerfMonServices::s_pxAtRndmGenSvc = NULL;
 
 // Names of the various containers.
 const std::string PerfMonServices::s_sContainerNames[NUM_CONTAINERS] = { "MuidMuonCollection",
-									  "StacoMuonCollection",
-									  "Muons",
-									  "ElectronCollection",
-									  "PhotonCollection",
-									  "MET_Final",
-									  "TrackParticleCandidate",
+									 "StacoMuonCollection",
+									 "Muons",
+									 "Electrons",// "ElectronCllection"
+									 "PhotonCollection",
+									 "MET_Final",
+									 "TrackParticleCandidate",
 									 //	 "VxPrimaryCandidate"};
 									 "PrimaryVertices"};
 const std::string PerfMonServices::s_sAtlfastContainerNames[NUM_CONTAINERS] = { "AtlfastMuonCollection",

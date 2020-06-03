@@ -37,7 +37,7 @@ using namespace std;
 
 /** Constructor, calls base class constructor with parameters
  *
- *  several properties are "declared" here, allowing selection
+ *  several properties are "declared" here, allowing selectio
  *  of the filepath for histograms, the first and second plane
  *  numbers to be used, and the timebin.
  */
@@ -77,10 +77,24 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonLowpt", m_chainsLowpt);
   declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
-  
+
+  declareProperty("AccessHypoTEs", m_access_hypoTE=true);
   //construction of L2MuonSA parameters
+  declareProperty("monitoring_muonNonIso_L2SAHypo", m_hyposGeneric_L2SA);
+  declareProperty("monitoring_muonIso_L2SAHypo", m_hyposEFiso_L2SA);
+  declareProperty("monitoring_MSonly_L2SAHypo", m_hyposMSonly_L2SA);
+  declareProperty("monitoring_muonEFFS_L2SAHypo", m_hyposEFFS_L2SA);
+  declareProperty("monitoring_muonLowpt_L2SAHypo", m_hyposLowpt_L2SA);
+  declareProperty("monitoring_muon_Support_L2SAHypo", m_hyposSupport_L2SA);
 
   //construction of muComb parameters
+  declareProperty("monitoring_muonNonIso_L2CBHypo", m_hyposGeneric_L2CB);
+  declareProperty("monitoring_muonIso_L2CBHypo", m_hyposEFiso_L2CB);
+  declareProperty("monitoring_MSonly_L2CBHypo", m_hyposMSonly_L2CB);
+  declareProperty("monitoring_muonEFFS_L2CBHypo", m_hyposEFFS_L2CB);
+  declareProperty("monitoring_muonLowpt_L2CBHypo", m_hyposLowpt_L2CB);
+  declareProperty("monitoring_muon_Support_L2CBHypo", m_hyposSupport_L2CB);
+
 
   //construction of muIso parameters
 
@@ -145,6 +159,7 @@ StatusCode HLTMuonMonTool::init()
   //(*m_log).setLevel(MSG::DEBUG); // YY: not yet used
   // this->msg().setLevel(MSG::DEBUG);  // YY tried this, worked fine
   ATH_MSG_DEBUG("init being called");
+  ATH_MSG_DEBUG("HI_pp_mode:" << m_HI_pp_mode);
   // some switches and flags
   m_requestESchains = true;
   //initialization for common tools
@@ -191,6 +206,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainGeneric.push_back("muChain"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsGeneric[ich], 0));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsGeneric[ich], "muChain"+std::to_string(ich+1)));
+	if(ich<m_hyposGeneric_L2SA.size()) m_hypomapL2SA[m_chainsGeneric[ich]] = m_hyposGeneric_L2SA[ich];
+	if(ich<m_hyposGeneric_L2CB.size()) m_hypomapL2CB[m_chainsGeneric[ich]] = m_hyposGeneric_L2CB[ich];
   }
   
   // Generic (Isolated muons)
@@ -201,6 +218,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainEFiso.push_back("muChainEFiso"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsEFiso[ich], 1));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsEFiso[ich], "muChainEFiso"+std::to_string(ich+1)));
+	if(ich<m_hyposEFiso_L2SA.size()) m_hypomapL2SA[m_chainsEFiso[ich]] = m_hyposEFiso_L2SA[ich];
+	if(ich<m_hyposEFiso_L2CB.size()) m_hypomapL2CB[m_chainsEFiso[ich]] = m_hyposEFiso_L2CB[ich];
   }
  
 
@@ -214,6 +233,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainMSonly.push_back("muChainMSonly"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsMSonly[ich], 0));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsMSonly[ich], "muChainMSonly"+std::to_string(ich+1)));
+	if(ich<m_hyposMSonly_L2SA.size()) m_hypomapL2SA[m_chainsMSonly[ich]] = m_hyposMSonly_L2SA[ich];
+	if(ich<m_hyposMSonly_L2CB.size()) m_hypomapL2CB[m_chainsMSonly[ich]] = m_hyposMSonly_L2CB[ich];
   }
 
 
@@ -235,13 +256,15 @@ StatusCode HLTMuonMonTool::init()
   // v5 primary
   //m_histChainEFFS.push_back("muChainEFFS");
   //m_chainsEFFS.push_back("mu18_mu8noL1");
+
   if(!m_HI_pp_mode){
     m_FS_pre_trigger = "HLT_mu4";
-    m_FS_pre_trigger = "HLT_mu10";
+    m_FS_pre_trigger_second = "HLT_mu8";
   }else{
     m_FS_pre_trigger = "HLT_mu24_ivarmedium";
+    m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
   }
-  m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
+
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
 	m_histChainEFFS.push_back("muChainEFFS");
@@ -1025,4 +1048,28 @@ StatusCode HLTMuonMonTool::proc()
   }
 
   return StatusCode::FAILURE;
+}
+
+
+const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const HLT::TriggerElement *te, std::string step, std::string chainname){
+
+  //m_ExpertMethods->enable();
+  std::string hyponame = "";
+  if(step=="L2MuonSA") hyponame = m_hypomapL2SA[chainname];
+  if(step=="L2muComb") hyponame = m_hypomapL2CB[chainname];
+  const HLT::TriggerElement *hypote = NULL;
+  std::vector<HLT::TriggerElement*> TEsuccessors = m_ExpertMethods->getNavigation()->getDirectSuccessors(te);
+  for(auto te2 : TEsuccessors){
+    ATH_MSG_VERBOSE("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
+    if(Trig::getTEName(*te2)==hyponame){
+      ATH_MSG_DEBUG("[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() );
+      hypote = te2;
+    }
+  }
+  if(!hypote){
+      ATH_MSG_DEBUG("[" << chainname<< "] HypoTE not found. Assigning alg TE.");
+      hypote = te;
+  }
+
+  return hypote;
 }

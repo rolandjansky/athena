@@ -20,11 +20,9 @@
 AFP_Raw2DigiTool::AFP_Raw2DigiTool(const std::string &type,
 				   const std::string &name,
 				   const IInterface *parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_totToChargeTransformation ("totToChargeTransformation", "1909 + x*363 + x*x*141")
 {
-  declareInterface<IAFP_Raw2DigiTool>(this);
-
   declareProperty( "rawDataContainerName", m_rawDataContainerName = "AFP_RawData");
   declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
   declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );
@@ -41,8 +39,8 @@ StatusCode AFP_Raw2DigiTool::initialize()
 
 StatusCode AFP_Raw2DigiTool::recoAll()
 {
-  CHECK( recoSiHits() );
-  CHECK( recoToFHits() );
+  ATH_CHECK( recoSiHits() );
+  ATH_CHECK( recoToFHits() );
 
   return StatusCode::SUCCESS;
 }
@@ -53,9 +51,9 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
 
   // create output containers
   xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
-  CHECK( evtStore()->record(siHitContainer, m_AFPSiHitsContainerName) );
+  ATH_CHECK( evtStore()->record(siHitContainer, m_AFPSiHitsContainerName) );
   xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
-  CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
+  ATH_CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
   siHitContainer->setStore(siHitAuxContainer);
 
   // retrieve raw data
@@ -80,9 +78,9 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
 
   // create output containers
   xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
-  CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
+  ATH_CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
   xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
-  CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
+  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
   tofHitContainer->setStore(tofHitAuxContainer);
 
   // retrieve raw data
@@ -229,6 +227,8 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setTrainID(1);
       tofHit->setBarInTrainID(3);
       break;
+    default:
+      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
     }
   }
   else if (hptdcID == 2) {
@@ -265,6 +265,8 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setTrainID(3);
       tofHit->setBarInTrainID(3);
       break;
+    default:
+      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
     }
   }
 }

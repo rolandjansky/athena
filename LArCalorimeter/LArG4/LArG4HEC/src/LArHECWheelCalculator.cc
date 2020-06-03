@@ -78,7 +78,7 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
   // make sure hdata is reset
   hdata.resize(1);
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 
 
   // apply BirksLaw if we want to:

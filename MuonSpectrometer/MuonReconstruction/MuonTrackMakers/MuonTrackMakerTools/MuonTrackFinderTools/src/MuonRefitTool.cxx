@@ -489,7 +489,16 @@ namespace Muon {
              for(auto itRot : align_deviations){
                iRot++;
                if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
-                 std::vector<Identifier> hitidsRot;
+                 if( itRot->hasValidHashOfHits() && it->hasValidHashOfHits() ) {
+                   if( itRot->getHashOfHits() == it->getHashOfHits() ){
+                     angleError = sqrt(itRot->getCovariance(0,0));
+                     matchFound = true;
+                     usedRotations.push_back(iRot);
+                   }
+                 } else {
+                   ATH_MSG_ERROR("One of the alignment deviations has an invalid hash created from the hits.");
+                 }
+                 /* std::vector<Identifier> hitidsRot;
                  itRot->getListOfHits(vec_riowithdev);
                  for(auto riowithdev : vec_riowithdev){
                    Identifier id_riowithdev = riowithdev->identify();
@@ -500,7 +509,7 @@ namespace Muon {
                      break;
                    }
                  }
-                 if(matchFound) usedRotations.push_back(iRot);
+                 if(matchFound) usedRotations.push_back(iRot); */
                }
                if(matchFound) break; 
              }
@@ -536,6 +545,7 @@ namespace Muon {
             if(iRot == usedRotations[i]) used = true;
            }
            if(used) continue;             
+           ATH_MSG_ERROR("This following code should not be reached anymore!");
            std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
            itRot->getListOfHits(vec_riowithdev);
 

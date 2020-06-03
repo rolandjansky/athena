@@ -47,6 +47,9 @@ namespace iGeant4
     /// Does the work of simulating an ATLAS event
     bool ProcessEvent(G4Event* event);
 
+    /// Pass G4Commands for later execution
+    void AddG4Command(const std::string& g4Command);
+
     /// G4 function called at end of run
     void RunTermination() override final;
 
@@ -75,6 +78,11 @@ namespace iGeant4
     /// Dump flux information to text files
     void WriteFluxInformation();
     /// @}
+
+    /// This method attempts to execute G4Commands via the G4UImanager
+    void AttemptG4Commands(std::vector<std::string>& commands);
+    /// This command prints a message about a G4Command depending on its returnCode
+    void CommandLog(int returnCode, const std::string& commandString) const;
 
     /// @name Methods to pass configuration in from G4AtlasAlg
     /// @{
@@ -124,6 +132,9 @@ namespace iGeant4
     /// Handle to the user action service
     ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
     ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+
+    /// Commands to send to the G4 UI
+    std::vector<std::string> m_g4commands;
   };
 
 }

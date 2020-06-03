@@ -1,0 +1,16 @@
+from IOVDbSvc.CondDB import conddb;
+conddb.blockFolder("/LAR/BadChannelsOfl/KnownBADFEBs"); 
+conddb.blockFolder("/LAR/BadChannelsOfl/KnownMNBFEBs"); 
+conddb.blockFolder("/SCT/DAQ/Calibration/NPtGainDefects"); 
+conddb.blockFolder("/SCT/DAQ/Calibration/NoiseOccupancyDefects"); 
+conddb.blockFolder("/TRT/Calib/PID"); 
+conddb.blockFolder("/TRT/Calib/PID_RToT"); 
+conddb.blockFolder("/TRT/Calib/PID_RToTver_New"); 
+conddb.blockFolder("/TRT/Calib/PID_vector"); 
+conddb.blockFolder("/TRT/Calib/PIDver_New"); 
+conddb.blockFolder("/TRT/Calib/ToT/ToTValue");
+conddb.blockFolder("/TRT/Calib/ToT/ToTVectors"); 
+conddb.blockFolder("/TRT/DCS/HV/BARREL"); 
+conddb.blockFolder("/TRT/DCS/HV/ENDCAPA"); 
+conddb.blockFolder("/TRT/DCS/HV/ENDCAPC"); 
+conddb.blockFolder("/LAR/Identifier/LArTTCellMapAtlas");

@@ -100,6 +100,26 @@ FTKRoadFinder.DCMatchMethod = 1
 #FTKRoadFinderAlgo.ssmaptsp_path = ssmaptsp_path
 #FTKRoadFinderAlgo.ssmapunused_path = ssmapunused_path
 FTKRoadFinder.ReadFTKHits = False
+#
+# AMcompressionMode : useful settings are 2,3,4,0
+#    2 : U7 compression scheme [fast event loop]
+#    3 : DELTA compression scheme, as stored on disk [best init CPU]
+#    4 : BIT4 compression scheme [slow, best allocated memory]
+#    0 : compromize of U7,DELTA,U32 [performs similar to U7]
+# less useful settings -1,1,5
+#   -1 : DELTA scheme without repacking [similar mode=3]
+#    1 : U32 no compression [fastest event loop, very large memory demand]
+#    5 : alternative delta scheme DELTA2 [performs similar to mode=3]
+#
+# performance for FTKRoadFinderAlgo, barrel tower, ttbar mu=60, 2.5 GHz CPU
+#   setting         -1     0     1     2     3     4     5
+#===========================================================
+# cpu(evt) [ms]    200   170   150   160   190   300   180
+# cpu(init) [s]   20.6  23.1  25.8  25.2  19.9  26.9  23.1
+# VMEM [kb/1000]   662   737  1547   768   695   678   695 
+# alloc [kb/1000]  639   572  1342   605   528   512   528
+
+FTKRoadFinder.AMcompressionMode = 2
 
 # List here the runArgs which need to be translated directly into FTKRoadFinder attributes
 runArgsFromTrfMandatory = [
@@ -164,6 +184,7 @@ runArgsFromTrfOptionalTF = {
     'Chi2DofCutSSB': 4, # if >0 the previous values are ignored
     'Chi2Cut_VetoMaj': -1, # no majority veto by default
     'HitWarrior': 2,
+    'AuxDoctor': False,
     'KeepRejected': 0,
     'FitRemoved': 0,
     'HWNDiff': 6,
@@ -179,7 +200,8 @@ runArgsFromTrfOptionalTF = {
     'SSFTRMinEta': 1.0,
     'SSFTRMaxEta': 1.4,
     'ModuleLUTPath2nd': "",
-    'Save1stStageTrks': False
+    'Save1stStageTrks': False,
+    'SaveStepByStepTrks': False
     }
 
 #JDC:Find files from ConstantsDir, use to set certain attributes
@@ -949,6 +971,10 @@ else:
 #check if we want to save 1st stage tracks
 if hasattr(runArgs,'Save1stStageTrks'):
     FTKTrackFitter.Save1stStageTrks = runArgs.Save1stStageTrks
+
+#check if we want to save step-by-step tracks
+if hasattr(runArgs,'SaveStepByStepTrks'):
+    FTKTrackFitter.SaveStepByStepTrks = runArgs.SaveStepByStepTrks
 
 # check if the second stage is going to be used
 if not hasattr(runArgs,'doAuxFW'):

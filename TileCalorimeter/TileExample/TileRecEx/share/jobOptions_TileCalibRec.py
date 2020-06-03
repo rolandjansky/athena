@@ -201,8 +201,10 @@ else:
                 Year = 2015
             elif RunNumber < 314450:
                 Year = 2016
-            else:
+            elif RunNumber < 342540:
                 Year = 2017
+            else:
+                Year = 2018
 
 
             if 'RunStream' in dir():
@@ -464,6 +466,9 @@ if not 'doTileMF' in dir():
 if not 'doTileOF1' in dir():
     doTileOF1 = False
 
+if not 'doTileWiener' in dir():
+    doTileWiener = False
+
 if not 'doTileFit' in dir():
     doTileFit = not TileCompareMode and ReadDigits
 
@@ -509,7 +514,7 @@ if not 'OfcFromCOOL' in dir():
     else:
         OfcFromCOOL = False
 
-if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
+if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileWiener or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
     TileUseCOOL = True
     TileUseCOOLOFC = not ReadPool or OfcFromCOOL
 
@@ -635,6 +640,9 @@ from AthenaCommon.BeamFlags import jobproperties
 #jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
 jobproperties.Beam.beamType.set_Value_and_Lock('collisions')
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()  #Switched off to avoid geometry
 DetFlags.ID_setOff()
@@ -649,8 +657,6 @@ DetFlags.detdescr.LAr_setOn()
 DetFlags.detdescr.Tile_setOn()
 if TileL1CaloRun:
     DetFlags.detdescr.LVL1_setOn()
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
 if ReadPool:
     DetFlags.readRDOPool.Tile_setOn()
     if TileL1CaloRun:
@@ -709,8 +715,8 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2017-07'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2017-03'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-03'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2018-02'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -825,8 +831,26 @@ if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+if not 'newRDO' in dir() or newRDO is None:
+    if 'ReadRDO' in dir() and ReadRDO:
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        from RecExConfig.ObjKeyStore import objKeyStore
+        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        newRDO = objKeyStore.isInInput( "xAOD::EventInfo" )
+    else:
+        newRDO = True
+
+if ReadPool and newRDO:
+    topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+else:
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+
+#============================================================
+#=== configure BunchCrossingTool
+#============================================================
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
 
 #=============================================================
 #=== read ByteStream and reconstruct data
@@ -903,6 +927,13 @@ if doTileMF:
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     ToolSvc.TileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
 
+    if OfcFromCOOL and not doTileFitCool:
+        TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+        TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+        tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+        tileInfoConfigurator.setupCOOLAutoCr()
+
     print ToolSvc.TileRawChannelBuilderMF 
 
 if doTileOF1:
@@ -918,6 +949,19 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderOF1    
+
+if doTileWiener:
+    if PhaseFromCOOL:
+        ToolSvc.TileRawChannelBuilderWienerFilter.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+        ToolSvc.TileRawChannelBuilderWienerFilter.correctTime = False # do not need to correct time with best phase
+
+    ToolSvc.TileRawChannelBuilderWienerFilter.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
+    if TileCompareMode or TileEmulateDSP:
+        ToolSvc.TileRawChannelBuilderWienerFilter.EmulateDSP = True # use dsp emulation
+    ToolSvc.TileRawChannelBuilderWienerFilter.UseDSPCorrection = not TileBiGainRun
+    ToolSvc.TileRawChannelBuilderWienerFilter.MC = globalflags.DataSource() != "data"
+
+    print ToolSvc.TileRawChannelBuilderWienerFilter    
 
 if (doEventDisplay or doCreatePool):
     # create TileHit from TileRawChannel and store it in TileHitVec
@@ -1256,6 +1300,9 @@ if doTileMon:
             
         if doTileMF:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelMF"
+            
+        if doTileWiener:
+            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelWiener"
 
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"

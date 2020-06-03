@@ -151,11 +151,11 @@ def run2ConfigAction(run2Flag):
         EgammaSliceFlags.doSuperClusters=False
     elif run2Flag=='2018':
         log.info('EgammaSliceFlags set for %s',run2Flag)
-        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170505_v6'           # To be changed by new tunes <----
-        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/' # To be changed by new tunes <----
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20180125_v8/'
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'                       # Hey! Here we need to use new calibration constants....
-        EgammaSliceFlags.doSuperClusters=True
+        EgammaSliceFlags.doSuperClusters=False
     else:
         log.info('EgammaSliceFlags not set use defaults',run2Flag)
 

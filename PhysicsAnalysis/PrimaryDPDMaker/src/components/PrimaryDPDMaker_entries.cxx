@@ -8,6 +8,7 @@
 #include "PrimaryDPDMaker/CollisionFilterAlg.h"
 #include "PrimaryDPDMaker/muonTrkTrackThinTool.h"
 #include "PrimaryDPDMaker/CaloCellThinningTool.h"
+#include "PrimaryDPDMaker/DRAW_ZMUMUSkimmingTool.h"
 
 using namespace DerivationFramework;
 
@@ -19,6 +20,7 @@ DECLARE_TOOL_FACTORY( MBTSTimeFilterTool )
 DECLARE_TOOL_FACTORY( CaloTimeFilterTool )
 DECLARE_TOOL_FACTORY( BCIDFilterTool )
 DECLARE_TOOL_FACTORY( CaloCellThinningTool )
+DECLARE_TOOL_FACTORY( DRAW_ZMUMUSkimmingTool )
 
 DECLARE_FACTORY_ENTRIES( PrimaryDPDMaker )
 {
@@ -30,4 +32,5 @@ DECLARE_FACTORY_ENTRIES( PrimaryDPDMaker )
   DECLARE_TOOL( CaloTimeFilterTool );
   DECLARE_TOOL( BCIDFilterTool );
   DECLARE_TOOL( CaloCellThinningTool );
+  DECLARE_TOOL( DRAW_ZMUMUSkimmingTool );
 }

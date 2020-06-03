@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationBinnedChain_h
@@ -25,9 +25,9 @@ public:
   ///print the range of a bin; for bin -1, print the allowed range
   virtual const std::string get_bin_text(int bin) const;
 
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
-  void Print(Option_t *option = "") const;
+  void Print(Option_t *option = "") const override;
   
   static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 
@@ -41,11 +41,7 @@ protected:
 
 private:
 
-  ClassDef(TFCSParametrizationBinnedChain,1)  //TFCSParametrizationBinnedChain
+  ClassDefOverride(TFCSParametrizationBinnedChain,1)  //TFCSParametrizationBinnedChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationBinnedChain+;
-#endif
 
 #endif

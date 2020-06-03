@@ -1,0 +1,15 @@
+from IOVDbSvc.CondDB import conddb;
+conddb.blockFolder("/Indet/PixelDist");
+conddb.blockFolder("/Indet/TrkErrorScaling");
+conddb.blockFolder("/LAR/ElecCalibFlat/HVScaleCorr");
+conddb.blockFolder("/LAR/Identifier/CalibIdMap");
+conddb.blockFolder("/LAR/Identifier/FebRodMap");
+conddb.blockFolder("/LAR/Identifier/OnOffIdMap");
+conddb.blockFolder("/MUONALIGN/ERRS");
+conddb.blockFolder("/TRT/Cond/Status");
+conddb.blockFolder("/TRT/Cond/StatusHT");
+conddb.blockFolder("/TRT/Cond/StatusPermanent");
+conddb.blockFolder("/LAR/Identifier/LArTTCellMapAtlas");
+conddb.blockFolder("/LAR/BadChannels/BadChannels");
+conddb.blockFolder("/LAR/BadChannels/MissingFEBs");
+conddb.blockFolder("/TRT/Cond/Status");

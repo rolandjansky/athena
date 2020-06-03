@@ -14,10 +14,10 @@
 import os, sys  
 import argparse
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 import xmlrpclib
 
-from ROOT import TFile,TBrowser
+from ROOT import TFile,TBrowser,TChain
 from ROOT import gStyle
 
 gStyle.SetPalette(1)

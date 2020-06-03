@@ -99,7 +99,7 @@ TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollectio
 
   solveTracks();
   
-  if (msgLvl(MSG::INFO)) dumpTracks(*m_finalTracks);
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*m_finalTracks);
   
 // memory defragmantation fix. Cleaning before returning the result 
   m_prdSigSet.clear(); 

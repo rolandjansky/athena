@@ -6,38 +6,33 @@
 atlas_subdir( egammaValidation )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
 	GaudiKernel
 	AsgExternal/Asg_MCUtils
+	Control/AthenaBaseComps
 	Control/AthToolSupport/AsgTools
 	Event/xAOD/xAODEgamma
 	Event/xAOD/xAODEventInfo
+        Event/xAOD/xAODBase 
 	Event/xAOD/xAODTracking
-	PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-	PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-	PRIVATE
-	Control/AthenaBaseComps
+        Event/xAOD/xAODTruth
+        PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+        PhysicsAnalysis/AnalysisCommon/PATCore
+	PhysicsAnalysis/MCTruthClassifier
+	PhysicsAnalysis/IsolationSelection
 	TestPolicy 
-	Tracking/TrkValidation/TrkValHistUtils) 
-
-# Add a shared library
-atlas_add_library (egammaValidationLib 
-	egammaValidation/*.h  src/*.cxx 
-	PUBLIC_HEADERS egammaValidation
-	INCLUDE_DIRS
-	PRIVATE_INCLUDE_DIRS
-	LINK_LIBRARIES GaudiKernel AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib ElectronPhotonSelectorToolsLib AsgAnalysisInterfaces
-	PRIVATE_LINK_LIBRARIES AthenaBaseComps TrkValHistUtils)
+	Tracking/TrkValidation/TrkValHistUtils ) 
 
 # add the Module/component library :
-atlas_add_component (egammmaValidation
-	src/*.cxx src/components/*.cxx 
+atlas_add_component ( egammmaValidation
+	src/*.cxx 
+	src/components/*.cxx 
 	INCLUDE_DIRS 
-	LINK_LIBRARIES egammaValidationLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
-	xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils ElectronPhotonSelectorToolsLib AsgAnalysisInterfaces)
+	LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo PATCoreLib
+	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces xAODTruth xAODBase MCTruthClassifierLib)
 
 # Install JO files from the package:
 atlas_install_joboptions( share/*.py )
 # ART shell executable scripts :
-atlas_install_scripts( test/*.sh)
+atlas_install_scripts( test/*.sh scripts/*py )
 

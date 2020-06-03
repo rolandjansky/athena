@@ -1,5 +1,5 @@
 ###########################################################################
-#    Copyright (C) 2009 by Miroslav Nozicka
+#    
 #    <nozicka@mail.desy.de>
 #
 #   DESCRIPTION: TrigHistorySvc - derived configurable of the HistorySvc

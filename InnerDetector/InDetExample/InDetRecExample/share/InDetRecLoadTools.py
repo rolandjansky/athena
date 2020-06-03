@@ -1161,22 +1161,6 @@ if InDetFlags.doPattern():
                                                                         TrackQualityCut       = 9.3
                                                                         )
         ToolSvc += InDetSiComTrackFinderDBM
-    if InDetFlags.doTrackSegmentsPixelThreeLayer():
-        InDetSiComTrackFinderThreeLayerTracking = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderThreeLayerTracking',
-                                                                                       PropagatorTool        = InDetPatternPropagator,
-                                                                                       UpdatorTool           = InDetPatternUpdator,
-                                                                                       RIOonTrackTool        = InDetRotCreatorDigital,
-                                                                                       AssosiationTool       = InDetPrdAssociationTool,
-                                                                                       usePixel              = DetFlags.haveRIO.pixel_on(),
-                                                                                       useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                                                       PixManagerLocation    = InDetKeys.PixelManager(),
-                                                                                       SCTManagerLocation    = InDetKeys.SCT_Manager(),
-                                                                                       PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                                                       SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
-                                                                                       PassThroughExtension  = True
-                                                                                       )
-
-        ToolSvc += InDetSiComTrackFinderThreeLayerTracking
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
@@ -1278,6 +1262,30 @@ if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
     ToolSvc += InDetTRTExtensionTool
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTExtensionTool
+
+# ------------------------------------------------------------
+#
+# ----------- Loading of tools for Displaced Soft Pion tracking
+#
+# ------------------------------------------------------------
+
+if InDetFlags.doPattern() and InDetFlags.doDisplacedSoftPion():
+    
+    # ROI Tool needed for InDet__SiSpacePointsSeedMaker_TrkSeeded tool
+    from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RoISeedTool
+    RoISeedTool = InDet__RoISeedTool (name                    = 'InDetRoISeedTool_DSP',
+                                      RoISeedTrackContainer   = InDetKeys.ResolvedPixelPrdAssociationTracks(), #"ResolvedPixelThreeLayerTracks",
+                                      TracksForIsolation      = "ResolvedTracks",
+                                      RoISeedRTrackD0         = 10.0,
+                                      RoISeedTrackPt          = 20000.0,
+                                      RoISeedTrackSCTHits     = 0,
+                                      RoISeedTrackPixHits     = 3,
+                                      RoISeedTrackIso         = 0.1,
+                                      IsoTrackPtThr           = 1000.0,
+                                      IsoTrackConeSize        = 0.4,
+                                      DoRoITrackD0Sort        = True )
+    ToolSvc += RoISeedTool
+
 
 # ------------------------------------------------------------
 #

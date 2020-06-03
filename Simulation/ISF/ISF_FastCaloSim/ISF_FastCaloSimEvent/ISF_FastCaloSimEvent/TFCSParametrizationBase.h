@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationBase_h
@@ -32,12 +32,12 @@ class TFCSExtrapolationState;
       ALWAYS,
       NUM_LEVELS
     }; // enum Level
-    const char* LevelNames[NUM_LEVELS]={"NIL","VERBOSE","DEBUG","INFO","WARNING","ERROR","FATAL","ALWAYS"};
+    __attribute__ ((unused)) static const char* LevelNames[NUM_LEVELS]={"NIL","VERBOSE","DEBUG","INFO","WARNING","ERROR","FATAL","ALWAYS"};
   }  // end namespace MSG  
   // Needs a check despite the name, as stand alone mode is not using MsgStream, but just cout internally
   #define ATH_MSG_LVL_NOCHK(lvl, x)               \
     do {                                          \
-      if(this->msgLvl(lvl)) this->msg(lvl)<<setw(45)<<std::left<<this->GetName()<<" "<<MSG::LevelNames[lvl]<<" "<< x << endmsg; \
+      if(this->msgLvl(lvl)) this->msg(lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[lvl] << " " << x << endmsg; \
     } while (0)
 
   #define ATH_MSG_LVL(lvl, x)                     \
@@ -46,16 +46,16 @@ class TFCSExtrapolationState;
     } while (0)
 
   #define ATH_MSG_VERBOSE(x) ATH_MSG_LVL(MSG::VERBOSE, x)
-  #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG, x)
+  #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG,   x)
   // note that we are using the _NOCHK variant here
-  #define ATH_MSG_INFO(x)    ATH_MSG_LVL_NOCHK(MSG::INFO, x)
+  #define ATH_MSG_INFO(x)    ATH_MSG_LVL_NOCHK(MSG::INFO,    x)
   #define ATH_MSG_WARNING(x) ATH_MSG_LVL_NOCHK(MSG::WARNING, x)
-  #define ATH_MSG_ERROR(x)   ATH_MSG_LVL_NOCHK(MSG::ERROR,  x)
-  #define ATH_MSG_FATAL(x)   ATH_MSG_LVL_NOCHK(MSG::FATAL,  x)
+  #define ATH_MSG_ERROR(x)   ATH_MSG_LVL_NOCHK(MSG::ERROR,   x)
+  #define ATH_MSG_FATAL(x)   ATH_MSG_LVL_NOCHK(MSG::FATAL,   x)
 
   // can be used like so: ATH_MSG(INFO) << "hello" << endmsg;
   #define ATH_MSG(lvl) \
-    if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl)<<setw(45)<<std::left<<this->GetName()<<" "<<MSG::LevelNames[MSG::lvl]<<" " 
+    if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[MSG::lvl] << " " 
 
 #else
   #include "AthenaKernel/MsgStreamMember.h"
@@ -72,6 +72,15 @@ Several basic types of parametrization exists:
 - classes derived from TFCSParametrizationChain call other parametrization. Depending on the derived class, these other parametrization are only called under special conditions
 - a special case of TFCSLateralShapeParametrization is TFCSLateralShapeParametrizationHitBase for hit level shape simulation through the simulate_hit method. Hit level simulation is controlled through the special chain TFCSLateralShapeParametrizationHitChain.
 */
+
+///Return codes for the simulate function
+enum FCSReturnCode {
+  FCSFatal = 0,
+  FCSSuccess = 1,
+  FCSRetry = 2
+};
+
+#define FCS_RETRY_COUNT 3
 
 class TFCSParametrizationBase:public TNamed {
 public:
@@ -122,18 +131,24 @@ public:
   virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
   ///Method in all derived classes to do some simulation
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
   ///Print object information. 
   void Print(Option_t *option = "") const;
+  
+  ///Deletes all objects from the s_cleanup_list. 
+  ///This list can get filled during streaming operations, where an immediate delete is not possible
+  static void DoCleanup();
 
 protected:
-  const double init_Ekin_nominal=0;
-  const double init_Ekin_min=0;
-  const double init_Ekin_max=14000000;
-  const double init_eta_nominal=0;
-  const double init_eta_min=-100;
-  const double init_eta_max=100;
+  static constexpr double init_Ekin_nominal=0;//! Do not persistify!
+  static constexpr double init_Ekin_min=0;//! Do not persistify!
+  static constexpr double init_Ekin_max=14000000;//! Do not persistify!
+  static constexpr double init_eta_nominal=0;//! Do not persistify!
+  static constexpr double init_eta_min=-100;//! Do not persistify!
+  static constexpr double init_eta_max=100;//! Do not persistify!
+
+  static std::vector< TFCSParametrizationBase* > s_cleanup_list;
 
 #if defined(__FastCaloSimStandAlone__)
 public:
@@ -149,7 +164,7 @@ public:
 
   /// Log a message using cout; a check of MSG::Level lvl is not possible!
   MsgStream& msg() const {return *m_msg;}
-  MsgStream& msg( const MSG::Level lvl ) const {return *m_msg;}  
+  MsgStream& msg( const MSG::Level ) const {return *m_msg;}  
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( const MSG::Level lvl ) const {return m_level<=lvl;}
 private:
@@ -181,11 +196,7 @@ private:
 private:
   static std::set< int > s_no_pdgid;
 
-  ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
+  ClassDef(TFCSParametrizationBase,2)  //TFCSParametrizationBase
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationBase+;
-#endif
 
 #endif

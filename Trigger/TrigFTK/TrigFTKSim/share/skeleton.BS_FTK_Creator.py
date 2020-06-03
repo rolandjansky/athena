@@ -55,6 +55,16 @@ FTK_RDO_CreatorAlgo = FTK_RDO_CreatorAlgo()
 #FTK_RDO_CreatorAlgo.OutputLevel = VERBOSE
 FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKMergedTracksStream"
 FTK_RDO_CreatorAlgo.mergedTrackPaths = inputNTUP_FTKFile
+# By definition the direction of IBL locX is:
+#      RAW      : reversed
+#      NTUP_FTK : reversed
+#      RDO      : normal
+#      AOD      : normal
+#  This FTK_RDO_CreatorAlgo is getting FTK tracks from NTUP_FTK and writing RAW
+#  So we need to preserve IBL locX unchanged
+#  (non-reversed RDO are created in Storegate as part of the process, but they are not written).
+#  The reversal comes in the Reco job in FTK_DataProviderSvc 
+FTK_RDO_CreatorAlgo.ReverseIBLlocX=False 
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()

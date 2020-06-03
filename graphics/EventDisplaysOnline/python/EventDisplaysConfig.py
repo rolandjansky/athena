@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 def GetRunType():
@@ -13,7 +13,7 @@ def GetRunType():
     import os
     partition = os.environ['TDAQ_PARTITION']
   except KeyError :
-    partition = "EventDisplays"
+    partition = "ATLAS"
     mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default"%partition)
   
   mlog.debug('Probing partition %s for RunType'%partition)

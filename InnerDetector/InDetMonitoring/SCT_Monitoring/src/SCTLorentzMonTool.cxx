@@ -64,8 +64,8 @@ namespace{//anonymous namespace for functions at file scope
 // ====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
                                      const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent),
-  m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
-  m_phiVsNstrips{},
+								 m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
+								 m_phiVsNstrips{},
   m_phiVsNstrips_100{},
   m_phiVsNstrips_111{},
   m_phiVsNstrips_Side{},
@@ -212,7 +212,7 @@ SCTLorentzMonTool::fillHistograms() {
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     if (not trackStates) {
       msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" <<
-      endmsg;
+	endmsg;
       continue;
     }
 
@@ -221,6 +221,30 @@ SCTLorentzMonTool::fillHistograms() {
       msg(MSG::WARNING) << " null trackSummary" << endmsg;
       continue;
     }
+
+
+
+
+    unsigned int nSCTBarrel = 0;
+    for (const Trk::TrackStateOnSurface* tsos : *trackStates) {
+      if (not tsos->type(Trk::TrackStateOnSurface::Measurement)) continue; // Not a hit
+
+      const InDet::SiClusterOnTrack* rot = dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack());
+      if (rot==nullptr) continue; // Not a valid SiClusterOnTrack
+
+      const InDet::SiCluster* clus = dynamic_cast<const InDet::SiCluster*>(rot->prepRawData());
+      if (clus==nullptr) continue; // Not a valid SiCluster
+
+      if (not clus->detectorElement()->isSCT()) continue; // Not an SCT hit
+
+      const Identifier& sct_id = clus->identify();
+      const int bec = m_pSCTHelper->barrel_ec(sct_id);
+
+      if (bec==0) nSCTBarrel++; // This SCT hit is in Barrel
+    }
+
+
+
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
@@ -284,6 +308,11 @@ SCTLorentzMonTool::fillHistograms() {
                   ) {
                 passesCuts = true;
               }// 01.02.2015
+              /// cuts used by Arka for tighter selection:
+              /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT barrel) >= 8, N_hit(Pixel) >= 2
+              /// cuts used by Arka for looser selection:
+              /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
+
               else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                        (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
 		       //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm
@@ -296,18 +325,37 @@ SCTLorentzMonTool::fillHistograms() {
               }
 
               if (passesCuts) {
-                // Fill profile
-                m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-                m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-
-                if (in100) {
-                  // cout << "This event is going to 100" << endl;
-                  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
-                  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                }else {
-                  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
-                  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-                }
+		// Fill profile
+                    
+		/// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
+		int etaIndex(0);
+		if(eta < 0 )
+		  etaIndex = eta + 6;
+		else
+		  etaIndex = eta + 5;
+                    
+		m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    
+		//std::cout << "@@@@@@@@@@ the eta and etaIndex " << eta << " : " << etaIndex << std::endl;
+		if (in100) {
+		  // cout << "This event is going to 100" << endl;
+		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                    
+		}else {
+		  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                
+		}
               }// end if passesCuts
             }// end if mtrkp
 	  } // end if SCT..
@@ -434,6 +482,7 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
                                                                                                                                                         // 14.01.22
   const int nLayers(4);
   const int nSides(2);
+  const int nEta(12);
   string stem = m_path + "/SCT/GENERAL/lorentz/";
   //    MonGroup Lorentz(this,m_path+"SCT/GENERAL/lorentz",expert,run);        // hidetoshi 14.01.21
   MonGroup Lorentz(this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED);     // hidetoshi 14.01.21
@@ -444,6 +493,9 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
   string hNumS[nSides] = {
     "0", "1"
   };
+  string hEtaS[nEta] = {
+    "-6", "-5", "-4", "-3", "-2", "-1", "1", "2", "3", "4", "5", "6"
+  };
   int nProfileBins = 360;
 
   int success = 1;
@@ -452,31 +504,52 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
     // granularity set to one profile/layer for now
     int iflag = 0;
     m_phiVsNstrips_100[l] = pFactory("h_phiVsNstrips_100" + hNum[l], "100 - Inc. Angle vs nStrips for Layer " + hNum[l],
-                                     nProfileBins, -90., 90., Lorentz, iflag);
+                                     nProfileBins, -18., 18., Lorentz, iflag);
     m_phiVsNstrips_111[l] = pFactory("h_phiVsNstrips_111" + hNum[l], "111 - Inc. Angle vs nStrips for Layer " + hNum[l],
-                                     nProfileBins, -90., 90., Lorentz, iflag);
+                                     nProfileBins, -18., 18., Lorentz, iflag);
 
     m_phiVsNstrips[l] = pFactory("h_phiVsNstrips" + hNum[l], "Inc. Angle vs nStrips for Layer" + hNum[l], nProfileBins,
-                                 -90., 90., Lorentz, iflag);
+                                 -18., 18., Lorentz, iflag);
     m_phiVsNstrips[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips[l]->GetYaxis()->SetTitle("Num of Strips");
 
+
+    //// old histograms/TProfiles
     m_phiVsNstrips_100[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips_100[l]->GetYaxis()->SetTitle("Num of Strips");
 
     m_phiVsNstrips_111[l]->GetXaxis()->SetTitle("#phi to Wafer");
     m_phiVsNstrips_111[l]->GetYaxis()->SetTitle("Num of Strips");
 
+    for (int etaModule=0; etaModule != nEta; ++etaModule){
+		
+      // granularity set to eta for now
+      m_phiVsNstrips_100_eta[l][etaModule] = pFactory("h_phiVsNstrips_100" + hNum[l] + "_Eta" + hEtaS[etaModule], "100 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+		
+      m_phiVsNstrips_111_eta[l][etaModule] = pFactory("h_phiVsNstrips_111" + hNum[l] + "_Eta" + hEtaS[etaModule], "111 - Inc. Angle vs nStrips for Layer " + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+      //// old histograms/TProfiles
+      m_phiVsNstrips_100_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips_100_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+      m_phiVsNstrips_111_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips_111_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+		
+
+      m_phiVsNstrips_eta[l][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "_Eta" + hEtaS[etaModule], "Inc. Angle vs nStrips for Layer" + hNum[l] + " and Eta " + hEtaS[etaModule], nProfileBins, -18., 18., Lorentz, iflag);
+      m_phiVsNstrips_eta[l][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips_eta[l][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+    }
+
     for (int side = 0; side < nSides; ++side) {
       m_phiVsNstrips_Side_100[l][side] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side],
                                                   "100 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
-                                                  nProfileBins, -90., 90., Lorentz, iflag);
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
       m_phiVsNstrips_Side_111[l][side] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side],
                                                   "111 - Inc. Angle vs nStrips for Layer Side " + hNum[l] + hNumS[side],
-                                                  nProfileBins, -90., 90., Lorentz, iflag);
+                                                  nProfileBins, -18., 18., Lorentz, iflag);
       m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side],
                                               "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side],
-                                              nProfileBins, -90., 90., Lorentz, iflag);
+                                              nProfileBins, -18., 18., Lorentz, iflag);
 
       m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
       m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
@@ -486,7 +559,30 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
 
       m_phiVsNstrips_Side_111[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
       m_phiVsNstrips_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+      for (int etaModule=0; etaModule != nEta; ++etaModule){
+	m_phiVsNstrips_Side_100_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_100_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+								   "100 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+								   nProfileBins, -18., 18., Lorentz, iflag);
+	m_phiVsNstrips_Side_111_eta[l][side][etaModule] = pFactory("h_phiVsNstrips_111_" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+								   "111 - Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+								   nProfileBins, -18., 18., Lorentz, iflag);
+	m_phiVsNstrips_Side_eta[l][side][etaModule] = pFactory("h_phiVsNstrips" + hNum[l] + "Side" + hNumS[side] + "_Eta" + hEtaS[etaModule],
+							       "Inc. Angle vs nStrips for Layer Side Eta " + hNum[l] + hNumS[side] + hEtaS[etaModule],
+							       nProfileBins, -18., 18., Lorentz, iflag);
+
+	m_phiVsNstrips_Side_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+	m_phiVsNstrips_Side_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+	m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+	m_phiVsNstrips_Side_100_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+
+	m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetXaxis()->SetTitle("#phi to Wafer");
+	m_phiVsNstrips_Side_111_eta[l][side][etaModule]->GetYaxis()->SetTitle("Num of Strips");
+      }
+
     }
+
     success *= iflag;
   }
   if (success == 0) {
@@ -559,7 +655,7 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &
   if (!element) {
     MsgStream log(msgSvc(), name());
     log << MSG::ERROR << "findAnglesToWaferSurface:  failed to find detector element for id=" <<
-    m_pSCTHelper->show_to_string(id) << endmsg;
+      m_pSCTHelper->show_to_string(id) << endmsg;
     return iflag;
   }
 

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  MetSort.cxx
 //  author: Joerg Stelzer
 //  creation: 27/08/14.

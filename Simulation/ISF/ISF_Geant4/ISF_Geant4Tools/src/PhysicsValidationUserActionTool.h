@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_G4UA__PHYSICSVALIATIONUSERACTIONTOOL_H
@@ -12,21 +12,21 @@
 #include "PhysicsValidationUserAction.h"
 
 namespace G4UA{
-  
+
   namespace iGeant4{
-    
-    
+
+
     /// @class PhysicsValidationUserActionTool
     /// @brief Place holder tool
     ///
     /// @author John Chapman
     ///
-    
+
     class PhysicsValidationUserActionTool:
     public ActionToolBase<PhysicsValidationUserAction>,
       public IG4EventActionTool, public IG4RunActionTool, public IG4SteppingActionTool, public IG4TrackingActionTool
     {
-      
+
     public:
       /// Standard constructor
       PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent);
@@ -42,7 +42,7 @@ namespace G4UA{
       /// Retrieve the tracking action
       virtual G4UserTrackingAction* getTrackingAction() override final
       { return static_cast<G4UserTrackingAction*>( getAction() ); }
-      
+
       /// Query interface for gaudi
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
@@ -52,7 +52,7 @@ namespace G4UA{
       /// Configuration parameters
       PhysicsValidationUserAction::Config m_config;
     }; // class PhysicsValidationUserActionTool
-    
+
   }// iGeant4
 } // namespace G4UA
 #endif //ISF_GEANT4TOOLS_G4UA__PHYSICSVALIATIONUSERACTIONTOOL_H

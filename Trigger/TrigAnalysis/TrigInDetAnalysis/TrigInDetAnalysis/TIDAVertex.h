@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDAVertex.h        
 //
 //                   
 //  
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDAVertex.h, v0.0   Thu 22 Apr 2010 15:32:23 BST sutt $
 

@@ -6,7 +6,6 @@
  some simple geometrical properties for direction vectors
  represented using transverse direction cosines
  --------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKFINDER_DIRECTION_H

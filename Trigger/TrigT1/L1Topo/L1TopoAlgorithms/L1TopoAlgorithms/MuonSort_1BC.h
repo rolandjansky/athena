@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  MuonSort_1BC.h
 //  TopoCore
 //  Created by Sue Cheatham based on MuonSelect by Joerg Stelzer

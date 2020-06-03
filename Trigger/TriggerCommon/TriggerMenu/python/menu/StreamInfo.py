@@ -28,9 +28,12 @@ physicsStreams = ['Main',
                   'HardProbes',
                   'MinBiasOverlay',
                   'UPC',
+                  'UCC',
                   'Mistimed',
                   'ExoDelayed',
                   'FTK',
+                  'PC',
+                  'CC',
                   ]
 
 calibStreams = [
@@ -52,11 +55,15 @@ calibStreams = [
                 'BeamSpot',
                 'zdcCalib',
                 'AFP',
+                'AFPALFA',
                 'BphysPEB',
                 'RPCNoise',
+                'RPCsecondaryreadout',
                 'IDprescaledL1',
                 'LArPEB',
-                'L1TopoMismatches'
+                'L1TopoMismatches',
+                'PCPEB',
+                'CCPEB',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

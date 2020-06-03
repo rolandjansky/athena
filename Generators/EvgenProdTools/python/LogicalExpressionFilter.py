@@ -1,5 +1,4 @@
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 ##==============================================================================
 ## Name:        LogicalExpressionFilter.py
 ##
@@ -34,8 +33,12 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         super(LogicalExpressionFilter, self).__init__(**kw)
         self.nEventsProcessed=0
         self.nEventsPassed=0
+        self.nEventsProcessedPosWeighted=0
+        self.nEventsProcessedNegWeighted=0
         self.nEventsProcessedWeighted=0
         self.nEventsPassedWeighted=0
+        self.nEventsPassedPosWeighted=0
+        self.nEventsPassedNegWeighted=0
         self.Expression = kw.get('Expression', '')
         self.UseEventWeight = kw.get('UseEventWeight',True)
         self.McEventKey = kw.get('McEventKey','GEN_EVENT')
@@ -158,8 +161,8 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
     def evalFilter(self, filterName):
       if not self.algdict[filterName].isExecuted():
-         self.algdict[filterName].sysExecute( )
-#         self.algdict[filterName].sysExecute( self.getContext() ) # for rel. 22
+#         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
+         self.algdict[filterName].sysExecute()
          self.algdict[filterName].setExecuted(True)
       decision = self.algdict[filterName].filterPassed()
       self.msg.verbose(filterName + " decision=" + str(decision))
@@ -186,10 +189,18 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
         self.nEventsProcessed+=1
         self.nEventsProcessedWeighted+=event_weight
+        if event_weight > 0 :
+            self.nEventsProcessedPosWeighted+=event_weight
+        else :
+            self.nEventsProcessedNegWeighted+=abs(event_weight)
         response = bool(eval(self.cmd)) if self.cmd else True
         if response:
             self.nEventsPassed+=1
             self.nEventsPassedWeighted+=event_weight
+            if event_weight > 0 :
+                self.nEventsPassedPosWeighted+=event_weight
+            else :
+                self.nEventsPassedNegWeighted+=abs(event_weight)
         self.msg.debug("My decision is: %s" % response)
         self.setFilterPassed(response)
         return StatusCode.Success
@@ -206,6 +217,11 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         self.msg.info("Filter Efficiency = %f [%s / %s]" % (efficiency,self.nEventsPassed,self.nEventsProcessed))
         self.msg.info("Weighted Filter Efficiency = %f [%f / %f]" % (efficiencyWeighted,self.nEventsPassedWeighted,self.nEventsProcessedWeighted))
         print("MetaData: GenFiltEff = %e" % (efficiencyWeighted if self.UseEventWeight else efficiency))
+
+        print("MetaData: sumOfPosWeights = %e" % (self.nEventsPassedPosWeighted if self.UseEventWeight else self.nEventsPassed))
+        print("MetaData: sumOfNegWeights = %e" % (self.nEventsPassedNegWeighted if self.UseEventWeight else self.nEventsPassed))
+        print("MetaData: sumOfPosWeightsNoFilter = %e" % (self.nEventsProcessedPosWeighted if self.UseEventWeight else self.nEventsProcessed))
+        print("MetaData: sumOfNegWeightsNoFilter = %e" % (self.nEventsProcessedNegWeighted if self.UseEventWeight else self.nEventsProcessed))
         return StatusCode.Success
 
 

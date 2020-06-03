@@ -53,6 +53,12 @@ int PixelMainMon::getPixLayerID(int ec, int ld, bool ibl) {
   return layer;
 }
 
+int PixelMainMon::getPixLayerIDWithDBM(int id) {
+  // Translate PixLayerID to PixLayerIDDBM
+  if (id >= PixLayer::kIBL) return id + 2;
+  return id;
+}
+
 int PixelMainMon::getPixLayerIDDBM(int ec, int ld, bool ibl) {
   int layer = 99;
   if (ec == 2) {
@@ -200,7 +206,7 @@ void PixelMainMon::formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_
 }
 
 void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C) {
-  if (!(D_A && D_C && B0 && B1 && B2 && occupancy && m_status && m_event)) return;
+  if (!(D_A && D_C && B0 && B1 && B2 && occupancy && m_status && m_event5min)) return;
   unsigned int nbinx;
   unsigned int nbiny;
   // use FE occ for IBL, mod occ for the rest
@@ -210,7 +216,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
     nbiny = occupancy->IBL->GetNbinsY();
     for (unsigned int x = 1; x <= nbinx; ++x) {
       for (unsigned int y = 1; y <= nbiny; ++y) {
-        const auto content = occupancy->IBL->GetBinContent(x, y) / (1.0 * m_event);
+        const auto content = occupancy->IBL->GetBinContent(x, y) / (1.0 * m_event5min);
 	if (m_status->IBL->GetBinContent(x, y)!=2) {
 	  if (x>0.5*nbinx) IBL_A->Fill(y, content);
 	  else IBL_C->Fill(y, content);
@@ -222,7 +228,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
   nbiny = occupancy->B0->GetNbinsY();
   for (unsigned int x = 1; x <= nbinx; ++x) {
     for (unsigned int y = 1; y <= nbiny; ++y) {
-      const auto content = occupancy->B0->GetBinContent(x, y) / (1.0 * m_event);
+      const auto content = occupancy->B0->GetBinContent(x, y) / (1.0 * m_event5min);
       if (m_status->B0->GetBinContent(x, y)!=2) {
 	B0->Fill(y, content);
       }
@@ -232,7 +238,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
   nbiny = occupancy->B1->GetNbinsY();
   for (unsigned int x = 1; x <= nbinx; ++x) {
     for (unsigned int y = 1; y <= nbiny; ++y) {
-      const auto content = occupancy->B1->GetBinContent(x, y) / (1.0 * m_event);
+      const auto content = occupancy->B1->GetBinContent(x, y) / (1.0 * m_event5min);
       if (m_status->B1->GetBinContent(x, y)!=2) {
 	B1->Fill(y, content);
       }
@@ -242,7 +248,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
   nbiny = occupancy->B2->GetNbinsY();
   for (unsigned int x = 1; x <= nbinx; ++x) {
     for (unsigned int y = 1; y <= nbiny; ++y) {
-      const auto content = occupancy->B2->GetBinContent(x, y) / (1.0 * m_event);
+      const auto content = occupancy->B2->GetBinContent(x, y) / (1.0 * m_event5min);
       if (m_status->B2->GetBinContent(x, y)!=2) {
 	B2->Fill(y, content);
       }
@@ -252,7 +258,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
   nbiny = occupancy->A->GetNbinsY();
   for (unsigned int x = 1; x <= nbinx; ++x) {
     for (unsigned int y = 1; y <= nbiny; ++y) {
-      const auto content = occupancy->A->GetBinContent(x, y) / (1.0 * m_event);
+      const auto content = occupancy->A->GetBinContent(x, y) / (1.0 * m_event5min);
       if (m_status->A->GetBinContent(x, y)!=2) {
 	D_A->Fill( (x-1)*8 + (y-1)/6 + 1, content);
       }
@@ -262,7 +268,7 @@ void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, 
   nbiny = occupancy->C->GetNbinsY();
   for (unsigned int x = 1; x <= nbinx; ++x) {
     for (unsigned int y = 1; y <= nbiny; ++y) {
-      const auto content = occupancy->C->GetBinContent(x, y) / (1.0 * m_event);
+      const auto content = occupancy->C->GetBinContent(x, y) / (1.0 * m_event5min);
       if (m_status->C->GetBinContent(x, y)!=2) {
 	D_C->Fill( (x-1)*8 + (y-1)/6 + 1, content);
       }

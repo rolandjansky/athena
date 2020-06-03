@@ -89,8 +89,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
-         if (maxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (maxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
@@ -98,8 +98,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          m_databaseMaxFileSize.insert(entry);
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (m_domainMaxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
       }
@@ -538,11 +538,11 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    long long int currentFileSize = m_poolSvc->getFileSize(m_outputConnectionSpec, m_dbType.type(), IPoolSvc::kOutputStream);
    if (m_databaseMaxFileSize.find(m_outputConnectionSpec) != m_databaseMaxFileSize.end()) {
       if (currentFileSize > m_databaseMaxFileSize[m_outputConnectionSpec]) {
-         ATH_MSG_WARNING("FileSize > MaxFileSize for " << m_outputConnectionSpec);
+         ATH_MSG_WARNING("FileSize > " << m_databaseMaxFileSize[m_outputConnectionSpec] << " for " << m_outputConnectionSpec);
          return(StatusCode::RECOVERABLE);
       }
    } else if (currentFileSize > m_domainMaxFileSize) {
-      ATH_MSG_WARNING("FileSize > domMaxFileSize for " << m_outputConnectionSpec);
+      ATH_MSG_WARNING("FileSize > " << m_domainMaxFileSize <<  " for " << m_outputConnectionSpec);
       return(StatusCode::RECOVERABLE);
    }
    // For "safety" we reset the output file and the technology type
@@ -1073,7 +1073,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
-	m_domainMaxFileSize(10000000000LL),
+	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
    declareProperty("PoolContainerPrefix", m_containerPrefixProp = "CollectionTree");

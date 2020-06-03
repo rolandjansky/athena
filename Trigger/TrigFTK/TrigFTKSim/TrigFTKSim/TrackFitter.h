@@ -42,6 +42,8 @@ protected:
 
   float *m_HW_dev; //[m_ncoords] tolerances for the HW
 
+  bool m_AuxDoctor; // true means enabling Aux Doctor, false means disabling it
+
   int m_keep_rejected; // >0 keep rejected roads (1 HW rej, 2 bad quality)
 
   int m_fit_removed; /* if >0 fit the hit combinations in the removed road.
@@ -82,9 +84,13 @@ protected:
   FTKPlaneMap *m_pmap; // plane-map, needed to know hits dimension
 
   int m_ntracks; // counter of the stored tracks
+  int m_ntracks_pre_hw; // counter of the stored tracks before HW filter
 
   std::list<FTKTrack> m_tracks; // list of output tracks
   std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
+
+  std::list<FTKTrack> m_tracks_hits; // list of stored tracks that pass hit requirements
+  std::list<FTKTrack> m_tracks_pattern; // list of stored tracks with patterns
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
@@ -111,11 +117,14 @@ protected:
 
   bool m_identify_badhit; // the flag enables the identification of the bad hits for the recovery
 
+  bool m_saveStepByStepTracks; // true if you want to save incompelte tracks
+
   virtual void processor_init(int);
   virtual void processor(const FTKRoad &);
   virtual void processor_end(int);
   virtual void compute_truth(const unsigned int&,const FTKRoad &,FTKTrack&) const;
   int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&);
+  int doAuxDoctor(FTKTrack&,std::list<FTKTrack>&);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
 public:
@@ -148,6 +157,9 @@ public:
   void setHWNDiff(int v) { m_HW_ndiff = v; }
   int getHWNDiff() const { return m_HW_ndiff; }
 
+  void setAuxDoctor(bool v) { m_AuxDoctor = v; }
+  bool getAuxDoctor() const { return m_AuxDoctor; }
+
   void setMaxNcomb(int v) { m_max_ncomb = v; }
   void setMaxNhitsPerPlane(int v) { m_max_nhitsperplane = v; }
   void setMaxTrkout(int v) { m_max_trkout = v; }
@@ -167,6 +179,9 @@ public:
 
   int getKeepRejected() const { return m_keep_rejected; }
   void setKeepRejected(int v) { m_keep_rejected = v; }
+
+  void setSaveStepByStepTracks(bool flag) { m_saveStepByStepTracks = flag; }
+  bool getSaveStepByStepTracks() const { return m_saveStepByStepTracks; }
 
   void loadHWConf(const char*);
 

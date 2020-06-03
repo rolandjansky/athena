@@ -307,8 +307,8 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   m_las_time = static_cast<double>(cispar[10])+static_cast<double>(cispar[11])/1000000;
   
   // Retrieve laser information
-  if(laserObj->getDiodeCurrOrd() == 0 || laserObj->getFiltNumber() == 0){
-    ATH_MSG_DEBUG ( "No filter number or diode current: wheel moving?" );
+  if(laserObj->getDiodeCurrOrd() == 0 || laserObj->getFiltNumber() == 0 || laserObj->getQDCTimeout()){
+    ATH_MSG_ERROR ( "No filter number or diode current: wheel moving or QDC timeout" );
     return StatusCode::SUCCESS; // This is expected for some events
   } // IF
   

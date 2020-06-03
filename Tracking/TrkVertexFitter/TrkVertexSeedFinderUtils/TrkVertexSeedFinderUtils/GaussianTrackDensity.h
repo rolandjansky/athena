@@ -149,7 +149,7 @@ namespace Trk
 
       
     inline double stepSize(double y, double dy, double ddy) const
-    { return ( m_gaussStep ? 1/(dy/y-ddy/dy) : -dy/ddy ); }
+    { return ( m_gaussStep ? (y * dy)/(dy * dy - y * ddy) : -dy/ddy ); }
 
 
     //  Cache for track information

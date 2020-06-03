@@ -44,6 +44,10 @@ EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
   declareProperty("nSigma", m_nsigma = 5.0 ,"tower ET significance");
   declareProperty("varRhoScale", m_varrhoscale = 1.0 ,"adjustment factor for weighting rho errors in fit");
   declareProperty("trimFactor", m_trimfactor = 0.90 ,"Fraction of towers used in calculating trimmed mean");
+
+  declareProperty("doLArH11off", m_doLArH11off = false, "LAr H11 crate is off" );
+  declareProperty("doLArH12off", m_doLArH12off = false, "LAr H12 crate is off" );
+  declareProperty("Jetptcut", m_Jetptcut = 999., "remove event when Jet pt > m_Jetptcut in the region of LAr H11 or/both H12");
   
   // declare configurables
   
@@ -105,7 +109,7 @@ StatusCode EFMissingETFromClustersPUC::finalize()
 
 StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */,
+    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * jets,
     const xAOD::TrackParticleContainer * /*trackContainer*/, const xAOD::VertexContainer * /*vertexContainer*/,
                                         const xAOD::MuonContainer * /*muonContainer*/ )
 {
@@ -114,6 +118,20 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
+
+
+
+ std::vector<const xAOD::Jet*> JetsVec(jets->begin(), jets->end());
+ ATH_MSG_DEBUG( "num of jets: " << JetsVec.size() );
+
+ bool foundJetVeto(false);
+ if(m_Jetptcut>0){
+    for (const xAOD::Jet* jet : JetsVec) {
+        if(m_doLArH11off && jet->eta()>-1.5 && jet->eta()<0 && jet->phi() > -2.0 && jet->phi() < -1.5 && jet->pt() > m_Jetptcut*1000. ) foundJetVeto = true;
+        if(m_doLArH12off && jet->eta()>-1.5 && jet->eta()<0 && jet->phi() > -2.5 && jet->phi() < -2.0 && jet->pt() > m_Jetptcut*1000. ) foundJetVeto = true;
+    }
+ }
+
 
   /// fetching the topo. cluster component
   TrigEFMissingEtComponent* metComp = nullptr;
@@ -264,7 +282,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
    }
 
    int nummasks = ExInMask.size();
-   if(nummasks > 0) {
+   if(nummasks > 0 && !foundJetVeto) {
     // Form sumEtobs and covEtobs from all towers
     double sumEtobs = 0, varsumEtobs = 0;
     TMatrixD Etobs(2,1), covEtobs(2,2);
@@ -389,11 +407,13 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   
   // --------------------------------------------------------------------------------------
 
+
   // move from "processing" to "processed" state
   metComp->m_status ^= m_maskProcessing; // switch off bit
   metComp->m_status |= m_maskProcessed;  // switch on bit
 
  } // end container loop.
+
 
   if(m_timersvc)
     m_glob_timer->stop(); // total time

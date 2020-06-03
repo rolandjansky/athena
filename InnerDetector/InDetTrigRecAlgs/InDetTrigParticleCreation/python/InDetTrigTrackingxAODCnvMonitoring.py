@@ -11,14 +11,17 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     qoverpmax=4e-3
     ntrkmax=100
     nvertexmax = 25
-        
+    phimax = 3.2
+    phibin = 64
+    etamax = 3.
+    etabin = 60
+
     if type=="cosmicsN":
       d0max=1000.
       z0max=1400.
       qoverpmax=0.01
       ntrkmax=20
       nvertexmax=10
-
 
     ntrkbins = min(ntrkmax,100)
     nvertexbins = min(nvertexmax,25)
@@ -28,6 +31,10 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
                                          type='TH1F',
                                          title="d0",
                                          xbins = 100, xmin=-d0max, xmax=d0max)]
+    self.Histograms += [ defineHistogram('trk_d0sig',
+                                         type='TH1F',
+                                         title="d0sig",
+                                         xbins = 100, xmin=-d0max, xmax=d0max)]
     self.Histograms += [ defineHistogram('trk_z0',
                                          type='TH1F',
                                          title="z0",
@@ -35,11 +42,11 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('trk_phi',
                                          type='TH1F',
                                          title="phi",
-                                         xbins = 100, xmin=-3.142, xmax=3.142)]
+                                         xbins = phibin, xmin=-phimax, xmax=phimax)]
     self.Histograms += [ defineHistogram('trk_eta',
                                          type='TH1F',
                                          title="eta",
-                                         xbins = 100, xmin=-5., xmax=5)]
+                                         xbins = etabin, xmin=-etamax, xmax=etamax)]
     self.Histograms += [ defineHistogram('trk_qoverp',
                                          type='TH1F',
                                          title="qoverp",
@@ -47,15 +54,15 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('trk_nPIXHits',
                                          type='TH1F',
                                          title="npix_hits",
-                                         xbins = 50, xmin=0., xmax=10.)]
+                                         xbins = 20, xmin=0., xmax=20.)]
     self.Histograms += [ defineHistogram('trk_nSCTHits',
                                          type='TH1F',
                                          title="nsct_hits",
-                                         xbins = 50, xmin=0., xmax=35.)]
+                                         xbins = 20, xmin=0., xmax=20.)]
     self.Histograms += [ defineHistogram('trk_nTRTHits',
                                          type='TH1F',
                                          title="ntrt_hits",
-                                         xbins = 50, xmin=0., xmax=75.)]
+                                         xbins = 50, xmin=0., xmax=50.)]
     self.Histograms += [ defineHistogram('trk_chi2dof',
                                          type='TH1F',
                                          title="chi2dof",
@@ -79,11 +86,11 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('roi_phi',
                                          type='TH1F',
                                          title="Phi of the input RoI",
-                                         xbins = 100, xmin=-3.2, xmax=3.2)]
+                                         xbins = phibin, xmin=-phimax, xmax=phimax)]
     self.Histograms += [ defineHistogram('roi_z',
                                          type='TH1F',
                                          title="z of the input RoI",
-                                         xbins = 200, xmin=-400, xmax=400)]
+                                         xbins = 100, xmin=-300, xmax=300)]
     self.Histograms += [ defineHistogram('roi_etaWidth',
                                          type='TH1F',
                                          title="Eta width of the input RoI",
@@ -91,7 +98,7 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('roi_phiWidth',
                                          type='TH1F',
                                          title="Phi width of the input RoI",
-                                         xbins = 100, xmin=0, xmax=6.4)]
+                                         xbins = 2*phibin, xmin=0, xmax=6.4)]
     self.Histograms += [ defineHistogram('roi_zWidth',
                                          type='TH1F',
                                          title="z width of the input RoI",
@@ -131,36 +138,36 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
       self.Histograms += [ defineHistogram('mu_eta',
                                            type='TH1F',
                                            title="mu_eta",
-                                           xbins = 100, xmin=-3., xmax=3.)]
+                                           xbins = etabin, xmin=-etamax, xmax=etamax)]
       self.Histograms += [ defineHistogram('mu_phi',
                                            type='TH1F',
                                            title="mu_phi",
-                                           xbins = 100, xmin=-3.1416, xmax=3.1416)]
+                                           xbins = phibin, xmin=-phimax, xmax=phimax)]
       self.Histograms += [ defineHistogram('mu_d0, mu_phi',
                                            type='TH2F',
                                            title="reco: d0 vs phi",
-                                           xbins=100, xmin=-5., xmax=5.,
-                                           ybins=100, ymin=-3.1416, ymax=3.1416 ) ]
+                                           xbins=100, xmin=-10., xmax=10.,
+                                           ybins=phibin, ymin=-phimax, ymax=phimax ) ]
       self.Histograms += [ defineHistogram('mu_eta, mu_phi',
                                            type='TH2F',
                                            title="reco: eta vs phi",
-                                           xbins=100, xmin=-3, xmax=3,
-                                           ybins=100, ymin=-3.1416, ymax=3.1416 ) ]
+                                           xbins=etabin, xmin=-etamax, xmax=etamax,
+                                           ybins=phibin, ymin=-phimax, ymax=phimax ) ]
       self.Histograms += [ defineHistogram('mu_etaRoi, mu_phiRoi',
                                            type='TH2F',
                                            title="roi: eta vs phi",
-                                           xbins=100, xmin=-3, xmax=3,
-                                           ybins=100, ymin=-3.1416, ymax=3.1416 ) ]
+                                           xbins=etabin, xmin=-etamax, xmax=etamax,
+                                           ybins=phibin, ymin=-phimax, ymax=phimax ) ]
       self.Histograms += [ defineHistogram('mu_eta, mu_etaRoi',
                                            type='TH2F',
                                            title="reco vs roi: eta",
-                                           xbins=100, xmin=-3, xmax=3,
-                                           ybins=100, ymin=-3, ymax=3 ) ]
+                                           xbins=etabin/2, xmin=-etamax, xmax=etamax,
+                                           ybins=etabin/2, ymin=-etamax, ymax=etamax ) ]
       self.Histograms += [ defineHistogram('mu_phi, mu_phiRoi',
                                            type='TH2F',
                                            title="reco vs roi: phi",
-                                           xbins=100, xmin=-3.1416, xmax=3.1416,
-                                           ybins=100, ymin=-3.1416, ymax=3.1416 ) ]
+                                           xbins=phibin/2, xmin=-phimax, xmax=phimax,
+                                           ybins=phibin/2, ymin=-phimax, ymax=phimax ) ]
     if (type=="tau"):
       self.Histograms += [ defineHistogram('ta_roiDR',
                                            type='TH1F',

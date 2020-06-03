@@ -1,10 +1,10 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() ) \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
                     and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
-                    and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0() \
+                    and not InDetFlags.doLowPtLargeD0() and not InDetFlags.doDisplacedSoftPion() and InDetFlags.doParticleConversion()
 
 if doCreation:
     print "Creating xAOD::TrackParticles from Trk::Tracks"
@@ -50,6 +50,22 @@ ToolSvc += InDetxAODParticleCreatorTool
 if InDetFlags.doPrintConfigurables(): 
     print InDetxAODParticleCreatorTool 
 
+def createTrackParticlesFromTracks(track_collection, track_particle_collection) :
+        creator_alg = xAODMaker__TrackParticleCnvAlg(track_particle_collection+"Creator",
+                                                     xAODContainerName                         = track_particle_collection,
+                                                     xAODTrackParticlesFromTracksContainerName = track_particle_collection,
+                                                     TrackContainerName                        = track_collection,
+                                                     TrackParticleCreator                      = InDetxAODParticleCreatorTool,
+                                                     AODContainerName                          = "",
+                                                     AODTruthContainerName                     = "",
+                                                     ConvertTrackParticles                     = doConversion,
+                                                     ConvertTracks                             = doCreation,
+                                                     AddTruthLink                              = False,
+                                                     TrackTruthContainerName                   = "",
+                                                     PrintIDSummaryInfo                        = True)
+        return creator_alg
+
+
 if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <---- [XXX JDC Should we included this?
                                 #                                                    problems appear when nothing should
                                 #                                                    be done but
@@ -74,6 +90,13 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackCollectionTruth
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True 
         topSequence += xAODTrackParticleCnvAlg 
+
+        from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+        from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+        for col in InDetPhysValFlags.validateExtraTrackCollections() :
+            prefix=extractCollectionPrefix(col)
+            topSequence += createTrackParticlesFromTracks(prefix+"Tracks",prefix+"TrackParticles")
+
     if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
         xAODDBMTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODDBMTrackParticleContainer()) 
         xAODDBMTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODDBMTrackParticleContainer() 
@@ -106,6 +129,7 @@ if not InDetFlags.doVertexFinding():
         xAODVertexCnvAlgDBM.AODContainerName = InDetKeys.PrimaryVertices()
         xAODVertexCnvAlgDBM.TPContainerName = InDetKeys.xAODDBMTrackParticleContainer()
         topSequence += xAODVertexCnvAlgDBM
+
 
 #For forward tracks, no separate collection for ITK, since they are already merged
 if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation() and not InDetFlags.doSLHC()) or doConversion:       
@@ -230,9 +254,10 @@ if InDetFlags.doStoreTrackSeeds() and InDetFlags.doParticleCreation():
  xAODSeedsTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.SiSPSeedSegments()+"TrackParticle"
  xAODSeedsTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODSeedsTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSPSeedSegments()
+ xAODSeedsTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSPSeedSegments()+'TruthCollection'
  xAODSeedsTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODSeedsTrackParticleCnvAlg.ConvertTracks = True
- xAODSeedsTrackParticleCnvAlg.AddTruthLink = False
+ xAODSeedsTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
  xAODSeedsTrackParticleCnvAlg.PrintIDSummaryInfo = True
  #xAODSeedsTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODSeedsTrackParticleCnvAlg
@@ -245,9 +270,10 @@ if InDetFlags.doStoreTrackCandidates() and InDetFlags.doParticleCreation():
  xAODTrkCanTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"
  xAODTrkCanTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
  xAODTrkCanTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSpSeededTrackCandidates()
+ xAODTrkCanTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.SiSpSeededTrackCandidates()+'TruthCollection'
  xAODTrkCanTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODTrkCanTrackParticleCnvAlg.ConvertTracks = True
- xAODTrkCanTrackParticleCnvAlg.AddTruthLink = False
+ xAODTrkCanTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
  xAODTrkCanTrackParticleCnvAlg.PrintIDSummaryInfo = True
  #xAODSeedsTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODTrkCanTrackParticleCnvAlg

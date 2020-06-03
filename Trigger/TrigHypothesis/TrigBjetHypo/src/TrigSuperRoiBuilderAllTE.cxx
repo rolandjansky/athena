@@ -58,19 +58,17 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigSuperRoiBuilderAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " JetInputKey     = " << m_jetInputKey     << endmsg; 
-    msg() << MSG::DEBUG << " JetOutputKey    = " << m_jetOutputKey    << endmsg; 
-    msg() << MSG::DEBUG << " EtaHalfWidth    = " << m_etaHalfWidth    << endmsg; 
-    msg() << MSG::DEBUG << " PhiHalfWidth    = " << m_phiHalfWidth    << endmsg; 
-    msg() << MSG::DEBUG << " MinJetEt        = " << m_minJetEt        << endmsg; 
-    msg() << MSG::DEBUG << " MaxJetEta       = " << m_maxJetEta       << endmsg; 
-    msg() << MSG::DEBUG << " NJetsMax        = " << m_nJetsMax        << endmsg; 
-    msg() << MSG::DEBUG << " DynamicMinJetEt = " << m_dynamicMinJetEt << endmsg; 
-    msg() << MSG::DEBUG << " DynamicNJetsMax = " << m_dynamicNJetsMax << endmsg; 
-    msg() << MSG::DEBUG << " DynamicEtFactor = " << m_dynamicEtFactor << endmsg; 
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " JetInputKey     = " << m_jetInputKey     );
+  ATH_MSG_DEBUG( " JetOutputKey    = " << m_jetOutputKey    );
+  ATH_MSG_DEBUG( " EtaHalfWidth    = " << m_etaHalfWidth    );
+  ATH_MSG_DEBUG( " PhiHalfWidth    = " << m_phiHalfWidth    );
+  ATH_MSG_DEBUG( " MinJetEt        = " << m_minJetEt        );
+  ATH_MSG_DEBUG( " MaxJetEta       = " << m_maxJetEta       );
+  ATH_MSG_DEBUG( " NJetsMax        = " << m_nJetsMax        );
+  ATH_MSG_DEBUG( " DynamicMinJetEt = " << m_dynamicMinJetEt );
+  ATH_MSG_DEBUG( " DynamicNJetsMax = " << m_dynamicNJetsMax );
+  ATH_MSG_DEBUG( " DynamicEtFactor = " << m_dynamicEtFactor );
 
   return HLT::OK;
 }
@@ -87,7 +85,7 @@ TrigSuperRoiBuilderAllTE::~TrigSuperRoiBuilderAllTE(){}
 
 HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigSuperRoiBuilderAllTE::hltExecute" << endmsg;
+  ATH_MSG_DEBUG( "Running TrigSuperRoiBuilderAllTE::hltExecute" );
 
   beforeExecMonitors().ignore();
 
@@ -112,8 +110,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     return HLT::MISSING_FEATURE; 
   }
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endmsg;
+  ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() );
 
 
   // xAOD conversion const JetCollection* outJets(0);
@@ -131,8 +128,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     return HLT::MISSING_FEATURE;
   }
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
+  ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
 
   // Create a superROI to add all the jet ROIs to.
   TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
@@ -158,14 +154,12 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     float jetPhi = jet->phi();
 
     if (jetEt < m_minJetEt) {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endmsg;
+      ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
       continue;
     }
 
     if (fabs(jetEta) > m_maxJetEta) {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
+      ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
       continue;
     }
    
@@ -173,22 +167,19 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     if (m_dynamicMinJetEt && i > m_dynamicNJetsMax ) {
       float dynamicMinJetEt = m_minJetEt + ((i - m_dynamicNJetsMax) * m_dynamicEtFactor); 
       if (jetEt < dynamicMinJetEt) {
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
-		<< m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
-		<< " threshold; Et " << jetEt << "; skipping this jet." << endmsg;
+	ATH_MSG_DEBUG( "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
+		       << m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
+		       << " threshold; Et " << jetEt << "; skipping this jet." );
 	continue;
       }    
     }
 
     if (m_nJetsMax > 0 && i > m_nJetsMax) {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." << endmsg;
+      ATH_MSG_DEBUG( "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." );
       continue;
     }
 
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endmsg;
+    ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
 
     // create RoI correspondinding to the jet
     double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
@@ -199,7 +190,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
 						    jetPhi, phiMinus, phiPlus );
 
-    msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endmsg;
+    ATH_MSG_DEBUG( "Adding ROI descriptor to superROI!" );
     superRoi->push_back( roi );
 
     // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
@@ -220,7 +211,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
 
   }
 
-  msg() << MSG::DEBUG << "Attaching feature" << endmsg;
+  ATH_MSG_DEBUG( "Attaching feature" );
   // was attached as m_jetOutputKey, now try hardcoding the name
   HLT::ErrorCode hltStatus = attachFeature(outputTE, superRoi, m_jetOutputKey);
   if (hltStatus != HLT::OK) {

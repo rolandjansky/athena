@@ -150,6 +150,9 @@ class eflowPreparation : public AthAlgorithm {
 
   /** Upper limit on track Pt for input tracks */
   float m_upperTrackPtCut;
+
+  /** Bool to toggle muons bug fix */
+  bool m_fixMuonLogic;
   
 };
 #endif

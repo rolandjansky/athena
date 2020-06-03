@@ -229,8 +229,8 @@ namespace LArG4 {
       // Next we need to be able to handle things regardless whether the Wheels are
       // imbedded in a HEC Mother or whether they are placed independently into the cryostat:
 
-      bool inMother = false;
-      if (volumeName == "LArMgr::LAr::HEC::Mother") inMother = true;
+      static const G4String motherVolumeName("LArMgr::LAr::HEC::Mother");
+      const bool inMother(volumeName == motherVolumeName);
 
       // This will give us the hit-position in the Wheel coordinates (ie in LAr::HEC::LiquidArgon):
       // But we have to be careful: We COULD be in a mother, in which case the wheel coord. is meaningless.
@@ -263,11 +263,10 @@ namespace LArG4 {
 
         {
 
-          int modVol  = m_g4historyDepth+1 ; // geant depth of the HEC::Module
-          int depthVol= m_g4historyDepth+2 ; // geant depth of the HEC::Module::Depth
-
-          int depthIndex   = theTouchable->GetHistory()->GetVolume(depthVol)->GetCopyNo();
-          int moduleIndex  = theTouchable->GetHistory()->GetVolume(modVol)->GetCopyNo();
+          const int depthVol= m_g4historyDepth+2 ; // geant depth of the HEC::Module::Depth
+          const int depthIndex   = theTouchable->GetHistory()->GetVolume(depthVol)->GetCopyNo();
+          const int modVol  = m_g4historyDepth+1 ; // geant depth of the HEC::Module
+          const int moduleIndex  = theTouchable->GetHistory()->GetVolume(modVol)->GetCopyNo();
 
           const G4AffineTransform moduleTransform= theTouchable->GetHistory()->GetTransform(modVol);
 
@@ -286,7 +285,7 @@ namespace LArG4 {
 
             G4Tubs *tubs = dynamic_cast<G4Tubs *> (sliceSolid);
             if (tubs) {
-              double dz = tubs->GetDz()/Units::mm;
+              double dz = tubs->GetZHalfLength()/Units::mm;
               if (sliceZ > 0) {
                 if (fabs(sliceZ)>dz/2.0) {
                   (*subgap) = 0;

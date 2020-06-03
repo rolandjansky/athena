@@ -38,10 +38,47 @@ ISF_HitAnalysis.GeoFileName = 'ISF_Geometry'
 
 ##############################
 
+# The following lines added according to instructions on ATLASSIM-3697
+
+include("PixelConditionsServices/PixelDCSSvc_jobOptions.py")
+
+from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+
+from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+
+pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices=lorentzAngleSvc.pixelSiliconConditionsSvc)
+
+ServiceMgr += pixelSiPropertiesSvc
+
+ 
+
+from IOVDbSvc.CondDB import conddb
+
+conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
+
+conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
+
+conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
+
+ 
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
+
+InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name="InDetSCT_DCSConditionsSvc")
+
+ServiceMgr += InDetSCT_DCSConditionsSvc
+
+sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc", DetectorName="SCT", SiConditionsServices=lorentzAngleSvc.sctSiliconConditionsSvc)
+
+ServiceMgr += sctSiPropertiesSvc
+
+
+##########################################################
+
 ISF_HitAnalysis.CaloBoundaryR = 1148.0
-ISF_HitAnalysis.CaloBoundaryZ = 3549.5 #before: 3475.0
+ISF_HitAnalysis.CaloBoundaryZ = 3550.0 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
-ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
+ISF_HitAnalysis.NTruthParticles = NTruthParticles 
 ISF_HitAnalysis.SaveAllBranches = saveAllBranches
 ISF_HitAnalysis.DoAllCells = False
 ISF_HitAnalysis.DoLayers = True

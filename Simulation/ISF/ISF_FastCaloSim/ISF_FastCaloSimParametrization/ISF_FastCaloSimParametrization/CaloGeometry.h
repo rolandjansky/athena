@@ -19,6 +19,7 @@
 
 class CaloDetDescrElement;
 class TCanvas;
+class TGraph;
 class TGraphErrors;
 
 class CaloGeometry : virtual public ICaloGeometry {
@@ -33,13 +34,14 @@ class CaloGeometry : virtual public ICaloGeometry {
 
     virtual bool PostProcessGeometry();
 
-    virtual void Validate();
+    virtual void Validate(int nrnd=100);
 
     virtual const CaloDetDescrElement* getDDE(Identifier identify);
     virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
 
     virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
-    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float eta,float phi,float z);
+    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float x,float y,float z,float* distance=0,int* steps=0);
+    bool getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi,int* steps=0);
 
     double deta(int sample,double eta) const;
     void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -62,9 +64,13 @@ class CaloGeometry : virtual public ICaloGeometry {
     void SetDoGraphs(bool dographs=true) {m_dographs=dographs;};
     bool DoGraphs() const {return m_dographs;};
 
+    TGraph*  DrawGeoSampleForPhi0(int sample, int calocol, bool print=false);
     TCanvas* DrawGeoForPhi0();
+    
     FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
-    virtual void LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3); // Initialize m_FCal_ChannelMap
+    void SetFCal_ChannelMap(const FCAL_ChannelMap* fcal_ChannnelMap){m_FCal_ChannelMap=*fcal_ChannnelMap;}
+    void calculateFCalRminRmax();
+    virtual bool checkFCalGeometryConsistency();
     virtual void PrintMapInfo(int i, int j);
 
   protected:
@@ -94,6 +100,8 @@ class CaloGeometry : virtual public ICaloGeometry {
     bool m_dographs;
     std::vector< TGraphErrors* > m_graph_layers;
     FCAL_ChannelMap m_FCal_ChannelMap; // for hit-to-cell assignment in FCal
+    std::vector<double> m_FCal_rmin,m_FCal_rmax;
+    
     
     /*
        double  m_min_eta_sample[2][MAX_SAMPLING]; //[side][calosample]

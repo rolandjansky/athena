@@ -98,7 +98,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
              theChainDef.addSequence([IDTP],myInputTEsEF,EFChainName+"_monit")
              theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFChainName+"_monit"])
     
-    elif "bBeexv2" in chainDict["topo"] or  "bBeexM2700" in chainDict["topo"] or "bBeexM6000" in chainDict["topo"] :
+    elif "bBeexv2" in chainDict["topo"] or  "bBeexM2700" in chainDict["topo"] or "bBeexM6000" in chainDict["topo"] or "bBeexM6000t" in chainDict["topo"] :
         # this algorithm is set up in generateBPhysicsChainDef
         from TriggerMenu.bphysics.generateBPhysicsChainDefs import bBeexTopos
         inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 

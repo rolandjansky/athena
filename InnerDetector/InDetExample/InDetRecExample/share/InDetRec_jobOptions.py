@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -138,11 +140,11 @@ else:
 
     # ------------------------------------------------------------
     # 
-    # -----------ROI seeding for SSS seeds
+    # -----------ROI seeding for SSS seeds or Ambi
     #
     # ------------------------------------------------------------
     #
-    if InDetFlags.doHadCaloSeededSSS() and DetFlags.detdescr.Calo_allOn():
+    if (InDetFlags.doHadCaloSeededSSS() or InDetFlags.doCaloSeededAmbi() or InDetFlags.doCaloSeededRefit()) and DetFlags.detdescr.Calo_allOn():
       include ("InDetRecExample/InDetRecHadCaloSeededROISelection.py")
 
     # ------------------------------------------------------------
@@ -443,7 +445,7 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -455,6 +457,8 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doR3LargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
       InDetNewTrackingCutsLargeD0.printInfo()
@@ -734,11 +738,15 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     
     if InDetFlags.doTrackSegmentsPixelThreeLayer():
+      InputPixelInDetTracks = []
+      InputPixelInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doForwardTracks():
+        InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
       if (not 'InDetNewTrackingCutsPixelThreeLayer' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsPixelThreeLayer not set before - import them now"
@@ -747,7 +755,7 @@ else:
       InDetNewTrackingCutsPixelThreeLayer.printInfo()
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetPixelThreeLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.ResolvedPixelThreeLayerTracks(),
+      InDetPixelThreeLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedPixelThreeLayerTracks(),
                                                                             InDetKeys.SiSpSeededPixelThreeLayerTracks(),
                                                                             InDetNewTrackingCutsPixelThreeLayer,
                                                                             TrackCollectionKeys,
@@ -761,6 +769,56 @@ else:
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys,
                                                                  False)
+
+
+    # ------------------------------------------------------------
+    #
+    # --- Displaced Soft-Pion Tracking
+    #
+    # ------------------------------------------------------------
+    if InDetFlags.doDisplacedSoftPion():
+
+      #
+      # --- Run Si pattern
+      #
+      if InDetFlags.doDVRetracking():
+        # Cuts already defined in the mode, no need to re-load them
+        InDetNewTrackingCutsDisplacedSoftPion = InDetNewTrackingCuts
+      if (not 'InDetNewTrackingCutsDisplacedSoftPion' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsDisplacedSoftPion not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsDisplacedSoftPion = ConfiguredNewTrackingCuts("DisplacedSoftPion")
+      InDetNewTrackingCutsDisplacedSoftPion.printInfo()
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      # ----- Include (in the case of ESD processing) the standard tracks
+      #       in order to use the PRD association tool and use only unused hits
+      if InDetFlags.useExistingTracksAsInput():
+          InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
+      InDetDisplacedSoftPionSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                                       InDetKeys.ResolvedDSPTracks(), #ResolvedLargeD0Tracks(),
+                                                                       InDetKeys.SiSpSeededDSPTracks(), #SiSpSeededLargeD0Tracks(),
+                                                                       InDetNewTrackingCutsDisplacedSoftPion,
+                                                                       TrackCollectionKeys,
+                                                                       TrackCollectionTruthKeys)    
+      #
+      # --- do the TRT pattern
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetDisplacedSoftPionTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisplacedSoftPion,
+                                                                             InDetDisplacedSoftPionSiPattern.SiTrackCollection(),
+                                                                             InDetKeys.ExtendedDSPTracks(), #ExtendedLargeD0Tracks(),
+                                                                             InDetKeys.ExtendedTracksMapDSP(), #ExtendedTracksMapLargeD0(),
+                                                                             TrackCollectionKeys,
+                                                                             TrackCollectionTruthKeys,
+                                                                             False)
+
+      # --- remove the standard tracks included some lines before (in the ESD
+      #     processing case, those tracks are not part of the re-tracking procedure)
+      if InDetFlags.useExistingTracksAsInput():
+        _dummy = InputCombinedInDetTracks.pop()
+      # --- add into list for combination
+      InputCombinedInDetTracks += [ InDetDisplacedSoftPionTRTExtension.ForwardTrackCollection()]
+
 
     # ------------------------------------------------------------
     #
@@ -1058,6 +1116,13 @@ else:
             InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
                                                          InDetKeys.UnslimmedDetailedTracksTruth(),
                                                          InDetKeys.UnslimmedTracksTruth())
+
+            if InDetFlags.doStoreTrackSeeds():
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruthSegemnts = ConfiguredInDetTrackTruth(InDetKeys.SiSPSeedSegments(),
+                                                                   InDetKeys.SiSPSeedSegments()+'DetailedTruth',
+                                                                   InDetKeys.SiSPSeedSegments()+'TruthCollection')
+
           #
           # add final output for statistics
           #

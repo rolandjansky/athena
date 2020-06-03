@@ -44,7 +44,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type,
   m_zSolved(0.), m_zErrSolved(0.),
   m_NPARS(10), m_pLL(m_NPARS,0),m_VLL(m_NPARS,0),
   m_vertexCount(0),m_getLLres(false),
-  m_fitStatus(unsolved),m_nUsed(0)
+  m_fitStatus(unsolved),m_minVtxProb{},m_nUsed(0)
 
 {
   declareInterface<IInDetBeamSpotTool>(this);
@@ -839,7 +839,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     + (it->y - (ybar + it->z*ay)) * b(2,2) * (it->y - (ybar + it->z*ay))
     + 2*(it->x - (xbar + it->z*ax)) *b(2,1) * (it->y - (ybar + it->z*ay));
     
-    if (ch > m_outlierChi2Tr ) fail += 128;
+    //if (ch > m_outlierChi2Tr ) fail += 128; fail is never used after this
 
     // if vertex fails selection based on [1,2,4] add a large artificial chi2 value to make sure is removed.
     ch += increaseChi2;

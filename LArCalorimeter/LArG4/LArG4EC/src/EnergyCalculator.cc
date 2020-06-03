@@ -214,7 +214,7 @@ G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitD
     return false;
   }
 
-  G4double E = step->GetTotalEnergyDeposit();
+  G4double E = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight();
   if (m_birksLaw) {
     const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
     const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
@@ -291,7 +291,7 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step, std::vector<LArHitD
     } // end of calibr. calculator
   }  // end if cell id not found
   // compute signal in 'normal' calculator mode, if cellid is found
-  G4double E = step->GetTotalEnergyDeposit();
+  G4double E = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight();
   if (m_birksLaw){
     const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
     const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
@@ -346,6 +346,7 @@ EnergyCalculator::EnergyCalculator(const std::string& name, ISvcLocator *pSvcLoc
   declareProperty("EnergyCorrection",m_corrProp);
   m_corrProp.declareUpdateHandler(&EnergyCalculator::CorrectionTypeHandler, this);
   declareProperty("zSide",m_zside);
+  declareProperty("PatchFindIdentifierBarrett",m_patchFindIdentifier_Barrett);
 }
 
 void EnergyCalculator::CorrectionTypeHandler(Property&)
@@ -2215,8 +2216,8 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
   G4int sampling = geometry[c].sampling;
   G4int region   = geometry[c].region;
-
-  const G4int atlasside = lwc()->GetAtlasZside() * geometry[c].zSide;
+  const G4int sign = (m_patchFindIdentifier_Barrett && p.z()<0.0) ? -1.0 : 1.0;
+  const G4int atlasside = sign * lwc()->GetAtlasZside() * geometry[c].zSide;
 
   if(lwc()->GetisModule() && atlasside < 0 ) {
     ATH_MSG_FATAL("EnergyCalculator: TB modul should be at pos z");

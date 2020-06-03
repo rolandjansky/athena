@@ -69,9 +69,9 @@ def getL1BackgroundSeed(menul1items):
     return l1background_seeds
 
 ##############################
-def getL1_ALFA_Diff_Phys_Seeds(menul1items):        
+def getL1_ALFA_Diff_Phys_Seeds(menul1items):
     # comma separated list fo l1 seeds
-    l1_seeds = 'L1_ALFA_SDIFF5,L1_ALFA_SDIFF6,L1_ALFA_SDIFF7,L1_ALFA_SDIFF8,L1_MBTS_1_A_ALFA_C,L1_MBTS_1_C_ALFA_A,L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO,L1_MBTS_2_A_ALFA_C,L1_MBTS_2_C_ALFA_A,L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO,L1_LUCID_A_ALFA_C,L1_LUCID_C_ALFA_A,L1_LUCID_A_ALFA_C_UNPAIRED_ISO,L1_LUCID_C_ALFA_A_UNPAIRED_ISO,L1_EM3_ALFA_ANY,L1_EM3_ALFA_ANY_UNPAIRED_ISO,L1_TE5_ALFA_ANY,L1_TE5_ALFA_ANY_UNPAIRED_ISO'
+    l1_seeds = 'L1_ALFA_SDIFF5,L1_ALFA_SDIFF6,L1_ALFA_SDIFF7,L1_ALFA_SDIFF8,L1_MBTS_1_A_ALFA_C,L1_MBTS_1_C_ALFA_A,L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO,L1_EM3_ALFA_ANY,L1_EM3_ALFA_ANY_UNPAIRED_ISO,L1_TE5_ALFA_ANY,L1_TE5_ALFA_ANY_UNPAIRED_ISO'
      
     # check if all the l1 background seeds given are in the current L1 menu
     l1items = l1_seeds.split(',')
@@ -112,7 +112,8 @@ def getL1StandbySeed(l1items):
     #13 April 2017 (ATR-16122) removing SC, LHCF, and 3EM L1 triggers from L1_Standby (seeds HLT_noalg_L1Standby) to 
     #reduce the L1 seed length to below 4000 characters, such that String4k is not overloaded 
     #5 May 2017 also remove L1_X_Y_Z but only L1_X_Y_Z that have X_Y_Z all thresholds
-    exclude_list = ["L1_2MU4_J40_XE50","L1_EM15VHI_2TAU12IM_4J12","L1_EM15VHI_2TAU12IM_J25_3J12","L1_EM15VHI_2TAU12IM_XE35","L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15","L1_EM15VHI_TAU40_2TAU15","L1_EM15VH_2EM8VH_MU6","L1_EM20VHI_TAU20IM_2TAU20_J25_3J20","L1_J40.0ETA25_2J25_J20.31ETA49","L1_MU10_2J15_J20","L1_MU10_TAU12IM_3J12","L1_MU10_TAU12IM_J25_2J12","L1_MU10_TAU12IM_XE35","L1_MU10_TAU20IM_J25_2J20","L1_MU4_J50_XE40","L1_MU6_J30.0ETA49_2J20.0ETA49","L1_TAU20IM_2J20_XE45","L1_TAU20IM_2TAU12IM_J25_2J20_3J12","L1_TAU20IM_2TAU12IM_XE35","L1_TAU25IM_2TAU20IM_2J25_3J20","L1_TAU40_2TAU12IM_XE40"]
+    #3 October removing two more HI UPC items 
+    exclude_list = ["L1_2MU4_J40_XE50","L1_EM15VHI_2TAU12IM_4J12","L1_EM15VHI_2TAU12IM_J25_3J12","L1_EM15VHI_2TAU12IM_XE35","L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15","L1_EM15VHI_TAU40_2TAU15","L1_EM15VH_2EM8VH_MU6","L1_EM20VHI_TAU20IM_2TAU20_J25_3J20","L1_J40.0ETA25_2J25_J20.31ETA49","L1_MU10_2J15_J20","L1_MU10_TAU12IM_3J12","L1_MU10_TAU12IM_J25_2J12","L1_MU10_TAU12IM_XE35","L1_MU10_TAU20IM_J25_2J20","L1_MU4_J50_XE40","L1_MU6_J30.0ETA49_2J20.0ETA49","L1_TAU20IM_2J20_XE45","L1_TAU20IM_2TAU12IM_J25_2J20_3J12","L1_TAU20IM_2TAU12IM_XE35","L1_TAU25IM_2TAU20IM_2J25_3J20","L1_TAU40_2TAU12IM_XE40","L1_ZDC_XOR_TE4_VTE200","L1_ZDC_XOR_TE3.0ETA49_VTE200","L1_MU4_J12","L1_MU4_J15","L1_TE7.0ETA49_ZDC_C_VZDC_A_VTE200"]
     standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "CMU" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x and "FTK" not in x and "SC" not in x and "LHCF" not in x and "AFP" not in x and "3EM" not in x and x not in exclude_list])
     return standby_seeds
 
@@ -191,37 +192,116 @@ def getEBnoL1PSSeed(l1items, l1seedname):
 
     # All of these L1 items must be PS=1 for an EB campaign
     noL1PS_seeds = ''
+    l1EBitems = []
     if ('L1_PhysicsLow' in l1seedname):
-      noL1PS_seeds = 'L1_2EM15VHI,L1_2EM20VH,L1_2EM8VH_MU10,L1_2J15_XE55,L1_2J50_XE40,L1_2MU10,L1_2MU4_J20_XE30_DPHI-J20s2XE30,L1_2MU4_J40_XE50,L1_2MU6_3MU4,L1_3J15.0ETA25_XE40,L1_3J35.0ETA23,L1_3J50,L1_3MU4,L1_4J15.0ETA25,L1_4J20,L1_4MU4,L1_4J20,L1_5J15.0ETA25,L1_DR-EM15TAU12I-J25,L1_EM15VHI_2TAU12IM_4J12,L1_DR-MU10TAU12I_TAU12I-J25,L1_DR-TAU20ITAU12I-J25,L1_EM15VHI_2TAU12IM_XE35,L1_EM15VHI_TAU40_2TAU15,L1_EM15VH_MU10,L1_EM18VHI_3J20,L1_EM18VHI_MJJ-300,L1_EM20VHI_TAU20IM_2TAU20_J25_3J20,L1_EM20VH_3EM10VH,L1_EM22VHI,L1_EM24VHI,L1_EM7_MU20,L1_EM8VH_MU20,L1_HT150-J20s5.ETA31_MJJ-400-CF,L1_HT190-J15s5.ETA21,L1_J100,L1_J25.0ETA23_2J15.31ETA49,L1_J40.0ETA25_2J25_J20.31ETA49,L1_J40_XE50_DPHI-J20s2XE50,L1_J40_XE60,L1_J75.31ETA49,L1_J85_3J30,L1_LATE-MU10_J50,L1_LATE-MU10_XE40,L1_LATE-MU10_XE50,L1_LLP-NOMATCH,L1_LLP-RO,L1_MU10_2J15_J20,L1_MU10_2J20,L1_MU10_TAU12IM_3J12,L1_MU10_TAU12IM_XE35,L1_MU11_2MU6,L1_MU20,L1_MU20_J40,L1_MU20_XE30,L1_MU4_J30_XE40_DPHI-J20s2XE30,L1_MU4_XE60,L1_MU4_J50_XE50_DPHI-J20s2XE30,L1_MU6_3MU4,L1_MU6_J75,L1_TAU100,L1_TAU20IM_2TAU12IM_4J12,L1_TAU40_2TAU12IM_XE40,L1_TAU60_2TAU40,L1_TAU20IM_2J20_XE45,L1_TAU60_DR-TAU20ITAU12I,L1_XE55,L1_XE60'
+        l1EBitems.append('L1_2EM15VHI')
+        l1EBitems.append('L1_2EM20VH')
+        l1EBitems.append('L1_2EM8VH_MU10')
+        l1EBitems.append('L1_2J15_XE55')
+        l1EBitems.append('L1_2J50_XE40')
+        l1EBitems.append('L1_2MU10')
+        l1EBitems.append('L1_2MU4_J20_XE30_DPHI-J20s2XE30')
+        l1EBitems.append('L1_2MU4_J40_XE50')
+        l1EBitems.append('L1_3J15.0ETA25_XE40')
+        l1EBitems.append('L1_3J35.0ETA23')
+        l1EBitems.append('L1_3J50')
+        l1EBitems.append('L1_3MU4')
+        l1EBitems.append('L1_4J15.0ETA25')
+        l1EBitems.append('L1_4J20')
+        l1EBitems.append('L1_4MU4')
+        l1EBitems.append('L1_AFP_A_AND_C_SPECTOF_J75')
+        l1EBitems.append('L1_DR-EM15TAU12I-J25')
+        l1EBitems.append('L1_DR-TAU20ITAU12I-J25')
+        l1EBitems.append('L1_EM15VHI_2TAU12IM_4J12')
+        l1EBitems.append('L1_EM15VHI_2TAU12IM_XE35')
+        l1EBitems.append('L1_EM15VHI_TAU40_2TAU15')
+        l1EBitems.append('L1_EM15VH_MU10')
+        l1EBitems.append('L1_EM18VHI_3J20')
+        l1EBitems.append('L1_EM18VHI_MJJ-300')
+        l1EBitems.append('L1_EM20VHI_TAU20IM_2TAU20_J25_3J20')
+        l1EBitems.append('L1_EM20VH_3EM10VH')
+        l1EBitems.append('L1_EM22VHI')
+        l1EBitems.append('L1_EM7_MU20')
+        l1EBitems.append('L1_HT150-J20s5.ETA31_MJJ-400-CF')
+        l1EBitems.append('L1_HT190-J15s5.ETA21')
+        l1EBitems.append('L1_J100')
+        l1EBitems.append('L1_J25.0ETA23_2J15.31ETA49')
+        l1EBitems.append('L1_J40.0ETA25_2J25_J20.31ETA49')
+        l1EBitems.append('L1_J40_XE50_DPHI-J20s2XE50')
+        l1EBitems.append('L1_J40_XE60')
+        l1EBitems.append('L1_J75.31ETA49')
+        l1EBitems.append('L1_J85_3J30')
+        l1EBitems.append('L1_LATE-MU10_J50')
+        l1EBitems.append('L1_LATE-MU10_XE40')
+        l1EBitems.append('L1_LFV-MU11')
+        l1EBitems.append('L1_LLP-NOMATCH')
+        l1EBitems.append('L1_LLP-RO')
+        l1EBitems.append('L1_MU10_2J15_J20')
+        l1EBitems.append('L1_MU10_TAU12IM_3J12')
+        l1EBitems.append('L1_MU10_TAU12IM_XE35')
+        l1EBitems.append('L1_MU11_2MU6')
+        l1EBitems.append('L1_MU20')
+        l1EBitems.append('L1_MU4_J30_XE40_DPHI-J20s2XE30')
+        l1EBitems.append('L1_MU4_XE60')
+        l1EBitems.append('L1_MU6_J75')
+        l1EBitems.append('L1_SC111-CJ15')
+        l1EBitems.append('L1_TAU100')
+        l1EBitems.append('L1_TAU20IM_2J20_XE45')
+        l1EBitems.append('L1_TAU20IM_2TAU12IM_4J12.0ETA23')
+        l1EBitems.append('L1_TAU40_2TAU12IM_XE40')
+        l1EBitems.append('L1_TAU60_2TAU40')
+        l1EBitems.append('L1_TAU60_DR-TAU20ITAU12I')
+        l1EBitems.append('L1_XE50')
+        l1EBitems.append('L1_BPH-0M9-EM7-EM5_2MU4')
+        l1EBitems.append('L1_MJJ-500-NFF')
+        l1EBitems.append('L1_MJJ-700')
     elif ('L1_PhysicsHigh' in l1seedname):
-      noL1PS_seeds = 'L1_6J15,L1_J75.31ETA49,L1_J400,L1_XE80'
+        l1EBitems.append('L1_6J15')
+        l1EBitems.append('L1_J400')
+        l1EBitems.append('L1_XE80')
     elif ('L1_EMPTY' in l1seedname):
-      noL1PS_seeds = 'L1_J12_EMPTY,L1_MU11_EMPTY,L1_TAU8_EMPTY,L1_EM7_EMPTY'
+        l1EBitems.append('L1_J12_EMPTY')
+        l1EBitems.append('L1_MU11_EMPTY')
+        l1EBitems.append('L1_TAU8_EMPTY')
+        l1EBitems.append('L1_EM7_EMPTY')
     elif ('L1_FIRSTEMPTY' in l1seedname):
-      noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_MU20_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
+        l1EBitems.append('L1_J12_FIRSTEMPTY')
+        l1EBitems.append('L1_MU20_FIRSTEMPTY')
+        l1EBitems.append('L1_TAU8_FIRSTEMPTY')
+        l1EBitems.append('L1_EM7_FIRSTEMPTY')
     elif ('L1_UNPAIRED_ISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_ISO,L1_J15.31ETA49_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_EM7_UNPAIRED_ISO,L1_TAU8_UNPAIRED_ISO'
+        l1EBitems.append('L1_J12_UNPAIRED_ISO')
+        l1EBitems.append('L1_J15.31ETA49_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_Wide_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_AC_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_CA_UNPAIRED_ISO')
+        l1EBitems.append('L1_MU4_UNPAIRED_ISO')
+        l1EBitems.append('L1_EM7_UNPAIRED_ISO')
+        l1EBitems.append('L1_TAU8_UNPAIRED_ISO')
     elif ('L1_UNPAIRED_NONISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_NONISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO'
+        l1EBitems.append('L1_J12_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_Wide_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_AC_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_CA_UNPAIRED_NONISO')
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
-      noL1PS_seeds = 'L1_J12_ABORTGAPNOTCALIB'
+        l1EBitems.append('L1_J12_ABORTGAPNOTCALIB')
     else:
       log.error('Do not know how to supply EnhancedBias L1 seeds for %s' % l1seedname)
 
     # check if all the l1 seeds given are in the current L1 menu
-    l1EBitems = noL1PS_seeds.split(',')
     for item in l1EBitems:
         if item not in l1items:
-            log.error('L1 item %s from %s seed is not in current L1 menu (EnhancedBias)' % (item, l1seedname))
+            log.error('L1 item "%s" from "%s" seed is not in current L1 menu (EnhancedBias)' % (item, l1seedname))
             
+    noL1PS_seeds = ",".join(l1EBitems)
     return noL1PS_seeds
 
 ##############################
 def getL1_ALFA_Phys(l1seed):
 
-    L1ALFA_Phys_seeds = 'L1_ALFA_SHOWSYST5,L1_ALFA_B1_EMPTY,L1_ALFA_B2_EMPTY'
-#,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY' 
-#'L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18,
+    L1ALFA_Phys_seeds = 'L1_ALFA_SHOWSYST5,L1_ALFA_B1_EMPTY,L1_ALFA_B2_EMPTY,L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18'
+#L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY,
+
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_Phys_seeds.split(',')
@@ -247,9 +327,8 @@ def getL1_ALFA_Phys_Any(l1seed):
 ##############################
 def getL1ALFA_Calib(l1seed):
 
-    L1ALFA_Calib_seeds = 'L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L'
-#,L1_ALFA_BGT_BGRP1,L1_ALFA_BGT_BGRP4,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,L1_ALFA_B1_EMPTY,L1_ALFA_B2_EMPTY'
-    #,L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD'
+    L1ALFA_Calib_seeds = 'L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L,L1_ALFA_BGT_BGRP1,L1_ALFA_BGT_BGRP4,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,L1_ALFA_B1_EMPTY,L1_ALFA_B2_EMPTY,L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib'
+    
         #ATR-13743 'L1_ALFA_BGT,L1_ALFA_BGT_UNPAIRED_ISO,,
            #L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
 #L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,
@@ -264,10 +343,38 @@ def getL1ALFA_Calib(l1seed):
 
 
 ##############################
+def getL1TRT_ALFA(l1seed):
+
+    L1TRT_ALFA_seeds = 'L1_TRT_ALFA_ANY,L1_TRT_ALFA_ANY_UNPAIRED_ISO'
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1bgditems = L1TRT_ALFA_seeds.split(',')
+    for item in l1bgditems:
+        if item not in l1seed:
+            log.error('L1 item %s from L1TRT_ALFA_seeds seeds is not in current L1 menu' % item)
+            
+    return L1TRT_ALFA_seeds
+
+
+
+##############################
+def getL1ALFA_MBTS(l1seed):
+
+    L1ALFA_MBTS_seeds = 'L1_MBTS_1_A_ALFA_C,L1_MBTS_1_C_ALFA_A,L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO'
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1bgditems = L1ALFA_MBTS_seeds.split(',')
+    for item in l1bgditems:
+        if item not in l1seed:
+            log.error('L1 item %s from L1ALFA_MBTS_seeds seeds is not in current L1 menu' % item)
+            
+    return L1ALFA_MBTS_seeds
+
+
+
+
+##############################
 def getL1ALFA_CEP(l1seed):
 
-    L1ALFA_CEP_seeds = 'L1_ALFA_SYST17,L1_ALFA_SYST18,L1_ALFA_ELASTIC_UNPAIRED_ISO,L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO'
-#L1_ALFA_ELAST15,L1_ALFA_ELAST18,
+    L1ALFA_CEP_seeds = 'L1_ALFA_ELAST15,L1_ALFA_ELAST18,L1_ALFA_SYST17,L1_ALFA_SYST18,L1_ALFA_ELASTIC_UNPAIRED_ISO,L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO'
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_CEP_seeds.split(',')
     for item in l1bgditems:
@@ -281,7 +388,8 @@ def getL1ALFA_CEP(l1seed):
 ##############################
 def getL1ALFA_SYS(l1seed):
 
-    L1ALFA_SYS_seeds = 'L1_ALFA_SYST9,L1_ALFA_SYST10,L1_ALFA_SYST11,L1_ALFA_SYST12,L1_ALFA_SYST17,L1_ALFA_SYST18'
+    #L1ALFA_SYS_seeds = 'L1_ALFA_SYST9,L1_ALFA_SYST10,L1_ALFA_SYST11,L1_ALFA_SYST12,L1_ALFA_SYST17,L1_ALFA_SYST18'
+    L1ALFA_SYS_seeds = 'L1_ALFA_SYST17,L1_ALFA_SYST18'
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_SYS_seeds.split(',')
@@ -307,7 +415,8 @@ def getL1ALFA_SYS_Calib(l1seed):
 ##############################
 def getL1ALFA_ELAS(l1seed):
 
-    L1ALFA_ELAS_seeds = '' #L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18'
+    #L1ALFA_ELAS_seeds = 'L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18'
+    L1ALFA_ELAS_seeds = 'L1_ALFA_ELAST15,L1_ALFA_ELAST18'
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_ELAS_seeds.split(',')
@@ -347,12 +456,12 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
         L1Seed = getL1JetBS()
     if (l1seedname == 'L1_Bkg'):
         L1Seed = getL1BackgroundSeed(l1items)
-#    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
-#        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
-#    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
-#        L1Seed = getL1_ALFA_CDiff_Phys_Seeds(l1items)
-#    elif (l1seedname == 'L1_ALFA_Jet_Phys' ):
-#        L1Seed = getL1_ALFA_Jet_Phys_Seeds(l1items)
+    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
+        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
+    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
+        L1Seed = getL1_ALFA_CDiff_Phys_Seeds(l1items)
+    elif (l1seedname == 'L1_ALFA_Jet_Phys' ):
+        L1Seed = getL1_ALFA_Jet_Phys_Seeds(l1items)
 
     elif (l1seedname in ['L1_PhysicsLow_noPS', 'L1_PhysicsHigh_noPS', 'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS']):
         L1Seed =  getEBnoL1PSSeed(l1items, l1seedname)
@@ -386,42 +495,36 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 
     elif (l1seedname == 'L1_BS'):
         L1Seed = getL1BSSeed(l1items)
+
+    elif (l1seedname == 'L1_FTK-EM-MU-J'):
+        L1Seed = 'L1_FTK-EM,L1_FTK-MU,L1_FTK-J'
         
     elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
         L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
+
+    elif (l1seedname == 'L1_RD0_UNPAIRED'):
+        L1Seed = 'L1_RD0_UNPAIRED_ISO,L1_RD0_UNPAIRED_NONISO'
 
     elif (l1seedname == 'L1_ALFA_Phys'):
         L1Seed = getL1_ALFA_Phys(l1items)
 
     elif (l1seedname == 'L1_ALFA_PhysAny'):
         L1Seed = getL1_ALFA_Phys_Any(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_Diff'):
-#        L1Seed = getL1ALFA_Diff(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_TRT_Diff'):
-#        L1Seed = getL1ALFA_TRT_Diff(l1items)
-#        
+
     elif (l1seedname == 'L1_ALFA_Calib'):
         L1Seed = getL1ALFA_Calib(l1items)
-#    elif (l1seedname == 'L1_ALFA_ELAS'):
-#        L1Seed = getL1ALFA_ELAS(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_TRT_Calib'):
-#        L1Seed = getL1ALFA_TRT_Calib(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_Jet'):
-#        L1Seed = getL1ALFA_Jet(l1items)
-#        
-#    elif (l1seedname == 'L1_ALFA_SDiff'):
-#        L1Seed = getL1ALFA_SDiff(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_CEP'):
-#        L1Seed = getL1ALFA_CEP(l1items)
-#
-#    elif (l1seedname == 'L1_ALFA_TRT'):
-#        L1Seed = getL1ALFA_TRT(l1items)
-#
+    elif (l1seedname == 'L1_ALFA_ELAS'):
+        L1Seed = getL1ALFA_ELAS(l1items)
+
+    elif (l1seedname == 'L1_ALFA_CEP'):
+        L1Seed = getL1ALFA_CEP(l1items)
+
+    elif (l1seedname == 'L1_MBTS_ALFA'):
+        L1Seed = getL1ALFA_MBTS(l1items)
+
+    elif (l1seedname == 'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO'):
+        L1Seed = getL1TRT_ALFA(l1items)
+
     elif (l1seedname == 'L1_ALFA_SYS'):
         L1Seed = getL1ALFA_SYS(l1items)
 

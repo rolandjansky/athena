@@ -10,8 +10,15 @@ from RecExConfig.InputFilePeeker import inputFileSummary
 
 #ensure EventInfoCnvAlg is scheduled in the main algsequence, if not already, and is needed
 from RecExConfig.InputFilePeeker import inputFileSummary
-if ("EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']) and not any(isinstance(x,CfgMgr.xAODMaker__EventInfoCnvAlg) for x in DerivationFrameworkJob):
-    DerivationFrameworkJob += CfgMgr.xAODMaker__EventInfoCnvAlg()
+if "EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']:
+    if not hasattr( DerivationFrameworkJob, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( DerivationFrameworkJob, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 # Decide what kind of input HepMC container we are dealing with
 if ("McEventCollection#GEN_EVENT" in inputFileSummary['eventdata_itemsList']):

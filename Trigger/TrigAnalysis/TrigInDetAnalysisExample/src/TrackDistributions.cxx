@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackEfficiency.cxx         
 //   
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TrackEfficiency.cxx, v0.0   Mon 19 Jan 2009 17:25:51 GMT sutt $
 

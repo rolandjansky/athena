@@ -6,7 +6,6 @@
  Track parameters base class
  note: all methods are inline to avoid library dependencies
  ----------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKPARAMETERS_TRACKPARAMETERS_H

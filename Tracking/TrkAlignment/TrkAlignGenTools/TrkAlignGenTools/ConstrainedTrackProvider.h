@@ -94,7 +94,8 @@ namespace Trk {
     std::string     m_constraintHistName_z0; 
     TH2F*           m_etaphiMap_z0;
       // Corrections expected to be in mm
-    
+    bool m_scalepmaptogev;
+
   }; // end class
 
 } // end namespace

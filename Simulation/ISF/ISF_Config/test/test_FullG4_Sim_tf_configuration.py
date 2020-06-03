@@ -3,12 +3,14 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestFullG4(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'FullG4_config.pkl'
         command = [
             'Sim_tf.py',
@@ -148,7 +150,7 @@ class TestFullG4(unittest.TestCase):
 
 
     def test___SimKernel_ListOfSetProperties(self):
-        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'SimHitService', 'TruthRecordService', 'UserStore']
+        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'QuasiStablePatcher', 'SimHitService', 'TruthRecordService', 'UserStore']
         simkernel = self._job_config_dict['ISF_Kernel_FullG4']
         actual_list = simkernel.keys()
         expected_property_value_sorted = sorted(expected_list)

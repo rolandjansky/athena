@@ -43,10 +43,10 @@ namespace TrigCostRootAnalysis {
    */
   class TrigCostData {
   public:
-    TrigCostData(const Long64_t& _master, const char* _prefix, TTree* _tree);
+    TrigCostData(const Long64_t& master, const char* prefix, TTree* tree);
     TrigCostData();
     ~TrigCostData();
-    void setup(const Long64_t& _master, const char* _prefix, TTree* _tree);
+    void setup(const Long64_t& master, const char* prefix, TTree* tree);
 
     Int_t getEventNumber() const;
     Float_t getEBWeight() const;
@@ -72,203 +72,203 @@ namespace TrigCostRootAnalysis {
     //
 
     UInt_t getNChains() const;
-    Int_t getChainID(UInt_t _n) const;
-    Int_t getChainLevel(UInt_t _n) const;
-    Bool_t getIsChainPassed(UInt_t _n) const;
-    Bool_t getIsChainPassedRaw(UInt_t _n) const;
-    Bool_t getIsChainPassthrough(UInt_t _n) const;
-    Bool_t getIsChainResurrected(UInt_t _n) const;
-    Bool_t getIsChainPrescaled(UInt_t _n) const;
-    Bool_t getIsChainExpressStream(UInt_t _n) const;
-    Bool_t getIfChainWasL1AfterVeto(UInt_t _n) const;
-    Bool_t getIfChainWasL1BeforePrescale(UInt_t _n) const;
-    Bool_t getIfChainWasL1AfterPrescale(UInt_t _n) const;
-    Float_t getChainTimer(UInt_t _n) const;
+    Int_t getChainID(UInt_t n) const;
+    Int_t getChainLevel(UInt_t n) const;
+    Bool_t getIsChainPassed(UInt_t n) const;
+    Bool_t getIsChainPassedRaw(UInt_t n) const;
+    Bool_t getIsChainPassthrough(UInt_t n) const;
+    Bool_t getIsChainResurrected(UInt_t n) const;
+    Bool_t getIsChainPrescaled(UInt_t n) const;
+    Bool_t getIsChainExpressStream(UInt_t n) const;
+    Bool_t getIfChainWasL1AfterVeto(UInt_t n) const;
+    Bool_t getIfChainWasL1BeforePrescale(UInt_t n) const;
+    Bool_t getIfChainWasL1AfterPrescale(UInt_t n) const;
+    Float_t getChainTimer(UInt_t n) const;
     // Cached
-    Float_t getChainTimerFromSequences(UInt_t _n) const; //TODO make this private and use only if ChainTimer == 0
-    UInt_t getChainAlgCalls(UInt_t _n) const;
-    UInt_t getChainAlgCaches(UInt_t _n) const;
-    const std::set< std::pair<Int_t, Int_t> >& getChainAlgs(UInt_t _n) const;
-    UInt_t getChainSeqCalls(UInt_t _n) const;
-    Bool_t getIsChainPassed(std::string& _n) const;
+    Float_t getChainTimerFromSequences(UInt_t n) const; //TODO make this private and use only if ChainTimer == 0
+    UInt_t getChainAlgCalls(UInt_t n) const;
+    UInt_t getChainAlgCaches(UInt_t n) const;
+    const std::set< std::pair<Int_t, Int_t> >& getChainAlgs(UInt_t n) const;
+    UInt_t getChainSeqCalls(UInt_t n) const;
+    Bool_t getIsChainPassed(std::string& n) const;
     // Cached ROS
-    UInt_t getChainROBRetrievals(UInt_t _n) const;
-    Float_t getChainROBRetrievalSize(UInt_t _n) const;
-    UInt_t getChainROBRequests(UInt_t _n) const;
-    Float_t getChainROBRequestSize(UInt_t _n) const;
+    UInt_t getChainROBRetrievals(UInt_t n) const;
+    Float_t getChainROBRetrievalSize(UInt_t n) const;
+    UInt_t getChainROBRequests(UInt_t n) const;
+    Float_t getChainROBRequestSize(UInt_t n) const;
 
     //
     // SEQUENCE VARIABLES
     //
 
     UInt_t getNSequences() const;
-    Int_t getSequenceIndex(UInt_t _n) const;
-    Int_t getSequenceChannelCounter(UInt_t _n) const;
-    Int_t getSequenceLevel(UInt_t _n) const;
-    Float_t getSequenceAlgTotalTime(UInt_t _n) const;
-    Float_t getSequenceTime(UInt_t _n) const;
-    Bool_t getIsSequenceAlreadyExecuted(UInt_t _n) const;
-    Bool_t getIsSequenceExecuted(UInt_t _n) const;
-    Bool_t getIsSequenceInitial(UInt_t _n) const;
-    Bool_t getIsSequencePrevious(UInt_t _n) const;
+    Int_t getSequenceIndex(UInt_t n) const;
+    Int_t getSequenceChannelCounter(UInt_t n) const;
+    Int_t getSequenceLevel(UInt_t n) const;
+    Float_t getSequenceAlgTotalTime(UInt_t n) const;
+    Float_t getSequenceTime(UInt_t n) const;
+    Bool_t getIsSequenceAlreadyExecuted(UInt_t n) const;
+    Bool_t getIsSequenceExecuted(UInt_t n) const;
+    Bool_t getIsSequenceInitial(UInt_t n) const;
+    Bool_t getIsSequencePrevious(UInt_t n) const;
     // Cached
-    UInt_t getSequenceAlgCalls(UInt_t _n) const;
-    UInt_t getSequenceAlgCaches(UInt_t _n) const;
+    UInt_t getSequenceAlgCalls(UInt_t n) const;
+    UInt_t getSequenceAlgCaches(UInt_t n) const;
     //
-    UInt_t getSeqROSCalls(UInt_t _n) const;
-    Float_t getSeqROSTime(UInt_t _n) const;
-    UInt_t getSeqROBRequests(UInt_t _n) const;
-    Float_t getSeqROBRequestSize(UInt_t _n) const;
-    UInt_t getSeqROBRetrievals(UInt_t _n) const;
-    Float_t getSeqROBRetrievalSize(UInt_t _n) const;
-    UInt_t getSeqROBOthers(UInt_t _n) const;
+    UInt_t getSeqROSCalls(UInt_t n) const;
+    Float_t getSeqROSTime(UInt_t n) const;
+    UInt_t getSeqROBRequests(UInt_t n) const;
+    Float_t getSeqROBRequestSize(UInt_t n) const;
+    UInt_t getSeqROBRetrievals(UInt_t n) const;
+    Float_t getSeqROBRetrievalSize(UInt_t n) const;
+    UInt_t getSeqROBOthers(UInt_t n) const;
     //
-    Bool_t getSeqIsRerun(UInt_t _n) const;
+    Bool_t getSeqIsRerun(UInt_t n) const;
 
 
     //
     // SEQUENCE ---> ALGORITHM VARIABLES
     //
 
-    UInt_t getNSeqAlgs(UInt_t _n) const;
-    Float_t getSeqAlgTimer(UInt_t _n, UInt_t _a) const;
-    Float_t getSeqAlgTimeStart(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgTimeStartSec(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgTimeStartMicroSec(UInt_t _n, UInt_t _a) const;
-    Float_t getSeqAlgTimeStop(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgTimeStopSec(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgTimeStopMicroSec(UInt_t _n, UInt_t _a) const;
-    Int_t getSeqAlgPosition(UInt_t _n, UInt_t _a) const;
-    Int_t getSeqAlgNRoI(UInt_t _n, UInt_t _a) const;
-    Bool_t getSeqAlgIsCached(UInt_t _n, UInt_t _a) const;
-    Bool_t getSeqAlgIsCalled(UInt_t _n, UInt_t _a) const;
-    Int_t getSeqAlgRoIID(UInt_t _n, UInt_t _a, UInt_t _roi) const;
-    Int_t getSeqAlgRoILocation(UInt_t _n, UInt_t _a, UInt_t _roi) const;
+    UInt_t getNSeqAlgs(UInt_t n) const;
+    Float_t getSeqAlgTimer(UInt_t n, UInt_t a) const;
+    Float_t getSeqAlgTimeStart(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgTimeStartSec(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgTimeStartMicroSec(UInt_t n, UInt_t a) const;
+    Float_t getSeqAlgTimeStop(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgTimeStopSec(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgTimeStopMicroSec(UInt_t n, UInt_t a) const;
+    Int_t getSeqAlgPosition(UInt_t n, UInt_t a) const;
+    Int_t getSeqAlgNRoI(UInt_t n, UInt_t a) const;
+    Bool_t getSeqAlgIsCached(UInt_t n, UInt_t a) const;
+    Bool_t getSeqAlgIsCalled(UInt_t n, UInt_t a) const;
+    Int_t getSeqAlgRoIID(UInt_t n, UInt_t a, UInt_t roi) const;
+    Int_t getSeqAlgRoILocation(UInt_t n, UInt_t a, UInt_t roi) const;
     // Cached
-    std::set<Int_t> getSeqAlgROBLocations(UInt_t _n, UInt_t _a) const;
-    std::set<Int_t> getSeqAlgROBLocations(const std::pair<Int_t, Int_t>& _algLocation) const;
-    UInt_t getSeqAlgROSCalls(UInt_t _n, UInt_t _a) const;
-    Float_t getSeqAlgROSTime(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgROBRequests(UInt_t _n, UInt_t _a) const;
-    Float_t getSeqAlgROBRequestSize(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a) const;
-    Float_t getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a) const;
-    UInt_t getSeqAlgROBOthers(UInt_t _n, UInt_t _a) const;
+    std::set<Int_t> getSeqAlgROBLocations(UInt_t n, UInt_t a) const;
+    std::set<Int_t> getSeqAlgROBLocations(const std::pair<Int_t, Int_t>& algLocation) const;
+    UInt_t getSeqAlgROSCalls(UInt_t n, UInt_t a) const;
+    Float_t getSeqAlgROSTime(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgROBRequests(UInt_t n, UInt_t a) const;
+    Float_t getSeqAlgROBRequestSize(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgROBRetrievals(UInt_t n, UInt_t a) const;
+    Float_t getSeqAlgROBRetrievalSize(UInt_t n, UInt_t a) const;
+    UInt_t getSeqAlgROBOthers(UInt_t n, UInt_t a) const;
 
     //
     // LEVEL 1 VARIABLES
     //
 
     UInt_t getNL1() const;
-    UInt_t getL1CtpId(UInt_t _n) const;
-    Bool_t getIsL1Prescaled(UInt_t _n) const;
-    Bool_t getIsL1Vetoed(UInt_t _n) const;
-    Bool_t getIsL1Passed(UInt_t _n) const;
-    Bool_t getIsL1PassedAfterPrescale(UInt_t _n) const;
-    Bool_t getIsL1PassedBeforePrescale(UInt_t _n) const;
-    Bool_t getIsL1PassedAfterVeto(UInt_t _n) const;
+    UInt_t getL1CtpId(UInt_t n) const;
+    Bool_t getIsL1Prescaled(UInt_t n) const;
+    Bool_t getIsL1Vetoed(UInt_t n) const;
+    Bool_t getIsL1Passed(UInt_t n) const;
+    Bool_t getIsL1PassedAfterPrescale(UInt_t n) const;
+    Bool_t getIsL1PassedBeforePrescale(UInt_t n) const;
+    Bool_t getIsL1PassedAfterVeto(UInt_t n) const;
     // Cached
-    Bool_t getIsL1PassedBeforePrescale(std::string& _n) const;
-    Int_t getL1Location(const std::string& _n) const;
+    Bool_t getIsL1PassedBeforePrescale(std::string& n) const;
+    Int_t getL1Location(const std::string& n) const;
 
     //
     // READ OUT BUFFER VARIABLES
     //
 
     UInt_t getNROBs() const;
-    UInt_t getROBReqID(UInt_t _n) const;
-    Float_t getROBTimer(UInt_t _n) const;
-    UInt_t getROBTimeStartSec(UInt_t _n) const;
-    UInt_t getROBTimeStartMicroSec(UInt_t _n) const;
-    UInt_t getROBTimeStopSec(UInt_t _n) const;
-    UInt_t getROBTimeStopMicroSec(UInt_t _n) const;
-    UInt_t getROBDataN(UInt_t _n) const;
-    UInt_t getROBDataID(UInt_t _n, UInt_t _r) const;
-    Float_t getROBDataSize(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataCached(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataDisabled(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataIgnored(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataRetrieved(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataStatusOK(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataStatusPrefetched(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBDataUnclassified(UInt_t _n, UInt_t _r) const;
-    UInt_t getROBSumN(UInt_t _n) const;
-    UInt_t getROBSumDetID(UInt_t _n, UInt_t _r) const;
-    UInt_t getROBSumNROBs(UInt_t _n, UInt_t _r) const;
-    Float_t getROBSumSize(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBSumCached(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBSumDisabled(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBSumIgnored(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBSumRetrieved(UInt_t _n, UInt_t _r) const;
-    Bool_t getIsROBSumUnclassified(UInt_t _n, UInt_t _r) const;
+    UInt_t getROBReqID(UInt_t n) const;
+    Float_t getROBTimer(UInt_t n) const;
+    UInt_t getROBTimeStartSec(UInt_t n) const;
+    UInt_t getROBTimeStartMicroSec(UInt_t n) const;
+    UInt_t getROBTimeStopSec(UInt_t n) const;
+    UInt_t getROBTimeStopMicroSec(UInt_t n) const;
+    UInt_t getROBDataN(UInt_t n) const;
+    UInt_t getROBDataID(UInt_t n, UInt_t r) const;
+    Float_t getROBDataSize(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataCached(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataDisabled(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataIgnored(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataRetrieved(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataStatusOK(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataStatusPrefetched(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBDataUnclassified(UInt_t n, UInt_t r) const;
+    UInt_t getROBSumN(UInt_t n) const;
+    UInt_t getROBSumDetID(UInt_t n, UInt_t r) const;
+    UInt_t getROBSumNROBs(UInt_t n, UInt_t r) const;
+    Float_t getROBSumSize(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBSumCached(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBSumDisabled(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBSumIgnored(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBSumRetrieved(UInt_t n, UInt_t r) const;
+    Bool_t getIsROBSumUnclassified(UInt_t n, UInt_t r) const;
     // Cached
-    const std::pair< Int_t, Int_t >& getROBAlgLocation(UInt_t _n) const;
+    const std::pair< Int_t, Int_t >& getROBAlgLocation(UInt_t n) const;
 
     //
     // RoI VARIABLES
     //
 
     UInt_t getNRoIs() const;
-    Int_t getRoIIndexFromId(Int_t _id) const;
-    Int_t getRoIID(Int_t _n) const;
-    Float_t getRoIArea(UInt_t _n) const;
-    Float_t getRoIEta(UInt_t _n) const;
-    Float_t getRoIPhi(UInt_t _n) const;
-    Float_t getRoIEt(UInt_t _n) const;
-    Int_t getRoINL1Thresh(UInt_t _n) const;
-    Bool_t getIsRoIEmTau(UInt_t _n) const;
-    Bool_t getIsRoITau(UInt_t _n) const;
-    Bool_t getIsRoIEnergy(UInt_t _n) const;
-    Bool_t getIsRoIJet(UInt_t _n) const;
-    Bool_t getIsRoIJetEt(UInt_t _n) const;
-    Bool_t getIsRoIMuon(UInt_t _n) const;
-    Bool_t getIsRoINone(UInt_t _n) const;
-    Float_t getRoIEtLarge(UInt_t _n) const;
-    Int_t getRoIMuonCharge(UInt_t _n) const;
-    Int_t getRoIEmTauIsoBits(UInt_t _n) const;
-    Float_t getRoIVectorEX(UInt_t _n) const;
-    Float_t getRoIVectorEY(UInt_t _n) const;
-    Bool_t getRoIOverflowEX(UInt_t _n) const;
-    Bool_t getRoIOverflowEY(UInt_t _n) const;
-    Bool_t getRoIOverflowET(UInt_t _n) const;
-    const std::string& getRoITypeString(Int_t _n) const;
+    Int_t getRoIIndexFromId(Int_t id) const;
+    Int_t getRoIID(Int_t n) const;
+    Float_t getRoIArea(UInt_t n) const;
+    Float_t getRoIEta(UInt_t n) const;
+    Float_t getRoIPhi(UInt_t n) const;
+    Float_t getRoIEt(UInt_t n) const;
+    Int_t getRoINL1Thresh(UInt_t n) const;
+    Bool_t getIsRoIEmTau(UInt_t n) const;
+    Bool_t getIsRoITau(UInt_t n) const;
+    Bool_t getIsRoIEnergy(UInt_t n) const;
+    Bool_t getIsRoIJet(UInt_t n) const;
+    Bool_t getIsRoIJetEt(UInt_t n) const;
+    Bool_t getIsRoIMuon(UInt_t n) const;
+    Bool_t getIsRoINone(UInt_t n) const;
+    Float_t getRoIEtLarge(UInt_t n) const;
+    Int_t getRoIMuonCharge(UInt_t n) const;
+    Int_t getRoIEmTauIsoBits(UInt_t n) const;
+    Float_t getRoIVectorEX(UInt_t n) const;
+    Float_t getRoIVectorEY(UInt_t n) const;
+    Bool_t getRoIOverflowEX(UInt_t n) const;
+    Bool_t getRoIOverflowEY(UInt_t n) const;
+    Bool_t getRoIOverflowET(UInt_t n) const;
+    const std::string& getRoITypeString(Int_t n) const;
 
     //
     // TRIGGER ELEMENT VARIABLES
     //
 
     UInt_t getNTEs() const;
-    UInt_t getTEIndex(UInt_t _n) const;
-    UInt_t getTEID(UInt_t _n) const;
-    UInt_t getTEChildIndex(UInt_t _n, UInt_t _c) const;
-    UInt_t getTEParentIndex(UInt_t _n, UInt_t _c) const;
-    UInt_t getTECLIDIndex(UInt_t _n, UInt_t _c) const;
-    UInt_t getTERoIIDIndex(UInt_t _n, UInt_t _c) const;
-    UInt_t getTEChildSize(UInt_t _n) const;
-    UInt_t getTEParentSize(UInt_t _n) const;
-    UInt_t getTECLIDSize(UInt_t _n) const;
-    UInt_t getTERoIIDSize(UInt_t _n) const;
-    Int_t getTEPositionFromTEIndex(UInt_t _n) const;
-    Bool_t getIsTEActiveState(UInt_t _n) const;
-    Bool_t getIsTEErrorState(UInt_t _n) const;
-    Bool_t getIsTEInitial(UInt_t _n) const;
-    Bool_t getIsTEL1Threshold(UInt_t _n) const;
-    Bool_t getIsTEOutputEFNode(UInt_t _n) const;
-    Bool_t getIsTEOutputL2Node(UInt_t _n) const;
-    Bool_t getIsTERegularTe(UInt_t _n) const;
-    Bool_t getIsTERoITe(UInt_t _n) const;
-    Bool_t getIsTETerminalNode(UInt_t _n) const;
-    Bool_t getIsTETopologicalTe(UInt_t _n) const;
+    UInt_t getTEIndex(UInt_t n) const;
+    UInt_t getTEID(UInt_t n) const;
+    UInt_t getTEChildIndex(UInt_t n, UInt_t c) const;
+    UInt_t getTEParentIndex(UInt_t n, UInt_t c) const;
+    UInt_t getTECLIDIndex(UInt_t n, UInt_t c) const;
+    UInt_t getTERoIIDIndex(UInt_t n, UInt_t c) const;
+    UInt_t getTEChildSize(UInt_t n) const;
+    UInt_t getTEParentSize(UInt_t n) const;
+    UInt_t getTECLIDSize(UInt_t n) const;
+    UInt_t getTERoIIDSize(UInt_t n) const;
+    Int_t getTEPositionFromTEIndex(UInt_t n) const;
+    Bool_t getIsTEActiveState(UInt_t n) const;
+    Bool_t getIsTEErrorState(UInt_t n) const;
+    Bool_t getIsTEInitial(UInt_t n) const;
+    Bool_t getIsTEL1Threshold(UInt_t n) const;
+    Bool_t getIsTEOutputEFNode(UInt_t n) const;
+    Bool_t getIsTEOutputL2Node(UInt_t n) const;
+    Bool_t getIsTERegularTe(UInt_t n) const;
+    Bool_t getIsTERoITe(UInt_t n) const;
+    Bool_t getIsTETerminalNode(UInt_t n) const;
+    Bool_t getIsTETopologicalTe(UInt_t n) const;
 
     //
     // RATES ANALYSIS CHAIN PRESCALE WEIGHTS
     //
-    void setChainPrescaleWeight(const std::string& _name, Double_t _value) const;
-    Double_t getChainPrescaleWeight(const std::string& _name) const;
+    void setChainPrescaleWeight(const std::string& name, Double_t value) const;
+    Double_t getChainPrescaleWeight(const std::string& name) const;
 
     // Debug
     ProcessEvent* getParent() const;
-    void setParent(ProcessEvent* _parent) const;
+    void setParent(ProcessEvent* parent) const;
 
     void bufferEvent() const;
   private:
@@ -289,7 +289,7 @@ namespace TrigCostRootAnalysis {
     void bufferChainRosInformation() const;
     void bufferSeqROSInformation() const;
     void bufferAlgRosInformation() const;
-    Bool_t getRosReqBelongsToAlg(UInt_t _seq, UInt_t _alg, UInt_t _ros) const;
+    Bool_t getRosReqBelongsToAlg(UInt_t seq, UInt_t alg, UInt_t ros) const;
 
     mutable ProcessEvent* m_parent;
     mutable std::mutex m_mutex;
@@ -359,7 +359,7 @@ namespace TrigCostRootAnalysis {
     mutable StringDoubleMap_t m_chainPSWeight; //!< Holds chain prescale weights for use in other monitors
 
     const std::set<Int_t> m_emptySet; //!< Returned for cases where an alg has no ROBs
-    mutable std::pair< Int_t, Int_t > _recyclablePair; // Re-usable pair object
+    mutable std::pair< Int_t, Int_t > m_recyclablePair; // Re-usable pair object
 
     mutable Bool_t m_rosMatching; //!< Match ROS to algorithms? Time consuming, only use when needed
 

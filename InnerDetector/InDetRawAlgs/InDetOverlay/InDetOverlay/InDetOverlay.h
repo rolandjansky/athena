@@ -33,6 +33,7 @@ class StoreGateSvc;
 class SCT_ID;
 class TRT_ID;
 class IAtRndmGenSvc;
+class ITRT_StrawStatusSummarySvc;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -104,6 +105,7 @@ private:
   double                                      m_HTOccupancyCorrectionB_noE;
   double                                      m_HTOccupancyCorrectionEC_noE;
   ToolHandle< InDet::ITRT_LocalOccupancy >    m_TRT_LocalOccupancyTool; 
+  ServiceHandle<ITRT_StrawStatusSummarySvc>   m_TRTStrawSummarySvc;
 };
 
 #endif/*INDETOVERLAY_H*/

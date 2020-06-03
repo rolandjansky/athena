@@ -15,10 +15,6 @@
 #include "RecoToolInterfaces/IsolationCommon.h" 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
-//namespace xAOD {     
-//     class ITrackIsolationTool;
-//     class ITrackSelectionTool;
-// }
 
 namespace Trig{
 class TrigEgammaIsolationSelectorTool: 
@@ -49,7 +45,7 @@ class TrigEgammaIsolationSelectorTool:
     unsigned int m_PtConeSizes;
     bool m_useClusETforCaloIso;
     bool m_useClusETforTrackIso;
-    float m_maxZ0SinTheta;
+    bool m_useTrackIsolationTool;
     std::vector<float> m_RelEtConeCut;
     std::vector<float> m_EtConeCut;
     std::vector<float> m_RelPtConeCut;

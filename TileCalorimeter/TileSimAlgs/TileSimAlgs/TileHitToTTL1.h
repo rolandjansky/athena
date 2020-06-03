@@ -33,6 +33,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileTTL1Container.h"
+
 class IAtRndmGenSvc;
 class TileID;
 class TileTBID;
@@ -71,9 +74,10 @@ class TileHitToTTL1: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method   
 
   private:
-    std::string m_hitContainer;      //!< name of TileHitContainer
-    std::string m_TTL1Container;     //!< name of TileTTL1Container
-    std::string m_MBTSTTL1Container; //!< name of TileTTL1Container for MBTS
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey;
+    SG::WriteHandleKey<TileTTL1Container> m_TTL1ContainerKey;
+    SG::WriteHandleKey<TileTTL1Container> m_MBTSTTL1ContainerKey;
+
     std::string m_infoName;          //!< name of TileInfo object in TES
     std::string m_TileTTL1Type;      //!< name of Trigger Type
     bool m_cosmicsType;              //!< if true => use dediated cosmcis TTL1

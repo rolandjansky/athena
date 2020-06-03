@@ -57,10 +57,9 @@ G4ProcessHelper::G4ProcessHelper()
                     "Initialization: The reaction product list contained an unknown particle");
       }
     }
-    if (target == "proton")
-      {
-        pReactionMap[incidentPDG].push_back(prod);
-      } else if (target == "neutron") {
+    if (target == "proton"){
+      pReactionMap[incidentPDG].push_back(prod);
+    } else if (target == "neutron") {
       nReactionMap[incidentPDG].push_back(prod);
     } else {
       G4Exception("G4ProcessHelper", "IllegalTarget", FatalException,
@@ -114,10 +113,18 @@ G4ProcessHelper::G4ProcessHelper()
   G4cout<<"Gamma = "<<gamma/CLHEP::GeV<<" GeV"<<G4endl;
   G4cout<<"Amplitude = "<<amplitude/CLHEP::millibarn<<" millibarn"<<G4endl;
   G4cout<<"ReggeSuppression = "<<100*suppressionfactor<<" %"<<G4endl;
-  G4cout<<"HadronLifeTime = "<<hadronlifetime; if (doDecays) G4cout<<" ns"<<G4endl; else G4cout<<" s"<<G4endl;
+  G4cout<<"HadronLifeTime = "<<hadronlifetime;
+  if (doDecays) G4cout<<" ns"<<G4endl;
+  else G4cout<<" s"<<G4endl;
   G4cout<<"ReggeModel = "<< reggemodel <<G4endl;
   G4cout<<"Mixing = "<< mixing*100 <<" %"<<G4endl;
   G4cout<<"DoDecays = "<< doDecays << G4endl;
+
+  if ((!doDecays && hadronlifetime>0.) ||
+      (doDecays && hadronlifetime<=0.) ){
+    G4cout << "WARNING: Inconsistent treatment of R-Hadron properties! Lifetime of " << hadronlifetime
+           << " and doDecays= " << doDecays << G4endl;
+  }
 
   checkfraction = 0;
   n_22 = 0;
@@ -172,36 +179,34 @@ G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){
 
 G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aParticle,
                                                    const G4Element *anElement){
-
   //We really do need a dedicated class to handle the cross sections. They might not always be constant
 
-
   //Disassemble the PDG-code
-
   G4int thePDGCode = aParticle->GetDefinition()->GetPDGEncoding();
   double boost = (aParticle->GetKineticEnergy()+aParticle->GetMass())/aParticle->GetMass();
-  //  G4cout<<"thePDGCode: "<<thePDGCode<<G4endl;
   G4double theXsec = 0;
   G4String name = aParticle->GetDefinition()->GetParticleName();
 
-  if(!reggemodel)
-    {
+  if(!reggemodel){
       //Flat cross section
       if(CustomPDGParser::s_isRGlueball(thePDGCode)) {
         theXsec = 24 * CLHEP::millibarn;
       } else {
         std::vector<G4int> nq=CustomPDGParser::s_containedQuarks(thePDGCode);
-        //    G4cout<<"Number of quarks: "<<nq.size()<<G4endl;
         for (std::vector<G4int>::iterator it = nq.begin();
              it != nq.end();
              it++)
           {
-            //    G4cout<<"Quarkvector: "<<*it<<G4endl;
+            // 12 mb taken from asymptotic pion-nucleon scattering cross sections
             if (*it == 1 || *it == 2) theXsec += 12 * CLHEP::millibarn;
-            if (*it == 3) theXsec += 6 * CLHEP::millibarn;
+            // 6 mb taken from asymptotic kaon-nucleon scattering cross sections
+            // No data for D or B, so setting to behave like a kaon
+            if (*it == 3 || *it == 4 || *it == 5) theXsec += 6 * CLHEP::millibarn;
           }
       }
-    } else {
+  } else {
+    // From Eur. Phys. J. C (2010) 66: 493-501
+    // DOI 10.1140/epjc/s10052-010-1262-1
     double R = Regge(boost);
     double P = Pom(boost);
     if(thePDGCode>0)
@@ -226,6 +231,8 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
 
   if(resonant)
     {
+    // Described in Section 5.1 of http://r-hadrons.web.cern.ch/r-hadrons/download/mackeprang_thesis.pdf
+    // mentioned but dismissed in Section 3.3 of https://arxiv.org/pdf/hep-ex/0404001.pdf
       double e_0 = ek_0 + aParticle->GetDefinition()->GetPDGMass(); //Now total energy
 
       e_0 = sqrt(aParticle->GetDefinition()->GetPDGMass()*aParticle->GetDefinition()->GetPDGMass()
@@ -245,6 +252,11 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
 }
 
 ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4ParticleDefinition*& aTarget){
+  return GetFinalStateInternal(aTrack,aTarget,false);
+}
+
+// Version where we know if we baryonize already
+ReactionProduct G4ProcessHelper::GetFinalStateInternal(const G4Track& aTrack,G4ParticleDefinition*& aTarget, const bool baryonize_failed) {
 
   const G4DynamicParticle* aDynamicParticle = aTrack.GetDynamicParticle();
 
@@ -268,11 +280,10 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       NumberOfNucleons += NbOfAtomsPerVolume[elm]*(*theElementVector)[elm]->GetN();
     }
 
-  if(CLHEP::RandFlat::shoot()<NumberOfProtons/NumberOfNucleons)
-    {
+  if(CLHEP::RandFlat::shoot()<NumberOfProtons/NumberOfNucleons){
       theReactionMap = &pReactionMap;
       theTarget = theProton;
-    } else {
+  } else {
     theReactionMap = &nReactionMap;
     theTarget = theNeutron;
   }
@@ -294,16 +305,17 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 
   bool baryonise=false;
 
-  if(reggemodel
-     &&CLHEP::RandFlat::shoot()>0.9
-     &&(
+  if(!baryonize_failed
+     && reggemodel
+     && CLHEP::RandFlat::shoot()>0.9
+     && (
         (CustomPDGParser::s_isMesonino(theIncidentPDG)&&theIncidentPDG>0)
         ||
         CustomPDGParser::s_isRMeson(theIncidentPDG)
         )
-     )
+     ){
     baryonise=true;
-
+  }
 
   //Making a pointer directly to the ReactionProductList we are looking at. Makes life easier :-)
   ReactionProductList*  aReactionProductList = &((*theReactionMap)[theIncidentPDG]);
@@ -352,14 +364,17 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
         } else {
           G4cerr << "ReactionProduct has unsupported number of secondaries: "<<secondaries<<G4endl;
         }
-      } /*else {
-          G4cout<<"There was an impossible process"<<G4endl;
-          }*/
+      }
   }
-  //  G4cout<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
-  if (theReactionProductList.size()==0) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
-                                                    "GetFinalState: No process could be selected from the given list.");
+  if (theReactionProductList.size()==0 && baryonize_failed){
+    G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
+                "GetFinalState: No process could be selected from the given list.");
+  } else if (theReactionProductList.size()==0 && !baryonize_failed) {
+    // Baryonization had not yet failed -- try again
+    G4cout << "G4ProcessHelper::GetFinalStateInternal WARNING  Could not select an appropriate process in first pass" << G4endl;
+    return GetFinalStateInternal(aTrack,aTarget,true);
+  }
 
   // For the Regge model no phase space considerations. We pick a process at random
   if(reggemodel)
@@ -393,19 +408,15 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       TwotoThreeFlag.push_back(true);
     }
     Probabilities.push_back(CumulatedProbability);
-    //    G4cout<<"Pushing back cumulated probability: "<<CumulatedProbability<<G4endl;
   }
 
   //Renormalising probabilities
-  //  G4cout<<"Probs: ";
   for (std::vector<G4double>::iterator it = Probabilities.begin();
        it != Probabilities.end();
        it++)
     {
       *it /= CumulatedProbability;
-      //      G4cout<<*it<<" ";
     }
-  //  G4cout<<G4endl;
 
   // Choosing ReactionProduct
 
@@ -418,13 +429,9 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   while(!selected && tries < 100){
     i=0;
     G4double dice = CLHEP::RandFlat::shoot();
-    //    G4cout<<"What's the dice?"<<dice<<G4endl;
     while(dice>Probabilities[i] && i<theReactionProductList.size()){
-      //      G4cout<<"i: "<<i<<G4endl;
       i++;
     }
-
-    //    G4cout<<"Chosen i: "<<i<<G4endl;
 
     if(!TwotoThreeFlag[i]) {
       // 2 -> 2 processes are chosen immediately
@@ -432,7 +439,6 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
     } else {
       // 2 -> 3 processes require a phase space lookup
       if (PhaseSpace(theReactionProductList[i],aDynamicParticle)>CLHEP::RandFlat::shoot()) selected = true;
-      //selected = true;
     }
     //    double suppressionfactor=0.5;
     if(selected&&particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()!=aDynamicParticle->GetDefinition()->GetPDGCharge())
@@ -450,9 +456,6 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   }
   if(tries>=100) G4cerr<<"Could not select process!!!!"<<G4endl;
 
-  //  G4cout<<"So far so good"<<G4endl;
-  //  G4cout<<"Sec's: "<<theReactionProductList[i].size()<<G4endl;
-
   //Updating checkfraction:
   if (theReactionProductList[i].size()==2) {
     n_22++;
@@ -467,7 +470,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   return theReactionProductList[i];
 }
 
-G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
   //G4cout<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
@@ -483,24 +486,24 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,c
     //G4cout<<"Mass contrib: "<<(particleTable->FindParticle(*r_it)->GetPDGMass())/CLHEP::MeV<<" MeV"<<G4endl;
     M_after += particleTable->FindParticle(*r_it)->GetPDGMass();
   }
-  //G4cout<<"Intending to return this ReactionProductMass: "<<(sqrts - M_after)/CLHEP::MeV<<" MeV"<<G4endl;
+  //G4cout<<"Intending to return this ReactionProductMass: " << sqrts << " - " <<  M_after << " MeV"<<G4endl;
   return sqrts - M_after;
 }
 
-G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const{
   if (ReactionProductMass(aReaction,aDynamicParticle)>0) return true;
   return false;
 }
 
-G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction){
+G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) const{
   for (ReactionProduct::const_iterator it = aReaction.begin();it!=aReaction.end();it++)
     if(CustomPDGParser::s_isSbaryon(*it)||CustomPDGParser::s_isRBaryon(*it)) return true;
   return false;
 }
 
-G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
+G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle) const {
   G4double qValue = ReactionProductMass(aReaction,aDynamicParticle);
-
+  // Eq 4 of https://arxiv.org/pdf/hep-ex/0404001.pdf
   G4double phi = sqrt(1+qValue/(2*0.139*CLHEP::GeV))*pow(qValue/(1.1*CLHEP::GeV),3./2.);
   return (phi/(1+phi));
 }
@@ -535,8 +538,10 @@ void G4ProcessHelper::ReadAndParse(const G4String& str,
     }
 }
 
-double G4ProcessHelper::Regge(const double boost)
+double G4ProcessHelper::Regge(const double boost) const
 {
+  // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 1
+  // Originally from https://arxiv.org/pdf/0710.3930.pdf
   double a=2.165635078566177;
   double b=0.1467453738547229;
   double c=-0.9607903711871166;
@@ -544,8 +549,10 @@ double G4ProcessHelper::Regge(const double boost)
 }
 
 
-double G4ProcessHelper::Pom(const double boost)
+double G4ProcessHelper::Pom(const double boost) const
 {
+  // https://link.springer.com/content/pdf/10.1140%2Fepjc%2Fs10052-010-1262-1.pdf Eq 2
+  // Originally from https://arxiv.org/pdf/0710.3930.pdf
   double a=4.138224000651535;
   double b=1.50377557581421;
   double c=-0.05449742257808247;

@@ -1,7 +1,6 @@
 ################################################################################
 # Package: TrigFTK_RawDataAlgs
 ################################################################################
-
 # Declare the package name:
 atlas_subdir( TrigFTK_RawDataAlgs )
 
@@ -16,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigFTK/TrigFTKPool
                           Trigger/TrigFTK/TrigFTKSim
                           Trigger/TrigFTK/TrigFTK_RawData
+                          Trigger/TrigFTK/FTK_RecToolInterfaces
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           Event/EventInfo
@@ -35,13 +35,13 @@ atlas_add_library( TrigFTK_RawDataAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigFTK_RawDataAlgs
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTK_RawData PileUpToolsLib TrigFTKSimLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrigFTKPool FTK_DataProviderInterfaces TrigFTK_RawData PileUpToolsLib TrigFTKSimLib
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr EventInfo xAODTracking xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex )
 
 atlas_add_component( TrigFTK_RawDataAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives  FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

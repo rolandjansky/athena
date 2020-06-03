@@ -57,6 +57,9 @@ class HIMonitoringPhotonsTool : public ManagedMonitorToolBase
 	  float m_FCalEt_low;
 	  float m_FCalEt_high;
 
+          float m_FCalEt_peripheral;
+	  float m_FCalEt_central;
+
 	  int m_PhotonPt_nbins;
 	  float m_PhotonPt_low;
 	  float m_PhotonPt_high;

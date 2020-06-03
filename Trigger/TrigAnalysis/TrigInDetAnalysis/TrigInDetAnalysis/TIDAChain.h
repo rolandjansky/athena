@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDAChain.h        
 //
 //            chain container, contains rois       
 //   
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDAChain.h, v0.0   Mon  1 Feb 2010 11:43:51 GMT sutt $
 

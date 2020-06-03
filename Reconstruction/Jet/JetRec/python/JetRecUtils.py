@@ -34,6 +34,14 @@ def retrieveAODList():
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
+    # We also want to save in/out-of-time pileup truth jets
+    # They are built in simulation
+    if rec.doTruth():
+        l += [
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',                'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',             'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+        ]
+
     # Prior to R21, i.e. without the AOD size reduction, these were also always written.
     # However, the reduction TF decided that these should be dropped.
     if jetFlags.detailLevel()>=JetContentDetail.Full:
@@ -52,8 +60,6 @@ def retrieveAODList():
                 'xAOD::JetContainer#AntiKt10TruthWZJets',               'xAOD::JetAuxContainer#AntiKt10TruthWZJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
                 ]
 
     # For physics validation we would want the option to also validate the trimmed jets
@@ -84,9 +90,20 @@ def retrieveAODList():
 # and because ESDs are not (usually) saved, we simply write out
 # everything that we built, which is automatically recorded
 # in jetFlags.jetAODList
+#
+# Need to add two additional collections, i.e. truth pileup jets,
+# as these are created in digitisation.
 def retrieveESDList():
     from JetRec.JetRecFlags import jetFlags
-    return jetFlags.jetAODList()
+    extrajets = []
+    from RecExConfig.RecFlags import rec
+    if rec.doTruth():
+        extrajets += [
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',                'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',             'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+        ]
+
+    return jetFlags.jetAODList() + extrajets
     
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10

@@ -140,6 +140,15 @@ try:
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
         configureFlags()
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    for subdet in possibleSubDetectors:
+        simattr = "simulate."+subdet+"_on"
+        simcheck = getattr(DetFlags, simattr, None)
+        if simcheck is not None and simcheck():
+            attrname = subdet+"_setOn"
+            checkfn = getattr(DetFlags, attrname, None)
+            if checkfn is not None:
+                checkfn()
 except:
     ## Select detectors
     if 'DetFlags' not in dir():
@@ -148,10 +157,14 @@ except:
         DetFlags.all_setOn()
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
-    DetFlags.Forward_setOff() # Forward dets are off by default
-    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-    if checkHGTDOff is not None:
-        checkHGTDOff() #Default for now
+
+DetFlags.Forward_setOff() # Forward dets are off by default
+DetFlags.Micromegas_setOff()
+DetFlags.sTGC_setOff()
+DetFlags.FTK_setOff()
+checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+if checkHGTDOff is not None:
+    checkHGTDOff() #Default for now
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
@@ -172,10 +185,9 @@ else:
 ## Don't use the SeedsG4 override
 simFlags.SeedsG4.set_Off()
 
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
-else:
+## The looper killer is on by default. Disable it if this is requested.
+if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
 
@@ -226,11 +238,6 @@ if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
-
-## Increase max RDO output file size to 10 GB
-## NB. We use 10GB since Athena complains that 15GB files are not supported
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
 
 ### Changing to post-sim include/exec
 ## Post-include
@@ -416,6 +423,7 @@ except:
 
 include ("Digitization/Digitization.py")
 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]

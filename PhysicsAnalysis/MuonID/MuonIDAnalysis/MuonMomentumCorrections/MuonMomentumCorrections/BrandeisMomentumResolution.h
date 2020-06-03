@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
- *  BrandeisMomentumResolution.h 
+/*  BrandeisMomentumResolution.h 
  *
  *  Created on: March 4, 2013
  *  Author(s): G.Sciolla, A.Venturini, S.Zambito

@@ -1,4 +1,6 @@
-// $Id: xAODEventInfoCnv_entries.cxx 769747 2016-08-24 08:07:58Z will $
+//
+// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+//
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -9,6 +11,8 @@
 #include "../EventInfoCnvAlg.h"
 #include "../EventInfoReaderAlg.h"
 #include "../EventDuplicateFinderAlg.h"
+#include "../EventInfoNonConstCnvAlg.h"
+#include "../EventInfoModifierAlg.h"
 
 #include "../EventInfoMCWeightFixAlg.h"
 
@@ -17,6 +21,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EventInfoSelectorTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EventInfoCnvAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventInfoReaderAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventDuplicateFinderAlg )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EventInfoNonConstCnvAlg )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODReader, EventInfoModifierAlg )
 
 DECLARE_ALGORITHM_FACTORY( EventInfoMCWeightFixAlg )
 
@@ -27,6 +33,8 @@ DECLARE_FACTORY_ENTRIES( xAODEventInfoCnv ) {
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, EventInfoCnvAlg )
    DECLARE_NAMESPACE_ALGORITHM( xAODReader, EventInfoReaderAlg )
    DECLARE_NAMESPACE_ALGORITHM( xAODReader, EventDuplicateFinderAlg )
+   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, EventInfoNonConstCnvAlg )
+   DECLARE_NAMESPACE_ALGORITHM( xAODReader, EventInfoModifierAlg )
 
    DECLARE_ALGORITHM( EventInfoMCWeightFixAlg )
 

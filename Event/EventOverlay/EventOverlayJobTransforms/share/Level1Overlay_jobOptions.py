@@ -1,6 +1,7 @@
 
 include.block ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
+from AthenaCommon import CfgGetter
 from AthenaCommon.DetFlags import DetFlags
 from Digitization.DigitizationFlags import jobproperties
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
@@ -33,10 +34,23 @@ if DetFlags.overlay.LVL1_on():
             job.LArTTL1Maker.NoiseOnOff= False #(default:True) 
         # PileUp
         job.LArTTL1Maker.PileUp = True
+        # If we are doing MC overlay
+        if not isRealData:
+            job.LArTTL1Maker.EvtStore = overlayFlags.evtStore()
     
     if DetFlags.simulateLVL1.Tile_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
+
+        # If we are doing MC overlay
+        if not isRealData:
+            job.TileHitToTTL1.TileTTL1Container = overlayFlags.evtStore() + '/TileTTL1Cnt'
+            job.TileHitToTTL1.TileMBTSTTL1Container = overlayFlags.evtStore() + '/TileTTL1MBTS'
+
         include( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
+
+    # Add special TTL1 overlay algorithm only for MC+MC overlay
+    if not isRealData and DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
+        job += CfgGetter.getAlgorithm("OverlayTTL1")
 
     if DetFlags.digitize.LVL1_on():
        #--------------------------------------------------------------

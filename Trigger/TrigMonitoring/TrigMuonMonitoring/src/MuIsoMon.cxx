@@ -95,11 +95,10 @@ StatusCode HLTMuonMonTool::bookMuIsoDQA()
 StatusCode HLTMuonMonTool::fillMuIsoDQA()
 {
 
-  //first of all select only mu15 events
-  //YY if (!isPassedES(m_esvect, "mu15")) return StatusCode::SUCCESS;
-  if (!m_passedES[ESSTD]) { 
+  // Measure muIso in the events with non iso muon triggers
+  if (!m_passedESNONISO) { 
     return StatusCode::SUCCESS;
-  } // YY modified
+  }
 	
   hist("Common_Counter", m_histdir)->Fill((float)MUISO);
 

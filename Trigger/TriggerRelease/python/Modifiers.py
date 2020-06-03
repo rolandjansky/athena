@@ -1649,6 +1649,18 @@ class PixelOnlyZFinder(_modifier):
         except:
             log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
 
+class tightenElectronTrackingCuts(_modifier):
+    """
+    run the electron tracking with clone removal to reduce amount of fakes in high occupancy
+    """
+    def postSetup(self):
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+        try:
+            topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
+        except:
+            log.error("Cannot modify doCloneRemoval setting")
+
 ###############################################################
 # Modifiers believed to be obsolete.
 ###############################################################

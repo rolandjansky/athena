@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 
 #include "LArGeoAlgsNV/LArDetectorToolNV.h"
-#include "LArGeoAlgsNV/LArDetectorFactory.h" 
+#include "LArGeoAlgsNV/LArDetectorFactory.h"
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -41,10 +41,10 @@
 #define LAR_ALIGN "/LAR/Align"
 
 
-LArDetectorToolNV::LArDetectorToolNV(const std::string& type, 
-				     const std::string& name, 
+LArDetectorToolNV::LArDetectorToolNV(const std::string& type,
+				     const std::string& name,
 				     const IInterface* parent)
-  : GeoModelTool(type,name,parent), 
+  : GeoModelTool(type,name,parent),
     m_barrelSaggingOn(false),
     m_barrelVisLimit(-1),
     m_fcalVisLimit(-1),
@@ -52,7 +52,7 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type,
     m_buildEndcap(true),
     m_applyAlignments(false),
     m_detStore(0),
-    m_geometryConfig("FULL")
+    m_geometryConfig("FULL"), m_activateFT(false)
 {
   declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);
   declareProperty("BarrelCellVisLimit",    m_barrelVisLimit);
@@ -62,6 +62,7 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type,
   declareProperty("BuildEndcap",           m_buildEndcap);
   declareProperty("ApplyAlignments",       m_applyAlignments);
   declareProperty("GeometryConfig",        m_geometryConfig);
+  declareProperty("ActivateFeedThrougs",   m_activateFT);
   m_manager = 0;
 
 }
@@ -73,7 +74,7 @@ LArDetectorToolNV::~LArDetectorToolNV()
 }
 
 StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
-{ 
+{
   IMessageSvc* msgSvc;
   if(StatusCode::FAILURE==service ("MessageSvc",msgSvc))
   {
@@ -94,14 +95,14 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   LArHVManager *hvManager= new LArHVManager(embHV,emecHVI, emecHVO, hecHV, fcalHV,embPSHV, emecPSHV);
 
 
-  MsgStream log(msgSvc, name()); 
+  MsgStream log(msgSvc, name());
   m_detStore = detStore;
 
   if (StatusCode::SUCCESS != detStore->record(hvManager,"LArHVManager")) {
      log << MSG::ERROR << "Unable to record LArHVManager in detector store " << endreq;
      return StatusCode::FAILURE;
   }
-  
+
 
   // Get the detector configuration.
   IGeoModelSvc *geoModel;
@@ -110,10 +111,10 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
     log << MSG::ERROR << "Unable to get GeoModel service" <<  endreq;
     return StatusCode::FAILURE;
   }
-  
+
   std::string AtlasVersion = geoModel->atlasVersion();
   std::string LArVersion   = geoModel->LAr_VersionOverride();
-  
+
   IRDBAccessSvc *accessSvc;
   if(StatusCode::FAILURE==service("RDBAccessSvc",accessSvc))
   {
@@ -124,27 +125,27 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
   log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endreq;
-  log << MSG::INFO << "Building LAr version " << geoModel->LAr_Version() 
+  log << MSG::INFO << "Building LAr version " << geoModel->LAr_Version()
       << " while ATLAS version is " <<  AtlasVersion << endreq;
 
-  if(LArVersion=="CUSTOM") 
+  if(LArVersion=="CUSTOM")
   {
-    log << MSG::WARNING << "LArDetectorToolNV:  Detector Information coming from a custom configuration!!" 
+    log << MSG::WARNING << "LArDetectorToolNV:  Detector Information coming from a custom configuration!!"
 	<< endreq;
-  } 
-  else 
+  }
+  else
   {
     IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("LArSwitches", detectorKey, detectorNode);
     if ((*switchSet).size()==0) return StatusCode::FAILURE;
     const IRDBRecord    *switches   = (*switchSet)[0];
-    
+
     m_barrelSaggingOn           = switches->getInt("SAGGING");
 
     try
     {
       if (!switches->isFieldNull("BARREL_ON"))
 	m_buildBarrel = switches->getInt("BARREL_ON");
-      
+
       if (!switches->isFieldNull("ENDCAP_ON"))
 	m_buildEndcap = switches->getInt("ENDCAP_ON");
     }
@@ -159,13 +160,13 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   log << MSG::INFO  << "  Barrel            = "  << (m_buildBarrel ? "ON" : "OFF") << endreq;
   log << MSG::INFO  << "  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF") << endreq;
 
-  // Locate the top level experiment node 
-  DataHandle<GeoModelExperiment> theExpt; 
-  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
-  { 
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
-    return (StatusCode::FAILURE); 
-  } 
+  // Locate the top level experiment node
+  DataHandle<GeoModelExperiment> theExpt;
+  if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" ))
+  {
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq;
+    return (StatusCode::FAILURE);
+  }
 
   // determine the geometry layout - Atlas/Testbeam
   std::string geometryLayout = "Atlas";
@@ -195,20 +196,20 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
   theLArFactory.setBuildBarrel(m_buildBarrel);
   theLArFactory.setBuildEndcap(m_buildEndcap);
+  theLArFactory.setActivateFT(m_activateFT);
 
 
-
-  if (0 == m_detector) 
+  if (0 == m_detector)
   {
     GeoPhysVol *world=&*theExpt->getPhysVol();
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
     if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),
-						theLArFactory.getDetectorManager()->getName())) 
-      { 
-	log << MSG::ERROR << "Could not record" << endreq; 
-	return (StatusCode::FAILURE); 
-      } 
+						theLArFactory.getDetectorManager()->getName()))
+      {
+	log << MSG::ERROR << "Could not record" << endreq;
+	return (StatusCode::FAILURE);
+      }
 
     theExpt->addManager(theLArFactory.getDetectorManager());
 
@@ -278,7 +279,7 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
 {
   // Return FAILURE if no callbacks have been registered
   MsgStream log(msgSvc(), name());
- 
+
   if(!m_applyAlignments)
   {
     log << MSG::DEBUG << "LAr alignments switched OFF" << endreq;
@@ -289,7 +290,7 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
 
   const DataHandle<DetCondKeyTrans> dckt;
   log << MSG::DEBUG << "Registering callback on DetCondKeyTrans with folder " << folderName << endreq;
-  StatusCode sc = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName); 
+  StatusCode sc = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName);
   if(sc.isSuccess())
     log << MSG::DEBUG << " Successfully registered " << endreq;
   else
@@ -300,7 +301,7 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
 
 StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 {
-  MsgStream log(msgSvc(), name()); 
+  MsgStream log(msgSvc(), name());
 
   if(!m_applyAlignments)
   {
@@ -339,7 +340,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 
   // <--- !!! To Do
 
-  if(0 == m_manager) 
+  if(0 == m_manager)
   {
     log << MSG::WARNING << " LArDetDescrManager not created yet, cannot align !" << endreq;
     return StatusCode::FAILURE;
@@ -349,14 +350,14 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   if(m_detStore->contains<DetCondKeyTrans>(LAR_ALIGN))
   {
     StatusCode sc = m_detStore->retrieve(align, LAR_ALIGN);
-  
+
     if(sc.isFailure())
     {
       log << MSG::WARNING << " Could not retrieve LAr DetCondKeyTrans " << endreq;
       return sc;
     }
 
-    if(0 == align) 
+    if(0 == align)
     {
       log << MSG::WARNING <<" LAr DetCondKeyTrans ptr is 0" << endreq;
       return StatusCode::FAILURE;
@@ -393,7 +394,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     GeoAlignableTransform *hec1GatNeg = hec1AlxPos ? hec1AlxNeg->getAlignX(): NULL;
     GeoAlignableTransform *hec2GatPos = hec2AlxPos ? hec2AlxPos->getAlignX(): NULL;
     GeoAlignableTransform *hec2GatNeg = hec2AlxPos ? hec2AlxNeg->getAlignX(): NULL;
-    
+
     // loop over align names
     // if the transform presented alter its delta
     // if the transform is not presented clear its delta
@@ -471,7 +472,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   else
     log << MSG::DEBUG << " No LAr DetCondKeyTrans in SG, skipping align() " << endreq;
 
-  
+
   // debug printout of global positions:
   for(unsigned int i=0; i<alignNames.size(); i++)
   {

@@ -64,6 +64,7 @@ private:
   bool m_doAuxFW;
  
   int m_HitWarrior;
+  bool m_AuxDoctor;
   int m_KeepRejected; 
   int m_FitRemoved;
   int m_DoMajority;
@@ -88,6 +89,7 @@ private:
   float m_SSF_TR_max_eta;
 
   bool m_save_1stStageTrks;
+  bool m_save_StepByStepTrks;
 
   //output
   bool m_doTrackFile;

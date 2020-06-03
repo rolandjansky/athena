@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RoiFilter.h        
 //
 //                   
 //  
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: RoiFilter.h, v0.0   Sun 31 Jul 2016 05:22:41 CEST sutt $
 

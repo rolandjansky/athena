@@ -19,12 +19,12 @@ namespace G4UA
   class StoppedParticleAction : public AthMessaging, public G4UserSteppingAction
   {
     public:
-      StoppedParticleAction();
+      StoppedParticleAction(const int condition);
       virtual void UserSteppingAction(const G4Step*) override;
     private:
-      bool isSUSYParticle(const int) const;
-      TrackFastSimSD * m_fsSD;
-      bool m_init;
+      TrackFastSimSD * m_fsSD; // Sensitive detector for storing the records of stopped particles
+      bool m_init; // Whether the tool has been initialized or not
+      int m_stoppingCondition; // Enum describing stopping configuration
   }; // class StoppedParticleAction
 
 } // namespace G4UA

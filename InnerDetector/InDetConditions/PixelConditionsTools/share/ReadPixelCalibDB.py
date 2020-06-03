@@ -66,7 +66,7 @@ DetDescrVersion = "ATLAS-DC3-05"
 # This job option fragment needs to included before
 # AtlasGeoModel/GeoModelInit.py is included.
 # Block the defaults.
-include.block("InDetAlignExample/InDetAlignable.py") 
+include.block("PixelConditionsTools/InDetAlignable.py") 
 ##
 include ("AtlasGeoModel/SetGeometryVersion.py")
 include ("AtlasGeoModel/GeoModelInit.py")

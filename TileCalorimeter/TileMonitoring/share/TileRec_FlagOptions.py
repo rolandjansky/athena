@@ -206,6 +206,12 @@ if not 'doTileNoiseMon' in dir():
 
 if not 'doTileTMDBDigitsMon' in dir():
     doTileTMDBDigitsMon = True
+
+if not 'doTileTMDBMon' in dir():
+    doTileTMDBMon = True
+
+if not 'doTileTMDBMonVerbose' in dir():
+    doTileTMDBMonVerbose = False
     
 if not 'doTileTMDBRawChannelMon' in dir():
     doTileTMDBRawChannelMon = True

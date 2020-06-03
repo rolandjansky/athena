@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef TRIGT1INTERFACES_TRIGT1CTPDEFS_H
 #define TRIGT1INTERFACES_TRIGT1CTPDEFS_H

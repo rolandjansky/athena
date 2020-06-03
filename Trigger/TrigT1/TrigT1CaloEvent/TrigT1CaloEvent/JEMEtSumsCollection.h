@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TRIGT1CAL_JEMEtSumsCOLLECTION_H
 #define TRIGT1CAL_JEMEtSumsCOLLECTION_H
 

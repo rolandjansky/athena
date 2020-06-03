@@ -26,6 +26,7 @@ class GeneralTauPlots: public PlotBase {
 
       // BDT
       TH1* m_id_BDTJetScore;
+      TH1* m_id_BDTJetScoreSigTrans;
       TH1* m_pt_jetBDTloose;
       TH1* m_pt_jetBDTmed;
       TH1* m_pt_jetBDTtight;

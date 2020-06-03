@@ -15,7 +15,8 @@
 
 namespace FTKByteStreamDecoderEncoder {
   const uint32_t headerMarker = 0xee1234ee; 
-  const uint32_t headerSize   = 0x9;
+  const uint32_t headerSize   = 9;
+  const uint32_t trailerSize   = 0;
   const size_t TrackBlobSize = 22; // magic number from BS specification
   const size_t TrackParamsBlobSize = 6; // --||--
   const size_t PixHitParamsBlobSize = 2; // --||--

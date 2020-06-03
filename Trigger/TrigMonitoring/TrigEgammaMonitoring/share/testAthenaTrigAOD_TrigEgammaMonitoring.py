@@ -72,6 +72,10 @@ else:
             jobproperties.Beam.beamType(), DQMonFlags.monManDataType)
 DQMonFlags.monManEnvironment = 'tier0'
 DQMonFlags.monManStream=rec.triggerStream()
+if ('histogramFile' in dir()):
+    DQMonFlags.histogramFile = histogramFile
+    log.info('Setting output file to %s' %DQMonFlags.histogramFile)
+
 log.info('DQMonFlags %s',DQMonFlags) 
 log.info('RecFlags %s', rec)
 

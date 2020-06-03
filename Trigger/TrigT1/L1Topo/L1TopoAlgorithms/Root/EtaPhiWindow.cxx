@@ -80,8 +80,8 @@ TCS::EtaPhiWindow::processBitCorrect(const std::vector<TCS::TOBArray const *> &i
                 if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
                 if( (int)parType_t((*tob1)->eta()) <  (int)p_EtaMin ) continue;
                 if( (int)parType_t((*tob1)->eta()) >= (int)p_EtaMax ) continue;
-                if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
-                if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
+                if( (int)parType_t((*tob1)->phi()) <  (int)p_PhiMin ) continue;
+                if( (int)parType_t((*tob1)->phi()) >= (int)p_PhiMax ) continue;
                 accept = true;
                 output[0]->push_back(TCS::CompositeTOB(*tob1));
 
@@ -114,8 +114,8 @@ TCS::EtaPhiWindow::process(const std::vector<TCS::TOBArray const *> &input,
             if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
             if( (int)parType_t((*tob1)->eta()) <  (int)p_EtaMin ) continue;
             if( (int)parType_t((*tob1)->eta()) >= (int)p_EtaMax ) continue;
-            if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
-            if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
+            if( (int)parType_t((*tob1)->phi()) <  (int)p_PhiMin ) continue;
+            if( (int)parType_t((*tob1)->phi()) >= (int)p_PhiMax ) continue;
             accept = true;
             output[0]->push_back(TCS::CompositeTOB(*tob1));
             TRG_MSG_DEBUG("TOB "<<iTob

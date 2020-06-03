@@ -6,6 +6,7 @@
 #define CaloGeometryFromCaloDDM_h
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
+#include "LArReadoutGeometry/FCALDetectorManager.h"
 
 class CaloDetDescrManager;
 
@@ -15,6 +16,7 @@ public :
    virtual ~CaloGeometryFromCaloDDM();
    
    virtual bool LoadGeometryFromCaloDDM(const CaloDetDescrManager* calo_dd_man);
+   virtual bool LoadFCalChannelMapFromFCalDDM(const FCALDetectorManager* fcal_dd_man);
 };
 
 #endif

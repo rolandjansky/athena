@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/LArG4SimpleSD.h"
@@ -19,6 +19,9 @@
 #include "MCTruth/EventInformation.h"
 
 #include "G4Step.hh"
+#ifdef DEBUG_IDENTIFIERS
+#include "G4ThreeVector.hh"
+#endif
 
 LArG4SimpleSD::LArG4SimpleSD(G4String a_name, ILArCalculatorSvc* calc, const std::string& type, const float width)
   : G4VSensitiveDetector(a_name)
@@ -103,15 +106,29 @@ G4bool LArG4SimpleSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   }
 
   // A calculator can determine that a given energy deposit results
-  // in more than one hit in the simulation.  FOr each such hit...
+  // in more than one hit in the simulation.  For each such hit...
   G4bool result = true;
-//  for(int ihit=0; ihit<m_calculator->getNumHits(); ++ihit) {
-//    // Ported in from the old LArG4HitMerger code
-//    result = result && SimpleHit( m_calculator->identifier(ihit) ,
-//                                  m_calculator->time(ihit) ,
-//                                  m_calculator->energy(ihit) );
-//  }
+#ifdef DEBUG_IDENTIFIERS
+  const G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+  const G4ThreeVector startPoint = pre_step_point->GetPosition();
+  const G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+  const G4ThreeVector endPoint = post_step_point->GetPosition();
+  const G4ThreeVector p = startPoint;
+  const int side = (p.z()<0) ? -1 : 1;
+#endif
   for(const auto &ihit : hits) {
+#ifdef DEBUG_IDENTIFIERS
+    if (ihit.id[2]*side<0 && std::abs(ihit.id[1])<4) {
+      G4cout << SensitiveDetectorName << "::ProcessHits ERROR G4Step position "<< "(" << p.x() << ", " << p.y() << ", " << p.z() << ") is inconsistent with LArG4Identifier assigned:" << G4endl;
+      G4cout << "     LArG4Identifier from " << m_calculator->name() << " tech : " << ihit.id[1] << ", barrel_ec : " << ihit.id[2]
+             << ", sampling : " << ihit.id[3]
+             << ",   region : " << ihit.id[4]
+             << ",      eta : " << ihit.id[5]
+             << ",      phi : " << ihit.id[6] << G4endl;
+      G4cout << "     startPoint: (" << startPoint.x() << ", " << startPoint.y() << ", " << startPoint.z() << ")" << G4endl;
+      G4cout << "       endPoint: (" << endPoint.x() << ", " << endPoint.y() << ", " << endPoint.z() << ")" << G4endl;
+    }
+#endif
     // Ported in from the old LArG4HitMerger code
     result = result && SimpleHit( ihit.id ,
                                   ihit.time,

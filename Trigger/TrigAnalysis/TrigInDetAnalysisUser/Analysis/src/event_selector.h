@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    event_selector.h        
 //
 //                   
 //  
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: event_selector.h 513250 2012-08-10 14:35:11Z sutt $
 

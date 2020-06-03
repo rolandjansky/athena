@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonEfficiencies_H
@@ -448,6 +448,7 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   int m_NPixLayers;
   int m_events;
   int m_mapSplit;
+  bool m_useLowStat;
   int m_histosBooked;
   bool m_doHitQuality;
   float m_minLB;

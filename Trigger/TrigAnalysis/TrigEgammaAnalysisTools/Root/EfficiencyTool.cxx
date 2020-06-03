@@ -5,6 +5,7 @@
 /**********************************************************************
  **********************************************************************/
 #include "TrigEgammaAnalysisTools/EfficiencyTool.h"
+#include "TrigEgammaAnalysisTools/ValidationException.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -48,17 +49,29 @@ bool EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string p
     const std::string fail = "Fail" + pidword;
     const std::string ineff = "Ineff" + pidword;
 
-    unsigned int isem = eg->selectionisEM(pidword);
+    bool failIsEMLH = true;
+    try{
+	ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
+	unsigned int isem = eg->selectionisEM(pidword);
 
-    bool failIsEMLH = false;
-    for (int ii = 0; ii < 11; ii++) {
-        if ((isem >> ii) & 0x1) {
-            failIsEMLH = true;
-            hist1(fail)->Fill(ii + 0.5);
-            hist1(ineff)->Fill(ii + 3.5, 1);
-        }
+	failIsEMLH = false;
+	for (int ii = 0; ii < 11; ii++) {
+	    if ((isem >> ii) & 0x1) {
+		failIsEMLH = true;
+		hist1(fail)->Fill(ii + 0.5);
+		hist1(ineff)->Fill(ii + 3.5, 1);
+	    }
+	}
+    } catch (const ValidationException &e) {
+	ATH_MSG_WARNING("Exception thrown: " << e.msg() );
+	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
+	failIsEMLH = true;
+    } catch(...) {
+	ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
+	failIsEMLH = true;
     }
     return failIsEMLH;
+
 }
 
 bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid)
@@ -438,7 +451,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 
     float eta = eg->caloCluster()->etaBE(2);
     float phi = eg->phi();
-    float pt = eg->pt();
+    float pt = eg->pt()/1e3;
     float avgmu=getAvgMu();
     float npvtx=getNPVtx();
     ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 

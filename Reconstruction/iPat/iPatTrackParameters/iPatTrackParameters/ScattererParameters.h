@@ -6,7 +6,6 @@
  ScattererParameters are the value of the TrackParameters at a given 
  scattering plane, along with the local scattering angles and errors
  -------------------------------------------------------------------
- Copyright (C) 2001 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKPARAMETERS_SCATTERER_PARAMETERS_H

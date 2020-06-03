@@ -189,7 +189,8 @@ class TileDQstatus {
    */
   void setTBIP(TileBeamInfoProvider* TBIP) {m_TBIP=TBIP;}
   /** @brief parses DQ fragments and fill error arrays for event*/
-  void fillArrays(const TileRawChannelCollection * coll, int gain);
+  void fillArrays(const TileRawChannelCollection * coll, int gain,
+                  const ToolHandle<ITileBadChanTool>& tileBadChanTool);
   void fillBCIDErrDetail(int frag, int gain);
   void fillTrips(unsigned int partition, const std::vector<float>& trips, double* rndmVec);
 

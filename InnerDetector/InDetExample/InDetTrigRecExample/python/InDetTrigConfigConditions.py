@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsServicesSetup:
   """
@@ -193,6 +193,7 @@ class PixelConditionsServicesSetup:
 
     #this needs also updates how LorentzAngleSvc is accessed ()
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
+    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
     PixelLorentzAngleSvc = SiLorentzAngleSvc(name='PixelLorentzAngleSvc')
     from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
     pixelSiliconConditionsSvc=PixelSiliconConditionsSvc(name=self.instanceName('PixelSiliconConditionsSvc'),
@@ -200,9 +201,14 @@ class PixelConditionsServicesSetup:
     pixelSiliconConditionsSvc.ForceUseGeoModel = False
     pixelSiliconConditionsSvc.UseDBForHV=True
     pixelSiliconConditionsSvc.UseDBForTemperature=True
+
+    pixelSiPropertiesSvc=SiPropertiesSvc(name=self.instanceName('PixelSiPropertiesSvc'),DetectorName="Pixel",SiConditionsServices = pixelSiliconConditionsSvc)
+
     ServiceMgr += pixelSiliconConditionsSvc
+    ServiceMgr += pixelSiPropertiesSvc
 
     PixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc
+    PixelLorentzAngleSvc.SiPropertiesSvc = pixelSiPropertiesSvc
     PixelLorentzAngleSvc.UseMagFieldSvc = True         #may need also MagFieldSvc instance
 
     #if self.useDCS or self.onlineMode:
@@ -450,19 +456,24 @@ class SCT_ConditionsServicesSetup:
   def initLorentzAngleSvc(self, instanceName):
     "Inititalize Lorentz angle Service"
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
+    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
     SCTLorentzAngleSvc = SiLorentzAngleSvc(name=instanceName,
                                            DetectorName="SCT")
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-    sctSiliconConditionsSvc=\
-                              SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
-                                                       DCSConditionsSvc=self.dcsSvc)
+    sctSiliconConditionsSvc=SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),DCSConditionsSvc=self.dcsSvc)
+
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
     #sctSiliconConditionsSvc.OutputLevel=1
+
+    sctSiPropertiesSvc=SiPropertiesSvc(name=self.instanceName('SCT_SiPropertiesSvc'),DetectorName="SCT",SiConditionsServices=sctSiliconConditionsSvc)
+
     self.svcMgr += sctSiliconConditionsSvc
+    self.svcMgr += sctSiPropertiesSvc
     if self._print: print sctSiliconConditionsSvc
 
     SCTLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
+    SCTLorentzAngleSvc.SiPropertiesSvc = sctSiPropertiesSvc
     SCTLorentzAngleSvc.UseMagFieldSvc = True       #may need also MagFieldSvc instance
 
     self.svcMgr += SCTLorentzAngleSvc

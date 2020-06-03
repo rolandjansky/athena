@@ -821,16 +821,8 @@ void FTK_RDO_ReaderAlgo::Tree_Init(){
 
 void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
    
-  const FTK_RawTrackContainer *rawTracks ( nullptr );
+  const FTK_RawTrackContainer *rawTracks = m_DataProviderSvc->getRawTracks();
 
-  if ( evtStore()->contains<FTK_RawTrackContainer> ( m_ftk_raw_trackcollection_Name) ) {
-    if ( evtStore()->retrieve ( rawTracks, m_ftk_raw_trackcollection_Name  ).isFailure() ) {
-      ATH_MSG_DEBUG("Could not retrieve FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
-    }
-  } else {
-    ATH_MSG_DEBUG("Could not find FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
-    
-  }
   if (rawTracks == nullptr) return;
   ATH_MSG_DEBUG(" Got FTK_RawTrackContainer " << m_ftk_raw_trackcollection_Name << " with " << rawTracks->size() << " tracks");
 

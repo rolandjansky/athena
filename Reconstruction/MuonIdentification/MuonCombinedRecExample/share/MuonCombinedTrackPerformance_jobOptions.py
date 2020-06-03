@@ -28,6 +28,21 @@ if muonCombinedRecFlags.doxAOD():
                                          DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
                                          IsCombined = False )
 
+  if muonCombinedRecFlags.doMuGirlLowBeta():
+    topSequence += MuonTrackPerformanceAlg("CombinedStauPerformanceAlg",
+                                           TrackInputLocation = "CombinedStauTracks",
+                                           DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
+                                           DoTruth = rec.doTruth(),
+                                           DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                           IsCombined = True )
+    topSequence += MuonTrackPerformanceAlg("ExtrapolatedStauPerformanceAlg",
+                                           TrackInputLocation = "ExtrapolatedStauTracks",
+                                           DoSummary = muonCombinedRecFlags.TrackPerfSummaryLevel(),
+                                           DoTruth = rec.doTruth(),
+                                           DoTrackDebug = muonCombinedRecFlags.TrackPerfDebugLevel(),
+                                           IsCombined = False )
+
+
   from MuonTrackPerformance.MuonTrackPerformanceConf import MuonSegmentPerformanceAlg
   topSequence += MuonSegmentPerformanceAlg(name="MuonSegmentPerformanceAlg")
 

@@ -232,7 +232,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
+        for thrV in [1, 2, 3, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     
@@ -355,13 +355,20 @@ class ThresholdDef:
         for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
         
+        # Restricted range TE 2.4<|eta|<4.9
+        etamin = 24
+        etamax = 49
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
+            tc.registerThr('TE%i.%iETA%i' % (thrV, etamin, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin  =  etamin, etamax=etamax, priority=1).addThrValue( thrV, etamin = -etamax, etamax = -etamin, priority=1)
+
         # RXE (restriced range ET miss)
-        for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
+        etamax = 24
+        for thrV in [30, 35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
 	 # Restricted range TE |eta|<4.9
         etamax = 49
-        for thrV in [500, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
+        for thrV in [3, 7, 500, 600, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
 
 

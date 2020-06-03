@@ -1,3 +1,4 @@
+// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -6,49 +7,23 @@
  * @file   xAODAFPProtonContainerCnv.h
  * @author Krzysztof Cieśla <krzysztof.marcin.ciesla@cern.ch>
  * @date   2018-04-05
- * 
- * @brief  Declaration of xAODAFPProtonContainerCnv class. Based on xAODAFPSiHitsClusterContainerCnv.h
- * 
+ *
+ * @brief  Declaration of the xAODAFPProtonContainerCnv class.
+ *
  */
 
+#ifndef XAODFORWARDATHENAPOOL_XAODAFPPROTONCONTAINERCNV_H
+#define XAODFORWARDATHENAPOOL_XAODAFPPROTONCONTAINERCNV_H
 
-#ifndef XAODAFPPROTONCONTAINERCNV_H
-#define XAODAFPPROTONCONTAINERCNV_H
+// POOL include(s):
+#include "AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.h"
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "xAODForward/AFPSiHitContainer.h"
+// EDM include(s):
 #include "xAODForward/AFPProtonContainer.h"
-#include "xAODForward/AFPProton.h"
 
+/// Type of the POOL converter for xAOD::AFPProtonContainer
+typedef T_AthenaPoolxAODCnv< xAOD::AFPProtonContainer >
+   xAODAFPProtonContainerCnv;
 
-typedef T_AthenaPoolCustomCnv<xAOD::AFPProtonContainer, xAOD::AFPProtonContainer> xAODAFPProtonContainerCnvBase;
-
-class xAODAFPProtonContainerCnv : public xAODAFPProtonContainerCnvBase {
- 
-  // Declare the factory as our friend:
-  friend class CnvFactory< xAODAFPProtonContainerCnv >;
- 
-public:
-  /// Converter constructor
-  xAODAFPProtonContainerCnv( ISvcLocator* svcLoc );
- 
-  /// Re-implemented function in order to get access to the SG key 
-  virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
- 
-  /// Function preparing the container to be written out
-  virtual xAOD::AFPProtonContainer* createPersistent( xAOD::AFPProtonContainer* trans );
-  
-  /// Function reading in the persistent object
-  virtual xAOD::AFPProtonContainer* createTransient();
- 
-private:
-  /// Function preparing a proton object for persistence
-  void toPersistent( xAOD::AFPProton* proton ) const;
- 
-  /// StoreGate key of the container just being created
-  std::string m_key;
-};
-
-
-#endif	// XAODAFPSIHITSCLUSTERCONTAINERCNV_H
+#endif // XAODFORWARDATHENAPOOL_XAODAFPPROTONCONTAINERCNV_H
 

@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    reader.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: reader.cxx, v0.0   Mon 30 Jan 2012 18:43:21 CET sutt $
 
@@ -17,6 +19,8 @@
 #include <set>
 #include <string>
 #include <regex>
+#include <algorithm>
+
 
 #include "TChain.h"
 #include "TFile.h"
@@ -27,15 +31,29 @@
 
 #include "utils.h"
 
+template<class T>
+void remove_duplicates(std::vector<T>& vec) {
+  std::sort(vec.begin(), vec.end());
+  vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+}
 
+std::string time_str() { 
+  time_t _t;
+  time(&_t);
+  std::string s(ctime(&_t));
+  return s.substr(0,s.find("\n"));
+}
 
 int usage(int e=0) { 
-    std::cerr << "usage: skim <filename>  -f <outfile> [-d|--delete] <chain1> <chain2> ... -f <outfile> -r <chain>" << std::endl;
+    std::cerr << "usage: skim <filename> [OPTIONS]" << std::endl;
     std::cerr << "\nremoves chains from the ntple\n";
     std::cerr << "\nOptions:\n";
     std::cerr << "\t-d | --delete\tremoves specified chains\n";
-    std::cerr << "\t-f | --file\toutput filename (default tree.root)\n";
+    std::cerr << "\t-o | --output\toutput filename (default tree.root)\n";
     std::cerr << "\t-r | --require\trequire that this chain has tracks\n";
+    std::cerr << "\t-f | --force\tforce processing even if no chains specified\n";
+    std::cerr << "\t     --pt value\tremove offline tracks pt < value\n";
+    std::cerr << "\t     --roi  \tfilter offline tracks by roi phi\n";
     std::cerr << "\nIf option -d is not given, the specified chains are retained and all others are removed" << std::endl;
     std::cerr << "\nIf no chains are specifed simply all events with no L2 or EF chains are excluded" << std::endl;
     return e;
@@ -96,6 +114,12 @@ int main(int argc, char** argv) {
   bool adding_chains   = false;
   bool deleting_chains = false;
 
+  bool force = false;
+
+  double ptmin = 0;
+
+  bool roi_filter = false;
+
   bool verbose = false;
 
   for ( int i=1 ; i<argc ; i++ ) { 
@@ -114,7 +138,7 @@ int main(int argc, char** argv) {
     }
 
     if      ( arg=="-h" || arg=="--help" )   return usage(0);
-    else if ( arg=="-f" ) { 
+    else if ( arg=="-o" || arg=="--output" ) { 
       if ( (i+1)<argc )  outfile = argv[++i];
       else               return usage(-1);
     }
@@ -134,7 +158,14 @@ int main(int argc, char** argv) {
       deleting_chains = true;
       deleting = true;
     }
+    else if ( arg=="--pt" ) { 
+      if ( (i+1)<argc )  ptmin = std::atof(argv[++i])*1000;
+      else               return usage(-1);
+      force = true;
+    }
     else if ( arg=="-v" || arg=="--verbose" ) verbose = true;
+    else if ( arg=="-f" || arg=="--force" )   force = true;
+    else if (              arg=="--roi" )     { force=true; roi_filter = true; }
     else if ( infile=="" ) infile = arg;
     else { 
       std::cerr << "more than one file specified: " << arg << std::endl;
@@ -144,10 +175,13 @@ int main(int argc, char** argv) {
 
   //  std::cout << "required chains " << require_chains << std::endl;
 
-  if ( require_chains.size()==0 ) { 
+  if ( !force && require_chains.size()==0 ) { 
     std::cout << "no chains requested - not doing anything" << std::endl;
     return 0;
   }
+
+
+  std::cout << "skim::start       " << time_str() << std::endl; 
 
   //  if ( require_chains.size()>0 ) require = true;
 
@@ -270,6 +304,83 @@ int main(int argc, char** argv) {
 	        
 	if ( verbose ) std::cout << track_ev->size() << std::endl;
       
+
+	if ( roi_filter || ptmin>0 ) { 
+	  
+	  TIDA::Chain* offline = 0;
+
+	  std::vector<std::string> chainnames = track_ev->chainnames();
+
+	  /// get the offline chain
+
+	  for ( size_t ic=chainnames.size() ; ic-- ; ) {
+	    if ( chainnames[ic] == "Offline" ) {
+	      offline = &(track_ev->chains()[ic]);
+	      break;
+	    }
+	  }
+
+	  if ( offline ) { 
+	    // track_ev->addChain( "Offline" ); 
+	    
+	    std::vector<TIDA::Chain>& chains = track_ev->chains();
+	    std::vector<TIDA::Chain>::iterator citr = chains.begin();
+	    
+	    std::vector<std::pair<double,double> > philims;
+	    
+	    for ( ; citr!=chains.end() ; citr++ ) {
+	      if ( citr->name().find("HLT_")!=std::string::npos ) { 
+		for ( size_t ir=0 ; ir<citr->size() ; ir++ ) {
+		  TIDARoiDescriptor& roi = citr->rois()[ir].roi();
+		  if ( roi.composite() ) { 
+		    for ( size_t isub=0 ; isub<roi.size() ; isub++ ) { 
+		      philims.push_back( std::pair<double,double>( roi[isub]->phiMinus(), roi[isub]->phiPlus() ) ); 
+		    }
+		  }
+		  else philims.push_back( std::pair<double,double>( roi.phiMinus(), roi.phiPlus() ) ); 
+		}
+	      }
+	    }
+
+	    remove_duplicates( philims );
+
+	    for ( size_t iroi=0 ; iroi<offline->size() ; iroi++ ) {
+
+	      std::vector<TIDA::Track>& tracks = offline->rois()[iroi].tracks();
+	      
+	      for ( std::vector<TIDA::Track>::iterator it=tracks.begin() ; it<tracks.end() ; ) {
+		bool inc = true;
+		if ( ptmin>0 ) { 
+		  if ( std::fabs(it->pT())<ptmin ) { inc=false; tracks.erase( it ); }
+		}
+		if ( inc && roi_filter ) { 
+		  bool remove_track = true;
+		  for ( size_t isub=0 ; isub<philims.size() ; isub++ ) { 
+
+		    if ( philims[isub].first < philims[isub].second ) { 
+		      if ( it->phi()>=philims[isub].first && it->phi()<=philims[isub].second ) { 
+			remove_track = false; 
+			break;
+		      }
+		    }
+		    else  {
+		      if ( it->phi()>=philims[isub].first || it->phi()<=philims[isub].second ) { 
+			remove_track = false; 
+			break;
+		      }
+		    }
+		  }
+		  if ( remove_track ) { inc=false; tracks.erase( it ); }
+		}
+		if ( inc ) it++;
+	      }
+
+	    }
+
+	  }
+
+
+	}
 	
 	//      std::cout << "writing event " << track_ev->event_number() << " <<<<<<<<<<<<<<<<<<<<" << std::endl; 
 	tree->Fill();
@@ -298,8 +409,10 @@ int main(int argc, char** argv) {
     
   }
 
-  std::cout << "Events in:  " << ev_in  << std::endl;
-  std::cout << "Events out: " << ev_out << std::endl;
+  std::cout << "skim::done        " << time_str() << std::endl; 
+
+  std::cout << "skim::events in:  " << ev_in  << std::endl;
+  std::cout << "skim::events out: " << ev_out << std::endl;
   
   fout.Write();
   fout.Close();

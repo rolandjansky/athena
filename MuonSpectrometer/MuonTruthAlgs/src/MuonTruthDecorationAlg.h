@@ -71,7 +71,6 @@ private:
   std::vector<std::string> m_PRD_TruthNames;
   std::vector<std::string> m_SDO_TruthNames;
   std::string              m_CSC_SDO_TruthNames;
-  std::string m_truthLinkVecName;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;

@@ -2,11 +2,12 @@
 
 # art-description: Trigger MC pp v7 RDO to ESD and AOD test, plus extra tests using these files
 # art-type: grid
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
+# art-include: 21.1/AthenaP1
+# art-include: 21.1-dev/AthenaP1
+# art-output: *check*
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt
@@ -20,6 +21,7 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: AOD.pool.root.checkFile0
 # art-output: AOD.pool.root.checkFiletrigSize.txt
+# art-output: *.regtest.new
 
 
 export NAME="mc_pp_v7_rdotoesdaod_grid"

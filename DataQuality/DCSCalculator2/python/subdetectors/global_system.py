@@ -48,10 +48,14 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
 	counter=0
 
         for since, until, (state,) in events:
-            if state.Run == 0: continue
+            if state.Run == 0 or state.Run is None: continue
 	    #print state
             if state is not None:
-                deadfrac = 1-state.LiveFraction
+                if state.LiveFraction is None:
+                    deadfrac=1
+                    print 'WARNING: LiveFraction is "None" for', state.Run, state.LumiBlock 
+                else:
+                    deadfrac = 1-state.LiveFraction
                 if deadfrac < self.deadfraction_threshold:
                     continue
                 yield DefectIOV(RunLumi(state.Run, state.LumiBlock), 
@@ -65,7 +69,7 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
 	#print counter_max
 	events = process_iovs(iovs)
         for since, until, (state,) in events:
-	    if state is not None:
+	    if state is not None and state.Run is not None:
                 deadfrac = 1-state.LiveFraction
                 if deadfrac < self.deadfraction_threshold:
                     continue

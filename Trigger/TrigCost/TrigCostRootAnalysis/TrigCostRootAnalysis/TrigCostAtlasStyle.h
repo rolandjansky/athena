@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigCostAtlasStyle.h
 //
@@ -6,12 +9,11 @@
 //
 //   @author M.Sutton
 //
-//   Copyright (C) 2010 Atlas Collaboration
 //
 //   $Id: TrigCostAtlasStyle.h, v0.0   Thu 25 Mar 2010 10:34:20 CET $
 
-#ifndef  __TRIGCOSTATLASSTYLE_H
-#define __TRIGCOSTATLASSTYLE_H
+#ifndef TRIGCOSTROOTANALYSIS_TRIGCOSTATLASSTYLE_H
+#define TRIGCOSTROOTANALYSIS_TRIGCOSTATLASSTYLE_H
 
 // STL include(s):
 #include <string>
@@ -23,4 +25,4 @@ void SetTrigCostAtlasStyle();
 
 TStyle* TrigCostAtlasStyle();
 
-#endif // __TRIGCOSTATLASSTYLE_H
+#endif // TRIGCOSTROOTANALYSIS_TRIGCOSTATLASSTYLE_H

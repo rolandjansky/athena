@@ -10,7 +10,7 @@ atlas_subdir( ByteStreamStoragePlugins )
 find_package( Boost COMPONENTS system )
 find_package( CASTOR COMPONENTS rfio )
 find_package( Xrootd COMPONENTS Posix PosixPreload )
-find_package( dcache_client )
+find_package( dcap )
 find_package( tdaq-common COMPONENTS ers )
 find_package( Davix )
 
@@ -40,8 +40,8 @@ atlas_add_library( fReaddCache
    src/fReaddCache.h src/fReaddCache.cxx
    NO_PUBLIC_HEADERS
    PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-   ${DCACHE_CLIENT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${DCACHE_CLIENT_LIBRARIES}
+   ${DCAP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${DCAP_LIBRARIES}
    ${Boost_LIBRARIES} )
 
 atlas_add_library( fReadDavix

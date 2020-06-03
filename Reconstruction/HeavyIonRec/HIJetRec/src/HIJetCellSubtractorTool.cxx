@@ -19,12 +19,6 @@ HIJetCellSubtractorTool::HIJetCellSubtractorTool(const std::string& myname) : HI
 
 void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const
 { 
-/*  if(getIndex()==nullptr || getShape()==nullptr)
-  {
-    ATH_MSG_ERROR("No HIEventShape/Index supplied, cannot do subtraction");
-    return;
-  }*/
-
   //if( cl_in->type() == xAOD::Type::CaloCluster )
   //use static cast, derived type of IParticle checked explicitly upstream
   const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(cl_in);
@@ -35,8 +29,7 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
   const float eta0=cl->eta0();
   const float phi0=cl->phi0();
 
-  float mod=1.;
-  if(modulator) mod=modulator->getModulation(phi0, eshape);
+  float mod=modulator->getModulation(phi0, eshape);
 
   //unsigned int eta_phi_index=HICaloCellHelper::FindEtaPhiBin(cl->eta0(),cl->phi0());
   xAOD::CaloCluster::const_cell_iterator cellIterEnd = cl->cell_end();
@@ -51,7 +44,6 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
     float nCells=index->getShape(eta0,sample,shape)->nCells();
     float rho=0;
     if(nCells!=0.) rho=index->getShape(eta0,sample,shape)->rho()/nCells;
-
     rho*=mod;
     float geoWeight=cellIter.weight();
     float cell_E_w=(*cellIter)->energy()*geoWeight;
@@ -70,7 +62,8 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
   }
   //rare case E_cl==0 is also handled by setSubtractedEtaPhi
   float E_unsubtr=cl->e(HIJetRec::unsubtractedClusterState());
-  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/E_unsubtr);
+  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl
+,eta0,phi0,E_cl/E_unsubtr);
   float ET_cl=E_cl/std::cosh(eta_cl);
   subtr_mom.SetPxPyPzE(ET_cl*std::cos(phi_cl),ET_cl*std::sin(phi_cl),ET_cl*std::sinh(eta_cl),E_cl);
 }
@@ -122,12 +115,6 @@ void HIJetCellSubtractorTool::UpdateShape(xAOD::HIEventShapeContainer* shape, co
 
 void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator, const xAOD::HIEventShape* eshape) const
 { 
-  if( index==nullptr || shape==nullptr)
-  {
-    ATH_MSG_ERROR("No HIEventShape/Index supplied, cannot do subtraction");
-    return;
-  }
-
   //if( cl_in->type() == xAOD::Type::CaloCluster )
   //use static cast, derived type of IParticle checked explicitly upstream
 
@@ -138,9 +125,13 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
   const float eta0=cl->eta0();
   const float phi0=cl->phi0();
 
-  float mod=1;
-  if(modulator) mod=modulator->getModulation(phi0, eshape);
-
+  float mod=modulator->getModulation(phi0, eshape);
+  
+  //declaring quantities to be summed during cell loop
+  //using same variable names as original implementation in HIEventShapeFillerTool
+  float etot2=0; //sum of the weights, in this case weights are |E|
+  float er2=0; //sum of weight x moment, in this case moments are magnitudes of cell coordinate three vectors  
+  
   std::vector<float> E_sample(CaloSampling::Unknown,0);
   uint32_t samplingPattern=0;
   //unsigned int eta_phi_index=HICaloCellHelper::FindEtaPhiBin(cl->eta0(),cl->phi0());
@@ -168,8 +159,16 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
     phi_cl+=cell_E_w*phi;
 
     E_sample[sample]+=cell_E_w;
-  }
 
+    float abs_weight=std::abs(cell_E_w);
+    float cell_x=(*cellIter)->x();
+    float cell_y=(*cellIter)->y();
+    float cell_z=(*cellIter)->z();
+    etot2+=abs_weight;
+    er2+=std::sqrt(cell_x*cell_x+cell_y*cell_y+cell_z*cell_z)*abs_weight;
+
+    
+  }
   if(E_cl!=0.)
   {
     eta_cl/=E_cl;
@@ -194,5 +193,12 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
       cl->setEnergy(s,current_energy);
     }
   }
+
+  float cm=0.;
+  if(etot2!=0.) cm=er2/etot2;
+
+  //attach the moment to the cluster
+  if(cl->isAvailable<float>("HIMag")) cl->auxdata<float>("HIMag")=cm;
+  else cl->insertMoment(xAOD::CaloCluster::CENTER_MAG,cm);
 }
 

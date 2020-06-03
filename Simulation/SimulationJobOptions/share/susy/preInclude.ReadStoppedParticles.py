@@ -30,6 +30,9 @@ topSequence.TrackRecordGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
 topSequence.TrackRecordGenerator.TRCollection = "StoppingPositions"
 topSequence.TrackRecordGenerator.StopParticles = True
 topSequence.TrackRecordGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
+topSequence.TrackRecordGenerator.stopped_tminus = -10
+topSequence.TrackRecordGenerator.stopped_tplus = 15
+
 simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 80 )
 
 #from Pythia_i.Pythia_iConf import Pythia

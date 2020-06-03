@@ -17,7 +17,7 @@
 void
 TileDigitsCnv_p1::persToTrans(const TileDigits_p1* persObj, TileDigits* transObj, MsgStream &/*log*/)
 {
-  std::vector<double> digits;
+  std::vector<float> digits;
   digits.reserve(persObj->m_digits.size());
   for (short d : persObj->m_digits) {
     digits.push_back( d / 16. );
@@ -35,7 +35,7 @@ TileDigitsCnv_p1::transToPers(const TileDigits* transObj, TileDigits_p1* persObj
 
   persObj->m_digits.reserve(transObj->nsamples());
   for (float d : transObj->samples()) {
-    short val = (short)(std::min(d,float(2047.))*16.);
+    short val = (short)(std::min(d,2047.F)*16.);
     persObj->m_digits.push_back( val );
   }
 }

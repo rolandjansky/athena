@@ -31,15 +31,15 @@ namespace TrigCostRootAnalysis {
    */
   class CounterGlobals: public CounterBase {
   public:
-    CounterGlobals(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                   MonitorBase* _parent = 0);
+    CounterGlobals(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                   MonitorBase* parent = 0);
     ~CounterGlobals();
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent(Float_t _weight = 1.);
-    void debug(UInt_t _e);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1.);
+    void endEvent(Float_t weight = 1.);
+    void debug(UInt_t e);
   private:
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX);
 
     Float_t m_earliestTimestamp; //!< Time of start first alg call in event
     Float_t m_latestTimestamp; //!< Time of end of last alg call in event

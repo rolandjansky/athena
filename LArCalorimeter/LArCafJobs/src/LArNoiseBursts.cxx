@@ -79,14 +79,6 @@
 #include "TTree.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-/*
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-*/
-
 #include "xAODEventInfo/EventInfo.h"
 
 #include "CaloEvent/CaloCellContainer.h"
@@ -165,6 +157,8 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_nt_larnoisyro(0),
     m_nt_larnoisyro_opt(0),
     m_nt_larnoisyro_satTwo(0),
+    m_nt_larnoisyro_mnbTight(0),
+    m_nt_larnoisyro_mnbTight_PSVeto(0),
 //    m_nt_veto_mbts(0),
 //    //m_nt_veto_indet(0),
 //    m_nt_veto_bcm(0),
@@ -181,9 +175,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
 //    m_nt_veto_bcmtCol(0),
 //    m_nt_veto_muontCol(0),
 //    m_nt_veto_muontCosmic(0),
-    m_nt_larflag_badFEBs(false),
-    m_nt_larflag_mediumSaturatedDQ(false),
-    m_nt_larflag_tightSaturatedDQ(false),
     m_nt_larflag_noiseBurstVeto(false),
     m_nt_larflag_dataCorrupted(false),
     m_nt_larflag_dataCorruptedVeto(false),
@@ -218,7 +209,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_nt_phicell(0),
     m_nt_etacell(0),
     m_nt_signifcell(0),
-    //m_nt_noisycellpercent(0),
     m_nt_ft_noisy(0),
     m_nt_slot_noisy(0),
     m_nt_channel_noisy(0),
@@ -356,19 +346,6 @@ StatusCode LArNoiseBursts::initialize() {
   /** get a handle on the NTuple and histogramming service */
   ATH_CHECK( service("THistSvc", m_thistSvc) );
  
-  /*const AthenaAttributeList* fillparams(0);
-  sc =  evtStore()->retrieve(fillparams, "/TDAQ/OLC/LHC/FILLPARAMS");
-  if (sc.isFailure()) {
-     ATH_MSG_WARNING ("Unable to retrieve fillparams information; falling back to" );
-     return StatusCode::SUCCESS;
-   }
- 
-  if (fillparams != 0) {
-     ATH_MSG_DEBUG ("beam 1 #bunches are: " << (*fillparams)["Beam1Bunches"].data<uint32_t>() );
-     ATH_MSG_DEBUG ("beam 2 #bunches are: " << (*fillparams)["Beam2Bunches"].data<uint32_t>() );
-  }
-*/
-
   /** Prepare TTree **/
   m_tree = new TTree( "CollectionTree", "CollectionTree" );
   std::string treeName =  "/TTREE/CollectionTree" ;
@@ -409,9 +386,6 @@ StatusCode LArNoiseBursts::initialize() {
 //  m_tree->Branch("vetoMuonTimmingCosmic",&m_nt_veto_muontCosmic,"vetoMuonTimmingCosmic/S");
 
   // LAr event bit info
-  m_tree->Branch("larflag_badFEBs",&m_nt_larflag_badFEBs,"larflag_badFEBs/O");
-  m_tree->Branch("larflag_mediumSaturatedDQ",&m_nt_larflag_mediumSaturatedDQ,"larflag_mediumSaturatedDQ/O");
-  m_tree->Branch("larflag_tightSaturatedDQ",&m_nt_larflag_tightSaturatedDQ,"larflag_tightSaturatedDQ/O");
   m_tree->Branch("larflag_noiseBurstVeto",&m_nt_larflag_noiseBurstVeto,"larflag_noiseBurstVeto/O");
   m_tree->Branch("larflag_dataCorrupted",&m_nt_larflag_dataCorrupted,"larflag_dataCorrupted/O");
   m_tree->Branch("larflag_dataCorruptedVeto",&m_nt_larflag_dataCorruptedVeto,"larflag_dataCorruptedVeto/O");
@@ -451,13 +425,15 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("LArTime_nCellC",&m_nt_nCellC,"LArTime_nCellC/I"); // nb of cells used to compute endcap C time
 
   // Event properties related to yield of channels in 3 sigma tails 
-  //m_tree->Branch("PerCentNoisyCell",&m_nt_noisycellpercent,"PerCentNoisyCell/F"); // Yield of channels in 3sigma tails in whole LAr
   m_tree->Branch("PerCentNoisyCellPartition",&m_nt_noisycellpart); // Yield in each partition:0:embc 1:emba 2:emecc 3:emeca 4:fcalc 5:fcala 6:hecc 7:heca
 
   // LArNoisyRO output
   m_tree->Branch("LArNoisyRO_Std", &m_nt_larnoisyro,"LArNoisyRO_Std/S"); // standard flag (>5 FEB with more than 30 cells with q factor > 4000)
   m_tree->Branch("LArNoisyRO_Std_optimized", &m_nt_larnoisyro_opt,"LArNoisyRO_Std_optimized/S"); // standard flag with a double weight for critical FEB (>5 FEB with more than 30 cells with q factor > 4000)
   m_tree->Branch("LArNoisyRO_SatTight",&m_nt_larnoisyro_satTwo,"LArNoisyRO_SatTight/S"); // tight flag (> 20 cells with E>1000MeV and saturated q factor) 
+  m_tree->Branch("LArNoisyRO_mnbTight", &m_nt_larnoisyro_mnbTight,"LArNoisyRO_mnbTight/S"); // MNB tight
+  m_tree->Branch("LArNoisyRO_mnbTight_PSVeto", &m_nt_larnoisyro_mnbTight_PSVeto,"LArNoisyRO_mnbTight_PSVeto/S"); // MNB tight
+
 
   // Properties of cells with fabs(energy/noise)>3
   m_tree->Branch("NoisyCellPartitionLayerIndex",&m_nt_cellpartlayerindex); /// NEW Identifier of the cell
@@ -545,6 +521,8 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_larnoisyro       = -1;
   m_nt_larnoisyro_opt   = -1;
   m_nt_larnoisyro_satTwo= -1;
+  m_nt_larnoisyro_mnbTight= -1;
+  m_nt_larnoisyro_mnbTight_PSVeto= -1;
 
   ATH_MSG_DEBUG ( "clearing event info veto variables " );
 
@@ -570,9 +548,6 @@ StatusCode LArNoiseBursts::clear() {
   ATH_MSG_DEBUG ( "clearing LAr event flags " );
 
   // lar bit event info
-  m_nt_larflag_badFEBs = false;
-  m_nt_larflag_mediumSaturatedDQ = false;
-  m_nt_larflag_tightSaturatedDQ = false;
   m_nt_larflag_noiseBurstVeto = false;
   m_nt_larflag_dataCorrupted = false;
   m_nt_larflag_dataCorruptedVeto = false;
@@ -617,7 +592,6 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_isbadcell.clear();
   m_nt_partition.clear();
   m_nt_layer.clear();
-  //m_nt_noisycellpercent = -1;
   m_nt_ft_noisy.clear();
   m_nt_slot_noisy.clear();
   m_nt_channel_noisy.clear();
@@ -694,11 +668,6 @@ StatusCode LArNoiseBursts::execute() {
     return StatusCode::SUCCESS;
   }
 
-//  sc = doPhysicsObjects();
-//  if (sc.isFailure()) {
-//    ATH_MSG_WARNING ( "The method doPhysicsObjects() failed" );
-//    return StatusCode::SUCCESS;
-//  }
   
   m_tree->Fill();
 
@@ -853,9 +822,6 @@ StatusCode LArNoiseBursts::doEventProperties(){
   }
 
   m_CosmicCaloStream = false;
-  //std::vector<TriggerInfo::StreamTag>::const_iterator streamInfoIt=myTriggerInfo->streamTags().begin();
-  //std::vector<TriggerInfo::StreamTag>::const_iterator streamInfoIt_e=myTriggerInfo->streamTags().end();
-  //for (;streamInfoIt!=streamInfoIt_e;streamInfoIt++) { 
   for (const auto& streamInfo : eventInfo->streamTags()) {
     const std::string& stream_name = streamInfo.name();
     const std::string& stream_type = streamInfo.type();
@@ -875,9 +841,14 @@ StatusCode LArNoiseBursts::doEventProperties(){
   bool larnoisyro = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS);
   bool larnoisyro_opt =eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS_W);
   bool larnoisyro_satTwo = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
+  bool larnoisyro_mnbTight = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT);
+  bool larnoisyro_mnbTight_PSVeto = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT_PSVETO);
+
   m_nt_larnoisyro        = larnoisyro ? 1 : 0;
   m_nt_larnoisyro_opt    = larnoisyro_opt ? 1 : 0;
   m_nt_larnoisyro_satTwo = larnoisyro_satTwo ? 1 : 0;
+  m_nt_larnoisyro_mnbTight = larnoisyro_mnbTight ? 1 : 0;
+  m_nt_larnoisyro_mnbTight_PSVeto = larnoisyro_mnbTight_PSVeto ? 1 : 0;
   
  // Retrieve output of EventInfo veto - COMMENTED NOW TO MAKE IT COMPLIANT WITH xAOD::EventInfo
 //  mLog << MSG::DEBUG <<"Background: MBTSBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<<endreq;
@@ -920,9 +891,6 @@ StatusCode LArNoiseBursts::doEventProperties(){
   ATH_MSG_DEBUG ("BADFEBS bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS));
   ATH_MSG_DEBUG ("TIGHTSATURATEDQ bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
 
-  m_nt_larflag_badFEBs = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS);
-  m_nt_larflag_mediumSaturatedDQ = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MEDIUMSATURATEDQ);
-  m_nt_larflag_tightSaturatedDQ = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
   m_nt_larflag_noiseBurstVeto = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO);
   m_nt_larflag_dataCorrupted = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED);
   m_nt_larflag_dataCorruptedVeto = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO);
@@ -937,27 +905,6 @@ StatusCode LArNoiseBursts::doEventProperties(){
   //  m_nt_atlasready = (*attrList)["ReadyForPhysics"].data<uint32_t>();
   // }
 
-   /*const AthenaAttributeList* fillstate(0);
-  sc =  evtStore()->retrieve(fillstate, "/LHC/DCS/FILLSTATE");
-  if (sc.isFailure()) {
-     ATH_MSG_WARNING ("Unable to retrieve fillstate information; falling back to" );
-     return StatusCode::SUCCESS;
-   }
-   if (fillstate != 0) {
-     ATH_MSG_DEBUG ("Stable beams is: " << (*fillstate)["StableBeams"].data<uint32_t>());
-     //m_valueCache = ((*attrList)["ReadyForPhysics"].data<uint32_t>() != 0);
-     m_nt_stablebeams.push_back((*fillstate)["StableBeams"].data<uint32_t>());
-     }*/
-
-  
-  // 29/11/10 : Debug messages removed by BT 
-  //   mLog << MSG::INFO << "Event LAr flags " << std::hex
-  //      << eventInfo->errorState(EventInfo::LAr) << " "
-  //      << std::hex << eventInfo->eventFlags(EventInfo::LAr)
-  //      << ", bit 0: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,0)
-  //      << ", bit 1: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,1)
-  //      << ", bit 2: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,2)
-  //      << endreq;
 
   // Retrieve LArCollision Timing information
   const LArCollisionTime *  larTime=0;
@@ -1058,7 +1005,6 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          eCalo = caloItr->energy();
          qfactor = caloItr->quality();
          gain = caloItr->gain();
-         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
          ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
          chdone.push_back(onlID);
        }//loop over raw channels
@@ -1075,7 +1021,6 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          eCalo = caloItr->energy();
          qfactor = caloItr->quality();
          gain = caloItr->gain();
-         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
          ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
        }//loop over raw channels
      }  
@@ -1095,11 +1040,6 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
      if(LArTES) ATH_MSG_INFO ("all LArRawCh. size = "<<int(LArTES->size()));
   }
 
-  //if (nlarcell > 0)
-  //  m_nt_noisycellpercent = 100.0*double(n_noisycell)/double(nlarcell);
-  //else
-  //  m_nt_noisycellpercent = 0;
- 
   bool checknoise = false;
   //ratio of noisy cells per partition
   for(unsigned int i=0;i<8;i++){
@@ -1128,18 +1068,18 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   bool store_condition = false;
   // CosmicCalo stream : Store detailed infos of cells only if Y3Sigma>1% or burst found by LArNoisyRO
   if(m_CosmicCaloStream){
-    if(checknoise==true || m_nt_larnoisyro==1 || m_nt_larnoisyro_satTwo==1){
+    if(checknoise==true || m_nt_larnoisyro==1 || m_nt_larnoisyro_satTwo==1 || m_nt_larnoisyro_mnbTight || m_nt_larnoisyro_mnbTight_PSVeto){
       store_condition = true;
     }
   }
   // Not cosmicCalo stream : Store detailed infos of cells only if burst found by LArNoisyRO
   if(!m_CosmicCaloStream){
-    if(m_nt_larnoisyro==1 || m_nt_larnoisyro_satTwo==1){
+    if(m_nt_larnoisyro==1 || m_nt_larnoisyro_satTwo==1 || m_nt_larnoisyro_mnbTight || m_nt_larnoisyro_mnbTight_PSVeto){
       store_condition = true;
     }
   }
 
-  //store the information of the noisy cell only when %noisycells > 1%.
+  //store the information of the noisy cell
   if(store_condition){
     std::vector<short> samples;
     samples.clear();
@@ -1176,14 +1116,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
         m_nt_ft_noisy.push_back( m_ft_noisy[i]);
         m_nt_slot_noisy.push_back( m_slot_noisy[i]);
         m_nt_channel_noisy.push_back( m_channel_noisy[i]);
-   
-        /*
-        m_nt_isbarrel.push_back( m_isbarrel[i]);
-        m_nt_isendcap.push_back( m_isendcap[i]);
-        m_nt_isfcal.push_back( m_isfcal[i]);
-        m_nt_ishec.push_back( m_ishec[i]);
-        */
-   
+      
         m_nt_layer.push_back( m_layer[i]);
         m_nt_phicell.push_back( m_phicell[i]);
         m_nt_etacell.push_back( m_etacell[i]);
@@ -1207,12 +1140,8 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
     IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
     CaloDetDescrElement *caloDDE = m_calodetdescrmgr->get_element(idd);
     int layer = caloDDE->getLayer();
-    //    CaloCell_ID::CaloSample sampling = (*caloItr)->caloDDE()->getSampling();
     float phi = caloDDE->phi();
-    //float noise  = m_calo_noise_tool->getNoise( (*caloItr), ICaloNoiseTool::TOTALNOISE );
     float noise  = m_calo_noise_tool->totalNoiseRMS( caloDDE, gain);
-    //float noise  = m_calo_noise_tool->elecNoiseRMS( (*caloItr), (*caloItr)->gain(),-1);
-    //float noise  = m_calo_noise_tool->elecNoiseRMS( caloDDE, gain, -1);
     float significance = eCalo / noise ;
     float eta = caloDDE->eta();
     bool badcell = ! (m_badchan_tool->status(onlID)).good();
@@ -1281,13 +1210,6 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
       m_slot_noisy.push_back(m_LArOnlineIDHelper->slot(onlID));
       m_channel_noisy.push_back(m_LArOnlineIDHelper->channel(onlID));
 
-      /*
-      m_isbarrel.push_back(is_lar_em_barrel);
-      m_isendcap.push_back(is_lar_em_endcap);
-      m_isfcal.push_back(is_lar_fcal);
-      m_ishec.push_back(is_lar_hec);
-      */
-
       m_layer.push_back(layer);
       m_energycell.push_back(eCalo);
       m_qfactorcell.push_back(qfactor);
@@ -1336,14 +1258,6 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
 //////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doPhysicsObjects(){
   ATH_MSG_DEBUG ("in doPhysicsObjects ");
-
-//  const ElectronContainer* elecTES = 0;
-//  StatusCode sc=evtStore()->retrieve( elecTES, m_elecContainerName);
-//  if( sc.isFailure()  ||  !elecTES ) {
-//    ATH_MSG_WARNING ( "No ESD electron container found in StoreGate" );
-//    return StatusCode::SUCCESS;
-//  }
-//  ATH_MSG_DEBUG ( "ElectronContainer successfully retrieved. Size = " << elecTES->size() );
 
   return StatusCode::SUCCESS;
 }

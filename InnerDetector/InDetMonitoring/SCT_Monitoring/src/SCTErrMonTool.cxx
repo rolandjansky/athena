@@ -8,7 +8,6 @@
  *    Major tidying/restructuring by Martin Flechl
  */
 
-
 #include "SCT_Monitoring/SCTErrMonTool.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
 #include "GaudiKernel/StatusCode.h"
@@ -17,7 +16,9 @@
 
 // conditions stuff
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH2I.h"
@@ -42,7 +43,6 @@
 #include <set>
 #include <iostream>
 #include <map>
-
 
 using namespace std;
 using namespace SCT_Monitoring;
@@ -189,20 +189,20 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_DetailedConfiguration{},
   m_thistSvc("THistSvc", name),
   m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc", name),
+  m_dcsSvc("InDetSCT_DCSConditionsSvc", name),
+  m_pSummarySvc("InDetSCT_ConditionsSummarySvc", name),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true),
   m_sctManager( 0 ),
-  m_disabledGeoSCT(),
-  m_errorGeoSCT(),
-  m_disabledModulesMapSCT(nullptr),
-  m_errorModulesMapSCT(nullptr),
-  m_totalModulesMapSCT(nullptr),
+  m_geo{},
+  m_SCTHash{{}},
+  m_mapSCT{nullptr},
   m_nBinsEta( 100 ),
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
-  m_ModulesThreshold( 2.5 ),
-  m_TotalDetectorCoverageVsLB{}//,
-  {
+  m_WafersThreshold( 3.0 ),
+  m_detectorCoverageVsLbs{nullptr},
+  m_PSTripModulesVsLbs{}{
     /**
      *  sroe 3 Sept 2015:
      *  histoPathBase is declared as a property in the base class, assigned to m_path
@@ -235,7 +235,8 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
     declareProperty("checkBadModules", m_checkBadModules);
     declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
     //Detector Coverage Tool switch
-    declareProperty("CoverageCheck",m_CoverageCheck=false);
+    declareProperty("CoverageCheck",m_CoverageCheck= true);
+    declareProperty("UseDCS", m_useDCS = true);
 
   }
 
@@ -246,6 +247,26 @@ StatusCode SCTErrMonTool::initialize() {
     msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endreq;
     return StatusCode::FAILURE;
   }
+  ////
+
+  moduleGeo_t moduleGeo; // dummy value
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  const unsigned int maxHash = m_pSCTHelper->wafer_hash_max(); // 8176                                             
+  m_geo.resize(maxHash, moduleGeo);
+  
+  double rz = 0.;
+  const double deltaZ = 0.;
+
+  for (unsigned int i=0; i<maxHash; i++){
+    IdentifierHash hash(i);
+    InDetDD::SiDetectorElement* newElement = m_sctManager->getDetectorElement(hash);
+    newElement->getEtaPhiRegion(deltaZ,
+				moduleGeo.first.first,  moduleGeo.first.second,
+				moduleGeo.second.first, moduleGeo.second.second,
+				rz);
+    m_geo[i] = moduleGeo;
+  }
+  ////
   return ManagedMonitorToolBase::initialize();
 }
 
@@ -386,10 +407,7 @@ SCTErrMonTool::bookHistograms() {
     m_numberOfEventsLumi = 0;
   }
   m_dataObjectName = "SCT_RDOs";
-  const InDetDD::SCT_DetectorManager *mgr; // confusingly this is in a dedicated namespace
-  ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
-  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-
+ 
   // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB and flagged conditions service
   ATH_MSG_INFO("Checking for CondDB");
   ATH_CHECK(m_ConfigurationSvc.retrieve());
@@ -421,7 +439,8 @@ SCTErrMonTool::bookHistograms() {
   }
 
   ATH_CHECK(m_byteStreamErrSvc.retrieve());
-
+  if (m_useDCS) ATH_CHECK(m_dcsSvc.retrieve());
+  ATH_CHECK(m_pSummarySvc.retrieve());
   m_initialize = true;
   return StatusCode::SUCCESS;
 }
@@ -437,42 +456,78 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent()
   if ( !m_CoverageCheck ){
     return StatusCode::SUCCESS;
   }
+
   if (ManagedMonitorToolBase::newRunFlag()){
 
-    m_disabledModulesMapSCT   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT",
-					  m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    m_disabledModulesMapSCT -> SetMaximum(5.);
-    m_disabledModulesMapSCT -> GetXaxis()->SetTitle("#eta");
-    m_disabledModulesMapSCT	-> GetYaxis()->SetTitle("#phi");
+    //All SCT module for counting good module
+    m_mapSCT[all]   = new TH2F( "SCT_AllRegion", "Map of All Region",
+				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //Disabled
+    m_mapSCT[disabled]   = new TH2F( "SCT_MapOfDisabledLinks", "Map of Disabled Links",
+    				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //BadLinkLevelError
+    m_mapSCT[badLinkError]   = new TH2F( "SCT_MapOfLinksWithBadLinkLevelErrors", "Map of Links with bad LinkLevelErrors",
+					 m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //BadRODLevelError
+    m_mapSCT[badRODError]   = new TH2F( "SCT_MapOfLinksWithBadRODLevelErrors", "Map of Links with Bad RODLevelErrors",
+					m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //BadError = BadLinkLevelError + BadRODLevelError
+    m_mapSCT[badError]   = new TH2F( "SCT_MapOfLinksWithBadErrors", "Map of Links with Bad Errors",
+				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //Power supply trip (SCT_DCSConditionsSvc)
+    m_mapSCT[psTripDCS]  = new TH2F( "SCT_MapOfLinksWithPSTrip", "Map of Links Affected by PS Trip",
+				     m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    //Total (SCT_ConditionsSummarySvc)
+    m_mapSCT[summary]   = new TH2F( "SCT_MapOfLinksWithAnyProbelm", "Map of Links with Any Bad Problem",
+				    m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
+    
+    //Detector Coverage vs LumiBlock
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage ; iProblem++)
+      {
+	m_mapSCT[iProblem]->GetXaxis()->SetTitle("#eta");
+	m_mapSCT[iProblem]->GetYaxis()->SetTitle("#phi");
+	status &= monGr_shift.regHist( m_mapSCT[iProblem] ).isSuccess();
+	m_mapSCT[iProblem]->SetStats(0);
+      }
 
-    m_errorModulesMapSCT   = new TH2F( "errorModulesMapSCT", "Map of error modules for SCT",
-				       m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    m_errorModulesMapSCT -> SetMaximum(5.);
-    m_errorModulesMapSCT -> GetXaxis()->SetTitle("#eta");
-    m_errorModulesMapSCT -> GetYaxis()->SetTitle("#phi");
+    std::string profNames[numberOfProblemForCoverage] = {
+      "", // All
+      "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
+      "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
+      "SCT_CoverageWithNoBadRODLevelErrorVsLbs", // All - BadRODLevelError
+      "SCT_CoverageWithNoBadErrorVsLbs", // All - BadError
+      "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
+      "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
+    };
+    std::string profTitles[numberOfProblemForCoverage] = {
+      "", // All
+      "Ave. Coverage of Enabled Links per LB", // All - Disabled
+      "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
+      "Ave. Coverage of Links with No Bad RODLevelError per LB", // All - BadRODLevelError
+      "Ave. Coverage of Links with No Bad Error per LB", // All - BadError
+      "Ave. Coverage of links Not Affected by PS Trip", // All - PSTrip(DCS)
+      "Ave. Coverage of Links With No Bad Problem per LB" // All - Summary
+    };
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++) {
+      if (iProblem==all) continue;
 
-    m_totalModulesMapSCT   = new TH2F( "totalModulesMapSCT", "Map of all error and disabled modules for SCT",
-				       m_nBinsEta, -m_rangeEta, m_rangeEta, m_nBinsPhi, -M_PI, M_PI );
-    m_totalModulesMapSCT -> GetXaxis()->SetTitle("#eta");
-    m_totalModulesMapSCT -> GetYaxis()->SetTitle("#phi");
+      m_detectorCoverageVsLbs[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
+      m_detectorCoverageVsLbs[iProblem]->GetXaxis()->SetTitle("LumiBlock");
+      m_detectorCoverageVsLbs[iProblem]->GetYaxis()->SetTitle("Detector Coverage [%]");
+      if (monGr_shift.regHist(m_detectorCoverageVsLbs[iProblem]).isFailure()) {
+	ATH_MSG_WARNING("Cannot book " << profNames[iProblem] << ", " << profTitles[iProblem]);
+      }
+    }
 
-    status &= monGr_shift.regHist( m_disabledModulesMapSCT ).isSuccess();
-    status &= monGr_shift.regHist( m_errorModulesMapSCT ).isSuccess();
-    status &= monGr_shift.regHist( m_totalModulesMapSCT ).isSuccess();
-
-    m_disabledModulesMapSCT -> SetStats(0);
-    m_errorModulesMapSCT -> SetStats(0);
-    m_totalModulesMapSCT -> SetStats(0);
-
-    m_TotalDetectorCoverageVsLB = new TProfile("SCTTotalDetectorCoverageVsLbs",
-					       "Ave. total detector coverage per event in Lumi Block",
-					       NBINS_LBs,0.5,NBINS_LBs+0.5);
-    m_TotalDetectorCoverageVsLB->GetXaxis()->SetTitle("LumiBlock");
-    m_TotalDetectorCoverageVsLB->GetYaxis()->SetTitle("Total Detector Coverage");
-  }
-
-  if ( monGr_shift.regHist(m_TotalDetectorCoverageVsLB).isFailure() ){
-    msg(MSG::WARNING) << "Cannot book Histogram:SCTTotalDetectorCoverageConf" << endreq;
+    //Number of Modules affected by PS Trip vs LumiBlock
+    m_PSTripModulesVsLbs = new TProfile("SCT_ModulesWithPSTripVsLbs",
+				     "Ave. Num of Modules Affected by PS Trip per LB in All Region",
+				     NBINS_LBs,0.5,NBINS_LBs+0.5);
+    m_PSTripModulesVsLbs->GetXaxis()->SetTitle("LumiBlock");
+    m_PSTripModulesVsLbs->GetYaxis()->SetTitle("Num. of Modules Affected by PS Trip");
+    if ( monGr_shift.regHist(m_PSTripModulesVsLbs).isFailure() ){
+      ATH_MSG_WARNING("Cannot book Histogram:SCTpstripWafer" );
+    }
   }
 
   return ( status ) ? StatusCode::SUCCESS : StatusCode::FAILURE;
@@ -727,24 +782,31 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
   b_category[CategoryErrors::SUMMARY] = true;
 
   b_category[CategoryErrors::BADERR] = false;
-  b_category[CategoryErrors::BADERR] =
-    (err_type == SCT_ByteStreamErrors::TimeOutError) || (err_type == SCT_ByteStreamErrors::BCIDError) ||
-    (err_type == SCT_ByteStreamErrors::LVL1IDError) || (err_type == SCT_ByteStreamErrors::MaskedLink) ||
-    (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MissingLinkHeaderError) ||
-    (err_type == SCT_ByteStreamErrors::MaskedROD);
+
+  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+    if (err_type == tmpBadError) {
+      b_category[CategoryErrors::BADERR] = true;
+      break;
+    }
+  }
+
 
   b_category[CategoryErrors::LINKLEVEL] = false;
-  b_category[CategoryErrors::LINKLEVEL] =
-    (err_type == SCT_ByteStreamErrors::ByteStreamParseError) || (err_type == SCT_ByteStreamErrors::TimeOutError) ||
-    (err_type == SCT_ByteStreamErrors::BCIDError) || (err_type == SCT_ByteStreamErrors::LVL1IDError) ||
-    (err_type == SCT_ByteStreamErrors::PreambleError) || (err_type == SCT_ByteStreamErrors::FormatterError) ||
-    (err_type == SCT_ByteStreamErrors::ABCDError) || (err_type == SCT_ByteStreamErrors::RawError) ||
-    (err_type == SCT_ByteStreamErrors::MaskedLink) || (err_type == SCT_ByteStreamErrors::MissingLinkHeaderError);
+
+  for (SCT_ByteStreamErrors::errorTypes linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
+    if (err_type == linkLevelError) {
+      b_category[CategoryErrors::LINKLEVEL] = true;
+      break;
+    }
+  }
 
   b_category[CategoryErrors::RODLEVEL] = false;
-  b_category[CategoryErrors::RODLEVEL] =
-    (err_type == SCT_ByteStreamErrors::RODClockError) || (err_type == SCT_ByteStreamErrors::TruncatedROD) ||
-    (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MaskedROD);
+  for (SCT_ByteStreamErrors::errorTypes rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
+    if (err_type == rodLevelError) {
+      b_category[CategoryErrors::RODLEVEL] = true;
+      break;
+    }
+  }
 
   b_category[CategoryErrors::MASKEDCHIP] = false;
   b_category[CategoryErrors::MASKEDCHIP] =
@@ -911,41 +973,37 @@ SCTErrMonTool::fillByteStreamErrors() {
   //--- Fill detector coverage histograms
   if ( m_CoverageCheck ){
     ATH_MSG_INFO("Detector Coverage calculation starts" );
-    m_disabledModulesMapSCT->Reset("ICE");
-    m_errorModulesMapSCT->Reset("ICE");
-    m_totalModulesMapSCT->Reset("ICE");
 
-    SyncDisabledSCT();
-    SyncErrorSCT();
-
-    {
-      geoContainerPure_t::iterator currIt = m_disabledGeoSCT.begin();
-      geoContainerPure_t::iterator currEnd = m_disabledGeoSCT.end();
-      while (currIt != currEnd) {
-	fillModule( (*currIt).second, m_disabledModulesMapSCT );
-	++currIt;
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++)
+      {
+	m_mapSCT[iProblem]->Reset("ICE");
       }
+
+    syncDisabledSCT();
+    syncErrorSCT();
+    summarySCT();
+    psTripDCSSCT();
+    
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++)
+      {
+	for (const IdentifierHash& hash: m_SCTHash[iProblem]) {
+	  fillWafer( m_geo[hash], m_mapSCT[iProblem] );
+	}
+      }
+    
+    //detector coverage
+    for (int iProblem=0; iProblem<numberOfProblemForCoverage; iProblem++) {
+      if (iProblem==all) continue;
+
+    double detector_coverage = calculateDetectorCoverage(m_mapSCT[iProblem]);
+    m_detectorCoverageVsLbs[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
+    double good_detector_coverage = m_detectorCoverageVsLbs[iProblem]->GetBinContent(current_lb);
+    ATH_MSG_INFO("Detector Coverage : " << good_detector_coverage);
     }
 
-    {
-      geoContainer_t::iterator currIt = m_errorGeoSCT.begin();
-      geoContainer_t::iterator currEnd = m_errorGeoSCT.end();
-      while (currIt != currEnd) {
-	fillModule( (*currIt).second, m_errorModulesMapSCT );
-	++currIt;
-      }
-    }
-
-    m_totalModulesMapSCT->Add( m_disabledModulesMapSCT );
-    m_totalModulesMapSCT->Add( m_errorModulesMapSCT );
-    m_totalModulesMapSCT -> SetMaximum(5.);
-
-    double total_detector_coverage = 0.;
-    total_detector_coverage = calculateDetectorCoverage(m_totalModulesMapSCT);
-    m_TotalDetectorCoverageVsLB->Fill((int)current_lb, total_detector_coverage);
-    double detector_coverage = m_TotalDetectorCoverageVsLB -> GetBinContent(current_lb);
-    ATH_MSG_INFO("Detector Coverage : " << detector_coverage);
-
+    //Modules affected by PS Tirp
+    m_PSTripModulesVsLbs ->Fill(static_cast<double>(current_lb), m_PSTripModules);
+    
   }
 
   //--- Counting # of links with categorised errors
@@ -1926,60 +1984,51 @@ SCTErrMonTool::isEndcapA(const int moduleNumber) {
   return moduleinEndcapA;
 }
 //====================================================================================================
-//                          SCTErrMonTool :: fillModule, Keisuke Kouda 12.09.2016
+//                          SCTErrMonTool :: fillWafer, Keisuke Kouda 12.09.2016
 //====================================================================================================
-void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
-//void SCTErrMonTool::fillModule( moduleGeo_t module, TProfile2D * profile )
+void SCTErrMonTool::fillWafer( moduleGeo_t module, TH2F * histo )
+//void SCTErrMonTool::fillWafer( moduleGeo_t module, TProfile2D * profile )
 {
-  unsigned int lowX  = 0;
-  unsigned int highX = 0;
-  unsigned int lowY  = 0;
-  unsigned int highY = 0;
-  double area = 0.;
-
-  double widthEta = 2. * m_rangeEta / m_nBinsEta;
-  double widthPhi = 2. * M_PI / m_nBinsPhi;
-
-  double edgesEta[100], centerEta[100],
-    edgesPhi[100], centerPhi[100];
-
-  histo->GetXaxis()->GetLowEdge(edgesEta); 
-  histo->GetXaxis()->GetCenter(centerEta); 
-  histo->GetYaxis()->GetLowEdge(edgesPhi); 
-  histo->GetYaxis()->GetCenter(centerPhi); 
-  for ( unsigned int i = 0; i < m_nBinsEta; i++)
-    if ( edgesEta[i] + widthEta > module.first.first )
-      {
-	lowX = i;
-	break;
+  double etaMin(module.first.first), etaMax(module.first.second);
+  double phiMin(module.second.first), phiMax(module.second.second);
+  unsigned int nRep{1};
+  if (etaMin<-2.5) { etaMin = -2.5; }
+  if (etaMax>2.5) { etaMax = 2.5; }
+  if (phiMin>phiMax) {
+    phiMin = -M_PI;
+    nRep=2;
+  }
+  for (unsigned int iRep{0}; iRep<nRep; iRep++) {
+    if (iRep==1) {
+      phiMin = module.second.first;
+      phiMax = M_PI;
+    }
+    const int ixMin{static_cast<int>((etaMin/m_rangeEta+1.)*m_nBinsEta/2)+1};
+    const int ixMax{static_cast<int>((etaMax/m_rangeEta+1.)*m_nBinsEta/2)};
+    const int iyMin{static_cast<int>((phiMin/M_PI+1.)*m_nBinsPhi/2)+1};
+    const int iyMax{static_cast<int>((phiMax/M_PI+1.)*m_nBinsPhi/2)};
+    const double xMin{(static_cast<double>(ixMin)/m_nBinsEta*2-1.)*m_rangeEta};
+    const double xMax{(static_cast<double>(ixMax)/m_nBinsEta*2-1.)*m_rangeEta};
+    const double yMin{(static_cast<double>(iyMin)/m_nBinsPhi*2-1.)*M_PI};
+    const double yMax{(static_cast<double>(iyMax)/m_nBinsPhi*2-1.)*M_PI};
+    const double wxMin{(xMin-etaMin)/m_rangeEta*m_nBinsEta/2};
+    const double wxMax{(etaMax-xMax)/m_rangeEta*m_nBinsEta/2};
+    const double wxOne{(etaMax-etaMin)/m_rangeEta*m_nBinsEta/2};
+    const double wyMin{(yMin-phiMin)/M_PI*m_nBinsPhi/2};
+    const double wyMax{(phiMax-yMax)/M_PI*m_nBinsPhi/2};
+    const double wyOne{(phiMax-phiMin)/M_PI*m_nBinsPhi/2};
+    for (int ix{ixMin}; ix<=ixMax+1; ix++) {
+      double weightx{1.};
+      if (ixMin==ixMax+1) weightx = wxOne;
+      else if (ix==ixMin) weightx = wxMin;
+      else if (ix==ixMax+1) weightx = wxMax;
+      for (int iy{iyMin}; iy<=iyMax+1; iy++) {
+	double weight{weightx};
+	if (iyMin==iyMax+1) weight *= wyOne;
+	else if (iy==iyMin) weight *= wyMin;
+	else if (iy==iyMax+1) weight *= wyMax;
+	histo->SetBinContent(ix,iy,histo->GetBinContent(ix,iy)+weight);//Fill(ix, iy, weight);//
       }
-  for ( unsigned int i = lowX; i < m_nBinsEta; i++)
-    if ( edgesEta[i] > module.first.second )
-      {
-	highX = i;
-	break;
-      }
-  for ( unsigned int i = 0; i < m_nBinsPhi; i++)
-    if ( edgesPhi[i] + widthPhi > module.second.first )
-      {
-	lowY = i;
-	break;
-      }
-  for ( unsigned int i = lowY; i < m_nBinsPhi; i++)
-    if ( edgesPhi[i] > module.second.second )
-      {
-	highY = i;
-	break;
-      }
-  for ( unsigned int i = lowX; i < highX; i++ ){
-    for ( unsigned int j = lowY; j < highY; j++ ){
-      area = (
-	      ((( module.first.second < edgesEta[i] + widthEta ) ? module.first.second : (edgesEta[i] + widthEta) )  - 
-	       ( ( module.first.first > edgesEta[i] ) ? module.first.first : edgesEta[i] ) ) *
-	      ((( module.second.second < edgesPhi[j] + widthPhi ) ? module.second.second : (edgesPhi[j] + widthPhi) )  - 
-	       ( ( module.second.first > edgesPhi[j] ) ? module.second.first : edgesPhi[j] ) ) 
-	      ) /  ( widthEta * widthPhi ); 
-      histo->Fill( centerEta[i], centerPhi[j], area );
     }
   }
   return;
@@ -1988,91 +2037,133 @@ void SCTErrMonTool::fillModule( moduleGeo_t module, TH2F * histo )
 //====================================================================================================
 //                          SCTErrMonTool :: SyncSCT, Keisuke Kouda 12.09.2016
 //====================================================================================================
-bool SCTErrMonTool::SyncErrorSCT()
+bool SCTErrMonTool::syncErrorSCT()
 {
-  double rz = 0;
-  double deltaZ = 0;
-
-  m_errorGeoSCT.clear();
-
-  for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
+  m_SCTHash[badLinkError].clear();
+  m_SCTHash[badRODError].clear();
+  m_SCTHash[badError].clear();
+ 
+  //BadLinkLevelError
+  for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors)
     {
-      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
-      std::set<IdentifierHash>::iterator fit = sctErrors->begin();
-      std::set<IdentifierHash>::iterator fitEnd = sctErrors->end();
-
-      // Check that all modules are registered
-      for (; fit != fitEnd; ++fit) {
-	// The module is already registered, no need to do something
-	if ( m_errorGeoSCT.count( (*fit) ) )
-	  continue;
-	else
-	  {
-	    moduleGeo_t moduleGeo;
-
-	    InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
-	    newElement->getEtaPhiRegion( deltaZ,
-					 moduleGeo.first.first,  moduleGeo.first.second,
-					 moduleGeo.second.first, moduleGeo.second.second,
-					 rz );
-
-	    m_errorGeoSCT.insert( std::pair<IdentifierHash, moduleGeo_t>( (*fit), moduleGeo ) );
-	  }
-      }
+      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( linkLevelBadErrors );
+      for (IdentifierHash waferHash: *sctErrors)
+        {
+	  m_SCTHash[badLinkError].insert(waferHash);
+	}
     }
 
-  return true;
+  //BadRODLevelError
+  for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors)
+    {
+      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( RodLevelBadErrors );
+
+      for (IdentifierHash waferHash: *sctErrors)
+        {
+	  m_SCTHash[badRODError].insert(waferHash);
+	}
+    }
+
+  //BadError = BadLinkLevelError + BadRODLevelError
+  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors)       
+    {
+      std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( tmpBadError );
+      for (IdentifierHash waferHash: *sctErrors)
+        {
+	  m_SCTHash[badError].insert(waferHash);
+	}
+    }
+ return true;
 }
-bool SCTErrMonTool::SyncDisabledSCT()
+
+//Disabled
+bool SCTErrMonTool::syncDisabledSCT()
 {
   bool altered = false;
-  double rz = 0;
-  double deltaZ = 0;
-
-  m_disabledGeoSCT.clear();
+  m_SCTHash[disabled].clear();
   std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
-  std::set<Identifier>::iterator fit = badModules->begin();
-  std::set<Identifier>::iterator fitEnd = badModules->end();
 
-  // Check that all modules are registered
-  for (; fit != fitEnd; ++fit){
-    // The module is already registered, no need to do something
-    if ( m_disabledGeoSCT.count( (*fit) ) )
-      continue;
-    else
-      {
-	altered = true;
-	moduleGeo_t moduleGeo;
-
-	InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
-	newElement->getEtaPhiRegion( deltaZ,
-				     moduleGeo.first.first,  moduleGeo.first.second,
-				     moduleGeo.second.first, moduleGeo.second.second,
-				     rz );
-
-	m_disabledGeoSCT.insert( std::pair<Identifier, moduleGeo_t>( (*fit), moduleGeo ) );
-      }
+  for (const Identifier& badModule: *badModules) {
+    altered = true;
+    IdentifierHash hashSide0 = m_pSCTHelper->wafer_hash(badModule);
+    IdentifierHash hashSide1;
+    m_pSCTHelper->get_other_side(hashSide0, hashSide1);
+    m_SCTHash[disabled].insert(hashSide0);
+    m_SCTHash[disabled].insert(hashSide1);
   }
-
   return altered;
 }
+
+//Total (SCT_ConditionsSummarySvc) //All
+bool SCTErrMonTool::summarySCT()
+{
+  bool altered = false;
+  m_SCTHash[all].clear();//All
+  m_SCTHash[summary].clear();
+
+  const unsigned int maxHash = m_pSCTHelper->wafer_hash_max(); // 8176                                             
+  for (unsigned int i=0; i<maxHash; i++) 
+    {
+      IdentifierHash hash(i);
+      m_SCTHash[all].insert(hash);//All
+      if (!m_pSummarySvc->isGood(hash)) 
+	{
+	  m_SCTHash[summary].insert(hash);
+	}
+    }
+  return altered;
+}
+
+//Power supply trip (SCT_DCSConditionsSvc)
+bool SCTErrMonTool::psTripDCSSCT()
+{
+  bool altered = false;
+  m_SCTHash[psTripDCS].clear();
+
+  const unsigned int maxHash = m_pSCTHelper->wafer_hash_max(); // 8176
+  int npsw = 0;
+  for (unsigned int i=0; i<maxHash; i++)
+    {
+      IdentifierHash hash(i);
+      if (m_useDCS and !m_dcsSvc->isGood(hash))
+        {
+          npsw++; //Counting the number of PS sides
+              altered = true;
+	      m_SCTHash[psTripDCS].insert(hash);
+        }
+    }
+  m_PSTripModules = npsw/2;
+  return altered;
+}
+
 //====================================================================================================
 //                          SCTErrMonTool :: calculateDetectorCoverage, Keisuke Kouda 12.09.2016
 //====================================================================================================
 double SCTErrMonTool::calculateDetectorCoverage( const TH2F * histo )
 {
   double detector_coverage = 0.;
-  int occupancy = 0;
-  const int etaBins = 100;
-  const int phiBins = 100;
-  double moduleCell;
+  double occupancy = 0;
+  double waferCell;
 
-  for( unsigned int i = 0; i < etaBins; i++){
-    for( unsigned int j = 0; j < phiBins; j++){
-      moduleCell = histo -> GetBinContent(i+1,j+1);
-      if (moduleCell < m_ModulesThreshold) occupancy ++;
+  for ( unsigned int i = 0; i < m_nBinsEta; i++)
+    {
+      for ( unsigned int j = 0; j < m_nBinsPhi; j++)
+	{
+	  waferCell = m_mapSCT[all]->GetBinContent(i+1,j+1) - histo->GetBinContent(i+1,j+1);
+
+	  if (waferCell >= m_WafersThreshold )
+	    {
+	      occupancy ++;
+	    }
+	  else if (waferCell > m_WafersThreshold - 1.0 )
+	    {
+	      occupancy += waferCell - (m_WafersThreshold - 1.0);
+//Calculating the bin occupancy which has less than 1. 
+//For example, bin have a 2.3. In this case, we can understand that 30% of the bin is coverd by 3 sides/wafers and 70% of the bin is coverd by 2 sides/wafers.
+//And it means that occupancy of the bin is 0.3 So, in this line, I take difference between m_WafersThreshold(3)-1 and waferCell, and add it to the occupancy.
+	    }
+	}
     }
-  }
-  detector_coverage = 100. * double( occupancy )/( double( etaBins ) * double ( phiBins ) );
+  detector_coverage = 100. * double( occupancy )/( double( m_nBinsEta ) * double ( m_nBinsPhi ) );
   return  detector_coverage;
 }

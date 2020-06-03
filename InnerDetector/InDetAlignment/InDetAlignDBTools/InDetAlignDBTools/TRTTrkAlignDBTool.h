@@ -81,6 +81,7 @@ namespace InDet
          bool m_writeOldConstants;
          bool m_updateConstants;
 
+
          ServiceHandle<ITRT_AlignDbSvc>         m_trtAlignDbSvc;
          ToolHandle<Trk::IAlignModuleTool>      m_alignModuleTool;
          ToolHandle<Trk::IGeometryManagerTool>  m_trtGeoManager;
@@ -88,6 +89,8 @@ namespace InDet
          int m_trtAlignLevel;
          int m_trtAlignLevelBarrel;
          int m_trtAlignLevelEndcaps;
+
+         bool m_WriteTRTAsL2;
 
          TFile * m_ntuple;
 

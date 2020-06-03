@@ -4,13 +4,15 @@
 
 #include "Geo2G4Svc.h"
 #include "VolumeBuilder.h"
+#include "ExtParameterisedVolumeBuilder.h"
 
-void InitializeBuilders();
+void InitializeBuilders(Geo2G4AssemblyFactory*);
 
 Geo2G4Svc::Geo2G4Svc(const std::string& name, ISvcLocator* svcLocator)
   : base_class(name,svcLocator)
   , m_defaultBuilder(nullptr)
   , m_getTopTransform(true)
+  , m_G4AssemblyFactory(nullptr)
 {
   ATH_MSG_VERBOSE ("Creating the Geo2G4Svc.");
   declareProperty("GetTopTransform", m_getTopTransform);
@@ -28,8 +30,9 @@ StatusCode Geo2G4Svc::initialize()
     }
   ATH_MSG_VERBOSE ("Initializing the Geo2G4Svc.");
   ATH_MSG_VERBOSE ("Creating all builders available.");
-  InitializeBuilders(); // separate function not part of this class
-
+  m_G4AssemblyFactory = std::make_unique<Geo2G4AssemblyFactory>();
+  InitializeBuilders(m_G4AssemblyFactory.get()); // separate function not part of this class
+  
   const std::string nameBuilder = "Extended_Parameterised_Volume_Builder"; //TODO Configurable property??
   this->SetDefaultBuilder(nameBuilder);
   ATH_MSG_VERBOSE (nameBuilder << " --> set as default builder" );
@@ -45,6 +48,13 @@ StatusCode Geo2G4Svc::initialize()
 StatusCode Geo2G4Svc::finalize()
 {
   ATH_MSG_VERBOSE ("Finalizing the Geo2G4Svc.");
+  
+  // clear builders...
+  // TODO: replace with std::unique_ptr
+  for (auto &x : m_builders) {
+      if (x.second)
+          delete x.second;
+  }
 
   return StatusCode::SUCCESS;
 }

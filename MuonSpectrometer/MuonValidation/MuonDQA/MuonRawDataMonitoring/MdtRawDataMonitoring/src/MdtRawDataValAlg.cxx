@@ -1516,8 +1516,22 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           return sc;
         }
 
-	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
+
+	std::string perSectors_summary_histtitle = "OccupancyPerSectorVsLB";
+	sc = bookMDTHisto_OccVsLB(mdtoccvslb_summaryPerSector,perSectors_summary_histtitle,"LB","[Phi]",834,1,2502,100,1,100,mg->mongroup_overview_shift);
+	if(sc.isFailure()) {
+	  ATH_MSG_ERROR(" mdtoccvslb_summaryPerSector Failed to register histogram " );
+	  return sc;
+	}
+	mdtoccvslb_summaryPerSector->SetBins(834,1,2502,64,0,64);
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(1,"BA");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(17,"BC");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(33,"EA");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(49,"EC");
 	
+
+
+	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
 	if(iecap==enumBarrelA){
 	  sc = bookMDTHisto_OccVsLB(mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,mg->mongroup_brA_shift);
 	  if(sc.isFailure()) {
@@ -1947,6 +1961,8 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     // Fill occupancy vs. Lumiblock
     if(ilayer != 3) mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
     else mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
+
+    mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16 );
     
     //correct readout crate info for BEE,BIS7/8
     int crate_region = iregion;

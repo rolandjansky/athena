@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    BestMatcher.h        
 //
@@ -6,7 +9,6 @@
 //            algorithm based on an efficient implementation of 
 //            the "best matcher" algorithm from Ercan Ozcan 
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: BestMatcher.h, v0.0   Mon 10 Aug 2015 03:07:24 CEST sutt $
 

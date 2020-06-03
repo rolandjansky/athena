@@ -8,13 +8,19 @@
 # art-type: grid
 # art-output: test.HITS.pool.root
 
-TestBeam_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --Eta '0.35' --testBeamConfig 'tbtile' --postInclude 'PyJobTransforms/UseFrontier.py'
+TestBeam_tf.py \
+--outputHITSFile 'test.HITS.pool.root' \
+--maxEvents '10' \
+--Eta '0.35' \
+--testBeamConfig 'tbtile' \
+--postInclude 'PyJobTransforms/UseFrontier.py' \
+--imf False
 
 echo  "art-result: $? simulation"
 
 ArtPackage=$1
 ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"

@@ -49,7 +49,7 @@ def getConfig():
     p.add_option("--inputList", "-i", dest="inputList", help="Text file with paths to the data files to be used", default="test.txt")
     p.add_option("--nFilesPerJob", "-n", dest="nFilesPerJob", type="int", help="Number of files per subjob", default=1)
     p.add_option("--queue", "-q", dest="queue", help="Which lxbatch queue to submit to", default='atlasb1')
-    p.add_option("--athena", "-a", dest="athRel", help="Which Athena release do you want", default='20.1.5.12')
+    p.add_option("--athena", "-a", dest="athRel", help="Which Athena release do you want", default='20.7.7.9')
     (config, sys.argv[1:]) = p.parse_args(sys.argv[1:])
     return config
     
@@ -83,6 +83,9 @@ def writeRunner(dataFiles,path,jobNum,athrel):
     # write JO copy
     f.write('echo "copy JO"\n'+
             'cp ${TESTAREA}/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/runEoverPValidationBatch.py .\n\n')
+    ### xrootd patch for athena version 20.7.7.X
+    f.write('source /afs/cern.ch/work/w/wdicleme/public/Alignment/20.7.8/linker.sh\n\n')
+    ###
     # write execute JO
     f.write('echo "running the code"\n'+
             'athena runEoverPValidationBatch.py '+

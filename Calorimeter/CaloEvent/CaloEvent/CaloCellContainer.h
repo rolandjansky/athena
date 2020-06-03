@@ -62,6 +62,7 @@ class CaloCellContainer : public DataVector<CaloCell>
  friend class CaloCellContainerFinalizerTool;
  friend class CaloCompactCellTool; 
  friend class FullCaloCellContMaker;
+ friend class EmptyCellBuilderTool;
  public:
 
 
@@ -201,6 +202,7 @@ time this method of findCellVector is used */
 
   /** @brief If @ flag is true, then the container size equals the maximum hash.
    *         Only CaloCellContainerFinalizer tool is allowed to set this.
+   *         Now, set this in EmptyCellBuilderTool as it is always true.
    */
   void setHasTotalSize(const bool);
 

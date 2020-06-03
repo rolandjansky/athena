@@ -105,6 +105,7 @@ class RpcDataPreparator: public AthAlgTool
 
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+      bool m_emulateNoRpcHit;
 };
 
 } // namespace TrigL2MuonSA

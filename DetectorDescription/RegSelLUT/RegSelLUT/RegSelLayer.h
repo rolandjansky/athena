@@ -86,10 +86,10 @@ private:
     // add and cluster module 
     void addModule(const RegSelModule& m);
     // how many phi clusters are there?
-    unsigned size() const { return mN.size(); }
+    unsigned size() const { return m_N.size(); }
   private:
-    std::vector<int>    mN; 
-    std::vector<double> mpositions;
+    std::vector<int>    m_N; 
+    std::vector<double> m_positions;
   };
 
   // driver routine to pick which modules to cluster
@@ -126,13 +126,3 @@ std::ostream& operator<<(std::ostream& s, const RegSelLayer& layer);
 
 
 #endif  /* __REGSELLAYER_H */
-
-
-
-
-
-
-
-
-
-

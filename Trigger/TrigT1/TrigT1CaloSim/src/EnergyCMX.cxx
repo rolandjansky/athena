@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           EnergyCMX.cxx  -  description
 //                              -------------------
  //     begin                : 04 04 2014
- //     copyright            : (C) 2014 by Alan Watson
  //     email                : Alan.Watson@cern.ch
 //  ***************************************************************************/
 //
@@ -11,14 +13,6 @@
 // EnergyCMX class Implementation
 // ================================================
 //
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 //
 //
 //
@@ -131,10 +125,13 @@ StatusCode EnergyCMX::execute( )
   m_resultsFull = &resultsFull;
   
   /** Find restructed eta range.
-   *  This will use the min/max values for any threshold in the range 9-16 to define the ranges
+   *  This will use the min/max values for the first valid threshold in the range 9-16 to define the ranges
    */
-  float etaTruncXE =  4.9;
-  float etaTruncTE =  4.9;
+  uint32_t maskXE =  0;
+  uint32_t maskTE =  0;
+  bool maskXESet = false;
+  bool maskTESet = false;
+  const float moduleEta[8] = {-4.,-2.,-1.2,-0.4,0.4,1.2,2.,4.};
   
   L1DataDef def;
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
@@ -144,14 +141,24 @@ StatusCode EnergyCMX::execute( )
     if ( ( (*it)->type() == def.xeType() || (*it)->type() == def.teType()) && (*it)->thresholdNumber() > 7 ) {
       std::vector<TriggerThresholdValue*> ttvs = (*it)->thresholdValueVector();
       std::vector<TriggerThresholdValue*>::const_iterator itv;
+      // Make sure only set masks from the first valid threshold in the range (for each type)       
+      if (maskXE > 0) maskXESet = true;
+      if (maskTE > 0) maskTESet = true;
       for (itv = ttvs.begin(); itv != ttvs.end(); ++itv) {
-        if ( (*it)->type() == def.xeType() ) {
-          if ( abs((*itv)->etamin())*0.1 < etaTruncXE ) etaTruncXE = abs((*itv)->etamin())*0.1;
-          if ( abs((*itv)->etamax())*0.1 < etaTruncXE ) etaTruncXE = abs((*itv)->etamax())*0.1;
+        // Bits are set false by default, so ignore thresholds that are just doing that
+        if ((*itv)->thresholdValueCount() >= 0x7fff) continue;
+        // Set bits true if module centre between etaMin and etaMax
+        if ( (*it)->type() == def.xeType()  && !maskXESet ) {
+          for (unsigned int bin = 0; bin < 8; ++bin) {
+            if (moduleEta[bin] > (*itv)->etamin()*0.1 && moduleEta[bin] < (*itv)->etamax()*0.1)
+                maskXE |= (1<<bin);
+          }
         }
-        else if ( (*it)->type() == def.teType() ) {
-          if ( abs((*itv)->etamin())*0.1 < etaTruncTE ) etaTruncTE = abs((*itv)->etamin())*0.1;
-          if ( abs((*itv)->etamax())*0.1 < etaTruncTE ) etaTruncTE = abs((*itv)->etamax())*0.1;
+        else if ( (*it)->type() == def.teType()  && !maskTESet ) {
+          for (unsigned int bin = 0; bin < 8; ++bin) {
+            if (moduleEta[bin] > (*itv)->etamin()*0.1 && moduleEta[bin] < (*itv)->etamax()*0.1)
+                maskTE |= (1<<bin);
+          }
         }
       }  // loop over TTV
     } // Is this XE or TE threshold?
@@ -159,7 +166,7 @@ StatusCode EnergyCMX::execute( )
   
   // form crate sums (restricted eta range). Explicitly set restricted eta flag regardless of eta range
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
-  m_EtTool->crateSums(jemContainer, cratesTrunc, etaTruncXE, etaTruncTE, true);
+  m_EtTool->crateSums(jemContainer, cratesTrunc, maskXE, maskTE, true);
   // system summation and threshold tests
   SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
   m_resultsTrunc = &resultsTrunc;

@@ -43,13 +43,13 @@ PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const 
   m_TimeSvc("TimeSvc",name),
   m_pixelCalibSvc("PixelCalibSvc", name),
   m_mergeCharge(false),
-  m_pixelID(0),
+  m_pixelID(nullptr),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0),
+  m_rndmEngine(nullptr),
   m_spmNoiseOccu(1e-5),
-  m_rndNoiseProb(5e-8)
-  //m_pixMgr(0)
+  m_rndNoiseProb(5e-8),
+  m_pixMgr(nullptr)
 {
   declareInterface< PixelNoisyCellGenerator >( this );
   declareProperty("NoiseShape",m_noiseShape,"Vector containing noise ToT shape");

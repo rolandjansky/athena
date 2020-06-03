@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  CompositeTOB.h
 //  TopoCore
 //
 //  Created by Joerg Stelzer on 11/18/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //
 
 #ifndef __TopoCore__CompositeTOB__

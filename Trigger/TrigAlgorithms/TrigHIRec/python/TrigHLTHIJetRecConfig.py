@@ -52,13 +52,16 @@ from TrigHLTJetRec.TrigHLTJetRecConf import TriggerPseudoJetGetter
 #
 #    return triggerPseudoJetGetter
 
+def _getIsData():
+    from AthenaCommon.GlobalFlags import globalflags
+    return globalflags.DataSource() == 'data'
 
 def _getHIJetBuildTool(merge_param,
                      ptmin=20000.,
                      ptminFilter=20000.,
                      jet_calib='jes',
                      cluster_calib='EM',
-                     hicluster_name='HICluster',
+                     hicluster_name='HLTHICluster',
                      name=''):
 
     global jtm
@@ -87,6 +90,8 @@ def _getHIJetBuildTool(merge_param,
     jtm.add(jetfil8)
     jetfil20=JetFilterTool("HLT_a"+str(int_merge_param)+"jetfil20", PtMin = 20000)
     jtm.add(jetfil20)
+    jetfil25=JetFilterTool("HLT_a"+str(int_merge_param)+"jetfil25", PtMin = 25000)
+    jtm.add(jetfil25)
 
     #DR association- form element links for all clusters w/in DR of each jet
 #    DR=HIJetFlags.ClusterDRAssociation()
@@ -130,10 +135,13 @@ def _getHIJetBuildTool(merge_param,
 
     # calibration
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4TopoEM",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES")
-    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_Full2012dataset_May2014.config",CalibSequence="JetArea_Residual_Origin_EtaJES_GSC",IsData=False)
-    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_MC15Prerecommendation_April2015.config",CalibSequence="EtaJES", IsData=False)
-    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES", IsData=False)
+    calib_seq='EtaJES_Insitu'
+    JES_is_data=True
+    #if not _getIsData():
+    #   calib_seq='EtaJES'
+    #   JES_is_data=False
+    
+    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4HI",ConfigFile="JES_MC15c_HI_Nov2016.config",CalibSequence=calib_seq, IsData=JES_is_data)
 
 
     jtm.add(calib_tool)
@@ -171,6 +179,8 @@ def _getHIJetBuildTool(merge_param,
     iter0.OutputEventShapeKey=EventShapeKey+"_"+iter0_name
     #iter0.AssociationKey=assoc_name
     iter0.InputClustersKey=ClusterKey
+    iter0.Trigger=True
+    iter0.OutputContainer=EventShapeKey+"_"+iter0_name
     #iter0.SeedContainerKeys=[seeds0.OutputContainer]
     iter0.SeedContainerKey=seeds0.OutputContainer
     #if not hasattr(jtm,"HLT_a"+str(int_merge_param)+"HIJetSubtractor") :
@@ -180,7 +190,7 @@ def _getHIJetBuildTool(merge_param,
     #iter0.Subtractor=jtm.HIJetSubtractor
     iter0.Subtractor=cell_subtr
     jtm.add(iter0)
-    jtm.jetrecs += [iter0]
+    jtm.trigjetrecs += [iter0]
 
     #subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="subtr1")
     from HIJetRec.HIJetRecConf import HIJetConstituentSubtractionTool
@@ -194,7 +204,7 @@ def _getHIJetBuildTool(merge_param,
     jtm.add(subtr1)
 
     seeds1_name = "TrigAntiKt2HIJets_seeds1_a"+str(int_merge_param)
-    seeds1=jtm.addJetCopier(seeds1_name,a2_unsubtracted_name,[subtr1,calib_tool,jetfil8],isTrigger=True,shallow=False) #add calib tool
+    seeds1=jtm.addJetCopier(seeds1_name,a2_unsubtracted_name,[subtr1,calib_tool,jetfil25],isTrigger=True,shallow=False) #add calib tool
 
     iter1_name = "a"+str(int_merge_param)+"iter1"
     iter1=TrigHIEventShapeJetIteration(iter1_name)
@@ -202,6 +212,8 @@ def _getHIJetBuildTool(merge_param,
     iter1.OutputEventShapeKey=EventShapeKey+"_"+iter1_name
     #iter1.AssociationKey=assoc_name
     iter1.InputClustersKey=ClusterKey
+    iter1.Trigger=True
+    iter1.OutputContainer=EventShapeKey+"_"+iter1_name
     #iter1.SeedContainerKeys=[seeds1.OutputContainer]
     iter1.SeedContainerKey=seeds1.OutputContainer
     #iter1.Subtractor=jtm.HIJetSubtractor
@@ -211,7 +223,7 @@ def _getHIJetBuildTool(merge_param,
     #iter1.Modulator=mod_tool
     #iter1.ModulationEventShapeKey=mod_tool.EventShapeKey
     jtm.add(iter1)
-    jtm.jetrecs += [iter1]
+    jtm.trigjetrecs += [iter1]
 
     #subtr2=MakeSubtractionTool(iter1.OutputEventShapeKey,moment_name="subtr2")
     from HIJetRec.HIJetRecConf import HIJetConstituentSubtractionTool
@@ -272,8 +284,8 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
                  alg="AntiKt",
                  merge_param="04",
                  #r_values=[0.2,0.4],
-                 ptmin=8.0 * GeV,
-                 ptminFilter=8.0 * GeV,
+                 ptmin=20.0 * GeV,
+                 ptminFilter=20.0 * GeV,
                  jet_calib='jes',
                  cluster_calib='EM',	# not needed (our clusters are made of towers at EM scale)
                  output_collection_label='HIJetsWithSubtraction',

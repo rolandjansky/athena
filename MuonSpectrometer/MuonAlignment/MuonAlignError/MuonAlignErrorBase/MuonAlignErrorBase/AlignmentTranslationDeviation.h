@@ -33,11 +33,6 @@ namespace MuonAlign {
       virtual Amg::Transform3D getTransform(const std::vector<double>& parameters) const;
 
       /**
-       * Return the list of hits the transform should be applied to.
-       */
-      virtual void getListOfHits(std::vector<const Trk::RIO_OnTrack*>& hits) const;
-
-      /**
        * Verbose
        */
       virtual void print(std::ostream& out) const;
@@ -45,7 +40,6 @@ namespace MuonAlign {
     private:
       Amg::Vector3D m_u; // unit vector
       double m_sigma;
-      std::vector<const Trk::RIO_OnTrack*> m_hits; // not owned
   };
 }
 

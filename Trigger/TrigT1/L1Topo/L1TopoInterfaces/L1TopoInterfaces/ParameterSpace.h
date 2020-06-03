@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  ParameterSpace.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/18/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __TopoCore__ParameterSpace__
 #define __TopoCore__ParameterSpace__

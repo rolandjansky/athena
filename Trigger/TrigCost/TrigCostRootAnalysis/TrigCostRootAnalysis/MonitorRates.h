@@ -33,24 +33,24 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorRates: public MonitorBase {
   public:
-    MonitorRates(const TrigCostData* _costData);
+    MonitorRates(const TrigCostData* costData);
     ~MonitorRates();
-    void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter(const std::string& _name, Int_t _ID);
-    Bool_t getIfActive(ConfKey_t _mode);
+    void newEvent(Float_t weight = 1.);
+    CounterBase* newCounter(const std::string& name, Int_t ID);
+    Bool_t getIfActive(ConfKey_t mode);
     void saveOutput();
   private:
-    void populateCounterMap(CounterMap_t* _counterMap);
+    void populateCounterMap(CounterMap_t* counterMap);
     void populateChainItemMaps();
     void saveRateGraphs();
 
 
-    void createGlobalCounters(CounterMap_t* _counterMap);
-    void createL1Counters(CounterMap_t* _counterMap);
-    void createHLTCounters(CounterMap_t* _counterMap);
-    void createOverlapCounters(CounterMap_t* _counterMap);
-    void createCPSGroupCounters(CounterMap_t* _counterMap);
-    void createGroupCounters(CounterMap_t* _counterMap);
+    void createGlobalCounters(CounterMap_t* counterMap);
+    void createL1Counters(CounterMap_t* counterMap);
+    void createHLTCounters(CounterMap_t* counterMap);
+    void createOverlapCounters(CounterMap_t* counterMap);
+    void createCPSGroupCounters(CounterMap_t* counterMap);
+    void createGroupCounters(CounterMap_t* counterMap);
 
     CounterRatesUnion* m_globalRateHLTCounter;
     CounterRatesUnion* m_globalRateL1Counter;

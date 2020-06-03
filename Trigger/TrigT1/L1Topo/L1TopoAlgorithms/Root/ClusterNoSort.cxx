@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  ClusterNoSort.cxx
 //  TopoCore
 //  Created by V Sorin, Joerg Stelzer 
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  Algorithm to  create the all list of clusters , no order is applied
 //
 #include "L1TopoAlgorithms/ClusterNoSort.h"

@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigSuperRoi.h        
 //            Container to contain multiple RoIs so that the 
 //            RegionSelector can know whether to return a single list
 //            for multiple RoIs etc       
 //  
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: cTrigSuperRoi.h, v0.0   Thu  5 Dec 2013 16:07:30 CET sutt $
 

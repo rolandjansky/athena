@@ -29,12 +29,12 @@
 namespace TrigCostRootAnalysis {
   /**
    * Trigger Element counter constructor. Sets values of internal variables.
-   * @param _name Name of TE counter
-   * @param _ID ID number of TE counter.
+   * @param name Name of TE counter
+   * @param ID ID number of TE counter.
    */
-  CounterFullEvent::CounterFullEvent(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                     UInt_t _detailLevel, MonitorBase* _parent)
-    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
+  CounterFullEvent::CounterFullEvent(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                     UInt_t detailLevel, MonitorBase* parent)
+    : CounterBase(costData, name, ID, detailLevel, parent),
     m_isRun(kFALSE),
     m_algCounters() {
   }
@@ -43,8 +43,8 @@ namespace TrigCostRootAnalysis {
    * Counter destructor. Delete my vector of counters
    */
   CounterFullEvent::~CounterFullEvent() {
-    for (std::vector<CounterAlgorithm*>::iterator _it = m_algCounters.begin(); _it != m_algCounters.end(); ++_it) {
-      delete (*_it);
+    for (std::vector<CounterAlgorithm*>::iterator it = m_algCounters.begin(); it != m_algCounters.end(); ++it) {
+      delete (*it);
     }
     m_algCounters.clear();
   }
@@ -58,15 +58,12 @@ namespace TrigCostRootAnalysis {
   /**
    * Investigate the Trigger Element structure for a single event.
    * Not yet implemented.
-   * @param _e Unused.
-   * @param _f Unused.
-   * @param _weight Event weight.
+   * @param e Unused.
+   * @param f Unused.
+   * @param weight Event weight.
    */
-  void CounterFullEvent::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+   void CounterFullEvent::processEventCounter(UInt_t e, UInt_t /*f*/, Float_t weight) {
     ++m_calls;
-
-    UNUSED(_e);
-    UNUSED(_f);
 
     if (m_isRun == kTRUE) {
       Error("CounterFullEvent::processEventCounter", "Each FullEvent Counter should only be run on one event");
@@ -78,50 +75,50 @@ namespace TrigCostRootAnalysis {
     // Note we explicitly turn off histogramming
 
     // // Get chain data for event
-    // Bool_t _first = kTRUE;
-    // for (UInt_t _c = 0; _c < m_costData->getNChains(); ++_c) {
+    // Bool_t first = kTRUE;
+    // for (UInt_t c = 0; c < m_costData->getNChains(); ++c) {
 
-    //   Int_t _chainID = m_costData->getChainID(_c);
-    //   const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID,
-    // m_costData->getChainLevel(_c) );
-    //   counterMapIt _it = m_chainCounters.find( _chainName );
-    //   if ( _it == m_chainCounters.end() ) {
+    //   Int_t chainID = m_costData->getChainID(c);
+    //   const std::string chainName = TrigConfInterface::getHLTNameFromChainID( chainID,
+    // m_costData->getChainLevel(c) );
+    //   counterMapIt it = m_chainCounters.find( chainName );
+    //   if ( it == m_chainCounters.end() ) {
 
-    //     _counter =  (CounterBase*) new CounterChain( _chainName,  _chainID, /*detail = */ 0 );
-    //     m_chainCounters[_chainName] = _counter;
-    //     if (_first == kTRUE) {
-    //       _first = kFALSE;
+    //     _counter =  (CounterBase*) new CounterChain( chainName,  chainID, /*detail = */ 0 );
+    //     m_chainCounters[chainName] = _counter;
+    //     if (first == kTRUE) {
+    //       first = kFALSE;
     //       _counter->startEvent();
     //     }
     //   } else {
-    //     _counter = (*_it).second;
+    //     counter = (*it).second;
     //   }
-    //   _counter->processEventCounter( m_costData, _c, 0, _weight );
+    //   counter->processEventCounter( m_costData, c, 0, weight );
     // }
 
-    // for (counterMapIt _it = m_chainCounters.begin(); _it != m_chainCounters.end(); ++_it) {
-    //   _it->second->endEvent();
+    // for (counterMapIt it = m_chainCounters.begin(); it != m_chainCounters.end(); ++it) {
+    //   it->second->endEvent();
     // }
 
     // Get all alg data for event
-    for (UInt_t _s = 0; _s < m_costData->getNSequences(); ++_s) {
-      //Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
-      //const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID,
-      // m_costData->getSequenceLevel(_s) );
-      for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
-        Int_t _seqIndex = m_costData->getSequenceIndex(_s);
-        Int_t _seqAlgPos = m_costData->getSeqAlgPosition(_s, _a);
+    for (UInt_t s = 0; s < m_costData->getNSequences(); ++s) {
+      //Int_t chainID = m_costData->getSequenceChannelCounter(s);
+      //const std::string chainName = TrigConfInterface::getHLTNameFromChainID( chainID,
+      // m_costData->getSequenceLevel(s) );
+      for (UInt_t a = 0; a < m_costData->getNSeqAlgs(s); ++a) {
+        Int_t seqIndex = m_costData->getSequenceIndex(s);
+        Int_t seqAlgPos = m_costData->getSeqAlgPosition(s, a);
 
-        const std::string _algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
-        const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
-        Int_t _seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+        const std::string algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
+        const std::string algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
+        Int_t seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
 
         // Exceptionally here we make a new sub-counter for every algorithm to capture the fine details of the execution
 
-        CounterAlgorithm* _counter = new CounterAlgorithm(m_costData, _algName, _seqAlgNameHash, /*detail = */ 0);
-        //_counter->decorate( "algClassName", _algType );
-        _counter->processEventCounter(_s, _a, _weight);
-        m_algCounters.push_back(_counter);
+        CounterAlgorithm* counter = new CounterAlgorithm(m_costData, algName, seqAlgNameHash, /*detail = */ 0);
+        //counter->decorate( "algClassName", algType );
+        counter->processEventCounter(s, a, weight);
+        m_algCounters.push_back(counter);
       }
     }
 
@@ -129,14 +126,13 @@ namespace TrigCostRootAnalysis {
     std::sort(m_algCounters.begin(), m_algCounters.end());
 
     // Code here. Suppress warnings for now.
-    debug(_e);
+    debug(e);
   }
 
   /**
    * Perform end-of-event monitoring. Does nothing for FullEvent
    */
-  void CounterFullEvent::endEvent(Float_t _weight) {
-    UNUSED(_weight);
+  void CounterFullEvent::endEvent(Float_t /*weight*/) {
   }
 
   /**
@@ -145,16 +141,14 @@ namespace TrigCostRootAnalysis {
    * Hence this function is not used here
    * @return Multiplicative weighting factor
    */
-  Double_t CounterFullEvent::getPrescaleFactor(UInt_t _e) {
-    UNUSED(_e);
+  Double_t CounterFullEvent::getPrescaleFactor(UInt_t /*e*/) {
     return 0.;
   }
 
   /**
    * Output debug information on this call to the console
    */
-  void CounterFullEvent::debug(UInt_t _e) {
-    UNUSED(_e);
+  void CounterFullEvent::debug(UInt_t /*e*/) {
     // Loop over TEs
     std::ofstream fout(std::string("te_test" + getName() + ".dot").c_str());
     fout << "digraph G{" << std::endl;

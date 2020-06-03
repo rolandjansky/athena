@@ -1,33 +1,31 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
 import sys, os
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
 parser.add_argument('--out', type=str, help='output ROOT file')
-parser.add_argument('--tag', type=str, help='Lumi tag',
-                    default='OflLumiAcct-001')
+parser.add_argument('--tag', type=str, help='Lumi tag', default='OflLumiAcct-001')
 parser.add_argument('--useofficial', action='store_true', help='Use official lumi folder (otherwise, use OflLumiAcct')
 parser.add_argument('--lumifolder', type=str, help='Lumi folder', default='/TRIGGER/OFLLUMI/OflPrefLumi')
 parser.add_argument('--lumitag', type=str, help='Lumi tag', default='OflLumi-13TeV-009')
-parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
-                    default='plots')
-parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
-                    default=0)
-parser.add_argument('--dblivetime', action='store_true',
-                    help='Look up livetime from DB')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots', default='plots')
+parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies', default=0)
+parser.add_argument('--dblivetime', action='store_true', help='Look up livetime from DB')
+parser.add_argument('--mode', type=str, help='Zee or Zmumu')
+
 args = parser.parse_args()
 
 BINWIDTH=10
-
 ZPURITYFACTOR=0.9935
 ZXSEC=1.929
-#ZATIMESC=0.2578
 ZATIMESC=0.29632
 
 def mu_dep_eff(mu):
@@ -49,8 +47,9 @@ for key in fin.GetListOfKeys():
         break
 
 if args.grl:
-    import DQUtils
-    grl = DQUtils.grl.load_grl(args.grl)
+    grlReader = ROOT.Root.TGoodRunsListReader(args.grl)
+    grlReader.Interpret()
+    grl = grlReader.GetMergedGRLCollection()
 else:
     grl = None
 
@@ -58,15 +57,24 @@ if not runname:
     logging.critical("Can't find run_* directory in input file %s", args.infile)
     sys.exit(1)
 
-z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
+runmode = args.mode
+print 'Running in', runmode, 'mode'
+if runmode == 'Zee':
+    z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_el_os' % runname)
+    if not z_m:
+        logging.critical("Can't retrieve m_Z_Counter_el_os")
+        sys.exit(1)
+
+if runmode == 'Zmumu':
+    z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
+    if not z_m:
+        logging.critical("Can't retrieve m_Z_Counter_mu")
+        sys.exit(1)
+
 if args.out:
     outfname = args.out
 else:
     outfname = '%s_data.root' % runname[4:]
-
-if not z_m:
-    logging.critical("Can't retrieve m_Z_Counter_mu")
-    sys.exit(1)
 
 fout = None
 t = None
@@ -138,23 +146,24 @@ from DQUtils import fetch_iovs
 from DQUtils.iov_arrangement import inverse_lblb
 lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
-#print list(lbtime)
+
 iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag=args.tag)
 if args.useofficial:
     iovs_lum = fetch_iovs('COOLOFL_TRIGGER::%s' % args.lumifolder, lblb.first.since, lblb.last.until, tag=args.lumitag, channels=[0])
-    #print list(iovs_lum)
+
 lb_start_end = {}
-lb_lhcfill = {}
+lb_lhcfill   = {}
 for iov in lblb:
     lb_start_end[iov.since & 0xffffffff] = (iov.StartTime/1e9, iov.EndTime/1e9)
 
 for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
+    
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
     if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
-    #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
+    
     if not args.useofficial:
         official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
         official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
@@ -176,19 +185,22 @@ divisor.Multiply(px)
 
 nrebinned_bins = ((lbmax-lbmin) // BINWIDTH) + 1
 
-lumiplot_m = ROOT.TH1F('lumiplot_m', 'Lumi, Z->#mu#mu (Run %s)' % runname[4:], 
-                       int(nrebinned_bins),
-                       lbmin, lbmin+BINWIDTH*nrebinned_bins)
-lumiplot_m_ratio = ROOT.TH1F('lumiplot_m_ratio', 'Z/official lumi ratio (Run %s)' % runname[4:], 
-                       int(nrebinned_bins),
-                       lbmin, lbmin+BINWIDTH*nrebinned_bins)
+if runmode == 'Zee':
+    lumititle = 'Lumi, Z->ee (Run %s)' % runname[4:]
+    efftitle = 'eff #sigma, Z->ee'
+    lumirawtitle = 'Lumi, Z->ee per LB'
+if runmode == 'Zmumu':
+    lumititle = 'Lumi, Z->#mu#mu (Run %s)' % runname[4:]
+    efftitle = 'eff #sigma, Z->#mu#mu'
+    lumirawtitle = 'Lumi, Z->#mu#mu per LB'
+
+lumiplot_m = ROOT.TH1F('lumiplot_m', lumititle, int(nrebinned_bins), lbmin, lbmin+BINWIDTH*nrebinned_bins)
+lumiplot_m_ratio = ROOT.TH1F('lumiplot_m_ratio', 'Z/official lumi ratio (Run %s)' % runname[4:], int(nrebinned_bins), lbmin, lbmin+BINWIDTH*nrebinned_bins)
 lumiplot_m.SetXTitle('LB')
 lumiplot_m.SetYTitle('Luminosity (x 10^{33} cm^{-2} s^{-1})')
-xsec_m = ROOT.TH1F('xsec_m', 'eff #sigma, Z->#mu#mu', int(nrebinned_bins),
-                       lbmin, lbmin+BINWIDTH*nrebinned_bins)
-lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', 'Lumi, Z->#mu#mu, per LB', 
-                           int(lbmax-lbmin),
-                           lbmin, lbmax)
+
+xsec_m = ROOT.TH1F('xsec_m', efftitle, int(nrebinned_bins), lbmin, lbmin+BINWIDTH*nrebinned_bins)
+lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', lumirawtitle, int(lbmax-lbmin), lbmin, lbmax)
 
 num_m, lum, denom, weighted_mu = 0, 0, 0, 0
 tot_num_m, tot_denom, tot_lum = 0, 0, 0
@@ -203,7 +215,7 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         l_zatimesc = mu_dep_eff(official_mu[ibin])
     else:
         l_zatimesc = ZATIMESC
-    if grl and not DQUtils.grl.grl_contains_run_lb(grl, (int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin)))):
+    if grl and not grl.HasRunLumiBlock(int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin))):
         o_passgrl[0]=0
     else:
         o_passgrl[0]=1
@@ -221,7 +233,6 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
 
     # fill tree
     if t:
-        #print ibin, lumiplot_raw_m.GetBinCenter(ibin)
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]
@@ -283,6 +294,7 @@ if fout:
     fout.Close()
 
 c1 = ROOT.TCanvas()
+c1.SetBatch(ROOT.kTRUE)
 c1.SetTickx()
 c1.SetTicky()
 leg = ROOT.TLegend(0.6, 0.75, 0.89, 0.88)
@@ -297,6 +309,7 @@ c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
+c1.SetBatch(ROOT.kTRUE)
 lumiplot_m_ratio.Draw()
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))

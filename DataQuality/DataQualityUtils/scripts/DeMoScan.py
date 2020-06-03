@@ -18,6 +18,7 @@ from ROOT import gStyle,gROOT,gPad
 
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
+from LArMonCoolLib import GetReadyFlag
 from DeMoLib import strLumi, initialize
 
 from gb import MakeTH1,SetXLabel,MakeLegend
@@ -36,13 +37,13 @@ from argparse import RawTextHelpFormatter,ArgumentParser
 from DQDefects import DefectsDB
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
-parser.add_argument('-r','--run',type=int,dest='parser_run',help='Run or run range (relevant only for lossPerRun)',nargs='*',action='store')
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
 parser.add_argument('-t','--tag',dest='parser_tag',default = ["Tier0_2018"],nargs='*',help='Defect tag [Default: "Tier0_2018"]',action='store')
-parser.add_argument('-v','--veto',type=str,dest='parser_veto',default="",help='Veto to consider (if not specified: all)',action='store')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
 parser.add_argument('-d','--directory',dest='parser_directory',default=".",help='Directory to display',action='store')
+parser.add_argument('--run',type=int,dest='parser_run',help='Run or run range (relevant only for lossPerRun)',nargs='*',action='store')
 parser.add_argument('--defect',type=str,dest='parser_defect',default="",help='Defect to consider (if not specified: all)',action='store')
+parser.add_argument('--veto',type=str,dest='parser_veto',default="",help='Veto to consider (if not specified: all)',action='store')
 parser.add_argument('--noRecovPlot',dest='parser_noRecovPlot',help='Do not plot the recoverable histograms',action='store_false')
 parser.add_argument('--lossPerRun',dest='parser_plotLPR',help='Plot the loss run and per type',action='store_true')
 parser.add_argument('--diffTwoTags',dest='parser_diff2tags',help='Compare run by run the data losses for two tags (same year necessary)',action='store_true')
@@ -80,13 +81,16 @@ for iYear in args.parser_year:
       yearTagDir[yearTag] = directory
       yearTagTag[yearTag] = iTag # Used only to retrieve comments
 
-      RunListDat = "RunList/grl-%s.dat"%(iYear)
+      RunListDat = "%s/RunList/grl-%s.dat"%(args.parser_directory,iYear)
       if os.path.exists(RunListDat):
         fRunList = open(RunListDat,'r')
         runGRL[yearTag] = []
         for iRun in fRunList.readlines():
           runGRL[yearTag].append(int(iRun)) # used only to determine if a run belongs to GRL in recap defects - Data in loss*.txt file NOT reliable
         fRunList.close()
+      else:
+        print "No GRL list found... Please create it"
+        sys.exit()
 
 if len(args.parser_year) == 1:
   singleYear = True
@@ -106,7 +110,7 @@ options = {}
 options['defect'] = [args.parser_defect]
 options['veto'] = [args.parser_veto]
 if options['defect'] == [""] and options['veto'] == [""]:
-  options['defect'] = grlDef["intol"]
+  options['defect'] = grlDef["intol"]+grlDef["tol"]
   options['veto'] = veto["all"]
 else:
   if options['defect'][0] not in grlDef["intol"] and options['veto'][0] not in veto["all"]:
@@ -118,6 +122,17 @@ else:
     options['defect'] = []
   if options['veto'] == [""]:
     options['veto'] = []
+
+defVetoType = {}
+for iDefVeto in options['defect']+options['veto']:      
+  if iDefVeto in options['defect']:
+    if (iDefVeto in grlDef["intol"]):
+      defVetoType[iDefVeto] = "Intolerable defect"
+    else:
+      defVetoType[iDefVeto] = "Tolerable defect"
+  else:
+    defVetoType[iDefVeto] = "Veto"
+
 
 options['recovPlot'] = args.parser_noRecovPlot
 options['plotLossPerRun'] = args.parser_plotLPR
@@ -152,9 +167,21 @@ if options['prepareReproc']:
 
 if options['retrieveComments']:
   defRecap = {}
+  defRecapHtml = {}
   for iDef in options['defect']:
     defRecap[iDef] = "\n\n===== Recap for %s================================================================================================================================\n"%(iDef.ljust(15))
-    defRecap[iDef] +="     Run| Tot lumi|GRL|Lost lumi|Recov. L.|  LB range |     Author | "
+    defRecap[iDef] += "Description: %s - %s\n"%(defectVeto["description"][iDef],defVetoType[iDefVeto])
+    if (defVetoType[iDef] == "Intolerable defect"):
+      defRecap[iDef] +="     Run| Tot lumi|GRL|Lost lumi|Recov. L.|  LB range |     Author | "
+    else:
+      defRecap[iDef] +="     Run| Tot lumi|GRL|Aff. lumi|Recov. L.|  LB range |     Author | "
+
+    defRecapHtml[iDef] ='<tr class="out0" id="%s"> <th colspan="8"> %s - LUMILOSTTOBEREPLACED affected </th></tr>'%(iDef,iDef)
+    defRecapHtml[iDef] +='<tr class="out0"> <th colspan="8"> Description: %s - %s</th></tr>'%(defectVeto["description"][iDef],defVetoType[iDef])
+    if (defVetoType[iDef] == "Intolerable defect"):
+      defRecapHtml[iDef] +='<tr class="out0"> <th> Run </th><th> Tot lumi </th><th> GRL </th><th> Lost lumi </th><th> Recov. L. </th><th>  LB range </th><th>     Author </th><th>     Comment </th></tr> '
+    else:
+      defRecapHtml[iDef] +='<tr class="out0"> <th> Run </th><th> Tot lumi </th><th> GRL </th><th> Aff. lumi </th><th> Recov. L. </th><th>  LB range </th><th>     Author </th><th>     Comment </th></tr> '
 
 if options['prepareReproc']:
   defReproc = {}
@@ -183,6 +210,8 @@ loss_rLPR = {}
 h1_lossLPR = {}
 h1_loss_rLPR = {}
 
+atlasReady = {}
+
 for iYT in yearTagList:
   print "I am treating the following year/tag:%s"%iYT
 
@@ -190,75 +219,83 @@ for iYT in yearTagList:
   legendResults[iYT] = {}
   stackResults[iYT] = {}
 
-  yearStatsArchiveFilename = '%s/TProfiles.root'%(yearTagDir[iYT])
-  if not (os.path.exists(yearStatsArchiveFilename)):
-    print "No %s found - > Skipping"%yearStatsArchiveFilename
-    continue
+  # Open the Archive filename to compare the luminosity of each period
+  if options['plotDiff2tags']:
+    yearStatsArchiveFilename = '%s/TProfiles.root'%(yearTagDir[iYT])
+    if not (os.path.exists(yearStatsArchiveFilename)):
+      print "No %s found - > Skipping"%yearStatsArchiveFilename
+      continue
     
-  file[iYT] = TFile(yearStatsArchiveFilename)
-  h1Period_IntLuminosity[iYT] = file[iYT].Get("h1Period_IntLuminosity_archive")
-  subperiodNb[iYT] = h1Period_IntLuminosity[iYT].GetNbinsX()
-
+    file[iYT] = TFile(yearStatsArchiveFilename)
+    h1Period_IntLuminosity[iYT] = file[iYT].Get("h1Period_IntLuminosity_archive")
+    subperiodNb[iYT] = h1Period_IntLuminosity[iYT].GetNbinsX()
+    
   if options['plotLossPerRun'] or options['plotDiff2tags']:
     runsLPR[iYT] = {}
     lossLPR[iYT] = {}
     loss_rLPR[iYT] = {}
     h1_lossLPR[iYT] = {}
     h1_loss_rLPR[iYT] = {}
-    boolDefect = {}
     # Loop on defect+veto (all or single ones)
-    for iDefVeto in options['defect']+options['veto']:
-      if iDefVeto in options['defect']:
-        boolDefect[iDefVeto] = True
-      else:
-        boolDefect[iDefVeto] = False
-
+    for iDefVeto in options['defect']+options['veto']:      
+        
       # Define the file name containing the loss per run for this defect
-      if boolDefect[iDefVeto]:
+      if "defect" in defVetoType[iDefVeto]:
         lossFileName = "%s/loss-%s.dat"%(yearTagDir[iYT],iDefVeto)
         xAxisTitle = "#splitline{Luminosity loss due to}{%s [pb^{-1}]}"%(defectVeto["description"][iDefVeto])
-        color = defectVeto["color"][iDefVeto]
+        if defVetoType[iDefVeto] == "Intolerable defect":
+          color = defectVeto["color"][iDefVeto]
+        else:
+          color = kTeal
       else:
         lossFileName = "%s/loss-%sVETO.dat"%(yearTagDir[iYT],iDefVeto)
         xAxisTitle = "Luminosity loss due to %s[Veto] [pb^{-1}]"%(defectVeto["description"][iDefVeto])
         color = defectVeto["color"][iDefVeto]
-
+        
       # Check if a dat loss file is associated to this veto/defect
       if os.path.exists(lossFileName):
+        print "I am reading the %s file"%lossFileName
         runsLPR[iYT][iDefVeto] = []
         lossLPR[iYT][iDefVeto] = []
         loss_rLPR[iYT][iDefVeto] = []
         f2 = open(lossFileName,'r')
         tmpLines = f2.readlines()
         tmpLines.sort()
-        for iline in tmpLines:
-          if boolDefect[iDefVeto]:
+        for iline in tmpLines: # Loop on all lines of the loss-[defect/veto].dat files
+          if defVetoType[iDefVeto] == "Intolerable defect":
             read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1 \D+(\d+.\d+)\D+",iline)
-          else:# Veto loss is never recoverable
+          else:# Veto loss is never recoverable (not tolerable defects)
             read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1",iline)
-          # retrieve the run number and lost luminosity
+          # retrieve the run number
           runnumber = int(read.group(1))
-          luminosity = int(read.group(2))
           # If the runs filter is activated (i.e. runsFilter != 0), check if the runs must be filtered
           if (len(runsFilter) != 0 and runnumber not in runsFilter):
             continue
+          # retrieve the total luminosity and the lost luminosity
+          luminosity = int(read.group(2))
           lostLumi = float(read.group(3))
-          # If defect, look for potential recovaerable lumi
-          if boolDefect[iDefVeto]:
+          # If defect, look for potential recoverable luminosity
+          if defVetoType[iDefVeto] == "Intolerable defect":
             recovLumi = float(read.group(4))
           else: # Veto loss is never recoverable
             recovLumi = 0.
+          if runnumber not in atlasReady.keys():
+            atlasready_tmp=GetReadyFlag(runnumber)
+            atlasReady[runnumber] = []
+            for lb in atlasready_tmp.keys():
+              if atlasready_tmp[lb]>0: atlasReady[runnumber] += [lb]
+
           # if the loss is above the required minimum (0 by default), store it
           if (runnumber>options['runMinLossPerRun'] and runnumber<=options['runMaxLossPerRun'] and lostLumi > options['minLumiYearStatsDefect']):
             runsLPR[iYT][iDefVeto].append(runnumber)
             lossLPR[iYT][iDefVeto].append(lostLumi)
             loss_rLPR[iYT][iDefVeto].append(recovLumi)
-            if options['retrieveComments'] and boolDefect[iDefVeto]: # retrieve comments for defects
+            if options['retrieveComments'] and "defect" in defVetoType[iDefVeto]: # retrieve comments for defects
               print "@%d"%(runnumber)
               db = DefectsDB(tag=yearTagProperties["defect"][yearTagTag[iYT]])
               system_defects = []
               for iPrefix in grlDef["prefix"]:
-                system_defects += [d for d in (db.defect_names | db.virtual_defect_names) if (d.startswith(iPrefix))]
+                system_defects += [d for d in (db.defect_names | db.virtual_defect_names) if (d.startswith(iPrefix) and iDefVeto in d)]
               #lar_defects = [d for d in (db.defect_names | db.virtual_defect_names) if ((d.startswith("LAR") or d.startswith("CALO_ONLINEDB")) and iDefVeto in d)]
               defects = db.retrieve((runnumber, 1), (runnumber+1, 0), system_defects)   
               defectCompact = {}
@@ -266,19 +303,32 @@ for iYT in yearTagList:
                 if ("SEVNOISEBURST" in defect.channel and ("HEC" in defect.channel or "FCAL" in defect.channel)): # Skip the HEC/FCAL SEVNOISEBURST defect as they also appear in EMEC
                   continue
                 for iDef in options['defect']:
-                  if (iDef in defect.channel):
-                    if defect.since.lumi == defect.until.lumi-1:
-                      lbRange = "%10d"%(defect.since.lumi)
-                      lbRangeReproc = defect.since.lumi
+                  if (iDef in defect.channel): # NB : some problem may arise from this incomplete test (if similar name for 2 defects) but there is a protection later when recaping
+                    defectSinceLumiAtlasReady = -1
+                    defectUntilLumiAtlasReady = -1
+                    for iLumiBlock in range(defect.since.lumi,defect.until.lumi):
+                      if iLumiBlock in atlasReady[runnumber]:
+                        defectUntilLumiAtlasReady = iLumiBlock+1
+                        if defectSinceLumiAtlasReady == -1:
+                          defectSinceLumiAtlasReady = iLumiBlock
+                    print defectSinceLumiAtlasReady,defectUntilLumiAtlasReady
+                    if defectSinceLumiAtlasReady == -1: # Whole defect was outside ATLAS ready - Skip it
+                      continue
+                    
+                    if defectSinceLumiAtlasReady == defectUntilLumiAtlasReady-1:
+                      lbRange = "%10d"%(defectSinceLumiAtlasReady)
+                      lbRangeReproc = defectSinceLumiAtlasReady
                     else:
-                      lbRange = "%4d->%4d"%(defect.since.lumi,defect.until.lumi-1)
-                      lbRangeReproc = "%d-%d"%(defect.since.lumi,defect.until.lumi-1)
+                      lbRange = "%4d->%4d"%(defectSinceLumiAtlasReady,defectUntilLumiAtlasReady-1)
+                      lbRangeReproc = "%d-%d"%(defectSinceLumiAtlasReady,defectUntilLumiAtlasReady-1)
                     if ("\n %d |"%runnumber not in defRecap[iDef]):
                       defRecap[iDef] += "\n %d |%s|%3d|%s|%s|%s |%s| %s"%(runnumber,strLumi(luminosity,"ub",False).rjust(9),(runnumber in runGRL[iYT]),(strLumi(lostLumi,"pb",False)).rjust(9),(strLumi(recovLumi,"pb",False)).rjust(9),lbRange,defect.user.rjust(12),defect.comment)
+                      defRecapHtml[iDef] += '<tr class="out1"><th> %d </th> <th> %s </th><th> %3d </th><th> %s </th><th> %s </th><th> %s </th><th> %s </th><th> %s </th><tr>'%(runnumber,strLumi(luminosity,"ub",False).rjust(9),(runnumber in runGRL[iYT]),(strLumi(lostLumi,"pb",False)).rjust(9),(strLumi(recovLumi,"pb",False)).rjust(9),lbRange,defect.user.rjust(12),defect.comment)
                       if (options['prepareReproc'] and recovLumi>0.):
                         defReproc[iDef] += "\n@%d"%runnumber
                     else:
                       defRecap[iDef] += "\n -----------------------------------------|%s |%s| %s"%(lbRange,defect.user.rjust(12),defect.comment)
+                      defRecapHtml[iDef] += '<tr class="out1"><th colspan="5"><th> %s </th><th> %s </th><th> %s </th><tr>'%(lbRange,defect.user.rjust(12),defect.comment)
                     for iPart in ["EMBA","EMBC","EMECA","EMECC","HECA","HECC","FCALA","FCALC"]:
                       if iPart in defect.channel and "SEVNOISEBURST" not in defect.channel: # Add the affected partition (except for SEVNOISEBURST, where the comment should contain it)
                         defRecap[iDef] += " - %s"%iPart
@@ -303,13 +353,13 @@ for iYT in yearTagList:
           else:
             h1_lossLPR[iYT][iDefVeto].GetXaxis().SetBinLabel(iX,"%d"%runsLPR[iYT][iDefVeto][iX-1])                            
 
-        if boolDefect[iDefVeto]: # recoverable loss for defect
+        if defVetoType[iDefVeto] == "Intolerable defect": # recoverable loss for defect
           h1_loss_rLPR[iYT][iDefVeto] = MakeTH1("h1_loss_rLPR_%s_%s"%(iYT,iDefVeto),"Run Number",xAxisTitle,-0.5,-0.5+len(runsLPR[iYT][iDefVeto]),len(runsLPR[iYT][iDefVeto]),kTeal-7)
 
         # Fill the new histogram(s)
         for irun in range(len(runsLPR[iYT][iDefVeto])):
           h1_lossLPR[iYT][iDefVeto].Fill(irun,lossLPR[iYT][iDefVeto][irun])
-          if boolDefect[iDefVeto]:
+          if defVetoType[iDefVeto] == "Intolerable defect":
             h1_loss_rLPR[iYT][iDefVeto].Fill(irun,loss_rLPR[iYT][iDefVeto][irun])
 
         # Display the new histograms
@@ -319,18 +369,21 @@ for iYT in yearTagList:
         h1_lossLPR[iYT][iDefVeto].SetTitle("")
         h1_lossLPR[iYT][iDefVeto].SetMinimum(0.)
         h1_lossLPR[iYT][iDefVeto].Draw("HIST")
-        if (options['recovPlot'] and boolDefect[iDefVeto]):
+        if (options['recovPlot'] and defVetoType[iDefVeto] == "Intolerable defect"):
           h1_lossLPR[iYT][iDefVeto].Draw("HIST SAME")
         legendResults[iYT][index] = MakeLegend(0.855,0.75,0.95,0.95)
         legendResults[iYT][index].SetHeader("%s"%iYT)
         legendResults[iYT][index].AddEntry(h1_lossLPR[iYT][iDefVeto],"Total:%s"%(strLumi(h1_lossLPR[iYT][iDefVeto].Integral(),"pb^{-1}")),"f")
-        if (options['recovPlot'] and boolDefect[iDefVeto]):
+        if (options['recovPlot'] and defVetoType[iDefVeto] == "Intolerable defect"):
           legendResults[iYT][index].AddEntry(h1_lossLPR[iYT][iDefVeto],"Recov:%s"%(strLumi(h1_loss_rLPR[iYT][iDefVeto].Integral(),"pb^{-1}")),"f")
         legendResults[iYT][index].Draw()
 
 # Enf of comment recap
 if options['plotLossPerRun'] and options['retrieveComments']:
-  f = open("YearStats-%s/%s/%s/recapDefects.txt"%(args.parser_system,args.parser_year[0],args.parser_tag[0]),'w')
+  f = open("%s/YearStats-%s/%s/%s/recapDefects.txt"%(args.parser_directory,args.parser_system,args.parser_year[0],args.parser_tag[0]),'w')
+  fHtml = open("%s/YearStats-%s/%s/%s/recapDefects.html"%(args.parser_directory,args.parser_system,args.parser_year[0],args.parser_tag[0]),'w')
+  fHtml.write('<table class="report">')
+  fHtml.write('<tr class="out0"> <th width="60pix"></th><th width="90pix"></th><th width="45pix"></th><th width="90pix"></th><th width="90pix"></th><th width="90pix"></th><th width="90pix"></th><th></th></tr>')
   if options['savePage1']:
     fPage1 = open("../LArPage1/DeMoPlots/recapDefects.txt",'w')
     fPage1.write("This list contains all defect in LAr calorimeter, including all for runs not used in GRL\n")
@@ -339,17 +392,29 @@ if options['plotLossPerRun'] and options['retrieveComments']:
   if options['prepareReproc']:
     fReproc = open("YearStats-%s/%s/%s/defectsForReproc.txt"%(args.parser_system,args.parser_year[0],args.parser_tag[0]),'w')
 
+  defTocHtml = '<div style="text-align:left" class="rectangle">'
   for iDef in options['defect']:
-    if ("-1" in defRecap[iDef]):# At least one data loss in the whole YearStats for this defect 
-      print defRecap[iDef]
-      f.write(defRecap[iDef])
-      if options['savePage1']:
-        fPage1.write(defRecap[iDef])
-        fPage1.write("\nTotal loss: %s (recov:%s)"%(strLumi(h1_lossLPR[iYT][iDef].Integral(),"pb^{-1}"),strLumi(h1_loss_rLPR[iYT][iDef].Integral(),"pb^{-1}")))
-      if options['prepareReproc']:
-        fReproc.write(defReproc[iDef])
+    if (iDef in h1_lossLPR[iYT].keys()): # This protection is needed as defRecap may have duplication in some rare cases. See Muon system with "MDT_ROD_PROBLEM_1" and "RPC_PROBLEM_1"
+      if ("b-1" in defRecap[iDef]):# At least one data loss in the whole YearStats for this defect 
+        defTocHtml += "Direct link to <a href='#%s' target='_self'> %s </a> (%s - %s affected) <br>"%(iDef,iDef,defVetoType[iDef],strLumi(h1_lossLPR[iYT][iDef].Integral(),"pb^{-1}"))
+  defTocHtml += '</div>'
+
+  fHtml.write(defTocHtml)
+  for iDef in options['defect']:
+    if (iDef in h1_lossLPR[iYT].keys()): # This protection is needed as defRecap may have duplication in some rare cases. See Muon system with "MDT_ROD_PROBLEM_1" and "RPC_PROBLEM_1"
+      if ("b-1" in defRecap[iDef]):# At least one data loss in the whole YearStats for this defect 
+        print defRecap[iDef]
+        f.write(defRecap[iDef])
+        fHtml.write("%s</tr>"%defRecapHtml[iDef].replace("LUMILOSTTOBEREPLACED",strLumi(h1_lossLPR[iYT][iDef].Integral(),"pb^{-1}")))
+        if options['savePage1']:
+          fPage1.write(defRecap[iDef])
+          fPage1.write("\nTotal loss: %s (recov:%s)"%(strLumi(h1_lossLPR[iYT][iDef].Integral(),"pb^{-1}"),strLumi(h1_loss_rLPR[iYT][iDef].Integral(),"pb^{-1}")))
+        if options['prepareReproc']:
+          fReproc.write(defReproc[iDef])
 
   f.close()
+  fHtml.write('</table>')
+  fHtml.close()
   if options['savePage1']:
     fPage1.close()    
   if options['prepareReproc']:
@@ -382,7 +447,7 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
     for iSuffix in suffixList:
       lumi_diff2tags["%s_%s"%(iDefVeto,iSuffix)] = {}
     
-    if boolDefect[iDefVeto]:
+    if "defect" in defVetoType[iDefVeto]:
       defOrVeto = "defect"
     else:
       defOrVeto = "veto"
@@ -437,7 +502,7 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
       maxAbsLumiDiff["%s_%s"%(iDefOrVeto,iSuffix)] = 0.
   
   for iDefVeto in options['defect']+options['veto']:    
-    if boolDefect[iDefVeto]:
+    if "defect" in defVetoType[iDefVeto]:
       defOrVeto = "defect"
       color = defectVeto["color"][iDefVeto]
     else:

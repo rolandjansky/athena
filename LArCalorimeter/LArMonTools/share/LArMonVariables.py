@@ -1,6 +1,8 @@
 #
 # All needed variables are set below
 #
+from LArMonTools.LArMonFlags import LArMonFlags
+
 if 'EvtNo' not in dir():
     EvtNo=10000000 #  Number of events to process
     
@@ -10,19 +12,35 @@ if 'SubDet' not in dir():
 if 'InputDir' not in dir():
     InputDir = "/castor/cern.ch/grid/atlas/DAQ/lar/ElecCalib/2009/00102562"
     
-if 'FullFileName' not in dir():
-    FullFileName = "data09_calib.00102562.calibration_LArElec-Pedestal-7s-Low-HecFcal.daq.RAW._lb0000._EB-FCAL._0001.data"
-    
-if 'RunNumber' not in dir():
-    RunNumber = int(FullFileName.strip().split('.')[1])
-    
-if 'Type' not in dir():
-    Type = str(FullFileName.strip().split('.')[2].strip().split('-')[1])
-    print Type
+if 'FullFileName' in dir():    
+   if 'RunNumber' not in dir():
+       RunNumber = int(FullFileName.strip().split('.')[1])
 
-if 'Partition' not in dir():
-    Partition = str(FullFileName.strip().split('.')[6].split('-')[1])
-    print Partition
+   if 'Type' not in dir():
+       Type = str(FullFileName.strip().split('.')[2].strip().split('-')[1])
+       print Type
+
+   if 'Partition' not in dir():
+       Partition = str(FullFileName.strip().split('.')[6].split('-')[1])
+       print Partition
+
+   if not 'FullFileNameTab' in dir():
+       FullFileNameTab = [ InputDir+"/"+FullFileName ]
+
+   pass
+
+if 'FullFileName' not in dir():
+     include("LArCalibProcessing/GetInputFiles.py")
+     if 'FilePrefix' not in dir():
+        FilePrefix="data18"
+     FullFileName =[]
+     FullFileName+=GetInputFilesFromTokens(InputDir,int(RunNumber),FilePrefix,".*")
+     if len(FullFileName) == 0:
+        print "No input files !!!"
+        sys.exit(-1)
+     word = FullFileName[0].split('-')
+     Type = word[1]
+
 
 if not 'online' in dir():
     online = False
@@ -44,9 +62,6 @@ if not 'LArDigitKey' in dir():
 
 if not 'LArRawChannelKey' in dir():
     LArRawChannelKey="LArRawChannels"
-
-if not 'FullFileNameTab' in dir():
-    FullFileNameTab = [ InputDir+"/"+FullFileName ]
 
 if not 'DelayNtuple' in dir():
     DelayNtuple = False

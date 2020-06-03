@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /** @file Associator_DeltaEtaPhi.h */
 /// Fixme: needs to be replaced by something inheriting 
 ///        from BestMatcher

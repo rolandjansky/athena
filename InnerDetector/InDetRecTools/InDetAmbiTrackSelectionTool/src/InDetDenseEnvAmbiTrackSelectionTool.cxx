@@ -41,7 +41,6 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   AthAlgTool(t,n,p),
   m_assoTool("Trk::PRD_AssociationTool/PRD_AssociationTool"),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"       ),
-  //m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),//WPM
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_incidentSvc("IncidentSvc", n),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
@@ -57,10 +56,11 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minHits"              , m_minHits                 = 5);
   declareProperty("minTRTHits"           , m_minTRT_Hits             = 0);
   declareProperty("maxShared"            , m_maxSharedModules        = 1);
-  declareProperty("maxSharedModulesInROI", m_maxSharedModulesInROI   = 1);
+  declareProperty("maxSharedModulesInROI", m_maxSharedModulesInROI   = 2); //Test value for recovering B jet efficiency at high pt
   declareProperty("minScoreShareTracks"  , m_minScoreShareTracks     = 0.0);
   declareProperty("maxTracksPerSharedPRD", m_maxTracksPerPRD         = 2);
-  declareProperty("minNotShared"         , m_minNotShared            = 6);
+  declareProperty("minNotShared"         , m_minNotSharedModules     = 6);
+  declareProperty("minNotSharedInROI"    , m_minNotSharedModulesInROI= 4); //Test value for recovering B jet efficiency at high pt
   declareProperty("Cosmics"              , m_cosmics                 = false);
   declareProperty("UseParameterization"  , m_parameterization        = true);
   declareProperty("doPixelSplitting"     , m_doPixelClusterSplitting = false);
@@ -72,14 +72,15 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minTrackChi2ForSharedHits", m_minTrackChi2ForSharedHits = 3); //3
   declareProperty("minUniqueSCTHits"         , m_minUniqueSCTHits          = 2); //2
   declareProperty("minSiHitsToAllowSplitting", m_minSiHitsToAllowSplitting = 9); //9
+  declareProperty("minSiHitsToAllowSplittingInROI", m_minSiHitsToAllowSplittingInROI = 7); //Test value for recovering B jet efficiency
   declareProperty("maxPixMultiCluster"       , m_maxPixMultiCluster        = 4);
   
-  
-  declareProperty("doHadCaloSeed"        ,m_useHClusSeed = false);
-  declareProperty("minPtSplit"           ,m_minPtSplit   = 0.   );
-  declareProperty("phiWidth"             ,m_phiWidth     = 0.2  );
-  declareProperty("etaWidth"             ,m_etaWidth     = 0.2  );
-  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);  
+  declareProperty("doHadCaloSeed"        ,m_useHClusSeed = false );
+  declareProperty("minPtSplit"           ,m_minPtSplit   = 0.    );
+  declareProperty("minPtBjetROI"         ,m_minPtBjetROI = 15000.); //inMeV
+  declareProperty("phiWidth"             ,m_phiWidth     = 0.2   );
+  declareProperty("etaWidth"             ,m_etaWidth     = 0.2   );
+  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName="InDetHadCaloClusterROIs");
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
   declareProperty("ObserverTool"             , m_observerTool);
 
@@ -100,6 +101,8 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
 
   // compute the number of shared hits from the number of max shared modules
   m_maxShared=2*m_maxSharedModules+1;
+  m_minNotShared = m_minNotSharedModules;
+  m_minSiHits = m_minSiHitsToAllowSplitting;
 }
 
 //================ Destructor =================================================
@@ -250,6 +253,8 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
 
   // compute the number of shared hits from the number of max shared modules
   m_maxShared=2*m_maxSharedModules+1;
+  m_minNotShared = m_minNotSharedModules;
+  m_minSiHits = m_minSiHitsToAllowSplitting;
 
   // cut on TRT hits, might use eta dependent cuts here
   int  nCutTRT = m_minTRT_Hits;
@@ -280,11 +285,6 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   
   ATH_MSG_DEBUG ("DecidedWhichHitsToKeep " << TrkCouldBeAccepted );
     
-  
-
-  int  totalSiHits = trackHitDetails.totalSiHits();
- 
-
   //WPM add in a loop to check how many splitable SCT clusters there are here!!!!
   ATH_MSG_DEBUG ("How many SCT clusters can be split? ");
   
@@ -330,6 +330,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   // now see what to do with the track
   //
  
+  int  totalSiHits = trackHitDetails.totalSiHits();
    ATH_MSG_DEBUG ("totalSiHits " << totalSiHits );
    ATH_MSG_DEBUG ("score " << score );
 
@@ -344,7 +345,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
     ATH_MSG_DEBUG ("=> Suggest to keep track with "<<trackHitDetails.numShared<<" shared hits !");
     
 
-    //  Change pixel hits property for shared hits as this is track will be accepeted into the final track colection
+    //  Change pixel hits property for shared hits as this track will be accepted into the final track colection
     if(!trackHitDetails.isPatternTrack){
       updatePixelClusterInformation( tsosDetails ); 
     }
@@ -456,14 +457,13 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
       
           // update shared hit counter
           //cntIns += isPixel ? 2 : 1;
-	  if(isPixel) {cntIns += 2;}
-	  else if(  m_detID->is_sct(rot->identify()) && isSplitable ){ cntIns += 0;}
-	  else{cntIns += 1;}
+          if(isPixel) {cntIns += 2;}
+          else if(  m_detID->is_sct(rot->identify()) && isSplitable ){ cntIns += 0;}
+          else{cntIns += 1;}
 
 
-        } else{
+        } else
           ATH_MSG_VERBOSE ("---> Reject hit shared with " << numberOfTracksWithThisPrd << " tracks !");
-	}
       }
     }
 
@@ -498,7 +498,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         ATH_MSG_DEBUG ("=> Failed to create subtrack");
         if (m_monitorTracks && TrkCouldBeAccepted)	// otherwise (!TrkCouldBeAccepted) already rejected
           m_observerTool->rejectTrack(*ptrTrack, 112);		// rejection location 112: "Failed to create subtrack"
-	ATH_MSG_DEBUG ("reject track; Failed to create subtrack");
+        ATH_MSG_DEBUG ("reject track; Failed to create subtrack");
         return 0;
       }
   
@@ -512,7 +512,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
       ATH_MSG_DEBUG ("=> Successfully created subtrack with shared hits recovered !");
       if (m_monitorTracks) {
         m_observerTool->rejectTrack(*ptrTrack, 113);		// rejection location 113: There is a cleaner track, subtrack created
-	ATH_MSG_DEBUG ("reject track; There is a cleaner track, subtrack created");
+        ATH_MSG_DEBUG ("reject track; There is a cleaner track, subtrack created");
         // observer Tool creates subtrack in ProcessorTool.cxx	
       }
       return newTrack;
@@ -802,8 +802,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
       }
       //Always set to 0 if splitting not allowed
       else{
-	tsosDetails.splitProb1[index] = 0;
-	tsosDetails.splitProb2[index] = 0;
+	    tsosDetails.splitProb1[index] = 0;
+        tsosDetails.splitProb2[index] = 0;
       }
     } 
 
@@ -889,19 +889,24 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
 
   // Are we in a ROI?
   bool inROIandPTok(true);
+  bool inROI(true);
   if(  ptrTrack->trackParameters()->front() ){
     if(  ptrTrack->trackParameters()->front()->pT() < m_minPtSplit )
       inROIandPTok = false;
     
-    if(inROIandPTok){ 
-      bool inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front());
-    
-      if( m_useHClusSeed && inROI )  
-        inROIandPTok = false;
+    if(  ptrTrack->trackParameters()->front()->pT() < m_minPtBjetROI )
+      inROI = false;
    
+
+    if(inROI){ 
+      inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front());
+    
       // If we are in a ROI change the shared hit cut;
-      if(inROI)
+      if(inROI){
         m_maxShared=2*m_maxSharedModulesInROI+1;
+        m_minNotShared = m_minNotSharedModulesInROI;
+        m_minSiHits = m_minSiHitsToAllowSplittingInROI;
+      }
     }
   } 
   
@@ -1091,7 +1096,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
           TrkCouldBeAccepted = false; // we have to remove at least one PRD   
           if (m_monitorTracks)
             m_observerTool->rejectTrack(*ptrTrack, 105);		// rejection location 105: "Too many hits shared - we have to remove at least one PRD" 
-	  ATH_MSG_DEBUG ("reject track; Too many hits shared - we have to remove at least one PRD 105");    
+          ATH_MSG_DEBUG ("reject track; Too many hits shared - we have to remove at least one PRD 105");    
           tsosDetails.type[index]    = RejectedHit;
           continue; 
         } 
@@ -1376,7 +1381,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
           TrkCouldBeAccepted = false;
           if (m_monitorTracks)
             m_observerTool->rejectTrack(*ptrTrack, 110);		// rejection location 110: "Tracks shared hits will mess up an accpeted track"
-	  ATH_MSG_DEBUG ("reject track; Tracks shared hits will mess up an accpeted track");
+          ATH_MSG_DEBUG ("reject track; Tracks shared hits will mess up an accepted track");
           tsosDetails.type[index] = RejectedHit;
           trackHitDetails.numShared--;                             // decrease counter 
           trackHitDetails.numWeightedShared -= (tsosDetails.detType[index]%10== 1 ? 2 : 1);  // increase counter

@@ -493,7 +493,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 #        from TrigBjetHypo.TrigBjetFexConfig  import getBjetFexSplitInstance
 #        theBjetFex = getBjetFexSplitInstance(algoInstance,"2012","EFID")
 
-    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' or 'bhmv2c10' in chainParts['bTag']):
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag'] or 'bhmv2c10' in chainParts['bTag']):
         # Offline taggers
         if('FTKRefit' in chainParts['bTracking']):
             theBjetFex = getBtagFexFTKRefitInstance(algoInstance,"2012","EFID") 
@@ -691,7 +691,7 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     ef_EtHypo_Btagging = getBjetEtHypoInstance("EF","Btagging", btagthresh+"GeV")
 
     # B-tagging
-    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag']):
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag'] or 'bhmv2c10' in chainParts['bTag']):
         ef_bjet = getBtagFexInstance("EF","2012","EFID")
     else:
         ef_bjet = getBjetFexInstance("EF","2012","EFID")

@@ -21,7 +21,7 @@ LArCoudeAbsorbers::LArCoudeAbsorbers(std::string strDetector)
 {
   if (s_theCoudes==nullptr)
     {
-      if (strDetector=="") {
+      if (strDetector.empty()) {
         s_theCoudes=
           new PhysicalVolumeAccessor("LAr::EMB::STAC",
                                      "LAr::EMB::ThinAbs::CornerDownFold");
@@ -59,7 +59,7 @@ double LArCoudeAbsorbers::XCentCoude(int stackid, int cellid) const
     return m_xcent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -72,7 +72,7 @@ double LArCoudeAbsorbers::YCentCoude(int stackid, int cellid) const
     return m_ycent[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4ThreeVector& tv=pv->GetTranslation();
@@ -85,7 +85,7 @@ double LArCoudeAbsorbers::PhiRot(int stackid, int cellid) const
     return m_phirot[cellid][stackid];
   }
   else {
-    int id=cellid+stackid*10000;
+    const int id=cellid+stackid*10000;
     const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
     if (!pv) return 0.;
     const G4RotationMatrix *rm=pv->GetRotation();

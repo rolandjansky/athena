@@ -64,33 +64,33 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   }};
 
   std::array<std::pair<std::string, std::string>, kNumErrorStatesIBL> error_state_labelsIBL = {{
-      std::make_pair("BCID_errors", "Synchronization BCID errors"),
-      std::make_pair("LVL1ID_errors", "Synchronization LVL1ID errors"),
-      std::make_pair("Row_Column_errors", "Row Column errors"),
-      std::make_pair("Limit_errors", "Limit_errors"),
-      std::make_pair("Preamble_errors", "Preamble errors"),
-      std::make_pair("Masked_link_errors", "Masked link errors"),
-      std::make_pair("Hamming_code_0_errors", "Hamming code 0 errors"),
-      std::make_pair("Hamming_code_1_errors", "Hamming code 1 errors"),
-      std::make_pair("Hamming_code_2_errors", "Hamming code 2 errors"),
-      std::make_pair("L1_incounter_errors", "L1 in counter errors"),
-      std::make_pair("L1_request_counter_errors", "L1 request counter errors"),
-      std::make_pair("L1_register_errors", "L1 register errors"),
-      std::make_pair("L1_Trigger_ID_errors", "L1 trigger ID errors"),
-      std::make_pair("Readout_processor_errors", "Readout processor errors"),
-      std::make_pair("Skipped_trig_counter_errors", "Skipped trigger counter errors"),
-      std::make_pair("Truncated_event_flag_errors", "Truncated event errors"),
-      std::make_pair("Triple redundant_errors", "Triple redundant errors"),
-      std::make_pair("Write_reg_data_errors", "Write register data errors"),
-      std::make_pair("Address_errors", "Address errors"),
-      std::make_pair("Other_CMD_decoder_errors", "CMD decoder errors"),
-      std::make_pair("CMD_decoder_bitflip_errors", "CMD decoder bit flip errors"),
-      std::make_pair("CMD_decoder_SEU_errors", "CMD decoder SEU errors"),
-      std::make_pair("Data_bus_address_errors", "Data bus address errors"),
+      std::make_pair("ROD_BCID_errors", "ROD BCID synchronization errors"),
+      std::make_pair("ROD_LVL1ID_errors", "ROD LVL1ID synchronization errors"),
+      std::make_pair("SR_BCID_counter_errors", "SR BCID counter errors"),
+      std::make_pair("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
+      std::make_pair("SR_L1_request_counter_errors", "SR L1 request counter errors"),
+      std::make_pair("SR_L1_register_errors", "SR L1 register errors"),
+      std::make_pair("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
+      std::make_pair("SR_Skippped_trig_count_errors", "SR Skipped trigger counter errors"),
+      std::make_pair("SR_Row-Column_errors", "SR row-column errors"),
+      std::make_pair("SR_Limit_errors", "SR Header Trailer limit errors"),
+      std::make_pair("SR_Truncated_event_flag_errors", "SR Truncated event errors"),
+      std::make_pair("ROD_Preamble_errors", "ROD Preamble errors"),
+      std::make_pair("SR_Hamming_code_0_errors", "SR Hamming code in word 0 errors"),
+      std::make_pair("SR_Hamming_code_1_errors", "SR Hamming code in word 1 errors"),
+      std::make_pair("SR_Hamming_code_2_errors", "SR Hamming code in word 2 errors"),
+      std::make_pair("SR_Triple_redundant_errors_CNFGMEM", "SR Triple redundant errors CNFGMEM"),
+      std::make_pair("SR_CMD_decoder_bitflip_errors", "SR CMD decoder bit flip errors"),
+      std::make_pair("SR_Triple_redundant_errors_CMD", "SR Triple redundant errors CMD"),
+      std::make_pair("SR_Triple_redundant_errors_EFUSE", "SR Triple redundant errors EFUSE"),
+      std::make_pair("ROD_Trailer_errors", "ROD Trailer errors"),
       std::make_pair("ROD_Timeout_errors", "ROD Timeout errors"),
-      std::make_pair("Timeout_errors", "Timeout errors"),
-      std::make_pair("BCID_counter_errors", "BCID counter errors"),
-      std::make_pair("Triple_redundant_errors2", "Triple redundant errors 2"),
+      std::make_pair("SR_Masked_link", "SR Masked link errors"),
+      std::make_pair("SR_FE_readout_process_errors", "SR FE readout process errors"),
+      std::make_pair("SR_Write_reg_data_errors", "SR Write register data errors"),
+      std::make_pair("SR Address_errors", "SR Address errors"),
+      std::make_pair("SR_Other_CMD_decoder_errors", "SR CMD decoder errors"),
+      std::make_pair("SR_Data_bus_address_errors", "SR Data bus address errors"),
   }};
 
   const char* errorBitsPIX[kNumErrorBits] = {
@@ -104,15 +104,18 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     "28",                        "29",                        "30",                    "31"
   };
 
-  const char* errorBitsIBL[kNumErrorBits] = {
-    "Row/ Column Error", "Limit Error",          "Timeout Error",        "BCID Error",
-    "LVL1ID Error",      "Preamble Error",       "Masked Link",          "Timeout Error",
-    "BCID counter",      "Hamming code 0",       "Hamming code 1",       "Hamming code 2",
-    "L1_in counter",     "L1 request counter",   "L1 register",          "L1 Trigger ID",
-    "readout processor", "Skipped trig counter", "Truncated event flag", "Triple Redundant",
-    "Write reg data",    "Address error",        "Other CMD decoder",    "CMD decoder bit flip",
-    "CMD decoder SEU",   "Data bus address",     "Triple redundant",     "27",
-    "28",                "29",                   "30",                   "31"
+  // Some bits are not used or just report an information or a warning, not an error
+  const char* errorBitsIBL[kNumErrorBitsIBL] = {
+    "Row/ Column Error",         "Limit Error",          "Trailer Error",        "BCID Error",
+    "LVL1ID Error",              "Preamble Error",       "Masked Link",          "Timeout Error",
+    "BCID counter",              "Hamming code 0",       "Hamming code 1",       "Hamming code 2",
+    "L1_in counter",             "L1 request counter",   "L1 register",          "L1 Trigger ID",
+    "Readout processor",         "17",                   "18",                   "19",
+    "20",                        "21",                   "22",                   "Skipped trig counter",
+    "Truncated event flag",      "25",                   "26",                   "27",
+    "28",                        "29",                   "30"                    "31"
+    "Triple redundant CNFGMEM",  "Write reg data",       "Address error",        "Other CMD decoder",
+    "CMD decoder bit flip",      "CMD decoder SEU",      "Data bus address",     "Triple redundant EFUSE"
   };
 
   const std::array<std::pair<std::string, std::string>, ErrorCategoryMODROD::COUNT> error_type_labels = {{
@@ -133,7 +136,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
       std::make_pair("TimeoutErrors", "Timeout Errors"),
   }};
 
-  const std::string modlabel2[PixLayerIBL2D3D::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
+  const std::string modlabel2[PixLayerIBL2D3DDBM::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"};
 
   unsigned int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 32};
 
@@ -154,7 +157,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB + atext_err), false);
   sc = rodHistos.regHist(m_errhist_syncerr_LB_pix = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     for (int j = 0; j < ErrorCategory::COUNT; ++j) {
       hname = makeHistname((error_cat_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
       htitles = makeHisttitle(("Average " + error_cat_labels[j].second + ", " + modlabel2[i]), (atext_LB + atext_err), false);
@@ -173,7 +176,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
 
     hname = makeHistname(("ErrorBit_per_lumi_" + modlabel2[i]), false);
     htitles = makeHisttitle(("Average Errors by Error Bits, " + modlabel2[i]), (atext_LB + atext_erb + atext_erf), false);
-    sc = rodHistos.regHist(m_errhist_per_bit_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 31, 0., 31.));
+    sc = rodHistos.regHist(m_errhist_per_bit_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 40, 0., 40.));
     m_errhist_per_bit_LB[i]->SetOption("colz");
 
     hname = makeHistname(("Error_per_lumi_" + modlabel2[i]), false);
@@ -181,7 +184,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     sc = rodHistos.regHist(m_errhist_per_type_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
     m_errhist_per_type_LB[i]->SetOption("colz");
 
-    if (i < PixLayerIBL2D3D::kIBL) {
+    if (i < PixLayerIBL2D3DDBM::kDBMA) {
       for (unsigned int y = 1; y <= m_errhist_per_bit_LB[i]->GetYaxis()->GetNbins(); y++) {
         m_errhist_per_bit_LB[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y - 1]);
       }
@@ -229,6 +232,25 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     }
   }
 
+  if (m_do2DMaps) {
+    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
+    sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
+    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
+    sc = m_errhist_bitstr_occ_errors->regHist(rodHistos);
+    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
+    sc = m_errhist_bitstr_occ_tot->regHist(rodHistos);
+  }
+
+  for (int i = 0; i < PixLayerIBL2D3D::COUNT; ++i) {
+    hname = makeHistname(("Bitstr_Occ_Errors_LB_" + modlabel2[i]), false);
+    htitles = makeHisttitle(("Average Bit-Stream Occupancy per Module (FE/MCC Errors, at 100k L1), "+modlabel2[i]), (atext_LB + ";bitstream occ./module/event"), false);
+    sc = rodHistos.regHist(m_errhist_bitstr_occ_errors_avg[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+
+    hname = makeHistname(("Bitstr_Occ_Tot_LB_" + modlabel2[i]), false);
+    htitles = makeHisttitle(("Average Bit-Stream Occupancy per Module (at 100k L1), "+modlabel2[i]), (atext_LB + ";bitstream occ./module/event"), false);
+    sc = rodHistos.regHist(m_errhist_bitstr_occ_tot_avg[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+  }
+
   for (int j = 0; j < kNumErrorStates; j++) {
     for (int i = 0; i < PixLayer::COUNT - 1; i++) {
       hname = makeHistname((error_state_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
@@ -241,31 +263,28 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
-  if (m_do2DMaps) {
-    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
-    sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
-  }
-
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
-    hname = makeHistname((error_state_labelsIBL[j].first + "_per_lumi_" + modlabel2[PixLayerIBL2D3D::kIBL]), false);
-    htitles = makeHisttitle(("Average " + error_state_labelsIBL[j].second + " per event per LB, " + modlabel2[PixLayerIBL2D3D::kIBL]), (atext_LB + atext_erf), false);
-    sc = rodExpert.regHist(m_errhist_expert_IBL_LB[j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+    for (int i = 0; i < PixLayerDBM::COUNT - PixLayerDBM::kDBMA; i++) {
+      hname = makeHistname((error_state_labelsIBL[j].first + "_per_lumi_" + modlabel2[i + PixLayerIBL2D3DDBM::kDBMA]), false);
+      htitles = makeHisttitle(("Average " + error_state_labelsIBL[j].second + " per event per LB, " + modlabel2[i + PixLayerIBL2D3DDBM::kDBMA]), (atext_LB + atext_erf), false);
+      sc = rodExpert.regHist(m_errhist_expert_DBMIBL_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+    }
   }
 
   for (int j = kNumErrorStates; j < kNumErrorStates + kNumErrorStatesIBL; j++) {
     hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first + "_Map"), false);
     htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
-    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL, m_doIBL));
+    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kDBMIBL, m_doIBL));
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
   hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
   htitles = makeHisttitle("ServiceRecord Unweighted, IBL", ";SR;Count", false);
-  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
+  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 40, -0.5, 39.5));
 
   hname = makeHistname("ServiceRecord_Weighted_IBL", false);
   htitles = makeHisttitle("ServiceRecord Weighted, IBL", ";SR;Count", false);
-  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_weighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
+  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_weighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 40, -0.5, 39.5));
 
   hname = makeHistname("ServiceRecord_Count_IBL", false);
   htitles = makeHisttitle("ServiceRecord Count, IBL", ";SR;Count", false);
@@ -282,6 +301,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
       m_errhist_expert_servrec_ibl_weighted->GetXaxis()->SetBinLabel(i + 1, errorBitsIBL[i]);
     }
   }
+
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
     hname = makeHistname(("nFEswithTruncErr_" + m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -324,15 +344,17 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   static constexpr int kNumModulesEta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
 
   // Error counters: total; errors by bit; errors by state (sync etc.)
-  int num_errors[PixLayerIBL2D3D::COUNT] = {0};
-  int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {{0}};
+  int num_errors[PixLayerIBL2D3DDBM::COUNT] = {0};
+  int num_errors_per_bit[PixLayerIBL2D3DDBM::COUNT][kNumErrorBitsIBL] = {{0}};
   int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {{0}};  // no IBL here
-  int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};                 // IBL
+  int num_errors_per_stateDBMIBL[PixLayerDBM::COUNT - PixLayerDBM::kDBMA][kNumErrorStatesIBL] = {{0}};  // DBMA, DBMC, IBL
+  double bitstream_occ_errors[PixLayerIBL2D3D::COUNT] = {0};
+  double bitstream_occ_tot[PixLayerIBL2D3D::COUNT] = {0};
 
   // Counter for erroneous modules on the layer, per error type and
   // category (error cat. = error type w/o ROD/MOD distinction).
-  int num_errormodules_per_cat[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT] = {{0}};
-  int num_errormodules_per_type[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT] = {{0}};
+  int num_errormodules_per_cat[PixLayerIBL2D3DDBM::COUNT][ErrorCategory::COUNT] = {{0}};
+  int num_errormodules_per_type[PixLayerIBL2D3DDBM::COUNT][ErrorCategoryMODROD::COUNT] = {{0}};
 
   // Counter for erroneous FEs per module per layer.
   int num_errorFEs_EA[kNumModulesPhi[PixLayer::kECA]][kNumModulesEta[PixLayer::kECA]][kNumFEs] = {{{0}}};
@@ -342,6 +364,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   int num_errorFEs_B2[kNumModulesPhi[PixLayer::kB2]][kNumModulesEta[PixLayer::kB2]][kNumFEs] = {{{0}}};
 
   const auto& kFeErrorWords = m_ErrorSvc->getAllFeErrors();
+  const auto& kFeSvcRecord = m_ErrorSvc->getAllServiceCodes();
 
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -352,22 +375,23 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
     const uint64_t kErrorWord = m_ErrorSvc->getModuleErrors(id_hash);
 
-    bool is_ibl = false;
-    if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_ibl = true;
+    bool is_fei4 = false;
+    if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_fei4 = true;
+    if (m_ErrorSvc->isActive(id_hash) && abs(m_pixelid->barrel_ec(WaferID)) == 4 && m_doIBL) is_fei4 = true;
 
     // Determine layer; functions return '99' for non-sensible IDs.
-    const int kLayer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    const int kLayerIBL = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    const int kLayer = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    const int kLayerIBL = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     if (kLayer == 99) continue;
 
     // Boolean whether current module has an error of type/category.
     bool has_err_cat[ErrorCategory::COUNT] = {false};
     bool has_err_type[ErrorCategoryMODROD::COUNT] = {false};
 
+    // Bit-shifting over modules, only for ROD-type errors for FE-I3
     for (unsigned int bit = 0; bit < kNumErrorBits; bit++) {
-      if ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0) {
-        // For non-IBL, We deal with FE/MCC errors separately, so ignore them here!
-        if (!is_ibl && bit >= 4 && bit <= 16) continue;
+      if (!is_fei4 && ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0)) {
+        if (bit >=4 && bit <=16) continue;
 
         num_errors[kLayer]++;
         num_errors_per_bit[kLayer][bit]++;
@@ -379,22 +403,13 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         int error_type = 0;
         int error_cat = 0;
 
-        if (!is_ibl) {
-          // if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
-          if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
-          // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
-          if (bit == 0  || bit == 1)               error_type = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
-          if (bit == 23)                           error_type = 5;  // optical errors                  (23: preamble (bitflip))
-          // if (bit >= 5  && bit <= 7)               error_type = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
-          if (bit == 22)                           error_type = 7;  // timeout errors                  (22: timeout on ROD formatter)
-        } else {
-          if (bit == 3  || bit == 4  || bit == 8)  error_type = 1;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
-          if (bit == 0 || bit == 18)               error_type = 3;  // module truncation error (0:Row/Column error, 18:Truncated event)
-          if (bit == 1)                            error_type = 4;  // ROD truncation error    (1:Limit error)
-          if (bit == 5)                            error_type = 5;  // optical error           (5:Preable error)
-          if (bit == 9 || bit == 10 || bit == 11 || bit == 19 || bit == 23 || bit == 24 || bit == 26) error_type = 6;  // SEU   (9,10,11: hammingcode, 19:Triple redundant, 23:Bit flip, 24:SEU, 26:Triple redundant)
-          if (bit == 2 || bit == 7)                error_type = 7;  // Timeout error           (2:Trailer timeout error, 7:readout timeout
-        }
+        // if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
+        if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
+        // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+        if (bit == 0  || bit == 1)               error_type = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
+        if (bit == 23)                           error_type = 5;  // optical errors                  (23: preamble (bitflip))
+        // if (bit >= 5  && bit <= 7)               error_type = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+        if (bit == 22)                           error_type = 7;  // timeout errors                  (22: timeout on ROD formatter)
 
         if (error_type) {  // if there were any errors we care about
           if (error_type == 1 || error_type == 2) error_cat = ErrorCategory::kSync;
@@ -431,71 +446,74 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if (bit == 4) {  // EoC trunc error
             int fephi = 0;
             int feeta = 0;
-            if (kLayer == PixLayer::kB0 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB0 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B0[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB1 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB1 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B1[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB2 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB2 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B2[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECA && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kECA && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EA[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECC && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kECC && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EC[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
           }
         }  // End of if(error_type)
 
-        if (getErrorState(bit, is_ibl) != 99) {
-          if (is_ibl) {
-            num_errors_per_stateIBL[getErrorState(bit, is_ibl) - kNumErrorStates]++;
+        if (getErrorState(bit, is_fei4) != 99) {
+          if (is_fei4) {
+            num_errors_per_stateDBMIBL[kLayer - PixLayerDBM::kDBMA][getErrorState(bit, is_fei4) - kNumErrorStates]++;
           } else {
-            num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+            num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
           }
-          if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
-        }
-
-        if (kLayer == PixLayer::kIBL) {
-          if (m_errhist_expert_servrec_ibl_unweighted) m_errhist_expert_servrec_ibl_unweighted->Fill(bit);
-          if (m_errhist_expert_servrec_ibl_weighted) m_errhist_expert_servrec_ibl_weighted->Fill(bit, m_ErrorSvc->getServiceRecordCount(bit));
-          if (m_errhist_expert_servrec_ibl_count) m_errhist_expert_servrec_ibl_count->Fill(m_ErrorSvc->getServiceRecordCount(bit));
+          if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
         }
       }  // end bit shifting
     }    // end for loop over bits
 
     unsigned int num_femcc_errwords = 0;
 
-    // Do the same bit-shifting again, this time for FE/MCC error words.
-    if (!is_ibl && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+    // Do the same bit-shifting again, this time per FE (this is both for FE-I3 and FE-I4)
+    if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
       // Collection of: FE ID, associated error word
       std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
-      if (fe_errorword_map.size() > 0) {
-        num_femcc_errwords = fe_errorword_map.size();
-      }
 
       for (const auto& map_entry : fe_errorword_map) {
         const auto& fe_errorword = map_entry.second;
+        bool has_femcc_errbits{false};
 
         for (int bit = 0; bit < kNumErrorBits; ++bit) {
           if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
             // FE Error word contains 'bit', so take appropriate actions.
+            if (is_fei4 && bit > 7) continue; // For FE-I4 we are interested only in trailer errors, which are the first 8 bits, service records are treated below
+
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
 
             int error_type = 0;  // same definitions as above
             int error_cat = 0;   // same definitions as above
 
-            if (bit == 14 || bit == 15 || bit == 16) error_type = 1;
-            if (bit == 4  || bit == 12 || bit == 13) error_type = 3;
-            if (bit >= 5  && bit <= 7)               error_type = 6;
+            if (!is_fei4) {
+              if (bit == 14 || bit == 15 || bit == 16) error_type = 1; // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
+              if (bit == 4  || bit == 12 || bit == 13) error_type = 3; // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+              if (bit >= 5  && bit <= 7)               error_type = 6; // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+            } else {
+              if (bit == 3 || bit == 4)                error_type = 2;  // synchronization error   (3:LVL1ID, 4:BCID)
+              if (bit == 0 || bit == 1)                error_type = 4;  // ROD truncation error    (0:Row/Column error, 1:Limit error)
+              if (bit == 5)                            error_type = 5;  // optical error           (5:Preable error)
+              if (bit == 2 || bit == 7)                error_type = 7;  // Timeout error           (2:Trailer timeout error, 7:Timeout error)
+            }
 
-            if (error_type) {  // if there were any errors we care about
-              if (error_type == 1) error_cat = ErrorCategory::kSync;
-              if (error_type == 3) error_cat = ErrorCategory::kTrunc;
+            if (error_type) {
+              if (error_type == 1 || error_type == 2) error_cat = ErrorCategory::kSync;
+              if (error_type == 3 || error_type == 4) error_cat = ErrorCategory::kTrunc;
+              if (error_type == 5) error_cat = ErrorCategory::kOpt;
               if (error_type == 6) error_cat = ErrorCategory::kSeu;
+              if (error_type == 7) error_cat = ErrorCategory::kTout;
 
               if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
 
@@ -525,16 +543,124 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               }
             }
 
-            if (getErrorState(bit, is_ibl) != 99) {
-              num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
-              if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
+            if (getErrorState(bit, is_fei4) != 99) {
+              if (is_fei4) {
+                num_errors_per_stateDBMIBL[kLayer - PixLayerDBM::kDBMA][getErrorState(bit, is_fei4) - kNumErrorStates]++;
+              } else {
+                num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
+              }
+              if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
             }
           }  // end bit shifting
         }    // end for loop over bits
+
+        // If we have bits generated by FE/MCC, count this error word.
+        if (has_femcc_errbits) num_femcc_errwords++;
       }      // end loop over FE error words
     }
 
+
+    // Loop over IBL service records, FE-I4
+    if (is_fei4 && kFeSvcRecord.find(id_hash) != kFeSvcRecord.end()) {
+      // map of FE ID and a pair of associated service record and payload
+      std::map<unsigned int, std::vector<std::pair<int, unsigned int>>> map_svc_record = kFeSvcRecord.find(id_hash)->second;
+
+      for (const auto& map_entry : map_svc_record) {
+        std::vector<std::pair<int, unsigned int>> svc_record_vec = map_entry.second;
+        for (std::vector<std::pair<int,unsigned int>>::iterator it = svc_record_vec.begin(); it != svc_record_vec.end(); it++) {
+          int svc_record = it->first;
+          unsigned int payload = it->second;
+
+          for (int bit=0; bit<kNumErrorBitsIBL; bit++) {
+            if ((bit >= 17 && bit <=22) || (bit >=25 && bit <=31)) continue; // bits not used or just report an information
+            // First 8 bits are trailer errors, the others are service records
+            if (bit==svc_record+8) {
+
+              num_errors[kLayer] += (payload+1);
+              num_errors_per_bit[kLayer][bit] += (payload+1);
+
+              int error_type = 0;  // same definitions as above
+              int error_cat = 0;   // same definitions as above
+
+              if (bit == 8)                                                                                 error_type = 1;  // synchronization error   (8:BCID counter)
+              if (bit == 24)                                                                                error_type = 3;  // truncation error        (24:Truncated event)
+              if (bit == 9 || bit == 10 || bit == 11 || bit == 32 || bit == 36 || bit == 38 || bit == 40)   error_type = 6;  // SEU error               (9:Hamming code 0, 10:Hamming code 1, 12:Hamming code 2, 32:Triple redundant CNFGMEM, 36:Bit flip in CMD, 38:Triple redundant CMD, 40:Triple redundant EFUSE)
+
+
+              if (error_type) {
+                if (error_type == 1 || error_type == 2) error_cat = ErrorCategory::kSync;
+                if (error_type == 3 || error_type == 4) error_cat = ErrorCategory::kTrunc;
+                if (error_type == 5) error_cat = ErrorCategory::kOpt;
+                if (error_type == 6) error_cat = ErrorCategory::kSeu;
+                if (error_type == 7) error_cat = ErrorCategory::kTout;
+
+
+                if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
+
+                if (m_doLumiBlock && m_errors_LB) {
+                  m_errors_LB->fill(WaferID, m_pixelid);
+                }
+
+                // Should this stay the same? This counts '1' for errors,
+                // regardless of how many FEs have that error type.
+                if (!has_err_type[error_type - 1]) {
+                  if (m_errhist_errtype_map[error_type - 1] && !m_doOnline) {
+                    m_errhist_errtype_map[error_type - 1]->fill(WaferID, m_pixelid, payload+1);
+                  }
+                  num_errormodules_per_type[kLayer][error_type - 1] += (payload+1);
+                  if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type - 1] += (payload+1);
+                  has_err_type[error_type - 1] = true;
+                }
+                if (!has_err_cat[error_cat]) {
+                  if (m_errhist_errcat_map[error_cat] && !m_doOnline) {
+                    m_errhist_errcat_map[error_cat]->fill(WaferID, m_pixelid, payload+1);
+                  }
+                  num_errormodules_per_cat[kLayer][error_cat] += (payload+1);
+                  if (kLayerIBL != 99) {
+                    num_errormodules_per_cat[kLayerIBL][error_cat] += (payload+1);
+                  }
+                  has_err_cat[error_cat] = true;
+                }
+              }
+
+              if (getErrorState(bit, is_fei4) != 99) {
+                num_errors_per_stateDBMIBL[kLayer - PixLayerDBM::kDBMA][getErrorState(bit, is_fei4) - kNumErrorStates] += (payload+1);
+                if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid, payload+1);
+              }
+
+              if (m_errhist_expert_servrec_ibl_unweighted) m_errhist_expert_servrec_ibl_unweighted->Fill(bit);
+              if (m_errhist_expert_servrec_ibl_weighted) m_errhist_expert_servrec_ibl_weighted->Fill(bit, payload+1);
+              if (m_errhist_expert_servrec_ibl_count) m_errhist_expert_servrec_ibl_count->Fill(payload+1);
+
+            }
+          } // end loop over bits
+        }
+      } // end loop over service records
+    }
+
+
+
     m_errhist_femcc_errwords_map->fill(WaferID, m_pixelid, num_femcc_errwords);
+    if (kLayer == PixLayer::kIBL) {
+      bool has_error = has_err_type[0] || has_err_type[2] || has_err_type[4] || has_err_type[5] || has_err_type[6];
+      m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, (has_error ? 30 : 0)));
+      m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, (has_error ? 1 : 0))));
+      // Determine whether we are looking at a 2D or 3D module. If 2D, we need
+      // to double-count hits in the following arrays. This is because
+      // m_nActive_mod counts individual FEs for IBL.
+      bool is_ibl2d = (m_pixelid->eta_module(WaferID) < 6 && m_pixelid->eta_module(WaferID) > -7);
+      bitstream_occ_errors[kLayer] += (is_ibl2d ? 2 : 1) * getBitStreamFraction(WaferID, (has_error ? 30 : 0));
+      bitstream_occ_tot[kLayer] += (is_ibl2d ? 2 : 1) * getBitStreamFraction(WaferID, getEventBitLength(WaferID, (has_error ? 1 : 0)));
+      if (kLayerIBL != 99) {
+        bitstream_occ_errors[kLayerIBL] += getBitStreamFraction(WaferID, (has_error ? 30 : 0));
+        bitstream_occ_tot[kLayerIBL] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, (has_error ? 1 : 0)));
+      }
+    } else {
+      m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
+      m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
+      bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, num_femcc_errwords * 22);
+      bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords));
+    }
 
     if (m_doLumiBlock) {
       if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->fill(WaferID, m_pixelid);
@@ -543,27 +669,29 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   }  // end loop over all identifiers
 
   double total_errors = 0;
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     total_errors += num_errors[i];
   }
 
   for (int i = 0; i < PixLayer::COUNT - 1; i++) {
     for (int j = 0; j < kNumErrorStates; j++) {
-      if (m_errhist_expert_LB[i][j]) {
-        m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_state[i][j] / m_nActive_mod[i]);
+      if (m_errhist_expert_LB[i][j] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
+        m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_state[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
-    if (m_errhist_expert_IBL_LB[j]) {
-      m_errhist_expert_IBL_LB[j]->Fill(kLumiBlock, (float)num_errors_per_stateIBL[j] / m_nActive_mod[PixLayerIBL2D3D::kIBL]);
+    for (int i = 0; i < PixLayerDBM::COUNT - PixLayerDBM::kDBMA; i++) {
+      if (m_errhist_expert_DBMIBL_LB[i][j] && m_nActive_mod[i + PixLayerIBL2D3DDBM::kDBMA] > 0) {
+        m_errhist_expert_DBMIBL_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_stateDBMIBL[i][j] / m_nActive_mod[i + PixLayerIBL2D3DDBM::kDBMA]);
+      }
     }
   }
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     if (m_errhist_per_bit_LB[i] && m_nActive_mod[i] > 0) {
-      for (int j = 0; j < kNumErrorBits; j++) {
+      for (int j = 0; j < kNumErrorBitsIBL; j++) {
         m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float)num_errors_per_bit[i][j] / m_nActive_mod[i]);
       }
     }
@@ -574,7 +702,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     }
   }
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     if (m_errhist_tot_LB[i]) m_errhist_tot_LB[i]->Fill(kLumiBlock, num_errors[i]);
 
     for (int j = 0; j < ErrorCategory::COUNT; ++j) {
@@ -596,10 +724,16 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
       }
     }
   }
+
+  for (int i = 0; i < PixLayerIBL2D3D::COUNT; ++i) {
+    if (m_errhist_bitstr_occ_errors_avg[i]) m_errhist_bitstr_occ_errors_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_errors[i]/m_nActive_mod[getPixLayerIDWithDBM(i)]);
+    if (m_errhist_bitstr_occ_tot_avg[i]) m_errhist_bitstr_occ_tot_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_tot[i]/m_nActive_mod[getPixLayerIDWithDBM(i)]);
+  }
+
   if (m_errhist_syncerr_LB_pix) {
-    m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
-                                   + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
-                                   + num_errormodules_per_cat[PixLayerIBL2D3D::kB2][ErrorCategory::kSync]);
+    m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB0][ErrorCategory::kSync]
+                                   + num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB1][ErrorCategory::kSync]
+                                   + num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB2][ErrorCategory::kSync]);
   }
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
@@ -621,23 +755,24 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   return StatusCode::SUCCESS;
 }
 
-double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errwords) {
-  // Do an estimation of the bit fraction consumed by FE/MCC error words in the
-  // MCC output. Simplifications: hits are distributed uniformly on all FEs,
-  // errors only occur on FEs with hits. Without these simplifications, we
-  // would have to consider the FE ID bit blocks (8 bits) more carefully.
+unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const unsigned int& num_errwords) {
+  // The bit lengths for FE-I4-based components are (after 8b/10b conversion):
+  //  - 50 bits for start/end words and data header
+  //  - 30 bits for each data record (hits)
+  //  - 30 bits for each service record (errors)
   //
-  // The assumed bit lengths are:
+  // The bit lengths for FE-I3-based components are:
   //  - 45 bits for event ID, header, trailer
   //  - 9 bits for each FE ID. If more than 16 hits:, count 16 FE ID blocks;
   //    otherwise calculate max(number of hits, number of error words).
   //  - 22 bits for each hit word
   //  - 22 bits for each error word
   const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-  if (layer == PixLayer::kIBL) return 0.;
 
   unsigned int num_hits = 0;
-  if (layer == PixLayer::kB0) {
+  if (layer == PixLayer::kIBL) {
+    num_hits = m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(10 + m_pixelid->eta_module(WaferID)))];
+  } else if (layer == PixLayer::kB0) {
     num_hits = m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   } else if (layer == PixLayer::kB1) {
     num_hits = m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
@@ -649,15 +784,48 @@ double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsign
     num_hits = m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   }
 
-  int total_bits = 45;
-  if (num_hits >= 16) {
-    total_bits += 16 * 9;
-  } else {
-    total_bits += std::max(num_hits, num_femcc_errwords) * 9;
+  // Return here if we have neither hits nor errors
+  if (num_hits == 0 && num_errwords == 0) {
+    return 0;
   }
-  total_bits += num_hits * 22;
-  total_bits += num_femcc_errwords * 22;
-  return static_cast<double>(num_femcc_errwords * 22 / total_bits);
+
+  int total_bits{0};
+  if (layer == PixLayer::kIBL && num_hits > 0) {
+    total_bits = 50;
+    total_bits += num_hits * 30;
+    total_bits += num_errwords * 30;
+  } else {
+    total_bits = 45;
+    if (num_hits >= 16) {
+      total_bits += 16 * 9;
+    } else {
+      total_bits += std::max(num_hits, num_errwords) * 9;
+    }
+    total_bits += num_hits * 22;
+    total_bits += num_errwords * 22;
+  }
+  return total_bits;
+}
+
+double PixelMainMon::getBitStreamFraction(const Identifier& WaferID, const unsigned int& bits) {
+  // Assuming a trigger rate of 100k, this function returns the fraction of the
+  // bit stream consumed by the inputted number of bits.
+  const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+
+  // Assumed available bandwidth per layer
+  double mbits_sec = 80.;
+  if (layer == PixLayer::kB0 || layer == PixLayer::kB1) mbits_sec = 160.;
+  if (layer == PixLayer::kIBL) {
+    if (m_pixelid->eta_module(WaferID) < 6 && m_pixelid->eta_module(WaferID) > -7) {
+      mbits_sec = 320.;  // 2D modules are 2 FEs with 160 Mbit/s each
+    } else {
+      mbits_sec = 160.;
+    }
+  }
+
+  // Average bits available per event, assuming 100k trigger rate
+  double avg_available_bits = mbits_sec / 0.1;
+  return static_cast<double>(bits / avg_available_bits);
 }
 
 int PixelMainMon::getErrorState(int bit, bool isibl) {
@@ -719,85 +887,85 @@ int PixelMainMon::getErrorState(int bit, bool isibl) {
   } else {
     switch (bit) {
       case 3:
-        erstate = 16;  // BCID, Synch
+        erstate = 16;  // BCID, ROD Synch
         break;
       case 4:
-        erstate = 17;  // LVL1ID, Synch
+        erstate = 17;  // LVL1ID, ROD Synch
         break;
       case 8:
-        erstate = 18;  // BCID counter, Synch
+        erstate = 18;  // BCID counter, FE Synch
         break;
       case 12:
-        erstate = 19;  // L1 trigger input in EODCL counter (write pointer), Synch
+        erstate = 19;  // L1 trigger input in EODCL counter (write pointer), FE Synch
         break;
       case 13:
-        erstate = 20;  // L1 trigger request counter to EODCL (read pointer), Synch
+        erstate = 20;  // L1 trigger request counter to EODCL (read pointer), FE Synch
         break;
       case 14:
-        erstate = 21;  // L1 register, register is full, Synch
+        erstate = 21;  // L1 register, register is full, FE Synch
         break;
       case 15:
-        erstate = 22;  // L1 trigger ID in BC register, Synch
-        break;
-      case 17:
-        erstate = 23;  // Skipped trigger because the L1 register is full, Synch
-        break;
-      case 0:
-        erstate = 24;  // Row/Column, Trunc
-        break;
-      case 18:
-        erstate = 25;  // Truncated event, Trunc
-        break;
-      case 1:
-        erstate = 26;  // Limit error ROD, Trunc
-        break;
-      case 5:
-        erstate = 27;  // Preamble error, Optical
-        break;
-      case 9:
-        erstate = 28;  // Hamming code in word 0 in EOCHL, SEU
-        break;
-      case 10:
-        erstate = 29;  // Hamming code in word 1 in EOCHL, SEU
-        break;
-      case 11:
-        erstate = 30;  // Hamming code in word 2 in EOCHL, SEU
-        break;
-      case 19:
-        erstate = 31;  // Triple redundant mismatch in Global Configuration Memory (CNFGMEM,) SEU
+        erstate = 22;  // L1 trigger ID in BC register, FE Synch
         break;
       case 23:
-        erstate = 32;  // Bit flip in CMD, SEU
+        erstate = 23;  // Skipped trigger because the L1 register is full, FE Synch
+        break;
+      case 0:
+        erstate = 24;  // Row/Column, ROD Trunc
+        break;
+      case 1:
+        erstate = 25;  // Limit error, ROD Trunc
         break;
       case 24:
-        erstate = 33;  // Triple redundant mismatch in CMD, SEU
+        erstate = 26; // Truncated event, FE Trunc
         break;
-      case 26:
-        erstate = 34;  // Triple redundant mismatch in EFUSE,  SEU
+      case 5:
+        erstate = 27;  // Preamble error, ROD Optical
+        break;
+      case 9:
+        erstate = 28;  // Hamming code in word 0 in EOCHL, FE SEU
+        break;
+      case 10:
+        erstate = 29;  // Hamming code in word 1 in EOCHL, FE SEU
+        break;
+      case 11:
+        erstate = 30;  // Hamming code in word 2 in EOCHL, FE SEU
+        break;
+      case 32:
+        erstate = 31;  // Triple redundant mismatch in Global Configuration Memory (CNFGMEM,) FE SEU
+        break;
+      case 36:
+        erstate = 32;  // Bit flip in CMD, FE SEU
+        break;
+      case 38:
+        erstate = 33;  // Triple redundant mismatch in CMD, FE SEU
+        break;
+      case 40:
+        erstate = 34;  // Triple redundant mismatch in EFUSE, FE SEU
         break;
       case 2:
-        erstate = 35;  // Trailer timeout, Timeout
+        erstate = 35;  // Trailer error, ROD
         break;
       case 7:
-        erstate = 36;  // Timeout ROD, Timeout
+        erstate = 36;  // Timeout error, ROD
         break;
       case 6:
-        erstate = 37;  // Masked link
+        erstate = 37;  // Masked link, ROD
         break;
       case 16:
-        erstate = 38;  // FE readout process error
+        erstate = 38;  // Readout process error, FE
         break;
-      case 20:
-        erstate = 39;  // Write register data error
+      case 33:
+        erstate = 39;  // Write register data error, FE
         break;
-      case 21:
-        erstate = 40;  // Address error
+      case 34:
+        erstate = 40;  // Address error, FE
         break;
-      case 22:
-        erstate = 41;  // Other CMD decoder error
+      case 35:
+        erstate = 41;  // Other CMD decoder error, FE
         break;
-      case 25:
-        erstate = 42;  // Data bus address
+      case 39:
+        erstate = 42;  // Data bus address, FE
         break;
       default:
         erstate = 99;

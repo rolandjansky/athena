@@ -83,6 +83,12 @@ class TileFatherMonTool: public TilePaterMonTool
 /// Method to get the run Number in words: 
   std::string getRunNumStr();
 
+/// Method to get the tile Flag: 
+  inline uint32_t gettileFlag() { return m_tileFlag;};
+
+/// Method to get the tile Error: 
+  inline uint32_t gettileError_error() { return m_tileError_error;};
+
 /// Method to fill the lvl1Info variable,
 /// evtNumber, evtBCID and lumi_block
   void fillEvtInfo();
@@ -148,6 +154,8 @@ class TileFatherMonTool: public TilePaterMonTool
   uint32_t m_lumiBlock;
   uint32_t m_evtBCID;
   uint32_t m_runNum;
+  uint32_t m_tileFlag;
+  uint32_t m_tileError_error;
   ToolHandle<Trig::TrigDecisionTool>  m_trigDec;
 
 /// Vector containing the list of triggers passed by the event

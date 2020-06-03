@@ -1412,16 +1412,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       // updated for real config: 15.02.11
       std::vector<std::string> vs_ESstd;
       if( !m_HI_pp_mode ){
-	vs_ESstd.push_back("HLT_noalg_L1MU4"); 
-	vs_ESstd.push_back("HLT_noalg_L1MU6"); 
-	vs_ESstd.push_back("HLT_noalg_L1MU10"); 
-	//vs_ESstd.push_back("HLT_noalg_L1MU11"); 
+	vs_ESstd.push_back("HLT_mu8"); // increasing stat for muZTP, which requests now ES bits
       }else{
 	vs_ESstd.push_back("HLT_mu26_ivarmedium"); // increasing stat for muZTP, which requests now ES bits
       }
-      // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
-      // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
+      std::vector<std::string> vs_ESnoniso;
+      vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
+      vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
+      vs_ESnoniso.push_back("HLT_mu26");
+      vs_ESnoniso.push_back("HLT_mu24");      
+      
       std::vector<std::string> vs_EStag;
       //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
       vs_EStag.push_back("HLT_mu20_idperf"); // pp v5
@@ -1477,6 +1478,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
 	    m_passedES[ESSTD] = true;
 	    ATH_MSG_DEBUG("----- CommonDQA: ESstd " << *itrES << " and EF " << *itrES << " passed");
+	  }
+	}
+	for (itrES = vs_ESnoniso.begin(); itrES != vs_ESnoniso.end(); itrES++) {
+	  if (getTDT()->isPassed(*itrES)) {
+	    m_passedESNONISO = true;
+	    ATH_MSG_DEBUG("----- CommonDQA: ESnoniso " << *itrES << " and EF " << *itrES << " passed");
 	  }
 	}
 	for (itrES = vs_EStag.begin(); itrES != vs_EStag.end(); itrES++) {
@@ -1918,6 +1925,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( mf.size() == 1 ) {
 		mf_active = mf[0].te()->getActiveState();
 		ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
+		if(m_access_hypoTE){
+		  const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2(mf[0].te(), "L2MuonSA", chainName);
+		  if(hypo){
+		    mf_active = hypo->getActiveState();
+		    ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << mf_active); 
+		  }
+		}
 	      }
 	      if( mf_active ) {
 		// float mf_pt = mf[0].cptr()->pt();
@@ -2426,6 +2440,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( mf.size() == 1 ) {
 		  mf_active = mf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
+		  if(m_access_hypoTE){
+		    const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2(mf[0].te(), "L2MuonSA", chainName);
+		    if(hypo){
+		      mf_active = hypo->getActiveState();
+		      ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << mf_active);
+		    }
+		  }
 		}
 		//if(!mf_active)return StatusCode::SUCCESS;
 
@@ -2434,6 +2455,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( combMf.size() == 1 ) {
 		  combMf_active = combMf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
+		  if(m_access_hypoTE){
+		    const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2(mf[0].te(), "L2muComb", chainName);
+		    if(hypo){
+		      combMf_active = hypo->getActiveState();
+		      ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << combMf_active);
+		    }
+		  }
 		}
 		//if(!combMf_active)return StatusCode::SUCCESS;
 		if(mf_active && combMf_active)match_L2_RoI_activate[n_mu] = 1;
@@ -2502,14 +2530,28 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( mf.size() == 1 ) {
 		  mf_active = mf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
+		  if(m_access_hypoTE){
+		    const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2(mf[0].te(), "L2MuonSA", chainName);
+		    if(hypo){
+		      mf_active = hypo->getActiveState();
+		      ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << mf_active);
+		    }
+		  }
 		}
 		//if(!mf_active)return StatusCode::SUCCESS;
-
+		
 		bool combMf_active = false;
 		std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = my_combsHLT_mu24_imedium[my_id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
 		if( combMf.size() == 1 ) {
 		  combMf_active = combMf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
+		  if(m_access_hypoTE){
+		    const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2(combMf[0].te(), "L2muComb", chainName);
+		    if(hypo){
+		      combMf_active = hypo->getActiveState();
+		      ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << combMf_active);
+		    }
+		  }
 		}
 		//if(!combMf_active)return StatusCode::SUCCESS;
 		if(mf_active && combMf_active)match_L2_RoI_activate[n_mu] = 1;
@@ -2868,6 +2910,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( mf.size() == 1 ) {
 		mf_active = mf[0].te()->getActiveState();
 		ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
+		if(m_access_hypoTE){
+		  const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2( mf[0].te(), "L2MuonSA", chainName);
+		  if(hypo){
+		    mf_active = hypo->getActiveState();
+		    ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << mf_active); 
+		  }
+		}
 	      }
 
 
@@ -2960,6 +3009,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( combMf.size() == 1 ) {
 		  combMf_active = combMf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
+		  if(m_access_hypoTE){
+		    const HLT::TriggerElement *hypo = getDirectSuccessorHypoTEForL2( combMf[0].te(), "L2muComb", chainName);
+		    if(hypo){
+		      combMf_active = hypo->getActiveState();
+		      ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*hypo) << " / " << combMf_active);
+		    }
+		  }
 		}
 
 

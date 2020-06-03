@@ -23,7 +23,7 @@ import os, sys
 import string,math
 from math import fabs
 import argparse
-import pathExtract
+from DataQualityUtils import pathExtract
 
 import ROOT
 from ROOT import *

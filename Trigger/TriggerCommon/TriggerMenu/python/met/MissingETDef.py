@@ -12,13 +12,23 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.met.MissingETDef")
 
+def trace(frame, event, arg):
+    if event == "call":
+        filename = frame.f_code.co_filename
+        lineno = frame.f_lineno
+        print "%s @ %s" % (filename, lineno)
+        return trace
+        
+
+
 from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
                                                    EFMissingET_Fex_Jets,
                                                    EFMissingET_Fex_TrackAndJets,
                                                    EFMissingET_Fex_FTKTrackAndJets,
                                                    EFMissingET_Fex_topoClusters,
                                                    EFMissingET_Fex_topoClustersPS, 
-                                                   EFMissingET_Fex_topoClustersPUC)
+                                                   EFMissingET_Fex_topoClustersPUC,
+                                                   EFMissingET_Fex_topoClustersTracksPUC)
 
 from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
 
@@ -27,6 +37,7 @@ from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
                                                        EFMetHypoFTKTrackAndJetsXE,
                                                        EFMetHypoTCPSXE,
                                                        EFMetHypoTCPUCXE, 
+                                                       EFMetHypoTCTrkPUCXE,
                                                        EFMetHypoTCXE,
                                                        EFMetHypoTE,
                                                        EFMetHypoXE, 
@@ -139,7 +150,7 @@ class L2EFChain_met(L2EFChainDef):
 
         mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht':
+        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht' or EFrecoAlg=='pufittrack':
 
             ##Topo-cluster
             if EFrecoAlg=='tc':
@@ -159,12 +170,48 @@ class L2EFChain_met(L2EFChainDef):
                     theEFMETHypo = EFMetHypoTCXE('EFMetHypo_TC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)  
                 
             if EFrecoAlg=='pufit':
+
+                doLArH11off=False
+                doLArH12off=False
+                LArTag=''
+                if "LArH11off" in addInfo: 
+                    doLArH11off = True
+                    LArTag += '_LArH11off'
+                if "LArH12off" in addInfo:
+                    doLArH12off = True
+                    LArTag += '_LArH12off'
+                if "METphi" in addInfo: 
+                    LArTag += '_METphi'
+
+                jpt_thr = '-1'
+                if len(addInfo.split('Jpt'))==2: jpt_thr = addInfo.split('Jpt')[1] 
+
+                if "Jpt" in addInfo:
+                    LArTag += '_Jpt'+jpt_thr
+
                 #MET fex
-                theEFMETFex = EFMissingET_Fex_topoClustersPUC() 
+                theEFMETFex = EFMissingET_Fex_topoClustersPUC("EFMissingET_Fex_topoClustersPUC%s"%(addInfo),doLArH11off,doLArH12off,float(jpt_thr)) 
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
                 mucorr= '_wMu' if EFmuon else '' 
-                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+
+                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV,labelMET=addInfo)
+
+
+            if EFrecoAlg=='pufittrack':
+                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
+                #MET fex
+                #print "PUFITTRACK XXXXXXXXXX"
+                #print calibCorr
+                theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
+                #print "PUFITTRACK XXXXXXXXXX"
+                #print theEFMETFex
+                #Muon correction fex
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
+                #print theEFMETMuonFex
+                mucorr= '_wMu' if EFmuon else ''
+                #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
 
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
@@ -189,7 +236,6 @@ class L2EFChain_met(L2EFChainDef):
                 #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
                 if "FTK" in addInfo: theEFMETHypo = EFMetHypoFTKTrackAndJetsXE('EFMetHypo_FTKTrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 else: theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
- 
 
                 
         
@@ -218,16 +264,22 @@ class L2EFChain_met(L2EFChainDef):
             elif  self.chainPart['trigType'] == "te":
                 theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
             else:               
-                theEFMETHypo = EFMetHypoXE('EFMetHypo_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
+                LArTag=''
+                if "LArH11off" in addInfo: LArTag += '_LArH11off'
+                if "LArH12off" in addInfo: LArTag += '_LArH12off'
+                if "METphi" in addInfo: LArTag += '_METphi'
+                theEFMETHypo = EFMetHypoXE('EFMetHypo'+LArTag+'_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
 
         else:
             log.warning("MET EF algorithm not recognised")
         
         #----------------------------------------------------
-        # Obtaining the needed jet TEs from the jet code
+        # Obtaining the needed jet TEs from the jet code and b-jet code 
         #----------------------------------------------------
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-
+        
+        from TriggerMenu.bjet.generateBjetChainDefs import generateChainDefs as generateBjetChainDefs
+    
         chain = ['j0_{0}_{1}'.format(calibration, jetCalib), '', [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
         theDictFromChainName = DictFromChainName.DictFromChainName()
@@ -235,7 +287,15 @@ class L2EFChain_met(L2EFChainDef):
         
         jetChainDict['chainCounter'] = 9151
         jetChainDef = generateHLTChainDef(jetChainDict)
-            
+        #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI. 
+        #Change the calibration by changing 'nojcalib' to the desired calibration scale. 
+        #For pufittrack, we found that the performance was superior using uncalibrated jets. 
+        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
+        bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
+        bjet_chain_dict["chainCounter"] = 9152
+        bjet_chain_dict['topoThreshold'] = None
+        bjet_chain_def = generateBjetChainDefs(bjet_chain_dict)
+       
         #for i in range(3):
         #    m_input[i] = jetChainDef.sequenceList[i]['input']
         #    m_output[i]= jetChainDef.sequenceList[i]['output']
@@ -312,9 +372,23 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
             self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
-            self.EFsequenceList +=[[ [output3],          [theEFMETFex],  'EF_xe_step1' ]]            
+            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
+            self.EFsequenceList +=[[ [output3,output4],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
-            
+
+        elif EFrecoAlg=='pufittrack':
+            makelist = lambda x: x if isinstance(x, list) else [x]
+            self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
+#            for x in bjet_chain_def.sequenceList[:-2]:
+#                print x
+#            print self.EFsequenceList[4][2], "Clusters, output EF_FSTopoClusters"
+#            print self.EFsequenceList[6][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
+#            print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
+#            print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
+#            Fill the sequence with clusters, jets, tracks, vertices 
+            self.EFsequenceList += [[ [self.EFsequenceList[4][2],self.EFsequenceList[6][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
+            self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
+
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
@@ -327,7 +401,6 @@ class L2EFChain_met(L2EFChainDef):
             if "FStracks" in addInfo:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
                 trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                print "XXXXXXXXXXXXXXXXXX"
                 print trk_algs[0]
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
@@ -385,7 +458,9 @@ class L2EFChain_met(L2EFChainDef):
 
         if EFrecoAlg=='trkmht':
             self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
-              
+        #if EFrecoAlg=='pufittrack':
+        #    self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")
+            
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         if "FStracks" in addInfo:
             self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step2")

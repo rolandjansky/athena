@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -41,6 +41,7 @@ class TileTBID;
 class TileHWID;
 class TileCablingService;
 
+class TH1I_LW;
 class TH2I_LW;
 class TProfile_LW;
 
@@ -179,6 +180,11 @@ protected:
   TMultiGraph* bookMultiGraph (std::string dir, std::string nam, std::string tit);
 
 
+  TH1I_LW* book1ILW(std::string dir, std::string nam, std::string tit, 
+                    int nx, double xmin, double xmax, 
+                    Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                    std::string trigChain = "", std::string mergeAlgo = "");
+
   TH2I_LW* book2ILW(std::string dir, std::string nam, std::string tit, 
                     int nx, double xmin, double xmax, 
                     int ny, double ymin, double ymax,
@@ -218,6 +224,7 @@ protected:
   bool m_savePs;
   bool m_saveSvg;
 
+  std::vector<int> m_fragIDsToIgnoreDMUerrors;
 
   std::string m_EBcellName[48] = { "E3", "E4", "D4", "D4", "C10", "C10", "A12", "A12", "B11", "B11", "A13", "A13"
                                  , "E1", "E2", "B12", "B12", "D5", "D5", "E3*", "E4*", "A14", "A14", "B13", "B13"

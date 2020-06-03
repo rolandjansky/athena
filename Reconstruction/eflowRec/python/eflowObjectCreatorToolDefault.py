@@ -46,3 +46,16 @@ class eflowObjectCreatorToolDefault(eflowObjectCreatorTool) :
 
         if jobproperties.eflowRecFlags.useAODReductionClusterMomentList == True:
             self.UseAODReductionMomentList = True
+
+        ## DigiTruth tests
+        doDigiTruthFlag = False
+        try:
+            from Digitization.DigitizationFlags import digitizationFlags
+            doDigiTruthFlag = digitizationFlags.doDigiTruth()
+        except:
+            log = logging.getLogger('CaloClusterTopoGetter')
+            log.info('Unable to import DigitizationFlags in CaloClusterTopoGetter. Expected in AthenaP1')
+
+        if doDigiTruthFlag:
+            self.DoDigiHSTruth = True
+

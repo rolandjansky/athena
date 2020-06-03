@@ -24,13 +24,13 @@
 namespace TrigCostRootAnalysis {
   /**
    * Counter to monitor the rates of a single chain.
-   * @param _costData Const pointer to the data store, not used by this counter at the moment.
-   * @param _name Const ref to chain's name
-   * @param _ID Chain's ID number.
+   * @param costData Const pointer to the data store, not used by this counter at the moment.
+   * @param name Const ref to chain's name
+   * @param ID Chain's ID number.
    */
-  CounterRatesIntersection::CounterRatesIntersection(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                                     UInt_t _detailLevel, MonitorBase* _parent) :
-    CounterBaseRates(_costData, _name, _ID, _detailLevel, _parent), m_redundanciesRemoved(kFALSE) {
+  CounterRatesIntersection::CounterRatesIntersection(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                                     UInt_t detailLevel, MonitorBase* parent) :
+    CounterBaseRates(costData, name, ID, detailLevel, parent), m_redundanciesRemoved(kFALSE) {
   }
 
   /**
@@ -42,31 +42,31 @@ namespace TrigCostRootAnalysis {
   /**
    * This is the naive method.
    * All L2 chains must pass raw and pass PS, plus at least one of each of their L1 chains must pass raw and pass PS too
-   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is
+   * @param usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is
    *taken to be 1.
    * @return 1 if all the chains passes, 0 if not.
    */
-  Float_t CounterRatesIntersection::runDirect(Bool_t _usePrescale) {
-    for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
-      RatesChainItem* _L2 = (*_L2It);
+  Float_t CounterRatesIntersection::runDirect(Bool_t usePrescale) {
+    for (ChainItemSetIt_t L2It = m_L2s.begin(); L2It != m_L2s.end(); ++L2It) {
+      RatesChainItem* L2 = (*L2It);
 
-      if (_L2->getPassRaw() == kFALSE) return 0;                                                     // L2 did not pass
+      if (L2->getPassRaw() == kFALSE) return 0;                                                     // L2 did not pass
                                                                                                      // - stop
 
-      if (_usePrescale == kTRUE && _L2->getPassPS() == kFALSE) return 0.;
+      if (usePrescale == kTRUE && L2->getPassPS() == kFALSE) return 0.;
 
-      Bool_t _l1Pass = kFALSE;
-      for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
-        RatesChainItem* _L1 = (*_lowerIt);
+      Bool_t l1Pass = kFALSE;
+      for (ChainItemSetIt_t lowerIt = L2->getLowerStart(); lowerIt != L2->getLowerEnd(); ++lowerIt) {
+        RatesChainItem* L1 = (*lowerIt);
 
-        if (_L1->getPassRaw() == kFALSE) continue;                                                        // L1 did not
+        if (L1->getPassRaw() == kFALSE) continue;                                                        // L1 did not
                                                                                                           // pass, try
                                                                                                           // next
-        if (_usePrescale == kTRUE && _L1->getPassPS() == kFALSE) continue;
-        _l1Pass = kTRUE;
+        if (usePrescale == kTRUE && L1->getPassPS() == kFALSE) continue;
+        l1Pass = kTRUE;
         break;
       }
-      if (_l1Pass == kFALSE) return 0.; // No L1 passed - stop.
+      if (l1Pass == kFALSE) return 0.; // No L1 passed - stop.
     }
     // All L2 passed with at least one L1 passing
     return 1.;
@@ -78,34 +78,34 @@ namespace TrigCostRootAnalysis {
    * This only needs to be done once per trigger configuration.
    * Then we simply check that all L1 and L2 items passed raw and tot up their prescale weights.
    */
-  Double_t CounterRatesIntersection::runWeight(Bool_t _includeExpress) {
+  Double_t CounterRatesIntersection::runWeight(Bool_t includeExpress) {
     m_eventLumiExtrapolation = 0;
     m_cachedWeight = 0.;
-    Double_t _lumiExtrapNumerator = 0., _lumiExtrapDenominator = 0.;
+    Double_t lumiExtrapNumerator = 0., lumiExtrapDenominator = 0.;
 
     if (m_redundanciesRemoved == kFALSE) removeRedundancies();
-    Double_t _w = 1.;
+    Double_t w = 1.;
 
-    for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
-      RatesChainItem* _L2 = (*_L2It);
-      if (_L2->getPassRaw() == kFALSE) return 0.;
+    for (ChainItemSetIt_t L2It = m_L2s.begin(); L2It != m_L2s.end(); ++L2It) {
+      RatesChainItem* L2 = (*L2It);
+      if (L2->getPassRaw() == kFALSE) return 0.;
 
-      _w *= _L2->getPSWeight(_includeExpress);
+      w *= L2->getPSWeight(includeExpress);
 
-      _lumiExtrapNumerator += _L2->getPassRawOverPS(_includeExpress) * _L2->getLumiExtrapolationFactor(
+      lumiExtrapNumerator += L2->getPassRawOverPS(includeExpress) * L2->getLumiExtrapolationFactor(
         m_costData->getLumi(), m_disableEventLumiExtrapolation);
-      _lumiExtrapDenominator += _L2->getPassRawOverPS(_includeExpress);
+      lumiExtrapDenominator += L2->getPassRawOverPS(includeExpress);
     }
 
-    for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
-      RatesChainItem* _L1 = (*_L1It);
-      if (_L1->getPassRaw() == kFALSE) return 0.;
+    for (ChainItemSetIt_t L1It = m_L1s.begin(); L1It != m_L1s.end(); ++L1It) {
+      RatesChainItem* L1 = (*L1It);
+      if (L1->getPassRaw() == kFALSE) return 0.;
 
-      _w *= _L1->getPSWeight();
+      w *= L1->getPSWeight();
     }
 
-    if (_lumiExtrapDenominator) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
-    m_cachedWeight = _w;
+    if (lumiExtrapDenominator) m_eventLumiExtrapolation = lumiExtrapNumerator / lumiExtrapDenominator;
+    m_cachedWeight = w;
     return m_cachedWeight;
   }
 
@@ -114,67 +114,66 @@ namespace TrigCostRootAnalysis {
    * Try removing one L1 at a time and see if all L2s are still reachable
    */
   void CounterRatesIntersection::removeRedundancies() {
-    ChainItemSet_t _L1Set = m_L1s;
-    ChainItemSet_t _L2Set;
+    ChainItemSet_t L1Set = m_L1s;
+    ChainItemSet_t L2Set;
 
-    UInt_t _L1ToTryRemoving = 0;
+    UInt_t L1ToTryRemoving = 0;
 
-    while (_L1ToTryRemoving < _L1Set.size()) {
-      ChainItemSetIt_t _L1ToTryRemovingIt; // Keep a iterator to the L1 item we're testing to have the option to remove
+    while (L1ToTryRemoving < L1Set.size()) {
+      ChainItemSetIt_t L1ToTryRemovingIt; // Keep a iterator to the L1 item we're testing to have the option to remove
                                            // it
-      UInt_t _N = 0; // Manual counter as we're iterating over a set
-      for (ChainItemSetIt_t _L1It = _L1Set.begin(); _L1It != _L1Set.end(); ++_L1It) {
-        RatesChainItem* _L1 = (*_L1It);
-        if (_L1It == _L1Set.begin()) { // reset L2 list
-          _L2Set = m_L2s;
+      UInt_t N = 0; // Manual counter as we're iterating over a set
+      for (ChainItemSetIt_t L1It = L1Set.begin(); L1It != L1Set.end(); ++L1It) {
+        RatesChainItem* L1 = (*L1It);
+        if (L1It == L1Set.begin()) { // reset L2 list
+          L2Set = m_L2s;
         }
 
-        if (_L1ToTryRemoving != _N++) { // If I'm *not* the L1 we're querying
-          for (ChainItemSetIt_t _L2It = _L2Set.begin(); _L2It != _L2Set.end(); /*note no increment*/) {
-            RatesChainItem* _L2 = (*_L2It);   // Look at this all L2s left in the list.
-            Bool_t _isSeeded = kFALSE;
-            for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
-              RatesChainItem* _lower = (*_lowerIt); // Now look at all the seeds of this L2
-              if (_lower == _L1) {
+        if (L1ToTryRemoving != N++) { // If I'm *not* the L1 we're querying
+          for (ChainItemSetIt_t L2It = L2Set.begin(); L2It != L2Set.end(); /*note no increment*/) {
+            RatesChainItem* L2 = (*L2It);   // Look at this all L2s left in the list.
+            Bool_t isSeeded = kFALSE;
+            for (ChainItemSetIt_t lowerIt = L2->getLowerStart(); lowerIt != L2->getLowerEnd(); ++lowerIt) {
+              RatesChainItem* lower = (*lowerIt); // Now look at all the seeds of this L2
+              if (lower == L1) {
                 // This L2 is seeded by the L1 - we can remove it
-                _isSeeded = kTRUE;
+                isSeeded = kTRUE;
                 break;
               }
             }
-            if (_isSeeded == kTRUE) {
+            if (isSeeded == kTRUE) {
               // Remove this chain from the list of L2s
-              _L2Set.erase(_L2It++); // Increment iterator after the delete
+              L2Set.erase(L2It++); // Increment iterator after the delete
             } else {
-              ++_L2It;
+              ++L2It;
             }
           }
         } else { // If *am* the L1 we're querying, remember my location
-          _L1ToTryRemovingIt = _L1It;
+          L1ToTryRemovingIt = L1It;
         }
       }
       // We have looped over all but one of the list of L1 items, have we found one we can remove?
-      if (_L2Set.size() == 0) { // If true we could still reach all the counters *without* this L1
+      if (L2Set.size() == 0) { // If true we could still reach all the counters *without* this L1
         if (Config::config().debug()) {
           Info("CounterRatesIntersection::removeRedundancies", "Removing redundant L1 chain %s from %s",
-               (*_L1ToTryRemovingIt)->getName().c_str(), getName().c_str());
+               (*L1ToTryRemovingIt)->getName().c_str(), getName().c_str());
         }
-        _L1Set.erase(_L1ToTryRemovingIt);
-        _L1ToTryRemoving = 0; // Go back to the beginning and try again
+        L1Set.erase(L1ToTryRemovingIt);
+        L1ToTryRemoving = 0; // Go back to the beginning and try again
       } else { // We cannot remove this L1 and should try removing the next L1 up until there are no more to try
                // removing
-        ++_L1ToTryRemoving;
+        ++L1ToTryRemoving;
       }
     }
 
     // Update the new L1 set
-    m_L1s = _L1Set;
+    m_L1s = L1Set;
     m_redundanciesRemoved = kTRUE;
   }
 
   /**
    * Output debug information on this call to the console
    */
-  void CounterRatesIntersection::debug(UInt_t _e) {
-    UNUSED(_e);
+  void CounterRatesIntersection::debug(UInt_t /*e*/) {
   }
 } // namespace TrigCostRootAnalysis

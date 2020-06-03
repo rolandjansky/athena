@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef __NTUPLETRACKSELECTOR_H
 #define __NTUPLETRACKSELECTOR_H

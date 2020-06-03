@@ -39,9 +39,19 @@
   <class name="xAOD::AFPToFHitContainer_v1" id="AF3603F3-CDC9-4597-B111-155D9BC2E8D1" />
   <class name="xAOD::AFPToFHitAuxContainer_v1" id="65012075-753E-4F3E-8A37-5BBB66C523D6" />
 
-  <class name="xAOD::AFPProton_v1" />
+  <class name="xAOD::AFPProton_v1">
+    <field name="m_p4" transient="true" />
+    <field name="m_p4Cached" transient="true" />
+  </class>
   <class name="xAOD::AFPProtonContainer_v1" id="D6DBFC87-D5C9-40CD-BFD0-21B19D0ED7AB" />
   <class name="xAOD::AFPProtonAuxContainer_v1" id="A5E4D2CC-2541-49D8-BAC7-3C5DFD51779B" />
+
+  <read sourceClass="xAOD::AFPProton_v1" version="[1-]"
+        targetClass="xAOD::AFPProton_v1" source="" target="m_p4Cached" >
+    <![CDATA[
+      m_p4Cached = false;
+    ]]>
+  </read>
 
   <!-- ZDC -->
   <class name="xAOD::ZdcModule_v1" />

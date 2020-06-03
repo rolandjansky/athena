@@ -108,14 +108,7 @@ const Token* DataHeaderElement::getToken() const {
 }
 //_____________________________________________________________________________
 long DataHeaderElement::getStorageType() const {
-   const long technology = m_token->technology();
-   if (technology == POOL_StorageType
-	   || technology == POOL_ROOT_StorageType
-	   || technology == POOL_ROOTKEY_StorageType
-	   || technology == POOL_ROOTTREE_StorageType) {
-      return(POOL_StorageType);
-   }
-   return(TEST_StorageType);
+   return(POOL_StorageType);
 }
 //_____________________________________________________________________________
 const std::vector<unsigned int>& DataHeaderElement::getHashes() const {
@@ -149,6 +142,34 @@ SG::TransientAddress* DataHeaderElement::getAddress(const std::string& key,
    sgAddress->setAlias(m_alias);
    return(sgAddress);
 }
+//______________________________________________________________________________
+void DataHeaderElement::dump(std::ostream& ostr) const
+{
+   using namespace std;
+   ostr << "SGKey: " << getKey() << endl;
+   ostr << "CLID: " << getPrimaryClassID();
+   if( getClassIDs().size() > 1 ) {
+      ostr << " ||";
+      for( auto& c : getClassIDs() ) ostr << " " << c;
+   }
+   ostr << std::endl;
+   if( getAlias().size() > 0 ) {
+      ostr << "Alias: ";
+      for( auto& a : getAlias() ) ostr << " " << a;
+      ostr << endl;
+   }
+   if( m_token ) {
+      ostr << "Token: " << m_token->toString();
+      if( m_ownToken ) ostr << " owned";
+      ostr << endl;
+   }
+   if( m_hashes.size() ) {
+      ostr << "Hashes:";
+      for( auto h : m_hashes ) ostr <<  " " << h;
+      ostr << endl;
+   }
+}
+
 //______________________________________________________________________________
 //______________________________________________________________________________
 DataHeader::DataHeader() : m_dataHeader(),
@@ -269,4 +290,25 @@ void DataHeader::setEvtRefTokenStr(const std::string& tokenStr) {
 //______________________________________________________________________________
 const std::string& DataHeader::getEvtRefTokenStr() {
    return(m_evtRefTokenStr);
+}
+//______________________________________________________________________________
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+
+void DataHeader::dump(std::ostream& ostr) const
+{
+   using namespace std;
+   ostr << "--- DataHeader Dump ---" << endl;
+   for( auto& el : m_dataHeader ) {
+      el.dump(ostr);
+   }
+   for( auto& el : m_inputDataHeader ) {
+      el.dump(ostr);
+   }
+   ostr << "Status: " << m_status << endl;
+   ostr << "Proc tag: " << m_processTag << endl;
+   ostr << "evtRef: " << m_evtRefTokenStr << endl;
+   ostr << "attrListPtr: " << m_attrList << endl;
+   if( m_attrList ) ostr << "attrListSize: " << m_attrList->size() << endl;
+   ostr << "--- DataHeader End ---" << endl;   
 }

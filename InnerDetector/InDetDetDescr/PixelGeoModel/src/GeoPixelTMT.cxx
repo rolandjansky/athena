@@ -14,6 +14,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
@@ -28,8 +29,23 @@ GeoPixelTMT::GeoPixelTMT()
 }
 
 GeoVPhysVol* GeoPixelTMT::Build() {
-  const GeoShape * lastShape = 0;
-  double totVolume = 0;
+
+  // we want to use a assemby, tehrefor we need to dummy volume to trigger the mechanism
+  const GeoMaterial* ether = mat_mgr->getMaterial("special::Ether");
+  GeoBox* dummybox= new GeoBox(4711., 4711., 4711.);
+  GeoLogVol* dummyTMT = new GeoLogVol("TMT",dummybox,ether);
+  GeoPhysVol* theTMT = new GeoPhysVol(dummyTMT);
+
+  // get the material by dividing the total material by the volume per layer,
+  // the weight is only stored in DB for the whole TMT layer
+  // we will commonly use TMT as name for the stuff
+  std::string matName = gmt_mgr->getMaterialName("TMT", gmt_mgr->GetLD());
+
+  double volume = 12647.7; // this number seems to be wrong
+  const GeoMaterial* material = mat_mgr->getMaterialForVolume(matName,volume); 
+  GeoNameTag* tag = new GeoNameTag("TMT");
+  
+  // this part is unchanged: reading the DB, creating the shapes of the volumes and defining their position 
   HepGeom::RotateX3D traprot(180.*CLHEP::deg);
 
   int halfNModule = gmt_mgr->PixelNModule()/2;
@@ -89,36 +105,47 @@ GeoVPhysVol* GeoPixelTMT::Build() {
       //std::cout << "Volume Trap: GeoModel: " << shape->volume() << "   My calc: " << testVolume << std::endl;
     }
 
+    // end of the old part
+    // now we put everything into the assembly
     if (!perModule) { // For middle section and others
-      totVolume += shape->volume();
-      HepGeom::Translate3D trans(xpos,ypos,zpos);
-      lastShape = addShape(lastShape, shape, trans);
+      
+      // create the colume, move it to the correct relative position and add it to the assembly
 
+      GeoLogVol* tmpLogVol= new GeoLogVol("TMT",shape,material);
+      GeoPhysVol* tmpPhysVol= new GeoPhysVol(tmpLogVol);
+      GeoTransform* trans = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
+      
+      theTMT->add(tag);
+      theTMT->add(trans);
+      theTMT->add(tmpPhysVol);      
+     
     } else { // Once per module, copied in +z and -z side.
+      // we will add the same volume many times, need to create it only once
+    
+      GeoLogVol* tmpLogVol= new GeoLogVol("TMT",shape,material);
+      GeoPhysVol* tmpPhysVol= new GeoPhysVol(tmpLogVol);
+
       for (int ii = 0; ii < halfNModule; ii++) {
-	totVolume += shape->volume() * 2;// added twice below
-	double zshift = gmt_mgr->PixelModuleZPosition(1) * ii;
+	
+	// move the dublicates to the correct relative position and add it to the assembly
+       	double zshift = gmt_mgr->PixelModuleZPosition(1) * ii;
 
-	HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
-	lastShape = addShape(lastShape, shape, transPos); 
+	GeoTransform* transPos = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos+zshift));
+	theTMT->add(tag);
+	theTMT->add(transPos);
+	theTMT->add(tmpPhysVol);
 
-	HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
-	lastShape = addShape(lastShape, shape, transNeg); 
+	GeoTransform* transNeg = new GeoTransform(HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg));
+	theTMT->add(tag);
+	theTMT->add(transNeg);
+	theTMT->add(tmpPhysVol);
+
       }      
     } 
   }
+  // Return the assembly
+  return theTMT;
 
-  const GeoShape * tmtShape = lastShape;
-  // don't trust boolean volume
-  // double totVolume = tmtShape->volume();
-  //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
-  std::string matName = gmt_mgr->getMaterialName("TMT", gmt_mgr->GetLD());
-  const GeoMaterial* trapMat = mat_mgr->getMaterialForVolume(matName,totVolume);
-  GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
-
-  // No need to set m_transform as default transform is OK.
-
-  return new GeoPhysVol(theTMT);
 }
 
 const GeoShape * 

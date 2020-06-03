@@ -1382,19 +1382,22 @@ def dump_Surface (info, f):
     dump_Threevec (info.normal(), f)
     if (isinstance (info, PyAthena.Trk.DiscSurface) and
         typename(info.bounds().__class__).find ('NoBounds') >= 0):
+        bd_class = info.bounds().__class__
         print >>f, '(no bounds)',
     elif (isinstance (info, PyAthena.Trk.CylinderSurface) and
-          not info.bounds()):
+          (not info.hasBounds() or not info.bounds())):
         print >>f, '(no bounds)',
+        bd_class = PyAthena.Trk.CylinderBounds
     else:
         dump_Threevec (info.globalReferencePoint(), f)
+        bd_class = info.bounds().__class__
     if isinstance (info, PyAthena.Trk.CylinderSurface):
         dump_AmgVector (info.rotSymmetryAxis(), f)
     print >> f, '\n          tf',
     dump_AmgMatrix (info.transform().matrix(), f, thresh=1e-8)
 #    print >> f, '\n          de', info.associatedDetectorElement(),
     print >> f, '\n          ly', tonone (info.associatedLayer()),
-    print >> f, '\n          bd', typename(info.bounds().__class__),
+    print >> f, '\n          bd', typename(bd_class),
     print >> f, '\n          id', \
           info.associatedDetectorElementIdentifier().getString(),
     return
@@ -2075,7 +2078,13 @@ def dump_RecVertex (v, f):
 
 
 def dump_ITrackLink (l, f):
-    dump_parameters (l.parameters(), f)
+    perigee = None
+    trk = l.cptr()
+    if trk:
+        pm = trk.trackParameters()
+        if pm and len(pm) > 0:
+            perigee = pm[-1]
+    dump_parameters (perigee, f)
     return
 
 
@@ -2109,7 +2118,13 @@ def dump_VxTrackAtVertex (t, f):
     tel = PyAthena.ElementLink ('DataVector<Trk::Track>')
     if not isinstance (t.trackOrParticleLink(), tel):
         print >> f, '\n      ip',
-        dump_parameters (t.initialPerigee(), f)
+        perigee = None
+        trk = t.trackOrParticleLink().cptr()
+        if trk:
+            pm = trk.trackParameters()
+            if pm and len(pm) > 0:
+                perigee = pm[-1]
+        dump_parameters (perigee, f)
         print >> f, '\n      pl',
         if isinstance (t.trackOrParticleLink(), PyAthena.Trk.LinkToTrack):
             dump_LinkToTrack (t.trackOrParticleLink(), f)

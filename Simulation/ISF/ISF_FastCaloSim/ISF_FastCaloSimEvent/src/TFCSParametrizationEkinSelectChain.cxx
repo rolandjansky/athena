@@ -2,6 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandFlat.h"
+
 #include "ISF_FastCaloSimEvent/TFCSParametrizationEkinSelectChain.h"
 #include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
@@ -9,7 +11,6 @@
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
 #include <iostream>
-#include "TRandom.h"
 
 //=============================================
 //======= TFCSParametrizationEkinSelectChain =========
@@ -32,13 +33,17 @@ void TFCSParametrizationEkinSelectChain::push_back_in_bin(TFCSParametrizationBas
   push_back_in_bin(param,param->Ekin_min(),param->Ekin_max());
 }
 
-int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
+int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState &simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
+  if (!simulstate.randomEngine()) {
+    return -1;
+  }
+
   float Ekin=truth->Ekin();
   int bin=val_to_bin(Ekin);
   
   if(!DoRandomInterpolation()) return bin;
-
+  float rnd = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   if(bin<0) return bin;
   if(bin>=(int)get_number_of_bins()) return bin;
 
@@ -64,7 +69,6 @@ int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState&,const TFCST
     float denominator=logEkin_nominal-logEkin_previous;
     if(denominator<=0) return bin;
 
-    float rnd=gRandom->Rndm();
     if(numerator/denominator<rnd) bin=prevbin;
     ATH_MSG_DEBUG("logEkin="<<logEkin<<" logEkin_previous="<<logEkin_previous<<" logEkin_nominal="<<logEkin_nominal<<" (rnd="<<1-rnd<<" < p(previous)="<<(1-numerator/denominator)<<")? => orgbin="<<prevbin+1<<" selbin="<<bin);
   } else {
@@ -83,7 +87,6 @@ int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState&,const TFCST
     float denominator=logEkin_next-logEkin_nominal;
     if(denominator<=0) return bin;
 
-    float rnd=gRandom->Rndm();
     if(rnd<numerator/denominator) bin=nextbin;
     ATH_MSG_DEBUG("logEkin="<<logEkin<<" logEkin_nominal="<<logEkin_nominal<<" logEkin_next="<<logEkin_next<<" (rnd="<<rnd<<" < p(next)="<<numerator/denominator<<")? => orgbin="<<nextbin-1<<" selbin="<<bin);
   }
@@ -100,6 +103,9 @@ const std::string TFCSParametrizationEkinSelectChain::get_bin_text(int bin) cons
 {
   if(bin==-1 || bin>=(int)get_number_of_bins()) {
     return std::string(Form("bin=%d not in [%1.1f<=Ekin<%1.1f)",bin,m_bin_low_edge[0],m_bin_low_edge[get_number_of_bins()]));
+  } 
+  if(DoRandomInterpolation()) {
+    return std::string(Form("bin=%d, %1.1f<=Ekin(+random)<%1.1f",bin,m_bin_low_edge[bin],m_bin_low_edge[bin+1]));
   }  
   return std::string(Form("bin=%d, %1.1f<=Ekin<%1.1f",bin,m_bin_low_edge[bin],m_bin_low_edge[bin+1]));
 }
@@ -178,5 +184,3 @@ void TFCSParametrizationEkinSelectChain::unit_test(TFCSSimulationState* simulsta
   }  
   std::cout<<"==================================="<<std::endl<<std::endl;
 }
-
-

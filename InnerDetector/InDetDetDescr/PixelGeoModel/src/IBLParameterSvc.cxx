@@ -19,6 +19,13 @@
  **/
 IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
   : base_class(name,svc),
+    m_IBLpresent{false},
+    m_DBMpresent{false},
+    LayerColumnsPerFE{-999},
+    LayerRowsPerFE{-999},
+    LayerFEsPerHalfModule_planar{-999},
+    LayerFEsPerHalfModule_3d{-999},
+    layout{-999},
     m_geoModelSvc("GeoModelSvc",name), 
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_disablePixMapCondDB(false),

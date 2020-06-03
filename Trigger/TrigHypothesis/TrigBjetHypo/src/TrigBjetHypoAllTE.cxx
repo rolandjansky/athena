@@ -66,10 +66,8 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
   //
   // declareProperty overview
   //
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " BTaggingKey = "   << m_btaggingKey << endmsg;
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " BTaggingKey = "   << m_btaggingKey );
 
   //
   //  Configure the AND requrements
@@ -136,20 +134,23 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
     }
 
     m_triggerReqsOR.push_back(vector<triggerRequirement>());
-    msg() << MSG::DEBUG << "TrigBjetHypoAllTE::"  << name() << " or Requirements " << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBjetHypoAllTE::"  << name() << " or Requirements ";
     for(unsigned int iSub = 0 ; iSub < nSubRequirement; ++iSub){
       m_triggerReqsOR.back().push_back(triggerRequirement(m_EtThresholdsOR  .at(iOR).at(iSub), 
 							  m_BTagMinOR       .at(iOR).at(iSub), 
 							  m_BTagMaxOR       .at(iOR).at(iSub), 
 							  m_MultiplicitiesOR.at(iOR).at(iSub)));
-      msg() << MSG::DEBUG << "\t (" 
-	    << m_EtThresholdsOR.at(iOR).at(iSub) 
-	    << " " << m_BTagMinOR.at(iOR).at(iSub) 
-	    << " " << m_BTagMaxOR.at(iOR).at(iSub) 
-	    << " " << int(m_MultiplicitiesOR.at(iOR).at(iSub) )
-	    << ")";
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "\t (" 
+	      << m_EtThresholdsOR.at(iOR).at(iSub) 
+	      << " " << m_BTagMinOR.at(iOR).at(iSub) 
+	      << " " << m_BTagMaxOR.at(iOR).at(iSub) 
+	      << " " << int(m_MultiplicitiesOR.at(iOR).at(iSub) )
+	      << ")";
     }
-    msg() << MSG::DEBUG << endmsg;
+
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << endmsg;
   }
 
 
@@ -163,7 +164,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
 //
 HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetHypoAllTE" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigBjetHypoAllTE" );
 
   beforeExecMonitors().ignore();
 
@@ -213,7 +214,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     m_BSCode = 4;
   }
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG  << "Number of input TEs is " <<  inputTE.size() << endmsg;
+  ATH_MSG_DEBUG( "Number of input TEs is " <<  inputTE.size() );
 
 
   if (inputTE.size() < 1) {
@@ -235,7 +236,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Retrieve the BTagging container
   //
   std::vector<HLT::TriggerElement*>& btaggingTEs = inputTE.at(0); 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " btaggingTE.size() " << btaggingTEs.size() << endmsg;
+  ATH_MSG_DEBUG( " btaggingTE.size() " << btaggingTEs.size() );
 
   if (btaggingTEs.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (btagging)" << endmsg;
@@ -300,10 +301,10 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   }
   
   if (pass) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Accepting the event" << endmsg;
+    ATH_MSG_DEBUG( "Accepting the event" );
     m_cutCode    = 1; 
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Rejecting the event" << endmsg;
+    ATH_MSG_DEBUG( "Rejecting the event" );
     m_cutCode    = 0; 
   }
   

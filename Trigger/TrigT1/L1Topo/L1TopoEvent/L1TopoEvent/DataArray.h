@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  DataArray.h
 //  L1TopoEvent
 //  Created by Joerg Stelzer on 11/22/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __L1TopoEvent__DataArray__
 #define __L1TopoEvent__DataArray__

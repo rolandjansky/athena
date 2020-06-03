@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeOnlBchWithOfl.py <TAG> <RUN>
 # lukas.pribyl@cern.ch March 2010
@@ -86,6 +86,24 @@ for ros in xrange(1,5):
             statloBefore = mgrOnl.getAdcProblems(ros,mod,chn,0)
             stathiBefore = mgrOnl.getAdcProblems(ros,mod,chn,1)
 
+            # remove all trigger problems first
+            for prb in [TileBchPrbs.TrigGeneralMask,
+                        TileBchPrbs.TrigNoGain,
+                        TileBchPrbs.TrigHalfGain,
+                        TileBchPrbs.TrigNoisy]:
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, prb)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, prb)
+            # and now set new trigger problems (if any)
+            if not statlo.isGood():
+                prbs = statlo.getPrbs()
+                for prb in prbs:
+                    if prb in [TileBchPrbs.TrigGeneralMask,
+                               TileBchPrbs.TrigNoGain,
+                               TileBchPrbs.TrigHalfGain,
+                               TileBchPrbs.TrigNoisy]:
+                        mgrOnl.addAdcProblem(ros, mod, chn, 0, prb)
+                        mgrOnl.addAdcProblem(ros, mod, chn, 1, prb)
+
             #--- add IgnoreInHlt if either of the ADCs has isBad
             #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
             if statlo.isBad() and stathi.isBad():
@@ -118,6 +136,15 @@ for ros in xrange(1,5):
                 #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
+            #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
+            if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+            else:
+                #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
 
             statloAfter = mgrOnl.getAdcProblems(ros, mod, chn, 0)
             stathiAfter = mgrOnl.getAdcProblems(ros, mod, chn, 1)

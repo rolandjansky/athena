@@ -23,6 +23,7 @@ const int m_distosize=3;
 PixelBarrelSurvey::PixelBarrelSurvey(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_pixelID(0),
+  m_pixmgr(0),
   m_transforms(0),
   m_distorsions(0)
 {
@@ -162,7 +163,7 @@ StatusCode PixelBarrelSurvey::execute() {
     }
     theStave++;
   }
-  delete disto;
+  delete[] disto;
   
   m_transforms->sortv();
 

@@ -224,7 +224,7 @@ StatusCode LArCellMonTool::initThreshHists() {
   for (const std::string& s : m_thresholdNameProp.value()) {
     auto r=uniqunesCheck.insert(s);
     if (!r.second) {
-      msg(MSG::ERROR) << "Configuration error: Threshold type " << s << " appears more than once" << endmsg;
+      ATH_MSG_ERROR( "Configuration error: Threshold type " << s << " appears more than once" );
       return StatusCode::FAILURE;
     }
   }
@@ -234,9 +234,8 @@ StatusCode LArCellMonTool::initThreshHists() {
   StatusCode sc=StatusCode::SUCCESS;
   //Check consistency:
 #define CONSISTENCY(ARRAYPROP) if (ARRAYPROP.value().size()!= nThr) {\
-    msg(MSG::ERROR) << "Configuration problem: Property 'ThresholdType' has size " <<  nThr \
-		    <<  " but '" << ARRAYPROP.name() << "' has size " << ARRAYPROP.value().size() \
-		    << endreq; \
+    ATH_MSG_ERROR( "Configuration problem: Property 'ThresholdType' has size " <<  nThr \
+		    <<  " but '" << ARRAYPROP.name() << "' has size " << ARRAYPROP.value().size() );\
     sc=StatusCode::FAILURE;    \
   }
   
@@ -280,33 +279,33 @@ StatusCode LArCellMonTool::initThreshHists() {
       threshold.m_threshDirection=itD->second;
     }
     else {
-      msg(MSG::ERROR) << "Configuration problem. Unknown threshold direction '" 
+      ATH_MSG_ERROR( "Configuration problem. Unknown threshold direction '" 
 		      << m_thresholdDirectionProp.value()[iThr] 
-		      << "'given" << endmsg;
+		      << "'given" );
       return StatusCode::FAILURE;
     }
 
     auto itT=stringToTrigType.find(strToLower(m_triggersToExcludeProp.value()[iThr]));
     if (itT!=stringToTrigType.end()) {
       threshold.m_triggersToExclude.set(itT->second);
-      if (itT->first=="all") {msg(MSG::WARNING) << "Setting TriggersToExclude to 'all' has no effect!" << std::endl;}
+      if (itT->first=="all") {ATH_MSG_WARNING( "Setting TriggersToExclude to 'all' has no effect!" );}
     }
     else {
-      msg(MSG::ERROR) << "Configuration problem. Unknown trigger type '" 
+      ATH_MSG_ERROR( "Configuration problem. Unknown trigger type '" 
 		      << m_triggersToExcludeProp.value()[iThr] 
-		      << "' given in propety 'TriggersToExlude'" << endmsg;
+		      << "' given in propety 'TriggersToExlude'" );
       return StatusCode::FAILURE;
     }
 
     itT=stringToTrigType.find(strToLower(m_triggersToIncludeProp.value()[iThr]));
     if (itT!=stringToTrigType.end()) {
       threshold.m_triggersToInclude.set(itT->second);
-      if (itT->first=="none") {msg(MSG::WARNING) << "Setting TriggersToInclude to 'none' has no effect!" << std::endl;}
+      if (itT->first=="none") {ATH_MSG_WARNING( "Setting TriggersToInclude to 'none' has no effect!" );}
     }
     else {
-      msg(MSG::ERROR) << "Configuration problem. Unknown trigger type '" 
+      ATH_MSG_ERROR( "Configuration problem. Unknown trigger type '" 
 		      << m_triggersToIncludeProp.value()[iThr] 
-		      << "' given in propety 'TriggersToInclude'" << endmsg;
+		      << "' given in propety 'TriggersToInclude'" );
       return StatusCode::FAILURE;
     }
 
@@ -334,13 +333,13 @@ StatusCode LArCellMonTool::initThreshHists() {
 			 );
   
     if (it==m_thresholdHists.end()) {
-      msg(MSG::ERROR) << "Configuration error reading 'ThresholdColumnType': Threshold type '" << nameToOverwrite << "' is not defined in 'ThresholdType'" << endmsg;
+      ATH_MSG_ERROR( "Configuration error reading 'ThresholdColumnType': Threshold type '" << nameToOverwrite << "' is not defined in 'ThresholdType'" );
       return StatusCode::FAILURE;
     }
      
      for (unsigned iLyr=0;iLyr<MAXLYRNS;++iLyr) {
        if (m_thresholdsProp[iLyr].value().size()<iThrOvr) {
-	 msg(MSG::ERROR) << "Configuration error: Not enough values in threshold vector for layer " << iLyr << endmsg;
+	 ATH_MSG_ERROR( "Configuration error: Not enough values in threshold vector for layer " << iLyr );
 	 return StatusCode::FAILURE;
        }  
 
@@ -356,7 +355,7 @@ StatusCode LArCellMonTool::initThreshHists() {
     if (!(thr.m_doPercentageOccupancy || thr.m_doEtaPhiOccupancy || thr.m_doEtaOccupancy || thr.m_doPhiOccupancy || thr.m_doEtaPhiTotalEnergy ||
 	  thr.m_doEtaPhiAverageEnergy || thr.m_doEtaPhiAverageQuality || 
 	  thr.m_doEtaPhiFractionOverQth || thr.m_doEtaPhiAverageTime || thr.m_doEtaPhiFractionPastTth)) {
-      msg(MSG::WARNING) << "Config issue: Threshold type '" << thr.m_threshName << "' defined but no histograms requested. Deleting." << endmsg;
+      ATH_MSG_INFO( "Config issue: Threshold type '" << thr.m_threshName << "' defined but no histograms requested. Deleting." );
       thrIt=m_thresholdHists.erase(thrIt);
     }
     else {
@@ -565,7 +564,7 @@ void LArCellMonTool::sporadicNoiseCandidate(const CaloCell* cell, const LArCellM
   
   const Identifier id=cell->ID();
   const PartitionEnum part=m_layerEnumtoPartitionEnum[iLyr];  
-  msg(MSG::INFO) << "Found sporadic noise candidate cell with id 0x" << std::hex << id.get_identifier32().get_compact() << std::dec << " in " << m_partitionNames[part] << endmsg;
+  ATH_MSG_INFO( "Found sporadic noise candidate cell with id 0x" << std::hex << id.get_identifier32().get_compact() << std::dec << " in " << m_partitionNames[part] );
  
   SporadicNoiseCell_t& snc=m_sporadicNoiseCells[id];
   snc.m_counter++;
@@ -778,7 +777,7 @@ StatusCode LArCellMonTool::procHistograms() {
 
   //Loop over thresholds
   for (thresholdHist_t& thr : m_thresholdHists) {
-    msg(MSG::INFO) << "processHist for threshold '" << thr.m_threshName << "', nb of events passed Trigger and Background removal: " << thr.m_eventsPassed << endmsg;
+    ATH_MSG_INFO( "processHist for threshold '" << thr.m_threshName << "', nb of events passed Trigger and Background removal: " << thr.m_eventsPassed );
     if (thr.m_eventsPassed>0 && m_oncePerJobHistosDone) {
       //fill the 1D and 2D occupancy histograms based on the counter of cells above threshold
       ATH_CHECK(fillOccupancyHist(thr));
@@ -879,11 +878,11 @@ void  LArCellMonTool::regTempHist(TH1* h, MonGroup& mg) {
 StatusCode LArCellMonTool::finalize() {
 
   if (m_sporadic_switch && msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Total number of single-cell sporadic-noise histograms produced: " 
-		   <<  m_counter_sporadic_protc  << " (max " << m_sporadic_protc << ")" << endmsg;
+    ATH_MSG_INFO( "Total number of single-cell sporadic-noise histograms produced: " 
+		   <<  m_counter_sporadic_protc  << " (max " << m_sporadic_protc << ")" );
     for (size_t part=0;part<MAXPARTITIONS;++part) {
-      msg(MSG::INFO) << "Number of single-cell sporadic-noise histograms produced for " <<  m_layerNames[part] 
-		     << ": " <<  m_sporadicPerPartCounter[part] << " (max " << m_sporadicPlotLimit << ")" << endmsg;
+      ATH_MSG_INFO( "Number of single-cell sporadic-noise histograms produced for " <<  m_layerNames[part] 
+		     << ": " <<  m_sporadicPerPartCounter[part] << " (max " << m_sporadicPlotLimit << ")" );
     }
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,7 +14,6 @@
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ParticleClipboard.h"
 
-#include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/IParticleHelper.h"
 
 // ISF Geant4 includes
@@ -115,26 +114,10 @@ namespace G4UA{
     void PhysicsValidationUserAction::BeginOfRunAction(const G4Run*)
     {
 
-      if (m_config.particleBroker.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve ISF Particle Broker: " << m_config.particleBroker);
-        return;
-      }
-
-      if (m_config.particleHelper.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve " << m_config.particleHelper->name());
-        return;
-      }
-
       if (m_config.geoIDSvc.retrieve().isFailure()) {
         ATH_MSG_FATAL("Could not retrieve ISF GeoID Svc: " << m_config.geoIDSvc);
         return;
       }
-
-      if (m_config.UASvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve UserActionSvc "<<m_config.UASvc);
-        return;
-      }
-
 
       m_geoIDSvcQuick = &(*m_config.geoIDSvc);
 
@@ -491,48 +474,41 @@ namespace G4UA{
         G4ThreeVector g4mom = track->GetMomentum();
         const HepGeom::Vector3D<double> momentum(g4mom.x(),g4mom.y(),g4mom.z());
 
-        //double mass    = particleDefinition->GetPDGMass();
-        //double charge  = particleDefinition->GetPDGCharge();
-        //int    pdgID   = particleDefinition->GetPDGEncoding();
-
-        if (m_config.particleBroker) {
-
-          // *AS* why ask stackSvc for current(), shouldn't better the TransportTool keep track?
-          bool dead=false;
-          if (track->GetTrackStatus()==fStopAndKill) {
-            dead=true;
-          }
-
-          if (!dead) {
-
-            // track info
-            //VTrackInformation * trackInfo= static_cast<VTrackInformation*>(track->GetUserInformation());
-            m_scEnd = 0;
-            m_dt = track->GetLocalTime();
-
-            m_pth = track->GetVertexMomentumDirection().theta();
-            m_pph = track->GetVertexMomentumDirection().phi();
-            m_p   = track->GetVertexKineticEnergy();
-            m_eloss = track->GetKineticEnergy()-m_p;
-
-            m_thIn= track->GetVertexPosition().theta();
-            m_phIn= track->GetVertexPosition().phi();
-            m_dIn=  track->GetVertexPosition().mag();
-
-            m_thEnd=postStep->GetPosition().theta();
-            m_phEnd=postStep->GetPosition().phi();
-            m_dEnd=postStep->GetPosition().mag();
-
-            m_particles->Fill();
-            m_X0 = 0.;
-            m_L0 = 0.;
-            m_wZ = 0.;
-            m_radloss = 0.;
-            m_ionloss = 0.;
-            m_wzOaTr= 0.;
-          }
-          m_X0=0.;
+        bool dead=false;
+        if (track->GetTrackStatus()==fStopAndKill) {
+          dead=true;
         }
+
+        if (!dead) {
+
+          // track info
+          //VTrackInformation * trackInfo= static_cast<VTrackInformation*>(track->GetUserInformation());
+          m_scEnd = 0;
+          m_dt = track->GetLocalTime();
+
+          m_pth = track->GetVertexMomentumDirection().theta();
+          m_pph = track->GetVertexMomentumDirection().phi();
+          m_p   = track->GetVertexKineticEnergy();
+          m_eloss = track->GetKineticEnergy()-m_p;
+
+          m_thIn= track->GetVertexPosition().theta();
+          m_phIn= track->GetVertexPosition().phi();
+          m_dIn=  track->GetVertexPosition().mag();
+
+          m_thEnd=postStep->GetPosition().theta();
+          m_phEnd=postStep->GetPosition().phi();
+          m_dEnd=postStep->GetPosition().mag();
+
+          m_particles->Fill();
+          m_X0 = 0.;
+          m_L0 = 0.;
+          m_wZ = 0.;
+          m_radloss = 0.;
+          m_ionloss = 0.;
+          m_wzOaTr= 0.;
+        }
+        m_X0=0.;
+
       }
 
     }

@@ -145,6 +145,7 @@ class HLTMuonMonTool : public IHLTMonTool
   float getPtThresTrigMuonEFSA(const int thres, const float eta);
   float getPtThresTrigMuonEFCB(const int thres, const float eta);
   HLTMuonMonTool::ptThresEtaRegion getEtaRegion(const float eta);
+  const HLT::TriggerElement* getDirectSuccessorHypoTEForL2(const HLT::TriggerElement *te, std::string step, std::string chainname);
 
   //private parameters/functions for common
 
@@ -187,6 +188,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_chainsEFFS;  
   std::vector<std::string> m_chainsLowpt;  
   bool m_HI_pp_mode;
+
   std::vector<std::string> m_histChainGeneric;  
   std::vector<std::string> m_histChainEFiso;  
   std::vector<std::string> m_histChainMSonly;  
@@ -203,6 +205,24 @@ class HLTMuonMonTool : public IHLTMonTool
   std::map<std::string, std::string> m_lowerChains;
   std::map<std::string, int>  m_thresh;
   std::map<std::string, std::string> m_chainsEF_L2_map;  // add by Yuan
+  
+  bool m_access_hypoTE;
+  //Hypo names for L2 standalone muons
+  std::vector<std::string> m_hyposMSonly_L2SA;
+  std::vector<std::string> m_hyposGeneric_L2SA;
+  std::vector<std::string> m_hyposEFiso_L2SA;
+  std::vector<std::string> m_hyposSupport_L2SA;
+  std::vector<std::string> m_hyposEFFS_L2SA;  
+  std::vector<std::string> m_hyposLowpt_L2SA;  
+  std::map<std::string,std::string> m_hypomapL2SA;
+  //Hypo names for L2 combined muons
+  std::vector<std::string> m_hyposMSonly_L2CB;
+  std::vector<std::string> m_hyposGeneric_L2CB;
+  std::vector<std::string> m_hyposEFiso_L2CB;
+  std::vector<std::string> m_hyposSupport_L2CB;
+  std::vector<std::string> m_hyposEFFS_L2CB;  
+  std::vector<std::string> m_hyposLowpt_L2CB;  
+  std::map<std::string,std::string> m_hypomapL2CB;
 
   // YY ES chain name - obsolete 21/01/11
   std::vector<std::string> m_ESchain;
@@ -224,6 +244,7 @@ class HLTMuonMonTool : public IHLTMonTool
   bool m_passedES[ESHIINDEP + 1]; // std, tag, id
   bool m_CB_mon_ESbr[ESHIINDEP + 1];
   bool m_MS_mon_ESbr[ESHIINDEP + 1];
+  bool m_passedESNONISO;
 
   //AI 20100824
   std::vector<std::string> m_allESchain;

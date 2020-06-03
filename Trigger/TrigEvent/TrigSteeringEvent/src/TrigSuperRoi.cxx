@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigSuperRoi.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigSuperRoi.cxx, v0.0   Thu  5 Dec 2013 16:13:43 CET sutt $
 

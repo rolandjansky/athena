@@ -14,7 +14,7 @@ class FTK_RawTrack;
 //
 // Name the track paramaters
 //
-namespace FTKTrackParam{
+namespace FTKTrackParam {
   enum TP {
     d0          = 0,
     z0          = 1,
@@ -23,7 +23,7 @@ namespace FTKTrackParam{
     Ipt         = 4,
     qOp         = 5,
     theta       = 6,
-    pt          = 7
+    pt          = 7,
   };
 }
 
@@ -38,14 +38,13 @@ static const InterfaceID IID_IFTK_UncertaintyTool("IFTK_UncertaintyTool",1,0);
 
 class IFTK_UncertaintyTool : virtual public IAlgTool { 
 
- public:
+public:
   /** other standard AlgTool methods */
 
-  static const InterfaceID& interfaceID ()   //!< the Tool's interface
+  static const InterfaceID& interfaceID()   //!< the Tool's interface
   {  return IID_IFTK_UncertaintyTool; }  	
 
-  virtual double getParamCovMtx  (const FTK_RawTrack& trk, bool hasIBL, int id0, int id1) = 0;
-  
+  virtual double getParamCovMtx(const FTK_RawTrack& trk, bool hasIBL, int id0, int id1) = 0;
 };
 
 #endif

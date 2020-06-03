@@ -4,13 +4,13 @@
 
 /*--------------------------------------------------------------------------------------
   Event Filter Z_mu+mu- Online Tag and Probe algorithm
-  Authors: Jonathan Jamieson, University of Glasgow, Created: 09/10/2017, Last edit: 23/02/2018
+  Authors: Jonathan Jamieson, University of Glasgow, Created: 09/10/2017, Last edit: 31/05/2018
   
   Summary:-----------------------------------------------------------------------------------------  
   
   Accesses collection of xaod::muons within event and picks out only 'good muons', i.e. muons formed from combined (NOT Stand Alone) tracks including any duplicates and with isolation criteria DeltaR > 0.2 
   
-  Events passed form preceding Mu22_mu8noL1 HLT trigger are trimmed by first applying a 10 GeV cut on pt to remove events with pt below that expected in z_mu+mu- events (10 GeV picked to not be too high as to bias against low momentum Z events and to stay consistent with previous work
+  Events passed from preceding Mu22_mu8noL1 HLT trigger are trimmed by first applying a 10 GeV cut on pt to remove events with pt below that expected in z_mu+mu- events (10 GeV picked to not be too high as to bias against low momentum Z events and to stay consistent with previous work
   
   >2 muon events are then trimmed to exact pairs by matching all the avaliable opposite charge muons and picking the best fit to the Z mass, applying a default +-10 GeV threshold cut around the Z mass to match the eventual pair requirement. 
   
@@ -20,8 +20,8 @@
   A tag muon is defined as any good muon with pt > 10GeV that can be associated with a LVL 1 RoI (DeltaR <0.1) belonging to LVL1 threshold >= threshold 5 (MU20))
   A candidate probe muon is any other muon with pt > 10GeV with the additional requirement on tag and probe pairs that their invariant mass be within +-10GeV from the Z mass 
 
-  Efficiency plots for three kinematic variables (eta,phi and pT) are produced from TProfile objects created from two vectors
-  -kinematic values for every probe candidate [e.g: EF_Pt_Total_thr1_b] 
+  Efficiency plots for three kinematic variables (eta,phi and pT) are avaliable, produced from TProfile objects created from two vectors
+  -kinematic values for every probe candidate [e.g: EF_Phi_Total_thr1_b] 
   -1.0 or 0.0 for every probe candidate denoting RoI match (1) or no matching L1 info (0)
 
   For probe muon candidates without a matching L1 RoI: count 0 for match in all thresholds to avoid biasing for higher efficiencies at pTs lower than threshold acceptance.
@@ -30,6 +30,7 @@
 
   Eta barrel and endcap statistics are merged to facilitate more sensible plotting of efficiencies but seperated statistics still required for producing 2d plots vs Phi
 
+  ([31/05/2018] pT plots, split Eta plots and Threshold 2-4 2D plots have been removed from python plotting code: "TrigMuonEFTagandProbeMonitoring.py" to reduce memory allocation, monitored containers for these are still filled)
 
   Running:-----------------------------------------------------------------------------------------  
 
@@ -312,22 +313,35 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   //-----------------Access LVL1 trigger ROI information--------------------------------------------------
 
   
-  //Have to access directly from Storegate as AllTE combiner algorithms remove regular access back to seeding RoIs
+  //Have to access from initialNode as AllTE combiner algorithms earlier in chain remove regular access back to seeding RoIs through getFeature
   //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
   
-  m_l1_muon_RoIs=0;
+  std::vector<const LVL1::RecMuonRoI*> l1_muon_RoIs;
 
-  if(evtStore()->retrieve(m_l1_muon_RoIs).isFailure()){
-    ATH_MSG_DEBUG("Problem retrieving L1 muon ROI");
-    return HLT::MISSING_FEATURE; 
+  HLT::Navigation* nav = config()->getNavigation();
+  HLT::TriggerElement* initialTE = nav->getInitialNode(); //Get initial TE that chain is seeded from
+  const std::vector<HLT::TriggerElement*>& inputTE_RoIs_nav = nav->getDirectSuccessors(initialTE); //Get all first generation TEs seeded from initialTE
+
+  for (auto TERoI : inputTE_RoIs_nav) { //Loop through TEs (RoIs)
+    const LVL1::RecMuonRoI* RoI;
+    if(getFeature(TERoI, RoI)!=HLT::OK) { //Check TE for L1 RoI information
+      ATH_MSG_DEBUG("No LVL1::RecMuonRoI Feature found in initial RoI Node"); //If getfeature fails
+      return HLT::MISSING_FEATURE;
+    }
+    if (!RoI) { // if L1 Muon RoI entry is null
+      ATH_MSG_DEBUG("Empty LVL1::RecMuonRoI feature found, trying another Trigger Element");
+    }
+    else{
+      l1_muon_RoIs.push_back(RoI);
+    }
   }
-  
-  if(m_l1_muon_RoIs->empty()){ //Save compute by killing if there is no L1 information
+
+  if(l1_muon_RoIs.empty()){ //Save compute by killing if there is no L1 information
     ATH_MSG_DEBUG("L1 RoI size = 0, moving to next event");
     return HLT::OK; 
   }
   
-  ATH_MSG_DEBUG("Number of L1 RoIs found = "<<m_l1_muon_RoIs->size());    
+  ATH_MSG_DEBUG("Number of L1 RoIs found = "<<l1_muon_RoIs.size());    
 
 
 
@@ -427,7 +441,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   ATH_MSG_DEBUG("TaP DeltaR value = " << TaPdeltaR);
 
   if (TaPdeltaR <= 0.2){
-    ATH_MSG_WARNING("Tag and Probe not sufficiently isolated for unbiased efficiency; DeltaR = "<< TaPdeltaR <<" <= 0.2, moving to next event");
+    ATH_MSG_WARNING("Tag and Probe not sufficiently isolated for unbiased efficiency; DeltaR = "<< TaPdeltaR <<" <= 0.2, moving to next event, LocalReadTest");
     return HLT::OK;
   }
 
@@ -447,12 +461,12 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   std::vector<std::pair <TaPMuon,const xAOD::Muon*> > TaP;
 
   //A check so we don't bother trying to match muons to same RoI as isolation criteria already applied
-  LVL1::RecMuonRoI* sharedRoItest=0; 
+  const LVL1::RecMuonRoI* sharedRoItest=0; 
 
   for (unsigned int i=0;i<m_good_muons.size();i++){ //loop over good muons
 
     //For each muon calculate all Delta R values in scope
-    for (auto roi : *m_l1_muon_RoIs){
+    for (auto roi : l1_muon_RoIs){
       
       //xAOD::P4Helpers class required for DeltaR calculation as RoI objects don't have 4 momenta
       deltaR = xAOD::P4Helpers::deltaR((*(m_good_muons)[i]), roi->eta(), roi->phi(), false); //UseRapidity=false
@@ -498,14 +512,14 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     }
 
     //If probe isn't a tag then loop over RoIs and look for a L1 match that is different from the Tag L1
-    for (unsigned int j=0;j<m_l1_muon_RoIs->size();j++){
+    for (unsigned int j=0;j<l1_muon_RoIs.size();j++){
 
       //xAOD::P4Helpers class required for DeltaR calculation as RoI objects don't have 4 momenta
-      deltaR = xAOD::P4Helpers::deltaR((*(TaP[i].second)), (*m_l1_muon_RoIs)[j]->eta(), (*m_l1_muon_RoIs)[j]->phi(), false);
+      deltaR = xAOD::P4Helpers::deltaR((*(TaP[i].second)), l1_muon_RoIs[j]->eta(), l1_muon_RoIs[j]->phi(), false);
 
-      if (deltaR<0.1 && (*m_l1_muon_RoIs)[j]!=(TaP[1-i].first).RoI){ //If probe passes LVL1 match criteria
+      if (deltaR<0.1 && l1_muon_RoIs[j]!=(TaP[1-i].first).RoI){ //If probe passes LVL1 match criteria
 
-	probe_thresh=(*m_l1_muon_RoIs)[j]->getThresholdNumber();
+	probe_thresh=l1_muon_RoIs[j]->getThresholdNumber();
 
 	ATH_MSG_DEBUG("Threshold_Probe value = " << probe_thresh);
 
@@ -518,7 +532,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
       } 
 
       //If Probe muon cannot be L1 matched
-      if (j==(m_l1_muon_RoIs->size()-1)){
+      if (j==(l1_muon_RoIs.size()-1)){
 
 	match_thresh(TaP[i].second,Thresh_Mon); //Fill monitoring variables for unmatched probe (probe muon, MonitoringObject)
 	

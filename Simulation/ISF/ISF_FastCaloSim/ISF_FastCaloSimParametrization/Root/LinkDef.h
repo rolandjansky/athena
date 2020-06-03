@@ -7,7 +7,6 @@
 #pragma link C++ class TFCSSimpleLateralShapeParametrization+;
 #pragma link C++ class MeanAndRMS;
 #pragma link C++ class TreeReader;
-#pragma link C++ class EnergyParametrizationValidation;
 #pragma link C++ struct FCS_cell+;
 #pragma link C++ struct FCS_hit+;
 #pragma link C++ struct FCS_g4hit+;
@@ -17,8 +16,6 @@
 #pragma link C++ struct std::vector<FCS_matchedcell>+;
 #pragma link C++ struct FCS_matchedcellvector+;
 #pragma link C++ class std::vector<Float_t>+;
-#pragma link C++ struct FCS_truth+;
-#pragma link C++ struct std::vector<FCS_truth>+;
 #pragma link C++ class std::vector<std::vector<float> >+;
 #ifndef CaloGeometryFromFile_h
 #pragma link C++ class CaloGeometryLookup;

@@ -15,7 +15,6 @@
 //                filter grrrrrr  
 //
 // 
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //
 //   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $

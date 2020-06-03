@@ -18,6 +18,10 @@
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteeringEvent/HLTResult.h"
 
+#include "TrigConfHLTData/HLTChain.h"
+#include "TrigConfHLTData/HLTChainList.h"
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace ROIB {
@@ -101,6 +105,7 @@ private:
   TH1F*                            m_hist_goodData;
   TH2F*                            m_hist_goodDataLB15;
   TH2F*                            m_hist_goodDataLB18;
+  TH2F*                            m_hist_corruptedROD_LB;
   BooleanProperty                  m_doODDistance;
   TH1F*                            m_hist_PosDetector[8][2];
   TH1F*                            m_hist_DistStation[8][2];
@@ -119,6 +124,8 @@ private:
 
   int m_LB; // luminosity block number
   int m_previousEventLB; // luminosity block number of the previous events
+  int m_prevLB10reset;   // LB at which previous reset of 10LB histograms happened
+  int m_prevLB60reset;   // LB  -- 60LB histograms were reset
   uint32_t m_prescKey; // current hlt prescale key
 
   BooleanProperty                  m_doTiming;
@@ -152,7 +159,8 @@ private:
 
   std::string m_pathHisto;
 
-  bool m_SBflag;
+  bool                m_SBflag;
+  TrigConf::HLTChain* m_HLTcostMon_chain;
 
   int m_elast15, m_elast18;     // ctp-items id numbers to select golden alfa trigger for data quality assesment
   int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
@@ -195,20 +203,20 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
-  bool verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for decoding the ALFA ROB 
-  void decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
   void decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
   uint32_t  decodePMT0 (uint32_t dataWord);
 
   /// find tacks in ALFA detectors
-  void findALFATracks(LVL1CTP::Lvl1Result &resultL1);
+  void findALFATracks(const LVL1CTP::Lvl1Result &resultL1);
 
   // find OD tracks and calculate distance
   void findODTracks ();

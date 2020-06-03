@@ -35,6 +35,7 @@
 #include "globals.hh"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #ifdef ATHENAHIVE
@@ -44,6 +45,8 @@
 
 // Forward declarations.
 class G4Step;
+class G4ParticleDefinition;
+class G4Track;
 
 namespace CaloG4 {
 
@@ -127,7 +130,11 @@ namespace CaloG4 {
                                 G4double kineticEnergy) const;
 
     // Escaped energy requires special processing.
-    G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
+    G4bool ProcessEscapedEnergy( G4Step* fakeStep ) const;
+
+    G4bool ParticleIsNeutrino( G4ParticleDefinition* particle ) const;
+
+    std::unique_ptr<G4Step> CreateFakeStep(G4Track* a_track, G4double a_energy) const;
 
     // Used to keep track of processing state.
 #ifdef ATHENAHIVE

@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * Multiplicity.cpp
  * Created by Joerg Stelzer on 11/16/12.
  * Modified by V SOrin 2014
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm that check muon multiplicity and return 2 output lines, which will give information on how many muons were found
  * line 1: 0 or 1, line 1 and 2 : 2 or more, uses 2 bits

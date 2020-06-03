@@ -68,7 +68,7 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
   // make sure vector is clear
   hdata.clear();
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 
   // apply BirksLaw if we want to:
   G4double stepLengthCm = a_step->GetStepLength() / Units::cm;

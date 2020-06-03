@@ -58,9 +58,9 @@ namespace Trk {
     enum SolveOption { 
       NONE                 = 0, //!< not solve in any case (to be used when ipc)
       SOLVE                = 1, //!< solving after data accumulation (LAPACK)
-      SOLVE_FAST           = 2, //!< Fast (***REMOVED*** method) solving after data accumulation
+      SOLVE_FAST           = 2, //!< Fast (Eigen method) solving after data accumulation
       DIRECT_SOLVE         = 3, //!< direct solving (LAPACK), already available matrix & vector
-      DIRECT_SOLVE_FAST    = 4, //!< direct Fast (***REMOVED*** method) solving, already available matrix & vector
+      DIRECT_SOLVE_FAST    = 4, //!< direct Fast (Eigen method) solving, already available matrix & vector
       DIRECT_SOLVE_CLUSTER = 5, //!< computation of alignment parameters from SCALAPAK already solved matrix
       SOLVE_ROOT           = 6, //!< computation using ROOT
       SOLVE_CLHEP          = 7  //!< computation using CLHEP
@@ -128,7 +128,7 @@ namespace Trk {
     int solveROOT();
     int solveCLHEP();
     int solveLapack();
-    int solve***REMOVED***();
+    int solveSparseEigen();
     int solveLocal();
 
     StatusCode spuriousRemoval();

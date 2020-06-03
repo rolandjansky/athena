@@ -46,42 +46,42 @@ namespace TrigCostRootAnalysis {
    */
   class CounterBase {
   public:
-    CounterBase(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                MonitorBase* _parent = 0);
+    CounterBase(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                MonitorBase* parent = 0);
     virtual ~CounterBase();
 
     virtual void startEvent() = 0;
-    virtual void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1) = 0;
-    virtual void endEvent(Float_t _weight = 1) = 0;
+    virtual void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1) = 0;
+    virtual void endEvent(Float_t weight = 1) = 0;
 
-    Float_t getValue(ConfKey_t _name, VariableOption_t _vo) const;
-    Bool_t getValueExists(ConfKey_t _name, VariableOption_t _vo) const;
-    Float_t getValueError(ConfKey_t _name, VariableOption_t _vo) const;
-    Float_t getValueNormalised(ConfKey_t _name, VariableOption_t _vo) const;
-    Int_t getEntries(ConfKey_t _name, VariableOption_t _vo) const;
-    void setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
-    void setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
-    void setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
-    TH1F* getHist(ConfKey_t _name, VariableOption_t _vo);
-    TH1F* getHist(ConfVariableOptionPair_t _pair);
-    // TH2F* getHist2D(ConfKey_t _name, VariableOption_t _vo);
+    Float_t getValue(ConfKey_t name, VariableOption_t vo) const;
+    Bool_t getValueExists(ConfKey_t name, VariableOption_t vo) const;
+    Float_t getValueError(ConfKey_t name, VariableOption_t vo) const;
+    Float_t getValueNormalised(ConfKey_t name, VariableOption_t vo) const;
+    Int_t getEntries(ConfKey_t name, VariableOption_t vo) const;
+    void setValue(ConfKey_t name, VariableOption_t vo, Float_t val);
+    void setEntries(ConfKey_t name, VariableOption_t vo, UInt_t val);
+    void setErrorSquared(ConfKey_t name, VariableOption_t vo, Float_t val);
+    TH1F* getHist(ConfKey_t name, VariableOption_t vo);
+    TH1F* getHist(ConfVariableOptionPair_t pair);
+    // TH2F* getHist2D(ConfKey_t name, VariableOption_t vo);
     UInt_t getCalls() const;
     VariableOptionVector_t getAllHistograms();
     const std::string& getName() const;
     Int_t getID() const;
-    void addMultiID(UInt_t _multiId);
+    void addMultiID(UInt_t multiId);
     const std::set<UInt_t>& getMultiID() const;
-    void decorate(ConfKey_t _key, const std::string _value);
-    void decorate(ConfKey_t _key, const Float_t _value);
-    void decorate(ConfKey_t _key, const Int_t _value);
-    const std::string& getStrDecoration(ConfKey_t _key) const;
-    Int_t getIntDecoration(ConfKey_t _key) const;
-    Float_t getDecoration(ConfKey_t _key) const;
-    Bool_t hasDecoration(ConfKey_t _key) const;
+    void decorate(ConfKey_t key, const std::string value);
+    void decorate(ConfKey_t key, const Float_t value);
+    void decorate(ConfKey_t key, const Int_t value);
+    const std::string& getStrDecoration(ConfKey_t key) const;
+    Int_t getIntDecoration(ConfKey_t key) const;
+    Float_t getDecoration(ConfKey_t key) const;
+    Bool_t hasDecoration(ConfKey_t key) const;
     MonitorBase* getParent() const;
     const std::string getRange() const;
   protected:
-    virtual Double_t getPrescaleFactor(UInt_t _e = INT_MAX) = 0;
+    virtual Double_t getPrescaleFactor(UInt_t e = INT_MAX) = 0;
 
 
     const TrigCostData* m_costData; //!< The raw data

@@ -138,6 +138,8 @@ namespace InDet{
       Trk::TrackInfo                 m_trackinfo     ;
 
       InDet::SiTools_xk              m_tools         ;
+      const PixelID*                 m_pixIdHelper   ;
+      const SCT_ID*                  m_sctIdHelper   ;
       bool                           m_pix           ;
       bool                           m_sct           ;
       bool                           m_simpleTrack   ;
@@ -189,7 +191,7 @@ namespace InDet{
 	 std::vector<const InDet::SiCluster*>     &); 
 
       void detectorElementLinks
-	(std::vector<const InDetDD::SiDetectorElement*>        &,
+	(const std::vector<const InDetDD::SiDetectorElement*>  &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;

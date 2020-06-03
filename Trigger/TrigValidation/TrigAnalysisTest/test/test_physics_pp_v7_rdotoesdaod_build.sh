@@ -2,11 +2,12 @@
 
 # art-description: Trigger Physics pp v7 RDO to ESD and AOD test, plus extra tests using these files
 # art-type: build
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
+# art-include: 21.1/AthenaP1
+# art-include: 21.1-dev/AthenaP1
+# art-output: *check*
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt
@@ -18,6 +19,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="physics_pp_v7_rdotoesdaod_build"
 export COST_MONITORING="False"

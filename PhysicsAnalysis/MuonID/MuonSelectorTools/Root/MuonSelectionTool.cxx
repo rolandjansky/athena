@@ -272,7 +272,7 @@ namespace CP {
       // LOOSE / MEDIUM / TIGHT WP
       const xAOD::TrackParticle* idtrack = mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       const xAOD::TrackParticle* metrack = mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
-      if( idtrack && metrack ) {
+      if( idtrack && metrack && metrack->definingParametersCovMatrix()(4,4)>0 ) {
         float mePt = -999999., idPt = -999999.;
 
         if( !m_TurnOffMomCorr ) { // now using corrected ID/MS momenta 

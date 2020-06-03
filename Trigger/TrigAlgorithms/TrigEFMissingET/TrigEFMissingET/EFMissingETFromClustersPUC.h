@@ -68,6 +68,10 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
     double m_varrhoscale;       //adjustment factor for weighting rho errors in fit
     double m_trimfactor;        //Fraction of towers used in calculating the trimmed mean
 
+    bool m_doLArH11off; //! LAr H11 off or not 
+    bool m_doLArH12off; //! LAr H12 off or not
+    double m_Jetptcut; //! Jet pt cut for LAr H11/H12
+
     int    m_nphibins;
     int    m_netabins;
     int    m_ntowers;

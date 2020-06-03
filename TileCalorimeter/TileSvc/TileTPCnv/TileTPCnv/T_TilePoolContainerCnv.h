@@ -50,7 +50,7 @@ public:
 
     log << MSG::DEBUG << MSG::hex << "pers_type= 0x" << pers_type 
         << " - " <<  bsflags << " " << unit << " " << type << " " << hashType
-        << MSG::dec << " Nelements= " << vec.size() << endreq;
+        << MSG::dec << " Nelements= " << vec.size() << endmsg;
 
     //trans->clear(); // only remove elements
     trans->cleanup(); // remove all collections
@@ -58,7 +58,7 @@ public:
     if ( abs(trans->get_hashType()-hashType) > 0xF) {
       log << MSG::DEBUG << "Pers hash type " << hashType
           << " does not match Trans hash type " << trans->get_hashType()
-          << " ==> reinitializing hash " << endreq;
+          << " ==> reinitializing hash " << endmsg;
 
       trans->initialize(false,(TileFragHash::TYPE)hashType); 
     }
@@ -103,7 +103,7 @@ public:
         << " " << trans->get_unit() 
         << " " << trans->get_type() 
         << " " << trans->get_hashType()
-        << MSG::dec << "  Nelements= " << pers->getVector().size() << endreq;
+        << MSG::dec << "  Nelements= " << pers->getVector().size() << endmsg;
   }
 
 private:

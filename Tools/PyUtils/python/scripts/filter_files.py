@@ -111,7 +111,7 @@ def main(args):
         # optimization: run directly 'AtlCopyBSEvent.exe
         import subprocess
         cmd = ' '.join([
-            'AtlCopyBSEvent.exe',
+            'AtlCopyBSEvent',
             '-e %(evt-list)s',
             '%(run-list)s',
             '--out %(output)s',

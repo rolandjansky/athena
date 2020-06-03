@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKTrack.h"
 
 #include <iostream>
@@ -21,6 +22,7 @@ FTKTrack::FTKTrack() :
    m_nmissing(0), 
    m_typemask(0), m_bitmask(0), m_ncoords(0), m_coord(0),
    m_nplanes(0), m_hits(0x0),
+   m_nplanes_ignored(0), m_ssid(0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
    m_connindex(-1)
@@ -79,6 +81,10 @@ FTKTrack::FTKTrack(const FTKTrack &cpy) :
    m_hits = new FTKHit[m_nplanes];
    for (int i=0;i!=m_nplanes;++i)
      m_hits[i] = cpy.m_hits[i];
+
+   m_nplanes_ignored = cpy.m_nplanes_ignored;
+   m_ssid = new int[m_nplanes_ignored];
+   for (int i=0;i<m_nplanes_ignored;++i) m_ssid[i] = cpy.m_ssid[i];
 }
 
 
@@ -90,7 +96,7 @@ FTKTrack::FTKTrack(const int &ncoords, const int &nplanes) :
    m_invptfw(0), m_d0fw(0), m_phifw(0), m_z0fw(0), m_cthetafw(0), m_chi2fw(0),
    m_nmissing(0), 
    m_typemask(0), m_bitmask(0),   m_ncoords(ncoords),
-   m_nplanes(nplanes),
+   m_nplanes(nplanes), m_nplanes_ignored(0), m_ssid(0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
    m_connindex(-1) 
@@ -106,44 +112,49 @@ FTKTrack::~FTKTrack()
 {
    if (m_ncoords>0) delete [] m_coord;
    if (m_nplanes>0) delete [] m_hits;
+   if (m_nplanes_ignored>0) delete [] m_ssid;
 }
 
 // if ForceRange==true, then phi = [-pi..pi)
 void FTKTrack::setPhi(float phi, bool ForceRange) {
-  if (ForceRange) {
-    // when phi is ridiculously large, there is no point in adjusting it
-    if(fabs(phi)>100) {
-      if(m_chi2<100) { // this is a BAD track, so fail it if chi2 hasn't done so already
-	std::cout << "FTKTrack warning: fitted phi = " << phi << ", but chi2 = " << m_chi2 
-		  << ". Adjusting to chi2+=100!" << std::endl;
-	m_chi2+=100; // we want to fail this event anyway
-      }
-    }
-    else {
-      while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
-      while (phi< -TMath::Pi()) phi += TMath::TwoPi();
-    }
+  if (ForceRange && fabs(phi)>100 && m_chi2<100) {
+    // when phi is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phi = %f, but chi2 = %f. Adjusting to chi2+=100!", phi, m_chi2);
+    m_chi2+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && fabs(phi)<100){
+    while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
+    while (phi< -TMath::Pi()) phi += TMath::TwoPi();
   }
   m_phi = phi;
 }
 
 // if ForceRange==true, then phi = [-pi..pi)
 void FTKTrack::setPhiRaw(float phi, bool ForceRange) {
-  if (ForceRange) {
-    // when phi is ridiculously large, there is no point in adjusting it
-    if(fabs(phi)>100) {
-      if(m_chi2<100) { // this is a BAD track, so fail it if chi2 hasn't done so already
-	std::cout << "FTKTrack warning: fitted phi = " << phi << ", but chi2 = " << m_chi2 
-		  << ". Adjusting to chi2+=100!" << std::endl;
-	m_chi2+=100; // we want to fail this event anyway
-      }
-    }
-    else {
-      while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
-      while (phi< -TMath::Pi()) phi += TMath::TwoPi();
-    }
+  if (ForceRange && fabs(phi)>100 && m_chi2<100) {
+    // when phi is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phi = %f, but chi2 = %f. Adjusting to chi2+=100!", phi, m_chi2);
+    m_chi2+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && fabs(phi)<100){
+    while (phi>= TMath::Pi()) phi -= TMath::TwoPi(); 
+    while (phi< -TMath::Pi()) phi += TMath::TwoPi();
   }
   m_rawphi = phi;
+}
+
+// if ForceRange==true, then phifw = [-3..3)
+void FTKTrack::setPhiFW(int phifw, bool ForceRange) {
+  // when phifw is ridiculously large, there is no point in adjusting it. Also, since this is a BAD track, fail it if chi2 hasn't done so already
+  if (ForceRange && abs(phifw)>100 && m_chi2fw<100) {
+    FTKSetup::PrintMessageFmt(ftk::warn, "FTKTrack warning: fitted phifw = %d, but chi2fw = %d. Adjusting to chi2fw+=100!", phifw, m_chi2fw);
+    m_chi2fw+=100; // we want to fail this event anyway
+  }
+  else if (ForceRange && abs(phifw)<100) {
+    while (phifw>= round(TMath::Pi())) phifw -= round(TMath::TwoPi()); 
+    while (phifw< -round(TMath::Pi())) phifw += round(TMath::TwoPi());
+  }
+  m_phifw = phifw;
 }
 
 /** set the number of coordinates connected with this track,
@@ -166,6 +177,17 @@ void FTKTrack::setNPlanes(int dim)
 
   m_nplanes = dim;
   m_hits = new FTKHit[m_nplanes];
+}
+
+/** set the number of planes to extrapolate the 7L tracks,
+    a dim=0 is used to cleanup array content */
+void FTKTrack::setNPlanesIgnored(int dim)
+{
+  if (m_nplanes_ignored>0) delete [] m_ssid;
+
+  m_nplanes_ignored = dim;
+  m_ssid = new int[m_nplanes_ignored];
+  for (int i=0; i<m_nplanes_ignored; ++i) m_ssid[i] = 0;
 }
 
 
@@ -367,6 +389,17 @@ FTKTrack& FTKTrack::operator=(const FTKTrack &tocpy)
         // same number of coordinates, updating the hit content
         for (int i=0;i<m_nplanes;++i) {
           m_hits[i] = tocpy.m_hits[i];
+        }
+      }
+
+      if (m_nplanes_ignored!=tocpy.m_nplanes_ignored) {    
+        m_nplanes_ignored  = tocpy.m_nplanes_ignored;   
+        if (m_ssid) delete [] m_ssid;
+        m_ssid = new int[m_nplanes_ignored];
+      }
+      else {
+        for (int i=0;i<m_nplanes_ignored;++i) {
+          m_ssid[i] = tocpy.m_ssid[i];
         }
       }
     }

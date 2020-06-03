@@ -17,12 +17,14 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/CxxUtils
                           Event/EventInfo
+                          Generators/TruthUtils
                           InnerDetector/InDetSimEvent
                           MuonSpectrometer/MuonSimEvent
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/SimHelpers
                           Simulation/G4Utilities/TrackWriteFastSim
-			  Tools/PathResolver )
+                          Simulation/G4Utilities/G4DebuggingTools
+                          Tools/PathResolver )
 
 
 # External dependencies:
@@ -37,7 +39,7 @@ atlas_add_component( G4UserActions
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CxxUtils EventInfo InDetSimEvent MuonSimEvent MCTruth SimHelpers TrackWriteFastSimLib PathResolver)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CxxUtils EventInfo TruthUtils InDetSimEvent MuonSimEvent MCTruth SimHelpers TrackWriteFastSimLib G4DebuggingHelperLib PathResolver)
 
 # Install files from the package:
 atlas_install_headers( G4UserActions )

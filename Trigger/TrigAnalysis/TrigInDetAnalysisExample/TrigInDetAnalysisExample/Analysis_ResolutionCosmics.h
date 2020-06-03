@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /** @file Analysis_ResolutionCosmics.h */
 
 #ifndef TrigInDetAnalysisExample_Analysis_ResolutionCosmics_H

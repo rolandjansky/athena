@@ -8,7 +8,7 @@
 
 void ZDC_SimPixelHitCnv_p1::persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_SimPixelHit* transObj, MsgStream& log) {
 
-  log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::persToTrans " << endreq;
+  log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::persToTrans " << endmsg;
 
   *transObj = ZDC_SimPixelHit (persObj->Side,
                                persObj->ModNo,
@@ -20,7 +20,7 @@ void ZDC_SimPixelHitCnv_p1::persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_S
 
 void ZDC_SimPixelHitCnv_p1::transToPers(const ZDC_SimPixelHit* transObj, ZDC_SimPixelHit_p1* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::transToPers " << endreq;
+  log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::transToPers " << endmsg;
 
   persObj->Side 	   = transObj->GetSide();
   persObj->ModNo	   = transObj->GetMod();

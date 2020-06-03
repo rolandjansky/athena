@@ -243,7 +243,9 @@ StatusCode EventSelectorAthenaPool::reinit() {
 
    // reset markers
    m_numEvt.resize(m_inputCollectionsProp.value().size(), -1);
+   for( auto& el : m_numEvt ) el = -1;
    m_firstEvt.resize(m_inputCollectionsProp.value().size(), -1);
+   for( auto& el : m_firstEvt ) el = -1;
    m_guid = Guid::null();
 
    // Initialize InputCollectionsIterator
@@ -251,6 +253,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
    m_curCollection = 0;
    m_firstEvt[0] = 0;
    m_evtCount = 0;
+   m_headerIterator = 0;
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       ATH_MSG_INFO("Done reinitialization for shared reader client");
       return(StatusCode::SUCCESS);
@@ -426,7 +429,7 @@ void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile, bool fireEnd
             // Assume that the end of collection file indicates the end of payload file.
             if (m_guid != Guid::null()) {
                // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
             // Fire EndTagFile incident if not out of files (maybe we should make it fire then as well?)
@@ -1085,7 +1088,7 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
             if (throwIncidents && m_processMetadata.value()) {
                FileIncident beginInputFileIncident(name(), "BeginInputFile", *m_inputCollectionsIterator);
                m_incidentSvc->fireIncident(beginInputFileIncident);
-               FileIncident endInputFileIncident(name(), "EndInputFile", "eventless " + *m_inputCollectionsIterator);
+               FileIncident endInputFileIncident(name(), "EndInputFile", "eventless " + *m_inputCollectionsIterator, m_guid.toString() );
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
             m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb(*m_inputCollectionsIterator, IPoolSvc::kInputStream).ignore();

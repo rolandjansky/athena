@@ -277,6 +277,16 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
       ATH_MSG_INFO( "No TileBchStatus::isBadTiming() definition found in DB, using defaults" );
     }
 
+    //=== TileBchStatus.isWrongBCID() definition
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::WRONGBCID_DEFINITION_CHAN, 0, adcBits, channelBits);
+    chnStatus = m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
+    if (chnStatus.isAffected()) {
+      ATH_MSG_INFO( "Updating TileBchStatus::isWrongBCID() definition from DB" );
+      TileBchStatus::defineWrongBCID(chnStatus);
+    } else {
+      ATH_MSG_INFO( "No TileBchStatus::isWrongBCID() definition found in DB, using defaults" );
+    }
+
 
     //=== report current definitions
     ATH_MSG_INFO( "TileBchStatus::isBad() is defined by: "
@@ -287,6 +297,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
                  << TileBchStatus::getDefinitionNoGainL1().getString() );
     ATH_MSG_INFO( "TileBchStatus::isBadTiming() is defined by: "
                  << TileBchStatus::getDefinitionBadTiming().getString() );
+    ATH_MSG_INFO( "TileBchStatus::isWrongBCID() is defined by: "
+                 << TileBchStatus::getDefinitionWrongBCID().getString() );
     
 
     // Check if drawer trips probabilities for simulation are exist in DB.

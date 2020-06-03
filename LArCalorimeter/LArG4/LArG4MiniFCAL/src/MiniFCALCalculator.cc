@@ -44,7 +44,7 @@ G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>
   hdata.resize(1);
 
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 
   if(hdata[0].energy <= 0.)  return false;
 

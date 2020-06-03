@@ -478,7 +478,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
     eHitTot += ener;
 
     TileHit * pHit = m_allHits[hit_idhash];
-    TileHit * pHit_DigiHSTruth;
+    TileHit * pHit_DigiHSTruth(nullptr);
     if(m_doDigiTruth) pHit_DigiHSTruth = m_allHits_DigiHSTruth[hit_idhash];
 
     if (0 == pHit) {
@@ -935,7 +935,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
 
     for (; iHit != lastHit; ++iHit) {
       TileHit *pHit = (*iHit);
-      TileHit *pHit_DigiHSTruth;
+      TileHit *pHit_DigiHSTruth(nullptr);
       if(m_doDigiTruth) pHit_DigiHSTruth = new TileHit(**iHit_DigiHSTruth);
       if (pHit->size() > 1 || pHit->energy() != 0.0) {       // hit exists
         m_hits->push_back(pHit);   // store hit in container

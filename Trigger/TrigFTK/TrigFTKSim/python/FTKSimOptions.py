@@ -208,6 +208,8 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--Save1stStageTrks', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Save 1st stage tracks', group="TrigFTKTrackFitter")
+    parser.add_argument('--SaveStepByStepTrks', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Save step-by-step tracks', group="TrigFTKTrackFitter")
 
     parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of HW configuration file', group='TrigFTKTrackFitter')
@@ -217,6 +219,9 @@ def addTrigFTKSimTFOptions(parser):
                         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
+
+    parser.add_argument('--AuxDoctor', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables Aux Doctor Overlap Removal", group='TrigFTKTrackFitter')
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
@@ -234,9 +239,6 @@ def addTrigFTKSimTFOptions(parser):
                         help="Limit on the number of combinations per road", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="limit the number of hits per plane per road", group='TrigFTKTrackFitter')
-
-    parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
 
     parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='track fitter mode', group='TrigFTKTrackFitter', nargs='+')

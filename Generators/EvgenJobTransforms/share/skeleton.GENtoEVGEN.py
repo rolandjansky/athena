@@ -1,6 +1,4 @@
-
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -414,6 +412,7 @@ svcMgr.EventSelector.RunNumber = runArgs.runNumber
 
 ## Include information about generators in metadata
 import EventInfoMgt.EventInfoMgtInit
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(runArgs.runNumber) ]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["lhefGenerator", '+'.join( filter( gens_lhef, gennames ) ) ]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["generators", '+'.join(gennames)]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
@@ -501,6 +500,7 @@ elif "HepMCAscii" in evgenConfig.generators:
 elif gens_lhef(evgenConfig.generators):
     eventsFile = "events.lhe"
 
+
 ## Helper functions for input file handling
 def find_unique_file(pattern):
     "Return a matching file, provided it is unique"
@@ -541,6 +541,7 @@ def merge_lhe_files(listOfFiles,outputFile):
              if(len(holdHeader)<1):
                 holdHeader = header
                 output.write(header)
+             output.write(line)
 ##        each input file ends with "</LesHouchesEvents>".  We don't want to write this out until all
 ##        the files have been read.  The elif below writes out all the events.
           elif(not inHeader and not ("</LesHouchesEvents>" in line)):
@@ -557,7 +558,7 @@ def merge_lhe_files(listOfFiles,outputFile):
                 nnn = str(nevents)
                 line = line.replace(tmp[1],nnn)
              header+=line
-    output.write("</LesHouchesEvents>")
+    output.write("</LesHouchesEvents>\n")
     output.close()
 
 
@@ -582,10 +583,13 @@ if eventsFile or datFile:
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
 #    inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
     if datFile:
-#        inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+      if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
         inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
-        realDatFile = find_unique_file('*%s*.dat' % inputroot)
-        mk_symlink(realDatFile, datFile)
+      else:  
+        inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+
+      realDatFile = find_unique_file('*%s*.dat' % inputroot)
+      mk_symlink(realDatFile, datFile)
     if eventsFile:
 #        realEventsFile = find_unique_file('*%s.*.ev*ts' % inputroot)
 #        mk_symlink(realEventsFile, eventsFile)
@@ -594,8 +598,13 @@ if eventsFile or datFile:
         numberOfFiles = len(genInputFiles)
         # if there is a single file, make a symlink.  If multiple files, merge them into one output eventsFile
         if(numberOfFiles<2):
-#           inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
-           inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
+           if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
+             inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
+           else:  
+             inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
+
+           if "events" in inputroot :
+               inputroot = inputroot.replace(".events","")
            realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
            mk_symlink(realEventsFile, eventsFile)
         else:
@@ -603,11 +612,13 @@ if eventsFile or datFile:
            for file in genInputFiles:
 #             Since we can have multiple files from the same task, inputroot must include more of the filename
 #             to make it unique
-#              input0 = os.path.basename(file).split("._")[0]
-#              input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
-#              inputroot = input0+"._"+input1
-              inputroot = os.path.basename(file).split(".tar.")[0]
-#              print "inputroot ",inputroot
+              if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
+                inputroot = os.path.basename(runArgs.inputGeneratorFile).split(".tar.")[0]
+              else:  
+                input0 = os.path.basename(file).split("._")[0]
+                input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
+                inputroot = input0+"._"+input1
+              print "inputroot ",inputroot
               realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
 #             The only input format where merging is permitted is LHE
               with open(realEventsFile, 'r') as f:
@@ -616,6 +627,7 @@ if eventsFile or datFile:
                     raise RuntimeError("%s is NOT a LesHouche file" % realEventsFile)
                  allFiles.append(realEventsFile)
            merge_lhe_files(allFiles,eventsFile)
+
 else:
     if hasattr(runArgs, "inputGeneratorFile") and runArgs.inputGeneratorFile != "NONE":
         raise RuntimeError("inputGeneratorFile arg specified for %s, but generators %s do not require an input file" %
@@ -654,7 +666,15 @@ if _checkattr("description", required=True):
         msg += " " + evgenConfig.notes
     print "MetaData: %s = %s" % ("physicsComment", msg)
 if _checkattr("generators", required=True):
-    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
+    gennamesvers=[]
+    for item in gennames:
+       genera = item.upper()
+       generat = genera+"VER"
+       if (generat in os.environ):
+           gennamesvers.append(item+"(v."+os.environ[generat]+")")
+       else:
+           gennamesvers.append(item)
+    print "MetaData: %s = %s" % ("generatorName", "+".join(gennamesvers))    
 if _checkattr("process"):
     print "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
 if _checkattr("tune"):

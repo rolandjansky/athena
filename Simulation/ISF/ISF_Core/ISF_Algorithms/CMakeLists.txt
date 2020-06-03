@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileSimEvent
                           MuonSpectrometer/MuonSimEvent
                           Generators/GeneratorObjects
+                          Simulation/Interfaces/HepMC_Interfaces
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Tools/PmbCxxUtils
@@ -44,9 +45,6 @@ atlas_add_test( CollectionMerger_test
 
 atlas_add_test(collection_merger_helpers_tests
                SCRIPT python/test/test_collection_merger_helpers.py)
-
-# Install files from the package:
-atlas_install_headers( ISF_Algorithms )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

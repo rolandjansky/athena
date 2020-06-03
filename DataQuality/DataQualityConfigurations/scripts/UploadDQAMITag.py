@@ -5,15 +5,13 @@
 # 10-Sep-2010, Peter Onyisi <ponyisi@cern.ch>
 #
 # Script for uploading a new DQ configuration to AMI "h" tag
-# ASSUMPTION: the binary DQ configurations are in AFS; they have the following
+# ASSUMPTION: the binary DQ configurations have the following
 # directory structure:
-#   $BASEDIR / Cosmics    / cosmics_minutes10.current.hcfg
-#                         / cosmics_minutes30.current.hcfg
-#                         / cosmics_run.current.hcfg
-#            / Collisions / collisions_*current.hcfg
-#            / HeavyIons  / heavyions_*current.hcfg
-# and that the *.current.hcfg files are valid symlinks to files in the
-# respective directories.
+#   $BASEDIR / cosmics_minutes10.hcfg
+#            / cosmics_minutes30.hcfg
+#            / cosmics_run.hcfg
+#            / collisions_*.hcfg
+#            / heavyions_*.hcfg
 
 import sys, os
 
@@ -63,12 +61,12 @@ def get_current_config(amiclient):
     #del rv1['writeStatus']
     for k in ('tag', 'createdBy', 'modifiedBy', 'tagStatus', 'tagNumber', 'tagType',
               'locked', 'updates', 'created', 'lastModified', 'processingStep',
-              'transformationName', 'baseRelease', 'modified'):
+              'transformationName', 'baseRelease', 'modified', 'phconfig'):
         try:
             del rv1[k]
         except KeyError:
             pass
-    for k in ('inputs','outputs', 'moreInfo', 'phconfig', 'trfsetupcmd',
+    for k in ('inputs','outputs', 'moreInfo', 'trfsetupcmd',
               'description'):
         rv1[k] = '"%s"' % str(rv1[k].__str__())
 
@@ -80,8 +78,9 @@ def get_next_tag(latestTag):
     #nextTag='h8'
     return nextTag
 
-def update_dict_for_configs(updict, indir):
-  
+#if reading from afs, use the old system, looking for the most current hcfg files and setting the symlink as phconfig
+def update_dict_for_configs_afs(updict, indir):
+
     basedir = os.path.abspath(indir)
 
     print 'Looking for configurations in subdirectories of', indir
@@ -111,6 +110,61 @@ def update_dict_for_configs(updict, indir):
                     filelist.append(realname)
                 else:
                     print 'but is not valid symlink'
+            else:
+                print 'not found'
+        if filepathdict[dir1] == {}:
+            del filepathdict[dir1]
+
+    commonpart = os.path.dirname(os.path.commonprefix(filelist)) + os.sep
+
+    filepathdict['basename'] = commonpart
+
+    # clean up common part
+    for dir1, fn in searchparams:
+        for t in types:
+            try:
+                filepathdict[dir1][t] =  filepathdict[dir1][t].replace(commonpart, '')
+            except KeyError:
+                pass
+
+    print
+    print '-------------------------------------'
+    print 'File path dictionary to upload:'
+    print filepathdict
+    print '-------------------------------------'
+    print
+
+    val = updict.get('phconfig', {})
+    if isinstance(val, basestring):
+        val = {}
+    val['filepaths'] = filepathdict
+    updict['phconfig'] = '"%s"' % val
+
+#if reading hcfgs from a cvmfs directory, only one set of files should be present. Use those for phconfig
+def update_dict_for_configs_cvmfs(updict, indir):
+  
+    basedir = os.path.abspath(indir)
+
+    print 'Looking for configurations in subdirectories of', indir
+
+    types = ['minutes10', 'run']
+    searchparams = [('Cosmics', 'cosmics'), ('Collisions', 'collisions'),
+                    ('HeavyIons', 'heavyions')]
+
+    filepathdict = {}
+    filelist = []
+
+    for dir1, fn in searchparams:
+        print dir1
+        filepathdict[dir1] = {}
+        for t in types:
+            print '  ', t, '...',
+            fname = os.path.join(basedir, '%s_%s.hcfg' % (fn, t))
+            if os.access(fname, os.R_OK):
+                print 'found %s' % (dir1)
+                if os.path.isfile(fname):
+                    filepathdict[dir1][t] = fname
+                    filelist.append(fname)
             else:
                 print 'not found'
         if filepathdict[dir1] == {}:
@@ -250,7 +304,13 @@ if __name__ == '__main__':
     nextTag = get_next_tag(latestTag)
     
     if args[0].lower() == 'configs':
-        update_dict_for_configs(cfgdict, args[1])
+        if '/afs/cern.ch/user/a/atlasdqm/' in args[1]:
+            update_dict_for_configs_afs(cfgdict, args[1])
+        elif 'cvmfs' in args[1]:
+            update_dict_for_configs_cvmfs(cfgdict, args[1])
+        else:
+            s="Invalid directory given. hcfg files should exist in cvmfs or the atlasdqm afs space"
+            raise RuntimeError(s)
     elif args[0].lower() == 'release':
         update_dict_for_release(cfgdict, args[1])
 

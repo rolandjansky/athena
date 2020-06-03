@@ -222,10 +222,9 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
-else:
+## The looper killer is on by default. Disable it if this is requested.
+if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
 try:
@@ -253,12 +252,6 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
         svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
     else:
         svcMgr.EventSelector.FirstEvent = 0
-
-## Increase max RDO output file size to 10 GB
-## NB. We use 10GB since Athena complains that 15GB files are not supported
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
-
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):

@@ -12,6 +12,7 @@
 #include "TPTools/AthenaConverterTLPExtension.h"
 #include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
 #include "PersistentDataModel/Token.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -20,12 +21,12 @@ using namespace std;
 
 
 unsigned short
-AthenaConverterTLPExtension::getTPCnvID() {
+AthenaConverterTLPExtension::getTPCnvID NO_SANITIZE_UNDEFINED () {
    return getTopLevelTPCnv()->getConverterID();
 }
 
 
-bool AthenaConverterTLPExtension::registerExtendingCnv( AthenaConverterTLPExtension *extending_converter )
+bool AthenaConverterTLPExtension::registerExtendingCnv NO_SANITIZE_UNDEFINED ( AthenaConverterTLPExtension *extending_converter )
 {
    // check if all converter IDs are unique
    int	extendingTPLCnvID = extending_converter->getTPCnvID();
@@ -123,7 +124,7 @@ void AthenaConverterTLPExtension::writeExtendingObjects( void *baseObj, const st
 }
 
 
-void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
+void AthenaConverterTLPExtension::readExtendingObjects NO_SANITIZE_UNDEFINED ( void *baseObj )
 {
    // m_TLCnvForReading may be 0 if reading pre-TP object
    if( m_TLCnvForReading ) {
@@ -172,7 +173,7 @@ void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
 
 
 
-void AthenaConverterTLPExtension::deletePersistentObjects()
+void AthenaConverterTLPExtension::deletePersistentObjects NO_SANITIZE_UNDEFINED ()
 {
    for( extCnvMap_t::const_iterator cnv = m_extendingConverters.begin();
 	cnv != m_extendingConverters.end(); cnv++ ) {

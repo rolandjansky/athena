@@ -19,45 +19,49 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
   particles = {
     "gluino" : {
       "generic" : [
-        '       1000021   %3.3f   # ~g'            % ( MASS + 100.000 ),
-        '       1000993   %3.3f   # ~g_glueball'   % ( MASS + 100.700 ),
-        '       1009213   %3.3f   # ~g_rho+'       % ( MASS + 100.650 ),
-        '       1009313   %3.3f   # ~g_K*0'        % ( MASS + 100.825 ),
-        '       1009323   %3.3f   # ~g_K*+'        % ( MASS + 100.825 ),
-        '       1009413   %3.3f   # ~g_D*+'        % ( MASS + 102.000 ),
-        '       1009423   %3.3f   # ~g_D*0'        % ( MASS + 102.000 ),
-        '       1009433   %3.3f   # ~g_D*s+'       % ( MASS + 102.200 ),
-        '       1009113   %3.3f   # ~g_rho0'       % ( MASS + 100.650 ),
-        '       1009223   %3.3f   # ~g_omega'      % ( MASS + 100.650 ),
-        '       1009333   %3.3f   # ~g_phi'        % ( MASS + 101.800 ),
-        '       1091114   %3.3f   # ~g_Delta-'     % ( MASS + 100.975 ),
-        '       1092114   %3.3f   # ~g_Delta0'     % ( MASS + 100.975 ),
-        '       1092214   %3.3f   # ~g_Delta+'     % ( MASS + 100.975 ),
-        '       1092224   %3.3f   # ~g_Delta++'    % ( MASS + 100.975 ),
-        '       1093114   %3.3f   # ~g_Sigma*-'    % ( MASS + 101.150 ),
-        '       1093214   %3.3f   # ~g_Sigma*0'    % ( MASS + 101.150 ),
-        '       1093224   %3.3f   # ~g_Sigma*+'    % ( MASS + 101.150 ),
-        '       1093314   %3.3f   # ~g_Xi*-'       % ( MASS + 101.300 ),
-        '       1093324   %3.3f   # ~g_Xi*0'       % ( MASS + 101.300 ),
-        '       1093334   %3.3f   # ~g_Omega-'     % ( MASS + 101.600 ),
-        '      -1009213   %3.3f   # ~g_rho-'       % ( MASS + 100.650 ),
-        '      -1009313   %3.3f   # ~g_K*bar0'     % ( MASS + 100.825 ),
-        '      -1009323   %3.3f   # ~g_K*-'        % ( MASS + 100.825 ),
-        '      -1009413   %3.3f   # ~g_D*-'        % ( MASS + 102.000 ),
-        '      -1009423   %3.3f   # ~g_aD*0'       % ( MASS + 102.000 ),
-        '      -1009433   %3.3f   # ~g_D*s-'       % ( MASS + 102.200 ),
-        '      -1091114   %3.3f   # ~g_Deltabar+'  % ( MASS + 100.975 ),
-        '      -1092114   %3.3f   # ~g_Deltabar0'  % ( MASS + 100.975 ),
-        '      -1092214   %3.3f   # ~g_Deltabar-'  % ( MASS + 100.975 ),
-        '      -1092224   %3.3f   # ~g_Deltabar--' % ( MASS + 100.975 ),
-        '      -1093114   %3.3f   # ~g_Sigma*bar+' % ( MASS + 101.150 ),
-        '      -1093214   %3.3f   # ~g_Sigma*bar0' % ( MASS + 101.150 ),
-        '      -1093224   %3.3f   # ~g_Sigma*bar-' % ( MASS + 101.150 ),
-        '      -1093314   %3.3f   # ~g_Xi*bar+'    % ( MASS + 101.300 ),
-        '      -1093324   %3.3f   # ~g_Xi*bar0'    % ( MASS + 101.300 ),
-        '      -1093334   %3.3f   # ~g_Omegabar+'  % ( MASS + 101.600 ),
-        '       1000039   %3.3f   # ~Gravitino'    % ( MASSX ),
-        '       1000022   %3.3f   # ~chi_10'       % ( MASSX )
+        '       1000021   %3.3f   # ~g'             % ( MASS + 100.000 ),
+        '       1000993   %3.3f   # ~g_glueball'    % ( MASS + 100.700 ),
+        '       1009213   %3.3f   # ~g_rho+'        % ( MASS + 100.650 ),
+        '       1009313   %3.3f   # ~g_K*0'         % ( MASS + 100.825 ),
+        '       1009323   %3.3f   # ~g_K*+'         % ( MASS + 100.825 ),
+        '       1009413   %3.3f   # ~g_D*+'         % ( MASS + 102.000 ),
+        '       1009423   %3.3f   # ~g_D*0'         % ( MASS + 102.000 ),
+        '       1009433   %3.3f   # ~g_D*s+'        % ( MASS + 102.200 ),
+        '       1009113   %3.3f   # ~g_rho0'        % ( MASS + 100.650 ),
+        '       1009223   %3.3f   # ~g_omega'       % ( MASS + 100.650 ),
+        '       1009333   %3.3f   # ~g_phi'         % ( MASS + 101.800 ),
+        '       1091114   %3.3f   # ~g_Delta-'      % ( MASS + 100.975 ),
+        '       1092114   %3.3f   # ~g_Delta0'      % ( MASS + 100.975 ),
+        '       1092214   %3.3f   # ~g_Delta+'      % ( MASS + 100.975 ),
+        '       1092224   %3.3f   # ~g_Delta++'     % ( MASS + 100.975 ),
+        '       1093114   %3.3f   # ~g_Sigma*-'     % ( MASS + 101.150 ),
+        '       1093214   %3.3f   # ~g_Sigma*0'     % ( MASS + 101.150 ),
+        '       1093224   %3.3f   # ~g_Sigma*+'     % ( MASS + 101.150 ),
+        '       1093314   %3.3f   # ~g_Xi*-'        % ( MASS + 101.300 ),
+        '       1093324   %3.3f   # ~g_Xi*0'        % ( MASS + 101.300 ),
+        '       1093334   %3.3f   # ~g_Omega-'      % ( MASS + 101.600 ),
+        '       1094114   %3.3f   # ~g_Sigmac*0'    % ( MASS + 102.300 ),
+        '       1094214   %3.3f   # ~g_Sigmac*+'    % ( MASS + 102.300 ),
+        '      -1009213   %3.3f   # ~g_rho-'        % ( MASS + 100.650 ),
+        '      -1009313   %3.3f   # ~g_K*bar0'      % ( MASS + 100.825 ),
+        '      -1009323   %3.3f   # ~g_K*-'         % ( MASS + 100.825 ),
+        '      -1009413   %3.3f   # ~g_D*-'         % ( MASS + 102.000 ),
+        '      -1009423   %3.3f   # ~g_aD*0'        % ( MASS + 102.000 ),
+        '      -1009433   %3.3f   # ~g_D*s-'        % ( MASS + 102.200 ),
+        '      -1091114   %3.3f   # ~g_Deltabar+'   % ( MASS + 100.975 ),
+        '      -1092114   %3.3f   # ~g_Deltabar0'   % ( MASS + 100.975 ),
+        '      -1092214   %3.3f   # ~g_Deltabar-'   % ( MASS + 100.975 ),
+        '      -1092224   %3.3f   # ~g_Deltabar--'  % ( MASS + 100.975 ),
+        '      -1093114   %3.3f   # ~g_Sigma*bar+'  % ( MASS + 101.150 ),
+        '      -1093214   %3.3f   # ~g_Sigma*bar0'  % ( MASS + 101.150 ),
+        '      -1093224   %3.3f   # ~g_Sigma*bar-'  % ( MASS + 101.150 ),
+        '      -1093314   %3.3f   # ~g_Xi*bar+'     % ( MASS + 101.300 ),
+        '      -1093324   %3.3f   # ~g_Xi*bar0'     % ( MASS + 101.300 ),
+        '      -1093334   %3.3f   # ~g_Omegabar+'   % ( MASS + 101.600 ),
+        '      -1094114   %3.3f   # ~g_Sigmac*bar0' % ( MASS + 102.300 ),
+        '      -1094214   %3.3f   # ~g_Sigmac*bar-' % ( MASS + 102.300 ),
+        '       1000039   %3.3f   # ~Gravitino'     % ( MASSX ),
+        '       1000022   %3.3f   # ~chi_10'        % ( MASSX )
       ],
       "regge" : [
         '       1000021   %3.3f   # ~g'          % (MASS + 100.0   ),
@@ -200,8 +204,14 @@ def create_rhadron_pdgtable(CASE, MASS, MODEL):
         'W 1009323                          %11.5E    +0.0E+00 -0.0E+00 ~g_K*+        +'  % ( 0.E+00        ),
         'M 1009223                          %11.5E    +0.0E+00 -0.0E+00 ~g_omega      0'  % ( MASS + 100.650E+03 ),
         'W 1009223                          %11.5E    +0.0E+00 -0.0E+00 ~g_omega      0'  % ( 0.E+00        ),
-        'M 1009333                          %11.5E    +0.0E+00 -0.0E+00 ~g_phi        0'  % ( MASS + 101.800E+03  ),
+        'M 1009333                          %11.5E    +0.0E+00 -0.0E+00 ~g_phi        0'  % ( MASS + 101.800E+03 ),
         'W 1009333                          %11.5E    +0.0E+00 -0.0E+00 ~g_phi        0'  % ( 0.E+00        ),
+        'M 1009413                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*+        +'  % ( MASS + 102.000E+03 ),
+        'W 1009413                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*+        +'  % ( 0.E+00        ),
+        'M 1009423                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*0        0'  % ( MASS + 102.000E+03 ),
+        'W 1009423                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*0        0'  % ( 0.E+00        ),
+        'M 1009433                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*s+       +'  % ( MASS + 102.200E+03 ),
+        'W 1009433                          %11.5E    +0.0E+00 -0.0E+00 ~g_D*s+       +'  % ( 0.E+00        ),
         'M 1093114                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigma*-    -'  % ( MASS + 101.150E+03  ),
         'W 1093114                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigma*-    -'  % ( 0.E+00        ),
         'M 1093214                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigma*0    0'  % ( MASS + 101.150E+03  ),
@@ -213,7 +223,11 @@ def create_rhadron_pdgtable(CASE, MASS, MODEL):
         'M 1093324                          %11.5E    +0.0E+00 -0.0E+00 ~g_Xi*0       0'  % ( MASS + 101.300E+03  ),
         'W 1093324                          %11.5E    +0.0E+00 -0.0E+00 ~g_Xi*0       0'  % ( 0.E+00        ),
         'M 1093334                          %11.5E    +0.0E+00 -0.0E+00 ~g_Omega-     -'  % ( MASS + 101.600E+03  ),
-        'W 1093334                          %11.5E    +0.0E+00 -0.0E+00 ~g_Omega-     -'  % ( 0.E+00        )
+        'W 1093334                          %11.5E    +0.0E+00 -0.0E+00 ~g_Omega-     -'  % ( 0.E+00        ),
+        'M 1094114                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigmac*0   0'  % ( MASS + 102.300E+03  ),
+        'W 1094114                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigmac*0   0'  % ( 0.E+00        ),
+        'M 1094214                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigmac*+   +'  % ( MASS + 102.300E+03  ),
+        'W 1094214                          %11.5E    +0.0E+00 -0.0E+00 ~g_Sigmac*+   +'  % ( 0.E+00        )
       ],
       "regge" : [
         'M 1000021                          %11.5E    +0.0E+00 -0.0E+00 ~g            0'  % ( MASS + 100.E+03     ),
@@ -403,22 +417,17 @@ if usePythia8:
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
   rhlog.info("Doing Pythia8")
-  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
 
   # In case we want to use Pythia8 for decays during simulation
   if simdict.has_key("LIFETIME"):
-      if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
-          rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
-          rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
-      else:
-          addLineToPhysicsConfiguration("DoDecays","1")
-          addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
 
+      # Set up the job options if they're going to be needed
+      if float(simdict["LIFETIME"])>=1. or not hasattr(runArgs,'outputEVNT_TRFile') or not 'CASE' in simdict:
           # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
           from glob import glob
           # Default position: look in cvmfs for job options
           cvmfs_mc15 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/'
-          JO = glob(cvmfs_mc15+'/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+          JO = glob(cvmfs_mc15+'/share/DSID'+str(runNumber/1000)+'xxx/MC15.'+str(runNumber)+'*.py')
           if len(JO)>0:
               JO = JO[0]
           else:
@@ -454,6 +463,9 @@ if usePythia8:
           genSeq = dummyClass()
           genSeq.Pythia8 = dummyClass()
           genSeq.Pythia8.Commands = []
+          # Set up a fake TestHepMC
+          testSeq = dummyClass()
+          testSeq.TestHepMC = dummyClass()
           # Block includes that we don't want running
           include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
           include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
@@ -475,6 +487,69 @@ if usePythia8:
           # Build the param card, aka SLHA file
           from MadGraphControl.MadGraphUtils import build_param_card
           build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
+
+          # In case the CASE wasn't set, figure it out now
+          if not 'CASE' in simdict:
+              # Pop open the param card and figure out what's what.  Should be short, so we can stupid-read it
+              my_param_card = open('SLHA_INPUT.DAT','r')
+              masses = False
+              my_case = None
+              for l in my_param_card.readlines():
+                  if 'BLOCK' in l.split('#')[0].split() and 'MASS' in l.split('#')[0].split():
+                      masses = True
+                      continue
+                  elif 'BLOCK' in l.split('#')[0].split() and masses:
+                      break
+                  elif masses and len(l.split('#')[0].split())>1:
+                      my_id = l.split('#')[0].split()[0]
+                      my_m  = float(l.split('#')[0].split()[1])
+                      # Mass cases for non-SUSY particles
+                      if float(my_id)<1000000: continue
+                      # Heavy; not what we're looking for
+                      if my_m>4000.: continue
+                      # Sleptons -- not what we're looking for
+                      if my_id in ['1000011','1000012','1000013','1000014','1000015','1000016']: continue
+                      if my_id in ['2000011','2000013','2000015']: continue
+                      # Electroweakinos -- not what we're looking for
+                      if my_id in ['1000022','1000023','1000024','1000025','1000035','1000037','1000039']: continue
+                      # Squarks -- should not get here, so warn
+                      if my_id in ['1000001','2000001','1000002','2000002','1000003','2000003','1000004','2000004']:
+                          rhlog.warning('Encountered light squark.  Skipping, but this may indicate a problem.')
+                          continue
+                      if my_id in ['1000021']: # Gluino
+                          my_case = 'gluino'
+                      elif my_id in ['1000006','2000006']: # Stop
+                          my_case = 'stop'
+                      elif my_id in ['1000005','2000005']: # Sbottom
+                          my_case = 'sbottom'
+                      else:
+                          raise RuntimeError('Uncertain how to deal with case for ID '+str(my_id))
+                      # All the cases I handle so far
+                      rhlog.info('Auto-detected case: '+my_case)
+                  # Done with line handling
+              my_param_card.close()
+              if my_case is not None:
+                  simdict['CASE'] = my_case
+              else:
+                  raise RuntimeError('No CASE in EVNT metadata and could not decode one from the param card')
+          # Done handling case specification
+
+  # Last step, load up the files
+  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
+  # Add any lines that were missing
+  # In case we want to use Pythia8 for decays during simulation
+  if simdict.has_key("LIFETIME"):
+
+      if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
+          rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
+          rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
+      else:
+          addLineToPhysicsConfiguration("DoDecays","1")
+          addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
+      # If we reading particle records, and the lifetime is short, stop them as well
+      if float(simdict['LIFETIME'])<1. and hasattr(runArgs,'inputEVNT_TRFile'):
+          addLineToPhysicsConfiguration("DoDecays","1")
+          addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
   # Done with the Pythia8 setup
 
 else:

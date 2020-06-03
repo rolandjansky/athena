@@ -135,47 +135,43 @@ HLT::ErrorCode TrigL2MultiMuFex::hltInitialize()
 {
 
   // Print out properties, cuts
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization ..." << endmsg;
-    msg() << MSG::DEBUG << "AcceptAll          = "
-          << (m_acceptAll==true ? "True" : "False") << endmsg;
-    msg() << MSG::DEBUG << "Number of input muons expected   = " << m_NInputMuon << endmsg;
-    msg() << MSG::DEBUG << "Number of muons for mass   = " << m_NMassMuon << endmsg;
-    msg() << MSG::DEBUG << "OppositeCharge     = "
-          << (m_oppositeCharge==true ? "True" : "False") << endmsg;
-    msg() << MSG::DEBUG << "LowerMassCut       = " << m_lowerMassCut << endmsg;
-    msg() << MSG::DEBUG << "UpperMassCut       = " << m_upperMassCut << endmsg;
-  }
-
+  ATH_MSG_DEBUG("Initialization ..." );
+  ATH_MSG_DEBUG("AcceptAll          = " << (m_acceptAll==true ? "True" : "False") );
+  ATH_MSG_DEBUG("Number of input muons expected   = " << m_NInputMuon );
+  ATH_MSG_DEBUG("Number of muons for mass   = " << m_NMassMuon );
+  ATH_MSG_DEBUG("OppositeCharge     = " << (m_oppositeCharge==true ? "True" : "False") );
+  ATH_MSG_DEBUG("LowerMassCut       = " << m_lowerMassCut );
+  ATH_MSG_DEBUG("UpperMassCut       = " << m_upperMassCut );
+  
   // Retrieving the vertex fitting tool
   // StatusCode sc = toolSvc()->retrieveTool("TrigVertexFitter","TrigVertexFitter",m_vertFitter);
   // if ( sc.isFailure() ) {
-  //   msg() << MSG::FATAL << "Unable to locate TrigVertexFitter tool " << endmsg;
+  //   ATH_MSG_FATAL("Unable to locate TrigVertexFitter tool " );
   //   return HLT::BAD_JOB_SETUP;
   // }
 
   StatusCode sc = m_L2vertFitter.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool " << endmsg;
+    ATH_MSG_FATAL("Unable to locate TrigL2VertexFitter tool " );
     return HLT::BAD_JOB_SETUP;
   }
   else {
-    msg() << MSG::INFO << "TrigL2VertexFitter retrieved"<< endmsg;
+    ATH_MSG_INFO("TrigL2VertexFitter retrieved");
   }
 
   sc = m_vertexingTool.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrigVertexingTool tool " << endmsg;
+    ATH_MSG_FATAL("Unable to locate TrigVertexingTool tool " );
     return HLT::BAD_JOB_SETUP;
   } else {
-    msg() << MSG::INFO << "TrigVertexingTool retrieved"<< endmsg;
+    ATH_MSG_INFO("TrigVertexingTool retrieved");
   }
 
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
+        ATH_MSG_ERROR("Can't find TrigBphysHelperUtilsTool" );
         return HLT::BAD_JOB_SETUP;
     } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
+        ATH_MSG_DEBUG("TrigBphysHelperUtilsTool found" );
     }
 
     
@@ -204,15 +200,15 @@ HLT::ErrorCode TrigL2MultiMuFex::hltFinalize()
 /*-----------------------------------------*/
 {
 
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO("in finalize()" );
   MsgStream log(msgSvc(), name());
 
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2MultiMuFex -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
-  msg() << MSG::INFO << "RoIs Passed MuMu pairs: "  << m_countPassedmumuPairs << endmsg;
-  msg() << MSG::INFO << "RoIs Passed BsMass: "  << m_countPassedBsMass << endmsg;
-  msg() << MSG::INFO << "RoIs Passed Vtx Fit: "  << m_countPassedVtxFit << endmsg;
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigL2MultiMuFex -------------|");
+  ATH_MSG_INFO("Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI);
+  ATH_MSG_INFO("Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs);
+  ATH_MSG_INFO("RoIs Passed MuMu pairs: "  << m_countPassedmumuPairs);
+  ATH_MSG_INFO("RoIs Passed BsMass: "  << m_countPassedBsMass);
+  ATH_MSG_INFO("RoIs Passed Vtx Fit: "  << m_countPassedVtxFit);
 
   return HLT::OK;
 }
@@ -237,12 +233,12 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 {
 
   
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Running TrigL2MultiMuFex::acceptInputS" << endmsg;
+  ATH_MSG_DEBUG("Running TrigL2MultiMuFex::acceptInputS" );
   m_mon_Acceptance.push_back( ACCEPT_Input );
 
   if ( m_acceptAll ) {
     pass = true;
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Accept property is set: taking all the events" << endmsg;
+    ATH_MSG_DEBUG("Accept property is set: taking all the events");
     return HLT::OK;
   }
 
@@ -255,7 +251,7 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     //    // event info
     //    uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     //    if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-    //        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
+    //        ATH_MSG_ERROR("Error retriving EventInfo" );
     //    }
     //    IdRun = runNumber;
     //    IdEvent = evtNumber;
@@ -264,7 +260,7 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     
   // Check consistency of the number of input Trigger Elements
   if (m_checkNinputTE && inputTE.size() != m_NInputMuon ) {
-    msg() << MSG::ERROR << "Got wrong number of input TEs, expect " << m_NInputMuon << " got " << inputTE.size() << endmsg;
+    ATH_MSG_ERROR("Got wrong number of input TEs, expect " << m_NInputMuon << " got " << inputTE.size() );
     if ( timerSvc() ) {
       m_BmmHypTot->stop();
     }
@@ -272,7 +268,7 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     return HLT::BAD_JOB_SETUP;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Number of input TEs " << inputTE.size() << endmsg;
+  ATH_MSG_DEBUG(" Number of input TEs " << inputTE.size() );
  
   pass = true;
   return HLT::OK;
@@ -284,44 +280,43 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
 HLT::ErrorCode TrigL2MultiMuFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE)
 /*----------------------------------------------------------------------------------------*/
 {
-   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In hltExecute " << endmsg;
+    ATH_MSG_DEBUG(" In hltExecute " );
 
     //  m_trigBphysColl = new TrigL2BphysContainer();
     m_trigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     m_trigBphysColl->setStore(&xAODTrigBphysAuxColl);
 
-  if (m_NInputMuon==3) {
-   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Call processTriMuon " << endmsg;
-
-    processTriMuon(inputTE);
-  }
-
-      if ((m_trigBphysColl!=0) && (m_trigBphysColl->size() > 0)) {
-	//  m_mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endmsg;
-
-    HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "L2MultiMuFex" );
-    if(sc != HLT::OK) {
-      msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
-      m_mon_Errors.push_back( ERROR_BphysColl_Fails );
-        m_trigBphysColl = nullptr; // delete it?
-        return HLT::ERROR;
+    if (m_NInputMuon==3) {
+        ATH_MSG_DEBUG(" Call processTriMuon " );
+        processTriMuon(inputTE);
     }
-  } else {
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
-    delete m_trigBphysColl;
-      m_trigBphysColl = nullptr;
-  }
 
-      
-  return HLT::OK;
+    if ((m_trigBphysColl!=0) && (m_trigBphysColl->size() > 0)) {
+        //  m_mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
+        ATH_MSG_DEBUG("REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() );
+
+        HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "L2MultiMuFex" );
+        if(sc != HLT::OK) {
+            ATH_MSG_WARNING("Failed to store trigBphys Collection" );
+            m_mon_Errors.push_back( ERROR_BphysColl_Fails );
+            m_trigBphysColl = nullptr; // delete it?
+            return HLT::ERROR;
+        }
+    } else {
+        ATH_MSG_DEBUG("REGTEST: no bphys collection to store "  );
+        delete m_trigBphysColl;
+        m_trigBphysColl = nullptr;
+    }
+
+
+    return HLT::OK;
 }
 
 
 void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
 {
-   if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << " In processTriMuon " << endmsg;
+   ATH_MSG_VERBOSE(" In processTriMuon " );
 
    const xAOD::L2CombinedMuon *muon1(nullptr), *muon2(nullptr), *muon3(nullptr);
    ElementLinkVector<xAOD::L2CombinedMuonContainer>  l2combinedMuonEL[3];
@@ -340,39 +335,39 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
     //if(getFeature(te1,muon1)!= HLT::OK) {
     if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te1,l2combinedMuonEL[0]) != HLT::OK
        || !l2combinedMuonEL[0].size()) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 1" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 1" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     muon1 = l2combinedMuonEL[0][0].isValid() ? *(l2combinedMuonEL[0][0]) : nullptr;
     if ( muon1 == NULL ) {
-        msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 1" << endmsg;
+        ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 1" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     //if(getFeature(te2,muon2)!= HLT::OK) {
     if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te2,l2combinedMuonEL[1]) != HLT::OK
        || !l2combinedMuonEL[1].size()) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 2" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 2" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     muon2 = l2combinedMuonEL[1][0].isValid() ? *(l2combinedMuonEL[1][0]) : nullptr;
     if ( muon2 == NULL ) {
-        msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 2" << endmsg;
+        ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 2" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te3,l2combinedMuonEL[2]) != HLT::OK
        || !l2combinedMuonEL[2].size()) {
         //if(getFeature(te3,muon3)!= HLT::OK) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 3" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 3" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     muon3 = l2combinedMuonEL[2][0].isValid() ? *(l2combinedMuonEL[2][0]) : nullptr;
     if ( muon3 == NULL ) {
-        msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 3" << endmsg;
+        ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 3" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
@@ -385,38 +380,38 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
 
      for ( unsigned int i=0; i < nTEs; ++i) {
         ElementLinkVector<xAOD::L2CombinedMuonContainer> elvmuon;
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve L2CombinedMuon  " << i << endmsg;
+        ATH_MSG_DEBUG("Try to retrieve L2CombinedMuon  " << i );
         if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
-            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get L2CombinedMuon " << i << ", exiting" << endmsg;
+            ATH_MSG_DEBUG("Failed to get L2CombinedMuon " << i << ", exiting" );
             m_mon_Errors.push_back( ERROR_GetMuonFailed );
             return;
         }
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found L2CombinedMuon " << i << " Feature, size = " << elvmuon.size() << endmsg;
+        if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("Found L2CombinedMuon " << i << " Feature, size = " << elvmuon.size() );
         vec_elv_muons.push_back(elvmuon);
     } // loop over each roi
 
      if( vec_elv_muons.size() > 3 ){
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "More than 3 muons found, use first 3 out of  " << vec_elv_muons.size() << endmsg;
+        if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("More than 3 muons found, use first 3 out of  " << vec_elv_muons.size() );
      }else if( vec_elv_muons.size() < 3 ){
-       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Less than 3 muons found   " << vec_elv_muons.size() << " , exiting"<< endmsg;
+       if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("Less than 3 muons found   " << vec_elv_muons.size() << " , exiting");
        m_mon_Errors.push_back( ERROR_GetMuonFailed );
        return;
      }
      muon1 = vec_elv_muons[0][0].isValid() ? *(vec_elv_muons[0][0]) : nullptr;
      if ( muon1 == NULL ) {
-       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 1" << endmsg;
+       ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 1" );
        m_mon_Errors.push_back( ERROR_GetMuonFailed );
        return;
      }
      muon2 = vec_elv_muons[1][0].isValid() ? *(vec_elv_muons[1][0]) : nullptr;
      if ( muon2 == NULL ) {
-       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 2" << endmsg;
+       ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 2" );
        m_mon_Errors.push_back( ERROR_GetMuonFailed );
        return;
      }
      muon3 = vec_elv_muons[2][0].isValid() ? *(vec_elv_muons[2][0]) : nullptr;
      if ( muon3 == NULL ) {
-       msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 3" << endmsg;
+       ATH_MSG_DEBUG("NULL pointer of muon Feature for TE 3" );
        m_mon_Errors.push_back( ERROR_GetMuonFailed );
        return;
      }
@@ -430,17 +425,17 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
     const ElementLink< xAOD::TrackParticleContainer >& ELidtrack2  = muon2->idTrackLink();
     const ElementLink< xAOD::TrackParticleContainer >& ELidtrack3  = muon3->idTrackLink();
     if (!ELidtrack1.isValid()) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 3" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 3" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     if (!ELidtrack2.isValid()) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 3" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 3" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     if (!ELidtrack3.isValid()) {
-        msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 3" << endmsg;
+        ATH_MSG_DEBUG("Failed to get muon Feature for TE 3" );
         m_mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
@@ -466,9 +461,9 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
         this->msg() << "pt=" << muon->pt()*muon->charge() << " trkAddr=" << muon->idTrack() << " Trk:Track=" << muon->idTrack()->track()
     };
     if (msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "1st CombinedMuonFeature " << dumpinfo(muon1) << endmsg;
-        msg() << MSG::DEBUG << "2st CombinedMuonFeature " << dumpinfo(muon2) << endmsg;
-        msg() << MSG::DEBUG << "3st CombinedMuonFeature " << dumpinfo(muon3) << endmsg;
+        ATH_MSG_DEBUG("1st CombinedMuonFeature " << dumpinfo(muon1) );
+        ATH_MSG_DEBUG("2st CombinedMuonFeature " << dumpinfo(muon2) );
+        ATH_MSG_DEBUG("3st CombinedMuonFeature " << dumpinfo(muon3) );
     } // if debug
     */
  
@@ -519,62 +514,13 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
     return;
 }
 
-
-//double TrigL2MultiMuFex::getInvMass2(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2)
-//{
-//  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In getInvMass2 muon pT: " << muon1->IDTrack()->param()->pT() << "  " <<  muon2->IDTrack()->param()->pT() << endmsg;
-//   double Mass;
-//     std::vector<const TrigInDetTrackFitPar*> inputtrks;
-//      std::vector<double> massHypo ;
-//      massHypo.push_back( MUMASS ); 
-//      massHypo.push_back( MUMASS );
-//   // check pair of opposite sign muons
-//   if (muon1->IDTrack()->param()->pT() * muon2->IDTrack()->param()->pT() < 0.) {
-//     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Muons 1 and 2 opp. charge will calculate mass " << endmsg;
-//      inputtrks.push_back(muon1->IDTrack()->param());
-//      inputtrks.push_back(muon2->IDTrack()->param());
-//      Mass=InvMass(inputtrks, massHypo);
-//      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Muons 1 and 2 mass =  " << Mass << endmsg;
-//      m_mon_InvMass_comb.push_back(Mass/1000.);    
-//
-//   }
-//   return Mass;
-//}
-//
-//double TrigL2MultiMuFex::getInvMass3(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2, const CombinedMuonFeature *muon3)
-//{
-//   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In getInvMass3 " << endmsg;
-//   double Mass;
-//     std::vector<const TrigInDetTrackFitPar*> inputtrks;
-//      std::vector<double> massHypo ;
-//      massHypo.push_back( MUMASS );
-//      massHypo.push_back( MUMASS );
-//      massHypo.push_back( MUMASS );
-//   // check pair of opposite sign muons
-//      double muon1_pT=muon1->IDTrack()->param()->pT();
-//      double muon2_pT=muon2->IDTrack()->param()->pT();
-//      double muon3_pT=muon3->IDTrack()->param()->pT();
-//
-//      if ((muon1_pT * muon2_pT < 0.) || (muon1_pT * muon3_pT < 0.) || (muon3_pT * muon2_pT < 0.)) {
-//     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Muons opp. charge will calculate mass " << endmsg;
-//      inputtrks.push_back(muon1->IDTrack()->param());
-//      inputtrks.push_back(muon2->IDTrack()->param());
-//      inputtrks.push_back(muon3->IDTrack()->param());
-//      Mass=InvMass(inputtrks, massHypo);
-//      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Muons mass =  " << Mass << endmsg;
-//      m_mon_InvMass_comb.push_back(Mass/1000.);    
-//
-//   }
-//   return Mass;
-//}
-
 xAOD::TrigBphys* TrigL2MultiMuFex::checkInvMass2(const xAOD::L2CombinedMuon *muon1,const xAOD::L2CombinedMuon *muon2, double Mass) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In checkInvMass2, cuts " << m_lowerMassCut << " " << m_upperMassCut <<endmsg;
+    ATH_MSG_DEBUG(" In checkInvMass2, cuts " << m_lowerMassCut << " " << m_upperMassCut );
     if ( Mass < m_lowerMassCut || Mass > m_upperMassCut  ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass : " << Mass << " cut failed  "  << endmsg;
+        ATH_MSG_DEBUG("Mass : " << Mass << " cut failed  "  );
         return nullptr;
     }
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass cut passed, creat TrigL2Bphys  "  << endmsg;
+    ATH_MSG_DEBUG("Mass cut passed, creat TrigL2Bphys  "  );
     m_passInvMass=true;
 
     xAOD::TrigBphys *trigPart = new xAOD::TrigBphys();
@@ -599,17 +545,14 @@ xAOD::TrigBphys* TrigL2MultiMuFex::checkInvMass2(const xAOD::L2CombinedMuon *muo
     return trigPart;
 } //checkInvMass2 (xAOD)
 
-
-
-
 xAOD::TrigBphys* TrigL2MultiMuFex::checkInvMass3(const xAOD::L2CombinedMuon *muon1,const xAOD::L2CombinedMuon *muon2, const xAOD::L2CombinedMuon *muon3,double Mass) {
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In checkInvMass3, cuts " << m_lowerMassCut << " " << m_upperMassCut <<endmsg;
+    ATH_MSG_DEBUG(" In checkInvMass3, cuts " << m_lowerMassCut << " " << m_upperMassCut );
 
     if ( Mass < m_lowerMassCut || Mass > m_upperMassCut  ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass : " << Mass << " cut failed  "  << endmsg;
+        ATH_MSG_DEBUG("Mass : " << Mass << " cut failed  "  );
         return NULL;
     }
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass cut passed, creat TrigL2Bphys  "  << endmsg;
+    ATH_MSG_DEBUG("Mass cut passed, creat TrigL2Bphys  "  );
     m_passInvMass=true;
     
     xAOD::TrigBphys *trigPart = new xAOD::TrigBphys();
@@ -636,143 +579,6 @@ xAOD::TrigBphys* TrigL2MultiMuFex::checkInvMass3(const xAOD::L2CombinedMuon *muo
     
 } //checkInvMass3 (xAOD)
 
-//TrigL2Bphys* TrigL2MultiMuFex::checkInvMass3(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2, const CombinedMuonFeature *muon3, double Mass)
-//{
-//  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In checkInvMass3, cuts " << m_lowerMassCut << " " << m_upperMassCut <<endmsg;
-//
-//   if ( Mass < m_lowerMassCut || Mass > m_upperMassCut  ) {
-//     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass : " << Mass << " cut failed  "  << endmsg;
-//      return NULL;
-//   }
-//   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass cut passed, creat TrigL2Bphys  "  << endmsg;
-//   m_passInvMass=true;
-//
-//   TrigL2Bphys* trigPart = new TrigL2Bphys( 0, 0., 0., TrigL2Bphys::MULTIMU, Mass); //should really be type MULTIMU - needs changes to TrigPartcile
-//
-//
-//  //  Add element-links to tracks
-//  ElementLink<TrigInDetTrackCollection> track1EL=muon1->IDTrackLink();
-//  ElementLink<TrigInDetTrackCollection> track2EL=muon2->IDTrackLink();
-//  ElementLink<TrigInDetTrackCollection> track3EL=muon3->IDTrackLink();
-//    if ( msgLvl() <= MSG::DEBUG ) {
-//      msg() << MSG::DEBUG << "Just check track links... " << endmsg;
-//      msg() << MSG::DEBUG << "Track 1 pT " << (*track1EL)->param()->pT()
-//            << " eta: " << (*track1EL)->param()->eta()
-//            << " phi: " << (*track1EL)->param()->phi0() << endmsg;
-//      msg() << MSG::DEBUG << "Track 2 pT " << (*track2EL)->param()->pT()
-//            << " eta: " << (*track2EL)->param()->eta()
-//            << " phi: " << (*track2EL)->param()->phi0() << endmsg;
-//      msg() << MSG::DEBUG << "Track 3 pT " << (*track3EL)->param()->pT()
-//            << " eta: " << (*track3EL)->param()->eta()
-//            << " phi: " << (*track3EL)->param()->phi0() << endmsg;
-//    }
-//    trigPart->addTrack(track1EL);
-//    trigPart->addTrack(track2EL);
-//    trigPart->addTrack(track3EL);
-//
-//    //vertexing
-//    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Now do vertexing" << endmsg;
-//
-//    TrigL2Vertex* pL2V    = new TrigL2Vertex();
-//    TrigVertex*   p_mumuV = NULL;
-//    StatusCode sc;
-//    // Add tracks to the vertexer
-//    bool addTracks = true;
-//    if (muon1->IDTrack()->chi2() < 1e7 ) {
-//       sc = m_vertexingTool->addTrack(muon1->IDTrack(),pL2V,Trk::muon);
-//        if(sc.isFailure()){
-//          if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool" << endmsg;
-//          m_mon_Errors.push_back( ERROR_AddTrack_Fails );
-//          addTracks = false;
-//        }
-//    } else {
-//     addTracks = false;
-//    }    
-//    
-//    if (muon2->IDTrack()->chi2() < 1e7 ) {
-//      sc = m_vertexingTool->addTrack(muon2->IDTrack(),pL2V,Trk::muon);
-//      if(sc.isFailure()){
-//        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool" << endmsg;
-//        addTracks = false;
-//        m_mon_Errors.push_back( ERROR_AddTrack_Fails );
-//      }
-//    } else {
-//        addTracks = false;
-//    }
-//
-//    if (muon3->IDTrack()->chi2() < 1e7 ) {
-//      sc = m_vertexingTool->addTrack(muon3->IDTrack(),pL2V,Trk::muon);
-//      if(sc.isFailure()){
-//        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track 3 to vertexingTool" << endmsg;
-//        addTracks = false;
-//        m_mon_Errors.push_back( ERROR_AddTrack_Fails );
-//      }
-//    } else {
-//        addTracks = false;
-//    }
-//
-//    // DO THE VERTEX-FIT
-//    if ( addTracks) {
-//      sc = m_L2vertFitter->fit(pL2V);
-//    }
-//
-//    // Check the result
-//    if ( sc.isFailure() || (!addTracks) ) {
-//      if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endmsg;
-//    } else {
-//      // Calculate invariant mass
-//      sc = m_vertexingTool->calculateInvariantMass(pL2V);
-//      if ( sc.isSuccess() ) {
-//        // Create mother particle
-//	//        sc = m_vertexingTool->createMotherParticle(pL2V);
-//        //if ( sc.isSuccess() ) {
-//        //  if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Bs created: pT "<<pL2V->m_getMotherTrack()->pT() << endmsg;
-//        //} else {
-//        //  m_mon_Errors.push_back( ERROR_CalcMother_Fails );
-//	// }
-//        p_mumuV = m_vertexingTool->createTrigVertex(pL2V);
-//      } else {
-//        m_mon_Errors.push_back( ERROR_CalcInvMass_Fails );
-//      }
-//    }
-//    delete pL2V;
-//
-//    if ( p_mumuV == NULL ) {
-//      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " vertex fit failed for tracks  " << endmsg;
-//      delete p_mumuV;
-//    } else {
-//      double chi2prob = 0.;
-//      chi2prob = 1.0 - Genfun::CumulativeChiSquare(p_mumuV->ndof())(p_mumuV->chi2());
-//      if ( msgLvl() <= MSG::DEBUG ) {
-//        msg() << MSG::DEBUG << "REGTEST: mumu vertex Fit: x= y= z=" << p_mumuV->x() << " " << p_mumuV->y() << " " << p_mumuV->z() << endmsg;
-//        msg() << MSG::DEBUG << "REGTEST: mumu mass = " << p_mumuV->mass() << endmsg;
-//        if (p_mumuV->massVariance() !=0) {
-//          msg() << MSG::DEBUG << "REGTEST: mumu mass pull = " << (p_mumuV->mass()-BSMASS)/p_mumuV->massVariance() << endmsg;
-//        } else {
-//          msg() << MSG::DEBUG << "REGTEST: MuMu mass variance is 0 can't calculate the pull " << endmsg;
-//        }
-//
-//        msg() << MSG::DEBUG << "REGTEST: Chi2 vtx fit = " << p_mumuV->chi2() << ", prob. " << chi2prob << endmsg;
-//        msg() << MSG::DEBUG << "SigmaX =  SigmaY =  SigmaZ = " << sqrt(p_mumuV->cov()[0]) << " " << sqrt(p_mumuV->cov()[2]) << " " << sqrt(p_mumuV->cov()[5]) << endmsg;
-//
-//      }
-//      trigPart->fitmass(p_mumuV->mass());
-//      trigPart->fitchi2(p_mumuV->chi2());
-//      trigPart->fitndof(p_mumuV->ndof());
-//      trigPart->fitx(p_mumuV->x());
-//      trigPart->fity(p_mumuV->y());
-//      trigPart->fitz(p_mumuV->z());
-//      
-//      m_mon_FitMass.push_back(p_mumuV->mass()/1000.);      
-//      m_mon_Chi2toNDoF.push_back(p_mumuV->chi2()/ p_mumuV->ndof());      
-//
-//      delete p_mumuV;
-//    }
-//
-//
-//    return trigPart;
-//}
-
 TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2CombinedMuon*> & muons) {
     // note, on sucessful return of the function, calling method owns the returned pointer; please delete it.
     int counter(0);
@@ -780,14 +586,14 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     std::vector<const xAOD::L2CombinedMuon*>::const_iterator itmu_end = muons.end();
     
     if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "Just check track links... " << endmsg;
+        msg() << MSG::DEBUG << "Just check track links... "  << endmsg;
         for (;itmu != itmu_end; ++itmu,++counter) {
             msg() << MSG::DEBUG << "Track " << counter << " pT " << (*itmu)->idTrack()->pt()
             << " eta " << (*itmu)->idTrack()->eta() << " phi " << (*itmu)->idTrack()->phi()
             << " q "   << (*itmu)->idTrack()->charge() << endmsg;
             
         } // for loop over muons
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Now do vertexing" << endmsg;
+        msg() << MSG::DEBUG << "Now do vertexing" << endmsg;
     }
     
     bool addTracks = true;
@@ -799,13 +605,13 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
         // #FIXME - previous code used MuonFeature::IDTrack()::chi2() / are these equivalent ... ?
         if ((*itmu)->idTrack()->chiSquared() > 1e7) { //#FIME JW don't hardcode
             addTracks = false;
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track " << counter << "  to vertexingTool" << endmsg;
+            ATH_MSG_DEBUG("Failed to add track " << counter << "  to vertexingTool" );
             m_mon_Errors.push_back( ERROR_AddTrack_Fails );
             // break; // may be useful to record all track outputs, so comment out for now
         } // if bad chi2
         
         if (m_vertexingTool->addTrack((*itmu)->idTrack()->track(),pL2V,Trk::muon).isFailure()) {
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track " << counter << " to vertexingTool" << endmsg;
+            ATH_MSG_DEBUG("Failed to add track " << counter << " to vertexingTool" );
             addTracks = false;
             m_mon_Errors.push_back( ERROR_AddTrack_Fails );
         } // if addTrack
@@ -813,7 +619,7 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     } // loop over muons
     
     if (!addTracks) {
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Bad tracks in fit input; return before fitter" << endmsg;
+        ATH_MSG_DEBUG("Bad tracks in fit input; return before fitter" );
         delete pL2V;
         pL2V = nullptr;
         return nullptr;
@@ -821,7 +627,7 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     
     
     if (m_L2vertFitter->fit(pL2V).isFailure()) {
-        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endmsg;
+        ATH_MSG_DEBUG("TrigL2VertexFitter failed" );
         delete pL2V;
         pL2V = nullptr;
         return nullptr;
@@ -829,7 +635,7 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     
     if (m_vertexingTool->calculateInvariantMass(pL2V).isFailure()) {
         m_mon_Errors.push_back( ERROR_CalcInvMass_Fails );
-        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "calculateInvariantMass failed" << endmsg;
+        ATH_MSG_DEBUG("calculateInvariantMass failed" );
         delete pL2V;
         pL2V = nullptr;
         return nullptr;
@@ -840,21 +646,21 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     delete pL2V;
     pL2V = nullptr;
     
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Sucessful fit"  << endmsg;
+    ATH_MSG_DEBUG("Sucessful fit"  );
     double chi2prob = 0.;
     chi2prob = 1.0 - Genfun::CumulativeChiSquare(p_mumuV->ndof())(p_mumuV->chi2());
     
     if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "REGTEST: mumu vertex Fit: x= y= z=" << p_mumuV->x() << " " << p_mumuV->y() << " " << p_mumuV->z() << endmsg;
-        msg() << MSG::DEBUG << "REGTEST: mumu mass = " << p_mumuV->mass() << endmsg;
+        ATH_MSG_DEBUG("REGTEST: mumu vertex Fit: x= y= z=" << p_mumuV->x() << " " << p_mumuV->y() << " " << p_mumuV->z() );
+        ATH_MSG_DEBUG("REGTEST: mumu mass = " << p_mumuV->mass() );
         if (p_mumuV->massVariance() !=0) {
-            msg() << MSG::DEBUG << "REGTEST: mumu mass pull = " << (p_mumuV->mass()-BSMASS)/p_mumuV->massVariance() << endmsg;
+            ATH_MSG_DEBUG("REGTEST: mumu mass pull = " << (p_mumuV->mass()-BSMASS)/p_mumuV->massVariance() );
         } else {
-            msg() << MSG::DEBUG << "REGTEST: MuMu mass variance is 0 can't calculate the pull " << endmsg;
+            ATH_MSG_DEBUG("REGTEST: MuMu mass variance is 0 can't calculate the pull " );
         }
         
-        msg() << MSG::DEBUG << "REGTEST: Chi2 vtx fit = " << p_mumuV->chi2() << ", prob. " << chi2prob << endmsg;
-        msg() << MSG::DEBUG << "SigmaX =  SigmaY =  SigmaZ = " << sqrt(p_mumuV->cov()[0]) << " " << sqrt(p_mumuV->cov()[2]) << " " << sqrt(p_mumuV->cov()[5]) << endmsg;
+        ATH_MSG_DEBUG("REGTEST: Chi2 vtx fit = " << p_mumuV->chi2() << ", prob. " << chi2prob );
+        ATH_MSG_DEBUG("SigmaX =  SigmaY =  SigmaZ = " << sqrt(p_mumuV->cov()[0]) << " " << sqrt(p_mumuV->cov()[2]) << " " << sqrt(p_mumuV->cov()[5]) );
         
     }
     m_mon_FitMass.push_back(p_mumuV->mass()/1000.);
@@ -865,122 +671,3 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     
     return p_mumuV;
 } //fitToVertex
-
-//TrigL2Bphys* TrigL2MultiMuFex::checkInvMass2(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2, double Mass)
-//{
-//    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In checkInvMass2, cuts " << m_lowerMassCut << " " << m_upperMassCut <<endmsg;
-//    
-//    if ( Mass < m_lowerMassCut || Mass > m_upperMassCut  ) {
-//        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass : " << Mass << " cut failed  "  << endmsg;
-//        return NULL;
-//    }
-//    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass cut passed, creat TrigL2Bphys  "  << endmsg;
-//    m_passInvMass=true;
-//    TrigL2Bphys* trigPart = new TrigL2Bphys( 0, 0., 0., TrigL2Bphys::MULTIMU, Mass); //should really be type MULTIMU - needs changes to TrigPartcile
-//    
-//    
-//    //  Add element-links to tracks
-//    ElementLink<TrigInDetTrackCollection> track1EL=muon1->IDTrackLink();
-//    ElementLink<TrigInDetTrackCollection> track2EL=muon2->IDTrackLink();
-//    if ( msgLvl() <= MSG::DEBUG ) {
-//        msg() << MSG::DEBUG << "Just check track links... " << endmsg;
-//        msg() << MSG::DEBUG << "Track 1 pT " << (*track1EL)->param()->pT()
-//        << " eta: " << (*track1EL)->param()->eta()
-//        << " phi: " << (*track1EL)->param()->phi0() << endmsg;
-//        msg() << MSG::DEBUG << "Track 2 pT " << (*track2EL)->param()->pT()
-//        << " eta: " << (*track2EL)->param()->eta()
-//        << " phi: " << (*track2EL)->param()->phi0() << endmsg;
-//    }
-//    trigPart->addTrack(track1EL);
-//    trigPart->addTrack(track2EL);
-//    
-//    //vertexing
-//    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Now do vertexing" << endmsg;
-//    
-//    TrigL2Vertex* pL2V    = new TrigL2Vertex();
-//    TrigVertex*   p_mumuV = NULL;
-//    StatusCode sc;
-//    // Add tracks to the vertexer
-//    bool addTracks = true;
-//    if (muon1->IDTrack()->chi2() < 1e7 ) {
-//        sc = m_vertexingTool->addTrack(muon1->IDTrack(),pL2V,Trk::muon);
-//        if(sc.isFailure()){
-//            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool" << endmsg;
-//            addTracks = false;
-//            m_mon_Errors.push_back( ERROR_AddTrack_Fails );
-//        }
-//    } else {
-//        addTracks = false;
-//    }
-//    
-//    if (muon2->IDTrack()->chi2() < 1e7 ) {
-//        sc = m_vertexingTool->addTrack(muon2->IDTrack(),pL2V,Trk::muon);
-//        if(sc.isFailure()){
-//            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool" << endmsg;
-//            addTracks = false;
-//            m_mon_Errors.push_back( ERROR_AddTrack_Fails );
-//        }
-//    } else {
-//        addTracks = false;
-//    }
-//    // DO THE VERTEX-FIT
-//    if ( addTracks) {
-//        sc = m_L2vertFitter->fit(pL2V);
-//    }
-//    
-//    // Check the result
-//    if ( sc.isFailure() || (!addTracks) ) {
-//        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endmsg;
-//    } else {
-//        // Calculate invariant mass
-//        sc = m_vertexingTool->calculateInvariantMass(pL2V);
-//        if ( sc.isSuccess() ) {
-//            // Create mother particle
-//            //        sc = m_vertexingTool->createMotherParticle(pL2V);
-//            //if ( sc.isSuccess() ) {
-//            //  if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Bs created: pT "<<pL2V->m_getMotherTrack()->pT() << endmsg;
-//            //} else {
-//            //  m_mon_Errors.push_back( ERROR_CalcMother_Fails );
-//            // }
-//            p_mumuV = m_vertexingTool->createTrigVertex(pL2V);
-//        } else {
-//            m_mon_Errors.push_back( ERROR_CalcInvMass_Fails );
-//        }
-//    }
-//    delete pL2V;
-//    
-//    if ( p_mumuV == NULL ) {
-//        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " vertex fit failed for tracks  " << endmsg;
-//        delete p_mumuV;
-//    } else {
-//        double chi2prob = 0.;
-//        chi2prob = 1.0 - Genfun::CumulativeChiSquare(p_mumuV->ndof())(p_mumuV->chi2());
-//        if ( msgLvl() <= MSG::DEBUG ) {
-//            msg() << MSG::DEBUG << "REGTEST: mumu vertex Fit: x= y= z=" << p_mumuV->x() << " " << p_mumuV->y() << " " << p_mumuV->z() << endmsg;
-//            msg() << MSG::DEBUG << "REGTEST: mumu mass = " << p_mumuV->mass() << endmsg;
-//            if (p_mumuV->massVariance() !=0) {
-//                msg() << MSG::DEBUG << "REGTEST: mumu mass pull = " << (p_mumuV->mass()-BSMASS)/p_mumuV->massVariance() << endmsg;
-//            } else {
-//                msg() << MSG::DEBUG << "REGTEST: MuMu mass variance is 0 can't calculate the pull " << endmsg;
-//            }
-//            
-//            msg() << MSG::DEBUG << "REGTEST: Chi2 vtx fit = " << p_mumuV->chi2() << ", prob. " << chi2prob << endmsg;
-//            msg() << MSG::DEBUG << "SigmaX =  SigmaY =  SigmaZ = " << sqrt(p_mumuV->cov()[0]) << " " << sqrt(p_mumuV->cov()[2]) << " " << sqrt(p_mumuV->cov()[5]) << endmsg;
-//            
-//        }
-//        trigPart->fitmass(p_mumuV->mass());
-//        trigPart->fitchi2(p_mumuV->chi2());
-//        trigPart->fitndof(p_mumuV->ndof());
-//        trigPart->fitx(p_mumuV->x());
-//        trigPart->fity(p_mumuV->y());
-//        trigPart->fitz(p_mumuV->z());
-//        m_mon_FitMass.push_back(p_mumuV->mass()/1000.);      
-//        m_mon_Chi2toNDoF.push_back(p_mumuV->chi2()/ p_mumuV->ndof());      
-//        delete p_mumuV;
-//    }
-//    
-//    
-//    return trigPart;
-//}
-
-

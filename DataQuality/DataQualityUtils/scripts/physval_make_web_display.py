@@ -35,7 +35,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
         if ' ' in key.GetName():
             print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
             continue
-        if rcl.InheritsFrom('TH1'):
+        if rcl.InheritsFrom('TH1') or rcl.InheritsFrom('TGraph') or rcl.InheritsFrom('TEfficiency'):
             if '/' in key.GetName():
                 print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
                 continue
@@ -65,15 +65,17 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
             dqpar = dqregion.newDQParameter( **dqpargs)
             drawstrs = []
             if not options.normalize: drawstrs.append('NoNorm')
-            if options.logy and (cl.startswith('TH1') or cl.startswith('TProfile')): drawstrs.append('LogY')
-            if options.logy and cl.startswith('TH2'): drawstrs.append('LogZ')
+            if options.logy and (cl.startswith('TH1') or cl=='TProfile'): drawstrs.append('LogY')
+            if options.logy and (cl.startswith('TH2') or cl=='TProfile2D'): drawstrs.append('LogZ')
             if cl.startswith('TH1'): drawstrs.append(displaystring)
-            if cl.startswith('TProfile'): drawstrs.append(displaystring)
-            if cl.startswith('TH2'): drawstrs.append(displaystring2D)
+            if cl == 'TProfile': drawstrs.append(displaystring)
+            if cl.startswith('TH2') or cl=='TProfile2D': drawstrs.append(displaystring2D)
             if options.scaleref != 1: drawstrs.append('ScaleRef=%f' % options.scaleref)
             if options.ratio: drawstrs.append('RatioPad')
             #if options.ratio: drawstrs.append('Ref2DSignif')
             if options.ratio2D: drawstrs.append('Ref2DRatio')
+            if options.ratiorange is not None:
+              drawstrs.append('delta(%f)' % options.ratiorange)
 
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
@@ -241,6 +243,8 @@ def super_process(fname, options):
             os.unlink(hanoutput)
         except Exception, e:
             print e
+            import traceback
+            traceback.print_exc()
             if 'canonical format' not in str(e):
                 failed = True
         finally:
@@ -294,7 +298,8 @@ if __name__=="__main__":
                       help='Draw 2D histograms with ratio plots')
     parser.add_option('--jsRoot',action='store_true', default=False,
                       help="make interactive jsRoot displays")
-
+    parser.add_option('--ratiorange', default=None, type=float,
+                      help='set range for ratio plots (as delta to 1.0)')
 
     options, args = parser.parse_args()
     

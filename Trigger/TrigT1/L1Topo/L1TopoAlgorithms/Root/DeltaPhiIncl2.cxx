@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DeltaPhiIncl2.cpp
  * Created by Joerg Stelzer on 11/16/12.
  * Modified by V Sorin
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the phi-distance between  two lists and applies delta-phi criteria
  *

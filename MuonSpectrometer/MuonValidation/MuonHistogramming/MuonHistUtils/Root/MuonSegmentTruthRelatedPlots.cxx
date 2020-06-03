@@ -23,8 +23,8 @@ MuonSegmentTruthRelatedPlots::MuonSegmentTruthRelatedPlots(PlotBase* pParent, st
   detapos = Book1D("detapos","Resolution eta-position;#Delta#eta_{pos};Entries",64,-3.2,3.2);
   dphipos = Book1D("dphipos","Resolution phi-position;#Delta#phi_{pos};Entries",64,-3.2,3.2);
 
-  detadir = Book1D("detadir","Resolution eta-direction;#Delta#eta_{dir};Entries",100,500,500);
-  dphidir = Book1D("dphidir","Resolution phi-direction;#Delta#phi_{dir};Entries",100,500,500);
+  detadir = Book1D("detadir","Resolution eta-direction;#Delta#eta_{dir};Entries",100,-10.,10.);
+  dphidir = Book1D("dphidir","Resolution phi-direction;#Delta#phi_{dir};Entries",100,-10.,10.);
 
 }
 

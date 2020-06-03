@@ -73,7 +73,7 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[]) const;
+    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
 
     std::string m_hitContainer;    //!< Name of the TileHitContainer
     std::string m_hitContainer_DigiHSTruth;    //!< Name of the TileHitContainer
@@ -114,6 +114,8 @@ class TileDigitsMaker: public AthAlgorithm {
     bool m_tileThresh;     //!< If true => apply threshold to Digits
     double m_tileThreshHi; //!< Actual threshold value for high gain
     double m_tileThreshLo; //!< Actual threshold value for low gain
+    int m_allChannels;     //!< If set to 1 => always create all channels in output container
+                           //!< If set to 2 => always add noise to all missing channels in overlay
 
     std::vector<double> m_digitShapeHi; //!< High gain pulse shape
     int m_nShapeHi;                     //!< Number of bins in high gain pulse shape 

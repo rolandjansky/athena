@@ -80,6 +80,16 @@ xAOD::ExclusiveConeHadronFlavourLabel (const xAOD::Jet* jet) {
   return label;
 }
 
+int
+xAOD::ExclusiveConeDoubleHadronFlavourLabel (const xAOD::Jet* jet) {
+  // default label means "invalid"
+  int label = -1;
+
+  // We don't check the return value, as we would not be able to handle it gracefully anyway
+  jet->getAttribute("HadronConeExclExtendedTruthLabelID",label);
+  return label;
+}
+
 int xAOD::jetFlavourLabel (const xAOD::Jet* jet, JetFlavourLabelType t) {
 
   switch (t) {

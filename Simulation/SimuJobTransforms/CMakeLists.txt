@@ -15,7 +15,6 @@ find_package( PythonLibs )
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( scripts/*.py )
-atlas_install_runtime( scripts/*.sh )
-atlas_install_runtime( test/SimuJobTransforms_TestConfiguration.xml )
+atlas_install_scripts( scripts/*.py )
+atlas_install_scripts( scripts/*.sh )
 

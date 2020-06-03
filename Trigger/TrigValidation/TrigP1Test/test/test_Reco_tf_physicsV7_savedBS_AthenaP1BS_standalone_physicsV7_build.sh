@@ -7,6 +7,7 @@
 # art-include: 21.0/AthenaP1
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
+# art-include: master/Athena
 
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
@@ -23,7 +24,7 @@ echo "art-result: ${ATH_RETURN} ${NAME}"
 export NAME=Reco_tf_physicsV7_savedBS
 export JOB_LOG="${NAME}.log"
 
-timeout 30m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 100m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
@@ -31,7 +32,7 @@ echo "art-result: ${ATH_RETURN} ${NAME}"
 export NAME=AthenaP1BS_standalone
 export JOB_LOG="${NAME}.log"
 
-timeout 45m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 100m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"

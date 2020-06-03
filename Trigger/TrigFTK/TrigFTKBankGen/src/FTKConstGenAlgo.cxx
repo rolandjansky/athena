@@ -1504,8 +1504,8 @@ void FTKConstGenAlgo::extract_1stStage()
   double *tmpxZ;
   double *tmpcovx;
 
-  int ndim8 = 11;
-  int ndim2_8 = 11*11;
+  int ndim8 = m_pmap_8L->getTotalDim(); //11;
+  int ndim2_8 = ndim8*ndim8; //11*11;
   int nth_dim8 = 0;
   int nth_dim8_2 = 0;
   int idx_cov8 = 0;

@@ -26,9 +26,17 @@
   <class name="dqm_algorithms::BinThresh"/>
   <class name="dqm_algorithms::BinThreshold"/>
   <class name="dqm_algorithms::BinHeightThreshold"/>
+  <class name="dqm_algorithms::BinHeight_GreaterThan_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_GreaterThanEqual_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_LessThan_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_LessThanEqual_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_redEqual_yellowGreaterThan_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_redEqual_yellowLessThan_Threshold"/>
+  <class name="dqm_algorithms::BinHeight_Equal_Threshold"/>
   <class name="dqm_algorithms::BinsDiffByStrips"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedian"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedianOnline"/>
+  <class name="dqm_algorithms::BinsDiffFromPreviousLBs"/>
   <class name="dqm_algorithms::BinsFilledOutRange"/>
   <class name="dqm_algorithms::BinsOutOfRange"/>
   <class name="dqm_algorithms::BinsSymmetric"/>

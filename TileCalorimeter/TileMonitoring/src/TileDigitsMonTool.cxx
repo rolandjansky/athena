@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -43,7 +43,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-
+#include <algorithm>
 
 
 /*---------------------------------------------------------*/
@@ -356,9 +356,9 @@ StatusCode TileDigitsMonTool::fillHists()
     uint32_t status = digitsCollection->getFragStatus();
     if (status != TileFragStatus::ALL_OK) {
       float bin = 99.;
-      if (status & (TileFragStatus::ALL_FF || TileFragStatus::ALL_00)) {
+      if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
         bin = 6.;
-      } else if (status & (TileFragStatus::NO_FRAG || TileFragStatus::NO_ROB)) {
+      } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
         bin = 7.;
       }
       for (int dmu = 0; dmu < 16; dmu++) {
@@ -1689,6 +1689,12 @@ bool TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros
     err = true;
   }
   if (!err) m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 0., 1.);
+
+  int fragId = m_tileHWID->frag(ros, drawer);
+  if (std::binary_search(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end(), fragId)) {
+    err = false;
+  }
+
   return err;
 }
 

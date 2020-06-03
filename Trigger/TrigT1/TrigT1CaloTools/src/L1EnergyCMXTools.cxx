@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include <map>
 #include <utility>
@@ -77,10 +80,10 @@ StatusCode L1EnergyCMXTools::initialize()
         return sc;
     }
 
-    findRestrictedEta(m_etaTruncXE, m_etaTruncTE);
-    ATH_MSG_DEBUG("Restricted eta ranges etaTruncXE=" << m_etaTruncXE << " etaTruncTE=" << m_etaTruncTE);
+    findRestrictedEta(m_maskXE, m_maskTE);
+    ATH_MSG_DEBUG("Restricted eta masks: XE=" << MSG::hex << m_maskXE << ", TE=" << m_maskTE << MSG::dec);
 
-    ATH_MSG_INFO("Initialization completed");
+    ATH_MSG_DEBUG("Initialization completed");
 
     return sc;
 }
@@ -202,10 +205,13 @@ void L1EnergyCMXTools::formCMXEtSumsModule(
 }
 
 /** form partial CMXEtSums (crate) from module CMXEtSums */
-void L1EnergyCMXTools::findRestrictedEta(float &etaTruncXE, float &etaTruncTE) const
+void L1EnergyCMXTools::findRestrictedEta(uint32_t &maskXE, uint32_t &maskTE) const
 {
-    etaTruncXE = 4.9;
-    etaTruncTE = 4.9;
+    const float moduleEta[8] = {-4.,-2.,-1.2,-0.4,0.4,1.2,2.,4.};
+    maskXE =  0;
+    maskTE =  0;
+    bool maskXESet = false;
+    bool maskTESet = false;
 
     TrigConf::L1DataDef def;
 
@@ -213,21 +219,26 @@ void L1EnergyCMXTools::findRestrictedEta(float &etaTruncXE, float &etaTruncTE) c
     {
         if ((it->type() == def.xeType() || it->type() == def.teType()) && it->thresholdNumber() > 7)
         {
+            if (maskXE > 0) maskXESet = true;
+            if (maskTE > 0) maskTESet = true;
             for (auto itv : it->thresholdValueVector())
             {
-                if (it->type() == def.xeType())
+                // Already initialised mask to zero, so only need to check where threshold is active
+                if (itv->thresholdValueCount() >= 0x7fff) continue;
+                // Set bits for modules within the range of any restricted eta threshold
+                if (it->type() == def.xeType() && !maskXESet)
                 {
-                    if (abs(itv->etamin()) * 0.1 < etaTruncXE)
-                        etaTruncXE = abs(itv->etamin()) * 0.1;
-                    if (abs(itv->etamax()) * 0.1 < etaTruncXE)
-                        etaTruncXE = abs(itv->etamax()) * 0.1;
+                    for (unsigned int bin = 0; bin < 8; ++bin) {
+                       if (moduleEta[bin] > itv->etamin()*0.1 && moduleEta[bin] < itv->etamax()*0.1)
+                          maskXE |= (1<<bin);
+                    }
                 }
-                else if (it->type() == def.teType())
+                else if (it->type() == def.teType() && !maskTESet)
                 {
-                    if (abs(itv->etamin()) * 0.1 < etaTruncTE)
-                        etaTruncTE = abs(itv->etamin()) * 0.1;
-                    if (abs(itv->etamax()) * 0.1 < etaTruncTE)
-                        etaTruncTE = abs(itv->etamax()) * 0.1;
+                    for (unsigned int bin = 0; bin < 8; ++bin) {
+                       if (moduleEta[bin] > itv->etamin()*0.1 && moduleEta[bin] < itv->etamax()*0.1)
+                          maskTE |= (1<<bin);
+                    }
                 }
             } // loop over TTV
         }     // Is this XE or TE threshold?
@@ -237,9 +248,9 @@ void L1EnergyCMXTools::formCMXEtSumsCrate(
     const xAOD::CMXEtSumsContainer *cmxEtSumsMod,
     xAOD::CMXEtSumsContainer *cmxEtSumsCrate) const
 {
-    float etaTruncXE, etaTruncTE;
-    findRestrictedEta(etaTruncXE, etaTruncTE);
-    ATH_MSG_DEBUG("Restricted eta ranges etaTruncXE=" << etaTruncXE << " etaTruncTE=" << etaTruncTE);
+    uint32_t maskXE, maskTE;
+    findRestrictedEta(maskXE, maskTE);
+    ATH_MSG_DEBUG("Restricted eta masks: XE=" << MSG::hex << maskXE << ", TE=" << maskTE << MSG::dec);
     // Convert to internal containers
     int peak = 0;
     MultiSliceModuleEnergy modulesVec;
@@ -255,7 +266,7 @@ void L1EnergyCMXTools::formCMXEtSumsCrate(
         cratesVecFull.push_back(cratesFull);
         cratesVecRestricted.push_back(cratesRestricted);
         m_etTool->crateSums(modules, cratesFull);
-        m_etTool->crateSums(modules, cratesRestricted, etaTruncXE, etaTruncTE, true);
+        m_etTool->crateSums(modules, cratesRestricted, maskXE, maskTE, true);
         delete modules;
     }
 
@@ -852,7 +863,7 @@ void L1EnergyCMXTools::etMapsToEtSums(
         }else{
             nslicesFull++;
         }
-        // ATH_MSG_INFO("isRestriced=" << isRestricted << " slice=" << (isRestricted? nslicesRestricted: nslicesFull) 
+        // ATH_MSG_DEBUG("isRestriced=" << isRestricted << " slice=" << (isRestricted? nslicesRestricted: nslicesFull) 
         //  <<  " et=" << systemVec[i]->et() << " etSumHits=" << systemVec[i]->etSumHits());
     }
 
@@ -915,7 +926,7 @@ void L1EnergyCMXTools::etMapsToEtSums(
             (*sumEt)->addEy(etVec, *error);
             (*sumEt)->addEt(etVec, *error);
 
-            // ATH_MSG_INFO("slice=" << slice << " restricted=" << restricted << " etVec=" << (*sumEt)->etVec() << " etSumHits=" << etSumHits);
+            // ATH_MSG_DEBUG("slice=" << slice << " restricted=" << restricted << " etVec=" << (*sumEt)->etVec() << " etSumHits=" << etSumHits);
         }
         unsigned int etMissHits = energy->etMissHits();
         if (etMissHits)

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
 
 L1CaloRunParameters::L1CaloRunParameters(unsigned int channelId, const std::string& runType, const std::string& runActionName, unsigned int runActionVersion, const std::string& readoutConfig, unsigned int readoutConfigID, const std::string& ttcConfiguration, unsigned int ttcConfigurationID, const std::string& triggerMenu, const std::string& calibration, const std::string& conditions)

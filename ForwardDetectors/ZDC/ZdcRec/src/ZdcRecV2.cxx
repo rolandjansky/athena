@@ -62,7 +62,7 @@ StatusCode ZdcRecV2::initialize()
 	StatusCode sc = m_storeGate.retrieve();
 	if (sc.isFailure())
 	{
-		mLog << MSG::FATAL << "--> ZDC: Unable to retrieve pointer to StoreGateSvc" << endreq;
+		mLog << MSG::FATAL << "--> ZDC: Unable to retrieve pointer to StoreGateSvc" << endmsg;
 		return sc;
 	}
 
@@ -71,21 +71,21 @@ StatusCode ZdcRecV2::initialize()
 	StatusCode scTool = m_ChannelTool.retrieve();
 	if (scTool.isFailure())
 	{
-		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_ChannelTool << endreq;
+		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_ChannelTool << endmsg;
 		return StatusCode::FAILURE;
 	}
-	mLog << MSG::DEBUG << "--> ZDC: SUCCESS retrieving " << m_ChannelTool << endreq;
+	mLog << MSG::DEBUG << "--> ZDC: SUCCESS retrieving " << m_ChannelTool << endmsg;
 	
 	// Container output name
 	//TODO: change MESSAGE !!
-	mLog << MSG::DEBUG << " Output Container Name " << m_zdcModuleContainerName << endreq;
+	mLog << MSG::DEBUG << " Output Container Name " << m_zdcModuleContainerName << endmsg;
 	if (m_ownPolicy == SG::OWN_ELEMENTS)
-		mLog << MSG::DEBUG << "...will OWN its cells." << endreq;
+		mLog << MSG::DEBUG << "...will OWN its cells." << endmsg;
 	else
-		mLog << MSG::DEBUG << "...will VIEW its cells." << endreq;
+		mLog << MSG::DEBUG << "...will VIEW its cells." << endmsg;
 
 
-	mLog << MSG::DEBUG << "--> ZDC: ZdcRecV2 initialization complete" << endreq;
+	mLog << MSG::DEBUG << "--> ZDC: ZdcRecV2 initialization complete" << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -100,14 +100,14 @@ StatusCode ZdcRecV2::execute()
 	     << "--> ZDC: ZdcRecV2 execute starting on "
 	     << m_eventCount
 	     << "th event"
-		 << endreq;
+		 << endmsg;
 
 	m_eventCount++;
 
 	//Look for the container presence
 	bool dg = m_storeGate->contains<xAOD::TriggerTowerContainer>( m_ttContainerName);
 	if (!dg) {
-	  if (m_complainContain) mLog << MSG::WARNING << "--> ZDC: StoreGate does not contain " << m_ttContainerName << endreq;
+	  if (m_complainContain) mLog << MSG::WARNING << "--> ZDC: StoreGate does not contain " << m_ttContainerName << endmsg;
 	  m_complainContain = 0;
 	  return StatusCode::SUCCESS;
 	}
@@ -121,7 +121,7 @@ StatusCode ZdcRecV2::execute()
 		 << "--> ZDC: Could not retrieve "
 		 << m_ttContainerName
 		 << " from StoreGate"
-		 << endreq;
+		 << endmsg;
 	  m_complainRetrieve = 0;
 	  return StatusCode::SUCCESS;
 	}
@@ -131,7 +131,7 @@ StatusCode ZdcRecV2::execute()
 		mLog << MSG::ERROR
 			 << "--> ZDC: Storegate returned zero pointer for "
 			 << m_ttContainerName
-			 << endreq;
+			 << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -141,10 +141,10 @@ StatusCode ZdcRecV2::execute()
 	moduleContainer->setStore( moduleAuxContainer.get() );
 
 	int ncha = m_ChannelTool->convertTT2ZM(m_ttContainer, moduleContainer.get() );
-	msg( MSG::DEBUG ) << "Channel tool returns " << ncha << endreq;
+	msg( MSG::DEBUG ) << "Channel tool returns " << ncha << endmsg;
 
-	msg( MSG::DEBUG ) << ZdcModuleToString(*moduleContainer) << endreq;
-	//msg( MSG::INFO ) << ZdcModuleToString(*moduleContainer) << endreq;
+	msg( MSG::DEBUG ) << ZdcModuleToString(*moduleContainer) << endmsg;
+	//msg( MSG::INFO ) << ZdcModuleToString(*moduleContainer) << endmsg;
 
 	ATH_CHECK( evtStore()->record( std::move(moduleContainer), m_zdcModuleContainerName) );
 	ATH_CHECK( evtStore()->record( std::move(moduleAuxContainer), m_zdcModuleAuxContainerName) );
@@ -162,7 +162,7 @@ StatusCode ZdcRecV2::finalize()
 
   mLog << MSG::DEBUG
 		  << "--> ZDC: ZdcRecV2 finalize complete"
-		  << endreq;
+		  << endmsg;
 
   return StatusCode::SUCCESS;
 

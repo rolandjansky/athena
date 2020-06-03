@@ -28,6 +28,8 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
   m_detStore("DetectorStore", name),
   m_pixelDCSData(0),
+  m_pixid(nullptr),
+  m_pixman(nullptr),
   m_par_temperatureKey(""),
   m_par_HVKey(""),
   m_par_FSMStatusKey(""),
@@ -43,7 +45,6 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   m_par_useFSMState(true),
   m_par_registerCallback(true)
 {
-
   declareProperty("TemperatureFolder", m_par_temperatureKey); 
   declareProperty("HVFolder", m_par_HVKey); 
   declareProperty("FSMStatusFolder", m_par_FSMStatusKey);
@@ -59,8 +60,6 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   declareProperty("UseHV", m_par_useHV); 
   declareProperty("UseFSMStatus", m_par_useFSMStatus); 
   declareProperty("UseFSMState", m_par_useFSMState); 
-
-
 }
 
 PixelDCSSvc::~PixelDCSSvc(){}

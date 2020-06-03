@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  JetAbbreviated.cxx
 //  TopoCore
 //  Created by Veronica Sorin on 14/8/14.

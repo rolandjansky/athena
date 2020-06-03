@@ -22,11 +22,11 @@ theApp.CreateSvc += ['ISPropertySvc']
 from ByteStreamEmonController.ByteStreamEmonControllerConf import BSEmonCtrlSvc
 
 #Create an instance with a stream-specific name
-ByteStreamEmonCtrlSvc = BSEmonCtrlSvc(Stream+"-BSEmonCtrlSvc")
+ByteStreamEmonCtrlSvc = BSEmonCtrlSvc(AppName+"-BSEmonCtrlSvc")
 ServiceMgr += ByteStreamEmonCtrlSvc
 
 #Add to list of services created right-away (otherwise not referenced)
-theApp.CreateSvc += ["BSEmonCtrlSvc/"+Stream+"-BSEmonCtrlSvc"]
+theApp.CreateSvc += ["BSEmonCtrlSvc/"+AppName+"-BSEmonCtrlSvc"]
 
 ###
 # Switch output level if requested

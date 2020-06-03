@@ -70,6 +70,10 @@ log = logging.getLogger('runHLT_standalone.py')
 
 #predefined menu setups accessible using 'test<NAME>[MC]=True' commandline
 menuMap={
+         #2018 menus:       menu name                   L1 xml file
+         'HIV5':            ('Physics_HI_v5',           'TriggerMenuXML/LVL1config_Physics_HI_v5.xml'),
+         'MCHIV5':          ('MC_HI_v5',                'TriggerMenuXML/LVL1config_Physics_HI_v5.xml'),
+         
          #2017 menus:       menu name                   L1 xml file
          'PhysicsV7':       ('Physics_pp_v7',           'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'),
          'MCV7':            ('MC_pp_v7',                'TriggerMenuXML/LVL1config_MC_pp_v7.xml'),
@@ -256,6 +260,7 @@ else:           # More data modifiers
                                 #'disablePixels',
                                 #'disableSCTBarrel',
                                 'useDynamicAlignFolders',
+                                'enableALFAMon',
     ]
 
 #make some more common trig cost operations easier to setup
@@ -439,6 +444,10 @@ if globalflags.InputFormat=='bytestream':
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _run_number = af.run_number[0]
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+
     if _run_number>=276073:       #start of periodD1, 25ns bunch spacing 
         jobproperties.Beam.bunchSpacing=25
         log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True'

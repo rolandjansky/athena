@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h"
@@ -19,12 +19,14 @@ TFCSEnergyInterpolationLinear::TFCSEnergyInterpolationLinear(const char* name, c
 {
 }
 
-void TFCSEnergyInterpolationLinear::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSEnergyInterpolationLinear::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
-  float Emean=m_slope*truth->Ekin()+m_offset;
+  const float Emean=m_slope*truth->Ekin()+m_offset;
 
   ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
   simulstate.set_E(Emean);
+
+  return FCSSuccess;
 }
 
 void TFCSEnergyInterpolationLinear::Print(Option_t *option) const
@@ -67,7 +69,9 @@ void TFCSEnergyInterpolationLinear::unit_test(TFCSSimulationState* simulstate,TF
   for(float Ekin=1000;Ekin<=100000;Ekin*=1.1) {
     //Init LorentzVector for truth. For photon Ekin=E
     truth->SetPxPyPzE(Ekin,0,0,Ekin);
-    test.simulate(*simulstate,truth,extrapol);
+    if (test.simulate(*simulstate,truth,extrapol) != FCSSuccess) {
+      return;
+    }
     gr->SetPoint(ip,Ekin,simulstate->E()/Ekin);
     ++ip;
   }  
@@ -79,4 +83,3 @@ void TFCSEnergyInterpolationLinear::unit_test(TFCSSimulationState* simulstate,TF
   c->SetLogx();
   #endif
 }
-

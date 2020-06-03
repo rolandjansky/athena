@@ -36,9 +36,16 @@ plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2"
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
 # Define triggers for tagging 
-monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
+monitoring_tags = ['HLT_e5_lhloose',
+                   'HLT_e17_lhvloose_nod0',
+                   'HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e26_lhtight_nod0_ivarloose',
-                   'HLT_e28_lhtight_nod0_ivarloose']
+                   'HLT_e28_lhtight_nod0_ivarloose',
+                   'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                   'HLT_e5_lhloose_gsf',
+                   'HLT_e17_lhvloose_nod0_gsf',
+                   'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                   'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
 monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
@@ -66,23 +73,33 @@ monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
 # monitoring_electron += commission_electron
 
 # 2018 single electrons triggers to monitor from Zee TP, includes rerun
-commissionTP_electron = [
-                         'HLT_e28_lhtight_nod0_sc_ivarloose',
+commissionTP_electron = ['HLT_e28_lhtight_nod0_sc_ivarloose',
                          'HLT_e28_lhtight_nod0_gsf_ivarloose',
                          'HLT_e28_lhtight_nod0_sc_gsf_ivarloose',
                          'HLT_e24_lhvloose_nod0_gsf',
                          'HLT_e24_lhvloose_nod0_sc',
-                         'HLT_e24_lhvloose_nod0_sc_gsf']
+                         'HLT_e24_lhvloose_nod0_sc_gsf',
+                         'HLT_e5_lhloose',
+                         'HLT_e28_lhtight_nod0_ivarloose',
+                         'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                         'HLT_e5_lhloose_gsf',
+                         'HLT_e17_lhvloose_nod0_gsf',
+                         'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                         'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
 monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0_L1EM20VH'
+                         'HLT_e24_lhvloose_nod0_L1EM20VH',
+                         # low mu runs 2018
+                         'HLT_e15_lhloose_nod0_L1EM12' 
                          ]
 monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
+                     'HLT_g35_loose',
+                     'HLT_g120_loose',
                      'HLT_g25_medium_sc_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g200_loose']
@@ -158,9 +175,25 @@ validation_photon.extend(monitoring_photon)
 validation_mam=monitoring_mam
 
 # Heavy Ion items
-monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose','HLT_e15_lhloose_nod0','HLT_e17_lhloose','HLT_e17_lhloose_nod0']
-monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose']
-monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose',
-                     'primary_single_ele':'HLT_e15_lhloose_nod0',
-                     'primary_single_pho':'HLT_g15_loose'}
+#Previous HI config
+#monitoring_electron_hi=['HLT_e15_etcut','HLT_e15_loose','HLT_e15_lhloose','HLT_e15_lhloose_nod0','HLT_e17_lhloose','HLT_e17_lhloose_nod0']
+#monitoring_photon_hi=['HLT_g13_etcut','HLT_g18_etcut','HLT_g15_loose','HLT_g20_loose']
+monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose_ion',
+                     'primary_single_ele':'HLT_e15_lhloose_ion_L1EM12',
+                     'primary_single_pho':'HLT_g20_loose_ion'}
+monitoring_electron_hi=[
+    "HLT_e15_etcut_ion", #OK
+    "HLT_e15_loose_ion",#OK
+    "HLT_e15_medium_ion", #OK
+    "HLT_e15_lhloose_ion_L1EM12",#OK
+    "HLT_e15_lhmedium_ion_L1EM12", #<-- Breaks TrigEgammaMon
+    "HLT_e18_etcut_ion", #OK
+    "HLT_e18_loose_ion",#OK
+    "HLT_e18_medium_ion", #OK
+    "HLT_e18_lhloose_ion", #OK
+    "HLT_e18_lhmedium_ion", #<-- Breaks TrigEgammaMon
+    "HLT_e20_loose_ion" #OK
+]
 
+monitoring_photon_hi=["HLT_g20_loose_ion", "HLT_g18_etcut_ion",
+"HLT_g15_loose_ion", "HLT_g13_etcut_ion"]

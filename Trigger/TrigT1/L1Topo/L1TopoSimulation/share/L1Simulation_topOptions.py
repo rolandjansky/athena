@@ -142,11 +142,15 @@ if rec.doTruth():
         from TruthExamples.TruthExamplesConf import DumpMC
         topSequence+=DumpMC()
 
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
-    ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 if rec.doTrigger:
     try:
@@ -156,4 +160,3 @@ if rec.doTrigger:
         treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
         from RecExConfig.RecAlgsFlags import recAlgs
         recAlgs.doTrigger=False
-

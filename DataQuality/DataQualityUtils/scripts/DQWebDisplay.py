@@ -1,13 +1,16 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-# -*- coding: utf-8 -*-
 
 ## *****************************************************************************
 VERSION = '$Id: DQWebDisplay.py 690278 2015-08-19 22:18:53Z ponyisi $'
 ## *****************************************************************************
 
 import os
+
+import logging
+logging.basicConfig()
 
 ## Needed to correct ROOT behavior; see below
 CWD = os.getcwd()

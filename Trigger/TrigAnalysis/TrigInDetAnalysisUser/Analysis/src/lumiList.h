@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    lumiList.h        
 //            standalone implementation of a good lumi 
 //            block list       
 //  
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: lumiList.h 780225 2016-10-25 10:04:58Z sutt $
 

@@ -54,8 +54,8 @@ public:
    // return the directory selected in the last call to Open
    TDirectory *GetDirectory(void) const;
    //virtual TDirectory *OpenRootFileReadonly(char const *fileName);
-   TDirectory *OpenRootFileReadonly(char const *fileName);
 protected:
+   TDirectory *OpenRootFileReadonly(char const *fileName);
    int fMaxOpenFiles;
    std::vector<std::string> fFileNames;
    std::map<std::string,TDirectory *> fOpenDirectories;

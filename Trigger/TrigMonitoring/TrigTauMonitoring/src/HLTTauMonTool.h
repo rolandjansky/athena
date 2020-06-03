@@ -68,8 +68,7 @@ class HLTTauMonTool : public IHLTMonTool {
 //#endif
 
   /// Method fills the histograms for one tau trigger item.
-  StatusCode fillHistogramsForItem(const std::string & trigItem);
-  
+  StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
  private:
 
   /// Method books the histograms for one tau trigger item.
@@ -84,11 +83,11 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method filling the EF tau histograms
   StatusCode fillPreselTau(const xAOD::TauJet *aEFTau);
-  StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
+  StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const bool & monRNN, const bool & monBDT);
   /// Method filling the EF vs Offline tau histograms
-  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
-  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau);
-  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau);
+  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const std::string & goodTauRefType);
+  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & goodTauRefType);
+  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau, const std::string & goodTauRefType);
   StatusCode fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std::string & trigItem);  
   StatusCode fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support);
 
@@ -97,23 +96,25 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method for Turn On Curves
   void examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
-  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type);
+  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
-  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
+  StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
-  StatusCode RealZTauTauEfficiency();
+  StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
   StatusCode dijetFakeTausEfficiency();
   StatusCode FTKtest(const std::string & trigItem);
-  StatusCode trackCurves(const std::string & trigItem);
-  StatusCode efficiencyRatioPlots (const std::string & trigItem);
+  StatusCode trackCurves(const std::string & trigItem, const std::string & goodTauRefType);
+  StatusCode efficiencyRatioPlots (const std::string & trigItem, const std::string & goodTauRefType);
   StatusCode L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain);
-  StatusCode FailTrackFilterMonitor(const std::string & trigItem);
+	StatusCode getTracks(const xAOD::TauJet *aEFTau, std::vector<const xAOD::TauTrack *> &out);
+	StatusCode getClusters(const xAOD::TauJet *aEFTau, std::vector<const xAOD::CaloCluster *> &out);
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
+  bool TrigBiasCheck();
   //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
   //StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
@@ -164,7 +165,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTopoValidation;
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
-  bool m_doFailTrackFilterBitMonitoring;
   bool m_domuCut40; 
   bool m_doEfficiencyRatioPlots;
   bool m_doL1TopoLeptonsMonitoringWarnings;
@@ -173,7 +173,8 @@ class HLTTauMonTool : public IHLTMonTool {
 
   std::vector<TLorentzVector> m_true_taus;
   std::vector<int> m_true_taus_nprong;
-  std::vector<const xAOD::TauJet *> m_taus;
+  std::vector<const xAOD::TauJet *> m_taus_BDT;
+  std::vector<const xAOD::TauJet *> m_taus_RNN;
   const xAOD::TauJetContainer* m_tauCont;
 
   unsigned int m_L1TriggerCondition;
@@ -188,6 +189,7 @@ class HLTTauMonTool : public IHLTMonTool {
   ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
   float m_mu_offline;
   int m_mu_online;
+	int LB;
 
   ///Name of the trigger items to be monitored.
   ///Set by job options
@@ -195,8 +197,11 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_trigItemsAll;
   std::vector<std::string> m_trigItemsHighPt;
   std::vector<std::string> m_trigItemsZtt;
+  std::vector<std::string> m_trigItemsZtt_RNN;
+  std::vector<std::string> m_trigItemsZtt_BDT;
   std::vector<std::string> m_highpt_tau;
-  std::vector<std::string> m_ztt_tau;
+  std::vector<std::string> m_ztt_RNN_tau;
+  std::vector<std::string> m_ztt_BDT_tau;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
@@ -215,8 +220,8 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_trigMVA_chains;
   std::vector<std::string> m_trigRNN_chains;
   std::vector<std::string> m_trigBDTRNN_chains;
-  std::string m_lowest_singletau;
-  std::string m_lowest_singletauMVA;
+  std::string m_lowest_singletau_RNN;
+  std::string m_lowest_singletau_BDT;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;
   //std::string m_lowest_mutau;

@@ -41,7 +41,6 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   //
   m_rxRedundancy(0),
   m_tempMaskedChips(nullptr),
-  m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
   m_condensedMode(true),
@@ -58,6 +57,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   declareProperty("disableRODs",m_disableRODs=false);
   declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
   declareProperty("RandomNumberSeed",m_randomSeed=1); // The seed of random numbers for ROD disabling
+  declareProperty("CheckRODSimulatedData",m_checkRODSimulatedData=true);
 
   for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType] = 0;
@@ -75,8 +75,6 @@ SCT_ByteStreamErrorsSvc::initialize(){
   }
 
   m_rxRedundancy = new std::set<IdentifierHash>;
-
-  m_isRODSimulatedData=false;
 
   IIncidentSvc* incsvc;
   sc = service("IncidentSvc", incsvc);
@@ -316,41 +314,14 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   
   if (m_useDCSfromBS && (! HVisOn() ) ) return false;
 
-  if (m_isRODSimulatedData) return false;
-  
+  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
+
   bool result(true);
-  
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::BCIDError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::BCIDError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::BCIDError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->end());
-  if (!result) return result;
 
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end());
-  if (!result) return result;
+  for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
+    result = (m_bsErrors[badError]->count(elementIdHash)==0);
+    if (!result) return result;
+  }
 
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
   const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
@@ -377,8 +348,6 @@ bool
 SCT_ByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
   if (not canReportAbout(h)) return true;
   
-  if (m_isRODSimulatedData) return false;
-
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash = m_sct_id->wafer_hash(elementId);
     return isGood(elementIdHash);
@@ -399,6 +368,10 @@ SCT_ByteStreamErrorsSvc::isGoodChip(const Identifier& stripId) const {
     ATH_MSG_WARNING("moduleId obtained from stripId " << stripId << " is invalid.");
     return false;
   }
+
+  const Identifier waferId{m_sct_id->wafer_id(stripId)};
+  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
+  if (m_checkRODSimulatedData and isRODSimulatedData(waferHash)) return false;
 
   // tempMaskedChips and abcdErrorChips hold 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
@@ -618,15 +591,9 @@ SCT_ByteStreamErrorsSvc::addErrorCount(int errorType) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** A bit is set in a particular word in the ByteStream if the data
- * is coming from the ROD simulator rather than real modules. */
-void
-SCT_ByteStreamErrorsSvc::setRODSimulatedData() {
-  m_isRODSimulatedData=true;
-}
 bool
-SCT_ByteStreamErrorsSvc::isRODSimulatedData() {
-  return m_isRODSimulatedData;
+SCT_ByteStreamErrorsSvc::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
+  return (m_bsErrors[SCT_ByteStreamErrors::RODSimulatedData]->count(elementIdHash)!=0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

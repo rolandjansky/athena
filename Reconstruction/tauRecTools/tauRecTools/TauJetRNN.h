@@ -54,12 +54,12 @@ public:
                   const std::vector<const xAOD::CaloCluster *> &clusters);
 
     // retrieve scalar RNN inputs for tau trigger monitoring
-    std::map<std::string, std::map<std::string, double> > getScalarInputs() {
-      return m_input_map;
+    const std::map<std::string, std::map<std::string, double> >* getScalarInputs() {
+      return &m_input_map;
     }
     // retrieve vector RNN inputs for tau trigger monitoring
-    std::map<std::string, std::map<std::string, std::vector<double>> > getVectorInputs() {
-      return m_input_sequence_map;
+    const std::map<std::string, std::map<std::string, std::vector<double>> >* getVectorInputs() {
+      return &m_input_sequence_map;
     }
 
     // Getter for the variable calculator

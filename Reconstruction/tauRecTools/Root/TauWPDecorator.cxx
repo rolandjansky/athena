@@ -1,35 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-
-//c++
 #include <utility>
-
-// root
 #include "TFile.h"
 #include "TH2.h"
 #include "TString.h"
-
-//tau
-#include "xAODTau/TauJet.h"
 #include "tauRecTools/TauEventData.h"
 #include "tauRecTools/TauWPDecorator.h"
-
 #include "xAODEventInfo/EventInfo.h"
-
-//using CLHEP::GeV;
 
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
   TauRecToolBase(name),
+  m_hists0P(0),
+  m_hists1P(0),
+  m_hists3P(0),
   acc_score(0),
   acc_newScore(0)
 {
-  declareProperty("flatteningFile1Prong", m_file1P = "fitted.pileup_1prong_hlt.root");
-  declareProperty("flatteningFile3Prong", m_file3P = "fitted.pileup_multiprongs_hlt.root");
+  declareProperty("flatteningFile0Prong", m_file0P);
+  declareProperty("flatteningFile1Prong", m_file1P);
+  declareProperty("flatteningFile3Prong", m_file3P);
 
   declareProperty("ScoreName", m_scoreName = "BDTJetScore");
   declareProperty("NewScoreName", m_newScoreName = "BDTJetScoreSigTrans");
@@ -38,33 +30,52 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   declareProperty("UseEleBDT", m_electronMode=false);
   
   declareProperty("CutEnumVals", m_cut_bits);
+  declareProperty("SigEff0P", m_cut_effs_0p);
   declareProperty("SigEff1P", m_cut_effs_1p);
   declareProperty("SigEff3P", m_cut_effs_3p);
 
   declareProperty("DecorWPNames", m_decoration_names);
+  declareProperty("DecorWPCutEffs0P", m_cut_effs_decoration_0p);
   declareProperty("DecorWPCutEffs1P", m_cut_effs_decoration_1p);
   declareProperty("DecorWPCutEffs3P", m_cut_effs_decoration_3p);
-
 }
 
 /********************************************************************/
 TauWPDecorator::~TauWPDecorator() {
+  
+  if(m_hists0P) delete m_hists0P;
+  delete m_hists1P;
+  delete m_hists3P;
   delete acc_score;
   delete acc_newScore;
 }
-
+ 
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 
-  // Find and open file
-  std::string fileName = (nProng == 1) ? m_file1P : m_file3P;
+  std::string fileName;
+  std::vector<m_pair_t>* histArray = 0;
+  if (nProng == 0) { 
+    fileName = m_file0P;
+    histArray = m_hists0P;
+  }
+  else if (nProng == 1) {
+    fileName = m_file1P;
+    histArray = m_hists1P;
+  }
+  else {
+    fileName = m_file3P;
+    histArray = m_hists3P;
+  }
+
   std::string fullPath = find_file(fileName);
   TFile * myFile = TFile::Open(fullPath.c_str(), "READ");
 
   if(!myFile || myFile->IsZombie()) {
     ATH_MSG_FATAL("Could not open file " << fullPath.c_str());
+    return StatusCode::FAILURE;  
   }
 
-  ATH_MSG_INFO("Loading working points from" << fullPath.c_str());
+  ATH_MSG_INFO("Loading working points from " << fullPath.c_str());
 
   // Iterate over working points
   for(int i=0; i<100; i++)
@@ -77,15 +88,9 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
       }
 
       // Clone histogram and store locally
-      std::unique_ptr<TH2> myLocalGraph1P((TH2*)myGraph->Clone());
-      std::unique_ptr<TH2> myLocalGraph3P((TH2*)myGraph->Clone());
-      myLocalGraph1P->SetDirectory(0);
-      myLocalGraph3P->SetDirectory(0);
-      
-      if(nProng == 1)
-	m_hists1P.push_back(m_pair_t(float(i)/100., std::move(myLocalGraph1P)));
-      else
-	m_hists3P.push_back(m_pair_t(float(i)/100., std::move(myLocalGraph3P)));
+      std::unique_ptr<TH2> myLocalGraph((TH2*)myGraph->Clone());
+      myLocalGraph->SetDirectory(0);       
+      histArray->push_back(m_pair_t(float(i)/100., std::move(myLocalGraph)));
     }
   
   return StatusCode::SUCCESS;  
@@ -93,9 +98,11 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 
 StatusCode TauWPDecorator::storeLimits(int nProng) {
 
-  // Use pointer for simpler access
-  std::vector<m_pair_t> *histArray = (nProng == 1) ? &m_hists1P : &m_hists3P;
-
+  std::vector<m_pair_t> *histArray = 0;
+  if (nProng == 0) histArray = m_hists0P ;
+  else if (nProng == 1) histArray = m_hists1P ;
+  else histArray = m_hists3P ;
+  
   // Default values
   m_xmin[nProng] = 1E9;
   m_xmax[nProng] = -1E9;
@@ -111,7 +118,6 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
 
       m_xmax[nProng] = TMath::Max(myHist->GetXaxis()->GetBinCenter(myHist->GetNbinsX()), m_xmax[nProng]);
       m_ymax[nProng] = TMath::Max(myHist->GetYaxis()->GetBinCenter(myHist->GetNbinsY()), m_ymin[nProng]);
-
     }
 
   //ATH_MSG_WARNING("Final limits " << m_xmin[nProng] << " " << m_xmax[nProng] << " " << m_ymin[nProng] << " " << m_ymax[nProng]);
@@ -128,19 +134,36 @@ double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo
 /********************************************************************/
 StatusCode TauWPDecorator::initialize() {
 
-  // Open the 1P and 3P files
-  ATH_CHECK( retrieveHistos(1) );
-  ATH_CHECK( retrieveHistos(3) );
+  // 0p is for trigger only
+  if(!m_file0P.empty()) {
+    m_hists0P = new std::vector<m_pair_t>;
+    ATH_CHECK( retrieveHistos(0) );
+    ATH_CHECK( storeLimits(0) );
+  }
   
-  // Store limits for 1P and 3P
+  m_hists1P = new std::vector<m_pair_t>;
+  ATH_CHECK( retrieveHistos(1) );
   ATH_CHECK( storeLimits(1) );
+  
+  m_hists3P = new std::vector<m_pair_t>;
+  ATH_CHECK( retrieveHistos(3) );  
   ATH_CHECK( storeLimits(3) );
   
   std::string scoreName = m_scoreName;
   std::string newScoreName = m_newScoreName;
-
+  
   acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
   acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
+  
+  return StatusCode::SUCCESS;
+}
+
+/********************************************************************/
+StatusCode TauWPDecorator::eventInitialize()
+{
+  const xAOD::EventInfo* eventInfo = 0;
+  ATH_CHECK( evtStore()->retrieve(eventInfo,"EventInfo") );
+  m_mu = eventInfo->averageInteractionsPerCrossing();
 
   return StatusCode::SUCCESS;
 }
@@ -148,26 +171,31 @@ StatusCode TauWPDecorator::initialize() {
 /********************************************************************/
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
 { 
+  // could use detail(TauJetParameters::nChargedTracks) for trigger, but TauIDVarCalculator used nTracks()
+  int nProng = pTau.nTracks();
 
-  // Accessors
-  static SG::AuxElement::ConstAccessor<float> acc_mu("MU");
-  static SG::AuxElement::ConstAccessor<float> acc_pt("pt");
-  static SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
-  static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-
+  // WARNING, previous behaviour: use 1p flattening file for 1-track taus, else use 3p flattening file
+  // meaning when we don't use a 0p flattening file, 0p falls back to 3p case
+  // for now, keep it for backward-compatibility
+  if(nProng==0 && !m_hists0P) nProng = 3;
+  else if(nProng>=2) nProng = 3;
+  
   // histograms
-  std::vector<m_pair_t> *histArray = (acc_numTrack(pTau) == 1) ? &m_hists1P : &m_hists3P;
-
+  std::vector<m_pair_t> *histArray = 0;
+  if (nProng == 0) histArray = m_hists0P ;
+  else if (nProng == 1) histArray = m_hists1P ;
+  else histArray = m_hists3P ;
+  
   // Retrieve tau properties
-  int nProng = (acc_numTrack(pTau) == 1) ? 1 : 3;
   double score = (*acc_score)(pTau);
-  double pt = acc_pt(pTau);
+  double pt = pTau.pt();
 
   double y_var = 0.0;
   if(m_electronMode) {
+     static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
      y_var = std::fabs(acc_absEta(pTau)); 
   } else {
-     y_var = acc_mu(pTau);
+     y_var = m_mu;
   }
   
   // ATH_MSG_VERBOSE("========================================");
@@ -249,20 +277,26 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
     newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
   }
   (*acc_newScore)(pTau) = newscore;
-  
+
   if(m_defineWP) {
     for (u_int Nwp=0; Nwp < m_cut_bits.size(); Nwp++){
-      if(acc_numTrack(pTau) == 1) {
+      if(nProng == 0) {
+	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_0p[Nwp]));
+      }
+      else if(nProng == 1) {
 	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_1p[Nwp]));
       }
-      else{
+      else {
 	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_3p[Nwp]));
       }
     }
 
     // Decorate other WPs
     for (u_int Nwp=0; Nwp < m_decoration_names.size(); Nwp++){
-      if(acc_numTrack(pTau) == 1) {
+      if(nProng == 0) {
+	pTau.auxdecor<char>(m_decoration_names[Nwp]) = newscore > (1-m_cut_effs_decoration_0p[Nwp]);
+      }
+      else if(nProng == 1) {
 	pTau.auxdecor<char>(m_decoration_names[Nwp]) = newscore > (1-m_cut_effs_decoration_1p[Nwp]);    
       }
       else {
@@ -280,6 +314,5 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
 StatusCode TauWPDecorator::finalize() {
   
-  return StatusCode::SUCCESS;
-  
+  return StatusCode::SUCCESS; 
 }

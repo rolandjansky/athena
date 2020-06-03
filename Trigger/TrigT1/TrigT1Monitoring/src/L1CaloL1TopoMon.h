@@ -58,14 +58,12 @@ class TrigT1CaloLWHistogramTool;
   virtual StatusCode procHistograms();
 
   enum ERROR_BIT {CALO_CONV=0, NO_CMX, DAQ_CONV, NO_DAQ, ROI_CONV,
-		  NO_ROI, F_OVERFLOW,
-		  F_CRC, PAYL_CRC, CMX_MATCH, NUMBEROFBITS};
+		  NO_ROI, F_CRC, PAYL_CRC, CMX_MATCH, NUMBEROFBITS};
 
   enum TOB_TYPE {JETL_TOB=0, JETS_TOB, TAU_TOB, EM_TOB, MU_TOB};
   
   std::vector<std::string> ERROR_LABELS{"Calo conv","No CMX","DAQ conv",
-      "No DAQ","ROI conv","No ROI","Fibre Overf","Fibre CRC",
-      "Payload CRC","CMX-Topo match"};
+      "No DAQ","ROI conv","No ROI","Fibre CRC","Payload CRC","CMX-Topo match"};
   
  private:
   
@@ -96,6 +94,8 @@ class TrigT1CaloLWHistogramTool;
    bool m_debug;
    /// Histograms booked flag
    bool m_histBooked;
+   /// Current lumiblock
+   unsigned int m_lumiNo;
 
    /** Histos */   
    // Data transmission checks
@@ -108,6 +108,7 @@ class TrigT1CaloLWHistogramTool;
    TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_mismatch[TOB_TYPES];
    TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_match[TOB_TYPES];
    TH1F_LW* m_h_l1topo_1d_Errors;
+   TH1F_LW* m_h_l1topo_1d_Overflows;
    TH1F_LW* m_h_l1topo_1d_DAQTobs;
    TH1F_LW* m_h_l1topo_1d_DAQJetTobs;
    TH1F_LW* m_h_l1topo_1d_DAQTauTobs;
@@ -117,8 +118,9 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_DAQMismatchTriggerBits;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
    TH1F_LW* m_h_l1topo_1d_ROITobs;
-   TH2F*    m_h_l1topo_2d_ItemsBC[4];
-   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4][2];
+   TH1F_LW* m_h_l1topo_1d_ErrorsByLumiblock;
+   TH2F* m_h_l1topo_2d_ItemsBC[4];
+   TH2F* m_h_l1topo_2d_ItemsBC_ratio[4][2];
 };
  
  // ============================================================================

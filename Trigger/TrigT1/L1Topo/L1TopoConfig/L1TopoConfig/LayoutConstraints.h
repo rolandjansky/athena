@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  LayoutConstraints.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/18/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  Class provides static access to limits of the hardware
 
 #ifndef __TopoCore__LayoutConstraints__

@@ -2,7 +2,7 @@
 
 import sys
 #from DQDefects import DefectsDB
-from ROOT import gROOT, TCanvas, TDirectory, TFile, TH1F, TH2F, TF1
+from ROOT import gROOT, TCanvas, TDirectory, TFile, TH1F, TH2F, TF1, TProfile
 import collections
 defect_val = collections.namedtuple('defect_val',
                                     'defect, comment, recoverable')
@@ -16,6 +16,7 @@ def find_standby(nlayer, hhits, lb_max, standby_lb):
           start = 0
           start_lb = 0
           end_lb = 0
+
           nbin = hhits[i].GetNbinsX()
 
           start_lb = 0
@@ -44,10 +45,12 @@ def find_standby(nlayer, hhits, lb_max, standby_lb):
 
 
 def find_notready(nlayer, hist, pct_low, pct_high, notready_lb):
+
      for i in range(0, nlayer):
           start = 0
           start_lb = 0
           end_lb = 0
+
           nbin = hist[i].GetNbinsX()
           if i == 2:
                for j in range(1, nbin-1):
@@ -86,7 +89,7 @@ def print_def(defect_name, defect_lb):
      for i in range(0, len(defect_lb)):
           print defect_name, "[", defect_lb[i][0], "]:", defect_lb[i][1], "-", defect_lb[i][2]
 
-def assign_defect(db, defect_name, run, defect_lb, comment):
+def assign_defect(db, defect_name, run, defect_lb):
      for i in range(0, len(defect_lb)):
           layer = defect_lb[i][0]
           if layer == 0:
@@ -111,6 +114,7 @@ def assign_defect(db, defect_name, run, defect_lb, comment):
           until = (run << 32) + lbend + 1
                
           #print sdefect, ": LB = ", lbstart,"-",lbend,")"
+          comment = "assign " + sdefect
           db.append(defect_iov(sdefect, comment, False, start, until))
 
 def assign_lowstat(db, run, comment):
@@ -124,66 +128,87 @@ def assign_lowstat(db, run, comment):
      #print sdefect, ": LB = ", lbstart,"-",lbend,")"
      db.append(defect_iov(sdefect, comment, False, start, until))
 
+#def execute(run, sfile, lb_max,  user, db):
 def execute(run, sfile, lb_max):
      db = []
      gROOT.Reset();
      file = TFile(sfile)
 
-     shtest = "InnerDetector/Pixel/PIX0/_Experts/HitsLB/Hits_per_lumi_B0"
-     htest = file.Get(shtest)
+     shmu = "Global/Luminosity/AnyTrigger/actualMu_vs_LB"
+     hmu = file.Get(shmu)
 
      shits = []
-     shits.append("InnerDetector/Pixel/PIXIBL/_Experts/HitsLB/Hits_per_lumi_IBL")
-     shits.append("InnerDetector/Pixel/PIX0/_Experts/HitsLB/Hits_per_lumi_B0")
-     shits.append("InnerDetector/Pixel/PIX1/_Experts/HitsLB/Hits_per_lumi_B1")
-     shits.append("InnerDetector/Pixel/PIX2/_Experts/HitsLB/Hits_per_lumi_B2")
-     shits.append("InnerDetector/Pixel/PIXECA/_Experts/HitsLB/Hits_per_lumi_ECA")
-     shits.append("InnerDetector/Pixel/PIXECC/_Experts/HitsLB/Hits_per_lumi_ECC")
+     shits.append("InnerDetector/Pixel/PIXIBL/Hits/AvgOcc_active_per_lumi_IBL")
+     shits.append("InnerDetector/Pixel/PIX0/Hits/AvgOcc_active_per_lumi_B0")
+     shits.append("InnerDetector/Pixel/PIX1/Hits/AvgOcc_active_per_lumi_B1")
+     shits.append("InnerDetector/Pixel/PIX2/Hits/AvgOcc_active_per_lumi_B2")
+     shits.append("InnerDetector/Pixel/PIXECA/Hits/AvgOcc_active_per_lumi_ECA")
+     shits.append("InnerDetector/Pixel/PIXECC/Hits/AvgOcc_active_per_lumi_ECC")
 
      sdisabled = []
      sdisabled.append("InnerDetector/Pixel/PIXIBL/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL2D_byPostProcess")
-     sdisabled.append("InnerDetector/Pixel/PIX0/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
-     sdisabled.append("InnerDetector/Pixel/PIX1/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
-     sdisabled.append("InnerDetector/Pixel/PIX2/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
-     sdisabled.append("InnerDetector/Pixel/PIXECA/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECA_byPostProcess")
-     sdisabled.append("InnerDetector/Pixel/PIXECC/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECC_byPostProcess")
+     #sdisabled.append("InnerDetector/Pixel/PIXIBL/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL_byPostProcess")
+     sdisabled.append("InnerDetector/Pixel/PIX0/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
+     sdisabled.append("InnerDetector/Pixel/PIX1/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
+     sdisabled.append("InnerDetector/Pixel/PIX2/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
+     sdisabled.append("InnerDetector/Pixel/PIXECA/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECA_byPostProcess")
+     sdisabled.append("InnerDetector/Pixel/PIXECC/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECC_byPostProcess")
 
      nlayer = 6
      hhits = []
      hdisabled = []
+     fexist_hhits = True
+     fexist_hdisabled = True
      for i in range(0, nlayer):
+          if not file.Get(shits[i]):
+               fexist_hhits = False
+               continue
+ 
+          if not file.Get(sdisabled[i]):
+               fexist_hdisabled = False
+               continue
+
           hhits.append(file.Get(shits[i]))
           hdisabled.append(file.Get(sdisabled[i]))
 
      standby_lb = []
-     find_standby(nlayer, hhits, lb_max, standby_lb)
+     if fexist_hhits == True:
+          find_standby(nlayer, hhits, lb_max, standby_lb)
 
      notready5to7pct_lb = []
      notready7to10pct_lb = []
      notready10to20pct_lb = []
      notready20to30pct_lb = []
      notready_gt30pct_lb = []
-     find_notready(nlayer, hdisabled, 0.05, 0.07, notready5to7pct_lb)
-     find_notready(nlayer, hdisabled, 0.07, 0.1, notready7to10pct_lb)
-     find_notready(nlayer, hdisabled, 0.1, 0.2, notready10to20pct_lb)
-     find_notready(nlayer, hdisabled, 0.2, 0.3, notready20to30pct_lb)
-     find_notready(nlayer, hdisabled, 0.3, 1., notready_gt30pct_lb)
+
+     if fexist_hhits == True and fexist_hdisabled == True:
+          find_notready(nlayer, hdisabled, 0.05, 0.07, notready5to7pct_lb)
+          find_notready(nlayer, hdisabled, 0.07, 0.1, notready7to10pct_lb)
+          find_notready(nlayer, hdisabled, 0.1, 0.2, notready10to20pct_lb)
+          find_notready(nlayer, hdisabled, 0.2, 0.3, notready20to30pct_lb)
+          find_notready(nlayer, hdisabled, 0.3, 1., notready_gt30pct_lb)
 
      #print_def("standby", standby_lb)
-     #print_def("5to7pct", notready5to7pct_lb)
-     #print_def("7to10pct", notready7to10pct_lb)
-     #print_def("10to20pct", notready10to20pct_lb)
-     #print_def("20to30pct", notready20to30pct_lb)
-     #print_def("gt30pct", notready_gt30pct_lb)
-
      #user = "atlpixdq"
-     assign_defect(db, "STANDBY", run, standby_lb, "assign standby")
-     assign_defect(db, "5to7pct_NOTREADY", run, notready5to7pct_lb, "assign notready")
-     assign_defect(db, "7to10pct_NOTREADY", run, notready7to10pct_lb, "assign notready")
-     assign_defect(db, "10to20pct_NOTREADY", run, notready10to20pct_lb, "assign notready")
-     assign_defect(db, "20to30pct_NOTREADY", run, notready20to30pct_lb, "assign notready")
-     assign_defect(db, "GT30pct_NOTREADY", run, notready_gt30pct_lb, "assign notready")
+     #assign_defect(db, "STANDBY", run, standby_lb)
 
-    # if nevent < 100000:
-     #     assign_lowstat(db, run, "assign lowstat")
+     if 0:
+          print_def("5to7pct", notready5to7pct_lb)
+          print_def("7to10pct", notready7to10pct_lb)
+          print_def("10to20pct", notready10to20pct_lb)
+          print_def("20to30pct", notready20to30pct_lb)
+          print_def("gt30pct", notready_gt30pct_lb)
+
+
+     if 1:
+          assign_defect(db, "5to7pct_NOTREADY", run, notready5to7pct_lb)
+          assign_defect(db, "7to10pct_NOTREADY", run, notready7to10pct_lb)
+          assign_defect(db, "10to20pct_NOTREADY", run, notready10to20pct_lb)
+          assign_defect(db, "20to30pct_NOTREADY", run, notready20to30pct_lb)
+          assign_defect(db, "GT30pct_NOTREADY", run, notready_gt30pct_lb)
+
+     #nevent = hmu.GetEntries()
+     #if nevent < 100000:
+     #assign_lowstat(db, run, "assign lowstat")
+
      return db

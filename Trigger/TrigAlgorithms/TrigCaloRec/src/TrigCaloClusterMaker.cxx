@@ -242,10 +242,13 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     persKey     = (m_pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigCaloClusterMaker");
     persKeyLink = persKey + "_Link";
   }
+#ifndef NDEBUG
+  if ( msgLvl() <= MSG::DEBUG ) {
   msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endmsg;
   msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endmsg;
+  }
+#endif
 
-  //  msg() << MSG::DEBUG << store()->dump() << endmsg;
   sc = getUniqueKey( m_pCaloClusterContainer, clusterCollKey, persKey );
   if (sc != HLT::OK) {
     msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endmsg;
@@ -258,7 +261,6 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     return HLT::TOOL_FAILURE;
   }
 
-  //xAOD::CaloClusterAuxContainer aux;
   xAOD::CaloClusterTrigAuxContainer aux;
   m_pCaloClusterContainer->setStore (&aux);
   
@@ -298,9 +300,14 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     if ( (clproc->name()).find("trigslw") != std::string::npos ) isSW=true;
     if ( clproc->execute(m_pCaloClusterContainer).isFailure() ) {
       msg() << MSG::ERROR << "Error executing tool " << m_clusterMakerNames[index] << endmsg;
-    } else {
-      msg() << MSG::DEBUG << "Executed tool " << m_clusterMakerNames[index] << endmsg;
+    } 
+#ifndef NDEBUG
+    else {
+      if ( msgLvl() <= MSG::DEBUG ) {
+         msg() << MSG::DEBUG << "Executed tool " << m_clusterMakerNames[index] << endmsg;
+      }
     }
+#endif
     if (timerSvc()) m_timer[3+index]->stop();
 
     ++index;
@@ -351,9 +358,14 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
       if ( (*itrcct)->execute(cl).isFailure() ) {
         msg() << MSG::ERROR << "Error executing correction tool " <<  m_clusterCorrectionNames[index] << endmsg;
         return HLT::TOOL_FAILURE;
-      } else {
-	msg() << MSG::DEBUG << "Executed correction tool " << m_clusterCorrectionNames[index] << endmsg;
+      } 
+#ifndef NDEBUG
+      else {
+        if ( msgLvl() <= MSG::DEBUG ) {
+	  msg() << MSG::DEBUG << "Executed correction tool " << m_clusterCorrectionNames[index] << endmsg;
+        }
       }
+#endif
       } // Check conditions
     }
     if (timerSvc()) m_timer[3+index+m_clusterMakerPointers.size()]->stop();

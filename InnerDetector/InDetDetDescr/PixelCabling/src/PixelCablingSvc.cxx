@@ -895,7 +895,13 @@ uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
     uint32_t linkNum = (onlineId >> 24) & 0xFFFF;
     unsigned int localFE = getFE(pixelId, offlineId);   // FE number within module, [0,1]. Increases with increasing eta_index
 
-    nnn = (linkNum >> (localFE * 8)) & 0xF;
+    if(localFE>1) {
+      msg(MSG::FATAL) << "Unexpected FE: "<<localFE<<"  PixelCablingSvc::getFEwrtSlink() "<< endmsg;
+      throw std::runtime_error( "Unexpected FE" );
+    }
+    else {
+      nnn = (linkNum >> (localFE * 8)) & 0xF;
+    }
 
     // Check for errors
     if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
@@ -1188,6 +1194,12 @@ int PixelCablingSvc::getHitDiscCnfg(const uint32_t robId, const int link) {
 int PixelCablingSvc::getHitDiscCnfg(Identifier* pixelId) {
 
     uint32_t robId = getRobId(m_idHelper->wafer_id(*pixelId));
-    int link = getFEwrtSlink(pixelId);
+    int link = -999;
+    try {
+        link = getFEwrtSlink(pixelId);
+    }
+    catch(std::exception& ex) {
+        msg(MSG::FATAL) << "Exception caught in PixelCablingSvc::getFEwrtSlink(): "<<ex.what() << endmsg;
+    }
     return getHitDiscCnfg(robId, link);
 }

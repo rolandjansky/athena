@@ -171,6 +171,8 @@ namespace Trk {
       /**This method returns the CylinderBounds by reference
        (NoBounds is not possible for cylinder)*/
       virtual const CylinderBounds& bounds() const override;   
+
+      bool hasBounds() const;
       
       /**This method calls the inside method of CylinderBounds*/
       virtual bool insideBounds(const Amg::Vector2D& locpos,
@@ -259,6 +261,9 @@ namespace Trk {
 
   inline const CylinderBounds& CylinderSurface::bounds() const
   { return (m_bounds.getRef()); }
+
+  inline bool CylinderSurface::hasBounds() const
+  { return m_bounds.getPtr() != nullptr; }
 
   inline bool CylinderSurface::insideBounds(const Amg::Vector2D& locpos,
                                             double tol1,

@@ -6,7 +6,6 @@
  the iPatTrackFinder InnerDetector pattern recognition algorithm
  - finds all tracks satisfying quality specifications above ptMin
  ----------------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKFINDER_TRACKFINDER_H

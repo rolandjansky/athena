@@ -50,7 +50,8 @@ InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
                                      histoPathBase    = "/stat",
                                      CheckRate        = 1000,
                                      doPositiveEndcap = True,
-                                     doNegativeEndcap = True)
+                                     doNegativeEndcap = True,
+                                     UseDCS = InDetFlags.useDCS())
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
   InDetSCTErrMonTool.FilterTools.append(monFilledBunchFilterTool)

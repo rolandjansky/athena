@@ -12,8 +12,8 @@ from AthenaCommon.DetFlags import DetFlags
 def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwargs):
     from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimCaloExtrapolation
 
-    kwargs.setdefault("CaloBoundaryR"             , 1148.0 )
-    kwargs.setdefault("CaloBoundaryZ"             , 3549.5 )
+    kwargs.setdefault("CaloBoundaryR"             , [1148.0, 120.0, 41.0] )
+    kwargs.setdefault("CaloBoundaryZ"             , [3550.0, 4587.0, 4587.0] )
     kwargs.setdefault("CaloMargin"                , 100    )
     kwargs.setdefault("Extrapolator"              , "TimedExtrapolator" )
     kwargs.setdefault("CaloSurfaceHelper"         , "CaloSurfaceHelper" )

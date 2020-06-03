@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
@@ -10,6 +10,7 @@
 //=============================================
 
 std::set< int > TFCSParametrizationBase::s_no_pdgid;
+std::vector< TFCSParametrizationBase* > TFCSParametrizationBase::s_cleanup_list;
 
 #ifndef __FastCaloSimStandAlone__
 //Initialize only in constructor to make sure the needed services are ready
@@ -17,7 +18,10 @@ Athena::MsgStreamMember* TFCSParametrizationBase::s_msg(nullptr);
 #endif
 
 #if defined(__FastCaloSimStandAlone__)
-TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title):TNamed(name,title),m_msg(&std::cout),m_level(MSG::INFO)
+TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title)
+  : TNamed(name, title),
+    m_level(MSG::INFO),
+    m_msg(&std::cout)
 {
 }
 #else
@@ -35,9 +39,11 @@ void TFCSParametrizationBase::set_geometry(ICaloGeometry* geo)
 ///Result should be returned in simulstate.
 ///Simulate all energies in calo layers for energy parametrizations.
 ///Simulate cells for shape simulation.
-void TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   ATH_MSG_ERROR("now in TFCSParametrizationBase::simulate(). This should normally not happen");
+  //Force one retry to issue a printout from the chain causing the call to this method
+  return (FCSReturnCode)(FCSRetry+1);
 }
 
 ///If called with argument "short", only a one line summary will be printed
@@ -75,3 +81,11 @@ void TFCSParametrizationBase::Print(Option_t *option) const
   }
 }
 
+void TFCSParametrizationBase::DoCleanup()
+{
+  //Do cleanup only at the end of read/write operations
+  for(auto ptr:s_cleanup_list) if(ptr) {
+    delete ptr;
+  }  
+  s_cleanup_list.resize(0);
+}

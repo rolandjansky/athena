@@ -7,11 +7,9 @@ pushd /tmp/$USER
 rucio download valid3:ESD.05297574._000080.pool.root.1
 #Itk
 #rucio download mc15_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.DAOD_IDTRKVALID.e2176_s2897_s2901_r8209
-rm $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/AOD.pool.root
-ln -s $PWD/`ls */*` $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/AOD.pool.root
-rm $TestArea/../run/AOD.pool.root
-ln -s $PWD/`ls */*` $TestArea/../run/AOD.pool.root
-rm $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/*.xml
+rm ~/run/AOD.pool.root
+ln -s $PWD/`ls */*` ~/run/AOD.pool.root
+rm ~/run/*.xml
 popd
 
 

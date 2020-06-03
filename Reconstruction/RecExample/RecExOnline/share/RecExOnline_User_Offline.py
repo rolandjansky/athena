@@ -40,7 +40,7 @@ InputFormat       = 'bytestream'
 ### fileName          = '/afs/cern.ch/work/c/cylin/public/data/data15_13TeV.00270953.express_express.merge.RAW._lb0265._SFO-ALL._0001.1'
 ### fileName          = '/afs/cern.ch/work/s/smwang/public/DQM/data/data15_13TeV.00284154.express_express.merge.RAW._lb0218._SFO-ALL._0001.1'
 #fileName          = '/afs/cern.ch/work/s/smwang/public/DQM/data/data15_13TeV.00284484.express_express.merge.RAW._lb0098._SFO-ALL._0001.1'
-fileName          = '/afs/cern.ch/work/y/yunju/public/GM_raw2016/data16_13TeV.00302347.express_express.merge.RAW._lb0432._SFO-ALL._0001.1'
+fileName          = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExOnline/data16_13TeV.00302347.express_express.merge.RAW._lb0432._SFO-ALL._0001.1'
 ###
 ### fileName          = 'root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00284484/data15_13TeV.00284484.express_express.merge.RAW/data15_13TeV.00284484.express_express.merge.RAW._lb0487._SFO-ALL._0001.1'
 

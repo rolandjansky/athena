@@ -26,12 +26,12 @@
 namespace TrigCostRootAnalysis {
   /**
    * Global quantities counter - monitor overall HLT processing for a single LB
-   * @param _name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
-   * @param _ID Lumi block this counter is monitoring
+   * @param name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
+   * @param ID Lumi block this counter is monitoring
    */
-  CounterGlobals::CounterGlobals(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                 UInt_t _detailLevel, MonitorBase* _parent)
-    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
+  CounterGlobals::CounterGlobals(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                 UInt_t detailLevel, MonitorBase* parent)
+    : CounterBase(costData, name, ID, detailLevel, parent),
     m_earliestTimestamp(0.),
     m_latestTimestamp(0.),
     m_steeringTime(0.),
@@ -95,7 +95,7 @@ namespace TrigCostRootAnalysis {
       m_CPUBreakDown = kTRUE;
     }
 
-    decorate(kDecLBMuValue, TrigXMLService::trigXMLService().getLBMuValue(_ID));
+    decorate(kDecLBMuValue, TrigXMLService::trigXMLService().getLBMuValue(ID));
 
   }
 
@@ -114,84 +114,72 @@ namespace TrigCostRootAnalysis {
   /**
    * Add this event to the global monitor.
    * I am run once for every event in my assigned lumi block
-   * @param _e Unused
-   * @param _f Unused
-   * @param _weight Event weight.
+   * @param e Unused
+   * @param f Unused
+   * @param weight Event weight.
    */
-  void CounterGlobals::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+  void CounterGlobals::processEventCounter(UInt_t e, UInt_t /*f*/, Float_t weight) {
     ++m_calls;
-    UNUSED(_e);
-    UNUSED(_f);
-    static Bool_t _invertFilter = (Bool_t) Config::config().getInt(kPatternsInvert);
+    static Bool_t invertFilter = (Bool_t) Config::config().getInt(kPatternsInvert);
 
     m_earliestTimestamp = FLT_MAX;
     m_latestTimestamp = FLT_MIN;
     m_steeringTime = 0.;
 
-    m_dataStore.store(kVarEventsActive, 1., _weight);
+    m_dataStore.store(kVarEventsActive, 1., weight);
 
     //Did L1 pass?
-    for (UInt_t _i = 0; _i < m_costData->getNL1(); ++_i) {
-      if (m_costData->getIsL1PassedAfterVeto(_i) == kFALSE) continue;
-      m_dataStore.store(kVarL1PassEvents, 1., _weight);
+    for (UInt_t i = 0; i < m_costData->getNL1(); ++i) {
+      if (m_costData->getIsL1PassedAfterVeto(i) == kFALSE) continue;
+      m_dataStore.store(kVarL1PassEvents, 1., weight);
       break;
     }
 
     //Did HLT run? (almost certainly... but check)
-    if (m_costData->getNChains()) m_dataStore.store(kVarHLTEvents, 1., _weight);
+    if (m_costData->getNChains()) m_dataStore.store(kVarHLTEvents, 1., weight);
 
     //Did HLT pass?
-    Bool_t _hltPass = kFALSE;
-    for (UInt_t _i = 0; _i < m_costData->getNChains(); ++_i) {
-      if (m_costData->getIsChainPassed(_i) == kFALSE) continue;
-      const std::string _chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(_i));
-      if (_chainName.find("costmonitor") != std::string::npos) continue;                                                                              
-      // This always passes!
-      if (checkPatternNameMonitor(_chainName, _invertFilter, m_costData->getIsChainResurrected(_i)) == kFALSE) continue;
-
-      m_dataStore.store(kVarHLTPassEvents, 1., _weight);
-      _hltPass = kTRUE;
-      break;
-    }
+    const Bool_t hltPass = (Bool_t) Config::config().getInt(kHLTPass);
+    if (hltPass) m_dataStore.store(kVarHLTPassEvents, 1., weight);
 
     // Look at all algs in this event
-    Int_t _havePatterns = Config::config().getVecSize(kPatternsMonitor);
-    for (UInt_t _s = 0; _s < m_costData->getNSequences(); ++_s) {
+    Int_t havePatterns = Config::config().getVecSize(kPatternsMonitor);
+    for (UInt_t s = 0; s < m_costData->getNSequences(); ++s) {
       // Loop over all algorithms in sequence
-      Bool_t _isRerun = m_costData->getSeqIsRerun(_s);
-      for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
-        Float_t _algWeight = _weight * getPrescaleFactor(_e);
-        if (isZero(_algWeight) == kTRUE) continue;
+      Bool_t isRerun = m_costData->getSeqIsRerun(s);
+      for (UInt_t a = 0; a < m_costData->getNSeqAlgs(s); ++a) {
+        Float_t algWeight = weight * getPrescaleFactor(e);
+        if (isZero(algWeight) == kTRUE) continue;
 
-        if (_havePatterns > 0) {
-          Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
-          const std::string _chainName = TrigConfInterface::getHLTNameFromChainID(_chainID);
-          if (checkPatternNameMonitor(_chainName, _invertFilter, m_costData->getSeqIsRerun(_s)) == kFALSE) continue;
+        if (havePatterns > 0) {
+          Int_t chainID = m_costData->getSequenceChannelCounter(s);
+          const std::string chainName = TrigConfInterface::getHLTNameFromChainID(chainID);
+          if (checkPatternNameMonitor(chainName, invertFilter, m_costData->getSeqIsRerun(s)) == kFALSE) continue;
         }
 
-        m_dataStore.store(kVarAlgCalls, 1., _algWeight);
-        m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_s, _a), _algWeight);
-        m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
-        m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
-        m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_s, _a) - m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
+        m_dataStore.store(kVarAlgCalls, 1., algWeight);
+        m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(s, a), algWeight);
+        m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(s, a), algWeight);
+        m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(s, a), algWeight);
+        m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(s, a) - m_costData->getSeqAlgROSTime(s, a), algWeight);
 
-        if (_isRerun) m_dataStore.store(kVarRerunTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
-        if (_hltPass) m_dataStore.store(kVarPassTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
+        if (isRerun) m_dataStore.store(kVarRerunTime, m_costData->getSeqAlgTimer(s, a), algWeight);
+        if (hltPass) m_dataStore.store(kVarPassTime, m_costData->getSeqAlgTimer(s, a), algWeight);
 
         // Calculate the start and stop from the steering info
-        if (!isZero(m_costData->getSeqAlgTimeStart(_s, _a)) &&
-            m_costData->getSeqAlgTimeStart(_s, _a) < m_earliestTimestamp) {
-          m_earliestTimestamp = m_costData->getSeqAlgTimeStart(_s, _a);
+        if (!isZero(m_costData->getSeqAlgTimeStart(s, a)) &&
+            m_costData->getSeqAlgTimeStart(s, a) < m_earliestTimestamp) {
+          m_earliestTimestamp = m_costData->getSeqAlgTimeStart(s, a);
         }
-        if (m_costData->getSeqAlgTimeStop(_s, _a) > m_latestTimestamp) {
-          m_latestTimestamp = m_costData->getSeqAlgTimeStop(_s, _a);
+        if (m_costData->getSeqAlgTimeStop(s, a) > m_latestTimestamp) {
+          m_latestTimestamp = m_costData->getSeqAlgTimeStop(s, a);
         }
 
         if (Config::config().debug()) {
-          m_algTime += m_costData->getSeqAlgTimer(_s, _a);
-          m_rosTime += m_costData->getSeqAlgROSTime(_s, _a);
-          m_cpuTime += m_costData->getSeqAlgTimer(_s, _a) - m_costData->getSeqAlgROSTime(_s, _a);
-          m_rosCalls += m_costData->getSeqAlgROSCalls(_s, _a);
+          m_algTime += m_costData->getSeqAlgTimer(s, a);
+          m_rosTime += m_costData->getSeqAlgROSTime(s, a);
+          m_cpuTime += m_costData->getSeqAlgTimer(s, a) - m_costData->getSeqAlgROSTime(s, a);
+          m_rosCalls += m_costData->getSeqAlgROSCalls(s, a);
           ++m_algCalls;
         }
       }
@@ -218,29 +206,29 @@ namespace TrigCostRootAnalysis {
     // Slow event? This sets a flag which other counters will use
     if (m_steeringTime > Config::config().getInt(kSlowEvThreshold)) Config::config().set(kCurrentEventIsSlow, 1, kUnlocked);
     else Config::config().set(kCurrentEventIsSlow, 0, kUnlocked);
-    m_dataStore.store(kVarSteeringTime, m_steeringTime, _weight);
+    m_dataStore.store(kVarSteeringTime, m_steeringTime, weight);
 
-    m_dataStore.store(kVarROI, m_costData->getNRoIs(), _weight);
+    m_dataStore.store(kVarROI, m_costData->getNRoIs(), weight);
 
     // Did we encounter a new processing unit? Count unique PUs
     if (m_processingUnits.count(m_costData->getAppId()) == 0) m_dataStore.store(kVarHLTPUs, 1.);
     m_processingUnits[ m_costData->getAppId() ] += 1;
 
     if (m_CPUBreakDown == kTRUE) {
-      Int_t _computerRack = TrigXMLService::trigXMLService().getComputerType(((UInt_t) m_costData->getAppId()));
-      if (_computerRack >= 0 && _computerRack <= 90) {
-        m_dataStore.store(ConfKey_t(kVarSteeringTimeCPUType + 8192 + _computerRack), m_steeringTime, _weight);
-        m_dataStore.store(ConfKey_t(kVarEventsCPUType + 16384 + _computerRack), 1., _weight);
+      Int_t computerRack = TrigXMLService::trigXMLService().getComputerType(((UInt_t) m_costData->getAppId()));
+      if (computerRack >= 0 && computerRack <= 90) {
+        m_dataStore.store(ConfKey_t(kVarSteeringTimeCPUType + 8192 + computerRack), m_steeringTime, weight);
+        m_dataStore.store(ConfKey_t(kVarEventsCPUType + 16384 + computerRack), 1., weight);
       }
     }
 
     // Misc event timers
     m_dataStore.store(kVarTrigCostTime, m_costData->getTimerTrigCost(), 1.); // Note unweighted as this correlates 100%
                                                                              // with selected events to monitor
-    m_dataStore.store(kVarTexecTime, m_costData->getTimerEndSteer(), _weight);
-    m_dataStore.store(kVarChainExecTime, m_costData->getTimerChainProcessed(), _weight);
-    m_dataStore.store(kVarResultBuildingTime, m_costData->getTimerResultBuilder(), _weight);
-    m_dataStore.store(kVarMonitoringTime, m_costData->getTimerMonitoring(), _weight);
+    m_dataStore.store(kVarTexecTime, m_costData->getTimerEndSteer(), weight);
+    m_dataStore.store(kVarChainExecTime, m_costData->getTimerChainProcessed(), weight);
+    m_dataStore.store(kVarResultBuildingTime, m_costData->getTimerResultBuilder(), weight);
+    m_dataStore.store(kVarMonitoringTime, m_costData->getTimerMonitoring(), weight);
 
     if (Config::config().debug()) debug(0);
   }
@@ -248,8 +236,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterGlobals::endEvent(Float_t _weight) {
-    UNUSED(_weight);
+  void CounterGlobals::endEvent(Float_t /*weight*/) {
     m_dataStore.endEvent();
     if (Config::config().debug()) {
       m_algTime = 0;
@@ -265,17 +252,16 @@ namespace TrigCostRootAnalysis {
    * Nees to be same as for alg
    * @return Multiplicitive weighting factor
    */
-  Double_t CounterGlobals::getPrescaleFactor(UInt_t _e) {
+  Double_t CounterGlobals::getPrescaleFactor(UInt_t e) {
     return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
-      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e),
-                                               m_costData->getSequenceLevel(_e)));
+      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(e),
+                                               m_costData->getSequenceLevel(e)));
   }
 
   /**
    * Output debug information on this call to the console
    */
-  void CounterGlobals::debug(UInt_t _e) {
-    UNUSED(_e);
+  void CounterGlobals::debug(UInt_t /*e*/) {
 
     Info("CounterGlobals::debug", "Calls:%i, lowStamp%f, highStamp:%f, steeringTime:%f, algTime:%f,"
                                   "cpuTime:%f, rosTime:%f, rosCalls:%i, rosInFile:%i, rois:%i, algs:%i",

@@ -10,30 +10,31 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax = 3
 athenaCommonFlags.SkipEvents=10
 
-athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1"]
+athenaCommonFlags.PoolHitsInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"]
 athenaCommonFlags.PoolRDOOutput="PileUpDigiTest.root"
 
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.IOVDbGlobalTag='OFLCOND-RUN12-SDR-25'
+digitizationFlags.IOVDbGlobalTag='OFLCOND-MC16-SDR-16'
+digitizationFlags.simRunNumber=284500
+digitizationFlags.dataRunNumber=284500
 #inputs
 digitizationFlags.overrideMetadata=['ALL'] #True
-digitizationFlags.doHighPtMinBias=True
-digitizationFlags.numberOfHighPtMinBias=0.0
+digitizationFlags.doHighPtMinBias=False
 digitizationFlags.doLowPtMinBias=True
 digitizationFlags.numberOfLowPtMinBias=2.3
-digitizationFlags.LowPtMinBiasInputCols=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1",
-"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1"]
+digitizationFlags.LowPtMinBiasInputCols=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/HITS.10501925._000003.pool.root.1",
+"/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/HITS.10501925._000024.pool.root.1"]
 
 #time structure
 #for now use old flags...
-digitizationFlags.bunchSpacing=25 # This now sets the bunch slot length.
+digitizationFlags.bunchSpacing = 25
+digitizationFlags.BeamIntensityPattern.createConstBunchSpacingPattern(75) #FIXME This runArg should probably in
 digitizationFlags.initialBunchCrossing=-5
 digitizationFlags.finalBunchCrossing=3
 digitizationFlags.doXingByXingPileUp=True
-digitizationFlags.BeamIntensityPattern=[0.0,1.0,0.0] #mimic 75ns bunch spacing (using smallest repeatable unit)
 #digitizationFlags.FixedT0BunchCrossing=0 # redundant as only position 0 is non-zero
 
 from AthenaCommon.BeamFlags import jobproperties
@@ -43,15 +44,15 @@ jobproperties.Beam.bunchSpacing = 75 # Set this to the spacing between filled bu
 # Set some of the global flags. Like eg the DD version:
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
+globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
 #FIXME should come from AthenaCommon
 from AthenaCommon.Resilience import treatException,protectedInclude
 athenaCommonFlags.AllowIgnoreConfigError=True
 
-# for Paolo/Weiming: doing the imports below at this time eventually leaks to problem with PixelCalibSvc!! We had a similar problem in the past... 
+# for Paolo/Weiming: doing the imports below at this time eventually leaks to problem with PixelCalibSvc!! We had a similar problem in the past...
 #from AtlasGeoModel import SetGeometryVersion
-#from AtlasGeoModel import GeoModelInit 
+#from AtlasGeoModel import GeoModelInit
 
 #select detectors
 from AthenaCommon.DetFlags import DetFlags
@@ -82,7 +83,6 @@ if digitizationFlags.doXingByXingPileUp():
     puAlg.PileUpTools["TestPileUpTool"].FirstXing=-300
     puAlg.PileUpTools["TestPileUpTool"].LastXing=+300
 
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
@@ -95,11 +95,11 @@ if hasattr(ServiceMgr,"ArrayBM") :
     ServiceMgr.ArrayBM.OutputLevel=VERBOSE
 if hasattr(ServiceMgr,"FixedArrayBM") :
     ServiceMgr.FixedArrayBM.OutputLevel=VERBOSE
-if digitizationFlags.doLowPtMinBias: 
+if digitizationFlags.doLowPtMinBias:
     pupElm.bkgCaches["LowPtMinBiasCache"].OutputLevel = VERBOSE
 ##     pupElm.bkgCaches["LowPtMinBiasCache"].NonIntersectingRings = ["-1:1","-3:5", "-2:1"]
 ##     pupElm.bkgCaches["LowPtMinBiasCache"].AllowRingMigration = True
-if digitizationFlags.doCavern: 
+if digitizationFlags.doCavern:
     pupElm.bkgCaches["CavernCache"].OutputLevel = VERBOSE
 ##     pupElm.bkgCaches["CavernCache"].NonIntersectingRings = ["-1:1","-3:5", "-2:1"]
 ##     pupElm.bkgCaches["CavernCache"].AllowRingMigration = True
@@ -123,7 +123,7 @@ except Exception:
 #print resource usage summary at the end of the job
 #--------------------------------------------------------------
 theApp.AuditServices=True
-theApp.AuditAlgorithms=True 
+theApp.AuditAlgorithms=True
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable
 #theAuditorSvc += getConfigurable("ChronoAuditor")()
@@ -156,4 +156,3 @@ jobproperties.print_JobProperties()
 from AthenaCommon.AlgSequence import AlgSequence
 print AlgSequence()
 print ServiceMgr
-

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_FastCaloSimServices
@@ -19,6 +19,7 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getPileupFastShowerCellBuilder
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloNoiseTool",                   "ISF_FCS_CaloNoiseTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getCaloCellContainerFCSFinalizerTool",  "ISF_CaloCellContainerFCSFinalizerTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvertTool",              "ISF_FastHitConvertTool")
 addAlgorithm("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")
 
@@ -30,4 +31,6 @@ addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConv
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcBase",                         "ISF_FastCaloSimSvcBase")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",                   "ISF_LegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimV2ParamSvc",                      "ISF_FastCaloSimV2ParamSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcV2",                           "ISF_FastCaloSimSvcV2")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getDNNCaloSimSvc",                           "ISF_DNNCaloSimSvc")

@@ -1,0 +1,30 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
+
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationTool", "PixelRadDamDigitizationTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelGeantinoTruthDigitizationTool", "PixelRadDamGeantinoTruthDigitizationTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationToolHS", "PixelRadDamDigitizationToolHS")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationToolPU", "PixelRadDamDigitizationToolPU")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationToolSplitNoMergePU", "PixelRadDamDigitizationToolSplitNoMergePU")
+
+addAlgorithm("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationHS"  , "PixelRadDamDigitizationHS")
+addAlgorithm("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDigitizationPU"  , "PixelRadDamDigitizationPU")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.getPixelRange", "PixelRadDamRange")
+addService("PixelRadDamDigitization.PixelRadDamDigitizationConfig.ChargeCollProbSvc","RadDamChargeCollProbSvc")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelProcessorTool","PixelRadDamProcessorTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelNoisyCellGenerator", "PixelRadDamNoisyCellGenerator")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelChargeSmearer", "PixelRadDamChargeSmearer")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelDiodeCrossTalkGenerator", "PixelRadDamDiodeCrossTalkGenerator")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelRandomDisabledCellGenerator", "PixelRadDamRandomDisabledCellGenerator")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimPlanarTool","RadDamSensorSimPlanarTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSim3DTool","RadDamSensorSim3DTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.SensorSimTool","RadDamSensorSimTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.FrontEndSimTool","RadDamFrontEndSimTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.RD53SimTool","RadDamRD53SimTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.FEI4SimTool","RadDamFEI4SimTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.FEI3SimTool","RadDamFEI3SimTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.EnergyDepositionTool", "RadDamEnergyDepositionTool")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelOverlayDigitizationTool", "PixelRadDamOverlayDigitizationTool")
+addAlgorithm("PixelRadDamDigitization.PixelRadDamDigitizationConfig.PixelOverlayDigitization", "PixelRadDamOverlayDigitization")
+addTool("PixelRadDamDigitization.PixelRadDamDigitizationConfig.RadDamageUtil", "RadDamageUtil")

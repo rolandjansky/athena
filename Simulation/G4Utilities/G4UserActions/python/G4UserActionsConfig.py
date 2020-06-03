@@ -19,6 +19,11 @@ def getHitWrapperTool(name="G4UA::HitWrapperTool", **kwargs):
 
 
 def getFastIDKillerTool(name="G4UA::FastIDKillerTool", **kwargs):
+    # Custom configuration via SimFlags
+    from G4AtlasApps.SimFlags import simFlags
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__FastIDKillerTool(name, **kwargs)
 
 
@@ -116,3 +121,23 @@ def getFluxRecorderTool(name="G4UA::FluxRecorderTool", **kwargs):
 
 def getRadiationMapsMakerTool(name="G4UA::RadiationMapsMakerTool", **kwargs):
     return CfgMgr.G4UA__RadiationMapsMakerTool(name, **kwargs)
+
+def getStoppedParticleActionTool(name="G4UA::StoppedParticleActionTool", **kwargs):
+    # Just have to set the stopping condition
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__StoppedParticleActionTool(name, **kwargs)
+
+def getRadLengthActionTool(name="G4UA::RadLengthActionTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__RadLengthActionTool(name, **kwargs)
+
+def getVolumeDumperTool(name="G4UA::VolumeDumperTool", **kwargs):
+    return CfgMgr.G4UA__VolumeDumperTool(name, **kwargs)

@@ -14,18 +14,14 @@ public:
 
   //selects on |extrapol->IDCaloBoundary_eta()|
   //return -1 if outside range
-  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
-  virtual const std::string get_bin_text(int bin) const;
+  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual const std::string get_bin_text(int bin) const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, TFCSExtrapolationState* extrapol=nullptr);
 
 private:
 
-  ClassDef(TFCSParametrizationAbsEtaSelectChain,1)  //TFCSParametrizationAbsEtaSelectChain
+  ClassDefOverride(TFCSParametrizationAbsEtaSelectChain,1)  //TFCSParametrizationAbsEtaSelectChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
-#endif
 
 #endif

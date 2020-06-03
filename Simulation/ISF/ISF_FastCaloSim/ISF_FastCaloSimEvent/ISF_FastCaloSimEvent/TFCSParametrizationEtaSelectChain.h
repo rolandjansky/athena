@@ -16,22 +16,18 @@ public:
   virtual void push_back_in_bin(TFCSParametrizationBase* param);
   //selects on extrapol->IDCaloBoundary_eta()
   //return -1 if outside range
-  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
-  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const;
-  virtual const std::string get_bin_text(int bin) const;
+  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override;
+  virtual const std::string get_bin_text(int bin) const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, TFCSExtrapolationState* extrapol=nullptr);
 
 protected:
-  void recalc();
+  virtual void recalc() override;
 
 private:
 
-  ClassDef(TFCSParametrizationEtaSelectChain,1)  //TFCSParametrizationEtaSelectChain
+  ClassDefOverride(TFCSParametrizationEtaSelectChain,1)  //TFCSParametrizationEtaSelectChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationEtaSelectChain+;
-#endif
 
 #endif

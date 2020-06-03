@@ -1816,8 +1816,7 @@ class bsMergeExecutor(scriptExecutor):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                                 'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary[self._outputBS].value[0], e))
         super(bsMergeExecutor, self).postExecute()
-        
-                
+
 
 class tagMergeExecutor(scriptExecutor):
     
@@ -1863,35 +1862,52 @@ class tagMergeExecutor(scriptExecutor):
         msg.debug('valStop time is {0}'.format(self._valStop))
 
 
-## @brief Archive transform - use tar
+## @brief Archive transform
 class archiveExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
         self._memMonitor = False
 
-        if 'exe' in self.conf.argdict:
-            self._exe = self.conf.argdict['exe']
+        #archiving
+        if self._exe == 'zip':
+            if 'outputArchFile' not in self.conf.argdict:
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_ARG_MISSING'), 'Missing output file name')
 
-        if self._exe == 'tar':
-            self._cmd = [self._exe, '-c', '-v',]
-            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
-            if 'compressionType' in self.conf.argdict:
-                if self.conf.argdict['compressionType'] == 'gzip':
-                    self._cmd.append('-z')
-                elif self.conf.argdict['compressionType'] == 'bzip2':
-                    self._cmd.append('-j')
-                elif self.conf.argdict['compressionType'] == 'none':
-                    pass
-        elif self._exe == 'zip':
             self._cmd = ['python']
             try:
                 with open('zip_wrapper.py', 'w') as zip_wrapper:
-                    print >> zip_wrapper, "import zipfile"
-                    print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    print >> zip_wrapper, "import zipfile, os, shutil"
+                    if os.path.exists(self.conf.argdict['outputArchFile'].value[0]):
+                        #appending input file(s) to existing archive
+                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='a', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    else:
+                        #creating new archive
+                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
                     print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
-                    print >> zip_wrapper, "   print 'Zipping file {}'.format(f)"
-                    print >> zip_wrapper, "   zf.write(f, compress_type=zipfile.ZIP_STORED)"
+                    #This module gives false positives (as of python 3.7.0). Will also check the name for ".zip"
+                    #print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
+                    print >> zip_wrapper, "    if zipfile.is_zipfile(f) and '.zip' in f:"
+                    print >> zip_wrapper, "        archive = zipfile.ZipFile(f, mode='r')"
+                    print >> zip_wrapper, "        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')"
+                    print >> zip_wrapper, "        archive.extractall('tmp')"
+                    print >> zip_wrapper, "        archive.close()"
+                    # remove stuff as soon as it is saved to output in order to save disk space at worker node
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input zip file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
+                    print >> zip_wrapper, "        if os.path.isdir('tmp'):"
+                    print >> zip_wrapper, "            for root, dirs, files in os.walk('tmp'):"
+                    print >> zip_wrapper, "                for name in files:"
+                    print >> zip_wrapper, "                    print 'Zipping {}'.format(name)"
+                    print >> zip_wrapper, "                    zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "            shutil.rmtree('tmp')"
+                    print >> zip_wrapper, "    else:"
+                    print >> zip_wrapper, "        print 'Zipping {}'.format(os.path.basename(f))"
+                    print >> zip_wrapper, "        zf.write(f, arcname=os.path.basename(f), compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
                     print >> zip_wrapper, "zf.close()"
                 os.chmod('zip_wrapper.py', 0755)
             except (IOError, OSError) as e:
@@ -1902,5 +1918,34 @@ class archiveExecutor(scriptExecutor):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
                     errMsg
                 )
-        self._cmd.append('zip_wrapper.py')
+            self._cmd.append('zip_wrapper.py')
+
+        #unarchiving
+        elif self._exe == 'unarchive':
+            import zipfile
+            for infile in self.conf.argdict['inputArchFile'].value:
+                 if not zipfile.is_zipfile(infile):
+                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                                                                     'An input file is not a zip archive - aborting unpacking')
+            self._cmd = ['python']
+            try:
+                with open('unarchive_wrapper.py', 'w') as unarchive_wrapper:
+                    print >> unarchive_wrapper, "import zipfile"
+                    print >> unarchive_wrapper, "for f in {}:".format(self.conf.argdict['inputArchFile'].value)
+                    print >> unarchive_wrapper, "     archive = zipfile.ZipFile(f, mode='r')"
+                    print >> unarchive_wrapper, "     path = '{}'".format(self.conf.argdict['path'])
+                    print >> unarchive_wrapper, "     print 'Extracting archive {0} to {1}'.format(f,path)"
+                    print >> unarchive_wrapper, "     archive.extractall(path)"
+                    print >> unarchive_wrapper, "     archive.close()"
+                os.chmod('unarchive_wrapper.py', 0755)
+            except (IOError, OSError) as e:
+                errMsg = 'error writing unarchive wrapper {fileName}: {error}'.format(fileName = 'unarchive_wrapper.py',
+                    error = e
+                )
+                msg.error(errMsg)
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                    errMsg
+                )
+            self._cmd.append('unarchive_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)
+

@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * Trigo.h
  * Created by Ignacio Aracena June 2015 
  * <ignacio.aracena@cern.ch> 
- * Copyright (c) 2015 Ignacio Aracena. All rights reserved.
  *
  * @brief Lookup table for trigonometric functions
  *

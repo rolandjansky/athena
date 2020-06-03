@@ -30,6 +30,13 @@ def defineMenu():
         #'L1_RD2_BGRP14' : 463,
         'L1_RD3_BGRP15' : 510,
     })
+    #Check that no two items have the same ctp-id
+    inversemap = {}
+    for l1,ctpid in Lvl1Flags.CtpIdMap().iteritems():
+        if ctpid in inversemap:
+            log.error ('Two items have the same CTPID assigned: %s %s'%(l1,inversemap[ctpid]))
+        else:
+            inversemap[ctpid] = l1
 
     #---------------------------------
     # L1menu in MCppV5 is basis 
@@ -84,7 +91,33 @@ def defineMenu():
 #        'L1_J75_3J20' : '',
 #        'L1_J75_XE40' :'',
 #        'L1_MU6_J75': '',
-        }
+
+#        MC-only L1 items, candidates to be remapped
+#        'L1_J40.0ETA25_2J30_J20.31ETA49'                               :
+#        'L1_J40.0ETA25_XE50'                                           :
+#        'L1_KF-XE50'                                                   :
+#        'L1_2EM8I'                                                     :
+#        'L1_MU4_UNPAIRED_NONISO'                                       :
+#        'L1_J75_3J20'                                                  :
+#        'L1_2EM8I_J75'                                                 :
+#        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0'   :
+#        'L1_DR25-TAU20ITAU12I-J25'                                     :
+#        'L1_EM7_MU11'                                                  :
+#        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE'                  :
+#        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20'             :
+#        'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE':
+#        'L1_2MU4_J20_XE40_DPHI-J20s2XE30'                              :
+#        'L1_J15.0ETA25_2J15.31ETA49'                                   :
+#        'L1_DR25-TAU20ITAU12I'                                         :
+#        'L1_EM7_UNPAIRED_NONISO'                                       :
+#        'L1_DPHI-AJ20s2XE50'                                           :
+#        'L1_2EM8I_J50'                                                 :
+#        'L1_2MU4_J20_XE50_DPHI-J20s2XE30'                              :
+#        'L1_TAU20IM_FTK'                                               :
+#        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK'                        :
+#        'L1_DR-TAU20ITAU12I-J25_FTK'                                   :
+#        'L1_TAU8_UNPAIRED_NONISO'                                      :
+        }                                                               
     
     #----------------------------------------------
     def remapThresholds():

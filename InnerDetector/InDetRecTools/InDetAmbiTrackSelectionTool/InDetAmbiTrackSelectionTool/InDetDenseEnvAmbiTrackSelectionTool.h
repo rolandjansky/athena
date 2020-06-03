@@ -9,15 +9,19 @@
 #ifndef INDETInDetDenseEnvAmbiTrackSelectionTool_H
 #define INDETInDetDenseEnvAmbiTrackSelectionTool_H
 
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include <map>
 #include <vector>
+#include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
 #include "TrkParameters/TrackParameters.h"
@@ -32,6 +36,7 @@ namespace Trk {
 namespace InDet 
 {
 
+  //In here we refer to ROIs as region of interests corresponding to high pt B tracks.
   /** @class InDetDenseEnvAmbiTrackSelectionTool 
       This tool cross checks the hits on a track with the hits already stored in 
       a PRD_AssociationTool. Shared hits are allowed to some extent und under certain conditions
@@ -312,31 +317,36 @@ namespace InDet
       ToolHandle<Trk::ITrkObserverTool> m_observerTool;
       
       /** some cut values */
-      int m_minHits;                // Min Number of hits on track            
-      int m_minTRT_Hits;            // Min Number of TRT hits on track
-      mutable int m_maxShared;      // Max shared hits -- calulated from  m_maxSharedModules
-      int m_maxSharedModules;       // Max number of shared modules
-      int m_maxSharedModulesInROI;  // Max number of shared modules in ROI
-      int m_maxTracksPerPRD;        // Max number of tracks per hit if it is nor split
-      int m_minNotShared;           // Min number of hits that are not shared
-      float m_minScoreShareTracks;  // Min track score to alow it to share hits
-      bool m_cosmics;               // Trying to reco cosmics?
-      bool m_parameterization;      // Use table of min number DCs
+      int m_minHits;                  // Min Number of hits on track            
+      int m_minTRT_Hits;              // Min Number of TRT hits on track
+      mutable int m_maxShared;        // Max shared hits -- calulated from  m_maxSharedModules
+      int m_maxSharedModules;         // Max number of shared modules
+      int m_maxSharedModulesInROI;    // Max number of shared modules in ROI
+      int m_maxTracksPerPRD;          // Max number of tracks per hit if it is nor split
+      mutable int m_minNotShared;     // Min number of hits that are not shared -- can change if we are in ROI
+      int m_minNotSharedModules;      // Min number of non shared modules
+      int m_minNotSharedModulesInROI; // Min number of non shared modules  in ROI
+      float m_minScoreShareTracks;    // Min track score to alow it to share hits
+      bool m_cosmics;                 // Trying to reco cosmics?
+      bool m_parameterization;        // Use table of min number DCs
       bool m_doPixelClusterSplitting; // Split pixel clusters
-      float m_sharedProbCut;        // Min split prob to break a cluster into two parts
-      float m_sharedProbCut2;       // Min split prob to break a clsuter into three parts
-      float m_minsharedProbCut;     // Min split prob cut to all a cluster to be shared
+      float m_sharedProbCut;          // Min split prob to break a cluster into two parts
+      float m_sharedProbCut2;         // Min split prob to break a clsuter into three parts
+      float m_minsharedProbCut;       // Min split prob cut to all a cluster to be shared
       
-      float m_minTrackChi2ForSharedHits; // Min track chi2 to split share hits
-      int m_minUniqueSCTHits;            // Min number of hits in the SCT that we need before we allow hit sharing in the SCT
-      int m_minSiHitsToAllowSplitting;   // Min number of hits before we allow split sharing of hits  
-      int m_maxPixMultiCluster;          // Max number of tracks that can be associated to a split cluster 
+      float m_minTrackChi2ForSharedHits;       // Min track chi2 to split share hits
+      int m_minUniqueSCTHits;                  // Min number of hits in the SCT that we need before we allow hit sharing in the SCT
+      mutable int m_minSiHits;                 // Min number of hits before we allow split sharing of hits -- can change if we are in ROI
+      int m_minSiHitsToAllowSplitting;         // Min number of hits before we allow split sharing of hits  
+      int m_minSiHitsToAllowSplittingInROI;    // Min number of hits before we allow split sharing of hits In ROI 
+      int m_maxPixMultiCluster;                // Max number of tracks that can be associated to a split cluster 
  
 
 
       // ROI stuff
       bool m_useHClusSeed;
       float m_minPtSplit;
+      float m_minPtBjetROI;
       float m_phiWidth;
       float m_etaWidth;
       std::string m_inputHadClusterContainerName;

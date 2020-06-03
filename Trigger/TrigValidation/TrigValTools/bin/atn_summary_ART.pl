@@ -4,7 +4,7 @@ use File::Basename;
 use Date::Manip::Date;
 
 # Produce summary table for trigtest.pl tests in same dir or first parameter to script
-my $output="index.html";
+my $output="index.php";
 
 # If given, use first argument as output file
 if ($#ARGV>=0) {
@@ -167,10 +167,270 @@ sub main(){
     print HTMLOUT "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">
 <html>\n<head>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/sorttable.js\"></script>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/suitehighlight.min.js\"></script>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" >
 <title>Trigger ART results for $project,$gitbranch,$release</title>\n
+<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
+<script type=\"text/javascript\">
+
+    google.charts.load('current', {packages: ['corechart', 'line']});
+    google.charts.setOnLoadCallback(drawCrosshairs17000);
+    google.charts.setOnLoadCallback(drawCrosshairs9000);
+    google.charts.setOnLoadCallback(drawCrosshairs17000Data);
+    google.charts.setOnLoadCallback(drawCrosshairs9000Data);
+
+    function drawCrosshairs17000() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+                                                \$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+)/', \$content,\$rates);
+                                                if(\$matched) echo \$rates[1][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$rates);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request rates in rejected events for lumi 1.7e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request rate'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div17000'));
+
+        chart.draw(data, options);
+
+    }
+
+    function drawCrosshairs17000Data() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+						\$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+).[ \\t]+,(.[.0-9]+).[ \\t]+,.[ \\t]+(.[.0-9]+)/', \$content, \$data);
+                                                if(\$matched) echo \$data[3][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$data);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request data volume (in words) in rejected events for lumi 1.7e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request data volume (words)'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div17000Data'));
+
+        chart.draw(data, options);
+
+    }
+
+
+    
+    function drawCrosshairs9000() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+                                                \$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+)/', \$content,\$rates);
+                                                if(\$matched) echo \$rates[1][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$rates);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request rates in rejected events for lumi 0.9e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request rate'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div9000'));
+
+        chart.draw(data, options);
+
+    }
+
+    function drawCrosshairs9000Data() {
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Nightly');
+
+                <?php
+                        
+                        \$nightlies = glob(dirname(__FILE__) . '/../../*');
+                        \$nightlies = array_values(\$nightlies);
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ATLASros2rob2018.py');
+                        //echo \$content;
+                        preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
+                        \$ROSes = array_values(\$ROSes);
+                        foreach(\$ROSes as \$ros){
+                                \$ros = array_values(\$ros);
+                                foreach(\$ros as \$ros1){
+                                        echo \"                data.addColumn('number', '\$ros1'); \\n\";
+                                }
+                        }
+
+                        echo \"                data.addRows([\";
+                        foreach(\$nightlies as \$nightly){
+                                \$content = file_get_contents(\$nightly.'/TrigP1Test/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ROStest.reference.new');
+                                //echo \$content.'\\n';                           
+                                echo \"                ['\".basename(\$nightly).\"',\";
+                                foreach(\$ROSes as \$ros){
+                                        \$ros = array_values(\$ros);
+                                        foreach(\$ros as \$ros1){
+                                                //echo \$ros1.'\\n';
+                                                \$matched = preg_match_all('/'.\$ros1.'.[ \\t]+[|].[ \\t]+.[0-9]+.[ \t]+[|](.[.0-9]+).[ \\t]+,(.[.0-9]+).[ \\t]+,.[ \\t]+(.[.0-9]+)/', \$content, \$data);
+                                                if(\$matched) echo \$data[3][0].\",\";
+                                                else echo \"0.,\";
+                                                //print_r(\$data);
+                                        }
+                                }
+                                echo \"],\";
+                        }
+                        echo \"                ]);\";
+                ?>
+
+        var options = {
+                title: 'ROS request data volume (in words) in rejected events for lumi 0.9e34',
+                hAxis: {
+                        title: 'Nightly'
+                },
+                        vAxis: {
+                        title: 'ROS request data volume (in words)'
+                },
+                //colors: ['#a52714', '#097138'],
+                crosshair: {
+                        color: '#000',
+                        trigger: 'selection'
+                }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div9000Data'));
+
+        chart.draw(data, options);
+
+    }
+
+
+</script>
 <script type=\"text/javascript\">
 
 var thisRelease = null;
 var loaded = false;
+
+
+
 
 function highlightDiffs(clear) {
   var table1 = document.getElementById('ATNResults');
@@ -203,7 +463,7 @@ function highlightDiffs(clear) {
 
 function setDiffCount(diffs) {
   if (diffs>0) {        
-    document.getElementById('nDiffs').textContent = diffs+' differences';
+    document.getElementById('nDiffs').innerHTML = '<a href=\"https://gitlab.cern.ch/atlas/athena/compare/nightly%2F21.1%2F'+document.DiffForm.rel.value+'...nightly%2F21.1%2F'+thisRelease+'\">'+diffs+' differences! click here for GitLab diff</a>';
   }
   else {
     document.getElementById('nDiffs').textContent = '';
@@ -216,7 +476,7 @@ function loadPage() {
   if (diffRelease != thisRelease) {
     // Load second summary page in hidden iframe
     var url = window.document.location.href;
-    iframe.src = url.replace(/rel_[0-6]/, diffRelease);
+    iframe.src = url.replace(/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9][0-9][0-9]/, diffRelease);
   }
   else {
     highlightDiffs(true);  // remove all highlighting
@@ -225,7 +485,7 @@ function loadPage() {
 
 function setRelease() {
   var url = window.document.location.href;
-  thisRelease = url.match(/rel_[0-6]/);
+  thisRelease = url.match(/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9][0-9][0-9]/);
   if (thisRelease) {
     thisRelease = thisRelease[0];
     document.DiffForm.rel.value = thisRelease;
@@ -266,7 +526,6 @@ function showBuildFailures(failures,link) {
     my $nicosWWWPage=dirname($testWWWPage);
 
     print HTMLOUT "<p>Last updated $now. Contact: Daniele.Zanzi @ cern.ch</p>\n";
-    print HTMLOUT "<p>Links to previous nightlies not working after ART migration, please move two folders up to find the webpages of all other nightlies</p>\n";
 
 #	my $atn_relno = $atn_rel;
 #	$atn_relno =~ s/rel_//;
@@ -274,53 +533,41 @@ function showBuildFailures(failures,link) {
 #	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
 #	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
 #
+    my $test_suite = gettestpkgdir(); # this is a basename of pwd (expected to be e.g. TrigP1Test)
+    print HTMLOUT "<p>Nightly test: $project, $gitbranch, $release\n\n";
+    print HTMLOUT "&emsp;Check other builds: <select name=\"select_other_builds\" onchange=\"location = this.value;\">\n";
+    print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
+    print HTMLOUT "<?php\n";
+    print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
+    print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             \$current_page_link = \"\$_SERVER[REQUEST_URI]\";\n";
+    print HTMLOUT "             // protect against multiple slashes in a row\n";
+    print HTMLOUT "             \$current_page_link = preg_replace('#/+#','/',\$current_page_link);\n";
+    print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
+    print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
+    print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
+    print HTMLOUT "                 echo \"<option value='\" . \$full_link . \"../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "    }\n";
+    print HTMLOUT "?>\n";
+    print HTMLOUT "</select></p>\n";
 
-    print HTMLOUT "<p>Nightly test: $project, $gitbranch, $release</p>\n";
+    print HTMLOUT "<p>Check differences: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">\n";
+    print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
+    print HTMLOUT "<?php\n";
+    print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
+    print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             \$current_page_link = \"\$_SERVER[REQUEST_URI]\";\n";
+    print HTMLOUT "             // protect against multiple slashes in a row\n";
+    print HTMLOUT "             \$current_page_link = preg_replace('#/+#','/',\$current_page_link);\n";
+    print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
+    print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
+    print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
+    print HTMLOUT "                 echo \"<option value='\".\$nightly.\"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "    }\n";
+    print HTMLOUT "?>\n";
+    print HTMLOUT "</select> <span id='nDiffs' style='font-weight:bold'></span>
+</form><script type=\"text/javascript\">setRelease();</script></p>";
 
-    # Link to GitLab diff between today's and yesterday's release
-    my $fmt="%Y-%m-%dT%H%M";
-    my $date = new Date::Manip::Date;
-    $date->parse_format($fmt,$release);
-    my $delta = $date->new_delta();
-    $delta->set(d => -1);  # minus 1 day
-    my $yesterday = $date->calc($delta); 
-    my $prevrel = $yesterday->printf($fmt);
-    my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";	
-    print HTMLOUT "<p><a href=\"$gitdiff\">GitLab diff (link may not work if hour and minutes are different in the build timestamp)</a></p>\n";
-
-#
-#	print HTMLOUT "<br>Other nightlies: ";
-#    if (defined $no_of_nightlies_exceptions{$project}){
-#        $no_of_nightlies=$no_of_nightlies_exceptions{$project};
-#        print "$project exceptionally has $no_of_nightlies nightly builds\n";
-#    } else {
-#        print "$project normally has $no_of_nightlies nightly builds\n";
-#    }
-#
-#    my @dow = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-#	for (my $i=0; $i<$no_of_nightlies; $i++){
-#	    if ("rel_$i" eq $atn_rel){
-#            print HTMLOUT " $dow[$i] ";
-#	    } else {
-#            my $p=getrelpath();
-#            $p =~ s/rel_\d/rel_$i/;
-#            $p =~ s/rel_nightly/rel_$i/;
-#            print HTMLOUT " <a href=\"$p\">$dow[$i]</a> ";
-#	    }
-#	}
-#
-#	print HTMLOUT "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#<a href=\"$gitdiff\">GitLab diff</a>
-#&nbsp;&nbsp;&nbsp;&nbsp;Diff results: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">
-#<option value='rel_0'>Sun</option>
-#<option value='rel_1'>Mon</option>
-#<option value='rel_2'>Tue</option>
-#<option value='rel_3'>Wed</option>
-#<option value='rel_4'>Thu</option>
-#<option value='rel_5'>Fri</option>
-#<option value='rel_6'>Sat</option>
-#</select> <span id='nDiffs' style='font-weight:bold'></span>
-#</form><script type=\"text/javascript\">setRelease();</script></p>";
 
     print HTMLOUT "\n<table class=\"sortable\" id=\"ATNResults\" border=1><thead><tr>
 <th title=\"Click to sort by test suite\">Test name</th> 
@@ -328,7 +575,7 @@ function showBuildFailures(failures,link) {
 <th title=\"exit code of Athena\">Athena exit</th> 
 <th title=\"presence of any error messages in log\">Error Msgs</th> 
 <th title=\"number of warning messages in log\">Warn Msgs</th> 
-<th>Reg. tests</th> 
+<th>Reg. tests (incl. WARNING)</th> 
 <th title=\"expert histogram exact comparison to ref\">Root comp</th> 
 <th title=\"L2 + EF chain and trigger element counts within tolerance w.r.t. ref\"> Chain, TE cnts </th> 
 <th title=\"athena wall time in secs\">Time (s)</th> 
@@ -508,7 +755,12 @@ function showBuildFailures(failures,link) {
       print HTMLOUT "<a href=\"atn_timeline.png\"> [timeline plot]</a>";
       print HTMLOUT "</font>";
     }
-    print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe></body></html>';
+    print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe>';
+    print HTMLOUT '<div id="chart_div17000" style="float: left; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div9000"  style="float: right; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div17000Data" style="float: left; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div9000Data"  style="float: right; width: 50%; height: 500px"></div>';
+    print HTMLOUT '</body></html>';
     close HTMLOUT;
     
 }

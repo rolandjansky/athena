@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonTrackSegments_H
@@ -100,8 +100,8 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   float m_deltaPhiRange2D;
   float m_deltaQoverPtRange;
   float m_deltaQoverPtRange2D;
-  float m_deltaPtQoverPtRange;
-  float m_deltaPtQoverPtRange2D;
+  float m_deltaPtoverPtRange;
+  float m_deltaPtoverPtRange2D;
   float m_deltaZ0Range;
   float m_d0Range;
   float m_upperPhi;

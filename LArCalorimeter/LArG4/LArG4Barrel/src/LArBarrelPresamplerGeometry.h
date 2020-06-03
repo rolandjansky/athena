@@ -39,13 +39,13 @@ namespace LArG4 {
       virtual bool findCell(CalcData & currentCellData, G4double xloc,G4double yloc,G4double zloc) const override final;
 
     private:
-      LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS , const bool itb ) const;
-      LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS , const bool itb) const;
+      LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS ) const;
+      LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS ) const;
 
-      inline G4int determineZSide(const bool isTestBeam, const double zCoord) const {
+      inline G4int determineZSide(const double zCoord) const {
         // in TB case, only 1 side,
         // in Atlas case, use overall z to decide side
-        if (isTestBeam) { return 1; }
+        if (m_testbeam) { return 1; }
         if (zCoord > 0.) { return 1; }
         return -1;
       }
@@ -72,7 +72,8 @@ namespace LArG4 {
       G4int    m_ncell_module[8]{};
       // total LAr thickness
       G4double m_halfThickLAr{0.5*13.*Athena::Units::mm}; // LAr total gap
-
+      // is this a test beam simulation job
+      bool m_testbeam{false};
 
     } ;
 

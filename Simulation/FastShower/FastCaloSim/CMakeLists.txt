@@ -63,6 +63,7 @@ atlas_add_root_dictionary( FastCaloSimLib
                            EXTERNAL_PACKAGES  ROOT HepPDT CLHEP HepMC Eigen )
 
 atlas_add_library( FastCaloSimLib
+                   src/CaloCellContainerFCSFinalizerTool.cxx
                    src/AddNoiseCellBuilderTool.cxx
                    src/BasicCellBuilderTool.cxx
                    src/EmptyCellBuilderTool.cxx

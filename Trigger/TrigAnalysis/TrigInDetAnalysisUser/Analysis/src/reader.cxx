@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    reader.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: reader.cxx, v0.0   Mon 30 Jan 2012 18:43:21 CET sutt $
 

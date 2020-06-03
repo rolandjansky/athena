@@ -7,7 +7,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 if digitizationFlags.dataRunNumber.get_Value():
     if digitizationFlags.dataRunNumber.get_Value() < 0:
         raise SystemExit("Given a negative Run Number - please use a real run number from data.")
-    logDigitization_flags.info( 'Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value() )
+    print 'Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value()
     myRunNumber = digitizationFlags.dataRunNumber.get_Value()
     myFirstLB = 1
     myInitialTimeStamp = 1

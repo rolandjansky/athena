@@ -1653,6 +1653,10 @@ StatusCode SCTCalib::getEfficiency() {
    double meanEff_ECA[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
    double meanEff_ECC[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
 
+   double meanEff_Barrel_bcid1[ n_barrels ] = { 0 };
+   double meanEff_ECA_bcid1[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
+   double meanEff_ECC_bcid1[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
+
    //--- RunNumber
    std::ostringstream runnum;
    runnum << (int) m_runNumber;
@@ -1720,14 +1724,22 @@ StatusCode SCTCalib::getEfficiency() {
                   TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( effmapname.c_str() );
                   int global_bin = prof_tmp->GetBin( iEta+1, iPhi+1 );
                   float eff = (float)prof_tmp->GetBinContent( global_bin );
-                  unsigned long long eff_entry = (unsigned long long)prof_tmp->GetBinEntries( global_bin );
+                  unsigned long long eff_entry = (unsigned long long)prof_tmp->GetBinEntries( global_bin );		  
                   //--- For calculating average Efficiency
                   if( stemItr->second==ENDCAP_C ) meanEff_ECC[iDisk][iEta]+=(double)eff;
                   else if( stemItr->second==ENDCAP_A ) meanEff_ECA[iDisk][iEta]+=(double)eff;
+		  
+		  std::string effmapname_bcid1 = effmapname+"_bcid";
+		  TProfile2D* prof_tmp_bcid1 = (TProfile2D*) m_inputHist->Get( effmapname_bcid1.c_str() );
+                  int global_bin_bcid1 = prof_tmp_bcid1->GetBin( iEta+1, iPhi+1 );
+                  float eff_bcid1 = (float)prof_tmp_bcid1->GetBinContent( global_bin_bcid1 );
+                  if( stemItr->second==ENDCAP_C ) meanEff_ECC_bcid1[iDisk][iEta]+=(double)eff_bcid1;
+                  else if( stemItr->second==ENDCAP_A ) meanEff_ECA_bcid1[iDisk][iEta]+=(double)eff_bcid1;
+		  
                   //--- For Efficiency _not_ averaged over modules
                   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
                   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
-                  outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
+                  outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide)<<endl;
                   //--- DB writing
                   if( m_writeToCool ) {
                      if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
@@ -1753,10 +1765,17 @@ StatusCode SCTCalib::getEfficiency() {
                unsigned long long eff_entry = (unsigned long long)prof_tmp->GetBinEntries( global_bin );
                //--- For calculating average Efficiency
                meanEff_Barrel[iLayer]+=(double)eff;
+	       
+	       std::string effmapname_bcid1 = effmapname+"_bcid";
+	       TProfile2D* prof_tmp_bcid1 = (TProfile2D*) m_inputHist->Get( effmapname_bcid1.c_str() );
+               int global_bin_bcid1 = prof_tmp_bcid1->GetBin( iEta+1, iPhi+1 );
+               float eff_bcid1 = (float)prof_tmp_bcid1->GetBinContent( global_bin_bcid1 );
+	       meanEff_Barrel_bcid1[iLayer]+=(double)eff_bcid1;	       
+	       
                //--- For Efficiency _not_ averaged over modules
                IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
                SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
-               outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
+               outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide)<<endl;
                //--- DB writing
                if( m_writeToCool ) {
                   if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
@@ -1781,18 +1800,24 @@ StatusCode SCTCalib::getEfficiency() {
          if( n_phiBinsEndcap[i][j] != 0 ) {
             meanEff_ECC[i][j] /= (n_phiBinsEndcap[i][j]*2);
             summaryList<<xmlPartData(ENDCAP_C, i, j, "meanEff",meanEff_ECC[i][j]);
+	    meanEff_ECC_bcid1[i][j] /= (n_phiBinsEndcap[i][j]*2);
+	    summaryList<<xmlPartData(ENDCAP_C, i, j, "meanEff_bcid1",meanEff_ECC_bcid1[i][j]);
          }
       }
    }
    for( int i = 0; i < n_barrels; ++i ) {
       meanEff_Barrel[i] /= (n_phiBinsBarrel[i]*n_etaInBarrel*2);
       summaryList<<xmlPartData(BARREL, i, 0, "meanEff",meanEff_Barrel[i]);
+      meanEff_Barrel_bcid1[i] /= (n_phiBinsBarrel[i]*n_etaInBarrel*2);
+      summaryList<<xmlPartData(BARREL, i, 0, "meanEff_bcid1",meanEff_Barrel_bcid1[i]);
    }
    for( int i = 0; i < n_disks; ++i ) {
       for( int j = 0; j < n_etaBinsEC; ++j ) {
          if( n_phiBinsEndcap[i][j] != 0 ) {
             meanEff_ECA[i][j] /= (n_phiBinsEndcap[i][j]*2);
             summaryList<<xmlPartData(ENDCAP_A, i, j, "meanEff",meanEff_ECA[i][j]);
+	    meanEff_ECA_bcid1[i][j] /= (n_phiBinsEndcap[i][j]*2);
+	    summaryList<<xmlPartData(ENDCAP_A, i, j, "meanEff_bcid1",meanEff_ECA_bcid1[i][j]);
          }
       }
    }
@@ -2755,7 +2780,7 @@ SCTCalib::xmlChannelNoiseOccDataString(const Identifier & waferId,  const float 
 //agasconb 02.02.2015: block for Efficiency output
 //requested by Naoki Ishijima
 std::string
-SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial) {
+SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial, const int side) {
    ostringstream os;
    os<<"   <module>"<<endl
      //    os<<xmlOpenChannel(waferId.get_identifier32().get_compact(), m_iovStart.re_time(), m_iovStop.re_time())<<endl
@@ -2766,6 +2791,7 @@ SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const floa
      <<"  "<<xmlValue("Eta",  m_pSCTHelper->eta_module( waferId ) )<<endl
      <<"  "<<xmlValue("Phi",  m_pSCTHelper->phi_module( waferId ) )<<endl
      <<"  "<<xmlValue("Efficiency", efficiency)<<endl
+     <<"  "<<xmlValue("Side",  side )<<endl
      <<"   </module>";
    //      <<"  "<<xmlCloseChannel();
    return os.str();

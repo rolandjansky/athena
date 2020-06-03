@@ -1,19 +1,13 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           CrateEnergy.h  -  description
                              -------------------
     begin                : 05/09/2007
-    copyright            : (C) 2007 by Alan Watson
     email                : Alan.Watson@cern.ch
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 
 
@@ -35,8 +29,8 @@ System CMM logic is done in EnergyTrigger*/
 class CrateEnergy {
 
 public:
-  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
-  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false);
   CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
               unsigned int eyTC, unsigned int overflowT, unsigned int overflowX,
 	      unsigned int overflowY, bool restricted = false);

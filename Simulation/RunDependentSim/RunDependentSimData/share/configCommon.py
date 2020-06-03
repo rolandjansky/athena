@@ -39,9 +39,17 @@ sequentialEventNumbers = True if 'SequentialEventNumbers' in dir() and Sequentia
 if sequentialEventNumbers:
     digilog.info('All event numbers will be sequential.')
 
-#Load needed tools 
-from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
-fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
+# Random mu sampling
+randomMuSampling = True if 'RandomMuSampling' in dir() and RandomMuSampling else False
+if randomMuSampling:
+    digilog.info('Mu values will be sampled randomly from the set profile.')
+    #Load needed tools 
+    from Digitization.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
+    fragment=getRandomlySampledRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
+else:
+    #Load needed tools 
+    from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
+    fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
 
 from RunDependentSimComps.RunLumiConfigTools import condenseRunLumiInfoFragment
 digilog.info( 'Writing RunDMC trigger configuration fragment to file.  listOfRunsEvents = %s' %

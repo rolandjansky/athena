@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * JetMatch.cpp
  * Created by V.Sorin, Joerg Stelzer on 11/16/12.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates mult of jets passing cuts on 8x8 and 4x4 sizes, cut on mult of jets 
  *

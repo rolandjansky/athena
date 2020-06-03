@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -63,6 +63,8 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
          else:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
 
@@ -85,6 +87,9 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
+         if NewTrackingCuts.mode() == "R3LargeD0":
+            InDetSiSpacePointsSeedMaker.usePixel = False
+            InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
          if usePrdAssociationTool:
             # not all classes have that property !!!
             InDetSiSpacePointsSeedMaker.UseAssociationTool = True
@@ -115,9 +120,13 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
             InDetSiSpacePointsSeedMaker.useDBM = True
-         if NewTrackingCuts.mode() == "PixelThreeLayer":
+         if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation") :
             InDetSiSpacePointsSeedMaker.SkipIBLcut = True
-
+         if NewTrackingCuts.mode() == "DisplacedSoftPion" :
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 50
+            InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
+            InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
+            InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -200,6 +209,9 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
             InDetSiTrackMaker.ITKGeometry = True
 
+         if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation"):
+            InDetSiTrackMaker.CleanSpuriousSCTClus = True
+
          if NewTrackingCuts.mode() == "DBM":
             InDetSiTrackMaker.MagneticFieldMode = "NoField"
             InDetSiTrackMaker.useBremModel = False
@@ -239,11 +251,11 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "SLHCConversionFinding":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
 
-         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
+         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
-        
-         elif NewTrackingCuts.mode() == "PixelThreeLayer":
-           InDetSiTrackMaker.CombinatorialTrackFinder  = InDetSiComTrackFinderThreeLayerTracking
+
+         elif NewTrackingCuts.mode() == "DisplacedSoftPion":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_TrkSeeded'       
 
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
@@ -356,11 +368,14 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
            InDetAmbiTrackSelectionTool.minUniqueSCTHits          = 4
            InDetAmbiTrackSelectionTool.minTrackChi2ForSharedHits = 3
-           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()
-           InDetAmbiTrackSelectionTool.doHadCaloSeed             = False   #Only split in cluster in region of interest
+           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet"
+           InDetAmbiTrackSelectionTool.doHadCaloSeed             = InDetFlags.doCaloSeededAmbi()   #Do special cuts in region of interest
            InDetAmbiTrackSelectionTool.minPtSplit                = InDetFlags.pixelClusterSplitMinPt()       #Only allow split clusters on track withe pt greater than this MeV
-           InDetAmbiTrackSelectionTool.phiWidth                  = 0.2     #Split cluster ROI size
-           InDetAmbiTrackSelectionTool.etaWidth                  = 0.2     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.maxSharedModulesInROI     = 3     #Maximum number of shared modules for tracks in ROI
+           InDetAmbiTrackSelectionTool.minNotSharedInROI         = 2     #Minimum number of unique modules for tracks in ROI
+           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 7  #Minimum number of Si hits to allow splittings for tracks in ROI
+           InDetAmbiTrackSelectionTool.phiWidth                  = 0.1     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.etaWidth                  = 0.1     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
            InDetAmbiTrackSelectionTool.doEmCaloSeed              = False   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
@@ -455,7 +470,10 @@ class  ConfiguredNewTrackingSiPattern:
 	                                                 caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
 	                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
 	                                                 RefitPrds          = True, 
+                                                     doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
+                                                     InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet",
 	                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
+           #We hadded doHadCaloSeed and InputHadClusterContainerName
          else:
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),

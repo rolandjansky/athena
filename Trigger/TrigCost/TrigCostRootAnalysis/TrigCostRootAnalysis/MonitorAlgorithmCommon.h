@@ -28,19 +28,19 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorAlgorithmCommon {
   public:
-    static void getAllAlgsInEvent(UInt_t _level, const TrigCostData* _costData);
+    static void getAllAlgsInEvent(UInt_t level, const TrigCostData* costData);
   protected:
-    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& _toSaveTable);
+    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& toSaveTable);
 
     struct AlgsInEvent {
-      AlgsInEvent(const std::string& _algName,
-                  const std::string& _algClassName,
-                  const std::string& _seqName,
-                  const std::string& _chainName,
-                  const std::string& _chainGroup,
-                  Int_t _algNameID,
-                  Int_t _seqD3PDIndex,
-                  Int_t _algD3PDIndex);
+      AlgsInEvent(const std::string& algName,
+                  const std::string& algClassName,
+                  const std::string& seqName,
+                  const std::string& chainName,
+                  const std::string& chainGroup,
+                  Int_t algNameID,
+                  Int_t seqD3PDIndex,
+                  Int_t algD3PDIndex);
       std::string m_algName; //!< Buffered algorithm name
       std::string m_algClassName; //!< Buffered algorithm class name
       std::string m_seqName; //!< Buffered algorithm sequence name

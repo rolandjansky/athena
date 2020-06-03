@@ -60,7 +60,7 @@ private:
   // detector name, for translated geometry
   std::string m_detectorName;
 
-  //bool m_testbeam;
+  bool m_testbeam;
 
   G4String m_volname;
 

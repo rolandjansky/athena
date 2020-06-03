@@ -75,7 +75,7 @@ StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(3,"Good LAr LB-OFF");
   }
   if (!m_useCollisionFilterTool){
-    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(3,"LAr collision-OFF");
+    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(4,"LAr collision-OFF");
   }
   if (!m_useBeamBackgroundRemoval){
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(5,"Beam backgr.-OFF");

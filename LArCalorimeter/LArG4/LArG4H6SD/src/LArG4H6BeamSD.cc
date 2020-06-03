@@ -50,7 +50,7 @@ G4bool LArG4H6BeamSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*Touchable
   static G4VPhysicalVolume* physVol1;
   static LArG4H6FrontHit* theFrontHit;
 
-  edep  = aStep->GetTotalEnergyDeposit();
+  edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
 
  if(edep == 0) return true;
 

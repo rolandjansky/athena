@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /** @file Analysis_Resolution.h */
 
 #ifndef TrigInDetAnalysisExample_Analysis_Resolution_H

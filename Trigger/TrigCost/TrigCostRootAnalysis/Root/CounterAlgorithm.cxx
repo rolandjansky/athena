@@ -33,12 +33,12 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Algorithm counter constructor. Sets values of internal variables and sets up data store.
-   * @param _name Const ref to algorithm's name
-   * @param _ID Algorithms ID number. As an algorithm has two ID numbers, we take a hash of its name as its ID.
+   * @param name Const ref to algorithm's name
+   * @param ID Algorithms ID number. As an algorithm has two ID numbers, we take a hash of its name as its ID.
    */
-  CounterAlgorithm::CounterAlgorithm(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                     UInt_t _detailLevel, MonitorBase* _parent) :
-    CounterBase(_costData, _name, _ID, _detailLevel, _parent),
+  CounterAlgorithm::CounterAlgorithm(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                     UInt_t detailLevel, MonitorBase* parent) :
+    CounterBase(costData, name, ID, detailLevel, parent),
     m_firstAlgStartTime(FLT_MAX),
     m_firstAlgTime(0.) {
     //m_firstAlgTimeWeight(0.),
@@ -113,82 +113,82 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Perform monitoring of a single algorithm call within an event.
-   * @param _e Sequence index in D3PD.
-   * @param _f Location of algorithm within parent sequence.
-   * @param _weight Event weight.
+   * @param e Sequence index in D3PD.
+   * @param f Location of algorithm within parent sequence.
+   * @param weight Event weight.
    */
-  void CounterAlgorithm::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+  void CounterAlgorithm::processEventCounter(UInt_t e, UInt_t f, Float_t weight) {
     ++m_calls;
 
     // After some thought - this just doesn't work
-    //Float_t _prescaleFactor = getPrescaleFactor(_e);;
-    //_weight *= _prescaleFactor;
+    //Float_t prescaleFactor = getPrescaleFactor(e);
+    //weight *= prescaleFactor;
 
     // Special case. If we are running as part of the FullEvent monitor, we should keep weight=1 to make the output
     // readable
-    if (m_detailLevel == 0 && m_calls == 1) _weight = 1.;
+    if (m_detailLevel == 0 && m_calls == 1) weight = 1.;
 
-    if (isZero(_weight) == kTRUE) {
+    if (isZero(weight) == kTRUE) {
       return;
     }
 
-    if (Config::config().debug()) debug(_e, _f);
+    if (Config::config().debug()) debug(e, f);
 
     // After some thought - this just doesn't work
-    // const std::string _myChain = TrigConfInterface::getHLTNameFromChainID(
-    // m_costData->getSequenceChannelCounter(_e));
-    // if ( m_chainsSeen.count( _myChain ) == 0) {
-    //   m_eventWeight *= (1. - _prescaleFactor);
-    //   m_chainsSeen.insert( _myChain );
+    // const std::string myChain = TrigConfInterface::getHLTNameFromChainID(
+    // m_costData->getSequenceChannelCounter(e));
+    // if ( m_chainsSeen.count( myChain ) == 0) {
+    //   m_eventWeight *= (1. - prescaleFactor);
+    //   m_chainsSeen.insert( myChain );
     // }
 
-    m_dataStore.store(kVarCalls, 1., _weight);
+    m_dataStore.store(kVarCalls, 1., weight);
 
-    m_dataStore.store(kVarAlgCalls, m_costData->getSeqAlgIsCalled(_e, _f), _weight);
-    m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(_e, _f), _weight);
+    m_dataStore.store(kVarAlgCalls, m_costData->getSeqAlgIsCalled(e, f), weight);
+    m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(e, f), weight);
 
-    m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_e, _f), _weight);
-    if (m_costData->getSeqAlgROBRequests(_e, _f) != 0) {
-      m_dataStore.store(kVarROBReqs, m_costData->getSeqAlgROBRequests(_e, _f), _weight);
-      m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(_e, _f), _weight);
+    m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(e, f), weight);
+    if (m_costData->getSeqAlgROBRequests(e, f) != 0) {
+      m_dataStore.store(kVarROBReqs, m_costData->getSeqAlgROBRequests(e, f), weight);
+      m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(e, f), weight);
     }
-    if (m_costData->getSeqAlgROBRetrievals(_e, _f) != 0) {
-      m_dataStore.store(kVarROBRets, m_costData->getSeqAlgROBRetrievals(_e, _f), _weight);
-      m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(_e, _f), _weight);
+    if (m_costData->getSeqAlgROBRetrievals(e, f) != 0) {
+      m_dataStore.store(kVarROBRets, m_costData->getSeqAlgROBRetrievals(e, f), weight);
+      m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(e, f), weight);
     }
-    if (m_costData->getSeqAlgROBOthers(_e, _f) != 0) {
-      m_dataStore.store(kVarROBOther, m_costData->getSeqAlgROBOthers(_e, _f), _weight);
+    if (m_costData->getSeqAlgROBOthers(e, f) != 0) {
+      m_dataStore.store(kVarROBOther, m_costData->getSeqAlgROBOthers(e, f), weight);
     }
 
-    if (m_costData->getSeqAlgTimer(_e, _f) > Config::config().getInt(kSlowThreshold)) {
-      m_dataStore.store(kVarCallsSlow, 1., _weight);
+    if (m_costData->getSeqAlgTimer(e, f) > Config::config().getInt(kSlowThreshold)) {
+      m_dataStore.store(kVarCallsSlow, 1., weight);
     }
 
     // We record separately the the time of the first call in the event
-    if (m_costData->getSeqAlgTimeStart(_e, _f) < m_firstAlgStartTime) {
-      m_firstAlgStartTime = m_costData->getSeqAlgTimeStart(_e, _f);
-      m_firstAlgTime = m_costData->getSeqAlgTimer(_e, _f);
-      //m_firstAlgTimeWeight = _weight;
+    if (m_costData->getSeqAlgTimeStart(e, f) < m_firstAlgStartTime) {
+      m_firstAlgStartTime = m_costData->getSeqAlgTimeStart(e, f);
+      m_firstAlgTime = m_costData->getSeqAlgTimer(e, f);
+      //m_firstAlgTimeWeight = weight;
     }
 
-    m_dataStore.store(kVarTime, m_costData->getSeqAlgTimer(_e, _f), _weight);
+    m_dataStore.store(kVarTime, m_costData->getSeqAlgTimer(e, f), weight);
 
     // Here we only do the timing if the alg was callled NOT cached
-    if (m_costData->getSeqAlgIsCalled(_e, _f) == 1) m_dataStore.store(kVarTimeExec, m_costData->getSeqAlgTimer(_e,
-                                                                                                               _f),
-                                                                      _weight);
+    if (m_costData->getSeqAlgIsCalled(e, f) == 1) m_dataStore.store(kVarTimeExec, m_costData->getSeqAlgTimer(e,
+                                                                                                               f),
+                                                                      weight);
 
-    Float_t _ROSTime = m_costData->getSeqAlgROSTime(_e, _f);
-    if (isZero(_ROSTime) == kFALSE) {
-      m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_e, _f), _weight);
-      m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_e, _f) - _ROSTime, _weight);
+    Float_t ROSTime = m_costData->getSeqAlgROSTime(e, f);
+    if (isZero(ROSTime) == kFALSE) {
+      m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(e, f), weight);
+      m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(e, f) - ROSTime, weight);
     }
     // Gather time statistics for this algorithm call
-    s_eventTimeExecute += m_costData->getSeqAlgTimer(_e, _f) * _weight;
+    s_eventTimeExecute += m_costData->getSeqAlgTimer(e, f) * weight;
 
     // If calling this counter exactly once on a alg single execution - save some extra levels details.
     // This allows for a full-scale debug of a single event execution.
-    if (m_detailLevel == 0 && m_calls == 1) fullExecutionInformation(_e, _f, _weight);
+    if (m_detailLevel == 0 && m_calls == 1) fullExecutionInformation(e, f, weight);
   }
 
   /**
@@ -197,35 +197,35 @@ namespace TrigCostRootAnalysis {
    * scale by its L1 prescale
    * @return Multiplicative weighting factor
    */
-  Double_t CounterAlgorithm::getPrescaleFactor(UInt_t _e) {
+  Double_t CounterAlgorithm::getPrescaleFactor(UInt_t e) {
     return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
-      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e),
-                                               m_costData->getSequenceLevel(_e)));
+      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(e),
+                                               m_costData->getSequenceLevel(e)));
   }
 
   /**
-   * @param _e Sequence index in D3PD.
-   * @param _f Location of algorithm within parent sequence
+   * @param e Sequence index in D3PD.
+   * @param f Location of algorithm within parent sequence
    * @return How much time has passed in seconds from the beginning of the event to this alg's execution
    */
-  Float_t CounterAlgorithm::getElapsedTime(UInt_t _e, UInt_t _f) {
-    Float_t _t = m_costData->getSeqAlgTimeStart(_e, _f);
+  Float_t CounterAlgorithm::getElapsedTime(UInt_t e, UInt_t f) {
+    Float_t t = m_costData->getSeqAlgTimeStart(e, f);
 
-    if (isZero(_t) == kTRUE) { // Annoyingly - if alg was cached it will have a zero, need to look back for the last alg
+    if (isZero(t) == kTRUE) { // Annoyingly - if alg was cached it will have a zero, need to look back for the last alg
                                // to actually run
-      _t = Config::config().getFloat(kEventElapsed);
+      t = Config::config().getFloat(kEventElapsed);
     } else {
-      Config::config().setFloat(kEventElapsed, _t, "EventElapsed", kUnlocked);
+      Config::config().setFloat(kEventElapsed, t, "EventElapsed", kUnlocked);
     }
     // Were we first?
-    Float_t _eventStart = Config::config().getFloat(kEventStartTime);
-    if (isZero(_eventStart) == kTRUE) {
-      _eventStart = _t;
-      Config::config().setFloat(kEventStartTime, _eventStart, "EventStart", kUnlocked);
+    Float_t eventStart = Config::config().getFloat(kEventStartTime);
+    if (isZero(eventStart) == kTRUE) {
+      eventStart = t;
+      Config::config().setFloat(kEventStartTime, eventStart, "EventStart", kUnlocked);
     }
-    Float_t _elapsed = _t - _eventStart;
-    if (_elapsed < 0) _elapsed += 3600.;
-    return _elapsed;
+    Float_t elapsed = t - eventStart;
+    if (elapsed < 0) elapsed += 3600.;
+    return elapsed;
   }
 
   /**
@@ -233,59 +233,58 @@ namespace TrigCostRootAnalysis {
    *execution.
    * Then we save additional data and add it as decorations to this counter, these will be retrieved by the table
    *plotting code
-   * @param _e Sequence index in D3PD.
-   * @param _f Location of algorithm within parent sequence.
-   * @param _weight Event weight.
+   * @param e Sequence index in D3PD.
+   * @param f Location of algorithm within parent sequence.
+   * @param weight Event weight.
    */
-  void CounterAlgorithm::fullExecutionInformation(UInt_t _e, UInt_t _f, Float_t _weight) {
-    UNUSED(_weight);
+  void CounterAlgorithm::fullExecutionInformation(UInt_t e, UInt_t f, Float_t /*weight*/) {
 
-    decorate(kDecStartTime, m_costData->getSeqAlgTimeStart(_e, _f));
-    decorate(kDecElapsedTime, getElapsedTime(_e, _f));
-    decorate(kDecCallOrCache, m_costData->getSeqAlgIsCalled(_e, _f) ? Config::config().getStr(
+    decorate(kDecStartTime, m_costData->getSeqAlgTimeStart(e, f));
+    decorate(kDecElapsedTime, getElapsedTime(e, f));
+    decorate(kDecCallOrCache, m_costData->getSeqAlgIsCalled(e, f) ? Config::config().getStr(
                kCalledString) : Config::config().getStr(kCachedString));
 
     //RoI Info
-    std::string _roiString = "";
-    if (m_costData->getSeqAlgNRoI(_e, _f) == 0) {
-      _roiString = "No RoI";
+    std::string roiString = "";
+    if (m_costData->getSeqAlgNRoI(e, f) == 0) {
+      roiString = "No RoI";
     } else {
-      for (Int_t _i = 0; _i < m_costData->getSeqAlgNRoI(_e, _f); ++_i) {
-        if (_i != 0) _roiString += " | ";
-        Int_t _roiLocation = m_costData->getSeqAlgRoILocation(_e, _f, _i);
-        _roiString += m_costData->getRoITypeString(_roiLocation);
-        if (_roiLocation != -1 && m_costData->getRoIEta(_roiLocation) > -9000) { // Some ROIs do not have a location -
+      for (Int_t i = 0; i < m_costData->getSeqAlgNRoI(e, f); ++i) {
+        if (i != 0) roiString += " | ";
+        Int_t roiLocation = m_costData->getSeqAlgRoILocation(e, f, i);
+        roiString += m_costData->getRoITypeString(roiLocation);
+        if (roiLocation != -1 && m_costData->getRoIEta(roiLocation) > -9000) { // Some ROIs do not have a location -
                                                                                  // these return -9999 for these vars
-          _roiString += std::string(" (&eta;");
-          _roiString += floatToString(m_costData->getRoIEta(_roiLocation), 1);
-          _roiString += std::string(" - &phi;");
-          _roiString += floatToString(m_costData->getRoIPhi(_roiLocation), 1);
-          _roiString += std::string(")");
+          roiString += std::string(" (&eta;");
+          roiString += floatToString(m_costData->getRoIEta(roiLocation), 1);
+          roiString += std::string(" - &phi;");
+          roiString += floatToString(m_costData->getRoIPhi(roiLocation), 1);
+          roiString += std::string(")");
         }
       }
     }
-    decorate(kDecROIString, _roiString);
+    decorate(kDecROIString, roiString);
 
     // Which ROBs did we access?
-    std::map<std::string, UInt_t> _ROSReqs;
-    std::set<Int_t> _ros = m_costData->getSeqAlgROBLocations(_e, _f);
-    for (std::set<Int_t>::iterator _robIt = _ros.begin(); _robIt != _ros.end(); ++_robIt) {
-      Int_t _rob = (*_robIt);
-      if (m_costData->getROBDataN(_rob) == 0) continue;
-      Int_t _RobId = m_costData->getROBDataID(_rob, 0);
-      const std::string _RobinName = ROSConfService::rosConfService().getRobinNameFromId((UInt_t) _RobId);
-      const std::string _RobName = ROSConfService::rosConfService().getRosNameFromFromRobinName(_RobinName);
-      _ROSReqs[ _RobName ] += 1;
+    std::map<std::string, UInt_t> ROSReqs;
+    std::set<Int_t> ros = m_costData->getSeqAlgROBLocations(e, f);
+    for (std::set<Int_t>::iterator robIt = ros.begin(); robIt != ros.end(); ++robIt) {
+      Int_t rob = (*robIt);
+      if (m_costData->getROBDataN(rob) == 0) continue;
+      Int_t RobId = m_costData->getROBDataID(rob, 0);
+      const std::string RobinName = ROSConfService::rosConfService().getRobinNameFromId((UInt_t) RobId);
+      const std::string RobName = ROSConfService::rosConfService().getRosNameFromFromRobinName(RobinName);
+      ROSReqs[ RobName ] += 1;
     }
 
-    std::string _rosString = "";
-    for (std::map<std::string, UInt_t>::iterator _it = _ROSReqs.begin(); _it != _ROSReqs.end(); ++_it) {
-      if (_it != _ROSReqs.begin()) _rosString += " | ";
-      _rosString += _it->first;
-      _rosString += " x";
-      _rosString += intToString(_it->second);
+    std::string rosString = "";
+    for (std::map<std::string, UInt_t>::iterator it = ROSReqs.begin(); it != ROSReqs.end(); ++it) {
+      if (it != ROSReqs.begin()) rosString += " | ";
+      rosString += it->first;
+      rosString += " x";
+      rosString += intToString(it->second);
     }
-    decorate(kDecROSString, _rosString);
+    decorate(kDecROSString, rosString);
   }
 
   /**
@@ -293,11 +292,11 @@ namespace TrigCostRootAnalysis {
    * What was determined to be the first execution's time is saved, the total time for the event is used to calculate
    *per-event averages.
    */
-  void CounterAlgorithm::endEvent(Float_t _weight) {
+  void CounterAlgorithm::endEvent(Float_t weight) {
     if (m_firstAlgStartTime != FLT_MAX) {
       //m_eventWeight = 1. - m_eventWeight;
-      m_dataStore.store(kVarEventsActive, 1., /*m_eventWeight * */ _weight);
-      m_dataStore.store(kVarFirstTime, m_firstAlgTime, _weight);
+      m_dataStore.store(kVarEventsActive, 1., /*m_eventWeight * */ weight);
+      m_dataStore.store(kVarFirstTime, m_firstAlgTime, weight);
       m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
       m_firstAlgTime = 0.;
       //m_firstAlgTimeWeight = 0.;
@@ -312,18 +311,18 @@ namespace TrigCostRootAnalysis {
   /**
    * Output debug information on this call to the console
    */
-  void CounterAlgorithm::debug(UInt_t _e, UInt_t _a) {
+  void CounterAlgorithm::debug(UInt_t e, UInt_t a) {
     Info("CounterAlgorithm::debug", "Algorithm Name:%s Class:%s ID:%i Pos:%i isCached:%i "
                                     "isCalled:%i NRoI:%i Timer:%.2f",
          m_name.c_str(),
          getStrDecoration(kDecAlgClassName).c_str(),
          getID(),
-         m_costData->getSeqAlgPosition(_e, _a),
-         m_costData->getSeqAlgIsCached(_e, _a),
-         m_costData->getSeqAlgIsCalled(_e, _a),
-         m_costData->getSeqAlgNRoI(_e, _a),
-         //m_costData->getSeqAlgRoIIndexFirst(_e, _a), //TODO - DISPLAY ALG INFO
-         m_costData->getSeqAlgTimer(_e, _a)
+         m_costData->getSeqAlgPosition(e, a),
+         m_costData->getSeqAlgIsCached(e, a),
+         m_costData->getSeqAlgIsCalled(e, a),
+         m_costData->getSeqAlgNRoI(e, a),
+         //m_costData->getSeqAlgRoIIndexFirst(e, a), //TODO - DISPLAY ALG INFO
+         m_costData->getSeqAlgTimer(e, a)
          );
   }
 } // namespace TrigCostRootAnalysis

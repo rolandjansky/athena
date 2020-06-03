@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileBchStatus.h"
@@ -10,6 +10,8 @@ TileBchStatus::PrbSet TileBchStatus::m_refBad;
 TileBchStatus::PrbSet TileBchStatus::m_refNoisy;
 TileBchStatus::PrbSet TileBchStatus::m_refNoGainL1;
 TileBchStatus::PrbSet TileBchStatus::m_refBadTiming;
+TileBchStatus::PrbSet TileBchStatus::m_refWrongBCID;
+TileBchStatus::PrbSet TileBchStatus::m_refTimingDmuBcOffset;
 
 //
 //_________________________________________________________
@@ -124,6 +126,16 @@ TileBchStatus::initClassifierDefinitions()
   //=== online
   m_refBadTiming.insert(TileBchPrbs::OnlineBadTiming);
 
+  //=== define which problems trigger an affected timing
+  m_refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffset);
+  //=== online
+  m_refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffset);
+
+  //=== define which problems trigger a wrong BCID
+  m_refWrongBCID.insert(TileBchPrbs::WrongBCID);
+  //=== online
+  m_refWrongBCID.insert(TileBchPrbs::OnlineWrongBCID);
+
 }
 
 //
@@ -158,6 +170,22 @@ TileBchStatus::defineBadTiming(const TileBchStatus& status)
   m_refBadTiming = status.getPrbs();
 }
 
+//
+//_________________________________________________________
+void
+TileBchStatus::defineTimingDmuBcOffset(const TileBchStatus& status)
+{
+  m_refTimingDmuBcOffset = status.getPrbs();
+}
+
+//
+//_________________________________________________________
+void
+TileBchStatus::defineWrongBCID(const TileBchStatus& status)
+{
+  m_refWrongBCID = status.getPrbs();
+}
+
 
 //
 //_________________________________________________________
@@ -189,6 +217,22 @@ TileBchStatus
 TileBchStatus::getDefinitionBadTiming()
 {
   return TileBchStatus(m_refBadTiming);
+}
+
+//
+//_________________________________________________________
+TileBchStatus
+TileBchStatus::getDefinitionTimingDmuBcOffset()
+{
+  return TileBchStatus(m_refTimingDmuBcOffset);
+}
+
+//
+//_________________________________________________________
+TileBchStatus
+TileBchStatus::getDefinitionWrongBCID()
+{
+  return TileBchStatus(m_refWrongBCID);
 }
 
 

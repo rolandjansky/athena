@@ -15,10 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           PRIVATE
                           Control/StoreGate
-                          Generators/GeneratorObjects
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonSimData )
+                          MuonSpectrometer/MuonIdHelpers )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,9 +26,8 @@ atlas_add_component( CscOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel MuonOverlayBase MuonRDO StoreGateLib SGtests GeneratorObjects MuonIdHelpersLib MuonSimData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel MuonOverlayBase MuonRDO StoreGateLib SGtests MuonIdHelpersLib )
 
 # Install files from the package:
 atlas_install_headers( CscOverlay )
 atlas_install_joboptions( share/*.py )
-

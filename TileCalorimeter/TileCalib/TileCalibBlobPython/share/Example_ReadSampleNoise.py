@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # Example_ReadSampleNoise.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-06-16

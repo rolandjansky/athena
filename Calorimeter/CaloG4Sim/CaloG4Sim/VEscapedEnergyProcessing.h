@@ -28,8 +28,7 @@
 // This interface "hides" the different escaped-energy processing
 // required by the different detectors in the simulation.
 
-#include "G4TouchableHandle.hh"
-#include "G4ThreeVector.hh"
+#include "G4Step.hh"
 #include "globals.hh"
 
 namespace CaloG4 {
@@ -43,7 +42,7 @@ namespace CaloG4 {
     // located; the value of "point" itself in case additional
     // processing is necessary, and the amount of escaped energy.
 
-    virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy ) = 0;
+    virtual G4bool Process( G4Step* fakeStep ) = 0;
   };
 
 } // namespace CaloG4

@@ -51,37 +51,37 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Get the name of a ROBIN from its ID within the ntuple. Assumes that parseRosXml has been called.
-   * @param _Id ID number of ROB (hexdecimal identifier stored in UInt_t)
+   * @param Id ID number of ROB (hexdecimal identifier stored in UInt_t)
    * @return Const reference to name of the ROBIN this ROB is attached to, or "UNKNOWN" on fail.
    */
-  const std::string& ROSConfService::getRobinNameFromId(UInt_t _Id) {
+  const std::string& ROSConfService::getRobinNameFromId(UInt_t Id) {
     if (m_serviceEnabled == kFALSE) {
       return Config::config().getStr(kUnknownString);
     }
 
-    IntStringMapIt_t _location = m_RobToRobinMap.find(_Id);
-    if (_location == m_RobToRobinMap.end()) {
+    IntStringMapIt_t location = m_RobToRobinMap.find(Id);
+    if (location == m_RobToRobinMap.end()) {
       return Config::config().getStr(kUnknownString);
     }
-    return _location->second;
+    return location->second;
   }
 
   /**
    * Get the name of a ROS from a ROBIN. Assumes that parseRosXml has been called.
    * Note: High call rate function.
-   * @param _robinName Name of the ROBIN
+   * @param robinName Name of the ROBIN
    * @return Const reference to name of the ROS the ROBIN is associated with, or "UNKNOWN" on fail.
    */
-  const std::string& ROSConfService::getRosNameFromFromRobinName(const std::string& _robinName) {
+  const std::string& ROSConfService::getRosNameFromFromRobinName(const std::string& robinName) {
     if (m_serviceEnabled == kFALSE) {
       return Config::config().getStr(kUnknownString);
     }
 
-    StringStringMapIt_t _location = m_RobinToRosMap.find(_robinName);
-    if (_location == m_RobinToRosMap.end()) {
+    StringStringMapIt_t location = m_RobinToRosMap.find(robinName);
+    if (location == m_RobinToRosMap.end()) {
       return Config::config().getStr(kUnknownString);
     }
-    return _location->second;
+    return location->second;
   }
 
   /**
@@ -99,49 +99,49 @@ namespace TrigCostRootAnalysis {
 
     // Now try to parse xml file
     // Only file with restricted xml syntax are supported
-    TXMLEngine* _xml = new TXMLEngine();
-    XMLDocPointer_t _xmlDoc = _xml->ParseFile(Config::config().getStr(kROSXMLPath).c_str());
-    if (_xmlDoc == 0) {
+    TXMLEngine* xml = new TXMLEngine();
+    XMLDocPointer_t xmlDoc = xml->ParseFile(Config::config().getStr(kROSXMLPath).c_str());
+    if (xmlDoc == 0) {
       Error("ROSConfService::parseRosXml", "Unable to parse ROS mapping: %s. No named ROS data.",
             Config::config().getStr(kROSXMLPath).c_str());
-      delete _xml;
+      delete xml;
       return;
     }
 
     // Get access to main node
-    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
-    assert(_xml->GetNodeName(_mainNode) == std::string("ros-rob-data"));
+    XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
+    assert(xml->GetNodeName(mainNode) == std::string("ros-rob-data"));
 
-    XMLNodePointer_t _RosNode = _xml->GetChild(_mainNode);
-    while (_RosNode != 0) { // Loop over all ROS'
-      const std::string _RosName = _xml->GetAttrValue(_xml->GetFirstAttr(_RosNode));
-      XMLNodePointer_t _RobinNode = _xml->GetChild(_RosNode);
-      while (_RobinNode != 0) { // Loop over all ROS' ROBINs
-        const std::string _RobinName = _xml->GetAttrValue(_xml->GetFirstAttr(_RobinNode));
-        m_RobinToRosMap[_RobinName] = _RosName;
-        XMLNodePointer_t _RobNode = _xml->GetChild(_RobinNode);
-        while (_RobNode != 0) { // Loop over all ROBIN's RODs
-          const std::string _RobIdStr = _xml->GetAttrValue(_xml->GetFirstAttr(_RobNode));
-          std::stringstream _ss;
-          _ss << std::hex << _RobIdStr;
-          UInt_t _RobId = 0;
-          _ss >> _RobId;
-          m_RobToRobinMap[_RobId] = _RobinName;
-          _RobNode = _xml->GetNext(_RobNode);
+    XMLNodePointer_t RosNode = xml->GetChild(mainNode);
+    while (RosNode != 0) { // Loop over all ROS'
+      const std::string RosName = xml->GetAttrValue(xml->GetFirstAttr(RosNode));
+      XMLNodePointer_t RobinNode = xml->GetChild(RosNode);
+      while (RobinNode != 0) { // Loop over all ROS' ROBINs
+        const std::string RobinName = xml->GetAttrValue(xml->GetFirstAttr(RobinNode));
+        m_RobinToRosMap[RobinName] = RosName;
+        XMLNodePointer_t RobNode = xml->GetChild(RobinNode);
+        while (RobNode != 0) { // Loop over all ROBIN's RODs
+          const std::string RobIdStr = xml->GetAttrValue(xml->GetFirstAttr(RobNode));
+          std::stringstream ss;
+          ss << std::hex << RobIdStr;
+          UInt_t RobId = 0;
+          ss >> RobId;
+          m_RobToRobinMap[RobId] = RobinName;
+          RobNode = xml->GetNext(RobNode);
         }
-        _RobinNode = _xml->GetNext(_RobinNode);
+        RobinNode = xml->GetNext(RobinNode);
       }
-      _RosNode = _xml->GetNext(_RosNode);
+      RosNode = xml->GetNext(RosNode);
     }
 
     if (Config::config().debug()) {
       Info("ROSConfService::parseRosXml", "Using ROS <-> ROBIN and ROBIN <-> ROB Maps from %s",
            Config::config().getStr(kROSXMLName).c_str());
-      for (StringStringMapIt_t _it = m_RobinToRosMap.begin(); _it != m_RobinToRosMap.end(); ++_it) {
-        Info("ROSConfService::parseRosXml", "\t%s -> %s", _it->first.c_str(), _it->second.c_str());
+      for (StringStringMapIt_t it = m_RobinToRosMap.begin(); it != m_RobinToRosMap.end(); ++it) {
+        Info("ROSConfService::parseRosXml", "\t%s -> %s", it->first.c_str(), it->second.c_str());
       }
-      for (IntStringMapIt_t _it = m_RobToRobinMap.begin(); _it != m_RobToRobinMap.end(); ++_it) {
-        Info("ROSConfService::parseRosXml", "\t%x -> %s", _it->first, _it->second.c_str());
+      for (IntStringMapIt_t it = m_RobToRobinMap.begin(); it != m_RobToRobinMap.end(); ++it) {
+        Info("ROSConfService::parseRosXml", "\t%x -> %s", it->first, it->second.c_str());
       }
     } else {
       Info("ROSConfService::parseRosXml", "Parsed ROS configuration %s. Read %i ROS nodes, %i ROBINs.",
@@ -151,6 +151,6 @@ namespace TrigCostRootAnalysis {
     }
 
     m_serviceEnabled = kTRUE;
-    delete _xml;
+    delete xml;
   }
 } // namespace TrigCostRootAnalysis

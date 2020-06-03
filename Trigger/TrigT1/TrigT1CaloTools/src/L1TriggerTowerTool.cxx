@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //////////////////////////////////////////////////////////////////////
-//  L1TriggerTowerTool.cxx (c) Alan Watson
+//  L1TriggerTowerTool.cxx 
 ///////////////////////////////////////////////////////////////////////
 #include "TrigT1CaloTools/L1TriggerTowerTool.h"
 
@@ -903,6 +906,7 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
   int startBit = 0;
   int strategy = 0;
   int offset   = 0;
+  double offsetReal = 0;
   int slope    = 0;
   int cut      = 0;
   unsigned short scale = 0;
@@ -935,12 +939,12 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
       }
       
       if (strategy == 0){
-        offset = pedMean * hwCoeffSum / pow(2.,startBit);
+        offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
       }
       else{
-        offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+        offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
       }
-      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
 
       ATH_MSG_VERBOSE( "::cpLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
 		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
@@ -967,6 +971,7 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
   int startBit = 0;
   int strategy   = 0;
   int offset     = 0;
+  double offsetReal = 0;
   int slope      = 0;
   int cut        = 0;
   unsigned short scale_db   = 0;
@@ -1011,12 +1016,12 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
       }
       
       if (strategy == 0){
-        offset = pedMean * hwCoeffSum / pow(2.,startBit);
+        offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
       }
       else{
-        offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+        offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
       }
-      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
 
       ATH_MSG_VERBOSE( "::jepLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
 		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
@@ -1357,6 +1362,7 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
   startBit = 0;
   strategy = 0;
   offset   = 0;
+  double offsetReal = 0;
   slope    = 0;
   cut      = 0;
   pedValue = 0;
@@ -1388,12 +1394,12 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
       }
       
       if (strategy == 0){
-	offset = pedMean * hwCoeffSum / pow(2.,startBit);
+	offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
       }
       else{
-	offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+	offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
       }
-      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
       
       ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
 		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
@@ -1413,6 +1419,7 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
   startBit = 0;
   strategy = 0;
   offset   = 0;
+  double offsetReal = 0;
   slope    = 0;
   cut      = 0;
   pedValue = 0;
@@ -1445,12 +1452,12 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
       }
       
       if (strategy == 0){
-	offset = pedMean * hwCoeffSum / pow(2.,startBit);
+	offsetReal = pedMean * hwCoeffSum / pow(2.,startBit);
       }
       else{
-	offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+	offsetReal = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
       }
-      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      offset = static_cast<unsigned short>( offsetReal < 0. ? 0 : offsetReal + 0.5 );
       
       ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
 		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );

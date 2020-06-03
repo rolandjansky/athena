@@ -277,6 +277,7 @@ muFastThresholds = {
     '40GeV_uptoEC2_v11b'     : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 1000.] ],
     '40GeV_barrelOnly_v11b'  : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 1000., 1000., 1000.] ],
     # 2011a tuning + 2015 tuning
+    '3GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  2.38,  0.25,  2.17,  2.41] ], #extrapolated from 4GeV
     '4GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  3.38,  1.25,  3.17,  3.41] ],
     '4GeV_barrelOnly_v15a'   : [ [0,1.05,1.5,2.0,9.9], [  3.38, 1000., 1000., 1000.] ],
     '6GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  5.17,  3.25,  4.69,  5.14] ],
@@ -363,6 +364,7 @@ muFastThresholdsForECWeakBRegion = {
     '50GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     '60GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     # 2011a tuning + 2015 tuning
+    '3GeV_v15a'             : [  1.72,  0.58], #extrapolated from 4GeV
     '4GeV_v15a'             : [  2.72,  1.58],
     '4GeV_barrelOnly_v15a'  : [ 1000., 1000. ],
     '6GeV_v15a'             : [  3.91,  2.22],

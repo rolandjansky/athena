@@ -9,7 +9,7 @@
 #include "AthenaKernel/Units.h"
 using namespace std;
 using Athena::Units::GeV;
-StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
+StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::string & goodTauRefType){
    
     ATH_MSG_DEBUG ("HLTTauMonTool::doTrackCurves");
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/trackCurves");
@@ -17,20 +17,27 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
     std::string trig_item_EF = "HLT_"+trigItem;
     std::string trig_item_L1(LowerChain( trig_item_EF ) );
 
+	  std::vector<const xAOD::TauJet *> m_taus_here;
+		if (goodTauRefType == "RNN") {
+			m_taus_here = m_taus_RNN;
+		} else {
+			m_taus_here = m_taus_BDT;
+		}
+
     // Loop over selected offline taus  
-    for(unsigned int t=0;t<m_taus.size();t++){
+    for(unsigned int t=0;t<m_taus_here.size();t++){
  
         if(m_truth){
             // apply truth matching if doTruth is true
             bool matched(false);
             for(unsigned int truth=0;truth<m_true_taus.size();truth++){
-                if(m_taus.at(t)->p4().DeltaR(m_true_taus.at(truth))<0.2) matched = true;
+                if(m_taus_here.at(t)->p4().DeltaR(m_true_taus.at(truth))<0.2) matched = true;
             }
             if(!matched) continue;
         }
 		
         bool presmatch = false; //true if reco+truth is matched to preselection
-        const xAOD::TauJet *offlineTau = m_taus.at(t);
+        const xAOD::TauJet *offlineTau = m_taus_here.at(t);
         const xAOD::TauJet* matchedTau = 0 ;
        
         if (not getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition)) {

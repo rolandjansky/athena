@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
@@ -8,9 +8,6 @@
 #include "StoreGate/DataHandle.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-#include "MuonSimData/CscSimDataCollection.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "CLHEP/Random/RandomEngine.h"
@@ -25,6 +22,7 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonOverlayBase(name, pSvcLocator),
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
+  m_isDataOverlay(false),
   m_cscHelper(0),
   m_cscCalibTool( "CscCalibTool", this),
   m_digTool("CscDigitizationTool", this ),
@@ -41,15 +39,14 @@ CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("TempStore", m_storeGateTemp, "help");
   declareProperty("mainInputCSC_Name", m_mainInputCSC_Name="CSCRDO");
   declareProperty("overlayInputCSC_Name", m_overlayInputCSC_Name="CSCRDO");
-  declareProperty("CopySDO", m_copySDO=true);
   declareProperty("DigitizationTool", m_digTool);
   declareProperty("MakeRDOTool2", m_rdoTool2);
   declareProperty("MakeRDOTool4", m_rdoTool4);
   declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
-  declareProperty("CSCSDO", m_sdo = "CSC_SDO");
   declareProperty("IsByteStream", m_isByteStream = false ); 
   declareProperty("RndmSvc", 	     m_rndmSvc, "Random Number Service used for CscDigitToCscRDOTool" );
   declareProperty("RndmEngine",      m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
+  declareProperty("isDataOverlay", m_isDataOverlay);
 
 }
 
@@ -226,20 +223,6 @@ StatusCode CscOverlay::overlayExecute() {
   // the same object over and other again.   So unlike any "normal" per-event object
   // this IDC is not a disposable one, and we should not delete it.
   cdata.release();
-
-  //----------------------------------------------------------------
-  msg<<MSG::DEBUG<<"Processing MC truth data"<<endmsg;
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just CSC-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  // Now copy CSC-specific MC truth objects to the output.
-  if ( m_copySDO )
-    this->copyMuonObjects<CscSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
   msg<<MSG::DEBUG<<"CscOverlay::execute() end"<<endmsg;
@@ -471,7 +454,7 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        std::map< int,std::vector<uint16_t> > ovlSamples;
        uint32_t sigHash;
        uint32_t ovlHash;
-       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , true); // real data
+       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , m_isDataOverlay); // need to patch in the case of real data
        uint32_t ovlAddress = this->stripData( ovlData, nOvlSamples, ovlSamples, ovlHash, spuID, j , false); // simulation
        if (sigSamples.size()==0 && ovlSamples.size()==0) continue;
  
@@ -544,8 +527,8 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
 	    if (measuresPhi) {
 	      int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
 	      if (stationEta>0) {
+                msg<<MSG::VERBOSE<<"FLIP strip. Formerly strip="<<strip<<", now strip="<<49-strip<<endmsg;
 		strip = 49-strip;
-		msg<<MSG::VERBOSE<<"FLIP strip, now strip="<<strip<<endmsg;
 	      }
 	    }
 	    insertedstrips.insert(strip);//for checks
@@ -570,8 +553,12 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        //check
        if (readstrips!=insertedstrips){
 	 msg << MSG::WARNING << "Readstrips != Insertedstrips: "<<endmsg;
-	 for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
-	 for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
+         std::ostringstream readstream;
+         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){readstream<<*i<<" ";}
+         msg << MSG::WARNING << readstream.str()<<endmsg;
+         std::ostringstream insertstream;
+         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){insertstream<<*i<<" ";}
+         msg << MSG::WARNING << insertstream.str()<<endmsg;
        }
 
     } 
@@ -773,4 +760,3 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
   msg << MSG::DEBUG << "overlay<>() end: CscRawDatas size="<<datas.size()<<endmsg;
   return datas;
 }
-

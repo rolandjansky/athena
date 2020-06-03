@@ -87,7 +87,7 @@ if hasattr(runArgs,"numberOfBeamGas"):
         digitizationFlags.numberOfBeamGas=float(runArgs.numberOfBeamGas)
         PileUpConfigOverride=True
 if hasattr(runArgs,"numberOfCavernBkg"):
-    if not math.fabs(digitizationFlags.numberOfCavern.get_Value()==runArgs.numberOfCavernBkg):
+    if not digitizationFlags.numberOfCavern.get_Value()==runArgs.numberOfCavernBkg:
         digilog.info( "Changing digitizationFlags.cavernEvents from %s to %s", digitizationFlags.numberOfCavern.get_Value(),runArgs.numberOfCavernBkg)
         digitizationFlags.numberOfCavern=runArgs.numberOfCavernBkg
         PileUpConfigOverride=True
@@ -409,7 +409,7 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     elif hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
-    if digitizationFlags.PileUpPremixing or (hasattr(runArgs, "AddCaloDigi") and runArgs.AddCaloDigi):
+    if hasattr(runArgs, "AddCaloDigi") and runArgs.AddCaloDigi:
         digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
         digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
@@ -465,15 +465,10 @@ if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
 
-# Increase max RDO output file size to 10 GB
-
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Athena complains that 15GB files are not supported
-
-
 #==========================================================
 # Use LZIB for compression of temporary outputs of AthenaMP
 #==========================================================
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
 if hasattr(runArgs, "outputRDOFile") and '_000' in runArgs.outputRDOFile:
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]

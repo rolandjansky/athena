@@ -5,7 +5,6 @@
 /***************************************************************************
  * Mdt Calibration Data Model
  * -----------------------------------------
- * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 5 April 2004

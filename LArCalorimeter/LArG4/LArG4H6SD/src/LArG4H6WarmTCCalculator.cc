@@ -34,7 +34,7 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step, std::vector<LArHit
 {
   hdata.clear();
   LArHitData larhit;
-  larhit.energy = a_step->GetTotalEnergyDeposit();
+  larhit.energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();

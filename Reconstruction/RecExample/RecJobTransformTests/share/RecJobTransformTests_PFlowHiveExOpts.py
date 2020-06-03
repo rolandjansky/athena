@@ -62,8 +62,16 @@ if nThreads >=1 :
 
 theApp.EvtMax = 300
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+from RecExConfig.ObjKeyStore import objKeyStore
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 #---------------------------------------------------------------------------------#
 # NEW Conditions access infrastructure
@@ -94,7 +102,7 @@ rec.AutoConfiguration = ['everything']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
-from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
+from RecExConfig.ObjKeyStore import CfgKeyStore
 from RecExConfig.InputFilePeeker import inputFileSummary
 objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
 
@@ -221,5 +229,3 @@ if (algCardinality > 1):
 topSequence.CaloTopoCluster.ClustersOutputName="CaloCalTopoClusterV2"
 topSequence.PFClusterSelector.calClustersName="CaloCalTopoClusterV2"
            
-
-

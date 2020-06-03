@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h"
 #include "TFile.h"
 #include "TString.h"
 #include "TMath.h"
+using namespace std;
 
 
 //=============================================
@@ -22,14 +22,14 @@ TFCS1DFunctionRegressionTF::TFCS1DFunctionRegressionTF(float rangeval, float sta
 }
 
 
-double TFCS1DFunctionRegressionTF::retransform(double value)
+double TFCS1DFunctionRegressionTF::retransform(double value) const
 {
  
  return (value*m_rangeval+m_startval);
  
 }
 
-double TFCS1DFunctionRegressionTF::rnd_to_fct(double rnd)
+double TFCS1DFunctionRegressionTF::rnd_to_fct(double rnd) const
 {
   
   double value=regression_value(rnd);

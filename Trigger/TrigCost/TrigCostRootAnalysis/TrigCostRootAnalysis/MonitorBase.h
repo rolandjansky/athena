@@ -41,51 +41,51 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorBase {
   public:
-    MonitorBase(const TrigCostData* _costData, std::string _name);
+    MonitorBase(const TrigCostData* costData, std::string name);
     virtual ~MonitorBase();
-    virtual void newEvent(Float_t _weight = 1.) = 0;
-    virtual Bool_t getIfActive(ConfKey_t _mode);
+    virtual void newEvent(Float_t weight = 1.) = 0;
+    virtual Bool_t getIfActive(ConfKey_t mode);
     virtual void saveOutput();
     virtual Int_t getNCollectionsToProcess();
     virtual Bool_t isThreadable();
     const std::string& getName();
     UInt_t getLevel();
     const std::string& getLevelStr();
-    void setName(const std::string& _name);
-    void setLevel(UInt_t _l);
-    Bool_t doesCounterCollectionExist(const std::string& _identifier);
-    CounterMap_t* getCounterCollection(const std::string& _identifier, const ConfKey_t _type);
+    void setName(const std::string& name);
+    void setLevel(UInt_t l);
+    Bool_t doesCounterCollectionExist(const std::string& identifier);
+    CounterMap_t* getCounterCollection(const std::string& identifier, const ConfKey_t type);
     std::vector<std::string> getCounterCollectionKeys() const;
     ConfKey_t getCounterCollectionType(const std::string& identifier);
     UInt_t getNCounters();
-    void setPass(UInt_t _pass);
+    void setPass(UInt_t pass);
     UInt_t getPass();
 
     std::vector<std::string> getRanges();
     CounterCollection_t* getAllCounterCollections();
 
     struct TableColumnFormatter {
-      TableColumnFormatter(const std::string& _title,
-                           const std::string& _tooltip,
-                           ConfKey_t _dataVarialbe,
-                           VariableOption_t _vo,
-                           UInt_t _precision = 4,
-                           FormatterOption_t _fo = kFormatOptionNone);
-      TableColumnFormatter(const std::string& _title,
-                           const std::string& _tooltip,
-                           ConfKey_t _dataVarialbeNominator,
-                           VariableOption_t _voNominator,
-                           ConfKey_t _dataVarialbeDenominator,
-                           VariableOption_t _voDenominator,
-                           UInt_t _precision = 4,
-                           FormatterOption_t _fo = kFormatOptionNone);
-      TableColumnFormatter(const std::string& _title,
-                           const std::string& _tooltip,
-                           Float_t(*_functionPtr)(CounterMap_t*, CounterBase*),
-                           UInt_t _precision);
-      TableColumnFormatter(const std::string& _title,
-                           const std::string& _tooltip,
-                           std::string(*_functionPtr)(CounterMap_t*, CounterBase*));
+      TableColumnFormatter(const std::string& title,
+                           const std::string& tooltip,
+                           ConfKey_t dataVarialbe,
+                           VariableOption_t vo,
+                           UInt_t precision = 4,
+                           FormatterOption_t fo = kFormatOptionNone);
+      TableColumnFormatter(const std::string& title,
+                           const std::string& tooltip,
+                           ConfKey_t dataVarialbeNominator,
+                           VariableOption_t voNominator,
+                           ConfKey_t dataVarialbeDenominator,
+                           VariableOption_t voDenominator,
+                           UInt_t precision = 4,
+                           FormatterOption_t fo = kFormatOptionNone);
+      TableColumnFormatter(const std::string& title,
+                           const std::string& tooltip,
+                           Float_t(*functionPtr)(CounterMap_t*, CounterBase*),
+                           UInt_t precision);
+      TableColumnFormatter(const std::string& title,
+                           const std::string& tooltip,
+                           std::string(*functionPtr)(CounterMap_t*, CounterBase*));
       mutable std::string m_columnName; //!< The name of the column, mutable as this may need to be cleaned of illegal
                                         // characters
       mutable std::string m_tooltip; //!< The hover tooltip for the column, mutable as this may need to be cleaned of
@@ -107,28 +107,28 @@ namespace TrigCostRootAnalysis {
     };
   protected:
     const TrigCostData* m_costData; //!< Source of all data
-    virtual CounterBase* newCounter(const std::string& _name, Int_t _ID) = 0;
-    std::string constructPlotName(CounterBase* _counter, ConfVariableOptionPair_t _variable);
-    CounterBase* getCounter(CounterMap_t* _counterMap, const std::string& _name, Int_t _ID);
-    CounterBase* addCounter(CounterMap_t* _counterMap, const std::string& _name, Int_t _ID);
+    virtual CounterBase* newCounter(const std::string& name, Int_t ID) = 0;
+    std::string constructPlotName(CounterBase* counter, ConfVariableOptionPair_t variable);
+    CounterBase* getCounter(CounterMap_t* counterMap, const std::string& name, Int_t ID);
+    CounterBase* addCounter(CounterMap_t* counterMap, const std::string& name, Int_t ID);
     void collateCounterCollectionsForEvent();
-    void addToCollectionsToProcess(const std::string& _name, UInt_t _lumiBlockNumber, Float_t _lumiLength,
-                                   const ConfKey_t _type);
-    void recordLumi(const std::string& _name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
-    void sharedHistogramOutputRoutine(VariableOptionVector_t& _toSave);
-    void sharedTableOutputRoutine(const std::vector<TableColumnFormatter>& _toSave);
-    void outputTableRow(CounterBase* _TCCB, std::ofstream& _fout, const std::vector<TableColumnFormatter>& _toSave,
-                        CounterMap_t* _counterMap, std::string& _counterCollectionName);
-    void setDetailLevel(UInt_t _detailLevel);
+    void addToCollectionsToProcess(const std::string& name, UInt_t lumiBlockNumber, Float_t lumiLength,
+                                   const ConfKey_t type);
+    void recordLumi(const std::string& name, UInt_t lumiBlockNumber, Float_t lumiLength);
+    void sharedHistogramOutputRoutine(VariableOptionVector_t& toSave);
+    void sharedTableOutputRoutine(const std::vector<TableColumnFormatter>& toSave);
+    void outputTableRow(CounterBase* TCCB, std::ofstream& fout, const std::vector<TableColumnFormatter>& toSave,
+                        CounterMap_t* counterMap, std::string& counterCollectionName);
+    void setDetailLevel(UInt_t detailLevel);
     void allowSameNamedCounters();
     void allowSameIDCounters();
-    void filterOutputOnStrDecoration(ConfKey_t _decoration, const std::string _value);
-    void startEvent(CounterMap_t* _counters = 0);
-    void endEvent(Float_t _weight = 1.);
+    void filterOutputOnStrDecoration(ConfKey_t decoration, const std::string value);
+    void startEvent(CounterMap_t* counters = 0);
+    void endEvent(Float_t weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
-    void checkForIllegalCharacters(std::string& _toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE,
-                                   Bool_t _checkColon = kTRUE);
+    void checkForIllegalCharacters(std::string& toClean, Bool_t checkComma = kTRUE, Bool_t checkApostrophe = kTRUE,
+                                   Bool_t checkColon = kTRUE);
 
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)

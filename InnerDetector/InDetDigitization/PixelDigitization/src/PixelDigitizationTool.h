@@ -284,7 +284,6 @@ private:
   TimedHitCollection<SiHit> *m_thpcsi;
   ToolHandle<SurfaceChargesTool> m_SurfaceChargesTool;
 
-  SiChargedDiodeCollection *m_chargedDiodes;
   IntegerProperty  m_vetoThisBarcode;
 
 protected:

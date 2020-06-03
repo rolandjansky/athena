@@ -557,7 +557,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double flex_angle=((maxFlex1x-maxFlex4x)*(foam1x-foam5x)+(maxFlex1y-maxFlex4y)*(foam1y-foam5y))/(FlexWidth*FoamBaseWidth);
   flex_angle=acos(flex_angle);
   const GeoMaterial* cableflex_material = mat_mgr->getMaterial("pix::CableFlex_IBL");
-  double flexDensity=cableflex_material->getDensity();
+  //  double flexDensity=cableflex_material->getDensity();
 
   gmt_mgr->msg(MSG::INFO)<<"Flex angle : "<<flex_angle<<"  Flex pos. in Z : ";
   double EndblockFlexXpos=0.;
@@ -728,11 +728,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	    std::string flexMatName=gmt_mgr->IBLFlexMaterial(iModule+1,"staveC");
 	    scaledFlexMaterial= mat_mgr->getMaterial(flexMatName);
 	  }
-	  else if(bFlexConstantThickness){
-	    std::ostringstream tmp;
-	    tmp<<"Staveflex"<<iModule+1<<"_IBL";
-	    scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
-	  }
+          //They are commented off due to the judgement in Line 177 about bFlexAndWing and bFlexConstantThickness.
+          //But we keep it here in case they are needed in the future.	  
+          //else if(bFlexConstantThickness){
+	  //  std::ostringstream tmp;
+	  //  tmp<<"Staveflex"<<iModule+1<<"_IBL";
+	  //  scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
+	  //}
 
 	  if(bFlexAndWing||bFlexConstantThickness)
 	    cableflex_logVol= new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
@@ -1003,11 +1005,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
     std::string flexMatName=gmt_mgr->IBLFlexMaterial(1,"doglegA");
     scaledFlexMaterial= mat_mgr->getMaterial(flexMatName);
   }
-  else if(bFlexConstantThickness){
-    std::ostringstream tmp;
-    tmp<<"CableFlex_IBL";
-    scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(ModuleNumber_flex/2+1), tmp.str());
-  }
+  //They are commented off due to the judgement in Line 177 about bFlexAndWing and bFlexConstantThickness.
+  //But we keep it here in case they are needed in the future.  
+  //else if(bFlexConstantThickness){
+  //  std::ostringstream tmp;
+  //  tmp<<"CableFlex_IBL";
+  //  scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(ModuleNumber_flex/2+1), tmp.str());
+  //}
   else{
     scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL");
   }

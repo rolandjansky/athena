@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 """ TrigTauRec """
@@ -449,10 +449,15 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
-
-            # Count tracks with deltaZ0 cut of 1mm
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
             
+            # for now, use 'doMVATES=False' to detect tracktwoEF, instead of introducing new flag
+            if not doMVATES:
+                # Count tracks with deltaZ0 cut of 1mm for tracktwoEF           
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
+            else:
+                # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
+
             if doTrackBDT:                
                 # BDT track classification
                 tools.append(taualgs.getTauTrackClassifier())
@@ -478,13 +483,10 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getPileUpCorrection())
 
             if doRNN:
-                # needed by TauWPDecorator
-                tools.append(taualgs.getTauIDVarCalculator())
-                
                 # RNN tau ID
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile1P="rnnid_config_deep_1p_v0.json",
-                                                           NetworkFile3P="rnnid_config_deep_3p_v0.json",
-                                                           MinChargedTracks=1,
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
+                                                           NetworkFile1P="rnnid_config_1p_v3.json",
+                                                           NetworkFile3P="rnnid_config_mp_v3.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
                                                            MaxClusterDR=1.0))

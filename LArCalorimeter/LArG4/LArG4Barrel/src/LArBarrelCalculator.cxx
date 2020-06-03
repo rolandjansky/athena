@@ -191,7 +191,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
   LArG4Identifier identifier_xt2;
 
   //  check the Step content is non trivial
-  G4double thisStepEnergyDeposit = step->GetTotalEnergyDeposit();
+  G4double thisStepEnergyDeposit = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight();
   G4double thisStepLength = step->GetStepLength() / Units::mm;
 
 #ifdef  DEBUGSTEP
@@ -250,7 +250,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
                 << endPointinLocal.z());
 #endif
 
-  G4double energy = step->GetTotalEnergyDeposit(); // Despite the name, this is only ionization.
+  G4double energy = step->GetTotalEnergyDeposit() * step->GetTrack()->GetWeight(); // Despite the name, this is only ionization.
 
   if (m_BirksLaw) {
     const double EField = 10.;         // kV/cm, assume constant for now

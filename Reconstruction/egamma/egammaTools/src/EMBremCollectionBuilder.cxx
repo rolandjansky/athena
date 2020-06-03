@@ -10,7 +10,7 @@ AUTHORS:  Anastopoulos
 CREATED:  
 
 PURPOSE:  Performs Brem refit of all tracks 
-UPDATE :
+UPDATE :  Jan 2018 - execute method for the HLT - Jiri.Masik@manchester.ac.uk
 **********************************************************************/
 #include "EMBremCollectionBuilder.h"
 //
@@ -235,21 +235,46 @@ StatusCode EMBremCollectionBuilder::contExecute()
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
+
+  sc = hltExecute( clusterTES, trackTES, m_finalTracks, m_finalTrkPartContainer);
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("BrembuilderTool did not succeed");
+  }
+  
+  // Make readable from INav4mom
+  const INavigable4MomentumCollection* theNav4s(0);
+  sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
+  }  
+  //======================================================================================================
+  return StatusCode::SUCCESS;
+}
+
+StatusCode EMBremCollectionBuilder::hltExecute(const xAOD::CaloClusterContainer *clusters,
+					       const xAOD::TrackParticleContainer *inputTracks,
+					       TrackCollection *refitTracks,
+					       xAOD::TrackParticleContainer *refitTrackParticles)
+{
+  //======================================================================================================
+  
+  // Record the final Track Particle container in StoreGate
+  //
   //
   //======================================================================================================
   //Here is the new Logic
   //Loop over tracks and clusters 
-  m_AllClusters+=clusterTES->size();
+  m_AllClusters+=clusters->size();
   //
   xAOD::TrackParticleContainer::const_iterator track_iter;
   xAOD::CaloClusterContainer::const_iterator clus_iter;  
-  xAOD::TrackParticleContainer::const_iterator track_iter_end=trackTES->end();
-  xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusterTES->end();
+  xAOD::TrackParticleContainer::const_iterator track_iter_end=inputTracks->end();
+  xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusters->end();
 
-  ATH_MSG_DEBUG ("Cluster container size: "  << clusterTES->size() );
-  ATH_MSG_DEBUG ("Track   container  size: "  <<trackTES->size() );
+  ATH_MSG_DEBUG ("Cluster container size: "  << clusters->size() );
+  ATH_MSG_DEBUG ("Track   container  size: "  <<inputTracks->size() );
 
-  track_iter = trackTES->begin();
+  track_iter = inputTracks->begin();
   for(unsigned int trackNumber = 0; track_iter !=  track_iter_end; ++track_iter,++trackNumber){
     ATH_MSG_DEBUG ("Check Track with Eta "<< (*track_iter)->eta()<< " Phi " << (*track_iter)->phi()<<" Pt " <<(*track_iter)->pt());
 
@@ -273,21 +298,21 @@ StatusCode EMBremCollectionBuilder::contExecute()
     }
 
     //inner loop on clusters
-    clus_iter = clusterTES->begin();
+    clus_iter = clusters->begin();
     for( ;clus_iter !=clus_iter_end;  ++clus_iter){
       
       if(Select((*clus_iter), isTRT, (*track_iter))){
         
 	ATH_MSG_DEBUG ("Track Matched");
-        sc = refitTrack(*track_iter);	    
+          StatusCode sc = refitTrack(*track_iter, refitTracks, refitTrackParticles);	    
 	if(sc.isFailure()) {
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
         }	
 	else { 	
 	  // Add Auxiliary decorations to the GSF Track Particle
 	  // Set Element link to original Track Particle	  
-          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*trackTES,trackNumber);
-	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
+          ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*inputTracks,trackNumber);
+	  xAOD::TrackParticle* gsfTrack = refitTrackParticles->back();	  
 	  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> >  tP ("originalTrackParticle");
 	  tP(*gsfTrack)= linkToOriginal;
 		  
@@ -332,19 +357,15 @@ StatusCode EMBremCollectionBuilder::contExecute()
     }//Loop on clusters
   }//Loop on tracks
   
-  ATH_MSG_DEBUG ("Final Track container size: "  << m_finalTrkPartContainer->size() );
-  // Make readable from INav4mom
-  const INavigable4MomentumCollection* theNav4s(0);
-  sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
-  if (sc.isFailure()){
-    ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
-  }  
+  ATH_MSG_DEBUG ("Final Track container size: "  << refitTrackParticles->size() );
+
   //======================================================================================================
   return StatusCode::SUCCESS;
 }
 
 // ====================================================================
-StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart){
+StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrkPart,
+					       TrackCollection *refitTracks, xAOD::TrackParticleContainer *refitTrackParticles){
 
   int nSiliconHits_trk =0; 
   uint8_t dummy(0); 
@@ -403,7 +424,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   //
   // Use the the refitted track and the original vertex to construct a new track particle
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, refitTrackParticles, trkVtx, xAOD::electron );
   //
   //finalize things
   if(aParticle!=0) { //store in container
@@ -458,9 +479,10 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
       ATH_MSG_ERROR ("TrackSlimming failed, this should never happen !");
       return StatusCode::FAILURE;
     }
-    m_finalTracks->push_back(slimmed);
+    
+    refitTracks->push_back(slimmed);
     //
-    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
+    ElementLink<TrackCollection> trackLink( slimmed, *refitTracks);
     aParticle->setTrackLink( trackLink );     
     aParticle->setVertexLink(tmpTrkPart->vertexLink());         
     return StatusCode::SUCCESS;
@@ -482,7 +504,9 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
   double  trkPhi = candidatePerigee.parameters()[Trk::phi];
   double  trkEta = candidatePerigee.eta();
   double  r_first=candidatePerigee.position().perp();
-  double  z_first=candidatePerigee.position().z();
+  const Amg::Vector3D PerigeeXYZPosition = candidatePerigee.position();
+
+
   //===========================================================//     
   //Get Cluster parameters
   double clusterEta=cluster->etaBE(2);
@@ -501,31 +525,48 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
   }
   //===========================================================//     
   //Calculate corrrected eta and Phi
-  double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-  double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  const Amg::Vector3D XYZClusterWrtTrackPerigee = CandidateMatchHelpers::approxXYZwrtPoint(*cluster,
+                                                                                           PerigeeXYZPosition,
+                                                                                           isEndCap);
+
+  const double clusterEtaCorrected=XYZClusterWrtTrackPerigee.eta();
+
+    //check eta match . Both metrics need to fail in order to disgard the track
+  if ( (!trkTRT) && (fabs(clusterEta - trkEta) > 2.*m_broadDeltaEta) &&
+       (fabs(clusterEtaCorrected- trkEta) > 2.*m_broadDeltaEta)){
+    ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( "
+                  << trkEta << ", " << clusterEta <<", "<<clusterEtaCorrected<<")" );
+    return false;
+  }
+  
+  const double  clusterPhiCorrected=XYZClusterWrtTrackPerigee.phi();
+  double phiRotRescaled = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
   double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-  //===========================================================//     
-  //Calcualate deltaPhis 
-  double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
-  double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-  double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
-  double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
-  //===========================================================//     
- 
-  if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
-      fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
-    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-		  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+  
+  //===========================================================//         
+  //deltaPhi between the track and the cluster 
+  const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhi);
+  //deltaPhi between the track and the cluster accounting for rotation assuming cluster Et is a better estimator
+  const double trkPhiRescaled= P4Helpers::deltaPhi(trkPhi, phiRotRescaled);
+  const double deltaPhiRescaled = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiRescaled);
+  //deltaPhi between the track and the cluster accounting for rotation
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhiTrack = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiCorrTrack);
+
+
+
+  //It has to fail all phi metrics in order to be disgarded
+  if ( (fabs(deltaPhiRescaled) > 2.*m_broadDeltaPhi) &&
+       (fabs(deltaPhiTrack) > 2.*m_broadDeltaPhi) &&
+       (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
+    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
+                  <<"cluster phi corrected, cluster phi): ( "
+                  << trkPhi << ", " << phiRotRescaled<< ", "<<phiRotTrack<< ", "
+                  <<clusterPhiCorrected<< ")" );
     return false;
-  }
-  //if it does not fail the eta cut, does it fail the phi?
-  if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) 
-       && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
-    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack ,cluster phi): ( " 
-		  << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
-    return false;
-  }
+  }   
+  
+  
 
   //Extrapolate from last measurement, since this is before brem fit last measurement is better.
   IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromLastMeasurement;

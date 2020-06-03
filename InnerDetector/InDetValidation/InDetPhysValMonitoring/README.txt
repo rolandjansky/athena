@@ -1,35 +1,43 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 ====
   Introduction
 ====
 
 This package was introduced initially as a copy of the old RTT (Run Time Test) package.
-The principal tool, InDetPhysValMonitoringTool, has a simple structure:
+The usual configuration involves first running a 'Decorator algorithm' which decorates the
+track and truth AOD's with derived quantities, then running
+the principal tool, InDetPhysValMonitoringTool, which has a simple structure:
 * retrieve containers
 * loop over containers using a selection tool to select elements
-* decorate those elements
 * do plots
 
 The plots are intended to be as simple structures as possible, only retrieving and plotting
-the added decoration variables. There are numerous decorators for either truth or track particles,
+the added decoration variables. 
+There are numerous decorator tools for either truth or track particles,
 inheriting from a common interface. 
 
 ====
-	Making and running a test job(CMAKE)
+	Making and running a test job(CMAKE, git) - updated Feb 2019
 ====
-From your Athena working directory:
+From your home directory, for a first time check-out:
 
-mkdir build source run
-cd source
-asetup here, dev, rel_5, cmake
-svnco InDetPhysValMonitoring
-cd ../build
-cmake ../source
-make -j4
-cd ..
-ln -s $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/share .
-cd run
-source ../build/x86_64-slc6-gcc49-opt/setup.sh
-athena $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/PhysVal_jobOptions.py
+mkdir -p run athena build
+setupATLAS
+lsetup git
+git-atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+cd ~/athena
+git-atlas addpkg InDetPhysValMonitoring
+git fetch upstream
+git checkout -b 21.0-IDPVM_dev-InDetPhysValMonitoring upstream/21.0 --no-track
+cd ~/build
+asetup 21.0,latest,Athena
+cmake ../athena/Projects/WorkDir
+cd ~/run
+source ~/build/build/x86_64-slc6-gcc62-opt/setup.sh
+source ~/athena/InnerDetector/InDetValidation/InDetPhysValMonitoring/scripts/getSomeData.sh
+athena ~/athena/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/PhysVal_jobOptions.py
 
 
 ========

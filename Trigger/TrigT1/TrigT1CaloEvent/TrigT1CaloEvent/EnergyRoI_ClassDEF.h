@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef ENERGYROI_CLASSDEF_H
 #define ENERGYROI_CLASSDEF_H
 //Put here the CLASS_DEF macros for the STL containers you put in StoreGate

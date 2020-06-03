@@ -171,7 +171,7 @@ bool ResPullValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 	
 	float HighPtRes=0;
 	if(datatype == "cosmic") HighPtRes = 1;
-	if(anglename == "phi") HighPtRes=0.05;
+	else if(anglename == "phi") HighPtRes=0.05;
 	else HighPtRes=0.5;
 	if( fabs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt)
 				+ HighPtRes*HighPtRes) ){
@@ -278,7 +278,16 @@ int ResPullValidation::Analyze(TDirectory *ref_file){
 		delete c1;
 	}
 
-	chdir(currpath);
+        if(currpath==NULL) {
+          std::stringstream message;
+          message << "Invalid current directory! ";
+          throw std::runtime_error(message.str());
+        }
+        else if( chdir(currpath)!=0) {
+          std::stringstream message;
+          message << "Failed to enter current directory!";
+          throw std::runtime_error(message.str());
+        }
 	delete currpath;
 	delete reference;
 

@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    IRoiReader.h        
 //
 //                   
 //  
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: IRoiReader.h, v0.0   Sun 24 Jan 2016 16:40:31 CET sutt $
 

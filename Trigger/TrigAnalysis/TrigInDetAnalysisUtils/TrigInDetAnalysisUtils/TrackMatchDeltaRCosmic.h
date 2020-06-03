@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackMatchDeltaRCosmic.h        
 //            
 //            checks if track is within DeltaR of cosmic, or within 
 //            DeltaR back to back       
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TrackMatchDeltaRCosmic.h, v0.0   Sun 18 Jan 2009 19:40:47 GMT sutt $
 

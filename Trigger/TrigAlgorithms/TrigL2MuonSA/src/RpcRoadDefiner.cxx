@@ -154,13 +154,24 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   for (int i_station=0; i_station<6; i_station++) {
     for (int i_layer=0; i_layer<8; i_layer++) {
-      if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
-      else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
-      else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
-      else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 400;//EndcapInner
-      else if (i_station==4) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
-      else if (i_station==5) muonRoad.rWidth[10][i_layer] = m_rWidth_RPC_Failed;//BMG
-      else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
+      if(!rpcFitResult.isSuccess) {
+	if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 500;//for inner
+	else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 650;//for middle
+	else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 800;//for outer
+	else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 500;//EndcapInner
+	else if (i_station==4) muonRoad.rWidth[9][i_layer] = 650;//BME
+	else if (i_station==5) muonRoad.rWidth[10][i_layer] = 650;//BMG
+	else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
+      }
+      else {
+	if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
+	else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
+	else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
+	else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 400;//EndcapInner
+	else if (i_station==4) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
+	else if (i_station==5) muonRoad.rWidth[10][i_layer] = m_rWidth_RPC_Failed;//BMG
+	else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
+      }
     }
   }
   

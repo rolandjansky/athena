@@ -26,13 +26,21 @@ def generateChainDefs(chainDict):
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
     
+    doggFgap = False
+    for chainpart in chainDict['chainParts']:
+    	if 'Fgap' in chainpart['gap']:
+    		doggFgap = True 	
+    
     for subChainDict in listOfChainDicts:      
-        HeavyIon = L2EFChain_HI(subChainDict)
+        HeavyIon = L2EFChain_HI(subChainDict,doggFgap)
         
         listOfChainDefs += [HeavyIon.generateHLTChainDef()]
         
     if len(listOfChainDefs)>1:
-        theChainDef = mergeChainDefs(listOfChainDefs)
+        if ('mergingStrategy' in chainDict.keys()):        
+            theChainDef = mergeChainDefs(listOfChainDefs,chainDict["mergingStrategy"],chainDict["mergingOffset"])
+        else:
+            theChainDef = mergeChainDefs(listOfChainDefs)
     else:
         theChainDef = listOfChainDefs[0]        
     

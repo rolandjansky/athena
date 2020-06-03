@@ -97,7 +97,7 @@ def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'RDOtoBS', skeletonFile = 'RecJobTransforms/skeleton.RDOtoBS_tf.py',
                                    substep = 'r2b', inData = ['RDO'], outData = ['BS']))
     executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
-                                   substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
+                                   substep = 'r2t', inData = ['RDO','RDO_FTK'], outData = ['RDO_TRIG']))
     # Note that the RAWtoALL substep is disabled by defaut (no inputs or outputs)
     # It will be enabled explicitly via --steering if required
     executorSet.add(athenaExecutor(name = 'RAWtoALL', skeletonFile = 'RecJobTransforms/skeleton.RAWtoALL_tf.py',

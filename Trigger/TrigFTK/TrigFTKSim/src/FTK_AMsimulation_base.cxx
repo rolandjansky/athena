@@ -9,6 +9,8 @@
 
 //#define VERBOSE_DEBUG
 
+#define PRINT_IBL_HITS 0
+
 using namespace std;
 
 /* class FTK_AMsimulation_base
@@ -201,7 +203,7 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
 
     std::map<int,FTKSS>::iterator issitem = ssmap.find(ssid);
     if (issitem==ssmap.end()) {
-      // ad the item related to this SS number
+      // add the item related to this SS number
       ssmap[ssid] = FTKSS();
       issitem = ssmap.find(ssid);
     }
@@ -212,6 +214,43 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
   if(error) {
      FTKSetup::PrintMessageFmt(ftk::warn,"FTK_AMsimulation_base::passHitsUnused number or errors=%d\n",error );
   }
+  static int print=PRINT_IBL_HITS;
+  if(print) {
+     cout<<"PassHitsUnused\n";
+     for(std::map< int, std::map< int, FTKSS > >::const_iterator
+            ipl=m_usedssmap_ignored.begin();
+         ipl!=m_usedssmap_ignored.end();ipl++) {
+        cout<<"unused plane="<<(*ipl).first<<" nSS="<<(*ipl).second.size();
+        int nhit=0;
+        int lastHash=-1;
+        for(std::map< int, FTKSS >::const_iterator ihit=(*ipl).second.begin();
+            ihit!=(*ipl).second.end();ihit++) {
+           nhit+= (*ihit).second.getNHits();
+           if((*ipl).first==0) {
+              int localID,localX,localY;
+              getSSMapUnused()->decodeSSTowerXY((*ihit).first,
+                                                getBankID(),(*ipl).first,0,
+                                                localID,localX,localY,true);
+              int hash=getSSMapUnused()->getRegionMap()
+                 ->getGlobalId(getBankID(),(*ipl).first,localID);
+              if(hash!=lastHash) {
+                 cout<<"\nModule="<<hash;
+                 lastHash=hash;
+              }
+              cout<<" "<<(*ihit).first;
+              //<<":"<<localX<<","<<localY;
+              for(int ih=0;ih<(*ihit).second.getNHits();ih++) {
+                 const FTKHit &h=(*ihit).second.getHit(ih);
+                 cout<<"["<<h[0]<<","<<h[1]<<"]";
+              }
+           }
+        }
+        cout<<" nhit="<<nhit;
+        cout<<"\n";
+     }
+     print--;
+  }
+
   return res;
 }
 
@@ -407,17 +446,13 @@ class SSIDordering {
  */
 void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
                                        int printSectorID) const {
-   map<int,map<vector<int>,FTKRoad const *> > roadMap;
+   map<int,map<int,FTKRoad const *> > roadMap;
    for(list<FTKRoad>::const_iterator iroad=roads.begin();
        iroad!=roads.end();iroad++) {
-      vector<int> ssid(getNPlanes());
-      for(int i=0;i<getNPlanes();i++) {
-         ssid[i]=(*iroad).getSSID(i);
-      }
-      roadMap[(*iroad).getSectorID()][ssid]=& *iroad;
+      roadMap[(*iroad).getSectorID()][(*iroad).getPatternID()]=& *iroad;
    }
    cout<<"number of sectors with roads: "<<roadMap.size()<<"\n";
-   for(map<int,map<vector<int>,FTKRoad const *> >::const_iterator i=
+   for(map<int,map<int,FTKRoad const *> >::const_iterator i=
           roadMap.begin();i!=roadMap.end();i++) {
       if(((*i).first==printSectorID)||
          (printSectorID<0)) {
@@ -427,7 +462,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
             cout<<"=SSID"<<i;
          }
          cout<<"==BITMASK==ROAD===PATTID====DBID======HLIDbIDregSub=SR====SubSS=DCmask=HLmask\n";
-         for(map<vector<int>,FTKRoad const *>::const_iterator
+         for(map<int,FTKRoad const *>::const_iterator
                 iroad=(*i).second.begin();
              iroad!=(*i).second.end();iroad++) {
             FTKRoad const *road=(*iroad).second;
@@ -452,7 +487,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
                 <<setw(3)<<road->getSubRegion()
                 <<setw(3)<<road->getNSubRoads()<<" "<<setbase(16);
             for(int i=0;i<road->getNPlanes();i++) {
-               cout<<road->getSubSSMask(i);
+               cout<<setw(2)<<road->getSubSSMask(i);
             }
             cout<<setw(7)<<road->getDCBitmask()<<setw(7)<<road->getHLBitmask();
             cout<<setbase(10);

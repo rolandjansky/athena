@@ -1,6 +1,16 @@
 #!/usr/bin/env pyroot.py 
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+#----------------------------------------------
+#
+# PLEASE DO NOT UPDATE bs-streamerinfos.root YOURSELF!!!!
+# Contact the person mentioned on: 
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/TrigSerializeResult
+# and/or the Trigger EDM Coordinator 
+#
+#----------------------------------------------
+
 import sys
 
 doEDM=False
@@ -47,6 +57,7 @@ objects = [
 'xAOD::MuonAuxContainer_v1',
 'xAOD::MuonAuxContainer_v2',
 'xAOD::MuonAuxContainer_v3',
+'xAOD::MuonAuxContainer_v4',
 'xAOD::TrackParticleContainer_v1',
 'xAOD::TrackParticleAuxContainer_v1',
 'xAOD::TrackParticleAuxContainer_v2',
@@ -115,6 +126,7 @@ objects = [
 'xAOD::TrigEMClusterAuxContainer_v2',
 'xAOD::TrigRingerRingsAuxContainer_v2',
 'xAOD::TrigRNNOutputAuxContainer_v2',
+#'TrigMuonEFIsolation_p2',
 ]
 
 from collections import defaultdict

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # ReadCalibFromCool.py
 # Andrei Artamonov 2009-11-03
@@ -168,6 +168,9 @@ if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
         sys.exit(2)
 
+if iov:
+    run=end
+    lumi=0
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
@@ -281,7 +284,7 @@ if iov:
         for i,iovs in enumerate(iovList):
             run = iovs[0][0]
             lumi = iovs[0][1]
-            if (run<begin and run>be) or run==begin :
+            if (run<begin and run>be) or (run==begin and lumi==0) :
                 be=run
                 ib=i
             if run>=end and run<en:
@@ -333,7 +336,11 @@ for iovs in iovList:
     if prefix:
         pref = prefix + " " + pref
     if comment:
-        log.info( blobReader.getComment(iovs[0]) )
+        log.info( pref + blobReader.getComment(iovs[0]) )
+    if prefix and prefix.startswith("Write"):
+        comm = blobReader.getComment(iovs[0])
+        if ": " in comm: comm = comm[comm.find(": ")+2:]
+        print '%s --update --folder=%s --tag=%s --run=%i --lumi=%i --comment="%s"' % (prefix,folderPath,folderTag,iovs[0][0],iovs[0][1],comm)
     miss=0
     good=0
     for ros in xrange(rosmin,rosmax):

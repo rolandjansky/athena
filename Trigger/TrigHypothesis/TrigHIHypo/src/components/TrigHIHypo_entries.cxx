@@ -9,6 +9,7 @@
 #include "../CreateHIUEEstimate.h"
 #include "../HICaloCellCorectionTool.h"
 #include "../ElectronUEMonitoring.h"
+#include "../LbyLTopoClusterHypo.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -22,7 +23,10 @@ DECLARE_ALGORITHM_FACTORY( VnHypo )
 DECLARE_ALGORITHM_FACTORY( UltraCentralHypo )
 DECLARE_ALGORITHM_FACTORY( CreateHIUEEstimate )
 DECLARE_ALGORITHM_FACTORY( ElectronUEMonitoring )
+DECLARE_ALGORITHM_FACTORY( LbyLTopoClusterHypo )
 DECLARE_TOOL_FACTORY( HICaloCellCorectionTool )
+
+
 
 DECLARE_FACTORY_ENTRIES( TrigHIHypo ) {
   DECLARE_ALGORITHM( TrigHIJetBaseSubtraction )
@@ -35,6 +39,7 @@ DECLARE_FACTORY_ENTRIES( TrigHIHypo ) {
   DECLARE_ALGORITHM( UltraCentralHypo )
   DECLARE_ALGORITHM( CreateHIUEEstimate )
   DECLARE_ALGORITHM( ElectronUEMonitoring )
+  DECLARE_ALGORITHM( LbyLTopoClusterHypo )
   DECLARE_TOOL( HICaloCellCorectionTool )
 }
 

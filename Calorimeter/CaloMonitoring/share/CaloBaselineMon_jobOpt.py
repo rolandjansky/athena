@@ -36,7 +36,7 @@ if rec.triggerStream()=='CosmicCalo':
 
 if rec.triggerStream()=='ZeroBias':
   tmp_CaloBaselineMon["bcidtoolMon_BCIDmax"] = 144
-  tmp_CaloBaselineMon["TriggerChain"] = ""
+  tmp_CaloBaselineMon["TriggerChain"] = "HLT_noalg_zb_L1ZB"
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",

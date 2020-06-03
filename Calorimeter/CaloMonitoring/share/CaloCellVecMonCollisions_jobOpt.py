@@ -36,7 +36,7 @@ ToolSvc+=theLArBadChannelTool
 
 
 # All 2D plot occupancy are activate only for express and cosmiccalo
-if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express') or (DQMonFlags.monManEnvironment() == 'online'):
+if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()=='ZeroBias') or (DQMonFlags.monManEnvironment() == 'online'):
    do2DOcc = True
 else:
    do2DOcc = False

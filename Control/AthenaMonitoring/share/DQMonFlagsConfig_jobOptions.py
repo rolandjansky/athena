@@ -274,9 +274,10 @@ if DQMonFlags.doStreamAwareMon:
    LArMonFlags.doLArNoisyROMon=True
 
    # All monitoring turned on for express stream (except LArRawChannelMon)
-   # HIP runs will use the express settings for MinBias, MinBiasOverlay, HardProbes, bulk, and UPC
+   # HIP/HI runs will use the express settings for MinBias, MinBiasOverlay, HardProbes, bulk, and UPC
    if (rec.triggerStream()=='express' or rec.triggerStream()=='Main' or
-       (rec.doHIP() and rec.triggerStream() in ['MinBias', 'MinBiasOverlay', 'HardProbes', 'bulk', 'UPC'])):
+       ((rec.doHIP() or rec.doHeavyIon())
+        and rec.triggerStream() in ['MinBias', 'MinBiasOverlay', 'HardProbes', 'bulk', 'UPC'])):
       LArMonFlags.doLArCollisionTimeMon=True
       LArMonFlags.doLArAffectedRegions=True
       LArMonFlags.doLArHVCorrectionMonTool=True
@@ -451,7 +452,7 @@ else:
    local_logger.info("Stream-Aware monitoring is turned OFF")
 
 # If data type is '*comm' disable ATLAS Ready filter by default
-if (rec.projectName.get_Value().endswith('_comm') and 
+if (rec.projectName.get_Value().endswith('comm') and 
     not DQMonFlags.disableAtlasReadyFilter()
     ):
    local_logger.info("This is a commissioning project tag, will attempt to disable ATLAS Ready filter for monitoring tools. To really enable it, use DQMonFlags.disableAtlasReadyFilter.set_Value_and_Lock(False).")

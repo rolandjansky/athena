@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
 
@@ -119,5 +119,4 @@ from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
-if (getpass.getuser())=="sroe":
-  theApp.EvtMax = -1
+

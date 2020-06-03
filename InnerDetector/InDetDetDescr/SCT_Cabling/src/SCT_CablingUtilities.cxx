@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 /*
  *  SCT_CablingUtilities.cxx
  *  SCT_Cabling
  *
  *  Created by sroe on 14/11/2008.
- *  Copyright 2008 CERN. All rights reserved.
  *
  */
 #include <iostream>

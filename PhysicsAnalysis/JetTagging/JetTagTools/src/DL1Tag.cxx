@@ -22,9 +22,10 @@
 
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "JetTagTools/DL1Tag.h"
-#include "JetTagTools/LightweightNeuralNetwork.h"
-#include "JetTagTools/parse_json.h"
-#include "JetTagTools/Exceptions.h"
+
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"

@@ -6,11 +6,16 @@ def electronChains(doIDNewTracking):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
 
-  idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM20VH', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-  idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(  ['e24_medium_idperf',     'L1_EM20VH', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(  ['e28_medium_idperf',     'L1_EM24VHI', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(  ['e28_medium_gsf_idperf', 'L1_EM24VHI', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(  ['e5_loose_idperf', 'L1_EM3', [], ['Main'], ['RATE:SingleElectron', 'BW:Egamma'],1])
   tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
   tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
   tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
+  tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
+  tidaAnalysischains.append('HLT_e28_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+  tidaAnalysischains.append('HLT_e28_medium_gsf_idperf:GSFTrigTrackParticles')  
   tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
   tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
   tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')

@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDARoiParameters.h        
 //
@@ -9,7 +12,6 @@
 //            class persistify the members of the class, recursively
 //            within itself          
 //  
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TIDARoiParameters.h, v0.0   Wed  4 Mar 2015 16:09:33 CET sutt $
 

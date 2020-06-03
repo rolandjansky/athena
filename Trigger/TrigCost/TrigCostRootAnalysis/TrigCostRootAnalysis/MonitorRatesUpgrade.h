@@ -85,95 +85,95 @@ namespace TrigCostRootAnalysis {
     Float_t MET() {return TMath::Sqrt((m_vX * m_vX) + (m_vY * m_vY));}
     Float_t MHT() {return TMath::Sqrt((m_vHX * m_vHX) + (m_vHY * m_vHY));}
     Float_t mu() {return m_mu;}
-    void set(Float_t _mu, Float_t _vX, Float_t _vY, Float_t _TE, Bool_t _ofX, Bool_t _ofY, Bool_t _ofTE) {
-      m_mu = _mu;
-      m_vX = _vX;
-      m_vY = _vY;
-      m_TE = _TE;
-      m_overflowMET = (_ofX | _ofY);
-      m_overflowTE = _ofTE;
+    void set(Float_t mu, Float_t vX, Float_t vY, Float_t TE, Bool_t ofX, Bool_t ofY, Bool_t ofTE) {
+      m_mu = mu;
+      m_vX = vX;
+      m_vY = vY;
+      m_TE = TE;
+      m_overflowMET = (ofX | ofY);
+      m_overflowTE = ofTE;
     }
 
     std::set<TOB>& TOBs() {return m_TOBs;}
-    void add(const TOB _tob) {
-      static bool _merge = Config::config().getInt(kUpgradeMergeTOBOverlap);
+    void add(const TOB tob) {
+      static bool merge = Config::config().getInt(kUpgradeMergeTOBOverlap);
 
-      if (_merge) {
-        checkMerge(_tob);
+      if (merge) {
+        checkMerge(tob);
       } else {
-        m_TOBs.insert(_tob);
+        m_TOBs.insert(tob);
       }
-      addToMHT(_tob); // merged or not - still count me in the HT if I'm a jet
+      addToMHT(tob); // merged or not - still count me in the HT if I'm a jet
     }
 
-    void checkMerge(const TOB& _tob) {
-      bool _canMerge = false, _merged = false;
-      Float_t _minDR = 0.4;
+    void checkMerge(const TOB& tob) {
+      bool canMerge = false, merged = false;
+      Float_t minDR = 0.4;
 
-      if (_tob.m_type == kEmString || _tob.m_type == kTauString || _tob.m_type == kJetString) {
-        _canMerge = true;
-        if (_tob.m_type == kJetString) _minDR = 0.6;
+      if (tob.m_type == kEmString || tob.m_type == kTauString || tob.m_type == kJetString) {
+        canMerge = true;
+        if (tob.m_type == kJetString) minDR = 0.6;
       }
 
-      if (_canMerge) {
-        for (auto& _myTob : m_TOBs) {
-          if (_tob.m_type != _myTob.m_type) continue;
-          if (_tob.m_iso != _myTob.m_iso) continue;
-          if (deltaR(_tob.m_phi, _myTob.m_phi, _tob.m_eta, _myTob.m_eta) > _minDR) continue;
+      if (canMerge) {
+        for (auto& myTob : m_TOBs) {
+          if (tob.m_type != myTob.m_type) continue;
+          if (tob.m_iso != myTob.m_iso) continue;
+          if (deltaR(tob.m_phi, myTob.m_phi, tob.m_eta, myTob.m_eta) > minDR) continue;
 
           // Same type, and close - merge
           // I solemnly swear that I won't touch the weak ordering
-          //TOB* _nonConstTOB = const_cast<TOB*>(&_myTob);
-          _myTob.m_et += _tob.m_et;
-          _myTob.m_etLarge += _tob.m_etLarge;
-          _merged = true;
+          //TOB* nonConstTOB = const_cast<TOB*>(&myTob);
+          myTob.m_et += tob.m_et;
+          myTob.m_etLarge += tob.m_etLarge;
+          merged = true;
           //if (Config::config().getDisplayMsg(kMsgTOBMerge) == kTRUE) Info("TOBAccumulator::checkMerge", "Merged %s
-          // TOBs", Config::config().getStr(_tob.m_type).c_str());
+          // TOBs", Config::config().getStr(tob.m_type).c_str());
           break;
         }
       }
 
-      if (!_merged) m_TOBs.insert(_tob);
+      if (!merged) m_TOBs.insert(tob);
     }
 
     std::string print() {
-      std::stringstream _ss;
-      for (const auto& _tob : TOBs()) {
-        std::bitset<5> _iso = _tob.m_iso;
-        _ss << "-- " << Config::config().getName(_tob.m_type) << "\tET:" << _tob.m_et
-            << "\tiso:" << _iso.to_string() << "\teta:" << _tob.m_eta << " \tphi:" << _tob.m_phi;
-        if (_tob.m_type == kJetString) _ss << "\tETLarge:" << _tob.m_etLarge;
-        _ss << std::endl;
+      std::stringstream ss;
+      for (const auto& tob : TOBs()) {
+        std::bitset<5> iso = tob.m_iso;
+        ss << "-- " << Config::config().getName(tob.m_type) << "\tET:" << tob.m_et
+            << "\tiso:" << iso.to_string() << "\teta:" << tob.m_eta << " \tphi:" << tob.m_phi;
+        if (tob.m_type == kJetString) ss << "\tETLarge:" << tob.m_etLarge;
+        ss << std::endl;
       }
-      return _ss.str();
+      return ss.str();
     }
 
     /**
      * Add another accumulator's TOBs and MET
      **/
-    void add(const TOBAccumulator* _b) {
-      for (auto& _tob : _b->m_TOBs) add(_tob);
-      m_mu += _b->m_mu;
-      m_vX += _b->m_vX;
-      m_vY += _b->m_vY;
-      m_TE += _b->m_TE;
-      m_overflowTE |= _b->m_overflowTE;
-      m_overflowMET |= _b->m_overflowMET;
+    void add(const TOBAccumulator* b) {
+      for (auto& tob : b->m_TOBs) add(tob);
+      m_mu += b->m_mu;
+      m_vX += b->m_vX;
+      m_vY += b->m_vY;
+      m_TE += b->m_TE;
+      m_overflowTE |= b->m_overflowTE;
+      m_overflowMET |= b->m_overflowMET;
     }
 
-    void addToMHT(const TOB& _tob) {
-      static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
+    void addToMHT(const TOB& tob) {
+      static Bool_t largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
 
-      if (_tob.m_type != kJetString) return;
+      if (tob.m_type != kJetString) return;
 
-      if (TMath::Abs(_tob.m_eta) * 10 > 31) return; // eta too high
+      if (TMath::Abs(tob.m_eta) * 10 > 31) return; // eta too high
 
-      Float_t _et = _tob.m_et;
-      if (_largeJetWindow == kTRUE) _et = _tob.m_etLarge;
+      Float_t et = tob.m_et;
+      if (largeJetWindow == kTRUE) et = tob.m_etLarge;
       else Warning("TOBAccumulator::addMHT", "Using small jet window size - really?");
-      m_vHX += _et * TMath::Cos(_tob.m_phi);
-      m_vHY += _et * TMath::Sin(_tob.m_phi);
-      m_HT += _et;
+      m_vHX += et * TMath::Cos(tob.m_phi);
+      m_vHY += et * TMath::Sin(tob.m_phi);
+      m_HT += et;
     }
   };
 
@@ -201,34 +201,34 @@ namespace TrigCostRootAnalysis {
     std::vector<TriggerCondition> m_conditions; //!< Set of TriggerConditions. All of these must pass
   public:
     TriggerLogic() {}
-    void addCondition(std::string _name, UInt_t _multi, UInt_t _thresh, Int_t _iso, UInt_t _min, UInt_t _max) {
-      TriggerCondition _c;
+    void addCondition(std::string name, UInt_t multi, UInt_t thresh, Int_t iso, UInt_t min, UInt_t max) {
+      TriggerCondition c;
 
-      if (_name == "MU") _c.m_type = kMuonString;
-      else if (_name == "EM") _c.m_type = kEmString;
-      else if (_name == "TAU") _c.m_type = kTauString;
-      else if (_name == "JET" || _name == "J") _c.m_type = kJetString;
-      else if (_name == "XE") _c.m_type = kMissingEnergyString;
-      else if (_name == "TE") _c.m_type = kEnergyString;
-      else if (_name == "MHT") _c.m_type = kMHTString;
-      else if (_name == "HT") _c.m_type = kHTString;
-      else Error("TriggerLogic::addAND", "Unknown TriggerCondition name %s", _name.c_str());
-      _c.m_multi = _multi;
-      _c.m_iso = _iso;
-      _c.m_thresh = _thresh;
-      _c.m_min = _min;
-      _c.m_max = _max;
-      m_conditions.push_back(_c);
+      if (name == "MU") c.m_type = kMuonString;
+      else if (name == "EM") c.m_type = kEmString;
+      else if (name == "TAU") c.m_type = kTauString;
+      else if (name == "JET" || name == "J") c.m_type = kJetString;
+      else if (name == "XE") c.m_type = kMissingEnergyString;
+      else if (name == "TE") c.m_type = kEnergyString;
+      else if (name == "MHT") c.m_type = kMHTString;
+      else if (name == "HT") c.m_type = kHTString;
+      else Error("TriggerLogic::addAND", "Unknown TriggerCondition name %s", name.c_str());
+      c.m_multi = multi;
+      c.m_iso = iso;
+      c.m_thresh = thresh;
+      c.m_min = min;
+      c.m_max = max;
+      m_conditions.push_back(c);
     }
 
     std::string print() {
-      std::stringstream _ss;
-      for (const auto _tc : m_conditions) {
-        _ss << "[" << Config::config().getName(_tc.m_type) << " N:" << _tc.m_multi << " E>=" << _tc.m_thresh <<
-        " ISO:" << _tc.m_iso
-            << " etaMin:" << _tc.m_min << " etaMax:" << _tc.m_max << "]";
+      std::stringstream ss;
+      for (const auto tc : m_conditions) {
+        ss << "[" << Config::config().getName(tc.m_type) << " N:" << tc.m_multi << " E>=" << tc.m_thresh <<
+        " ISO:" << tc.m_iso
+            << " etaMin:" << tc.m_min << " etaMax:" << tc.m_max << "]";
       }
-      return _ss.str();
+      return ss.str();
     }
 
     const std::vector<TriggerCondition>& conditions() {return m_conditions;}
@@ -240,32 +240,32 @@ namespace TrigCostRootAnalysis {
    */
   struct ChainInfo {
     ChainInfo() = default;
-    ChainInfo(std::string _name) : m_name(_name) {}
-    ChainInfo(std::string _name, Int_t _level, TriggerLogic _logic, std::string _group, std::string _comment,
-              Double_t _weight0, Double_t _weight1) :
-      m_name(_name),
-      m_l2name(_name),
-      m_triggerLogic(_logic),
-      m_level(_level),
+    ChainInfo(std::string name) : m_name(name) {}
+    ChainInfo(std::string name, Int_t level, TriggerLogic logic, std::string group, std::string comment,
+              Double_t weight0, Double_t weight1) :
+      m_name(name),
+      m_l2name(name),
+      m_triggerLogic(logic),
+      m_level(level),
       m_lower(),
-      m_group(_group),
-      m_comment(_comment),
-      m_weight0(_weight0),
-      m_weight1(_weight1) {
+      m_group(group),
+      m_comment(comment),
+      m_weight0(weight0),
+      m_weight1(weight1) {
       m_l2name.replace(0, 2, "L2");
       m_ID = m_instances++;
     }; // For L1/L2
-    ChainInfo(std::string _name, Int_t _level, std::string _proxy, std::string _lower, std::string _comment,
-              Double_t _weight) :
-      m_name(_name),
+    ChainInfo(std::string name, Int_t level, std::string proxy, std::string lower, std::string comment,
+              Double_t weight) :
+      m_name(name),
       m_l2name(),
       m_triggerLogic(),
-      m_level(_level),
-      m_proxy(_proxy),
-      m_lower(_lower),
+      m_level(level),
+      m_proxy(proxy),
+      m_lower(lower),
       m_group(),
-      m_comment(_comment),
-      m_weight0(_weight),
+      m_comment(comment),
+      m_weight0(weight),
       m_weight1(0) {
       m_ID = m_instances++;
     }; // For HLT
@@ -295,26 +295,26 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorRatesUpgrade: public MonitorBase {
   public:
-    MonitorRatesUpgrade(const TrigCostData* _costData);
+    MonitorRatesUpgrade(const TrigCostData* costData);
     ~MonitorRatesUpgrade();
-    void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter(const std::string& _name, Int_t _ID);
-    Bool_t getIfActive(ConfKey_t _mode);
+    void newEvent(Float_t weight = 1.);
+    CounterBase* newCounter(const std::string& name, Int_t ID);
+    Bool_t getIfActive(ConfKey_t mode);
     void saveOutput();
     Float_t getCollidingBunchFactor() {return m_collidingBunchFactor;}
   private:
     void parseUpgradeXML();
-    void populateCounterMap(CounterMap_t* _counterMap);
+    void populateCounterMap(CounterMap_t* counterMap);
     void populateChainItemMaps();
     void saveRateGraphs();
 
-    void createGlobalCounters(CounterMap_t* _counterMap);
-    void createL1Counters(CounterMap_t* _counterMap);
-    void createL2Counters(CounterMap_t* _counterMap);
-    void createL3Counters(CounterMap_t* _counterMap);
+    void createGlobalCounters(CounterMap_t* counterMap);
+    void createL1Counters(CounterMap_t* counterMap);
+    void createL2Counters(CounterMap_t* counterMap);
+    void createL3Counters(CounterMap_t* counterMap);
 
     TOBAccumulator* getEventTOBs();
-    void validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print);
+    void validateTriggerEmulation(CounterMap_t* counterMap, TOBAccumulator* thisAccum, Bool_t print);
     void printEnergyTOBs();
 
     std::string m_scenario; //<! What scenario XML to load

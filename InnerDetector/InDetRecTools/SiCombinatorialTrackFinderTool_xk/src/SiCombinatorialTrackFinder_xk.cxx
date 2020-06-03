@@ -77,7 +77,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("PixelSummarySvc"      ,m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
-  declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
+  declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
 }
 
@@ -155,6 +155,25 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     sctcond = &(*m_sctCondSummarySvc); 
   }
 
+  // Get PixelID helper
+  //
+  if (m_usePIX && detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Successfully retrieved PixelID helper" << endreq;
+  }
+
+  // Get SCT_ID helper
+  if (m_useSCT && detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Successfully retrieved SCT_ID helper" << endreq;
+  }
+
   // get the key -- from StoreGate (DetectorStore)
   //
   std::vector< std::string > tagInfoKeys =  detStore()->keys<TagInfo> ();
@@ -196,6 +215,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   //
   m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool,m_fieldService);
   m_tools.setTools(pixcond,sctcond);
+  m_tools.setTools(m_pixIdHelper,m_sctIdHelper);
 
 
   // Setup callback for magnetic field
@@ -918,10 +938,11 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
-(std::vector<const InDetDD::SiDetectorElement*>        & DE,
+(const std::vector<const InDetDD::SiDetectorElement*>        & DE,
  std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL)
 {
-  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(),de = DE.end();
+  DEL.reserve(DE.size());
+  std::vector<const InDetDD::SiDetectorElement*>::const_iterator d = DE.begin(),de = DE.end();
  
   for(; d!=de; ++d) {
  
@@ -940,7 +961,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
 {
   // Integer cuts
   //
-  int useasso,simpletrack,multitrack;
+  int useasso,simpletrack,multitrack,cleanSCTClus;
   double xi2m;
   if(!Cuts.getIntCut   ("MinNumberOfClusters" ,m_nclusmin   )) {m_nclusmin      =    7;}
   if(!Cuts.getIntCut   ("MinNumberOfWClusters",m_nwclusmin  )) {m_nwclusmin     =    7;}
@@ -950,6 +971,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   if(!Cuts.getIntCut   ("CosmicTrack"         ,m_cosmicTrack)) {m_cosmicTrack   =    0;}
   if(!Cuts.getIntCut   ("SimpleTrack"         ,simpletrack  )) {simpletrack     =    0;} 
   if(!Cuts.getIntCut   ("doMultiTracksProd"   ,multitrack   )) {multitrack      =    0;}  
+  if(!Cuts.getIntCut   ("CleanSpuriousSCTClus",cleanSCTClus )) {cleanSCTClus    =    0;}
  
   // Double cuts
   //
@@ -978,5 +1000,6 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   m_tools.setHolesClusters(m_nholesmax,m_dholesmax,m_nclusmin);
   m_tools.setAssociation  (useasso);
   m_tools.setMultiTracks  (multitrack,xi2m);
+  m_tools.setCleanSCTClus (cleanSCTClus);
   m_trajectory.setParameters();
 }

@@ -135,8 +135,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupL1SaturatedMon()
       elif 'zdcpeb' in self.chainPart['purpose']:
         self.setupZDCPEBChains()
+      elif 'calibAFPALFA' in self.chainPart['purpose']:
+        self.setupAFPALFACalibrationChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
+      elif 'rpcpebsecondaryreadout' in self.chainPart['purpose']:
+        self.setupRPCSecondaryReadoutChains()
       elif 'rpcpeb' in self.chainPart['purpose']:
         self.setupRPCCalibrationChains()
       elif 'idpsl1' in self.chainPart['purpose']:
@@ -227,6 +231,10 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          'idcalib_trk9_fwd'      : CheckForTracks_Trk9_Fwd('CheckForTracks_Trk9_Fwd'),
          'idcalib_trk16_fwd'     : CheckForTracks_Trk16_Fwd('CheckForTracks_Trk16_Fwd'),
          'idcalib_trk29_fwd'     : CheckForTracks_Trk29_Fwd('CheckForTracks_Trk29_Fwd'),
+         'idcalib_trk9_central_L1J12_VTE100'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_L1J12_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+         'idcalib_trk9_central_L1J12_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
+         'idcalib_trk9_fwd_L1J12_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
          'idcalib_trk9_central_L1J10_VTE100'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
          'idcalib_trk9_fwd_L1J10_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
          'idcalib_trk9_central_L1J10_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
@@ -314,6 +322,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      
      l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
      l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+     l2_RPCSubDetListWriter.extraROBs += [0x610080, 0x620080]
 
      l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
      
@@ -323,6 +332,23 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
        'L2_':     'L2_l1RPCcalib',
+       }
+
+   def setupRPCSecondaryReadoutChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSecondaryListWriter")
+     l2_RPCSubDetListWriter.extraROBs = [0x610080, 0x620080]
+
+     l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_RPCSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1RPCsecondarycalib',
        }
   
    ###########################################################################
@@ -364,6 +390,21 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.TErenamingDict = {
        'L2_':     'L2_l1AFPcalib',
        }
+     
+   ###########################################################################
+   # AFP+ALFA Calibration chains
+   ###########################################################################
+   def setupAFPALFACalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_AFPALFASubDetListWriter = TrigSubDetListWriter("AFPALFASubDetListWriter")
+     l2_AFPALFASubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_AFP','FORWARD_ALPHA']
+     l2_AFPALFASubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_AFPALFASubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_AFPALFAcalib']]
+     self.L2signatureList += [[['L2_AFPALFAcalib']]]
      
    ###########################################################################
    # LarNoiseBurst chains

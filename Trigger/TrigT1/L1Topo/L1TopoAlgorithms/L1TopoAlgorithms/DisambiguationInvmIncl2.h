@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  DisambiguationInvmIncl2.h
 //  TopoCore
 //  Created by Davide Gerbaudo on 2016-10-10.
-//  Copyright (c) 2016 Davide Gerbaudo. All rights reserved.
 
 #ifndef __TopoCore__DisambiguationInvmIncl2__
 #define __TopoCore__DisambiguationInvmIncl2__

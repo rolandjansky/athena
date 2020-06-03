@@ -7,6 +7,12 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
+## TriggerAPI ##
+from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
+apitriggers = RPVLLTriggers()
+from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
+
+
 class DV_containerFlags(JobProperty):
     statusOn = True
     photonCollectionName='Photons'
@@ -32,6 +38,8 @@ class DV_MultiJetTriggerFlags(JobProperty):
 			"HLT_7j25_gsc50_boffperf_split_L14J20" ]#gsc 
     triggers += ["HLT_2j275_j140","HLT_2j250_j120","HLT_2j220_j120"]#3jet
     triggers += ["HLT_5j85_L14J15"] # 2018 5 jet
+    if rpvllTrig.doRPVLLTriggerAPI:
+        triggers += apitriggers.getDVMultiJetTriggers() ## TriggerAPI
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
@@ -157,6 +165,8 @@ class DV_MuonBarrelFilterFlags(JobProperty):
     cutEtMin=60.0*Units.GeV
     cutEtaMax=1.1
     triggers=["HLT_mu60_0eta105_msonly"]
+    if rpvllTrig.doRPVLLTriggerAPI:
+        triggers += apitriggers.getDVMuonBarrelTriggers() ## TriggerAPI
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_MuonBarrelFilterFlags)
@@ -168,6 +178,8 @@ class DV_MuonFullMSFilterFlags(JobProperty):
     cutEtMin=80.0*Units.GeV
     cutEtaMax=2.5
     triggers=["HLT_mu80_msonly_3layersEC"]
+    if rpvllTrig.doRPVLLTriggerAPI:
+        triggers += apitriggers.getDVMuonFullMSTriggers() ## TriggerAPI
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_MuonFullMSFilterFlags)
@@ -181,6 +193,8 @@ class DV_PhotonFilterFlags(JobProperty):
     cutIsEM="Loose"
     triggers=["HLT_g140_loose"]
     triggers+=["HLT_g140_tight","HLT_g200_loose"]#2017
+    if rpvllTrig.doRPVLLTriggerAPI:
+        triggers += apitriggers.getDVPhotonTriggers() ## TriggerAPI
     prescale=20
     nPassed=1
     pass
@@ -194,25 +208,26 @@ class DV_METFilterFlags(JobProperty):
     cutMetMin=180.0*Units.GeV
     deltaPhiCut=0.1
     triggers=["HLT_xe90_L1XE50","HLT_xe100_L1XE50","HLT_xe120_L1XE50",
-	"HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
-	"HLT_xe90_L1XE60","HLT_xe100_L1XE60","HLT_xe120_L1XE60",
-	"HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
-	"HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
-	"HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
-	"HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe110_mht_L1XE50","HLT_xe120_mht_L1XE50",
-	"HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe110_mht_L1XE55","HLT_xe120_mht_L1XE55",
-	"HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe110_mht_L1XE60","HLT_xe120_mht_L1XE60",
-        "HLT_xe130_mht_L1XE50","HLT_xe110_mht_L1XE50_AND_xe65_L1XE50"
-        "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50","HLT_xe110_mht_L1XE50_AND_xe75_L1XE50","HLT_xe110_mht_L1XE50_AND_xe80_L1XE50",
+              "HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
+              "HLT_xe90_L1XE60","HLT_xe100_L1XE60","HLT_xe120_L1XE60",
+              "HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
+              "HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
+              "HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
+              "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe110_mht_L1XE50","HLT_xe120_mht_L1XE50",
+              "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe110_mht_L1XE55","HLT_xe120_mht_L1XE55",
+              "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe110_mht_L1XE60","HLT_xe120_mht_L1XE60",
+              "HLT_xe130_mht_L1XE50","HLT_xe110_mht_L1XE50_AND_xe65_L1XE50"
+              "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50","HLT_xe110_mht_L1XE50_AND_xe75_L1XE50","HLT_xe110_mht_L1XE50_AND_xe80_L1XE50",
               "HLT_xe110_mht_L1XE55_AND_xe65_L1XE55","HLT_xe110_mht_L1XE55_AND_xe70_L1XE55","HLT_xe110_mht_L1XE55_AND_xe75_L1XE55",
-              "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"
-		         ]
+              "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"]
     triggers+=[ "HLT_xe110_pufit_L1XE60", "HLT_xe120_mht_L1XE60_xe80_L1XE60" ]  #2017
     triggers+=[ "HLT_xe110_pufit_L1XE50", "HLT_xe110_pufit_L1XE55", "HLT_xe110_pufit_L1XE70" ] #2017 
     triggers+=[ "HLT_xe120_pufit_L1XE60", "HLT_xe120_mht_xe80_L1XE60" ] #L34
     triggers+=[ "HLT_xe110_pufit_xe70_L1XE50" ] #2018 primary
     triggers+=[ "HLT_xe110_pufit_xe65_L1XE55","HLT_xe100_pufit_xe75_L1XE60", 
-		"HLT_xe110_pufit_xe65_L1XE60" ] #2018 backup
+                "HLT_xe110_pufit_xe65_L1XE60" ] #2018 backup
+    if rpvllTrig.doRPVLLTriggerAPI:
+        triggers += apitriggers.getDVMETTriggers() ## TriggerAPI
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 

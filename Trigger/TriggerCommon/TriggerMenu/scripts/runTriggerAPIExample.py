@@ -29,8 +29,8 @@ print "Lowest in at least one period:",TriggerAPI.getLowestUnprescaledAnyPeriod(
 # - retrieve items above a certain live fraction instead of unprescaled
 #   HLT_j225_gsc420_boffperf_split is unprescaled
 #   HLT_j225_gsc400_boffperf_split recorded >95% of the available luminosity
-print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc")
-print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc", livefraction=0.95)
+print "Lowest j225_gsc with 100% data:",TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc")
+print "Lowest j225_gsc with  95% data:",TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc", livefraction=0.95)
 
 # - combined items with more than 2 types:
 print "Muon+jet+met items:",TriggerAPI.getLowestUnprescaled(337833, TriggerType.mu, [TriggerType.j, TriggerType.xe])
@@ -47,7 +47,7 @@ print "Precomputed single muon 2.0e34 items:",list_unprescaled2e34.list_mu_singl
 print "Precomputed single muon 1.8e34 items:",list_unprescaled1p8e34.list_mu_single
 
 # Set a custom GRL, affects *ALL* calls after it has been set 
-print "Multi-bjet in periods GHI (default GRL)", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHI, TriggerType.bj_multi)
+print "Multi-bjet in periods GHIK (default GRL)", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHIK, TriggerType.bj_multi)
 TriggerAPI.setCustomGRL("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20171130/data17_13TeV.periodAllYear_DetStatus-v97-pro21-13_Unknown_PHYS_StandardGRL_All_Good_25ns_BjetHLT_Normal2017.xml")
-print "Multi-bjet in periods GHI (Bjet GRL)   ", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHI, TriggerType.bj_multi)
+print "Multi-bjet in periods GHIK (Bjet GRL)   ", TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodGHIK, TriggerType.bj_multi)
 

@@ -1,15 +1,16 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    comparitor.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: comparitor.cxx, v0.0   Fri 12 Oct 2012 13:39:05 BST sutt $
 
 
-// #include <stdlib.h>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
@@ -50,11 +51,45 @@
 #include "AtlasStyle.h"
 #include "AtlasLabels.h"
 
+#include "default_panels.h"
 
 bool fulldbg = false;
 
+/// get a histogram given a path, and an optional initial directory
+/// if histogram is not found, then check for dir/name
 
-int usage(const std::string& name, int status) { 
+template<typename T=TH1F>
+T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
+
+  std::string name;
+
+  size_t pos = n.find("+");
+  if ( pos!=std::string::npos ) name = n.substr( 0, pos );
+  else                          name = n;
+
+  T* h = (T*)f.Get( name.c_str() );
+  if ( h || dir=="" || name.find(dir)!=std::string::npos ) { 
+    std::cout << "Get() name " << name << " :: " << h << std::endl;
+    if ( saved ) saved->push_back( name );
+  }
+  else { 
+    h = (T*)f.Get( (dir+"/"+name).c_str() );
+    std::cout << "Get() name " << (dir+"/"+name) << " :: " << h << std::endl;
+    if ( saved ) { 
+      if ( h ) saved->push_back( dir+"/"+name );
+      else     saved->push_back( name );
+    }
+  }
+
+  if ( h ) h->SetDirectory(0);
+
+  return h;
+}
+
+
+
+int usage(const std::string& name, int status, const std::string& err_msg="" ) { 
+  if ( err_msg != "" ) std::cerr << err_msg << "\n" << std::endl;
   std::ostream& s = std::cout;
   s << "Usage: " << name << "\t [OPTIONS]  test.root reference.root    chain1 chain2 chain2 ...\n\n"; 
   s << "\t" << " plots comparison histograms"; 
@@ -64,8 +99,10 @@ int usage(const std::string& name, int status) {
   s << "Options: \n";
   s << "    -c,  --config       value \t configure which histograms to plot from config file,\n\n";
   s << "    -t,  --tag          value \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key          value \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -k,  --key          value \t prepends key 'value' to the front of output plots name, \n";
+  s << "    -t,  --tag          value \t post pend tag 'value' to the end of output plots name, \n";
   s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
+  s << "         --ncols        value \t creates panels with \"value\" columns\n\n";
 
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
   s << "    -es, --effscale     value \t scale efficiencies to value\n";
@@ -77,8 +114,8 @@ int usage(const std::string& name, int status) {
   s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
 
   s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -l,  --labels             \t use specified labels for key\n";
-  s << "         --taglabels          \t use specified additional labels \n";
+  s << "    -l,  --labels       values\t use specified labels for key\n";
+  s << "         --taglabels    values\t use specified additional labels \n";
   s << "    -al, --atlaslable   value \t set value for atlas label\n";
   s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
 
@@ -105,9 +142,10 @@ int usage(const std::string& name, int status) {
 
   s << "    -C,  --Cfiles             \t write C files also\n"; 
   s << "         --nopng              \t do not print png files\n"; 
+  s << "         --nopdf              \t do not print pdf files\n"; 
   s << "         --deleteref          \t delete unused reference histograms\n\n";
 
-
+  s << "         --printconfig        \t print the configuration being used in the form useable as an input file\n\n";
 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -131,7 +169,7 @@ void ascale( TH1F* h, double s_ ) {
     h->SetBinError( i, h->GetBinError(i)*s_ );
   }
 }
-
+ 
 
 
 // replace from a string
@@ -141,6 +179,11 @@ std::string fullreplace( std::string s, const std::string& s2, const std::string
   while ( (pos=s.find(s2)) != std::string::npos )  s.replace(pos, s2.size(), s3);
   return s;
 } 
+
+void print_pad( const std::string s ) { 
+  std::cout << "Printing " << s << std::endl;
+  gPad->Print( s.c_str() );
+}
 
 
 
@@ -183,7 +226,7 @@ double chi2( TH1* h0, TH1* h1 ) {
 
 int main(int argc, char** argv) { 
 
-  if ( argc<4 ) return usage(argv[0], -1);
+  if ( argc<4 ) return usage(argv[0], -1, "too few arguments");
 
   /// control stuff
   
@@ -216,7 +259,6 @@ int main(int argc, char** argv) {
   bool refit_resplots        = false;
   bool refitref_resplots     = false;
   bool _bayes      = true;
-  bool nopng       = false;
   bool nostats     = false;
   bool nomeans     = false;
   bool noref       = false;
@@ -224,8 +266,10 @@ int main(int argc, char** argv) {
   bool deleteref   = false;
   bool nowatermark = false;
   bool noplots     = false;
+  bool nopng       = false;
+  bool nopdf       = false;
   bool Cfile       = false;
-  bool notitle     = false;
+  bool notitle     = true;
   bool dochi2      = false;
   bool normref     = false;
   bool scalepix    = true;
@@ -236,10 +280,8 @@ int main(int argc, char** argv) {
 
   double xerror    = 0;
 
-  std::string atlaslabel = "Internal";
+  std::string atlaslabel_tmp = "Internal";
 
-
-  std::string chainref = ""; 
 
   double scale_eff     = -1;
   double scale_eff_ref = -1;
@@ -259,11 +301,16 @@ int main(int argc, char** argv) {
 
   bool addingrefchains = false;
 
+
+  int ncols = 2;
+
   for(int i=1; i<argc; i++){
     std::string arg  = argv[i];
 
-    if ( arg.find("-")!=0 && addinglabels ) { 
-      usrlabels.push_back( arg );
+    if ( arg.find("-")!=0 && addinglabels ) {
+      std::string label = arg;
+      replace( label, "#", " " );
+      usrlabels.push_back( label );
       continue;
     }
     else addinglabels = false;
@@ -281,26 +328,26 @@ int main(int argc, char** argv) {
     else addingtags = false;
 
     if ( arg=="-h" || arg=="--help" ) { 
-       return usage(argv[0], 0);
+      return usage(argv[0], 0);
     }
     else if ( arg=="-c" || arg=="--config" ) { 
       if ( ++i<argc ) configfile=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no config file provided");
     }
     else if ( arg=="-t" || arg=="--tag" ) { 
       if ( ++i<argc ) tag=std::string("-")+argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no tag provided");
     }
     else if ( arg=="-l" || arg=="--labels" ) { 
       addinglabels = true;
     }
     else if ( arg=="-k" || arg=="--key" ) { 
       if ( ++i<argc ) key=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no key provided");
     }
     else if ( arg=="-d" || arg=="--dir" ) { 
       if ( ++i<argc ) dir=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no directory provided");
     }
     else if ( arg=="--taglabels" ) { 
       addingtags = true;
@@ -314,9 +361,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-yrange" ) { 
       effset = true;
       if ( ++i<argc ) effmin=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no range specified");
       if ( ++i<argc ) effmax=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no upper y limit specified");
     }
     else if ( arg=="-e" || arg=="--efficiencies" ) { 
       make_ref_efficiencies = true;
@@ -364,11 +411,15 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-es" || arg=="--effscale" ) { 
       if ( ++i<argc ) scale_eff=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no efficiency scale provided");
     } 
     else if ( arg=="-er" || arg=="--effscaleref" ) { 
       if ( ++i<argc ) scale_eff_ref=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no efficiency scale for the reference histograms provided");
+    } 
+    else if (               arg=="--ncols" ) { 
+      if ( ++i<argc ) ncols=std::atoi(argv[i]);
+      else return usage(argv[0], -1, "no number of columns provided");
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
@@ -382,6 +433,9 @@ int main(int argc, char** argv) {
     else if (              arg=="--nopng" ) { 
       nopng = true;
     }
+    else if (              arg=="--nopdf" ) { 
+      nopdf = true;
+    }
     else if ( arg=="-as" || arg=="--atlasstyle" ) { 
       atlasstyle = true;
     }
@@ -389,26 +443,26 @@ int main(int argc, char** argv) {
       quiet = true;
     } 
     else if ( arg=="-al" || arg=="--atlaslabel" ) { 
-      if ( ++i<argc ) atlaslabel=argv[i];
-      else return usage(argv[0], -1);
+      if ( ++i<argc ) atlaslabel_tmp=argv[i];
+      else return usage(argv[0], -1, "no label provided");
     }
     else if ( arg=="-xo" || arg=="--xoffset" ) { 
       if ( ++i<argc ) xoffset=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no xoffset provided");
     }
     else if ( arg=="-yp" || arg=="--ypos" ) { 
       if ( ++i<argc ) _ypos=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no y position provided");
     }
     else if ( arg=="-xe" || arg=="--xerror" ) { 
       if ( ++i<argc ) xerror=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no x error provided");
     }
     else if ( arg=="-s" || arg=="--swap" ) { 
       if ( ++i<argc ) pattern=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no patterns provided");
       if ( ++i<argc ) regex=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no target pattern provided");
     }
     else if ( arg.find("-")==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
@@ -426,16 +480,14 @@ int main(int argc, char** argv) {
     }
   }
 
-  gStyle->SetErrorX(xerror);
-
   if ( ftestname=="" )  { 
-       std::cerr << "main(): test file not specified " << std::endl;
-       return -1;
+    std::cerr << "main(): test file not specified " << std::endl;
+    return -1;
   }
 
   if ( !exists(ftestname) ) { 
-      std::cerr << "main(): test file " << ftestname << " does not exist" << std::endl;
-      return -1;
+    std::cerr << "main(): test file " << ftestname << " does not exist" << std::endl;
+    return -1;
   }
 
   _ftest = TFile::Open( ftestname.c_str() );
@@ -466,10 +518,18 @@ int main(int argc, char** argv) {
 
   bool noreftmp = noref;
 
-  if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1);
+  if ( chains.size()==0 ) return usage(argv[0], -1, "no chains specified");
+
+  if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1, "not enough chains specified");
   
   if ( refchains.size()==0 ) refchains = chains;
   
+  std::vector<std::string> chainref(chains.size(),"");
+  std::vector<std::string> chain_name(chains.size(),"");
+
+  std::vector<std::string> refchain(chainref.size(),"");
+	
+
 
   std::cout << argv[0] << " options:" << std::endl;
   std::cout << "\tATLAS style:                 " << ( atlasstyle ? "true" : "false" ) << std::endl; 
@@ -478,48 +538,50 @@ int main(int argc, char** argv) {
   std::cout << "\tsuppress mean and rms stats: " << ( nostats ? "true" : "false" ) << std::endl;  
   if ( !nostats ) std::cout << "\tsuppress meanstats:          " << ( nomeans ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
+  std::cout << "\tsuppress pdf output:         " << ( nopdf ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
   std::cout << "\tuse chain references:        " << ( usechainref ? "true" : "false" ) << std::endl;
+  std::cout << "\tpanel ncols:                 " << ncols << std::endl;
 
-  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                 " << usrlabels << std::endl;        
-  if ( taglabels.size()>0 )  std::cout << "\textra text:             " << taglabels << std::endl;  
+  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                      " << usrlabels.size() << std::endl;        
+  if ( taglabels.size()>0 )  std::cout << "\textra text:                  " << taglabels << std::endl;  
   
 
   for ( size_t il=0 ; il<usrlabels.size() ; il++ ) { 
     std::cout << "usr label[" << il << "] : " << usrlabels[il] << std::endl;
   } 
 
+  std::cout << "atlas style : " << atlasstyle << std::endl;
+
   if ( atlasstyle ) { 
     SetAtlasStyle();
-    
-    gStyle->SetPadLeftMargin(0.14);
-    gStyle->SetPadBottomMargin(0.15);
-    
+    gStyle = AtlasStyle();
+    gStyle->cd();
   }
-  else {
-    gStyle->SetPadLeftMargin(0.105);
-    gStyle->SetPadBottomMargin(0.105);
+  else { 
+    gROOT->SetStyle("Plain");
+    gStyle->cd();
+    gStyle->SetLineScalePS(1);
+    xoffset += 0.02;
   }
 
-  gStyle->SetPadRightMargin(0.03);
+  gStyle->SetErrorX(xerror);
+
+  gStyle->SetPadLeftMargin(0.14);
+  gStyle->SetPadBottomMargin(0.15);
+
+  gStyle->SetPadRightMargin(0.01);
   gStyle->SetPadTopMargin(0.05);
 
-  if ( chains.size()<4 ) { 
-    std::cout << "Chains: " << chains << std::endl;
-  }
-  else {  
-    std::cout << "Chains: " << std::endl;
-    for ( unsigned ic=0 ; ic<chains.size() ; ic++ ) std::cout << "\t" << chains[ic] << std::endl;
-  }    
+  std::cout << "Chains: " << std::endl;
+  for ( unsigned ic=0 ; ic<chains.size() ; ic++ ) std::cout << "\t" << chains[ic] << std::endl;    
 
   if ( usrlabels.size()>0 ) std::cout << "labels " << usrlabels << std::endl;
 
   if ( usrlabels.size()>0 && usrlabels.size()==chains.size() ) uselabels = true;
 
-
   /// get release data
 
-  
   TTree*   dataTree = 0;
   TString* releaseData = new TString("");
   std::vector<std::string> release_data;
@@ -541,7 +603,6 @@ int main(int argc, char** argv) {
     if ( release_data.size()>0 ) { 
       if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
       
-      //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       
       std::string nightly = chop(release_data[0], " " );
@@ -570,16 +631,14 @@ int main(int argc, char** argv) {
   }
 
   TFile& ftest = *_ftest;
-
-
   TFile& fref  = *_fref;
-
 
   std::string testrun = findrun( &ftest );
 
+  std::string  rawrefrun = "";
   std::string  refrun = "";
 
-  if ( _fref ) refrun = findrun( &fref  );
+  if ( _fref ) refrun = rawrefrun = findrun( &fref  );
 
   std::cout << "testrun: " << testrun << "\nrefrun:  " << refrun << std::endl;
 
@@ -625,11 +684,10 @@ int main(int argc, char** argv) {
 
   } 
   
-  std::vector<std::string> chainnames;
+  //  std::vector<std::string> chainnames;
 
-
-  chainnames.resize(chains.size());
-  chainnames.clear();
+  //  chainnames.resize(chains.size(),"");
+  //  chainnames.clear();
 
   /// we divide the resolutions by these
   /// values if we have an "entries" histogram
@@ -659,204 +717,170 @@ int main(int argc, char** argv) {
   }
 
 
+  /// set up the correct reference chain names ...
 
-  int    Nhistos = 48;
-  const  int __Nhistos = 48;
-  std::string __histos[__Nhistos][6] = { 
+  std::cout << "\ncreating chain and reference information ..." << std::endl;
 
-    /// distributions - 4
-    //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",        "xaxis:lin:-3:3",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",    "xaxis:lin:-3:3",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    //{ "a0",      "a0",        "xaxis:lin:autosym",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    //{ "a0_rec",  "a0 rec",    "xaxis:lin:autosym",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
+  for ( size_t j=0; j<chains.size(); j++)  {
+	
+    /// get the actual chain name and track collection from 
 
-    /// efficiencies - 10 
-    //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",          "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    //    { "a0_eff",  "Efficiency a0",   "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",       "Efficiency [%]" },        
-    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },      
-    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },        
- 
-    { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },
-    { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",       "Efficiency [%]" },       
+    /// the Chain histogram if present
+    std::cout << "chain:        " << chains[j] << "\taddchains: " << addchains << std::endl;
+    //    std::cout << "chainref:     " << chainref[j] << " - original" << std::endl;
+    
+    if ( addchains && ( contains(chains[j],"Shifter") || ( !contains(chains[j],"HLT_") && !contains(chains[j], "Fullscan" ) ) ) ) { 
+      
+      TH1F* hchain = Get( ftest, chains[j]+"/Chain", testrun );
+      
+      if ( hchain ) { 
+	
+	std::string name = hchain->GetTitle();
+	
+	if ( usechainref && !contains(chains[j],"Purity") ) { 
+	
+	  chainref[j] = name;
+	  
+	  std::cout << "new chainref:   " << chainref[j] << std::endl;
 
-    /// standard residuals - 5 
-    { "ipT_res",    "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries" },       
-    { "eta_res",    "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries" },       
-    { "phi_res",    "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries" },
-    //  { "z0_res", "Residual z0",       "xaxis:lin:-7:10",         "#Delta z_{0} [mm]",            "yaxis:lin:0:0.035", "Normalised entries" },
-    { "z0_res",     "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },
-    { "a0_res",     "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },       
- 
-    /// residuals vs track parameters - 17
-    //    { "rd0_vs_pt/sigma",    "Residual d vs p_{T}",          "xaxis:lin:0:100",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
-    { "rd0_vs_pt/sigma",          "Residual d vs p_{T}",          "xaxis:lin:auto",      "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
-    { "rd0_vs_signed_pt/sigma",   "Residual d vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },    
-    // { "rd0_vs_ABS_pt/sigma",   "Residual d vs absolute p_{T}", "xaxis:log:1:100",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },       
-    { "rd0_vs_eta/sigma",         "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d_{0} resolution [mm]" },                    
-    // { "rd0_vs_eta/sigma",      "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:0.015:0.05",  "d_{0} resolution [mm]" },                    
-    { "rd0_vs_ipt/sigma",         "Residual d vs 1/p_{T}",        "xaxis:lin",           "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "d_{0} resolution [mm]" },                       
+	  std::string::size_type pos = chainref[j].find(":for");
+	  if ( pos!=std::string::npos ) chainref[j].replace( pos, 4, "_for" );
+	  std::replace( chainref[j].begin(), chainref[j].end(), ':', '/');	    
+	  std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref[j];
+	  chainref[j] = newchain;
 
-    //    { "ript_vs_pt/sigma",   "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:1:100",    "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    { "ript_vs_pt/sigma",         "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    { "ript_vs_eta/sigma",        "Residual 1/p_{T} vs #eta",     "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    { "ript_vs_ipt/sigma",        "Residual 1/p_{T} vs 1/p_{T}",  "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    //   { "rpt_vs_ipt/sigma",    "Residual p_{T} vs 1/p_{T}",    "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "",                "p_{T} resolution [GeV]" },      
+	  std::cout << "final chainref: " << chainref[j] << std::endl;
 
-    //    { "reta_vs_pt/sigma",   "Residual #eta p_{T}",          "xaxis:log:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution" },            
-    { "reta_vs_pt/sigma",         "Residual #eta p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution" },            
-    { "reta_vs_eta/sigma",        "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "#eta resolution" },            
-    //   { "reta_vs_eta/sigma",   "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:1e-4:1.4e-3",  "#eta resolution" },            
-    { "reta_vs_ipt/sigma",        "Residual #eta vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "#eta resolution" },            
+	}
 
-    //    { "rphi_vs_pt/sigma",   "Residual #phi vs p_{T}",       "xaxis:lin:auto",     "p_{T} [GeV]",           "yaxis:lin:auto", "#phi resolution" },
-    { "rphi_vs_pt/sigma",         "Residual #phi vs p_{T}",       "xaxis:lin:1:100",    "p_{T} [GeV]",           "yaxis:lin:auto", "#phi resolution" },
-    { "rphi_vs_ipt/sigma",        "Residual #phi vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "#phi resolution" },
+	std::cout << "chainref:     " << chainref[j] << std::endl;
+	
+	while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
 
-    { "rzed_vs_eta/sigma",        "Residual z vs #eta",           "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    //    { "rzed_vs_pt/sigma",   "Residual z vs p_{T}",          "xaxis:log:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_pt/sigma",         "Residual z vs p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_signed_pt/sigma",  "Residual z vs signed p_{T}",   "xaxis:lin:-100:100", "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    //  { "rzed_vs_ABS_pt/sigma", "Residual z vs absolute p_{T}", "xaxis:lin:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_zed/sigma",        "Residual z vs z",              "xaxis:lin:-250:250", "Offline z [mm]",        "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_ipt/sigma",        "Residual z vs 1/p_{T}",        "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "z_{0} resolution [mm]" },
+	std::cout << "name:         " << name << std::endl;
 
-    /// track multiplicity - 1
-    { "ntracks_rec",             "number of reconstructed tracks", "xaxis:lin:auto",   "N trigger tracks",     "yaxis:log:auto", "Entries"  },
+	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(":") ) + " : ";
+	else                           chain_name[j] = name;
 
-    /// hit multiplicity - 6
-    { "npix_eta/mean",           "mean number of pixel hits",  "xaxis:lin",   "Offline #eta",   "yaxis:lin:3:6",  "Pixel hits"    },
-    { "nsct_eta/mean",           "mean number of SCT hits",    "xaxis:lin",   "Offline #eta",   "yaxis:lin:7:10", "SCT clusters"  },
-
-    //    { "npix_pt/mean",           "mean number of pixel hits",  "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Pixel hits"    },
-    //    { "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "SCT clusters"  },
-
-    //    { "npixh_pt/mean",           "mean number of pixel holes",  "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:6",  "Pixel holes"    },
-    //    { "nscth_pt/mean",           "mean number of SCT holes",    "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:10", "SCT holes"  },
-
-    { "npix_pt/mean",           "mean number of pixel hits",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Pixel hits"    },
-    { "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "SCT clusters"  },
-
-    { "npixh_pt/mean",           "mean number of pixel holes",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:6",  "Pixel holes"    },
-    { "nscth_pt/mean",           "mean number of SCT holes",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:10", "SCT holes"  },
+	if  ( chain_name[j] == " : "  )  chain_name[j] = "";
+	
+	std::cout << "chain_name: " << chain_name[j] << std::endl;
+      }
+    }
+  }
 
 
-    /// chi2 and chi2 probability - 3
-    { "Chi2prob/1d",           "Chi2 probability",       "xaxis:lin",         "track #chi^{2} Probability",   "yaxis:lin:auto",  "Entries"  },
-    { "Chi2dof/1d",            "Chi2 per dof",           "xaxis:lin",         "track #chi^{2} per dof",       "yaxis:log:auto",  "Entries"  },
-    { "Chi2/1d",               "Chi2",                   "xaxis:lin",         "Offline track #chi^{2}",       "yaxis:lin",       "Entries"  },
+  for ( size_t j=0 ; j<chainref.size() ; j++ ) { 
+    std::cout << "chainref: " << chainref[j] << " :: " << refchains[j] << std::endl;
+    if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], pattern, regex );
+    else                   refchain[j] = fullreplace( refchains[j], pattern, regex );
+    std::cout << "refchain: " << refchain[j] << std::endl;
+  }
 
-    { "Chi2prob/mean",         "Chi2 probability vs pT", "xaxis:log:auto",    "Offline p_{T} [GeV]",          "yaxis:lin",  "mean track #Chi^{2} Probability"  }
 
-  };
-  
+  /// set up the plot panels 
 
-  std::vector<std::vector<std::string> > _histos;
+  std::vector<Panel> panels;
 
   /// read config in from a file if requested ...
 
   if ( configfile!="" ) { 
+
     if ( exists(configfile) ) { 
 
       std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
     
       ReadCards rc(configfile);
+
+
+      /// read the histos - 1 panel per histo
       
-      std::vector<std::string> histos = rc.GetStringVector("histos");
-      
-      //  std::string histos[Nhistos];
-      
-      for ( unsigned i=0 ; i<histos.size() ; ) { 
-	std::vector<std::string> duff;
-	/// 6 entries are needed for every histogram ...
-	for ( int j=0 ; j<6 && i<histos.size() ; j++, i++  ) duff.push_back( histos[i] );
-	_histos.push_back( duff );
+      if ( rc.isTagDefined( "histos" ) ) { 
+	
+	std::vector<std::string> raw_input = rc.GetStringVector( "histos" );
+	
+	for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6) {
+	  HistDetails h( &(raw_input[iraw]) );	
+	  Panel p( h.name(), 1 ); 
+	  p.push_back( h );
+	  panels.push_back( p );
+	}
+	
       }
       
-      for ( unsigned i=0 ; i<_histos.size() ; i++ ) std::cout << "histos: " << i << "\t" << _histos[i] << std::endl;
+
+      /// read in the panel descriptions
+
+      if ( rc.isTagDefined( "panels" ) ) { 
+	
+	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
+	
+	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
+	  
+	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
+	  
+	  Panel p( panel_config[ipanel], ncols );
+	  
+	  if ( raw_input.empty() ) throw std::exception();
+	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );
+	  	  
+	  panels.push_back( p ); 
+
+	}
+
+      }	  
       
     }
     else { 
       std::cerr << argv[0] << ":\t config file not found: " << configfile << std::endl;
       return -1;
     }
+
   }
   else { 
-    for ( int i=0 ; i<__Nhistos ; i++ ) { 
-      std::vector<std::string> duff;
-      for ( int j=0 ; j<6 ; j++ ) duff.push_back( __histos[i][j] );
-      _histos.push_back( duff );
+
+
+    /// use the default values as single histogram panels
+
+    // for ( size_t iraw=0 ; iraw<Nhistos ; iraw++ ) { 
+    //    Panel p( histos_default[iraw][0], 1 );
+    //    p.push_back( histos_default[iraw] );
+    //    panels.push_back( p );
+    // }
+
+    // default panel efficiencies plotted from 0 to 100, 
+    // so scale efficiencies no matter what
+
+    scale_eff     = 100;
+    scale_eff_ref = 100;
+
+    /// use the default panels
+
+    std::string ((*inpanels[3])[6]) = { eff_panel, res_panel, diff_panel };
+
+    size_t nphist[3] = { 4, 4, 10 }; 
+
+    std::string pnames[3] = { "eff", "res", "diff" };
+
+    for ( size_t ip=0 ; ip<3 ; ip++ ) { 
+      Panel p( pnames[ip]+"_panel", 2 );
+      for ( size_t iraw=0 ; iraw<nphist[ip] ; iraw++ ) p.push_back( HistDetails( inpanels[ip][iraw] ) );
+      panels.push_back( p );
     }
+
   }
 
-  Nhistos = _histos.size();
+  std::cout << "\npanels: " << panels.size() << std::endl; 
 
-  if ( _histos.size()==0 ) return usage(argv[0], -1);
+  if ( panels.size()==0 ) return usage(argv[0], -1, "no panels to plot");
 
-  //  const int Nhistos2D = 2;
-  //  int Nhistos2D = 0;
-
-  std::vector<std::string> histos2D; 
-  std::vector<std::string> histonames2D; 
-
-  //  std::string> histos2D[2] = {
-  //    "eta_phi_rec",
-  //    "phi_d0_rec",
-  //  };
-
-  //  std::string histonames2D[Nhistos2D] = {
-  //    "#phi vs #eta",
-  //    "d_{0} vs #phi",
-  //  };
+  for ( size_t ip=0 ; ip<panels.size() ; ip++ ) std::cout << panels[ip] << std::endl;
 
 
-  std::set<std::string> h2dset;
-
-  for ( int i=0 ; i<Nhistos ; i++ ) {
-    std::string hist = _histos[i][0];
-    if ( contains( hist, "2d" ) && !contains( hist, "2dof" ) ) { 
-      histos2D.push_back( _histos[i][0] ); 
-      histonames2D.push_back( _histos[i][1] ); 
-      h2dset.insert( hist );
-    }
-  }
-
-  if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-  //  Nhistos2D = histos2D.size();
-
-  std::cout << "size of chains " << chains.size() << std::endl;
-
-  if ( chains.size()<4 ) { 
-    std::cout << "main() processing chains : " << chains << std::endl; 
-  }
-  else { 
-    std::cout << "main() processing chains : " << std::endl;
-    for ( unsigned ic=0 ; ic<chains.size() ; ic++ ) std::cout << "\t" << chains[ic] << std::endl;
-  }
-
-
-  if ( chains.empty() ) return 0;
-
-
-  std::cout << "N chains " << chains.size() << "\t2d size " << histos2D.size() << std::endl; 
-
-
-  /// create a better 2d colour pallette
-  
+  /// a better colour palette than the egregious root default
   if ( true ) { 
     gStyle->SetPadRightMargin(0.05);
     gStyle->SetPadTopMargin(0.05);
-
 
     const Int_t Number = 3;
     Double_t Red[Number] = { 0.00, 0.00, 1.00};
@@ -865,1143 +889,1106 @@ int main(int argc, char** argv) {
     Double_t Length[Number] = { 0.00, 0.50, 1.00 };
     Int_t nb=50;
     TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
-
   }
   else gStyle->SetPalette(1);
 
   if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-  /// so we can easily limit the number of histograms drawn
-  int _Nhistos = Nhistos;
-
-  std::vector<std::string> histos(_Nhistos);
-
-
-  if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-  for ( int i=0 ; i<_Nhistos ; i++ ) histos[i] = _histos[i][0];
-
-  if ( fulldbg )  std::cout << __LINE__ << std::endl; 
-
-
-
   double rightmargin = gStyle->GetPadRightMargin(); 
   gStyle->SetPadRightMargin(0.1); 
 
+  /// Fixme: add the 2D histogram processing here ??
 
-  for ( unsigned int j=0; j<chains.size(); j++)  {
-
-      if ( fulldbg )  std::cout << __LINE__ << std::endl; 
-
-      std::string refchain = "";
-      
-      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
-      else                refchain = fullreplace( refchains[j], pattern, regex );
-      
-
-      if ( fulldbg )  std::cout << __LINE__ << std::endl; 
-
-      //      if ( chains[j]=="FTK_TrackParticle" ){
-      { 
-	
-	for ( unsigned i=0 ; i<histos.size() ; i++ ) {
-
-	  
-	  if ( fulldbg )  std::cout << __LINE__ << std::endl;
-	  
-	  std::string hist = _histos[i][0];
-	  
-	  if ( !contains( hist, "2d" ) || contains( hist, "2dof" ) ) continue; 
-	  
-	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
-	  
-	  TH2F* htest2D = (TH2F*)ftest.Get((chains[j]+"/"+hist ).c_str()) ;
-	  TH2F* href2D  = (TH2F*)fref.Get((refchain+"/"+hist ).c_str()) ;
-	  
-	  
-	  if ( htest2D==0 ) continue;
-
-	  if ( href2D==0 && noref==false ) noreftmp=true;
-	  Plotter::setplotref(!noreftmp);
-
-	  zero( htest2D );
-	  if ( !noreftmp ) zero( href2D );
-	  
-	  AxisInfo xinfo( _histos[i][2] ); 
-	  AxisInfo yinfo( _histos[i][4] ); 
-
-	  //	      std::cout << "yinfo " << _histos[i][0] << ": " << _histos[i][4] << " :: " << yinfo << " " << yinfo.rangeset() << std::endl;
-
-	  htest2D->GetYaxis()->SetTitle( _histos[i][5].c_str() );	  
-	  htest2D->GetXaxis()->SetTitle( _histos[i][3].c_str() );
-
-	  if ( yinfo.rangeset() ) { 		
-	    htest2D->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
-	  }
-
-	  if ( xinfo.rangeset() ) { 		
-	    htest2D->GetXaxis()->SetRangeUser( xinfo.lo(), xinfo.hi() );
-	  }
-
-
-	  if ( !noreftmp ) { 
-	    href2D->GetYaxis()->SetTitle(  _histos[i][5].c_str() );
-	    href2D->GetXaxis()->SetTitle(  _histos[i][3].c_str() );
-	    
-	    
-	    if ( yinfo.rangeset() ) { 		
-	      href2D->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
-	    }
-	    
-	    if ( xinfo.rangeset() ) { 		
-	      href2D->GetXaxis()->SetRangeUser( xinfo.lo(), xinfo.hi() );
-	    }
-	  }
-
-	  savedhistos.push_back( chains[j]+"/"+hist );
-	  
-	  TCanvas* c1 = new TCanvas(label( "canvas2D-%d", i ).c_str(),"histogram",1200,500);
-	  c1->Divide(2,1);
-	  c1->cd(1);
-	  
-	  std::string title = hist;
-	  title += " test";
-	  htest2D->SetTitle(title.c_str());
-	  //              htest2D->Scale(1./NeventTest);
-	  htest2D->Draw("COLZ");
-
-	  c1->cd(2);
-
-	  std::string title2 = hist;
-	  title2 += "reference";
-	  if ( !noreftmp ) href2D->SetTitle(title2.c_str());
-	  // gPad->SetLogz();                                                                                         
-	  if ( !noreftmp ) href2D->Draw("COLZ");
-
-	  //	  gPad->SetLogz(true);
-
-          if ( !quiet ) { 
-            std::string plotname = chains[j];
-            plotname += "_";
-            //	  plotname += "HLT_";
-            plotname += hist.c_str();
-            plotname += ".png";
-            replace( plotname, "/", "_");
-            
-            plotname = fullreplace( plotname, "InDetTrigTrackingxAODCnv", "" );
-            
-            std::cout << "plot 2D " << dir+plotname << std::endl;
-            
-            c1->Print((dir+plotname).c_str());
-          }
-          delete c1;
-        }
-      }
-  }
-  
   gStyle->SetPadRightMargin(rightmargin); 
-
-  
-  //  std::exit(0);
-
-  /// so we can easily limit the number of histograms drawn
-  ///  int _Nhistos = Nhistos;
-
-  ///  std::vector<std::string> histos(_Nhistos);
-
-
-  for ( int i=0 ; i<Nhistos ; i++ ) {
-
-    noreftmp = noref;
-    Plotter::setplotref(!noreftmp);
-	  
-    if ( fulldbg )  std::cout << __LINE__ << std::endl;
-
-    //    if ( i!=17 ) continue;
-
-    //    histos[i] = _histos[i][0];
-
-    /// don't process 2d histograms juet yet
-    if ( h2dset.find( histos[i] )!=h2dset.end() ) continue; 
-
-    //    std::cout << "main() processing histos[" << i <<  "] " << (i<10 ? " " : "" ) << (chains[0]+"/"+histos[i]) << std::endl;
-    std::cout << "main() processing histos[" << i <<  "] " << (i<10 ? " " : "" ) << histos[i] << "\t" << AxisInfo( _histos[i][2] ) << std::endl;
-
-    //    std::vector<Plotter> plots;
-
-    Plots plots_eff;
-    plots_eff.clear();
-
-    Plots plots;
-    plots.clear();
-  
-    TCanvas* c1 = new TCanvas(label("canvas-%d",i).c_str(),"histogram",800,600);
-    c1->cd();
-
     
+  // gStyle->SetLineScalePS(1);
 
+  for ( size_t ipanel=0 ; ipanel<panels.size() ; ipanel++ ) { 
 
-    /// legends ....
-    Legend legend;
-    Legend legend_eff;
+    Panel& panel = panels[ipanel]; 
 
+    std::cout << "\n\n---------------------------------------------\n";
 
-    double xpos  = 0.15;
-    double ypos  = 0.93;
+    std::cout << panel << "\n" << std::endl;
 
-    if ( contains(histos[i],"eff") || contains(histos[i],"Eff_") ) ypos = 0.15;
+    int ncolsp = panel.ncols();
+    int nrowsp = panel.nrows();
+    
+    double extraw = 1;
 
-    if ( atlasstyle ) { 
-      xpos  = 0.18;
-      if ( ypos>0.5 ) ypos = 0.85; 
-      else            ypos = 0.18;
+    std::cout << "\nncols: " << ncolsp << "\tnrows: " << nrowsp << std::endl;
+
+    bool multipanel = ( panel.size() > 1 );
+
+    if ( panel.size()==0 ) { 
+      std::cout << "panel empty: " << panel.name() << std::endl;
+      continue;
     }
 
-    if ( _ypos!=0 ) ypos = _ypos;
-
-    double xpos_original = xpos;
-
-    xpos += xoffset;
-
-    /// calculate all the postions for the items in the legend
-
-    int Nlines = chains.size() + taglabels.size();
-
-    std::vector<double> ypositions;
-
-    double deltay = (chains.size()*0.06-0.005)/chains.size();
-
-    double ylo = ypos;
-    double yhi = ypos;
+    gStyle->cd();
     
-    if ( ypos>0.5 ) ylo -= Nlines*deltay;
-    else            yhi += Nlines*deltay;
+    if ( panel.size()>4 ) gStyle->SetLineScalePS(0.5);
+ 
+    if ( multipanel ) extraw = 1.05;
+
+    TCanvas* tc = new TCanvas( "tc", "", extraw*ncolsp*800, nrowsp*600 );
+
+    tc->cd();
+
+    std::string atlaslabel = atlaslabel_tmp;
+
     
-    for ( int ilines=0 ; ilines<Nlines ; ilines++ ) { 
-      ypositions.push_back( yhi - deltay*(ilines+0.5) );
+    if ( multipanel ) { 
+
+      gStyle->SetLineScalePS(1);
+
+      /// words can not express the sheer unpleasantness in trying to 
+      /// do anything serious with subpanels
+
+      /// - if any margins between pads are set to 0, root messes 
+      ///   up the *pad* margins so they are 0 with seemingly no way 
+      ///   to prevent it - have to use a very small (but non 0) value, 
+      ///   but then the margins don't size properly. 
+      /// - Once you cd() to one of the child pads, if you 
+      ///   ask for the child GetWh() or GetWw() you *don't* get the 
+      ///   parameters of the child pad, but the *main* pad etc
+
+      /// How are you supposed to get the paremeters of the *actual* 
+      /// pad ? It is insane.
+      
+      tc->Divide( ncolsp, nrowsp, 0.0001, 0.0003 );
+      //  atlaslabel = "     " + atlaslabel_tmp;
     }
 
-    bool residual = false;
-    if ( contains(histos[i],"_res") ||  contains(histos[i],"residual_") || contains(histos[i],"1d") ) residual = true; 
-
-    if ( residual ) xpos = xpos_original;
-    // efficiencies or residuals?
-    //    if ( contains(histos[i],"eff") ) {
-    legend     = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
-    legend_eff = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
-    //    }
-    //    else {
-    //      legend     = Legend( xpos, xpos+0.1, ypos-chains.size()*0.06-0.01, ypos );
-    //      legend_eff = Legend( xpos, xpos+0.1, ypos-chains.size()*0.06-0.01, ypos  );
-    //    }
-
-
-    std::vector<std::string> Mean;
-    std::vector<std::string> RMS;
-  
-    Mean.clear();
-    RMS.clear();
-
-    std::vector<std::string> Chi2;
-    std::vector<std::string> MeanRef;
-    std::vector<std::string> RMSRef;
-  
-    //    int colours[6] = { 1, 2, 4, 6, 7, 8 };
-
-    Chi2.clear();
-    MeanRef.clear();
-    RMSRef.clear();
+    /// histos within the panel
 
     std::string plotname = ""; 
 
-
-    int mean_power = 0;
-    int rms_power  = 0;
-    bool power_set = false;
-    
-
-    std::string xaxis = _histos[i][3];
-    std::string yaxis = _histos[i][5];
-
-    AxisInfo xinfo( _histos[i][2] ); 
-    AxisInfo yinfo( _histos[i][4] ); 
-
-    //    bool uselogx = xinfo.log();
-    //    bool uselogy = yinfo.log();
-
-    for ( unsigned int j=0; j<chains.size(); j++)  {
-
-      /// get the actual chain name and track collection from 
-      /// the Chain histogram if present
+    for ( size_t i=0 ; i<panel.size() ; i++ ) {
       
-      std::string chain_name = "";
+      HistDetails histo = panel[i];
 
-      if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
-	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
-	if ( hchain ) { 
-	  std::string name = hchain->GetTitle();
-	  if ( usechainref && !contains(chains[j],"Purity") ) { 
-	    chainref = name;
-	    std::string::size_type pos = chainref.find(":for");
-            if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
-	    std::replace( chainref.begin(), chainref.end(), ':', '/');	    
-	    std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref;
-	    chainref = newchain;
-	  }
-
-	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
-	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
-	  else                          chain_name = name;
-	}
-      }
+      std::string xaxis = histo.xtitle();
+      std::string yaxis = histo.ytitle();
       
+      AxisInfo xinfo = histo.xaxis(); 
+      AxisInfo yinfo = histo.yaxis(); 
+
+      int npanel = nrowsp*(i/nrowsp) + i%nrowsp + 1 ;
+      
+      std::cout << "panel: panel: " << panel.name() << "\tsubpanel: " << npanel << std::endl;
+
+      if ( multipanel ) tc->cd( npanel );
+
+      SetAtlasStyle();
 
       noreftmp = noref;
+
       Plotter::setplotref(!noreftmp);
-
-      TH1F* htest = 0;
-      TH1F* href  = 0;
-
-      TH1F* htestnum = 0;
-      TH1F* htestden = 0;
-      TH1F* hrefnum  = 0;
-
-      TGraphAsymmErrors* tgtest = 0;
-
       
-      std::string refchain = "";
+      if ( fulldbg )  std::cout << __LINE__ << std::endl;
+      
+      std::cout << "main() processing histo[" << i <<  "] " << (i<10 ? " " : "" ) << histo.name() << "\t" << histo.xaxis() << std::endl;
+      
+      Plots plots_eff;
+      plots_eff.clear();
+      
+      Plots plots;
+      plots.clear();
+      
+      
+      //      TCanvas* c1 = new TCanvas(label("canvas-%d",i).c_str(),"histogram",800,600);
+      //      c1->cd();
+      
+      
+      double xpos  = 0.18;
+      double ypos  = 0.93;
+      
+      if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.15;
+      
+      if ( atlasstyle ) { 
+	xpos  = 0.18;
+	if ( ypos>0.5 ) ypos = 0.85; 
+	else            ypos = 0.18;
+      }
+      
+      if ( _ypos!=0 ) ypos = _ypos;
+      
+      double xpos_original = xpos;
+      
+      xpos += xoffset;
+      
+      /// calculate all the postions for the items in the legend
+      
+      int Nlines = chains.size() + taglabels.size();
+      
+      std::vector<double> ypositions;
+      
+      double deltay = (chains.size()*0.06-0.005)/chains.size();
+      
+      double ylo = ypos;
+      double yhi = ypos;
+      
+      if ( ypos>0.5 ) ylo -= Nlines*deltay;
+      else            yhi += Nlines*deltay;
+      
+      for ( int ilines=0 ; ilines<Nlines ; ilines++ ) { 
+	ypositions.push_back( yhi - deltay*(ilines+0.5) );
+      }
 
-      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
-      else                refchain = fullreplace( refchains[j], pattern, regex );
-  
-      /// refit the resplots - get the 2d histogram and refit
-     
-      if ( refit_resplots && ( contains(histos[i],"/sigma") || contains(histos[i],"/mean") ) ) { 
+      //      bool residual = false;
 
-    	    bool bsigma = false;
-	    if ( contains(histos[i],"/sigma") ) bsigma = true;
+      //      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
+      
+      //      if ( residual ) xpos = xpos_original;
+      
+      // specify different legends for efficiencies or residuals?
+      
+      /// legends ....
+      Legend legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+      Legend legend_eff( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+            
+      
+      std::vector<std::string> Mean;
+      std::vector<std::string> RMS;
+      
+      Mean.clear();
+      RMS.clear();
+      
+      std::vector<std::string> Chi2;
+      std::vector<std::string> MeanRef;
+      std::vector<std::string> RMSRef;
+      
+      //    int colours[6] = { 1, 2, 4, 6, 7, 8 };
+      
+      Chi2.clear();
+      MeanRef.clear();
+      RMSRef.clear();
+      
+      int mean_power = 0;
+      int rms_power  = 0;
+      bool power_set = false;
+      
+      
+      
+      //    bool uselogx = xinfo.log();
+      //    bool uselogy = yinfo.log();
+      
+      for ( unsigned int j=0; j<chains.size(); j++)  {
+	
+	/// get the actual chain name and track collection from 
+	/// the Chain histogram if present
+	
+	std::cout << "chain:    " << chains[j] << "\taddchains: " << addchains << std::endl;
+	std::cout << "chainref: " << chainref[j] << std::endl;
 
-	    bool bmean = false;
-	    if ( contains(histos[i],"/mean") ) bmean = true;
-
-	    //    	    std::cout << "\trefitting:  " << histos[i] << std::endl;
-
-	    Resplot::setoldrms95(oldrms);
-	    Resplot::setscalerms95(true);
-
-	    std::string tmp_  = histos[i];
-	    std::string base;
-
-	    if ( bsigma ) base = chop( tmp_, "/sigma" );
-	    if ( bmean )  base = chop( tmp_, "/mean" );
-
-	    TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
-	    TH2D* _href2d  = (TH2D*)ftest.Get((refchain+"/"+base+"/2d").c_str()) ;
-
-	    savedhistos.push_back( chains[j]+"/"+base+"/2d" );
-
-
-	    if ( _htest2d==0 ) continue;
-	    if ( !noreftmp && _href2d==0 )  noreftmp = true;
-	    Plotter::setplotref(!noreftmp);
+	noreftmp = noref;
+	Plotter::setplotref(!noreftmp);
+	
+	TH1F* htest = 0;
+	TH1F* href  = 0;
+	
+	TH1F* htestnum = 0;
+	TH1F* htestden = 0;
+	TH1F* hrefnum  = 0;
+	
+	TGraphAsymmErrors* tgtest = 0;
+	
+	
+	std::cout << "refchain: " << refchain[j] << std::endl;
+	
+	/// refit the resplots - get the 2d histogram and refit
+	
+	if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
 	  
-	    /// get the test histogram
+	  bool bsigma = false;
+	  if ( contains(histo.name(),"/sigma") ) bsigma = true;
 
-	    //	    std::cout << "test " << _htest2d << std::endl;
-	    Resplot rtest("tmp", _htest2d);
-	    //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
-	    //      else   rtest.Finalise(Resplot::FitNull95);
-	    if ( rtest.finalised() ) { 
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Refit(Resplot::FitNull);
-	      else  rtest.Refit(Resplot::FitNull95);
-	    }
-	    else {
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Finalise(Resplot::FitNull);
-	      else  rtest.Finalise(Resplot::FitNull95);
-	    }
+	  bool bmean = false;
+	  if ( contains(histo.name(),"/mean") ) bmean = true;
 
-	    if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
-	    if ( bmean ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean"); htest->SetDirectory(0); }
+	  //    	    std::cout << "\trefitting:  " << histos[i] << std::endl;
+	    
+	  Resplot::setoldrms95(oldrms);
+	  Resplot::setscalerms95(true);
+	    
+	  std::string tmp_  = histo.name();
+	  std::string base;
+	    
+	  if ( bsigma ) base = chop( tmp_, "/sigma" );
+	  if ( bmean )  base = chop( tmp_, "/mean" );
+	    
+	  //	  TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
+	  //	  TH2D* _href2d  = (TH2D*)ftest.Get((refchain[j]+"/"+base+"/2d").c_str()) ;
+	    
+	  //	  savedhistos.push_back( chains[j]+"/"+base+"/2d" );	    
 
-	    if ( htest==0 ) { 
-	      std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << htest << std::endl; 
-	      continue;
-	    }
+	  TH2D* _htest2d = Get<TH2D>( ftest, chains[j]+"/"+base+"/2d", testrun, &savedhistos );
+	  TH2D* _href2d  = Get<TH2D>( ftest, refchain[j]+"/"+base+"/2d", testrun  );
+
+	  if ( _htest2d==0 ) continue;
+	  if ( !noreftmp && _href2d==0 )  noreftmp = true;
+	  Plotter::setplotref(!noreftmp);
+	    
+	  /// get the test histogram
+	    
+	  //	    std::cout << "test " << _htest2d << std::endl;
+	  Resplot rtest("tmp", _htest2d);
+	  //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	  //      else   rtest.Finalise(Resplot::FitNull95);
+	  if ( rtest.finalised() ) { 
+	    if ( contains(histo.name(),"npix") || contains(histo.name(),"nsct") || contains(histo.name(),"nsi") || contains(histo.name(),"nbl") ) rtest.Refit(Resplot::FitNull);
+	    else  rtest.Refit(Resplot::FitNull95);
+	  }
+	  else {
+	    if ( contains(histo.name(),"npix") || contains(histo.name(),"nsct") || contains(histo.name(),"nsi") || contains(histo.name(),"nbl") ) rtest.Finalise(Resplot::FitNull);
+	    else  rtest.Finalise(Resplot::FitNull95);
+	  }
+
+	  if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
+	  if ( bmean  ) { htest =  (TH1F*)rtest.Mean()->Clone("rtest_mean");  htest->SetDirectory(0); }
+
+	  if ( htest==0 ) { 
+	    std::cerr << "missing histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(test)" << std::endl; 
+	    continue;
+	  }
 
 
-	    /// Actually D) refit the references - if we are adding together many
-	    /// resplots, then the means etc may not even have been calculated
-	    /// 
-	    /// NB: DON'T Refit the reference, since only the central values
-	    ///     are plotted
-	    //	 std::cout << "ref " << _href2d << std::endl;
-	    //   Resplot rref("tmp", _href2d);
-	    //   rref.Finalise(Resplot::FitNull95);
-	    //   href = (TH1F*)rref.Sigma()->Clone("rref_sigma"); href->SetDirectory(0);
+	  /// Actually D) refit the references - if we are adding together many
+	  /// resplots, then the means etc may not even have been calculated
+	  /// 
+	  /// NB: DON'T Refit the reference, since only the central values
+	  ///     are plotted
+	  //	 std::cout << "ref " << _href2d << std::endl;
+	  //   Resplot rref("tmp", _href2d);
+	  //   rref.Finalise(Resplot::FitNull95);
+	  //   href = (TH1F*)rref.Sigma()->Clone("rref_sigma"); href->SetDirectory(0);
 
-	    /// still get the reference histo
+	  /// still get the reference histo
 
-	    //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+	  //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
 
+	  //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain[j]+"/"+histos[i]).c_str() );
+	
+	  TH1F* hreft  = 0;
 
-	    //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
-	    TH1F* hreft  = 0;
-
-	    if ( !noreftmp ) {
-	      if ( refitref_resplots ) { 
-		//	    std::cout << "test " << _htest2d << std::endl;
-		Resplot rref("tmp", _href2d);
+	  if ( !noreftmp ) {
+	    if ( refitref_resplots ) { 
+	      //	    std::cout << "test " << _htest2d << std::endl;
+	      Resplot rref("tmp", _href2d);
 		
-		if ( rref.finalised() ) { 
-		  if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rref.Refit(Resplot::FitNull);
-		  else  rref.Refit(Resplot::FitNull95);
-		}
-		else {
-		  if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rref.Finalise(Resplot::FitNull);
-		  else  rref.Finalise(Resplot::FitNull95);
-		}
-		
-		if ( bsigma ) { hreft = (TH1F*)rref.Sigma()->Clone("rref_sigma"); hreft->SetDirectory(0); }
-		if ( bmean )  { hreft = (TH1F*)rref.Mean()->Clone("rref_mean"); hreft->SetDirectory(0); }
-		
+	      if ( rref.finalised() ) { 
+		if ( contains(histo.name(),"npix") || contains(histo.name(),"nsct") ) rref.Refit(Resplot::FitNull);
+		else  rref.Refit(Resplot::FitNull95);
 	      }
-	      else { 
-		hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+	      else {
+		if ( contains(histo.name(),"npix") || contains(histo.name(),"nsct") ) rref.Finalise(Resplot::FitNull);
+		else  rref.Finalise(Resplot::FitNull95);
 	      }
+		
+	      if ( bsigma ) { hreft = (TH1F*)rref.Sigma()->Clone("rref_sigma"); hreft->SetDirectory(0); }
+	      if ( bmean )  { hreft = (TH1F*)rref.Mean()->Clone("rref_mean"); hreft->SetDirectory(0); }
+		
 	    }
+	    else { 
+	      hreft = Get( fref, refchain[j]+"/"+histo.name(), rawrefrun );
+	    }
+	  }
 	      
-	    if ( !noreftmp && hreft==0 ) { 
-		std::cerr << "missing histogram: " << (refchain+"/"+histos[i]) << " " << htest << std::endl; 
-		noreftmp = true; 
-		Plotter::setplotref(!noreftmp);
-	    }
+	  if ( !noreftmp && hreft==0 ) { 
+	    std::cerr << "missing histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(ref)" << std::endl; 
+	    noreftmp = true; 
+	    Plotter::setplotref(!noreftmp);
+	  }
 	      
-	    if ( !noreftmp ) { 
-	      href = (TH1F*)hreft->Clone();
-	      href->SetDirectory(0);
-	    }
+	  if ( !noreftmp ) { 
+	    href = (TH1F*)hreft->Clone();
+	    href->SetDirectory(0);
+	  }
 	    	      
-	    //	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
+	  //	    std::cout << "\tget " << (refchain[j]+"/"+histos[i]) << "\t" << href << std::endl;
 	    
-	    savedhistos.push_back( refchain+"/"+histos[i] );
+	  savedhistos.push_back( refchain[j]+"/"+histo.name() );
    	   
-      }
-      else { 
+	}
+	else { 
 
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-	/// everything else 
+	  /// everything else 
        	
-	std::string reghist = histos[i];
+	  std::string reghist = histo.name();
 
-	std::cout << "chains: " << (chains[j]+"/"+reghist) << std::endl;
+	  std::cout << "hist:  " << (chains[j]+"/"+reghist) << std::endl;
 
-        htest = (TH1F*)ftest.Get((chains[j]+"/"+reghist).c_str()) ;
+	  htest = Get( ftest, chains[j]+"/"+reghist, testrun, &savedhistos );
 
-	savedhistos.push_back( chains[j]+"/"+reghist );
+	  //	  htest = (TH1F*)ftest.Get((chains[j]+"/"+reghist).c_str(), &savedhistos ) ;
+	  //	  savedhistos.push_back( chains[j]+"/"+reghist );
 
-	TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
+	  //	  if ( htest==0 ) { 
+	  //	    htest = (TH1F*)ftest.Get((testrun+"/"+chains[j]+"/"+reghist).c_str()) ;
+	  //	    savedhistos.push_back( testrun+"/"+chains[j]+"/"+reghist );
+	  //	  }
 
-	if ( htest==0 ) { 
-	  if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+"/"+reghist) << " " << htest<< std::endl; 
-	  continue;
-	}
+	  if ( htest==0 ) { 
+	    if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+" / "+reghist) << " " << htest<< std::endl; 
+	    continue;
+	  }
 
+
+	  TH1F* hreft = Get( fref, refchain[j]+"/"+reghist, rawrefrun );
+
+	  //	  TH1F* hreft  = Get( fref, refchain+"/"+reghist, rawrefrun );
+	  //	  TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
 	
+	  if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
+	    std::cout << "Class TH2: " << htest->GetName() << std::endl;
+	    continue;
+	  }
+
+	  if ( std::string(htest->ClassName()).find("TH1")!=std::string::npos ) { 
+	    std::cout << "Class TH1: " << htest->GetName() << std::endl; 
+	  }
+	  else if ( std::string(htest->ClassName()).find("TProfile")!=std::string::npos ) {  
+	    std::cout << "Class TProf: " << htest->GetName() << std::endl; 
+	  }
+
+
+
+	  if ( !noreftmp && hreft==0 ) { 
+	    if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain[j]+" / "+reghist)  << " " << hreft << std::endl; 
+	    noreftmp = true;
+	    Plotter::setplotref(false);
+	  }
 	
-	if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
-	  std::cout << "Class TH2: " << htest->GetName() << std::endl;
-	  continue;
-	}
+	  if ( fulldbg ) std::cout << "htest: " << htest << std::endl; 
+	  if ( fulldbg ) std::cout << "hreft: " << hreft << std::endl; 
 
-	if ( std::string(htest->ClassName()).find("TH1")!=std::string::npos ) { 
-	  std::cout << "Class TH1: " << htest->GetName() << std::endl; 
-	}
-	else if ( std::string(htest->ClassName()).find("TProfile")!=std::string::npos ) {  
-	  std::cout << "Class TProf: " << htest->GetName() << std::endl; 
-	}
+	  if ( hreft!=0 ) { 
+	    href = (TH1F*)hreft->Clone();
+	    href->SetDirectory(0);
+	  }
+
+	  std::cout << " \tget " << (chains[j]+"/"+reghist)    << "\thtest " << htest << std::endl;
+	  std::cout << " \tget " << (refchain[j]+"/"+reghist)  << "\thref  " << href << std::endl;
+
+	  if ( htest==0 || ( !noreftmp && href==0 ) ) continue;
 
 
-
-	if ( !noreftmp && hreft==0 ) { 
-	  if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+"/"+reghist)  << " " << hreft << std::endl; 
-	  noreftmp = true;
-	  Plotter::setplotref(false);
-	}
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
-	if ( fulldbg ) std::cout << "htest: " << htest << std::endl; 
-	if ( fulldbg ) std::cout << "hreft: " << hreft << std::endl; 
+	  if ( histo.name().find("rdz_vs_zed")==std::string::npos && histo.name().find("1d")!=std::string::npos ) { 
+	    std::cout << "Rebinning histogram: " << histo.name() << std::endl;
+	    if (        htest->GetNbinsX()>500 ) htest->Rebin(10);
+	    if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
+	  }
 
-	if ( hreft!=0 ) { 
-	  href = (TH1F*)hreft->Clone();
-	  href->SetDirectory(0);
+
+	  if ( histo.name().find("zed_eff")!=std::string::npos ) { 
+	    if (        htest->GetNbinsX()>100 ) htest->Rebin(5);
+	    if ( href && href->GetNbinsX()>100 ) href->Rebin(5);
+	  }
+
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	  if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
+	  if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) href->Scale(0.5);
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	  if ( notitle ) { 
+	    htest->SetTitle("");
+	    if( href ) href->SetTitle("");
+	  } 
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
 	}
-
-	std::cout << "\tget " << ( refchain+"/"+reghist) << "\thref  " << href << std::endl;
-	std::cout << "\tget " << (chains[j]+"/"+reghist) << "\thtest " << htest << std::endl;
-
-	if ( htest==0 || ( !noreftmp && href==0 ) ) continue;
-
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
-	
-	if ( histos[i].find("1d")!=std::string::npos ) { 
-	  if (        htest->GetNbinsX()>500 ) htest->Rebin(10);
-	  if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
-	}
 
+	if ( make_ref_efficiencies ) { 
+	  if ( htest && href ) { 
 
-	if ( histos[i].find("zed_eff")!=std::string::npos ) { 
-	  if (        htest->GetNbinsX()>100 ) htest->Rebin(5);
-	  if ( href && href->GetNbinsX()>100 ) href->Rebin(5);
-	}
+	    //	  std::cout << "contains _eff " << contains( std::string(htest->GetName()), "eff" ) << std::endl;
 
+	    if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
-        if ( fulldbg ) std::cout << __LINE__ << std::endl;
+	      htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun );
+	      //	      htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
 
-	if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
-	if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) href->Scale(0.5);
+	      TH1F* hrefnumt  = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun, &savedhistos );
 
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+	      //      TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
+	      //      savedhistos.push_back( refchain+"/"+histo.name()+"_n" );
+	   
 
-	if ( notitle ) { 
-	  htest->SetTitle("");
-	  if( href ) href->SetTitle("");
-	} 
+	      if ( !noreftmp && hrefnumt!=0 ) { 
+		hrefnum = (TH1F*)hrefnumt->Clone();
+		hrefnum->SetDirectory(0);
+	      }
 
-        if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      }
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( make_ref_efficiencies ) { 
-	if ( htest && href ) { 
-
-	  //	  std::cout << "contains _eff " << contains( std::string(htest->GetName()), "eff" ) << std::endl;
-
-	  if ( contains( std::string(htest->GetName()), "_eff" ) ) {
-
-	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
-
-	    TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_n").c_str()) ;
-
-	    if ( !noreftmp && hrefnumt!=0 ) { 
-	      hrefnum = (TH1F*)hrefnumt->Clone();
-	      hrefnum->SetDirectory(0);
-	    }
-
-	    //	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
-	    savedhistos.push_back( refchain+"/"+histos[i]+"_n" );
 	    
-	    //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
+	      //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
 
+	    }
 	  }
 	}
-      }
 
 
-      if ( _bayes ) { 
+	if ( _bayes ) { 
 
-	if ( htest && contains( std::string(htest->GetName()), "eff" ) ) {
-
-	  //	  delete htest;
-
-	  htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
-	  htestden = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_d").c_str()) ;
-
-	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
-	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_d" );
-
-	  std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
-
-	  if ( htestnum && htestden ) { 
-
-#if 0
-	    if ( contains( htest->GetName(), "_vs_lb" )  ) { 
-	      std::cout << "rebin " << histos[i] << std::endl;
-	      htestnum->Rebin(3);
-	      htestden->Rebin(3);
-	    }
-
-	    if ( contains( htest->GetName(), "eta_eff" )  ) { 
-	      std::cout << "rebin " << histos[i] << std::endl;
-	      htestnum->Rebin(2);
-	      htestden->Rebin(2);
-	    }
-#endif	
-    
-	    Efficiency e( htestnum, htestden, "", scale_eff );
-	    tgtest = e.Bayes(scale_eff);
-
-	    htest = e.Hist();
-
-	  }
-	
-	  /// now recalculate reference
-
-	  std::cout << "recalculating reference efficiencies ..." << std::endl; 
-
-	  if ( href ) { 
+	  if ( htest && contains( std::string(htest->GetName()), "eff" ) ) {
 
 	    //	  delete htest;
 
-	    std::cout << "doin ..." << std::endl; 
+	    //	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
+	    //	    htestden = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_d").c_str()) ;
 
-	    TH1F* hrefnum = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_n").c_str()) ;
-	    TH1F* hrefden = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_d").c_str()) ;
+	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_n" );
+	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_d" );
 
-	    std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff     << std::endl;
-	    std::cout << "Bayesian error calculation " << hrefnum  << " " << hrefden  << "\tscale " << scale_eff_ref << std::endl;
-	    
-	    if ( hrefnum && hrefden ) { 
-	      Efficiency e( hrefnum, hrefden, "", scale_eff_ref );
-	      // tgref = e.Bayes(scale_eff);
 
-	      href = e.Hist();
-	      
-	    }
-	  }
-	}
-	
-      }
+	    htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun, &savedhistos ) ;
+	    htestden = Get( ftest, chains[j]+"/"+histo.name()+"_d", testrun, &savedhistos ) ;
 
-      
-      if ( htest==0 ) { 
-	std::cout << "       no test histogram :   " << (chains[j]+"/"+histos[i]) << std::endl;
-	continue;
-      }
+	    std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
 
-      if ( !noreftmp && href==0 ) { 
-	std::cout << "       no ref histogram :    " << (chains[j]+"/"+histos[i]) << std::endl;
-	continue;
-      }
-
-
-      htest->GetYaxis()->SetTitleOffset(1.5); 
-      htest->GetXaxis()->SetTitleOffset(1.5); 
-      htest->GetXaxis()->SetTitle(xaxis.c_str());
-      htest->GetYaxis()->SetTitle(yaxis.c_str());
-
-      if ( !noreftmp ) { 
-	href->GetYaxis()->SetTitleOffset(1.5);
-	href->GetXaxis()->SetTitleOffset(1.5);
-	href->GetXaxis()->SetTitle(xaxis.c_str());
-	if ( contains(yaxis,"Efficiency") && !contains(yaxis,"%") && scale_eff==100 ) href->GetYaxis()->SetTitle((yaxis+" [%]").c_str());
-	else href->GetYaxis()->SetTitle(yaxis.c_str());
-      }	
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-#if 1
-      if ( contains(histos[i],"ntracks") ) {
-	htest->Rebin(2);
-        htest->Sumw2();
-        if ( !noreftmp ) { 
-	  href->Rebin(2);
-	  href->Sumw2();
-	}
-	//    htest->Scale(1./NeventTest);
-	//    href->Scale(1./NeventRef);
-      }
-#endif
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      /// only set the plot name once )  
-      if ( plotname == "" ) { 
-
-	if ( key!="" ) { 
-	  htest->SetTitle("");
-	  if ( href ) href->SetTitle("");
-	  plotname = key+"_";
-	}
-	else if (fcontains(chains[j],"HLT_")) {
-	  htest->SetTitle("");
-	  if ( href ) href->SetTitle("");
-	  plotname = "HLT_";
-	}
-	else if (fcontains(chains[j],"EF_")) {
-	  htest->SetTitle("");
-	  if ( href ) href->SetTitle("");
-	  plotname = "EF_";
-	}
-	else if (fcontains(chains[j],"L2_")) {
-	  htest->SetTitle("");
-	  if ( href ) href->SetTitle("");
-	  plotname = "L2_";
-	}
-	else if (contains(chains[j],"FTK") && ! contains(chains[j],"HLT_") ) { 
-	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  if ( href ) href->SetTitle(("FTK "+ _histos[i][1]).c_str());
-	  plotname = "FTK_";
-	}
-	
-	plotname += histos[i]; 
-
-	/// replace the "/" in the filename so we don't try to 
-	/// make plots in subdirectories by accident  
-	replace(plotname, "/", "_"); 
-	
-      }
-
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      bool residual = false;
-      
-      if ( contains(histos[i],"_res") ||  contains(histos[i],"residual_") || contains(histos[i],"1d") ) residual = true; 
-
-      std::string c = chains[j];
-
-      if ( c.find("_IDTrkNoCut")!=std::string::npos ) c.erase( c.find("_IDTrkNoCut"), 11 );
-      if ( c.find("_idperf")!=std::string::npos )     c.erase( c.find("_idperf"), 7 );
-      if ( c.find("_bperf")!=std::string::npos )      c.erase( c.find("_bperf"), 6 );
-      if ( c.find("xAODCnv")!=std::string::npos )     c.erase( c.find("xAODCnv"), 7 );
-      if ( c.find("Tracking")!=std::string::npos ) c.replace( c.find("Tracking"), 8, "Trk" );    
-
-      //      if ( c.find("_EFID")!=std::string::npos )     c.erase( c.find("_EFID"), 5 );
-
-      replace( c, "_Tr", " :  " );
-      replace( c, "_In", " :  " );
-
-      c = "  " + c;
-
-      /// calculate and set axis limits
-
-      //      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-      
-      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
-      else              plots.push_back( Plotter( htest, href, c, tgtest ) );
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-
-      if ( make_ref_efficiencies ) { 
-	
-	if ( htestnum && hrefnum ) { 
-	  Efficiency e( htestnum, hrefnum, "", scale_eff );
-
-	  TH1* h = e.Hist();
-
-	  double range = h->GetMaximum()-h->GetMinimum();
-
-	  if ( range<0.2*scale_eff ) {
- 
-	    double _max = int( (h->GetMaximum() + 20)*0.1 )*0.1*scale_eff;
-	    double _min = int( (h->GetMinimum() - 10)*0.1 )*0.1*scale_eff;
-	    
-	    if ( _max>1*scale_eff ) _max = 1.02*scale_eff;
-	    if ( _min<0 )           _min = 0;
-	    
-	    h->SetMinimum(_min);
-	    h->SetMaximum(_max);
-	   
-	  }
-
-	  plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
-	  
-	}     
-      }
-      
-
-      if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
-
-      if( residual ) {
-	
-	/// resolutions 
-
-	xpos = xpos_original;
-
-	std::cout << "calculating resolutions : " << histos[i] << " " << htest->GetName() << std::endl;
-
-	TF1* d95 = Resplot::FitNull95( (TH1D*)htest );
-	
-	double   mean_95 = d95->GetParameter(1);
-	double  dmean_95 = d95->GetParError(1);
-	double    rms_95 = d95->GetParameter(2);
-	double   drms_95 = d95->GetParError(2);
-	
-	std::cout <<  "\t\t" << histos[i] 
-		  << "\tmean:     " << mean_95 << " +- " << dmean_95 
-		  << "\trms:     "  <<  rms_95 << " +- " << drms_95 << std::endl; 
-
-	/// calculate power
-
-	if ( !power_set ) { 
-	  for ( int ip=-2 ; ip<9 ; ip++ ) { 
-	    if ( std::fabs(mean_95) >= std::pow( 10., double(-ip) ) ) { 
-	      mean_power = ip;
-	      break;
-	    }
-	  }
-	  
-	  for ( int ip=-2 ; ip<9 ; ip++ ) { 
-	    if ( std::fabs(rms_95)  >= std::pow( 10., double(-ip) ) ) { 
-	      rms_power = ip;
-	      break;
-	    }
-	  }
-	}
-
-	power_set = true;
-
-	std::cout <<  "\t\t" << histos[i] 
-		  << "\tmean:     " << mean_95 << " +- " << dmean_95 << " : pow " << mean_power
-		  << "\trms:     "  <<  rms_95 << " +- " << drms_95  << " : pow " << rms_power << std::endl; 
-
-
-	if ( mean_power == 0 ) { 
-	  Mean.push_back(label("mean_{95}  = %4.2lf #pm %4.2lf", mean_95, dmean_95) );
-	}
-	else { 
-	  Mean.push_back(label("mean_{95}  = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
-			       mean_95*std::pow(10.,double(mean_power)), dmean_95*std::pow(10,double(mean_power)), -mean_power ) );
-	  
-	}
-
-	if ( rms_power == 0 ) { 
-	  RMS.push_back(label( "rms_{95}   = %4.2lf #pm %4.2lf", rms_95,  drms_95 ) ); 
-	}
-	else { 
-	  RMS.push_back(label( "rms_{95}   = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
-			       rms_95*std::pow(10.,double(rms_power)),  drms_95*std::pow(10,double(rms_power)), -rms_power ) );
-	}
-
-	if ( href ) { 
-	  TF1* d95ref = Resplot::FitNull95( (TH1D*)href );
-	  
-	  double   mean_95ref = d95ref->GetParameter(1);
-	  double  dmean_95ref = d95ref->GetParError(1);
-	  double    rms_95ref = d95ref->GetParameter(2);
-	  double   drms_95ref = d95ref->GetParError(2);
-	  
-	  std::cout <<  "\t\t" << histos[i]
-		    << "\tmean ref: " << mean_95ref << " +- " << dmean_95ref << " : pow " << mean_power
-		    << "\trms ref: "  <<  rms_95ref << " +- " << drms_95ref  << " : pow " << rms_power << std::endl;
-	  
-	  if ( mean_power == 0 ) { 
-	    MeanRef.push_back(label("mean_{95} ref = %4.2lf #pm %4.2lf", mean_95ref, dmean_95ref) );
-	  }
-	  else { 
-	    MeanRef.push_back(label("mean_{95} ref = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
-				    mean_95ref*std::pow(10,double(mean_power)), dmean_95ref*std::pow(10,double(mean_power)), -mean_power ) );
-	    
-	  }
-	  
-	  
-	  if ( rms_power == 0 ) { 
-	    RMSRef.push_back(label( "rms_{95}  ref = %4.2lf #pm %4.2lf", rms_95ref,  drms_95ref ) ); 
-	  }
-	  else { 
-	    RMSRef.push_back(label( "rms_{95}  ref = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
-				    rms_95ref*std::pow(10,double(rms_power)),  drms_95ref*std::pow(10,double(rms_power)), -rms_power ) );
-	  }
-	}
-	
-        htest->Sumw2();
-        if ( href ) href->Sumw2();
-        htest->Scale(1./NeventTest);
-        if ( href ) href->Scale(1./NeventRef);
-
-      }
-     
-      if ( yinfo.normset() ) { 
-	Norm( htest );
-	if ( href ) Norm( href );
-      }
-      else if ( yinfo.refnormset() ) { 
-      	if ( href ) Norm( href, Entries(htest) );
-      }
-
-      if ( yinfo.binwidth() ) { 
-	binwidth( htest );
-	if ( href ) binwidth( href );
-      }
-    
-
-
-      if ( !noreftmp && normref && 
-           !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && 
-           !contains( histos[i], "Eff")  && !contains( histos[i], "eff") &&
-           !contains( histos[i], "Res")  && !contains( histos[i], "vs") && !contains( histos[i], "_lb") ) { 
-        Norm( href, Entries( htest ) );
-      }
-
-    }
-
-    if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-    if ( !noplots ) { 
-
-      /// try to localise all axis range setting, log, lin scales etc
-      /// to this one place 
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-    
-      /// sort out the range settings for the xaxis ...
-      plots.sortx( xinfo );
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-
-      double  yminset = 0;
-      double  ymaxset = 0;
-
-      double rmin = 0;
-      double rmax = 0;
-      
-      if ( xinfo.rangeset() ) { 
-	rmin = plots.realmin( plots.lo(), plots.hi() );
-	rmax = plots.realmax( plots.lo(), plots.hi() );
-      }
-      else {
-	rmin = plots.realmin();
-	rmax = plots.realmax();
-      }
-      
-
-      if ( yinfo.autoset() ) { 
-	
-	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
-
-	if ( yinfo.log() && rmin>0 && rmax>0 ) { 
-
-	  /// calculate the log range
-	  double delta = std::log10(rmax)-std::log10(rmin);
-
-	  /// keep the original equation by way of documentation ...
-	  //    ymaxset =  rmax*std::pow(10,delta*0.15*csize); 
-
-	  yminset =  rmin*std::pow(10,-delta*0.1);
-
-	  double newdelta = std::log10(rmax) - std::log10(yminset) + 0.05*delta;
-
-	  if ( csize<10 ) ymaxset =  rmin*std::pow(10,newdelta/(1-0.07*csize));
-	  else            ymaxset =  rmin*std::pow(10,newdelta*2);
-
-	  if ( yminset!=yminset ) { 
-	    std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
-	    std::exit(-1);
-	  }
-
-	}
-	else { 
-
-	  /// calculate the required range such that the histogram labels 
-	  /// won't crowd the points
-
-	  if ( ypos>0.5 ) { 
-	    double delta = rmax-rmin;
-	    
-	    yminset = rmin-0.1*delta;
-	    
-	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
-	    
-	    double newdelta = rmax - yminset + 0.05*delta;
-	    
-	    if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
-	    else            ymaxset = yminset + newdelta*2;
-	  }
-	  else { 
-	    double delta = rmax-rmin;
-  
-	    ymaxset = rmax+0.1*delta;
-	    	    
-	    double newdelta = ymaxset - rmin - 0.05*delta;
-	    
-	    if ( csize<10 ) yminset = ymaxset - newdelta/(1-0.09*csize);
-	    else            yminset = ymaxset - newdelta*2;
-
-	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
-
-	  }
-
-	}
-	
-      }
-      else {  
-	if ( yinfo.rangeset() ) { 
-	  yminset = yinfo.lo();
-	  ymaxset = yinfo.hi();
-	}
-      }
-      
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      //      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
-
-      //      std::cout << "yminset " << yminset << "\tymaxset " << ymaxset << std::endl;  
-
-      if ( yinfo.autoset() && yinfo.rangeset() ) {
-
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-	if ( yminset>yinfo.lo() ) yminset = yinfo.lo();
-	if ( ymaxset<yinfo.hi() ) ymaxset = yinfo.hi();
-      }
-      
-
-      if ( contains(histos[i],"_eff") ) {
-
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
-      
-	if ( effset ) { 
-	  ymaxset = effmax;
-	  yminset = effmin;
-	}
-      }
-      
-      if ( ymaxset!=0 || yminset!=0 ) {
-
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-	plots.Max( ymaxset );
-	plots.Min( yminset );
-      }
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( yminset!=0 || ymaxset!=0 ) { 
-	if ( yminset>0 ) plots.SetLogy(yinfo.log());
-	else             plots.SetLogy(false);
-      }	
-      else plots.SetLogy(yinfo.log());
-
-      //      plots.SetLogy(false);
-
-      if ( fulldbg ) std::cout << __LINE__ << std::endl;
-      
-      ///    if ( contains(histos[i],"_res"))  plots.xrange(true);
-      //      if ( contains(histos[i],"_res") ) plots.MaxScale( 100 ); 
-      
-      //    plots.limits();
-      
-      /// actually draw the plot here ...
-      
-      if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      plots.Draw( legend );
-
-      if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
-
-      if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-          
-      for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
-	//      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histos[i] << ")" << std::endl;
-	DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
-      }
-    }
-    
-    if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-
-    if ( ( !nostats || !nomeans ) && !noplots ) { 
-      if ( dochi2 ) for ( unsigned  j=0 ; j<Chi2.size() ; j++ ) DrawLabel( 0.75, 0.85-j*0.035, Chi2[j], colours[j%6] );
-      if ( (contains(histos[i],"_res") || 
-	    contains(histos[i],"1d")   ||
-	    histos[i]=="pT"            || 
-	    contains(histos[i],"residual_") ||
-	    contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-
-	if ( contains(histos[i],"_res") || contains(histos[i],"residual_") || contains(histos[i],"1d") ){
-	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
-	    if ( !noreftmp ) { 
-	      if ( j<MeanRef.size() ) {
-		if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
-		DrawLabel( xpos_original-0.02, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
-	      }
-	    }
-	    if ( j<Mean.size() ) {
-	      if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
-	      DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
-	      //	      std::cout << "\tdraw stats " << histos[i] << "\tMean " << Mean[j] << std::endl;
-	    }
-	  }
-	}
-      }
-      
-    }
+	    if ( htestnum && htestden ) { 
 
 #if 0
-    if ( uselogx ) c1->SetLogx(true);
-    else           c1->SetLogx(false);
+	      if ( contains( htest->GetName(), "_vs_lb" )  ) { 
+		std::cout << "rebin " << histo.name() << std::endl;
+		htestnum->Rebin(3);
+		htestden->Rebin(3);
+	      }
 
-    if ( uselogy ) c1->SetLogy(true);
-    else           c1->SetLogy(false);
+	      if ( contains( htest->GetName(), "eta_eff" )  ) { 
+		std::cout << "rebin " << histo.name() << std::endl;
+		htestnum->Rebin(2);
+		htestden->Rebin(2);
+	      }
+#endif	
+    
+	      Efficiency e( htestnum, htestden, "", scale_eff );
+	      tgtest = e.Bayes(scale_eff);
+
+	      htest = e.Hist();
+
+	    }
+	
+	    /// now recalculate reference
+
+	    std::cout << "recalculating reference efficiencies ..." << std::endl; 
+
+	    if ( href ) { 
+
+	      //	  delete htest;
+
+	      std::cout << "doin ..." << std::endl; 
+
+	      //	      TH1F* hrefnum = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
+	      //	      TH1F* hrefden = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_d").c_str()) ;
+	      TH1F* hrefnum = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun );
+	      TH1F* hrefden = Get( fref, refchain[j]+"/"+histo.name()+"_d", rawrefrun );
+
+	      std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff     << std::endl;
+	      std::cout << "Bayesian error calculation " << hrefnum  << " " << hrefden  << "\tscale " << scale_eff_ref << std::endl;
+	    
+	      if ( hrefnum && hrefden ) { 
+		Efficiency e( hrefnum, hrefden, "", scale_eff_ref );
+		// tgref = e.Bayes(scale_eff);
+
+		href = e.Hist();
+	      
+	      }
+	    }
+	  }
+	
+	}
+
+      
+	if ( htest==0 ) { 
+	  std::cout << "       no test histogram :   " << (chains[j]+"/"+histo.name()) << std::endl;
+	  continue;
+	}
+
+	if ( !noreftmp && href==0 ) { 
+	  std::cout << "       no ref histogram :    " << (chains[j]+"/"+histo.name()) << std::endl;
+	  continue;
+	}
+
+
+	htest->GetYaxis()->SetTitleOffset(1.5); 
+	htest->GetXaxis()->SetTitleOffset(1.5); 
+	htest->GetXaxis()->SetTitle(xaxis.c_str());
+	htest->GetYaxis()->SetTitle(yaxis.c_str());
+
+	if ( !noreftmp ) { 
+	  href->GetYaxis()->SetTitleOffset(1.5);
+	  href->GetXaxis()->SetTitleOffset(1.5);
+	  href->GetXaxis()->SetTitle(xaxis.c_str());
+	  if ( contains(yaxis,"Efficiency") && !contains(yaxis,"%") && scale_eff==100 ) href->GetYaxis()->SetTitle((yaxis+" [%]").c_str());
+	  else href->GetYaxis()->SetTitle(yaxis.c_str());
+	}	
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+#if 1
+	if ( contains(histo.name(),"ntracks") ) {
+	  htest->Rebin(2);
+	  htest->Sumw2();
+	  if ( !noreftmp ) { 
+	    href->Rebin(2);
+	    href->Sumw2();
+	  }
+	  //    htest->Scale(1./NeventTest);
+	  //    href->Scale(1./NeventRef);
+	}
 #endif
 
-    if ( fulldbg ) std::cout << __LINE__ << std::endl;
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	/// only set the plot name once )  
+	if ( plotname == "" ) { 
+
+	  if ( key!="" ) { 
+	    htest->SetTitle("");
+	    if ( href ) href->SetTitle("");
+	    plotname = key+"_";
+	  }
+	  else if (fcontains(chains[j],"HLT_")) {
+	    htest->SetTitle("");
+	    if ( href ) href->SetTitle("");
+	    plotname = "HLT_";
+	  }
+	  else if (fcontains(chains[j],"EF_")) {
+	    htest->SetTitle("");
+	    if ( href ) href->SetTitle("");
+	    plotname = "EF_";
+	  }
+	  else if (fcontains(chains[j],"L2_")) {
+	    htest->SetTitle("");
+	    if ( href ) href->SetTitle("");
+	    plotname = "L2_";
+	  }
+	  else if (contains(chains[j],"FTK") && ! contains(chains[j],"HLT_") ) { 
+	    htest->SetTitle(("FTK "+ histo.name()).c_str());
+	    if ( href ) href->SetTitle(("FTK "+ histo.name()).c_str());
+	    plotname = "FTK_";
+	  }
+	
+	  plotname += histo.name(); 
+
+	  /// replace the "/" in the filename so we don't try to 
+	  /// make plots in subdirectories by accident  
+	  replace(plotname, "/", "_"); 
+
+	}
+
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	bool residual = false;
+      
+	if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
+
+
+
+
+	std::string collection = basename( chains[j] );
+
+	std::string actual_chain = basename( dirname( chains[j] ) );
+
+	if ( collection.find("_InDet")!=std::string::npos ) collection.erase( 0, collection.find("_InDet")+1 );
+	if ( actual_chain.find("_InDet")!=std::string::npos ) actual_chain.erase( actual_chain.find("_InDet") );
+	
+
+	std::cout << "raw:              " << chains[j]    << std::endl;
+
+	std::cout << "track collection: " << collection   << std::endl;
+	std::cout << "actual chain:     " << actual_chain << std::endl;
+
+
+
+	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
+	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
+	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
+	if ( collection.find("_IDTrkNoCut")!=std::string::npos )  collection.erase( collection.find("_IDTrkNoCut"), 11 );
+	if ( collection.find("xAODCnv")!=std::string::npos )      collection.erase( collection.find("xAODCnv"), 7 );
+	if ( collection.find("Tracking")!=std::string::npos )     collection.replace( collection.find("Tracking"), 8, "Trk" );    
+	if ( collection.find("InDetTrigTrk_")!=std::string::npos ) collection.erase( collection.find("InDetTrigTrk_"), 13 );    
+	if ( collection.find("FTK_Track")==std::string::npos ) replace( collection, "_Tr", " :  " );
+
+	std::string c = actual_chain + " : " + collection;
+
+	std::cout << "track collection: " << collection   << "   <-" << std::endl;
+	std::cout << "actual chain:     " << actual_chain << "   <-" << std::endl;
+       
+	replace( c, "_In", " :  " );
+
+	c = "  " + c;
+
+	std::cout << "use label: " << c << std::endl;
+
+	/// calculate and set axis limits
+
+	//      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+      
+	
+
+	//      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
+	if ( uselabels )  plots.push_back( Plotter( htest, href, " " + chain_name[j] + usrlabels[j], tgtest ) );
+	else {
+	  std::cout << "using label: " << c << std::endl;
+	  plots.push_back( Plotter( htest, href, c, tgtest ) );
+	}
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+
+	if ( make_ref_efficiencies ) { 
+	
+	  if ( htestnum && hrefnum ) { 
+	    Efficiency e( htestnum, hrefnum, "", scale_eff );
+
+	    TH1* h = e.Hist();
+
+	    double range = h->GetMaximum()-h->GetMinimum();
+
+	    if ( range<0.2*scale_eff ) {
+ 
+	      double _max = int( (h->GetMaximum() + 20)*0.1 )*0.1*scale_eff;
+	      double _min = int( (h->GetMinimum() - 10)*0.1 )*0.1*scale_eff;
+	    
+	      if ( _max>1*scale_eff ) _max = 1.02*scale_eff;
+	      if ( _min<0 )           _min = 0;
+	    
+	      h->SetMinimum(_min);
+	      h->SetMaximum(_max);
+	   
+	    }
+
+	    plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
+	  
+	  }     
+	}
+      
+
+	if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
+
+	if( residual ) {
+	
+	  /// resolutions 
+
+	  xpos = xpos_original;
+
+	  std::cout << "calculating resolutions : " << histo.name() << " " << htest->GetName() << std::endl;
+
+	  TF1* d95 = Resplot::FitNull95( (TH1D*)htest );
+	
+	  double   mean_95 = d95->GetParameter(1);
+	  double  dmean_95 = d95->GetParError(1);
+	  double    rms_95 = d95->GetParameter(2);
+	  double   drms_95 = d95->GetParError(2);
+	
+	  std::cout <<  "\t\t" << histo.name()
+		    << "\tmean:     " << mean_95 << " +- " << dmean_95 
+		    << "\trms:     "  <<  rms_95 << " +- " << drms_95 << std::endl; 
+
+	  /// calculate power
+
+	  if ( !power_set ) { 
+	    for ( int ip=-2 ; ip<9 ; ip++ ) { 
+	      if ( std::fabs(mean_95) >= std::pow( 10., double(-ip) ) ) { 
+		mean_power = ip;
+		break;
+	      }
+	    }
+	  
+	    for ( int ip=-2 ; ip<9 ; ip++ ) { 
+	      if ( std::fabs(rms_95)  >= std::pow( 10., double(-ip) ) ) { 
+		rms_power = ip;
+		break;
+	      }
+	    }
+	  }
+
+	  power_set = true;
+
+	  std::cout <<  "\t\t" << histo.name() 
+		    << "\tmean:     " << mean_95 << " +- " << dmean_95 << " : pow " << mean_power
+		    << "\trms:     "  <<  rms_95 << " +- " << drms_95  << " : pow " << rms_power << std::endl; 
+
+
+	  if ( mean_power == 0 ) { 
+	    Mean.push_back(label("mean_{95}  = %4.2lf #pm %4.2lf", mean_95, dmean_95) );
+	  }
+	  else { 
+	    Mean.push_back(label("mean_{95}  = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
+				 mean_95*std::pow(10.,double(mean_power)), dmean_95*std::pow(10,double(mean_power)), -mean_power ) );
+	  
+	  }
+
+	  if ( rms_power == 0 ) { 
+	    RMS.push_back(label( "rms_{95}   = %4.2lf #pm %4.2lf", rms_95,  drms_95 ) ); 
+	  }
+	  else { 
+	    RMS.push_back(label( "rms_{95}   = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
+				 rms_95*std::pow(10.,double(rms_power)),  drms_95*std::pow(10,double(rms_power)), -rms_power ) );
+	  }
+
+	  if ( href ) { 
+	    TF1* d95ref = Resplot::FitNull95( (TH1D*)href );
+	  
+	    double   mean_95ref = d95ref->GetParameter(1);
+	    double  dmean_95ref = d95ref->GetParError(1);
+	    double    rms_95ref = d95ref->GetParameter(2);
+	    double   drms_95ref = d95ref->GetParError(2);
+	  
+	    std::cout <<  "\t\t" << histo.name()
+		      << "\tmean ref: " << mean_95ref << " +- " << dmean_95ref << " : pow " << mean_power
+		      << "\trms ref: "  <<  rms_95ref << " +- " << drms_95ref  << " : pow " << rms_power << std::endl;
+	  
+	    if ( mean_power == 0 ) { 
+	      MeanRef.push_back(label("mean_{95} ref = %4.2lf #pm %4.2lf", mean_95ref, dmean_95ref) );
+	    }
+	    else { 
+	      MeanRef.push_back(label("mean_{95} ref = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
+				      mean_95ref*std::pow(10,double(mean_power)), dmean_95ref*std::pow(10,double(mean_power)), -mean_power ) );
+	    
+	    }
+	  
+	  
+	    if ( rms_power == 0 ) { 
+	      RMSRef.push_back(label( "rms_{95}  ref = %4.2lf #pm %4.2lf", rms_95ref,  drms_95ref ) ); 
+	    }
+	    else { 
+	      RMSRef.push_back(label( "rms_{95}  ref = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
+				      rms_95ref*std::pow(10,double(rms_power)),  drms_95ref*std::pow(10,double(rms_power)), -rms_power ) );
+	    }
+	  }
+	
+	  htest->Sumw2();
+	  if ( href ) href->Sumw2();
+	  htest->Scale(1./NeventTest);
+	  if ( href ) href->Scale(1./NeventRef);
+
+	}
+     
+	if ( yinfo.normset() ) { 
+	  Norm( htest );
+	  if ( href ) Norm( href );
+	}
+	else if ( yinfo.refnormset() ) { 
+	  if ( href ) Norm( href, Entries(htest) );
+	}
+
+	if ( yinfo.binwidth() ) { 
+	  binwidth( htest );
+	  if ( href ) binwidth( href );
+	}
+    
+
+
+	if ( !noreftmp && normref && 
+	     !contains( histo.name(), "mean") && !contains( histo.name(), "sigma" ) && 
+	     !contains( histo.name(), "Eff")  && !contains( histo.name(), "eff") &&
+	     !contains( histo.name(), "Res")  && !contains( histo.name(), "vs") && !contains( histo.name(), "_lb") ) { 
+	  Norm( href, Entries( htest ) );
+	}
+
+      }
+
+      if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+      if ( !noplots ) { 
+
+	/// try to localise all axis range setting, log, lin scales etc
+	/// to this one place 
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+    
+	/// sort out the range settings for the xaxis ...
+	plots.sortx( xinfo );
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	double  yminset = 0;
+	double  ymaxset = 0;
+
+	double rmin = 0;
+	double rmax = 0;
+      
+	if ( xinfo.rangeset() ) { 
+	  rmin = plots.realmin( plots.lo(), plots.hi() );
+	  rmax = plots.realmax( plots.lo(), plots.hi() );
+	}
+	else {
+	  rmin = plots.realmin();
+	  rmax = plots.realmax();
+	}
+      	
+	if ( yinfo.autoset() ) { 
+	
+	  int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
+
+	  if ( yinfo.log() && rmin>0 && rmax>0 ) { 
+
+	    /// calculate the log range
+	    double delta = std::log10(rmax)-std::log10(rmin);
+
+	    /// keep the original equation by way of documentation ...
+	    //    ymaxset =  rmax*std::pow(10,delta*0.15*csize); 
+
+	    yminset =  rmin*std::pow(10,-delta*0.1);
+
+	    double newdelta = std::log10(rmax) - std::log10(yminset) + 0.05*delta;
+
+	    if ( csize<10 ) ymaxset =  rmin*std::pow(10,newdelta/(1-0.07*csize));
+	    else            ymaxset =  rmin*std::pow(10,newdelta*2);
+
+	    if ( yminset!=yminset ) { 
+	      std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
+	      std::exit(-1);
+	    }
+
+	  }
+	  else { 
+
+	    /// calculate the required range such that the histogram labels 
+	    /// won't crowd the points
+
+	    if ( ypos>0.5 ) { 
+	      double delta = rmax-rmin;
+	    
+	      yminset = rmin-0.1*delta;
+	    
+	      if ( rmin>=0 && yminset<=0 ) yminset = 0;
+	    
+	      double newdelta = rmax - yminset + 0.05*delta;
+	    
+	      if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
+	      else            ymaxset = yminset + newdelta*2;
+	    }
+	    else { 
+	      double delta = rmax-rmin;
+  
+	      ymaxset = rmax+0.1*delta;
+	    	    
+	      double newdelta = ymaxset - rmin - 0.05*delta;
+	    
+	      if ( csize<10 ) yminset = ymaxset - newdelta/(1-0.09*csize);
+	      else            yminset = ymaxset - newdelta*2;
+
+	      if ( rmin>=0 && yminset<=0 ) yminset = 0;
+
+	    }
+
+	  }
+	
+	}
+	else {  
+	  if ( yinfo.rangeset() ) { 
+	    yminset = yinfo.lo();
+	    ymaxset = yinfo.hi();
+	  }
+	}
+      
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	//      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
+
+	//      std::cout << "yminset " << yminset << "\tymaxset " << ymaxset << std::endl;  
+
+	if ( yinfo.autoset() && yinfo.rangeset() ) {
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	  if ( yminset>yinfo.lo() ) yminset = yinfo.lo();
+	  if ( ymaxset<yinfo.hi() ) ymaxset = yinfo.hi();
+	}
+      
+
+	if ( contains(histo.name(),"_eff") ) {
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+      
+	  if ( effset ) { 
+	    ymaxset = effmax;
+	    yminset = effmin;
+	  }
+	}
+      
+	if ( ymaxset!=0 || yminset!=0 ) {
+
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	  plots.Max( ymaxset );
+	  plots.Min( yminset );
+	}
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	if ( yminset!=0 || ymaxset!=0 ) { 
+	  if ( yminset>0 ) plots.SetLogy(yinfo.log());
+	  else             plots.SetLogy(false);
+	}	
+	else plots.SetLogy(yinfo.log());
+
+	//      plots.SetLogy(false);
+
+	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+      
+	///    if ( contains(histo.name(),"_res"))  plots.xrange(true);
+	//      if ( contains(histo.name(),"_res") ) plots.MaxScale( 100 ); 
+      
+	//    plots.limits();
+      
+	/// actually draw the plot here ...
+      
+	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	plots.Draw( legend );
+
+	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+	//      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
+
+	if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str(), kBlack, ncolsp, nrowsp );
+
+	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
+          
+	for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
+	  //      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histo.name() << ")" << std::endl;
+	  DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
+
+	}
+      }
+    
+      if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+
+      if ( ( !nostats || !nomeans ) && !noplots ) { 
+	if ( dochi2 ) for ( unsigned  j=0 ; j<Chi2.size() ; j++ ) DrawLabel( 0.75, 0.85-j*0.035, Chi2[j], colours[j%6] );
+	if ( (contains(histo.name(),"_res") || 
+	      contains(histo.name(),"1d")   ||
+	      histo.name()=="pT"            || 
+	      contains(histo.name(),"residual_") ||
+	      contains(histo.name(),"vs_pt") ) && !contains(histo.name(),"sigma") ) { 
+
+	  if ( contains(histo.name(),"_res") || contains(histo.name(),"residual_") || contains(histo.name(),"1d") ){
+	    for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
+	      if ( !noreftmp ) { 
+		if ( j<MeanRef.size() ) {
+		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
+		  DrawLabel( xpos_original-0.01, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+		}
+	      }
+	      if ( j<Mean.size() ) {
+		if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
+		DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+		//	      std::cout << "\tdraw stats " << histo.name() << "\tMean " << Mean[j] << std::endl;
+	      }
+	    }
+	  }
+	}
+      
+      }
+
+      if ( xinfo.log() ) gPad->SetLogx(true);
+      else               gPad->SetLogx(false);
+
+      if ( yinfo.log() ) gPad->SetLogy(true);
+      else               gPad->SetLogy(false);
+
+      if ( fulldbg ) std::cout << __LINE__ << std::endl;
+
+      if ( !noplots ) { 
+      
+	if ( make_ref_efficiencies ) { 
+	
+	  plots_eff.SetXaxisTitle( plots.GetXaxisTitle() ); 
+	  plots_eff.SetYaxisTitle( plots.GetYaxisTitle() ); 
+	
+	  plots_eff.Draw( legend_eff );
+	}
+      
+      } // no plots
+    
+    } /// loop over histograms in panel 
+
+
+    /// NB: now, we no longer print the individual plots - only the "panels"
+    ///     individual plots can still be printed by creating a "panel" which 
+    ///     contains only that plots - in fast the "histos" item that before
+    ///     provided details of the separate plots is now interpreted as 
+    ///     a list of single plot panels so this is done for you
 
     if ( !noplots ) { 
 
-      if ( !quiet && plotname!="" ) { 
+      if ( !quiet ) { 
 
-	if ( Cfile ) plots.back().Print( dir+plotname+tag+".C" );
+	tc->cd();
 
-	//      plots.back().Print( dir+plotname+tag+".C" );
-	plots.back().Print( dir+plotname+tag+".pdf" );
+	std::string useplotname;
 
-	if ( !nopng ) plots.back().Print( dir+plotname+tag+".png" );
+        if ( panel.size()>1 ) {
+	  useplotname = panel.name();
+	  replace( useplotname, "/", "_" );
+	}	
+	else { 
+	  useplotname = plotname;
+	}
 
-      }    
+	useplotname.erase( std::remove( useplotname.begin(), useplotname.end(), '+' ), useplotname.end() );
 
-      
-      if ( make_ref_efficiencies ) { 
+	// std::string printbase = dir+"HLT_"+ppanelname+tag;
+	std::string printbase = dir + useplotname + tag;
+
+	tc->Update();
+
+	if ( !nopdf ) print_pad( printbase+".pdf" );
+	if ( !nopng ) print_pad( printbase+".png" );
+	if ( Cfile  ) print_pad( printbase+".C" );
 	
-	plots_eff.SetXaxisTitle( plots.GetXaxisTitle() ); 
-	plots_eff.SetYaxisTitle( plots.GetYaxisTitle() ); 
-	
-	plots_eff.Draw( legend_eff );
-	
-	if ( !quiet && plotname!="" ) {
-
-	  plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
-
-	  if ( !nopng ) plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
-	
-	  gPad->SetLogx(true);
-
-	}    
-	
+	std::cout << std::endl;
       }
-      
-      delete c1;
       
     }
 
-    if ( fulldbg )  std::cout << __LINE__ << std::endl;
- 
-  }
+    if ( tc ) delete tc;
 
+  } /// loop over panels
 
+  
   if ( fulldbg ) std::cout << __LINE__ << std::endl;
   
   /// if deleting all non-used reference histograms 
-
-
+  
+  
   /// make sure we are not using the same reference as test file
   bool files_duplicated = ( _fref==_ftest );
-
+  
   if ( deleteref && !files_duplicated ) {
     
     if ( _fref ) { 
-    
+      
       /// clean up reference file
       
       std::cout << "main() cleaning up reference file" << std::endl;
-
+      
       //      TFile* newout = new TFile(".newout.root","recreate"); 
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
-    
+      
       /// copy the release tree       
       copyReleaseInfo( &fref, newout );
-        
+      
       TDirectory* base = gDirectory;
       
       for ( unsigned i=0 ; i<savedhistos.size() ; i++ ) { 

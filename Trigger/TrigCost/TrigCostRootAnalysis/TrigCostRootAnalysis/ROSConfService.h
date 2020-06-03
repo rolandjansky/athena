@@ -28,8 +28,8 @@ namespace TrigCostRootAnalysis {
   public:
     static ROSConfService& rosConfService(); //!< Use this method to get the singleton
 
-    const std::string& getRobinNameFromId(UInt_t _Id);
-    const std::string& getRosNameFromFromRobinName(const std::string& _robinName);
+    const std::string& getRobinNameFromId(UInt_t Id);
+    const std::string& getRosNameFromFromRobinName(const std::string& robinName);
   private:
     void parseRosXml();
 

@@ -91,9 +91,9 @@ public:
   // FE-I4B
   virtual void addLinkMaskedByPPC() = 0;
   virtual void addLimitError() = 0;
-  virtual void updateServiceRecords(int code, unsigned int count) = 0;
-  virtual unsigned int getServiceRecordCount(int code) = 0;
-
+  virtual void setServiceRecord(IdentifierHash module, unsigned int fe_number, int code, unsigned int payload) = 0; 
+  virtual std::vector<std::pair<int, unsigned int>> getFeServiceRecords(IdentifierHash module, unsigned int fe_number) = 0;
+  virtual const std::map<IdentifierHash, std::map<unsigned int, std::vector<std::pair<int, unsigned int>>>> & getAllServiceCodes() = 0;
 
 };
 

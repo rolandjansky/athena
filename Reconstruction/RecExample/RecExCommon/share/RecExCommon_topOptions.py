@@ -4,6 +4,13 @@ include.block ("RecExCommon/RecExCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
+#This supresses the following WARNING message
+#HistogramPersistencySvc WARNING Histograms saving not required.
+#Note we do not use HistogramPersistencySvc in reconstruction jobs, so this warning is not relevant
+#Further discussion can be found in ATLASRECTS-4469
+from GaudiCommonSvc.GaudiCommonSvcConf import HistogramPersistencySvc
+svcMgr += HistogramPersistencySvc(Warnings=False)
+
 # gbl.AthenaServices.SetFatalHandler(438)
 svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
@@ -479,12 +486,15 @@ topSequence+=EventCounter(Frequency=100)
 #Temporary: Schedule conversion algorithm for EventInfo object:
 # Note that we need to check whether the HLT already added this algorithm to the
 # algorithm sequence!
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
-        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 # Conditions data access infrastructure for serial and MT Athena
 from IOVSvc.IOVSvcConf import CondInputLoader
@@ -1096,13 +1106,14 @@ if rec.doFileMetaData():
 ###=== Only run reco on events that pass selected triggers
 ##--------------------------------------------------------
 if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
+    logRecExCommon_topOptions.info('Setting up trigger filtering')
     try:
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthFilterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthFilterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
-        seq+=topSequence.RoIBResultToAOD
+        seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
 
@@ -1110,9 +1121,9 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq += TriggerSelectorAlg('TriggerAlg1')
         seq.TriggerAlg1.TriggerSelection = rec.triggerFilterList()
         pass
-    except:
+    except Exception, e:
+        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: ' + `e`)
         pass
-    pass
 ##--------------------------------------------------------
 
 
@@ -1744,3 +1755,6 @@ if rec.readAOD():
 
 include("RecExCommon/RecoUtils.py")
 include("RecExCommon/PrintRecoSummary.py")
+
+from RecAlgs.RecAlgsConf import AppStopAlg
+topSequence+=AppStopAlg()

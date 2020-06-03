@@ -14,6 +14,7 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 #include <map>
 #include <ext/functional>
@@ -22,6 +23,7 @@
 
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
+#include "InDetIdentifier/PixelID.h"
 
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -159,6 +161,13 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("SplitClusterAmbiguityMap" , m_splitClusterMapName);
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
+  //To determine the ROI for high pt Bs
+  declareProperty("doHadCaloSeed"        ,m_useHClusSeed = false );
+  declareProperty("minPtBjetROI"         ,m_minPtBjetROI = 15000.); //inMeV
+  declareProperty("phiWidth"             ,m_phiWidth     = 0.1   );
+  declareProperty("etaWidth"             ,m_etaWidth     = 0.1   );
+  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName="InDetHadCaloClusterROIs");
+
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   declareProperty("TruthLocationTRT"       , m_truth_locationTRT     );  
   declareProperty("ResolvedTrackConnection", m_resolvedTrackConnection = "SiSPS_ResolvedTrackConnection");
@@ -233,6 +242,22 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   
   ATH_CHECK(m_assoTool.retrieve()) ;
    
+  sc = detStore()->retrieve(m_pixelId, "PixelID");
+  if (sc.isFailure())
+  {
+    ATH_MSG_FATAL( "Could not get PixelID helper !" );
+    return StatusCode::FAILURE;
+  }
+
+  sc = detStore()->retrieve(m_idHelper, "AtlasID");
+  if (sc.isFailure())
+  {
+    ATH_MSG_FATAL( "Could not get AtlasDetectorID helper" );
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(m_assoTool.retrieve()) ;
+  
   // suppress refit overwrites force refit
   if (m_forceRefit && m_suppressTrackFit ) 
   {
@@ -556,7 +581,7 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   if (m_monitorTracks)
     m_observerTool->saveTracksToxAOD();
 
-  if (msgLvl(MSG::INFO)) dumpTracks(*m_finalTracks);
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*m_finalTracks);
   
   // memory defragmantation fix. Cleaning before returning the result 
   m_prdSigSet.clear(); 
@@ -880,6 +905,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
     // clean it out to make sure not to many shared hits
     ATH_MSG_VERBOSE ("--- Trying next track "<<itnext->second.first<<"\t with score "<<-itnext->first);
     const Trk::Track* cleanedTrack = m_selectionTool->getCleanedOutTrack( itnext->second.first , -(itnext->first));
+    //Find the HighPtBROI
+    reloadHadROIs();
+    bool refitBTracks = decideIfInHighPtBROI(itnext->second.first);
 
     // cleaned track is input track and fitted
     if (cleanedTrack == itnext->second.first && itnext->second.second )
@@ -893,12 +921,38 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
       if (m_tryBremFit && itnext->second.first->info().trackProperties(Trk::TrackInfo::BremFit))
         increment_by_eta(m_NacceptedBrem,itnext->second.first);
 
-      // add track to PRD_AssociationTool
-      StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
-      if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
-      // add to output list 
-      m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
-
+      //Compute the fitQuality
+      double fitQual = 0;
+      if ( itnext->second.second ) {
+        if  (itnext->second.first->fitQuality() && itnext->second.first->fitQuality()->numberDoF()>0 ){ 
+          fitQual = itnext->second.first->fitQuality()->chiSquared()/itnext->second.first->fitQuality()->numberDoF();
+        }
+      } 
+      if(fitQual > 1.3 && refitBTracks){
+        const Trk::Track* refittedTrack = refitTracksFromB(itnext->second.first, fitQual);
+        if(refittedTrack){
+          // add track to PRD_AssociationTool
+          StatusCode sc = m_selectionTool->registerPRDs(refittedTrack);
+          if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
+          // add to output list 
+          m_finalTracks->push_back( const_cast<Track*>(refittedTrack) );
+          delete (cleanedTrack);
+        }
+        else{
+          // add track to PRD_AssociationTool
+          StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
+          if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
+          // add to output list 
+          m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
+        }
+      } 
+      else {
+        // add track to PRD_AssociationTool
+        StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
+        if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
+        // add to output list 
+        m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
+      }
 
 
       // don't forget to drop track from map
@@ -1682,7 +1736,166 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::handle(const Incident& inc)
   }     
 }
 
+//============================================================================================================
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Trk::Track* ptrTrack)
+{
+  // Are we in a ROI?
+  bool inROIandPTok(true);
+  if(  ptrTrack->trackParameters()->front() ){
+    if(  ptrTrack->trackParameters()->front()->pT() < m_minPtBjetROI ){
+      inROIandPTok = false;
+      return false;
+    }
+    if(inROIandPTok){
 
+      bool inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front());
+      return inROI;
+    }
+    else
+      return false;
+  } else
+    return false;
+}
+
+//============================================================================================================
+bool Trk::DenseEnvironmentsAmbiguityProcessorTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
+{
+  const double pi = M_PI, pi2 = 2.*M_PI;
+    if(m_hadF.empty()) return false;
+  
+  auto f = m_hadF.begin(), fe = m_hadF.end();
+  auto e = m_hadE.begin();
+  auto r = m_hadR.begin();
+  auto z = m_hadZ.begin();
+  
+  double F = Tp.momentum().phi();
+  double E = Tp.eta();
+  
+  for(; f!=fe; ++f) {
+    double df = fabs(F-(*f));
+    if(df > pi        ) df = fabs(pi2-df);
+    if(df < m_phiWidth) {
+      //Correct eta of cluster to take into account the z postion of the track
+      double newZ   = *z - Tp.position().z();
+      double newEta =  atanh( newZ / sqrt( (*r) * (*r) + newZ*newZ ) );
+  
+      double de = fabs(E-newEta);
+      if(de < m_etaWidth) return true;
+    }
+    ++e;
+    ++r;
+    ++z;
+  }
+  return false;
+}
+
+//============================================================================================================
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::reloadHadROIs()
+{
+  //Reload ROI's
+  if(m_useHClusSeed) {
+    m_hadF.clear();
+    m_hadE.clear();
+    m_hadR.clear();
+    m_hadZ.clear();
+  
+    const CaloClusterROI_Collection* calo = 0;
+    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
+
+    if(sc == StatusCode::SUCCESS && calo) {
+      for( const auto& ccROI : *calo) {
+        m_hadF.push_back( ccROI->globalPosition().phi() );
+        m_hadE.push_back( ccROI->globalPosition().eta() );
+        m_hadR.push_back( ccROI->globalPosition().perp() );
+        m_hadZ.push_back( ccROI->globalPosition().z() );
+      }
+    }
+  }
+}
+   
+//============================================================================================================
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<const Trk::MeasurementBase*>& measurements) const
+{
+  int count = 0; 
+  for (size_t i=0; i < measurements.size(); ++i){
+    const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(measurements.at(i));
+    if (rio != 0) {
+      const Identifier& surfaceID = (rio->identify()) ;                            
+      if(m_idHelper->is_pixel(surfaceID) && count ==0){  
+        //Only do this if we want to remove the pixel hits 
+        const Identifier& id = m_pixelId->wafer_id(surfaceID);
+        int layerDisk = m_pixelId -> layer_disk(id);
+        if (layerDisk < 3){
+          measurements.erase(measurements.begin()+i);
+          break;
+        }
+        else{
+          break;
+        }
+      }
+      else 
+        break;
+    }
+  }
+}
+
+//============================================================================================================
+const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const Trk::Track* track, double fitQualityOriginal) const 
+{
+  const Trk::TrackParameters* par = track->perigeeParameters();
+  if (par==0) {
+    par = track->trackParameters()->front();
+    if (par==0) {
+      ATH_MSG_DEBUG ("Track ("<<track<<") has no Track Parameters ! No refit !");
+      return 0;
+    }
+  }
+  
+  //std::vector<const Trk::MeasurementBase*>* measurementSet = new std::vector<const Trk::MeasurementBase*>;
+  std::vector<const Trk::MeasurementBase*> measurementSet;
+  //store all silicon measurements into the measurementset
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
+  for ( ; trackStateOnSurface != track->trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
+    if ( !(*trackStateOnSurface) ){
+      ATH_MSG_WARNING( "This track contains an empty MeasurementBase object that won't be included in the fit" );
+      continue;
+    }
+    if ( (*trackStateOnSurface)->measurementOnTrack() ){
+      if ( (*trackStateOnSurface)->type( Trk::TrackStateOnSurface::Measurement) ){
+        const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
+        if (rio != 0) {
+          const Identifier& surfaceID = (rio->identify()) ;                            
+          if(m_idHelper->is_pixel(surfaceID)|| m_idHelper->is_sct(surfaceID)) {
+            measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
+          }
+        }
+      }
+    }
+  }
+
+  size_t previousMeasSize = measurementSet.size();
+  while (true){
+    removeInnerHits(measurementSet); 
+    if(measurementSet.size()>4){
+      const Trk::Track* refittedTrack = fit(measurementSet,*par,true,Trk::pion);
+      double fitQualPostRefit = 10;
+      if  (refittedTrack && refittedTrack->fitQuality() && refittedTrack->fitQuality()->numberDoF()!=0 ) 
+        fitQualPostRefit = refittedTrack->fitQuality()->chiSquared()/refittedTrack->fitQuality()->numberDoF(); 
+      if (fitQualityOriginal/fitQualPostRefit > 1){
+        if ( fitQualityOriginal/fitQualPostRefit > 1.2){
+          return refittedTrack;
+        }
+      }
+      if (previousMeasSize == measurementSet.size()){
+        return 0;
+      }
+      previousMeasSize = measurementSet.size();
+    } else {
+      //cannot refit the track because we do not have enough measurements
+      return 0;
+    }
+  }
+}
 
 //==================================================================================================
 //

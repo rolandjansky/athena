@@ -45,8 +45,8 @@ namespace TrigCostRootAnalysis {
   /**
    * ProcessEvent constructor. Not much here.
    */
-  ProcessEvent::ProcessEvent(const TrigCostData* _costData, UInt_t _level, const std::string& _name)
-    : m_costData(_costData), m_level(_level), m_name(_name),
+  ProcessEvent::ProcessEvent(const TrigCostData* costData, UInt_t level, const std::string& name)
+    : m_costData(costData), m_level(level), m_name(name),
     m_runNumber(0),
     m_invertHighMuRunVeto(kFALSE),
     m_threadTimer("Event", "Thread-Spawning"),
@@ -54,13 +54,15 @@ namespace TrigCostRootAnalysis {
     m_cacheAlgTimer("Event", "Alg Monitor Caching"),
     m_cacheROSTimer("Event", "ROS Monitor Caching"),
     m_dataPrepTimer("Event", "Data Preperation"),
-    m_processTime("Event", "Executing Monitors") {
+    m_processTime("Event", "Executing Monitors"),
+    m_needsHLTPassInformation(kFALSE) {
     m_costData->setParent(this);
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
     m_ratesOnly = Config::config().getInt(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_useOnlyTheseBCIDs = &(Config::config().getIntVec(kUseOnlyTheseBCIDs));
+    m_invertFilter = Config::config().getInt(kPatternsInvert);
     m_pass = 0;
   }
 
@@ -69,10 +71,10 @@ namespace TrigCostRootAnalysis {
    */
   ProcessEvent::~ProcessEvent() {
     // Good housekeeping
-    monitorIt_t _it = m_monitorCollections.begin();
+    monitorIt_t it = m_monitorCollections.begin();
 
-    for (; _it != m_monitorCollections.end(); ++_it) {
-      delete _it->second;
+    for (; it != m_monitorCollections.end(); ++it) {
+      delete it->second;
     }
     m_monitorCollections.clear();
   }
@@ -81,120 +83,122 @@ namespace TrigCostRootAnalysis {
    * Used to enable or disable individual monitoring modes. All start out disabled.
    * Modes which were enabled but are subsequently disabled are deleted and their memory freed.
    * @see MonitorType_t
-   * @param _type Enum of which monitor type to act on. Can be the wild-card kAllMonitors
-   * @param _isActive Boolean which specifies if monitor is to be enabled or disabled.
+   * @param type Enum of which monitor type to act on. Can be the wild-card kAllMonitors
+   * @param isActive Boolean which specifies if monitor is to be enabled or disabled.
    */
-  void ProcessEvent::setMonitoringMode(ConfKey_t _type, Bool_t _isActive) {
-    assert(_type > kMonitorBegin && _type <= kDoAllMonitor);
+  void ProcessEvent::setMonitoringMode(ConfKey_t type, Bool_t isActive) {
+    assert(type > kMonitorBegin && type <= kDoAllMonitor);
 
     // If setting all, then recurs this function
-    if (_type == kDoAllMonitor) {
-      for (UInt_t _t = kMonitorBegin + 1; _t < kDoAllMonitor; ++_t) { // Avoid hitting kAllMonitors again
-        setMonitoringMode((ConfKey_t) _t, _isActive);
+    if (type == kDoAllMonitor) {
+      for (UInt_t t = kMonitorBegin + 1; t < kDoAllMonitor; ++t) { // Avoid hitting kAllMonitors again
+        setMonitoringMode((ConfKey_t) t, isActive);
       }
       return;
     }
 
     // Find this entry in the map (may not be present)
     // This must be done by hand as object need to be of correct derived type
-    monitorNonConstIt_t _it = m_monitorCollections.find(_type);
-    if (_isActive == false) {
+    monitorNonConstIt_t it = m_monitorCollections.find(type);
+    if (isActive == false) {
       // If disabling, check if present and delete if found
-      if (_it != m_monitorCollections.end()) {
-        delete _it->second;
-        _it->second = 0;
-        m_monitorCollections.erase(_it);
+      if (it != m_monitorCollections.end()) {
+        delete it->second;
+        it->second = 0;
+        m_monitorCollections.erase(it);
         Info("ProcessEvent::setMonitoringMode", "Disabling monitoring Level:%s Mode:%s",
-             getLevelStr().c_str(), Config::config().getName(_type).c_str());
+             getLevelStr().c_str(), Config::config().getName(type).c_str());
       }
     } else {
       // If enabling, check if present and add if not
-      if (_type == kDoRatesMonitor
+      if (type == kDoRatesMonitor
           && (getLevelStr() == Config::config().getStr(kL2String)
               || getLevelStr() == Config::config().getStr(kEFString))) {
         Warning("ProcessEvent::setMonitoringMode", "Rates monitoring not yet implimented for \"old style\" L2 or EF");
         return;
       }
-      if (_it == m_monitorCollections.end()) {
-        MonitorBase* _costMonitor;
+      if (it == m_monitorCollections.end()) {
+        MonitorBase* costMonitor;
         // Create object of appropriate derived type
-        switch (_type) {
+        switch (type) {
         case kDoChainMonitor:
-          _costMonitor = new MonitorChain(m_costData);
+          costMonitor = new MonitorChain(m_costData);
+          m_needsHLTPassInformation = kTRUE;
           break;
 
         case kDoChainAlgorithmMonitor:
-          _costMonitor = new MonitorAlgorithmChain(m_costData);
+          costMonitor = new MonitorAlgorithmChain(m_costData);
           break;
 
         case kDoSequenceMonitor:
-          _costMonitor = new MonitorSequence(m_costData);
+          costMonitor = new MonitorSequence(m_costData);
           break;
 
         case kDoSequenceAlgorithmMonitor:
-          _costMonitor = new MonitorAlgorithmSequence(m_costData);
+          costMonitor = new MonitorAlgorithmSequence(m_costData);
           break;
 
         case kDoAlgorithmMonitor:
-          _costMonitor = new MonitorAlgorithm(m_costData);
+          costMonitor = new MonitorAlgorithm(m_costData);
           break;
 
         case kDoAlgorithmClassMonitor:
-          _costMonitor = new MonitorAlgorithmClass(m_costData);
+          costMonitor = new MonitorAlgorithmClass(m_costData);
           break;
 
         case kDoROSMonitor:
-          _costMonitor = new MonitorROS(m_costData);
+          costMonitor = new MonitorROS(m_costData);
           break;
 
         case kDoROBINMonitor:
-          _costMonitor = new MonitorROBIN(m_costData);
+          costMonitor = new MonitorROBIN(m_costData);
           break;
 
         case kDoROSAlgorithmMonitor:
-          _costMonitor = new MonitorROSAlgorithm(m_costData);
+          costMonitor = new MonitorROSAlgorithm(m_costData);
           break;
 
         case kDoROSChainMonitor:
-          _costMonitor = new MonitorROSChain(m_costData);
+          costMonitor = new MonitorROSChain(m_costData);
           break;
 
         case kDoFullEventMonitor:
-          _costMonitor = new MonitorFullEvent(m_costData);
+          costMonitor = new MonitorFullEvent(m_costData);
           break;
 
         case kDoROIMonitor:
-          _costMonitor = new MonitorROI(m_costData);
+          costMonitor = new MonitorROI(m_costData);
           break;
 
         case kDoGlobalsMonitor:
-          _costMonitor = new MonitorGlobals(m_costData);
+          costMonitor = new MonitorGlobals(m_costData);
+          m_needsHLTPassInformation = kTRUE;
           break;
 
         case kDoEventProfileMonitor:
-          _costMonitor = new MonitorEventProfile(m_costData);
+          costMonitor = new MonitorEventProfile(m_costData);
           break;
 
         case kDoRatesMonitor:
-          _costMonitor = new MonitorRates(m_costData);
+          costMonitor = new MonitorRates(m_costData);
           break;
 
         case kDoRatesUpgradeMonitor:
-          _costMonitor = new MonitorRatesUpgrade(m_costData);
+          costMonitor = new MonitorRatesUpgrade(m_costData);
           break;
 
         case kDoSliceCPUMonitor:
-          _costMonitor = new MonitorSliceCPU(m_costData);
+          costMonitor = new MonitorSliceCPU(m_costData);
           break;
 
         default:
-          Error("ProcessEvent::setMonitoringMode", "Unknown or unimplemented Monitor Type with enum:%i", _type);
+          Error("ProcessEvent::setMonitoringMode", "Unknown or unimplemented Monitor Type with enum:%i", type);
           return;
         }
         Info("ProcessEvent::setMonitoringMode", "Enabling monitoring Level:%s Mode:%s",
-             getLevelStr().c_str(), Config::config().getName(_type).c_str());
-        _costMonitor->setLevel(getLevel());
-        m_monitorCollections.insert(monitorPair_t(_type, _costMonitor));
+             getLevelStr().c_str(), Config::config().getName(type).c_str());
+        costMonitor->setLevel(getLevel());
+        m_monitorCollections.insert(monitorPair_t(type, costMonitor));
       }
     }
   }
@@ -204,21 +208,21 @@ namespace TrigCostRootAnalysis {
    * @param The monitor to execute in this thread
    * @param The weight to pass it
    */
-  void ProcessEvent::newEventThreaded(MonitorBase* _monitor, Float_t _weight) {
-    _monitor->newEvent(_weight);
+  void ProcessEvent::newEventThreaded(MonitorBase* monitor, Float_t weight) {
+    monitor->newEvent(weight);
   }
 
   /**
    * Call once per event, passing the cost data and the event weight. This information is fed down in turn to all
    * registered and active monitors such that they may tabulate the event details.
    * We also apply here and enhanced bias or energy extrapolation weights which affect the whole event
-   * @param _costData Const reference to cost data object.
-   * @param _weight Event weight.
+   * @param costData Const reference to cost data object.
+   * @param weight Event weight.
    * @return kTRUE if at least one monitor reported as having executed on the event.
    */
-  Bool_t ProcessEvent::newEvent(Float_t _weight) {
+  Bool_t ProcessEvent::newEvent(Float_t weight) {
     //Check for weights from energy extrapolation
-    _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight(m_costData);
+    weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight(m_costData);
 
     if (m_runNumber == 0) {
       m_runNumber = Config::config().getInt(kRunNumber);
@@ -226,11 +230,11 @@ namespace TrigCostRootAnalysis {
     }
     // Special behaviour for the 2016 high mu run
     if (m_runNumber == 310574) {
-      const UInt_t _bcid = m_costData->getBunchCrossingId();
-      const Bool_t _isolatedBunch = (_bcid == 11 || _bcid == 1247 || _bcid == 2430);
-      if (m_invertHighMuRunVeto == kFALSE && _isolatedBunch == kTRUE) return false;
+      const UInt_t bcid = m_costData->getBunchCrossingId();
+      const Bool_t isolatedBunch = (bcid == 11 || bcid == 1247 || bcid == 2430);
+      if (m_invertHighMuRunVeto == kFALSE && isolatedBunch == kTRUE) return false;
       // We normally veto on these isolated bunches
-      if (m_invertHighMuRunVeto == kTRUE && _isolatedBunch == kFALSE) return false;
+      if (m_invertHighMuRunVeto == kTRUE && isolatedBunch == kFALSE) return false;
       // Or if inverted, we only keep the isolated bunches
     }
     // Special BCID filter
@@ -243,28 +247,25 @@ namespace TrigCostRootAnalysis {
 
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
-      _weight *= TrigXMLService::trigXMLService().getEventWeight(m_costData->getEventNumber(),
+      weight *= TrigXMLService::trigXMLService().getEventWeight(m_costData->getEventNumber(),
                                                                  m_costData->getLumi(), getPass());
     }
 
     // For each active monitoring type, process event
-    if (isZero(_weight) == kTRUE) return false;
+    if (isZero(weight) == kTRUE) return false;
 
-
-    // HACK!
-    //if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) return kFALSE;
 
     // Do any monitors want to take this event?
     m_takeEventTimer.start();
-    Int_t _takeEvent = kFALSE;
-    for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
-      _takeEvent += _it->second->getNCollectionsToProcess();
+    Int_t takeEvent = kFALSE;
+    for (monitorIt_t it = m_monitorCollections.begin(); it != m_monitorCollections.end(); ++it) {
+      takeEvent += it->second->getNCollectionsToProcess();
       // Note we cannot break this loop early, all monitors need to get this call to prepare their list of collections
       // to process
       // and perform bookkeeping
     }
     m_takeEventTimer.stop();
-    if (_takeEvent == 0) return kFALSE;
+    if (takeEvent == 0) return kFALSE;
 
     // Do buffering
     if (m_ratesOnly == kFALSE) {
@@ -287,64 +288,87 @@ namespace TrigCostRootAnalysis {
     // physics chain (NOT rerun).
     // Otherwise rerun on the costmon chain will mess up the prediction
     if (m_isCPUPrediction) {
-      UInt_t _chainPasses = 0;
-      for (UInt_t _c = 0; _c < m_costData->getNChains(); ++_c) {
-        const std::string _chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(
-                                                                                  _c), m_costData->getChainLevel(_c));
-        if (Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE) continue;
-        _chainPasses += (Int_t) m_costData->getIsChainPassed(_c);
-        if (_chainPasses > 0) break;
+      UInt_t chainPasses = 0;
+      for (UInt_t c = 0; c < m_costData->getNChains(); ++c) {
+        const std::string chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(
+                                                                                  c), m_costData->getChainLevel(c));
+        if (Config::config().getVecMatches(kPatternsMonitor, chainName) == kTRUE) continue;
+        chainPasses += (Int_t) m_costData->getIsChainPassed(c);
+        if (chainPasses > 0) break;
       }
-      static const std::string _ign = "IgnoreRerun";
-      if (_chainPasses == 0) Config::config().set(kIgnoreRerun, 1, _ign, kUnlocked);
+      static const std::string ign = "IgnoreRerun";
+      if (chainPasses == 0) Config::config().set(kIgnoreRerun, 1, ign, kUnlocked);
       // Then ignore RERUN chains in this event.
-      else Config::config().set(kIgnoreRerun, 0, _ign, kUnlocked);
+      else Config::config().set(kIgnoreRerun, 0, ign, kUnlocked);
+    }
+
+    // Figure out if the event was accepted for physics
+    if (m_needsHLTPassInformation) {
+      //Did HLT pass?
+      Int_t hltPass = 0;
+      for (UInt_t i = 0; i < m_costData->getNChains(); ++i) {
+        if (m_costData->getIsChainPassed(i) == kFALSE) {
+          continue; // I didn't passed
+        }
+        if (m_costData->getIsChainResurrected(i) == kTRUE) {
+          continue; // I was rerun (cannot cause event to be accepted)
+        }
+        const std::string chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(i));
+        if (TrigConfInterface::getChainIsMainStream(chainName) == kFALSE) {
+          continue; // Only look at physics accepts
+        }
+        if (checkPatternNameMonitor(chainName, m_invertFilter, m_costData->getIsChainResurrected(i)) == kFALSE) continue;
+        hltPass = 1;
+        break;
+      }
+      static const std::string passStr = "HLTPass";
+      Config::config().set(kHLTPass, hltPass, passStr, kUnlocked);
     }
 
     if (m_nThread == 1 || m_ratesOnly == kTRUE) {
       // Non threaded
       m_processTime.start();
-      for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
-        _it->second->newEvent(_weight);
+      for (monitorIt_t it = m_monitorCollections.begin(); it != m_monitorCollections.end(); ++it) {
+        it->second->newEvent(weight);
       }
       m_processTime.stop();
     } else {
       // Threaded
-      std::vector<std::thread> _executing;
-      std::vector<MonitorBase*> _notThreadable; // Vector of function pointers
+      std::vector<std::thread> executing;
+      std::vector<MonitorBase*> notThreadable; // Vector of function pointers
 
       //m_threadTimer.start();
       //m_threadTimer.stop();
 
       m_processTime.start();
-      monitorIt_t _it = m_monitorCollections.begin();
-      Bool_t _doneAll = kFALSE;
+      monitorIt_t it = m_monitorCollections.begin();
+      Bool_t doneAll = kFALSE;
 
       do {
-        while (_executing.size() < m_nThread && _doneAll == kFALSE) { // Loop until full of threads or no more to add
-          MonitorBase* _monitorInstance = _it->second;
-          if (_it->second->isThreadable() == kTRUE) {
-            // Spawn a new thread to call m_threadFnPtr to run _monitorInstance with argument _weight
-            _executing.push_back(std::thread(m_threadFnPtr, _monitorInstance, _weight));
+        while (executing.size() < m_nThread && doneAll == kFALSE) { // Loop until full of threads or no more to add
+          MonitorBase* monitorInstance = it->second;
+          if (it->second->isThreadable() == kTRUE) {
+            // Spawn a new thread to call m_threadFnPtr to run monitorInstance with argument weight
+            executing.push_back(std::thread(m_threadFnPtr, monitorInstance, weight));
           } else { // Otherwise we execute it later
-            _notThreadable.push_back(_monitorInstance);
+            notThreadable.push_back(monitorInstance);
           }
-          if (++_it == m_monitorCollections.end()) {
-            _doneAll = kTRUE; // Or break if the last monitor
+          if (++it == m_monitorCollections.end()) {
+            doneAll = kTRUE; // Or break if the last monitor
             break;
           }
         }
 
         // Wait for last thread to halt
-        if (_executing.size() > 0) {
-          _executing.back().join();
-          _executing.pop_back();
+        if (executing.size() > 0) {
+          executing.back().join();
+          executing.pop_back();
         }
-      } while (_doneAll == kFALSE || _executing.size() > 0);
+      } while (doneAll == kFALSE || executing.size() > 0);
 
       // Do un-threadable after. Call the functions
-      for (UInt_t _m = 0; _m < _notThreadable.size(); ++_m) {
-        _notThreadable.at(_m)->newEvent(_weight);
+      for (UInt_t m = 0; m < notThreadable.size(); ++m) {
+        notThreadable.at(m)->newEvent(weight);
       }
       m_processTime.stop();
     }
@@ -353,11 +377,11 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Sets which pass through the input file(s) we're on down to all the monitors
-   * @param _pass Number of this pass
+   * @param pass Number of this pass
    **/
-  void ProcessEvent::setPass(UInt_t _pass) {
-    for (const auto& _monitor : m_monitorCollections) _monitor.second->setPass(_pass);
-    m_pass = _pass;
+  void ProcessEvent::setPass(UInt_t pass) {
+    for (const auto& monitor : m_monitorCollections) monitor.second->setPass(pass);
+    m_pass = pass;
   }
 
   /**
@@ -370,7 +394,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Gets a map of the internal monitor objects. Note that while these are stored as base pointers, they are all
    * in fact polymorphic treatments of the derived classes.
-   * @see setMonitoringMode(MonitorType_t _type, Bool_t _isActive)
+   * @see setMonitoringMode(MonitorType_t type, Bool_t isActive)
    * @returns Map of MonitorType_t enums to TrigMonitorBase pointers.
    */
   const monitorMap_t& ProcessEvent::getMonitors() {
@@ -380,16 +404,16 @@ namespace TrigCostRootAnalysis {
   /**
    * Get base class pointer to a requested monitor. This can then be cast to the appropriate type if specific
    * base class dependent functionality is required.
-   * @param _type The type of monitor to retrieve.
+   * @param type The type of monitor to retrieve.
    * @result Base-class pointer to object. Returns 0 if monitor is not present.
    */
-  MonitorBase* ProcessEvent::getMonitor(ConfKey_t _type) {
-    assert(_type >= kDoChainMonitor && _type < kDoAllMonitor);
-    monitorIt_t _it = m_monitorCollections.find(_type);
-    if (_it != m_monitorCollections.end()) {
-      return _it->second;
+  MonitorBase* ProcessEvent::getMonitor(ConfKey_t type) {
+    assert(type >= kDoChainMonitor && type < kDoAllMonitor);
+    monitorIt_t it = m_monitorCollections.find(type);
+    if (it != m_monitorCollections.end()) {
+      return it->second;
     } else {
-      Error("ProcessEvent::getMonitor", "Collection %s is not registered.", Config::config().getName(_type).c_str());
+      Error("ProcessEvent::getMonitor", "Collection %s is not registered.", Config::config().getName(type).c_str());
       return 0;
     }
   }
@@ -400,28 +424,28 @@ namespace TrigCostRootAnalysis {
    */
   void ProcessEvent::saveOutput() {
     // Execute end-of-run code
-    for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
-      UInt_t _nCounters = _it->second->getNCounters();
-      if (_nCounters == 0) {
+    for (monitorIt_t it = m_monitorCollections.begin(); it != m_monitorCollections.end(); ++it) {
+      UInt_t nCounters = it->second->getNCounters();
+      if (nCounters == 0) {
         Info("ProcessEvent::saveOutput",
              "Skipping end-of-run output for %s %s monitor. Monitor did not find any data to run over.",
              getLevelStr().c_str(),
-             _it->second->getName().c_str());
+             it->second->getName().c_str());
         continue;
       }
       Info("ProcessEvent::saveOutput", "%s %s monitor processed %i counters. Writing out counters...",
            getLevelStr().c_str(),
-           _it->second->getName().c_str(),
-           _nCounters);
-      _it->second->saveOutput();
+           it->second->getName().c_str(),
+           nCounters);
+      it->second->saveOutput();
     }
   }
 
   /**
-   * @param _level The HLT level of this processor to set.
+   * @param level The HLT level of this processor to set.
    */
-  void ProcessEvent::setLevel(UInt_t _level) {
-    m_level = _level;
+  void ProcessEvent::setLevel(UInt_t level) {
+    m_level = level;
   }
 
   /**

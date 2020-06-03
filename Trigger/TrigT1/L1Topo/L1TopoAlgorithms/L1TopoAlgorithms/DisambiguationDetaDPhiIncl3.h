@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  DisambiguationDetaDPhiIncl3.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __TopoCore__DisambiguationDetaDPhiIncl3__
 #define __TopoCore__DisambiguationDetaDPhiIncl3__

@@ -144,7 +144,13 @@ void PixCoralClient::connect() {
 */
 PixCoralClient::~PixCoralClient() {
   disconnect();
-  m_connectionService->purgeConnectionPool();
+  try {
+    m_connectionService->purgeConnectionPool();
+  }
+  catch (coral::Exception & ex) {
+    std::cout << "INFO [PixCoralClient::~PixCoralClien] Exception caught in purging connection pool. " <<std::endl;
+    std::cout << ex.what() <<std::endl;
+  }
 }
 
 

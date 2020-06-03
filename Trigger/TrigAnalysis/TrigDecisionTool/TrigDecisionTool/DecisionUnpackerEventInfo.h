@@ -33,11 +33,11 @@ namespace Trig{
   public:
     DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key);
     virtual ~DecisionUnpackerEventInfo();
-    virtual StatusCode unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>&,
+    virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
-				      std::map<std::string, const HLT::Chain*>&,
+				      std::unordered_map<std::string, const HLT::Chain*>&,
 				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
-				      std::map<std::string, const HLT::Chain*>&,
+				      std::unordered_map<std::string, const HLT::Chain*>&,
 				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
 				      char&,
 				      bool
@@ -50,10 +50,10 @@ namespace Trig{
     DecisionObjectHandleEventInfo* m_handle;
     StatusCode unpackItems(const std::vector<uint32_t>& level1TriggerInfo,
 			   std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-			   std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName);
+			   std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName);
     StatusCode unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
 			    std::map<unsigned, HLT::Chain*>& cache,
-			    std::map<std::string, const HLT::Chain*>& output);
+			    std::unordered_map<std::string, const HLT::Chain*>& output);
 
   };
 

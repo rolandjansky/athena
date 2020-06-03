@@ -49,6 +49,7 @@ namespace Brandeis {
     
     // peak at eta ~ 0 -> WILL BE IMPROVED
     double sigmaZero = ((Brandeis::p28ID)*exp(-fabs(mu_eta)/WIDTH2));
+
     
     // merge various terms -> return % resolution
     return sqrt( pow(sigmaPtEta*(1.0 + sigmaZero),2) + pow(sigmaPeak,2) );

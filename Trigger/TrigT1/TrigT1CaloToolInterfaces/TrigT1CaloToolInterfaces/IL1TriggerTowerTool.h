@@ -1,15 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 ///////////////////////////////////////////////////////////////////
-// L1TriggerTowerTool.h, (c) Alan Watson
+// L1TriggerTowerTool.h, 
 ///////////////////////////////////////////////////////////////////
-
- /***************************************************************************
-  *                                                                         *
-  *   This program is free software; you can redistribute it and/or modify  *
-  *   it under the terms of the GNU General Public License as published by  *
-  *   the Free Software Foundation; either version 2 of the License, or     *
-  *   (at your option) any later version.                                   *
-  *                                                                         *
-  ***************************************************************************/
 
 #ifndef IL1TRIGGERTOWERTOOL_H
 #define IL1TRIGGERTOWERTOOL_H

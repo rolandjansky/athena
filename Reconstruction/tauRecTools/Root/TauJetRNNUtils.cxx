@@ -124,6 +124,9 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits);
     calc->insert("nPixelHits", Variables::Track::nPixelHits);
     calc->insert("nSCTHits", Variables::Track::nSCTHits);
+    calc->insert("nIBLHitsAndExp", Variables::Track::nIBLHitsAndExp);
+    calc->insert("nPixelHitsPlusDeadSensors", Variables::Track::nPixelHitsPlusDeadSensors);
+    calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors);
 
     // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
@@ -308,7 +311,39 @@ bool nSCTHits(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
     return success;
 }
 
+// same as in tau track classification for trigger
+bool nIBLHitsAndExp(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
+                         double &out) {
+    (void)tau;
+    uint8_t inner_pixel_hits, inner_pixel_exp;
+    const auto success1 = track.track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
+    const auto success2 = track.track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);
+    out =  inner_pixel_exp ? inner_pixel_hits : 1.;
+    return success1 && success2;
+}
+
+bool nPixelHitsPlusDeadSensors(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
+                double &out) {
+    (void)tau;
+    uint8_t pixel_hits, pixel_dead;
+    const auto success1 = track.track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);
+    const auto success2 = track.track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);
+    out = pixel_hits + pixel_dead;
+    return success1 && success2;
+}
+
+bool nSCTHitsPlusDeadSensors(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
+              double &out) {
+    (void)tau;
+    uint8_t sct_hits, sct_dead;
+    const auto success1 = track.track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);
+    const auto success2 = track.track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);
+    out = sct_hits + sct_dead;
+    return success1 && success2;
+}
+
 } // namespace Track
+
 
 namespace Cluster {
 using MomentType = xAOD::CaloCluster::MomentType;

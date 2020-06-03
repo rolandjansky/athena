@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -13,13 +13,27 @@ from AthenaCommon.SystemOfUnits import MeV, mm
 ## GenParticleFilters
 
 def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
-    # ParticleFinalStateFilter
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    G4NotInUse = not ISF_Flags.UsingGeant4.get_Value()
+    from G4AtlasApps.SimFlags import simFlags
+    G4NotInUse = G4NotInUse and simFlags.ISFRun.get_Value()
     # use CheckGenInteracting==False to allow GenEvent neutrinos to propagate into the simulation
-    #kwargs.setdefault("CheckGenInteracting"     , False )
+    kwargs.setdefault("CheckGenSimStable", G4NotInUse)
+    kwargs.setdefault("CheckGenInteracting", G4NotInUse)
     return CfgMgr.ISF__GenParticleFinalStateFilter(name, **kwargs)
 
 def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
     # GenParticleSimWhiteList
+    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
+
+def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+    # GenParticleSimWhiteList_LongLived
+    kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
+    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
+
+def getParticleSimWhiteList_LongLived(name="ISF_ParticleSimWhiteList_LongLived", **kwargs):
+    # GenParticleSimWhiteList_LongLived
+    kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_Mesons.txt'] )
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
@@ -87,7 +101,9 @@ def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **k
     from G4AtlasApps.SimFlags import simFlags
     simdict = simFlags.specialConfiguration.get_Value()
     if simdict is not None and "InteractingPDGCodes" in simdict:
-        kwargs.setdefault('AdditionalInteractingParticleTypes', simdict["InteractingPDGCodes"])
+        kwargs.setdefault('AdditionalInteractingParticleTypes', eval(simdict["InteractingPDGCodes"]))
+    if simdict is not None and "NonInteractingPDGCodes" in simdict:
+        kwargs.setdefault('AdditionalNonInteractingParticleTypes', eval(simdict["InteractingNonPDGCodes"]))
     return CfgMgr.ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
@@ -189,3 +205,16 @@ def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
     kwargs.setdefault('PassProcessCategory',      9   ) # ==
     return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);
+
+def getKeepLLPDecayChildrenStrategy(name="ISF_KeepLLPDecayChildrenStrategy", **kwargs):
+    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault('PassProcessCategory' , 9  ) # ==
+    kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
+    kwargs.setdefault('BSMParent',                True)
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+
+def getKeepHadronicInteractionChildrenStrategy(name="ISF_KeepHadronicInteractionChildrenStrategy", **kwargs):
+    kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);

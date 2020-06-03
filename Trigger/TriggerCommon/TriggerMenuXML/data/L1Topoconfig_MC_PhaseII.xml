@@ -23,7 +23,7 @@
     <Output algname="ZEE-EM20shi2" triggerline="ZEE-EM20shi2" algoId="90" module="0" fpga="0" firstbit="2" clock="1"/>
     <Output algname="FTK-EM20s1" triggerline="FTK-EM20s1" algoId="87" module="1" fpga="0" firstbit="13" clock="1"/>
     <Output algname="FTK-J100s1" triggerline="FTK-J100s1" algoId="88" module="1" fpga="0" firstbit="10" clock="0"/>
-    <Output algname="FTK-MU20s1" triggerline="FTK-MU20s1" algoId="89" module="1" fpga="0" firstbit="15" clock="0"/>
+    <Output algname="FTK-MU10s1" triggerline="FTK-MU10s1" algoId="89" module="1" fpga="0" firstbit="15" clock="0"/>
     <Output algname="NOT-02MATCH-EM10s1-AJj15all.ETA49" triggerline="NOT-02MATCH-EM10s1-AJj15all.ETA49" algoId="60" module="0" fpga="0" firstbit="11" clock="1"/>
     <Output algname="15MINDPHI-EM12s6-XE0" triggerline="15MINDPHI-EM12s6-XE0" algoId="77" module="0" fpga="0" firstbit="14" clock="1"/>
     <Output algname="15MINDPHI-EM15s6-XE0" triggerline="15MINDPHI-EM15s6-XE0" algoId="78" module="0" fpga="0" firstbit="15" clock="1"/>
@@ -871,17 +871,17 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="EtaPhiWindow" name="FTK-MU20s1" algoId="89">
+  <DecisionAlgo type="EtaPhiWindow" name="FTK-MU10s1" algoId="89">
     <Fixed>
       <Input name="Tob" value="MUs" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="FTK-MU20s1"/>
+        <Bit selection="0" name="FTK-MU10s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortMU:"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET" value="19"/>
+      <Parameter pos="0" name="MinET" value="9"/>
       <Parameter pos="1" name="EtaMin" value="-16"/>
       <Parameter pos="2" name="EtaMax" value="1"/>
       <Parameter pos="3" name="PhiMin" value="15"/>

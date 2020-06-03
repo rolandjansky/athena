@@ -61,7 +61,6 @@ iPatFitter::iPatFitter (const std::string&	type,
 	m_parameters			(0),
 	m_aggregateMaterial		(true),
 	m_asymmetricCaloEnergy		(true),
-	m_eigenMatrixTreatment		(true),
 	m_fullCombinedFit		(true),
 	m_lineFit			(false),
 	m_lineMomentum			(100.*Gaudi::Units::GeV),
@@ -93,7 +92,6 @@ iPatFitter::iPatFitter (const std::string&	type,
     declareInterface<ITrackFitter>(this);
     declareProperty("AggregateMaterial",	       	m_aggregateMaterial);
     declareProperty("AsymmetricCaloEnergy",	       	m_asymmetricCaloEnergy);
-    declareProperty("EigenMatrixTreatment",		m_eigenMatrixTreatment);
     declareProperty("FullCombinedFit",			m_fullCombinedFit);
     declareProperty("LineFit",				m_lineFit);
     declareProperty("LineMomentum",			m_lineMomentum);
@@ -133,7 +131,6 @@ iPatFitter::initialize()
     msg(MSG::INFO) << " with options: ";
     if (m_aggregateMaterial)		msg() << " AggregateMaterial";
     if (m_asymmetricCaloEnergy) 	msg() << " AsymmetricCaloEnergy";
-    if (m_eigenMatrixTreatment)		msg() << " EigenMatrixTreatment";
     if (m_fullCombinedFit)		msg() << " FullCombinedFit";
     if (m_globalFit)			msg() << " GlobalFitter";
     if (m_lineFit)			msg() << " LineFit with p = "
@@ -245,7 +242,6 @@ iPatFitter::initialize()
     // can now create FitProcedure class
     m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
 				      m_extendedDebug,
-				      m_eigenMatrixTreatment,
 				      m_lineFit,
 				      m_rungeKuttaIntersector,
 				      m_solenoidalIntersector,

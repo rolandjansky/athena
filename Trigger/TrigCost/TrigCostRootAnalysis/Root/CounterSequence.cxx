@@ -24,12 +24,12 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Sequence counter constructor. Sets values of internal variables and sets up data store.
-   * @param _name Const ref to sequence's name
-   * @param _ID Sequence's index number.
+   * @param name Const ref to sequence's name
+   * @param ID Sequence's index number.
    */
-  CounterSequence::CounterSequence(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                   UInt_t _detailLevel, MonitorBase* _parent)
-    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
+  CounterSequence::CounterSequence(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                   UInt_t detailLevel, MonitorBase* parent)
+    : CounterBase(costData, name, ID, detailLevel, parent),
     m_eventWeight(1.) {
     // Reg. variables to study.
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
@@ -94,61 +94,60 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Perform monitoring of a sequence within an event.
-   * @param _e Sequence index in D3PD.
-   * @param _f Unused by this counter.
-   * @param _weight Event weight.
+   * @param e Sequence index in D3PD.
+   * @param f Unused by this counter.
+   * @param weight Event weight.
    */
-  void CounterSequence::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+  void CounterSequence::processEventCounter(UInt_t e, UInt_t /*f*/, Float_t weight) {
     ++m_calls;
-    UNUSED(_f);
 
-    Float_t _prescaleFactor = getPrescaleFactor(_e);
-    _weight *= _prescaleFactor;
-    if (isZero(_weight) == kTRUE) return;
+    Float_t prescaleFactor = getPrescaleFactor(e);
+    weight *= prescaleFactor;
+    if (isZero(weight) == kTRUE) return;
 
-    if (Config::config().debug()) debug(_e);
+    if (Config::config().debug()) debug(e);
 
-    const std::string _myChain = TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e));
-    if (m_chainsSeen.count(_myChain) == 0) {
-      m_eventWeight *= (1. - _prescaleFactor);
-      m_chainsSeen.insert(_myChain);
+    const std::string myChain = TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(e));
+    if (m_chainsSeen.count(myChain) == 0) {
+      m_eventWeight *= (1. - prescaleFactor);
+      m_chainsSeen.insert(myChain);
     }
 
-    m_dataStore.store(kVarCalls, 1., _weight);
+    m_dataStore.store(kVarCalls, 1., weight);
 
     // Get time for sequence
-    Float_t _rosTime = m_costData->getSeqROSTime(_e);
-    Float_t _sequenceTime = m_costData->getSequenceTime(_e);
-    //if ( isZero(_sequenceTime) == kTRUE ) {
-    _sequenceTime = m_costData->getSequenceAlgTotalTime(_e);
+    Float_t rosTime = m_costData->getSeqROSTime(e);
+    Float_t sequenceTime = m_costData->getSequenceTime(e);
+    //if ( isZero(sequenceTime) == kTRUE ) {
+    sequenceTime = m_costData->getSequenceAlgTotalTime(e);
     //}
-    s_eventTimeExecute += _sequenceTime * _weight; // Add to static variable to keep track during event
-    m_dataStore.store(kVarTime, _sequenceTime, _weight);
-    if (isZero(_rosTime) == kFALSE) {
-      m_dataStore.store(kVarROSTime, _rosTime, _weight);
-      m_dataStore.store(kVarCPUTime, _sequenceTime - _rosTime, _weight);
+    s_eventTimeExecute += sequenceTime * weight; // Add to static variable to keep track during event
+    m_dataStore.store(kVarTime, sequenceTime, weight);
+    if (isZero(rosTime) == kFALSE) {
+      m_dataStore.store(kVarROSTime, rosTime, weight);
+      m_dataStore.store(kVarCPUTime, sequenceTime - rosTime, weight);
     }
 
-    if (_sequenceTime > Config::config().getInt(kSlowThreshold)) {
-      m_dataStore.store(kVarCallsSlow, 1., _weight);
+    if (sequenceTime > Config::config().getInt(kSlowThreshold)) {
+      m_dataStore.store(kVarCallsSlow, 1., weight);
     }
 
     // Get alg cache staus
-    m_dataStore.store(kVarAlgCalls, m_costData->getSequenceAlgCalls(_e), _weight);
-    m_dataStore.store(kVarAlgCaches, m_costData->getSequenceAlgCaches(_e), _weight);
+    m_dataStore.store(kVarAlgCalls, m_costData->getSequenceAlgCalls(e), weight);
+    m_dataStore.store(kVarAlgCaches, m_costData->getSequenceAlgCaches(e), weight);
 
     // Get alg ROB status
-    m_dataStore.store(kVarROSCalls, m_costData->getSeqROSCalls(_e), _weight);
-    if (m_costData->getSeqROBRequests(_e) != 0) {
-      m_dataStore.store(kVarROBReqs, m_costData->getSeqROBRequests(_e), _weight);
-      m_dataStore.store(kVarROBReqSize, m_costData->getSeqROBRequestSize(_e), _weight);
+    m_dataStore.store(kVarROSCalls, m_costData->getSeqROSCalls(e), weight);
+    if (m_costData->getSeqROBRequests(e) != 0) {
+      m_dataStore.store(kVarROBReqs, m_costData->getSeqROBRequests(e), weight);
+      m_dataStore.store(kVarROBReqSize, m_costData->getSeqROBRequestSize(e), weight);
     }
-    if (m_costData->getSeqROBRetrievals(_e) != 0) {
-      m_dataStore.store(kVarROBRets, m_costData->getSeqROBRetrievals(_e), _weight);
-      m_dataStore.store(kVarROBRetSize, m_costData->getSeqROBRetrievalSize(_e), _weight);
+    if (m_costData->getSeqROBRetrievals(e) != 0) {
+      m_dataStore.store(kVarROBRets, m_costData->getSeqROBRetrievals(e), weight);
+      m_dataStore.store(kVarROBRetSize, m_costData->getSeqROBRetrievalSize(e), weight);
     }
-    if (m_costData->getSeqROBOthers(_e) != 0) {
-      m_dataStore.store(kVarROBOther, m_costData->getSeqROBOthers(_e), _weight);
+    if (m_costData->getSeqROBOthers(e) != 0) {
+      m_dataStore.store(kVarROBOther, m_costData->getSeqROBOthers(e), weight);
     }
   }
 
@@ -158,19 +157,19 @@ namespace TrigCostRootAnalysis {
    * scale by its L1 prescale
    * @return Multiplicative weighting factor
    */
-  Double_t CounterSequence::getPrescaleFactor(UInt_t _e) {
+  Double_t CounterSequence::getPrescaleFactor(UInt_t e) {
     return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
-      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e),
-                                               m_costData->getSequenceLevel(_e)));
+      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(e),
+                                               m_costData->getSequenceLevel(e)));
   }
 
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterSequence::endEvent(Float_t _weight) {
+  void CounterSequence::endEvent(Float_t weight) {
     if (m_chainsSeen.size() > 0) {
       m_eventWeight = 1. - m_eventWeight;
-      m_dataStore.store(kVarEventsActive, 1., m_eventWeight * _weight);
+      m_dataStore.store(kVarEventsActive, 1., m_eventWeight * weight);
       m_eventWeight = 1.;
       m_chainsSeen.clear();
     }
@@ -182,31 +181,31 @@ namespace TrigCostRootAnalysis {
   /**
    * Output debug information on this call to the console
    */
-  void CounterSequence::debug(UInt_t _e) {
+  void CounterSequence::debug(UInt_t e) {
     Info("CounterSequence::debug", "Seq Name:%s ID:%i Evnt:%i Lvl:%i Chnl:%i Index:%i SeqTimer:%.2f SeqAlgTimer:%.2f"
                                    " isAlreadyExec:%i isExec:%i isInitial:%i isPrev:%i nAlgs:%i nAlgCalls:%i nAlgCaches:%i"
                                    " ROSCall:%i ROSTime:%.2f ROBRet:%i ROBRetSize:%.2f ROBReq:%i ROBReqSize:%.2f ROBOther:%i",
          m_name.c_str(),
          getID(),
          m_costData->getEventNumber(),
-         m_costData->getSequenceLevel(_e),
-         m_costData->getSequenceChannelCounter(_e),
-         m_costData->getSequenceIndex(_e),
-         m_costData->getSequenceTime(_e),
-         m_costData->getSequenceAlgTotalTime(_e),
-         (Int_t) m_costData->getIsSequenceAlreadyExecuted(_e),
-         (Int_t) m_costData->getIsSequenceExecuted(_e),
-         (Int_t) m_costData->getIsSequenceInitial(_e),
-         (Int_t) m_costData->getIsSequencePrevious(_e),
-         m_costData->getNSeqAlgs(_e),
-         m_costData->getSequenceAlgCalls(_e),
-         m_costData->getSequenceAlgCaches(_e),
-         m_costData->getSeqROSCalls(_e),
-         m_costData->getSeqROSTime(_e),
-         m_costData->getSeqROBRetrievals(_e),
-         m_costData->getSeqROBRetrievalSize(_e),
-         m_costData->getSeqROBRequests(_e),
-         m_costData->getSeqROBRequestSize(_e),
-         m_costData->getSeqROBOthers(_e));
+         m_costData->getSequenceLevel(e),
+         m_costData->getSequenceChannelCounter(e),
+         m_costData->getSequenceIndex(e),
+         m_costData->getSequenceTime(e),
+         m_costData->getSequenceAlgTotalTime(e),
+         (Int_t) m_costData->getIsSequenceAlreadyExecuted(e),
+         (Int_t) m_costData->getIsSequenceExecuted(e),
+         (Int_t) m_costData->getIsSequenceInitial(e),
+         (Int_t) m_costData->getIsSequencePrevious(e),
+         m_costData->getNSeqAlgs(e),
+         m_costData->getSequenceAlgCalls(e),
+         m_costData->getSequenceAlgCaches(e),
+         m_costData->getSeqROSCalls(e),
+         m_costData->getSeqROSTime(e),
+         m_costData->getSeqROBRetrievals(e),
+         m_costData->getSeqROBRetrievalSize(e),
+         m_costData->getSeqROBRequests(e),
+         m_costData->getSeqROBRequestSize(e),
+         m_costData->getSeqROBOthers(e));
   }
 } // namespace TrigCostRootAnalysis

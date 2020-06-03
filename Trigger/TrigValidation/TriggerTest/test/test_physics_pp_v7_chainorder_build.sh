@@ -3,7 +3,6 @@
 # art-description: TriggerTest on changes coming through the order of execution
 # art-type: build
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
@@ -19,6 +18,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="physics_pp_v7_chainorder_build"
 export MENU="Physics_pp_v7"
@@ -40,5 +40,5 @@ source exec_athena_art_trigger_validation.sh
 timeout 10m rootcomp.py expert-monitoring-ascend.root expert-monitoring.root | tee rootcompout.log
 echo "art-result: ${PIPESTATUS[0]} RootComp" 
 
-trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH | tee checkcountout.log
+trigtest_checkcounts.sh 0 expert-monitoring-ascend.root HLT | tee checkcountout.log
 echo "art-result: ${PIPESTATUS[0]} CheckCounts"

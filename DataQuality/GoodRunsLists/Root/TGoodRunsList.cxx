@@ -76,7 +76,7 @@ Root::TGoodRunsList::operator=(const Root::TGoodRunsList& other)
 void 
 Root::TGoodRunsList::AddGRL(const TGoodRunsList& other)
 {
-  // ensure version and metadata are identical
+  // ensure version and name are identical
   Bool_t same = this->HasSameGRLInfo(other);
   if (m_checkGRLInfo || other.GetCheckGRLInfo()) {
     if (!same) {
@@ -86,6 +86,25 @@ Root::TGoodRunsList::AddGRL(const TGoodRunsList& other)
       other.Summary(kFALSE);
       m_logger << kWARNING << "Not adding GoodRunsList." << GEndl;
       return;
+    }
+  }
+
+  // merge metadata
+  for (const auto& othermditem : other.GetMetaData()) {
+    auto thismditem = m_metadata.find(othermditem.first);
+    if (thismditem == m_metadata.end()) {
+      m_metadata.insert(othermditem);
+    } else {
+      auto& nameStr = othermditem.first;
+      auto& thisvaluestr = thismditem->second;
+      if (thisvaluestr != othermditem.second) {
+	if (nameStr == "RunList") {
+	  thisvaluestr += ",";
+	} else {
+	  thisvaluestr += " | ";
+	}
+	thisvaluestr += othermditem.second;
+      }
     }
   }
 

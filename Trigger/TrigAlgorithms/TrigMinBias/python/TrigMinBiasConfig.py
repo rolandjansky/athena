@@ -210,8 +210,8 @@ EFMbTrkHypoExclusiveLoose.AcceptAll_EF = False
 EFMbTrkHypoExclusiveLoose.CutMinAndMax = True
 EFMbTrkHypoExclusiveLoose.Max_z0 = 401.#disable by setting to value higher than trkZ0Max
 EFMbTrkHypoExclusiveLoose.Min_pt = 0.2
-EFMbTrkHypoExclusiveLoose.Required_ntrks = 2
-EFMbTrkHypoExclusiveLoose.MaxRequired_ntrks = 5
+EFMbTrkHypoExclusiveLoose.Required_ntrks = 1
+EFMbTrkHypoExclusiveLoose.MaxRequired_ntrks = 15
 hypos["EFMbTrkHypoExclusiveLoose"] = EFMbTrkHypoExclusiveLoose
 
 # Tigheter exclusive requirement
