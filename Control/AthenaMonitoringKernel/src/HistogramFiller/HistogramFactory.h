@@ -63,7 +63,7 @@ namespace Monitored {
     /**
      * @brief Removes histogram (used online to get rid of old LB tagged histograms)
      **/
-    void remove(const HistogramDef& def);
+    virtual void remove(const HistogramDef& def);
 
   private:
     /**

@@ -5,7 +5,7 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaConfiguration.AllConfigFlags import ConfigFlags as newJOConfigFlags
+
 import json
 import six
 
@@ -27,7 +27,6 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         self._convention = ''
         self._defaultDuration = kwargs.pop('defaultDuration', None)
         super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-        self.DergisterOldLBNHistograms = newJOConfigFlags.isOnline if isRun3Cfg() else athenaCommonFlags.isOnline()
 
     if not isRun3Cfg():
         def __new__( cls, name=None, *args, **kwargs ):

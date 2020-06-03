@@ -47,6 +47,7 @@ namespace Monitored {
      * @return ROOT object
      */
     TNamed* histogram() override {
+
       const unsigned lumiBlock = m_gmTool->lumiBlock();
       if (lumiBlock <= m_lastValidLumiBlock and m_currentHistogram != nullptr)
 	return m_currentHistogram;
@@ -61,8 +62,9 @@ namespace Monitored {
 
       auto minLumiBlock = [=](unsigned lumiPage) { return lumiPage * historyDepth; };
       auto maxLumiBlock = [=](unsigned lumiPage) { return (lumiPage+1) * historyDepth - 1; };
-      // Helper function to set the
-      auto setAlias = [&](unsigned lumiPage) {
+
+      // Helper function to set the alias in histogram definition
+      auto setAlias = [&](unsigned lumiPage, HistogramDef& def ) {
 	if (historyDepth > 1)
 	  def.alias = def.alias + "_LB" + std::to_string(minLumiBlock(lumiPage)) + "_" + std::to_string(maxLumiBlock(lumiPage));
 	else
@@ -71,12 +73,13 @@ namespace Monitored {
 
 
       // deregister previous histogram (we actually may make severall additonal calls to clean the past even deeper)
-      if (m_gmTool->deregisterOldLBNHistograms() and lumiPage != 0) {
-	setAlias(lumiPage -1);
-	m_factory->remove(def);
+      if (lumiPage != 0) {
+	HistogramDef deregDef = def;
+	setAlias(lumiPage -1, deregDef );
+	m_factory->remove(deregDef);
       }
 
-      setAlias(lumiPage);
+      setAlias(lumiPage, def);
       m_currentHistogram = m_factory->create(def);
       m_lastValidLumiBlock = maxLumiBlock(lumiPage);
       return m_currentHistogram;
@@ -86,7 +89,7 @@ namespace Monitored {
     std::shared_ptr<HistogramFactory> m_factory;
     std::shared_ptr<HistogramDef> m_histDef;
     TNamed *m_currentHistogram = nullptr;
-    unsigned m_lastValidLumiBlock = -1;
+    unsigned m_lastValidLumiBlock = 0;
   };
 }
 
