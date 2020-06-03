@@ -1,6 +1,7 @@
 #!/bin/bash
 # art-description: AOD->HIST, R22 MC, Trigger Only
 # art-type: grid
+# art-memory: 3072
 # art-include: master/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
