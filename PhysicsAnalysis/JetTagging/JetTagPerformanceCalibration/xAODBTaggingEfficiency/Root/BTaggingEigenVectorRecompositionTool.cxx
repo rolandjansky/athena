@@ -154,8 +154,8 @@ std::vector<std::string> BTaggingEigenVectorRecompositionTool::getListOfOriginal
   return dummy;
 }
 
+// Produce a map contains only eigenvectors that is showing in eigenIdxList and return it to user.
 std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompositionTool::getCoefficientMap(const std::string & label, const std::vector<int> evIdxList) const
-  // Prunning eigenvectors that is not showing in eigenIdxList. Return the user a prunned map.
 {
   ATH_MSG_INFO("getCoefficientMap()");
   

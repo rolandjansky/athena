@@ -1,13 +1,18 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// BTaggingEfficiencyTool.h, (c) ATLAS Detector software
+// BTaggingEigenVectorRecomposition.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-
+/**
+@class BTaggingEigenVectorRecompositionTool
+Tool to get eigen vector recomposition coefficients
+@author Y. Ke, Q. Buat
+@contact yake@cern.ch, qbuat@cern.ch
+**/
 #ifndef CPBTAGGINGEIGENVECTORRECOMPOSITIONTOOL_H
 #define CPBTAGGINGEIGENVECTORRECOMPOSITIONTOOL_H
 
