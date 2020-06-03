@@ -175,8 +175,8 @@ InDet::SCT_Cluster* TrigFTKClusterConverterTool::createSCT_Cluster(IdentifierHas
   const InDetDD::SiCellId cell1(firstStrip - 1);  
   const InDetDD::SiCellId cell2(lastStrip + 1);   
 
-  const InDetDD::SiLocalPosition firstStripPos(pDE->rawLocalPositionOfCell(cell1)); 
-  const InDetDD::SiLocalPosition lastStripPos(pDE->rawLocalPositionOfCell(cell2)); 
+  const InDetDD::SiLocalPosition firstStripPos(pDE->localPositionOfCell(cell1)); 
+  const InDetDD::SiLocalPosition lastStripPos(pDE->localPositionOfCell(cell2)); 
 
   const double width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi())); 
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0); 

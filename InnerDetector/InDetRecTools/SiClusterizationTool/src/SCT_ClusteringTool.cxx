@@ -599,9 +599,9 @@ namespace InDet{
       InDetDD::SiLocalPosition centre;
       
       if (m_useRowInformation) {
-        centre = element->rawLocalPositionOfCell(design->strip1Dim(firstStrip,row));
+        centre = element->localPositionOfCell(design->strip1Dim(firstStrip,row));
         if(nStrips > 1) {
-          InDetDD::SiLocalPosition lastStripPos (element->rawLocalPositionOfCell(design->strip1Dim(firstStrip+nStrips-1 ,row)));
+          InDetDD::SiLocalPosition lastStripPos (element->localPositionOfCell(design->strip1Dim(firstStrip+nStrips-1 ,row)));
           centre = (centre+lastStripPos)*.5;
           width *=dnStrips;
         }
@@ -673,8 +673,8 @@ namespace InDet{
     // to return sensible results, even for end strips
     const InDetDD::SiCellId        cell1(firstStrip - 1); 
     const InDetDD::SiCellId        cell2(lastStrip + 1);  
-    const InDetDD::SiLocalPosition firstStripPos(pElement->rawLocalPositionOfCell(cell1));
-    const InDetDD::SiLocalPosition lastStripPos(pElement->rawLocalPositionOfCell(cell2));
+    const InDetDD::SiLocalPosition firstStripPos(pElement->localPositionOfCell(cell1));
+    const InDetDD::SiLocalPosition lastStripPos(pElement->localPositionOfCell(cell2));
     const double                   width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi()));
     const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
@@ -691,8 +691,8 @@ namespace InDet{
     const double stripPitch =  design->stripPitch();
     const InDetDD::SiCellId        cell1(firstStrip1D);
     const InDetDD::SiCellId        cell2(lastStrip1D); 
-    const InDetDD::SiLocalPosition firstStripPos(pElement->rawLocalPositionOfCell(cell1));
-    const InDetDD::SiLocalPosition lastStripPos(pElement->rawLocalPositionOfCell(cell2));
+    const InDetDD::SiLocalPosition firstStripPos(pElement->localPositionOfCell(cell1));
+    const InDetDD::SiLocalPosition lastStripPos(pElement->localPositionOfCell(cell2));
     const double                   width(nStrips*stripPitch);
     const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
