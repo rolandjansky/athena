@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -8,6 +8,9 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "AthenaMonitoring/IDQFilterTool.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "LArRecEvent/LArCollisionTime.h"
+#include "RecBackgroundEvent/BeamBackgroundData.h"
 
 class TH1F;
 
@@ -41,7 +44,9 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
   bool m_useCollisionFilterTool;
   bool m_useBeamBackgroundRemoval;
  
-  std::string m_beamBackgroundKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey{this, "LArCollisionTimeKey", "LArCollisionTime"};
+  SG::ReadHandleKey<BeamBackgroundData> m_beamBackgroundKey{this, "BeamBackgroundKey", "CSCBackgroundForCaloMon"};
 
 };
 

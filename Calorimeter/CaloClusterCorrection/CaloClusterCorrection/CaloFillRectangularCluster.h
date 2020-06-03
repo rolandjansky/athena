@@ -84,13 +84,6 @@ public:
   virtual void makeCorrection(const EventContext& ctx,
                               xAOD::CaloCluster* cluster) const override;
 
-
-  // Temp workaround to keep IsolationTools happy.
-  void makeCorrection(xAOD::CaloCluster* cluster) const
-  {
-    return makeCorrection (Gaudi::Hive::currentContext(), cluster);
-  }
-
   /*
    * @brief Return the seed position of a cluster.
    * @param helper Sampling calculation helper object.

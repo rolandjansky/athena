@@ -180,16 +180,6 @@ ParametersT<DIM, T, S>::ParametersT(const ParametersT<DIM, T, S>& rhs)
   }
 }
 
-// Move constructor
-template<int DIM, class T, class S>
-ParametersT<DIM, T, S>::ParametersT(ParametersT<DIM, T, S>&& rhs)
-  : ParametersBase<DIM, T>(std::move(rhs))
-  , m_surface(std::move(rhs.m_surface))
-{
-  // False positive:
-  // cppcheck-suppress useInitializationList
-}
-
 // assignment operator
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>&
@@ -206,18 +196,6 @@ ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs)
                       ? rhs.m_surface->clone()
                       : rhs.m_surface.get());
     m_chargeDef = rhs.m_chargeDef;
-  }
-  return *this;
-}
-
-// Move assignment
-template<int DIM, class T, class S>
-ParametersT<DIM, T, S>&
-ParametersT<DIM, T, S>::operator=(ParametersT<DIM, T, S>&& rhs)
-{
-  if (this != &rhs) {
-    ParametersBase<DIM, T>::operator=(std::move(rhs));
-    m_surface = std::move(rhs.m_surface);
   }
   return *this;
 }

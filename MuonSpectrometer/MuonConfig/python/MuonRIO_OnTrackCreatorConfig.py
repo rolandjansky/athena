@@ -97,8 +97,6 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
         # scale TGC eta hit errors as long as TGC eta are not well aligned
         kwargs.setdefault("DoFixedErrorTgcEta", True)
         kwargs.setdefault("FixedErrorTgcEta", 15.)
-
-    # TODO Fixme - the cxx class retrieves public MuonIdHelperTool ... should be private / service.
     
     muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(name, **kwargs)
     result.addPublicTool(muon_cluster_rot_creator, primary=True)

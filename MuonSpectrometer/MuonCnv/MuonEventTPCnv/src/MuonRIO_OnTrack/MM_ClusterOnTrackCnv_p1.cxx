@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ persToTrans( const Muon::MM_ClusterOnTrack_p1 *persObj,
                                        );
 
    // Attempt to call supertool to fill in detElements
-   m_eventCnvTool->recreateRIO_OnTrack(const_cast<Muon::MMClusterOnTrack *>(transObj));
+   m_eventCnvTool->recreateRIO_OnTrack(transObj);
    if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
@@ -51,9 +51,12 @@ transToPers( const Muon::MMClusterOnTrack *transObj,
   // Prepare ELs
   // std::cout<<"BLAH! MM_ClusterOnTrackCnv_p1::transToPers"<<std::endl;
   
-   m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::MMClusterOnTrack *>(transObj));  
+   Trk::IEventCnvSuperTool::ELKey_t key;
+   Trk::IEventCnvSuperTool::ELIndex_t index;
+   m_eventCnvTool->prepareRIO_OnTrackLink(transObj, key, index);
+   ElementLinkToIDC_MM_Container eltmp (key, index);
   
-   m_elCnv.transToPers(&transObj->prepRawDataLink(),&persObj->m_prdLink,log);
+   m_elCnv.transToPers(&eltmp, &persObj->m_prdLink,log);
    persObj->m_positionAlongStrip = transObj->positionAlongStrip();
    persObj->m_id = transObj->identify().get_identifier32().get_compact();
    persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
