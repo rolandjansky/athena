@@ -338,7 +338,7 @@ void PerfMonMTSvc::report2Log_Description() const {
   if (m_reportResultsToJSON) {
     ATH_MSG_INFO("*** Full set of information can also be found in: " << m_jsonFileName.toString());
     ATH_MSG_INFO("*** In order to make plots using the results run the following commands:");
-    ATH_MSG_INFO("*** $ perfmonmt-plotter --pathToJsonResultFile /path_to_my_file/name.json");
+    ATH_MSG_INFO("*** $ perfmonmt-plotter -i " << m_jsonFileName.toString());
     ATH_MSG_INFO("=======================================================================================");
   }
 }
