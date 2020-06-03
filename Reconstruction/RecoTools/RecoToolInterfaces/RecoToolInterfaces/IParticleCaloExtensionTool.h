@@ -74,6 +74,8 @@ public:
    * by the IParticle track or the IParticle itself 
    * if it is  neutral/TruthParticle
    * The memory ownership is handled by the unique_ptr 
+   * @param ctx         event context needed for multithreading
+   * @param particle    reference to the Particle
    * @param particle    reference to the Particle
    * @return unique_ptr  to a CaloExtension 
    */
@@ -85,7 +87,7 @@ public:
    * if it is  neutral/TruthParticle.
    *
    * An alg looping over a single collection of IParticles  
-   * re-using them multiple times can use a local  cache of
+   * re-using them multiple times can use a local cache of
    * the form 
    * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>.
    * The key is the  value of IParticle::index() 
@@ -93,6 +95,7 @@ public:
    * This method adds the relevant extension to the cache look-up table 
    * which retains ownership. 
    *
+   * @param ctx           event context needed for multithreading
    * @param particle      reference to the Particle
    * @param cache         the look-up table cache 
    * @return ptr to a const CaloExtension (owned by the cache)
@@ -125,6 +128,7 @@ public:
    * The Collection can then be used as such to retrieve the extensions
    * or manipulated and written to StoreGate.
    *
+   * @param ctx       event context needed for multithreading
    * @param particles The input collection
    * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
    * @return caloextension Output to be filled,
@@ -138,7 +142,12 @@ public:
 
   /**
    * Method returning a unique_ptr to the caloExtension given the relevant 
-   * starting point parametes , direction and particle hypothesis
+   * starting point parameters , direction and particle hypothesis
+   *
+   * @param ctx          event context needed for multithreading
+   * @param startPars    the starting track parameters
+   * @param propDir      extrapolation direction
+   * @param particleType type of particle
    */
   virtual std::unique_ptr<Trk::CaloExtension> caloExtension( const EventContext& ctx,
                                                              const TrackParameters& startPars, 
