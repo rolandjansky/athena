@@ -10,8 +10,13 @@
 #ifndef NSW_TRIGOUT_H
 #define NSW_TRIGOUT_H
 
+#include "AthenaKernel/MsgStreamMember.h"
+
 #include <vector>
+
 namespace LVL1TGCTrigger {
+
+  class TGCArguments;
 
 // ====================================================================
 //
@@ -29,8 +34,8 @@ protected:
 
 public:
   NSWTrigOut();
-  NSWTrigOut(int side, std::vector<int> NSWTrigger, std::vector<int> NSWeta, std::vector<int> NSWphi, std::vector<int> NSWDtheta); 
-  NSWTrigOut(int side, std::vector<int> NSWTrigger); 
+  NSWTrigOut(int side, std::vector<int> NSWTrigger, std::vector<int> NSWeta, std::vector<int> NSWphi, std::vector<int> NSWDtheta,TGCArguments* tgcargs=0); 
+  NSWTrigOut(int side, std::vector<int> NSWTrigger,TGCArguments* tgcargs=0); 
 
   virtual ~NSWTrigOut() { }
  
@@ -66,11 +71,25 @@ public:
   const std::vector<int>& getNSWphi() const {return m_NSWphi_6bit; }
   const std::vector<int>& getNSWDtheta() const {return m_NSWDtheta_5bit; }
 
-  // methods  
+  // print methods 
+  const MSG::Level defaultMSGLvl = MSG::DEBUG;
+  bool msgLvl(const MSG::Level lvl) const;
+  MsgStream& msg(const MSG::Level lvl) const;
   void print() const;
+
+
+ private:
+  TGCArguments* m_tgcArgs;
+  mutable Athena::MsgStreamMember m_msg;
+
 
 };
 
+inline bool NSWTrigOut::msgLvl(const MSG::Level lvl) const
+{
+  return (m_msg.get().level() <= lvl) ? true : false;
+}
+inline MsgStream& NSWTrigOut::msg(const MSG::Level lvl) const{ return m_msg << lvl; }
 
 } //end of namespace bracket
 
