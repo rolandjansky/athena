@@ -424,16 +424,35 @@ SCTLorentzMonTool::fillHistograms() {
 
 	  if (passesCuts) {
 	    // Fill profile
-	    m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
-	    m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
-	    if (in100) {
-	      // cout << "This event is going to 100" << endl;
-	      m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
-	      m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
-	    }else {
-	      m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
-	      m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
-	    }
+	    /// first change the negative eta to positive eta index. This is needed to fill the array of histograms. 
+		int etaIndex(0);
+		if(eta < 0 )
+		  etaIndex = eta + 6;
+		else
+		  etaIndex = eta + 5;
+                    
+		m_phiVsNstrips[layer]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
+		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                    
+		//std::cout << "@@@@@@@@@@ the eta and etaIndex " << eta << " : " << etaIndex << std::endl;
+		if (in100) {
+		  // cout << "This event is going to 100" << endl;
+		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_100_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_100_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                    
+		}else {
+		  m_phiVsNstrips_111[layer]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer, nStrip, 1.);
+                                        
+		  m_phiVsNstrips_111_eta[layer][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+		  m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
+                                
+		}
 	  }// end if passesCuts
 	}// end if mtrkp
 	//            delete perigee;perigee = 0;
