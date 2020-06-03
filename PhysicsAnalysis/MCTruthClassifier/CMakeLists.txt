@@ -56,7 +56,7 @@ else()
 		Control/AthenaKernel )
 	set( extra_libs
 		xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking 
-		RecoToolInterfaces GeneratorObjects
+		RecoToolInterfaces GeneratorObjects ParticlesInConeToolsLib
 		PRIVATE_LINK_LIBRARIES TrkEventPrimitives TrkParametersIdentificationHelpers )
 
 endif()
@@ -73,6 +73,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core RIO )
+find_package( HepMC )
 
 # Libraries in the package:
 if( HEPMC_FOUND )
