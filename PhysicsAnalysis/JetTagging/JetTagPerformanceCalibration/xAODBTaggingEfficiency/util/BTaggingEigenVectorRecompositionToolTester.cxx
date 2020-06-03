@@ -21,6 +21,11 @@ int main() {
   StatusCode code3 = btag_eff_tool.setProperty("OperatingPoint", workingPointName);
   StatusCode code4 = btag_eff_tool.setProperty("JetAuthor", "AntiKt4EMTopoJets" );
   StatusCode code5 = btag_eff_tool.setProperty("MinPt", 20. );
+  // Exclude certain original uncertainties from Eigenvector scheme so that
+  // it these uncertainties will be exclude from eigen vector recomposition. 
+  // The original uncertainty names are separated by semicolon.
+  // Here exclude two uncertainties as an example.
+  // StatusCode code0 = btag_eff_tool.setProperty("ExcludeFromEigenVectorBTreatment","FT_EFF_PDF4LHC_np_19;JET_EffectiveNP_Mixed3");
   StatusCode code6 = btag_eff_tool.initialize();
   if (code1 != StatusCode::SUCCESS 
       || code2 != StatusCode::SUCCESS 
@@ -110,30 +115,6 @@ int main() {
   if (correction_code != CP::CorrectionCode::Ok) {
     std::cout << "printListOfOriginalNuisanceParameters failed!" << std::endl;
   }
-
-  // The following commented part is used for output the return values above.
-  //int cnt = 0 ;
-  /*
-  for (std::map<std::string, std::map<std::string, double>>::iterator out=coefficientMap.begin();
-       out!=coefficientMap.end(); ++out){
-    cnt++;
-    std::cout<<"cnt: "<<cnt<<std::endl;
-    std::cout<<"____________________________________________"<<std::endl;
-    std::cout<<out->first<<std::endl;
-    for (std::map<std::string, double>::iterator in=out->second.begin();
-	 in!=out->second.end(); ++in){
-      std::cout<<in->first<<" "<<in->second<<std::endl;
-    }
-  }
-  */
-
-  //for(auto s:orig_nps){
-  //std::cout<<s<<std::endl;
-  //}
-
-  //for(double val:coeffs){
-  //  std::cout<<val<<std::endl;
-  //}
 
   return retval;
 

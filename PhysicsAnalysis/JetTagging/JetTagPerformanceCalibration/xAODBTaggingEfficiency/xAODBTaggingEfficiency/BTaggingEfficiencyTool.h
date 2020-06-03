@@ -351,9 +351,6 @@ private:
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
 
-  // Coefficient map calculated by EigenVectorRecomposition.
-  //std::map<std::string, std::map<std::string, double>> m_coefficientMap;
-
   //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
   std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;
   /// @}
