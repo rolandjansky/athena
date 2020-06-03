@@ -142,7 +142,6 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     # ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreatorT0;       //<! mdt rio ontrack creator
     # ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;     //<! cluster rio ontrack creator
     # ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;   //<! competing clusters rio ontrack creator
-    # ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! Id helper tool
     # ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
     # ServiceHandle<IMuonEDMHelperSvc>          m_edmHelperSvc;          //<! printer helper tool
     # ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool MdtSegmentFinder
@@ -254,7 +253,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L49
     
     # Tool has the following subtools:
-    # DCMathSegmentMaker, MdtDriftCircleOnTrackCreator, MuonClusterOnTrackCreator, MuonEDMPrinterTool, MuonIdHelperTool
+    # DCMathSegmentMaker, MdtDriftCircleOnTrackCreator, MuonClusterOnTrackCreator, MuonEDMPrinterTool
     result=ComponentAccumulator()
 
     if "MdtCreator" not in kwargs: 
@@ -280,7 +279,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     result.merge(acc)
     
     # Other dependencies:
-    # EDM printer tool, MuonIdHelperTool
+    # EDM printer tool
 
     acc = DCMathSegmentMakerCfg(flags,name="DCMathSegmentMaker")
     segment_maker = acc.getPrimary()
@@ -527,7 +526,6 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     #m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
     #m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
     #m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-    #m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     #m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     #m_edmHelperSvc("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
     #m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner") {
@@ -560,7 +558,6 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     
 def MuonClusterSegmentFinderCfg(flags, **kwargs):
     #declareProperty("MuonClusterizationTool", m_clusterTool);
-    #declareProperty("MuonIdHelperTool",m_idHelper );    
     #declareProperty("MuonEDMPrinterTool",m_printer );    
     #declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     #declareProperty("MdtSegmentMaker",m_segmentMaker);
