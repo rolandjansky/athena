@@ -63,7 +63,11 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
-    
+
+    if forTrigger:
+        RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
+        RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
+
     # Get the RDO -> PRD alorithm
     RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
     RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
@@ -75,7 +79,6 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
-
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc

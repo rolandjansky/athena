@@ -127,21 +127,20 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
       }
     }
   } // end of cache operations protection via m_cacheMutex, following code has own protection
-
-  // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one.
-  const Identifier wafer_id = m_sct_id->wafer_id(elementIdHash);
-  const Identifier module_id = m_sct_id->module_id(wafer_id);
-  const unsigned int badChips = m_config->badChips(module_id, ctx);
-  const unsigned int abcdErrorChips2 = abcdErrorChips(module_id, ctx);
-  unsigned int tempMaskedChips2 = tempMaskedChips(module_id, ctx);
+  
+  // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
+  const Identifier wafer_id{m_sct_id->wafer_id(elementIdHash)};
+  const Identifier module_id{m_sct_id->module_id(wafer_id)};
+  unsigned int badChips{m_config->badChips(module_id, ctx)};
+  unsigned int v_abcdErrorChips{abcdErrorChips(module_id, ctx)};
+  unsigned int v_tempMaskedChips{tempMaskedChips(module_id, ctx)};
   const int side{m_sct_id->side(wafer_id)};
   bool allChipsBad{true};
-  const int idMax{static_cast<short>(side==0 ? 6 : 12)};
-
-  for (int id{idMax-6}; id<idMax; id++) {
-    bool issueABCDError{((abcdErrorChips2 >> id) & 0x1) != 0};
-    bool isBadChip{((badChips >> id) & 0x1) != 0};
-    bool isTempMaskedChip{((tempMaskedChips2 >> id) & 0x1) != 0};
+  const int chipMax{static_cast<short>(side==0 ? N_CHIPS_PER_SIDE : N_CHIPS_PER_SIDE*N_SIDES)};
+  for (int chip{chipMax-N_CHIPS_PER_SIDE}; chip<chipMax; chip++) {
+    bool issueABCDError{((v_abcdErrorChips >> chip) & 0x1) != 0};
+    bool isBadChip{((badChips >> chip) & 0x1) != 0};
+    bool isTempMaskedChip{((v_tempMaskedChips >> chip) & 0x1) != 0};
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if (not allChipsBad) break;
   }
@@ -234,14 +233,14 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
 
   // Get strip number
   const int strip{m_sct_id->strip(stripId)};
-  if (strip<0 or strip>=768) {
+  if (strip<0 or strip>=N_STRIPS_PER_SIDE) {
     // This check assumes present SCT.
     ATH_MSG_WARNING("strip number is invalid: " << strip);
     return -1;
   }
 
   // Conversion from strip to chip (specific for present SCT)
-  int chip{strip/128}; // One ABCD chip reads 128 strips
+  int chip{strip/N_STRIPS_PER_CHIP}; // One ABCD chip reads 128 strips
   // Relation between chip and offline strip is determined by the swapPhiReadoutDirection method.
   // If swap is false
   //  offline strip:   0            767
@@ -254,9 +253,9 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
   const bool swap{siElement->swapPhiReadoutDirection()};
   const int side{m_sct_id->side(stripId)};
   if (side==0) {
-    chip = swap ?  5 - chip :     chip;
+    chip = swap ? (N_CHIPS_PER_SIDE        -1) - chip :                    chip;
   } else {
-    chip = swap ? 11 - chip : 6 + chip;
+    chip = swap ? (N_CHIPS_PER_SIDE*N_SIDES-1) - chip : N_CHIPS_PER_SIDE + chip;
   }
 
   return chip;
@@ -331,18 +330,25 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
       continue;
     }
 
-    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id  << " ec " << errCode );
 
-    int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
+    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id << " ec " << errCode );
 
-    const unsigned int abcdError = ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) >> SCT_ByteStreamErrors::ABCDError_Chip0;
-    if ( abcdError != 0 ) {
-      cacheEntry->abcdErrorChips[module_id] |= abcdError << (side * 6);
+    const int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
+    // Each bit of errCode represents each SCT_ByteStreamErrors for one wafer
+    // Multiple bits can be true.
+    // Convert errCode to 12 bits of abcdErrorChips and 12 bits of tempMaskedChips for one module (=two wafers).
+    IDCInDetBSErrContainer::ErrorCode v_abcdErrorChips{errCode & SCT_ByteStreamErrors::ABCDErrorMask()};
+    if (v_abcdErrorChips) {
+      v_abcdErrorChips >>= SCT_ByteStreamErrors::ABCDError_Chip0; // bit 0 (5) is for chip 0 (5) for both sides
+      v_abcdErrorChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
+      cacheEntry->abcdErrorChips[module_id] |= v_abcdErrorChips;
     }
+    IDCInDetBSErrContainer::ErrorCode v_tempMaskedChips{errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()};
+    if (v_tempMaskedChips) {
+      v_tempMaskedChips >>= SCT_ByteStreamErrors::TempMaskedChip0; // bit 0 (5) is for chip 0 (5) for both sides0
+      v_tempMaskedChips <<= (side*N_CHIPS_PER_SIDE); // bit 0 (6) is for chip 0 on side 0 (1)
+      cacheEntry->tempMaskedChips[module_id] |= v_tempMaskedChips;
 
-    const unsigned int tempMasked = ( errCode & SCT_ByteStreamErrors::TempMaskedChipsMask() ) >> SCT_ByteStreamErrors::TempMaskedChip0;
-    if ( tempMasked ) {
-      cacheEntry->tempMaskedChips[module_id] |= tempMasked << (side * 6);
     }
 
   }
@@ -358,12 +364,12 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
   auto cacheEntry = getCacheEntry(ctx);
   if ( cacheEntry->IDCCache == nullptr ) return 0;
 
-  auto [status, bsErrorCode] = getErrorCodeWithCacheUpdate( moduleId, ctx, cacheEntry->tempMaskedChips);
+  auto [status, v_tempMaskedChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->tempMaskedChips);
   if ( status.isFailure() ) {
     ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting temp masked chip errors");
   }
-  return bsErrorCode;
-
+  return v_tempMaskedChips; // 12 bits are used.
+  // Bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
 }
 
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId) const {
@@ -377,11 +383,12 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
   auto cacheEntry = getCacheEntry(ctx);
   if ( cacheEntry->IDCCache == nullptr ) return 0;
 
-  auto [status, bsErrorCode] = getErrorCodeWithCacheUpdate( moduleId, ctx, cacheEntry->abcdErrorChips);
+  auto [status, v_abcdErrorChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->abcdErrorChips);
   if ( status.isFailure() ) {
-    ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting ABC chip errors");
+    ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting ABCD chip errors");
   }
-  return bsErrorCode;
+  return v_abcdErrorChips; // 12 bits are used.
+  // Bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
 }
 
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId) const {

@@ -193,12 +193,12 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
             data.m_NoiseFactor[i] = Noise * mode;
 
             // Fill the noise and offset values into the Analogue
-            if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
+            if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode X1X
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
+            } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01X
               data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode xxx or expanded read out mode
+            } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode (1XX|X1X|XX1) or expanded read out mode
               data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[2][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
@@ -315,12 +315,12 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
             data.m_NoiseFactor[i] = noiseByChipVect[chip];
 
             // Fill the noise and offset values into the Analogue
-            if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
+            if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode X1X
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
+            } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01X
               data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-            } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode xxx or expanded read out mode
+            } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode (1XX|X1X|XX1) or expanded read out mode
               data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
               data.m_Analogue[2][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
@@ -681,7 +681,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
 
         const list_t &ChargesOnStrip = diode.totalCharge().chargeComposition();
 
-        if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
+        if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode X1X
           // Amplifier response
           data.m_Analogue[1][strip] += data.m_GainFactor[strip] * m_sct_amplifier->response(ChargesOnStrip, m_timeOfThreshold);
 
@@ -693,7 +693,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
           if (strip > 0) {
             data.m_Analogue[1][strip - 1] += data.m_GainFactor[strip - 1] * response[0];
           }
-        } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
+        } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01X
           // Amplifier response
           m_sct_amplifier->response(ChargesOnStrip, m_timeOfThreshold, response);
           for (short bin = 0; bin < bin_max; ++bin) {
@@ -709,7 +709,7 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collect
               data.m_Analogue[bin][strip - 1] += data.m_GainFactor[strip - 1] * response[bin];
             }
           }
-        } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode xxx or expanded read out mode
+        } else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) { // any hit mode (1XX|X1X|XX1) or expanded read out mode
           // Amplifier response
           m_sct_amplifier->response(ChargesOnStrip, m_timeOfThreshold, response);
           for (short bin = 0; bin < bin_max; ++bin) {
@@ -750,7 +750,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
     if (roCell.isValid()) {
       int strip = roCell.strip();
       if (strip > -1 and strip < m_strip_max) {
-        if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
+        if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode X1X
           if (data.m_Analogue[1][strip] < m_Threshold) {
             SiHelper::belowThreshold(diode, true);   // Below strip diode signal threshold
             data.m_StripHitsOnWafer[strip] = -1;
@@ -761,7 +761,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForRealHits(SiChargedDiodeCollection& c
             data.m_StripHitsOnWafer[strip] = 1;
             SiHelper::SetTimeBin(diode, 2, &msg()); // set timebin info
           }
-        } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
+        } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01X
           if ((data.m_Analogue[0][strip] >= m_Threshold or data.m_Analogue[1][strip] < m_Threshold)) {
             SiHelper::belowThreshold(diode, true);   // Below strip diode signal threshold
             data.m_StripHitsOnWafer[strip] = -1;
@@ -839,7 +839,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
     }
     if (data.m_Analogue[1][strip] > 0) { // Better way of doing this?!
                                     // set data.m_StripHitsOnWafer to x in prepareGainAndOffset
-      if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode x1x
+      if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level mode X1X
         if (data.m_Analogue[1][strip] < m_Threshold) {
           data.m_StripHitsOnWafer[strip] = -2; // Below threshold
         } else {
@@ -848,7 +848,7 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(SiChargedDiodeCollecti
             ATH_MSG_ERROR("Can't add noise hit diode to collection");
           }
         }
-      } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01x
+      } else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) { // edge mode 01X
         if ((data.m_Analogue[0][strip] >= m_Threshold or data.m_Analogue[1][strip] < m_Threshold)) {
           data.m_StripHitsOnWafer[strip] = -2; // Below threshold
         } else {

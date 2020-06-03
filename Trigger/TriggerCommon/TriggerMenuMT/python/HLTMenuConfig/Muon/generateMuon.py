@@ -107,6 +107,7 @@ def generateChains( flags, chainDict ):
     
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
+
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
 

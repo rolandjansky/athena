@@ -169,9 +169,11 @@ namespace SCT_ByteStreamErrors {
   };
 
   template<ErrorType et> static constexpr uint64_t maskUpTo() { return  ( uint64_t(1) << et ) - 1; }
-  static constexpr uint64_t ABCDErrorMask() { return maskUpTo<ABCDError_Error4>() & ~(maskUpTo<ABCDError_Chip0>()); }
+  // Bit mask for ABCDError_Chip0, ABCDError_Chip1, ..., ABCDError_Chip5
+  static constexpr uint64_t ABCDErrorMask() { return maskUpTo<ABCDError_Chip5>() & ~(maskUpTo<ABCDError_Chip0>()); }
+  // Bit mask for TempMaskedChip0, TempMaskedChip1, ..., TempMaskedChip5
   static constexpr uint64_t TempMaskedChipsMask() { return maskUpTo<TempMaskedChip5>() & ~(maskUpTo<TempMaskedChip0>()); }
-  inline ErrorType TempMaskedChipToBit(int chip){ return std::array<ErrorType, 6>{{
+  inline ErrorType TempMaskedChipToBit(const int chip){ return std::array<ErrorType, 6>{{
          TempMaskedChip0,
          TempMaskedChip1,
          TempMaskedChip2,
