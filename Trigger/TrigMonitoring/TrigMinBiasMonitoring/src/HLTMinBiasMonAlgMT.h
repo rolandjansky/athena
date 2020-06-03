@@ -36,10 +36,6 @@ private:
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_HLTxaodTrkKey { this, "HLTxaodTrkKey", "HLT_IDTrack_FS_FTF", "Name of track counts info object produced by the HLT track counting FEX algorithm" };
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inDetTrackParticlesKey { this, "inDetTrackParticlesKey", "InDetTrackParticles", "Name of Offline track counts info object produced by the HLT track counting FEX algorithm" };
 
-  //For local AOD file /afs/cern.ch/user/s/somadutt/public/testUPC2.AOD.pool.root
-  // SG::ReadHandleKey<xAOD::TrigCompositeContainer>  m_trkCountsKey  { this, "TrackCountsKey", "HLT_TrackCounts", "Name of Online track counts info object produced by the HLT track counting FEX algorithm" };
-  // SG::ReadHandleKey<xAOD::TrackParticleContainer> m_HLTxaodTrkKey { this, "HLTxaodTrkKey", "HLT_xAODTracks_FS", "Name of track counts info object produced by the HLT track counting FEX algorithm" };
-
   ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
 
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{"HLT_mb_sptrk_L1RD0_FILLED"}, "Add triggers to this to be monitored"};

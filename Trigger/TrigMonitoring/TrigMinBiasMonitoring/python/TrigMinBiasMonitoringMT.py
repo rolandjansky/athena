@@ -19,13 +19,11 @@ def TrigMinBias(configFlags):
     'HLT/MinBiasMon/'
     )
     length = len(alg.triggerList)
-    mbEffAllGroup.defineHistogram( "PurityAll,whichTrigger",type = 'TEfficiency',title="PurityAll;whichTrigger" ,xbins=length, xmin=0, xmax=length)
     mbEffAllGroup.defineHistogram( "PurityPassed,whichTrigger",type = 'TEfficiency',title="PurityPassed;whichTrigger",xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
     mbEffAllGroup.defineHistogram( "EfficiencyAll,whichTrigger",type = 'TEfficiency', title="EfficiencyAll;whichTrigger",xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "EfficiencyPassed,whichTrigger",type = 'TEfficiency', title="EfficiencyPassed;whichTrigger", xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "EfficiencyPassed,trigNo",type = 'TEfficiency', title="EfficiencyPassed;trig No.", xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
     mbEffAllGroup.defineHistogram( "whichTrigger",title="count of triggers", xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "EfficiencyPassed,trigCount",type = 'TProfile',title="EfficiencyPassed;Trigger;EfficiencyPassed", xbins=length, xmin=0, xmax=length)
+    mbEffAllGroup.defineHistogram(  "whichTrigger;No. of events", type='TH1I',title='Event per Trigger;HLT',xbins=10,xmin=0,xmax=10)
+    mbEffAllGroup.defineHistogram(  "decision,whichTrigger", type='TEfficiency',title='Efficiency of selecting Events with One Good Trk;TriggerName',xbins=20,xmin=0,xmax=20)
 
 
     for chain in alg.triggerList:
@@ -37,7 +35,6 @@ def TrigMinBias(configFlags):
         alg,
         chain+'_Eff',
         'HLT/MinBiasMon/Purities&Efficiencies/'+chain+'/')
-
 
       # correct the titles of following histograms
         mbGroup.defineHistogram( "PixelSPLow", title="Number of SP in whole Pixels detector for all events in low range", xbins=100, xmin=0, xmax=100)
@@ -55,13 +52,12 @@ def TrigMinBias(configFlags):
         mbGroup.defineHistogram( "SctECA_SP,SctECC_SP",type = 'TH2F', title="SctECA_SP;SctECC_SP", xbins=100, xmin=0, xmax=30000, ybins=100, ymin=0, ymax=30000)
         mbGroup.defineHistogram( "PixECA_SP,PixECC_SP",type = 'TH2F', title="PixECA_SP;PixECC_SP", xbins=100, xmin=0, xmax=30000, ybins=100, ymin=0, ymax=30000)
         mbGroup.defineHistogram( "SctBarr_SP,PixBarr_SP",type = 'TH2F', title="SctBarr_SP;PixBarr_SP", xbins=100, xmin=0, xmax=120000, ybins=100, ymin=0, ymax=30000)
-        mbEffGroup.defineHistogram( "decision,nTrk",type = 'TEfficiency', title="EfficiencyTracks;nTrk", xbins=100, xmin=0, xmax=30000)
         mbEffGroup.defineHistogram( "NumGoodOnlineTracks", title="NumGoodOnlineTracks", xbins=100, xmin=0, xmax=2000)
         mbEffGroup.defineHistogram( "NumGoodOfflineTracks", title="NumGoodOfflineTracks", xbins=100, xmin=0, xmax=2000)
         mbEffGroup.defineHistogram( "NumGoodOnlineTracks,NumGoodOfflineTracks",type = 'TH2F', title="NumGoodOnlineTracks;NumGoodOfflineTracks", xbins=100, xmin=0, xmax=2000, ybins=100, ymin=0, ymax=2000)
+        mbEffGroup.defineHistogram( "decision,NumGoodOfflineTracks", type='TEfficiency',title='Efficiency;Offline Good nTrk',xbins=1000,xmin=0,xmax=1000)
+        mbEffGroup.defineHistogram( "decision,nTrk",type = 'TEfficiency', title="Efficiency;nTrk", xbins=1000,xmin=0,xmax=1000)
 
-        mbEffGroup.defineHistogram("whichTrigger,pass_HLT;HLT_eff_vs_GoodOffLineNtrks", type='TProfile',title='HLT efficiency;offline nTrk;Efficiency',xbins=80,xmin=0,xmax=800)
-        mbEffGroup.defineHistogram("NumGoodOnlineTracks,decision;GoodOnLineNtrks_decision", type='TProfile',title='HLT efficiency;online nTrk;Efficiency',xbins=80,xmin=0,xmax=800)
 
     return monConfig.result()
 if __name__=='__main__':
@@ -73,13 +69,13 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    # ConfigFlags.Input.Files = ['/afs/cern.ch/user/s/somadutt/public/testUPC2.AOD.pool.root'] #our file runs fine
+    # ConfigFlags.Input.Files = ['/afs/cern.ch/user/s/somadutt/public/testUPC2.AOD.pool.root'] #Local HI-UPC file
 
     # data AOD file
-    # ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2020-05-22T2142/TrigP1Test/test_trigP1_v1PhysP1_T0Mon_build/AOD.pool.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2020-06-01T2139/TrigP1Test/test_trigP1_v1PhysP1_T0Mon_build/AOD.pool.root']
 
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2020-05-22T2142/TrigAnalysisTest/test_trigAna_RDOtoT0Mon_mt1_build/AOD.pool.root']
-    ConfigFlags.Input.isMC = True  #un-Comment this line for MC AOD files, comment for data-AOD files
+    # ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2020-05-22T2142/TrigAnalysisTest/test_trigAna_RDOtoT0Mon_mt1_build/AOD.pool.root']
+    # ConfigFlags.Input.isMC = True  #un-Comment this line for MC AOD files, comment for data-AOD files
     ConfigFlags.Output.HISTFileName = 'TestMonitorOutput.root'
 
     ConfigFlags.lock()

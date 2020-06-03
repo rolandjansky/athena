@@ -49,9 +49,9 @@ StatusCode HLTMinBiasMonAlgMT::monitorPurities(const EventContext& /*context*/) 
 
 StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) const {
   auto spCountsHandle = SG::makeHandle( m_spCountsKey, context);
-  ATH_MSG_INFO("Inside SP Loop");
-  ATH_MSG_INFO(spCountsHandle->size());
-  ATH_MSG_INFO(spCountsHandle.isValid());
+  ATH_MSG_DEBUG("Inside SP Loop");
+  ATH_MSG_DEBUG(spCountsHandle->size());
+  ATH_MSG_DEBUG(spCountsHandle.isValid());
   if (!spCountsHandle.isValid()) {
     ATH_MSG_DEBUG("Could not retrieve spCountsHandle");
     return StatusCode::SUCCESS; }
@@ -69,10 +69,10 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
       auto cg = m_trigDecTool->getChainGroup(trig);
       std::string thisTrig = trig;
 
-      ATH_MSG_INFO (thisTrig << " chain prescale = " << cg->getPrescale());
+      ATH_MSG_DEBUG (thisTrig << " chain prescale = " << cg->getPrescale());
 
-      if(m_trigDecTool->isPassed(trig)) {ATH_MSG_INFO("Chain "<<trig <<" is passed: YES");}
-      else ATH_MSG_INFO("Chain "<<trig <<" is passed: NO");
+      if(m_trigDecTool->isPassed(trig)) {ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}
+      else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
       if (cg->getPrescale()) {
         auto pixelSPLow  = Scalar( "PixelSPLow", spCountsHandle->at(0)->getDetail<int>("totNumPixSP") );
@@ -97,10 +97,9 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
     auto HLTxaodTrkHandle = SG::makeHandle( m_HLTxaodTrkKey, context);
     auto inDetTrackParticlesHandle = SG::makeHandle( m_inDetTrackParticlesKey, context);
     auto trkCountsHandle = SG::makeHandle( m_trkCountsKey, context);
-    ATH_MSG_INFO("Inside Trk Loop");
-    ATH_MSG_INFO(trkCountsHandle->size());
-    ATH_MSG_INFO(trkCountsHandle.isValid());
-    using namespace Monitored;
+    ATH_MSG_DEBUG("Inside Trk Loop");
+    ATH_MSG_DEBUG(trkCountsHandle->size());
+    ATH_MSG_DEBUG(trkCountsHandle.isValid());
 
     if (!trkCountsHandle.isValid()) {
       ATH_MSG_DEBUG("Could not retrieve trkCountsHandle");
@@ -128,14 +127,12 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
         if(thisTrig!=m_triggerList[counter]) {
           ATH_MSG_DEBUG("Trigger Names or Ordering Don't match");
           ATH_MSG_DEBUG ("trig in Alg = "<<thisTrig << " trig in List = " << m_triggerList[counter]);
-        return StatusCode::SUCCESS;
-      }
-        auto pass_HLT = Monitored::Scalar<float>("pass_HLT",0.0);
-        if (m_trigDecTool->isPassed(trig)) pass_HLT = 1.0;
-        ATH_MSG_DEBUG("pass " << trig << " = " << pass_HLT);
+          return StatusCode::SUCCESS;
+        }
 
-        if(m_trigDecTool->isPassed(trig)) {ATH_MSG_INFO("Chain "<<trig <<" is passed: YES");}
-        else ATH_MSG_INFO("Chain "<<trig <<" is passed: NO");
+        if(m_trigDecTool->isPassed(trig)) {
+          ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}
+        else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
         const unsigned int passBits = m_trigDecTool->isPassedBits(trig);
         ATH_MSG_DEBUG(passBits);
@@ -148,16 +145,21 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           auto NumGoodOfflineTracks = Scalar("NumGoodOfflineTracks", inDetTrackParticlesHandle->size());
           auto ntrk = Scalar( "nTrk", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
           auto NumGoodOnlineTracks = Scalar("NumGoodOnlineTracks", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
-          auto whichTrigger =  Scalar("whichTrigger",trig);
+          auto whichtrigger =  Scalar("whichTrigger",trig);
 
-          fill(thisTrig+"_Eff", pass_HLT,ntrk,NumGoodOnlineTracks,xaodntrk,decision,NumGoodOfflineTracks,whichTrigger);
-          fill("EffAll",decision,whichTrigger);
+          if (m_trigDecTool->isPassed(trig)) {
+            auto ntrkPass = Scalar( "nTrkPass", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
+            fill(thisTrig+"_Eff",ntrk,ntrkPass);
+          }
+
+          fill(thisTrig+"_Eff",ntrk,NumGoodOnlineTracks,xaodntrk,decision,NumGoodOfflineTracks,whichtrigger);
+          fill("EffAll",decision,whichtrigger);
         }
 
         if ( m_trigDecTool->isPassed(trig) ) {
-          auto whichTrigger =  Scalar("whichTrigger",trig);
+          auto whichtrigger =  Scalar("whichTrigger",trig);
           auto PurityPassed = Scalar<int>("PurityPassed", m_trigDecTool->isPassed(trig) ? 1 : 0);
-          fill("EffAll",PurityPassed,whichTrigger);
+          fill("EffAll",PurityPassed,whichtrigger);
         }
         if(counter<m_triggerList.size())counter++;
       }
