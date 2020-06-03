@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
@@ -166,7 +166,7 @@ StatusCode SiDigiAnalysis::execute() {
                         cout << "Pixel DetectorElement not found!\n";
                         continue;
                     }
-                    SiLocalPosition localPos = element->localPositionOfCell(rdoId);
+                    SiLocalPosition localPos = element->correctedLocalPositionOfCell(rdoId);
                     Amg::Vector3D globalPos = element->globalPosition(localPos);
 
                     m_pixelIdHelper = dynamic_cast<const PixelID *>(element->getIdHelper());
@@ -226,7 +226,7 @@ StatusCode SiDigiAnalysis::execute() {
                 const SiDetectorElement *element = m_SCT_Manager->getDetectorElement(id);
                 if (element) {
                     // Lorentz-corrected position
-                    Amg::Vector2D localPos = element->localPositionOfCell(id);
+                    Amg::Vector2D localPos = element->correctedLocalPositionOfCell(id);
 //                    if (bec != 0) {
 //                      cout << "Local x, y (should be phi, eta) = " << localPos.x() << ", " << localPos.y() << endl;
 //                    }
