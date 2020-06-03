@@ -207,6 +207,15 @@ TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ5Sequence)
 
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=TOPQ5Sequence, algname='JetForwardPFlowJvtToolAlg')
+
+# Decorate PFlow jets with MVfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=TOPQ5Sequence, algname='JetForwardJvtToolBDTAlg')
+
+
 # Then apply truth tools in the form of aumentation
 if DFisMC:
     from DerivationFrameworkTop.TOPQCommonTruthTools import *

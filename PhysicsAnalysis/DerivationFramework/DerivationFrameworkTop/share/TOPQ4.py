@@ -148,6 +148,15 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=TOPQ4Sequence, algname='JetForwardPFlowJvtToolAlg')
+
+# Decorate PFlow jets with MVfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=TOPQ4Sequence, algname='JetForwardJvtToolBDTAlg')
+
+
 # Then apply truth tools in the form of aumentation
 if DFisMC:
     from DerivationFrameworkTop.TOPQCommonTruthTools import *
