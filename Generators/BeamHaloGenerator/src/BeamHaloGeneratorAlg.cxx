@@ -193,9 +193,9 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
 
   // Fill monitoring plots if requested
   if(m_doMonitoringPlots) {
-    HepMC::WeightContainer weightContainer = m_evt.weights();
+    auto weightContainer = m_evt.weights();
     if(weightContainer.size() != 5) {
-      ATH_MSG_WARNING("HepMC::WeightContainer does not contain five elements.");
+      ATH_MSG_WARNING("The number of weights for this event is not equal to 5.");
       return StatusCode::SUCCESS;
     }
     double weight = weightContainer[0];

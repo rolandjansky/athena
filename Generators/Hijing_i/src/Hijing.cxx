@@ -29,6 +29,7 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/HeavyIon.h"
 
 #include <stdlib.h>
 
@@ -475,9 +476,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                     << ", " << vertexPtrVec[parentDecayIndex]->position().z() 
                     << ", associated daughter IDs = ";
               
-                HepMC::GenVertex::particles_out_const_iterator iter;
-                for (iter = vertexPtrVec[parentDecayIndex]->particles_out_const_begin(); 
-                     iter != vertexPtrVec[parentDecayIndex]->particles_out_const_end(); 
+                auto vertexPtrVec_particles_out_const_begin=vertexPtrVec[parentDecayIndex]->particles_out_const_begin();
+                auto vertexPtrVec_particles_out_const_end=vertexPtrVec[parentDecayIndex]->particles_out_const_end();
+                for (auto iter = vertexPtrVec_particles_out_const_begin; 
+                     iter != vertexPtrVec_particles_out_const_end; 
                      iter++)
                   {
                     log << HepMC::barcode((*iter)) << ", "; 
