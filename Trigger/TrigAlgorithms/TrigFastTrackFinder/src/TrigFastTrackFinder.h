@@ -76,10 +76,10 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE) override;
 
-  StatusCode findTracks(const EventContext& ctx,
-                        InDet::SiTrackMakerEventData_xk &event_data,
+  StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
-                        TrackCollection& outputTracks) const;
+                        TrackCollection& outputTracks,
+                        const EventContext& ctx) const;
 
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
@@ -144,11 +144,11 @@ protected:
 
   // Monitoring member functions 
 
-  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi) const;
+  void fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, const TrigRoiDescriptor& roi, const EventContext& ctx) const;
   void runResidualMonitoring(const Trk::Track& track) const;
 
   //Setup functions
-  void getBeamSpot(float&, float&) const;
+  void getBeamSpot(float&, float&, const EventContext&) const;
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Internal bookkeeping

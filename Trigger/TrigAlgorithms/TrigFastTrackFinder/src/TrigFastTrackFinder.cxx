@@ -374,7 +374,7 @@ StatusCode TrigFastTrackFinder::execute() {
   outputTracks = std::make_unique<TrackCollection>();
 
   InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
-  ATH_CHECK(findTracks(ctx, trackEventData, internalRoI, *outputTracks));
+  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks, ctx));
   
   return StatusCode::SUCCESS;
 }
@@ -391,7 +391,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
   TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
 
-  StatusCode sc = findTracks(getContext(), trackEventData, *internalRoI, *outputTracks);
+  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks, getContext());
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
     delete outputTracks;
@@ -408,10 +408,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 }
 
 
-StatusCode TrigFastTrackFinder::findTracks(const EventContext& ctx,
-                                           InDet::SiTrackMakerEventData_xk &trackEventData,
+StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
-                                           TrackCollection& outputTracks) const {
+                                           TrackCollection& outputTracks,
+                                           const EventContext& ctx) const {
   // Run3 monitoring ---------->
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);
@@ -437,7 +437,7 @@ StatusCode TrigFastTrackFinder::findTracks(const EventContext& ctx,
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
-  ATH_CHECK(m_spacePointTool->getSpacePoints(ctx, roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT));
+  ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx));
 
   mnt_timer_SpacePointConversion.stop();
   mnt_roi_nSPs    = mnt_roi_nSPsPIX + mnt_roi_nSPsSCT;
@@ -669,7 +669,7 @@ StatusCode TrigFastTrackFinder::findTracks(const EventContext& ctx,
     m_countRoIwithTracks++;
 
   ///////////// fill vectors of quantities to be monitored
-  fillMon(outputTracks, *vertices, roi);
+  fillMon(outputTracks, *vertices, roi, ctx);
 
   mnt_roi_lastStageExecuted = 7; // Run3 monitoring
 
@@ -798,8 +798,8 @@ bool TrigFastTrackFinder::usedByAnyTrack(const std::vector<Identifier>& vIds, st
   return !xSection.empty();
 }
 
-void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y) const {
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Amg::Vector3D vertex = beamSpotHandle->beamPos();
   ATH_MSG_VERBOSE("Beam spot position " << vertex);
   double xVTX = vertex.x();
@@ -834,11 +834,11 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
 }
 
 void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, 
-                                  const TrigRoiDescriptor& roi) const {
+                                  const TrigRoiDescriptor& roi, const EventContext& ctx) const {
   float shift_x = 0;
   float shift_y = 0;
   if(m_useBeamSpot) {
-    getBeamSpot(shift_x, shift_y);
+    getBeamSpot(shift_x, shift_y, ctx);
   }
   auto mnt_roi_eta      = Monitored::Scalar<float>("roi_eta",      0.0);
   auto mnt_roi_phi      = Monitored::Scalar<float>("roi_phi",      0.0);

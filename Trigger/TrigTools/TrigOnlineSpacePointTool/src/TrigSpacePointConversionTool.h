@@ -39,7 +39,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
 
   //concrete implementations
 
-  virtual StatusCode getSpacePoints(const EventContext& ctx, const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) const override final;
+  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&, const EventContext& ctx) const override final;
 
  protected:
 
@@ -62,8 +62,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   bool m_useBeamTilt;
   bool m_useNewScheme;
 
-  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
-  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
+  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
+  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
 
   /// new region selector tools
   ToolHandle<IRegSelTool> m_regsel_pix;
