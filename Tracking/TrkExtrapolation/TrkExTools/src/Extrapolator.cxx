@@ -247,8 +247,9 @@ Trk::Extrapolator::initialize() {
   if (m_includeMaterialEffects && not m_updaters.empty()) {
     ATH_CHECK( m_updaters.retrieve() );
       for (auto& tool : m_updaters) {
-        // @TODO tools, that are already used, should not be disabled. Those are currently disabled to silence the warning 
-        // issued by the tool usage detection, which is circumvented in case of the m_updaters. 
+        // @TODO tools, that are already used, should not be disabled. Those are
+        // currently disabled to silence the warning issued by the tool usage
+        // detection, which is circumvented in case of the m_updaters.
         tool.disable();
       }    
   }
@@ -514,7 +515,6 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(
   // -----------------------------------------------------------------------
   //
   while (currPar) {
-    // staticVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(currPar->position());
     assocLayer = nullptr;
     ManagedTrackParmPtr nextPar(extrapolateToNextMaterialLayer(ctx,
                                                                cache,
@@ -588,7 +588,6 @@ Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   cache.m_matstates = &material;
 
   while (currPar) {
-    // staticVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(currPar->position());
     assocLayer = nullptr;
     ManagedTrackParmPtr nextPar(extrapolateToNextMaterialLayer(ctx,
                                                                cache,
@@ -3658,26 +3657,37 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
   if (m_configurationLevel < 10) {
     // loop over propagators to do the search
     while (navprop <= m_configurationLevel) {
-      const IPropagator *navPropagator = &(*m_propagators[navprop]);
+      const IPropagator* navPropagator = &(*m_propagators[navprop]);
 
       // we veto the navigaiton parameters for calo-volumes with calo dynamic
-      bool vetoNavParameters = false; // (tvol.geometrySignature() == Trk::Calo && m_doCaloDynamic);
-      // the next Parameters are usually better, because they're closer to the boundary
-      //  --- in the initial volume (assLayerReference!=0), the parm are good if no action taken
+      bool vetoNavParameters =
+        false; // (tvol.geometrySignature() == Trk::Calo && m_doCaloDynamic);
+      // the next Parameters are usually better, because they're closer to the
+      // boundary
+      //  --- in the initial volume (assLayerReference!=0), the parm are good if
+      //  no action taken
       if (nextParameters.get() != parm.get() || assLayerReference) {
         navParameters = nextParameters;
       } else {
-        navParameters = (cache.m_parametersAtBoundary.navParameters && !vetoNavParameters) ?
-                        cache.m_parametersAtBoundary.navParameters : nextParameters;
+        navParameters =
+          (cache.m_parametersAtBoundary.navParameters && !vetoNavParameters)
+            ? cache.m_parametersAtBoundary.navParameters
+            : nextParameters;
       }
 
-      ATH_MSG_VERBOSE("  [+] Starting next boundary search from " << positionOutput(navParameters->position()));
-      ATH_MSG_VERBOSE("  [+] Starting next boundary search with " << momentumOutput(navParameters->momentum()));
+      ATH_MSG_VERBOSE("  [+] Starting next boundary search from "
+                      << positionOutput(navParameters->position()));
+      ATH_MSG_VERBOSE("  [+] Starting next boundary search with "
+                      << momentumOutput(navParameters->momentum()));
 
       // get the new navigaiton cell from the Navigator
-      Trk::NavigationCell nextNavCell = m_navigator->nextTrackingVolume(*navPropagator, *navParameters, dir, tvol);
+      Trk::NavigationCell nextNavCell = m_navigator->nextTrackingVolume(
+        ctx, *navPropagator, *navParameters, dir, tvol);
       nextVolume = nextNavCell.nextVolume;
-      navParameters = ManagedTrackParmPtr::recapture(navParameters,nextNavCell.parametersOnBoundary);
+
+      navParameters = ManagedTrackParmPtr::recapture(
+        navParameters, nextNavCell.parametersOnBoundary);
+      
       bParameters = navParameters;
       // set the new exit Cell
       exitFace = nextNavCell.exitFace;
@@ -3687,14 +3697,17 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       }
     }
   } else {
-    Trk::NavigationCell nextNavCell = m_navigator->nextTrackingVolume(prop, *navParameters, dir, tvol);
+    Trk::NavigationCell nextNavCell =
+      m_navigator->nextTrackingVolume(ctx, prop, *navParameters, dir, tvol);
+   
     nextVolume = nextNavCell.nextVolume;
-    navParameters = ManagedTrackParmPtr::recapture(navParameters,nextNavCell.parametersOnBoundary);
+    
+    navParameters = ManagedTrackParmPtr::recapture(
+      navParameters, nextNavCell.parametersOnBoundary);
     bParameters = navParameters;
     // set the new exit Cell
     exitFace = nextNavCell.exitFace;
   }
-
 
   if (!nextVolume && !cache.m_parametersOnDetElements) {
     ATH_MSG_DEBUG("  [-] Cannot find nextVolume of TrackingVolume:   " << tvol.volumeName());
