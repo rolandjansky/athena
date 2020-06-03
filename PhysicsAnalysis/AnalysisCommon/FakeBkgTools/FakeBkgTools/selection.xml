@@ -11,16 +11,5 @@
    <class name="FakeBkgTools::Efficiency" />
    <class name="std::vector<FakeBkgTools::Efficiency>" />
    <class name="FakeBkgTools::Uncertainty" />
-   <class name="boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>" />
-   <class name="less<unsigned short>" />
-   <class name="boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>" />
-   <class name="boost::container::dtl::select1st<unsigned short>" />
-   <class name="boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> >" />
-   <class name="boost::container::dtl::flat_tree<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::dtl::select1st<unsigned short>,less<unsigned short>,boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> > >" />
-   <class name=" boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>*" />
-   <class name="binary_function<unsigned short,unsigned short,bool> " />
-   <class name="boost::container::dtl::flat_tree_value_compare<less<unsigned short>,boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::dtl::select1st<unsigned short> >" /> 
-   <class name="boost::container::vector<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> >,void>" />
-   <class name="boost::container::vector_alloc_holder<boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> >,unsigned long,boost::move_detail::integral_constant<unsigned int,1> >" />
-   <class name="boost::container::dtl::flat_tree<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::dtl::select1st<unsigned short>,less<unsigned short>,boost::container::new_allocator<boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty> > >::Data: base class boost::container::dtl::flat_tree_value_compare<less<unsigned short>,boost::container::dtl::pair<unsigned short,FakeBkgTools::Uncertainty>,boost::container::dtl::select1st<unsigned short> >" />
+   <class name="std::map<unsigned short,FakeBkgTools::Uncertainty>" />
 </lcgdict>

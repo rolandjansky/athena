@@ -11,8 +11,9 @@
 #include <cmath>
 #include <functional>
 #include <memory>
-#include <boost/container/flat_map.hpp>
+#include <map>
 #include <iostream>
+#include "TBuffer.h"
 
 namespace CP
 {
@@ -39,7 +40,7 @@ struct Efficiency
 {
     float value(const CP::BaseFakeBkgTool* tool) const;
     float nominal = 0;
-    boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> uncertainties; /// key = source of uncertainty (ID), value = up/down
+    std::map<uint16_t, FakeBkgTools::Uncertainty> uncertainties; /// key = source of uncertainty (ID), value = up/down
 
     /// add() treats systematic uncertainties as correlated and updates (or creates) the total statistical uncertainty (RMS)
     inline Efficiency& add(const Efficiency& rhs, float weight = 1.f);
@@ -52,7 +53,6 @@ struct Efficiency
     inline Efficiency& setToConst(float value = 1.f);
     /// subFromOne() sets nominal and varied values to 1 - previous value.
     inline Efficiency& subFromOne();
-
 };
 
 using FakeFactor = Efficiency;
