@@ -136,8 +136,17 @@ namespace Trk {
     // Public methods:
     /////////////////////////////////////////////////////////////////////////////////
   public:
+
+    /** This following "using" statements can be removed after the methods in IPropagator.h for the
+     * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+     * used throughout the sw */
     using IPropagator::propagate;
     using IPropagator::propagateT;
+    using Trk::IPropagator::propagateM;
+    using Trk::IPropagator::propagateParameters;
+    using Trk::IPropagator::intersect;
+    using Trk::IPropagator::intersectSurface;
+    using Trk::IPropagator::globalPositions;
 
     STEP_Propagator(const std::string&,const std::string&,const IInterface*);
 
@@ -217,7 +226,6 @@ namespace Trk {
                    std::vector<Trk::HitInfo>*& hitVector) const override final;
 
     /** Propagate parameters and covariance with search of closest surface and material collection */
-    using Trk::IPropagator::propagateM;
     virtual Trk::TrackParameters*    
       propagateM  (const EventContext&                ctx,
                    const Trk::TrackParameters&        trackParameters,
@@ -250,7 +258,6 @@ namespace Trk {
 
 
     /** Propagate parameters only */
-    using Trk::IPropagator::propagateParameters;
     virtual Trk::TrackParameters*
       propagateParameters (const EventContext&                 ctx,
                            const Trk::TrackParameters&         trackParameters,
@@ -278,7 +285,6 @@ namespace Trk {
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
-    using Trk::IPropagator::intersect;
     virtual const IntersectionSolution*
       intersect (const EventContext&                 ctx,
                  const Trk::TrackParameters&         trackParameters,
@@ -289,7 +295,6 @@ namespace Trk {
 
     /** Intersection and propagation:
      */
-    using Trk::IPropagator::intersectSurface;
     virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&              ctx,
                                                              const Surface&                   surface,
                                                              const TrackSurfaceIntersection*  trackIntersection,
@@ -298,7 +303,6 @@ namespace Trk {
                                                              ParticleHypothesis               particle) const override final; 
 
     /** Return a list of positions along the track */
-    using Trk::IPropagator::globalPositions;
     virtual void
     globalPositions (const EventContext&            ctx,
                      std::list<Amg::Vector3D>&      positionsList,

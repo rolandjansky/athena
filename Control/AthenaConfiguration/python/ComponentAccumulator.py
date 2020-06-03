@@ -9,7 +9,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Debugging import DbgStage
 
 import GaudiKernel.GaudiHandles as GaudiHandles
-
+import GaudiConfig2
 from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 
 import collections
@@ -34,7 +34,7 @@ def printProperties(msg, c, nestLevel = 0):
             continue
         propval=getattr(c,propname)
         # Ignore empty lists
-        if propval==[]:
+        if isinstance(propval,GaudiConfig2.semantics._ListHelper) and propval.data is None:
             continue
         # Printing EvtStore could be relevant for Views?
         if propname in ["DetStore","EvtStore"]:
@@ -444,7 +444,9 @@ class ComponentAccumulator(object):
             return self._primarySvc
         else:
             return self.__getOne( self._services, name, "Services")
-    
+
+    def getAppProps(self):
+        return self._theAppProps
 
     def setAppProperty(self,key,value,overwrite=False):
         if (overwrite or key not in (self._theAppProps)):
@@ -731,6 +733,7 @@ class ComponentAccumulator(object):
             pt.name="ToolSvc."+pt.name
             addCompToJos(pt)
             pass
+        sys.stdout.flush()
 
         return app
 
@@ -959,7 +962,7 @@ def appendCAtoAthena(ca):
     _log.info( "Merging of CA to global ..." )
 
 
-    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athCondSeq,athOutSeq,athAlgSeq,topSequence
+    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len(ca.getServices()) != 0:
         _log.info( "Merging services" )
         for comp in ca.getServices():
@@ -977,6 +980,23 @@ def appendCAtoAthena(ca):
         for comp in ca.getPublicTools():
             instance = conf2toConfigurable( comp, indent="  " )
             ToolSvc += instance
+
+    if len( ca.getAppProps() ) != 0:
+        _log.info( "Merging ApplicationMgr properties" )
+        for (propName, propValue) in six.iteritems(ca.getAppProps()):
+            # Same logic as in ComponentAccumulator.setAppProperty()
+            if not hasattr(theApp, propName):
+                setattr(theApp, propName, propValue)
+            else:
+                origPropValue = getattr(theApp, propName)
+                if origPropValue == propValue:
+                    _log.debug("ApplicationMgr property '%s' already set to '%s'.", propName, propValue)
+                elif isinstance(origPropValue, collections.Sequence) and not isinstance(origPropValue, str):
+                    propValue = unifySet(origPropValue, propValue)
+                    _log.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", propName, origPropValue, propValue)
+                    setattr(theApp, propName, propValue)
+                else:
+                    raise DeduplicationFailed("ApplicationMgr property %s set twice: %s and %s" % (propName, origPropValue, propValue))
 
     _log.info( "Merging sequences and algorithms" )
     from AthenaCommon.CFElements import findSubSequence
@@ -1013,12 +1033,12 @@ def appendCAtoAthena(ca):
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():
-                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre ) )
+                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
             if findSubSequence( pre, seq.name ):
-                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre ) )
+                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
                 __mergeSequences( pre, seq )
                 merged = True
                 break

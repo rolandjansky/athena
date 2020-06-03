@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************************
@@ -90,7 +90,7 @@ private:
 
   std::string m_stream;
   bool m_useBeamspot;
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","VxPrimaryCandidate","Vertex Container for Global Beamsport Monitoring"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","PrimaryVertices","Vertex Container for Global Beamsport Monitoring"};
   bool m_vxContainerWithBeamConstraint;
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerName{this,"trackContainerName","TrackParticle container for Gloabl Beamsport Monitoring"};
   

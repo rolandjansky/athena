@@ -4,6 +4,7 @@
 
 #include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"

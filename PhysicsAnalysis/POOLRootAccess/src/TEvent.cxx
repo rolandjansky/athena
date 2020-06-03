@@ -16,6 +16,7 @@
 #include "TChain.h"
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#include "StoreGateBindings/StoreGatePyExt.h"
 
 namespace Gaudi {
   IAppMgrUI* Init() {

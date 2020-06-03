@@ -71,11 +71,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
 #include "JetRec/JetModifierBase.h"
 #include "JetUtils/TiledEtaPhiMap.h"
-#include "JetInterface/IPseudoJetGetter.h"
 #include "fastjet/PseudoJet.hh"
+#include "JetRec/PseudoJetContainer.h"
 #include "JetEDM/IConstituentUserInfo.h"
 
 namespace jet {
@@ -145,7 +144,7 @@ public:
 private: 
 
   std::vector<std::string> m_isolationCodes;
-  ToolHandle<IPseudoJetGetter> m_hpjg;
+  SG::ReadHandleKey<PseudoJetContainer> m_pjsin{this, "PseudoJetsIn", "", "PseudoJetContainer to read"};
 
   /// the list of isolation calculation objects (they are actually used
   /// only as template objects from which the actual calculators are build

@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reco_tf runs on 8TeV collision data with all streams 2012
+# art-athena-mt: 4
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

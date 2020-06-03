@@ -33,6 +33,7 @@ public:
     bool update(const xAOD::TauJet& pTau); //!< update the internal variables for the given tau
 
     void setVertexCorrection(bool flag) {m_doVertexCorrection=flag;}
+    void setIncSub(bool flag) {m_incShowerSubtr=flag;}
 
     // ID Variables
     unsigned int numConstituents() { return (unsigned int) m_numConstit; }
@@ -61,14 +62,16 @@ private:
     double m_totEnergy;
     double m_effEnergy;
 
-    /** Calculate the geometrical center of the tau constituents */
+    // Calculate the geometrical center of the tau constituents
     TLorentzVector calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents);
-    
-    /** 
-     * Enable cell origin correction.
-     * Eta and phi of the cells are corrected wrt to the origin of the tau vertex
-     */
+
+    // Enable cell origin correction.
+    // Eta and phi of the cells are corrected wrt to the origin of the tau vertex
     bool m_doVertexCorrection;
+
+    // use shower subtracted clusters with PFlow jet seeds
+    bool m_incShowerSubtr;
+
 };
 
 //-------------------------------------------------------------------------

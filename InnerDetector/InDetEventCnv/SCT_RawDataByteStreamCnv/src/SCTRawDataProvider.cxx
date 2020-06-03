@@ -64,7 +64,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if (not externalCacheRDO) {
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max(), EventContainers::Mode::OfflineFast)));
     ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
   else {

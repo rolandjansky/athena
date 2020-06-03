@@ -63,8 +63,11 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
-    acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
-    
+
+    if forTrigger:
+        RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
+        RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
+
     # Get the RDO -> PRD alorithm
     RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
     RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
@@ -76,7 +79,6 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
-
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
@@ -95,7 +97,6 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon.TgcRdoToPrepDataToolMT
     TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataToolMT(name           = "TgcRdoToTgcPrepDataTool")
-    acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
     TgcRdoToTgcPrepData=CompFactory.TgcRdoToTgcPrepData
@@ -129,7 +130,6 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon.MdtRdoToPrepDataToolMT
     MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
-    acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
     MdtRdoToMdtPrepData=CompFactory.MdtRdoToMdtPrepData
@@ -166,7 +166,6 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon.CscRdoToCscPrepDataToolMT
     CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool")
-    acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
     CscRdoToCscPrepData=CompFactory.CscRdoToCscPrepData
@@ -189,7 +188,6 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     # Get cluster creator tool
     CscThresholdClusterBuilderTool=CompFactory.CscThresholdClusterBuilderTool
     CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
-    acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
     CscThresholdClusterBuilder=CompFactory.CscThresholdClusterBuilder

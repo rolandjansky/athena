@@ -193,7 +193,7 @@ class useOldVertexFitterAPI(JobProperty):
 class useShowerSubClusters(JobProperty):
     """ switch on use of shower subtracted clusters
     """
-    statusOn=False
+    statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 

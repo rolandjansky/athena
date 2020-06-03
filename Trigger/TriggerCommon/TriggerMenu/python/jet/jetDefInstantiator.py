@@ -43,8 +43,6 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named, # no
 
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2 # noqa: F401
 
-from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter # noqa: F401
-
 from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet, # noqa: F401
                                      TrigHIClusterMaker_hijet,
                                      TrigHIEventShapeMaker_hijet,

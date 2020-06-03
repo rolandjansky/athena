@@ -85,7 +85,7 @@ theApp.Dlls += [ "GaudiAud" ]
 theAuditorSvc = AuditorSvc()
 theAuditorSvc.Auditors =  [ "ChronoAuditor" ] 
 
-ByteStreamInputSvc.MaxBadEvents = 10000
+theApp.serviceMgr().EventSelector.MaxBadEvents = 10000
 # ByteStreamInputSvc.DumpFlag = TRUE
 # TileROD_Decoder = Algorithm( "TileROD_Decoder" )
 # TileROD_Decoder.VerboseOutput = TRUE

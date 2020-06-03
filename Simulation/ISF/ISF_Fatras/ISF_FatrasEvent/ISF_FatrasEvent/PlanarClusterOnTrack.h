@@ -68,44 +68,51 @@ namespace iFatras {
     virtual ~PlanarClusterOnTrack();
 
     /** Pseudo-constructor : needed to avoid excessive RTTI*/
-    virtual PlanarClusterOnTrack* clone() const;
+    virtual PlanarClusterOnTrack* clone() const override ;
 
     /** returns the surface for the local to global transformation 
 	- fullfills Trk::MeasurementBase interface*/
-    const Trk::Surface& associatedSurface() const;
+    virtual const Trk::Surface& associatedSurface() const override;
 
     /** returns the PrepRawData 
 	- fullfills Trk::RIO_OnTrack interface*/
-    const PlanarCluster* prepRawData() const;
+    virtual const PlanarCluster* prepRawData() const override;
 
     /** returns the detector element, assoicated with the PRD of this class
 	- fullfills Trk::RIO_OnTrack interface*/
-    const iFatras::PlanarDetElement* detectorElement() const;
+    virtual const iFatras::PlanarDetElement* detectorElement() const override;
     
     /** returns global position (gathered through Surface constraint)
 	- fullfills Trk::MeasurementBase interface */
-    const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
 
     /** returns global position (gathered through Surface constraint)
 	- fullfills Trk::MeasurementBase interface */
     const Amg::Vector3D* globalPositionPtr() const;
 
+    /** checks RIO Type
+	- fullfills Trk::RIO_OnTrack interface */
+    virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
+    {
+      return (type == Trk::RIO_OnTrackType::MdtDriftCircle);
+    }
+
     /** returns the DE hashID* 
 	- fullfills Trk::RIO_OnTrack interface */
-    IdentifierHash idDE() const;
+    virtual IdentifierHash idDE() const override;
     
     /** returns some information about this RIO_OnTrack.
 	- fullfills Trk::RIO_OnTrack interface */
-    virtual MsgStream&    dump( MsgStream& out ) const;   
+    virtual MsgStream&    dump( MsgStream& out ) const override;   
 
     /** returns some information about this RIO_OnTrack.
 	- fullfills Trk::RIO_OnTrack interface */
-    virtual std::ostream& dump( std::ostream& out ) const;
+    virtual std::ostream& dump( std::ostream& out ) const override;
     
   protected:
     /** ONLY for use in custom convertor
 	Allows the custom convertor to reset values when persistying/reading back RoTs*/
-    virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
+    virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
 
     /** PlanarCluster - the RIO (PRD, PrepRawData)*/
     ElementLinkToIDCPlanarClusterContainer m_rio;

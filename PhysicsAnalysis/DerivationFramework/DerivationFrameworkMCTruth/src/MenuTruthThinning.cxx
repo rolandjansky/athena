@@ -63,7 +63,11 @@ m_geantOffset(200000)
     declareProperty ("WriteBHadrons",
                      m_writeBHadrons = true,
                      "Keep b-hadrons?");
-    
+
+    declareProperty ("WriteCHadrons",
+                     m_writeCHadrons = true,
+                     "Keep c-hadrons?");
+
     declareProperty ("WriteGeant",
                      m_writeGeant = false,
                      "Keep Geant particles?");
@@ -156,8 +160,14 @@ m_geantOffset(200000)
     declareProperty ("WritettHFHadrons",
                      m_writettHFHadrons = false,
                      "Keep tt+HF hadrons?");
-    
-    
+
+    declareProperty ("PDGIDsToKeep",
+                     m_pdgIdsToKeep={},
+                     "List of PDG IDs to always keep");
+
+    declareProperty ("LongLivedPDGIDs",
+                     m_longLivedPdgIds={},
+                     "List of PDG IDs of long lived particles so that one can store their children");
 }
 
 // Destructor
@@ -300,7 +310,14 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     
     int pdg_id = std::abs(p->pdgId());
     int barcode = p->barcode();
-    
+
+    // All explicitly requested PDG IDs of long lived particles, this is needed
+    // because their childrens barcodes can be above the cut off m_geantOffset = 200000
+    if(m_longLivedPdgIds.size()>0 && parentIsLongLived(p)){
+      ok=true;
+    }
+
+
     if (barcode > m_geantOffset && !m_writeGeant && !m_writeEverything && !ok) {
         if (! (pdg_id == 22/*PDG::gamma*/ &&
                m_geantPhotonPtThresh >= 0 &&
@@ -331,7 +348,12 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     // JRC: cut changed from PHOTOSMIN to m_geantOffset
     if( m_writeBHadrons &&  barcode < m_geantOffset && HepPID::isHadron (pdg_id) && HepPID::hasBottom (pdg_id) )
         ok= true;
-    
+
+    // OK if we should select c hadrons and are in hadron range
+    // JRC: cut changed from PHOTOSMIN to m_geantOffset
+    if( m_writeCHadrons &&  barcode < m_geantOffset && HepPID::isHadron (pdg_id) && HepPID::hasCharm (pdg_id) )
+        ok= true;
+
     // PHOTOS range: check whether photons come from parton range or
     // hadron range
     int motherPDGID = 999999999;
@@ -410,7 +432,12 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
         }
         
     }
-    
+
+    // All explicitly requested PDG IDs
+    for (const auto id : m_pdgIdsToKeep){
+      if (pdg_id==id) ok=true;
+    } // Loop over PDG IDs
+
     return ok;
 }
 
@@ -717,3 +744,16 @@ bool DerivationFramework::MenuTruthThinning::isFsrFromLepton(const xAOD::TruthPa
     return false;
 }
 
+bool DerivationFramework::MenuTruthThinning::parentIsLongLived(const xAOD::TruthParticle* part) const {
+  //loop over the parents of the truth particle, if the parent is in the list of long lived particles
+  //store this truth particle.
+  for(size_t parent_itr = 0; parent_itr < part->nParents(); parent_itr++){
+    if(!part->parent(parent_itr)) continue;
+    const xAOD::TruthParticle* parent = part->parent(parent_itr);
+    const int parent_abs_pdgid = abs(parent->pdgId());
+    if(std::find(m_longLivedPdgIds.begin(), m_longLivedPdgIds.end(), parent_abs_pdgid) != m_longLivedPdgIds.end() ){
+      return true;
+    }
+  }
+  return false;
+}

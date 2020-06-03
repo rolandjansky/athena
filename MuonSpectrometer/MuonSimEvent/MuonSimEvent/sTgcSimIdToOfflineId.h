@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTgcSIMIDTOOFFLINEID_H
@@ -11,13 +11,13 @@
 
 struct sTgcSimIdToOfflineId {
   
-  sTgcSimIdToOfflineId( const sTgcIdHelper& idHelper ) : m_idHelper(&idHelper),m_simIdHelper(sTgcHitIdHelper::GetHelper()) {}
+  sTgcSimIdToOfflineId( const sTgcIdHelper* idHelper ) : m_idHelper(idHelper),m_simIdHelper(sTgcHitIdHelper::GetHelper()) {}
   
   inline Identifier convert( int simId ) const;
   inline int convert (const Identifier & id) const;
 
-  const sTgcIdHelper*  m_idHelper;
-  sTgcHitIdHelper*     m_simIdHelper;
+  const sTgcIdHelper* m_idHelper;
+  sTgcHitIdHelper* m_simIdHelper;
 };
 
 

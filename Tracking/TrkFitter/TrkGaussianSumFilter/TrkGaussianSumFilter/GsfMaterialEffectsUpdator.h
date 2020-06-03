@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        GsfMaterialEffectsUpdator.h  -  description
-                        -------------------------------------------
-begin                : Wednesday 9th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Material effects for the GsfExtrapolator. It is an Alg
-                        Tool inheriting from IAlgTool
-*********************************************************************************/
+/**
+ * @file   GsfMaterialEffectsUpdator.h
+ * @date   Wednesday 9th January 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief Material effects for the GsfExtrapolator.
+ */
 
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
@@ -30,7 +27,9 @@ class GsfMaterialEffectsUpdator
 
 public:
   /** Constructor with AlgTool parameters */
-  GsfMaterialEffectsUpdator(const std::string&, const std::string&, const IInterface*);
+  GsfMaterialEffectsUpdator(const std::string&,
+                            const std::string&,
+                            const IInterface*);
 
   /** Virtual destructor */
   virtual ~GsfMaterialEffectsUpdator();
@@ -41,15 +40,16 @@ public:
   /** AlgTool finalisation*/
   StatusCode finalize();
 
-  /** Method for updating the state with material effects provided by the layer object */
+  /** Method for updating the state with material effects provided by the layer
+   * object */
   virtual Trk::MultiComponentState updateState(
     const ComponentParameters&,
     const Layer&,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method for updating the state with material effects provided by a material properties object
-   * and a pathlength */
+  /** Method for updating the state with material effects provided by a material
+   * properties object and a pathlength */
   virtual Trk::MultiComponentState updateState(
     const ComponentParameters&,
     const MaterialProperties&,
@@ -57,7 +57,8 @@ public:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method for the state with material effects provided by the layer object prior to propagation
+  /** Method for the state with material effects provided by the layer object
+   * prior to propagation
    */
   virtual Trk::MultiComponentState preUpdateState(
     const ComponentParameters&,
@@ -65,7 +66,8 @@ public:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method for the state with material effects provided by the layer object after propagation */
+  /** Method for the state with material effects provided by the layer object
+   * after propagation */
   virtual Trk::MultiComponentState postUpdateState(
     const ComponentParameters&,
     const Layer&,
@@ -74,18 +76,23 @@ public:
 
 private:
   /** Method to perform centralised calculation of updated state */
-  Trk::MultiComponentState compute(const ComponentParameters&,
-                                   const MaterialProperties&,
-                                   double,
-                                   PropDirection direction = anyDirection,
-                                   ParticleHypothesis particleHypothesis = nonInteracting) const;
+  Trk::MultiComponentState compute(
+    const ComponentParameters&,
+    const MaterialProperties&,
+    double,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to calculate the updated momentum based on material effects */
   bool updateP(AmgVector(5) &, double) const;
 
 private:
-  ToolHandle<IMultiStateMaterialEffects>
-    m_materialEffects{ this, "MaterialEffects", "Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects", "" };
+  ToolHandle<IMultiStateMaterialEffects> m_materialEffects{
+    this,
+    "MaterialEffects",
+    "Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects",
+    ""
+  };
   bool m_useReferenceMaterial;
   double m_momentumCut;
 };

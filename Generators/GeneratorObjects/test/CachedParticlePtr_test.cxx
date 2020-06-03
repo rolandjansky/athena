@@ -109,7 +109,7 @@ void ThreadingTest::readerThread::operator()()
     do {
       if (!checked[i]) {
         const IProxyDict* sg = nullptr;
-        const HepMC::GenParticle* p = m_test.m_vals[i].get (sg);
+        auto p = m_test.m_vals[i].get (sg);
         if (p != nullptr) {
           assert (p == &m_test.m_parts[i]);
           assert (sg == nullptr);

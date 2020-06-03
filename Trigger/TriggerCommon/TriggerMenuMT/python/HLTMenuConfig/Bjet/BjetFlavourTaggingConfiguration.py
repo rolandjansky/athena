@@ -12,13 +12,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagFex.PriVtxKey = inputVertex
     bTagFex.TracksKey = inputTracks
     bTagFex.OutputBTagging = recordable( "HLT_BTagging" )
-
-    from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
-    bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
-
     algSequence.append( bTagFex )
 
-    return algSequence
-
-
+    return [algSequence,bTagFex.OutputBTagging]
 

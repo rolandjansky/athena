@@ -1,14 +1,15 @@
 #include "../JetAlgorithm.h"
 #include "../JetRecAlg.h"
 #include "../JetViewAlg.h"
-#include "../PseudoJetAlgorithm.h"
 #include "../JetTrimming.h"
+
+#include "../PseudoJetMerger.h"
+#include "../PseudoJetAlgorithm.h"
+#include "../MuonSegmentPseudoJetAlgorithm.h"
 
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
 #include "JetRec/JetDumper.h"
-#include "JetRec/PseudoJetGetter.h"
-#include "JetRec/MuonSegmentPseudoJetGetter.h"
 #include "JetRec/JetFromPseudojet.h"
 #include "JetRec/JetFinder.h"
 #include "JetRec/JetByVertexFinder.h"
@@ -17,7 +18,6 @@
 #include "JetRec/JetPruner.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
-#include "JetRec/PseudoJetMerger.h"
 
 #include "JetRec/JetSorter.h"
 #include "JetRec/JetPseudojetRetriever.h"
@@ -27,12 +27,11 @@
 #include "JetRec/JetConstitRemover.h"
 #include "JetRec/JetClusterer.h"
 #include "JetRec/JetCopier.h"
+#include "JetRec/JetGroomer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
 DECLARE_COMPONENT( JetDumper )
-DECLARE_COMPONENT( PseudoJetGetter )
-DECLARE_COMPONENT( MuonSegmentPseudoJetGetter )
 DECLARE_COMPONENT( JetFromPseudojet )
 DECLARE_COMPONENT( JetFinder )
 DECLARE_COMPONENT( JetByVertexFinder )
@@ -49,11 +48,13 @@ DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
 DECLARE_COMPONENT( JetClusterer )
 DECLARE_COMPONENT( JetCopier )
+DECLARE_COMPONENT( JetGroomer )
 DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )
 DECLARE_COMPONENT( JetRecAlg )
 DECLARE_COMPONENT( JetViewAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
+DECLARE_COMPONENT( MuonSegmentPseudoJetAlgorithm )
 
 DECLARE_COMPONENT( JetTrimming )

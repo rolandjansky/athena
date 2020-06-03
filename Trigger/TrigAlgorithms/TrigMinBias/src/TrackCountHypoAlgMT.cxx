@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackCountHypoAlgMT.h"
@@ -35,10 +35,10 @@ StatusCode TrackCountHypoAlgMT::initialize()
     ATH_MSG_ERROR("either track Key name or track count key name is undefined " );
     return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hypoTools.retrieve());
-  return StatusCode::SUCCESS;
 
+  ATH_CHECK(m_hypoTools.retrieve());
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -66,20 +66,20 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
   const auto viewTrk = (previousDecisionsHandle->at(0))->objectLink<ViewContainer>( viewString() );
   ATH_CHECK( viewTrk.isValid() );
   auto tracksHandle = ViewHelper::makeHandle( *viewTrk, m_tracksKey, context );
-  ATH_CHECK( tracksHandle.isValid() );//TODO: fix this data handle
+  ATH_CHECK( tracksHandle.isValid() );
   ATH_MSG_DEBUG ( "spacepoint handle size: " << tracksHandle->size() << "..." );
 
   int ntrks=tracksHandle->size();
   ATH_MSG_DEBUG ("Successfully retrieved track container of size" <<ntrks);
 
-std::vector<int> counts(m_min_pt.size());
+  std::vector<int> counts(m_min_pt.size());
   for (const auto  trackPtr: *tracksHandle){
     const Trk::Perigee& aMeasPer = trackPtr->perigeeParameters();
-       const double pT = aMeasPer.pT();
-       const double z0 = aMeasPer.parameters()[Trk::z0];
+    const double pT = aMeasPer.pT();
+    const double z0 = aMeasPer.parameters()[Trk::z0];
 
     for (long unsigned int i=0;i<m_min_pt.size();i++){
-    if(pT >= m_min_pt[i] && std::fabs(z0) < m_max_z0[i]) counts[i]++;
+      if(pT >= m_min_pt[i] && std::fabs(z0) < m_max_z0[i]) counts[i]++;
     }
   }
   for (long unsigned int i=0;i<m_min_pt.size();i++){
@@ -98,16 +98,14 @@ std::vector<int> counts(m_min_pt.size());
   trackCount->setDetail("z0cuts", static_cast<std::vector<float>>(m_max_z0));
   trackCount->setDetail("counts", counts);
 
-  // TODO revisit, this monitoring is not helpful at all
-  /*
+  // TODO revisit
+
   auto mon_ntrks = Monitored::Scalar<int>("ntrks",ntrks);
   Monitored::Group(m_monTool,mon_ntrks);
-    for(long unsigned int i=0;i<=m_min_pt.size();i++){
-      auto mon_counts = Monitored::Scalar<int>("counts",count[i]);
-      Monitored::Group(m_monTool,mon_counts);
-    }
-
-  */
+  for(long unsigned int i=0;i<counts.size();i++){
+    auto mon_counts = Monitored::Scalar<int>("counts"+std::to_string(i),counts[i]);
+    Monitored::Group(m_monTool,mon_counts);
+  }
 
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context );
   auto decisions = outputHandle.ptr();

@@ -1,4 +1,4 @@
-#!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: nils.gollub@cern.ch
 
 from __future__ import print_function

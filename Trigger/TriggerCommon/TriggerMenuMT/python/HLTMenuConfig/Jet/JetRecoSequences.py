@@ -71,7 +71,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         rcJetDef.modifiers = rcModList
 
         rcConstitPJAlg = getConstitPJGAlg( rcJetDef.inputdef )
-        rcConstitPJKey = rcConstitPJAlg.PJGetter.OutputContainer
+        rcConstitPJKey = rcConstitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
         rcPJs = [rcConstitPJKey]
@@ -91,6 +91,8 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         (ungroomedJetRecoSequence,ungroomedJetsName) = RecoFragmentsPool.retrieve(jetRecoSequence,None,dataSource=dataSource, **ungroomedJetRecoDict)
         recoSeq += conf2toConfigurable( ungroomedJetRecoSequence )
+        # Need to forward the pseudojets of the parents to the groomer
+        parentpjs = getattr(ungroomedJetRecoSequence,"jetalg_{}".format(ungroomedJetsName)).Tools[0].InputPseudoJets
 
         groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName)
         groomedJetsFullName = jetNamePrefix+groomDef.basename+"Jets_"+jetRecoDict["jetCalib"]
@@ -99,7 +101,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Can add substructure mods here
 
         from JetRecConfig.JetGroomConfig import getJetGroomAlg
-        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,groomedModList)
+        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,parentpjs,groomedModList)
         recoSeq += conf2toConfigurable( groomalg )
 
         sequenceOut = recordable(groomedJetsFullName)
@@ -142,7 +144,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
-        constitPJKey = constitPJAlg.PJGetter.OutputContainer
+        constitPJKey = constitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( constitPJAlg )
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired

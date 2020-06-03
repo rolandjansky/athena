@@ -52,11 +52,15 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    // 	using TrackFitter::fit;
-	
     // iPat Fitter settings (FIXME: to provide??):
-    //			RunOutlierRemoval    - use logic to remove bad hits
+    //	RunOutlierRemoval    - use logic to remove bad hits
 
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+ 
     // refit a track
     virtual Track*	fit (const Track&,
 		     const RunOutlierRemoval	runOutlier=false,

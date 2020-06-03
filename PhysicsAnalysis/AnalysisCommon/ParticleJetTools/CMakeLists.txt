@@ -11,6 +11,7 @@ atlas_subdir( ParticleJetTools )
 if( XAOD_STANDALONE )
    atlas_depends_on_subdirs(
       PUBLIC
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
@@ -24,6 +25,7 @@ if( XAOD_STANDALONE )
 else()
    atlas_depends_on_subdirs(
       PUBLIC
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
@@ -44,14 +46,14 @@ if( XAOD_STANDALONE )
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth
-      JetInterface MCTruthClassifierLib JetRecLib
+      JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthContainers TruthUtils )
 else()
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth GaudiKernel
-      JetInterface MCTruthClassifierLib JetRecLib
+      JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthAnalysisBaseCompsLib AthContainers TruthUtils )
 endif()
 

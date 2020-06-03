@@ -10,6 +10,10 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+import pprint
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
+
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
@@ -101,8 +105,9 @@ def generateChains( flags, chainDict ):
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
     
-    import pprint
-    pprint.pprint(chainDict)
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
+
+
     chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
 

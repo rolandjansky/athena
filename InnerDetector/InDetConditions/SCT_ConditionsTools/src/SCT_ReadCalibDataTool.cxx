@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.cxx Implementation file for SCT_ReadCalibDataTool.
@@ -11,6 +11,9 @@
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+// Include STL
+#include <cstdint>
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -286,10 +289,10 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
   }
   
   //Loop over all wafers using hashIds from the cabling service
-  std::vector<boost::uint32_t> listOfRODs;
+  std::vector<std::uint32_t> listOfRODs;
   m_cabling->getAllRods(listOfRODs, ctx);
-  std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
-  std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
+  std::vector<std::uint32_t>::iterator rodIter{listOfRODs.begin()};
+  std::vector<std::uint32_t>::iterator rodEnd{listOfRODs.end()};
   for (; rodIter!=rodEnd; ++rodIter) {
     std::vector<IdentifierHash> listOfHashes;
     m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);

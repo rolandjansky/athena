@@ -22,9 +22,10 @@ decription           : Implementation code for GSF material mixture convolution
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
-Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(const std::string& type,
-                                                                  const std::string& name,
-                                                                  const IInterface* parent)
+Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(
+  const std::string& type,
+  const std::string& name,
+  const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
   declareInterface<IMaterialMixtureConvolution>(this);
@@ -37,11 +38,10 @@ Trk::GsfMaterialMixtureConvolution::initialize()
 {
 
   if (m_updator.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the material effects updator instance " << m_updator.typeAndName()
-                                                                              << "... Exiting");
+    ATH_MSG_ERROR("Could not retrieve the material effects updator instance "
+                  << m_updator.typeAndName() << "... Exiting");
     return StatusCode::FAILURE;
   }
-
 
   return StatusCode::SUCCESS;
 }
@@ -57,10 +57,11 @@ Trk::GsfMaterialMixtureConvolution::finalize()
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multiComponentState,
-                                           const Trk::Layer& layer,
-                                           Trk::PropDirection direction,
-                                           Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfMaterialMixtureConvolution::update(
+  const Trk::MultiComponentState& multiComponentState,
+  const Trk::Layer& layer,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis) const
 {
 
   const Trk::MaterialProperties* materialProperties =
@@ -81,34 +82,39 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
-    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
+    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is "
+                  "not populated... returning 0");
     return {};
   }
 
   // Loop over all components and perform material effects update separately
-  Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
+  Trk::MultiComponentState::const_iterator component =
+    multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
 
     Trk::MultiComponentState updatedState =
       m_updator->updateState(*component, layer, direction, particleHypothesis);
 
-    if (updatedState.empty()){
+    if (updatedState.empty()) {
       continue;
     }
 
-    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(
+      cache, std::move(updatedState));
 
     if (!componentAdded) {
-      ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+      ATH_MSG_WARNING(
+        "Component could not be added to the state in the assembler");
     }
   }
 
-  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
-    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
+  Trk::MultiComponentState mergedState =
+    QuickCloseComponentsMultiStateMerger::merge(
+      std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
-    return  {};
+    return {};
   }
   // Renormalise state
   MultiComponentStateHelpers::renormaliseState(mergedState);
@@ -121,10 +127,11 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& multiComponentState,
-                                              const Trk::Layer& layer,
-                                              Trk::PropDirection direction,
-                                              Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfMaterialMixtureConvolution::preUpdate(
+  const Trk::MultiComponentState& multiComponentState,
+  const Trk::Layer& layer,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis) const
 {
   const Trk::MaterialProperties* materialProperties =
     layer.fullUpdateMaterialProperties(*(multiComponentState.begin()->first));
@@ -139,30 +146,36 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
-    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
+    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is "
+                  "not populated... returning 0");
     return {};
   }
 
   // Loop over all components and perform material effects update separately
-  Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
+  Trk::MultiComponentState::const_iterator component =
+    multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
 
-    Trk::MultiComponentState updatedState =
-      m_updator->preUpdateState(*component, layer, direction, particleHypothesis);
+    Trk::MultiComponentState updatedState = m_updator->preUpdateState(
+      *component, layer, direction, particleHypothesis);
 
-    if (updatedState.empty()){
+    if (updatedState.empty()) {
       continue;
     }
 
-    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(
+      cache, std::move(updatedState));
 
-    if (!componentAdded)
-      ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+    if (!componentAdded) {
+      ATH_MSG_WARNING(
+        "Component could not be added to the state in the assembler");
+    }
   }
 
-  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
-    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
+  Trk::MultiComponentState mergedState =
+    QuickCloseComponentsMultiStateMerger::merge(
+      std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};
@@ -178,10 +191,11 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& multiComponentState,
-                                               const Trk::Layer& layer,
-                                               Trk::PropDirection direction,
-                                               Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfMaterialMixtureConvolution::postUpdate(
+  const Trk::MultiComponentState& multiComponentState,
+  const Trk::Layer& layer,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis) const
 {
 
   const Trk::MaterialProperties* materialProperties =
@@ -198,31 +212,36 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
-    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
+    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is "
+                  "not populated... returning 0");
     return {};
   }
 
   // Loop over all components and perform material effects update separately
-  Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
+  Trk::MultiComponentState::const_iterator component =
+    multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
 
-    Trk::MultiComponentState updatedState =
-      m_updator->postUpdateState(*component, layer, direction, particleHypothesis);
+    Trk::MultiComponentState updatedState = m_updator->postUpdateState(
+      *component, layer, direction, particleHypothesis);
 
-    if (updatedState.empty()){
+    if (updatedState.empty()) {
       continue;
     }
 
-    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(
+      cache, std::move(updatedState));
 
     if (!componentAdded) {
-      ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+      ATH_MSG_WARNING(
+        "Component could not be added to the state in the assembler");
     }
   }
 
-  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
-    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
+  Trk::MultiComponentState mergedState =
+    QuickCloseComponentsMultiStateMerger::merge(
+      std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};
@@ -238,9 +257,10 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiComponentState& multiComponentState,
-                                                             Trk::PropDirection direction,
-                                                             Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(
+  const Trk::MultiComponentState& multiComponentState,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis) const
 {
   /* -------------------------------------
      Preliminary checks
@@ -250,24 +270,29 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
-    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
+    ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is "
+                  "not populated... returning 0");
     return {};
   }
 
   // Hardwired material effects based on approximate material distribution
-  std::unique_ptr<Trk::TrackParameters> combinedState = MultiComponentStateCombiner::combine(multiComponentState);
+  std::unique_ptr<Trk::TrackParameters> combinedState =
+    MultiComponentStateCombiner::combine(multiComponentState);
   const Amg::Vector3D& globalPosition = combinedState->position();
 
   const Trk::MaterialProperties* materialProperties = nullptr;
 
   // Material properties 2.5% X0 - pixels
   if (globalPosition.x() >= 180. && globalPosition.x() < 350.) {
-    materialProperties = new Trk::MaterialProperties(2.34, 93.6, 0.3879, 28.0855, 14, 0.00233);
+    materialProperties =
+      new Trk::MaterialProperties(2.34, 93.6, 0.3879, 28.0855, 14, 0.00233);
   }
 
-  // Material properties 0.75% X0 - SCT ( total for a module = 1.5% - 2 measurement surfaces )
+  // Material properties 0.75% X0 - SCT ( total for a module = 1.5% - 2
+  // measurement surfaces )
   else if (globalPosition.x() >= 350. && globalPosition.x() < 1200.) {
-    materialProperties = new Trk::MaterialProperties(0.702, 93.6, 0.3879, 28.0855, 14, 0.00233);
+    materialProperties =
+      new Trk::MaterialProperties(0.702, 93.6, 0.3879, 28.0855, 14, 0.00233);
   }
 
   if (!materialProperties) {
@@ -285,29 +310,39 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
     return std::move(*MultiComponentStateHelpers::clone(multiComponentState));
   }
 
-  // Assume tracks normal to detector surface. Approximation resonable for the CTB
+  // Assume tracks normal to detector surface. Approximation resonable for the
+  // CTB
   double pathLength = materialProperties->thickness();
 
   // Loop over all components and perform material effects update separately
-  Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
+  Trk::MultiComponentState::const_iterator component =
+    multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
-     Trk::MultiComponentState updatedState =
-      m_updator->updateState(*component, *materialProperties, pathLength, direction, particleHypothesis);
+    Trk::MultiComponentState updatedState =
+      m_updator->updateState(*component,
+                             *materialProperties,
+                             pathLength,
+                             direction,
+                             particleHypothesis);
 
-    if (updatedState.empty())
+    if (updatedState.empty()) {
       continue;
+    }
 
-    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(
+      cache, std::move(updatedState));
 
     if (!componentAdded) {
-      ATH_MSG_WARNING("Component could not be added to the state in the assembler");
+      ATH_MSG_WARNING(
+        "Component could not be added to the state in the assembler");
     }
 
   } // end loop over components
 
-  Trk::MultiComponentState mergedState = QuickCloseComponentsMultiStateMerger::merge(
-    std::move(cache.multiComponentState), m_maximumNumberOfComponents);
+  Trk::MultiComponentState mergedState =
+    QuickCloseComponentsMultiStateMerger::merge(
+      std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
   if (mergedState.empty()) {
     return {};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
@@ -79,7 +79,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
                           << " strip " << stripN
                           << " gasGap " << gasGapN
                           << " layer " << layerN);
-          if (std::abs(strip-stripN) <= m_maxHoleSize + 1) {
+          if (static_cast<unsigned int>(std::abs(strip-stripN)) <= m_maxHoleSize + 1) {
           jmerge = j;
           break;
         }
@@ -107,7 +107,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
-	if( std::abs(mergeStrips[k]-stripN) <= m_maxHoleSize + 1 ) {
+	if( static_cast<unsigned int>(std::abs(mergeStrips[k]-stripN)) <= m_maxHoleSize + 1 ) {
 	  int gasGapN  = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
 	  int layerN   = m_idHelperSvc->mmIdHelper().multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {

@@ -173,7 +173,7 @@ if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
-from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr( condSeq, "LumiBlockMuWriter" ):
     include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")

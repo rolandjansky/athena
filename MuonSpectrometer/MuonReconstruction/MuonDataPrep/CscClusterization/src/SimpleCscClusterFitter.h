@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// SimpleCscClusterFitter.h
 
 #ifndef SimpleCscClusterFitter_H
 #define SimpleCscClusterFitter_H
@@ -12,11 +10,14 @@
 //
 // Tool to select muons for physics analysis.
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "CscClusterization/ICscClusterFitter.h"
-#include "MuonPrepRawData/CscClusterStatus.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/CscClusterStatus.h"
+#include "CscClusterization/ICscAlignmentTool.h"
 
 namespace Muon {
   class CscPrepData;
@@ -25,22 +26,15 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class ICscAlignmentTool;
 class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
   
 public:
 
-  // Constructor.
   SimpleCscClusterFitter(std::string, std::string, const IInterface*);
         
-  // Destructor.
-  ~SimpleCscClusterFitter();
+  ~SimpleCscClusterFitter()=default;
         
-  // Initialization.
   StatusCode initialize();
-
-  // Finalization.
-  StatusCode finalize();
 
   // Inherited methods.
   using ICscClusterFitter::fit;
@@ -57,8 +51,9 @@ private:
   double m_defaultErrorScaler_phi;
 
   const MuonGM::MuonDetectorManager* m_detMgr;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  ToolHandle<ICscAlignmentTool>                 m_alignmentTool;
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  ToolHandle<ICscAlignmentTool> m_alignmentTool;
 };
 #endif

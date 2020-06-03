@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDOAnalysis.h"
@@ -369,7 +369,7 @@ StatusCode SCT_RDOAnalysis::execute() {
           m_h_brlGroupSize->Fill(sctGroupSize);
           m_h_brl_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
         }
-        else if (abs(sctBrlEc) == 2) {
+        else if (std::abs(sctBrlEc) == 2) {
           m_h_ecDisk->Fill(sctLayerDisk);
           m_h_ecPhiMod->Fill(sctPhiMod);
           m_h_ecEtaMod->Fill(sctEtaMod);

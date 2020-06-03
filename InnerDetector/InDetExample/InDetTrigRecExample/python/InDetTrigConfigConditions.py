@@ -131,7 +131,6 @@ class PixelConditionsServicesSetup:
                                     UseDCSStateConditions=self.useDCS,
                                     UseDCSStatusConditions=self.useDCS,
                                     UseTDAQConditions=self.useTDAQ,     # should be false. This is only valid in RUN-1.
-                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                     UseCalibConditions=True,
                                     UseCablingConditions=useCablingConditions,
                                     CablingMapFileName=IdMappingDat)

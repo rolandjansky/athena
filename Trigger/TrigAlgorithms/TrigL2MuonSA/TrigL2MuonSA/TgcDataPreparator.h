@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -9,27 +9,19 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-//#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "MuonRDO/TgcRdoContainer.h"
-
 #include "TrigL2MuonSA/TgcDataPreparatorOptions.h"
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "RegionSelector/IRegSelSvc.h"
-
 #include "MuonTGC_Cabling/MuonTGC_CablingSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class StoreGateSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -62,10 +54,9 @@ class TgcDataPreparator: public AthAlgTool
 			const std::string& name,
 			const IInterface*  parent);
     
-      ~TgcDataPreparator();
+      ~TgcDataPreparator()=default;
     
       virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
     
       StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
 			     TrigL2MuonSA::TgcHits&   tgcHits);
@@ -85,8 +76,7 @@ class TgcDataPreparator: public AthAlgTool
 
       const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::TgcReadoutElement* m_tgcReadout;
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       //ActiveStoreSvc* m_activeStore;
       ServiceHandle<ActiveStoreSvc> m_activeStore;
@@ -99,9 +89,6 @@ class TgcDataPreparator: public AthAlgTool
 
       // Tool for Rdo to Prep Data conversion
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
-      //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
-      // 	this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", ""};
-      //  
 
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;

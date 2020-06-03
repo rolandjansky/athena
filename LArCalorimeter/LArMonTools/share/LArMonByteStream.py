@@ -5,7 +5,7 @@
 if not online:
     theByteStreamInputSvc = svcMgr.ByteStreamInputSvc
     theByteStreamInputSvc.FullFileName = FullFileName
-    theByteStreamInputSvc.MaxBadEvents=0
+    svcMgr.EventSelector.MaxBadEvents = 0
 else:
     theApp.CreateSvc += ["ByteStreamCnvSvc"]
 

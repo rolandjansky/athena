@@ -13,6 +13,7 @@
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 
+#include <TString.h> // for Form
 #include "TTree.h"
 
 StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
@@ -27,7 +28,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
   
   // Get the MicroMegas Id hit helper
   MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
-  MM_SimIdToOfflineId simToOffline(*m_MmIdHelper);
+  MM_SimIdToOfflineId simToOffline(m_MmIdHelper);
 
   if(nswContainer->size()==0) ATH_MSG_WARNING(" MMSimHit empty ");
   for( auto it : *nswContainer ) {
@@ -133,11 +134,7 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
     const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(offId);
-
-    if( !detEl ){
-      ATH_MSG_WARNING("MicroMegas geometry, failed to retrieve detector element for: " << m_MmIdHelper->print_to_string(offId) );
-      continue;
-    }
+    if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMSimHitVariables::fillVariables() - Failed to retrieve MMReadoutElement for %s", __FILE__, __LINE__, m_MmIdHelper->print_to_string(offId).c_str()));
 
     // surface
     const Trk::PlaneSurface& surf = detEl->surface(offId);
@@ -191,7 +188,6 @@ StatusCode MMSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
     Amg::Vector2D fastDigitPos(0.,0.);
     if( !detEl->stripPosition(offId,fastDigitPos ) ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain local position for identifier " << m_MmIdHelper->print_to_string(offId) );
-      continue;
     }
 
     Amg::Vector3D detpos = detEl->globalPosition();

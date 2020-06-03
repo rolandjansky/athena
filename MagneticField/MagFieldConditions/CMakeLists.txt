@@ -8,7 +8,6 @@ atlas_subdir( MagFieldConditions )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
-                          MagneticField/MagFieldInterfaces
 			  GaudiKernel
                           PRIVATE
                           MagneticField/MagFieldElements

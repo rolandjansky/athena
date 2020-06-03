@@ -1,27 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataToolCore.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "MdtRdoToPrepDataToolCore.h"
 
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MdtRDO_Decoder.h"
-
 #include "MuonCalibEvent/MdtCalibHit.h"
 #include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
-
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
-
 #include "GeoModelUtilities/GeoGetIds.h"
-
 #include "GaudiKernel/ThreadLocalContext.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -29,20 +22,15 @@ using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
 
-Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t,
-                                                 const std::string& n,
-                                                 const IInterface*  p )
-  :
+Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(0),
+  m_muonMgr(nullptr),
   m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
-  m_calibHit( 0 ),
+  m_calibHit(nullptr),
   m_invSpeed(1./299.792458),
-  //m_mdtPrepDataContainer("MDT_DriftCircles"),
   m_calibratePrepData(true),
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool", this),
   m_fullEventDone(false),
   m_BMEpresent(false),
   m_BMGpresent(false),
@@ -74,35 +62,15 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t,
   declareProperty("CalibrationTool",m_calibrationTool);
 }
 
-
-Muon::MdtRdoToPrepDataToolCore::~MdtRdoToPrepDataToolCore()
-{
-
-}
-
-StatusCode Muon::MdtRdoToPrepDataToolCore::initialize()
-{  
-  if(detStore()->retrieve( m_muonMgr ).isFailure()) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonDetectorManager ");
-    return StatusCode::FAILURE;
-  }
-
-  StatusCode sc = m_calibrationTool.retrieve();
-  if ( sc.isFailure() ){
-    ATH_MSG_ERROR( "Could not retrieve MdtCalibrationTool"  );
-  } else {
-    ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with statusCode = "<<sc<<" pointer = "<<m_calibrationTool );
-  }
-
-  /// create an empty MDT PrepData container for filling
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {  
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
+  ATH_CHECK(m_calibrationTool.retrieve());
+  ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with pointer = "<<m_calibrationTool);
+  ATH_CHECK(m_idHelperSvc.retrieve());
   // Retrieve the RDO decoder 
   ATH_CHECK(m_mdtDecoder.retrieve());
 
-  ATH_CHECK(m_idHelper.retrieve());
-  
-    
   // + TWIN TUBES
   // make an array of [multilayer][layer][twin-pair]; 2 multilayers, 3 layer per multilayer, 36 twin-pairs per layer 
   if(m_useTwin){
@@ -124,15 +92,15 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize()
   m_mdtCalibSvcSettings->initialize();
 
   // check if the layout includes elevator chambers
-  m_BMEpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1;
+  m_BMEpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME") != -1;
   if(m_BMEpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
-    m_BMEid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME");
+    m_BMEid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
   }
-  m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
+  m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+    m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
@@ -165,8 +133,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
 {    
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
+  if(!readCdo){
+    ATH_MSG_ERROR("nullptr to the read conditions object");
     return StatusCode::FAILURE;
   }
   const std::vector<IdentifierHash>& chamberHashInRobs = readCdo->getChamberHashVec(robIds);
@@ -227,7 +195,7 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
 
   // It is more practical to loop through all the hashes rather than all RDO elements
   // as we benefit from handling the 2 RDO to 1 PRD special case
-  for(unsigned int iHash = 0; iHash < m_muonIdHelperTool->mdtIdHelper().module_hash_max(); iHash++){
+  for(unsigned int iHash = 0; iHash < m_idHelperSvc->mdtIdHelper().module_hash_max(); iHash++){
     handlePRDHash( IdentifierHash(iHash), *rdoContainer, idWithDataVect);
   }
   //for (MdtCsmContainer::const_iterator rdoColli = rdoContainer->begin(); rdoColli!=rdoContainer->end(); ++rdoColli) {
@@ -248,20 +216,20 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
-    IdContext tmp_context = m_muonIdHelperTool->mdtIdHelper().module_context();
-    m_muonIdHelperTool->mdtIdHelper().get_id(hash, elementId, &tmp_context);
+    IdContext tmp_context = m_idHelperSvc->mdtIdHelper().module_context();
+    m_idHelperSvc->mdtIdHelper().get_id(hash, elementId, &tmp_context);
 
-    Identifier multilayerId = m_muonIdHelperTool->mdtIdHelper().multilayerID(elementId, 1); //first multilayer
+    Identifier multilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(elementId, 1); //first multilayer
     IdentifierHash multilayerHash;
-    m_muonIdHelperTool->mdtIdHelper().get_detectorElement_hash(multilayerId, multilayerHash);
+    m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(multilayerId, multilayerHash);
     rdoHash = multilayerHash;
 
     // for BMEs there are 2 CSMs per chamber, registered with the hashes of the 2 multilayers
     // If this is BMEid then we handle two RDO at once, else just one
-    if (m_muonIdHelperTool->mdtIdHelper().stationName(elementId) == m_BMEid) {
-      Identifier multilayerId2 = m_muonIdHelperTool->mdtIdHelper().multilayerID(elementId, 2); //second multilayer
+    if (m_idHelperSvc->mdtIdHelper().stationName(elementId) == m_BMEid) {
+      Identifier multilayerId2 = m_idHelperSvc->mdtIdHelper().multilayerID(elementId, 2); //second multilayer
       IdentifierHash multilayerHash2;
-      m_muonIdHelperTool->mdtIdHelper().get_detectorElement_hash(multilayerId2, multilayerHash2);
+      m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(multilayerId2, multilayerHash2);
       IdentifierHash rdoHash2 = multilayerHash2;
       // Retrieve the two RDO
       MdtCsmContainer::const_iterator rdoColli  = rdoContainer.indexFind(rdoHash);
@@ -437,13 +405,13 @@ void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
       int nhitcoll = 0;
       if ( mdtColl->size() > 0 ) 
         {            
-          ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelper->toString(mdtColl->identify()));
+          ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelperSvc->toString(mdtColl->identify()));
           MdtPrepDataCollection::const_iterator it_mdtPrepData;
           for (it_mdtPrepData=mdtColl->begin(); it_mdtPrepData != mdtColl->end(); it_mdtPrepData++) {
             nhitcoll++;
             nhits++;
             ATH_MSG_DEBUG(" in this coll. "<<nhitcoll<<" prepData id = "
-                         <<m_idHelper->toString((*it_mdtPrepData)->identify())
+                         <<m_idHelperSvc->toString((*it_mdtPrepData)->identify())
                          <<" tdc/adc ="<<(*it_mdtPrepData)->tdc()<<"/"<< (*it_mdtPrepData)->adc());
           }
           ncoll++;
@@ -465,9 +433,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     // two chambers in ATLAS are installed with Twin Tubes; in detector coordinates BOL4A13 & BOL4C13; only INNER multilayer(=1) is with twin tubes
     // implement twin tube writing to prepData either for all BOL (m_useAllBOLTwin = true) _OR_ only for two chambers really installed
     Identifier elementId = rdoColl->identify();
-    MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(elementId);
+    MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(elementId);
     if( chIndex == MuonStationIndex::BOL &&
-        ( m_useAllBOLTwin || (std::abs(m_muonIdHelperTool->mdtIdHelper().stationEta(elementId)) == 4 && m_muonIdHelperTool->mdtIdHelper().stationPhi(elementId) == 7) ) ) { 
+        ( m_useAllBOLTwin || (std::abs(m_idHelperSvc->mdtIdHelper().stationEta(elementId)) == 4 && m_idHelperSvc->mdtIdHelper().stationPhi(elementId) == 7) ) ) { 
       return processCsmTwin(rdoColl, idWithDataVect);
     }
   }
@@ -476,12 +444,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
 
   // Make some checks if we are in special circumstances
   if(rdoColl2){
-    Identifier elementId1 = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl->identify());
-    Identifier elementId2 = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl2->identify());
-    IdContext mdtContext  = m_muonIdHelperTool->mdtIdHelper().module_context();
+    Identifier elementId1 = m_idHelperSvc->mdtIdHelper().parentID(rdoColl->identify());
+    Identifier elementId2 = m_idHelperSvc->mdtIdHelper().parentID(rdoColl2->identify());
+    IdContext mdtContext  = m_idHelperSvc->mdtIdHelper().module_context();
     IdentifierHash hash1, hash2;
-    m_muonIdHelperTool->mdtIdHelper().get_hash(elementId1, hash1, &mdtContext);
-    m_muonIdHelperTool->mdtIdHelper().get_hash(elementId2, hash2, &mdtContext);
+    m_idHelperSvc->mdtIdHelper().get_hash(elementId1, hash1, &mdtContext);
+    m_idHelperSvc->mdtIdHelper().get_hash(elementId2, hash2, &mdtContext);
     ATH_MSG_DEBUG("Special case with 2 RDO going into 1 PRD - ID1 " << elementId1 
       << " ID2 " << elementId2 << " hash 1 " << hash1 << " hash 2 " << hash2 );
     // These should have the same PRD MDT hash otherwise we need to understand why we are here
@@ -489,13 +457,13 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       ATH_MSG_ERROR("Hash1 and Hash2 are different for special case : " << hash1 << " " << hash2);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (1) " << rdoColl->size()  <<" CSM id is "<<m_idHelper->toString(elementId1));
-    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (2) " << rdoColl2->size() <<" CSM id is "<<m_idHelper->toString(elementId2));
+    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (1) " << rdoColl->size()  <<" CSM id is "<<m_idHelperSvc->toString(elementId1));
+    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (2) " << rdoColl2->size() <<" CSM id is "<<m_idHelperSvc->toString(elementId2));
   }
 
   /// MDT hit context
-  //IdContext hitContext = m_muonIdHelperTool->mdtIdHelper().channel_context();
-  Identifier elementId = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl->identify());
+  //IdContext hitContext = m_idHelperSvc->mdtIdHelper().channel_context();
+  Identifier elementId = m_idHelperSvc->mdtIdHelper().parentID(rdoColl->identify());
   
   // prepare the special case of two chamber connected to the same CSM
   // create objects but do not initialize them
@@ -506,18 +474,18 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   IdentifierHash secondMdtHashId;
 
   if(!rdoColl2)
-    ATH_MSG_DEBUG(" Number of AmtHit in this Csm " << rdoColl->size() <<" CSM id is "<<m_idHelper->toString(elementId));
+    ATH_MSG_DEBUG(" Number of AmtHit in this Csm " << rdoColl->size() <<" CSM id is "<<m_idHelperSvc->toString(elementId));
 
   uint16_t subdetId = rdoColl->SubDetId();
   uint16_t mrodId = rdoColl->MrodId();
   uint16_t csmId = rdoColl->CsmId();
-  ATH_MSG_VERBOSE("Identifier = "<<m_idHelper->toString(elementId)
+  ATH_MSG_VERBOSE("Identifier = "<<m_idHelperSvc->toString(elementId)
                   <<" subdetId/ mrodId/ csmId = "<<subdetId<<" / "<<mrodId<<" / "<<csmId);
 
   // Create prepdata collection
-  IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+  IdContext mdtContext = m_idHelperSvc->mdtIdHelper().module_context();
   IdentifierHash mdtHashId;
-  if(m_muonIdHelperTool->mdtIdHelper().get_hash(elementId, mdtHashId, &mdtContext)) {
+  if(m_idHelperSvc->mdtIdHelper().get_hash(elementId, mdtHashId, &mdtContext)) {
     ATH_MSG_FATAL("Unable to get MDT hash id from MDT digit collection "
                   << "context begin_index = " << mdtContext.begin_index()
                   << " context end_index  = " << mdtContext.end_index()
@@ -558,11 +526,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       itD   = rdoColl2->begin();
       itD_e = rdoColl2->end();
 
-      elementId = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl2->identify());
+      elementId = m_idHelperSvc->mdtIdHelper().parentID(rdoColl2->identify());
       subdetId = rdoColl2->SubDetId();
       mrodId   = rdoColl2->MrodId();
       csmId    = rdoColl2->CsmId();
-      ATH_MSG_VERBOSE("Identifier = "<<m_idHelper->toString(elementId)
+      ATH_MSG_VERBOSE("Identifier = "<<m_idHelperSvc->toString(elementId)
                   <<" subdetId/ mrodId/ csmId = "<<subdetId<<" / "<<mrodId<<" / "<<csmId);
     }
   }
@@ -582,7 +550,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     MdtDigit * newDigit = m_mdtDecoder->getDigit(amtHit,subdetId,
                                                  mrodId,csmId);
 
-    if (newDigit==NULL) {
+    if (!newDigit) {
       ATH_MSG_WARNING("Found issue MDT RDO decoder for subdetId/mrodId/csmId "
                       <<subdetId<<"/"<<mrodId<<"/"<<csmId<<" amtHit channelId/tdcId ="
                       <<amtHit->channelId()<<"/"<<amtHit->tdcId());
@@ -592,12 +560,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
 
     // Do something with it
     Identifier     channelId   = newDigit->identify();
-    Identifier     parentId    = m_muonIdHelperTool->mdtIdHelper().parentID(channelId);
-    if( m_muonIdHelperTool->mdtIdHelper().stationName(parentId) == m_BMGid && m_BMGpresent) {
+    Identifier     parentId    = m_idHelperSvc->mdtIdHelper().parentID(channelId);
+    if( m_idHelperSvc->mdtIdHelper().stationName(parentId) == m_BMGid && m_BMGpresent) {
       std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
-          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_muonIdHelperTool->mdtIdHelper().show_to_string(channelId) );
+          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
           delete newDigit;
 	  itD++;
           continue;
@@ -610,9 +578,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
 
     if ( parentId != elementId ) {
 
-      int stationName = m_muonIdHelperTool->mdtIdHelper().stationName(channelId);
+      int stationName = m_idHelperSvc->mdtIdHelper().stationName(channelId);
       // check that at least the station name is the same, otherwise it must be an error
-      if ( stationName == m_muonIdHelperTool->mdtIdHelper().stationName(elementId) ) {
+      if ( stationName == m_idHelperSvc->mdtIdHelper().stationName(elementId) ) {
 
         doubleCsm = true;
 
@@ -623,17 +591,17 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
 
           ATH_MSG_DEBUG("A special case of single CSM reading two chambers has been found");
 
-          ATH_MSG_DEBUG("First station: " << m_muonIdHelperTool->mdtIdHelper().stationNameString(stationName) << " eta: " 
-                        << m_muonIdHelperTool->mdtIdHelper().stationEta(elementId) << " phi: " << m_muonIdHelperTool->mdtIdHelper().stationPhi(elementId) );
+          ATH_MSG_DEBUG("First station: " << m_idHelperSvc->mdtIdHelper().stationNameString(stationName) << " eta: " 
+                        << m_idHelperSvc->mdtIdHelper().stationEta(elementId) << " phi: " << m_idHelperSvc->mdtIdHelper().stationPhi(elementId) );
 
-          ATH_MSG_DEBUG("Second station: " << m_muonIdHelperTool->mdtIdHelper().stationNameString(stationName) << " eta: " 
-                        << m_muonIdHelperTool->mdtIdHelper().stationEta(secondElementId) << " phi: " 
-                        << m_muonIdHelperTool->mdtIdHelper().stationPhi(secondElementId) );
+          ATH_MSG_DEBUG("Second station: " << m_idHelperSvc->mdtIdHelper().stationNameString(stationName) << " eta: " 
+                        << m_idHelperSvc->mdtIdHelper().stationEta(secondElementId) << " phi: " 
+                        << m_idHelperSvc->mdtIdHelper().stationPhi(secondElementId) );
 
           //
           // create the collection and initialize the hash Id
           //
-          if(m_muonIdHelperTool->mdtIdHelper().get_hash(secondElementId, secondMdtHashId, &mdtContext)) {
+          if(m_idHelperSvc->mdtIdHelper().get_hash(secondElementId, secondMdtHashId, &mdtContext)) {
             ATH_MSG_FATAL("Unable to get MDT hash id from MDT digit collection "
                           << "context begin_index = " << mdtContext.begin_index()
                           << " context end_index  = " << mdtContext.end_index()
@@ -660,24 +628,24 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
 
     IdentifierHash channelHash = newDigit->identifyHash();
 
-    ATH_MSG_VERBOSE("got digit with id ext / hash "<<m_idHelper->toString(channelId)<<" / "<<(int)channelHash);
+    ATH_MSG_VERBOSE("got digit with id ext / hash "<<m_idHelperSvc->toString(channelId)<<" / "<<(int)channelHash);
 
     double radius(0.); double errRadius(0.);
     Muon::MdtDriftCircleStatus digitStatus = Muon::MdtStatusDriftTime;
 
     // do lookup once
     const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
-    if (descriptor == NULL){
+    if (!descriptor){
       ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
-                      <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
       itD++;
       continue;
     }
     if (!descriptor->containsId(channelId)) {
-      ATH_MSG_WARNING("Detector Element "<<m_idHelper->toString(descriptor->identify())
+      ATH_MSG_WARNING("Detector Element "<<m_idHelperSvc->toString(descriptor->identify())
                       <<" does not contains candidate prd Identifier <"
-                      <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
       itD++;
       continue;
@@ -690,7 +658,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       digitStatus = getMdtDriftRadius(newDigit, radius, errRadius, descriptor);
       if( radius < -999 ) {
         ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
-                        << " Id is: "<<m_idHelper->toString(channelId));
+                        << " Id is: "<<m_idHelperSvc->toString(channelId));
           
       }
     }
@@ -714,7 +682,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       hashId = secondMdtHashId;
     }
 
-    // We can make the MdtPrepData, but only if our collection is being used (ie not null)
+    // We can make the MdtPrepData, but only if our collection is being used (ie not nullptr)
     if(collectionToBeUpdated){
       MdtPrepData* newPrepData = new MdtPrepData(channelId,
                                                  hashId,
@@ -743,11 +711,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
         itD_e = rdoColl2->end();
         mc = 0; // for logging
         // Update element information for next RDO
-        elementId = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl2->identify());
+        elementId = m_idHelperSvc->mdtIdHelper().parentID(rdoColl2->identify());
         subdetId = rdoColl2->SubDetId();
         mrodId   = rdoColl2->MrodId();
         csmId    = rdoColl2->CsmId();
-        ATH_MSG_VERBOSE("Identifier = "<<m_idHelper->toString(elementId)
+        ATH_MSG_VERBOSE("Identifier = "<<m_idHelperSvc->toString(elementId)
           <<" subdetId/ mrodId/ csmId = "<<subdetId<<" / "<<mrodId<<" / "<<csmId);
       }
     }
@@ -814,22 +782,21 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
   ATH_MSG_DEBUG(" Number of AmtHit in this Csm "
                 << rdoColl->size());
   /// MDT hit context
-  //IdContext hitContext = m_muonIdHelperTool->mdtIdHelper().channel_context();
-  Identifier elementId = m_muonIdHelperTool->mdtIdHelper().parentID(rdoColl->identify());
+  Identifier elementId = m_idHelperSvc->mdtIdHelper().parentID(rdoColl->identify());
     
   uint16_t subdetId = rdoColl->SubDetId();
   uint16_t mrodId = rdoColl->MrodId();
   uint16_t csmId = rdoColl->CsmId();
-  ATH_MSG_VERBOSE("Identifier = "<<m_idHelper->toString(elementId)
+  ATH_MSG_VERBOSE("Identifier = "<<m_idHelperSvc->toString(elementId)
                   <<" subdetId/ mrodId/ csmId = "<<subdetId<<" / "
                   <<mrodId<<" / "<<csmId);
     
 
     
   // Create prepdata collection
-  IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+  IdContext mdtContext = m_idHelperSvc->mdtIdHelper().module_context();
   IdentifierHash mdtHashId;
-  if(m_muonIdHelperTool->mdtIdHelper().get_hash(elementId, mdtHashId, &mdtContext)) {
+  if(m_idHelperSvc->mdtIdHelper().get_hash(elementId, mdtHashId, &mdtContext)) {
     ATH_MSG_FATAL("Unable to get MDT hash id from MDT digit collection "
                   << "context begin_index = " << mdtContext.begin_index()
                   << " context end_index  = " << mdtContext.end_index()
@@ -874,11 +841,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     Identifier channelId = newDigit->identify();
     //IdentifierHash channelHash = newDigit->identifyHash();
 
-    if( m_muonIdHelperTool->mdtIdHelper().stationName(channelId) == m_BMGid && m_BMGpresent) {
+    if( m_idHelperSvc->mdtIdHelper().stationName(channelId) == m_BMGid && m_BMGpresent) {
       std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
-          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_muonIdHelperTool->mdtIdHelper().show_to_string(channelId) );
+          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
           delete newDigit;
           continue;
         }
@@ -886,18 +853,16 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     }
 
     // get tube params
-    int tube = m_muonIdHelperTool->mdtIdHelper().tube(channelId);
-    int layer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId);
-    int multilayer = m_muonIdHelperTool->mdtIdHelper().multilayer(channelId);
+    int tube = m_idHelperSvc->mdtIdHelper().tube(channelId);
+    int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(channelId);
+    int multilayer = m_idHelperSvc->mdtIdHelper().multilayer(channelId);
       
     // find the correct twin-pair (tube-1 & tube-3 are twin pair 1, tube-2 & tube-4 are twin pair 2)
     int twinPair = -1;
     if( tube%4 == 1){ twinPair = (tube + 1)/2 ;}
-    if( tube%4 == 3){ twinPair = (tube - 1)/2 ;}
-    if( tube%4 == 2){ twinPair = (tube + 2)/2 ;}
-    if( tube%4 == 0){ twinPair = tube/2 ;}
-
-    
+    else if( tube%4 == 3){ twinPair = (tube - 1)/2 ;}
+    else if( tube%4 == 2){ twinPair = (tube + 2)/2 ;}
+    else { twinPair = tube/2 ;} // tube%4 == 0
 
     // fill the digitColl map
     if( mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
@@ -918,10 +883,10 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           mdtDigitColl[ m_secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second = newDigit;
         }
         else{ ATH_MSG_VERBOSE(" TWIN TUBES: found a tertiary hit in a twin tube in one RdoCollection for "
-                              << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(channelId))
-                              << " eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(channelId) << " phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(channelId)
-                              << "  ml =  "  <<m_muonIdHelperTool->mdtIdHelper().multilayer(channelId)  << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId) 
-                              << " tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(channelId) << " with adc  = " << newDigit->adc() << "  tdc = " << newDigit->tdc());
+                              << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(channelId))
+                              << " eta = " << m_idHelperSvc->mdtIdHelper().stationEta(channelId) << " phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(channelId)
+                              << "  ml =  "  <<m_idHelperSvc->mdtIdHelper().multilayer(channelId)  << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(channelId) 
+                              << " tube = " <<  m_idHelperSvc->mdtIdHelper().tube(channelId) << " with adc  = " << newDigit->adc() << "  tdc = " << newDigit->tdc());
         }
       } //end --   if(!m_discardSecondaryHitTwin){
       else{
@@ -940,8 +905,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     MdtDigit* digit = iter_map->second.first;
     MdtDigit* second_digit = iter_map->second.second;
 
-    if (digit==NULL) {
-      ATH_MSG_FATAL("A null pointer to a digit ");
+    if (!digit) {
+      ATH_MSG_FATAL("nullptr to a digit ");
       return StatusCode::FAILURE;
     }
       
@@ -949,17 +914,17 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     Identifier     channelId   = digit->identify();
     IdentifierHash channelHash = digit->identifyHash();
 
-    int multilayer = m_muonIdHelperTool->mdtIdHelper().multilayer(channelId);
+    int multilayer = m_idHelperSvc->mdtIdHelper().multilayer(channelId);
   
     //check if the hit is in multilayer=1	    
     // two chambers in ATLAS are installed with Twin Tubes; in detector coordinates BOL4A13 & BOL4C13; only INNER multilayer(=1) is with twin tubes
     if(multilayer==1){
       // if no twin hit present in data, use standard PRD making 
-      if(second_digit == NULL){
+      if(!second_digit){
 	  
 	  
         ATH_MSG_VERBOSE("got digit with id ext / hash "
-                        <<m_idHelper->toString(channelId)<<" / "
+                        <<m_idHelperSvc->toString(channelId)<<" / "
                         <<(int)channelHash);
 	  
         double radius(0.); double errRadius(0.);
@@ -967,9 +932,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 	  
         // do lookup once
         const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
-        if (descriptor == NULL){
+        if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
-                          <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                          <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
           delete digit;
           continue;
         }
@@ -980,7 +945,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
-                            << " Id is: "<<m_idHelper->toString(channelId));
+                            << " Id is: "<<m_idHelperSvc->toString(channelId));
           }
         }
 	  
@@ -1001,16 +966,16 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
         driftCircleColl->push_back(newPrepData);
 	  
-        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(channelId)) 
-                      << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(channelId)
-                      << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(channelId)
-                      << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(channelId)
-                      << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId) 
-                      << "  tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(channelId) 
+        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(channelId)) 
+                      << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(channelId)
+                      << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(channelId)
+                      << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(channelId)
+                      << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(channelId) 
+                      << "  tube = " <<  m_idHelperSvc->mdtIdHelper().tube(channelId) 
                       << "  radius = " << radius << " +- " << errRadius);
 	  
         delete digit;
-      }// end if(second_digit == NULL){
+      }// end if(!second_digit){
       else{
 	  
         // define twin position and error
@@ -1021,8 +986,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         // call the function to calculate radii and twin coordinate
         digitStatus = getMdtTwinPosition(digit, second_digit, radius, errRadius, zTwin, errZTwin, secondHitIsPrompt);
         if( zTwin <-99999 ) {   ATH_MSG_WARNING("MDT Twin PrepData with very large, negative twin coordinate " << zTwin
-                                                << " Id is: "<<m_idHelper->toString(digit->identify())
-                                                << " Twin Id is: "<<m_idHelper->toString(second_digit->identify())); }
+                                                << " Id is: "<<m_idHelperSvc->toString(digit->identify())
+                                                << " Twin Id is: "<<m_idHelperSvc->toString(second_digit->identify())); }
 	  
         // set the properties of PrepData-object to the tube that was PROMPT (= hit by the muon)
         Identifier promptHit_channelId = digit->identify();
@@ -1043,9 +1008,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 	  
         // do lookup once
         const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(promptHit_channelId);
-        if (descriptor == NULL){
+        if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the DetManager <"
-                          <<m_idHelper->toString(promptHit_channelId)<<">  =>>ignore this hit");
+                          <<m_idHelperSvc->toString(promptHit_channelId)<<">  =>>ignore this hit");
           delete digit;
           continue;
         }
@@ -1055,7 +1020,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           digitStatus = Muon::MdtStatusMasked;
         }else if( radius < -999 ) {
           ATH_MSG_WARNING("MDT Twin PrepData with very large, negative radius "
-                          << " Id is: "<<m_idHelper->toString(promptHit_channelId));
+                          << " Id is: "<<m_idHelperSvc->toString(promptHit_channelId));
         }
 	  
           
@@ -1082,11 +1047,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
                                                                   twinHit_Digit->adc(),
                                                                   digitStatus);
 	    
-          ATH_MSG_DEBUG(" MADE A 2D TWINPREPDATA " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(promptHit_channelId))
-                        << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(promptHit_channelId)
-                        << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(promptHit_channelId)
-                        << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(promptHit_channelId)
-                        << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(promptHit_channelId) << " tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(promptHit_channelId) 
+          ATH_MSG_DEBUG(" MADE A 2D TWINPREPDATA " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(promptHit_channelId))
+                        << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(promptHit_channelId)
+                        << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(promptHit_channelId)
+                        << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(promptHit_channelId)
+                        << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(promptHit_channelId) << " tube = " <<  m_idHelperSvc->mdtIdHelper().tube(promptHit_channelId) 
                         << "  zTwin = " << zTwin << " +- " << errZTwin 
                         << "  radius = " << radius << " +- " << errRadius);
 	    
@@ -1122,11 +1087,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 	    
           ATH_MSG_DEBUG(" MADE A 1D(=original) PREPDATA OUT OF TWINPAIR "
                         << "   TWIN COORDINATE IS NOT STORED IN PREPDATA "
-                        << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(promptHit_channelId))
-                        << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(promptHit_channelId)
-                        << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(promptHit_channelId)
-                        << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(promptHit_channelId)
-                        << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(promptHit_channelId) << " tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(promptHit_channelId) 
+                        << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(promptHit_channelId))
+                        << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(promptHit_channelId)
+                        << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(promptHit_channelId)
+                        << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(promptHit_channelId)
+                        << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(promptHit_channelId) << " tube = " <<  m_idHelperSvc->mdtIdHelper().tube(promptHit_channelId) 
                         << "  zTwin = " << zTwin << " +- " << errZTwin 
                         << "  radius = " << radius << " +- " << errRadius);
 	    
@@ -1138,15 +1103,15 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         delete digit;
         delete second_digit;
 	  
-      }// end else --  if(second_digit == NULL){
+      }// end else --  if(!second_digit){
     } // end -- if(multilayer==1)
     else if(multilayer==2){
       // if multilayer=2, then treat every hit as a separate hit, no twin hit should be present here as the hardware is not installed
         
-      if(second_digit == NULL){
+      if(!second_digit){
 
         ATH_MSG_VERBOSE("got digit with id ext / hash "
-                        <<m_idHelper->toString(channelId)<<" / "
+                        <<m_idHelperSvc->toString(channelId)<<" / "
                         <<(int)channelHash);
 	  
         double radius(0.); double errRadius(0.);
@@ -1154,9 +1119,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 	  
         // do lookup once
         const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
-        if (descriptor == NULL){
+        if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
-                          <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                          <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
           delete digit;
           continue;
         }
@@ -1167,7 +1132,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
-                            << " Id is: "<<m_idHelper->toString(channelId));
+                            << " Id is: "<<m_idHelperSvc->toString(channelId));
           }
         }
 	  
@@ -1189,17 +1154,17 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
         driftCircleColl->push_back(newPrepData);
 	  
-        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(channelId)) 
-                      << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(channelId)
-                      << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(channelId)
-                      << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(channelId)
-                      << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId) 
-                      << "  tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(channelId) 
+        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(channelId)) 
+                      << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(channelId)
+                      << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(channelId)
+                      << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(channelId)
+                      << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(channelId) 
+                      << "  tube = " <<  m_idHelperSvc->mdtIdHelper().tube(channelId) 
                       << "  radius = " << radius << " +- " << errRadius);
 	  
         delete digit;
         delete second_digit;
-      } //end  --  if(second_digit == NULL){
+      } //end  --  if(!second_digit){
       else{
 	  
         // Do something with second_digit
@@ -1207,12 +1172,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         IdentifierHash second_channelHash = second_digit->identifyHash();
 	  
         ATH_MSG_VERBOSE("got digit with id ext / hash "
-                        <<m_idHelper->toString(channelId)<<" / "
+                        <<m_idHelperSvc->toString(channelId)<<" / "
                         <<(int)channelHash);
 	  
         //second_digit
         ATH_MSG_VERBOSE("got second_digit with id ext / hash "
-                        <<m_idHelper->toString(second_channelId)<<" / "
+                        <<m_idHelperSvc->toString(second_channelId)<<" / "
                         <<(int)second_channelHash);
 	  
 	  
@@ -1226,9 +1191,9 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 	  
         // do lookup once
         const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
-        if (descriptor == NULL){
+        if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
-                          <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                          <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
           delete digit;
           continue;
         }
@@ -1239,14 +1204,14 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
-                            << " Id is: "<<m_idHelper->toString(channelId));
+                            << " Id is: "<<m_idHelperSvc->toString(channelId));
           }
         }
 
         const MdtReadoutElement * second_descriptor = m_muonMgr->getMdtReadoutElement(second_channelId);
-        if (second_descriptor == NULL){
+        if (!second_descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
-                          <<m_idHelper->toString(second_channelId)<<">  =>>ignore this hit");
+                          <<m_idHelperSvc->toString(second_channelId)<<">  =>>ignore this hit");
           delete second_digit;
           continue;
         }
@@ -1258,7 +1223,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
           second_digitStatus = getMdtDriftRadius(second_digit, second_radius, second_errRadius, second_descriptor);
           if( second_radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
-                            << " Id is: "<<m_idHelper->toString(second_channelId));
+                            << " Id is: "<<m_idHelperSvc->toString(second_channelId));
           }
         }
 	  
@@ -1299,26 +1264,26 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         second_newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
         driftCircleColl->push_back(second_newPrepData);
 	  
-        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(channelId)) 
-                      << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(channelId)
-                      << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(channelId)
-                      << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(channelId)
-                      << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId) 
-                      << "  tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(channelId) 
+        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(channelId)) 
+                      << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(channelId)
+                      << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(channelId)
+                      << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(channelId)
+                      << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(channelId) 
+                      << "  tube = " <<  m_idHelperSvc->mdtIdHelper().tube(channelId) 
                       << "  radius = " << radius << " +- " << errRadius);
 	  
         //second_digit
-        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA FOR SECOND DIGIT " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(second_channelId))
-                      << "  eta = " << m_muonIdHelperTool->mdtIdHelper().stationEta(second_channelId)
-                      << "  phi = " << m_muonIdHelperTool->mdtIdHelper().stationPhi(second_channelId)
-                      << "  ml = " << m_muonIdHelperTool->mdtIdHelper().multilayer(second_channelId)
-                      << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(second_channelId) 
-                      << "  tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(second_channelId) 
+        ATH_MSG_DEBUG(" MADE ORIGINAL PREPDATA FOR SECOND DIGIT " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(second_channelId))
+                      << "  eta = " << m_idHelperSvc->mdtIdHelper().stationEta(second_channelId)
+                      << "  phi = " << m_idHelperSvc->mdtIdHelper().stationPhi(second_channelId)
+                      << "  ml = " << m_idHelperSvc->mdtIdHelper().multilayer(second_channelId)
+                      << "  layer = " << m_idHelperSvc->mdtIdHelper().tubeLayer(second_channelId) 
+                      << "  tube = " <<  m_idHelperSvc->mdtIdHelper().tube(second_channelId) 
                       << "  radius = " << second_radius << " +- " << second_errRadius);
 	  
         delete digit;
         delete second_digit;
-      } //end  --  else -- if(second_digit == NULL){
+      } //end  --  else -- if(!second_digit){
     }
     else{
       ATH_MSG_DEBUG("Something strange in MdtRdoToPrepDataToolCore, MDT multilayer (must be 1 or 2)= " << multilayer);
@@ -1352,8 +1317,8 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit 
     if (!descriptor->containsId(channelId)) {
       radius = -1000.;
       ATH_MSG_WARNING("Identifier from the cabling service <"
-                      <<m_idHelper->toString(channelId)<<"> inconsistent with the geometry of detector element <"
-                      <<m_idHelper->toString(descriptor->identify())<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(channelId)<<"> inconsistent with the geometry of detector element <"
+                      <<m_idHelperSvc->toString(descriptor->identify())<<">  =>>ignore this hit");
       return MdtStatusUnDefined;
     }
 
@@ -1417,17 +1382,17 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit
 
     // here check validity
     // if invalid, reset flags
-    if (descriptor == NULL){
+    if (!descriptor){
       ATH_MSG_WARNING("getMdtTwinPosition(): Detector Element not found for Identifier from the cabling service <"
-                      <<m_idHelper->toString(channelId)<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       zTwin = -100000.;
       return MdtStatusUnDefined;
     }
     else if (!descriptor->containsId(channelId)){
       zTwin = -100000.;
       ATH_MSG_WARNING("getMdtTwinPosition(): Identifier from the cabling service <"
-                      <<m_idHelper->toString(channelId)<<"> inconsistent with the geometry of detector element <"
-                      <<m_idHelper->toString(descriptor->identify())<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(channelId)<<"> inconsistent with the geometry of detector element <"
+                      <<m_idHelperSvc->toString(descriptor->identify())<<">  =>>ignore this hit");
       return MdtStatusUnDefined;
     }
     
@@ -1450,17 +1415,17 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit
     
     // here check validity
     // if invalid, reset flags
-    if (second_descriptor == NULL){
+    if (!second_descriptor){
       ATH_MSG_WARNING("getMdtTwinPosition(): Detector Element not found for Identifier from the cabling service <"
-                      <<m_idHelper->toString(second_channelId)<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(second_channelId)<<">  =>>ignore this hit");
       zTwin = -100000.;
       return MdtStatusUnDefined;
     }
     else if (!second_descriptor->containsId(second_channelId)){
       zTwin = -100000.;
       ATH_MSG_WARNING("getMdtTwinPosition(): Identifier from the cabling service <"
-                      <<m_idHelper->toString(second_channelId)<<"> inconsistent with the geometry of detector element <"
-                      <<m_idHelper->toString(second_descriptor->identify())<<">  =>>ignore this hit");
+                      <<m_idHelperSvc->toString(second_channelId)<<"> inconsistent with the geometry of detector element <"
+                      <<m_idHelperSvc->toString(second_descriptor->identify())<<">  =>>ignore this hit");
       return MdtStatusUnDefined;
     }
     
@@ -1505,7 +1470,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit
     radius = 0.;
     errRadius = m_muonMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
     zTwin = 0.;
-    double tubelength = m_muonMgr->getMdtReadoutElement(channelId)->getTubeLength(m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId),m_muonIdHelperTool->mdtIdHelper().tube(channelId));
+    double tubelength = m_muonMgr->getMdtReadoutElement(channelId)->getTubeLength(m_idHelperSvc->mdtIdHelper().tubeLayer(channelId),m_idHelperSvc->mdtIdHelper().tube(channelId));
     errZTwin = tubelength/2.;
   }
   
@@ -1523,10 +1488,10 @@ void MdtRdoToPrepDataToolCore::initDeadChannels(const MuonGM::MdtReadoutElement*
 
   Identifier detElId = mydetEl->identify();
 
-  int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
-  int eta = m_muonIdHelperTool->mdtIdHelper().stationEta(detElId);
-  int phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(detElId);
-  int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
+  int name = m_idHelperSvc->mdtIdHelper().stationName(detElId);
+  int eta = m_idHelperSvc->mdtIdHelper().stationEta(detElId);
+  int phi = m_idHelperSvc->mdtIdHelper().stationPhi(detElId);
+  int ml = m_idHelperSvc->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
   std::vector<int>::iterator it = tubes.begin();
@@ -1542,7 +1507,7 @@ void MdtRdoToPrepDataToolCore::initDeadChannels(const MuonGM::MdtReadoutElement*
           ++it;
         }
         else {
-          Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+          Identifier deadTubeId = m_idHelperSvc->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
           deadTubes.push_back( deadTubeId );
           ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
                           << "), phi(" << phi << "), eta(" << eta << "), name(" << name

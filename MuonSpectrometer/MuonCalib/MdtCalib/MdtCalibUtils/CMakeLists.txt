@@ -19,5 +19,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MdtCalibUtils
                    src/*.cxx
                    PUBLIC_HEADERS MdtCalibUtils
-                   LINK_LIBRARIES MdtCalibData MuonCalibEvent MuonCalibEventBase MuonCalibIdentifier )
+                   LINK_LIBRARIES MdtCalibData MuonCalibEvent MuonCalibEventBase MuonCalibIdentifier MdtCalibInterfacesLib )
 

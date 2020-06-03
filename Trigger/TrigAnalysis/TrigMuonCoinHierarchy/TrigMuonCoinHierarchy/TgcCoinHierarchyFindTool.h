@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_TGCCOINHIERARCHYFINDTOOL_H 
 #define TRIGGER_TGCCOINHIERARCHYFINDTOOL_H 
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "TrigMuonCoinHierarchy/ITgcCoinHierarchyFindTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonRDO/TgcRdo.h" 
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRDO/TgcRdo.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <fstream>
 
@@ -25,7 +24,7 @@ class TgcCoinHierarchyFindTool : virtual public ITgcCoinHierarchyFindTool, virtu
   TgcCoinHierarchyFindTool(const std::string& t, const std::string& n, const IInterface* p);
 
   /** Destructor */
-  virtual ~TgcCoinHierarchyFindTool(void) {};
+  virtual ~TgcCoinHierarchyFindTool()=default;
 
   /** Query inteface */
   StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
@@ -35,8 +34,6 @@ class TgcCoinHierarchyFindTool : virtual public ITgcCoinHierarchyFindTool, virtu
 
   /** Initialize */
   virtual StatusCode initialize();
-  /** Finalize */
-  virtual StatusCode finalize();
 
   /** Find TgcCoinHierarchy's from a TgcCoinHierarchyTriggerSector */
   virtual StatusCode find(TgcCoinHierarchyTriggerSector* pTrigSectorComb, 
@@ -198,9 +195,8 @@ class TgcCoinHierarchyFindTool : virtual public ITgcCoinHierarchyFindTool, virtu
   StatusCode findDummyTGC1HitFromHiPt();
   StatusCode findDummyTGC23HitFromTracklet();
 
-  /** Tool for TgcIdHelper */
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   /** TgcCoinHierarchy instance used for conversions of enum's etc. */ 
   TgcCoinHierarchy m_TCH;
   /* TGC Cabling service */

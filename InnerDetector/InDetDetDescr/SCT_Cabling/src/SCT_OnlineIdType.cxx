@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_OnlineIdType.h"
 
-//STL or boost
+//STL
 #include <set>
 
-using namespace std;
 namespace SCT_Cabling{
   DataSource
   onlineIdType(const unsigned int rodId){
     const unsigned int rod(rodId & 0xFFFFFF);
-    typedef set<unsigned int> UintSet;
+    typedef std::set<unsigned int> UintSet;
     // set of rod ids used in data and in montecarlo
     const UintSet commonSet={0x210000,  0x210001,  0x210002,  0x210003,  0x210004,  0x210005,  0x210006,
         0x210007,  0x210008,  0x210009,  0x21000a,  0x220000,  0x220001,  0x220002,  0x220003,  0x220004,

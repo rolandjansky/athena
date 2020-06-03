@@ -1,36 +1,20 @@
-<!-- $Id: selection.xml 702778 2015-10-23 17:09:11Z kkoeneke $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- CutBookkeeper_v1 dictionaries: -->
-  <class name="xAOD::CutBookkeeper_v1" >
-  </class>
+   <!-- xAOD::CutBookkeeper interface type(s). -->
+   <class name="xAOD::CutBookkeeper_v1" />
+   <class name="DataVector<xAOD::CutBookkeeper_v1>" />
+   <class name="xAOD::CutBookkeeperContainer_v1"
+          id="F2F90B2F-B879-43B8-AF9B-0F843E299A87" />
+   <typedef name="xAOD::CutBookkeeper" />
+   <typedef name="xAOD::CutBookkeeperContainer" />
 
-  <class name="DataVector<xAOD::CutBookkeeper_v1>" />
+   <!-- xAOD::CutBookkeeper auxiliary type(s). -->
+   <class name="xAOD::CutBookkeeperAuxContainer_v1"
+          id="AF612BAA-20B8-40A3-A418-894A9FB8A61B" />
+   <typedef name="xAOD::CutBookkeeperAuxContainer" />
 
-  <class name="xAOD::CutBookkeeperContainer_v1"
-         id="F2F90B2F-B879-43B8-AF9B-0F843E299A87" />
-  <class name="xAOD::CutBookkeeperAuxContainer_v1"
-         id="AF612BAA-20B8-40A3-A418-894A9FB8A61B" />
-
-  <!-- CutBookkeeperContainer_v1 links: -->
-  <class name="DataLink<xAOD::CutBookkeeperContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::CutBookkeeperContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::CutBookkeeperContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::CutBookkeeperContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::CutBookkeeperContainer_v1> > >" />
-
-  <class name="ElementLinkVector<xAOD::CutBookkeeperContainer_v1>" />
-  <class name="std::vector<ElementLinkVector<xAOD::CutBookkeeperContainer_v1> >" />
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
-
-  <!--Add Helper Functions -->
-  <function pattern="xAOD::CutFlowHelpers::*" /> 
+   <!-- Helper function(s). -->
+   <function pattern="xAOD::CutFlowHelpers::*" />
 
 </lcgdict>

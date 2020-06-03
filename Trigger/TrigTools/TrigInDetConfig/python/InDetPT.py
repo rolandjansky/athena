@@ -103,9 +103,8 @@ def makeInDetPrecisionTracking( whichSignature,
   #If run in views need to check data dependancies!
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
-         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                                  ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks ) ] 
-      
+    verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
+                             ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks )]
   
   from AthenaCommon.AppMgr import ToolSvc
   #-----------------------------------------------------------------------------
@@ -371,7 +370,7 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                      TrackSummaryTool = SummaryTool_config)
   
   ToolSvc += InDetTrigMTxAODParticleCreatorTool
-  log.info(InDetTrigMTxAODParticleCreatorTool)
+  log.debug(InDetTrigMTxAODParticleCreatorTool)
   
   
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
@@ -381,7 +380,7 @@ def makeInDetPrecisionTracking( whichSignature,
   
 
   ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
-  log.info(InDetTrigMTxAODTrackCollectionCnvTool)
+  log.debug(InDetTrigMTxAODTrackCollectionCnvTool)
   
   #This one shouldn't be necessary
   #TODO: obsolete turn off
@@ -411,7 +410,7 @@ def makeInDetPrecisionTracking( whichSignature,
   
   
   #allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
-  log.info(InDetTrigMTxAODTrackParticleCnvAlg)
+  log.debug(InDetTrigMTxAODTrackParticleCnvAlg)
   ptAlgs.append( InDetTrigMTxAODTrackParticleCnvAlg)
   
   #ToolSvc.InDetTrigHoleSearchTool.SctSummaryTool.InDetTrigInDetSCT_FlaggedConditionTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"

@@ -173,7 +173,7 @@ namespace xAODMaker {
 	    // https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PileupDigitization#Arrangement_of_Truth_Information
 	    if (!m_doInTimePileUp && !m_doAllPileUp) break;
 	    isSignalProcess=false;
-	    int pid = genEvt->signal_process_id();
+	    int pid = HepMC::signal_process_id(genEvt);
 	    int eventNumber = genEvt->event_number();
 	    if (m_doInTimePileUp && pid==0 && eventNumber==-1) break; // stop at the separator
 	  }
@@ -181,9 +181,6 @@ namespace xAODMaker {
 	  xAOD::TruthEvent* xTruthEvent = new xAOD::TruthEvent();
 	  xAOD::TruthPileupEvent* xTruthPileupEvent = new xAOD::TruthPileupEvent();
                 
-	  /// @todo Drop or re-enable these? Signal process can be set to DSID... preferably not to the gen-name code
-	  //xTruthEvent->setSignalProcessId(genEvt->signal_process_id());
-	  //xTruthEvent->setEventNumber(genEvt->event_number());
                 
 	  if (isSignalProcess) {
 	    xTruthEventContainer->push_back( xTruthEvent );
@@ -255,11 +252,11 @@ namespace xAODMaker {
 	  // If signal process vertex is a disconnected vertex (no incoming/outgoing particles), add it manually
 	  VertexMap vertexMap;
 	  VertexMap::iterator mapItr;
-	  vector<const HepMC::GenVertex*> vertices;
+	  vector<HepMC::GenVertexPtr> vertices;
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	  auto disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
@@ -271,7 +268,7 @@ namespace xAODMaker {
 	  }
                 
 	  // Get the beam particles
-	  pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
+	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
 	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
 	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
 	    // (a) create TruthParticle
@@ -319,7 +316,7 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  auto signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  auto signalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
 	  for (auto  vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
@@ -357,9 +354,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthVertex (without filling the ELs)
-    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertex* gv) {
+    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertexPtr gv) {
         tv->setId(gv->id());
-        tv->setBarcode(gv->barcode());
+        tv->setBarcode(HepMC::barcode(gv));
         
         // No vertex weights
         // vector<float> weights;
@@ -374,9 +371,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthParticle (without filling the ELs)
-    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticle* gp) {
+    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticlePtr gp) {
         tp->setPdgId(gp->pdg_id());
-        tp->setBarcode(gp->barcode());
+        tp->setBarcode(HepMC::barcode(gp));
         tp->setStatus(gp->status());
         
         const HepMC::Polarization& pol = gp->polarization();

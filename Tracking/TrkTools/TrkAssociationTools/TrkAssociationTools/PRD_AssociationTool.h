@@ -1,26 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef TRK_PRD_ASSOCIATIONTOOL_H
 #define TRK_PRD_ASSOCIATIONTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 #include <set>
 #include <map>
-
-class AtlasDetectorID;
-class Identifier;
-
-namespace Muon{
-  class MuonIdHelperTool;
-}
 
 namespace Trk {
 
@@ -33,9 +26,8 @@ namespace Trk {
 
   public:
     PRD_AssociationTool(const std::string&,const std::string&,const IInterface*);
-    virtual ~PRD_AssociationTool () override;
+    virtual ~PRD_AssociationTool()=default;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize  () override;
 
   /** add the PRDs from this track to the store
     @param track all PRDs from 'track' will be added to PRD_AssociationTool's internal store.*/
@@ -117,11 +109,9 @@ namespace Trk {
   private:
     // Holds the associations.
     Maps m_maps;
-    SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
-       {this,"PRDtoTrackMap",""};
+    SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap {this,"PRDtoTrackMap",""};
 
-    PublicToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool
-       {this,"MuonIdHelperTool","Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     bool m_setupCorrect;
 };
 

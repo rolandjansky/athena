@@ -3,14 +3,14 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthIsolationTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthIsolationTool.cxx
 // Author: Kevin Finelli (kevin.finelli@cern.ch)
 // Calculate isolation at truth level for given lists of truth particles
 
 #include "DerivationFrameworkMCTruth/TruthIsolationTool.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "HepPID/ParticleIDMethods.hh"
+#include "TruthUtils/PIDHelpers.h"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -37,10 +37,13 @@ DerivationFramework::TruthIsolationTool::TruthIsolationTool(const std::string& t
     declareProperty ("particleIDsToCalculate", m_listOfPIDs = std::vector<int>{11,13,22},
             "List of the pdgIDs of particles for which to calculate isolation");
     declareProperty ("excludeIDsFromCone", m_excludeFromCone = std::vector<int>(),
-        "List of the pdgIDs of particles to exclude from the cone when calculating isolation");
+            "List of the pdgIDs of particles to exclude from the cone when calculating isolation");
     declareProperty ("IsolationVarNamePrefix", m_isoVarNamePrefix,
             "Prefix of name of the variable to add to output xAOD");
-
+    declareProperty ("IncludeNonInteracting", m_includeNonInteracting=false,
+            "Include non-interacting particles in the isolation definition");
+    declareProperty ("VariableR", m_variableR  = false,
+            "Use radius that shrinks with pT in isolation");
     m_coneSizes2 = new std::vector<float>();
     m_coneSizesSort = new std::vector<float>();
 }
@@ -86,6 +89,7 @@ StatusCode DerivationFramework::TruthIsolationTool::addBranches() const
     std::vector<SG::AuxElement::Decorator< float > > decorators_iso;
     for ( auto csize_itr : *m_coneSizesSort ) {
       std::ostringstream sizess;
+      if (m_variableR) sizess << "var";
       sizess << m_isoVarNamePrefix << (int)((csize_itr)*100.);
       decorators_iso.push_back( SG::AuxElement::Decorator< float >(sizess.str()) );
     }
@@ -138,10 +142,16 @@ void DerivationFramework::TruthIsolationTool::calcIsos(const xAOD::TruthParticle
         //skip if we find a particle in the exclude list
         continue;
       }
+      if (!m_includeNonInteracting && MC::isNonInteracting(cand_part->pdgId())){
+        // Do not include non-interacting particles, and this particle is non-interacting
+        continue;
+      }
       if (cand_part->barcode() != particle->barcode()) {
         //iteration over sorted cone sizes
         for ( unsigned int icone = 0; icone < m_coneSizes2->size(); ++icone ) {
-          if (calculateDeltaR2(cand_part, part_eta, part_phi) < m_coneSizes2->at(icone) ) {
+          float dr2 = calculateDeltaR2(cand_part, part_eta, part_phi);
+          if (dr2 < m_coneSizes2->at(icone) &&
+              (!m_variableR || dr2*particle->pt()*particle->pt() < 100000000.)) {
             //sum the transverse momenta
             isoCalcs.at(icone) = isoCalcs.at(icone) + cand_part->pt();
           } else {

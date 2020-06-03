@@ -5,17 +5,11 @@
 #ifndef  TRIGL2MUONSA_RPCROADDEFINER_H
 #define  TRIGL2MUONSA_RPCROADDEFINER_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RpcPatFinder.h"
 #include "TrigL2MuonSA/MuonRoad.h"
@@ -23,9 +17,10 @@
 #include "TrigL2MuonSA/RpcFitResult.h"
 #include "TrigL2MuonSA/BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
 #include "RegionSelector/IRegSelSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 
 namespace TrigL2MuonSA {
 

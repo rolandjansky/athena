@@ -25,7 +25,8 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
@@ -280,7 +281,9 @@ namespace Muon {
 
     ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
     ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
-    ServiceHandle<MagField::IMagFieldSvc>             m_magFieldSvc         {this, "MagFieldSvc", "AtlasFieldSvc"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
     Trk::MagneticFieldProperties                      m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
 
     Gaudi::Property<bool>                             m_doTimeOutChecks     {this,"UseTimeOutGuard" , true };    //!< on/off time out check

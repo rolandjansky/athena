@@ -56,7 +56,12 @@ namespace Trk {
 	// Filter settings:
 	//			RunOutlierRemoval - use logic to remove bad hits
 	//			ParticleHypothesis   - allow for multiple scattering and energy loss?
-
+  
+  /*
+   * Bring in default impl with
+   * EventContext for now
+   */
+  using ITrackFitter::fit;
 	virtual Track* fit(const Track&,
 			   const RunOutlierRemoval  runOutlier=false,
 			   const ParticleHypothesis matEffects=Trk::nonInteracting) const;

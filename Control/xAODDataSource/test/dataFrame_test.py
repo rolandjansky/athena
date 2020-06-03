@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # Set up the runtime environment.
@@ -10,6 +10,10 @@ ROOT.xAOD.Init().ignore()
 # Create a data frame object.
 from xAODDataSource.Helpers import MakexAODDataFrame
 df = MakexAODDataFrame( "${ASG_TEST_FILE_DATA}" )
+
+# Instantiate an xAOD::ElectronContainer object explicitly, to help ROOT "sort
+# out" that type's dictionary before the data frame would try to use it.
+dummy = ROOT.xAOD.ElectronContainer()
 
 # Test its histogramming.
 elPt = df.Define( "ElectronsPt",

@@ -30,7 +30,11 @@ from TileCalibBlobObjs.Classes import TileCalibUtils
 import os, sys, getopt
 os.environ['TERM'] = 'linux'
 
-from builtins import input
+try:
+  from builtins import input
+except ImportError:
+  # old python 2 without builtins
+  input=raw_input
 
 # main defaults are here - can be modified from command line
 run=999999999
@@ -268,6 +272,7 @@ for ros in range(0,5):
         if flt and flt2:
             osc = flt.getObjSizeByte()//4
             os2c = flt2.getObjSizeByte()//4
+            oscMax = max(osc,os2c)
             if (((os != osc) or (os2 != os2c)) and answ != 'y'):
                 if (ros==0 and osc==os2c and os==os2):
                     log.warning("Object sizes are different for last drawer in DB (%s) and default drawer %s (%s)", os, modName, osc)
@@ -277,7 +282,7 @@ for ros in range(0,5):
                     if (answ != 'y'):
                         sys.exit()
                     else:
-                        for ind in range(0,osc):
+                        for ind in range(0,oscMax):
                             v.append(0)
                             v2.append(0)
 
@@ -285,14 +290,16 @@ for ros in range(0,5):
             for chn in range(TileCalibUtils.max_chan()):
                 chnName = " %2i" % chn
                 for adc in range(ng):
-                    for ind in range(0,osc):
-                        v[ind]  =  flt.getData(chn, adc, ind)
-                        v2[ind] =  flt2.getData(chn, adc, ind)
+                    for ind in range(0,oscMax):
+                        if (ind<osc):
+                          v[ind] = flt.getData(chn, adc, ind)
+                        if (ind<os2c):
+                            v2[ind] = flt2.getData(chn, adc, ind)
                         dv12 = v[ind] - v2[ind]
                         if v2[ind] == 0:
                             dv12percent=0
                         else:
-                            dv12percent=dv12*100/v2[ind]
+                            dv12percent=dv12*100./v2[ind]
 #                        print ( modName, ' chann ',  repr(chn),  ' adc ',  repr(adc),  ' ind ',  repr(ind),  ' val1 ',  repr(v[ind]),' val2 ',  repr(v2[ind]), ' diff ',  repr(dv12), 'percent ', repr(dv12percent))
                         if abs(dv12) > maxdiff and abs(dv12percent) > maxdiffpercent:
                             if ot==30: # integers

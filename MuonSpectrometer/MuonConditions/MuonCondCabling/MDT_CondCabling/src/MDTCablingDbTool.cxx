@@ -1,33 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
+#include "MDT_CondCabling/MDTCablingDbTool.h" 
 
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "MuonCondSvc/MdtStringUtils.h"
 
+#include <map>
 #include <fstream>
 #include <string>
 #include <stdlib.h>
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-
-#include "MDT_CondCabling/MDTCablingDbTool.h" 
-#include "MuonCondInterface/IMDTCablingDbTool.h"
-#include "MuonCondSvc/MdtStringUtils.h"
-//#include "AthenaKernel/IIOVDbSvc.h"
-
-
-#include <map>
-#include "Identifier/Identifier.h"
 
 //**********************************************************
 //* Author Monica Verducci monica.verducci@cern.ch
@@ -37,25 +25,14 @@
 //* retrieving of two tables from DB
 //*********************************************************
 
-
-MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
-                             const std::string& name,
-                             const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-{
-
+MDTCablingDbTool::MDTCablingDbTool (const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type, name, parent) {
   declareInterface<IMDTCablingDbTool>(this);
-
-
   m_DataLocation="keyMDT";
-  
-
-
   declareProperty("MezzanineFolders",  m_mezzanineFolder="/MDT/CABLING/MEZZANINE_SCHEMA");
   declareProperty("MapFolders",  m_mapFolder="/MDT/CABLING/MAP_SCHEMA");
 }
 
-//StatusCode MDTCablingDbTool::updateAddress(SG::TransientAddress* tad)
 StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/,
                                            SG::TransientAddress* tad,
                                            const EventContext& /*ctx*/)
@@ -75,9 +52,9 @@ StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/,
 
 StatusCode MDTCablingDbTool::initialize()
 { 
-  ATH_MSG_VERBOSE( "Initializing "  );
+  ATH_MSG_VERBOSE("Initializing ");
  
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   m_IOVSvc = 0;
   bool CREATEIF(true);
@@ -110,12 +87,10 @@ StatusCode MDTCablingDbTool::initialize()
 
 
    IAddressProvider* addp = this;
-   //   tad->setProvider(addp);
    proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    ATH_MSG_VERBOSE( "set address provider for CABLING Container"  );
     
    return StatusCode::SUCCESS;
-
 }
 
 
@@ -261,7 +236,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
       stationNameString = "BOL";
     }
     if (stationNameString == "BMG") BMGchamberadded = true;    
-    int stationIndex = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(stationNameString);
+    int stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameString);
     ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << stationIndex  );
     
     // convert the subdetector id to integer
@@ -319,9 +294,9 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     
   }
 
-  if(m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1 && !BMGchamberadded) {
+  if(m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1 && !BMGchamberadded) {
     ATH_MSG_WARNING( "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling."  );
-    int stationIndex = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+    int stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
 
     // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1

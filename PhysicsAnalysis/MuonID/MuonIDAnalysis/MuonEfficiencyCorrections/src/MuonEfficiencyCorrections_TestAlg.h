@@ -32,11 +32,10 @@ namespace CP {
             MuonEfficiencyCorrections_TestAlg(const std::string& name, ISvcLocator* svcLoc);
 
             /// Function initialising the algorithm
-            virtual StatusCode initialize();
+            StatusCode initialize() override;
             /// Function executing the algorithm
-            virtual StatusCode execute();
-            virtual ~MuonEfficiencyCorrections_TestAlg() {
-            }
+            StatusCode execute() override;
+            virtual ~MuonEfficiencyCorrections_TestAlg() = default;
 
         private:
             SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};

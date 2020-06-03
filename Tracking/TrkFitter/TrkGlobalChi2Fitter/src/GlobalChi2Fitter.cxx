@@ -22,7 +22,6 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/MaterialLayer.h"
 #include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
@@ -54,12 +53,12 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/INavigator.h"
-#include "TrkExInterfaces/IEnergyLossCalculator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -143,7 +142,6 @@ namespace Trk {
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
     m_calotool("Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider"),
     m_calotoolparam(""), 
-    m_fieldService("AtlasFieldSvc", n),
     m_trackingGeometrySvc("", n), 
     m_DetID(nullptr), 
     m_fieldpropnofield(new MagneticFieldProperties(Trk::NoField)),
@@ -199,6 +197,8 @@ namespace Trk {
   }
 
   StatusCode GlobalChi2Fitter::initialize() {
+    ATH_CHECK(m_field_cache_key.initialize());
+
     if (!m_ROTcreator.name().empty()) {
       ATH_CHECK(m_ROTcreator.retrieve());
     }
@@ -230,13 +230,6 @@ namespace Trk {
     if (!m_matupdator.name().empty()) {
       ATH_CHECK(m_matupdator.retrieve());
     }
-
-    if (!m_fieldService.retrieve()) {
-      ATH_MSG_FATAL("Failed to retrieve " << m_fieldService);
-      return StatusCode::FAILURE;
-    }
-    
-    ATH_MSG_DEBUG("Retrieved " << m_fieldService);
 
     // need an Atlas id-helper to identify sub-detectors, take the one from detStore
     ATH_CHECK(detStore()->retrieve(m_DetID, "AtlasID"));
@@ -293,11 +286,12 @@ namespace Trk {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::fit(Track,Track,)");
 
     Cache cache(this);
+    initFieldCache(cache);
 
     GXFTrajectory trajectory;
     if (!m_straightlineprop) {
       trajectory.m_straightline = (
-        !m_fieldService->solenoidOn() && !m_fieldService->toroidOn()
+        !cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn()
       );
     }
     
@@ -343,7 +337,7 @@ namespace Trk {
 
     const TrackParameters *parforcalo = firstismuon ? firstidpar : lastidpar;
     
-    if (!m_fieldService->solenoidOn()) {
+    if (!cache.m_field_cache.solenoidOn()) {
       const AmgVector(5) & newpars = parforcalo->parameters();
       
       parforcalo = parforcalo->associatedSurface().createTrackParameters(
@@ -427,7 +421,7 @@ namespace Trk {
         if (calomeots.empty()) {
           ATH_MSG_WARNING("No calorimeter material collected, failing fit");
           
-          if (!m_fieldService->solenoidOn()) {
+          if (!cache.m_field_cache.solenoidOn()) {
             delete parforcalo;
           }
           
@@ -436,7 +430,7 @@ namespace Trk {
       }
     }
     
-    if (!m_fieldService->solenoidOn()) {
+    if (!cache.m_field_cache.solenoidOn()) {
       delete parforcalo;
     }
 
@@ -457,7 +451,7 @@ namespace Trk {
     }
 
     if (
-      (!m_fieldService->toroidOn() && !m_fieldService->solenoidOn()) ||
+      (!cache.m_field_cache.toroidOn() && !cache.m_field_cache.solenoidOn()) ||
       (
         cache.m_getmaterialfromtrack && 
         !muonisstraight && 
@@ -476,7 +470,7 @@ namespace Trk {
     if (
       (track == nullptr) && 
       !firstfitwasattempted && 
-      (m_fieldService->toroidOn() || m_fieldService->solenoidOn())
+      (cache.m_field_cache.toroidOn() || cache.m_field_cache.solenoidOn())
     ) {
       // Reset the trajectory
       GXFTrajectory trajectory2;
@@ -546,7 +540,7 @@ namespace Trk {
           trajectory, 
           *oldtrack->perigeeParameters(), 
           false,
-          (m_fieldService->toroidOn() || m_fieldService->solenoidOn()) ? muon : nonInteracting
+          (cache.m_field_cache.toroidOn() || cache.m_field_cache.solenoidOn()) ? muon : nonInteracting
         );
         
         cache.m_matfilled = false;
@@ -1109,7 +1103,7 @@ namespace Trk {
         secondscattheta = -muonscattheta;
       }
       
-      if (i == 1 && m_fieldService->toroidOn() && !firstismuon) {
+      if (i == 1 && cache.m_field_cache.toroidOn() && !firstismuon) {
         AmgVector(5) params2 = scat2->parameters();
         params2[Trk::phi] += idscatphi;
         params2[Trk::theta] += idscattheta;
@@ -1316,7 +1310,7 @@ namespace Trk {
       trajectory, 
       *startPar, 
       false,
-      (m_fieldService->toroidOn() || m_fieldService-> solenoidOn()) ?  muon : nonInteracting
+      (cache.m_field_cache.toroidOn() || cache.m_field_cache.solenoidOn()) ?  muon : nonInteracting
     );
     
     if (startPar != lastidpar && startPar != indettrack->perigeeParameters()) {
@@ -1935,11 +1929,12 @@ namespace Trk {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::fit(Track,)");
     
     Cache cache(this);
+    initFieldCache(cache);
 
     GXFTrajectory trajectory;
     
     if (!m_straightlineprop) {
-      trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
+      trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
@@ -1955,6 +1950,7 @@ namespace Trk {
 
 
     Cache cache(this);
+    initFieldCache(cache);
 
     
   	  delete alignCache.m_derivMatrix;
@@ -1988,7 +1984,7 @@ namespace Trk {
     GXFTrajectory trajectory;
     
     if (!m_straightlineprop) {
-      trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
+      trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
@@ -2414,11 +2410,12 @@ namespace Trk {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::fit(Track,Meas'BaseSet,,)");
 
     Cache cache(this);
+    initFieldCache(cache);
 
     GXFTrajectory trajectory;
     
     if (!m_straightlineprop) {
-      trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
+      trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
@@ -2558,11 +2555,12 @@ namespace Trk {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::fit(Meas'BaseSet,,)");
 
     Cache cache(this);
+    initFieldCache(cache);
 
     GXFTrajectory trajectory;
     
     if (!m_straightlineprop) {
-      trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
+      trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
     }
     
     trajectory.m_fieldprop = trajectory.m_straightline ? m_fieldpropnofield : m_fieldpropfullfield;
@@ -3305,6 +3303,7 @@ namespace Trk {
   };
   
   std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionDisc(
+    Cache & cache,
     const DiscSurface &surf,
     const TrackParameters &parforextrap,
     const TrackParameters &refpar2,
@@ -3320,7 +3319,7 @@ namespace Trk {
     pos[0] = parforextrap.position().x();
     pos[1] = parforextrap.position().y();
     pos[2] = parforextrap.position().z();
-    m_fieldService->getFieldZR(pos, field);
+    cache.m_field_cache.getFieldZR(pos, field);
     double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
     double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
     double sintheta = sin(parforextrap.parameters()[Trk::theta]);
@@ -3348,6 +3347,7 @@ namespace Trk {
   }
   
   std::optional<std::pair<Amg::Vector3D, double>> GlobalChi2Fitter::addMaterialFindIntersectionCyl(
+    Cache & cache,
     const CylinderSurface &surf,
     const TrackParameters &parforextrap,
     const TrackParameters &refpar2,
@@ -3365,7 +3365,7 @@ namespace Trk {
     pos[0] = parforextrap.position().x();
     pos[1] = parforextrap.position().y();
     pos[2] = parforextrap.position().z();
-    m_fieldService->getFieldZR(pos, field);
+    cache.m_field_cache.getFieldZR(pos, field);
     double sinphi = sin(parforextrap.parameters()[Trk::phi0]);
     double cosphi = cos(parforextrap.parameters()[Trk::phi0]);
     double sintheta = sin(parforextrap.parameters()[Trk::theta]);
@@ -3522,7 +3522,7 @@ namespace Trk {
            * of this loop, we have what we need. Otherwise, go to the next
            * layer and try again.
            */
-          if (auto res = addMaterialFindIntersectionCyl(*cylsurf, *parforextrap, *refpar2, matEffects)) {
+          if (auto res = addMaterialFindIntersectionCyl(cache, *cylsurf, *parforextrap, *refpar2, matEffects)) {
             std::tie(intersect, costracksurf) = res.value();
           } else {
             layerindex++;
@@ -3546,7 +3546,7 @@ namespace Trk {
             }
           }
           
-          if (auto res = addMaterialFindIntersectionDisc(*discsurf, *parforextrap, *refpar2, matEffects)) {
+          if (auto res = addMaterialFindIntersectionDisc(cache, *discsurf, *parforextrap, *refpar2, matEffects)) {
             std::tie(intersect, costracksurf) = res.value();
           } else {
             layerindex++;
@@ -4953,11 +4953,11 @@ namespace Trk {
     
     if (!trajectory.m_straightline) {
       if (trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == trajectory.numberOfHits()) {
-        trajectory.m_straightline = !m_fieldService->solenoidOn();
+        trajectory.m_straightline = !cache.m_field_cache.solenoidOn();
       } else if ((trajectory.prefit() == 0) && trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == 0) {
-        trajectory.m_straightline = !m_fieldService->toroidOn();
+        trajectory.m_straightline = !cache.m_field_cache.toroidOn();
       } else {
-        trajectory.m_straightline = (!m_fieldService->solenoidOn() && !m_fieldService->toroidOn());
+        trajectory.m_straightline = (!cache.m_field_cache.solenoidOn() && !cache.m_field_cache.toroidOn());
       }
     }
     
@@ -8577,5 +8577,21 @@ namespace Trk {
   void Trk::GlobalChi2Fitter::incrementFitStatus(enum FitterStatusType status) const {
     std::scoped_lock lock(m_fit_status_lock);
     m_fit_status[status]++;
+  }
+
+  void Trk::GlobalChi2Fitter::initFieldCache(Cache & cache) const {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> rh(
+      m_field_cache_key,
+      Gaudi::Hive::currentContext()
+    );
+
+    const AtlasFieldCacheCondObj * cond_obj(*rh);
+
+    if (cond_obj == nullptr) {
+      ATH_MSG_ERROR("Failed to create AtlasFieldCacheCondObj!");
+      return;
+    }
+
+    cond_obj->getInitializedCache(cache.m_field_cache);
   }
 }

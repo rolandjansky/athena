@@ -5,9 +5,9 @@
 /**
  * @file AlignedDynArray.h
  * @date   26th November 2019
- * @author amorley, christos
+ * @author Anthony Morley, Christos Anastopoulos
  * @brief  Dynamic array fullfilling alignment requirements
- *********************************************************************************/
+ */
 
 #ifndef GSFUtils_AlignedDynArray_H
 #define GSFUtils_AlignedDynArray_H
@@ -16,13 +16,15 @@
 namespace GSFUtils {
 template<typename T, size_t Alignment>
 /**
- * @bried A wrapper around std::aligned_alloc
- * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc
+ * A wrapper around std::aligned_alloc 
+ *  
+ * The main usage is to create an alligned buffer
+ * array to be used with vector instructions
  *
  * Provides
- * - Additional RAII functionality 
+ * - Additional RAII functionality
  * - Default initialization of elements
- * - Initialization with copies of elements with value value.
+ * - Value initialization of elements.
  */
 
 class AlignedDynArray
@@ -41,26 +43,26 @@ public:
   explicit AlignedDynArray(size_t n, const T& value);
 
   /// Move copy constructor
-  AlignedDynArray(AlignedDynArray&&);
+  AlignedDynArray(AlignedDynArray&&) noexcept;
   /// Move assignment operator
-  AlignedDynArray& operator=(AlignedDynArray&&);
+  AlignedDynArray& operator=(AlignedDynArray&&) noexcept;
   /// Destructor
   ~AlignedDynArray();
 
-  /// Conversions to T*
-  operator T*();
-  /// Conversions to const T*
-  operator const T*() const;
+  /// Get the underlying buffer
+  T* buffer () noexcept;
+  /// Get the underlying buffer
+  const T* buffer() const noexcept;
 
   /// index array operators
-  T& operator[](const std::size_t pos);
-  const T& operator[](const std::size_t pos) const;
+  T& operator[](const std::size_t pos) noexcept;
+  const T& operator[](const std::size_t pos) const noexcept;
 
   /// size of allocated buffer
-  std::size_t size() const;
+  std::size_t size() const noexcept;
 
 private:
-  void cleanup();
+  void cleanup() noexcept;
   T* m_buffer = nullptr;
   size_t m_size = 0;
 };

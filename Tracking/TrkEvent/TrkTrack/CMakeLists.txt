@@ -30,7 +30,7 @@ atlas_add_library( TrkTrack
                    src/*.cxx
                    PUBLIC_HEADERS TrkTrack
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthLinks AthContainers TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters
+                   LINK_LIBRARIES AthLinks AthContainers TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters TrkTrackLink
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier GaudiKernel TrkSurfaces TrkTrackSummary )
 
 atlas_add_dictionary( TrkTrackDict

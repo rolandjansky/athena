@@ -403,7 +403,12 @@ def TrigmuCombHypoToolFromDict( chainDict ):
     config = TrigmuCombHypoConfig()
 
     tight = False # can be probably decoded from some of the proprties of the chain, expert work
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight )
+
+    acceptAll = False
+    if chainDict['chainParts'][0]['signature'] == 'Bphysics':
+        acceptAll = True
+
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
 
     addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
 
@@ -413,9 +418,10 @@ class TrigmuCombHypoConfig(object):
 
     log = logging.getLogger('TrigmuCombHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight, acceptAll ):
 
         tool = CompFactory.TrigmuCombHypoTool( thresholdHLT )
+        tool.AcceptAll = acceptAll
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)

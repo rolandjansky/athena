@@ -88,7 +88,11 @@ class Node(DQHanConfMaker.Node):
         """
         convert the object in a formatted han string
         """
-        writer = DQHanConfMaker._get_StringIO()
+        # restore the following in a future tdaq release
+        # writer = DQHanConfMaker._get_StringIO()
+        import io
+        import six
+        writer = io.BytesIO() if six.PY2 else io.StringIO()
         if encoding is not None:
             import codecs
             writer = codecs.lookup(encoding)[3](writer)
@@ -769,3 +773,4 @@ def writeHanConfiguration(filename='dq.han.config', roots=[]):
 
     fileout = open(filename, 'w')
     print(doc.toprettyhan(" "), file=fileout)
+    

@@ -13,6 +13,7 @@ find_package( future )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( scripts/*.py )
+atlas_install_scripts( scripts/HelloWorld_tf.py )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
@@ -35,6 +36,10 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
         SCRIPT test/test_${test}.py
      )
   endforeach()
+
+  atlas_add_test( HelloWorldTrf
+        SCRIPT test/test_HelloWorldTrf.sh
+	)	
 endif()
 
 #The following tests currently fail in master and should be revised
