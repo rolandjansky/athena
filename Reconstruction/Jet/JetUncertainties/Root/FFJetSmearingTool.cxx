@@ -631,13 +631,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         jet_mass_TA = jet_reco_TA.mass();
 
         jet_reco->getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
-                                        //Sometimes JetCalibTools set a TA mass of 0 or close to 0 to some Calo or TA jets. 
-					//The mass should be equal to 0 (it is a problem of JetCalibTools). In order to solve it, we extract again the TA mass
-					//geting the attribute "JetTrackAssistedMassCalibrated" instead of the four momenta mass (jet_reco_TA.mass())
-					//the attribute "JetTrackAssistedMassCalibrated" do not suffer of the non clousure and it is 0 when it has to be 0
-
-					//Later, when we rejoin the jets, we will use the JetUncertainty weights if the TA mass is not 0. If it is 0, we will use
-					// the weight 1 for the Calo mass (to avoid the non-clousure problem of JetCalibTools)
     }
     if(m_MassDef==FFAllowedMassDef::Calo){
         jet_mass_CALO = jet_reco->m();
@@ -737,10 +730,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     //Recalculate the weights after the smearing
 
-
-
     if(m_MassDef==FFAllowedMassDef::Comb && JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 && jet_mass_CALO != 0){
-
+                                        //we check that JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 instead of jet_mass_TA != 0 becuase
+                                        //there is a problem in the conversion between the mass itself and the four-vector representation (due to a
+                                        //limitation of floating). This makes the value of jet_mass_TA!=0 in situations where it should be 0.
+                                        //In order to work arround it we check JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 insead.
         double caloRes;
         double TARes;
 
