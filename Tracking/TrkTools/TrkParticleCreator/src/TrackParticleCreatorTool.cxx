@@ -121,7 +121,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
   , m_perigeeExpression("BeamLine")
 {
     declareProperty("ComputeAdditionalInfo", m_computeAdditionalInfo);
-    declareProperty("UpdateTrack", m_updateTrack = true);
     declareProperty("UseTrackSummaryTool", m_useTrackSummaryTool);
     declareProperty("UseMuonSummaryTool", m_useMuonSummaryTool);
     declareProperty("KeepParameters", m_keepParameters);
@@ -538,16 +537,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     std::unique_ptr<Trk::TrackSummary> updated_summary;
     const Trk::TrackSummary* summary = track.trackSummary();
     if (m_trackSummaryTool.get() != nullptr) {
-      if (m_updateTrack) {
-        if (!track.trackSummary()) {
-          ATH_MSG_WARNING(
-            "Using m_updateTrack to create a summary for a const Trk::Track when constructing a "
-            "TrackParticle is no Athena MT compliant!! The option will be deprecated soon");
-          Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-          m_trackSummaryTool->updateTrack(nonConstTrack);
-        }
-        summary = track.trackSummary();
-      } else if (!track.trackSummary()) {
+      if (!track.trackSummary()) {
         updated_summary = m_trackSummaryTool->summary(track, prd_to_track_map);
         summary = updated_summary.get();
       } else if (m_computeAdditionalInfo) {

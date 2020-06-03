@@ -242,7 +242,6 @@ private:
   double m_minPt;
 
   bool castPerigeeAndCheck(const Trk::Track* track, const Trk::Perigee*& aPer) const;
-  bool m_updateTrack;
 };
 
 } // end of namespace Trk
