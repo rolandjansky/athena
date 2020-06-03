@@ -520,7 +520,7 @@ StatusCode TestHepMC::execute() {
       int tau_child = 0;
       if (abs(ppdgid) == m_pdg && (pstatus == 1 || pstatus == 2)) {
         ++m_TotalTaus;
-        HepMC::GenVertex* vtx = (*pitr)->end_vertex();
+        auto vtx = (*pitr)->end_vertex();
         if (vtx) {
           double p_energy = 0;
           HepMC::GenVertex::particle_iterator desc = vtx->particles_begin(HepMC::descendants);
@@ -550,7 +550,7 @@ StatusCode TestHepMC::execute() {
 
       // Check for undisplaced decay daughters from long-lived hadrons
       if ((*pitr)->end_vertex()) {
-        HepMC::GenVertex* decayvtx = (*pitr)->end_vertex();
+        auto decayvtx = (*pitr)->end_vertex();
         const HepMC::FourVector decaypos = decayvtx->position();
         const double displacement = decaypos.x()*decaypos.x() + decaypos.y()*decaypos.y() + decaypos.z()*decaypos.z();
         if (displacement > 1e-6) {
