@@ -187,6 +187,8 @@ private: // data
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    //The following doesn't work because of Gaudi issue #122
    //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
    std::size_t     m_streamServer=0;
    int m_metadataClient=0;
 

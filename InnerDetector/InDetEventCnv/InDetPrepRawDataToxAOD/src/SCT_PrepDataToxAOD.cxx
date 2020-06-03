@@ -379,7 +379,7 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
     for (const auto& hitIdentifier: prd->rdoList()) {
       ATH_MSG_DEBUG("Truth Strip " <<  diode.phiIndex() << " Cluster Strip " << m_SCTHelper->strip(hitIdentifier));
 
-      if (abs(static_cast<int>(diode.phiIndex()) - m_SCTHelper->strip(hitIdentifier))<=1) {
+      if (std::abs(static_cast<int>(diode.phiIndex()) - m_SCTHelper->strip(hitIdentifier))<=1) {
         multiMatchingHits.push_back(siHit);
         break;
       }

@@ -32,13 +32,13 @@ atlas_add_library( DerivationFrameworkMCTruthLib
                    PUBLIC_HEADERS DerivationFrameworkMCTruth
                    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel SGtests ExpressionEvaluationLib MCTruthClassifierLib
+                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel SGtests ExpressionEvaluationLib MCTruthClassifierLib TauAnalysisToolsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel xAODBase xAODJet GeneratorObjects )
 
 atlas_add_component( DerivationFrameworkMCTruth
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkMCTruthLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects ExpressionEvaluationLib MCTruthClassifierLib TauAnalysisToolsLib DerivationFrameworkMCTruthLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

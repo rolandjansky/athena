@@ -84,11 +84,7 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     return result
     
 def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kwargs):
-    #   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    #   m_edmHelperTool("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
-    #   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    #   m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
-    
+
     result = ComponentAccumulator()
     acc  = TrackingGeometrySvcCfg(flags)
     
@@ -156,7 +152,6 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
 def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     Muon__MuonTrackCleaner=CompFactory.Muon.MuonTrackCleaner
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    # declareProperty("IdHelper",m_idHelper);
     # declareProperty("Helper",m_edmHelperSvc);
     # declareProperty("Printer",m_printer);
     # declareProperty("MdtRotCreator",  m_mdtRotCreator );

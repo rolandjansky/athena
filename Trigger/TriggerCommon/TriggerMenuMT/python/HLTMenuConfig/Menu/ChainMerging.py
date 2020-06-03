@@ -154,6 +154,7 @@ def makeChainSteps(steps, stepNumber, chainDefList):
     log.verbose(" steps %s ", steps)
     stepDicts = []
     comboHypoTools = []
+    comboHypo = None
 
     # this function only makes sense if we are merging steps corresponding to the chains in the chainDefList
     assert len(chainDefList)==len(steps), "makeChainSteps: Length of chain defs %d does not match length of steps to merge %d" % (len(chainDefList), len(steps))
@@ -179,6 +180,7 @@ def makeChainSteps(steps, stepNumber, chainDefList):
                 log.error("More than one menu sequence found in combined chain!!")
 
 
+            comboHypo = step.comboHypoCfg
             currentStep = step.name
 
             # the step naming for combined chains needs to be revisted!!
@@ -195,7 +197,7 @@ def makeChainSteps(steps, stepNumber, chainDefList):
         stepDicts[-1]['chainName'] = legName(stepDicts[-1]['chainName'], chain_index)
         
     comboHypoTools = list(set(comboHypoTools))
-    theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboToolConfs=comboHypoTools) 
+    theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboHypoCfg=comboHypo, comboToolConfs=comboHypoTools) 
     log.info("Merged step: \n %s", theChainStep)
   
     

@@ -7,13 +7,13 @@
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "EventContainers/InternalOnline.h"
 #include "EventContainers/InternalOffline.h"
-
+#include "EventContainers/InternalOfflineFast.h"
 
 using namespace EventContainers;
 
   IdentifiableContainerBase::IdentifiableContainerBase(EventContainers::IdentifiableCacheBase *cache)
   {
-  	m_link = std::make_unique<EventContainers::InternalOnline>(cache);
+    m_link = std::make_unique<EventContainers::InternalOnline>(cache);
     m_OnlineMode = true;
   }
 
@@ -22,7 +22,17 @@ using namespace EventContainers;
     m_link = std::make_unique<EventContainers::InternalOffline>(max);
   }
 
+
+  IdentifiableContainerBase::IdentifiableContainerBase(size_t max, Mode mode){
+    m_OnlineMode = false;
+    if(mode == Mode::OfflineLowMemory) m_link = std::make_unique<EventContainers::InternalOffline>(max);
+    else if(mode == Mode::OfflineFast) m_link = std::make_unique<EventContainers::InternalOfflineFast>(max);
+    else{
+      throw std::runtime_error("Invalid Mode specified");
+    }
+  }
+
   void  IdentifiableContainerBase::cleanup(deleter_f* deleter){
     if(m_OnlineMode) throw std::runtime_error("Not implemented in online mode");
-    static_cast<EventContainers::InternalOffline*>(m_link.get())->cleanUp(deleter);
+    m_link->cleanUp(deleter);
   }

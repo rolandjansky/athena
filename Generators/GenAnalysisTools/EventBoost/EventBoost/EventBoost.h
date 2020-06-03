@@ -46,8 +46,8 @@ public:
   StatusCode AnalyseGenEvent(const HepMC::GenEvent*);
   StatusCode EventCopy(const HepMC::GenEvent* evt) const;
 
-  bool doModification(HepMC::GenParticle * part, double& pxsum);
-  bool doVertexModification(HepMC::GenVertex * ver, double rand_x, double rand_y, double rand_z); 
+  bool doModification(HepMC::GenParticlePtr part, double& pxsum);
+  bool doVertexModification(HepMC::GenVertexPtr ver, double rand_x, double rand_y, double rand_z); 
 
 private:
 

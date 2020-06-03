@@ -142,7 +142,6 @@ namespace DerivationFramework {
         // counters
         mutable std::atomic<unsigned int> m_totpart;
         mutable std::atomic<unsigned int> m_removedpart;
-        mutable std::atomic<int> m_particleCountSoFar;
         mutable std::atomic<int> m_eventCount;
         
 

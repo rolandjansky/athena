@@ -13,6 +13,7 @@ StatusCode MuonTrackMonitorAlgorithm::initialize()
 {
 	ATH_CHECK(AthMonitorAlgorithm::initialize());
 	ATH_CHECK(m_MuonContainerKey.initialize());
+	ATH_CHECK(m_MuonIsoDecorKey.initialize());
 	return StatusCode::SUCCESS;
 }
 

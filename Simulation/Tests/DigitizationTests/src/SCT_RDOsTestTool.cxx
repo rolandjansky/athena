@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDOsTestTool.h"
@@ -18,7 +18,7 @@ SCT_RDOsTestTool::SCT_RDOsTestTool(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent)
   : DigiTestToolBase(type, name, parent),
-    m_sctID(NULL),
+    m_sctID(nullptr),
     m_numberOfEventsSelected(0),
     m_collection("SCT_RDOs"),
     m_nRDO_Colls(0),
@@ -42,10 +42,10 @@ SCT_RDOsTestTool::SCT_RDOsTestTool(const std::string& type,
 {
   for(unsigned int i(0); i<9; ++i)
     {
-      m_h_sct_endcapA_occ_layer[i]=NULL;
-      m_h_sct_endcapC_occ_layer[i]=NULL;
+      m_h_sct_endcapA_occ_layer[i]=nullptr;
+      m_h_sct_endcapC_occ_layer[i]=nullptr;
     }
-  for(unsigned int i(0); i<4; ++i) { m_h_sct_barrel_occ_layer[i]=NULL; }
+  for(unsigned int i(0); i<4; ++i) { m_h_sct_barrel_occ_layer[i]=nullptr; }
   for(unsigned int i(0); i<5; ++i) { m_NumberModulesVetoed[i]=0.0; }
 
 }
@@ -307,7 +307,7 @@ StatusCode SCT_RDOsTestTool::CheckSDOs() {
   m_NoInnerModules.clear();
   m_NoBarrelModules.clear();
 
-  const InDetSimDataCollection* simDataMapSCT(NULL);
+  const InDetSimDataCollection* simDataMapSCT(nullptr);
   if(evtStore()->retrieve(simDataMapSCT,"SCT_SDO_Map").isFailure()) {
     ATH_MSG_WARNING ("Could not find SCT SDO container");
     return StatusCode::SUCCESS;

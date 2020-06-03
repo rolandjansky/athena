@@ -33,7 +33,8 @@ namespace Muon {
     class MuonIdHelperSvc;
 
     /**Tool used in the persisency convertors to help rebuild EDM objects*/
-    class MuonEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTool   {
+    class MuonEventCnvTool :  public extends<AthAlgTool, Trk::ITrkEventCnvTool>
+    {
     public:
     
         enum MuonConcreteType { MDT, RPC, CSC, TGC, MM, STGC, TypeUnknown };
@@ -51,7 +52,13 @@ namespace Muon {
         /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/    
         virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const override;
         
-        /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
+        /** Similar, but just return the EL components rather then
+            changing ROT. */
+        virtual void prepareRIO_OnTrackLink( const Trk::RIO_OnTrack* rot,
+                                             ELKey_t& key,
+                                             ELIndex_t& index ) const override;
+
+      /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
         virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const override;
         
         /** Return the detectorElement associated with this Identifier*/

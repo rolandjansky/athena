@@ -75,15 +75,15 @@ class ParticleDecayer: public GenModule {
   HepPDT::ParticleDataTable* m_particleTable;
 
   double     getParticleMass(int pdgID); //retrieve tha particle mass given the PDG ID 
-  void       addParticle   (HepMC::GenVertex*, int pdg, HepMC::FourVector, int statusCode); //add particles to the evgen file
+  void       addParticle   (HepMC::GenVertexPtr, int pdg, HepMC::FourVector, int statusCode); //add particles to the evgen file
 
   double rnd_ExpLifetime(double ct);
   double rnd_DoubleRange(double a, double b);
   double cosgen(int itype);
 
-  StatusCode DFTwoBodyDecay( HepMC::GenParticle*, int );
-  StatusCode setDecayPosition ( HepMC::GenParticle*, HepMC::GenEvent*, bool doScalarDecay=false );
-  StatusCode changeMass( HepMC::GenParticle*, double );
+  StatusCode DFTwoBodyDecay( HepMC::GenParticlePtr, int );
+  StatusCode setDecayPosition ( HepMC::GenParticlePtr, HepMC::GenEvent*, bool doScalarDecay=false );
+  StatusCode changeMass( HepMC::GenParticlePtr, double );
   StatusCode getDecayProducts( CLHEP::HepLorentzVector, double, std::vector<CLHEP::HepLorentzVector>&, int decayType = 0);
 
   //four momentum of the dark photon

@@ -63,12 +63,6 @@ private:
     StatusCode addEventInfo();
 
 private:
-    /** A handle on the Hist/TTree registration service */
-    ITHistSvc *m_thistSvc;
-
-    /** A handle on Store Gate for access to the Event Store */
-    StoreGateSvc *m_storeGate;
-
     /** Athena-Aware Ntuple (AAN) variables - branches of the AAN TTree */
     TTree *m_tree_AS;
 
@@ -78,7 +72,6 @@ private:
     unsigned int m_lumiBlock;
     unsigned int m_bCID;
     double m_eventWeight;
-    unsigned int m_statusElement;
 
     /* ----- FCal-related variables ----- */
     double m_vertx; // x-position for vertex generated particle (beam)

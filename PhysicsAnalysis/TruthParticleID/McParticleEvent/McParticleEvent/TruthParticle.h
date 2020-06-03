@@ -109,13 +109,13 @@ class TruthParticle : public ParticleImpl<
 //    */
 
   /// Retrieve the GenParticle mother of this TruthParticle
-  const HepMC::GenParticle * genMother(const std::size_t i=0) const;
+  const HepMC::GenParticle* genMother(const std::size_t i=0) const;
 
   /// Retrieve the GenParticle this TruthParticle has been made from (if any)
-  const HepMC::GenParticle * genParticle() const;
+  const HepMC::GenParticle* genParticle() const;
 
   /// Retrieve the i-th child (GenParticle) of this TruthParticle
-  const HepMC::GenParticle * genChild( const std::size_t i ) const;
+  const HepMC::GenParticle* genChild( const std::size_t i ) const;
 
   /** @{ HepMC::GenParticle forwarding interface
    */
@@ -237,7 +237,7 @@ class TruthParticle : public ParticleImpl<
  protected: 
   
   /// Fill the data members of ParticleBase from the GenParticle
-  void setGenParticle( const HepMC::GenParticle * particle );
+  void setGenParticle( const HepMC::GenParticle* particle );
 
 
 
@@ -279,7 +279,7 @@ std::ostream& operator<<( std::ostream& out, const TruthParticle& mc );
 inline TruthParticle::~TruthParticle() 
 {}
 
-inline const HepMC::GenParticle * TruthParticle::genParticle() const
+inline const HepMC::GenParticle* TruthParticle::genParticle() const
 {
   return this->particleBase().genParticle();
 }
@@ -291,22 +291,22 @@ inline int TruthParticle::status() const
 
 inline const HepMC::Flow TruthParticle::flow() const
 {
-  return genParticle()->flow();
+  return HepMC::flow(genParticle());
 }
 
 inline int TruthParticle::flow( int code_index ) const
 {
-  return genParticle()->flow(code_index);
+  return HepMC::flow(genParticle(),code_index);
 }
 
 inline const HepMC::Polarization TruthParticle::polarization() const
 {
-  return genParticle()->polarization();
+  return HepMC::polarization(genParticle());
 }
 
 inline int TruthParticle::barcode() const
 {
-  return genParticle()->barcode();
+  return HepMC::barcode(genParticle());
 }
 
 inline unsigned int TruthParticle::nParents() const 

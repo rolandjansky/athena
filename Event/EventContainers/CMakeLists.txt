@@ -19,6 +19,14 @@ atlas_add_library( EventContainers
    PUBLIC_HEADERS EventContainers
    LINK_LIBRARIES AthenaKernel Identifier GaudiKernel )
 
+
+atlas_add_dictionary( EventContainersDict
+                      EventContainers/EventContainersDict.h
+                      EventContainers/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventContainers )
+
+
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers

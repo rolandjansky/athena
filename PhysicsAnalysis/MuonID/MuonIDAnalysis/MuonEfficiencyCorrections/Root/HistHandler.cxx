@@ -78,7 +78,7 @@ namespace CP {
         static std::atomic<unsigned int> warned = {0};
         static const SG::AuxElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
         if (acc_dR_deriv.isAvailable(mu)){
-            value = m_acc(mu);
+            value = acc_dR_deriv(mu);
         }else if( m_acc.isAvailable(mu) ) {
             // decoration available in DxAOD
             value = m_acc(mu);

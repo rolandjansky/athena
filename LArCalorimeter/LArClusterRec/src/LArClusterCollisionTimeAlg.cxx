@@ -10,11 +10,10 @@
 LArClusterCollisionTimeAlg:: LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator), 
     m_nEvt(0),
-    m_nCollEvt(0)
-  {
-    declareProperty("InputName", m_clusterContainerName="LArClusterEM");
-    declareProperty("OutputName",m_outputName="LArClusterCollTime"); 
-  }
+    m_nCollEvt(0),
+    m_clusterContainerName{this, "InputName", "LArClusterEM"},
+    m_outputName{this, "OutputName", "LArClusterCollTime"}
+  {}
   
 //__________________________________________________________________________
 //Destructor

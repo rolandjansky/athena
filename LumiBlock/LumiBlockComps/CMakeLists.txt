@@ -32,7 +32,7 @@ atlas_add_library( LumiBlockCompsLib
 
 atlas_add_component( LumiBlockComps
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_dictionary( LumiBlockCompsDict
    LumiBlockComps/LumiBlockCompsDict.h
@@ -57,7 +57,7 @@ atlas_add_test( LBDurationCondAlg_test
 
 atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
 
 atlas_add_test( TrigLiveFractionCondAlg_test
    SOURCES test/TrigLiveFractionCondAlg_test.cxx

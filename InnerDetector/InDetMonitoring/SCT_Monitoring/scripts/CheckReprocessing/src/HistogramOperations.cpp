@@ -42,7 +42,7 @@ double HistogramOperations::BinwiseCompare( TH1 * NewInput, TH1 * OldInput, stri
 	if ( newX == oldX && newY == oldY && newZ == oldZ )
 	{
 		//Parse the argument as the allowed percentage change in each bin value
-		double allowedDiff = strtod( Argument.c_str(), NULL );
+		double allowedDiff = strtod( Argument.c_str(), nullptr );
 
 		//Compare each bin
 		double totalMismatch = 0.0;
@@ -104,7 +104,7 @@ double HistogramOperations::BinwiseHackCompare( TH1 * NewInput, TH1 * OldInput, 
 	vector<double> binChange;
 	for ( int argumentIndex = 0; argumentIndex < splitArgument.size(); argumentIndex++ )
 	{
-		binChange.push_back( strtod( splitArgument[argumentIndex].c_str(), NULL ) );
+		binChange.push_back( strtod( splitArgument[argumentIndex].c_str(), nullptr ) );
 	}
 
 	int newX = NewInput->GetNbinsX();
@@ -175,7 +175,7 @@ double HistogramOperations::BinwiseHackCompare( TH1 * NewInput, TH1 * OldInput, 
 double HistogramOperations::KolmogorovTest( TH1 * NewInput, TH1 * OldInput, string Argument )
 {
 	//Parse the argument as the minimum allowed probability of match
-	double threshold = strtod( Argument.c_str(), NULL );
+	double threshold = strtod( Argument.c_str(), nullptr );
 
 	//Perform the Kolmogorov-Smirnov test
 	NewInput->Sumw2();
@@ -221,7 +221,7 @@ double HistogramOperations::CompareMean( TH1 * NewInput, TH1 * OldInput, string 
 	else
 	{
 		comparison = 0;
-		allowedDiff = strtod( Argument.c_str(), NULL );
+		allowedDiff = strtod( Argument.c_str(), nullptr );
 	}
 
 	//Loop over all axes
@@ -284,7 +284,7 @@ double HistogramOperations::CompareSigma( TH1 * NewInput, TH1 * OldInput, string
 	else
 	{
 		comparison = 0;
-		allowedDiff = strtod( Argument.c_str(), NULL );
+		allowedDiff = strtod( Argument.c_str(), nullptr );
 	}
 
 	//Loop over all axes
@@ -322,7 +322,7 @@ double HistogramOperations::CompareSigma( TH1 * NewInput, TH1 * OldInput, string
 double HistogramOperations::CompareTotalEntries( TH1 * NewInput, TH1 * OldInput, string Argument )
 {
 	//Parse the argument as the allowed percentage change
-	double percentChange = strtod( Argument.c_str(), NULL );
+	double percentChange = strtod( Argument.c_str(), nullptr );
 
 	//Calculate the percentage change in number of entries
 	double change = std::abs( NewInput->GetEntries() - OldInput->GetEntries() ) * 100.0 / NewInput->GetEntries();

@@ -1,26 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtMathSegmentFinder.h"
-
-#include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/Road.h"
 #include "TrkDriftCircleMath/DCStatistics.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 
 namespace Muon {
 
   MdtMathSegmentFinder::MdtMathSegmentFinder (const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool (t, n, p),
-    m_dcslFitProvider("",this),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_dcslFitProvider("",this)
   {
     declareInterface <IMdtSegmentFinder> (this);
 
@@ -50,33 +44,16 @@ namespace Muon {
     declareProperty("ResidualCutT0Segments",  m_residualCutT0Segments = 1.,"Residual cut for segments with T0 fit");
     declareProperty("UseSegmentQuality",      m_useSegmentQuality = false,"Use segment quality in hit dropping");    
     declareProperty("DCFitProvider",          m_dcslFitProvider );
-    declareProperty("IdHelper",               m_idHelperTool );
-  }
-
-  MdtMathSegmentFinder::~MdtMathSegmentFinder()
-  {
   }
 
   StatusCode MdtMathSegmentFinder::initialize()
   {
-    
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
-    if( !m_dcslFitProvider.empty() ){
-      ATH_CHECK( m_dcslFitProvider.retrieve() );
+    if (!m_dcslFitProvider.empty()) {
+      ATH_CHECK(m_dcslFitProvider.retrieve());
       ATH_MSG_INFO(" Using fitter from " << m_dcslFitProvider);
     }
-
-    if( !m_idHelperTool.empty() ){
-      ATH_CHECK( m_idHelperTool.retrieve() );
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
-  }
-
-  StatusCode MdtMathSegmentFinder::finalize()
-  {
-    
-    return AthAlgTool::finalize();
   }
 
   const TrkDriftCircleMath::SegVec MdtMathSegmentFinder::findSegments (const TrkDriftCircleMath::DCVec& dcvec,
@@ -175,7 +152,7 @@ namespace Muon {
       if( occupancy > m_occupancyCutOff ) aboveOccupancyCut = true;
 
       ATH_MSG_VERBOSE(" multilayer occupancy: " << occupancy 
-		      << "   " << m_idHelperTool->toStringDetEl(mit->first->identify()));
+		      << "   " << m_idHelperSvc->toStringDetEl(mit->first->identify()));
 
     }
 
