@@ -41,7 +41,7 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     return result
 
 def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
-    from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
+    # from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg FIXME
 
     result = MuonSegmentTagToolCfg(flags)
     muon_segment_tag_tool = result.getPrimary()
@@ -274,6 +274,16 @@ def MuonCombinedReconstructionCfg(flags):
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge( BeamPipeGeometryCfg(flags) ) 
 
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg(flags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    result.merge(SCT_GeometryCfg(flags))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    result.merge(TRT_GeometryCfg(flags))
+
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    result.merge(TrackingGeometrySvcCfg(flags))
+
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
@@ -364,7 +374,8 @@ if __name__=="__main__":
     itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
   
-    cfg.printConfig(withDetails=True)
+ 
+    cfg.printConfig(withDetails = True)
     f=open("MuonCombinedReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
