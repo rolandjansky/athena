@@ -30,6 +30,8 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
     if configFlags.Input.isMC:
         log.info ("LuminosityCondAlgCfg called for MC!")
         kwargs = luminosityCondAlgMCCfg (configFlags, name, result)
+    elif configFlags.Beam.Type != 'collisions':
+        kwargs = luminosityCondAlgCosmicsCfg (configFlags, name, result)
     elif ((useOnlineLumi is None and configFlags.Common.useOnlineLumi)
           or (useOnlineLumi is not None and useOnlineLumi)):
         kwargs = luminosityCondAlgOnlineCfg (configFlags, name, result)
@@ -59,7 +61,12 @@ def luminosityCondAlgMCCfg (configFlags, name, result):
              'BunchGroupInputKey' : '',
              'FillParamsInputKey' : '' }
              
-
+def luminosityCondAlgCosmicsCfg (configFlags, name, result):
+    return { 'LuminosityFolderInputKey' : '',
+             'OnlineLumiCalibrationInputKey' : '',
+             'BunchLumisInputKey' : '',
+             'BunchGroupInputKey' : '',
+             'FillParamsInputKey' : '' }
 
 # Configuration for offline default luminosity used in Run2
 def luminosityCondAlgRun2Cfg (configFlags, name, result):

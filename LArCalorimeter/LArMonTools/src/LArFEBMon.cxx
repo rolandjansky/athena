@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,8 +15,6 @@
 #include "LArFEBMon.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-#include "LArRawEvent/LArFebErrorSummary.h"
 
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -125,8 +123,8 @@ LArFEBMon::~LArFEBMon() {
 // ********************************************************************
 StatusCode LArFEBMon::initialize() {
   
-  ATH_MSG_INFO( "Initializing LArFEBMon " );
-  
+  ATH_MSG_DEBUG( "Initializing LArFEBMon " );
+
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
@@ -144,6 +142,10 @@ StatusCode LArFEBMon::initialize() {
     ATH_MSG_DEBUG( "Missing FEBs key" << m_BFKey.key() << " initialized" );
   }
 
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
+  ATH_CHECK( m_LArFebErrorSummaryKey.initialize() );
+  
   ManagedMonitorToolBase::initialize().ignore(); 
   
   return sc;
@@ -363,9 +365,9 @@ StatusCode LArFEBMon::fillHistograms() {
   // Retrieve event info to get event time,trigger type...
   // Retrieved at beg of method now to get the LVL1 type
   // to check consistency with DSP trigger type
-  const xAOD::EventInfo* thisEvent=0;
+  SG::ReadHandle<xAOD::EventInfo> thisEvent{m_EventInfoKey};
 
-  if(evtStore()->retrieve(thisEvent).isFailure()) {
+  if(!thisEvent.isValid()) {
     ATH_MSG_WARNING( "Failed to retrieve EventInfo object" );
     return StatusCode::FAILURE;
   }
@@ -381,12 +383,11 @@ StatusCode LArFEBMon::fillHistograms() {
   
   //ATH_MSG_INFO( "LArFEBMon Lumi block: "<<lumi_block);
 
-  const LArFebHeaderContainer* hdrCont;
-  const LArFebErrorSummary* lArFebErrorSummary;
-  StatusCode sc = evtStore()->retrieve(hdrCont);
-  if (sc.isFailure() || !hdrCont) {
+  SG::ReadHandle<LArFebHeaderContainer> hdrCont{m_LArFebHeaderContainerKey};
+  SG::ReadHandle<LArFebErrorSummary> lArFebErrorSummary{m_LArFebErrorSummaryKey};
+  if (!hdrCont.isValid()) {
     ATH_MSG_WARNING( "No LArFebHeaderContainer found in TDS" ); 
-    return sc;
+    return StatusCode::FAILURE;
   }
   
   if (hdrCont->size()==0) {
@@ -394,13 +395,12 @@ StatusCode LArFEBMon::fillHistograms() {
     return StatusCode::FAILURE;
   }
 
-  sc=evtStore()->retrieve( lArFebErrorSummary, "LArFebErrorSummary");
-  if (sc.isFailure()) {
+  if (!lArFebErrorSummary.isValid()) {
     ATH_MSG_WARNING( "No LArFebErrorSummary found in TDS" );
     return StatusCode::FAILURE;
   }
   
-  
+  StatusCode sc;
   uint32_t firstEventType = (*hdrCont->begin())->DetEventType(); 
 
   // At 1st event, retrieve DSP thresholds and fill histogram with values for all channels
