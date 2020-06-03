@@ -21,11 +21,11 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool=CompFactory.getComps("Muon::DCMathSegmentMaker","Muon::MdtMathSegmentFinder","Muon::MuonSegmentFittingTool","Muon::MuonClusterSegmentFinderTool",)
 Muon__MuonSegmentSelectionTool=CompFactory.getComp("Muon::MuonSegmentSelectionTool")
 Muon__MuonClusterSegmentFinder=CompFactory.getComp("Muon::MuonClusterSegmentFinder")
-from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
 from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg
+from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173
@@ -62,7 +62,7 @@ def MdtDriftCircleOnTrackCreatorAdjustableT0Cfg(flags,**kwargs):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonClusterOnTrackCreatorCfg
     kwargs.setdefault("TimingMode", 3)
     kwargs.setdefault("DoTofCorrection", True)
-    kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))
+    kwargs.setdefault("TimeWindowSetting", MdtCalibWindowNumber('Collision_data'))
     acc = MuonClusterOnTrackCreatorCfg(flags, **kwargs)  
     return acc
 
@@ -182,7 +182,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
 
     if doSegmentT0Fit:
         mdt_dcot_CA = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
-                   DoTofCorrection=True, TimeWindowSetting=mdtCalibWindowNumber('Collision_data'))
+                   DoTofCorrection=True, TimeWindowSetting=MdtCalibWindowNumber('Collision_data'))
         result.merge(mdt_dcot_CA)
         mdt_creator=acc.getPrimary()
         kwargs.setdefault("MdtCreatorT0", mdt_creator) # TODO - is this correct? 
@@ -261,9 +261,9 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
         # when using the t0 refit enlarge the time window
         if not flags.Input.isMC and flags.Beam.Type == 'collisions':
             if flags.Muon.doSegmentT0Fit:
-                timeWindowSetting = mdtCalibWindowNumber('Collision_t0fit')
+                timeWindowSetting = MdtCalibWindowNumber('Collision_t0fit')
             else:
-                timeWindowSetting = mdtCalibWindowNumber('Collision_data')
+                timeWindowSetting = MdtCalibWindowNumber('Collision_data')
             acc = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreator_NoTubeHits", CreateTubeHit = False, TimeWindowSetting = timeWindowSetting)   
         else:
             # I think we need to configure a 'default' version of the MdtDriftCircleOnTrackCreator here
