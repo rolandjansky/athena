@@ -13,6 +13,7 @@ PURPOSE:  Performs Calo Extension for all selected tracks
  **********************************************************************/
 #include "CaloExtensionBuilderAlg.h"
 //
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -49,6 +50,9 @@ StatusCode Trk::CaloExtensionBuilderAlg::CaloExtensionBuilderAlg::finalize(){
 StatusCode Trk::CaloExtensionBuilderAlg::execute()
 {    
 
+    // Until this becomes re-entrant:
+    const EventContext ctx = Gaudi::Hive::currentContext();
+    
     SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrkPartContainerKey);
     if(!tracks.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "<< m_TrkPartContainerKey.key());
@@ -66,7 +70,7 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
       if ( static_cast<bool>(m_TrkSelection->accept(*track, nullptr))) mask[track->index()] = true;      
     }
 
-    ATH_CHECK(m_particleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrPart));
+    ATH_CHECK(m_particleCaloExtensionTool->caloExtensionCollection(ctx, *ptrTracks,mask,*ptrPart));
 
     return StatusCode::SUCCESS;
 }

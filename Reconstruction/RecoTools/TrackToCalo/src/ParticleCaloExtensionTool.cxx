@@ -49,41 +49,43 @@ StatusCode ParticleCaloExtensionTool::finalize() {
 }
 
 std::unique_ptr<Trk::CaloExtension> 
-ParticleCaloExtensionTool::caloExtension(const xAOD::IParticle& particle) const {
+ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
+                                         const xAOD::IParticle& particle) const {
   if(particle.type()==xAOD::Type::TrackParticle){
     const xAOD::TrackParticle* trackParticle = static_cast< const xAOD::TrackParticle*>(&particle); 
-    return caloExtension(*trackParticle);
+    return caloExtension(ctx, *trackParticle);
   }
   else if (particle.type()==xAOD::Type::TruthParticle){
     const xAOD::TruthParticle* truthParticle = static_cast< const xAOD::TruthParticle*>(&particle);
-    return caloExtension(*truthParticle);
+    return caloExtension(ctx, *truthParticle);
   }
   else if(particle.type()==xAOD::Type::Electron){
     const xAOD::Electron* el = static_cast< const xAOD::Electron*>(&particle);
     if( el->trackParticle() ) {
-      return caloExtension(*(el->trackParticle()));
+      return caloExtension(ctx, *(el->trackParticle()));
     } 
   }
   else if(particle.type()==xAOD::Type::Muon){
     const xAOD::Muon* muon = static_cast< const xAOD::Muon*>(&particle);
     if( muon->primaryTrackParticle() ) {
-      return caloExtension(*(muon->primaryTrackParticle()));
+      return caloExtension(ctx, *(muon->primaryTrackParticle()));
     } 
   }
   else if(particle.type()==xAOD::Type::NeutralParticle){
     const xAOD::NeutralParticle* neutralParticle = static_cast< const xAOD::NeutralParticle*>(&particle);
-    return caloExtension(*neutralParticle);
+    return caloExtension(ctx, *neutralParticle);
   } 
   ATH_MSG_WARNING("Unsupported IParticle type");
   return nullptr;
 }
 
-const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
+const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
+                                                                    const xAOD::IParticle& particle, 
                                                                     IParticleCaloExtensionTool::Cache& cache ) const{
   /*if not there , default ctor for unique_ptr (nullptr)*/
   std::unique_ptr<Trk::CaloExtension>& extension= cache[particle.index()];
   if (extension.get()==nullptr){   
-    extension=caloExtension(particle);
+    extension=caloExtension(ctx, particle);
   }
   return extension.get();
 }
@@ -98,7 +100,8 @@ const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::
   return nullptr;
 }
 
-StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
+StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const EventContext& ctx,
+                                                               const xAOD::IParticleContainer& particles, 
                                                                const std::vector<bool>& mask,
                                                                CaloExtensionCollection& caloextensions) const{
   const size_t numparticles=particles.size();   
@@ -113,7 +116,7 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
    */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
-      std::unique_ptr<Trk::CaloExtension> extension=caloExtension(*(particles[i]));
+      std::unique_ptr<Trk::CaloExtension> extension=caloExtension(ctx, *(particles[i]));
       caloextensions.push_back(std::move(extension));
     }
     else{
@@ -124,7 +127,8 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
 }
 
 std::unique_ptr<Trk::CaloExtension> 
-ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
+ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
+                                          const xAOD::TruthParticle& particle ) const {
 
   ParticleHypothesis particleType = muon;  
   if( abs(particle.pdgId()) == 11 )      {particleType = muon;} 
@@ -145,11 +149,12 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) 
   }
   Trk::CurvilinearParameters startPars(pos,mom,charge);
   // get extension
-  return caloExtension( startPars, alongMomentum, particleType );
+  return caloExtension( ctx, startPars, alongMomentum, particleType );
 }
 
 std::unique_ptr<Trk::CaloExtension> 
-ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle ) const {
+ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
+                                          const xAOD::NeutralParticle& particle ) const {
 
   // create start parameters
   const Trk::NeutralPerigee& perigee = particle.perigeeParameters();
@@ -161,11 +166,12 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle 
   mom *= 1e10;
   Trk::CurvilinearParameters startPars(pos,mom,charge);
   // get extension
-  return caloExtension( startPars, alongMomentum, muon );
+  return caloExtension( ctx, startPars, alongMomentum, muon );
 }
 
 std::unique_ptr<Trk::CaloExtension> 
-ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
+ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
+                                          const xAOD::TrackParticle& particle ) const {
 
   /* 
    * In principle we will extrapolate either from the perigee or 
@@ -190,7 +196,7 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) 
     if(fabs(particle.perigeeParameters().position().z())>6700.) idExit = false; 
     if(particle.perigeeParameters().position().perp()>4200.) idExit = false; 
     PropDirection propDir = idExit ? alongMomentum : oppositeMomentum;
-    return caloExtension(particle.perigeeParameters(),propDir,particleType);
+    return caloExtension(ctx, particle.perigeeParameters(),propDir,particleType);
   }
 
   const Track& track = *particle.track();
@@ -224,12 +230,13 @@ ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) 
   }
   PropDirection propDir = idExitParamers ? alongMomentum : oppositeMomentum;
 
-  return caloExtension(*startPars,propDir,particleType);
+  return caloExtension(ctx, *startPars,propDir,particleType);
 }
 
 
 std::unique_ptr<Trk::CaloExtension> 
-ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, 
+ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
+                                          const TrackParameters& startPars, 
                                           PropDirection propDir, 
                                           ParticleHypothesis particleType ) const {
 
@@ -247,7 +254,7 @@ ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars,
    */
 
   const std::vector<std::pair<const Trk::TrackParameters *,int>>* caloParameters=
-    m_extrapolator->extrapolate(startPars, propDir, particleType, material, 3);
+    m_extrapolator->extrapolate(ctx, startPars, propDir, particleType, material, 3);
   if (material) {
     ATH_MSG_DEBUG("Got material " << material->size() );
     for( auto& m : *material ) {
