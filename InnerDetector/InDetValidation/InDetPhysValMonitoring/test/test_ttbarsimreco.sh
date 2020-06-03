@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Standard test for Run2 with ttbar input
 # art-type: grid
-# art-include: 21.0/Athena
+# art-include: 21.9/Athena
 # art-output: *.root
 # art-output: *.xml
 # art-output: dcube*
@@ -83,7 +83,7 @@ if [ $dosim -ne 0 ]; then
     --inputEVNTFile   "$evnt" \
     --outputHITSFile  "$hits" \
     --skipEvents      3000 \
-    --maxEvents       10 \
+    --maxEvents       100 \
     --runNumber       410470 \
     --firstEvent      24303001 \
     --randomSeed      24304 \
@@ -123,7 +123,7 @@ if [ $dorec -ne 0 ]; then
     --steering        doRAWtoALL \
     --checkEventCount False \
     --ignoreErrors    True \
-    --maxEvents       10 \
+    --maxEvents       100 \
     --valid           True \
     --validationFlags doInDet \
     --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(True); InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; rec.doSemiDetailedPerfMon=True; rec.doTau=False; rec.doTile=False;'
