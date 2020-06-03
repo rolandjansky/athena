@@ -131,7 +131,8 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
         }
 
         if(m_trigDecTool->isPassed(trig)) {
-          ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}
+          ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");
+        }
         else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
         const unsigned int passBits = m_trigDecTool->isPassedBits(trig);
@@ -146,11 +147,6 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           auto ntrk = Scalar( "nTrk", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
           auto NumGoodOnlineTracks = Scalar("NumGoodOnlineTracks", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
           auto whichtrigger =  Scalar("whichTrigger",trig);
-
-          if (m_trigDecTool->isPassed(trig)) {
-            auto ntrkPass = Scalar( "nTrkPass", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
-            fill(thisTrig+"_Eff",ntrk,ntrkPass);
-          }
 
           fill(thisTrig+"_Eff",ntrk,NumGoodOnlineTracks,xaodntrk,decision,NumGoodOfflineTracks,whichtrigger);
           fill("EffAll",decision,whichtrigger);

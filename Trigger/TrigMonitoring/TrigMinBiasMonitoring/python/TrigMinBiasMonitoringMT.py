@@ -20,10 +20,9 @@ def TrigMinBias(configFlags):
     )
     length = len(alg.triggerList)
     mbEffAllGroup.defineHistogram( "PurityPassed,whichTrigger",type = 'TEfficiency',title="PurityPassed;whichTrigger",xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
-    mbEffAllGroup.defineHistogram( "EfficiencyAll,whichTrigger",type = 'TEfficiency', title="EfficiencyAll;whichTrigger",xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "whichTrigger",title="count of triggers", xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram(  "whichTrigger;No. of events", type='TH1I',title='Event per Trigger;HLT',xbins=10,xmin=0,xmax=10)
-    mbEffAllGroup.defineHistogram(  "decision,whichTrigger", type='TEfficiency',title='Efficiency of selecting Events with One Good Trk;TriggerName',xbins=20,xmin=0,xmax=20)
+    mbEffAllGroup.defineHistogram( "whichTrigger",title="count of triggers;HLT", xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
+    mbEffAllGroup.defineHistogram(  "whichTrigger;No. of events", type='TH1I',title='Event per Trigger;HLT',xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
+    mbEffAllGroup.defineHistogram(  "decision,whichTrigger", type='TEfficiency',title='Efficiency of selecting Events with One Good Trk;TriggerName',xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
 
 
     for chain in alg.triggerList:
