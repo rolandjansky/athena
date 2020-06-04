@@ -1330,7 +1330,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         if (dR < m_drmin || (data.iteration && (*r)->spacepoint->clusterList().second)) break;
 
         const float Tz = (Z-(*r)->z())/dR;
-        const float aTz = fabs(Tz);
+        const float aTz = std::abs(Tz);
         if (aTz < dzdrmin or aTz > dzdrmax) continue;
   
         // Comparison with vertices Z coordinates
@@ -1363,7 +1363,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
 
         float Tz = ((*r)->z()-Z)/dR;
-        float aTz = fabs(Tz);
+        float aTz = std::abs(Tz);
 	if (aTz < dzdrmin or aTz > dzdrmax) continue;
 
         // Comparison with vertices Z coordinates
