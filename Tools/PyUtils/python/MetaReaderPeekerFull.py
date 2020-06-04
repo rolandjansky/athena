@@ -20,10 +20,9 @@ def _setup():
     
     # get input file name
     from RecExConfig.RecoFunctions import InputFileNames
-    inFiles = InputFileNames()
-        
+
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline() and not inFiles:
+    if athenaCommonFlags.isOnline() and (not InputFileNames() or all([f.strip() == '' for f in InputFileNames()])):
         # set minimal items of inputFileSummary
         metadata = {
           'file_type':'BS',
@@ -31,6 +30,7 @@ def _setup():
           'TagStreamsRef':''
         }
     else:
+        inFiles = InputFileNames()
         if len(inFiles) < 1:
             msg.warning("No input files specified yet! Cannot do anything.")
             return
