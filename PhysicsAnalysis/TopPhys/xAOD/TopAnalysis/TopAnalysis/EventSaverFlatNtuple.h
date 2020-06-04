@@ -647,6 +647,22 @@ namespace top {
     std::vector<std::vector<float> > m_jet_ghostTrack_z0;
     std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
 
+    // tracks
+    std::vector<float> m_track_pt;
+    std::vector<float> m_track_eta;
+    std::vector<float> m_track_phi;
+    std::vector<float> m_track_e;
+    std::vector<float> m_track_d0;
+    std::vector<float> m_track_z0;
+    std::vector<float> m_track_qOverP;
+    std::vector<float> m_track_charge;
+    std::vector<float> m_track_d0_significance;
+    std::vector<float> m_track_z0_significance;
+    std::vector<float> m_track_phi0;
+    std::vector<float> m_track_theta;
+    std::vector<float> m_track_chiSquared;
+    std::vector<uint8_t> m_track_numberDoF;
+
     // R21 b-tagging
     std::vector<float> m_jet_DL1;
     std::vector<float> m_jet_DL1r;

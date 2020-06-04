@@ -52,6 +52,7 @@ namespace top {
     std::string m_sgKeyJets;
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
+    std::string m_sgKeyTracks;
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
 
@@ -73,6 +74,8 @@ namespace top {
 
     std::string m_softmuonQuality;
 
+    std::string m_trackQuality;
+
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
 
     std::map<std::size_t, std::string> m_systSgKeyMapPhotons;
@@ -86,6 +89,7 @@ namespace top {
     std::map<std::size_t, std::string> m_systSgKeyMapJetsLoose_electronInJetSubtraction;
     std::map<std::size_t, std::string> m_systSgKeyMapLargeRJets;
     std::map<std::size_t, std::string> m_systSgKeyMapTrackJets;
+    std::map<std::size_t, std::string> m_systSgKeyMapTracks;
     std::map<std::size_t, std::string> m_systSgKeyMapMissingET;
     std::map<std::size_t, std::string> m_systSgKeyMapMissingETLoose;
     std::map<std::size_t, std::string> m_systSgKeyMapKLFitter;

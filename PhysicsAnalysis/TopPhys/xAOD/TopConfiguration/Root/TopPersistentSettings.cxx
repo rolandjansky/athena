@@ -26,6 +26,7 @@ namespace top {
     m_sgKeyJets("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
     m_sgKeyTrackJets("SetMe"),
+    m_sgKeyTracks("SetMe"),
     m_sgKeyMissingEt("SetMe"),
     m_sgKeyMissingEtLoose("SetMe"),
 
@@ -46,6 +47,8 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
 
     m_softmuonQuality("SetMe"),
+
+    m_trackQuality("SetMe"),
 
     m_chosen_btaggingWP(),
 
@@ -68,6 +71,7 @@ namespace top {
     m_systSgKeyMapPseudoTopLoose(),
     m_systPersistantAllTTreeNames(),
     m_systDecoKeyMapJetGhostTrack(),
+    m_systSgKeyMapTracks(),
 
     m_list_systHashAll(),
     m_list_systHash_electronInJetSubtraction(),

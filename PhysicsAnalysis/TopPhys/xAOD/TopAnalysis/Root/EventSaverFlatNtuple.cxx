@@ -22,6 +22,8 @@
 
 #include "FakeBkgTools/AsymptMatrixTool.h"
 
+#include "xAODTracking/TrackParticlexAODHelpers.h"
+
 namespace top {
   EventSaverFlatNtuple::EventSaverFlatNtuple() :
     asg::AsgTool("top::EventSaverFlatNtuple"),
@@ -1037,6 +1039,25 @@ namespace top {
           else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP], "tjet_tagWeightBin_" + tagWP);
         }
       }
+
+      if (m_config->useTracks()) {
+	systematicTree->makeOutputVariable(m_track_pt,     "track_pt");
+	systematicTree->makeOutputVariable(m_track_eta,    "track_eta");
+	systematicTree->makeOutputVariable(m_track_phi,    "track_phi");
+	systematicTree->makeOutputVariable(m_track_e,      "track_e");
+	systematicTree->makeOutputVariable(m_track_charge, "track_charge");
+	systematicTree->makeOutputVariable(m_track_d0,     "track_d0");
+	systematicTree->makeOutputVariable(m_track_d0_significance, "track_d0_significance");
+	systematicTree->makeOutputVariable(m_track_z0,     "track_z0");
+	systematicTree->makeOutputVariable(m_track_z0_significance, "track_z0_significance");
+	systematicTree->makeOutputVariable(m_track_phi0,   "track_phi0");
+	systematicTree->makeOutputVariable(m_track_theta,  "track_theta");
+	systematicTree->makeOutputVariable(m_track_qOverP, "track_qOverP");
+	systematicTree->makeOutputVariable(m_track_chiSquared, "track_chiSquared");
+	systematicTree->makeOutputVariable(m_track_numberDoF, "track_numberDoF");
+      }
+      
+
 
       // RC branches
       if (m_makeRCJets) {
@@ -2514,6 +2535,64 @@ namespace top {
         ++i;
       }
     }
+
+    // tracks                   
+    if (m_config->useTracks()) {
+
+      m_track_pt.clear();
+      m_track_eta.clear();
+      m_track_phi.clear();
+      m_track_e.clear();
+      m_track_charge.clear();
+      m_track_d0.clear();
+      m_track_d0_significance.clear();
+      m_track_z0.clear();
+      m_track_z0_significance.clear();
+      m_track_phi0.clear();
+      m_track_theta.clear();
+      m_track_qOverP.clear();
+      m_track_chiSquared.clear();
+      m_track_numberDoF.clear();
+
+      m_track_pt.resize(event.m_tracks.size());
+      m_track_eta.resize(event.m_tracks.size());
+      m_track_phi.resize(event.m_tracks.size());
+      m_track_e.resize(event.m_tracks.size());
+      m_track_charge.resize(event.m_tracks.size());
+      m_track_d0.resize(event.m_tracks.size());
+      m_track_d0_significance.resize(event.m_tracks.size());
+      m_track_z0.resize(event.m_tracks.size());
+      m_track_z0_significance.resize(event.m_tracks.size());
+      m_track_phi0.resize(event.m_tracks.size());
+      m_track_theta.resize(event.m_tracks.size());
+      m_track_qOverP.resize(event.m_tracks.size());
+      m_track_chiSquared.resize(event.m_tracks.size());
+      m_track_numberDoF.resize(event.m_tracks.size());
+
+      unsigned int i = 0;
+      for (const auto* const trkPtr :  event.m_tracks){
+
+        m_track_pt[i]  = trkPtr->pt();
+        m_track_eta[i] = trkPtr->eta();
+        m_track_phi[i] = trkPtr->phi();
+        m_track_e[i]   = trkPtr->e();
+        m_track_charge[i] = trkPtr->charge();
+        m_track_d0[i] = trkPtr->d0();
+        m_track_d0_significance[i] = xAOD::TrackingHelpers::d0significance(trkPtr);
+        m_track_z0[i] = trkPtr->z0();
+        m_track_z0_significance[i] = xAOD::TrackingHelpers::z0significance(trkPtr);
+        m_track_phi0[i]   = trkPtr->phi0();
+        m_track_theta[i]  = trkPtr->theta();
+        m_track_qOverP[i] = trkPtr->qOverP();
+        m_track_chiSquared[i] = trkPtr->chiSquared();
+        m_track_numberDoF[i]  = trkPtr->numberDoF();
+
+        ++i;
+
+      }
+
+    }
+
 
 
     //jets

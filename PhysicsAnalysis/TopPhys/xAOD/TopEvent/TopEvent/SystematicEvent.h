@@ -50,6 +50,7 @@ namespace xAOD {
     std::vector<std::vector<unsigned int> > goodJets;
     std::vector<std::vector<unsigned int> > goodLargeRJets;
     std::vector<std::vector<unsigned int> > goodTrackJets;
+    std::vector<std::vector<unsigned int> > goodTracks;
   };
 
   /// Interface class
@@ -119,6 +120,12 @@ namespace xAOD {
     const std::vector<unsigned int>& goodTrackJets() const;
     /// set TrackJets
     void setGoodTrackJets(const std::vector<unsigned int>&);
+
+    /// get Tracks                                                                                                                                                                                        
+    const std::vector<unsigned int>& goodTracks() const;
+    /// set Tracks                                                                                                                                                                                        
+    void setGoodTracks(const std::vector<unsigned int>&);
+
   };
 
   typedef DataVector< xAOD::SystematicEvent > SystematicEventContainer;

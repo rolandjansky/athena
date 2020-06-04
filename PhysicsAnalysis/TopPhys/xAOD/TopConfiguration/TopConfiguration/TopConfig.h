@@ -86,6 +86,7 @@ namespace top {
     inline bool useJets()       const {return m_useJets;}
     inline bool useLargeRJets() const {return m_useLargeRJets;}
     inline bool useTrackJets()  const {return m_useTrackJets;}
+    inline bool useTracks()  const {return m_useTracks;}
     inline bool useJetGhostTrack()  const {return m_useJetGhostTrack;}
     inline bool useRCJets()     const {return m_useRCJets;}
     inline bool useVarRCJets()  const {return m_useVarRCJets;}
@@ -512,6 +513,7 @@ namespace top {
     virtual void sgKeyJets(const std::string& s);
     virtual void sgKeyLargeRJets(const std::string& s);
     virtual void sgKeyTrackJets(const std::string& s);
+    virtual void sgKeyTracks(const std::string& s);
 
     virtual void sgKeyTruthElectrons(const std::string& s);
     virtual void sgKeyTruthMuons(const std::string& s);
@@ -548,6 +550,7 @@ namespace top {
     inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;}
     inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
     inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets;}
+    inline virtual const std::string& sgKeyTracks()  const {return m_sgKeyTracks;}
     inline virtual const std::string& sgKeyTrackJetsType()  const {return m_sgKeyTrackJetsType;}
     inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt;}
     inline virtual const std::string& sgKeyMissingEtLoose()  const {return m_sgKeyMissingEtLoose;}
@@ -584,6 +587,7 @@ namespace top {
     virtual const std::string& sgKeyJetsStandAlone(const std::size_t hash) const;
     virtual const std::string& sgKeyLargeRJets(const std::size_t hash) const;
     virtual const std::string& sgKeyTrackJets(const std::size_t hash) const;
+    virtual const std::string& sgKeyTracks(const std::size_t hash) const;
     virtual const std::string& sgKeyMissingEt(const std::size_t hash) const;
     virtual const std::string& sgKeyMissingEtLoose(const std::size_t hash) const;
 
@@ -606,6 +610,8 @@ namespace top {
     const std::string& sgKeyLargeRJetsTDSAux(const std::size_t hash) const;
     const std::string& sgKeyTrackJetsTDS(const std::size_t hash) const;
     const std::string& sgKeyTrackJetsTDSAux(const std::size_t hash) const;
+    const std::string& sgKeyTracksTDS(const std::size_t hash) const;
+    const std::string& sgKeyTracksTDSAux(const std::size_t hash) const;
 
     // KLFitter
     const std::string& sgKeyKLFitter(const std::size_t hash) const;
@@ -1107,6 +1113,33 @@ namespace top {
 
     inline virtual float trackJetPtcut()  const {return m_trackJetPtcut;}
     inline virtual float trackJetEtacut() const {return m_trackJetEtacut;}
+
+
+    inline virtual void trackPtcut(const float pt) {
+      if (!m_configFixed) {
+        m_trackPtcut = pt;
+      }
+    }
+
+    inline virtual void trackEtacut(const float eta) {
+      if (!m_configFixed) {
+        m_trackEtacut = eta;
+      }
+    }
+
+    inline virtual void trackQuality(const std::string& quality) {
+      if (!m_configFixed) {
+        m_trackQuality = quality;
+      }
+    }
+
+
+    inline virtual const std::string& trackQuality() const {return m_trackQuality;}
+    inline virtual float trackPtcut()  const {return m_trackPtcut;}
+    inline virtual float trackEtacut() const {return m_trackEtacut;}
+
+
+
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
@@ -1700,6 +1733,7 @@ namespace top {
     virtual void systematicsJets(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsLargeRJets(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsTrackJets(const std::list<CP::SystematicSet>& syst);
+    virtual void systematicsTracks(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsMET(const std::list<CP::SystematicSet>& syst);
 
     virtual void systematicsJetGhostTrack(const std::list<CP::SystematicSet>& syst);
@@ -1744,6 +1778,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapJets(const bool useLooseLeptonJets) const;
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapLargeRJets() const {return m_systSgKeyMapLargeRJets;}
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapTrackJets()  const {return m_systSgKeyMapTrackJets;}
+    inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapTracks()  const {return m_systSgKeyMapTracks;}
 
     // TTree names
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systAllTTreeNames() const {return m_systAllTTreeNames;}
@@ -1827,6 +1862,7 @@ namespace top {
     bool m_useJets;
     bool m_useLargeRJets;
     bool m_useTrackJets;
+    bool m_useTracks;
     bool m_useRCJets;
     bool m_useVarRCJets;
 
@@ -1987,6 +2023,9 @@ namespace top {
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
     std::string m_sgKeyTrackJetsType;
+    std::string m_sgKeyTracks;
+    std::string m_sgKeyTracksType;
+
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
     std::string m_sgKeyInDetTrackParticles;
@@ -2107,6 +2146,13 @@ namespace top {
     // Track jet configuration
     float m_trackJetPtcut; // track jet object selection pT cut
     float m_trackJetEtacut; // track jet object selection (abs) eta cut
+
+    // Tracks
+    float m_trackPtcut; // track object selection pT cut
+    float m_trackEtacut; // track object selection (abs) eta cut
+    
+    std::string m_trackQuality; // track quality to be used in track selection
+
 
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
@@ -2392,6 +2438,7 @@ namespace top {
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashJets;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashLargeRJets;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashTrackJets;
+    std::shared_ptr<std::unordered_set<std::size_t> > m_systHashTracks;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashMET;
 
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashAll;
@@ -2409,6 +2456,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapJets;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapTracks;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapMET;
 
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapPhotons;
@@ -2422,6 +2470,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapJetsLoose_electronInJetSubtraction;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapTracks;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapMET;
 
     // For TopEvent/SingleSystEvent - will return the nominal key if not under variation
@@ -2434,6 +2483,8 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracks;
+
     // The boosted case is a bit more complex, we need additional collections
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtraction;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets_electronInJetSubtraction;
@@ -2458,6 +2509,9 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapLargeRJetsTDSAux;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJetsTDS;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJetsTDSAux;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracksTDS;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracksTDSAux;
+
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtractionTDSAux;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets_electronInJetSubtractionTDS;

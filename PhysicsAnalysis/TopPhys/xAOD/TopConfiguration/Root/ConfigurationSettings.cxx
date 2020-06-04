@@ -25,6 +25,7 @@ namespace top {
     registerParameter("LargeJetCollectionName", "Name of the large-R Jet container");
     registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet", "None");
     registerParameter("TrackJetCollectionName", "Name of the track Jet container", "None");
+    registerParameter("TrackCollectionName", "Name of the track container", "None");
     registerParameter("TauCollectionName", "Name of the Tau container");
     registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.", "None");
 
@@ -212,6 +213,13 @@ namespace top {
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5");
+
+    registerParameter("TrackPt", "Track pT cut for object selection (in MeV). Default 0.5 GeV.", "0.5");
+    registerParameter("TrackEta", "Absolute Track eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("TrackQuality",
+		      "Track quality cut for object selection. Options are TightPrimary,...",
+		      "TightPrimary");
+
 
     registerParameter("RCJetPt", "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.",
                       "100000.");
