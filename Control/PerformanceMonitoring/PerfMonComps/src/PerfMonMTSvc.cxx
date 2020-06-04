@@ -22,7 +22,7 @@ using json = nlohmann::json;  // for convenience
  * Constructor
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator), m_eventCounter{0} {
+    : AthService(name, pSvcLocator), m_eventCounter{0}, m_eventLoopMsgCounter{0} {
   // Four main snapshots : Configure, Initialize, Execute, and Finalize
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
@@ -254,8 +254,11 @@ void PerfMonMTSvc::eventLevelMon() {
       // Capture
       m_measurement_events.capture_event(m_eventCounter);
       m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
-      // Report instantly
-      report2Log_EventLevel_instant();
+      // Report instantly - no more than m_eventLoopMsgLimit times
+      if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+        report2Log_EventLevel_instant();
+        m_eventLoopMsgCounter++;
+      }
     }
   }
   incrementEventCounter();
@@ -421,10 +424,15 @@ void PerfMonMTSvc::report2Log_EventLevel() {
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
+  m_eventLoopMsgCounter = 0; // reset counter
+
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
-                 (it.second.cpu_time * 0.001) % (it.second.wall_time * 0.001) % it.second.mem_stats.at("vmem") %
-                 it.second.mem_stats.at("rss") % it.second.mem_stats.at("pss") % it.second.mem_stats.at("swap"));
+    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+      ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
+                   (it.second.cpu_time * 0.001) % (it.second.wall_time * 0.001) % it.second.mem_stats.at("vmem") %
+                   it.second.mem_stats.at("rss") % it.second.mem_stats.at("pss") % it.second.mem_stats.at("swap"));
+      m_eventLoopMsgCounter++;
+    }
     // Add to leak estimate
     if (it.first >= std::max(uint64_t(10), uint64_t(m_checkPointFactor))) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
