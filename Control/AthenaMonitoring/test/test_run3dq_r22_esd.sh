@@ -1,6 +1,7 @@
 #!/bin/bash
 # art-description: ESD->HIST, R22 data ESD
 # art-type: grid
+# art-memory: 3072
 # art-include: master/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
