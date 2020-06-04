@@ -179,7 +179,7 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
             (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap) ||
             (dEtaBarrel < m_searchWindowEtaBarrel && dPhiBarrel < m_searchWindowPhiBarrel) ||
             (dEtaEndcap < m_searchWindowEtaEndcap && dPhiEndcap < m_searchWindowPhiEndcap));
-  } else if (xAOD::EgammaHelpers::isBarrel(clus)) {
+  } if (xAOD::EgammaHelpers::isBarrel(clus)) {
     float dEta(fabs(ref->eta() - clus->eta()));
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaBarrel && dPhi < m_searchWindowPhiBarrel);

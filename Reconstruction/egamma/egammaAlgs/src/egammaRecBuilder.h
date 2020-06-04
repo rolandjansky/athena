@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMARECBUILDER_H
@@ -40,7 +40,7 @@ class egammaRecBuilder : public AthAlgorithm
   /** @brief execute method*/
   virtual StatusCode execute() override final
   {
-    return execute_r(Gaudi::Hive::currentContext());
+    return execute_r(Algorithm::getContext());
   }
   // This will become the normal execute when
   // inheriting from AthReentrantAlgorithm

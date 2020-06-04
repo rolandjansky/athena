@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "ParticleCaloExtensionTool.h"
@@ -55,7 +55,7 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
     const xAOD::TrackParticle* trackParticle = static_cast< const xAOD::TrackParticle*>(&particle); 
     return caloExtension(ctx, *trackParticle);
   }
-  else if (particle.type()==xAOD::Type::TruthParticle){
+  if (particle.type()==xAOD::Type::TruthParticle){
     const xAOD::TruthParticle* truthParticle = static_cast< const xAOD::TruthParticle*>(&particle);
     return caloExtension(ctx, *truthParticle);
   }
@@ -84,7 +84,7 @@ const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const EventC
                                                                     IParticleCaloExtensionTool::Cache& cache ) const{
   /*if not there , default ctor for unique_ptr (nullptr)*/
   std::unique_ptr<Trk::CaloExtension>& extension= cache[particle.index()];
-  if (extension.get()==nullptr){   
+  if (extension==nullptr){   
     extension=caloExtension(ctx, particle);
   }
   return extension.get();
@@ -115,7 +115,7 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const EventContex
    * i.e one with no intersections
    */
   for (size_t i=0 ; i<numparticles; ++i){
-    if (mask[i]==true){
+    if (mask[i]){
       std::unique_ptr<Trk::CaloExtension> extension=caloExtension(ctx, *(particles[i]));
       caloextensions.push_back(std::move(extension));
     }
@@ -135,7 +135,7 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   else if( abs(particle.pdgId()) == 13 ) {particleType = muon;}
   // get start parameters
   const xAOD::TruthVertex* pvtx = particle.prodVtx();
-  if ( pvtx == 0 ) {
+  if ( pvtx == nullptr ) {
     return nullptr;
   }
   double charge = particle.charge();
@@ -159,7 +159,7 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   // create start parameters
   const Trk::NeutralPerigee& perigee = particle.perigeeParameters();
   double charge = 1.;
-  Amg::Vector3D  pos( perigee.position() );
+  const Amg::Vector3D&  pos( perigee.position() );
   Amg::Vector3D  mom( perigee.momentum() );
   // Aproximate neutral particles as charged with infinite momentum
   mom.normalize();
@@ -205,8 +205,8 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
    * ID and muon system
    */
   ATH_MSG_DEBUG("trying to add calo layers" );
-  const TrackParameters* idExitParamers = 0;
-  const TrackParameters* muonEntryParamers = 0;
+  const TrackParameters* idExitParamers = nullptr;
+  const TrackParameters* muonEntryParamers = nullptr;
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = track.trackStateOnSurfaces()->begin();
   for ( ; itTSoS != track.trackStateOnSurfaces()->end(); ++itTSoS) {
     // select state with track parameters on a measurement
@@ -275,8 +275,8 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   TrackParametersIdHelper  parsIdHelper;
 
   // create final object
-  const TrackParameters* caloEntry = 0;
-  const TrackParameters* muonEntry = 0;
+  const TrackParameters* caloEntry = nullptr;
+  const TrackParameters* muonEntry = nullptr;
   std::vector<const CurvilinearParameters*> caloLayers;
   caloLayers.reserve(caloParameters->size()-1);
   ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() );
@@ -296,7 +296,7 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
     else if( p.second == 3 && propDir == Trk::alongMomentum)    {muonEntry = p.first;}
     else if( p.second == 4 && propDir == Trk::oppositeMomentum) {muonEntry = p.first;}
     else{
-      bool isEntry = p.second > 0 ? true : false;
+      bool isEntry = p.second > 0;
       TrackParametersIdentifier id = parsIdHelper.encode( AtlasDetDescr::fFirstAtlasCaloTechnology, 
                                                           static_cast<CaloSampling::CaloSample>( abs(p.second)%1000 ),
                                                           isEntry );
