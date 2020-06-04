@@ -17,7 +17,9 @@ BTaggingEigenVectorRecompositionTool::~BTaggingEigenVectorRecompositionTool()
 
 }
 
-
+// Initialize BtaggingEfficiencyTool handle and retrieve coefficient map for
+// all flavours. Also initialize vectors which contains all original sources
+// uncertainties' names. One vector for each flavour.
 StatusCode BTaggingEigenVectorRecompositionTool::initialize()
 {
   ATH_MSG_INFO("Hello BTaggingEigenVectorRecompositionTool user... initializing");
@@ -27,24 +29,24 @@ StatusCode BTaggingEigenVectorRecompositionTool::initialize()
       ATH_MSG_ERROR("Failed to retrieve BTaggingEfficiencyTool handle");
       return StatusCode::FAILURE;
   }
-  m_coefficientMapB = m_btageffTool->getEigenRecompositionCoefficientMap("B");
-  m_coefficientMapC = m_btageffTool->getEigenRecompositionCoefficientMap("C");
-  m_coefficientMapT = m_btageffTool->getEigenRecompositionCoefficientMap("T");
-  m_coefficientMapLight = m_btageffTool->getEigenRecompositionCoefficientMap("Light");
+  CP::CorrectionCode code1 = m_btageffTool->getEigenRecompositionCoefficientMap("B", m_coefficientMapB);
+  CP::CorrectionCode code2 = m_btageffTool->getEigenRecompositionCoefficientMap("C", m_coefficientMapC);
+  CP::CorrectionCode code3 = m_btageffTool->getEigenRecompositionCoefficientMap("T", m_coefficientMapT);
+  CP::CorrectionCode code4 = m_btageffTool->getEigenRecompositionCoefficientMap("Light", m_coefficientMapLight);
 
-  if(m_coefficientMapB.empty()) {
+  if(code1 != CP::CorrectionCode::Ok) {
       ATH_MSG_ERROR("Failed to retrieve coefficient map of B");
       return StatusCode::FAILURE;
   }
-  if(m_coefficientMapC.empty()) {
+  if(code2 != CP::CorrectionCode::Ok) {
       ATH_MSG_ERROR("Failed to retrieve coefficient map of C");
       return StatusCode::FAILURE;
   }
-  if(m_coefficientMapT.empty()) {
+  if(code3 != CP::CorrectionCode::Ok) {
       ATH_MSG_ERROR("Failed to retrieve coefficient map of T");
       return StatusCode::FAILURE;
   }
-  if(m_coefficientMapLight.empty()) {
+  if(code4 != CP::CorrectionCode::Ok) {
       ATH_MSG_ERROR("Failed to retrieve coefficient map of Light");
       return StatusCode::FAILURE;
   }
@@ -76,7 +78,7 @@ StatusCode BTaggingEigenVectorRecompositionTool::initialize()
 
 }
 
-
+// Print out nuisance parameter names correspond to the chosen flavour.
 CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfOriginalNuisanceParameters(const std::string & label) const
 {
   std::vector<std::string> NPnameList = getListOfOriginalNuisanceParameters(label);
@@ -99,7 +101,10 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfOriginalNuis
 
 }
 
-
+// Print out coefficients for the chosen eigen vector of chosen flavour label.
+// The output contains original uncertainties' names and the corresponding
+// coefficient value. The order of the original uncertainty printed is
+// exactly the same as the order given by printListOfOriginalNuisanceParameters()
 CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients(const std::string & label, const int& evIdx) const
 {
   ATH_MSG_INFO("=============================================");
@@ -133,6 +138,9 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients
   return CP::CorrectionCode::Ok;
 }
 
+// Return a vector which contains a list of original vector uncertainties names.
+// vector list is for the chosen flavour label. The order of the names is the same
+// as the coefficient values given by getCoefficients()
 std::vector<std::string> BTaggingEigenVectorRecompositionTool::getListOfOriginalNuisanceParameters(const std::string & label) const
 {
   ATH_MSG_INFO("getListOfOriginalNuisanceParameters()");
@@ -154,7 +162,9 @@ std::vector<std::string> BTaggingEigenVectorRecompositionTool::getListOfOriginal
   return dummy;
 }
 
-// Produce a map contains only eigenvectors that is showing in eigenIdxList and return it to user.
+// Produce a coefficient map contains only eigenvectors that is showing in
+// eigenIdxList and return it to user. If given empty evIdxList, the function
+// returns a full map. Produced map is for the chosen flavour label.
 std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompositionTool::getCoefficientMap(const std::string & label, const std::vector<int> evIdxList) const
 {
   ATH_MSG_INFO("getCoefficientMap()");
@@ -189,6 +199,10 @@ std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompos
   return resultMap;
 }
 
+// Returns a vector contains the coefficients value of the chosen label
+// and the chosen eigenvector. The order of the value is the same as
+// the order of original uncertainty names given by
+// getListOfOriginalNuisanceParameters()
 std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const std::string & label, const int& evIdx) const
 {
   ATH_MSG_INFO("getCoefficients()");
@@ -229,11 +243,12 @@ std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const 
   return coefficients;
 }
 
-
+// this returns a list of systematics supported by the btaggingEfficiency tool handle
 CP::SystematicSet BTaggingEigenVectorRecompositionTool::affectingSystematics() const {
   return m_btageffTool->affectingSystematics();
 }
 
+// it indicates which systematic shifts are to be applied for all future calls  
 CP::SystematicCode BTaggingEigenVectorRecompositionTool::applySystematicVariation( const CP::SystematicSet & systConfig )
 {
   for (auto syst : systConfig) {
@@ -244,12 +259,16 @@ CP::SystematicCode BTaggingEigenVectorRecompositionTool::applySystematicVariatio
   return CP::SystematicCode::Ok;
 }
 
+// returns true if the argument systematic is supported by the
+// btaggingEfficiency tool handle
 bool BTaggingEigenVectorRecompositionTool::isAffectedBySystematic( const CP::SystematicVariation & systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
   return sys.find(systematic) != sys.end();
 }
 
+// subset of systematics that are recommended by the
+// btaggingEfficiency tool handle
 CP::SystematicSet BTaggingEigenVectorRecompositionTool::recommendedSystematics() const {
   return affectingSystematics();
 }

@@ -1047,8 +1047,12 @@ bool
 CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label, 
 							 std::map<std::string, std::map<std::string, double>> &coefficientMap) const
 {
-  // Output EigenVectorRecomposition information, 
-
+  // Calculating eigen vector recomposition coefficient map and pass to
+  // user by reference. Return true if method success. Return false and
+  // will not modify coefficientMap if function failed.
+  //
+  //     label:          flavour label
+  //     coefficientMap: (reference to) coefficentMap which will be used as return value.
   if (! m_initialized) const_cast<CalibrationDataEigenVariations*>(this)->initialize();
 
   std::vector<TH1*> originSF_hvec;

@@ -200,7 +200,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    * Run EigenvectorRecomposition method and get the coefficient map
    */
 
-  std::map<std::string, std::map<std::string, double>> getEigenRecompositionCoefficientMap(const std::string &label);
+  CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, double>> & coefficientMap);
   /// @}
 
 private:

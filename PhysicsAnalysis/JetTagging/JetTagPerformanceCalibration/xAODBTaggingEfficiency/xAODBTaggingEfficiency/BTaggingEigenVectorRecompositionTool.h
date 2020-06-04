@@ -68,16 +68,23 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
 
  private:
 
+  // memeber variable maps which has format:
+  // map<"Eigen_[flavour]_[index]", map<"[original uncertainty name]", coefficent value>
+  // One map for each flavour.
   std::map<std::string, std::map<std::string, double>> m_coefficientMapB;
   std::map<std::string, std::map<std::string, double>> m_coefficientMapC;
   std::map<std::string, std::map<std::string, double>> m_coefficientMapT;
   std::map<std::string, std::map<std::string, double>> m_coefficientMapLight;
 
+  // contains list of original uncertainty names. The aim for having this
+  // is to keep the order of uncertainty names.
+  // One list for each flavour.
   std::vector<std::string> m_NPnameListB;
   std::vector<std::string> m_NPnameListC;
   std::vector<std::string> m_NPnameListT;
   std::vector<std::string> m_NPnameListLight;
 
+  // BtaggingEfficiencyTool handle.
   ToolHandle<IBTaggingEfficiencyTool> m_btageffTool;
 
 };

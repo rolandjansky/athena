@@ -2163,11 +2163,16 @@ Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::
 								     const std::string& label,
 								     const std::string& OP,
 								     unsigned int mapIndex){
+  // run eigen vector recomposition method. If success, stored the retrieved coefficient map
+  // in m_coefficientMap and return success. Otherwise return error and keep m_coefficientMap
+  // untouched.
+  //    author:  jet collection name
+  //    label:   jet flavour label
+  //    OP:      tagger working point
+  //    mapIndex:     index to the MC efficiency map to be used. Should be 0?
   // Todo: What is mapindex?
   // Todo: Check the way xAODBTaggingTool initialize CDI. Check if that is the as how we are initialize CDI. 
-  Analysis::CalibrationStatus status = Analysis::kSuccess;
   if(!m_runEigenVectorMethod) {
-    status = Analysis::kError;
     cerr << "runEigenVectorRecomposition: Recomposition need to be ran with CalibrationDataInterfaceRoot initialized in eigenvector mode" << endl;
     return Analysis::kError;
   }
@@ -2179,6 +2184,17 @@ Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::
     return Analysis::kError;
   }
 
+  return runEigenVectorRecomposition (label, indexSF);
+}
+
+Analysis::CalibrationStatus
+Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::string& label,
+								     unsigned int indexSF){
+  // run eigen vector recomposition method. If success, stored the retrieved coefficient map
+  // in m_coefficientMap and return success. Otherwise return error and keep m_coefficientMap
+  // untouched.
+  //    label:   jet flavour label  
+  //    indexSF:       index to scale factor calibration object
   CalibrationDataContainer* container = m_objects[indexSF];
   if (! container) {
     cerr << "runEigenVectorRecomposition: error retrieving container!" << endl;
@@ -2197,7 +2213,7 @@ Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::
     return Analysis::kError;
 
   m_coefficientMap = coefficientMap;
-  return status;
+  return Analysis::kSuccess;
 }
 
 std::map<std::string, std::map<std::string, double>>

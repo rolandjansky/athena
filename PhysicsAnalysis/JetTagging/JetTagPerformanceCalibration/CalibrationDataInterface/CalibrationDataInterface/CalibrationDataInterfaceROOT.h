@@ -309,6 +309,9 @@ namespace Analysis
 						    const std::string& OP,
 						    unsigned int mapindex = 0);
       
+      CalibrationStatus runEigenVectorRecomposition(const std::string& label,
+						    unsigned int mapindex = 0);
+      
       /** Get Eigenvector recomposition map after running runEigenVectorRecomposition()*/
       std::map<std::string, std::map<std::string, double>> getEigenVectorRecompositionCoefficientMap();
 

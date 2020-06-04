@@ -77,7 +77,7 @@ class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
   // this merely passes on the request to the underlying CDI object (listSystematics() cannot be used here, as corresponding CP::SystematicVariation objects may not exist)
   virtual std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const = 0;
 
-  virtual std::map<std::string, std::map<std::string, double>> getEigenRecompositionCoefficientMap(const std::string &label) = 0;
+  virtual CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, double>> & coefficientMap) = 0;
 };
 
 #endif // CPIBTAGGINGEFFICIENCYTOOL_H
