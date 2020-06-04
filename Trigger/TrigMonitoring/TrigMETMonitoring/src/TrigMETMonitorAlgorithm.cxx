@@ -56,7 +56,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // access met containers
     SG::ReadHandle<xAOD::MissingETContainer> offline_met_cont(m_offline_met_key, ctx);
-    if (offline_met_cont->size()==0 || ! offline_met_cont.isValid() ) {
+    if (! offline_met_cont.isValid() || offline_met_cont->size()==0 ) {
       ATH_MSG_DEBUG("Container "<< m_offline_met_key << " does not exist or is empty");
     }
 
@@ -66,32 +66,32 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
-    if (hlt_cell_met_cont->size()==0 || ! hlt_cell_met_cont.isValid() ) {
+    if (! hlt_cell_met_cont.isValid() || hlt_cell_met_cont->size()==0 ) {
       ATH_MSG_DEBUG("Container "<< m_hlt_cell_met_key << " does not exist or is empty");
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mht_met_cont(m_hlt_mht_met_key, ctx);
-    if (hlt_mht_met_cont->size()==0 || ! hlt_mht_met_cont.isValid() ) {
+    if (! hlt_mht_met_cont.isValid() || hlt_mht_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_mht_met_key << " does not exist or is empty");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
-    if (hlt_tc_met_cont->size()==0 || ! hlt_tc_met_cont.isValid() ) {
+    if (! hlt_tc_met_cont.isValid() || hlt_tc_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_tc_met_key << " does not exist or is empty");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
-    if (hlt_tcpufit_met_cont->size()==0 || ! hlt_tcpufit_met_cont.isValid() ) {
+    if (! hlt_tcpufit_met_cont.isValid() || hlt_tcpufit_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_met_key << " does not exist or is empty");
     }
  
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_trkmht_met_cont(m_hlt_trkmht_met_key, ctx);
-    if (hlt_trkmht_met_cont->size()==0 || ! hlt_trkmht_met_cont.isValid() ) {
+    if (! hlt_trkmht_met_cont.isValid() || hlt_trkmht_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist or is empty");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_met_cont(m_hlt_pfsum_met_key, ctx);
-    if (hlt_pfsum_met_cont->size()==0 || ! hlt_pfsum_met_cont.isValid() ) {
+    if (! hlt_pfsum_met_cont.isValid() || hlt_pfsum_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist or is empty");
     }
    
@@ -138,7 +138,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pass_HLT2 = Monitored::Scalar<float>("pass_HLT2",0.0);
 
     // access offline MET values
-    if ( offline_met_cont->size() > 0 && offline_met_cont.isValid() ) {
+    if ( offline_met_cont.isValid() && offline_met_cont->size() > 0 ) {
       offline_met = offline_met_cont->at(0);
       offline_Ex = - (offline_met->mpx())/1000.;
       offline_Ey = - (offline_met->mpy())/1000.;
@@ -156,7 +156,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT cell MET values
-    if ( hlt_cell_met_cont->size() > 0 && hlt_cell_met_cont.isValid() ) {
+    if ( hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0 ) {
       hlt_met = hlt_cell_met_cont->at(0);
       cell_Ex = (hlt_met->ex())/1000.;
       cell_Ey = (hlt_met->ey())/1000.;
@@ -164,7 +164,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT mht MET values
-    if ( hlt_mht_met_cont->size() > 0 && hlt_mht_met_cont.isValid() ) {
+    if ( hlt_mht_met_cont.isValid() && hlt_mht_met_cont->size() > 0 ) {
       hlt_met = hlt_mht_met_cont->at(0);
       mht_Ex = (hlt_met->ex())/1000.;
       mht_Ey = (hlt_met->ey())/1000.;
@@ -172,7 +172,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT tclcw MET values
-    if ( hlt_tc_met_cont->size() > 0 && hlt_tc_met_cont.isValid() ) {
+    if ( hlt_tc_met_cont.isValid() && hlt_tc_met_cont->size() > 0 ) {
       hlt_met = hlt_tc_met_cont->at(0);
       tc_Ex = (hlt_met->ex())/1000.;
       tc_Ey = (hlt_met->ey())/1000.;
@@ -180,7 +180,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT trkmht MET values
-    if ( hlt_trkmht_met_cont->size() > 0 && hlt_trkmht_met_cont.isValid() ) {
+    if ( hlt_trkmht_met_cont.isValid() && hlt_trkmht_met_cont->size() > 0 ) {
       hlt_met = hlt_trkmht_met_cont->at(0);
       trkmht_Ex = (hlt_met->ex())/1000.;
       trkmht_Ey = (hlt_met->ey())/1000.;
@@ -188,7 +188,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT tcpufit MET values
-    if ( hlt_tcpufit_met_cont->size() > 0 && hlt_tcpufit_met_cont.isValid() ) {
+    if ( hlt_tcpufit_met_cont.isValid() && hlt_tcpufit_met_cont->size() > 0 ) {
       hlt_met = hlt_tcpufit_met_cont->at(0);
       tcpufit_Ex = (hlt_met->ex())/1000.;
       tcpufit_Ey = (hlt_met->ey())/1000.;
@@ -203,7 +203,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT pfsum MET values
-    if ( hlt_pfsum_met_cont->size() > 0 && hlt_pfsum_met_cont.isValid() ) {
+    if ( hlt_pfsum_met_cont.isValid() && hlt_pfsum_met_cont->size() > 0 ) {
       hlt_met = hlt_pfsum_met_cont->at(0);
       pfsum_Ex = (hlt_met->ex())/1000.;
       pfsum_Ey = (hlt_met->ey())/1000.;

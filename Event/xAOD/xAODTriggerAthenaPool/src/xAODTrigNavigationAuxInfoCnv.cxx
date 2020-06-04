@@ -7,9 +7,6 @@
 // System include(s):
 #include <stdexcept>
 
-// Core include(s):
-#include "AthenaKernel/IThinningSvc.h"
-
 #ifndef XAOD_ANALYSIS
 #include "AthenaKernel/ITrigNavigationThinningSvc.h" //thinning only possible in full athena
 #include "AthenaKernel/getThinningCache.h"
@@ -37,16 +34,12 @@ xAODTrigNavigationAuxInfoCnv::
 createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
                          const std::string& /*key*/) {
 
-  // see if the ThinningSvc implements an interface capable of slimming the navation 
   xAOD::TrigNavigationAuxInfo* result = new xAOD::TrigNavigationAuxInfo();
 #ifndef XAOD_ANALYSIS
   const ITrigNavigationThinningSvc* thinningSvc = nullptr;
+  // Try to find the thinning service.
   if (const SG::ThinningCache* cache = SG::getThinningCache()) {
     thinningSvc = cache->trigNavigationThinningSvc();
-  }
-  if (!thinningSvc) {
-    thinningSvc = 
-      dynamic_cast<const ITrigNavigationThinningSvc*>(IThinningSvc::instance());
   }
   if ( thinningSvc ) {
     ATH_MSG_DEBUG("Doing TrigNavigation slimming");

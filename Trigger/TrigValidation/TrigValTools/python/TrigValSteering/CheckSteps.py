@@ -456,6 +456,9 @@ class PhysValWebStep(InputDependentStep):
         self.auto_report_result = True
 
     def configure(self, test):
+        for fname in os.listdir('.'):
+            if fname.startswith('ref-'): 
+                self.refdir = fname
         refargs = ' --reffile Ref:'+self.refdir+'/NTUP_PHYSVAL.pool.root '
         outargs = ' --outdir PHYSVAL_WEB/'+self.sig
         dirargs = ' --startpath run_1/HLT/'+self.sig

@@ -21,7 +21,7 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     # Enable event loop monitoring by default
     svcMgr.PerfMonMTSvc.doEventLoopMonitoring = True
     # Disable component level monitoring by default
-    svcMgr.PerfMonMTSvc.doComponentLeveMonitoring = False
+    svcMgr.PerfMonMTSvc.doComponentLevelMonitoring = False
     # Enable detailed table printing by default
     svcMgr.PerfMonMTSvc.printDetailedTables = True
     # Print only the top 50 components (sorted by CPU time) by default

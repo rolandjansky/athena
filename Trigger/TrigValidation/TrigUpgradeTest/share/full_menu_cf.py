@@ -246,31 +246,24 @@ if opt.doMETSlice == True:
 # B-physics and light states chains
 ##################################################################
 if opt.doBphysicsSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muEFSASequence, muEFCBSequence
-    from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import dimuL2Sequence, dimuEFSequence
-	
-    BphysChains  = []
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
+    from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DimuL2ComboHypoCfg, DimuEFComboHypoCfg
 
-    step1mufast=ChainStep("Step1_muFast",  [muFastSequence()])
-    step2L2Dimu=ChainStep("Step2_L2Dimu",  [dimuL2Sequence()])
-    
-    #still to come
-    step3muEFSA=ChainStep("Step3_muEFSA",   [ muEFSASequence() ])
-    step4muEFCB=ChainStep("Step4_muEFCB",   [ muEFCBSequence() ])
-    step5EFDimu=ChainStep("Step5_EFDimu",   [ dimuEFSequence() ])
+    step1_dimufast=ChainStep("Step1_dimuFast", [muFastSequence()], multiplicity=[2])
+    step2_dimuComb=ChainStep("Step2_dimuComb", [muCombSequence()], multiplicity=[2], comboHypoCfg=DimuL2ComboHypoCfg)
+    step3_dimuEFSA=ChainStep("Step3_dimuEFSA", [muEFSASequence()], multiplicity=[2])
+    step4_dimuEFCB=ChainStep("Step4_dimuEFCB", [muEFCBSequence()], multiplicity=[2], comboHypoCfg=DimuEFComboHypoCfg)
+    steps = [step1_dimufast, step2_dimuComb, step3_dimuEFSA, step4_dimuEFCB]
 
-    BphysChains += [ makeChain(name='HLT_2mu4_bDimu_L12MU4',     L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu, step3muEFSA, step4muEFCB, step5EFDimu])]
-    BphysChains += [ makeChain(name='HLT_2mu6_bJpsimumu_L12MU6', L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [ makeChain(name='HLT_2mu4_bBmumu_L12MU4',    L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [ makeChain(name='HLT_2mu4_bUpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
-    BphysChains += [ makeChain(name='HLT_2mu4_bJpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ step1mufast, step2L2Dimu])]
+    BphysChains = [
+        makeChain(name='HLT_2mu4_bBmumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
+        makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
+        makeChain(name='HLT_2mu4_bJpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
+        makeChain(name='HLT_2mu6_bJpsimumu_L12MU6', L1Thresholds=["MU6"], ChainSteps=steps),
+        makeChain(name='HLT_2mu4_bUpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps)
+        ]
 
-    #BphysChains += [Chain(name='HLT_mu6_mu4_bJpsimumu_L1MU6_2MU4',  ChainSteps=[ step1mufast, step2L2Dimu])]
-                                        #to come: step3muEFSA, step4muEFCB, step5EFJpsi])]
-    testChains += BphysChains  
-
-
-
+    testChains += BphysChains
 
 ##################################################################
 # combined chains
