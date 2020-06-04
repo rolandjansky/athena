@@ -6,7 +6,7 @@
  *
  *    @author Elias Coniavitis based on code from Luca Fiorini,
  *    Shaun Roe, Manuel Diaz, Rob McPherson & Richard Batley
- *    Modified by Yuta
+ *    Modified by Yuta, Arka Santra
  */
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
 #include "deletePointers.h"
@@ -49,7 +49,6 @@ namespace{//anonymous namespace for functions at file scope
     if (mesb and mesb->associatedSurface().associatedDetectorElement())
       result = mesb->associatedSurface().associatedDetectorElement()->identify();
     else if (useTrackParameters and tsos->trackParameters()){
-      //       result = tsos->trackParameters()->associatedSurface()->associatedDetectorElementIdentifier();
       result = tsos->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
     }
     return result;
@@ -304,7 +303,7 @@ SCTLorentzMonTool::fillHistograms() {
 
               if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
                   (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                  (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
+                  (summary->get(Trk::numberOfSCTHits) > 6)// && // SCTHits >6
                   ) {
                 passesCuts = true;
               }// 01.02.2015
@@ -315,9 +314,9 @@ SCTLorentzMonTool::fillHistograms() {
 
               else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                        (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-		       //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm
+		       //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
 		       (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
-                       (summary->get(Trk::numberOfSCTHits) > 6)// && // #SCTHits >6
+                       (summary->get(Trk::numberOfSCTHits) > 6)// // SCTHits >6
                        ) {
                 passesCuts = true;
               }else {
@@ -339,9 +338,7 @@ SCTLorentzMonTool::fillHistograms() {
 		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
 		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     
-		//std::cout << "@@@@@@@@@@ the eta and etaIndex " << eta << " : " << etaIndex << std::endl;
 		if (in100) {
-		  // cout << "This event is going to 100" << endl;
 		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
 		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
                                         
@@ -413,9 +410,9 @@ SCTLorentzMonTool::fillHistograms() {
 	  }
 	  else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
 		   (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		   //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm
+		   //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // another way to implement d0 < 1mm
 		   (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
-		   (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+		   (summary->get(Trk::numberOfSCTHits) > 6 )// && // SCTHits >6
 		   ){
 	    passesCuts=true;
 	  }else{
@@ -436,9 +433,7 @@ SCTLorentzMonTool::fillHistograms() {
 		m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer, nStrip, 1.);
 		m_phiVsNstrips_Side_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
                     
-		//std::cout << "@@@@@@@@@@ the eta and etaIndex " << eta << " : " << etaIndex << std::endl;
 		if (in100) {
-		  // cout << "This event is going to 100" << endl;
 		  m_phiVsNstrips_100[layer]->Fill(phiToWafer, nStrip, 1.);
 		  m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer, nStrip, 1.);
                                         
@@ -455,9 +450,6 @@ SCTLorentzMonTool::fillHistograms() {
 		}
 	  }// end if passesCuts
 	}// end if mtrkp
-	//            delete perigee;perigee = 0;
-	//  } // end if SCT..
-	//} // end if(clus)
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
     delete track;
@@ -606,23 +598,7 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
   }
   if (success == 0) {
     return StatusCode::FAILURE;
-  }
-  //  }
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //   
-  //                                                                                                                 //
+  }                                                                                                                 //
   // hidetoshi 14.01.22
   return StatusCode::SUCCESS;
 }
