@@ -69,6 +69,7 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
     m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+
 }
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
@@ -140,16 +141,16 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //    Find the row
 //
     double r = pos.r();
-    if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) { 
-        return SiCellId(); // return an invalid id
+    if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) {
+      return SiCellId(); // return an invalid id
     }
 
     vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
     int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
     // Following should never happen, check is done on r above
     if (row < 0 || row >= m_nRows) {
-        cout << "ERROR! cellIdOfPosition: bad row = " << row << " for r = " << r << endl;
-        return SiCellId(); // return an invalid id
+      REPORT_MESSAGE( MSG::WARNING ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n";
+      return SiCellId(); // return an invalid id
     }
 //
 //    Find the strip
@@ -163,11 +164,9 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     double ySF = sin(-m_stereo) * (x - m_R) + cos(-m_stereo) * y;
     double phiPrime = atan2(ySF, xSF); 
     int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
-    if (strip < 0) { // Outside
-        return SiCellId(); // return an invalid id
-    }
-    if (strip >= m_nStrips[row]) { // Outside
-        return SiCellId(); // return an invalid id
+    if (strip < 0 || strip >= m_nStrips[row]) { // Outside
+      REPORT_MESSAGE( MSG::WARNING ) << "Invalid SiLocalPosition, returning invalid SiCellId \n";
+      return SiCellId(); // return an invalid id
     }
 
     int strip1D = strip1Dim(strip, row);
@@ -264,9 +263,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStri
     getStripRow(cellId, &strip, &row);
 
     SiLocalPosition innerEnd = stripPosAtR(strip, row, m_stripStartRadius[row]);
-// cout << "inner eta/phi/depth = " << innerEnd.xEta() << "/" << innerEnd.xPhi() << "/" << innerEnd.xDepth() << "\n";
     SiLocalPosition outerEnd = stripPosAtR(strip, row, m_stripEndRadius[row]);
-// cout << "outer eta/phi/depth = " << outerEnd.xEta() << "/" << outerEnd.xPhi() << "/" << outerEnd.xDepth() << "\n";
 
     return pair<SiLocalPosition, SiLocalPosition>(innerEnd, outerEnd);
 }
@@ -275,12 +272,6 @@ bool StripStereoAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*c
 
     SiCellId id = cellIdOfPosition(pos);
     bool inside = id.isValid();
-
-/*
-if (!inside) {
-  cout << "Hit was outside. pos(x, y) = (" << pos.xEta() << ", " << pos.xPhi() << "); id = " << hex << id << dec << "\n";
-}
-*/
 
     return inside;
 }
@@ -303,7 +294,6 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
     double posStripphiP = atan2(posStripyP, posStripxP);
     int strip, row;
     getStripRow(cellId, &strip, &row);
-//cout << "Frac. dist = " << fabs(posphiP - posStripphiP) / m_pitch[row] << endl;
     return fabs(posphiP - posStripphiP) / m_pitch[row];
 }
 
@@ -314,7 +304,6 @@ SiDiodesParameters StripStereoAnnulusDesign::parameters(SiCellId const & /*cellI
 
 // Used in VP1 graphics. DEPRECATED.
 SiLocalPosition StripStereoAnnulusDesign::positionFromStrip(SiCellId const &cellId) const {
-//    throw std::runtime_error("Deprecated positionFromStrip called.");
     return localPositionOfCell(cellId);
 }
 
