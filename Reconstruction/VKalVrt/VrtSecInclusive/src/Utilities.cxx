@@ -695,6 +695,9 @@ namespace VKalVrtAthena {
     declareProperty("DoTwoTrSoftBtag",                 m_jp.doTwoTrSoftBtag                 = false                         );
     declareProperty("TwoTrVrtAngleCut",                m_jp.twoTrVrtAngleCut                = -10                           );
     declareProperty("TwoTrVrtMinDistFromPVCut",        m_jp.twoTrVrtMinDistFromPV           = 0.                            );
+
+    declareProperty("TruncateListOfWorkingVertices",   m_jp.truncateWrkVertices             = true                           );
+    declareProperty("MaxNumberOfWorkingVertices",      m_jp.maxWrkVertices                  = 1500                           );
         
     // default values are set upstream - check top of file
     declareProperty("do_PVvetoCut",                    m_jp.do_PVvetoCut                    = true                          );
