@@ -9,8 +9,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry	
+			                    InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           Control/AthenaBaseComps
                           AthenaKernel
@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
+find_package( nlohmann_json )
 
 find_package( Acts COMPONENTS Core JsonPlugin)
 
