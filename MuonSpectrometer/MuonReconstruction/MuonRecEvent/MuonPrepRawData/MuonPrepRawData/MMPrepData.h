@@ -143,6 +143,19 @@ namespace Muon
     /** @brief Dumps information about the PRD*/
     std::ostream& dump( std::ostream& stream) const;
 
+
+    enum Author{
+      RDOTOPRDConverter = -1,
+      SimpleClusterBuilder,
+      ProjectionClusterBuilder,
+      ClusterTimeProjectionClusterBuilder,
+      ConstraintuTPCClusterBuilder,
+      uTPCClusterBuilder,
+    };
+
+    Author author() const;
+    void setAuthor(Author author);
+
   private:
 
     /** @brief Cached pointer to the detector element - should never be zero.*/
@@ -169,6 +182,8 @@ namespace Muon
     std::vector<int> m_stripCharges;
     std::vector<float> m_stripDriftDist;
     std::vector<Amg::MatrixX>  m_stripDriftErrors;
+    
+    Author m_author;
 
   };
 
@@ -233,6 +248,10 @@ namespace Muon
   inline const std::vector<Amg::MatrixX>& MMPrepData::stripDriftErrors() const
   {
     return m_stripDriftErrors;
+  }
+
+  inline MMPrepData::Author MMPrepData::author() const {
+    return m_author;
   }
 
 }
