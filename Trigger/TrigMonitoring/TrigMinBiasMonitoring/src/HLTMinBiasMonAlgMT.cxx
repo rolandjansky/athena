@@ -5,8 +5,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "HLTMinBiasMonAlgMT.h"
 
 HLTMinBiasMonAlgMT::HLTMinBiasMonAlgMT(const std::string& name, ISvcLocator* pSvcLocator) :
-AthMonitorAlgorithm(name, pSvcLocator),
-m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
+AthMonitorAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -21,6 +20,7 @@ StatusCode HLTMinBiasMonAlgMT::initialize()
   ATH_CHECK( m_trkCountsKey.initialize() );
   ATH_CHECK( m_HLTxaodTrkKey.initialize() );
   ATH_CHECK( m_inDetTrackParticlesKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -37,7 +37,6 @@ StatusCode HLTMinBiasMonAlgMT::fillHistograms(const EventContext& context) const
   ATH_CHECK( monitorPurities( context ) );
   ATH_CHECK( monitorSPCounts( context ) );
   ATH_CHECK( monitorTrkCounts( context ) );
-  ATH_CHECK( m_trigDecTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -63,15 +62,16 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
     ATH_CHECK( spCountsHandle->size() == 1 ); // if object is present then it should have size == 1
 
     using namespace Monitored;
-    auto chaingroup = m_trigDecTool->getChainGroup("HLT_mb.*");//checking if this works ;
+    const auto& trigDecTool = getTrigDecisionTool();
+    auto chaingroup = trigDecTool->getChainGroup("HLT_mb.*");//checking if this works ;
 
     for(auto &trig : chaingroup->getListOfTriggers()) {
-      auto cg = m_trigDecTool->getChainGroup(trig);
+      auto cg = trigDecTool->getChainGroup(trig);
       std::string thisTrig = trig;
 
       ATH_MSG_DEBUG (thisTrig << " chain prescale = " << cg->getPrescale());
 
-      if(m_trigDecTool->isPassed(trig)) {ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}
+      if(trigDecTool->isPassed(trig)) {ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");}
       else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
       if (cg->getPrescale()) {
@@ -120,7 +120,8 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
       ATH_CHECK( trkCountsHandle->size() == 1 ); // if object is present then it should have size == 1
 
       using namespace Monitored;
-      auto chaingroup = m_trigDecTool->getChainGroup("HLT_mb_sptrk_L1.*");//checking if this works ;
+      const auto& trigDecTool = getTrigDecisionTool();
+      auto chaingroup = trigDecTool->getChainGroup("HLT_mb_sptrk_L1.*");//checking if this works ;
       long unsigned int counter = 0;
       for(auto &trig : chaingroup->getListOfTriggers()) {
         std::string thisTrig = trig;
@@ -130,19 +131,19 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           return StatusCode::SUCCESS;
         }
 
-        if(m_trigDecTool->isPassed(trig)) {
+        if(trigDecTool->isPassed(trig)) {
           ATH_MSG_DEBUG("Chain "<<trig <<" is passed: YES");
         }
         else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
-        const unsigned int passBits = m_trigDecTool->isPassedBits(trig);
+        const unsigned int passBits = trigDecTool->isPassedBits(trig);
         ATH_MSG_DEBUG(passBits);
         ATH_MSG_DEBUG(TrigDefs::EF_prescaled);
-        ATH_MSG_DEBUG(m_trigDecTool->isPassed("L1_RD0_FILLED"));
-        ATH_MSG_DEBUG(m_trigDecTool->isPassed(trig));
+        ATH_MSG_DEBUG(trigDecTool->isPassed("L1_RD0_FILLED"));
+        ATH_MSG_DEBUG(trigDecTool->isPassed(trig));
         if ((!(passBits & TrigDefs::EF_prescaled)) && (passBits & TrigDefs::L1_isPassedAfterVeto)) {
           auto xaodntrk = Scalar( "xaodnTrk", HLTxaodTrkHandle->size() );
-          auto decision = Scalar<int>("decision", m_trigDecTool->isPassed(trig) ? 1 : 0);
+          auto decision = Scalar<int>("decision", trigDecTool->isPassed(trig) ? 1 : 0);
           auto NumGoodOfflineTracks = Scalar("NumGoodOfflineTracks", inDetTrackParticlesHandle->size());
           auto ntrk = Scalar( "nTrk", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
           auto NumGoodOnlineTracks = Scalar("NumGoodOnlineTracks", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
@@ -152,9 +153,9 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           fill("EffAll",decision,whichtrigger);
         }
 
-        if ( m_trigDecTool->isPassed(trig) ) {
+        if ( trigDecTool->isPassed(trig) ) {
           auto whichtrigger =  Scalar("whichTrigger",trig);
-          auto PurityPassed = Scalar<int>("PurityPassed", m_trigDecTool->isPassed(trig) ? 1 : 0);
+          auto PurityPassed = Scalar<int>("PurityPassed", trigDecTool->isPassed(trig) ? 1 : 0);
           fill("EffAll",PurityPassed,whichtrigger);
         }
         if(counter<m_triggerList.size())counter++;

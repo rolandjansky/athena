@@ -36,8 +36,6 @@ private:
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_HLTxaodTrkKey { this, "HLTxaodTrkKey", "HLT_IDTrack_FS_FTF", "Name of track counts info object produced by the HLT track counting FEX algorithm" };
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inDetTrackParticlesKey { this, "inDetTrackParticlesKey", "InDetTrackParticles", "Name of Offline track counts info object produced by the HLT track counting FEX algorithm" };
 
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
-
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{"HLT_mb_sptrk_L1RD0_FILLED"}, "Add triggers to this to be monitored"};
   StatusCode monitorPurities(const EventContext& context) const;
   StatusCode monitorSPCounts(const EventContext& context) const;
