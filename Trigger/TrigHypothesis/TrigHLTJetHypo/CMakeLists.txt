@@ -33,17 +33,13 @@ atlas_add_component( TrigHLTJetHypo
                      src/components/*.cxx
                      LINK_LIBRARIES TrigHLTJetHypoLib )
 
-atlas_add_test( TrigHLTJetHypoTool SCRIPT python -m TrigHLTJetHypo.TrigJetHypoToolConfig
-				POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --extend-ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
-   POST_EXEC_SCRIPT nopost.sh )
-
-		      
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} ) 
 
+# Tests:
 atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6  ${CMAKE_CURRENT_SOURCE_DIR}/share
+                SCRIPT ${ATLAS_FLAKE8} ${CMAKE_CURRENT_SOURCE_DIR}/share
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TrigHLTJetHypoTool SCRIPT python -m TrigHLTJetHypo.TrigJetHypoToolConfig
+				POST_EXEC_SCRIPT nopost.sh )
