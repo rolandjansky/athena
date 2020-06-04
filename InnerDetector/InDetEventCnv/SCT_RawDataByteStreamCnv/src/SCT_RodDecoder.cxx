@@ -901,12 +901,6 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
   if (foundMissingLinkHeaderError) {
     ATH_CHECK(addRODError(robID, SCT_ByteStreamErrors::MissingLinkHeaderError, errs, &foundHashes));
   }
-  // auto hashes = rdoIDCont.GetAllCurrentHashes();
-  // for ( auto dataID :  hashes ) {
-  //   if ( errs.accumulatedErrors.find(dataID) == errs.accumulatedErrors.end()) {
-  //     ATH_MSG_WARNING("Have data for ID " << std::hex << dataID << " but errors info missing");
-  //   }
-  // }
 
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;
