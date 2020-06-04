@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianLocalAnglesPhiTheta.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianLocalAnglesPhiTheta::JacobianLocalAnglesPhiTheta(const double angleXZ, const double angleYZ, const Amg::RotationMatrix3D& rot): 
     AmgMatrix(2,2)()

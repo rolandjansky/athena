@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -101,7 +101,7 @@ namespace Trk {
 				 m_ExpectedPositionAtPOCA,
 				 m_ExpectedMomentumAtPOCA,
 				 m_ConstantTerm); 
-    } else return new LinearizedTrack();				       	   
+    } return new LinearizedTrack();				       	   
   }//end of clone method 
   
   const AmgSymMatrix(5) & LinearizedTrack::expectedCovarianceAtPCA() const 
@@ -109,7 +109,7 @@ namespace Trk {
     return m_ExpectedCovarianceAtPOCA;
   }
   
-  const AmgSymMatrix(5) LinearizedTrack::expectedWeightAtPCA() const
+  AmgSymMatrix(5) LinearizedTrack::expectedWeightAtPCA() const
   {
     //the m_ExpectedCovarianceAtPOCA stores a covariance matrix, need to invert to get weight matrix
     //note: no check if matrix is invertible
