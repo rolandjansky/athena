@@ -22,7 +22,6 @@ ActsMaterialJsonWriterTool::~ActsMaterialJsonWriterTool()
 StatusCode
 ActsMaterialJsonWriterTool::initialize()
 {
-  std::cout << "initialize()" << std::endl;
   ATH_MSG_INFO("Starting Material writer");
 
   return StatusCode::SUCCESS;
