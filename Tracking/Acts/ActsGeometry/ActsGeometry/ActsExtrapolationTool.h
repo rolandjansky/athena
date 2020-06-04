@@ -59,13 +59,13 @@ private:
   using SteppingLogger = Acts::detail::SteppingLogger;
   using DebugOutput = Acts::DebugOutputActor;
   using EndOfWorld = Acts::EndOfWorldReached;
-  using ResultType = Acts::Result<std::pair<Acts::PropagationOutput,
+  using ResultType = Acts::Result<std::pair<ActsPropagationOutput,
                                             DebugOutput::result_type>>;
 
 
 public:
   virtual
-  Acts::PropagationOutput
+  ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
@@ -79,7 +79,7 @@ public:
             double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
-  Acts::PropagationOutput
+  ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    const Acts::Surface& target,
@@ -115,9 +115,9 @@ private:
   Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10, "Max step size in Acts m unit"};
 
   // Material inteaction option
-  Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", true, "Whether to consider multiple scattering in the interactor"};
-  Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", true, "Whether to consider energy loss in the interactor"};
-  Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", true, "Whether to record all material interactions"};
+  Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};
+  Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", false, "Whether to consider energy loss in the interactor"};
+  Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", false, "Whether to record all material interactions"};
 };
 
 

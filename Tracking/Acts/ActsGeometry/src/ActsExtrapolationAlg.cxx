@@ -114,7 +114,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
     pars << d0, z0, phi, theta, qop, t;
     std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
 
-    Acts::PropagationOutput output;
+    ActsPropagationOutput output;
 
     if (charge != 0.) {
       // Perigee, no alignment -> default geo context
@@ -123,7 +123,6 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       auto anygctx = gctx.any();
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
-      std::cout << startParameters << std::endl;
       output = m_extrapolationTool->propagationSteps(ctx, startParameters);
       m_propStepWriterSvc->write(output.first);
       if(m_writeMaterialTracks){

@@ -15,13 +15,12 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
-namespace Acts{
-  /// Using some short hands for Recorded Material
-  using RecordedMaterial = Acts::MaterialInteractor::result_type;
-  /// Finally the output of the propagation test
-  using PropagationOutput =
-      std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
-}
+/// Using some short hands for Recorded Material
+using ActsRecordedMaterial = Acts::MaterialInteractor::result_type;
+/// Finally the output of the propagation test
+using ActsPropagationOutput =
+        std::pair<std::vector<Acts::detail::Step>, ActsRecordedMaterial>;
+
 
 class IActsTrackingGeometryTool;
 
@@ -32,7 +31,7 @@ class IActsExtrapolationTool : virtual public IAlgTool {
   DeclareInterfaceID(IActsExtrapolationTool, 1, 0);
 
   virtual
-  Acts::PropagationOutput
+  ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
@@ -46,7 +45,7 @@ class IActsExtrapolationTool : virtual public IAlgTool {
             double pathLimit = std::numeric_limits<double>::max()) const = 0;
 
   virtual
-  Acts::PropagationOutput
+  ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
                    const Acts::BoundParameters& startParameters,
                    const Acts::Surface& target,

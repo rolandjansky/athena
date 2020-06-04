@@ -123,6 +123,8 @@ if alg.WriteMaterialTracks == True:
 exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
 exTool.OutputLevel = INFO
 exTool.FieldMode = "ATLAS"
+exTool.InteractionMultiScatering = True
+exTool.InteractionEloss = True
 exTool.InteractionRecord = True
 # The extrapolation tool accesses the trackinggeometry service
 # through this tool. This tool has the conditions dependencies

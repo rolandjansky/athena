@@ -123,6 +123,7 @@ exTool.OutputLevel = INFO
 exTool.FieldMode = "ATLAS"
 exTool.InteractionMultiScatering = False
 exTool.InteractionEloss = False
+exTool.InteractionRecord = False
 # The extrapolation tool accesses the trackinggeometry service
 # through this tool. This tool has the conditions dependencies
 # on the alignment GeoAlignmentStores (pseudo-alignment only right now).

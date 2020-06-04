@@ -57,6 +57,7 @@ private:
   using StraightLinePropagator = Acts::Propagator<SlStepper, Acts::Navigator>;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
   std::shared_ptr<Acts::SurfaceMaterialMapper> m_mapper;
+  std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 };
 
 

@@ -38,8 +38,7 @@ ActsObjWriterTool::initialize()
 
 void
 ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg) const
-{
-  std::cout << "bip" << std::endl; 
+{ 
   const auto& ctx = Gaudi::Hive::currentContext();
   std::stringstream ss;
   ss << ctx.eventID().run_number() << "_" << ctx.eventID().event_number();

@@ -106,7 +106,7 @@ ActsExtrapolationTool::initialize()
 }
 
 
-Acts::PropagationOutput
+ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundParameters& startParameters,
                                         Acts::NavigationDirection navDir /*= Acts::forward*/,
@@ -144,7 +144,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   mInteractor.energyLoss = m_interactionEloss;
   mInteractor.recordInteractions = m_interactionRecord;
 
-  Acts::PropagationOutput output;
+  ActsPropagationOutput output;
   DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
@@ -160,7 +160,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
       // try to force return value optimization, not sure this is necessary
-      return std::make_pair(output, std::move(debugOutput));
+      return std::make_pair(std::move(output), std::move(debugOutput));
     }, *m_varProp);
 
   if (!res.ok()) {
@@ -232,7 +232,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   return parameters;
 }
 
-Acts::PropagationOutput
+ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundParameters& startParameters,
                                         const Acts::Surface& target,
@@ -270,7 +270,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   mInteractor.energyLoss = m_interactionEloss;
   mInteractor.recordInteractions = m_interactionRecord;
 
-  Acts::PropagationOutput output;
+  ActsPropagationOutput output;
   DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
@@ -285,7 +285,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
-      return std::make_pair(output, std::move(debugOutput));
+      return std::make_pair(std::move(output), std::move(debugOutput));
     }, *m_varProp);
 
   if (!res.ok()) {

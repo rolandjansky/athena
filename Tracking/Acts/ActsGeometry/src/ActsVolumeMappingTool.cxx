@@ -39,10 +39,9 @@ ActsVolumeMappingTool::initialize()
 
   ATH_CHECK( m_trackingGeometryTool.retrieve() );
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
-    = m_trackingGeometryTool->trackingGeometry();
+  m_trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
-  Acts::Navigator navigator(trackingGeometry);
+  Acts::Navigator navigator(m_trackingGeometry);
   // Make stepper and propagator
   SlStepper stepper;
   StraightLinePropagator propagator = StraightLinePropagator(std::move(stepper), std::move(navigator));
@@ -64,12 +63,8 @@ ActsVolumeMappingTool::initialize()
 Acts::VolumeMaterialMapper::State
 ActsVolumeMappingTool::mappingState() const
 {
-
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
-    = m_trackingGeometryTool->trackingGeometry();
-
   auto mappingState = m_mapper->createState(
-    m_geoContext, m_magFieldContext, *trackingGeometry);
+    m_geoContext, m_magFieldContext, *m_trackingGeometry);
 
   return mappingState;
 }
