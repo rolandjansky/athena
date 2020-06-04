@@ -1,21 +1,7 @@
-###############################################################################
-# Package: TrigHLTJetHypo
-###############################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
 # Declare the package name:
 atlas_subdir( TrigHLTJetHypo )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODJet
-                          GaudiKernel
-                          Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigSteer/TrigCompositeUtils )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -26,8 +12,8 @@ atlas_add_library( TrigHLTJetHypoLib
                    src/TrigHLTJetHypoUtils/*.cxx
                    PUBLIC_HEADERS TrigHLTJetHypo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib TrigCompositeUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES AsgTools AthenaBaseComps DecisionHandlingLib GaudiKernel TrigCompositeUtilsLib TrigInterfacesLib TrigParticle TrigTimeAlgsLib xAODJet
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib CaloGeoHelpers TrigMissingEtEvent xAODEventInfo xAODTrigger )
 
 atlas_add_component( TrigHLTJetHypo
                      src/components/*.cxx
