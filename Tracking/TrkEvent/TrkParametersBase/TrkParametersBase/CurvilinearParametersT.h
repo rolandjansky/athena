@@ -77,14 +77,15 @@ namespace Trk
     CurvilinearParametersT(const CurvilinearParametersT<DIM,T,S>&); 
    
     /** Move Constructor */
-    CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&&); 
- 
+    CurvilinearParametersT(CurvilinearParametersT<DIM, T, S>&&) = default;
+
     /** Assignment operator*/
     CurvilinearParametersT<DIM,T,S> &operator=(const CurvilinearParametersT<DIM,T,S>&);
 
     /** Move assignment operator*/
-    CurvilinearParametersT<DIM,T,S> &operator=(CurvilinearParametersT<DIM,T,S>&&);
-  
+    CurvilinearParametersT<DIM, T, S>& operator=(
+      CurvilinearParametersT<DIM, T, S>&&) = default;
+
     /** Destructor */
     virtual ~CurvilinearParametersT()=default;
  

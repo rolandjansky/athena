@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,7 +20,6 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 
-#include "LArRecEvent/LArCollisionTime.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -59,7 +58,6 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   declareProperty( "timeDiffCut"	,      m_timeCut = 5.0 );
   declareProperty( "nCells"		,      m_minCells = 2 );
   declareProperty( "eWeighted"		,      m_eWeighted = true );
-  declareProperty( "Key"                ,      m_key="LArCollisionTime");
   declareProperty( "histPath"           ,      m_histPath="LArCollisionTime"); 
   declareProperty( "BunchCrossingTool"  ,      m_bunchGroupTool); 
   declareProperty( "TrainFrontDistance" ,      m_distance = 30); 
@@ -91,7 +89,9 @@ StatusCode
 LArCollisionTimeMonTool::initialize() {
 
   ManagedMonitorToolBase::initialize().ignore();
-  CHECK(m_bunchGroupTool.retrieve());
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_key.initialize() );
+  ATH_CHECK(m_bunchGroupTool.retrieve());
   ATH_MSG_DEBUG( "Successful Initialize LArCollisionTimeMonTool " );
   return StatusCode::SUCCESS;
 }
@@ -227,11 +227,11 @@ LArCollisionTimeMonTool::fillHistograms()
   m_eventsCounter++;
   
   // --- retrieve event information ---
-  const xAOD::EventInfo* event_info;
+  SG::ReadHandle<xAOD::EventInfo> event_info{m_EventInfoKey};
   unsigned bunch_crossing_id = 0;
   unsigned lumi_block        = 0;
   //double event_time_minutes = -1;
-  if (evtStore()->retrieve( event_info ).isFailure()) {
+  if (!event_info.isValid()) {
     ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
     return StatusCode::FAILURE;
   }
@@ -251,8 +251,8 @@ LArCollisionTimeMonTool::fillHistograms()
   int bcid_distance = m_bunchGroupTool->distanceFromFront(bunch_crossing_id, Trig::IBunchCrossingTool::BunchCrossings);
   
   // Retrieve LArCollision Timing information
-  const LArCollisionTime * larTime;
-  if(evtStore()->retrieve(larTime,m_key).isFailure())
+  SG::ReadHandle<LArCollisionTime> larTime{m_key};
+  if(!larTime.isValid())
   {
     ATH_MSG_WARNING( "Unable to retrieve LArCollisionTime event store" );
     return StatusCode::SUCCESS; // Check if failure shd be returned. VB
@@ -260,7 +260,7 @@ LArCollisionTimeMonTool::fillHistograms()
     ATH_MSG_DEBUG( "LArCollisionTime successfully retrieved from event store" );
   }
 
-  if (larTime and !(event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3))) {// Do not fill histo if noise burst suspected
+  if (!(event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3))) {// Do not fill histo if noise burst suspected
     // Calculate the time diff between ECC and ECA
     m_ECTimeDiff = larTime->timeC() - larTime->timeA();
     m_ECTimeAvg  = (larTime->timeC() + larTime->timeA()) / 2.0;

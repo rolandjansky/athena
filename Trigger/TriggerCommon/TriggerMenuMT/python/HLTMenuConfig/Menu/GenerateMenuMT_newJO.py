@@ -4,7 +4,7 @@ from AthenaCommon.CFElements import seqAND
 
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
-
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from six import iteritems
 
 from AthenaCommon.Logging import logging
@@ -63,9 +63,9 @@ def generateMenu( flags ):
             continue
 
         for chain in cfgFlag.get():
-
+            
             chainDict = dictFromChainName( chain )
-
+            
             counter += 1
             chainDict['chainCounter'] = counter
 
@@ -74,8 +74,9 @@ def generateMenu( flags ):
 
             # call generating function and pass to CF builder
 
-            chain = signatureToGenerator[signature](flags, chainDict)
-            menuChains.append( chain )
+            chainConfig = signatureToGenerator[signature](flags, chainDict)
+            TriggerConfigHLT.registerChain( chainDict, chainConfig )
+            menuChains.append( chainConfig )
 
 
     log.info('Obtained Menu Chain objects')

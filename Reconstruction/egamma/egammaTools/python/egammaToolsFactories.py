@@ -1,11 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactories to instantiate all egammaTools with default configuration"
+__doc__ = """ToolFactories to instantiate
+all egammaTools with default configuration"""
 __author__ = "Bruno Lenzi"
+
 
 from ROOT import egammaPID
 import cppyy
-from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors import ConfiguredAsgForwardElectronIsEMSelector
+from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors \
+    import ConfiguredAsgForwardElectronIsEMSelector
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
 from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
@@ -14,7 +17,7 @@ from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 
 
 from egammaTools import egammaToolsConf
-from egammaRec.Factories import  ToolFactory
+from egammaRec.Factories import ToolFactory
 from egammaRec import egammaKeys
 # to set jobproperties.egammaRecFlags
 from egammaRec.egammaRecFlags import jobproperties
@@ -24,8 +27,10 @@ import six
 
 def configureClusterCorrections(swTool):
     "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
-    from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
-        etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update, time, listBadChannel
+    from CaloClusterCorrection.CaloSwCorrections import (
+        make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
+        etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
+        time, listBadChannel)
     from CaloRec.CaloRecMakers import _process_tools
 
     clusterTypes = dict(
@@ -37,9 +42,11 @@ def configureClusterCorrections(swTool):
         x = 'ClusterCorrectionTools' + attrName
         if not hasattr(swTool, x) or getattr(swTool, x):
             continue
-        y = make_CaloSwCorrections(clName, suffix='EG',
-                                   version=jobproperties.egammaRecFlags.clusterCorrectionVersion(),
-                                   cells_name=egammaKeys.caloCellKey())
+        y = make_CaloSwCorrections(
+            clName,
+            suffix='EG',
+            version=jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+            cells_name=egammaKeys.caloCellKey())
         setattr(swTool, x, _process_tools(swTool, y))
 
     # Super cluster position only corrections
@@ -49,22 +56,23 @@ def configureClusterCorrections(swTool):
             if not hasattr(swTool, n) or getattr(swTool, n):
                 continue
 
-            setattr(swTool, n, _process_tools(swTool,
-                                              make_CaloSwCorrections(
-                                                  clName,
-                                                  suffix='EGSuperCluster',
-                                                  corrlist=[
-                                                      [rfac, 'v5'],
-                                                      [etaoff_b1, 'v5'],
-                                                      [etaoff_e1, 'v5'],
-                                                      [etaoff_b2, 'v5'],
-                                                      [etaoff_e2, 'v5'],
-                                                      [phioff_b2, 'v5data'],
-                                                      [phioff_e2, 'v5data'],
-                                                      [update],
-                                                      [time],
-                                                      [listBadChannel]],
-                                                  cells_name=egammaKeys.caloCellKey())))
+            setattr(swTool, n, _process_tools(
+                swTool,
+                make_CaloSwCorrections(
+                    clName,
+                    suffix='EGSuperCluster',
+                    corrlist=[
+                        [rfac, 'v5'],
+                        [etaoff_b1, 'v5'],
+                        [etaoff_e1, 'v5'],
+                        [etaoff_b2, 'v5'],
+                        [etaoff_e2, 'v5'],
+                        [phioff_b2, 'v5data'],
+                        [phioff_e2, 'v5data'],
+                        [update],
+                        [time],
+                        [listBadChannel]],
+                    cells_name=egammaKeys.caloCellKey())))
         # End of super cluster position only corrections
 
 
@@ -111,6 +119,7 @@ PhotonPIDBuilder = ToolFactory(
 
 # ForwardElectron Selectors
 
+# Eventually we want to get rid of cppyy here
 cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 
 LooseForwardElectronSelector = ToolFactory(
@@ -129,6 +138,6 @@ TightForwardElectronSelector = ToolFactory(
 # -------------------------
 
 # Import the factories that are not defined here
-from .EMShowerBuilder import EMShowerBuilder
-from .egammaOQFlagsBuilder import egammaOQFlagsBuilder
 from .EMTrackMatchBuilder import EMTrackMatchBuilder
+from .egammaOQFlagsBuilder import egammaOQFlagsBuilder
+from .EMShowerBuilder import EMShowerBuilder

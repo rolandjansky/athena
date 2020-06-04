@@ -21,6 +21,8 @@
 
 #include "AtlasHepMC/HEPEVT_Wrapper.h"
 #include "AtlasHepMC/IO_HEPEVT.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/HeavyIon.h"
 
 
 #include "Epos_i/Epos.h"

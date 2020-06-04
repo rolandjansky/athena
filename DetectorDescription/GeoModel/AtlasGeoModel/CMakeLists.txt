@@ -23,5 +23,5 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
                   PROPERTIES TIMEOUT 300 )
   atlas_add_test( AOD_InputGeo_test
                   SCRIPT test/AtlasGeometryConfig_AOD_test.py
-                  PROPERTIES TIMEOUT 300 )
+                  PROPERTIES TIMEOUT 600 )
 endif()

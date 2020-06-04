@@ -154,6 +154,9 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     return None
 
 def findAllAlgorithms(sequence, nameToLookFor=None):
+    """
+    Returns flat listof of all algorithm instances in this, and in sub-sequences
+    """
     algorithms = []
     for child in getSequenceChildren(sequence):
         if isSequence(child):
@@ -165,7 +168,14 @@ def findAllAlgorithms(sequence, nameToLookFor=None):
 
 
 def findAllAlgorithmsByName(sequence, namesToLookFor=None):
-    """Finds all algorithms in sequence and groups them by name"""
+    """
+    Finds all algorithms in sequence and groups them by name
+    
+    Resulting dict has a following structure
+    {"Alg1Name":(Alg1Instance, parentSequence, indexInThisSequence),
+     "Alg2Name":(Alg2Instance, parentSequence, indexInThisSequence),
+     ....}
+    """
     algorithms = collections.defaultdict(list)
     for idx, child in enumerate(getSequenceChildren(sequence)):
         if (compName(child) == compName(sequence)):

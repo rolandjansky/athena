@@ -85,17 +85,17 @@ namespace Trk
 		 AmgSymMatrix(DIM)* covariance = nullptr);
     
     /** Copy constructor */
-    ParametersT(const ParametersT<DIM,T,S>& rhs);
-      
+    ParametersT(const ParametersT<DIM, T, S>& rhs);
+
     /** Move constructor */
-    ParametersT(ParametersT<DIM,T,S>&& rhs);
-    
+    ParametersT(ParametersT<DIM, T, S>&& rhs) = default;
+
     /** Assignment operator */
-    ParametersT<DIM,T,S>& operator=(const ParametersT<DIM,T,S>& rhs);
+    ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
     /** Move assignment operator */
-    ParametersT<DIM,T,S>& operator=(ParametersT<DIM,T,S>&& rhs);
-      
+    ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) = default;
+
     //** Destructor */
     virtual ~ParametersT()=default;
  

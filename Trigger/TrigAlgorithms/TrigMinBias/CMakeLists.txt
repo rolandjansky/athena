@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigTools/TrigTimeAlgs
                           Event/xAOD/xAODTrigger
                           Control/AthenaMonitoringKernel
-                          ​Control/AthViews)
+                          Control/AthViews)
 
 # Component(s) in the package:
 atlas_add_component( TrigMinBias
