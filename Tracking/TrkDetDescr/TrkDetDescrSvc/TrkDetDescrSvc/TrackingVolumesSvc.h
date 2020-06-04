@@ -36,7 +36,7 @@ namespace Trk {
    
       @author Andreas.Salzburger@cern.ch, Edward.Moyse@cern.ch
    */
-  class TrackingVolumesSvc : public AthService, virtual public ITrackingVolumesSvc {
+  class ATLAS_CHECK_THREAD_SAFETY TrackingVolumesSvc : public AthService, virtual public ITrackingVolumesSvc {
   
     public:
   
