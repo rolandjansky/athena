@@ -257,6 +257,14 @@ public:
   T operator() (const Context& c) const;
 
 
+  /** 
+   * @brief Retrieve the value of a constant.
+   *
+   * This variant may only be used if the constant was initialized via JO.
+   */
+  T operator()() const;
+
+
   /**
    * @brief Return the name of this constant.
    */
