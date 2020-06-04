@@ -10,6 +10,9 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloInterface/ICaloConstCellMakerTool.h"
 
+
+class CaloCell_ID;
+
 class CaloCellContainerCheckerTool
   : public extends<AthAlgTool, ICaloCellMakerTool, ICaloConstCellMakerTool>
 {
@@ -33,6 +36,8 @@ public:
                         const EventContext& ctx) const;
 
   size_t m_eventsToCheck;
+  const CaloCell_ID* m_theCaloCCIDM  = nullptr;
+  
 };
 
 #endif
