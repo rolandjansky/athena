@@ -600,9 +600,9 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f10, testLogExcerptMP
             print >> f10, testErrorExcerptMP
         with open('file11', 'w') as f11:
-            print(testCoreDumpAbNormalLine, file=f11)
+            print >> f11, testCoreDumpAbNormalLine
         with open('file12', 'w') as f12:
-            print(testCoreDumpAbnormalPattern, file=f12)
+            print >> f12, testCoreDumpAbnormalPattern
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
