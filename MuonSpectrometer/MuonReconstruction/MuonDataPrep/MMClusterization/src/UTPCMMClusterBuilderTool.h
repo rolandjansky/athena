@@ -58,6 +58,7 @@ namespace Muon
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MmIdHelper* m_mmIdHelper;
+    bool m_writeStripProperties;
 
 
     // params for the hough trafo

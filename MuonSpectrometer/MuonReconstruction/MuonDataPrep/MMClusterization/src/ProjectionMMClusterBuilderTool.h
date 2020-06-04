@@ -47,6 +47,7 @@ namespace Muon
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MmIdHelper* m_mmIdHelper;
+    bool m_writeStripProperties;
 
     double m_tmin,m_tmax,m_tOffset;
     double m_p0,m_p1,m_p2; //correction factors for charge dependence

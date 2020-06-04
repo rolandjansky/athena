@@ -30,8 +30,10 @@ class ClusterTimeProjectionMMClusterBuilderTool :
 
  private:
     ToolHandle<MuonIdHelperTool> m_muonIdHelperTool;
-
+    bool m_writeStripProperties;
+    
     uint m_maxHoleSize;
+
 
 
     StatusCode sortHitsToLayer(const std::vector<Muon::MMPrepData>& MMprds,

@@ -47,6 +47,8 @@ namespace Muon
 
 	std::vector<float>        m_stripDriftDist;
 	std::vector<Amg::MatrixX> m_stripDriftErrors;
+
+  int m_author; // contains the info about which cluster builder tool produced the PRD
         
         //@}
         

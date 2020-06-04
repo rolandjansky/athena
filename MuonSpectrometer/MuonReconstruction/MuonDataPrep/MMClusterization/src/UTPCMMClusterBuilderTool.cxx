@@ -36,6 +36,7 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
     m_mmIdHelper(nullptr)
 {
     declareInterface<IMMClusterBuilderTool>(this);
+    declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
     declareProperty("HoughAlphaMin",m_alphaMin=-90); //degree
     declareProperty("HoughAlphaMax",m_alphaMax=0); //degree
     declareProperty("HoughAlphaResolution",m_alphaResolution=1.0); // degree
@@ -147,11 +148,17 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             std::vector<uint16_t> stripsOfClusterChannels;
             std::vector<short int> stripsOfClusterTimes;
             std::vector<int> stripsOfClusterCharges;
+            std::vector<float> stripsOfClusterDriftDists;
+            std::vector<Amg::MatrixX> stripsOfClusterDriftDistErrors;
 
             stripsOfCluster.reserve(idx_goodStrips.size());
-            stripsOfClusterChannels.reserve(idx_goodStrips.size());
-            stripsOfClusterTimes.reserve(idx_goodStrips.size());
-            stripsOfClusterCharges.reserve(idx_goodStrips.size());
+            if (m_writeStripProperties) {
+                stripsOfClusterChannels.reserve(idx_goodStrips.size());
+                stripsOfClusterTimes.reserve(idx_goodStrips.size());
+                stripsOfClusterCharges.reserve(idx_goodStrips.size());
+            }
+            stripsOfClusterDriftDists.reserve(idx_goodStrips.size());
+            stripsOfClusterDriftDistErrors.reserve(idx_goodStrips.size());
 
             ATH_MSG_DEBUG("Found good Strips: "<< idx_goodStrips.size());
 
@@ -161,9 +168,13 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
                 flag.at(idx)=1;
                 ATH_MSG_DEBUG("Set Good strips");
                 stripsOfCluster.push_back(MMprdsOfLayer.at(idx).identify());
-                stripsOfClusterChannels.push_back(m_mmIdHelper->channel(MMprdsOfLayer.at(idx).identify()));
-                stripsOfClusterTimes.push_back(MMprdsOfLayer.at(idx).time());
-                stripsOfClusterCharges.push_back(MMprdsOfLayer.at(idx).charge());
+                if (m_writeStripProperties) {
+                    stripsOfClusterChannels.push_back(m_mmIdHelper->channel(MMprdsOfLayer.at(idx).identify()));
+                    stripsOfClusterTimes.push_back(MMprdsOfLayer.at(idx).time());
+                    stripsOfClusterCharges.push_back(MMprdsOfLayer.at(idx).charge());
+                }
+                stripsOfClusterDriftDists.push_back(MMprdsOfLayer.at(idx).driftDist());
+                stripsOfClusterDriftDistErrors.push_back(MMprdsOfLayer.at(idx).localCovariance());
             }
             Amg::MatrixX* covN = new Amg::MatrixX(1,1);
             covN->coeffRef(0,0)=sigmaLocalClusterPosition;
@@ -188,6 +199,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             ATH_MSG_DEBUG("Did create new prd");
             
             ATH_MSG_DEBUG("Setting prd angle: "<< finalFitAngle <<" chi2 Prob: "<<finalFitChiSqProb);
+
+            prdN->setAuthor(Muon::MMPrepData::Author::uTPCClusterBuilder);
+            prdN->setDriftDist(stripsOfClusterDriftDists,stripsOfClusterDriftDistErrors);
 
             prdN->setMicroTPC(finalFitAngle,finalFitChiSqProb);
             ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
