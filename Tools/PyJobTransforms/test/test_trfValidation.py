@@ -732,8 +732,7 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
 
     def test_knowledgeFile(self):
         self.assertEqual(self.myFileReport13.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
-                                                           'firstError': {'count': 1, 'firstLine': 13,
-                                                               'message': 'Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator(); PYTHIA Abort from Pythia::next: reached end of Les Houches Events File'}})
+                                                            'firstError': {'count': 1, 'firstLine': 13, 'message': 'Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator(); PYTHIA Abort from Pythia::next: reached end of Les Houches Events File'}})
 
     def test_dbMonitor(self):
         print(self.myFileReport9) 
