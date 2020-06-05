@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to configure common TrigEgamma Tools" 
 
@@ -20,7 +20,7 @@ from CaloIdentifier import SUBCALO
 
 # Egamma imports
 from egammaRec.Factories import ToolFactory
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperCellTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
@@ -65,7 +65,7 @@ TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
         name = 'TrigEMClusterTool',
         OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
         OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwTool,
+        ClusterCorrectionTool = egammaSwSuperCellTool,
         doSuperCluster = True,
         MVACalibSvc = egammaMVASvc                             
         )

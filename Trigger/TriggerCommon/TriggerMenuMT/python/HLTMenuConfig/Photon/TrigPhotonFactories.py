@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to configure egammaAlgs to be used at the HLT" 
 __author__ = "Fernando Monticelli"
@@ -13,7 +13,7 @@ Offline configurations are available here:
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
 
-from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperCellTool, egammaMVASvc, EGammaAmbiguityTool
 
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
@@ -45,7 +45,7 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         name = 'TrigPhotonSuperClusterBuilder',
         InputEgammaRecContainerName=TrigEgammaKeys.EgammaRecKey,
         SuperPhotonRecCollectionName=TrigEgammaKeys.SuperPhotonRecCollectionName,
-        ClusterCorrectionTool=egammaSwTool,
+        ClusterCorrectionTool=egammaSwSuperCellTool,
         MVACalibSvc= egammaMVASvc,
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,
