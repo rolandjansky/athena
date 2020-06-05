@@ -205,7 +205,7 @@ private:
     this, "SoftTimeoutFraction", 0.8, "Fraction of the hard timeout to be set as the soft timeout"};
 
   Gaudi::Property<int> m_maxFrameworkErrors{
-    this, "MaxFrameworkErrors", 0,
+    this, "MaxFrameworkErrors", 10,
     "Tolerable number of recovered framework errors before exiting (<0 means all are tolerated)"};
 
   Gaudi::Property<std::string> m_fwkErrorDebugStreamName{

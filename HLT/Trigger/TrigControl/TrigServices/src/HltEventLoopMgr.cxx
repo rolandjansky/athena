@@ -943,13 +943,12 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
 
   auto drainAllAndProceed = [&]() -> StatusCode {
     ATH_CHECK(drainAllSlots()); // break the event loop on failure
-    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)<=m_maxFrameworkErrors.value()) )
-      return StatusCode::SUCCESS; // continue the event loop
-    else {
+    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("The number of tolerable framework errors for this HltEventLoopMgr instance, which is "
                     << m_maxFrameworkErrors.value() << ", was exceeded. Exiting the event loop.");
       return StatusCode::FAILURE; // break the event loop
     }
+    else return StatusCode::SUCCESS; // continue the event loop
   };
 
   //----------------------------------------------------------------------------
@@ -1125,7 +1124,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   if (errorCode != HLT::OnlineErrorCode::TIMEOUT
       && errorCode != HLT::OnlineErrorCode::RESULT_TRUNCATION
       && errorCode != HLT::OnlineErrorCode::PROCESSING_FAILURE) {
-    if ( (++m_nFrameworkErrors)>m_maxFrameworkErrors.value() ) {
+    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("Failure with OnlineErrorCode=" << errorCode
         << " was successfully handled, but the number of tolerable framework errors for this HltEventLoopMgr instance,"
         << " which is " << m_maxFrameworkErrors.value() << ", was exceeded. Current local event number is "
