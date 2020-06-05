@@ -407,10 +407,18 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  StatusCode sc = nextEvent(maxevt);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Event loop failed");
-    // Extra clean-up may be needed here after the failure
+  StatusCode sc = StatusCode::SUCCESS;
+  try {
+    sc = nextEvent(maxevt);
+    if (sc.isFailure()) ATH_MSG_FATAL("Event loop failed");
+  }
+  catch (const std::exception& e) {
+    ATH_MSG_FATAL("Event loop failed, std::exception caught: " << e.what());
+    sc = StatusCode::FAILURE;
+  }
+  catch (...) {
+    ATH_MSG_FATAL("Event loop failed, unknown exception caught");
+    sc = StatusCode::FAILURE;
   }
 
   // Stop the timer thread
