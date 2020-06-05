@@ -39,8 +39,8 @@ DerivationFrameworkJob += SeqSUSY11
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY11TriggerList import triggerRegEx
-SUSY11ThinningHelper.TriggerChains = '|'.join(triggerRegEx)
+from DerivationFrameworkSUSY.SUSY11TriggerList import SUSY11TriggerThinningList
+SUSY11ThinningHelper.TriggerChains = '|'.join(SUSY11TriggerThinningList)
 
 SUSY11ThinningHelper.AppendToStream( SUSY11Stream )
 
@@ -108,11 +108,11 @@ if DerivationFrameworkIsMonteCarlo:
 # TRIGGER SKIMMING
 #====================================================================
 
-from DerivationFrameworkSUSY.SUSY11TriggerList import triggerRegEx
+from DerivationFrameworkSUSY.SUSY11TriggerList import SUSY11TriggerSkimmingList
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 SUSY11SkimmingTool = DerivationFramework__TriggerSkimmingTool(
     name          = "SUSY11SkimmingTool",
-    TriggerListOR = triggerRegEx )
+    TriggerListOR = SUSY11TriggerSkimmingList )
 
 ToolSvc += SUSY11SkimmingTool
 
