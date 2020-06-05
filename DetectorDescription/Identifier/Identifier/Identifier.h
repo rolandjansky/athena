@@ -245,7 +245,12 @@ inline Identifier::Identifier (Identifier32::value_type value)
         : m_id(max_value)
 {
     //std::cout << "Identifier(Identifier32::value_type) " << value << std::endl;
-    m_id = (static_cast<value_type>(value) << 32);
+   if (value == ~static_cast<Identifier32::value_type>(0)) {
+     m_id = max_value;
+   }
+   else {
+     m_id = (static_cast<value_type>(value) << 32);
+   }
 }
 inline Identifier::Identifier (int value)
         : m_id(max_value)
@@ -318,7 +323,12 @@ inline Identifier&
 Identifier::operator = (Identifier32::value_type value)
 {
     //std::cout << "operator=(Identifier32::value_type) " << value << std::endl;
-    m_id = static_cast<value_type>(value) << 32;
+    if (value == ~static_cast<Identifier32::value_type>(0)) {
+      m_id = max_value;
+    }
+    else {
+      m_id = static_cast<value_type>(value) << 32;
+    }
     return (*this);
 }
 inline Identifier&
