@@ -143,20 +143,24 @@ egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle* tru
 {
 
   if ((truth->pdgId() != 22 && abs(truth->pdgId()) != 11) || truth->status() == 2 ||
-      truth->status() == 3 || truth->barcode() > m_barcodeOffset || truth->pt() < m_minPt)
+      truth->status() == 3 || truth->barcode() > m_barcodeOffset || truth->pt() < m_minPt){
     return false;
+  }
 
   auto type = m_mcTruthClassifier->particleTruthClassifier(truth);
 
   // Isolated electron or photon
   if (type.first == MCTruthPartClassifier::IsoElectron ||
-      type.first == MCTruthPartClassifier::IsoPhoton)
+      type.first == MCTruthPartClassifier::IsoPhoton) {
     return true;
+  }
 
   // FSR photon
   if (type.first == MCTruthPartClassifier::NonIsoPhoton &&
-      type.second == MCTruthPartClassifier::FSRPhot && truth->pt() > m_minPtFSR)
+      type.second == MCTruthPartClassifier::FSRPhot &&
+      truth->pt() > m_minPtFSR) {
     return true;
+  }
 
   return false;
 }
@@ -209,9 +213,9 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(
   const xAOD::TruthParticle* truth,
   xAOD::TruthParticleContainer& egammaTruthContainer) const
 {
-  if (!truth)
+  if (!truth){
     return nullptr;
-
+  }
   // Find the original truth particle for electrons from conversions
   for (unsigned int i = 0; i < 100 && truth && truth->barcode() > 200e3; ++i) {
     if (truth->prodVtx() && truth->prodVtx()->nIncomingParticles()) {
@@ -222,9 +226,9 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(
   }
 
   // In case truth became null in the above loop
-  if (!truth)
+  if (!truth){
     return nullptr;
-
+  }
   for (auto egammaTruth : egammaTruthContainer) {
     if (truth->barcode() == egammaTruth->barcode()) {
       return egammaTruth;
