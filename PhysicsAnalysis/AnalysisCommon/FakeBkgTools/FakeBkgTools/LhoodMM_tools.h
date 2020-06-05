@@ -9,10 +9,13 @@
 #include "TMatrixT.h"
 #include "FakeBkgTools/BaseFakeBkgTool.h"
 #include "FakeBkgTools/LhoodMMEvent.h"
+#include "FakeBkgTools/LhoodMMFitInfo.h"
 
 #include <vector>
 
 class TH1;
+class TH2;
+class TH3;
 class TMinuit_LHMM;
 class TDirectory;
 
@@ -46,8 +49,9 @@ class LhoodMM_tools : public BaseFakeBkgTool
   virtual StatusCode getTotalYield(float& yield, float& statErrUp, float& statErrDown) override final;
   virtual StatusCode register1DHistogram(TH1* h1, const float *val) override;
   virtual StatusCode register2DHistogram(TH2* h2, const float *xval, const float *yval) override;
+  virtual StatusCode register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) override;
 
-  double nfakes( const std::vector<LhoodMMEvent>& mmevts, Double_t *poserr, Double_t *negerr); 
+  double nfakes(Double_t *poserr, Double_t *negerr); 
  
   double nfakes_std(double *error);
   double nfakes_std_perEventWeight(double *error);
@@ -64,6 +68,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   StatusCode mergeSubJobs();
 
+  bool perfectFit() { return m_perfectFit;}
  protected:
   /// This indicates which type of efficiencies/fake factor need to be filled
   virtual FakeBkgTools::Client clientForDB() override final;
@@ -72,6 +77,12 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   // pointer to instance of LhoodMM_tools to use in a given fit
   static LhoodMM_tools* m_current_lhoodMM_tool;
+  
+  LhoodMMFitInfo m_global_fitInfo;
+  bool m_prevSave;
+  bool m_perfectFit;
+
+  const LhoodMMFitInfo *m_current_fitInfo;
 
  #ifndef __CLING__
   std::vector<std::unique_ptr<FakeBkgTools::FinalState> > m_fsvec;
@@ -84,6 +95,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
   std::vector<std::vector<int>> m_real_indices, m_fake_indices;
   bool m_requireSS, m_requireOS;
 
+  bool m_needToResize;
+
   bool m_doFakeFactor;
 
   bool m_fixNormalization;
@@ -94,19 +107,15 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   static const int nLepMax = 6;
   static const int maxRank =  64; // i.e. 2^nLepMax
-  std::vector<std::vector<double> > m_event_cat;
-  std::vector<std::vector<double> > m_event_sumw2;
 
-  std::vector < std::vector < std::vector <double> >> m_coeffs;
 
-  std::vector<LhoodMMEvent> m_mmevts_total; // filled by addEventCustom()
-  std::vector< std::vector<LhoodMMEvent> > m_mmevts_internal;  // separated out by lepton 
-                                                    // multiplicity in setup()
+  std::vector < std::vector < std::vector < double > > > m_coeffs;
+  
+  std::map<TH1*, std::vector< LhoodMMFitInfo > > m_fitInfo_1dhisto_map;
+  std::map<TH2*, std::vector< LhoodMMFitInfo > > m_fitInfo_2dhisto_map;
+  std::map<TH3*, std::vector< LhoodMMFitInfo > > m_fitInfo_3dhisto_map;
 
-  std::map<TH1*, std::vector<LhoodMMEvent> > m_mmevts_1dhisto_map;
-  std::map<TH2*, std::vector<LhoodMMEvent> > m_mmevts_2dhisto_map;
-
-  double m_ssfrac, m_dilep_SSfrac;
+  double m_dilep_SSfrac_num, m_dilep_SSfrac_denom;
   std::vector< std::vector < double > > m_OSfrac;
 
   double m_nfakes_std, m_nfakes_std_err;
@@ -129,7 +138,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
   const double _piover2 = 1.57079632679489661923;
   const double _piover4 = 0.785398163397448309616;
 
-  StatusCode setup(const std::vector<LhoodMMEvent>& mmevts);
+  StatusCode setup();
 
   static double logPoisson(double obs, double pred);
 
@@ -138,6 +147,10 @@ class LhoodMM_tools : public BaseFakeBkgTool
        const std::vector<FakeBkgTools::Efficiency>& fakeEff_vals,
        const std::vector<int>& charges,
        float weight);
+
+  StatusCode incrementMatrices(const LhoodMMEvent& mmevt);
+  StatusCode incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
+				   const LhoodMMEvent& mmevt);
 
   static void fcn_nlep(Int_t &npar , Double_t *gin , Double_t &f, Double_t *par, Int_t iflag );
   static void fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
@@ -150,7 +163,7 @@ class LhoodMM_tools : public BaseFakeBkgTool
   void mapLhood(TMinuit_LHMM* lhoodFit, int nlep, double min, double max);
 
   StatusCode fillHistograms();
-  StatusCode fillHisto_internal(const std::vector<LhoodMMEvent>& mmevts, TH1* h);
+  StatusCode fillHisto_internal(const std::vector< LhoodMMFitInfo >& fitInfo_vec, TH1* h);
 };
 
 }
