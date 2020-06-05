@@ -9,7 +9,7 @@
 TrigNavigationThinningSvc::TrigNavigationThinningSvc( const std::string& name, ISvcLocator* pSvcLocator ) 
   : AthService(name, pSvcLocator),
     m_workerThinning("ThinningSvc", name),
-    m_slimmingTool("TrigNavigationThinningTool/TrigNavigationThinningTool/")
+    m_slimmingTool("TrigNavigationSlimmingTool/TrigNavigationSlimmingTool")
 {
   declareProperty("WorkerThinningSvc", m_workerThinning, "Service which deals wiht all requests except the navigation");
   declareProperty("SlimmingTool", m_slimmingTool, "Tool responsible for the actual thinning");
