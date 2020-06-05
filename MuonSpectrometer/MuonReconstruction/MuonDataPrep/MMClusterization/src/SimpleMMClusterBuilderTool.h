@@ -46,6 +46,7 @@ namespace Muon
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MmIdHelper* m_mmIdHelper;
+    bool m_writeStripProperties;
 
     bool m_useErrorParametrization;
     uint m_maxHoleSize;

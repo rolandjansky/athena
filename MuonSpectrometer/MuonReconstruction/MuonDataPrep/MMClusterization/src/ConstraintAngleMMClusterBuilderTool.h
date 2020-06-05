@@ -36,6 +36,7 @@ namespace Muon{
             
         private:
             ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool;
+            bool m_writeStripProperties;
 
             StatusCode sortHitsToLayer(const std::vector<Muon::MMPrepData>& MMprds, std::vector<std::vector<Muon::MMPrepData>>& prdsPerLayer) const ;
             StatusCode scanLayer(const std::vector<Muon::MMPrepData> &mmPrdsPerLayer,std::vector<std::vector<uint>> &idxClusters, std::vector<double> &clusterTheta)const ;
