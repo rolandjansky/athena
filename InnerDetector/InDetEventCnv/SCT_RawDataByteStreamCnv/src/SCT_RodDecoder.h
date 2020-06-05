@@ -101,13 +101,15 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param rdoIDCont RDO ID Container to be filled.
    * @param cache Cache.
    * @param errorHit Hit error info.
+   * @param errorsCache - the cache to be filled for a given ID
    */
   int makeRDO(int strip, int groupSize, int timeBin,
               const IdentifierHash& collIDHash,
               int errors,
               ISCT_RDO_Container& rdoIDCont,
               CacheHelper& cache,
-              const std::vector<int>& errorHit) const;
+              const std::vector<int>& errorHit,
+	      SCT_RodDecoderErrorsHelper& errorsCache) const;
 
   /**
    * @brief Add an error for each wafer in the problematic ROD
