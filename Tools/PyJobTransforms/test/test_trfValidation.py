@@ -710,6 +710,10 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
         self.assertEqual(self.myFileReport12.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                             'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {'message0': 'TBufferFile::CheckObject:0: RuntimeWarning: reference to object of unavailable class TObject, offset=980837731 pointer will be 0', 'firstLine0': 7, 'count0': 2, 'message1': 'Error in <TExMap::Remove>: key 980837731 not found at 306', 'firstLine1': 6, 'count1': 2}, 'lastNormalLine before CoreDump': {'message': 'Error in <CreateRealData>: Cannot find data member # 0 of class Identifier for parent TileTrigger!', 'firstLine': 3, 'count': 1}}, 'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown; Abnormal line(s) seen just before core dump: TBufferFile::CheckObject:0: Ru...[truncated] (see the jobReport)', 'firstLine': 9, 'count': 1}})
 
+    def test_knowledgeFile(self):
+        self.assertEqual(self.myFileReport13.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                            'firstError': {'count': 1, 'firstLine': 13, 'message': 'Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator(); PYTHIA Abort from Pythia::next: reached end of Les Houches Events File'}})
+
     def test_dbMonitor(self):
         print self.myFileReport9 
         self.assertEqual(self.myFileReport9.dbMonitor(), {'bytes': 579, 'time': 12.45})
