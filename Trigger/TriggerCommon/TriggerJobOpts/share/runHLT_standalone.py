@@ -61,6 +61,7 @@ class opt:
     filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
+    selectChains      = []
 
 
 #
@@ -490,6 +491,9 @@ if not opt.createHLTMenuExternally:
             eval(sig)
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
+
+    if (opt.selectChains):
+        menu.selectChainsForTesting = opt.selectChains
 
     # generating the HLT structure requires 
     # the L1Decoder to be defined in the topSequence
