@@ -233,7 +233,7 @@ class InputMakerNode(AlgNode):
     def __init__(self, Alg):
         assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + compName(Alg)
         AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
-        input_maker_output = CFNaming.inputMakerOutName(compName(self.Alg),"out")
+        input_maker_output = CFNaming.inputMakerOutName(compName(self.Alg))
         self.addOutput(input_maker_output)
 
 
