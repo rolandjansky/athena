@@ -436,7 +436,6 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
             ### NLO RUN ###
             mglog.info('Package up process_dir')
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
-            #tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz'])
             tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=--exclude=*/*/*/*/*.o'])
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
