@@ -14,8 +14,6 @@
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperSvc.h"
-
 namespace Muon {
 class ClusterTimeProjectionMMClusterBuilderTool :
   virtual public IMMClusterBuilderTool,
