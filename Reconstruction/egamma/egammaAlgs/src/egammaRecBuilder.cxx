@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaRecBuilder.h"
@@ -66,7 +66,7 @@ egammaRecBuilder::RetrieveEMTrackMatchBuilder()
   if (m_trackMatchBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve " << m_trackMatchBuilder);
     return StatusCode::FAILURE;
-  } else
+  } 
     ATH_MSG_DEBUG("Retrieved Tool " << m_trackMatchBuilder);
 
   return StatusCode::SUCCESS;
@@ -89,7 +89,7 @@ egammaRecBuilder::RetrieveEMConversionBuilder()
   if (m_conversionBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve " << m_conversionBuilder);
     return StatusCode::FAILURE;
-  } else
+  } 
     ATH_MSG_DEBUG("Retrieved Tool " << m_conversionBuilder);
 
   return StatusCode::SUCCESS;
@@ -118,9 +118,9 @@ egammaRecBuilder::execute_r(const EventContext& ctx) const
     ATH_MSG_ERROR("Could not retrieve cluster container:"
                   << m_inputTopoClusterContainerKey.key());
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG("Retrieved input cluster container");
-  }
+  
 
   // Build the initial egamma Rec objects for all copied Topo Clusters
   SG::WriteHandle<EgammaRecContainer> egammaRecs(m_egammaRecContainerKey, ctx);

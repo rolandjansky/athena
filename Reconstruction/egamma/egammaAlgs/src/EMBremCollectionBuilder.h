@@ -41,7 +41,7 @@ public:
   virtual StatusCode finalize() override final;
   virtual StatusCode execute() override final
   {
-    return execute_r(Gaudi::Hive::currentContext());
+    return execute_r(Algorithm::getContext());
   }
   // This will become the normal execute when
   // inheriting from AthReentrantAlgorithm
