@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactory to instantiate  egammaBremCollectionBuilder with default configuration"
+__doc__ = """ToolFactory to instantiate  egammaBremCollectionBuilder
+with default configuration"""
 __author__ = "Christos"
 
 import InDetRecExample.TrackingCommon as TrackingCommon
@@ -30,9 +31,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         import egammaRec.EMCommonRefitter
 
-        # Extrapolator to be used for GSF this is private
+        # Extrapolator to be used for GSF (private)
         GSFBuildInDetExtrapolator = egammaExtrapolator()
 
+        # GsfReffiter (private not in ToolSvc)
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         GSFRefitterTool = egammaTrkRefitterTool(
             name='GSFRefitterTool',
@@ -42,7 +44,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             ReintegrateOutliers=True)
 
         #
-        #  BLayer and Pixel Related Tools
+        #  BLayer and Pixel Related Tools (private = True)
         #
         GSFBuildTestBLayerTool = None
         GSFBuildPixelToTPIDTool = None
@@ -58,12 +60,14 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             GSFBuildTestBLayerTool = TrackingCommon.getInDetRecTestBLayerTool(
                 name="GSFBuildTestBLayerTool",
                 PixelSummaryTool=GSFPixelConditionsSummaryTool,
-                Extrapolator=GSFBuildInDetExtrapolator)
+                Extrapolator=GSFBuildInDetExtrapolator,
+                private=True)
 
             GSFBuildPixelToTPIDTool = TrackingCommon.getInDetPixelToTPIDTool(
-                name="GSFBuildPixelToTPIDTool")
+                name="GSFBuildPixelToTPIDTool",
+                private=True)
         #
-        #  TRT_ElectronPidTool
+        #  TRT_ElectronPidTool (private =True)
         #
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
@@ -75,7 +79,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         #
         #  InDet Track Summary Helper, no Association and no hole
-        #  as we do not redo them
+        #  as we do not redo them (private = true)
         #
         GSFBuildTrackSummaryHelperTool = TrackingCommon.getInDetSummaryHelper(
             name="GSFBuildTrackSummaryHelperTool",
@@ -88,6 +92,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         #
         #  TrkTrackSummaryTool: no shared hits  no hole search
+        #  still public due to TrackParticleCreatorTool
         #
         GSFBuildInDetTrackSummaryTool = (
             TrackingCommon.getInDetTrackSummaryTool(
@@ -98,11 +103,11 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
                 PixelToTPIDTool=GSFBuildPixelToTPIDTool)
         )
-        #
-        #  Track Particle Creator tool
-        #
 
-        #  The TrackSummary needs a public extrapolator still...
+        #
+        #  Track Particle Creator tool (private not in ToolSvc)
+        #  But needs a public extrapolator and
+        #  InDetTrackSummaryTool still...
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
 
@@ -113,7 +118,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             TrackSummaryTool=GSFBuildInDetTrackSummaryTool,
             UseTrackSummaryTool=False)
         #
-        #  do track slimming
+        #  Track slimming (private not in ToolSvc)
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import (
             Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool)
