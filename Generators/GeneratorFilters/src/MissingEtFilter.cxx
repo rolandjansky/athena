@@ -47,7 +47,7 @@ StatusCode MissingEtFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-bool MissingEtFilter::fromWZ( const HepMC::GenParticle* part ) const
+bool MissingEtFilter::fromWZ( const HepMC::GenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use
@@ -72,7 +72,7 @@ bool MissingEtFilter::fromWZ( const HepMC::GenParticle* part ) const
   return false;
 }
 
-bool MissingEtFilter::fromTau( const HepMC::GenParticle* part ) const
+bool MissingEtFilter::fromTau( const HepMC::GenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use

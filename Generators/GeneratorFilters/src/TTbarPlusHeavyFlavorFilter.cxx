@@ -65,9 +65,9 @@ StatusCode TTbarPlusHeavyFlavorFilter::filterEvent() {
     // ===========================================
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();pitr!=genEvt->particles_end(); ++pitr ) {
 
-      const HepMC::GenParticle* part = (*pitr);
+      HepMC::GenParticle* part = (*pitr);
 
-      if(part->barcode() > 200000) break;
+      if(HepMC::barcode(part) > 200000) break;
 
       bool isbquark=false;
       bool iscquark=false;
@@ -158,7 +158,7 @@ StatusCode TTbarPlusHeavyFlavorFilter::filterEvent() {
 }
 
 
-bool TTbarPlusHeavyFlavorFilter::passBSelection(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::passBSelection(const HepMC::GenParticlePtr part) const{
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
@@ -171,7 +171,7 @@ bool TTbarPlusHeavyFlavorFilter::passBSelection(const HepMC::GenParticle* part) 
   
 }
 
-bool TTbarPlusHeavyFlavorFilter::passCSelection(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::passCSelection(const HepMC::GenParticlePtr part) const{
 
   const HepMC::FourVector& p4 = part->momentum();
   double pt = p4.perp();
@@ -200,9 +200,9 @@ int TTbarPlusHeavyFlavorFilter::hadronType(int pdgid) const{
 }
 
 
-bool TTbarPlusHeavyFlavorFilter::isBHadron(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isBHadron(const HepMC::GenParticlePtr part) const{
 
-  if(part->barcode() >= 200000) return false;
+  if(HepMC::barcode(part) >= 200000) return false;
   int type = hadronType(part->pdg_id());
   if(type == 5)  return true;
 
@@ -211,9 +211,9 @@ bool TTbarPlusHeavyFlavorFilter::isBHadron(const HepMC::GenParticle* part) const
 }
 
 
-bool TTbarPlusHeavyFlavorFilter::isCHadron(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isCHadron(const HepMC::GenParticlePtr part) const{
 
-  if(part->barcode() >= 200000) return false;
+  if(HepMC::barcode(part) >= 200000) return false;
   int type = hadronType(part->pdg_id());
   if(type == 4)  return true;
 
@@ -223,9 +223,9 @@ bool TTbarPlusHeavyFlavorFilter::isCHadron(const HepMC::GenParticle* part) const
 
 
 
-bool TTbarPlusHeavyFlavorFilter::isInitialHadron(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isInitialHadron(const HepMC::GenParticlePtr part) const{
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::GenVertexPtr prod = part->production_vertex();
   if(prod){
     int type = hadronType(part->pdg_id());
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::parents);
@@ -244,9 +244,9 @@ bool TTbarPlusHeavyFlavorFilter::isInitialHadron(const HepMC::GenParticle* part)
 }
 
 
-bool TTbarPlusHeavyFlavorFilter::isFinalHadron(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isFinalHadron(const HepMC::GenParticlePtr part) const{
 
-  HepMC::GenVertex* end = part->end_vertex();
+  HepMC::GenVertexPtr end = part->end_vertex();
   if(end){
     int type = hadronType(part->pdg_id());
     HepMC::GenVertex::particle_iterator firstChild = end->particles_begin(HepMC::children);
@@ -267,9 +267,9 @@ bool TTbarPlusHeavyFlavorFilter::isFinalHadron(const HepMC::GenParticle* part) c
 
 
 
-bool TTbarPlusHeavyFlavorFilter::isQuarkFromHadron(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isQuarkFromHadron(const HepMC::GenParticlePtr part) const{
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::GenVertexPtr prod = part->production_vertex();
   if(prod){
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::ancestors);
     HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
@@ -287,11 +287,11 @@ bool TTbarPlusHeavyFlavorFilter::isQuarkFromHadron(const HepMC::GenParticle* par
 
 }
 
-bool TTbarPlusHeavyFlavorFilter::isCHadronFromB(const HepMC::GenParticle* part) const{
+bool TTbarPlusHeavyFlavorFilter::isCHadronFromB(const HepMC::GenParticlePtr part) const{
 
   if(!isCHadron(part)) return false;
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::GenVertexPtr prod = part->production_vertex();
   if(prod){
     HepMC::GenVertex::particle_iterator firstParent = prod->particles_begin(HepMC::ancestors);
     HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
@@ -308,9 +308,9 @@ bool TTbarPlusHeavyFlavorFilter::isCHadronFromB(const HepMC::GenParticle* part) 
 }
 
 
-bool TTbarPlusHeavyFlavorFilter::isLooping(const HepMC::GenParticle* part, std::set<const HepMC::GenParticle*> init_part) const{
+bool TTbarPlusHeavyFlavorFilter::isLooping(const HepMC::GenParticlePtr part, std::set<HepMC::GenParticlePtr> init_part) const{
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::GenVertexPtr prod = part->production_vertex();
 
   if(!prod) return false;
 
@@ -329,9 +329,9 @@ bool TTbarPlusHeavyFlavorFilter::isLooping(const HepMC::GenParticle* part, std::
 
 
 
-const HepMC::GenParticle*  TTbarPlusHeavyFlavorFilter::findInitial(const HepMC::GenParticle* part, bool looping) const{
+HepMC::ConstGenParticlePtr  TTbarPlusHeavyFlavorFilter::findInitial(HepMC::ConstGenParticlePtr part, bool looping) const{
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  auto prod = part->production_vertex();
 
   if(!prod) return part;
 
@@ -348,16 +348,16 @@ const HepMC::GenParticle*  TTbarPlusHeavyFlavorFilter::findInitial(const HepMC::
 
 }
 
-bool TTbarPlusHeavyFlavorFilter::isFromTop(const HepMC::GenParticle* part, bool looping) const{
+bool TTbarPlusHeavyFlavorFilter::isFromTop(const HepMC::GenParticlePtr part, bool looping) const{
 
-  const HepMC::GenParticle* initpart = findInitial(part, looping);
+  const HepMC::GenParticlePtr initpart = findInitial(part, looping);
   return isDirectlyFromTop(initpart, looping);
  
 }
 
-bool TTbarPlusHeavyFlavorFilter::isDirectlyFromTop(const HepMC::GenParticle* part, bool looping) const{
+bool TTbarPlusHeavyFlavorFilter::isDirectlyFromTop(const HepMC::GenParticlePtr part, bool looping) const{
 
- HepMC::GenVertex* prod = part->production_vertex();
+ HepMC::GenVertexPtr prod = part->production_vertex();
 
   if(!prod) return false;
 
@@ -373,9 +373,9 @@ bool TTbarPlusHeavyFlavorFilter::isDirectlyFromTop(const HepMC::GenParticle* par
 
 
 
-bool TTbarPlusHeavyFlavorFilter::isDirectlyFromWTop(const HepMC::GenParticle* part, bool looping) const{
+bool TTbarPlusHeavyFlavorFilter::isDirectlyFromWTop(const HepMC::GenParticlePtr part, bool looping) const{
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::GenVertexPtr prod = part->production_vertex();
 
   if(!prod) return false;
 

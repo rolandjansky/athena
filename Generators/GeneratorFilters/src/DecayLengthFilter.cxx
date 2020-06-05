@@ -55,8 +55,8 @@ StatusCode DecayLengthFilter::filterEvent() {
       break;
     }
 
-    HepMC::GenVertex* decayVertex = *vtx_iter;
-    HepMC::GenVertex* creationVertex = (*inParticle)->production_vertex();
+    HepMC::GenVertexPtr decayVertex = *vtx_iter;
+    HepMC::GenVertexPtr creationVertex = (*inParticle)->production_vertex();
 
     float distR = sqrt( pow(creationVertex->position().x() - decayVertex->position().x(),2) + pow(creationVertex->position().y() - decayVertex->position().y(),2) );
     float distZ = creationVertex->position().z() - decayVertex->position().z();

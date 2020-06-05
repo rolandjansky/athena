@@ -88,7 +88,7 @@ StatusCode XtoVVDecayFilter::filterEvent() {
 }
 
 
-void XtoVVDecayFilter::FindAncestor(const HepMC::GenVertex* searchvertex,
+void XtoVVDecayFilter::FindAncestor(const HepMC::GenVertexPtr searchvertex,
                                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2) {
   if (!searchvertex) return;
   const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
