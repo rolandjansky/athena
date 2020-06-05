@@ -126,12 +126,12 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
 }
 
 
-bool TtHtoVVDecayFilter::findAncestor(const HepMC::GenVertex* searchvertex,
+bool TtHtoVVDecayFilter::findAncestor(const HepMC::GenVertexPtr searchvertex,
                                       int targetPDGID) {
   if (!searchvertex) return false;
   const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
   const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
-  for (HepMC::GenVertex::particles_out_const_iterator anc = firstAncestor; anc != endAncestor; ++anc) {
+  for (auto anc = firstAncestor; anc != endAncestor; ++anc) {
     if (abs((*anc)->pdg_id()) == targetPDGID) { // same particle as parent
       return findAncestor((*anc)->end_vertex(),
                           targetPDGID);

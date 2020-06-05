@@ -99,8 +99,10 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     int n=0;
-    for(HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin();
-	pitr1!=genEvt->particles_end(); ++pitr1 ){
+    auto genEvt_particles_begin  = genEvt->particles_begin();
+    auto genEvt_particles_end    = genEvt->particles_end();
+    for(auto pitr1 = genEvt_particles_begin;
+	pitr1!=genEvt_particles_end; ++pitr1 ){
       n++;
       if( ( std::abs((*pitr1)->pdg_id()) != std::abs(m_PartId1)  && 99999 != std::abs(m_PartId1) ) || //PDG ID selection
           (*pitr1)->status() != m_PartStatus  ||    //status of the particle 
@@ -112,13 +114,13 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
                     << " eta1 " << (*pitr1)->momentum().pseudoRapidity() << " phi1 " << (*pitr1)->momentum().phi()
                     << " stat1 " << (*pitr1)->status()  );
 
-      HepMC::GenEvent::particle_const_iterator pitr2 = genEvt->particles_begin();
+      auto pitr2 = genEvt_particles_begin;
       if( samePDGID12 ){
         pitr2 = pitr1;
         pitr2++;//pirt2 = pitr1 + 1  is not allowed. operator+ is not defined....
       }
 
-      for(; pitr2!=genEvt->particles_end(); ++pitr2 ){
+      for(; pitr2!=genEvt_particles_end; ++pitr2 ){
 
         if( pitr1 == pitr2 ) continue;//if the pointers are the same. 
           
@@ -133,13 +135,13 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
                       << " eta2 " << (*pitr2)->momentum().pseudoRapidity() << " phi2 " << (*pitr2)->momentum().phi()
                       << " stat2 " << (*pitr2)->status()  );
 
-        HepMC::GenEvent::particle_const_iterator pitr3 = genEvt->particles_begin();
+        auto pitr3 = genEvt_particles_begin;
         if( samePDGID123 ){
           pitr3 = pitr2;
           pitr3++;//pirt2 = pitr1 + 1  is not allowed. operator+ is not defined....
         }
 
-        for(; pitr3!=genEvt->particles_end(); ++pitr3 ){
+        for(; pitr3!=genEvt_particles_end; ++pitr3 ){
 
           if( pitr1 == pitr3 || pitr2 == pitr3 ) continue;//if the pointers are the same. 
   

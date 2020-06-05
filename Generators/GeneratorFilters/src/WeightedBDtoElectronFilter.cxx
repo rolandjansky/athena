@@ -80,7 +80,7 @@ StatusCode WeightedBDtoElectronFilter::filterEvent() {
             if ( etaAbs <=m_EtaRange ) {
 
               // check parent and ancestors for B hadron
-              const HepMC::GenParticle* bParent = FindBParent( (*pitr) );
+              auto bParent = FindBParent( (*pitr) );
               if ( bParent != 0 ) {
 
                 // apply prescale factors
@@ -106,7 +106,7 @@ StatusCode WeightedBDtoElectronFilter::filterEvent() {
 }
 
 
-const HepMC::GenParticle* WeightedBDtoElectronFilter::FindBParent( const HepMC::GenParticle* part ) {
+HepMC::ConstGenParticlePtr WeightedBDtoElectronFilter::FindBParent( HepMC::ConstGenParticlePtr part ) {
   if ( part->production_vertex() == 0 ) {
     ATH_MSG_DEBUG("Can't find parent (no production vertex)");
     return 0;
@@ -143,7 +143,7 @@ const HepMC::GenParticle* WeightedBDtoElectronFilter::FindBParent( const HepMC::
     parentItr = (*parentItr)->production_vertex()->particles_in_const_begin();
   }
 
-  const HepMC::GenParticle* bParent = 0;
+  HepMC::GenParticle* bParent = 0;
   if ( isBHadron((*parentItr)->pdg_id()) || isDHadron((*parentItr)->pdg_id()) ) {
     bParent = (*parentItr);
     ATH_MSG_INFO("Found B hadron: " << (*parentItr)->pdg_id());

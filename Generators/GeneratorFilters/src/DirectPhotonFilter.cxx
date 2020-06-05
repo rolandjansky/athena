@@ -24,7 +24,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
+    ATH_MSG_DEBUG("----->>> Process : " << HepMC::signal_process_id(genEvt));
 
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
       if (((*pitr)->pdg_id() == 22)) {

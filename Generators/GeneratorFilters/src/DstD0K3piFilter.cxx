@@ -15,7 +15,7 @@ DstD0K3piFilter::DstD0K3piFilter(const std::string& name, ISvcLocator* pSvcLocat
 
 // If mcpart first child lundId equals chLundId, return true
 /// @todo No need for this to be a member function... useful in a HepMC utils library?
-bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int chLundId) {
+bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticlePtr mcpart, unsigned int nth, int chLundId) {
   int nChild = 0;
   const HepMC::GenVertex* DecayVtx = mcpart->end_vertex();
   if (DecayVtx != 0) nChild = DecayVtx->particles_out_size();
@@ -37,7 +37,7 @@ bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int 
 
 
 /// @todo No need for this to be a member function
-bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticle*>& genParticles) {
+bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticlePtr>& genParticles) {
   unsigned int nDecay = lundIds.size();
   if (nDecay == 2) {
     unsigned int id0 = std::abs( static_cast<int>(lundIds[0]) );

@@ -107,7 +107,6 @@ StatusCode BSignalFilter::filterEvent()
       bool acceptEvent = true;
 
       const HepMC::GenEvent* genEvt = (*itr);
-      HepMC::GenEvent::particle_const_iterator pitr;
 
       // ** Check HepMC for particles activating LVL1 trigger, if that is what user wishes **
       //
@@ -117,13 +116,12 @@ StatusCode BSignalFilter::filterEvent()
       if ( m_localLVL1MuonCutOn )
         {
 	  //
-	  for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
-            {
+	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ){
 	      bool LVL1Result = LVL1_Mu_Trigger( (*pitr) );
 	      if ( LVL1Result )
                 {
 		  LVL1Passed = true;
-		  LVL1MuonBarcode = (*pitr)->barcode();  // Remember the muon for LVL2 testing
+		  LVL1MuonBarcode = HepMC::barcode(*pitr);  // Remember the muon for LVL2 testing
 		  break;
                 }
             }
@@ -135,12 +133,12 @@ StatusCode BSignalFilter::filterEvent()
       //
       if ( LVL1Passed && (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn) )
         {
-	  for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
             {
 	      bool LVL2Result = LVL2_eMu_Trigger( (*pitr) );
 	      if ( LVL2Result )
                 {
-		  if ( (*pitr)->barcode() != LVL1MuonBarcode ) // Check the particle triggering LVL2 isn't
+		  if ( HepMC::barcode(*pitr) != LVL1MuonBarcode ) // Check the particle triggering LVL2 isn't
 		    LVL2Passed = true;	                       // the muon that triggered LVL1 --> Artificial,
 		                                               // since, effectively, LVL2 trigger is not applied.
                                                                // This is needed to "trigger" the 2nd muon!
@@ -174,7 +172,7 @@ StatusCode BSignalFilter::filterEvent()
 
       // ** Reject event if an undecayed quark is found **
       //
-      for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+      for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
         {
 	  if ( abs((*pitr)->pdg_id()) <= 6 && (*pitr)->status() == 1 )
             {
@@ -191,7 +189,7 @@ StatusCode BSignalFilter::filterEvent()
       if ( LVL1Passed && LVL2Passed )
         {
 	  // ** Loop on all particles **
-	  for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
             {
 	      const int particleID = (*pitr)->pdg_id();
 	      //
@@ -363,7 +361,7 @@ bool BSignalFilter::test_cuts(const double myPT, const double testPT,
 }
 
 
-bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticle* child) const
+bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticlePtr child) const
 {
   bool accept = false;
   int pID = child->pdg_id();
@@ -378,7 +376,7 @@ bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticle* child) const
 }
 
 
-bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticle* child) const
+bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticlePtr child) const
 {
   bool accept = false;
   int pID = child->pdg_id();
@@ -394,7 +392,7 @@ bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticle* child) const
 }
 
 
-void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string treeIDStr,
+void BSignalFilter::FindAllChildren(const HepMC::GenParticlePtr mother,std::string treeIDStr,
 				    bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
 				    TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const
 {
@@ -428,10 +426,8 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string
 	return;
       }
   }
-
-  HepMC::GenVertex::particle_iterator firstChild, thisChild, lastChild;
-  firstChild = mother->end_vertex()->particles_begin(HepMC::children);
-  lastChild  = mother->end_vertex()->particles_end(HepMC::children);
+ auto firstChild = mother->end_vertex()->particles_begin(HepMC::children);
+ auto lastChild  = mother->end_vertex()->particles_end(HepMC::children);
 
   int childCnt = 0;
   std::string childIDStr;
@@ -442,7 +438,7 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string
     {
       fromFinalB = true;
       int pID;
-      for( thisChild = firstChild; thisChild != lastChild++; ++thisChild)
+      for(auto thisChild = firstChild; thisChild != lastChild++; ++thisChild)
 	{
 	  pID = (*thisChild)->pdg_id();
 	  if( MC::PID::isBottomMeson(pID) || MC::PID::isBottomBaryon(pID) ) fromFinalB = false;
@@ -450,7 +446,7 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string
     }
 
   // ** Main loop: iterate over all children, call method recursively.
-  for( thisChild = firstChild; thisChild != lastChild++; ++thisChild)
+  for( auto thisChild = firstChild; thisChild != lastChild++; ++thisChild)
     {
       childCnt++;
       stringstream childCntSS; childCntSS << childCnt;
@@ -464,7 +460,7 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string
 }
 
 
-bool BSignalFilter::FinalStatePassedCuts(const HepMC::GenParticle* child) const
+bool BSignalFilter::FinalStatePassedCuts(const HepMC::GenParticlePtr child) const
 {
   bool accept = true;
 
@@ -597,7 +593,7 @@ bool BSignalFilter::FinalStatePassedCuts(const HepMC::GenParticle* child) const
 }
 
 
-void BSignalFilter::PrintChild(const HepMC::GenParticle* child,
+void BSignalFilter::PrintChild(const HepMC::GenParticlePtr child,
 			       const std::string treeIDStr, const bool fromFinalB) const
 {
   int pID = child->pdg_id();
