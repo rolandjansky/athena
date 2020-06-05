@@ -11,9 +11,10 @@
 #include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
-#include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
+#include "MuonPrepRawData/MdtTwinPrepData.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <vector>
 #include <algorithm>
@@ -22,13 +23,15 @@ using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
 
+namespace {
+  static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
+}
+
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_muonMgr(nullptr),
   m_calibrationTool("MdtCalibrationTool",this),
-  m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
-  m_calibHit(nullptr),
-  m_invSpeed(1./299.792458),
+  m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
   m_fullEventDone(false),
@@ -62,7 +65,7 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
   declareProperty("CalibrationTool",m_calibrationTool);
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {  
+StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(AthAlgTool::initialize());
   ATH_CHECK(detStore()->retrieve(m_muonMgr));
   ATH_CHECK(m_calibrationTool.retrieve());
@@ -88,7 +91,6 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   }// end if(m_useTwin){
   // - TWIN TUBES
 
-  m_calibHit = new MdtCalibHit();
   m_mdtCalibSvcSettings->initialize();
 
   // check if the layout includes elevator chambers
@@ -116,16 +118,15 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   }
 
   // check if initializing of DataHandle objects success
-  ATH_CHECK( m_rdoContainerKey.initialize() ); 
-  ATH_CHECK( m_mdtPrepDataContainerKey.initialize() );
-  ATH_CHECK( m_readKey.initialize() );
-
+  ATH_CHECK(m_rdoContainerKey.initialize()); 
+  ATH_CHECK(m_mdtPrepDataContainerKey.initialize());
+  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 StatusCode Muon::MdtRdoToPrepDataToolCore::finalize()
 {
-  delete m_calibHit;
   return StatusCode::SUCCESS;
 }
 
@@ -213,6 +214,9 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
     return true;
   }
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
@@ -236,7 +240,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       MdtCsmContainer::const_iterator rdoColli2 = rdoContainer.indexFind(rdoHash2);
       if( rdoColli != rdoContainer.end() && rdoColli2 != rdoContainer.end() ) {
         // Handle both at once
-        if(processCsm(*rdoColli, idWithDataVect, *rdoColli2).isFailure()){
+        if(processCsm(*rdoColli, idWithDataVect, muDetMgr, *rdoColli2).isFailure()){
           ATH_MSG_WARNING("processCsm failed for RDO id " 
             << (unsigned long long)((*rdoColli)->identify().get_compact()) << " and " 
             << (unsigned long long)((*rdoColli2)->identify().get_compact()));
@@ -246,7 +250,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       else if(rdoColli != rdoContainer.end()){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash2 );
-        if ( processCsm(*rdoColli, idWithDataVect).isFailure() ) {
+        if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
           return false;
         }
@@ -254,7 +258,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       else if(rdoColli2 != rdoContainer.end()){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
-        if ( processCsm(*rdoColli2, idWithDataVect).isFailure() ) {
+        if ( processCsm(*rdoColli2, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
           return false;
         }
@@ -267,7 +271,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       // process CSM if data was found
       MdtCsmContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
       if( rdoColli != rdoContainer.end() ) {
-        if ( processCsm(*rdoColli, idWithDataVect).isFailure() ) {
+        if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
           return false;
         }
@@ -277,7 +281,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
     // process CSM if data was found
     MdtCsmContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
     if( rdoColli != rdoContainer.end() ) {
-      if ( processCsm(*rdoColli, idWithDataVect).isFailure() ) {
+      if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
         ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
         return false;
       }
@@ -426,7 +430,7 @@ void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
   
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MdtCsm *rdoColl2 ) {
+StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2) {
   
   // first handle the case of twin tubes
   if(m_useTwin){
@@ -436,7 +440,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(elementId);
     if( chIndex == MuonStationIndex::BOL &&
         ( m_useAllBOLTwin || (std::abs(m_idHelperSvc->mdtIdHelper().stationEta(elementId)) == 4 && m_idHelperSvc->mdtIdHelper().stationPhi(elementId) == 7) ) ) { 
-      return processCsmTwin(rdoColl, idWithDataVect);
+      return processCsmTwin(rdoColl, idWithDataVect, muDetMgr);
     }
   }
   
@@ -562,7 +566,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     Identifier     channelId   = newDigit->identify();
     Identifier     parentId    = m_idHelperSvc->mdtIdHelper().parentID(channelId);
     if( m_idHelperSvc->mdtIdHelper().stationName(parentId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
+      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
@@ -634,7 +638,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     Muon::MdtDriftCircleStatus digitStatus = Muon::MdtStatusDriftTime;
 
     // do lookup once
-    const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
+    const MdtReadoutElement* descriptor = muDetMgr->getMdtReadoutElement(channelId);
     if (!descriptor){
       ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                       <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
@@ -655,7 +659,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     if (newDigit->is_masked()) {
       digitStatus = Muon::MdtStatusMasked;
     }else{
-      digitStatus = getMdtDriftRadius(newDigit, radius, errRadius, descriptor);
+      digitStatus = getMdtDriftRadius(newDigit, radius, errRadius, descriptor, muDetMgr);
       if( radius < -999 ) {
         ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
                         << " Id is: "<<m_idHelperSvc->toString(channelId));
@@ -775,7 +779,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect)
+StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr)
 {
   ATH_MSG_DEBUG(" ***************** Start of processCsmTwin");
   
@@ -842,7 +846,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     //IdentifierHash channelHash = newDigit->identifyHash();
 
     if( m_idHelperSvc->mdtIdHelper().stationName(channelId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
+      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(muDetMgr->getMdtReadoutElement(channelId)->identify());
       if( myIt != m_DeadChannels.end() ){
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
@@ -931,7 +935,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         Muon::MdtDriftCircleStatus digitStatus = Muon::MdtStatusDriftTime;
 	  
         // do lookup once
-        const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
+        const MdtReadoutElement * descriptor = muDetMgr->getMdtReadoutElement(channelId);
         if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                           <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
@@ -942,7 +946,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         if (digit->is_masked()) {
           digitStatus = Muon::MdtStatusMasked;
         }else{
-          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
+          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor, muDetMgr);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
                             << " Id is: "<<m_idHelperSvc->toString(channelId));
@@ -984,7 +988,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         double radius(0.); double errRadius(0.);
         Muon::MdtDriftCircleStatus digitStatus = Muon::MdtStatusDriftTime;
         // call the function to calculate radii and twin coordinate
-        digitStatus = getMdtTwinPosition(digit, second_digit, radius, errRadius, zTwin, errZTwin, secondHitIsPrompt);
+        digitStatus = getMdtTwinPosition(digit, second_digit, radius, errRadius, zTwin, errZTwin, secondHitIsPrompt, muDetMgr);
         if( zTwin <-99999 ) {   ATH_MSG_WARNING("MDT Twin PrepData with very large, negative twin coordinate " << zTwin
                                                 << " Id is: "<<m_idHelperSvc->toString(digit->identify())
                                                 << " Twin Id is: "<<m_idHelperSvc->toString(second_digit->identify())); }
@@ -1007,7 +1011,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         }
 	  
         // do lookup once
-        const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(promptHit_channelId);
+        const MdtReadoutElement * descriptor = muDetMgr->getMdtReadoutElement(promptHit_channelId);
         if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the DetManager <"
                           <<m_idHelperSvc->toString(promptHit_channelId)<<">  =>>ignore this hit");
@@ -1056,8 +1060,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
                         << "  radius = " << radius << " +- " << errRadius);
 	    
           Amg::Vector3D gpos_centertube = twin_newPrepData->globalPosition();
-          const MdtReadoutElement* detEl = m_muonMgr->getMdtReadoutElement(promptHit_channelId);
-          //      Amg::Vector3D locpos_centertube = detEl->globalToLocalCoords(gpos_centertube, promptHit_channelId);
+          const MdtReadoutElement* detEl = muDetMgr->getMdtReadoutElement(promptHit_channelId);
           Amg::Vector3D locpos_centertube = Amg::Vector3D(0.,0.,zTwin);
           Amg::Vector3D gpos_twin = detEl->localToGlobalCoords(locpos_centertube, promptHit_channelId);
 	    
@@ -1118,7 +1121,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         Muon::MdtDriftCircleStatus digitStatus = Muon::MdtStatusDriftTime;
 	  
         // do lookup once
-        const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
+        const MdtReadoutElement * descriptor = muDetMgr->getMdtReadoutElement(channelId);
         if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                           <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
@@ -1129,7 +1132,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         if (digit->is_masked()) {
           digitStatus = Muon::MdtStatusMasked;
         }else{
-          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
+          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor, muDetMgr);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
                             << " Id is: "<<m_idHelperSvc->toString(channelId));
@@ -1190,7 +1193,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         Muon::MdtDriftCircleStatus second_digitStatus = Muon::MdtStatusDriftTime;
 	  
         // do lookup once
-        const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
+        const MdtReadoutElement * descriptor = muDetMgr->getMdtReadoutElement(channelId);
         if (!descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                           <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
@@ -1201,14 +1204,14 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         if (digit->is_masked()) {
           digitStatus = Muon::MdtStatusMasked;
         }else{
-          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor);
+          digitStatus = getMdtDriftRadius(digit, radius, errRadius, descriptor, muDetMgr);
           if( radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
                             << " Id is: "<<m_idHelperSvc->toString(channelId));
           }
         }
 
-        const MdtReadoutElement * second_descriptor = m_muonMgr->getMdtReadoutElement(second_channelId);
+        const MdtReadoutElement * second_descriptor = muDetMgr->getMdtReadoutElement(second_channelId);
         if (!second_descriptor){
           ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                           <<m_idHelperSvc->toString(second_channelId)<<">  =>>ignore this hit");
@@ -1220,7 +1223,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
         if (second_digit->is_masked()) {
           second_digitStatus = Muon::MdtStatusMasked;
         }else{
-          second_digitStatus = getMdtDriftRadius(second_digit, second_radius, second_errRadius, second_descriptor);
+          second_digitStatus = getMdtDriftRadius(second_digit, second_radius, second_errRadius, second_descriptor, muDetMgr);
           if( second_radius < -999 ) {
             ATH_MSG_WARNING("MDT PrepData with very large, negative radius "
                             << " Id is: "<<m_idHelperSvc->toString(second_channelId));
@@ -1303,14 +1306,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
 }
 
 
-MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit * digit,
-                                                             double& radius, double& errRadius, const MuonGM::MdtReadoutElement * descriptor) {
+MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr) {
 
   ATH_MSG_DEBUG("in getMdtDriftRadius()");
 
   if( m_calibratePrepData ){
     Identifier channelId = digit->identify();
-    //const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
 
     // here check validity
     // if invalid, reset flags
@@ -1320,65 +1321,46 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtDriftRadius(const MdtDigit 
                       <<m_idHelperSvc->toString(channelId)<<"> inconsistent with the geometry of detector element <"
                       <<m_idHelperSvc->toString(descriptor->identify())<<">  =>>ignore this hit");
       return MdtStatusUnDefined;
-    }
-
-    m_calibHit->setIdentifier( channelId );
-    m_calibHit->setTdc( digit->tdc() );
-    m_calibHit->setAdc( digit->adc() );
-    m_calibHit->setGeometry(descriptor);      
+    }  
 
     // use center (cached) to get the tube position instead of tubepos
     const Amg::Vector3D& position = descriptor->center(channelId);
+    MdtCalibHit calibHit(channelId, digit->tdc(), digit->adc(), position, descriptor);
 
     MdtCalibrationSvcInput inputData;
     double signedTrackLength = position.mag();
-    inputData.tof = signedTrackLength*m_invSpeed;
+    inputData.tof = signedTrackLength*inverseSpeedOfLight;
 
-    // double measured_perp = position.perp();
-    // if (descriptor->getStationS() != 0.) {
-    //   measured_perp = sqrt(measured_perp*measured_perp-
-    //                        descriptor->getStationS()*descriptor->getStationS());
-    // }
-    // double measured_x = measured_perp * cos( position.phi() );
-    // double measured_y = measured_perp * sin( position.phi() );
-    // const Amg::Vector3D measured_position(measured_x, measured_y, position.z());
-    // ATH_MSG_VERBOSE("Measured position is "<<measured_position);
-    // MdtCalibHit calib_hit( channelId, digit->tdc(), digit->adc(), measured_position, descriptor );
-    m_calibHit->setGlobalPointOfClosestApproach(position);
+    calibHit.setGlobalPointOfClosestApproach(position);
 
-    bool drift_ok = m_calibrationTool->driftRadiusFromTime(*m_calibHit,inputData,*m_mdtCalibSvcSettings,false);
+    bool drift_ok = m_calibrationTool->driftRadiusFromTime(calibHit,inputData,*m_mdtCalibSvcSettings,false);
     if (!drift_ok) {
-      if( m_calibHit->driftTime() < 0. ) return MdtStatusBeforeSpectrum;
+      if( calibHit.driftTime() < 0. ) return MdtStatusBeforeSpectrum;
       else                             return MdtStatusAfterSpectrum;
     }
-    radius = m_calibHit->driftRadius();
-    errRadius = m_calibHit->sigmaDriftRadius();
+    radius = calibHit.driftRadius();
+    errRadius = calibHit.sigmaDriftRadius();
     ATH_MSG_VERBOSE("Calibrated drift radius is "<<radius<<"+/-"<<errRadius);
   }
   else
     {
       Identifier channelId = digit->identify();
       radius = 0.;
-      errRadius = m_muonMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
+      errRadius = muDetMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
     }
   return MdtStatusDriftTime;
 }
 
 
-MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit * digit, const MdtDigit * second_digit, 
-                                                              double& radius, double& errRadius,
-                                                              double& zTwin, double& errZTwin, bool& secondHitIsPrompt) {
+MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit* digit, const MdtDigit* second_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& secondHitIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr) {
 
   ATH_MSG_DEBUG("in getMdtTwinPosition()");
-
-  //  StatusCode status = StatusCode::SUCCESS;
 
   if( m_calibratePrepData ){
     
     // start digit
     Identifier channelId = digit->identify();
-    //IdentifierHash channelHash = digit->identifyHash();
-    const MdtReadoutElement * descriptor = m_muonMgr->getMdtReadoutElement(channelId);
+    const MdtReadoutElement * descriptor = muDetMgr->getMdtReadoutElement(channelId);
 
     // here check validity
     // if invalid, reset flags
@@ -1410,8 +1392,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit
      
     // start second digit
     Identifier second_channelId = second_digit->identify();
-    //IdentifierHash second_channelHash = second_digit->identifyHash();
-    const MdtReadoutElement * second_descriptor = m_muonMgr->getMdtReadoutElement(second_channelId);
+    const MdtReadoutElement * second_descriptor = muDetMgr->getMdtReadoutElement(second_channelId);
     
     // here check validity
     // if invalid, reset flags
@@ -1468,9 +1449,9 @@ MdtDriftCircleStatus MdtRdoToPrepDataToolCore::getMdtTwinPosition(const MdtDigit
   else{
     Identifier channelId = digit->identify();
     radius = 0.;
-    errRadius = m_muonMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
+    errRadius = muDetMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
     zTwin = 0.;
-    double tubelength = m_muonMgr->getMdtReadoutElement(channelId)->getTubeLength(m_idHelperSvc->mdtIdHelper().tubeLayer(channelId),m_idHelperSvc->mdtIdHelper().tube(channelId));
+    double tubelength = muDetMgr->getMdtReadoutElement(channelId)->getTubeLength(m_idHelperSvc->mdtIdHelper().tubeLayer(channelId),m_idHelperSvc->mdtIdHelper().tube(channelId));
     errZTwin = tubelength/2.;
   }
   
