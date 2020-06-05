@@ -97,7 +97,7 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
 {
 
     /// Proper constructor for Athena
-    ASG_TOOL_CLASS( FFJetSmearingTool, IFFJetSmearingTool )
+    ASG_TOOL_CLASS( FFJetSmearingTool,  IJetResolutionTool  )
 
     public:
         // Constructor/destructor/init
