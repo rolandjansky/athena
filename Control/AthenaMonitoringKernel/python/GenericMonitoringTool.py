@@ -5,6 +5,7 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 import json
 import six
 
