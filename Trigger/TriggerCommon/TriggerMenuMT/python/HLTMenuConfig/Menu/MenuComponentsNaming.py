@@ -31,8 +31,8 @@ class CFNaming(object):
         return CFNaming.simplifyOutName("HLTNav_" + filter_name + "__" + filterIn)
 
     @staticmethod
-    def inputMakerOutName(IMname, filterOut=None):
-        return CFNaming.simplifyOutName("HLTNav_" + IMname + ("__" + filterOut if filterOut else ""))
+    def inputMakerOutName(IMname):
+        return CFNaming.simplifyOutName("HLTNav_" + IMname)
 
     @staticmethod
     def hypoAlgOutNameOld(HypoName, HypoInput):
