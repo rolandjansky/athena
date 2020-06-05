@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace Trk {
    
       @author Andreas.Salzburger@cern.ch, Edward.Moyse@cern.ch
    */
-  class ATLAS_CHECK_THREAD_SAFETY TrackingVolumesSvc : public AthService, virtual public ITrackingVolumesSvc {
+  class TrackingVolumesSvc : public AthService, virtual public ITrackingVolumesSvc {
   
     public:
   
