@@ -984,7 +984,7 @@ def madspin_on_lhe(input_LHE,madspin_card,runArgs=None,keep_original=False):
         if len(commands)>1 and 'import'==commands[0] and not 'model'==commands[1]:
             continue
         # Check for a launch command
-        if 'launch' == commands[0]:
+        if len(commands)>0 and 'launch' == commands[0]:
             has_launch = True
         madspin_exec_card.write(l.strip()+'\n')
     if not has_launch:
