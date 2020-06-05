@@ -39,8 +39,6 @@
     m_fjvtThresh(15e3){
     declareProperty("orLabel",     m_orLabel          = ""                        );
     declareProperty("jetsName",    m_jetsName         = "AntiKt4PUPFlowJets"      ,   "Container name for the output reconstructed PU jets "                                                        );
-    declareProperty("tightOP",     m_tightOP          = false                     ,   "If true a tight fjvt threshold value is applied"                                                             );
-    declareProperty("outLabelFjvt",m_outLabelFjvt     = "passOnlyFJVT"            ,   "Decorator for passing fJVT threshold (tight or loose)"                                                       );
     declareProperty("outLabel"    ,m_outLabel         = "fJvt"                    ,   "Decorator for raw fJVT variable"                                                                             );
     declareProperty("verticesName",m_verticesName     = "PrimaryVertices"         ,   "Container name of vertices to be retrieved"                                                                  );
     declareProperty("includePV"   ,m_includePV        = false                     ,   "Flag to include jets and tracks associated to PV in the calculation"                                         );
@@ -78,10 +76,7 @@
   StatusCode JetForwardPFlowJvtTool::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    if (m_tightOP) m_fjvtThresh = 0.53;
-    else m_fjvtThresh = 0.72;
     if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
-    Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
     Dec_outFjvtRaw = std::make_unique<SG::AuxElement::Decorator<float> >(m_outLabel);
 
     m_pfotool.setTypeAndName("CP::RetrievePFOTool/"+ m_pfoToolName );
@@ -108,19 +103,16 @@
     if(pileupMomenta.size()==0) {
       ATH_MSG_DEBUG( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT won't be computed for this event and will be set to 0 instead." );
       for(const xAOD::Jet* jetF : jetCont) {
-	(*Dec_outFjvt)(*jetF) = 1;
 	(*Dec_outFjvtRaw)(*jetF) = 0;
       }
       return 0;
     }
 
     for(const xAOD::Jet* jetF : jetCont) {
-      (*Dec_outFjvt)(*jetF) = 1;
       (*Dec_outFjvtRaw)(*jetF) = 0;
 
       if (isForwardJet(jetF)){
        double fjvt = getFJVT(jetF,pileupMomenta);
-       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
        (*Dec_outFjvtRaw)(*jetF) = fjvt;
       }
     }
