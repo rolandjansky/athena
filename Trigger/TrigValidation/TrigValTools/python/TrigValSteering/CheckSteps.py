@@ -421,6 +421,8 @@ class DownloadRefStep(Step):
         self.artpackage = ' '
         self.artjobname = ' '
         self.args = 'download '
+        self.timeout = 20*60
+        self.required = True
         self.auto_report_result = True
 
     def configure(self, test):
@@ -454,7 +456,9 @@ class PhysValWebStep(InputDependentStep):
         self.sig=' '
         self.args = '--ratio --drawopt HISTPE --refdrawopt HIST --title Test '
         self.auto_report_result = True
-
+        self.timeout = 30*60
+        self.required = True
+        
     def configure(self, test):
         for fname in os.listdir('.'):
             if fname.startswith('ref-'): 
