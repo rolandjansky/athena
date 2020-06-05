@@ -65,8 +65,6 @@ TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau,
                                ITruthTausEvent& itruthTausEvent) const
 {
   TruthTausEvent& truthTausEvent = dynamic_cast<TruthTausEvent&> (itruthTausEvent);
-  if (m_bIsData)
-    return nullptr;
 
   if (retrieveTruthTaus(truthTausEvent).isFailure())
     return nullptr;
