@@ -25,20 +25,23 @@ from egammaRec.egammaRecFlags import jobproperties
 import six
 
 
-def configureClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
+_clusterTypes = dict(
+    Ele35='ele35', Ele55='ele55', Ele37='ele37',
+    Gam35='gam35_unconv', Gam55='gam55_unconv', Gam37='gam37_unconv',
+    Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
+)
+
+
+# Configure non-supercell corrections
+def configureCellClusterCorrections(swTool):
+    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for non-supercell corrections."
     from CaloClusterCorrection.CaloSwCorrections import (
         make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
         etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
         time, listBadChannel)
     from CaloRec.CaloRecMakers import _process_tools
 
-    clusterTypes = dict(
-        Ele35='ele35', Ele55='ele55', Ele37='ele37',
-        Gam35='gam35_unconv', Gam55='gam55_unconv', Gam37='gam37_unconv',
-        Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
-    )
-    for attrName, clName in six.iteritems(clusterTypes):
+    for attrName, clName in _clusterTypes.items():
         x = 'ClusterCorrectionTools' + attrName
         if not hasattr(swTool, x) or getattr(swTool, x):
             continue
@@ -49,35 +52,55 @@ def configureClusterCorrections(swTool):
             cells_name=egammaKeys.caloCellKey())
         setattr(swTool, x, _process_tools(swTool, y))
 
-    # Super cluster position only corrections
-    if jobproperties.egammaRecFlags.doSuperclusters():
-        for attrName, clName in six.iteritems(clusterTypes):
-            n = 'ClusterCorrectionToolsSuperCluster' + attrName
-            if not hasattr(swTool, n) or getattr(swTool, n):
-                continue
 
-            setattr(swTool, n, _process_tools(
-                swTool,
-                make_CaloSwCorrections(
-                    clName,
-                    suffix='EGSuperCluster',
-                    corrlist=[
-                        [rfac, 'v5'],
-                        [etaoff_b1, 'v5'],
-                        [etaoff_e1, 'v5'],
-                        [etaoff_b2, 'v5'],
-                        [etaoff_e2, 'v5'],
-                        [phioff_b2, 'v5data'],
-                        [phioff_e2, 'v5data'],
-                        [update],
-                        [time],
-                        [listBadChannel]],
-                    cells_name=egammaKeys.caloCellKey())))
-        # End of super cluster position only corrections
+# Configure supercell corrections
+def configureSuperCellClusterCorrections(swTool):
+    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for supercell corrections."
+    from CaloClusterCorrection.CaloSwCorrections import (
+        make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
+        etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
+        time, listBadChannel)
+    from CaloRec.CaloRecMakers import _process_tools
+
+    for attrName, clName in _clusterTypes.items():
+        n = 'ClusterCorrectionToolsSuperCluster' + attrName
+        if not hasattr(swTool, n) or getattr(swTool, n):
+            continue
+
+        setattr(swTool, n, _process_tools(
+            swTool,
+            make_CaloSwCorrections(
+                clName,
+                suffix='EGSuperCluster',
+                version=jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+                corrlist=[
+                    [rfac, 'v5'],
+                    [etaoff_b1, 'v5'],
+                    [etaoff_e1, 'v5'],
+                    [etaoff_b2, 'v5'],
+                    [etaoff_e2, 'v5'],
+                    [phioff_b2, 'v5data'],
+                    [phioff_e2, 'v5data'],
+                    [update],
+                    [time],
+                    [listBadChannel]],
+                cells_name=egammaKeys.caloCellKey())))
+
+
+
+def configureClusterCorrections(swTool):
+    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
+    configureCellClusterCorrections(swTool)
+    if jobproperties.egammaRecFlags.doSuperclusters():
+        configureSuperCellClusterCorrections(swTool)
 
 
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
+
+
+egammaSwSuperCellTool = ToolFactory(egammaToolsConf.egammaSwTool,
+                                    postInit=[configureSuperCellClusterCorrections])
 
 
 EMClusterTool = ToolFactory(
