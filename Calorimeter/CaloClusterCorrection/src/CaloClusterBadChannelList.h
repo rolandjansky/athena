@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERBADCHANNELLIST_H
@@ -31,15 +31,13 @@ class CaloClusterBadChannelList : public CaloClusterCorrection
   CaloClusterBadChannelList(const std::string& type,
 		   const std::string& name,
 		   const IInterface* parent);
-  // destructor 
-  virtual ~CaloClusterBadChannelList() override;
   
   // Standard initialize method.
   virtual StatusCode initialize() override;
 
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloDummyCorrection.h,v 1.1 2009-04-19 03:58:47 ssnyder Exp $
@@ -34,15 +34,8 @@ class CaloDummyCorrection
   : public CaloClusterCorrection
 {
 public:
-  /**
-   * @brief Constructor.
-   * @param type The type of this tool.
-   * @param name The name of this tool.
-   * @param parent The parent of this tool.
-   */
-  CaloDummyCorrection(const std::string& type,
-                      const std::string& name,
-                      const IInterface* parent);
+  /// Inherit constructor
+  using CaloClusterCorrection::CaloClusterCorrection;
 
 
   /**
@@ -53,13 +46,8 @@ public:
 
   // derived class implement the real correction.
   // (Does nothing here.)
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster*) const override;
-
-
-  /// Ignore non-existing properties.
-  using CaloClusterCorrection::setProperty;
-  virtual StatusCode setProperty (const Property& p) override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster*) const override;
 };
 
 

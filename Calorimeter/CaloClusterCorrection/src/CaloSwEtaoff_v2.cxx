@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwEtaoff_v2.cxx,v 1.2 2005-11-30 20:39:00 ssnyder Exp $
 /**
  * @file  CaloSwEtaoff_v2.h
  * @author scott snyder <snyder@bnl.gov>
@@ -26,27 +23,8 @@ using CaloClusterCorr::interpolate;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwEtaoff_v2::CaloSwEtaoff_v2 (const std::string& type,
-                                  const std::string& name,
-                                  const IInterface* parent)
-  : CaloClusterCorrectionCommon (type, name, parent)
-{
-  declareConstant ("correction",       m_correction);
-  declareConstant ("degree",           m_degree);
-  declareConstant ("interp_barriers",  m_interp_barriers);
-  declareConstant ("energies",         m_energies);
-  declareConstant ("energy_degree",    m_energy_degree);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -64,7 +42,7 @@ CaloSwEtaoff_v2::CaloSwEtaoff_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwEtaoff_v2::makeTheCorrection (const EventContext& /*ctx*/,
+void CaloSwEtaoff_v2::makeTheCorrection (const Context& myctx,
                                          CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float eta,
@@ -73,6 +51,12 @@ void CaloSwEtaoff_v2::makeTheCorrection (const EventContext& /*ctx*/,
                                          float /*adj_phi*/,
                                          CaloSampling::CaloSample samp) const
 {
+  const CxxUtils::Array<3> correction = m_correction (myctx);
+  const CxxUtils::Array<1> interp_barriers = m_interp_barriers (myctx);
+  const CxxUtils::Array<1> energies = m_energies (myctx);
+  const int degree = m_degree (myctx);
+  const int energy_degree = m_energy_degree (myctx);
+
   // Find u, the normalized displacement of the cluster within the cell.
   // In the range -1...1, with 0 at the center.
   float u = (eta - elt->eta()) / elt->deta() * 2;
@@ -90,7 +74,7 @@ void CaloSwEtaoff_v2::makeTheCorrection (const EventContext& /*ctx*/,
   // because we're interpolating the fit parameters, not the overall
   // correction.  This should probably be done differently in the
   // next version.
-  unsigned int n_energies = m_energies.size();
+  unsigned int n_energies = energies.size();
   unsigned int shape[] = {n_energies, 4};
   CaloRec::WritableArrayData<2> partab (shape);
 
@@ -100,19 +84,19 @@ void CaloSwEtaoff_v2::makeTheCorrection (const EventContext& /*ctx*/,
   int beg = 0;
   int end = n_energies;
   float energy = cluster->e();
-  if (energy <= m_energies[0])
+  if (energy <= energies[0])
     end = 1;
-  else if (energy >= m_energies[n_energies-1])
+  else if (energy >= energies[n_energies-1])
     beg = n_energies-1;
 
   for (int i=beg; i<end; i++) {
-    partab[i][0] = m_energies[i];
+    partab[i][0] = energies[i];
     for (int j=0; j < 3; j++)
-      partab[i][j+1] = interpolate (m_correction[i],
+      partab[i][j+1] = interpolate (correction[i],
                                     std::abs (adj_eta), 
-                                    m_degree,
+                                    degree,
                                     j+1,
-                                    m_interp_barriers);
+                                    interp_barriers);
   }
 
   // Now interpolate in energy.
@@ -121,7 +105,7 @@ void CaloSwEtaoff_v2::makeTheCorrection (const EventContext& /*ctx*/,
   float par[3];
   for (int i=0; i < 3; i++) {
     if (end-beg > 1)
-      par[i] = interpolate (partab, energy, m_energy_degree, i+1);
+      par[i] = interpolate (partab, energy, energy_degree, i+1);
     else
       par[i] = partab[beg][i+1];
   }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/python/CaloSwDeadOTX_back.py 
@@ -69,5 +69,5 @@ def make_CaloSwDeadOTX_back(name = None,
                      source    = source,
                      confclass = confclass,
                      corrclass = CALOCORR_SW,
-                     affectedTool = theAffectedTool,
+                     AffectedTool = theAffectedTool,
                      **kw)
