@@ -19,4 +19,13 @@
 // EDM include(s).
 #include "xAODCore/tools/DictHelpers.h"
 
+// Instantiate all necessary types for the dictionary.
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODHIEVENT {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, HIEventShapeContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, HIEventShapeContainer_v2 );
+   };
+}
+
 #endif // XAODEVENTINFO_XAODEVENTINFODICT_H

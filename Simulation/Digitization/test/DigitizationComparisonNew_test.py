@@ -49,6 +49,7 @@ ConfigFlags.Digitization.TruthOutput = True
 ConfigFlags.Digitization.RandomSeedOffset = 170
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Concurrency.NumConcurrentEvents = 1
 ConfigFlags.Tile.BestPhaseFromCOOL = False
 ConfigFlags.Tile.correctTime = False
 ConfigFlags.lock()

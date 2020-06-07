@@ -95,8 +95,11 @@ if [ "$FORCE" = "1" ]; then
     rm -fr ${BUILDDIR}/build/AthenaExternals ${BUILDDIR}/build/GAUDI
 fi
 
+# Get the version of Athena for the build.
+version=`cat ${thisdir}/version.txt`
+
 # Check if previous externals build can be reused:
-externals_stamp=${BUILDDIR}/build/AthenaExternals/${BINARY_TAG}/externals.stamp
+externals_stamp=${BUILDDIR}/build/AthenaExternals/externals-${version}.stamp
 if [ -f ${externals_stamp} ]; then
     if diff -q ${externals_stamp} ${thisdir}/externals.txt; then
         echo "Correct version of externals already available in ${BUILDDIR}"
@@ -108,9 +111,6 @@ fi
 
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
-
-# Get the version of Athena for the build.
-version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts

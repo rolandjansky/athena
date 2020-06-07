@@ -338,7 +338,7 @@ void PerfMonMTSvc::report2Log_Description() const {
   if (m_reportResultsToJSON) {
     ATH_MSG_INFO("*** Full set of information can also be found in: " << m_jsonFileName.toString());
     ATH_MSG_INFO("*** In order to make plots using the results run the following commands:");
-    ATH_MSG_INFO("*** $ perfmonmt-plotter " << m_jsonFileName.toString());
+    ATH_MSG_INFO("*** $ perfmonmt-plotter -i " << m_jsonFileName.toString());
     ATH_MSG_INFO("=======================================================================================");
   }
 }
@@ -503,22 +503,16 @@ void PerfMonMTSvc::report2JsonFile() {
 
   // CPU and Wall-time
   report2JsonFile_Summary(j);  // Snapshots
-  if (m_doEventLoopMonitoring) {
-    report2JsonFile_EventLevel_Time(j);  // Event-level
-  }
-  if (m_doComponentLevelMonitoring) {
-    report2JsonFile_ComponentLevel_Time(j);  // Component-level
-  }
 
   // Memory
   const bool procExists = doesDirectoryExist("/proc");
 
   if (procExists) {
     if (m_doComponentLevelMonitoring) {
-      report2JsonFile_ComponentLevel_Mem(j);  // Component-level
+      report2JsonFile_ComponentLevel(j);  // Component-level
     }
     if (m_doEventLoopMonitoring) {
-      report2JsonFile_EventLevel_Mem(j);  // Event-level
+      report2JsonFile_EventLevel(j);  // Event-level
     }
   }
 
@@ -531,83 +525,98 @@ void PerfMonMTSvc::report2JsonFile() {
  * Report summary data to JSON
  */
 void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
+  
   // Report snapshot level results
-  for (int i = 0; i < NSNAPSHOTS; i++) {
-    // Clean this part!
-    double wall_time = m_snapshotData[i].getDeltaWall();
-    double cpu_time = m_snapshotData[i].getDeltaCPU();
+  for(int i=0; i < NSNAPSHOTS; i++){
 
-    j["Snapshot_level"][m_snapshotStepNames[i]] = {{"cpu_time", cpu_time}, {"wall_time", wall_time}};
+    const std::string step = m_snapshotStepNames[i];
+    const double dCPU = m_snapshotData[i].getDeltaCPU();
+    const double dWall = m_snapshotData[i].getDeltaWall();
+    const double cpuUtil = dCPU / dWall;
+    const long dVmem = m_snapshotData[i].getMemMonDeltaMap("vmem");
+    const long dRss = m_snapshotData[i].getMemMonDeltaMap("rss");
+    const long dPss = m_snapshotData[i].getMemMonDeltaMap("pss");
+    const long dSwap = m_snapshotData[i].getMemMonDeltaMap("swap");
+
+    j["summary"]["snapshotLevel"][step] = {{"dCPU", dCPU},
+                                           {"dWall", dWall},
+                                           {"cpuUtil", cpuUtil},
+                                           {"dVmem", dVmem},
+                                           {"dRss", dRss},
+                                           {"dPss", dPss},
+                                           {"dSwap", dSwap}};
+
   }
+
+  // Report Peaks
+  const long vmemPeak = m_measurement_events.vmemPeak;
+  const long rssPeak = m_measurement_events.rssPeak;
+  const long pssPeak = m_measurement_events.pssPeak;
+
+  j["summary"]["peaks"] = {{"vmemPeak", vmemPeak},
+                           {"rssPeak", rssPeak},
+                           {"pssPeak", pssPeak}};
+
+  // Report leak estimates
+  const long vmemLeak = m_fit_vmem.slope();
+  const long pssLeak = m_fit_pss.slope();
+  const long nPoints = m_fit_vmem.nPoints();
+
+  j["summary"]["leakEstimates"] = {{"vmemLeak", vmemLeak},
+                                   {"pssLeak", pssLeak},
+                                   {"nPoints", nPoints}};
+
+  // Report Sys info
+  const std::string cpuModel = get_cpu_model_info();
+  const int coreNum = get_cpu_core_info();
+
+  j["summary"]["sysInfo"] = {{"cpuModel", cpuModel},
+                             {"coreNum", coreNum}};
 }
 
-/*
- * Report component-level timing data to JSON
- */
-void PerfMonMTSvc::report2JsonFile_ComponentLevel_Time(nlohmann::json& j) const {
-  // Report component level time measurements in serial steps
-  for (auto& it : m_compLevelDataMap) {
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
+void PerfMonMTSvc::report2JsonFile_ComponentLevel(nlohmann::json& j) const {
 
-    double wall_time = it.second->getDeltaWall();
-    double cpu_time = it.second->getDeltaCPU();
+  for (const auto& dataMapPerStep : m_stdoutVec_serial) {
+    
+    for(const auto& meas : dataMapPerStep){
 
-    // nlohmann::json syntax
-    j["TimeMon_Serial"][stepName][compName] = {{"cpu_time", cpu_time}, {"wall_time", wall_time}};
+      const std::string step = meas.first.stepName;
+      const std::string component = meas.first.compName; 
+      const uint64_t count = meas.second->getCallCount();
+      const double cpuTime = meas.second->getDeltaCPU();
+      const long vmem  = meas.second->getDeltaVmem(); 
+      const int mall = meas.second->getDeltaMalloc();
+
+      j["componentLevel"][step][component] = {{"count", count},
+                                              {"cpuTime", cpuTime},
+                                              {"vmem", vmem},
+                                              {"malloc", mall}};
+    }    
+
   }
+
 }
 
-/*
- * Report event-level timing data to JSON
- */
-void PerfMonMTSvc::report2JsonFile_EventLevel_Time(nlohmann::json& j) const {
-  // Report event level CPU measurements
+void PerfMonMTSvc::report2JsonFile_EventLevel(nlohmann::json& j) const {
+
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    std::string checkPoint = std::to_string(it.first);
-    double cpu_time = it.second.cpu_time;
-    double wall_time = it.second.wall_time;
+    
+    const uint64_t event = it.first;
+    const double cpuTime = it.second.cpu_time;
+    const double wallTime = it.second.wall_time;
+    const long vmem = it.second.mem_stats.at("vmem");
+    const long rss = it.second.mem_stats.at("rss");
+    const long pss = it.second.mem_stats.at("pss");
+    const long swap = it.second.mem_stats.at("swap");
 
-    j["TimeMon_Parallel"][checkPoint] = {{"cpu_time", cpu_time}, {"wall_time", wall_time}};
-  }
-}
+    j["eventLevel"][std::to_string(event)] = {{"cpuTime", cpuTime},
+                                              {"wallTime", wallTime},
+                                              {"vmem", vmem},
+                                              {"rss", rss},
+                                              {"pss", pss},
+                                              {"swap", swap}};
 
-/*
- * Report component-level memory data to JSON
- */
-void PerfMonMTSvc::report2JsonFile_ComponentLevel_Mem(nlohmann::json& j) const {
-  // Report component level memory measurements in serial steps
-  for (auto& it : m_compLevelDataMap) {
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
 
-    long vmem = it.second->getMemMonDeltaMap("vmem");
-    long rss = it.second->getMemMonDeltaMap("rss");
-    long pss = it.second->getMemMonDeltaMap("pss");
-    long swap = it.second->getMemMonDeltaMap("swap");
-
-    // nlohmann::json syntax
-    j["MemMon_Serial"][stepName][compName] = {{"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap}};
-
-    // Free the dynamically allocated space
-    delete it.second;
-  }
-}
-
-/*
- * Report event-level memory data to JSON
- */
-void PerfMonMTSvc::report2JsonFile_EventLevel_Mem(nlohmann::json& j) {
-  // Report event level memory measurements
-  for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    std::string checkPoint = std::to_string(it.first);
-
-    long vmem = it.second.mem_stats.at("vmem");
-    long rss = it.second.mem_stats.at("rss");
-    long pss = it.second.mem_stats.at("pss");
-    long swap = it.second.mem_stats.at("swap");
-
-    j["MemMon_Parallel"][checkPoint] = {{"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap}};
   }
 }
 
@@ -665,49 +674,27 @@ void PerfMonMTSvc::divideData2Steps() {
 }
 
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
-  std::ostringstream ss;
-  ss << std::fixed;
-  ss << std::setprecision(2);
+  // Not a huge fan of this, we should eventually unify the types
+  // Just want to be explicit about what's happening
+  long ms = (long) timeMeas; 
 
-  double result = 0;
+  // Compute hrs and offset
+  auto hrs = ms / 3600000;
+  ms -= hrs * 3600000;
+  // Compute mins and offset
+  auto mins = ms / 60000;
+  ms -= mins * 60000;
+  // Compute secs and offset
+  auto secs = ms / 1000;
+  ms -= secs * 1000;
 
-  std::string significance[5] = {"ms", "sec", "mins", "hours", "days"};
-  int scaleFactor = 0;
-
-  if (timeMeas > 1000 * 60 * 60 * 24) {
-    int dayCount = timeMeas / (1000 * 60 * 60 * 24);
-    timeMeas = std::fmod(timeMeas, (1000 * 60 * 60 * 24));
-    result += dayCount;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000 * 60 * 60) {
-    int hourCount = timeMeas / (1000 * 60 * 60);
-    timeMeas = std::fmod(timeMeas, (1000 * 60 * 60));
-    result += hourCount * 1.e-3;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000 * 60) {
-    int minCount = timeMeas / (1000 * 60);
-    timeMeas = std::fmod(timeMeas, (1000 * 60));
-    result += minCount * 1.e-6;
-    scaleFactor++;
-  }
-  if (timeMeas > 1000) {
-    int secCount = timeMeas / 1000;
-    timeMeas = std::fmod(timeMeas, 1000);
-    result += secCount * 1.e-9;
-    scaleFactor++;
-  }
-  if (timeMeas >= 0) {
-    result += timeMeas * 1.e-12;
-    scaleFactor++;
-  }
-  result = result * std::pow(1000, (5 - scaleFactor));
-
-  ss << result;
-  std::string stringObj = ss.str() + " " + significance[scaleFactor - 1];
-
-  return stringObj;
+  // Primarily care about H:M:S
+  std::stringstream ss;
+  ss.fill('0');
+  ss << std::setw(2) << hrs << "h" << 
+        std::setw(2) << mins << "m" << 
+        std::setw(2) << secs << "s";
+  return ss.str();
 }
 
 std::string PerfMonMTSvc::scaleMem(long memMeas) const {

@@ -1,41 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATHSEGMENTMAKER_MDTMATHSEGMENTFINDER_H
 #define DCMATHSEGMENTMAKER_MDTMATHSEGMENTFINDER_H
 
+#include "MuonRecToolInterfaces/IMdtSegmentFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonRecToolInterfaces/IMdtSegmentFinder.h"
-
-class MsgStream;
-
-namespace TrkDriftCircleMath {
-  class SegmentFinder;
-  class DCSLFitter;
-}
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
 
 namespace Muon {
-
-  class MuonIdHelperTool;
-  class IDCSLFitProvider;
-
   class MdtMathSegmentFinder : virtual public IMdtSegmentFinder::IMdtSegmentFinder, public AthAlgTool
   {
 
   public:
     MdtMathSegmentFinder (const std::string& t, const std::string& n, const IInterface*  p);
     
-    ~MdtMathSegmentFinder();
+    ~MdtMathSegmentFinder()=default;
     
-    /** initialize method, method taken from bass-class AlgTool */
     virtual StatusCode initialize();
-    
-    /** finialize method, method taken from bass-class AlgTool  */
-    virtual StatusCode finalize();
     
     /** IMdtMdtMathSegmentFinder interface implementation              */
     virtual const TrkDriftCircleMath::SegVec findSegments ( const TrkDriftCircleMath::DCVec&                    dcvec,
@@ -46,7 +33,7 @@ namespace Muon {
   protected:
 
     ToolHandle<IDCSLFitProvider> m_dcslFitProvider;
-    ToolHandle<MuonIdHelperTool> m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     int  m_finderDebugLevel; //<! additional debug output
     bool m_doDrop;             //<! enable dropping of hits from segment   

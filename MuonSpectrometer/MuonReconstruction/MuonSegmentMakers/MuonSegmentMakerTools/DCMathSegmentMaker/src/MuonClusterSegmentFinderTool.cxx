@@ -220,14 +220,13 @@ namespace Muon {
     }
 
     if( msgLvl(MSG::DEBUG) ){
-      msg(MSG::DEBUG) << "Tracks before ambi solving " << std::endl;
+      ATH_MSG_DEBUG("Tracks before ambi solving ");
       
       for(TrackCollection::const_iterator it=segTrkColl->begin(); it!=segTrkColl->end(); ++it) {
-	msg(MSG::DEBUG) << m_printer->print(**it) << std::endl;
+	ATH_MSG_DEBUG(m_printer->print(**it));
 	const DataVector<const Trk::MeasurementBase>* measu = (*it)->measurementsOnTrack();
-	if( measu ) msg(MSG::DEBUG) << m_printer->print( measu->stdcont() ) << std::endl;
+	if( measu ) ATH_MSG_DEBUG(m_printer->print( measu->stdcont() ));
       }
-      msg(MSG::DEBUG) << endmsg;
     }
 
     if( segTrkColl->empty() ){

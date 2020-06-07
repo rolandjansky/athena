@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ToolSvc
-from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool
 
 
 def slimmingTool( config ):
+  from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool
   global ToolSvc
   assert 'name' in config, 'name of the configuration is missing'
   assert 'mode' in config, 'mode of slimming has to be configured'
@@ -30,30 +30,12 @@ def slimmingTool( config ):
   ToolSvc += SlimTool
   return SlimTool
 
-def navigationSlimming( config ):  
-  global ToolSvc
 
-  SlimTool = slimmingTool(config)
-  assert 'ThinningSvc' in config, 'Instance of thinning svc to talk to is indispensable'
-  assert config['ThinningSvc'], 'No ThinningSvc given'
-
-  ThinTool = TrigNavigationThinningTool(config['name']+'Thin')
-  ThinTool.ThinningSvc = config['ThinningSvc']
-  #  ThinTool.ActInPlace=False
-
-  if 'xAOD' in config:
-    ThinTool.ResultKey=''
-    ThinTool.xAODNavigationKey=config['result']
-    ThinTool.ExtraInputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
-  
-  if 'result' in config:
-    ThinTool.ResultKey=config['result']
-  else:
-    ThinTool.ResultKey='HLTResult_HLT'
-  ThinTool.SlimmingTool = SlimTool
-  ToolSvc += ThinTool
-
-  return ThinTool
-
-
-
+def navigationThinningSvc (config):
+  from TrigNavTools.TrigNavToolsConf import TrigNavigationThinningSvc
+  slimTool = slimmingTool (config)
+  svc = TrigNavigationThinningSvc (config['name'] + 'ThinSvc',
+                                   SlimmingTool = slimTool)
+  from AthenaCommon.AppMgr import ServiceMgr
+  ServiceMgr += svc
+  return svc

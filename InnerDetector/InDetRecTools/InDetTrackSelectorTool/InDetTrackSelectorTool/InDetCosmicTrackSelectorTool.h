@@ -11,19 +11,18 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 namespace Trk
 {
-  class IMagneticFieldTool;
   class ITrackSummaryTool;
   class Vertex;
   class TrackParticleBase;
   class Track;
 }
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace InDet
 {
@@ -67,8 +66,8 @@ namespace InDet
     ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
     bool m_trackSumToolAvailable;
 
-    ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
-
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     
 
   }; //end of class definitions

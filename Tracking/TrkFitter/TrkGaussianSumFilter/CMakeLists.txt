@@ -54,6 +54,7 @@ atlas_add_component( TrkGaussianSumFilter
 atlas_install_headers( TrkGaussianSumFilter )
 atlas_install_runtime( Data/*.par )
 
+#Executables for tests
 atlas_add_executable( GSF_testFindMinimumIndex
 	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx)
 
@@ -63,9 +64,13 @@ atlas_add_executable( GSF_testAlignedDynArray
 atlas_add_executable( GSF_testMergeComponents
 	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx)
 
+#Tests
 atlas_add_test(ut_GSF_testFindMinimumIndex
 	SCRIPT GSF_testFindMinimumIndex)
 
 atlas_add_test(ut_GSF_testAlignedDynArray
 	SCRIPT GSF_testAlignedDynArray)
+
+atlas_add_test(ut_GSF_testMergeComponents
+	SCRIPT GSF_testMergeComponents)
 

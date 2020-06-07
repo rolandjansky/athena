@@ -263,7 +263,7 @@ void HforTool::findHFQuarks() {
     return ;
   }
   // find out which generator was used for this event,
-  int g_id(evt->signal_process_id()) ;
+  int g_id(HepMC::signal_process_id(evt)) ;
   const std::string gen1 = generator_string(first_generator(g_id));
   const std::string gen2 = generator_string(second_generator(g_id));
   const std::string gen3 = generator_string(third_generator(g_id));
@@ -294,11 +294,11 @@ void HforTool::findHFQuarks() {
     int pdg = (*pitr)->pdg_id();
     int apdg = std::abs(pdg) ;
     if (apdg == 5 || apdg == 4) { // b or c quark
-      const HepMC::GenParticle * bcpart = (*pitr) ;
+      const HepMC::GenParticlePtr bcpart = (*pitr) ;
       ATH_MSG_DEBUG("pdg = " << pdg << ": " << *bcpart);
 
       // find the production vertex and parents
-      HepMC::GenVertex * prodvtx = bcpart->production_vertex() ;
+      HepMC::GenVertexPtr prodvtx = bcpart->production_vertex() ;
       bool hasbchadronparent(false) ;
       bool hasmpiparent(false) ;
       bool hastopparent(false) ;
@@ -694,7 +694,7 @@ void HforTool::findHFQuarksPythia
 	      //    prod vtx of stat=3 PDF parton, and opposite pdgid
 
 	      // first check that showered ME/PDF parton has prod. vtx -3 or -4
-	      HepMC::GenVertex * pvtx34(prodvtx) ;
+	      HepMC::GenVertexPtr pvtx34(prodvtx) ;
 	      bool bc34(pvtx34->barcode()==-3 || pvtx34->barcode()==-4) ;
 	      if ( !bc34 ) {
 		// ATH_MSG_DEBUG("Production vtx with barcode not -3 or -4") ;
@@ -828,7 +828,7 @@ void HforTool::findHFQuarksUnknown
       ATH_MSG_DEBUG("final state b/c " << *bcpart);
       // still filter out the b/c partons directly from a b/c/bhadron
       // or from top or W decay
-      HepMC::GenVertex * prodvtx(bcpart->production_vertex()) ;
+      HepMC::GenVertexPtr prodvtx(bcpart->production_vertex()) ;
       bool isTopDecay(false) ;
       bool isWDecay(false) ; // subset of top-decays, for hadronic top-decays
       bool iscquarkfromb(false) ;

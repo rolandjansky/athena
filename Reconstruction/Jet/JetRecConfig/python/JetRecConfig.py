@@ -65,19 +65,19 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameove
     # will handle the details. Just merge the components.
     # 
     # To facilitate running in serial mode, we also prepare
-    # the constituent PseudoJetGetter here (needed for rho)
+    # the constituent PseudoJetAlgorithm here (needed for rho)
     inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname)
     constitpjalg = inputcomps.getPrimary()
-    constitpjkey = constitpjalg.PJGetter.OutputContainer
+    constitpjkey = constitpjalg.OutputContainer
 
     components.merge(inputcomps)
     pjs = [constitpjkey]
 
-    # Schedule the ghost PseudoJetGetterAlgs
+    # Schedule the ghost PseudoJetAlgs
     for ghostdef in deps["ghosts"]:
         ghostpjalg = getGhostPJGAlg( ghostdef )
         components.addEventAlgo( ghostpjalg, sequencename )
-        ghostpjkey = ghostpjalg.PJGetter.OutputContainer
+        ghostpjkey = ghostpjalg.OutputContainer
         pjs.append( ghostpjkey )
 
     # Generate a JetAlgorithm to run the jet finding and modifiers
@@ -154,7 +154,7 @@ def resolveDependencies(jetdef):
     
     # Accumulate prerequisites of the ghost-associated types
     jetlog.info("  Full list of ghosts: ")
-    for ghostdef in sorted(list(ghostdefs)):
+    for ghostdef in sorted(list(ghostdefs), key=lambda g: g.inputtype):
         jetlog.info("    " + str(ghostdef))
         gprereqs = getGhostPrereqs(ghostdef)
         prereqdict["input"].update( [req.split(':',1)[1] for req in gprereqs] )
@@ -263,14 +263,14 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             jetlog.debug("Preparing Constit Mods for label {0} from {1}".format(constit.label,constit.inputname))
             # May need to generate constituent modifier sequences to
             # produce the input collection
-            import ConstModHelpers
+            from . import ConstModHelpers
             constitalg = ConstModHelpers.getConstitModAlg(constit)
             if constitalg:
                 components.addEventAlgo(constitalg)
 
-    # Schedule the constituent PseudoJetGetterAlg
+    # Schedule the constituent PseudoJetAlg
     constitpjalg = getConstitPJGAlg( constit )
-    constitpjkey = constitpjalg.PJGetter.OutputContainer
+    constitpjkey = constitpjalg.OutputContainer
     # Mark the constit PJGAlg as the primary so that the caller
     # can access the output container name
     components.addEventAlgo( constitpjalg, primary=True )
@@ -338,7 +338,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
     return components
 
 ########################################################################
-# Functions for generating PseudoJetGetters, including determining
+# Functions for generating PseudoJetAlgorithms, including determining
 # the prerequisites for their operation
 #
 def getConstitPrereqs(basedef):
@@ -368,17 +368,14 @@ def getConstitPJGAlg(basedef):
     full_label = basedef.label
     if basedef.basetype == xAODType.Jet:
         full_label += "_"+basedef.inputname
-    getter = CompFactory.PseudoJetGetter("pjg_"+full_label,
+
+    pjgalg = CompFactory.PseudoJetAlgorithm(
+        "pjgalg_"+basedef.label,
         InputContainer = basedef.inputname,
         OutputContainer = "PseudoJet"+full_label,
         Label = full_label,
         SkipNegativeEnergy=True,
         GhostScale=0.
-        )
-
-    pjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_"+basedef.label,
-        PJGetter = getter
         )
     return pjgalg
 
@@ -391,10 +388,10 @@ def getGhostPJGAlg(ghostdef):
         "GhostScale":         1e-40
         }
 
-    pjgclass = CompFactory.PseudoJetGetter
+    pjaclass = CompFactory.PseudoJetAlgorithm
     if ghostdef.inputtype=="MuonSegment":
         # Muon segments have a specialised type
-        pjgclass = CompFactory.MuonSegmentPseudoJetGetter
+        pjaclass = CompFactory.MuonSegmentPseudoJetAlgorithm
         kwargs = {
             "InputContainer":"MuonSegments",
             "OutputContainer":"PseudoJet"+label,
@@ -411,11 +408,9 @@ def getGhostPJGAlg(ghostdef):
     else:
         raise ValueError("Unhandled ghost type {0} received!".format(ghostdef.inputtype))
 
-    getter = pjgclass("pjg_"+label, **kwargs)
-
-    pjgalg = CompFactory.PseudoJetAlgorithm(
+    pjgalg = pjaclass(
         "pjgalg_"+label,
-        PJGetter = getter
+        **kwargs
         )
     return pjgalg
 

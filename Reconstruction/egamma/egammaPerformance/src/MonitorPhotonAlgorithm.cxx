@@ -5,7 +5,7 @@
   4 May 2020
 */
 
-#include "egammaPerformance/MonitorPhotonAlgorithm.h"
+#include "MonitorPhotonAlgorithm.h"
 
 MonitorPhotonAlgorithm::MonitorPhotonAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)

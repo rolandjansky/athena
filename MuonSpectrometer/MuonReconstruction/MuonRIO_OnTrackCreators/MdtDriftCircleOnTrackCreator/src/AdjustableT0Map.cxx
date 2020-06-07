@@ -1,18 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-#include "Identifier/Identifier.h"
-
-/////////////////////////////////////////////////////////
 #include "AdjustableT0Map.h"
 
-AdjustableT0Map::AdjustableT0Map(const Muon::MuonIdHelperTool* muonIdHelperTool)
+AdjustableT0Map::AdjustableT0Map(const MdtIdHelper* idHelp)
 {
-
-  m_muonIdHelperTool = muonIdHelperTool;
+  m_mdtIdHelper = idHelp;
   
   m_DefaultTShift = 0. ;
 
@@ -29,12 +23,7 @@ AdjustableT0Map::AdjustableT0Map(const Muon::MuonIdHelperTool* muonIdHelperTool)
   m_stationNameRANGE = m_stationNameMAX - m_stationNameMIN + 1 ;
   
   m_Disabled = 0 ;
-
 }
-
-AdjustableT0Map::~AdjustableT0Map(){}
-
-
 
 void AdjustableT0Map::SetDefaultTShift( double TShift ){ m_DefaultTShift = TShift ; }
 
@@ -42,8 +31,6 @@ void AdjustableT0Map::ResetSetTShift(double Tshift){
   SetDefaultTShift(Tshift) ;
   m_IdentStaTimeShiftMap.clear();  
 }
-
-
 
 void AdjustableT0Map::DumpT0Shift(){
   std::cout << "m_DefaultTShift " << m_DefaultTShift <<  std::endl;
@@ -73,7 +60,7 @@ void AdjustableT0Map::DumpT0Shift( int IdentSta ) {
   std::cout 
        << " IdentSta    " << IdentSta
        << " stationName " << stationName
-       << " " << m_muonIdHelperTool->mdtIdHelper().stationNameString(stationName)
+       << " " << m_mdtIdHelper->stationNameString(stationName)
        << " stationPhi  " << stationPhi 
        << " stationEta  " << stationEta 
        << " time " << GetT0Shift(IdentSta)
@@ -140,10 +127,10 @@ void AdjustableT0Map::GetData(int Irank, int& stationName, int& stationEta, int&
 
 
 int AdjustableT0Map::GetIdentSta( const Identifier& id) const{
-  return GetIdentSta( m_muonIdHelperTool->mdtIdHelper().stationName(id) , m_muonIdHelperTool->mdtIdHelper().stationEta(id) , m_muonIdHelperTool->mdtIdHelper().stationPhi(id) ) ;
+  return GetIdentSta( m_mdtIdHelper->stationName(id) , m_mdtIdHelper->stationEta(id) , m_mdtIdHelper->stationPhi(id) ) ;
 }
 int AdjustableT0Map::GetIdentSta( std::string stationNameString, int stationEta, int stationPhi ) const{
-  return GetIdentSta( m_muonIdHelperTool->mdtIdHelper().stationNameIndex(stationNameString), stationEta, stationPhi ) ;
+  return GetIdentSta( m_mdtIdHelper->stationNameIndex(stationNameString), stationEta, stationPhi ) ;
 }
 int AdjustableT0Map::GetIdentSta( int stationName, int stationEta, int stationPhi) const{
   int ToBeReturned = 

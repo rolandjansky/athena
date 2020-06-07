@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
 ## @file : PyUtils/python/Dso.py
@@ -6,14 +6,10 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet"
 
 __all__ = [
     'DsoDb',
-    'gen_typeregistry_dso',
-    'load_typeregistry_dso',
-
     ]
 
 import os
@@ -144,154 +140,6 @@ def find_library(libname):
             if os.path.exists(lib):
                 return lib
     return
-
-_dflt_typereg_fname = 'typereg_dso_db.csv'
-def gen_typeregistry_dso(oname=_dflt_typereg_fname):
-    '''inspect all the accessible reflex types and get their rootmap-naming.
-    also associate the clid if available.
-    '''
-    import CLIDComps.clidGenerator as _c
-    cliddb = _c.clidGenerator(db=None)
-    del _c
-
-    import PyUtils.path as _p
-    oname = _p.path(oname)
-    del _p
-        
-    import PyUtils.Logging as _L
-    msg = _L.logging.getLogger('typereg-dso')
-    msg.setLevel(_L.logging.INFO)
-    #msg.setLevel(_L.logging.VERBOSE)   #MN
-    del _L
-    
-    msg.info("installing registry in [%s]...", oname)
-
-    # FIXME: should use the Cxx one...
-    #reg = DsoDb()
-    reg = PyDsoDb()
-    
-    cls_names = reg.db.keys()
-    import cppyy
-    _load_lib = cppyy.loadDict
-    rflx = cppyy.gbl.RootType
-
-    def _load_dict(libname,retry=10):
-        msg.debug("::: loading [%s]...", libname)
-        try:
-            return _load_lib(libname)
-        except (Exception,SystemError,) as err:
-            msg.warning("**error** %s", err)
-        return
-
-    # we need to pre-load these guys as HepPDT is missing a linkopts
-    # against HepPID. see bug #46551
-    hep_pid = _load_lib('libHepPID.so')
-    hep_pdt = _load_lib('libHepPDT.so')
-
-    from PyUtils.Decorators import forking
-    
-    import os
-    dict_libs = reduce(set.union, [set(v) for v in reg.db.values()])
-    dict_libs = [os.path.basename(l) for l in dict_libs]
-
-    _veto_libs = [
-        'libG4EventGraphicsDict.so', # freaking statics !
-        ]
-    dict_libs = [l for l in dict_libs if l not in _veto_libs]
-    
-    msg.debug("::: loading dict-libraries...")
-    @forking
-    def inspect_dict_lib(lib):
-        _load_dict(lib)
-        try:
-            rflx_names = update_db(lib)
-            return rflx_names
-        except Exception as err:
-            msg.warning(err)
-        return {}
-
-    msg.debug(":"*80)
-    def update_db(libname):
-        rflx_names={}
-        for i in range(rflx.TypeSize()):
-            rflx_type = rflx.TypeAt(i)
-            rflx_name = rflx_type.Name(7)
-            root_name = _to_rootmap_name(rflx_name)
-##             # could also retro-fit typedefs, and allow their auto-loading...
-##             if rflx_type.IsTypedef():
-##                 import ROOT
-##                 print "[%s] ::: processing [%s -> %s]..." % (
-##                     ROOT.TClass.GetClass(rflx_name).GetSharedLibs(),
-##                     rflx_type.Name(6),
-##                     rflx_name)
-            if not(root_name in reg.db):
-##                 print "::ERR::",root_name
-                continue
-            ##rflx_names[rflx_name] = root_name
-            rflx_names[root_name] = rflx_name
-        return rflx_names
-
-    rflx_names = {}
-    # for lib in dict_libs:
-    #   rflx_names.update(inspect_dict_lib(lib))
-    msg.warning("::: DSO functionality disabled in ROOT6!")
-                     
-    msg.debug("::: rflx types: %d %d",len(rflx_names),len(reg.db.keys()))
-    msg.info("::: saving informations in [%s]...", oname)
-    
-    import csv
-    db= csv.writer(open(oname,'w'), delimiter=';')
-    keys = sorted(rflx_names.keys())
-    for k in keys:
-        v = rflx_names[k]
-        clid = (cliddb.getClidFromName(k) or
-                cliddb.getClidFromName(v) or
-                cliddb.getClidFromTid(k)  or
-                cliddb.getClidFromTid(v))
-        if k != v:
-            db.writerow([k,v,clid or ''])
-        elif clid:
-            db.writerow([k,v,clid])
-
-    return rflx_names
-
-def load_typeregistry_dso(iname=None):
-    import os
-    import PyUtils.path as _p
-    if iname is None:
-        iname = _p.path(_dflt_typereg_fname)
-        if not iname.exists():
-            import os
-            projects = os.environ.get('CMTPATH','').split(os.pathsep)[:2]
-            for project_root in projects:
-                n = _p.path(project_root)/"InstallArea"/"share"/iname
-                if n.exists():
-                    iname = n
-                    break
-    else:
-        iname = _p.path(iname)
-
-    if not iname.exists():
-        raise OSError('no such file [%s]'%iname)
-    
-    import PyUtils.Logging as _L
-    msg = _L.logging.getLogger("typereg-dso")
-    msg.setLevel(_L.logging.INFO)
-    del _L
-    msg.info("::: loading typeregistry from [%s]...", iname)
-    
-    rflx_names = {}
-    f = iname.open(mode='r')
-    import csv
-    db = csv.reader(f, delimiter=';')
-    for row in db:
-        row = [i.strip() for i in row]
-        root_name = row[0]
-        rflx_name = row[1]
-        rflx_names[root_name] = rflx_name
-
-    del _p, csv
-    return rflx_names
 
 
 import re

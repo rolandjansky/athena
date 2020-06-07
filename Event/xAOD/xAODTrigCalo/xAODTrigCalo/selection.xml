@@ -1,42 +1,35 @@
-<!-- $Id: selection.xml 692011 2015-08-28 17:19:22Z wigleswt $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- TrigCaloCluster_v1 dictionaries: -->
-  <class name="xAOD::TrigCaloCluster_v1" />
-  <class name="xAOD::TrigCaloClusterContainer_v1"
-         id="0C7F7869-C67A-4E4A-8793-358F8B32DFEA" />
-  <class name="xAOD::TrigCaloClusterAuxContainer_v1"
-         id="4A2F55AF-D465-42A8-A4CF-2DB84D9628E5" />
+   <!-- xAOD::TrigCaloCluster interface type(s). -->
+   <class name="xAOD::TrigCaloCluster_v1" />
+   <class name="xAOD::TrigCaloClusterContainer_v1"
+          id="0C7F7869-C67A-4E4A-8793-358F8B32DFEA" />
+   <typedef name="xAOD::TrigCaloCluster" />
+   <typedef name="xAOD::TrigCaloClusterContainer" />
 
-  <class name="ElementLink<xAOD::TrigCaloClusterContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigCaloClusterContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigCaloClusterContainer_v1> > >" />
+   <!-- xAOD::TrigCaloCluster auxiliary type(s). -->
+   <class name="xAOD::TrigCaloClusterAuxContainer_v1"
+          id="4A2F55AF-D465-42A8-A4CF-2DB84D9628E5" />
+   <typedef name="xAOD::TrigCaloClusterAuxContainer" />
 
-  <!-- TrigEMCluster_v1 dictionaries: -->
-  <class name="xAOD::TrigEMCluster_v1" />
-  <class name="xAOD::TrigEMClusterContainer_v1"
-         id="B37C59EC-1A1E-467C-BFCE-52EA08694C60" />
-  <class name="xAOD::TrigEMClusterAuxContainer_v1"
-         id="CE08F151-A2BA-44ED-B854-7D8B9C8679DE" />
+   <!-- xAOD::TrigEMCluster interface type(s). -->
+   <class name="xAOD::TrigEMCluster_v1" />
+   <class name="xAOD::TrigEMClusterContainer_v1"
+          id="B37C59EC-1A1E-467C-BFCE-52EA08694C60" />
+   <typedef name="xAOD::TrigEMCluster" />
+   <typedef name="xAOD::TrigEMClusterContainer" />
 
-  <!-- TrigEMCluster_v2 dictionaries: -->
-  <class name="xAOD::TrigEMClusterAuxContainer_v2"
-         id="2AC227DF-EE58-4469-AE60-F066F75DC0DD" />
+   <!-- xAOD::TrigEMCluster auxiliary type(s). -->
+   <class name="xAOD::TrigEMClusterAuxContainer_v1"
+          id="CE08F151-A2BA-44ED-B854-7D8B9C8679DE" />
+   <class name="xAOD::TrigEMClusterAuxContainer_v2"
+          id="2AC227DF-EE58-4469-AE60-F066F75DC0DD" />
+   <typedef name="xAOD::TrigEMClusterAuxContainer" />
 
-  <class name="ElementLink<xAOD::TrigEMClusterContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigEMClusterContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigEMClusterContainer_v1> > >" />
-  
-  
-  <class name="xAOD::CaloClusterTrigAuxContainer_v1"  
-         id="F25EBF21-75CD-4CB7-B33E-76B46213A49B" />
-  
-  
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
+   <!-- xAOD::CaloCluster auxiliary type(s). -->
+   <class name="xAOD::CaloClusterTrigAuxContainer_v1"
+          id="F25EBF21-75CD-4CB7-B33E-76B46213A49B" />
+   <typedef name="xAOD::CaloClusterTrigAuxContainer" />
 
 </lcgdict>

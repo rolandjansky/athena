@@ -1,13 +1,12 @@
 <lcgdict>
-
   <class pattern="std::*pair*<unsigned int, unsigned int>" />
-  <class pattern="std::*pair*<std::string, unsigned*" />
+  <class pattern="std::*pair*<*string*,*unsigned int>" />
   <class pattern="std::*pair*<*string*vector<int*"/>
   <class pattern="std::*pair*<*string*vector<double*"/>
-  
+
   <class pattern="std::*pair*<std::pair<std::string, unsigned int>, std::pair<std::string, unsigned int> >"/>
-  <class pattern="std::*pair*<unsigned int, std::vector<float*"/>
-  <class pattern="std::*pair*<unsigned int, std::vector<unsigned int*"/>
+  <class pattern="std::*pair*<unsigned int*,*vector<float*"/>
+  <class pattern="std::*pair*<unsigned int*,*vector<unsigned int*"/>
   
   <class name="std::vector<long long>"/>
   <class name="std::vector<unsigned long long>"/>

@@ -195,7 +195,7 @@ float tauRecTools::TRTBDT::GetResponse(){
   return this->bdt->GetResponse();
 }
 
-const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted){
+const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted, TLorentzVector dRVector, double dRCut){
 
   using namespace tauRecTools::msgHelperFunction;
   // If using subtracted clusters, need to store unmodified to check if charged are duplicates
@@ -206,44 +206,62 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
   for(auto jCon : jVec){
     ANA_MSG_DEBUG("JetConstituent: ");
     ANA_MSG_DEBUG("eta: " << jCon->eta() << " phi: " << jCon->phi() << " e: " << jCon->e()); 
-    if( jCon->type() == xAOD::Type::CaloCluster ) {
-      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>( jCon->rawConstituent() );
-      ANA_MSG_DEBUG("CaloCluster: ");
-      ANA_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
-      ANA_MSG_DEBUG("rawEta: " << cluster->rawEta() << " rawPhi: " << cluster->rawPhi() << " rawE: " << cluster->rawE()); 
-      ANA_MSG_DEBUG("calEta: " << cluster->calEta() << " calPhi: " << cluster->calPhi() << " calE: " << cluster->calE());
-      clusterList.push_back(cluster);
-    }
-    else if( jCon->type() == xAOD::Type::ParticleFlow ) {
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
-      if( !pfo->isCharged() ){
-	if( pfo->nCaloCluster()==1 ){
 
-	  if (incShowerSubtracted){
-	    ElementLink<xAOD::CaloClusterContainer> subClusLink;
-	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusLink);
-	    if ( !subClusLink.isValid() ){
-	      ANA_MSG_ERROR("Tau HelperFunctions: Found invalid link to shower subtracted cluster");
-	      return StatusCode::FAILURE;
+    // do deltaR check against jet constituent
+    bool PassdR = true;
+    if (dRCut > 0){
+      TLorentzVector tempClusterVector;
+      tempClusterVector.SetPtEtaPhiE( jCon->pt(), jCon->eta(), jCon->phi(), jCon->e() );
+      ANA_MSG_DEBUG("Apply dR cut on JetConstituent: " << dRCut );
+      ANA_MSG_DEBUG("JetConstituent Pt: " << tempClusterVector.Pt() << ", Eta: " << tempClusterVector.Eta() << ", Phi: " << tempClusterVector.Phi());
+      ANA_MSG_DEBUG("dR " << dRVector.DeltaR(tempClusterVector));
+      if (dRVector.DeltaR(tempClusterVector) > dRCut){
+	ANA_MSG_DEBUG("Failed dR Cut ");
+	PassdR = false;
+      }
+    }
+
+    if (PassdR){
+      if( jCon->type() == xAOD::Type::CaloCluster ) {
+	const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>( jCon->rawConstituent() );
+	ANA_MSG_DEBUG("CaloCluster: ");
+	ANA_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
+	ANA_MSG_DEBUG("rawEta: " << cluster->rawEta() << " rawPhi: " << cluster->rawPhi() << " rawE: " << cluster->rawE());
+	ANA_MSG_DEBUG("calEta: " << cluster->calEta() << " calPhi: " << cluster->calPhi() << " calE: " << cluster->calE());
+
+	clusterList.push_back(cluster);
+      }
+      else if( jCon->type() == xAOD::Type::ParticleFlow ) {
+	const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
+	if( !pfo->isCharged() ){
+	  if( pfo->nCaloCluster()==1 ){
+
+	    if (incShowerSubtracted){
+	      ElementLink<xAOD::CaloClusterContainer> subClusLink;
+	      pfo->attribute("PFOShowerSubtractedClusterLink", subClusLink);
+	      if ( !subClusLink.isValid() ){
+		ANA_MSG_ERROR("Tau HelperFunctions: Found invalid link to shower subtracted cluster");
+		return StatusCode::FAILURE;
+	      }
+	      else {
+		clusterList.push_back( (*subClusLink) );
+		dupList.push_back( pfo->cluster(0) );
+	      }
 	    }
 	    else {
-	      clusterList.push_back( (*subClusLink) );
-	      dupList.push_back( pfo->cluster(0) );
+	      clusterList.push_back(pfo->cluster(0));
 	    }
-	  }
-	  else {
-	    clusterList.push_back(pfo->cluster(0));
-	  }
 
-	}
-	else ANA_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
+	  }
+	  else ANA_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
 
-      }// neutral PFO check
-    }
-    else{
-      ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
-      return StatusCode::FAILURE;
-    }
+	}// neutral PFO check
+      }
+      else{
+	ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
+	return StatusCode::FAILURE;
+      }
+    }// dR check
   }
 
   // Get clusters from charged PFOs
@@ -252,21 +270,38 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
   else checkList = clusterList;
 
   for(auto jCon : jVec){
+
     if( jCon->type() == xAOD::Type::ParticleFlow ) {
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
-      if( pfo->isCharged() ){
 
-	// loop through clusters linked to charged PFO
-	for (u_int cc=0; cc<pfo->nCaloCluster(); cc++){
-	  const xAOD::CaloCluster* cluster = pfo->cluster(cc);
-	  // check it is not duplicate of one in neutral list
-	  if ( std::find(checkList.begin(), checkList.end(), cluster) == checkList.end() ){
-	    clusterList.push_back(cluster);
-	    checkList.push_back(cluster);
-	  }
+      bool PassdR = true;
+      if (dRCut > 0){
+	TLorentzVector tempClusterVector;
+	tempClusterVector.SetPtEtaPhiE( jCon->pt(), jCon->eta(), jCon->phi(), jCon->e() );
+	ANA_MSG_DEBUG("Apply dR cut on JetConstituent: " << dRCut );
+	ANA_MSG_DEBUG("JetConstituent Pt: " << tempClusterVector.Pt() << ", Eta: " << tempClusterVector.Eta() << ", Phi: " << tempClusterVector.Phi());
+	ANA_MSG_DEBUG("dR " << dRVector.DeltaR(tempClusterVector));
+	if (dRVector.DeltaR(tempClusterVector) > dRCut){
+	  ANA_MSG_DEBUG("Failed dR Cut ");
+	  PassdR = false;
 	}
-
       }
+
+      if (PassdR){
+	const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
+	if( pfo->isCharged() ){
+
+	  // loop through clusters linked to charged PFO
+	  for (u_int cc=0; cc<pfo->nCaloCluster(); cc++){
+	    const xAOD::CaloCluster* cluster = pfo->cluster(cc);
+	    // check it is not duplicate of one in neutral list
+	    if ( std::find(checkList.begin(), checkList.end(), cluster) == checkList.end() ){
+	      clusterList.push_back(cluster);
+	      checkList.push_back(cluster);
+	    }
+	  }
+
+	}
+      }// dR check
     }
   }// loop through jet constituents
 

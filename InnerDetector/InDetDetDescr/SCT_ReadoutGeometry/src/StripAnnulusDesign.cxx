@@ -10,11 +10,6 @@
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/RectangleBounds.h"
 
-using namespace std;
-using std::cos;
-using std::sin;
-using std::abs;
-
 namespace InDetDD {
 StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
                                const SiDetectorDesign::Axis &thicknessDirection,
@@ -39,10 +34,6 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirect
     double length = m_stripEndRadius - m_stripStartRadius;
     std::unique_ptr<Trk::SurfaceBounds> m_bounds = std::make_unique<Trk::RectangleBounds>(width / 2.0, length / 2.0); // Awaiting new boundclass for Annulus shape
 }
-
-  StripAnnulusDesign::~StripAnnulusDesign() {
-    delete m_bounds;
-  }
 
 HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
     double centerR = (m_stripStartRadius + m_stripEndRadius) * 0.5;
@@ -81,7 +72,7 @@ SiCellId StripAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const 
 //
 //    Find the strip
 //
-    int strip = floor(phi / m_pitch) + m_nStrips * 0.5;
+    int strip = std::floor(phi / m_pitch) + m_nStrips * 0.5;
     return SiCellId(strip);
 }
 
@@ -90,8 +81,8 @@ SiLocalPosition StripAnnulusDesign::localPositionOfCell(SiCellId const &cellId) 
   int strip = cellId.strip();
   double r = (m_stripEndRadius - m_stripStartRadius) *0.5;
   double phi = (strip - m_nStrips*0.5 + 0.5) * m_pitch;
-  double xEta = r * cos(phi);
-  double xPhi = r * sin(phi);
+  double xEta = r * std::cos(phi);
+  double xPhi = r * std::sin(phi);
   return SiLocalPosition(xEta, xPhi, 0.0);
 }
 
@@ -107,8 +98,8 @@ SiLocalPosition StripAnnulusDesign::localPositionOfCluster(SiCellId const &cellI
     double phi = pos.phi() + clusterWidth *0.5;
     double r = pos.r();
 
-    pos.xPhi(r * sin(phi));
-    pos.xEta(r * cos(phi));
+    pos.xPhi(r * std::sin(phi));
+    pos.xEta(r * std::cos(phi));
 
     return pos;
 }
@@ -124,10 +115,10 @@ std::pair<SiLocalPosition, SiLocalPosition> StripAnnulusDesign::endsOfStrip(SiLo
     double rEnd = m_stripEndRadius;
     double phi = (strip - m_nStrips*0.5 + 0.5) * m_pitch;
 
-    SiLocalPosition end1(rStart * cos(phi), rStart * sin(phi), 0.0);
-    SiLocalPosition end2(rEnd * cos(phi), rEnd * sin(phi), 0.0);
+    SiLocalPosition end1(rStart * std::cos(phi), rStart * std::sin(phi), 0.0);
+    SiLocalPosition end2(rEnd * std::cos(phi), rEnd * std::sin(phi), 0.0);
 
-    return pair<SiLocalPosition, SiLocalPosition>(end1, end2);
+    return std::pair<SiLocalPosition, SiLocalPosition>(end1, end2);
 }
 
 bool StripAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*checkBondGap*/) const {
@@ -144,7 +135,7 @@ double StripAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition const &p
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
 
-    return fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
+    return std::abs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.

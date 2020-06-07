@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************/
@@ -17,7 +17,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include <map>
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "Identifier/Identifier.h"
@@ -31,7 +30,8 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 
-
+#include <cmath>
+#include <map>
 
 namespace D3PD {
 
@@ -468,7 +468,7 @@ const InDet::SCT_Cluster* TrackParticleToSCTClusterAssociationTool::next()
               float trketacomp = (float)mytrack.dot(myetaax);
               float trkphicomp = (float)mytrack.dot(myphiax);
               float trknormcomp = (float)mytrack.dot(mynormal);
-              if (fabs(trknormcomp*1e07)>0 ){
+              if (std::abs(trknormcomp*1e07)>0. ){
                 const double inv_trknormcomp = 1. / trknormcomp;
                 *m_locPhi = (float)atan(trkphicomp * inv_trknormcomp); 
                 *m_locTheta = (float)atan(trketacomp * inv_trknormcomp); 

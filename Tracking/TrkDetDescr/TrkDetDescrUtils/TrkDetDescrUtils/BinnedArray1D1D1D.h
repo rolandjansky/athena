@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,11 +39,11 @@ public:
   /**Default Constructor - needed for inherited classes */
   BinnedArray1D1D1DT()
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array{}
     , m_arrayObjects(nullptr)
-    , m_binUtil1(0)
-    , m_binUtil2(0)
-    , m_binUtilArray(0)
+    , m_binUtil1(nullptr)
+    , m_binUtil2(nullptr)
+    , m_binUtilArray(nullptr)
   {}
 
   /**Constructor with std::vector and a  BinUtility - reference counted, will delete objects at the end,
@@ -54,7 +54,7 @@ public:
                     BinUtility* binUtil2,
                     std::vector<std::vector<BinUtility*>>* binUtilVec)
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtil1(binUtil1)
     , m_binUtil2(binUtil2)
@@ -68,11 +68,11 @@ public:
     {
       int v1Size = binUtil1->bins();
       int v2Size = binUtil2->bins();
-      m_array = new std::vector<std::vector<std::vector<SharedObject<T>>*>*>(v1Size);
+      m_array = std::vector<std::vector<std::vector<SharedObject<T>>>>(v1Size);
       for (int i = 0; i < v1Size; ++i) {
-        (*m_array)[i] = new std::vector<std::vector<SharedObject<T>>*>(v2Size);
+        m_array[i] = std::vector<std::vector<SharedObject<T>>>(v2Size);
         for (int j = 0; j < v2Size; ++j) {
-          (*((*m_array)[i]))[j] = new std::vector<SharedObject<T>>((*binUtilVec)[i][j]->bins());
+          m_array[i][j] = std::vector<SharedObject<T>>((*binUtilVec)[i][j]->bins());
         }
       }
     }
@@ -86,9 +86,9 @@ public:
         int bin2 = binUtil2->bin(currentGlobal);
         assert((*binUtilVec)[bin1][bin2]);
         int bin3 = (*binUtilVec)[bin1][bin2]->bin(currentGlobal);
-        std::vector<std::vector<SharedObject<T>>*>* currArr = (*m_array)[bin1];
-        std::vector<SharedObject<T>>* curVec = (*currArr)[bin2];
-        (*curVec)[bin3] = ((tclassvector)[ivec]).first;
+        std::vector<std::vector<SharedObject<T>>>& currArr = m_array[bin1];
+        std::vector<SharedObject<T>>& curVec = currArr[bin2];
+        curVec[bin3] = ((tclassvector)[ivec]).first;
       } else
         throw GaudiException("BinnedArray1D1D1DT", "Object outside bounds", StatusCode::FAILURE);
     }
@@ -97,11 +97,11 @@ public:
   /** Copy Constructor - copies only pointers! */
   BinnedArray1D1D1DT(const BinnedArray1D1D1DT& barr)
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array{}
     , m_arrayObjects(nullptr)
-    , m_binUtil1(0)
-    , m_binUtil2(0)
-    , m_binUtilArray(0)
+    , m_binUtil1(nullptr)
+    , m_binUtil2(nullptr)
+    , m_binUtilArray(nullptr)
   {
     // prepare the binUtilities
     m_binUtil1 = (barr.m_binUtil1) ? barr.m_binUtil1->clone() : 0;
@@ -118,18 +118,18 @@ public:
     if (m_binUtil1 && m_binUtil2 && m_binUtilArray->size()) {
       int v1Size = m_binUtil1->bins();
       int v2Size = m_binUtil2->bins();
-      m_array = new std::vector<std::vector<std::vector<SharedObject<T>>*>*>(v1Size);
+      m_array = std::vector<std::vector<std::vector<SharedObject<T>>>>(v1Size);
       for (int i = 0; i < v1Size; ++i) {
-        (*m_array)[i] = new std::vector<std::vector<SharedObject<T>>*>(v2Size);
+        m_array[i] = std::vector<std::vector<SharedObject<T>>>(v2Size);
         for (int j = 0; j < v2Size; ++j)
-          (*((*m_array)[i]))[j] = new std::vector<SharedObject<T>>((*m_binUtilArray)[i][j]->bins());
+          m_array[i][j] = std::vector<SharedObject<T>>((*m_binUtilArray)[i][j]->bins());
       }
 
       // assign the items
       for (int ibin1 = 0; ibin1 < v1Size; ++ibin1) {
         for (int ibin2 = 0; ibin2 < v2Size; ++ibin2) {
           for (size_t ibin3 = 0; ibin3 < (*m_binUtilArray)[ibin1][ibin2]->bins(); ++ibin3) {
-            (*((*((*m_array)[ibin1]))[ibin2]))[ibin3] = (*((*((*barr.m_array)[ibin1]))[ibin2]))[ibin3];
+            m_array[ibin1][ibin2][ibin3] = (barr.m_array)[ibin1][ibin2][ibin3];
           }
         }
       }
@@ -141,26 +141,15 @@ public:
   {
     if (this != &barr) {
 
-      // delete everything
-      int arr = m_array->size();
-      for (int ia = 0; ia < arr; ++ia) {
-        for (unsigned int iv = 0; iv < (*m_array)[ia]->size(); ++iv) {
-          for (unsigned int io = 0; io < (*((*m_array)[ia]))[iv]->size(); ++io)
-            delete (*((*((*m_array)[ia]))[iv]))[io];
-          delete (*((*m_array)[ia]))[iv];
-        }
-        delete (*m_array)[ia];
-      }
-      delete m_array;
       m_arrayObjects.release();
       // bin utilities
-      int v1Size = m_binUtil1->bins();
-      int v2Size = m_binUtil2->bins();
+      size_t v1Size = m_binUtil1->bins();
+      size_t v2Size = m_binUtil2->bins();
       delete m_binUtil1;
       delete m_binUtil2;
 
-      for (int ibin1 = 0; ibin1 < v1Size; ibin1++) {
-        for (int ibin2 = 0; ibin2 < v2Size; ibin2++)
+      for (size_t ibin1 = 0; ibin1 < v1Size; ibin1++) {
+        for (size_t ibin2 = 0; ibin2 < v2Size; ibin2++)
           delete (*m_binUtilArray)[ibin1][ibin2];
       }
       delete m_binUtilArray;
@@ -179,20 +168,20 @@ public:
 
       // prepare the binned Array
       if (m_binUtil1 && m_binUtil2 && m_binUtilArray->size()) {
-        int v1Size = m_binUtil1->bins();
-        int v2Size = m_binUtil2->bins();
-        m_array = new std::vector<std::vector<std::vector<SharedObject<T>>*>*>(v1Size);
-        for (int i = 0; i < v1Size; ++i) {
-          (*m_array)[i] = new std::vector<std::vector<SharedObject<T>>*>(v2Size);
-          for (int j = 0; j < v2Size; ++j)
-            (*((*m_array)[i]))[j] = new std::vector<SharedObject<T>>((*m_binUtilArray)[i][j]->bins());
+        size_t v1Size = m_binUtil1->bins();
+        size_t v2Size = m_binUtil2->bins();
+        m_array = std::vector<std::vector<std::vector<SharedObject<T>>>>(v1Size);
+        for (size_t i = 0; i < v1Size; ++i) {
+          m_array[i] = std::vector<std::vector<SharedObject<T>>>(v2Size);
+          for (size_t j = 0; j < v2Size; ++j)
+            m_array[i][j] = std::vector<SharedObject<T>>((*m_binUtilArray)[i][j]->bins());
         }
 
         // assign the items
         for (size_t ibin1 = 0; ibin1 < v1Size; ++ibin1) {
           for (size_t ibin2 = 0; ibin2 < v2Size; ++ibin2) {
             for (size_t ibin3 = 0; ibin3 < (*m_binUtilArray)[ibin1][ibin2]->bins(); ++ibin3) {
-              (*((*((*m_array)[ibin1]))[ibin2]))[ibin3] = (*((*((*barr.m_array)[ibin1]))[ibin2]))[ibin3];
+              m_array[ibin1][ibin2][ibin3] = (barr.m_array)[ibin1][ibin2][ibin3];
             }
           }
         }
@@ -207,14 +196,6 @@ public:
   /**Virtual Destructor*/
   ~BinnedArray1D1D1DT()
   {
-    int arr = m_array->size();
-    for (int ia = 0; ia < arr; ++ia) {
-      for (unsigned int iv = 0; iv < (*m_array)[ia]->size(); ++iv) {
-        delete (*((*m_array)[ia]))[iv];
-      }
-      delete (*m_array)[ia];
-    }
-    delete m_array;
     int v1Size = m_binUtil1->bins();
     int v2Size = m_binUtil2->bins();
     delete m_binUtil1;
@@ -240,7 +221,7 @@ public:
       return 0;
     int bin3 = (*m_binUtilArray)[bin1][bin2]->bin(lp);
 
-    return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
+    return (m_array[bin1][bin2][bin3]).get();
   }
 
   /** Returns the pointer to the templated class object from the BinnedArrayT,
@@ -259,7 +240,7 @@ public:
     if (bin3 >= (*m_binUtilArray)[bin1][bin2]->bins())
       return 0;
 
-    return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
+    return (m_array[bin1][bin2][bin3]).get();
   }
 
   /** Returns the pointer to the templated class object from the BinnedArrayT - entry point */
@@ -269,7 +250,7 @@ public:
     int bin2 = m_binUtil2->entry(gp, 0);
     int bin3 = (*m_binUtilArray)[bin1][bin2]->entry(gp, 0);
 
-    return ((*((*((*m_array)[bin1]))[bin2]))[bin3]).get();
+    return (m_array[bin1][bin2][bin3]).get();
   }
 
   /** Returns the pointer to the templated class object from the BinnedArrayT
@@ -284,7 +265,7 @@ public:
       for (size_t ibin1 = 0; ibin1 < m_binUtil1->bins(); ++ibin1) {
         for (size_t ibin2 = 0; ibin2 < m_binUtil2->bins(); ++ibin2) {
           for (size_t ibin3 = 0; ibin3 < (*m_binUtilArray)[ibin1][ibin2]->bins(); ++ibin3) {
-            arrayObjects->push_back(((*((*((*m_array)[ibin1]))[ibin2]))[ibin3]).get());
+            arrayObjects->push_back((m_array[ibin1][ibin2][ibin3]).get());
           }
         }
       }
@@ -300,7 +281,7 @@ public:
   const BinUtility* binUtility() const { return (m_binUtil1); }
 
 private:
-  std::vector<std::vector<std::vector<SharedObject<T>>*>*>* m_array; //!< vector of pointers to the class T
+  std::vector<std::vector<std::vector<SharedObject<T>>>> m_array; //!< vector of pointers to the class T
   CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects;         //!< forced 1D vector of pointers to class T
   BinUtility* m_binUtil1;                                //!< binUtility for retrieving and filling the Array
   BinUtility* m_binUtil2;                                //!< binUtility for retrieving and filling the Array

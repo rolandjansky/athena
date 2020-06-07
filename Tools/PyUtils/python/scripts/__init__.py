@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # hook for PyUtils.scripts package
 
@@ -18,6 +18,7 @@ acmdlib.register('filter-files', 'PyUtils.scripts.filter_files')
 acmdlib.register('cmake.new-skeleton', 'PyUtils.scripts.cmake_newskeleton')
 acmdlib.register('cmake.new-pkg', 'PyUtils.scripts.cmake_newpkg')
 acmdlib.register('cmake.new-analysisalg', 'PyUtils.scripts.cmake_newanalysisalg')
+acmdlib.register('cmake.depends', 'PyUtils.scripts.cmake_depends')
 
 acmdlib.register('jira.issues', 'PyUtils.scripts.jira_issues')
 ##

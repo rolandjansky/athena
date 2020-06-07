@@ -62,11 +62,11 @@ void PileUpType::particles_in_two_bunch_crossings( std::vector<const HepMC::GenP
    for (unsigned int i=1; i<colSize; ++i) 
    {
       // start of the out-of-time in [-2BC,+2BC]
-      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+      if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 ) istart=i+1;
       if ( i >= istart ) 
       {
          // end of the out-of-time in [-2BC,+2BC]
-         if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 )
+         if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 )
          { 
            iend=i-1;
            break;
@@ -97,15 +97,15 @@ void PileUpType::particles_outside_two_bunch_crossings( std::vector<const HepMC:
    for (unsigned int i=1; i<colSize; ++i)
    {
       // start of the out-of-time in [-2BC, +2BC]
-      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+      if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 ) istart=i+1;
       if ( i >= istart )
       {
          // start of the out-of-time in [-Inf,-2BC] and [+2BC,+Inf]
-         if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+         if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 ) istart=i+1;
          if ( i >= istart )
          {
             // end of the out-of-time in [-Inf,-2BC] and [+2Bc,+Inf]
-            if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 )
+            if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 )
             {
               iend=i-1;
               break;
@@ -136,7 +136,7 @@ void PileUpType::cavern_background_particles( std::vector<const HepMC::GenPartic
    for (unsigned int i=1; i<colSize; ++i)
    {
       // the cavern is at the end so, the last of this condition is the start of the cavern 
-      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i;
+      if ( (m_particleList->at(i))->event_number() == -1 && HepMC::signal_process_id(m_particleList->at(i)) == 0 ) istart=i;
    }
 
    /** collect the cavern background particles */

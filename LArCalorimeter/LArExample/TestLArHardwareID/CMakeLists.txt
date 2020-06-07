@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TestLArHardwareID
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier LArRecConditions PathResolver )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier LArRecConditions PathResolver RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_headers( TestLArHardwareID )

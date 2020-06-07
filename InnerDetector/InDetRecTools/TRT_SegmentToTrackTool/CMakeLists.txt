@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkFitter/TrkFitterInterfaces
@@ -28,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_SegmentToTrackTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkEventPrimitives InDetIdentifier InDetRIO_OnTrack MagFieldInterfaces TrkPseudoMeasurementOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkEventPrimitives InDetIdentifier InDetRIO_OnTrack TrkPseudoMeasurementOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( TRT_SegmentToTrackTool )

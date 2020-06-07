@@ -126,11 +126,11 @@ def muCombAlgSequence(ConfigFlags):
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
     from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
     bphysChains =getBphysChainNames()
     muonChainFilter.ChainsToFilter=bphysChains
-    if hasattr(l2muCombViewsMaker, "InputMakerOutputDecisions"):
-        muonChainFilter.InputDecisions = [ l2muCombViewsMaker.InputMakerOutputDecisions ]
+    muonChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
     muonChainFilter.L2MuCombContainer = sequenceOut
 
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])

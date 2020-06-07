@@ -111,6 +111,11 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   DecisionIDContainer rerunIDs;
   decisionIDs(rerunChains, rerunIDs);
 
+  if (passRawIDs.empty()) {
+    ATH_MSG_DEBUG("No chains passed, event rejected");
+    return StatusCode::SUCCESS;
+  }
+
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 

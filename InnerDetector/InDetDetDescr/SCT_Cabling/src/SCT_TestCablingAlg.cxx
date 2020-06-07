@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <map>
 
-using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator):
@@ -64,10 +63,10 @@ SCT_TestCablingAlg::coordString(const Identifier& offlineId) const {
 StatusCode
 SCT_TestCablingAlg::execute(const EventContext& ctx) const {
   // const string testAreaPath{CoveritySafe::getenv("TestArea")};
-  const string testAreaPath = ".";
-  string filename{testAreaPath+"/cabling.txt"};
+  const std::string testAreaPath = ".";
+  std::string filename{testAreaPath+"/cabling.txt"};
   ATH_MSG_INFO("Filename: " << filename << " will be written to your $TestArea.");
-  ofstream opFile1{filename.c_str(), ios::out};
+  std::ofstream opFile1{filename.c_str(), std::ios::out};
   ATH_MSG_INFO("Executing...");
   ATH_MSG_INFO("hash, offline Id, online Id(hex), serial number");
   const unsigned int nHashesInCabling{2*m_cablingTool->size(ctx)};
@@ -76,8 +75,8 @@ SCT_TestCablingAlg::execute(const EventContext& ctx) const {
     Identifier offlineId{m_idHelper->wafer_id(hash)};
     SCT_OnlineId onlineId{m_cablingTool->getOnlineIdFromHash(hash, ctx)};
     SCT_SerialNumber sn{m_cablingTool->getSerialNumberFromHash(hash, ctx)};
-    ATH_MSG_INFO(i << " " << offlineId << " " << hex << onlineId << dec << " " << sn << " " << coordString(offlineId));
-    opFile1 << i << " " << offlineId << " " << hex << onlineId << dec << " " << sn << " " << coordString(offlineId) << std::endl;
+    ATH_MSG_INFO(i << " " << offlineId << " " << std::hex << onlineId << std::dec << " " << sn << " " << coordString(offlineId));
+    opFile1 << i << " " << offlineId << " " << std::hex << onlineId << std::dec << " " << sn << " " << coordString(offlineId) << std::endl;
     if (m_cablingTool->getHashFromOnlineId(onlineId, ctx) != hash){
       ATH_MSG_ERROR("?? " << m_cablingTool->getHashFromOnlineId(onlineId, ctx));
     }
@@ -88,7 +87,7 @@ SCT_TestCablingAlg::execute(const EventContext& ctx) const {
   m_cablingTool->getAllRods(rods, ctx);
   ATH_MSG_INFO("Num. of rods= " << rods.size());
   ATH_MSG_INFO("First rod id " << std::hex << rods[0] << std::dec);
-  string sn{"20220130000299"};
+  std::string sn{"20220130000299"};
   ATH_MSG_INFO("Hash from serial number " << m_cablingTool->getHashFromSerialNumber(sn, ctx));
   int tsn{130000299};
   ATH_MSG_INFO("Hash from truncated serial number " << m_cablingTool->getHashFromSerialNumber(tsn, ctx));
@@ -112,15 +111,15 @@ SCT_TestCablingAlg::execute(const EventContext& ctx) const {
   //open a file for writing
   const std::string fullFileName{testAreaPath + "/SCT_Cabling_svc" + (m_POSIXtime ? ("_" +std::to_string(m_POSIXtime)) : "") + ".dat"};
   ATH_MSG_INFO("Open file for write " << fullFileName);
-  ofstream opFile{fullFileName.c_str(), ios::out};
-  opFile << XmlHeader << endl;
-  opFile << OpenRootTag << endl;
-  opFile << OpenRodMappingTag << endl;
+  std::ofstream opFile{fullFileName.c_str(), std::ios::out};
+  opFile << XmlHeader << std::endl;
+  opFile << OpenRootTag << std::endl;
+  opFile << OpenRodMappingTag << std::endl;
   for (auto r: rods) {
-    opFile << formatRodOutput(r) << endl;
+    opFile << formatRodOutput(r) << std::endl;
   }
-  opFile << CloseRodMappingTag << endl;
-  opFile << OpenModuleMappingTag << endl;
+  opFile << CloseRodMappingTag << std::endl;
+  opFile << OpenModuleMappingTag << std::endl;
   for (unsigned int i{0}; i!=nHashesInCabling; ++i) {
     IdentifierHash hash{i};
     Identifier offlineId{m_idHelper->wafer_id(hash)};
@@ -133,10 +132,10 @@ SCT_TestCablingAlg::execute(const EventContext& ctx) const {
     const int phi{m_idHelper->phi_module(offlineId)};
     const int side{m_idHelper->side(offlineId)};
     const unsigned int rodIndex{rodHashMap[onlineId.rod()]};
-    opFile << formatModuleOutput(rodIndex, onlineId.fibre(), bec, layer, eta, phi, side, onlineId.rod() ,sn.str()) << endl;
+    opFile << formatModuleOutput(rodIndex, onlineId.fibre(), bec, layer, eta, phi, side, onlineId.rod() ,sn.str()) << std::endl;
   }
-  opFile << CloseModuleMappingTag << endl;
-  opFile << CloseRootTag << endl;
+  opFile << CloseModuleMappingTag << std::endl;
+  opFile << CloseRootTag << std::endl;
   opFile.close();
   return StatusCode::SUCCESS;
 }

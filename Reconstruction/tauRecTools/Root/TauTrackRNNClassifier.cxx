@@ -46,7 +46,7 @@ StatusCode TauTrackRNNClassifier::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau)
+StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau) const
 {
   // Get track container via link from tau - instead of using read handle (not written to store yet) 
   // Check that size > 0

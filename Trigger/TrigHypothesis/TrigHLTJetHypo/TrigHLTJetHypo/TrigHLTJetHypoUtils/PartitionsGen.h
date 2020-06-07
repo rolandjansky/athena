@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,7 +104,7 @@ class PartitionsGen {
   
   bool m_valid{true};
   std::vector<int> m_current;
-  std::size_t m_nc;
+  std::size_t m_nc = 0;
   
 };
 

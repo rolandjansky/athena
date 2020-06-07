@@ -25,6 +25,9 @@
 #include <TRandom3.h>
 #include "TMath.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTruth/TruthParticleContainer.h"
+
 /* namespace Rec
 {
   class IMuonCombinedSelectorTool;
@@ -78,6 +81,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode initMuonEFDQA();
   StatusCode initMuGirlDQA();
   StatusCode initMuZTPDQA();
+  StatusCode initMuonTruthHists();
   
   //book() for each HLT Algorithm
   std::string m_histdir;
@@ -94,6 +98,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::string m_histdirrateratio;
   std::string m_histdircoverage;
   std::string m_histdirdist2d;
+  std::string m_histdirtruthmuon;
 
   StatusCode bookCommonDQA();
   StatusCode bookChainDQA();
@@ -107,6 +112,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode bookMuonEFDQA();
   StatusCode bookMuGirlDQA();
   StatusCode bookMuZTPDQA();
+  StatusCode bookMuonTruthHists();
 
   //fill() for each HLT Algorithm
   StatusCode fillCommonDQA();
@@ -122,6 +128,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode fillMuGirlDQA();
   StatusCode fillMuZTPDQA();
   StatusCode fillMuZTPDQA_wrapper();
+  StatusCode fillMuonTruthHists();
 
   //proc() for each HLT Algorithm
   StatusCode procChainDQA();
@@ -136,11 +143,13 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode procMuonEFDQA();
   StatusCode procMuGirlDQA();
   StatusCode procMuZTPDQA();
+  StatusCode procMuonTruthHists();
 
   //sub functions in each HLT algorithm
   StatusCode fillEFSingleChainHistos(const std::vector<std::string> & triggerlist);
   StatusCode fillL2SASingleChainHistos(const std::vector<std::string> & triggerlist);
-  
+  double getTruthToEFdRmin(const std::string trig, double eta_true, double phi_true);
+
   // private functions
   float getPtThresTrigMuonEFSA(const int thres, const float eta);
   float getPtThresTrigMuonEFCB(const int thres, const float eta);
@@ -176,6 +185,9 @@ class HLTMuonMonTool : public IHLTMonTool
 
   int m_lumiblock;
   int m_event;
+
+  // Steam: Main, express, StreamRDO...
+  std::string m_triggerStreamOfFile;
 
   //flags for trigger decision
   std::vector<std::string> m_chainsRate;
@@ -367,6 +379,10 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<double> m_charge_RecCBmuon;
 
   //private parameters/functions for MuGirl
+
+  //private parameters/functions for MuonTruthMon
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_muonTruthParticlesKey{this, "MuonTruthParticlesKey", "MuonTruthParticles"};
+  int m_isData;
 
   //histogram vectors
   std::vector<TH1F *> m_HistoVectorMuonL2MuonSA;

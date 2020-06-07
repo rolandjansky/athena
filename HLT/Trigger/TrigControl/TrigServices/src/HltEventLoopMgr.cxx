@@ -115,7 +115,7 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
 
   // Set the timeout value (cast float to int)
-  m_softTimeoutValue = static_cast<int>(m_hardTimeout.value() * m_softTimeoutFraction.value());
+  m_softTimeoutValue = std::chrono::milliseconds(static_cast<int>(m_hardTimeout.value() * m_softTimeoutFraction.value()));
 
   // Read DataFlow configuration properties
   updateDFProps();
@@ -124,7 +124,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> ApplicationName           = " << m_applicationName);
   ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
   ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue);
+  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue.count());
   ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
   ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
@@ -389,10 +389,14 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   {
     std::unique_lock<std::mutex> lock(m_timeoutMutex);
     m_eventTimerStartPoint.clear();
-    m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::time_point());
+    m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::now());
     m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
   }
   m_timeoutCond.notify_all();
+
+  // Initialise vector of time points for free slots monitoring
+  m_freeSlotStartPoint.clear();
+  m_freeSlotStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::now());
 
   // Fire incident to update listeners after forking
   m_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_workerID, m_workerPID, name(), m_currentRunCtx));
@@ -679,6 +683,12 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   resetTimeout(Athena::Timeout::instance(ctx));
+
+  // Monitor slot idle time (between scheduler popFinishedEvent and pushNewEvent)
+  // Note this is time of a scheduler slot being free, not equal to the time of a whiteboard slot being free
+  const auto slotIdleTime = std::chrono::steady_clock::now() - m_freeSlotStartPoint[ctx.slot()];
+  Monitored::Scalar<int64_t> monSlotIdleTime("SlotIdleTime", std::chrono::duration_cast<std::chrono::milliseconds>(slotIdleTime).count());
+  auto mon = Monitored::Group(m_monTool, monSlotIdleTime);
 
   // Now add event to the scheduler
   ATH_MSG_DEBUG("Adding event " <<  ctx.evt() << ", slot " << ctx.slot() << " to the scheduler");
@@ -1148,7 +1158,6 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
 void HltEventLoopMgr::runEventTimer()
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  auto softDuration = std::chrono::milliseconds(m_softTimeoutValue);
   std::unique_lock<std::mutex> lock(m_timeoutMutex);
   while (m_runEventTimer) {
     m_timeoutCond.wait_for(lock,std::chrono::seconds(1));
@@ -1156,7 +1165,7 @@ void HltEventLoopMgr::runEventTimer()
     for (size_t i=0; i<m_eventTimerStartPoint.size(); ++i) {
       // iterate over all slots and check for timeout
       if (!m_isSlotProcessing.at(i)) continue;
-      if (now > m_eventTimerStartPoint.at(i) + softDuration) {
+      if (now > m_eventTimerStartPoint.at(i) + m_softTimeoutValue) {
         EventContext ctx(0,i); // we only need the slot number for Athena::Timeout instance
         // don't duplicate the actions if the timeout was already reached
         if (!Athena::Timeout::instance(ctx).reached()) {
@@ -1236,6 +1245,9 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     if (!thisFinishedEvtContext) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Detected nullptr EventContext while finalising a processed event",
                          HLT::OnlineErrorCode::CANNOT_ACCESS_SLOT, thisFinishedEvtContext);
+
+    // Reset free slot timer for monitoring
+    m_freeSlotStartPoint[thisFinishedEvtContext->slot()] = std::chrono::steady_clock::now();
 
     // Set ThreadLocalContext to the currently processed finished context
     Gaudi::Hive::setCurrentContext(thisFinishedEvtContext);

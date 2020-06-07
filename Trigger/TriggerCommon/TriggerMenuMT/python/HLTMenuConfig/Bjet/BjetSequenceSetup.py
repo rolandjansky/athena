@@ -28,7 +28,7 @@ def getBJetSequence():
 
 def bJetStep2Sequence():
     prmVtxKey = "HLT_EFHistoPrmVtx"
-    outputRoIName = "HLT_bTagging_ROIs"
+    outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from ViewAlgs.ViewAlgsConf import ViewCreatorCentredOnJetWithPVConstraintROITool
@@ -37,7 +37,7 @@ def bJetStep2Sequence():
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
     #newRoITool = CompFactory.ViewCreatorCentredOnJetWithPVConstraintROITool()
-    newRoITool.RoisWriteHandleKey = outputRoIName 
+    newRoITool.RoisWriteHandleKey = recordable( outputRoIName )
     newRoITool.VertexReadHandleKey = prmVtxKey
     newRoITool.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
     #
@@ -70,7 +70,6 @@ def bJetStep2Sequence():
 
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-<<<<<<< HEAD
     acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
     inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)

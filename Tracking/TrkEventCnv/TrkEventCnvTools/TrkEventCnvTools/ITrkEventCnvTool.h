@@ -26,11 +26,16 @@ class TrkDetElementBase;
 class PrepRawData;
 class RIO_OnTrack;
 
-static const InterfaceID IID_IITrkEventCnvTool("Trk::ITrkEventCnvTool", 1, 0);
 
 class ITrkEventCnvTool : virtual public IAlgTool
     {
     public:
+        /// Key and index types used for an EL to IdentifiableContainer.
+        typedef std::string ELKey_t;
+        typedef unsigned int ELIndex_t;
+
+        DeclareInterfaceID( ITrkEventCnvTool, 1, 0 );
+
         
         ITrkEventCnvTool():
             m_storeGate      ( "StoreGateSvc", "ITrkEventCnvTool" ),
@@ -39,8 +44,6 @@ class ITrkEventCnvTool : virtual public IAlgTool
 //	     m_log(&(*m_msgSvc), name() ); 
 	    }
         
-        static const InterfaceID& interfaceID();
-
         /** check the passed RIO_OnTrack to make sure it is correctly filled*/
         virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const =0;
         
@@ -53,6 +56,13 @@ class ITrkEventCnvTool : virtual public IAlgTool
         
         /**This templated method will set the EL for the passed RIO_OnTrack.*/
         template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot) const;
+
+        /**This templated method will find EL components for the passed RIO_OnTrack.*/
+        template <class CONT, class ROT>
+        void prepareRIO_OnTrackElementLink(const ROT* rot,
+                                           ELKey_t& key,
+                                           ELIndex_t& index) const;
+
         /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
         template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
                                                               const SG::ReadHandleKey<CONT>& contName,
@@ -66,6 +76,12 @@ class ITrkEventCnvTool : virtual public IAlgTool
           - Then set strings and index.
           - If any of the above failed, try the next container.*/
         virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const =0;
+
+      /** Similar, but just return the EL components rather then
+          changing ROT. */
+        virtual void prepareRIO_OnTrackLink( const Trk::RIO_OnTrack* rot,
+                                             ELKey_t& key,
+                                             ELIndex_t& index ) const =0;
         
         /** Take the passed RoT and recreate it (i.e. fill missing pointers etc)*/
         virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const =0;
@@ -82,11 +98,6 @@ class ITrkEventCnvTool : virtual public IAlgTool
         ServiceHandle<StoreGateSvc>     m_storeGate;
         ServiceHandle<IMessageSvc>      m_msgSvc;	 
 };
-}
-
-inline const InterfaceID& Trk::ITrkEventCnvTool::interfaceID()
-{
-    return IID_IITrkEventCnvTool;
 }
   
 #include "TrkEventCnvTools/ITrkEventCnvTool.icc"

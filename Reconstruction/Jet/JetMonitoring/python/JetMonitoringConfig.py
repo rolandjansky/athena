@@ -390,12 +390,15 @@ class SelectSpec(ToolSpec):
         if '<' in selexpr:
             # interpret it as min<v<max
             cmin, v , cmax = interpretSelStr(selexpr)
-            selSpec = ToolSpec('JetSelectorAttribute', v+'sel',
-                               Var = retrieveVarToolConf(v),
-            )
+            if args.setdefault('isEventVariable', False) :
+              selProp = 'EventSelector'
+              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveEventVarToolConf(v), )
+            else:
+              selProp = 'Selector'
+              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
             if cmin is not None: selSpec['CutMin'] = cmin
             if cmax is not None: selSpec['CutMax'] = cmax
-            args['Selector'] = selSpec
+            args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector
             # assume it's a known pre-defined jet selector
@@ -528,6 +531,21 @@ def retrieveVarToolConf(alias):
         conf = knownVar.get(alias,None)
         if conf is None:
             conf=VarSpec( Name=alias, Type='float')
+    else: # assume it's a config dict
+        conf = alias
+    return conf
+
+
+def retrieveEventVarToolConf(alias):
+    """Return a ToolSpec from alias : (now with EventInfo variables) 
+        * if alias is a string build a ToolSpec, assuming alias is an attribute of type float.
+        * if alias is a ToolSpec, returns it directly
+    """
+    from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+    if isinstance(alias, str):
+        conf = knownEventVar.get(alias,None)
+        if conf is None:
+          conf = ToolSpec('EventHistoVarTool', name=alias, Variable=alias)
     else: # assume it's a config dict
         conf = alias
     return conf

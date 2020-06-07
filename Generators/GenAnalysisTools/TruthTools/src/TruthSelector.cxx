@@ -56,19 +56,19 @@ TruthSelector::TruthSelector (const std::string& type, const std::string& name, 
 TruthSelector::~TruthSelector() {  }
 
 
-bool TruthSelector::selectParticle (const HepMC::GenParticle& particle, double minPt) {
+bool TruthSelector::selectParticle (const HepMC::GenParticle* particle, double minPt) {
     // skip null barcode
-    int barCode = particle.barcode();
+    int barCode = HepMC::barcode(particle);
     if (barCode == 0) return false;
 
     // G4 uses helper to select particle in final state.
     /// @note Temporary cut at 0.1mm for non-final state particles while truth helpers get sorted
     /// @todo Why this cut? Won't this exclude B decay products?
-    if (particle.production_vertex() && particle.production_vertex()->position().perp() < 0.1*Gaudi::Units::mm && ! MC::isGenStable(&particle)) return false;
+    if (particle->production_vertex() && particle->production_vertex()->position().perp() < 0.1*Gaudi::Units::mm && ! MC::isGenStable(particle)) return false;
     if (barCode >= 10100) return false; //< @todo Why?
 
     // known particle
-    int pdgCode = particle.pdg_id();
+    int pdgCode = particle->pdg_id();
     if (pdgCode == 0) return false;
 
     // charged particle
@@ -76,7 +76,7 @@ bool TruthSelector::selectParticle (const HepMC::GenParticle& particle, double m
     if (! particleData || particleData->charge() == 0.) return false;
 
     // momentum and eta cut-offs
-    if (particle.momentum().perp() < minPt || std::abs(particle.momentum().pseudoRapidity()) > m_maxEta) return false;
+    if (particle->momentum().perp() < minPt || std::abs(particle->momentum().pseudoRapidity()) > m_maxEta) return false;
 
     return true;
 }
@@ -132,9 +132,9 @@ const std::map<int,int>& TruthSelector::indetKineMap() {
     int kine = 0;
 
         // temporary for G4: kine == barcode
-        kine = (**particle).barcode();
+        kine = HepMC::barcode(**particle);
 
-    m_indetKineMap[kine] = (**particle).barcode();
+    m_indetKineMap[kine] = HepMC::barcode(**particle);
     }
     return m_indetKineMap;
 }
@@ -166,7 +166,7 @@ TruthSelector::indetMuons (double minPt)
       if (startVertex.perp()        > m_maxRIndet
       || std::abs(startVertex.z())    > m_maxZIndet)    continue;
 
-    m_barcodes.push_back((**particle).barcode());
+    m_barcodes.push_back(HepMC::barcode(**particle));
     ATH_MSG_DEBUG(" select barcode #" << m_barcodes.size()
               << " at production vertex R,Z " << startVertex.perp()
               << ", " << startVertex.z() );
@@ -242,7 +242,7 @@ TruthSelector::reconstructablePrimaries (double minPt)
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()
-               << "  barcode" << std::setw(7)    << (**particle).barcode()
+               << "  barcode" << std::setw(7)    << HepMC::barcode(**particle)
                << "  start/end vertex R,Z"
                << std::setw(5) << std::setprecision(1)  << startVertex.perp() << ", "
                << std::setw(6) << std::setprecision(1)  << startVertex.z()    << " / "
@@ -259,7 +259,7 @@ TruthSelector::reconstructablePrimaries (double minPt)
                << mass/Gaudi::Units::GeV );
     }
 
-    m_barcodes.push_back((**particle).barcode());
+    m_barcodes.push_back(HepMC::barcode(**particle));
     }
     return m_barcodes;
 }
@@ -316,7 +316,7 @@ TruthSelector::reconstructableSecondaries (double minPt)
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()
-               << "  barcode" << std::setw(7)    << (**particle).barcode()
+               << "  barcode" << std::setw(7)    << HepMC::barcode(**particle)
                << "  start/end vertex R,Z"
                << std::setw(5) << std::setprecision(1)  << startVertex.perp() << ", "
                << std::setw(6) << std::setprecision(1)  << startVertex.z()    << " / "
@@ -333,7 +333,7 @@ TruthSelector::reconstructableSecondaries (double minPt)
                << mass/Gaudi::Units::GeV );
     }
 
-    m_barcodes.push_back((**particle).barcode());
+    m_barcodes.push_back(HepMC::barcode(**particle));
     }
     return m_barcodes;
 }

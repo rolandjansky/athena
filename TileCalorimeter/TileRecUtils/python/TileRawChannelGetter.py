@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileRawChannel creation from TileDigits 
@@ -28,8 +28,12 @@ class TileRawChannelGetter ( Configured)  :
         mlog.info ("entering")
 
         self._TileRawChannelBuilderFitFilter = None
+        self._TileRawChannelBuilderFitFilterCool = None
+        self._TileRawChannelBuilderMF = None
+        self._TileRawChannelBuilderOF1 = None
         self._TileRawChannelBuilderOpt2Filter = None
         self._TileRawChannelBuilderOptATLAS = None
+        self._TileRawChannelBuilderWienerFilter = None
 
         # Instantiation of the C++ algorithm
         try:        
@@ -315,6 +319,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilterCool]
+                self._TileRawChannelBuilderFitFilterCool = theTileRawChannelBuilderFitFilterCool
                 
             # matched filter 
             if jobproperties.TileRecFlags.doTileMF():
@@ -354,6 +359,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderMF to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
+                self._TileRawChannelBuilderMF = theTileRawChannelBuilderMF
 
             if jobproperties.TileRecFlags.doTileOF1():
                 try:
@@ -396,10 +402,11 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOF1.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOF1.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
       
-                theTileRawChannelBuilderOF1 = TileRawChannelContainerDSP
+                theTileRawChannelBuilderOF1.DSPContainer = TileRawChannelContainerDSP
                 mlog.info(" adding now TileRawChannelBuilderOF1 to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOF1]
+                self._TileRawChannelBuilderOF1 = theTileRawChannelBuilderOF1
 
             if jobproperties.TileRecFlags.doTileOpt2():
                 try:
@@ -514,6 +521,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderWienerFilter to the algorithm: %s", theTileRawChannelMaker.name())
 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderWienerFilter]
+                self._TileRawChannelBuilderWienerFilter = theTileRawChannelBuilderWienerFilter
             
 
             # now add algorithm to topSequence
@@ -561,13 +569,25 @@ class TileRawChannelGetter ( Configured)  :
 
     def TileRawChannelBuilderFitFilter(self):
         return self._TileRawChannelBuilderFitFilter
-   
+
+    def TileRawChannelBuilderFitFilterCool(self):
+        return self._TileRawChannelBuilderFitFilterCool
+
+    def TileRawChannelBuilderMF(self):
+        return self._TileRawChannelBuilderMF
+
+    def TileRawChannelBuilderOF1(self):
+        return self._TileRawChannelBuilderOF1
+
     def TileRawChannelBuilderOpt2Filter(self):
         return self._TileRawChannelBuilderOpt2Filter
 
     def TileRawChannelBuilderOptATLAS(self):
         return self._TileRawChannelBuilderOptATLAS
-   
+
+    def TileRawChannelBuilderWienerFilter(self):
+        return self._TileRawChannelBuilderWienerFilter
+
 ##    # would work only if one output object type
 ##    def outputKey(self):
 ##        return self._output[self._outputType]
