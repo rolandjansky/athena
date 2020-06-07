@@ -17,7 +17,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
-from egammaTools.egammaToolsFactories import egammaSwSuperCellTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
     
@@ -38,7 +38,7 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               name = 'TrigElectronSuperClusterBuilder',
                                               InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
                                               SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-                                              ClusterCorrectionTool=egammaSwSuperCellTool,
+                                              ClusterCorrectionTool=egammaSwSuperClusterTool,
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,

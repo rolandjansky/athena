@@ -20,7 +20,7 @@ from CaloIdentifier import SUBCALO
 
 # Egamma imports
 from egammaRec.Factories import ToolFactory
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperCellTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperClusterTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
@@ -65,7 +65,7 @@ TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
         name = 'TrigEMClusterTool',
         OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
         OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwSuperCellTool,
+        ClusterCorrectionTool = egammaSwSuperClusterTool,
         doSuperCluster = True,
         MVACalibSvc = egammaMVASvc                             
         )

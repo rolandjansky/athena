@@ -13,7 +13,7 @@ Offline configurations are available here:
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
 
-from egammaTools.egammaToolsFactories import egammaSwSuperCellTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
 
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
@@ -45,7 +45,7 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         name = 'TrigPhotonSuperClusterBuilder',
         InputEgammaRecContainerName=TrigEgammaKeys.EgammaRecKey,
         SuperPhotonRecCollectionName=TrigEgammaKeys.SuperPhotonRecCollectionName,
-        ClusterCorrectionTool=egammaSwSuperCellTool,
+        ClusterCorrectionTool=egammaSwSuperClusterTool,
         MVACalibSvc= egammaMVASvc,
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,

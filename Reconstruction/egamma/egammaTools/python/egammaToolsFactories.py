@@ -32,9 +32,9 @@ _clusterTypes = dict(
 )
 
 
-# Configure non-supercell corrections
-def configureCellClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for non-supercell corrections."
+# Configure fixed-size (non-supercell) corrections
+def configureFixedSizeClusterCorrections(swTool):
+    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for fixed-size cluster corrections."
     from CaloClusterCorrection.CaloSwCorrections import (
         make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
         etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
@@ -53,9 +53,9 @@ def configureCellClusterCorrections(swTool):
         setattr(swTool, x, _process_tools(swTool, y))
 
 
-# Configure supercell corrections
-def configureSuperCellClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for supercell corrections."
+# Configure corrections for superclusters.
+def configureSuperClusterCorrections(swTool):
+    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for corrections for superclusters."
     from CaloClusterCorrection.CaloSwCorrections import (
         make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
         etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
@@ -90,17 +90,17 @@ def configureSuperCellClusterCorrections(swTool):
 
 def configureClusterCorrections(swTool):
     "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
-    configureCellClusterCorrections(swTool)
+    configureFixedSizeClusterCorrections(swTool)
     if jobproperties.egammaRecFlags.doSuperclusters():
-        configureSuperCellClusterCorrections(swTool)
+        configureSuperClusterCorrections(swTool)
 
 
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
 
-egammaSwSuperCellTool = ToolFactory(egammaToolsConf.egammaSwTool,
-                                    postInit=[configureSuperCellClusterCorrections])
+egammaSwSuperClusterTool = ToolFactory(egammaToolsConf.egammaSwTool,
+                                       postInit=[configureSuperClusterCorrections])
 
 
 EMClusterTool = ToolFactory(
